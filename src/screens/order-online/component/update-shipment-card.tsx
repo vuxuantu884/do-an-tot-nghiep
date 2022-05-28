@@ -125,7 +125,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		disabledBottomActions,
 		isEcommerceOrder,
 		orderConfig,
-		totalPaid = 0,
 		customerNeedToPayValue = 0,
 	} = props;
 
@@ -181,8 +180,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	const [updateShipment, setUpdateShipment] = useState(false);
 	const [cancelShipment, setCancelShipment] = useState(false);
 
-	// eslint-disable-next-line @typescript-eslint/no-unused-vars
-	const [takeMoneyHelper] = useState<number | null>(null);
 
 	const [trackingLogFulfillment, setTrackingLogFulfillment] =
 		useState<Array<TrackingLogFulfillmentResponse> | null>(null);
@@ -480,54 +477,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		}
 	};
 	//#endregion
-	const confirmExportAndFinishValue = () => {
-		if (takeMoneyHelper) {
-			return takeMoneyHelper;
-		} else if (
-			props.OrderDetail?.fulfillments &&
-			props.OrderDetail?.fulfillments.length > 0 &&
-			props.OrderDetail?.fulfillments[0].shipment &&
-			props.OrderDetail?.fulfillments[0].shipment.delivery_service_provider_type ===
-			ShipmentMethod.PICK_AT_STORE
-		) {
-			let money = props.OrderDetail.total;
-			props.OrderDetail?.payments?.forEach((p) => {
-				money = money - p.paid_amount;
-			});
-			return money;
-		} else if (
-			props.OrderDetail?.fulfillments &&
-			props.OrderDetail?.fulfillments.length > 0 &&
-			props.OrderDetail?.fulfillments[0].shipment &&
-			props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer
-		) {
-			return (
-				props.OrderDetail?.fulfillments[0].shipment.shipping_fee_informed_to_customer +
-				props.OrderDetail?.total_line_amount_after_line_discount +
-				props.shippingFeeInformedCustomer -
-				totalPaid -
-				(props.OrderDetail?.discounts &&
-					props.OrderDetail?.discounts.length > 0 &&
-					props.OrderDetail?.discounts[0]?.amount
-					? props.OrderDetail?.discounts[0].amount
-					: 0)
-			);
-		} else if (props.OrderDetail?.total && totalPaid) {
-			return (
-				props.OrderDetail?.total +
-				props.shippingFeeInformedCustomer -
-				totalPaid
-			);
-		} else if (
-			props.OrderDetail &&
-			props.OrderDetail?.fulfillments &&
-			props.OrderDetail?.fulfillments.length > 0 &&
-			props.OrderDetail?.fulfillments[0].shipment &&
-			props.OrderDetail?.fulfillments[0].shipment.cod
-		) {
-			return props.OrderDetail?.fulfillments[0].shipment.cod;
-		}
-	};
 	//#region shiment
 	let initialFormUpdateShipment: UpdateShipmentRequest = {
 		order_id: null,
@@ -1855,10 +1804,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 				okText="Đồng ý"
 				cancelText="Hủy"
 				title=""
-				text={`Bạn có chắc xuất kho đơn giao hàng này ${confirmExportAndFinishValue()
-					? "với tiền thu hộ là " + formatCurrency(confirmExportAndFinishValue()!)
-					: ""
-					} không?`}
+				text={`Bạn có chắc xuất kho đơn giao hàng này ${formatCurrency(customerNeedToPayValue)} không?`}
 			/>
 			<SaveAndConfirmOrder
 				onCancel={() => setIsvibleShippedConfirm(false)}
@@ -1869,10 +1815,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 				okText="Xác nhận thanh toán"
 				cancelText="Hủy"
 				title=""
-				text={`Vui lòng xác nhận ${confirmExportAndFinishValue()
-					? "thanh toán " + formatCurrency(confirmExportAndFinishValue()!)
-					: ""
-					} để giao hàng thành công?`}
+				text={`Vui lòng xác nhận thanh toán ${formatCurrency(customerNeedToPayValue)} để giao hàng thành công?`}
 			/>
 			{/* Huy fulfillment pick, pack, unship */}
 			<CancelFulfillmentModal
