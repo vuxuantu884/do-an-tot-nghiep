@@ -641,7 +641,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: <div>
-        <div>SL</div>
+        <div>SL Gửi</div>
         <div className="text-center">
           {data?.total_quantity}
         </div>
@@ -658,20 +658,6 @@ const DetailTicket: FC = () => {
       render: (value) => {
         return <NumberFormat
           value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
-      },
-    },
-    {
-      title: "Thành tiền",
-      dataIndex: "amount",
-      align: "center",
-      width: 100,
-      render: (value, row: LineItem) => {
-        return <NumberFormat
-          value={row.price * row.transfer_quantity}
           className="foo"
           displayType={"text"}
           thousandSeparator={true}
@@ -739,7 +725,7 @@ const DetailTicket: FC = () => {
     },
     {
       title: <div>
-        <div>SL</div>
+        <div>SL Gửi</div>
         <div className="text-center">
           {data?.total_quantity}
         </div>
@@ -1048,16 +1034,6 @@ const DetailTicket: FC = () => {
                                   <Table.Summary.Cell align={"center"} index={3}>
                                     <b>{data.total_quantity}</b>
                                   </Table.Summary.Cell>
-                                  <Table.Summary.Cell index={4}>
-                                  </Table.Summary.Cell>
-                                  <Table.Summary.Cell align={"center"} index={5}>
-                                    <b><NumberFormat
-                                        value={data.total_amount}
-                                        className="foo"
-                                        displayType={"text"}
-                                        thousandSeparator={true}
-                                      /></b>
-                                  </Table.Summary.Cell>
                                 </Table.Summary.Row>
                               </Table.Summary>
                             )}
@@ -1216,28 +1192,6 @@ const DetailTicket: FC = () => {
                   </Card>
                   )
                 }
-                <div className="inventory-transfer-action">
-                  {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
-                      <AuthWrapper
-                        acceptPermissions={[ShipmentInventoryTransferPermission.export]}
-                        acceptStoreIds={[data.from_store_id]}
-                      >
-                        <Button
-                          className="export-button"
-                          type="primary"
-                          onClick={() => {
-                            if(data) dispatch(exportInventoryAction(data?.id,
-                              onReload
-                            ));
-                          }}
-                        >
-                          Xuất kho
-                        </Button>
-                      </AuthWrapper>
-                    )
-                  }
-                </div>
               </Col>
               <Col span={6}>
                 <Card
@@ -1424,6 +1378,26 @@ const DetailTicket: FC = () => {
                         <EditOutlined /> Sửa thông tin
                       </Button>
                     </AuthWrapper>
+                  }
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
+                      <AuthWrapper
+                        acceptPermissions={[ShipmentInventoryTransferPermission.export]}
+                        acceptStoreIds={[data.from_store_id]}
+                      >
+                        <Button
+                          className="export-button"
+                          type="primary"
+                          onClick={() => {
+                            if(data) dispatch(exportInventoryAction(data?.id,
+                              onReload
+                            ));
+                          }}
+                        >
+                          Xuất kho
+                        </Button>
+                      </AuthWrapper>
+                    )
                   }
                 </Space>
               }
