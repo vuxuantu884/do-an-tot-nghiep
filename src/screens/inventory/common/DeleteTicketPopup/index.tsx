@@ -4,6 +4,7 @@ import { DeleteTicketWrapper } from "./styles";
 
 type DeleteTicketModalProps = {
   visible: boolean;
+  loading?: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (item: string | undefined) => void;
   title: string;
@@ -45,6 +46,7 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
     okText,
     cancelText,
     textStore,
+    loading
   } = props;
 
   const [deleteTicketForm] = Form.useForm();
@@ -78,6 +80,7 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
 
   return (
     <Modal
+      confirmLoading={loading}
       onCancel={onCancel}
       onOk={() => deleteTicketForm.submit()}
       visible={visible}
