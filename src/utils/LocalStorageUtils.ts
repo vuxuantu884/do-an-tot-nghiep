@@ -72,6 +72,13 @@ function getWithExpiry(key: string) {
   return item.value;
 }
 
+function setSaveSearchhLocalStorage(key: string,value: string){
+  localStorage.setItem(key,value)
+}
+function getSaveSearchLocalStorage(key: string){
+  return localStorage.getItem(key);
+}
+
 
 export {
   setToken,
@@ -86,4 +93,6 @@ export {
   getYdpageSource,
   getWithExpiry,
   setWithExpiry,
+  setSaveSearchhLocalStorage,
+  getSaveSearchLocalStorage
 };

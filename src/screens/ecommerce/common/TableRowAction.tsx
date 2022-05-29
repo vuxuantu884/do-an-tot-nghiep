@@ -31,7 +31,7 @@ const TableRowAction = (menuItems: any) => {
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "40px",
+    width: "60px",
     className: "threedot-button",
     render: (rowData: any, item: any, index: number) =>
       RenderActionColumn(rowData, item, index),

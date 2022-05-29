@@ -71,7 +71,14 @@ function useFetchWarranties(
             warranty_status: undefined,
             return_status: WarrantyReturnStatusModel.UNRETURNED,
           };
-
+          case TAB_STATUS_KEY.all:
+            return {
+              tab: undefined,
+              warranty_status: undefined,
+              from_appointment_date: undefined,
+              to_appointment_date: undefined,
+              return_status: undefined,
+            };
         default:
           break;
       }
@@ -84,7 +91,7 @@ function useFetchWarranties(
 
   const findId = useCallback(
     () => {
-      if (queryParamsParsed?.ids) {
+      if (queryParamsParsed?.query) {
         return {
           ...queryParamsParsed,
           warranty_status: undefined,
@@ -124,7 +131,7 @@ function useFetchWarranties(
         ...findId(),
       };
       
-      
+      console.log('initQuery', initQuery)
       let result = {
         ...dataQuery,
         created_date: undefined,
@@ -139,7 +146,7 @@ function useFetchWarranties(
           if (isFetchApiSuccessful(response)) {
             setWarranties(response.data.items);
             setMetaData(response.data.metadata);
-            if (queryParamsParsed?.ids) {
+            if (queryParamsParsed?.query) {
               let newPrams = {
                 ...queryParamsParsed,
                 tab: findTab(response.data.items[0]),

@@ -334,7 +334,6 @@ function* getDataSource(action: YodyAction) {
 
 function* getDataAllSource(action: YodyAction) {
   let { setData } = action.payload;
-  yield put(showLoading());
   try {
     let response: BaseResponse<PageResponse<Array<SourceResponse>>> = yield call(getAllSources);
     if (isFetchApiSuccessful(response)) {

@@ -145,3 +145,4 @@ export const StyledProductLink = styled.div`
     }
   }
 `;
+
