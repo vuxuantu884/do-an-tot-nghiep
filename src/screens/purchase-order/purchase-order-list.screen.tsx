@@ -6,7 +6,7 @@ import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import TagStatus, { TagStatusType } from "component/tag/tag-status";
+import { TagStatusType } from "component/tag/tag-status";
 import { HttpStatus } from "config/http-status.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
@@ -45,12 +45,14 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import "./purchase-order-list.scss";
 import { PurchaseOrderListContainer } from "./purchase-order-list.style";
 import EditNote from "../order-online/component/edit-note";
-import statusDraft from 'assets/icon/status-draft.svg'
-import statusFinalized from 'assets/icon/status-finalized.svg'
-import statusStored from 'assets/icon/status-stored.svg'
-import statusFinished from 'assets/icon/status-finished.svg'
-import statusCompleted from 'assets/icon/status-completed.svg'
-import statusCancelled from 'assets/icon/status-cancelled.svg'
+import TextStatus from "component/tag/text-status";
+import statusDraft from 'assets/icon/status-draft-new.svg'
+import statusWaitingApproval from 'assets/icon/status-waiting-approval-new.svg'
+import statusFinalized from 'assets/icon/status-finalized-new.svg'
+import statusStored from 'assets/icon/status-stored-new.svg'
+import statusFinished from 'assets/icon/status-finished-new.svg'
+import statusCompleted from 'assets/icon/status-completed-new.svg'
+import statusCancelled from 'assets/icon/status-cancelled-new.svg'
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
@@ -239,9 +241,11 @@ const PurchaseOrderListScreen: React.FC = () => {
         title: "Trạng thái đơn",
         width: 150,
         dataIndex: "status",
+        align: "center",
         render: (value: string, record) => {
           let type = TagStatusType.normal;
           let icon = "";
+          let isFinishedStored = false
           if (!value) {
             return "";
           }
@@ -253,30 +257,44 @@ const PurchaseOrderListScreen: React.FC = () => {
             case POStatus.STORED:
               if(record.receive_status === ProcumentStatus.FINISHED) {
                 type = TagStatusType.success;
+                icon = statusFinished
+                isFinishedStored = true
               } else {
-                type = TagStatusType.primary;
+                type = TagStatusType.warning;
                 icon = statusStored
               }
               break;
             case POStatus.CANCELLED:
+              if (record.receive_status === ProcumentStatus.FINISHED) {
+                isFinishedStored = false
+              }
               type = TagStatusType.danger;
               icon = statusCancelled
               break;
             case POStatus.FINISHED:
-              type = TagStatusType.normal;
-              icon = statusFinished
-              break;
-            case POStatus.COMPLETED:
+              if (record.receive_status === ProcumentStatus.FINISHED) {
+                isFinishedStored = false
+              }
               type = TagStatusType.success;
               icon = statusCompleted
               break;
+            case POStatus.COMPLETED:
+              if (record.receive_status === ProcumentStatus.FINISHED) {
+                isFinishedStored = false
+              }
+              type = TagStatusType.success;
+              icon = statusCompleted
+              break;
+            case POStatus.WAITING_APPROVAL:
+              type = TagStatusType.secondary;
+              icon = statusWaitingApproval
+              break;
             case POStatus.DRAFT:
-              type = TagStatusType.primary;
+              type = TagStatusType.secondary;
               icon = statusDraft
               break;
           }
-
-          return <TagStatus icon={icon} type={type}>{record.receive_status === ProcumentStatus.FINISHED ? 'Kết thúc nhập kho' : ArrPoStatus.find(e=>e.key === value)?.value}</TagStatus>;
+          return <TextStatus icon={icon} type={type}>{isFinishedStored ? 'Kết thúc nhập kho' : ArrPoStatus.find(e => e.key === value)?.value}</TextStatus>
         },
         visible: true,
       },

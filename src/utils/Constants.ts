@@ -30,10 +30,10 @@ export const OrderStatus = {
 
 export const ArrPoStatus = [
   {key: "draft", value: "Nháp"},
-  {key: "finalized", value: "Đã xác nhận"},
-  {key: "draftpo", value: "Phiếu nháp"},
-  {key: "stored", value: "Đã nhập kho"},
-  {key: "completed", value: "Đã hoàn thành"},
+  {key: "waiting_approval", value: "Chờ duyệt"},
+  {key: "finalized", value: "Đã duyệt"},
+  {key: "stored", value: "Nhập kho"},
+  {key: "completed", value: "Hoàn thành"},
   {key: "finished", value: "Đã kết thúc"},
   {key: "cancelled", value: "Đã hủy"}
 ]
@@ -120,18 +120,15 @@ export const ErrorGHTK = {
   WAITTING: "Đang xử lý",
 };
 
-// DRAFT("draft", "Nháp"), //Đặt hàng
-//   FINALIZED("finalized", "Đã xác nhận"), //Xác nhận
-//   DRAFTPO("draftpo", "Phiếu nháp"), //Phiếu nháp
-//   STORED("stored", "Đã nhập kho"),  //Nhập kho
-//   COMPLETED("completed", "Đã hoàn thành"), //Hoàn thành
-//   FINISHED("finished", "Đã kết thúc"), //Kết thúc
-//   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export const POStatus = {
   //Nháp
   DRAFT: "draft",
-  //Đã xác nhận po
+  //Chờ duyệt
+  WAITING_APPROVAL: "waiting_approval",
+  //Đã duyệt
   FINALIZED: "finalized",
+  //Đã nhập kho
+  STORED: "stored",
   // Đã hoàn thành
   COMPLETED: "completed",
   //Đã kết thúc
@@ -140,8 +137,6 @@ export const POStatus = {
   CANCELLED: "cancelled",
   //Phiếu nháp
   DRAFTPO: "draftpo",
-  //Đã nhập kho
-  STORED: "stored",
   STOCK_IN: "stock_in",
 };
 
