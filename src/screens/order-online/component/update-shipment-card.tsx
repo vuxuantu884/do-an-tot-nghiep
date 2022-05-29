@@ -1467,7 +1467,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																	ghost
 																	defaultActiveKey={["0"]}
 																>
-																	{ffmTrackingLog(fulfillment.shipment.tracking_code).map((item, index) => (
+																	{ffmTrackingLog(fulfillment.code).map((item, index) => (
 																		<Panel
 																			className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 333" : ""} ${item.status === "failed" ? "hasError" : ""}`}
 																			header={
