@@ -66,10 +66,10 @@ function Greeting(props: Props): ReactElement {
                 <Row gutter={16}>
                     <Col xs={24} md={24} lg={18} className="greeting">
                         <Row>
-                            <Col md={4}>
+                            <Col xs={4}>
                                 <img src={greetingImg} alt={timeOfDay} className="greeting__img" />
                             </Col>
-                            <Col xs={24} md={20}>
+                            <Col xs={20} md={20}>
                                 <div className="greeting__content">
                                     <span className="name">{timeOfDayVietnamese[timeOfDay]} {userName}!</span>
                                     <p className="quote">“Luôn đặt sự hài lòng của khách hàng là ưu tiên số 1 trong mọi suy nghĩ và hành động của mình.
