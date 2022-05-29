@@ -25,7 +25,6 @@ import UrlConfig from "config/url.config";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
 	DeliveryServicesGetList,
-	getTrackingLogFulfillmentAction,
 	UpdateFulFillmentStatusAction,
 	UpdateShipmentAction
 } from "domain/actions/order/order.action";
@@ -47,7 +46,6 @@ import {
 	OrderResponse,
 	OrderReturnReasonDetailModel,
 	ShipmentResponse,
-	TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
@@ -55,6 +53,7 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
+import { getTrackingLogFulFillment } from "service/order/order.service";
 import { setTimeout } from "timers";
 import {
 	checkIfOrderHasReturnedAll,
@@ -122,6 +121,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		onReload,
 		disabledActions,
 		OrderDetail,
+		OrderDetailAllFullfilment,
 		orderSettings,
 		disabledBottomActions,
 		isEcommerceOrder,
@@ -141,7 +141,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 
 	useEffect(() => {
 		// set ecommerce shipment
-		const fulfillmentsHasShipment = props.OrderDetailAllFullfilment?.fulfillments?.filter((item: any) => !!item.shipment);
+		const fulfillmentsHasShipment = OrderDetailAllFullfilment?.fulfillments?.filter((item: any) => !!item.shipment);
 		const fulfillment = (fulfillmentsHasShipment && fulfillmentsHasShipment.length > 0) ? fulfillmentsHasShipment[0] : null;
 
     if (isEcommerceOrder && fulfillment && fulfillment.shipment) {
@@ -165,15 +165,10 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 
 			setEcommerceShipment(newEcommerceShipment);
 		}
-	}, [isEcommerceOrder, props.OrderDetailAllFullfilment?.fulfillments]);
+	}, [isEcommerceOrder, OrderDetailAllFullfilment?.fulfillments]);
 
-	// ffm asc id
-	const newFulfillments = useMemo(() => {
-		const ffm = props.OrderDetailAllFullfilment?.fulfillments
-			? [...props.OrderDetailAllFullfilment.fulfillments.reverse()]
-			: [];
-		return ffm;
-	}, [props.OrderDetailAllFullfilment]);
+	const [newFulfillments, setNewFulfillments] = useState<any[]>([]);
+
 	// state
 	// const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
 	//   useState<number>(0);
@@ -234,20 +229,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		navigator.clipboard.writeText(data ? data : "").then(() => { });
 	};
 
-	const ffmTrackingLog = useCallback(
-		(fmmCode) => {
-			let logs: Array<TrackingLogFulfillmentResponse> | null = [];
-			dispatch(
-				getTrackingLogFulfillmentAction(
-					fmmCode,
-					(data: Array<TrackingLogFulfillmentResponse> | null) => {
-						logs = data;
-					}
-				)
-			);
-			return logs
-	}, [dispatch]);
-
 	useEffect(() => {
 		if (
 			props.OrderDetail &&
@@ -266,6 +247,41 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		}
 	}, [dispatch, props.OrderDetail]);
 	//#endregion
+
+	useEffect(() => {
+		if (OrderDetailAllFullfilment && OrderDetailAllFullfilment.fulfillments && OrderDetailAllFullfilment.fulfillments.length > 0) {
+			let ffms = OrderDetailAllFullfilment?.fulfillments
+			? [...OrderDetailAllFullfilment.fulfillments.reverse()]
+			: [];
+			(async () => {
+				let tracking_logs: any = [];
+				await Promise.all(
+					ffms.map(async (ffm) => {
+						if (ffm.code) {
+							try {
+								const result = await getTrackingLogFulFillment(ffm.code)
+
+								tracking_logs.push({
+									code: ffm.code,
+									tracking_log: result.data
+								})
+							} catch { }
+						}
+					})
+				);
+				console.log('tracking_logs', tracking_logs)
+				const newffms = ffms.map((ffm) => {
+					let log = tracking_logs.find((i:any) => ffm.code === i.code)
+					return {
+						...ffm,
+						tracking_log: log ? log.tracking_log : []
+					}
+				})
+				console.log('newffms', newffms)
+				setNewFulfillments(newffms)
+			})();
+		}
+	}, [OrderDetailAllFullfilment]);
 
 	const sortedFulfillments = useMemo(() => {
 		return OrderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
@@ -1467,7 +1483,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																	ghost
 																	defaultActiveKey={["0"]}
 																>
-																	{ffmTrackingLog(fulfillment.code).map((item, index) => (
+																	{fulfillment.tracking_log.map((item: any, index: number) => (
 																		<Panel
 																			className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 333" : ""} ${item.status === "failed" ? "hasError" : ""}`}
 																			header={
