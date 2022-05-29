@@ -920,17 +920,17 @@ function OrdersTable(props: PropTypes) {
                             </div>
                           ) : null}
 
-                          {sortedFulfillments[0].code ? (
+                          {sortedFulfillments[0]?.code ? (
                             <div className="single">
                               {/* <FileTextOutlined  color="red"
                                       onClick={() => {
-                                        if(!sortedFulfillments[0].code) {
+                                        if(!sortedFulfillments[0]?.code) {
                                           return;
                                         }
                                         setSelectedOrder(record)
                                         dispatch(
                                           getTrackingLogFulfillmentAction(
-                                            sortedFulfillments[0].code,
+                                            sortedFulfillments[0]?.code,
                                             (data => {
                                               setTrackingLogFulfillment(data)
                                               setRerender((prev) => prev+1)
@@ -951,14 +951,14 @@ function OrdersTable(props: PropTypes) {
                                       alt=""
                                       className="trackingCodeImg"
                                       onClick={() => {
-                                        // if(!sortedFulfillments[0].code) {
+                                        // if(!sortedFulfillments[0]?.code) {
                                         //   return;
                                         // }
                                         setTypeAPi(type.trackingCode);
                                         setSelectedOrder(record);
                                         // dispatch(
                                         //   getTrackingLogFulfillmentAction(
-                                        //     sortedFulfillments[0].code,
+                                        //     sortedFulfillments[0]?.code,
                                         //     (data => {
                                         //       setTrackingLogFulfillment(data)
 
@@ -1724,11 +1724,11 @@ function OrdersTable(props: PropTypes) {
     if (typeAPi === type.trackingCode) {
       if (selectedOrder && selectedOrder.fulfillments) {
         const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments);
-        if (!sortedFulfillments[0].code) {
+        if (!sortedFulfillments[0]?.code) {
           return;
         }
         dispatch(
-          getTrackingLogFulfillmentAction(sortedFulfillments[0].code, (response) => {
+          getTrackingLogFulfillmentAction(sortedFulfillments[0]?.code, (response) => {
             // setIsVisiblePopup(true)
             const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
             if (index > -1) {

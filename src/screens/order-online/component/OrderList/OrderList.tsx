@@ -300,9 +300,12 @@ function OrderList(props: PropTypes) {
   const onFilterPhoneCustomer = useCallback((phone: string) => {
     let paramCopy = { ...params, search_term: phone, page: 1  };
     setPrams(paramCopy);
-    let queryParam = generateQuery(paramCopy);
-    history.push(`${location.pathname}?${queryParam}`);
-  }, [history, location.pathname, params]);
+    const orderLink=orderType===ORDER_TYPES.offline?UrlConfig.OFFLINE_ORDERS:UrlConfig.ORDER;
+    const queryParam = generateQuery(paramCopy);
+    let pathname = `${process.env.PUBLIC_URL}${orderLink}?${queryParam}`;
+    //history.push(`${location.pathname}?${queryParam}`);
+    window.open(pathname,"_blank")
+  }, [orderType, params]);
 
   const onMenuClick = useCallback(
     (index: number) => {
