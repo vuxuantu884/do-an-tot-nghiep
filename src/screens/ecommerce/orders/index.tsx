@@ -547,11 +547,11 @@ const EcommerceOrders: React.FC = () => {
     if (typeAPi === type.trackingCode) {
       if (selectedOrder && selectedOrder.fulfillments) {
         const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments);
-        if (!sortedFulfillments[0].code) {
+        if (!sortedFulfillments[0]?.code) {
           return;
         }
         dispatch(
-          getTrackingLogFulfillmentAction(sortedFulfillments[0].code, (response) => {
+          getTrackingLogFulfillmentAction(sortedFulfillments[0]?.code, (response) => {
             // setIsVisiblePopup(true)
             const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
             if (index > -1) {
