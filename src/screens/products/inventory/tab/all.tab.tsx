@@ -37,12 +37,22 @@ import { TYPE_EXPORT } from "screens/products/constants";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import InventoryExportModal from "../component/InventoryExportV2";
 
+let varaintName = "";
+
 export const STATUS_IMPORT_EXPORT = {
   DEFAULT: 1,
   CREATE_JOB_SUCCESS: 2,
   JOB_FINISH: 3,
   ERROR: 4,
 };
+
+enum EInventoryStatus {
+  COMMITTED = "committed",
+  ON_HOLD = "on_hold",
+  IN_COMING = "in_coming",
+  TRANSFERRING = "transferring",
+  ON_WAY = "on_way",
+}
 
 type ConfigColumnInventory = {
   Columns: Array<ICustomTableColumType<InventoryResponse>>,
@@ -101,6 +111,43 @@ const AllTab: React.FC<any> = (props) => {
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
   const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
+
+  const goDocument = useCallback((inventoryStatus: string,variantName: string,store_id?:number)=>{
+    let linkDocument ="";
+    let store_ids = undefined;
+    if (store_id) {
+      store_ids = store_id;
+    }
+    if (!store_id && params && params.store_ids) {
+      store_ids = params.store_ids;
+    }
+    
+    switch (inventoryStatus) {
+      case EInventoryStatus.COMMITTED:
+        linkDocument =`${UrlConfig.ORDER}?page=1&limit=30&is_online=true&sub_status_code=awaiting_shipper%2Cmerchandise_packed%2Cmerchandise_picking%2Ccoordinator_confirmed%2Ccoordinator_confirming%2Cawaiting_saler_confirmation%2Cawaiting_coordinator_confirmation%2Cfirst_call_attempt%2Csecond_call_attempt%2Cthird_call_attempt%2Crequire_warehouse_change&channel_codes=FB%2CWEBSITE%2CMOBILE_APP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM%2CTIKTOK
+        ${store_ids ? `&store_ids=${store_ids}`: ''}&searched_product=${variantName}`;
+        break;
+      case EInventoryStatus.IN_COMING:
+        linkDocument =`${UrlConfig.PROCUREMENT}/products?page=1&limit=30
+        ${store_ids ? `&stores=${store_ids}`: ''}&content=${variantName}`;
+        break;
+      case EInventoryStatus.ON_HOLD:
+        linkDocument =`${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}`: ''}&condition=${variantName}&status=confirmed`;
+          break;
+      case EInventoryStatus.ON_WAY:
+        linkDocument =`${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}`: ''}&condition=${variantName}&status=transferring`;
+          break;
+      case EInventoryStatus.TRANSFERRING:
+        linkDocument =`${UrlConfig.INVENTORY_TRANSFERS}/transferring-receive?page=1&limit=30&simple=true
+        ${store_ids ? `&to_store_id=${store_ids}`: ''}&condition=${variantName}&status=transferring`;
+          break;
+      default:
+        break;
+    }
+    return linkDocument;
+  },[params])
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -247,8 +294,12 @@ const AllTab: React.FC<any> = (props) => {
          dataIndex: `committed`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,record.name)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },
        {
@@ -261,8 +312,12 @@ const AllTab: React.FC<any> = (props) => {
          dataIndex: `on_hold`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,record.name)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi",
@@ -287,8 +342,12 @@ const AllTab: React.FC<any> = (props) => {
          dataIndex: `in_coming`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,record.name)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Hàng chuyển đến",
@@ -300,8 +359,12 @@ const AllTab: React.FC<any> = (props) => {
          dataIndex: `transferring`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,record.name)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_On_way,"Hàng chuyển đi",
@@ -313,8 +376,12 @@ const AllTab: React.FC<any> = (props) => {
          dataIndex: `on_way`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,record.name)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Đang giao",
@@ -331,7 +398,7 @@ const AllTab: React.FC<any> = (props) => {
          },
        }
      ]
-   },[objSummaryTable, onSortDESC, onSortASC]);
+   },[objSummaryTable, onSortDESC, onSortASC,goDocument]);
 
    const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
      return [
@@ -388,8 +455,15 @@ const AllTab: React.FC<any> = (props) => {
          title: "Đang giao dịch",
          dataIndex: `committed`,
          align: "center",
-         width: 80, render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         width: 80, 
+         render: (value: number,record: InventoryResponse) => {
+           console.log('record',record);
+           
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,varaintName,record.store_id)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },
        {
@@ -397,8 +471,12 @@ const AllTab: React.FC<any> = (props) => {
          dataIndex: `on_hold`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,varaintName,record.store_id)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
          title: "Hàng lỗi",
@@ -413,24 +491,36 @@ const AllTab: React.FC<any> = (props) => {
          dataIndex: `in_coming`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,varaintName,record.store_id)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
          title: "Hàng chuyển đến",
          dataIndex: `transferring`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,varaintName,record.store_id)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
          title: "Hàng chuyển đi",
          dataIndex: `on_way`,
          align: "center",
          width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+         render: (value: number,record: InventoryResponse) => {
+          return <div> {value ? 
+              <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,varaintName,record.store_id)}>
+                     {formatCurrency(value)}
+              </Link>
+            : ""}</div>;
          },
        },{
          title: "Đang giao",
@@ -442,7 +532,7 @@ const AllTab: React.FC<any> = (props) => {
          },
        }
      ]
-   },[]);
+   },[goDocument]);
 
   let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumns);
   const [columnsDrill, setColumnsDrill] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumnsDrill);
@@ -864,7 +954,7 @@ const AllTab: React.FC<any> = (props) => {
             );
           },
           onExpand: (expanded: boolean, record: VariantResponse) => {
-            console.log("expanded", expanded);
+            varaintName = record.name;
             setExpandRow(undefined);
             if (expanded) {
               let store_ids: any[] = params.store_ids
