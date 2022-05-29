@@ -43,8 +43,10 @@ export interface WebAppGetOrdersMappingQuery extends BaseQuery {
   connected_status: string | null;
   created_date_from: number | null;
   created_date_to: number | null;
-  ecommerce_order_statuses: Array<any> | null;
+  ecommerce_order_statuses: Array<any> | [];
   shop_ids: Array<any> | [];
+  source_id: number | null;
+  source_ids: Array<any> | [];
 }
 
 export interface WebAppRequestSyncStockQuery {
