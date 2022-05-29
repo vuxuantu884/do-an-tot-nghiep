@@ -143,7 +143,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
 					setCoordinatorAccountData(storeAccountData);
         } else {
 					searchAccountPublicApi({
-						codes: fieldNameValue,
+						condition: fieldNameValue,
 					})
 						.then((response) => {
 							if (isFetchApiSuccessful(response)) {
