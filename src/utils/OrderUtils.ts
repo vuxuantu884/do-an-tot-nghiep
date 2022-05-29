@@ -74,17 +74,17 @@ export const checkIfOrderHasShipmentCod = (
   OrderDetail: OrderResponse | null,
 ) => {
   const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-  return sortedFulfillments[0].shipment?.cod;
+  return sortedFulfillments[0]?.shipment?.cod;
 };
 
 export const checkIfOrderCancelled = (
   OrderDetail: OrderResponse | null,
 ) => {
   const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-  if(!sortedFulfillments[0].status) {
+  if(!sortedFulfillments[0]?.status) {
     return false
   }
-  return FulfillmentCancelStatus.includes(sortedFulfillments[0].status);
+  return FulfillmentCancelStatus.includes(sortedFulfillments[0]?.status);
 };
 
 export const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
