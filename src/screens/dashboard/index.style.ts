@@ -1,6 +1,7 @@
 import color from "assets/css/export-variable.module.scss";
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
+import { breakpoint } from "utils/MixinStyledComponent";
 const { grayE5, white } = color;
 export const ChartColor = {
   primary: "#2A2A86",
@@ -38,7 +39,24 @@ export const DashboardContainer = styled.div`
         color: #222222;
       }
     }
-  }
+  ${breakpoint.phone`
+      &__content {
+        margin-left: 16px;
+        .name {
+          font-size: 14px;
+          color: #2a2a86;
+        }
+        .quote {
+          font-size: 12px;
+          color: #222222;
+        }
+      }
+      &__img {
+        width: 60px;
+        height: 60px;
+      }
+  `} 
+  } 
   .dashboard-filter {
     display: flex;
     align-items: center;
@@ -233,6 +251,7 @@ export const DashboardContainer = styled.div`
     }
     
   } 
+}
 `;
 
 export const ShowMyDataStyle = styled.div`
