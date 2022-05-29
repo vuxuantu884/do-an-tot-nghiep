@@ -1,8 +1,8 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import NumberFormat from "react-number-format";
-import { Button, Card, Divider } from "antd";
+import { Button, Card, Divider, Tabs } from "antd";
 import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -82,6 +82,10 @@ import {getEcommerceIdByChannelId} from "screens/web-app/common/commonAction";
 import ExitProgressModal from "screens/web-app/orders/component/ExitProgressModal";
 import PrintEcommerceDeliveryNoteProcess from "screens/web-app/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
 import queryString from "query-string";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { getSaveSearchLocalStorage, setSaveSearchhLocalStorage } from "utils/LocalStorageUtils";
+import { SaveSearchType } from "utils/SaveSearchType";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 
 
 const initQuery: EcommerceOrderSearchQuery = {
@@ -148,7 +152,8 @@ const WebAppOrders: React.FC = () => {
   const query = useQuery();
   const dispatch = useDispatch();
   const history = useHistory();
-  const location = useLocation()
+  const location = useLocation();
+  const { TabPane } = Tabs;
 
   const queryParamsParsed: any = queryString.parse(
     location.search
@@ -186,6 +191,11 @@ const WebAppOrders: React.FC = () => {
   const [selectedRowCodes, setSelectedRowCodes] = useState([]);
   const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
+  //save search
+  const [saveSearchList,setSaveSearchList] = useState<Array<any>>([]);
+  const [isShowButtonRemoveSaveSearch,setIsShowButtonRemoveSaveSearch] = useState(false);
+  const [isShowRemoveSaveSearchModal,setIsShowRemoveSaveSearchModal] = useState(false);
+  const user = useSelector((state: RootReducerType) => state.userReducer.account);
   useState<Array<AccountResponse>>();
   let dataQuery: EcommerceOrderSearchQuery = {
     ...initQuery,
@@ -1118,7 +1128,8 @@ const WebAppOrders: React.FC = () => {
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
-
+  const [tabActiveSaveSearch,setTabActiveSaveSearch] = useState("all");
+  const [isSearching,setIsSearching] = useState(false);
 
   const resetProgress = () => {
     setProcessId(null);
@@ -1223,6 +1234,94 @@ const WebAppOrders: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch,setSearchResult, location.search]);
 
+  //savesearch
+  const getListSaveSearch = () => {
+    let key = "savesearch";
+    let value = getSaveSearchLocalStorage(key);
+    let result: Array<any> = [];
+    if(value){
+      result = JSON.parse(value)
+        result = result.filter((a) => {
+          return a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER;
+      });
+    }
+    return result;
+  }
+  useEffect(() => {
+    setSaveSearchList(getListSaveSearch());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[history,params])
+  const handleActiveSaveSearch = () => {
+    let paramQuery = generateQuery(params);
+    let newParams = {...params};
+    newParams.page = null;
+    newParams.limit = null;
+    if(generateQuery(newParams) === ""){
+      history.push(`/web-app-orders`);
+    }
+    else{
+      history.push(`/web-app-orders?${paramQuery}`);
+    }
+    let saveSearchList = getListSaveSearch();
+    setSaveSearchList(saveSearchList)
+    setIsSearching(false);
+    if(saveSearchList){
+      let saveSearch = saveSearchList.find((a) => a.value === paramQuery && a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER);
+      if(saveSearch){
+        setIsShowButtonRemoveSaveSearch(true);
+        setTabActiveSaveSearch(saveSearch.id.toString())
+      }
+      else{
+        let newParam = {...params};
+        newParam.page = null;
+        newParam.limit = null;
+        let newParamQuery = generateQuery(newParam);
+        if(newParamQuery === ""){
+          setTabActiveSaveSearch("all");
+        }
+        else{
+          setIsSearching(true);
+          setIsShowButtonRemoveSaveSearch(false);
+          setTabActiveSaveSearch("searching");
+        }
+      }
+    }
+  }
+  const handleRemoveSaveSearch = () => {
+    let saveSearchList = getListSaveSearch();
+    if(saveSearchList){
+      let paramQuery = generateQuery(params);
+      let index = saveSearchList.findIndex((a) => a.value === paramQuery && a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER);
+      if(index !== -1){
+        saveSearchList.splice(index,1)
+        setSaveSearchhLocalStorage("savesearch",JSON.stringify(saveSearchList));
+        setIsShowButtonRemoveSaveSearch(false);
+        setIsShowRemoveSaveSearchModal(false);
+        history.push(`${location.pathname}`);
+      }
+    }
+  }
+  const confirmRemoveSaveSearch = () => {
+    setIsShowRemoveSaveSearchModal(true);
+  }
+  useEffect(() => {
+    handleActiveSaveSearch();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[history,params])
+  const handleChangeTabSaveSearch = (tab: string) => {
+    if(tab === "all"){
+      history.push(`${location.pathname}`);
+    }
+    else{
+      if(saveSearchList){
+        let saveSearch = saveSearchList.find((a) => a.id === parseInt(tab));
+        if(saveSearch){
+          setIsShowButtonRemoveSaveSearch(true);
+          history.push(`${location.pathname}?${saveSearch.value}`);
+        }
+      }
+    }
+  }
 
   return (
     <StyledComponent>
@@ -1256,6 +1355,29 @@ const WebAppOrders: React.FC = () => {
         <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
           {(allowed: boolean) => (allowed ?
             <Card>
+              {
+                saveSearchList && saveSearchList.length > 0 && (
+                  <Tabs
+                    activeKey={tabActiveSaveSearch}
+                    onChange={(active) => handleChangeTabSaveSearch(active)}
+                    className="tabs-list"
+                    style={{padding:"0px",marginBottom:"15px"}}
+                  >
+                    <TabPane tab="Tất cả đơn hàng" key="all">
+                    </TabPane>
+                    {saveSearchList.map((item) => {
+                      return (
+                        <TabPane tab={item.name} key={item.id}>
+                        </TabPane>
+                      )
+                    })}
+                    {isSearching && (
+                      <TabPane tab="Tìm kiếm..." key="searching">
+                      </TabPane>
+                    )}
+                  </Tabs>
+                )
+              }
               <EcommerceOrderFilter
                 actionList={actionList}
                 onFilter={onFilter}
@@ -1270,6 +1392,9 @@ const WebAppOrders: React.FC = () => {
                 subStatus={listOrderProcessingStatus}
                 onShowColumnSetting={() => setShowSettingColumn(true)}
                 onClearFilter={() => onClearFilter()}
+                changeActiveTabSaveSearch={handleActiveSaveSearch}
+                deleteSaveSearch={confirmRemoveSaveSearch}
+                isShowButtonRemoveSaveSearch={isShowButtonRemoveSaveSearch}
               />
 
               <CustomTable
@@ -1300,6 +1425,16 @@ const WebAppOrders: React.FC = () => {
             </Card>
             : <NoPermission />)}
         </AuthWrapper>
+
+        <ModalDeleteConfirm
+          visible={isShowRemoveSaveSearchModal}
+          title="Xóa bộ lọc"
+          subTitle="Bạn có muốn xóa kết quả tìm kiếm này? Thao tác này không thể khôi phục."
+          onCancel={() => setIsShowRemoveSaveSearchModal(false)}
+          onOk={handleRemoveSaveSearch}
+        >
+
+        </ModalDeleteConfirm>
 
         {isShowGetOrderModal &&
           <GetOrderDataModal

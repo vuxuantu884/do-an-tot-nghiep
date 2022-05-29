@@ -50,7 +50,7 @@ export const RETURN_TYPES = [
     name: "Trả lại tại quầy",
     value: RETURN_TYPE_VALUES.offline
   }
-] 
+]
 
 export const ORDER_SUB_STATUS = {
   first_call_attempt: "first_call_attempt",
@@ -109,6 +109,70 @@ export const ORDER_EXPORT_TYPE = {
   orders_online: "orders_online",
   orders_offline: "orders_offline",
   returns: "returns",
+}
+export const OrderStatus = {
+  DRAFT: "draft",
+  FINALIZED: "finalized",
+  COMPLETED: "completed",
+  FINISHED: "finished",
+  CANCELLED: "cancelled",
+  EXPIRED: "expired",
+  SHIPING: "shipping",
+  PACKED: "packed",
+  getName: (status: string) => {
+    switch (status) {
+      case OrderStatus.DRAFT:
+        return "Nháp";
+      case OrderStatus.FINALIZED:
+        return "Đã xác nhận";
+      case OrderStatus.COMPLETED:
+        return "Hoàn thành";
+      case OrderStatus.FINISHED:
+        return "Kết thúc";
+      case OrderStatus.CANCELLED:
+        return "Đã huỷ";
+      case OrderStatus.EXPIRED:
+        return "Đã hết hạn";
+      case OrderStatus.SHIPING:
+        return "Xuất kho";
+      case OrderStatus.PACKED:
+        return "Đóng gói";
+    }
+  },
+  getAll: () => {
+    return [
+      OrderStatus.DRAFT,
+      OrderStatus.FINALIZED,
+      OrderStatus.COMPLETED,
+      OrderStatus.FINISHED,
+      OrderStatus.CANCELLED,
+      OrderStatus.EXPIRED,
+      OrderStatus.SHIPING,
+      OrderStatus.PACKED
+    ]
+  },
+  getClassName: (status: string) => {
+    switch (status) {
+      case OrderStatus.DRAFT:
+        return "gray-status";
+      case OrderStatus.PACKED:
+        return "blue-status";
+      case OrderStatus.SHIPING:
+        return "blue-status";
+      case OrderStatus.FINALIZED:
+        return "blue-status";
+      case OrderStatus.COMPLETED:
+        return "green-status";
+      case OrderStatus.FINISHED:
+        return "green-status";
+      case OrderStatus.CANCELLED:
+        return "red-status";
+      case OrderStatus.EXPIRED:
+        return "red-status";
+      default:
+        return "";
+    }
+  }
 }
 
 export const  PAYMENT_METHOD_ENUM = {
