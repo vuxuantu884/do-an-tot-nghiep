@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, saveAnalyticsCustomService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey, setReportsCustomizeUrl } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ReportBottomBarStyle } from '../index.style'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
@@ -238,8 +238,9 @@ function CreateAnalytics() {
             }
             setDataQuery(response);
         }
-        if (report.chart_query) {
-            const chartResponse = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, { q: report.chart_query });
+        if (report?.chart_query) {
+            const fullChartParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.chart_query, options: report.options } : { q: report.chart_query };
+            const chartResponse = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullChartParams);
             if (chartResponse.query.columns && chartResponse.query.columns.length) {
                 setChartColumnSelected(chartResponse.query.columns.map((item: any) => item.field));
                 form.setFieldsValue({
@@ -311,7 +312,7 @@ function CreateAnalytics() {
         breadcrumb={[
           {
             name: "Danh sách báo cáo tuỳ chỉnh",
-            path: UrlConfig.ANALYTIC_SALES_OFFLINE,
+            path: setReportsCustomizeUrl(cubeRef.current as AnalyticCube),
           },
           {
             name: reportInfo?.name || "Báo cáo tuỳ chỉnh",
