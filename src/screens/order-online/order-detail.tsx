@@ -1,4 +1,5 @@
-import { Alert, Col, Form, Row } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { Alert, Col, Form, Modal, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
@@ -10,6 +11,7 @@ import SidebarOrderHistory from "component/order/Sidebar/SidebarOrderHistory";
 import UrlConfig from "config/url.config";
 import { StoreDetailAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
@@ -35,7 +37,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
-import { getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
+import { deleteOrderService, getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
   generateQuery,
   getAmountPayment,
@@ -49,6 +51,7 @@ import {
   OrderStatus,
   PaymentMethodCode,
   PaymentMethodOption,
+  POS,
   ShipmentMethodOption
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
@@ -513,6 +516,66 @@ const OrderDetail = (props: PropType) => {
     }
   };
 
+  /**
+   * xóa đơn
+   */
+   const handleDeleteOrderClick = useCallback(() => {
+    if (!OrderDetail) {
+      showError("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
+      return;
+    }
+  
+    const deleteOrderComfirm = () => {
+      let ids: number[] = [OrderDetail.id];
+  
+      dispatch(showLoading());
+      deleteOrderService(ids)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            history.push(
+              `${
+                OrderDetail.channel === POS.channel_code
+                  ? UrlConfig.OFFLINE_ORDERS
+                  : UrlConfig.ORDER
+              }`
+            );
+          } else {
+            handleFetchApiError(response, "Xóa đơn hàng", dispatch);
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        })
+        .finally(() => {
+          dispatch(hideLoading());
+        });
+    };
+  
+    Modal.confirm({
+      title: "Xác nhận xóa",
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <React.Fragment>
+          <div style={{ display: "flex", lineHeight: "5px" }}>
+            Bạn có chắc chắn xóa:
+            <div style={{ marginLeft: 10, fontWeight: 500 }}>
+              <p>{OrderDetail?.code}</p>
+            </div>
+          </div>
+          <p style={{ textAlign: "justify", color: "#ff4d4f" }}>
+            Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá
+            luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá
+            đơn ở trạng thái Thành công
+          </p>
+        </React.Fragment>
+      ),
+      okText: "Xóa",
+      cancelText: "Hủy",
+      okType: "danger",
+      onOk: deleteOrderComfirm,
+    });
+  }, [OrderDetail, dispatch, history]);
+
   const [disabledBottomActions, setDisabledBottomActions] = useState(false);
 
   const disabledActions = useCallback(
@@ -906,6 +969,7 @@ const OrderDetail = (props: PropType) => {
             onConfirmOrder={onConfirmOrder}
             isShowConfirmOrderButton={isShowConfirmOrderButton}
             disabledBottomActions={disabledBottomActions}
+            deleteOrderClick={handleDeleteOrderClick}
           />
         </Form>
       </div>
