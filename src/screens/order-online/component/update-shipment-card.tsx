@@ -25,7 +25,6 @@ import UrlConfig from "config/url.config";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
 	DeliveryServicesGetList,
-	getTrackingLogFulfillmentAction,
 	UpdateFulFillmentStatusAction,
 	UpdateShipmentAction
 } from "domain/actions/order/order.action";
@@ -47,7 +46,6 @@ import {
 	OrderResponse,
 	OrderReturnReasonDetailModel,
 	ShipmentResponse,
-	TrackingLogFulfillmentResponse
 } from "model/response/order/order.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
 import moment from "moment";
@@ -55,6 +53,7 @@ import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useMemo
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
+import { getTrackingLogFulFillment } from "service/order/order.service";
 import { setTimeout } from "timers";
 import {
 	checkIfOrderHasReturnedAll,
@@ -104,14 +103,14 @@ type UpdateShipmentCardProps = {
 	disabledBottomActions?: boolean;
 	reasons?: {
 		title: string;
-    value: string;
+		value: string;
 	}[];
 	subReasons?: OrderReturnReasonDetailModel[] | null;
 	isEcommerceOrder?: boolean;
 	ref: React.MutableRefObject<any>;
 };
 
-const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => { 
+const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	// props destructuring
 	const {
 		isVisibleShipping,
@@ -122,6 +121,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		onReload,
 		disabledActions,
 		OrderDetail,
+		OrderDetailAllFullfilment,
 		orderSettings,
 		disabledBottomActions,
 		isEcommerceOrder,
@@ -139,9 +139,9 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	//handle create a new fulfillment for ecommerce order
 	const [ecommerceShipment, setEcommerceShipment] = useState<any>();
 
-  useEffect(() => {
+	useEffect(() => {
 		// set ecommerce shipment
-		const fulfillmentsHasShipment = props.OrderDetailAllFullfilment?.fulfillments?.filter((item: any) => !!item.shipment);
+		const fulfillmentsHasShipment = OrderDetailAllFullfilment?.fulfillments?.filter((item: any) => !!item.shipment);
 		const fulfillment = (fulfillmentsHasShipment && fulfillmentsHasShipment.length > 0) ? fulfillmentsHasShipment[0] : null;
 
     if (isEcommerceOrder && fulfillment && fulfillment.shipment) {
@@ -163,17 +163,12 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
         tracking_code: shipment.tracking_code,
       }
 
-      setEcommerceShipment(newEcommerceShipment);
-    }
-	}, [isEcommerceOrder, props.OrderDetailAllFullfilment?.fulfillments]);
+			setEcommerceShipment(newEcommerceShipment);
+		}
+	}, [isEcommerceOrder, OrderDetailAllFullfilment?.fulfillments]);
 
-	// ffm asc id
-	const newFulfillments = useMemo(() => {
-		const ffm = props.OrderDetailAllFullfilment?.fulfillments
-			? [...props.OrderDetailAllFullfilment.fulfillments.reverse()]
-			: [];
-		return ffm;
-	}, [props.OrderDetailAllFullfilment]);
+	const [newFulfillments, setNewFulfillments] = useState<any[]>([]);
+
 	// state
 	// const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
 	//   useState<number>(0);
@@ -185,8 +180,8 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const [takeMoneyHelper] = useState<number | null>(null);
 
-	const [trackingLogFulfillment, setTrackingLogFulfillment] =
-		useState<Array<TrackingLogFulfillmentResponse> | null>(null);
+	// const [trackingLogFulfillment, setTrackingLogFulfillment] =
+	// 	useState<Array<TrackingLogFulfillmentResponse> | null>(null);
 	const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 	const shipping_requirements = useSelector(
 		(state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
@@ -234,28 +229,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		navigator.clipboard.writeText(data ? data : "").then(() => { });
 	};
 
-	const [reload, setReload] = useState(false);
-
-	//cần hỏi lại
-	useEffect(() => {
-		if (TrackingCode(props.OrderDetail) !== "Đang xử lý" || reload) {
-			if (
-				props.OrderDetail &&
-				props.OrderDetail.fulfillments &&
-				props.OrderDetail.fulfillments.length > 0 &&
-				props.OrderDetail.fulfillments[0].code
-			) {
-				dispatch(
-					getTrackingLogFulfillmentAction(
-						props.OrderDetail.fulfillments[0].code,
-						setTrackingLogFulfillment
-					)
-				);
-			}
-		}
-		setReload(false);
-	}, [dispatch, props.OrderDetail, reload]); //logne
-
 	useEffect(() => {
 		if (
 			props.OrderDetail &&
@@ -275,6 +248,41 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	}, [dispatch, props.OrderDetail]);
 	//#endregion
 
+	useEffect(() => {
+		if (OrderDetailAllFullfilment && OrderDetailAllFullfilment.fulfillments && OrderDetailAllFullfilment.fulfillments.length > 0) {
+			let ffms = OrderDetailAllFullfilment?.fulfillments
+			? [...OrderDetailAllFullfilment.fulfillments.reverse()]
+			: [];
+			(async () => {
+				let tracking_logs: any = [];
+				// get all tracking log
+				await Promise.all(
+					ffms.map(async (ffm) => {
+						if (ffm.code) {
+							try {
+								const result = await getTrackingLogFulFillment(ffm.code)
+
+								tracking_logs.push({
+									code: ffm.code,
+									tracking_log: result.data.reverse()
+								})
+							} catch { }
+						}
+					})
+				);
+				// map tracking log 
+				const newffms = ffms.map((ffm) => {
+					let log = tracking_logs.find((i:any) => ffm.code === i.code);
+					return {
+						...ffm,
+						tracking_log: log ? log.tracking_log : []
+					}
+				});
+				setNewFulfillments(newffms);
+			})();
+		}
+	}, [OrderDetailAllFullfilment]);
+
 	const sortedFulfillments = useMemo(() => {
 		return OrderDetail?.fulfillments?.sort((a, b) => b.id - a.id)
 	}, [OrderDetail?.fulfillments])
@@ -285,27 +293,23 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	// let timeout = 500;
 	const onUpdateSuccess = (value: OrderResponse) => {
 		setUpdateShipment(false);
-		setReload(true);
 		showSuccess("Tạo đơn giao hàng thành công");
 		onReload && onReload();
 	};
 	const onPickSuccess = (value: OrderResponse) => {
 		setUpdateShipment(false);
-		setReload(true);
 		showSuccess("Nhặt hàng thành công");
 		onReload && onReload();
 	};
 
 	const onPackSuccess = (value: OrderResponse) => {
 		setUpdateShipment(false);
-		setReload(true);
 		showSuccess("Đóng gói thành công");
 		onReload && onReload();
 	};
 
 	const onShippingSuccess = (value: OrderResponse) => {
 		setUpdateShipment(false);
-		setReload(true);
 		showSuccess("Xuất kho thành công");
 		setIsvibleShippingConfirm(false);
 		// onReload && onReload();
@@ -314,7 +318,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 
 	const onShipedSuccess = (value: OrderResponse) => {
 		setUpdateShipment(false);
-		setReload(true);
 		showSuccess("Hoàn tất đơn hàng");
 		setIsvibleShippedConfirm(false);
 		onReload && onReload();
@@ -322,7 +325,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 
 	const onCancelSuccess = (value: OrderResponse, isGoToUpdate = false) => {
 		setCancelShipment(false);
-		setReload(true);
 		showSuccess(
 			`Bạn đã hủy đơn giao hàng ${props.OrderDetail?.fulfillments &&
 			props.OrderDetail?.fulfillments.length > 0 &&
@@ -335,7 +337,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 			} thành công`
 		);
 		setIsvibleCancelFullfilment(false);
-		if(isGoToUpdate) {
+		if (isGoToUpdate) {
 			history.push(
 				`${UrlConfig.ORDER}/${OrderDetail?.id}/update`
 			);
@@ -353,7 +355,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	};
 	const onReturnSuccess = (value: OrderResponse) => {
 		setCancelShipment(false);
-		setReload(true);
 		showSuccess(
 			`Bạn đã nhận hàng trả lại của đơn giao hàng ${fullfilmentIdGoodReturn}`
 		);
@@ -362,7 +363,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 	};
 
 	//fulfillmentTypeOrderRequest
-	
+
 	// eslint-disable-next-line react-hooks/exhaustive-deps
 	const fulfillmentTypeOrderRequest = (type: number, dataCancelFFM: any = {}, isGoToUpdate = false) => {
 		let value: UpdateFulFillmentStatusRequest = {
@@ -408,7 +409,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 					value.cancel_reason_id = dataCancelFFM.reasonID
 					value.sub_cancel_reason_id = dataCancelFFM.reasonSubID
 					value.reason = dataCancelFFM.reason;
-					if(value.cancel_reason_id === "1") {
+					if (value.cancel_reason_id === "1") {
 						value.reason = "";
 						value.other_reason = dataCancelFFM.reason
 					}
@@ -741,26 +742,19 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		}
 	}, [props.OrderDetail]);
 
-	const onOKCancelFullfilment = useCallback((reasonID: string, reasonSubID: string, reason: string, isGotoUpdate:boolean = false) => {
-		console.log('reasonID', reasonID)
-		console.log('reasonSubID', reasonSubID)
-		console.log('reason', reason)
+	const onOKCancelFullfilment = useCallback((reasonID: string, reasonSubID: string, reason: string, isGotoUpdate: boolean = false) => {
 		fulfillmentTypeOrderRequest(5, { reasonID, reasonSubID, reason }, isGotoUpdate);
 		setIsvibleCancelFullfilment(false);
-		setReload(true)
-	 
+
 	}, [fulfillmentTypeOrderRequest])
 
 	// cancel fulfillment 3 button modal
 	const onOkCancelAndGetGoodsBack = useCallback((reasonID: string, reasonSubID: string, reason: string) => {
-		console.log('reasonID', reasonID)
-		console.log('reasonSubID', reasonSubID)
-		console.log('reason', reason)
 		fulfillmentTypeOrderRequest(7, { reasonID, reasonSubID, reason });
 		setIsvibleCancelFullfilment(false);
-	 
+
 	}, [fulfillmentTypeOrderRequest]);
-	
+
 	// return goods
 	const onOKGoodsReturn = () => {
 		setIsvibleGoodsReturn(false);
@@ -793,7 +787,6 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 			ShipmentMethod.PICK_AT_STORE
 		) {
 			fulfillmentTypeOrderRequest(1);
-			setReload(true);
 		}
 	};
 
@@ -830,8 +823,8 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 		handleCancelFulfillmentAndUpdate() {
 			const otherReasonId = "1";
 			onOKCancelFullfilment(otherReasonId, "", "Hủy đơn giao và sửa đơn hàng", true)
-    }
-  }), [onOKCancelFullfilment]);
+		}
+	}), [onOKCancelFullfilment]);
 
 	useEffect(() => {
 		getRequirementName();
@@ -1072,41 +1065,41 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 															onPrint={onPrint}
 														/>}
 												</div>
-												<div className="saleorder-header-content__date" style={{display: "none", width: "100%", alignItems: "center"}}>
-                          {(fulfillment.status === FulFillmentStatus.CANCELLED ||
-                            fulfillment.status === FulFillmentStatus.RETURNING ||
-                            fulfillment.status === FulFillmentStatus.RETURNED) ?
-                            <span>
-                              <span
-                                style={{
-                                  color: "#000000d9",
-                                  marginRight: 6,
-                                }}
-                              >
-                                Ngày huỷ:
-                              </span>
-                              <span style={{color: "#000000d9"}}>
-                                {fulfillment.cancel_date ? moment(
-                                  fulfillment.cancel_date
-                                ).format("DD/MM/YYYY HH:mm") : ''}
-                              </span>
-                            </span> : 
-                            <span>
-                              <span
-                                style={{
-                                  color: "#000000d9",
-                                  marginRight: 6,
-                                }}
-                              >
-                                Ngày tạo:
-                              </span>
-                              <span style={{color: "#000000d9"}}>
-                                {moment(
-                                  fulfillment.shipment?.created_date
-                                ).format("DD/MM/YYYY")}
-                              </span>
-                            </span>}
-                        </div>
+												<div className="saleorder-header-content__date" style={{ display: "none", width: "100%", alignItems: "center" }}>
+													{(fulfillment.status === FulFillmentStatus.CANCELLED ||
+														fulfillment.status === FulFillmentStatus.RETURNING ||
+														fulfillment.status === FulFillmentStatus.RETURNED) ?
+														<span>
+															<span
+																style={{
+																	color: "#000000d9",
+																	marginRight: 6,
+																}}
+															>
+																Ngày huỷ:
+															</span>
+															<span style={{ color: "#000000d9" }}>
+																{fulfillment.cancel_date ? moment(
+																	fulfillment.cancel_date
+																).format("DD/MM/YYYY HH:mm") : ''}
+															</span>
+														</span> :
+														<span>
+															<span
+																style={{
+																	color: "#000000d9",
+																	marginRight: 6,
+																}}
+															>
+																Ngày tạo:
+															</span>
+															<span style={{ color: "#000000d9" }}>
+																{moment(
+																	fulfillment.shipment?.created_date
+																).format("DD/MM/YYYY")}
+															</span>
+														</span>}
+												</div>
 											</div>
 										}
 										key="1"
@@ -1299,7 +1292,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																	{fulfillment?.reason_name}
 																	{fulfillment?.sub_reason_name && (
 																		<span>
-																		{" "}- {fulfillment?.sub_reason_name}
+																			{" "}- {fulfillment?.sub_reason_name}
 																		</span>
 																	)}
 																</b>
@@ -1308,16 +1301,16 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 													</Col>
 												)}
 
-												{requirementNameView && (	
+												{requirementNameView && (
 													<Col md={12}>
 														<Row gutter={30}>
 															<Col span={10}>
 																<p className="text-field">Yêu cầu:</p>
 															</Col>
 															<Col span={14}>
-															<b className="text-field">
-																{requirementNameView}
-															</b>
+																<b className="text-field">
+																	{requirementNameView}
+																</b>
 															</Col>
 														</Row>
 													</Col>
@@ -1325,21 +1318,21 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 
 												{fulfillment.shipment.tracking_code &&
 													(fulfillment.status === FulFillmentStatus.CANCELLED ||
-													fulfillment.status === FulFillmentStatus.RETURNING ||
-													fulfillment.status === FulFillmentStatus.RETURNED) && (	
-													<Col md={12}>
-														<Row gutter={30}>
-															<Col span={10}>
-																<p className="text-field">Mã vận đơn:</p>
-															</Col>
-															<Col span={14}>
-															<b className="text-field" style={{color: "#e24343"}}>
-																{fulfillment.shipment.tracking_code}
-															</b>
-															</Col>
-														</Row>
-													</Col>
-												)}
+														fulfillment.status === FulFillmentStatus.RETURNING ||
+														fulfillment.status === FulFillmentStatus.RETURNED) && (
+														<Col md={12}>
+															<Row gutter={30}>
+																<Col span={10}>
+																	<p className="text-field">Mã vận đơn:</p>
+																</Col>
+																<Col span={14}>
+																	<b className="text-field" style={{ color: "#e24343" }}>
+																		{fulfillment.shipment.tracking_code}
+																	</b>
+																</Col>
+															</Row>
+														</Col>
+													)}
 											</Row>
 										)}
 
@@ -1438,7 +1431,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																					fontSize: 16,
 																				}}
 																			>
-																				{TrackingCode(props.OrderDetail)}
+																				{fulfillment && fulfillment.shipment?.tracking_code}
 																				{/* {fulfillment && fulfillment.shipment?.pushing_note ? ` - ${fulfillment.shipment.pushing_note}`: null} */}
 																			</Typography.Link>
 																			<div
@@ -1490,7 +1483,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 																	ghost
 																	defaultActiveKey={["0"]}
 																>
-																	{trackingLogFulfillment?.map((item, index) => (
+																	{fulfillment.tracking_log.map((item: any, index: number) => (
 																		<Panel
 																			className={`orders-timeline-custom orders-dot-status ${index === 0 ? "currentTimeline 333" : ""} ${item.status === "failed" ? "hasError" : ""}`}
 																			header={
@@ -1620,26 +1613,26 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 											<React.Fragment>
 												{!isOrderFromPOS(OrderDetail) ? (
 													<React.Fragment>
-														 <Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`}>
-																<Button
-																	type="primary"
-																	style={{ margin: "0 10px", padding: "0 25px" }}
-																	className="create-button-custom ant-btn-outline fixed-button"
-																	disabled={!isPassed}
-																>
-																	Trả lại chuyển hàng
-																</Button>
-															</Link>
-															<Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`}>
-																<Button
-																	type="primary"
-																	style={{ margin: "0 10px", padding: "0 25px" }}
-																	className="create-button-custom ant-btn-outline fixed-button"
-																	disabled={!isPassed}
-																>
-																	Trả lại tại quầy
-																</Button>
-															</Link>
+														<Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=online`}>
+															<Button
+																type="primary"
+																style={{ margin: "0 10px", padding: "0 25px" }}
+																className="create-button-custom ant-btn-outline fixed-button"
+																disabled={!isPassed}
+															>
+																Trả lại chuyển hàng
+															</Button>
+														</Link>
+														<Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`}>
+															<Button
+																type="primary"
+																style={{ margin: "0 10px", padding: "0 25px" }}
+																className="create-button-custom ant-btn-outline fixed-button"
+																disabled={!isPassed}
+															>
+																Trả lại tại quầy
+															</Button>
+														</Link>
 													</React.Fragment>
 												) : (
 													<Link to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetail?.id}&type=offline`}>
@@ -1859,7 +1852,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 								handleCancelCreateShipment={() => setVisibleShipping(false)}
 								isEcommerceOrder={isEcommerceOrder}
 								ecommerceShipment={ecommerceShipment}
-                OrderDetail={OrderDetail}
+								OrderDetail={OrderDetail}
 								shippingServiceConfig={shippingServiceConfig}
 								orderConfig={orderConfig}
 							/>
