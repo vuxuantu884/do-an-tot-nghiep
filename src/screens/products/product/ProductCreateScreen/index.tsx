@@ -69,7 +69,7 @@ import {
   Products,
   replaceFormatString,
 } from "utils/AppUtils";
-import { DEFAULT_COMPANY, VietNamId } from "utils/Constants";
+import { ArrDefects, DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -92,13 +92,6 @@ type Defect = {
   code: string,
   name:string
 };
-
-const arrDefects = [
-  {code: 'L10',name:'Lỗi 10%'},
-  {code: 'L20',name:'Lỗi 20%'},
-  {code: 'L30',name:'Lỗi 30%'},
-  {code: 'L50',name:'Lỗi 50%'},
-]
 
 const initialRequest: ProductRequestView = {
   goods: null,
@@ -342,8 +335,8 @@ const ProductCreateScreen: React.FC = () => {
             variant_images: [],
           });
 
-         for (let i = 0; i < arrDefects.length; i++) {
-           const e = arrDefects[i];
+         for (let i = 0; i < ArrDefects.length; i++) {
+           const e = ArrDefects[i];
 
            newVariants.push({
             name: `${name} - ${e.name}`,
@@ -360,7 +353,7 @@ const ProductCreateScreen: React.FC = () => {
           });
          }
 
-         setDefects([...arrDefects]);
+         setDefects([...ArrDefects]);
         }
 
         for (let i = 0; i < defects.length; i++) {
@@ -561,6 +554,7 @@ const ProductCreateScreen: React.FC = () => {
         description: form.getFieldValue("description"),
         care_labels: careLabelsString,
       }, variantsHasProductAvatar, status);
+
       dispatch(productCreateAction(request, createCallback));
     },
     [createCallback, dispatch, careLabelsString, status, variants, form]
