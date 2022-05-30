@@ -1154,7 +1154,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         discount_amount: null,
         total_line_amount_after_line_discount: null,
         shipment: shipmentRequest,
-        items: listExchangeProducts,
+        items: listExchangeProducts.concat(itemGifts),
       };
 
       let listFulfillmentRequest = [];
@@ -1180,16 +1180,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
       return listFulfillmentRequest;
     },
-    [
-      createShipmentRequest,
-      discountRate,
-      discountValue,
-      listExchangeProducts,
-      paymentMethod,
-      shipmentMethod,
-      totalAmountExchange,
-      userReducer.account?.code,
-    ]
+    [createShipmentRequest, discountRate, discountValue, itemGifts, listExchangeProducts, paymentMethod, shipmentMethod, totalAmountExchange, userReducer.account?.code]
   );
 
   const createDiscountRequest = useCallback(() => {

@@ -1,9 +1,11 @@
+import { Spin } from "antd";
 import Color from "assets/css/export-variable.module.scss";
 import { FIELD_FORMAT } from "model/report/analytics.model";
-import React from 'react';
+import React, { useContext } from 'react';
 import { Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
 import { DashboardContainer } from "screens/dashboard/index.style";
 import { formatCurrency } from "utils/AppUtils";
+import { AnalyticsContext } from "./analytics-provider";
 
 const { primary, secondary } = Color;
 
@@ -14,24 +16,27 @@ type Props = {
 
 function ReportifyPieChart(props: Props) {
     const { data, legends } = props;
+    const { loadingChart } = useContext(AnalyticsContext);
     return (
         <div>
             <ResponsiveContainer width="100%" height={380}>
-                <PieChart>
-                    <Legend wrapperStyle={{ paddingTop: "0px" }} payload={
-                        legends.filter(item => item.value).map(
-                            (item, index) => ({
-                                id: item.id,
-                                type: item.type,
-                                value: item.value,
-                                color: index === 0 ? primary : secondary
-                            })
-                        )
-                    } />
-                    <Tooltip content={<TooltipContent />} cursor={{ fill: 'rgba(243, 243, 247, 0.6)' }} />
-                    <Pie data={data.pieChart1} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} fill={primary} name={'htm'} />
-                    <Pie data={data.pieChart2} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={100} outerRadius={160} fill={secondary} name={'htm2'} />
-                </PieChart>
+                {
+                    !loadingChart ? <PieChart>
+                        <Legend wrapperStyle={{ paddingTop: "0px" }} payload={
+                            legends.filter(item => item.value).map(
+                                (item, index) => ({
+                                    id: item.id,
+                                    type: item.type,
+                                    value: item.value,
+                                    color: index === 0 ? primary : secondary
+                                })
+                            )
+                        } />
+                        <Tooltip content={<TooltipContent />} cursor={{ fill: 'rgba(243, 243, 247, 0.6)' }} />
+                        <Pie data={data.pieChart1} dataKey="value" nameKey="name" cx="50%" cy="50%" outerRadius={120} fill={primary} name={'htm'} />
+                        <Pie data={data.pieChart2} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={100} outerRadius={160} fill={secondary} name={'htm2'} />
+                    </PieChart> : <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }} ><Spin /></div>
+                }
             </ResponsiveContainer>
         </div>
     )
