@@ -29,5 +29,8 @@ export const ODERS_PERMISSIONS = {
   CREATE_GOODS_RECEIPT: "orders_goods_receipt_create",
   READ_GOODS_RECEIPT: "orders_goods_receipt_read",
   DELETE_GOODS_RECEIPT: "orders_goods_receipt_delete",
+  //DELETE
+  DELETE_ORDER: "orders_delete",
+  DELETE_RETURN_ORDER: "orders_returns_delete",
 }
 

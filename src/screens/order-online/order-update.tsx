@@ -5,6 +5,7 @@ import {
 	Collapse, Form,
 	FormInstance,
 	Input,
+	Modal,
 	Row,
 	Space,
 	Tag,
@@ -78,7 +79,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { getStoreBankAccountNumbersService } from "service/order/order.service";
+import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
@@ -95,6 +96,7 @@ import {
 	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
 	PaymentMethodOption,
+	POS,
 	ShipmentMethod,
 	ShipmentMethodOption,
 	TaxTreatment
@@ -113,6 +115,8 @@ import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayment
 // import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 // let typeButton = "";
 type PropTypes = {
@@ -886,6 +890,64 @@ export default function Order(props: PropTypes) {
 		setShippingFeeInformedToCustomer(value);
 	};
 
+	/**
+   * xóa đơn
+   */
+	 const handleDeleteOrderClick = useCallback(() => {
+		if (!OrderDetail) {
+		  showError("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
+		  return;
+		}
+	  
+		const deleteOrderComfirm = () => {
+		  let ids: number[] = [OrderDetail.id];
+		  dispatch(showLoading());
+		  deleteOrderService(ids)
+			.then((response) => {
+			  if (isFetchApiSuccessful(response)) {
+				history.push(
+				  `${
+					OrderDetail.channel === POS.channel_code
+					  ? UrlConfig.OFFLINE_ORDERS
+					  : UrlConfig.ORDER
+				  }`
+				);
+			  } else {
+				handleFetchApiError(response, "Xóa đơn hàng", dispatch);
+			  }
+			})
+			.catch((error) => {
+			  console.log("error", error);
+			})
+			.finally(() => {
+			  dispatch(hideLoading());
+			});
+		};
+	  
+		Modal.confirm({
+		  title: "Xác nhận xóa",
+		  icon: <ExclamationCircleOutlined />,
+		  content: (
+			<React.Fragment>
+			  <div style={{ display: "flex", lineHeight: "5px" }}>
+				Bạn có chắc chắn xóa:
+				<div style={{ marginLeft: 10, fontWeight: 500 }}>
+				  <p>{OrderDetail?.code}</p>
+				</div>
+			  </div>
+			  <p style={{ textAlign: "justify", color: "#ff4d4f" }}>
+				Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá
+				luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá
+				đơn ở trạng thái Thành công
+			  </p>
+			</React.Fragment>
+		  ),
+		  okText: "Xóa",
+		  cancelText: "Hủy",
+		  okType: "danger",
+		  onOk: deleteOrderComfirm,
+		});
+	}, [OrderDetail, dispatch, history]);
 
 	useEffect(() => {
 		if (storeId != null) {
@@ -2353,6 +2415,7 @@ export default function Order(props: PropTypes) {
 								updating={updating}
 								updatingConfirm={updatingConfirm}
 								isShow={!isShowBillStep}
+								deleteOrderClick={handleDeleteOrderClick}
 							/>
 						</Form>
 					)}
