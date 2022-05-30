@@ -416,6 +416,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               procumentCodeRef.current = procumentCode||'';
             }}
             isEditDetail={isEditDetail}
+            receiveStatus={poData ? poData.receive_status : undefined}
           />
         ) : (
           <POInventoryDraft
