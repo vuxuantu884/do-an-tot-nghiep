@@ -1581,20 +1581,23 @@ function OrdersTable(props: PropTypes) {
   // - Doanh số = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng.
   // - Doanh thu = Doanh số - Chiết khấu - Sử dụng điểm.
   // - Do total đã trừ chiết khấu nên Doanh thu = Tổng giá trị hóa đơn bán - Tổng giá trị hóa đơn trả hàng - Sử dụng điểm
+
+  // - Tạm thời bỏ hàng trả - doanh thu sau chiết khấu trừ tiêu điểm
   const getTotalRevenue = () => {
     let result = 0;
     data.items.forEach((item) => {
-      let returnAmount = 0;
+      // let returnAmount = 0;
       let pointAmount = 0;
       item.payments.forEach((single) => {
-        if(single.payment_method === PAYMENT_METHOD_ENUM.exchange.name) {
-          returnAmount = returnAmount + single.amount;
-        }
+        // if(single.payment_method === PAYMENT_METHOD_ENUM.exchange.name) {
+        //   returnAmount = returnAmount + single.amount;
+        // }
         if(single.payment_method_code === PaymentMethodCode.POINT) {
           pointAmount = pointAmount + single.amount;
         }
       });
-      result = result + (item.total - returnAmount - pointAmount)
+      // result = result + (item.total - returnAmount - pointAmount)
+      result = result + (item.total - pointAmount)
     });
     return result;
   };
@@ -1662,7 +1665,7 @@ function OrdersTable(props: PropTypes) {
             <Col md={12}>
               <Row gutter={30}>
                 <Col span={10}>
-                  <p className="text-field">TỔNG DOANH THU:</p>
+                  <p className="text-field">TỔNG DOANH THU SAU CHIẾT KHẤU TRỪ TIÊU ĐIỂM:</p>
                 </Col>
                 <Col span={14}>
                   <div>
