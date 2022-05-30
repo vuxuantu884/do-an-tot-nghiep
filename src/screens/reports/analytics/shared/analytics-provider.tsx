@@ -20,6 +20,8 @@ type Props = {
     setRowsInQuery: (rowsInQuery: string[] | any) => void;
     isMyReport: boolean;
     setIsMyReport: (isMyReport: boolean) => void;
+    loadingChart: boolean;
+    setLoadingChart: (loadingChart: boolean | any) => void;
 }
 
 export const AnalyticsContext = React.createContext<Props>({} as Props)
@@ -33,6 +35,7 @@ function AnalyticsProvider(props: { children: ReactNode }) {
     const cubeRef = React.useRef<string>('');
     const [rowsInQuery, setRowsInQuery] = useState<string[]>([]);
     const [isMyReport, setIsMyReport] = useState<boolean>(true);
+    const [loadingChart, setLoadingChart] = useState<boolean>(false);
     return (
         <AnalyticsContext.Provider
             {...props}
@@ -51,7 +54,9 @@ function AnalyticsProvider(props: { children: ReactNode }) {
                 rowsInQuery,
                 setRowsInQuery,
                 isMyReport,
-                setIsMyReport
+                setIsMyReport,
+                loadingChart,
+                setLoadingChart
             }}
         />
     )
