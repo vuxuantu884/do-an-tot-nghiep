@@ -980,6 +980,7 @@ export default function Order(props: PropTypes) {
 				sender_address_id: shipment.sender_address_id,
 				service: shipment.service,
 				tracking_code: shipment.tracking_code,
+				recipient_sort_code: shipment.recipient_sort_code,
 			}
 
 			setEcommerceShipment(newEcommerceShipment);
