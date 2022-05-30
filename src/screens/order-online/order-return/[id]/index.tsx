@@ -1,9 +1,12 @@
-import { Col, Form, Row } from "antd";
+import { ExclamationCircleOutlined } from "@ant-design/icons";
+import { Col, Form, Modal, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   getLoyaltyPoint,
   getLoyaltyUsage
@@ -14,6 +17,7 @@ import {
   actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
+import useAuthorization from "hook/useAuthorization";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -26,15 +30,18 @@ import {
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useParams } from "react-router-dom";
-import { isOrderFromPOS } from "utils/AppUtils";
-import { FulFillmentStatus, PaymentMethodCode } from "utils/Constants";
+import { useHistory, useParams } from "react-router-dom";
+import { deleteOrderReturnService } from "service/order/return.service";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
+import { FulFillmentStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import { findPaymentMethodByCode } from "utils/OrderUtils";
+import { showErrorReport } from "utils/ReportUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "../components/CardShowReturnProducts";
+import ReturnDetailBottom from "../components/ReturnBottomBar/return-detail-bottom";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
 
@@ -48,6 +55,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
   let returnOrderId = parseInt(id);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+  const history = useHistory();
+
+  const [allowDeleteOrderReturn] = useAuthorization({
+    acceptPermissions:[ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
+    not:false
+  })
 
   const [isError, setError] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -102,6 +115,56 @@ const ScreenReturnDetail = (props: PropTypes) => {
       })
     );
   };
+
+  const hanldeDeleteOrderReturn = useCallback(() => {
+    if (!OrderDetail) {
+      showErrorReport("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
+      return;
+    }
+    let ids: number[] = [OrderDetail.id];
+  
+    dispatch(showLoading());
+    deleteOrderReturnService(ids)
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          history.push(
+            `${
+              OrderDetail.channel === POS.channel_code
+                ? UrlConfig.OFFLINE_ORDERS
+                : UrlConfig.ORDER
+            }${UrlConfig.ORDERS_RETURN}`
+          );
+        } else {
+          handleFetchApiError(response, "Xóa đơn trả hàng", dispatch);
+        }
+      })
+      .catch((error) => {
+        console.log("error", error);
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
+  }, [OrderDetail, dispatch, history]);
+
+  const onDeleteReturn = useCallback(() => {
+    Modal.confirm({
+      title: "Xác nhận xóa",
+      icon: <ExclamationCircleOutlined />,
+      content: (
+        <div style={{ display: "flex", lineHeight: "5px" }}>
+          Bạn có chắc chắn xóa:
+          <div style={{ marginLeft: 10, fontWeight: 500 }}>
+            <p>{OrderDetail?.code}</p>
+          </div>
+        </div>
+      ),
+      okText: "Xóa",
+      cancelText: "Hủy",
+      onOk: hanldeDeleteOrderReturn,
+      //onCancel:onCancel,
+      className: "comfirm-order-return",
+    });
+  }, [OrderDetail?.code, hanldeDeleteOrderReturn]);
 
   const [returnPaymentStatus, setReturnPaymentStatus] = useState(ORDER_PAYMENT_STATUS.paid);
 
@@ -462,6 +525,10 @@ const ScreenReturnDetail = (props: PropTypes) => {
               />
               <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
             </Col>
+            <ReturnDetailBottom
+              onOk={onDeleteReturn}
+              hiddenButtonRemove={!allowDeleteOrderReturn}
+            ></ReturnDetailBottom>
           </Row>
         </div>
       </ContentContainer>

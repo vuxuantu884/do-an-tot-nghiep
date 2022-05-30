@@ -34,6 +34,7 @@ type PropType = {
   showSaveAndConfirmModal?: () => void;
   orderActionsClick?: (type: string) => void;
   updateCancelClick?: () => void;
+  deleteOrderClick?: () => void;
   onConfirmOrder?: () => void;
 };
 
@@ -57,6 +58,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     orderActionsClick,
     updateCancelClick,
     onConfirmOrder,
+    deleteOrderClick,
   } = props;
 
   const isLoadingDiscount = useSelector(
@@ -111,6 +113,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     }
     return true
   }, [orderDetail])
+
+  const checkIsFulfillmentShipping = useMemo(() => orderDetail?.fulfillments?.some((p) => p.status === FulFillmentStatus.SHIPPING), [orderDetail])
 
   return (
     <StyledComponent>
@@ -179,6 +183,17 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   >
                     Huỷ (F4)
                   </Button>
+                  {!checkIsFulfillmentShipping&&(
+                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_ORDER]} passThrough>
+                    <Button
+                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                      danger id="btn-order-delete"
+                      onClick={deleteOrderClick}
+                    >
+                      Xóa
+                    </Button>
+                  </AuthWrapper >
+                  )}
                   {stepsStatusValue === OrderStatus.DRAFT && <Button
                     style={{ padding: "0 25px", fontWeight: 400 }}
                     type="primary"
@@ -327,6 +342,17 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   </Button>}
                 </AuthWrapper>
               ) : null}
+              {!checkIsFulfillmentShipping&&(
+                    <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_ORDER]} passThrough>
+                    <Button
+                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                      danger id="btn-order-delete"
+                      onClick={deleteOrderClick}
+                    >
+                      Xóa
+                    </Button>
+                  </AuthWrapper >
+              )}
               {orderDetail?.sub_status_code && orderDetail.sub_status_code !== ORDER_SUB_STATUS.returned && ( // đơn đã hoàn thì tạm thời ko hiển thị sửa đơn hàng
                 <AuthWrapper acceptPermissions={acceptPermissionsUpdate()} passThrough>
                   {(isPassed: boolean) => 
