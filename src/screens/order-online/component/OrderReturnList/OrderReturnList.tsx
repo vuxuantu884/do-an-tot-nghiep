@@ -624,8 +624,8 @@ function OrderReturnList(props: PropTypes) {
       case 2: break
       case 3:
         newParams = {
-          code: selectedRowCodes,
-          is_onlinne: orderType === ORDER_TYPES.online
+          code_order_return: selectedRowCodes,
+          is_online: orderType === ORDER_TYPES.online
         };
         break
       case 4:
