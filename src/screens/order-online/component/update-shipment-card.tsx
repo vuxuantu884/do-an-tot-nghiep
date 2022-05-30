@@ -255,6 +255,7 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 			: [];
 			(async () => {
 				let tracking_logs: any = [];
+				// get all tracking log
 				await Promise.all(
 					ffms.map(async (ffm) => {
 						if (ffm.code) {
@@ -263,22 +264,21 @@ const UpdateShipmentCard = forwardRef((props: UpdateShipmentCardProps, ref) => {
 
 								tracking_logs.push({
 									code: ffm.code,
-									tracking_log: result.data
+									tracking_log: result.data.reverse()
 								})
 							} catch { }
 						}
 					})
 				);
-				console.log('tracking_logs', tracking_logs)
+				// map tracking log 
 				const newffms = ffms.map((ffm) => {
-					let log = tracking_logs.find((i:any) => ffm.code === i.code)
+					let log = tracking_logs.find((i:any) => ffm.code === i.code);
 					return {
 						...ffm,
 						tracking_log: log ? log.tracking_log : []
 					}
-				})
-				console.log('newffms', newffms)
-				setNewFulfillments(newffms)
+				});
+				setNewFulfillments(newffms);
 			})();
 		}
 	}, [OrderDetailAllFullfilment]);
