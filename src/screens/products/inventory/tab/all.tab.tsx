@@ -36,6 +36,7 @@ import InventoryExport from "../component/InventoryExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import InventoryExportModal from "../component/InventoryExportV2";
+import { StoreResponse } from "model/core/store.model";
 
 export const STATUS_IMPORT_EXPORT = {
   DEFAULT: 1,
@@ -73,9 +74,11 @@ const AllTab: React.FC<any> = (props) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState<boolean>(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  let dataQuery: VariantSearchQuery = {
-    ...getQueryParams(query),
-  };
+  let dataQuery: VariantSearchQuery = useMemo(()=>{
+    return {
+      ...getQueryParams(query),
+    }
+  },[query]);
   let [params, setPrams] = useState<VariantSearchQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<VariantResponse>>({
     metadata: {
@@ -654,25 +657,26 @@ const AllTab: React.FC<any> = (props) => {
     switch (type) {
       case TYPE_EXPORT.selected:
         let variant_ids = selected.map(e=>e.id).toString();
-        const store_ids =  params.store_ids;  
+        const store_ids =  dataQuery.store_ids;  
 
         conditions = {store_ids: store_ids,
           variant_ids:variant_ids};
           
         break;
       case TYPE_EXPORT.page:
-        conditions = {...params,
-          limit: params.limit,
+        conditions = {...dataQuery,
+          limit: dataQuery.limit,
           page: 1};
         break;
       case TYPE_EXPORT.all:
-        conditions = {...params
+        conditions = {...dataQuery
           ,page:undefined
           ,limit:undefined};
         break;
     }
+    
     return conditions;
-  },[params,selected])
+  },[dataQuery,selected])
 
   const actionExport = {
     Ok: async (typeExport: string) => {
@@ -683,7 +687,6 @@ const AllTab: React.FC<any> = (props) => {
         return;
       }
       const conditions =  getConditions(typeExport);
-      
       const queryParam = generateQuery({...conditions});
       exportFileV2({
         conditions: queryParam,
@@ -708,20 +711,22 @@ const AllTab: React.FC<any> = (props) => {
       setStatusExportDetail(0);
     },
     OnExport: useCallback(()=>{
-      let remain = "total_stock";
-      if (params.remain) {
-        remain= params.remain;
+      let remain = "";
+      let store_ids = null;
+      if (dataQuery.remain) {
+        remain= dataQuery.remain;
+      }
+      if (!dataQuery.store_ids && stores) {
+        store_ids = stores.map((e:StoreResponse)=>e.id).toString();
+      }else{
+        store_ids = dataQuery.store_ids?.toString();
       }
       
       let objConditions = {
-        store_ids: params.store_ids?.toString(),
+        store_ids: store_ids,
         remain: remain
       };
-      let conditions = "remain=total_stock";
-      if (params.store_ids) {
-        conditions = `store_ids=${objConditions.store_ids}&remain=${objConditions.remain}`;
-      }
-      
+      let conditions = `store_ids=${objConditions.store_ids}${remain !=="" ? `&remain=${objConditions.remain}`:""}`;
       exportFileV2({
         conditions: conditions,
         type: "TYPE_EXPORT_INVENTORY",
@@ -737,7 +742,7 @@ const AllTab: React.FC<any> = (props) => {
           setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
-    },[listExportFile, params.remain, params.store_ids])
+    },[listExportFile,stores,dataQuery])
   }
 
   const checkExportFile = useCallback(() => {
