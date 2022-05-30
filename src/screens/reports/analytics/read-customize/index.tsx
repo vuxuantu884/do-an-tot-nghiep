@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, saveAnalyticsCustomService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, generateRQuery, getChartQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ReportBottomBarStyle } from '../index.style'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
@@ -34,7 +34,7 @@ function CreateAnalytics() {
     let { id } = useParams<{ id: string }>();
 
     const [reportInfo, setReportInfo] = React.useState<AnalyticCustomize>({} as AnalyticCustomize);
-    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport } = useContext(AnalyticsContext)
+    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport, setLoadingChart } = useContext(AnalyticsContext)
     const [mode, setMode] = React.useState<SUBMIT_MODE>(SUBMIT_MODE.GET_DATA);
     const [isLoadingExport, setIsLoadingExport] = React.useState<boolean>(false);
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
@@ -230,6 +230,9 @@ function CreateAnalytics() {
                         }
                     })
                 }
+                // Temporary logic
+                const { net_payments, ...others } = response.aggregates;
+                response.aggregates = others;
                 setMetadata(response);
                 setDataQuery(response);
             }
@@ -276,24 +279,8 @@ function CreateAnalytics() {
                 message: ''
             })
             if (dataQuery && chartColumnSelected?.length) {
-                const { conditions } = dataQuery.query;
-                let mapperConditions;
-                if (conditions?.length) {
-                    mapperConditions = conditions.map(condition => {
-                        if (condition.findIndex(item => item === 'IN') !== -1) {
-                            condition = [...condition.slice(0, 2), ...condition.slice(2).join("").split(",").map((item: string) => `'${item}'`).join(",")]
-                        }
-                        return condition;
-                    })
-                }
-                const params: AnalyticQuery = {
-                    ...dataQuery.query,
-                    columns: chartColumnSelected.map(item => {
-                        return { field: item }
-                    }),
-                    conditions: mapperConditions ? mapperConditions : conditions
-                } as AnalyticQuery;
-                const query = generateRQuery(params);
+                setLoadingChart(() => true);
+                const query = getChartQuery(dataQuery.query, chartColumnSelected);
                 const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, fullParams);
                 if (response) {
@@ -312,10 +299,11 @@ function CreateAnalytics() {
                     setChartDataQuery(response);
                     form.setFieldsValue({ chartFilter: chartColumnSelected })
                 }
+                setLoadingChart(() => false);
             }
         }
         fetchChartData();
-    }, [chartColumnSelected, dataQuery, dispatch, form, setChartDataQuery])
+    }, [chartColumnSelected, dataQuery, dispatch, form, setChartDataQuery, setLoadingChart])
 
     return (
       <ContentContainer
