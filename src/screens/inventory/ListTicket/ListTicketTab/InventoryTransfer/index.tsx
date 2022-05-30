@@ -303,7 +303,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: "150px",
+      width: "100px",
     },
     {
       title: () => {
@@ -320,7 +320,17 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: number) => {
         return formatCurrency(value,".");
       },
-      width: "150px",
+      width: "100px",
+    },
+    {
+      title: "SL Nhận",
+      visible: true,
+      dataIndex: "total_received_quantity",
+      align: "center",
+      width: 100,
+      render: (value: number) => {
+        return formatCurrency(value,".");
+      },
     },
     {
       title: "Thành tiền",

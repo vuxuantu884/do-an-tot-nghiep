@@ -746,22 +746,8 @@ const DetailTicket: FC = () => {
       dataIndex: "transfer_quantity",
     },
     {
-      title: "Thành tiền",
-      dataIndex: "amount",
-      align: "center",
-      width: 120,
-      render: (value, row: LineItem) => {
-        return <NumberFormat
-          value={row.price * row.transfer_quantity}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
-      },
-    },
-    {
       title: <div>
-        <div>Thực nhận</div>
+        <div>SL Nhận</div>
         <div className="text-center">
           {getTotalRealQuantity()}
         </div>
@@ -1100,6 +1086,8 @@ const DetailTicket: FC = () => {
                                   <Table.Summary.Cell align={"center"} index={3}>
                                     <b>{data.total_quantity}</b>
                                   </Table.Summary.Cell>
+                                  <Table.Summary.Cell index={4}>
+                                  </Table.Summary.Cell>
                                 </Table.Summary.Row>
                               </Table.Summary>
                             )}
@@ -1209,17 +1197,6 @@ const DetailTicket: FC = () => {
 
                               <Table.Summary.Cell align={"center"} index={5}>
                                 <b>{getTotalRealQuantity()}</b>
-                              </Table.Summary.Cell>
-
-                              <Table.Summary.Cell align={"center"} index={6}>
-                                <b>
-                                  <NumberFormat
-                                    value={totalDifferenceAmount}
-                                    className="foo"
-                                    displayType={"text"}
-                                    thousandSeparator={true}
-                                  />
-                                </b>
                               </Table.Summary.Cell>
                             </Table.Summary.Row>
                           </Table.Summary>
