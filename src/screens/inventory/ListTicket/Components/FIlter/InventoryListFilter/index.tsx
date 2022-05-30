@@ -95,6 +95,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     to_receive_date: formatDateFilter(params.to_receive_date),
     from_cancel_date: formatDateFilter(params.from_cancel_date),
     to_cancel_date: formatDateFilter(params.to_cancel_date),
+    from_total_received_quantity: formatDateFilter(params.from_total_received_quantity),
+    to_total_received_quantity: formatDateFilter(params.to_total_received_quantity),
   };
   const initialValues = useMemo(() => {
     return filterFromParams;
@@ -104,8 +106,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     if (activeTab === '') return;
 
     let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
-
-    console.log(accountStoreSelected)
 
     if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
       formSearchRef.current?.setFieldsValue({
@@ -121,12 +121,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       });
       return;
     } else {
-      console.log(params)
-      console.log({
-        ...params,
-        from_store_id: params.from_store_id && (Array.isArray(params.from_store_id) && params.from_store_id.length > 0) ? params.from_store_id : accountStoreSelected?.toString(),
-        to_store_id: params.to_store_id && (Array.isArray(params.to_store_id) && params.to_store_id.length > 0) ? params.to_store_id : []
-      })
       formSearchRef.current?.setFieldsValue({
         ...params,
         from_store_id: params.from_store_id && (Array.isArray(params.from_store_id) && params.from_store_id.length > 0) ? params.from_store_id : accountStoreSelected?.toString(),
@@ -163,6 +157,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         ...values,
         from_total_quantity: values?.to_total_quantity,
         to_total_quantity: values?.from_total_quantity,
+      }
+    }
+    if (values?.from_total_received_quantity > values?.to_total_received_quantity) {
+      values = {
+        ...values,
+        from_total_received_quantity: values?.to_total_received_quantity,
+        to_total_received_quantity: values?.from_total_received_quantity,
       }
     }
     if (values?.from_total_amount > values?.to_total_amount) {
@@ -244,6 +245,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         case 'total_quantity':
           onFilter && onFilter({...params, from_total_quantity: null, to_total_quantity: null});
           break;
+        case 'total_received_quantity':
+          onFilter && onFilter({...params, from_total_received_quantity: null, to_total_received_quantity: null});
+          break;
         case 'total_amount':
           onFilter && onFilter({...params, from_total_amount: null, to_total_amount: null});
           break;
@@ -319,7 +323,15 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       let textTotalQuantity = (initialValues.from_total_quantity ? initialValues.from_total_quantity : " ?? ") + " ~ " + (initialValues.to_total_quantity ? initialValues.to_total_quantity : " ?? ")
       list.push({
         key: 'total_quantity',
-        name: 'Số lượng',
+        name: 'SL Gửi',
+        value: textTotalQuantity
+      })
+    }
+    if (initialValues.from_total_received_quantity || initialValues.to_total_received_quantity) {
+      let textTotalQuantity = (initialValues.from_total_received_quantity ? initialValues.from_total_received_quantity : " ?? ") + " ~ " + (initialValues.to_total_received_quantity ? initialValues.to_total_received_quantity : " ?? ")
+      list.push({
+        key: 'total_quantity',
+        name: 'SL Nhận',
         value: textTotalQuantity
       })
     }
@@ -576,9 +588,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 </Input.Group>
               </Col>
             </Row>
-            <Row gutter={12} style={{marginTop: '10px'}} className="price">
+            <Row gutter={12} className="price">
               <Col span={12}>
-                <div className="label">Số lượng</div>
+                <div className="label">SL Gửi</div>
                 <Input.Group compact>
                   <Item name="from_total_quantity" style={{ width: '45%', textAlign: 'center' }}>
                     <InputNumber
@@ -628,11 +640,30 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 </Input.Group>
               </Col>
             </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
+            <Row gutter={12}>
               <Col span={12}>
-                <Item label="Người tạo" name="created_by">
-                  <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
-                </Item>
+                <div className="label">SL Nhận</div>
+                <Input.Group compact>
+                  <Item name="from_total_received_quantity" style={{ width: '45%', textAlign: 'center' }}>
+                    <InputNumber
+                      className="price_min"
+                      placeholder="Từ"
+                      min="0"
+                      max="100000000"
+                    />
+                  </Item>
+                  <div
+                    className="site-input-split"
+                  >~</div>
+                  <Item name="to_total_received_quantity" style={{width: '45%',textAlign: 'center'}}>
+                    <InputNumber
+                      className="site-input-right price_max"
+                      placeholder="Đến"
+                      min="0"
+                      max="1000000000"
+                    />
+                  </Item>
+                </Input.Group>
               </Col>
               <Col span={12}>
                 <div className="label-date">Ngày tạo</div>
@@ -647,18 +678,11 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 />
               </Col>
             </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
+            <Row gutter={12}>
               <Col span={12}>
-                <div className="label-date">Ngày chuyển</div>
-                <CustomFilterDatePicker
-                  fieldNameFrom="from_transfer_date"
-                  fieldNameTo="to_transfer_date"
-                  activeButton={dateClick}
-                  setActiveButton={setDateClick}
-                  formRef={formRef}
-                  format="DD/MM/YYYY HH:mm"
-                  showTime
-                />
+                <Item label="Người tạo" name="created_by">
+                  <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
+                </Item>
               </Col>
               <Col span={12}>
                 <div className="label-date">Ngày nhận</div>
@@ -673,14 +697,40 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 />
               </Col>
             </Row>
-            <Row gutter={12} className="margin-top-20">
+            <Row gutter={12}>
               <Col span={12}>
-                <Item name="note" label="Ghi chú">
-                  <Input className="w-100" />
-                </Item>
+                <div className="label-date">Ngày chuyển</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_transfer_date"
+                  fieldNameTo="to_transfer_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime
+                />
               </Col>
               <Col span={12}>
                 <div className="label-date">Ngày Hủy</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_cancel_date"
+                  fieldNameTo="to_cancel_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime
+                />
+              </Col>
+            </Row>
+            <Row gutter={12} className="margin-top-20">
+              <Col span={12}>
+                <Item name="note" label="Ghi chú">
+                  <Input className="w-100" placeholder="Nhập ghi chú để tìm kiếm" />
+                </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày chờ xử lý</div>
                 <CustomFilterDatePicker
                   fieldNameFrom="from_cancel_date"
                   fieldNameTo="to_cancel_date"

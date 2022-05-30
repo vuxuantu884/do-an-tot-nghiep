@@ -105,6 +105,8 @@ const initQuery: InventoryTransferSearchQuery = {
   to_receive_date: null,
   from_cancel_date: null,
   to_cancel_date: null,
+  from_total_received_quantity: null,
+  to_total_received_quantity: null,
 };
 
 type InventoryTransferTabProps = {
@@ -309,7 +311,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       title: () => {
         return (
           <>
-            <div>SL</div>
+            <div>SL Gửi</div>
             <div>({formatCurrency(0)})</div>
           </>
         );
@@ -323,7 +325,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       width: "100px",
     },
     {
-      title: "SL Nhận",
+      title: () => {
+        return (
+          <>
+            <div>SL Nhận</div>
+            <div>({formatCurrency(0)})</div>
+          </>
+        );
+      },
       visible: true,
       dataIndex: "total_received_quantity",
       align: "center",
@@ -488,12 +497,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       setTableLoading(false);
       if (!!result) {
         if (result.items.length > 0) {
-          let total = 0
+          let total = 0;
+          let totalReceivedQuantity = 0;
           let totalProduct = 0;
 
           result.items.forEach((item: any) => {
             total = total + item.total_quantity;
             totalProduct = totalProduct + item.total_variant;
+            totalReceivedQuantity = totalReceivedQuantity + item.total_received_quantity;
           });
 
           const newColumns = [...columns];
@@ -505,7 +516,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                 title: () => {
                   return (
                     <>
-                      <div>SL</div>
+                      <div>SL Gửi</div>
                       <div>({formatCurrency(total)})</div>
                     </>
                   );
@@ -517,6 +528,26 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                   return formatCurrency(value,".");
                 },
                 width: 120,
+              };
+            }
+            if (newColumns[i].dataIndex === 'total_received_quantity') {
+              newColumns[i] = {
+                // eslint-disable-next-line no-loop-func
+                title: () => {
+                  return (
+                    <>
+                      <div>SL Nhận</div>
+                      <div>({formatCurrency(totalReceivedQuantity)})</div>
+                    </>
+                  );
+                },
+                dataIndex: "total_received_quantity",
+                visible: true,
+                align: "right",
+                render: (value: number) => {
+                  return formatCurrency(value,".");
+                },
+                width: 100,
               };
             }
             if (newColumns[i].dataIndex === 'total_variant') {
