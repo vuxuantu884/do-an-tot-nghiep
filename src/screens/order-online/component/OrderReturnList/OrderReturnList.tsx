@@ -489,7 +489,7 @@ function OrderReturnList(props: PropTypes) {
         <>
           <Tooltip title="Hoàn tiền">
             <NumberFormat
-              value={record.money_refund}
+              value={record.total}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}
