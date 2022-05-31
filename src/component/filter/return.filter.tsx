@@ -756,28 +756,6 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                 </Item>
               </Col>
               <Col span={12}>
-                <Item name="channel_codes" label="Kênh bán hàng">
-                  <CustomSelect
-                    mode="multiple"
-                    showSearch
-                    allowClear
-                    showArrow
-                    placeholder="Chọn kênh bán hàng"
-                    notFoundContent="Không tìm thấy kết quả"
-                    style={{ width: "100%" }}
-                    optionFilterProp="children"
-                    getPopupContainer={(trigger) => trigger.parentNode}
-                    maxTagCount="responsive">
-                    {listChannel &&
-                      listChannel.map((channel) => (
-                        <CustomSelect.Option key={channel.code} value={channel.code}>
-                          {channel.code} - {channel.name}
-                        </CustomSelect.Option>
-                      ))}
-                  </CustomSelect>
-                </Item>
-              </Col>
-              <Col span={12}>
                 <Item name="account_codes" label="Nhân viên tạo đơn">
                   <AccountCustomSearchSelect
                     placeholder="Tìm theo họ tên hoặc mã nhân viên"
