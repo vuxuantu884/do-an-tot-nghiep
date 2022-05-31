@@ -292,7 +292,7 @@ const ProcurementDetailScreen: React.FC = () => {
                   ) => (
                     <div>
                       <div>
-                        <div className="product-item-sku">{item.sku}</div>
+                        <div className="product-item-sku">{item.sku.toUpperCase()}</div>
                         <div className="product-item-name text-truncate-1">
                           <div className="product-item-name-detail">
                             {value}
@@ -323,15 +323,15 @@ const ProcurementDetailScreen: React.FC = () => {
                     <div>
                       SL nhận được duyệt
                       <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                        ({formatCurrency(POUtils.totalQuantityProcument(procurementData?.procurement_items ?? []), ".")})
+                        ({formatCurrency(POUtils.totalAccpectQuantityProcument(procurementData?.procurement_items ?? []), ".")})
                       </div>
                     </div>
                   ),
                   align: "center",
                   width: 100,
-                  dataIndex: POProcumentLineItemField.quantity,
+                  dataIndex: POProcumentLineItemField.accepted_quantity,
                   render: (value, item, index) => (
-                    <div>{value}</div>
+                    <div>{formatCurrency(value, ".")}</div>
                   ),
                 },
                 {
@@ -347,7 +347,7 @@ const ProcurementDetailScreen: React.FC = () => {
                   width: 100,
                   dataIndex: POProcumentLineItemField.real_quantity,
                   render: (value, item, index) => {
-                    return <div>{value}</div>
+                    return <div>{formatCurrency(value, ".")}</div>
                   },
                 },
               ]}
