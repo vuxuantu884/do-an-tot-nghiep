@@ -29,7 +29,6 @@ import SizeSearchSelect from "component/custom/select-search/size-search";
 import CustomSelect from "component/custom/select.custom";
 import SelectPaging from "component/custom/SelectPaging";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import { AppConfig } from "config/app.config";
 import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
@@ -363,11 +362,7 @@ const ProductDetailScreen: React.FC = () => {
             item.variant_prices.forEach((e)=>{
               let priceActive =  values.variants[active].variant_prices.find(p=>p.currency_code === e.currency_code);
               if (priceActive) {
-                e.cost_price = priceActive.cost_price;
                 e.retail_price = priceActive.retail_price;
-                e.tax_percent = priceActive.tax_percent;
-                e.wholesale_price = priceActive.retail_price;
-                e.import_price = priceActive.import_price;
               }
             });
           }
@@ -1203,7 +1198,6 @@ const ProductDetailScreen: React.FC = () => {
                           icon: <InfoCircleOutlined />,
                         }}>
                         <AccountSearchPaging placeholder="Chọn Merchandiser"
-                          fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                         />
                       </Item>
 
@@ -1213,7 +1207,6 @@ const ProductDetailScreen: React.FC = () => {
                       }}>
                         <AccountSearchPaging
                           placeholder="Chọn nhân viên thiết kế"
-                          fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                         /></Item>
                     </div>
                   </Card>

@@ -36,7 +36,6 @@ import { StyledComponent } from "./style";
 import BaseSelect from "../../../../../component/base/BaseSelect/BaseSelect";
 import BaseSelectMerchans from "../../../../../component/base/BaseSelect/BaseSelectMerchans";
 import {useFetchMerchans} from "../../../../../hook/useFetchMerchans";
-import useEffectOnce from "react-use/lib/useEffectOnce";
 
 type ProductFilterProps = {
   params: any;
@@ -288,15 +287,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
       )
     );
   },[dispatch, setDataSizes]);
-
-  useEffectOnce(()=> {
-    getColors('', 1, false, true);
-    getColors('', 1, true, false);
-    getSizes('', 1);
-    setTimeout(() => {
-      getSuppliers('', 1);
-    }, 0);
-  })
 
   return (
     <StyledComponent>
