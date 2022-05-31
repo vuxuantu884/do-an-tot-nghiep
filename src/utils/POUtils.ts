@@ -684,4 +684,19 @@ export const summaryContentByLineItemType = (form: FormInstance, poLineItemType?
     return  "Tiền cần trả";
   }
 }
+
+export const checkCanEditDraft = (form : FormInstance, isEdit: boolean) => {
+  const stt = form.getFieldValue(POField.status);
+  return isEdit && (!stt || stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL);
+};
+
+export const isExpandsSupplement = (form : FormInstance, isEdit: boolean) => {
+  const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(POField.line_items);
+  return isEdit || lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT);
+}
+
+export const isShowSupplement = (form : FormInstance) => {
+  const stt = form.getFieldValue(POField.status);
+  return [POStatus.FINALIZED, POStatus.STORED, POStatus.FINISHED, POStatus.COMPLETED].includes(stt);
+}
 export { POUtils };

@@ -42,7 +42,7 @@ const TAB = [
     name: "Tổng quan",
     id: 1,
     icon: dashboardIcon,
-  }, 
+  },
   // {
   //   name: "Phiếu nháp",
   //   id: 4,
@@ -302,25 +302,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           }
         >
           {({ getFieldValue }) => {
-            let expect_store_id: number = getFieldValue(
-              POField.expect_store_id
-            );
-            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-              POField.line_items
-            );
-            let procurements: Array<PurchaseProcurementViewDraft> = getFieldValue(
-              POField.procurements
-            ) || [];
-            // let receive_status: string = getFieldValue(POField.receive_status);
-            if (!status) {
-              return null;
-            }
-            if (
-              (status === ProcumentStatus.DRAFT)
-            ) {
-              if (!props.isEdit) {
-                return null;
-              }
+            const expect_store_id: number = getFieldValue(POField.expect_store_id);
+            const line_items: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items);
+            const procurements: Array<PurchaseProcurementViewDraft> = getFieldValue(POField.procurements) || [];
+
+            if (((status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) && props.isEdit)) {
               return (
                 <Button
                   onClick={() => {
@@ -378,7 +364,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <Input />
       </Form.Item>
       <div>
-        {status && status !== POStatus.DRAFT ? (
+        {((status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL)) ? (
+          <POInventoryDraft
+            formMain={formMain}
+            isEdit={props.isEdit}
+            stores={stores}
+          />
+        ) : (
           <POInventoryView
             form={formMain}
             tabs={TAB}
@@ -400,7 +392,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setProcumentDraft(value);
                 setVisibleDraft(true);
               }
-              procumentCodeRef.current = procumentCode||'';
+              procumentCodeRef.current = procumentCode || '';
             }}
             confirmInventory={(value: PurchaseProcument, isEdit: boolean, procumentCode?: string) => {
               setEditProcument(isEdit);
@@ -413,16 +405,10 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setProcumentInventory(value);
                 setVisibleConfirm(true);
               }
-              procumentCodeRef.current = procumentCode||'';
+              procumentCodeRef.current = procumentCode || '';
             }}
             isEditDetail={isEditDetail}
             receiveStatus={poData ? poData.receive_status : undefined}
-          />
-        ) : (
-          <POInventoryDraft
-            formMain={formMain}
-            isEdit={props.isEdit}
-            stores={stores}
           />
         )}
       </div>
