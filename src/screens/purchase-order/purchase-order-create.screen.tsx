@@ -77,7 +77,6 @@ const initPurchaseOrder = {
       expect_receipt_date: "",
       procurement_items: [],
       status: ProcumentStatus.DRAFT,
-      status_po: POStatus.DRAFTPO,
       note: "",
       actived_date: "",
       actived_by: "",
@@ -360,29 +359,29 @@ const POCreateScreen: React.FC = () => {
               <Button
                 disabled={loadingDraftButton || loadingSaveButton}
                 className="ant-btn-outline fixed-button cancle-button"
-                onClick={() => history.goBack()}
+                onClick={() => history.push(UrlConfig.PURCHASE_ORDERS)}
               >
                 Huỷ
               </Button>
-              <Button
-                disabled={loadingSaveButton}
-                type="primary"
-                className="create-button-custom ant-btn-outline fixed-button"
-                loading={loadingDraftButton}
-                onClick={() => createPurchaseOrder(POStatus.DRAFT)}
-                ghost
-              >
-                Tạo nháp
-              </Button>
-              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
+                <Button
+                  disabled={loadingSaveButton}
+                  type="primary"
+                  className="create-button-custom ant-btn-outline fixed-button"
+                  loading={loadingDraftButton}
+                  onClick={() => createPurchaseOrder(POStatus.DRAFT)}
+                  ghost
+                >
+                  Tạo nháp
+                </Button>
                 <Button
                   disabled={loadingDraftButton}
                   type="primary"
                   className="create-button-custom"
                   loading={loadingSaveButton}
-                  onClick={() => createPurchaseOrder(POStatus.FINALIZED)}
+                  onClick={() => createPurchaseOrder(POStatus.WAITING_APPROVAL)}
                 >
-                  Tạo và xác nhận
+                  Tạo và chờ duyệt
                 </Button>
               </AuthWrapper>
             </React.Fragment>

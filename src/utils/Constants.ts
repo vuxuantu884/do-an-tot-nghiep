@@ -135,9 +135,6 @@ export const POStatus = {
   FINISHED: "finished",
   //Đã hủy
   CANCELLED: "cancelled",
-  //Phiếu nháp
-  DRAFTPO: "draftpo",
-  STOCK_IN: "stock_in",
 };
 
 export const PO_RETURN_HISTORY = [
@@ -181,6 +178,10 @@ export const PO_RETURN_HISTORY = [
     code: "Create",
     title: "Đã tạo",
   },
+  {
+    code: "waiting_approval",
+    title: "Chờ duyệt",
+  }
 ]
 
 export const ProcumentStatus = {
