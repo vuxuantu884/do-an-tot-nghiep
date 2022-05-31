@@ -24,6 +24,8 @@ export interface InventoryTransferSearchQuery {
   to_receive_date: any,
   from_cancel_date: any,
   to_cancel_date: any,
+  from_pending_date: any,
+  to_pending_date: any,
   from_total_received_quantity: any,
   to_total_received_quantity: any,
 }

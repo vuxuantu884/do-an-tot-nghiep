@@ -105,6 +105,8 @@ const initQuery: InventoryTransferSearchQuery = {
   to_receive_date: null,
   from_cancel_date: null,
   to_cancel_date: null,
+  from_pending_date: null,
+  to_pending_date: null,
   from_total_received_quantity: null,
   to_total_received_quantity: null,
 };

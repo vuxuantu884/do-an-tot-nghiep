@@ -95,6 +95,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     to_receive_date: formatDateFilter(params.to_receive_date),
     from_cancel_date: formatDateFilter(params.from_cancel_date),
     to_cancel_date: formatDateFilter(params.to_cancel_date),
+    from_pending_date: formatDateFilter(params.from_pending_date),
+    to_pending_date: formatDateFilter(params.to_pending_date),
     from_total_received_quantity: formatDateFilter(params.from_total_received_quantity),
     to_total_received_quantity: formatDateFilter(params.to_total_received_quantity),
   };
@@ -200,6 +202,12 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       to_cancel_date: formAdv.getFieldValue('to_cancel_date')
         ? formatDateTimeFilter(formAdv.getFieldValue('to_cancel_date'), 'DD/MM/YYYY HH:mm')?.format()
         : null,
+      from_pending_date: formAdv.getFieldValue('from_pending_date')
+        ? formatDateTimeFilter(formAdv.getFieldValue('from_pending_date'), 'DD/MM/YYYY HH:mm')?.format()
+        : null,
+      to_pending_date: formAdv.getFieldValue('to_pending_date')
+        ? formatDateTimeFilter(formAdv.getFieldValue('to_pending_date'), 'DD/MM/YYYY HH:mm')?.format()
+        : null,
     }
     onFilter && onFilter(valuesForm);
   }, [formAdv, onFilter]);
@@ -269,6 +277,10 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         case 'cancel_date':
           onFilter && onFilter({...params, from_cancel_date: null, to_cancel_date: null});
           formAdv.resetFields(['from_cancel_date', 'to_cancel_date'])
+          break;
+        case 'pending_date':
+          onFilter && onFilter({...params, from_pending_date: null, to_pending_date: null});
+          formAdv.resetFields(['from_pending_date', 'to_pending_date'])
           break;
         default: break
       }
@@ -402,6 +414,15 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         key: 'cancel_date',
         name: 'Ngày hủy',
         value: textCancelDate
+      })
+    }
+
+    if (initialValues.from_pending_date || initialValues.to_pending_date) {
+      let textPendingDate = (initialValues.from_pending_date ? moment(initialValues.from_pending_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_pending_date ? moment(initialValues.to_pending_date).format('DD-MM-YYYY HH:mm') : '??')
+      list.push({
+        key: 'pending_date',
+        name: 'Ngày chờ xử lý',
+        value: textPendingDate
       })
     }
 
@@ -732,8 +753,8 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
               <Col span={12}>
                 <div className="label-date">Ngày chờ xử lý</div>
                 <CustomFilterDatePicker
-                  fieldNameFrom="from_cancel_date"
-                  fieldNameTo="to_cancel_date"
+                  fieldNameFrom="from_pending_date"
+                  fieldNameTo="to_pending_date"
                   activeButton={dateClick}
                   setActiveButton={setDateClick}
                   formRef={formRef}
