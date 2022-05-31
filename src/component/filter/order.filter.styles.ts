@@ -48,7 +48,7 @@ export const StyledComponent = styled.div`
 
               .ant-form.ant-form-inline {
                 position: relative;
-                padding-right: 225px;
+                padding-right: 300px;
                 display: block;
                 .buttonGroup {
                   position: absolute;
@@ -69,6 +69,9 @@ export const StyledComponent = styled.div`
                   }
                 }
                 .input-search {
+                  width: 100%;
+                }
+                .w-100 {
                   width: 100%;
                 }
               }
