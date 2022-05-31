@@ -47,7 +47,7 @@ import { ShippingServiceConfigDetailResponseModel } from "model/response/setting
 import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { BaseFilterTag } from "../model/base/base-filter-tag";
-import { FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
+import { ArrDefects, FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
@@ -483,6 +483,7 @@ export const Products = {
   ) => {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
+   
     pr.variant_prices.forEach((item) => {
       variant_prices.push({
         cost_price: item.cost_price === "" ? null : item.cost_price,
@@ -494,7 +495,24 @@ export const Products = {
           item.wholesale_price === "" ? null : item.wholesale_price,
       });
     });
+    
     arrVariants.forEach((item) => {
+      let vp = _.cloneDeep(variant_prices);
+      if (item.defect_code) {
+        vp.forEach((itemPrice)=>{
+          const valueDefect = ArrDefects.find((e:any)=>e.code === item.defect_code)?.value;
+          if(!valueDefect) return;
+          if(itemPrice.retail_price !== null)
+            itemPrice.retail_price = parseFloat(((itemPrice.retail_price*(100-(valueDefect))/100)).toFixed(2));
+          if(itemPrice.cost_price !== null)
+            itemPrice.cost_price = parseFloat(((itemPrice.cost_price*(100-(valueDefect))/100)).toFixed(2));
+          if(itemPrice.import_price !== null)
+            itemPrice.import_price = parseFloat(((itemPrice.import_price*(100-(valueDefect))/100)).toFixed(2));
+          if(itemPrice.wholesale_price !== null)
+            itemPrice.wholesale_price = parseFloat(((itemPrice.wholesale_price*(100-(valueDefect))/100)).toFixed(2));
+        })
+      }
+      
       variants.push({
         status: status,
         name: item.name,
@@ -511,12 +529,13 @@ export const Products = {
         length_unit: pr.length_unit,
         weight: pr.weight,
         weight_unit: pr.weight_unit,
-        variant_prices: variant_prices,
+        variant_prices: [...vp],
         variant_images: item.variant_images,
         inventory: 0,
         supplier_id: pr.supplier_id,
       });
     });
+    
     let productRequest: ProductRequest = {
       brand: pr.brand,
       category_id: pr.category_id,
