@@ -125,7 +125,7 @@ export interface ProcumentLogQuery extends BaseQuery {
   retailPrice: number;
 }
 export interface POLineItemColor {
-  clothCode: string;
+  color_code: string;
   color: string;
   lineItemPrice?: number; // Giá của line-item : giá nhập| init lần đầu để mapping sang Object value. không dùng 
 }
@@ -165,9 +165,9 @@ export interface PODataSourceProduct {
   productId: number;
   productCode: string;
   productName: string;
-  clothCode: string;
+  color_code: string;
   color: string;
-  lineItemPrice: number; // Giá nhập dùng chung cho 3 size:
+  lineItemPrice: number; // Giá nhập dùng chung cho 1 màu (nhiều size)
   schemaIndex: number;
 }
 

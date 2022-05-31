@@ -293,17 +293,19 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                   <b>{value}</b>
                 </Link>
               </div>
-              <div>
-                <div>Mã đơn đặt hàng:</div>
-                <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
-                  {record.purchase_order.code}
-                </Link>
-              </div>
-              <div>
-                <div>Mã tham chiếu:</div>
-                <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
-                  {record.purchase_order.reference}
-                </Link>
+              <div style={{fontSize: 12}}>
+                <div>
+                  <div>Mã đơn đặt hàng:</div>
+                  <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
+                    {record.purchase_order.code}
+                  </Link>
+                </div>
+                <div>
+                  <div>Mã tham chiếu:</div>
+                  <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
+                    {record.purchase_order.reference}
+                  </Link>
+                </div>
               </div>
             </>
           ) : (
@@ -321,7 +323,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         visible: true,
         render: (value, record) => {
           return (
-            <>
+            <div style={{ fontSize: 12 }}>
               <Link
                 to={`${UrlConfig.SUPPLIERS}/${value.supplier_id}`}
                 className="link-underline"
@@ -338,7 +340,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                   {`${value?.merchandiser_code} - ${value?.merchandiser}`}
                 </Link>
               </div>
-            </>
+            </div>
           )
         }
       },
@@ -419,18 +421,18 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           return (
             <>
               {/* <div> */}
-                {
-                  // <TagStatus
-                  //   icon={icon}
-                  //   // type={type}
-                  // >
-                  //   {ProcurementStatusName[status]}
-                  // </TagStatus>
-                  <div style={{ color: color }} >
-                    {icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2}} />}
-                    {ProcurementStatusName[status]}
-                  </div>
-                }
+              {
+                // <TagStatus
+                //   icon={icon}
+                //   // type={type}
+                // >
+                //   {ProcurementStatusName[status]}
+                // </TagStatus>
+                <div style={{ color: color }} >
+                  {icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }} />}
+                  {ProcurementStatusName[status]}
+                </div>
+              }
               {/* </div> */}
             </>
           );
@@ -954,27 +956,29 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     <StyledComponent>
       <div className="margin-top-20">
         <TabListFilter paramsUrl={paramsrUrl} onClickOpen={() => setShowSettingColumn(true)} />
-        <CustomTable
-          isRowSelection
-          selectedRowKey={selected.map(e => e.id)}
-          isLoading={loading}
-          dataSource={data.items}
-          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
-          columns={columnFinal}
-          rowKey={(item) => item.id}
-          // scroll={{ x: 2000 }}
-          pagination={{
-            pageSize: data.metadata.limit,
-            total: data.metadata.total,
-            current: data.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
-          isShowPaginationAtHeader
-          bordered
-        />
+        <div style={{ marginTop: -20 }}>
+          <CustomTable
+            isRowSelection
+            selectedRowKey={selected.map(e => e.id)}
+            isLoading={loading}
+            dataSource={data.items}
+            sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
+            columns={columnFinal}
+            rowKey={(item) => item.id}
+            // scroll={{ x: 2000 }}
+            pagination={{
+              pageSize: data.metadata.limit,
+              total: data.metadata.total,
+              current: data.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
+            isShowPaginationAtHeader
+            bordered
+          />
+        </div>
         {/* Duyệt phiếu nháp */}
         {
           visibleDraft && (

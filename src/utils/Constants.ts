@@ -413,3 +413,10 @@ export const STATUS_IMPORT_EXPORT = {
   JOB_FINISH: 3,
   ERROR: 4,
 };
+
+export const ArrDefects = [
+  {code: 'L10',name:'Lỗi 10%',value:10},
+  {code: 'L20',name:'Lỗi 20%',value:20},
+  {code: 'L30',name:'Lỗi 30%',value:30},
+  {code: 'L50',name:'Lỗi 50%',value:50},
+]
