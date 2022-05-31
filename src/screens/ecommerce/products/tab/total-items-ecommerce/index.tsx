@@ -1500,7 +1500,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           </div>
         </Modal>
 
-      {inventoryHistoryLog.length && 
+      {inventoryHistoryLog.length > 0 && 
         <Modal
           title="Chi tiết lịch sử đồng bộ"
           centered

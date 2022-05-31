@@ -229,6 +229,37 @@ export const TIKI_ORDER_STATUS_LIST = [
     name: "Đã hoàn",
     value: "returned",
   },
+]
+
+export const TIKTOK_ORDER_STATUS_LIST = [
+  {
+    name: "Chưa thanh toán",
+    value: "UNPAID",
+  },
+  {
+    name: "Đang chờ vận chuyển",
+    value: "AWAITING_SHIPMENT",
+  },
+  {
+    name: "Đang chờ lấy hàng",
+    value: "AWAITING_COLLECTION",
+  },
+  {
+    name: "Đang vận chuyển",
+    value: "IN_TRANSIT",
+  },
+  {
+    name: "Đã giao hàng",
+    value: "DELIVERED",
+  },
+  {
+    name: "Đã hoàn thành",
+    value: "COMPLETED",
+  },
+  {
+    name: "Đã hủy",
+    value: "CANCELLED",
+  },
 ];
 
 export const getEcommerceIcon = (ecommerce_key: string) => {
