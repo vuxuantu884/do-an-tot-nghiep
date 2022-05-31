@@ -560,7 +560,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         expect_receipt_date: "",
         procurement_items: [],
         status: ProcumentStatus.DRAFT,
-        status_po: POStatus.DRAFTPO,
         note: "",
         actived_date: "",
         actived_by: "",

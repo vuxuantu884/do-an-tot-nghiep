@@ -64,6 +64,8 @@ export interface PurchaseOrder extends BaseObject {
   designer_code?:string;
   is_grid_mode: boolean;
   reference?: string;
+  waiting_approval_date?: string;
+  receive_finished_date?: string;
 }
 
 export interface PurchaseOrderQuery extends BaseQuery {
