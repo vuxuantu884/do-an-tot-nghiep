@@ -32,5 +32,6 @@ export const ODERS_PERMISSIONS = {
   //DELETE
   DELETE_ORDER: "orders_delete",
   DELETE_RETURN_ORDER: "orders_returns_delete",
+  CONFIG_UPDATE:"orders_config_update",
 }
 
