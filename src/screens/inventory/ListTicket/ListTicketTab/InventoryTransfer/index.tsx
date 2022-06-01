@@ -226,7 +226,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     items: [],
   });
 
-  const [columns, setColumn] = useState<Array<any>>([
+  const defaultColumns = [
     {
       title: "ID phiếu chuyển",
       dataIndex: "code",
@@ -444,7 +444,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         );
       },
     },
-  ]);
+  ];
+
+  const [columns, setColumn] = useState<Array<any>>(defaultColumns);
 
   useEffect(() => {
     setActions(actionsInit);
@@ -575,6 +577,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           }
 
           setColumn(newColumns);
+        } else {
+          setColumn(defaultColumns);
         }
 
         setData(result);
@@ -584,7 +588,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         firstLoad = false;
       }
     },
-    [columns]
+    [columns, defaultColumns]
   );
 
   const getAccounts = async (codes: string) => {
