@@ -1,4 +1,4 @@
-import { Card, Col, Row } from "antd";
+import { Card, Col, Row, Tooltip } from "antd";
 import { actionGetOrderActionLogs } from "domain/actions/order/order.action";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import moment from "moment";
@@ -127,11 +127,14 @@ function ActionHistory(props: PropType) {
                 <Row className="" gutter={15}>
                   <Col span={10}>
                     <div className="singleActionHistory__info">
-                      {singleActionHistory?.store && (
-                        <h4 className="singleActionHistory__title">
-                          {singleActionHistory?.updated_name}
-                        </h4>
-                      )}
+                      <Tooltip title={`${singleActionHistory?.updated_by} - ${singleActionHistory?.store}`}>
+                        {singleActionHistory?.store && (
+                          <h4 className="singleActionHistory__title">
+                            {singleActionHistory?.updated_name}
+                          </h4>
+                        )}
+                      </Tooltip>
+
                       {singleActionHistory?.updated_date && (
                         <div className="singleActionHistory__date">
                           {moment(singleActionHistory?.updated_date).format(
