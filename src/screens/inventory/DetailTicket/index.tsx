@@ -50,7 +50,7 @@ import InventoryStep from "./components/InventoryTransferStep";
 import { STATUS_INVENTORY_TRANSFER } from "../constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
@@ -335,6 +335,18 @@ const DetailTicket: FC = () => {
     let dataTemp = [...dataTable];
     let selectedItem = item;
 
+    if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+      if (dataTable.length > 0) {
+        const findIndex = dataTemp.findIndex((i) => i.product_id === item.product_id);
+
+        if (findIndex === -1) {
+          showError("Sản Phẩm không có trong phiếu chuyển");
+        }
+      } else {
+        showError("Sản Phẩm không có trong phiếu chuyển");
+      }
+    }
+
     const variantPrice =
       selectedItem &&
       selectedItem.variant_prices &&
@@ -373,7 +385,7 @@ const DetailTicket: FC = () => {
     }
     setDataTable([...dataTemp]);
     setResultSearch([]);
-  },[dataTable]);
+  },[data?.status, dataTable]);
 
   function getTotalRealQuantity() {
     let total = 0;
@@ -992,6 +1004,16 @@ const DetailTicket: FC = () => {
     [data, history]
   );
 
+  const receive = () => {
+    const dataTableFiltered = dataTable.filter((i: any) => i.real_quantity !== 0 && i.real_quantity !== null);
+    if (dataTableFiltered.length === 0) {
+      showError("Vui lòng nhập ít nhất 1 sản phẩm số lượng thực nhận khác 0");
+      return;
+    }
+
+    setIsVisibleModalReceiveWarning(true)
+  }
+
   return (
     <StyledWrapper>
       <ContentContainer
@@ -1167,12 +1189,6 @@ const DetailTicket: FC = () => {
                         summary={() => {
                           let totalQuantity = 0;
                           let totalAmount = 0;
-                          let totalDifferenceAmount = 0;
-                          dataTable.forEach((element: LineItem) => {
-                            totalDifferenceAmount += (element.real_quantity - element.transfer_quantity) * element.price;
-                            totalQuantity += element.transfer_quantity;
-                            totalAmount += element.transfer_quantity * element.price;
-                          });
                           return (
                           <Table.Summary fixed>
                             <Table.Summary.Row>
@@ -1222,7 +1238,7 @@ const DetailTicket: FC = () => {
                                 className="ant-btn-primary"
                                 size="large"
                                 disabled={isLoadingBtn}
-                                onClick={() => setIsVisibleModalReceiveWarning(true)}
+                                onClick={receive}
                               >
                                 Nhận hàng
                               </Button>
