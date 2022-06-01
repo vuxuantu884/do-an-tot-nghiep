@@ -48,6 +48,7 @@ const AccountImportScreen: React.FC = () => {
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [listImportFile, setListImportFile] = useState<Array<string>>([]);
   const [exporting, setExporting] = useState<boolean>(false);
+  const [urlFileError, setUrlFileError] = useState<string>("");
   const [progressData, setProgressData] = useState<process>(
     {
       processed: 0,
@@ -154,8 +155,10 @@ const onRemoveFile = () => {
             setListExportFile(newListExportFile);
           } else if (response.data && response.data.status === "ERROR") {
             setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
-            showError(response.data.message);
             setExporting(false);
+            if (response.data.message) {
+              setErrorData(JSON.parse(response.data.message));
+            }
           }
         }
       });
@@ -173,7 +176,7 @@ const onRemoveFile = () => {
           //TODO: set process
           console.log('response.data',response.data);
           
-          const percent = Math.floor((response.data.processed / response.data.total) * 100);
+          const percent = Math.floor(((response.data.processed ?? 1) / (response.data.total??1)) * 100);
           setProgressData({
             error:0,
             processed:response.data.processed,
@@ -182,16 +185,25 @@ const onRemoveFile = () => {
             percent: percent
           })
           if (response.data && response.data.status === "FINISH") {
-            showSuccess("Tải file mẫu thành công");
             setStatusImport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
             const newListImportFile = listImportFile.filter((item) => {
               return item !== fileCode;
             });
             setListImportFile(newListImportFile);
+            showSuccess("Nhập file người dùng thành công");
+            if (response.data.message) {
+              const mess = JSON.parse(response.data.message);
+              mess.forEach((e:string) => {
+                showSuccess(e);
+              });
+            }
           } else if (response.data && response.data.status === "ERROR") {
             setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
-            showError(response.data.message);
+            setUrlFileError(response.data.url);
+            if (response.data.message) {
+              setErrorData(JSON.parse(response.data.message));
+            }
           }
         }
       });
@@ -199,18 +211,17 @@ const onRemoveFile = () => {
   }, [listImportFile]);
 
   const uploadProps = {
-    beforeUpload: (file: any) => {
-      resetFile();
-      const typeExcel = file.type === ConAcceptImport;
+    beforeUpload: () => false,
+    onChange: (obj: any) => {
+      const typeExcel = obj.file.type === ConAcceptImport;
       if (!typeExcel) {
         showError("Chỉ chọn file excel");
+        return;
       }
       
-      setFileList([file]);
-      return typeExcel || Upload.LIST_IGNORE;
+      setFileList([obj.file]);
     },
-    customRequest:(options:any)=>{
-    }
+    customRequest:()=>false
   }
 
   useEffect(() => {
@@ -228,6 +239,8 @@ const onRemoveFile = () => {
     const getFileInterval = setInterval(checkImportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [checkImportFile, listImportFile, listImportFile.length, statusImport]); 
+  console.log('progressData.percent',progressData.percent);
+  
 
   return (
     <ContentContainer
@@ -349,7 +362,10 @@ const onRemoveFile = () => {
                     </div>
                     {errorData?.length ?
                       <div className="error-orders">
-                        <div className="title">Chi tiết lỗi:</div>
+                        <div className="title">Chi tiết lỗi: 
+                          <Typography.Text>
+                            <img src={excelIcon} alt="" /> <a href={urlFileError}>Tải file chi tiết lỗi</a>
+                          </Typography.Text></div>
                         <div className="error_message">
                           <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
                             <ul style={{ color: "#E24343" }}>
