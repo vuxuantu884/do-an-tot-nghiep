@@ -49,6 +49,9 @@ const RoleUpdateScreen = React.lazy(
 const AccountCreateScreen = React.lazy(
   () => import("screens/settings/account/account.create.screen")
 );
+const AccountImportScreen = React.lazy(
+  () => import("screens/settings/account/account.import.screen")
+);
 const AccountUpdateScreen = React.lazy(
   () => import("screens/settings/account/account.update.screen")
 );
@@ -177,6 +180,18 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         permissions: [AccountPermissions.READ],
+      },
+      {
+        path: `${UrlConfig.ACCOUNTS}/import`,
+        exact: true,
+        title: "Nhập file người dùng",
+        icon: "icon-dot",
+        component: AccountImportScreen,
+        key: "subMenu263",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [AccountPermissions.CREATE],
       },
     ],
   },

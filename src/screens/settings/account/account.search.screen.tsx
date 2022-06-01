@@ -1,5 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Card, Row, Space, Switch, Tag } from "antd";
+import { Button, Card, Row, Space, Switch, Tag } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
@@ -36,6 +36,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { SearchContainer } from "./account.search.style";
+import ImportExcel from "./components/me-contact/ImportExcel";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -64,6 +65,7 @@ const ListAccountScreen: React.FC = () => {
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
+  const [isImport, setIsImport] = useState<boolean>(false);
 
   //phân quyền
   const [allowDeleteAcc] = useAuthorization({
@@ -298,9 +300,17 @@ const ListAccountScreen: React.FC = () => {
       extra={
         <Row>
           <Space>
-            <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
-              <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
-            </AuthWrapper>
+          <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
+            <Button className="light" size="large"  
+              onClick={() =>
+                      history.push(`${UrlConfig.ACCOUNTS}/import`)
+                    }>
+              Nhập file
+            </Button>
+          </AuthWrapper>
+          <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
+            <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
+          </AuthWrapper>
           </Space>
         </Row>
       }
@@ -337,6 +347,12 @@ const ListAccountScreen: React.FC = () => {
             sticky={{ offsetScroll: 5, offsetHeader: 55 }}
           />
         </Card>
+        <ImportExcel
+          onCancel={()=>{setIsImport(false)}}
+          onOk={()=>{}}
+          title="Nhập file người dùng"
+          visible={isImport}
+          />
       </SearchContainer>
 
     </ContentContainer>
