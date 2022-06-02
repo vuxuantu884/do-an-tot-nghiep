@@ -260,9 +260,9 @@ export interface InventoryExportImportTransferDetailItem {
   exported_code: string,
   exported_name: string,
   exported_date: Date,
-  received_code: string,
+  received_by: string,
   received_name: string,
-  received_date: Date,
+  receive_date: Date,
   inventory_transfer: InventoryTransferDetailItem
 }
 
