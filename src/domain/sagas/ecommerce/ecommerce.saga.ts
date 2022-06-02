@@ -37,6 +37,7 @@ import {
   exitEcommerceJobsApi,
   getEcommerceAddressByShopIdApi,
   batchShippingShopeeProductApi,
+  getLogInventoryVariantApi,
 } from "service/ecommerce/ecommerce.service";
 import { showError } from "utils/ToastUtils";
 import {
@@ -751,6 +752,29 @@ function* batchShippingShopeeProductSaga(action: YodyAction) {
   }
 }
 
+function* getLogInventoryVariantSaga(action: YodyAction) {
+  const { request, callback } = action.payload;
+  yield put(showLoading());
+  try {
+    const response: BaseResponse<any> = yield call(getLogInventoryVariantApi, request);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        callback(false);
+        break;
+    }
+  } catch (error) {
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
 
 
 export function* ecommerceSaga() {
@@ -839,6 +863,12 @@ export function* ecommerceSaga() {
   yield takeLatest(
     EcommerceType.BATCH_SHIPPING_SHOPPE_PRODUCT,
     batchShippingShopeeProductSaga
+  )
+
+  //get log inventory follow variant
+  yield takeLatest(
+    EcommerceType.GET_LOG_INVENTORY_VARIANT,
+    getLogInventoryVariantSaga
   )
 
 
