@@ -28,6 +28,9 @@ const PurchaseOrderDetailScreen = React.lazy(
 const PurchaseOrderReturnScreen = React.lazy(
   () => import("screens/purchase-order/purchase-order-return.screen")
 );
+const PurchaseOrderStampPrinting= React.lazy(
+  () => import("screens/purchase-order/StampPrinting")
+);
 
 //PR
 const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
@@ -122,6 +125,19 @@ export const inventory: Array<RouteMenu> = [
         icon: "icon-dot",
         component: PurchaseOrderReturnScreen,
         key: "submenu223",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.return],
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.PURCHASE_ORDERS}/:id/stamp-printing`,
+        exact: true,
+        title: "In barcode đơn đặt hàng",
+        icon: "icon-dot",
+        component: PurchaseOrderStampPrinting,
+        key: "submenu224",
         isShow: true,
         header: null,
         permissions: [PurchaseOrderPermission.return],

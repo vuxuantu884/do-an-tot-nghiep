@@ -188,3 +188,28 @@ export type PODataSourceGrid = PODataSourceProduct & PODataSourceSize;
 export interface PurchaseOrderBySupplierQuery extends BaseQuery {
   condition?: string
 }
+
+export interface POStampPrintingVariant {
+  variant_id: number;
+  quantity_req: number;
+}
+
+export interface POStampPrinting {
+  type_name: string;
+  order_code: string;
+  supplier_id: number;
+  supplier: string;
+  note: string;
+  variants: Array<POStampPrintingVariant>;
+}
+
+export type ProductStampPrinting = {
+  variant_id: number;
+  quantity_req: number;
+  name: string;
+  sku: string;
+  barcode: string;
+  price: number;
+  planQuantity: number;
+  product_id: number
+}
