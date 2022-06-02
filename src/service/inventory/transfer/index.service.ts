@@ -5,7 +5,7 @@ import {
   DataExport,
   DeleteTicketRequest,
   FileParam,
-  InventoryTransferDetailItem,
+  InventoryTransferDetailItem, InventoryTransferImportExportSearchQuery,
   InventoryTransferLog,
   InventoryTransferLogSearchQuery,
   InventoryTransferSearchQuery,
@@ -27,6 +27,19 @@ export const getListInventoryTransferApi = (
 ): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers?${queryString}`);
+};
+
+export const getListImportExportTransferApi = (
+  query: InventoryTransferImportExportSearchQuery
+): Promise<BaseResponse<any>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/variants?${queryString}`);
+};
+
+export const updateNoteTransferApi = (
+  id: number, data: any
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${id}/note`, data);
 };
 
 export const getListLogInventoryTransferApi = (

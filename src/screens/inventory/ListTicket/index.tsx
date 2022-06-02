@@ -22,6 +22,7 @@ import { useLocation } from "react-router-dom";
 import queryString from "query-string";
 import exportIcon from "assets/icon/export.svg";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import ExportImportTab from "./ListTicketTab/ExportImportTransfer";
 
 const { TabPane } = Tabs;
 
@@ -194,6 +195,20 @@ const InventoryListScreen: React.FC = () => {
                   activeTab={activeTab}
                   vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
                   vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  stores={stores}
+                  accounts={accounts}
+                  accountStores={userReducer.account?.account_stores}
+                  setAccounts={(value) => setAccounts([
+                    ...value,
+                    ...accounts
+                  ])}
+                />
+              )}
+            </TabPane>
+            <TabPane tab="Sản phẩm chuyển kho" key={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}>
+              {activeTab === InventoryTransferTabUrl.LIST_EXPORT_IMPORT && (
+                <ExportImportTab
+                  activeTab={activeTab}
                   stores={stores}
                   accounts={accounts}
                   accountStores={userReducer.account?.account_stores}

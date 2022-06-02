@@ -30,6 +30,22 @@ export interface InventoryTransferSearchQuery {
   to_total_received_quantity: any,
 }
 
+export interface InventoryTransferImportExportSearchQuery {
+  page: number;
+  limit: number;
+  condition: string | null,
+  from_store_id: any,
+  to_store_id: any,
+  received_code: [],
+  note: string | null,
+  from_transfer_date: any,
+  to_transfer_date: any,
+  from_receive_date: any,
+  to_receive_date: any,
+  from_pending_date: any,
+  to_pending_date: any,
+}
+
 export interface InventoryTransferLogSearchQuery{
   page: number;
   limit: number;
@@ -216,6 +232,32 @@ export interface InventoryTransferDetailItem {
   line_items: Array<LineItem>;
   shipment: ShipmentItem;
   exception_items: [];
+}
+
+export interface InventoryExportImportTransferDetailItem {
+  id: number,
+  code: string,
+  version: string | null,
+  created_by: string,
+  created_name: string,
+  created_date: Date,
+  updated_by: string,
+  updated_name: string,
+  updated_date: Date,
+  sku: string,
+  variant_name: string,
+  variant_id: number,
+  transfer_quantity: number,
+  received_quantity: number,
+  price: number,
+  amount: number,
+  exported_code: string,
+  exported_name: string,
+  exported_date: Date,
+  received_code: string,
+  received_name: string,
+  received_date: Date,
+  inventory_transfer: InventoryTransferDetailItem
 }
 
 export type DeleteTicketRequest = {
