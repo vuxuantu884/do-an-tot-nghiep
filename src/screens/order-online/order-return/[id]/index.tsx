@@ -31,12 +31,13 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { deleteOrderReturnService } from "service/order/return.service";
+import { deleteOrderReturnService, updateNoteOrderReturnService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import { findPaymentMethodByCode } from "utils/OrderUtils";
 import { showErrorReport } from "utils/ReportUtils";
+import { showSuccess } from "utils/ToastUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
 import CardReturnMoneyPageDetail from "../components/CardReturnMoney/CardReturnMoneyPageDetail";
 import CardReturnReceiveProducts from "../components/CardReturnReceiveProducts";
@@ -375,7 +376,25 @@ const ScreenReturnDetail = (props: PropTypes) => {
     },
     [],
   )
-  
+
+  const editNote = useCallback(
+    (note, customerNote, orderID) => {
+
+      updateNoteOrderReturnService(orderID,note,customerNote).then((response)=>{
+        if (isFetchApiSuccessful(response)) {
+          let orderDetailCopy:any= {...OrderDetail};
+            orderDetailCopy.note=note;
+            orderDetailCopy.customer_note=customerNote;
+            console.log("orderDetailCopy",orderDetailCopy)
+            setOrderDetail({...orderDetailCopy});
+          showSuccess("Cập nhật ghi chú thành công")
+        } else {
+          handleFetchApiError(response, "Cập nhật ghi chú đơn trả", dispatch);
+        }
+      })
+    },
+    [OrderDetail, dispatch]
+  );
   
   useEffect(() => {
     dispatch(
@@ -523,7 +542,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 orderId={returnOrderId}
                 countChangeSubStatus={countChangeSubStatus}
               />
-              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
+              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote}/>
             </Col>
             <ReturnDetailBottom
               onOk={onDeleteReturn}

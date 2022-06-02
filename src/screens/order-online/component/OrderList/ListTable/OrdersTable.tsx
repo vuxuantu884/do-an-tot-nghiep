@@ -195,6 +195,7 @@ function OrdersTable(props: PropTypes) {
   const onSuccessEditNote = useCallback(
     (note, customer_note, orderID) => {
       console.log('itemResult', itemResult)
+      showSuccess(`${orderID} Cập nhật ghi chú thành công`);
       const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
         itemResult[indexOrder].note = note;

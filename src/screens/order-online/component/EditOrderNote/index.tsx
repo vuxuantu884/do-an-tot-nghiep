@@ -9,7 +9,7 @@ type FormValueType = {
   customer_note: string | null | undefined;
 };
 type PropTypes = {
-  note: any;
+  note?: any;
   title?: string;
   color?: string;
   isDisable?: boolean;
