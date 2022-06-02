@@ -61,6 +61,8 @@ const AccountImportScreen: React.FC = () => {
   const dispatch = useDispatch();
 
 const resetFile = ()=>{
+  setUrlFileError("");
+  setErrorData([]);
   setFileList([]);
   setProgressData({
     processed: 0,
@@ -69,7 +71,6 @@ const resetFile = ()=>{
     total: 0,
     percent: 0
   });
-  setErrorData([]);
 }
 
 const onRemoveFile = () => {
@@ -174,8 +175,6 @@ const onRemoveFile = () => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           //TODO: set process
-          console.log('response.data',response.data);
-          
           const percent = Math.floor(((response.data.processed ?? 1) / (response.data.total??1)) * 100);
           setProgressData({
             error:0,
@@ -185,6 +184,7 @@ const onRemoveFile = () => {
             percent: percent
           })
           if (response.data && response.data.status === "FINISH") {
+            setUrlFileError(response.data.url);
             setStatusImport(STATUS_IMPORT_EXPORT.JOB_FINISH);
             const fileCode = response.data.code;
             const newListImportFile = listImportFile.filter((item) => {
@@ -213,6 +213,7 @@ const onRemoveFile = () => {
   const uploadProps = {
     beforeUpload: () => false,
     onChange: (obj: any) => {
+      resetFile();
       const typeExcel = obj.file.type === ConAcceptImport;
       if (!typeExcel) {
         showError("Chỉ chọn file excel");
@@ -239,8 +240,6 @@ const onRemoveFile = () => {
     const getFileInterval = setInterval(checkImportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [checkImportFile, listImportFile, listImportFile.length, statusImport]); 
-  console.log('progressData.percent',progressData.percent);
-  
 
   return (
     <ContentContainer
@@ -359,13 +358,15 @@ const onRemoveFile = () => {
                           </div>
                         </div>
                       </div>
+                     { urlFileError === "" ? "":
+                       <div className="title">Chi tiết: 
+                       <Typography.Text>
+                         <img src={excelIcon} alt="" /> <a href={urlFileError}>file đã nhập</a>
+                       </Typography.Text></div>
+                     } 
                     </div>
                     {errorData?.length ?
                       <div className="error-orders">
-                        <div className="title">Chi tiết lỗi: 
-                          <Typography.Text>
-                            <img src={excelIcon} alt="" /> <a href={urlFileError}>Tải file chi tiết lỗi</a>
-                          </Typography.Text></div>
                         <div className="error_message">
                           <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
                             <ul style={{ color: "#E24343" }}>
