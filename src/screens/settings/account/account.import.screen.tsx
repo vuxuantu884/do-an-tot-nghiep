@@ -177,10 +177,10 @@ const onRemoveFile = () => {
           //TODO: set process
           const percent = Math.floor(((response.data.processed ?? 1) / (response.data.total??1)) * 100);
           setProgressData({
-            error:0,
             processed:response.data.processed,
             success:response.data.success,
             total:response.data.total,
+            error: response.data.error,
             percent: percent
           })
           if (response.data && response.data.status === "FINISH") {
