@@ -12,7 +12,7 @@ import {VariantResponse} from "model/product/product.model";
 import {getQueryParams, useQuery} from "utils/useQuery";
 
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Input, Modal, Form, Tag } from "antd";
+import { Input, Modal, Form, Tag, Row, Col } from "antd";
 import { ExportImportTransferTabWrapper } from "./styles";
 import rightArrow from "assets/icon/arrow-right.svg";
 
@@ -101,10 +101,13 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.inventory_transfer.id}`}>{value}</Link>
           </div>
           <div className="product-item-name custom-name">
+            {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+          </div>
+          <div className="product-item-name custom-name">
             {ConvertUtcToLocalDate(row.exported_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
           <div className="product-item-name custom-name">
-            {ConvertUtcToLocalDate(row.received_date, DATE_FORMAT.DDMMYY_HHmm)}
+            {ConvertUtcToLocalDate(row.receive_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
         </div>
       ),
@@ -200,13 +203,12 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       align: "left",
       render: (value: number, row: InventoryExportImportTransferDetailItem) => {
         return (
-          <div className="ml-20">
-            <div>SL: <span className="text-bold">{formatCurrency(row.transfer_quantity,".")}</span></div>
-            <div>Thành tiền: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
+          <div>
+            <span>{formatCurrency(row.transfer_quantity,".")}</span>
           </div>
         )
       },
-      width: "150px",
+      width: "100px",
     },
     {
       title: () => {
@@ -222,13 +224,12 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       align: "left",
       render: (value: number, row: InventoryExportImportTransferDetailItem) => {
         return (
-          <div className="ml-20">
-            <div>SL: <span className="text-bold">{formatCurrency(row.received_quantity,".")}</span></div>
-            <div>Thành tiền: <span className="text-bold">{formatCurrency(row.received_quantity * row.price,".")}</span></div>
+          <div>
+            <span>{formatCurrency(row.received_quantity,".")}</span>
           </div>
         )
       },
-      width: "150px",
+      width: "100px",
     },
     {
       title: "Giá bán",
@@ -248,50 +249,80 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       },
     },
     {
-      title: "Người gửi",
-      width: "150px",
+      title: "Thành tiền",
+      dataIndex: "amount",
       visible: true,
-      className: "ant-col-info",
-      dataIndex: "exported_name",
-      render: (value: string, record: InventoryExportImportTransferDetailItem) => (
-        <div>
+      width: 120,
+      render: (value: number, row: InventoryExportImportTransferDetailItem) => {
+        return (
           <div>
-            <div className="product-item-sku custom-title">
-              <Link
-                target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${record.exported_code}`}
-              >
-                {record.exported_code}
-              </Link>
-            </div>
-            <div className="product-item-name custom-name">
-              <span className="product-item-name-detail">{value}</span>
-            </div>
+            <div>Gửi: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
+            <div>Nhận: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
           </div>
-        </div>
-      ),
+        );
+      },
     },
     {
-      title: "Người nhận",
-      width: "150px",
+      title: "Thao tác",
+      width: "300px",
       visible: true,
-      className: "ant-col-info",
-      dataIndex: "received_name",
+      dataIndex: "",
       render: (value: string, record: InventoryExportImportTransferDetailItem) => (
         <div>
-          <div>
-            <div className="product-item-sku custom-title">
-              <Link
-                target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${record.received_code}`}
-              >
-                {record.received_code}
-              </Link>
-            </div>
-            <div className="product-item-name custom-name">
-              <span className="product-item-name-detail">{value}</span>
-            </div>
-          </div>
+          <Row gutter={12}>
+            <Col span={8}>
+              Người tạo:
+            </Col>
+            <Col span={16}>
+              <div className="product-item-sku custom-title">
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ACCOUNTS}/${record.created_by}`}
+                >
+                  {record.created_by}
+                </Link>
+              </div>
+              <div className="product-item-name custom-name">
+                <span className="product-item-name-detail">{record.created_name}</span>
+              </div>
+            </Col>
+          </Row>
+          <Row gutter={12}>
+            <Col span={8}>
+              Người gửi:
+            </Col>
+            <Col span={16}>
+              <div className="product-item-sku custom-title">
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ACCOUNTS}/${record.exported_code}`}
+                >
+                  {record.exported_code}
+                </Link>
+              </div>
+              <div className="product-item-name custom-name">
+                <span className="product-item-name-detail">{record.exported_name}</span>
+              </div>
+            </Col>
+          </Row>
+          <Row gutter={12}>
+            <Col span={8}>
+              Người nhận:
+            </Col>
+            <Col span={16}>
+              <div className="product-item-sku custom-title">
+                <Link
+                  target="_blank"
+                  to={`${UrlConfig.ACCOUNTS}/${record.received_by}`}
+                >
+                  {record.received_by}
+                </Link>
+              </div>
+              <div className="product-item-name custom-name">
+                <span className="product-item-name-detail">{record.received_name}</span>
+              </div>
+            </Col>
+          </Row>
         </div>
       ),
     },
@@ -403,17 +434,16 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             },
             dataIndex: "total_quantity",
             visible: true,
-            align: "left",
+            align: "center",
             // eslint-disable-next-line no-loop-func
             render: (value: number, row: InventoryExportImportTransferDetailItem) => {
               return (
-                <div className="ml-20">
-                  <div>SL: <span className="text-bold">{formatCurrency(row.transfer_quantity,".")}</span></div>
-                  <div>Thành tiền: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
+                <div>
+                  <span>{formatCurrency(row.transfer_quantity,".")}</span>
                 </div>
               )
             },
-            width: "150px",
+            width: "100px",
           };
         }
         if (newColumns[i].dataIndex === 'received_quantity') {
@@ -429,17 +459,16 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             },
             dataIndex: "received_quantity",
             visible: true,
-            align: "left",
+            align: "center",
             // eslint-disable-next-line no-loop-func
             render: (value: number, row: InventoryExportImportTransferDetailItem) => {
               return (
-                <div className="ml-20">
-                  <div>SL: <span className="text-bold">{formatCurrency(row.received_quantity,".")}</span></div>
-                  <div>Thành tiền: <span className="text-bold">{formatCurrency(row.received_quantity * row.price,".")}</span></div>
+                <div>
+                  <span>{formatCurrency(row.received_quantity,".")}</span>
                 </div>
               )
             },
-            width: "150px",
+            width: "100px",
           };
         }
       }
