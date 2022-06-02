@@ -75,6 +75,10 @@ export const AllOrdersMappingStyled = styled.div`
   .system_cancelled {
     background: #E24343 !important;
   }
+
+  .customer_cancelled {
+    background-color: #E24343 !important;
+  }
 `;
 
 export const AllOrdersMappingFilterStyled = styled.div`
