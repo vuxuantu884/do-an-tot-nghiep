@@ -1202,15 +1202,6 @@ const DetailTicket: FC = () => {
                                 <b>{totalQuantity}</b>
                               </Table.Summary.Cell>
 
-                              <Table.Summary.Cell align={"center"} index={4}>
-                                <b><NumberFormat
-                                  value={totalAmount}
-                                  className="foo"
-                                  displayType={"text"}
-                                  thousandSeparator={true}
-                                /></b>
-                              </Table.Summary.Cell>
-
                               <Table.Summary.Cell align={"center"} index={5}>
                                 <b>{getTotalRealQuantity()}</b>
                               </Table.Summary.Cell>
