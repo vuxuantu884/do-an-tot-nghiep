@@ -66,6 +66,7 @@ const ActionMenu = {
   EXPORT: 1,
   DELETE: 2,
   CLONE: 3,
+  PRINTING_STAMP: 4,
 }
 
 const ActionMenuPrint = {
@@ -289,6 +290,7 @@ const PODetailScreen: React.FC = () => {
   }, [idNumber]);
 
   const onMenuClick = (index: number) => {
+    
     switch (index) {
       case ActionMenu.DELETE:
         setConfirmDelete(true);
@@ -298,6 +300,10 @@ const PODetailScreen: React.FC = () => {
         break;
       case ActionMenu.CLONE:
         handleClonePo();
+        break;
+      case ActionMenu.PRINTING_STAMP:
+        history.push(`${UrlConfig.PURCHASE_ORDERS}/${idNumber}/stamp-printing`);
+        break;
     }
   };
 
@@ -411,7 +417,7 @@ const PODetailScreen: React.FC = () => {
   }, [dispatch, idNumber, printContent]);
 
   const menu: Array<MenuAction> = useMemo(() => {
-    let menuActions = [
+    const menuActions = [
       {
         id: ActionMenu.EXPORT,
         name: "Xuất file NPL",
@@ -422,12 +428,19 @@ const PODetailScreen: React.FC = () => {
       }
     ];
     if (!poData) return [];
-    let poStatus = poData.status;
-    if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO)
+    const poStatus = poData.status;
+    if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",
       });
+    }
+    if ([POStatus.FINALIZED, POStatus.STORED, POStatus.COMPLETED, POStatus.FINISHED].includes(poStatus)) {
+      menuActions.unshift({
+        id: ActionMenu.PRINTING_STAMP,
+        name: "In mã vạch",
+      })
+    }
     return menuActions;
   }, [poData, canCancelPO]);
 
