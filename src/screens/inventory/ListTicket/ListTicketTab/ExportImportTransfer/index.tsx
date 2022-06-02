@@ -202,7 +202,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         return (
           <div className="ml-20">
             <div>SL: <span className="text-bold">{formatCurrency(row.transfer_quantity,".")}</span></div>
-            <div>Thành tiền: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.amount,".")}</span></div>
+            <div>Thành tiền: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
           </div>
         )
       },
@@ -224,7 +224,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         return (
           <div className="ml-20">
             <div>SL: <span className="text-bold">{formatCurrency(row.received_quantity,".")}</span></div>
-            <div>Thành tiền: <span className="text-bold">{formatCurrency(row.received_quantity * row.amount,".")}</span></div>
+            <div>Thành tiền: <span className="text-bold">{formatCurrency(row.received_quantity * row.price,".")}</span></div>
           </div>
         )
       },
@@ -409,7 +409,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
               return (
                 <div className="ml-20">
                   <div>SL: <span className="text-bold">{formatCurrency(row.transfer_quantity,".")}</span></div>
-                  <div>Thành tiền: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.amount,".")}</span></div>
+                  <div>Thành tiền: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
                 </div>
               )
             },
@@ -435,7 +435,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
               return (
                 <div className="ml-20">
                   <div>SL: <span className="text-bold">{formatCurrency(row.received_quantity,".")}</span></div>
-                  <div>Thành tiền: <span className="text-bold">{formatCurrency(row.received_quantity * row.amount,".")}</span></div>
+                  <div>Thành tiền: <span className="text-bold">{formatCurrency(row.received_quantity * row.price,".")}</span></div>
                 </div>
               )
             },
