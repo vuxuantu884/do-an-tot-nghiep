@@ -178,7 +178,7 @@ function PrintingStamp() {
     const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, printVariantBarcodeByPOApi, value);
     if (res) {
       DownloadFile(res);
-      history.push(`${UrlConfig.PRODUCT}/stamp-printing-history`)
+      history.push(`${UrlConfig.PURCHASE_ORDERS}/${poId}`)
     }
   }
 
