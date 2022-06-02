@@ -301,6 +301,7 @@ export interface ShipmentResponse extends BaseObject {
   reference_status_explanation: string | null;
   cancel_reason: string | null;
   tracking_code: string | null;
+  recipient_sort_code?: string | null;
   tracking_url: string | null;
   pushing_status: string | null;
   pushing_note: string | null;

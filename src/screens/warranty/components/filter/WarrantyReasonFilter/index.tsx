@@ -41,7 +41,7 @@ function WarrantyReasonFilter(props: PropTypes): JSX.Element {
   const initialValues = useMemo(() => {
     return {
       ...queryParamsParsed,
-      ids: Array.isArray(queryParamsParsed.ids) ? queryParamsParsed.ids.map((i:any) => Number(i)) : (queryParamsParsed.ids),
+      query: Array.isArray(queryParamsParsed.query) ? queryParamsParsed.query.map((i:any) => Number(i)) : (queryParamsParsed.query),
       name: queryParamsParsed.name || undefined,
       status: queryParamsParsed.status || undefined,
     };

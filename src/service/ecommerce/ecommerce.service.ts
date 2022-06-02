@@ -229,6 +229,11 @@ const requestUrl = `${ApiConfig.ECOMMERCE}/logistic/batch-shipping-order`;
 return BaseAxios.post(requestUrl, requestBody);
 };
 
+//get log inventory follow variant
+export const getLogInventoryVariantApi = (variant_id: any) => {
+  let link = `${ApiConfig.ECOMMERCE}/variants/sync-stock-logs/${variant_id}`;
+  return BaseAxios.get(link);
+}
 
 export {
   ecommerceCreateApi,

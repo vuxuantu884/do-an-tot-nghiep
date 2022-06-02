@@ -71,14 +71,14 @@ function EditOrderNote(props: PropTypes) {
                   <Form.Item
                     name="customer_note"
                     label="Ghi chú của khách hàng"
-                    rules={[{ max: 255, message: "Không được nhập quá 255 ký tự!" }]}
+                    //rules={[{ max: 255, message: "Không được nhập quá 255 ký tự!" }]}
                   >
                     <Input.TextArea disabled={isDisable} rows={3} />
                   </Form.Item>
                   <Form.Item
                     name="note"
                     label="Ghi chú nội bộ"
-                    rules={[{ max: 255, message: "Không được nhập quá 255 ký tự!" }]}
+                    //rules={[{ max: 255, message: "Không được nhập quá 255 ký tự!" }]}
                   >
                     <Input.TextArea disabled={isDisable} rows={3} />
                   </Form.Item>

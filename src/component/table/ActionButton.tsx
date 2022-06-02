@@ -18,7 +18,8 @@ export interface MenuAction {
   name: string;
   icon?:any;
   color?:any;
-  disabled?: boolean
+  disabled?: boolean;
+  hidden?:boolean;
 }
 
 const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
@@ -33,11 +34,12 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
           {props.menu &&
             props.menu.map((item) => (
               <Menu.Item
+                hidden={item.hidden}
                 disabled={item.disabled}
                 key={item.id}
                 onClick={() => props.onMenuClick && props.onMenuClick(item.id)}
                 icon={item.icon}
-                style={{color:item.color}}
+                style={!item.disabled?{color:item.color}:undefined}
               >
                 {item.name}
               </Menu.Item>

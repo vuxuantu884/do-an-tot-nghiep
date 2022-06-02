@@ -9,9 +9,9 @@ import {
   Tag,
   Select,
   Dropdown,
-  Menu, InputNumber,
+  Menu, InputNumber, TreeSelect,
 } from "antd";
-import {SettingOutlined, FilterOutlined, DownOutlined, SwapRightOutlined} from "@ant-design/icons";
+import {SettingOutlined, FilterOutlined, DownOutlined, SwapRightOutlined, DeleteFilled} from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
 import CustomSelect from "component/custom/select.custom";
@@ -36,8 +36,14 @@ import {WEB_APP_LIST} from "screens/web-app/common/commonAction";
 import UrlConfig from "../../../../config/url.config";
 import {searchAccountApi} from "../../../../service/accounts/account.service";
 import {Link} from "react-router-dom";
-import { getSourceListAction } from "domain/actions/web-app/web-app.actions";
-import { useDispatch } from "react-redux";
+import { getSourceListAction, getWebAppShopList } from "domain/actions/web-app/web-app.actions";
+import { useDispatch, useSelector } from "react-redux";
+import SaveSearchModal from "component/modal/SaveSearchModal/SaveSearchModal";
+import { SaveSearchType } from "utils/SaveSearchType";
+import { generateQuery } from "utils/AppUtils";
+import { getSaveSearchLocalStorage } from "utils/LocalStorageUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { WebAppResponse } from "model/response/web-app/ecommerce.response";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -53,6 +59,9 @@ type EcommerceOrderFilterProps = {
   onFilter?: (values: OrderSearchQuery| Object) => void;
   onShowColumnSetting?: () => void;
   onClearFilter?: () => void;
+  changeActiveTabSaveSearch?: () => void;
+  deleteSaveSearch?: () => void;
+  isShowButtonRemoveSaveSearch?: boolean;
 };
 
 const { Item } = Form;
@@ -76,11 +85,18 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     onClearFilter,
     onFilter,
     onShowColumnSetting,
+    changeActiveTabSaveSearch,
+    deleteSaveSearch,
+    isShowButtonRemoveSaveSearch
   } = props;
   const dispatch = useDispatch();
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
   const [sourceList,setSourceList] = useState<Array<SourceResponse>>([]);
+  const [isShowSaveSearchModal,setIsShowSaveSearchModal] = useState(false);
+  const [disableButtonSaveSearch,setDisableButtonSaveSearch] = useState(true);
+  const user = useSelector((state: RootReducerType) => state.userReducer.account);
+  const [shopList, setShopList] = useState<Array<WebAppResponse>>([]);
 
   const status = useMemo(() => [
     {name: "Nháp", value: "draft"},
@@ -195,6 +211,35 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       delivery_types: Array.isArray(params.delivery_types) ? params.delivery_types : [params.delivery_types],
       services: Array.isArray(params.services) ? params.services : [params.services],
     }}, [params])
+  useEffect(() => {
+    let key = "savesearch";
+    let value = getSaveSearchLocalStorage(key);
+    let result: Array<any> = [];
+    if(value){
+      result = JSON.parse(value)
+        result = result.filter((a) => {
+          return a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER;
+      });
+    }
+    let paramQuery = generateQuery(params);
+    let saveSearch = result.find((a) => a.value === paramQuery && a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER);
+    if(saveSearch){
+      setDisableButtonSaveSearch(true);
+    }
+    else{
+      let newParam = {...params};
+      newParam.page = null;
+      newParam.limit = null;
+      let newParamQuery = generateQuery(newParam);
+      if(newParamQuery === ""){
+        setDisableButtonSaveSearch(true);
+      }
+      else{
+        setDisableButtonSaveSearch(false);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  },[params])
 
   const onFinish = useCallback(
     (values) => {
@@ -222,6 +267,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         }
         onFilter && onFilter({...values, tags: [...tags]});
         setRerender(false)
+        
       }
     },
     [formRef, onFilter, tags]
@@ -900,7 +946,23 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, params]);
-
+  //
+  const handleSaveSearch = () => {
+    setIsShowSaveSearchModal(false);
+    setDisableButtonSaveSearch(true);
+    if(changeActiveTabSaveSearch){
+      changeActiveTabSaveSearch();
+    }
+  }
+  const getShopList = () => {
+    dispatch(getWebAppShopList({}, (responseData) => {
+      setShopList(responseData);
+    }));
+  }
+  useEffect(() => {
+    getShopList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <StyledOrderFilter>
@@ -947,6 +1009,28 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 </Select.Option>
               ))}
             </Select>
+          </Item>
+          <Item name="ecommerce_shop_ids" className="search-id-order-ecommerce">
+            <TreeSelect
+              placeholder="Chọn gian hàng"
+              treeDefaultExpandAll
+              className="selector"
+              allowClear
+              showArrow
+              showSearch
+              multiple
+              treeCheckable
+              treeNodeFilterProp="title"
+              maxTagCount="responsive"
+            >
+              {shopList?.map((item: any) => (
+                <TreeSelect.TreeNode
+                  key={item.id}
+                  value={item.id}
+                  title={item.name}
+                />
+              ))}
+            </TreeSelect>
           </Item>
 
           <Item name="reference_code" className="search-id-order-ecommerce">
@@ -999,7 +1083,25 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
               Thêm bộ lọc
             </Button>
           </div>
-
+          
+          <div style={{ marginRight: "10px"}}>
+            <Button
+              type="primary"
+              disabled={disableButtonSaveSearch}
+              onClick={() => setIsShowSaveSearchModal(true)}
+            >
+              Lưu bộ lọc
+            </Button>
+          </div>
+          {isShowButtonRemoveSaveSearch && (
+            <div style={{ marginRight: "10px"}}>
+              <Button
+                icon={<DeleteFilled />}
+                onClick={deleteSaveSearch}
+              >
+              </Button>
+            </div>
+          )}
           <Button
             className="setting-button"
             icon={<SettingOutlined />}
@@ -1007,6 +1109,14 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             disabled={isLoading}
           />
         </Form>
+
+        <SaveSearchModal
+          visible={isShowSaveSearchModal}
+          type={SaveSearchType.WEBAPP_ORDER}
+          params={params}
+          onCancel={() => setIsShowSaveSearchModal(false)}
+          onOK={() => handleSaveSearch()}
+        />
 
         <BaseFilter
           onClearFilter={() => clearFilter()}

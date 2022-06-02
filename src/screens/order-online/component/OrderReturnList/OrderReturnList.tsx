@@ -1,5 +1,5 @@
-import { DeleteOutlined, DownOutlined, ExportOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Popover, Radio, Row, Space, Tooltip } from "antd";
+import { DeleteOutlined, DownOutlined, ExclamationCircleOutlined, ExportOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Modal, Popover, Radio, Row, Space, Tooltip } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -35,7 +35,7 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
-import { copyTextToClipboard, formatCurrency, generateQuery } from "utils/AppUtils";
+import { copyTextToClipboard, formatCurrency, generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor } from "utils/global-styles/variables";
@@ -46,6 +46,9 @@ import IconPaymentPoint from "../../component/OrderList/ListTable/images/payment
 import { StyledComponent } from "./OrderReturnList.styles";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import search from "assets/img/search.svg";
+import useAuthorization from "hook/useAuthorization";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { deleteOrderReturnService } from "service/order/return.service";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -58,6 +61,11 @@ function OrderReturnList(props: PropTypes) {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+
+  const [allowDeleteOrderReturn] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
+    not: false
+  })
 
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
@@ -481,7 +489,7 @@ function OrderReturnList(props: PropTypes) {
         <>
           <Tooltip title="Hoàn tiền">
             <NumberFormat
-              value={record.money_refund}
+              value={record.total}
               className="foo"
               displayType={"text"}
               thousandSeparator={true}
@@ -585,21 +593,57 @@ function OrderReturnList(props: PropTypes) {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
 
-  const [selectedRowCodes, setSelectedRowCodes] = useState([]);
-  const [selectedRow, setSelectedRow] = useState([]);
+  const [selectedRowCodes, setSelectedRowCodes] = useState<Array<string>>([]);
+  const [selectedRow, setSelectedRow] = useState<Array<ReturnModel>>([]);
 
-  const onSelectedChange = useCallback((rows) => {
-    const selectedRowCodes = rows.map((row: any) => row.code_order_return);
-    setSelectedRow(rows);
-    setSelectedRowCodes(selectedRowCodes);
-  }, []);
+  const onSelectedChange = useCallback((selectedRows: ReturnModel[], selected?: boolean, changeRow?: ReturnModel[]) => {
+    let selectedRowCodesCopy = [...selectedRowCodes];
+    let selectedRowCopy = [...selectedRow];
+
+    console.log("changeRow",changeRow)
+
+    if (changeRow && changeRow.length > 0) {
+      if (selected) {
+        changeRow?.forEach((row) => {
+          let index = selectedRowCodesCopy.findIndex((p) => p === row.code_order_return)
+          if (index === -1) {
+            selectedRowCodesCopy.push(row.code_order_return)
+            selectedRowCopy.push(row)
+            setSelectedRowCodes(selectedRowCodesCopy);
+            setSelectedRow(selectedRowCopy);
+          }
+        })
+
+      }
+      else {
+        changeRow?.forEach((row) => {
+          let index = selectedRowCodesCopy.findIndex((p) => p === row.code_order_return)
+          if (index !== -1) {
+            selectedRowCodesCopy.splice(index, 1)
+            selectedRowCopy.splice(index, 1);
+            setSelectedRowCodes(selectedRowCodesCopy);
+            setSelectedRow(selectedRowCopy);
+          }
+        })
+      }
+    }
+
+  }, [selectedRow, selectedRowCodes]);
+
+  const onClearSelected = () => {
+    setSelectedRowCodes([]);
+    setSelectedRow([]);
+  }
 
   const actions: Array<MenuAction> = useMemo(() => [
     {
       id: 1,
-      name: "Xóa",
-      icon:<DeleteOutlined />,
+      name: "Xóa đơn trả",
+      icon: <DeleteOutlined />,
+      color:"#e24343",
       disabled: selectedRowCodes.length ? false : true,
+      hidden: !allowDeleteOrderReturn
+
     },
     {
       id: 2,
@@ -613,7 +657,7 @@ function OrderReturnList(props: PropTypes) {
     //   icon: <PrinterOutlined />,
     //   disabled: selectedRowCodes.length ? false : true,
     // },
-  ], [selectedRowCodes]);
+  ], [allowDeleteOrderReturn, selectedRowCodes.length]);
 
   const onExport = useCallback((optionExport) => {
     let newParams:any = {...params};
@@ -624,8 +668,8 @@ function OrderReturnList(props: PropTypes) {
       case 2: break
       case 3:
         newParams = {
-          code: selectedRowCodes,
-          is_onlinne: orderType === ORDER_TYPES.online
+          code_order_return: selectedRowCodes,
+          is_online: orderType === ORDER_TYPES.online
         };
         break
       case 4:
@@ -709,8 +753,64 @@ function OrderReturnList(props: PropTypes) {
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
+
+  const hanldeDeleteOrderReturn = useCallback(() => {
+    if (!selectedRow || (selectedRow && selectedRow.length <= 0)) {
+      showError("Vui lòng chọn đơn trả cần xóa");
+      return;
+    }
+    let ids: number[] = selectedRow.map((p) => p.id);
+    onClearSelected();
+  
+    dispatch(showLoading());
+    deleteOrderReturnService(ids)
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          showSuccess("Xóa đơn trả thành công");
+  
+          let newPrams = { ...params, page: 1 };
+          setPrams(newPrams);
+          let queryParam = generateQuery(newPrams);
+          setIsFilter(true);
+          history.push(`${location.pathname}?${queryParam}`);
+        } else {
+          handleFetchApiError(response, "Xóa đơn trả hàng", dispatch);
+        }
+      })
+      .catch((error) => {
+        console.log("error", error);
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
+  }, [dispatch, history, location.pathname, params, selectedRow]);
+
   const onMenuClick = useCallback((index: number) => {
     switch(index){
+      case 1:
+        Modal.confirm({
+          title: "Xác nhận xóa",
+          icon: <ExclamationCircleOutlined />,
+          content: (
+            <div style={{ display: "flex", lineHeight: "5px" }}>
+              Bạn có chắc chắn xóa ({selectedRow.length}):
+              <div style={{ marginLeft: 10, fontWeight: 500 }}>
+                {selectedRow.map((value, index) => (
+                  <p>{value.code_order_return}</p>
+                ))}
+              </div>
+            </div>
+          ),
+        
+          okText: "Xóa",
+          cancelText: "Hủy",
+          onOk: hanldeDeleteOrderReturn,
+        
+          className: "comfirm-order-return",
+        });
+        
+      break;
+
       case 3:
         let ids= selectedRow.map((p:any)=>p.id)
         let params = {
@@ -730,7 +830,7 @@ function OrderReturnList(props: PropTypes) {
         break; 
       default: break;
     }
-  }, [selectedRowCodes, selectedRow]);
+  }, [selectedRow, hanldeDeleteOrderReturn, selectedRowCodes]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<ReturnModel> | false) => {
@@ -849,16 +949,14 @@ function OrderReturnList(props: PropTypes) {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
-            onSelectedChange={(selectedRows) =>
-              onSelectedChange(selectedRows)
+            onSelectedChange={(selectedRows, selected, changeRow) =>
+              onSelectedChange(selectedRows, selected, changeRow)
             }
-            // expandable={{
-            //   expandedRowRender: record => <p style={{ margin: 0 }}>test</p>,
-            // }}
+            selectedRowKey={selectedRowCodes}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             dataSource={data.items}
             columns={columnFinal}
-            rowKey={(item: ReturnModel) => item.id}
+            rowKey={(item: ReturnModel) => item.code_order_return}
             className="order-list"
           />
         </Card>

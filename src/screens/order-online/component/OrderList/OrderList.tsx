@@ -1,4 +1,4 @@
-import { ExclamationCircleOutlined, PrinterOutlined } from "@ant-design/icons";
+import { DeleteOutlined, ExclamationCircleOutlined, PrinterOutlined } from "@ant-design/icons";
 import { Button, Card, Modal, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
 // import importIcon from "assets/icon/import.svg";
@@ -23,6 +23,7 @@ import {
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useAuthorization from "hook/useAuthorization";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -46,10 +47,10 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
 import ExportModal from "screens/order-online/modal/export.modal";
-import { changeOrderStatusToPickedService, setSubStatusService } from "service/order/order.service";
+import { changeOrderStatusToPickedService, deleteOrderService, setSubStatusService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, FulFillmentStatus } from "utils/Constants";
 import { dangerColor, successColor } from "utils/global-styles/variables";
 import { ORDER_EXPORT_TYPE, ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -90,11 +91,17 @@ function OrderList(props: PropTypes) {
     printShipment: 4,
     printStockExport: 5,
     changeOrderStatus: 6,
+    deleteOrder: 7,
   };
 
 
   const history = useHistory();
   const dispatch = useDispatch();
+  const [allowOrderDelete]= useAuthorization({
+    acceptPermissions:[ODERS_PERMISSIONS.DELETE_ORDER],
+    not:false
+  })
+
 
   const { location, initQuery, pageTitle, isHideTab = false, orderType, initChannelCodes, channels } = props;
   const queryParamsParsed: any = queryString.parse(
@@ -216,7 +223,15 @@ function OrderList(props: PropTypes) {
       icon: <PrinterOutlined />,
       disabled: selectedRow.length ? false : true,
     },
-  ], [ACTION_ID.changeOrderStatus, ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, selectedRow.length]);
+    {
+      id: ACTION_ID.deleteOrder,
+      name: "Xóa đơn hàng",
+      icon: <DeleteOutlined />,
+      color: "#e24343",
+      disabled: selectedRow.length ? false : true,
+      hidden:!allowOrderDelete,
+    }
+  ], [ACTION_ID.changeOrderStatus, ACTION_ID.deleteOrder, ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, allowOrderDelete, selectedRow.length]);
 
   const onSelectedChange = useCallback((selectedRows: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
     let selectedRowCopy: OrderResponse[] = [...selectedRow];
@@ -265,6 +280,12 @@ function OrderList(props: PropTypes) {
 
   }, [selectedRow, selectedRowCodes, selectedRowKeys]);
 
+  const onClearSelected=()=>{
+    setSelectedRow([]);
+    setSelectedRowKeys([]);
+    setSelectedRowCodes([]);
+  }
+
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -288,6 +309,7 @@ function OrderList(props: PropTypes) {
       setSelectedRow([]);
       setSelectedRowKeys([]);
       setSelectedRowCodes([]);
+      onClearSelected();
     },
     [handleFetchData, history, location.pathname, params]
   );
@@ -401,11 +423,107 @@ function OrderList(props: PropTypes) {
         case ACTION_ID.changeOrderStatus:
           setIsShowChangeOrderStatusModal(true)
           break;
+         /**
+        * xóa đơn
+        */
+          case ACTION_ID.deleteOrder:
+            if (selectedRow && selectedRow && selectedRow.length <= 0) {
+              showError("Vui lòng chọn đơn hàng cần xóa");
+              break;
+            }
+            const isOrderShipping= selectedRow.filter((p)=>p.fulfillments?.some((p1)=>p1.status===FulFillmentStatus.SHIPPING));
+            
+            console.log("isOrderShipping",isOrderShipping)
+  
+            if (isOrderShipping && isOrderShipping.length > 0) {
+              Modal.error({
+                title: "Không thể xoá đơn hàng",
+                content: (
+                  <div
+                    style={{
+                      display: "flex",
+                      lineHeight: "5px",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      paddingTop: "7px",
+                    }}
+                  >
+                   ({isOrderShipping.length}) đơn đang chuyển:
+                    <div style={{ marginLeft: 10, fontWeight: 500 }}>
+                      {isOrderShipping.map((value) => (
+                        <p>{value?.code}</p>
+                      ))}
+                    </div>
+                  </div>
+                ),
+                okType:'danger'
+              });
+              return;
+            }
+  
+            const deleteOrderComfirm = () => {
+              onClearSelected();
+              let ids = selectedRow.map((p) => p.id);
+              dispatch(showLoading());
+              deleteOrderService(ids)
+                .then((response) => {
+                  if (isFetchApiSuccessful(response)) {
+                    showSuccess("Xóa đơn hàng thành công");
+            
+                    let paramCopy: any = { ...params, page: 1 };
+                    setPrams(paramCopy);
+                    let queryParam = generateQuery(paramCopy);
+                    history.push(`${location.pathname}?${queryParam}`);
+                  } else {
+                    handleFetchApiError(response, "Xóa đơn hàng", dispatch);
+                  }
+                })
+                .catch((error) => {
+                  console.log("error", error);
+                })
+                .finally(() => {
+                  dispatch(hideLoading());
+                });
+            };
+  
+            Modal.confirm({
+              title: "Xác nhận xóa",
+              icon: <ExclamationCircleOutlined />,
+              content: (
+                <React.Fragment>
+                  <div
+                    style={{
+                      display: "flex",
+                      lineHeight: "5px",
+                      overflow: "hidden",
+                      whiteSpace: "nowrap",
+                      paddingTop: "7px",
+                    }}
+                  >
+                    Bạn có chắc chắn xóa ({selectedRow.length}):
+                    <div style={{ marginLeft: 10, fontWeight: 500 }}>
+                      {selectedRow.map((value) => (
+                        <p>{value?.code}</p>
+                      ))}
+                    </div>
+                  </div>
+                  <p style={{textAlign:"justify", color:"#ff4d4f" }}>
+                  Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá đơn ở trạng thái Thành công
+                  </p>
+                </React.Fragment>
+              ),
+              okText: "Xóa",
+              cancelText: "Hủy",
+              okType: "danger",
+              onOk: deleteOrderComfirm,
+            });
+            
+          break;  
         default:
           break;
       }
     },
-    [ACTION_ID.changeOrderStatus, ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, dispatch, selectedRow, selectedRowKeys]
+    [ACTION_ID.changeOrderStatus, ACTION_ID.deleteOrder, ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, dispatch, history, location.pathname, selectedRow, selectedRowKeys]
   );
 
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);

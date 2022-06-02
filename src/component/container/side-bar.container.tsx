@@ -53,7 +53,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                 checkPermission(route.permissions) && (
                   <Menu.SubMenu
                     icon={<i className={route.icon} style={{ fontSize: 18 }} />}
-                    title={<div title={route.title}>{route.title}</div>}
+                    title={<div>{route.title}</div>}
                     key={route.key}
                   >
                     {route.subMenu.map((item) => {
@@ -71,6 +71,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                     fontSize: 6,
                                     marginRight: 0,
                                     marginLeft: 10,
+                                    verticalAlign: 'middle'
                                   }}
                                 />
                               }
@@ -86,13 +87,13 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                         fontSize: 6,
                                         marginRight: 0,
                                         marginLeft: 38,
+                                        verticalAlign: 'middle'
                                       }}
                                     />
                                   }
                                   key={item2.key}
-                                  title={item2.subTitle || item2.title}
                                 >
-                                  <Link to={item2.path}>{item2.title}</Link>
+                                  <Link title={item2.subTitle || item2.title} to={item2.path}>{item2.title}</Link>
                                 </Menu.Item>
                               ))}
                             </Menu.SubMenu>
@@ -110,11 +111,11 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                   fontSize: 6,
                                   marginRight: 0,
                                   marginLeft: 10,
+                                  verticalAlign: 'middle'
                                 }}
                               />
                             }
                             key={item.key}
-                            title={item.subTitle || item.title}
                           >
                             {
                               !item.fullUrl ? (
@@ -165,10 +166,9 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                   }}
                   icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                   key={route.key}
-                  title={route.subTitle || route.title}
                 >
                   {route.isShow ? (
-                    <Link to={route.path} title={route.subTitle || route.title}>
+                    <Link to={route.path}>
                       {route.title}
                     </Link>
                   ) : (

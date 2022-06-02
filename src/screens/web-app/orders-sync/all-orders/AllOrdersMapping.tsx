@@ -41,6 +41,8 @@ const initQuery: WebAppGetOrdersMappingQuery = {
   created_date_to: null,
   ecommerce_order_statuses: [],
   shop_ids: [],
+  source_id: null,
+  source_ids: []
 };
 
 const CORE_ORDER_STATUS = [

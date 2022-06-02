@@ -6,7 +6,6 @@ import BaseFilter from "component/filter/base.filter";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
-import { AppConfig } from "config/app.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { getMaterialAction } from "domain/actions/product/material.action";
 import { AccountResponse } from "model/account/account.model";
@@ -246,12 +245,6 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
   }, [dispatch]);
 
 
-  useEffect(()=>{
-    getMaterials("",1);
-    getWins('', 1);
-    getDesigners('', 1);
-  },[getDesigners, getMaterials, getWins]);
-
   return (
     <StyledComponent>
       <div className="product-filter">
@@ -313,12 +306,12 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                 switch (key) {
                   case SearchVariantWrapperField.designers:
                     component = (
-                      <AccountSearchPaging mode="multiple" placeholder="Chọn thiết kế" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
+                      <AccountSearchPaging mode="multiple" placeholder="Chọn thiết kế"/>
                     );
                     break;
                   case SearchVariantWrapperField.merchandisers:
                     component = (
-                      <AccountSearchPaging mode="multiple" placeholder="Chọn Merchantdiser" fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}/>
+                      <AccountSearchPaging mode="multiple" placeholder="Chọn Merchandiser"/>
                     );
                     break;
                   case SearchVariantWrapperField.status:

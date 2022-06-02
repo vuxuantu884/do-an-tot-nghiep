@@ -5,6 +5,7 @@ import { POField } from "model/purchase-order/po-field";
 import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import React, { lazy, useCallback, useEffect, useState } from "react";
+import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import POProgressView from "../po-progress-view";
 
@@ -24,6 +25,7 @@ type POInventoryViewProps = {
   selectTabChange: (id: number) => void;
   form: FormInstance;
   isEditDetail?: boolean;
+  receiveStatus?: string;
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
@@ -40,6 +42,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
     selectTabChange,
     form,
     isEditDetail,
+    receiveStatus,
   } = props;
   const [procumentView, setProcumentView] = useState<
     Array<PurchaseProcurementViewDraft>
@@ -132,7 +135,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           </Col>
           <Col style={{ marginLeft: "auto" }} span={5}>
             <div >
-              {isEditDetail ? (
+              {isEditDetail && receiveStatus && receiveStatus !== ProcumentStatus.FINISHED ? (
                 <>
                   <Form.Item
                     name={[POField.procurements, 0, POField.expect_receipt_date]}

@@ -51,7 +51,7 @@ export const PoProductFormContainer = styled.div` .header {
     padding : 0;
   }
 }
-.product-table-new {
+.product-table-grid {
   .ant-table-cell {
   padding: 5px;
   }
@@ -66,5 +66,13 @@ export const PoProductFormContainer = styled.div` .header {
     text-align: right;
   }
 }
+ thead {
+   .size-column{
+    vertical-align: bottom;
+   }
+   .price-column{
+    vertical-align: bottom;
+   }
+ }
 }
 `;

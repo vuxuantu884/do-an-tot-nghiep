@@ -398,7 +398,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             : <></>
           }
 
-          <Tooltip title="Tiền trả khách">
+          <Tooltip title="Tiền trả khách" placement="topLeft">
             <div style={{ fontWeight: 500 }}>
               <NumberFormat
                 value={record.money_refund || 0}
@@ -626,10 +626,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         align: "right",
         width: 100,
         render: (record: any) => {
-          let orderReturnAmount = record.total_amount || 0;
-          if (record.code_order_return && record.discounts?.length > 0) {
-            orderReturnAmount = orderReturnAmount - record.discounts[0].amount;
-          }
           const discountAmount = record.discounts && record.discounts[0]?.amount;
           return (
             <>
@@ -677,9 +673,17 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               {/*Đơn trả hàng*/}
               {record.code_order_return &&
                 <React.Fragment>
-                  <Tooltip title="Tổng tiền">
+                  {record.discounts?.length > 0 ? (
+                    <Tooltip title="Khuyến mại đơn hàng">
+                      <div style={{ color: dangerColor }}>
+                        <span> - {formatCurrency(record.discounts[0].value)}</span>
+                      </div>
+                    </Tooltip>
+                  ) : null}
+
+                  <Tooltip title="Tổng tiền hoàn">
                     <NumberFormat
-                      value={orderReturnAmount}
+                      value={record.total || 0}
                       className="foo"
                       displayType={"text"}
                       thousandSeparator={true}
@@ -701,7 +705,10 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         render: (data: any) => {
           return (
             <React.Fragment>
+              {/*Đơn hàng*/}
               {!data.code_order_return && data.payments && renderOrderPayments(data)}
+
+              {/*Đơn trả*/}
               {data.code_order_return && renderOrderReturnPayments(data)}
             </React.Fragment>
           );

@@ -17,7 +17,6 @@ import { showError, showSuccess } from "utils/ToastUtils";
 
 function* listDataOrderProcessingStatusSaga(action: YodyAction) {
   const { queryParams, handleData } = action.payload;
-  yield put(showLoading());
   try {
     let response: BaseResponse<
       PageResponse<OrderProcessingStatusResponseModel>

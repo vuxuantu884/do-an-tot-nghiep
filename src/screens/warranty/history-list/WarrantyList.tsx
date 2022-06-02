@@ -85,6 +85,7 @@ export const TAB_STATUS_KEY = {
   finished: "finished",
   today: "today",
   expired: "expired",
+  all: "all",
 };
 
 let TAB_STATUS = [
@@ -146,6 +147,14 @@ let TAB_STATUS = [
         .format(DATE_FORMAT.DD_MM_YYYY),
       return_status: WarrantyReturnStatusModel.UNRETURNED,
     },
+    count: 0,
+  },
+  {
+    key: TAB_STATUS_KEY.all,
+    name: "Tất cả",
+    param: {},
+    labelColor: "#20B2AA",
+    countParam: {},
     count: 0,
   },
 ];
@@ -215,7 +224,7 @@ function WarrantyHistoryList(props: PropTypes) {
     });
 
   const initQuery: GetWarrantiesParamModelExtra = {
-    tab: "new",
+    tab: TAB_STATUS_KEY.new,
     page: 1,
     limit: 30,
     store_ids: [],

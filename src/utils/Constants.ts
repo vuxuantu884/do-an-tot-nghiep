@@ -30,10 +30,10 @@ export const OrderStatus = {
 
 export const ArrPoStatus = [
   {key: "draft", value: "Nháp"},
-  {key: "finalized", value: "Đã xác nhận"},
-  {key: "draftpo", value: "Phiếu nháp"},
-  {key: "stored", value: "Đã nhập kho"},
-  {key: "completed", value: "Đã hoàn thành"},
+  {key: "waiting_approval", value: "Chờ duyệt"},
+  {key: "finalized", value: "Đã duyệt"},
+  {key: "stored", value: "Nhập kho"},
+  {key: "completed", value: "Hoàn thành"},
   {key: "finished", value: "Đã kết thúc"},
   {key: "cancelled", value: "Đã hủy"}
 ]
@@ -120,29 +120,21 @@ export const ErrorGHTK = {
   WAITTING: "Đang xử lý",
 };
 
-// DRAFT("draft", "Nháp"), //Đặt hàng
-//   FINALIZED("finalized", "Đã xác nhận"), //Xác nhận
-//   DRAFTPO("draftpo", "Phiếu nháp"), //Phiếu nháp
-//   STORED("stored", "Đã nhập kho"),  //Nhập kho
-//   COMPLETED("completed", "Đã hoàn thành"), //Hoàn thành
-//   FINISHED("finished", "Đã kết thúc"), //Kết thúc
-//   CANCELLED("cancelled", "Đã hủy"); //Hủy
 export const POStatus = {
   //Nháp
   DRAFT: "draft",
-  //Đã xác nhận po
+  //Chờ duyệt
+  WAITING_APPROVAL: "waiting_approval",
+  //Đã duyệt
   FINALIZED: "finalized",
+  //Đã nhập kho
+  STORED: "stored",
   // Đã hoàn thành
   COMPLETED: "completed",
   //Đã kết thúc
   FINISHED: "finished",
   //Đã hủy
   CANCELLED: "cancelled",
-  //Phiếu nháp
-  DRAFTPO: "draftpo",
-  //Đã nhập kho
-  STORED: "stored",
-  STOCK_IN: "stock_in",
 };
 
 export const PO_RETURN_HISTORY = [
@@ -186,6 +178,10 @@ export const PO_RETURN_HISTORY = [
     code: "Create",
     title: "Đã tạo",
   },
+  {
+    code: "waiting_approval",
+    title: "Chờ duyệt",
+  }
 ]
 
 export const ProcumentStatus = {
@@ -417,3 +413,10 @@ export const STATUS_IMPORT_EXPORT = {
   JOB_FINISH: 3,
   ERROR: 4,
 };
+
+export const ArrDefects = [
+  {code: 'L10',name:'Lỗi 10%',value:10},
+  {code: 'L20',name:'Lỗi 20%',value:20},
+  {code: 'L30',name:'Lỗi 30%',value:30},
+  {code: 'L50',name:'Lỗi 50%',value:50},
+]

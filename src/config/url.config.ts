@@ -78,6 +78,7 @@ export const InventoryTransferTabUrl = {
   LIST: UrlConfig.INVENTORY_TRANSFERS,
   LIST_TRANSFERRING_SENDER: UrlConfig.INVENTORY_TRANSFERS + '/transferring-sender',
   LIST_TRANSFERRING_RECEIVE: UrlConfig.INVENTORY_TRANSFERS + '/transferring-receive',
+  LIST_EXPORT_IMPORT: UrlConfig.INVENTORY_TRANSFERS + '/export-import-list',
   HISTORIES: UrlConfig.INVENTORY_TRANSFERS + "/histories",
 };
 export const InventoryTabUrl = {

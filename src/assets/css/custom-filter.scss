@@ -42,6 +42,17 @@
   }
 }
 
+.custom-filter-export {
+  .page-filter {
+    .page-filter-heading .ant-space {
+      display: unset !important;
+    }
+    .page-filter-heading {
+      display: unset !important;
+    }
+  }
+}
+
 .label-date {
   padding-bottom: 8px;
   font-weight: 500;

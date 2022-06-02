@@ -19,6 +19,7 @@ import {
   Progress,
   TreeSelect,
   Tag,
+  Table,
 } from "antd";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 import disconnectIcon from "assets/icon/disconnect.svg";
@@ -39,6 +40,7 @@ import {
   getShopEcommerceList,
   postSyncStockEcommerceProduct,
   exitEcommerceJobsAction,
+  getLogInventoryVariantAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -125,6 +127,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [isShowSyncStockModal, setIsShowSyncStockModal] = useState(false);
+  const [isShowLogInventoryModal, setShowLogInventoryModal] = useState(false);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
 
   //export file excel
@@ -134,6 +137,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
   const [exportProductType, setExportProductType] = useState<string>("");
   const [exportProcessId, setExportProcessId] = useState<any>(null);
+
+  //inventory log
+  const [inventoryHistoryLog, setInventoryHistoryLog] = useState<Array<any>>([]);
 
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
 
@@ -346,6 +352,37 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     }
   };
 
+  //handle show log history inventory
+  const GetRequestResponseInventoryLog = (data: any) => {
+    setInventoryHistoryLog([data.items[0]])
+  }
+
+  const handleShowLogInventory = (item: any) => {
+    dispatch(
+      getLogInventoryVariantAction(
+        item.ecommerce_variant_id,
+        GetRequestResponseInventoryLog
+      )
+    )
+    setInventoryHistoryLog([])
+  }
+
+  useEffect(() => {
+    if (inventoryHistoryLog.length) {
+      setShowLogInventoryModal(true)
+   }
+  }, [inventoryHistoryLog.length]); 
+
+  const OkShowHistoryLogInventory = () => {
+    setShowLogInventoryModal(false)
+    setInventoryHistoryLog([])
+  }
+
+  const CancelHistoryLogInventory = () => {
+    setShowLogInventoryModal(false)
+    setInventoryHistoryLog([])
+  }
+  //end handle show log history inventory
   //handle export file
   const resetExportProductProcess = () => {
     setExportProcessId(null);
@@ -637,9 +674,26 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     ConnectedItemActionColumn(
       handleDeleteItem,
       handleSyncStock,
-      handleDisconnectItem
+      handleDisconnectItem,
+      handleShowLogInventory
     ),
   ]);
+
+  const [columnLogInventory] = useState<any>([
+    {
+      title: "Request",
+      dataIndex: "request_log",
+      className: `${inventoryHistoryLog.length && inventoryHistoryLog[0].status === 'done' ? "log-inventory-column-error" : "log-inventory-column-success"}`,
+      render: (request: any) => <div>{request}</div>
+    },
+
+    {
+      title: "Response",
+      dataIndex: "response_log",
+      className: `${inventoryHistoryLog.length && inventoryHistoryLog[0].status === 'done' ? "log-inventory-column-error" : "log-inventory-column-success"}`,
+      render: (response: any) => <div>{response}</div>
+    }
+  ])
 
   let initialValues = useMemo(() => {
     return {
@@ -1483,6 +1537,19 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           </div>
         </div>
       </Modal>
+
+      {inventoryHistoryLog.length && 
+        <Modal
+          title="Chi tiết lịch sử đồng bộ"
+          centered
+          visible={isShowLogInventoryModal}
+          onOk={() => OkShowHistoryLogInventory()}
+          onCancel={() => CancelHistoryLogInventory()}
+          width={1000}
+        >
+          <Table columns={columnLogInventory} dataSource={inventoryHistoryLog} rowClassName="log-history-list" />
+        </Modal>
+      }
 
     </StyledComponent>
   );

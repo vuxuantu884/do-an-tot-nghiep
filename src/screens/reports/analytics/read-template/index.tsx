@@ -42,7 +42,7 @@ function UpdateAnalytics() {
 
 
 
-    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, setActiveFilters, setRowsInQuery } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, setActiveFilters, setRowsInQuery, setLoadingChart } = useContext(AnalyticsContext)
 
     const CURRENT_REPORT_TEMPLATE: AnalyticTemplateData = useMemo(() => {
         return REPORT_TEMPLATES.find((item) => item.id === templateId) || {} as AnalyticTemplateData;
@@ -143,6 +143,9 @@ function UpdateAnalytics() {
         const fetchMetadata = async () => {
             const response = await callApiNative({ isShowLoading: true }, dispatch, getAnalyticsMetadataService, { q: CURRENT_REPORT_TEMPLATE.query });
             if (response) {
+                // Temporary logic
+                const { net_payments, ...others } = response.aggregates;
+                response.aggregates = others;
                 setMetadata(response);
             }
         }
@@ -235,6 +238,7 @@ function UpdateAnalytics() {
                 message: ''
             })
             if (dataQuery && chartColumnSelected?.length) {
+                setLoadingChart(() => true);
                 const query = getChartQuery(dataQuery.query, chartColumnSelected);
                 const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery.query.cube as AnalyticCube) ? { q: query, options: form.getFieldValue(ReportifyFormFields.timeAtOption) } : { q: query };
                 const response: any = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, fullParams);
@@ -254,10 +258,11 @@ function UpdateAnalytics() {
                     setChartDataQuery(response);
                     form.setFieldsValue({ chartFilter: chartColumnSelected })
                 }
+                setLoadingChart(() => false);
             }
         }
         fetchChartData();
-    }, [chartColumnSelected, dataQuery, dispatch, form, setChartDataQuery])
+    }, [chartColumnSelected, dataQuery, dispatch, form, setChartDataQuery, setLoadingChart])
 
     // lấy tên mặc định cho form nhân bản báo cáo
     useEffect(() => {

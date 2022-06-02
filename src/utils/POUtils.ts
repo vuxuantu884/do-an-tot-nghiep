@@ -396,10 +396,12 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
       variant.size = variant.sku;
     }
   })
+
   const baseColor: Array<POLineItemColor> = uniqBy(tempVariant, "color").map((variant: VariantResponse) => {
+
     let price = 0;
     let lineItem: PurchaseOrderLineItem | undefined;
-
+    
     if (mode === "READ_UPDATE" && line_items && line_items.length > 0) {
       const variantSameColor = tempVariant.filter((variantItem: VariantResponse) => variantItem.color === variant.color);
       // get lineItem has variant_id in variantSameColor id
@@ -414,7 +416,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
 
     return {
       color: variant.color,
-      clothCode: variant.sku.split("-")[1],
+      color_code: variant.color_code ?? variant.sku,
       lineItemPrice: price,// giá nhập, không có thì mặc định là 0
     };
 
@@ -681,5 +683,20 @@ export const summaryContentByLineItemType = (form: FormInstance, poLineItemType?
   } else {
     return  "Tiền cần trả";
   }
+}
+
+export const checkCanEditDraft = (form : FormInstance, isEdit: boolean) => {
+  const stt = form.getFieldValue(POField.status);
+  return isEdit && (!stt || stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL);
+};
+
+export const isExpandsSupplement = (form : FormInstance, isEdit: boolean) => {
+  const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(POField.line_items);
+  return isEdit || lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT);
+}
+
+export const isShowSupplement = (form : FormInstance) => {
+  const stt = form.getFieldValue(POField.status);
+  return [POStatus.FINALIZED, POStatus.STORED, POStatus.FINISHED, POStatus.COMPLETED].includes(stt);
 }
 export { POUtils };

@@ -379,10 +379,11 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 name="report-form-base">
                 <Card bodyStyle={{ paddingBottom: 8, paddingTop: 8 }} className="report-filter-wrapper">
                     <div className="group-report-type">
-                        {cubeRef && [AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
+                        {cubeRef && [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
                             <Form.Item
                                 label="Ghi nhận theo"
                                 name={ReportifyFormFields.timeAtOption}
+                                hidden={AnalyticCube.OfflineSales === cubeRef.current}
                                 labelCol={{ span: 24 }}
                                 help={false}
                                 className="input-width report-filter-item">
@@ -526,7 +527,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                             leftTickFormat={
                                 chartColumnSelected && chartColumnSelected.length > 1
                                     ? chartDataQuery.result.columns[chartDataQuery.result.columns.length - 2].format
-                                    : undefined
+                                    : chartDataQuery.result.columns[chartDataQuery.result.columns.length - 1].format
                             }
                             rightLegendName={
                                 metadata
@@ -664,7 +665,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                 return (
                                     <Table.Summary>
                                         <Table.Summary.Row>
-                                            {dataQuery.result.columns.map(({ format, type }: any, index: number) => {
+                                            {dataQuery.result.columns.map(({ format, type, field }: any, index: number) => {
                                                 let value: any = "-";
                                                 if (format === FIELD_FORMAT.NumberFormat && type !== ColumnType.Measure) {
                                                     value = dataQuery?.result?.summary[index];
@@ -674,7 +675,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                                                     value = "Tổng";
                                                 }
                                                 return (
-                                                    <Table.Summary.Cell index={index} align="center" key={index}>
+                                                    field !== 'net_payments' && <Table.Summary.Cell index={index} align="center" key={index}>
                                                         <b>{value}</b>
                                                     </Table.Summary.Cell>
                                                 );
@@ -686,7 +687,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                             {dataQuery.result.columns.map((item: any, index: number) => {
                                 const { format, field, type } = item;
                                 return (
-                                    <Table.Column<any>
+                                    field !== 'net_payments' && <Table.Column<any>
                                         width={180}
                                         align="center"
                                         title={

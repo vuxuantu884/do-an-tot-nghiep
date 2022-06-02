@@ -109,7 +109,7 @@ const TabLogs: React.FC = () => {
     {
       title: "Đơn mua hàng",
       fixed: "left",
-      width: 120,
+      width: 150,
       visible: true,
       render: (record: PurchaseOrderActionLogResponse) => {
         let data ={} as PurchaseOrder;

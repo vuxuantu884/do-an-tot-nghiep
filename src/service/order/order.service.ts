@@ -488,3 +488,11 @@ export const getRefundInformationService = (customerId: number, orderId: number)
 BaseResponse<RefundTransactionModel[]>> => {
   return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/customers/${customerId}/transactions?order-id=${orderId}`);
 };
+
+/**
+ * xóa đơn hàng
+ */
+export const deleteOrderService=(ids:number[]):Promise<BaseResponse<any>>=>{
+  let link =`${ApiConfig.ORDER}/orders?ids=${ids}`;
+  return BaseAxios.delete(link);
+}

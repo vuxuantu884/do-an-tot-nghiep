@@ -6,6 +6,7 @@ import {
   DepartmentsPermissions,
 } from "config/permissions/account.permisssion";
 import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 
 const AccountMeScreen = React.lazy(
   () => import("screens/settings/account/account.me.screen")
@@ -431,6 +432,7 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.ORDER_SETTINGS,
     isShow: true,
     header: null,
+    permissions:[ODERS_PERMISSIONS.CONFIG_UPDATE],
     subMenu: [
       {
         path: `${UrlConfig.ORDER_SETTINGS}/create`,

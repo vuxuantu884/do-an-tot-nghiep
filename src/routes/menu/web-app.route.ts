@@ -2,10 +2,11 @@ import React from "react";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 
-const WebAppOrdersSync = React.lazy(() => import("screens/web-app/orders-sync/WebAppOrdersSync"));
-const WebAppOrders = React.lazy(() => import("screens/web-app/orders/WebAppOrders"));
-const WebAppProducts = React.lazy(() => import("screens/web-app/products/WebAppProducts"));
-const WebAppConfig = React.lazy(() => import("screens/web-app/config/WebAppConfig"));
+//const WebAppOrdersSync = React.lazy(() => import("screens/web-app/orders-sync/WebAppOrdersSync"));
+const OrdersSync = React.lazy(() => import("screens/web-app-new/order-sync/OrdersSync"));
+const WebAppOrders = React.lazy(() => import("screens/web-app-new/orders/Orders"));
+const WebAppProducts = React.lazy(() => import("screens/web-app-new/products/products"));
+const WebAppConfig = React.lazy(() => import("screens/web-app-new/shops/Shops"));
 
 const webAppRoute: Array<RouteMenu> = [
   {
@@ -13,7 +14,7 @@ const webAppRoute: Array<RouteMenu> = [
     exact: true,
     title: "Đồng bộ đơn hàng",
     icon: "icon-dot",
-    component: WebAppOrdersSync,
+    component: OrdersSync,
     key: "web-app-orders-sync",
     isShow: true,
     header: null,
