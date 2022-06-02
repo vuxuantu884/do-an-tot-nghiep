@@ -17,6 +17,7 @@ import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-retur
 import {
   cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
   PaymentMethodGetList,
+  updateOrderPartial,
   UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
@@ -739,6 +740,29 @@ const OrderDetail = (props: PropType) => {
     setShipmentMethod(value);
   };
 
+  const editNote = useCallback(
+    (note, customer_note, orderID) => {
+      let params: any = {
+        note,
+        customer_note
+      };
+      dispatch(
+        updateOrderPartial(params, orderID, (success?:boolean) => {
+          if(success && OrderDetail)
+          {
+            let orderDetailCopy= {...OrderDetail};
+            orderDetailCopy.note=note;
+            orderDetailCopy.customer_note=customer_note;
+            console.log("orderDetailCopy",orderDetailCopy)
+            setOrderDetail(orderDetailCopy);
+            showSuccess("Cập nhật ghi chú thành công")
+          }
+        })
+      );
+    },
+    [OrderDetail, dispatch]
+  );
+
   useEffect(() => {
     window.addEventListener("scroll", scroll);
     return () => {
@@ -949,7 +973,7 @@ const OrderDetail = (props: PropType) => {
                 setReload={setReload}
                 OrderDetailAllFulfillment={OrderDetailAllFulfillment}
               />
-              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} />
+              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote}/>
               <ActionHistory
                 orderId={OrderDetail?.id}
                 countChangeSubStatus={countChangeSubStatus}

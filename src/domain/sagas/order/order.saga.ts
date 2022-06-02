@@ -828,8 +828,8 @@ function* updateOrderPartial(action: YodyAction) {
   try {
     let response: BaseResponse<any> = yield call(updateOrderPartialService, params, orderID);
     if (isFetchApiSuccessful(response)) {
-      onSuccess();
-      showSuccess(`Cập nhật đơn hàng thành công!`);
+      onSuccess(true);
+      //showSuccess(`Cập nhật đơn hàng thành công!`);
     } else {
       yield put(fetchApiErrorAction(response, "Cập nhật đơn hàng"));
     }

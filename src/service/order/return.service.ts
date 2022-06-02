@@ -75,3 +75,12 @@ export const deleteOrderReturnService=(ids:number[]):Promise<BaseResponse<any>>=
   let link = `${ApiConfig.ORDER}/orders/returns?ids=${ids}`;
   return BaseAxios.delete(link);
 }
+
+export const updateNoteOrderReturnService=(id:number, note:string|null, customerNote:string|null):Promise<BaseResponse<any>>=>{
+  let params={
+    note: note,
+    customer_note: customerNote
+  }
+  let link = `${ApiConfig.ORDER}/orders/returns/partial/${id}`;
+  return BaseAxios.put(link, params);
+}

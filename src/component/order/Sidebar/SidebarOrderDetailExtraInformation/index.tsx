@@ -1,20 +1,36 @@
 import { Card, Col, Row, Tag } from "antd";
 import { OrderResponse } from "model/response/order/order.response";
+import EditOrderNote from "screens/order-online/component/EditOrderNote";
 import TextWithLineBreak from "screens/order-online/component/TextWithLineBreak";
+import { primaryColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 
 type PropType = {
   OrderDetail: OrderResponse | null;
+  editNote?:(note: any, customer_note: any, orderID: any)=>void;
 };
 
 function SidebarOrderDetailExtraInformation(props: PropType) {
-  const { OrderDetail } = props;
+  const { OrderDetail, editNote } = props;
+  console.log("OrderDetail note",OrderDetail)
   return (
     <StyledComponent>
       <Card title="THÔNG TIN BỔ SUNG">
       <Row gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
-            <b>Ghi chú của khách:</b>
+            {/* <EditOutlined className="iconEdit" title="Sửa ghi chú" />
+            <b>Ghi chú của khách:</b> */}
+            <EditOrderNote
+              title="Ghi chú của khách: "
+              color={primaryColor}
+              onOk={(values) => {
+                editNote&&editNote(values?.note, values?.customer_note, OrderDetail?.id);
+              }}
+              noteFormValue={{
+                note: OrderDetail?.note,
+                customer_note: OrderDetail?.customer_note,
+              }}
+            />
           </Col>
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
@@ -27,7 +43,19 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
 
         <Row gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
-            <b>Ghi chú nội bộ:</b>
+            {/* <EditOutlined className="iconEdit" title="Sửa ghi chú" />
+            <b>Ghi chú nội bộ:</b> */}
+            <EditOrderNote
+              title="Ghi chú nội bộ: "
+              color={primaryColor}
+              onOk={(values) => {
+                editNote&&editNote(values?.note, values?.customer_note, OrderDetail?.id);
+              }}
+              noteFormValue={{
+                note: OrderDetail?.note,
+                customer_note: OrderDetail?.customer_note,
+              }}
+            />
           </Col>
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
