@@ -1197,8 +1197,7 @@ const ProductDetailScreen: React.FC = () => {
                           title: "Chọn nhân viên mua hàng",
                           icon: <InfoCircleOutlined />,
                         }}>
-                        <AccountSearchPaging placeholder="Chọn Merchandiser"
-                        />
+                        <AccountSearchPaging placeholder="Chọn Merchandiser"/>
                       </Item>
 
                       <Item name="designer_code" label="Thiết kế" tooltip={{
