@@ -3,7 +3,9 @@ import { Button, Checkbox, Col, Input, Row, Select } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import Cash from "component/icon/Cash";
 import CreditCardOutlined from "component/icon/CreditCardOutlined";
+import MomoOutlined from "component/icon/MomoOutlined";
 import QrcodeOutlined from "component/icon/QrcodeOutlined";
+import VnpayOutline from "component/icon/VnpayOutlined";
 import YdCoin from "component/icon/YdCoin";
 import { changeIfPaymentAlreadyChangedAction, changeSelectedStoreBankAccountAction, setIsExportBillAction } from "domain/actions/order/order.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -348,6 +350,7 @@ function OrderPayments(props: PropType): JSX.Element {
 
   }, [payments, handlePayment])
 
+  console.log(ListPaymentMethods)
   return (
     <StyledComponent>
       <Col xs={24} lg={24}>
@@ -373,8 +376,14 @@ function OrderPayments(props: PropType): JSX.Element {
               case PaymentMethodCode.POINT:
                 icon = <YdCoin paymentData={payments} method={method} />;
                 break;
+              case PaymentMethodCode.MOMO:
+                icon = <MomoOutlined paymentData={payments} method={method} />;
+                break;
+              case PaymentMethodCode.VN_PAY:
+                icon = <VnpayOutline paymentData={payments} method={method} style={{fontSize:18, display:"flex", justifyContent:"center", alignItems:"flex-start" }} />;
+                break;
               default:
-                icon = <BugOutlined />;
+                icon = <BugOutlined style={{fontSize:"15px"}}/>;
                 break;
             }
             return (
