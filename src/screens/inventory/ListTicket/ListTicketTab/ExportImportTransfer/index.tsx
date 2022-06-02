@@ -233,7 +233,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     },
     {
       title: "Giá bán",
-      dataIndex: "amount",
+      dataIndex: "price",
       visible: true,
       align: "center",
       width: 120,
