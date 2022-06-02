@@ -257,7 +257,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         return (
           <div>
             <div>Gửi: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
-            <div>Nhận: <span className="text-bold">{formatCurrency(row.transfer_quantity * row.price,".")}</span></div>
+            <div>Nhận: <span className="text-bold">{formatCurrency(row.received_quantity * row.price,".")}</span></div>
           </div>
         );
       },
