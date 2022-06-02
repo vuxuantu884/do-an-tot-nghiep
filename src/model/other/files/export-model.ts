@@ -72,6 +72,6 @@ export interface JobResponse extends BaseObject {
   processed: number;
   success: number;
   percent: number;
-  error: string;
+  error: number;
   message: string;
 }

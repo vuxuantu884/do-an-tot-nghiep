@@ -1,4 +1,4 @@
-import { ImportRequest, ImportResponse } from "model/other/files/export-model";
+import { ImportRequest, ImportResponse, JobResponse } from "model/other/files/export-model";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -22,6 +22,12 @@ export const importFile = (
   return BaseAxios.post(`${ApiConfig.INVENTORY_ADJUSTMENT}/excel/job/import`, params);
 };
 
+export const importFileV2 = (
+  params: ImportRequest
+): Promise<BaseResponse<ImportResponse>> => {
+  return BaseAxios.post(`${ApiConfig.IMPORT_EXPORT}/importing/jobs/create`, params);
+};
+
 export const getFile = (
   code: string
 ): Promise<BaseResponse<ImportResponse>> => {
@@ -30,7 +36,7 @@ export const getFile = (
 
 export const getFileV2 = (
   code: string
-): Promise<BaseResponse<ImportResponse>> => {
+): Promise<BaseResponse<JobResponse>> => {
   return BaseAxios.get(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs/${code}`);
 };
 

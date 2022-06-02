@@ -1,6 +1,7 @@
 
 export const VietNamId = 233;
 export const VietNamName = "Việt Nam";
+export const ConAcceptImport= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
 // export const PO_FORM_TEMPORARY = 'po-form-temporary';
 
 export const optionAllCities = {
@@ -408,6 +409,7 @@ export const DELIVERY_SERVICE_PROVIDER_CODE = {
 }
 
 export const STATUS_IMPORT_EXPORT = {
+  NONE: 0,
   DEFAULT: 1,
   CREATE_JOB_SUCCESS: 2,
   JOB_FINISH: 3,
