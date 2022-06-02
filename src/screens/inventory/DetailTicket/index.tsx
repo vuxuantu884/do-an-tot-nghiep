@@ -446,15 +446,15 @@ const DetailTicket: FC = () => {
 
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
+      console.log('da')
       setLoadingBtn(false);
       if (result) {
         showSuccess("Nhập hàng thành công");
         setDataTable(result.line_items);
-        setData(result);
-        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
+        dispatch(getDetailInventoryTransferAction(idNumber, onResult));
       }
     },
-    [history]
+    [dispatch, idNumber, onResult]
   );
 
   const updateCallback = useCallback(
@@ -1251,37 +1251,49 @@ const DetailTicket: FC = () => {
                   extra={<Tag className={classTag}>{textTag}</Tag>}
                 >
                   <Col>
-                    <RowDetail title="ID Phiếu" value={data.code} />
-                    <RowDetail title="Người tạo" value={data.created_name} />
-                    <RowDetail
-                      title="Ngày tạo"
-                      value={ConvertUtcToLocalDate(
-                        data.created_date,
-                        "DD/MM/YYYY"
-                      )}
-                    />
-                    <RowDetail
-                      title="Ngày chuyển"
-                      value={
-                        data.transfer_date
-                          ? ConvertUtcToLocalDate(
-                              data.transfer_date,
-                              "DD/MM/YYYY"
-                            )
-                          : " ---"
-                      }
-                    />
-                    <RowDetail
-                      title="Ngày nhận"
-                      value={
-                        data.receive_date
-                          ? ConvertUtcToLocalDate(
-                              data.receive_date,
-                              "DD/MM/YYYY"
-                            )
-                          : " ---"
-                      }
-                    />
+                    <div className="row-detail">
+                      <div className="row-detail-left title" style={{ width: '50%' }}>ID Phiếu</div>
+                      <div className="dot data">:</div>
+                      <div className="row-detail-right data" style={{ width: '50%' }}>
+                        <span>{data.code}</span>
+                      </div>
+                    </div>
+                    <div className="row-detail">
+                      <div className="row-detail-left title" style={{ width: '50%' }}>Người tạo</div>
+                      <div className="dot data">:</div>
+                      <div className="row-detail-right data" style={{ width: '50%' }}>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${data.created_by}`}>
+                          <span>{data.created_by} {data.created_by && '-'} {data.created_name}</span>
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="row-detail">
+                      <div className="row-detail-left title" style={{ width: '50%' }}>Người chuyển</div>
+                      <div className="dot data">:</div>
+                      <div className="row-detail-right data" style={{ width: '50%' }}>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${data.transfer_by}`}>
+                          <span>{data.transfer_by} {data.transfer_by && '-'} {data.transfer_name}</span>
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="row-detail">
+                      <div className="row-detail-left title" style={{ width: '50%' }}>Người nhận</div>
+                      <div className="dot data">:</div>
+                      <div className="row-detail-right data" style={{ width: '50%' }}>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${data.received_by}`}>
+                          <span>{data.received_by} {data.received_by && '-'} {data.received_name}</span>
+                        </Link>
+                      </div>
+                    </div>
+                    <div className="row-detail">
+                      <div className="row-detail-left title" style={{ width: '50%' }}>Người hủy</div>
+                      <div className="dot data">:</div>
+                      <div className="row-detail-right data" style={{ width: '50%' }}>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${data.cancel_by}`}>
+                          <span>{data.cancel_by} {data.cancel_by && '-'} {data.cancel_name}</span>
+                        </Link>
+                      </div>
+                    </div>
                   </Col>
                 </Card>
                 <Card

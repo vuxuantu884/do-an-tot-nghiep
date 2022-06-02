@@ -203,6 +203,12 @@ export interface InventoryTransferDetailItem {
   version: number;
   created_by: string;
   created_name: string;
+  transfer_by: string;
+  transfer_name: string;
+  received_by: string;
+  received_name: string;
+  cancel_by: string;
+  cancel_name: string;
   created_date: Date;
   updated_by: string;
   updated_name: string;
