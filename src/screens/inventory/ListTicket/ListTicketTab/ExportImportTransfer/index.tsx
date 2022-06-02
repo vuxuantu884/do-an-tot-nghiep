@@ -101,13 +101,13 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
             <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.inventory_transfer.id}`}>{value}</Link>
           </div>
           <div className="product-item-name custom-name">
-            Ngảy tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
           <div className="product-item-name custom-name">
-            Ngảy gửi: {ConvertUtcToLocalDate(row.exported_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày gửi: {ConvertUtcToLocalDate(row.exported_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
           <div className="product-item-name custom-name">
-            Ngảy nhận: {ConvertUtcToLocalDate(row.receive_date, DATE_FORMAT.DDMMYY_HHmm)}
+            Ngày nhận: {ConvertUtcToLocalDate(row.receive_date, DATE_FORMAT.DDMMYY_HHmm)}
           </div>
         </div>
       ),
