@@ -17,6 +17,8 @@ export const PaymentMethodCode = {
   COD: "cod",
   EXCHANGE: "exchange",
   POINT_REFUND: "point_refund",
+  MOMO:"momo",
+  VN_PAY:"vn_pay"
 };
 
 export const OrderStatus = {
