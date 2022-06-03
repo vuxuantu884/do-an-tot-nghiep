@@ -18,6 +18,7 @@ docker build dev:
   - builder
   only:
     - develop
+    - hotfix/resolve-conflict-v1.4.1
   before_script:
     - unset DOCKER_HOST
     - 'echo "REACT_APP_GIT_COMMIT_HASH=$CI_COMMIT_SHA" >> .env.development'
@@ -93,6 +94,7 @@ deploy to dev:
     - npd-deploy
   only:
     - develop
+    - hotfix/resolve-conflict-v1.4.1
   variables:
     PREFIX: dev
     HOST: dev.unicorn.yody.io
