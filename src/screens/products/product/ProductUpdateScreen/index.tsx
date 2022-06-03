@@ -200,6 +200,7 @@ const ProductDetailScreen: React.FC = () => {
     const FIRST_VARIANT_IMAGE_INDEX = 0;
 
     const revertVariants = variants.reverse();
+    
     //check existed product avatar, if not => set first variant image for product avatar
     revertVariants.forEach((item, i) => {
       if (item.saleable && !isFind) {
@@ -380,6 +381,7 @@ const ProductDetailScreen: React.FC = () => {
       values?.variants.forEach((item) => {
         if (listSelected.includes(item.id)) {
           item.saleable = status;
+          if (status) item.status = "active"; //CO-3415
         }
       });
       update(values);
@@ -450,6 +452,9 @@ const ProductDetailScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: ProductRequest) => {
       setLoadingButton(true);
+      values.variants?.forEach((e:VariantRequest)=>{
+        if (e.saleable) e.status = "active"; //CO-3415
+      });
       dispatch(productUpdateAction(
         idNumber,
         {

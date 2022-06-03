@@ -1417,7 +1417,7 @@ const onChangeNote = useCallback(
                   <Col>
                     <Row>
                       <Col span={10}>
-                        <div className="label" style={{ float: 'left' }}>ID phiếu</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
+                        <div className="label">ID phiếu:</div>
                       </Col>
                       <Col span={14}>
                         <div className="data">{data.code}</div>
@@ -1425,7 +1425,7 @@ const onChangeNote = useCallback(
                     </Row>
                     <Row>
                       <Col span={10}>
-                        <div className="label" style={{ float: 'left' }}>Người tạo</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
+                        <div className="label">Người tạo:</div>
                       </Col>
                       <Col span={14}>
                         <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
@@ -1452,15 +1452,15 @@ const onChangeNote = useCallback(
                           />
                         </Form.Item>
                       ) : (
-                        <Row style={{ width: '100%' }}>
+                        <Row>
                           <Col span={10}>
-                            <div className="label" style={{ float: 'left' }}>Người kiểm</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
+                            <div className="label">Người kiểm:</div>
                           </Col>
                           <Col span={14}>
                             <div className="data">
                               {
                                 <StyledComponent>
-                                  <Row className="audit_by" style={{ width: '100%' }}>
+                                  <Row className="audit_by">
                                     <Col span={24}>
                                       {data.audited_bys?.map((item: string) => {
                                         return (

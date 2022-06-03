@@ -222,6 +222,7 @@ const ProductDetailScreen: React.FC = () => {
         data?.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
             item.saleable = true;
+            item.status = "active";
           }
         });
         data.variants = getFirstProductAvatarByVariantResponse(data.variants);
@@ -274,6 +275,7 @@ const ProductDetailScreen: React.FC = () => {
         let request: any = data;
         setLoadingVariantUpdate(true);
         request.variants[active].saleable = e;
+        if (e) request.variants[active].status = "active"; //CO-3415
         request.variants = getFirstProductAvatarByVariantResponse(data.variants);
         if (data.collections) {
           request.collections = data.collections.map((e: CollectionCreateRequest)=>e.code);

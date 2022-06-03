@@ -177,6 +177,8 @@ export interface FulFillmentResponse {
   return_status: string | null;
   reason_name?: string;
   sub_reason_name?: string;
+  returning_on?:string|null;
+  receive_cancallation_on?:string|null;
 }
 
 export interface EcommerceDeliveryResponse {

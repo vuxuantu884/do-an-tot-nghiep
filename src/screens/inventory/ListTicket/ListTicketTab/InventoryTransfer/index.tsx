@@ -588,7 +588,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         firstLoad = false;
       }
     },
-    [columns, defaultColumns]
+    [columns]
   );
 
   const getAccounts = async (codes: string) => {

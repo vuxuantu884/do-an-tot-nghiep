@@ -177,16 +177,21 @@ const InventoryDefectCreate: React.FC = () => {
     const getStores = async () => {
       const response = await callApiNative({ isShowError: true }, dispatch, getStoreApi, { status: "active", simple: true });
       if (response) {
-        setStores(response)
+        setStores(response);
+
+        if (response.length === 0) return;
+
+        if (myStores.length === 1) {
+          const storeSelected = response.filter((i: any) => i.id === myStores[0].store_id);
+          form.setFieldsValue({
+            store_id: String(storeSelected[0].id)
+          });
+          setFormStoreData(storeSelected[0]);
+          setDefectStoreIdBak(storeSelected[0].id);
+        }
       }
     }
     getStores();
-
-    if (myStores.length === 1) {
-      form.setFieldsValue({
-        store_id: String(myStores[0].store_id)
-      });
-    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch])
 

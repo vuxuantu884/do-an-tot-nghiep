@@ -1,4 +1,4 @@
-import { Card, Col, Row, Tooltip } from "antd";
+import { Card, Col, Row } from "antd";
 import { actionGetOrderActionLogs } from "domain/actions/order/order.action";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import moment from "moment";
@@ -125,16 +125,19 @@ function ActionHistory(props: PropType) {
                 }}
               >
                 <Row className="" gutter={15}>
-                  <Col span={10}>
+                  <Col span={12}>
                     <div className="singleActionHistory__info">
-                      <Tooltip title={`${singleActionHistory?.updated_by} - ${singleActionHistory?.store}`}>
-                        {singleActionHistory?.store && (
-                          <h4 className="singleActionHistory__title">
-                            {singleActionHistory?.updated_name}
-                          </h4>
-                        )}
-                      </Tooltip>
+                      {singleActionHistory?.store && (
+                        <h4 className="singleActionHistory__title">
+                          {singleActionHistory?.store}
+                        </h4>
+                      )}
 
+                      {singleActionHistory?.updated_by && singleActionHistory?.updated_name && (
+                        <h4 className="singleActionHistory__title">
+                          {singleActionHistory?.updated_by} - {singleActionHistory?.updated_name}
+                        </h4>
+                      )}
                       {singleActionHistory?.updated_date && (
                         <div className="singleActionHistory__date">
                           {moment(singleActionHistory?.updated_date).format(
@@ -144,7 +147,7 @@ function ActionHistory(props: PropType) {
                       )}
                     </div>
                   </Col>
-                  <Col span={14}>
+                  <Col span={12}>
                     <div className="singleActionHistory__status">
                       {singleActionHistory?.action && (
                         <h4 className="singleActionHistory__mainStatus">

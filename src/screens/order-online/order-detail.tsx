@@ -56,6 +56,7 @@ import {
   ShipmentMethodOption
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
+import { isDeliveryOrderReturned } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { changeEcommerceOrderStatus, getEcommerceStoreAddress } from "../../domain/actions/ecommerce/ecommerce.actions";
 import { EcommerceAddressQuery, EcommerceStoreAddress } from "../../model/ecommerce/ecommerce.model";
@@ -254,6 +255,9 @@ const OrderDetail = (props: PropType) => {
   };
 
   const stepsStatusValue = useMemo(() => {
+    if(isDeliveryOrderReturned(OrderDetailAllFulfillment?.fulfillments) && OrderDetailAllFulfillment?.fulfillments) {
+      return FulFillmentStatus.CANCELLED;
+    }
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return OrderStatus.DRAFT;
     }
@@ -299,7 +303,7 @@ const OrderDetail = (props: PropType) => {
       return FulFillmentStatus.SHIPPED;
     }
     return "";
-  }, [OrderDetail?.fulfillments, OrderDetail?.status]);
+  }, [OrderDetail?.fulfillments, OrderDetail?.status, OrderDetailAllFulfillment?.fulfillments]);
 
   const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
     setLoadingData(false);
@@ -714,7 +718,7 @@ const OrderDetail = (props: PropType) => {
     return (OrderDetail?.total || 0);
   }, [OrderDetail?.total]);
 
-  const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
+  const totalPaid = OrderDetail?.payments && OrderDetail?.payments?.length > 0 ? getAmountPayment(OrderDetail.payments) : 0;
   // end
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
@@ -831,7 +835,7 @@ const OrderDetail = (props: PropType) => {
         },
       ]}
       extra={isOrderFromPOS(OrderDetail) ? undefined :
-        <CreateBillStep orderDetail={OrderDetail} status={stepsStatusValue} />
+        <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
       }
     >
       <div className="orders">

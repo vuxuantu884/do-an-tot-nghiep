@@ -104,10 +104,47 @@ export const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
     fulfillment.some(
     (p) => p.status_before_cancellation === FulFillmentStatus.SHIPPING
     )
-  )
+  ){
     success = false;
-  console.log("fulfillment", fulfillment);
+  }
   
   return success;
 }
 
+export const isFulfillmentActive = (
+  fulfillments?: FulFillmentResponse[] | null
+) => {
+  if (!fulfillments) return undefined; //không tìm thấy ffm
+
+  let fulfillmentsExitsShipment = fulfillments.filter((p) => p.shipment);
+
+  const sortedFulfillments = sortFulfillments(fulfillmentsExitsShipment);
+  return sortedFulfillments[0];
+};
+
+/*
+kiểm tra đơn đã hoàn true:false
+*/
+export const isDeliveryOrderReturned = (
+  fulfillments?: FulFillmentResponse | FulFillmentResponse[] | null
+) => {
+  if (!fulfillments) return false; //không tìm thấy ffm
+  let fulfillment: FulFillmentResponse | null | undefined=null;
+  if(Array.isArray(fulfillments))
+  {
+    fulfillment = isFulfillmentActive(fulfillments);
+  }
+  else{
+    fulfillment=fulfillments;
+  }
+
+  if (
+    fulfillment &&
+    fulfillment?.status === FulFillmentStatus.CANCELLED &&
+    fulfillment?.return_status === FulFillmentStatus.RETURNED &&
+    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING
+  )
+    //nếu có đơn đã hoàn
+    return true;
+  return false; //default
+};

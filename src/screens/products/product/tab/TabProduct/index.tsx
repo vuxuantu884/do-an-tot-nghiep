@@ -203,6 +203,7 @@ const TabProduct: React.FC<any> = (props) => {
         let variantRequest: VariantUpdateRequest =
           Products.convertVariantResponseToRequest(value);
         variantRequest.saleable = true;
+        variantRequest.status = "active";
         request.push(variantRequest);
       });
       dispatch(variantUpdateManyAction(request, onResultUpdateSaleable));

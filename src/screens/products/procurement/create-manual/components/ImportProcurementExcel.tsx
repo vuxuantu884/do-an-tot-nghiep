@@ -9,11 +9,12 @@ import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
 import { PurchaseProcumentLineItemManual } from "model/purchase-order/purchase-procument";
+import { cloneDeep } from "lodash";
 
 export interface ModalImportProps {
   visible?: boolean;
   onOk: (res: any) => void;
-  onCancel: () => void;
+  onCancel: (res: any) => void;
   title: string | React.ReactNode;
   subTitle?: string | React.ReactNode;
   okText?: string;
@@ -42,8 +43,9 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (
 ) => {
   const { visible, onOk, onCancel, title, dataTable } =
     props;
-  const [fileList, setFileList] = useState<Array<File>>([]);
+  const [fileList, setFileList] = useState<Array<any>>([]);
   const [data, setData] = useState<Array<PurchaseProcumentLineItemManual>>(dataTable ? [...dataTable] : []);
+  const [preData, setPreData] = useState<Array<PurchaseProcumentLineItemManual>>(dataTable ? [...dataTable] : []);
   const [errorData, setErrorData] = useState<Array<any>>([]);
   const [progressData, setProgressData] = useState<Process>(
     {
@@ -76,8 +78,8 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (
     }, [onOk, data]),
     Cancel: useCallback(() => {
       resetFile();
-      onCancel();
-    }, [onCancel]),
+      onCancel(preData);
+    }, [onCancel, preData]),
   }
 
 
@@ -164,6 +166,9 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (
             if (fi >= 0) {
               data[fi].real_quantity = element.quantity;
               data[fi].fake_real_quantity = element.quantity;
+              data[fi].accepted_quantity = element.quantity;
+              data[fi].line_item_id = fi
+              delete data[fi].code
               process.success += 1;
             }
             else {
@@ -203,6 +208,12 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (
     setData(dataTable ? [...dataTable] : []);
   }, [dataTable]);
 
+  useEffect(() => {
+    // fix khi hủy thì hủy luôn dữ liệu cũ procument_item
+    const datClone = cloneDeep(data)
+    setPreData(datClone)
+  },[data, visible])
+
   return (
     <Modal
       onCancel={ActionImport.Cancel}
@@ -222,6 +233,7 @@ const ImportProcurementExcel: React.FC<ModalImportProps> = (
         <div style={{ marginTop: "20px", marginBottom: "5px" }}><b>Tải file lên</b></div>
         <Upload
           onRemove={onRemoveFile}
+          fileList={fileList}
           maxCount={1}
           {...uploadProps}
           accept="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel"

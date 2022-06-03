@@ -353,11 +353,11 @@ const ProcurementDetailScreen: React.FC = () => {
               ]}
               summary={(data) => {
                 let ordered_quantity = 0;
-                let quantity = 0;
+                let accepted_quantity = 0;
                 let real_quantity = 0;
                 data.forEach((item) => {
                   ordered_quantity = ordered_quantity + item.ordered_quantity;
-                  quantity = quantity + item.quantity;
+                  accepted_quantity = accepted_quantity + item.accepted_quantity;
                   real_quantity = real_quantity + item.real_quantity;
                 });
                 return (
@@ -372,7 +372,7 @@ const ProcurementDetailScreen: React.FC = () => {
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="center" index={2}>
-                        <div style={{ fontWeight: 700 }}>{formatCurrency(quantity, ".")}</div>
+                        <div style={{ fontWeight: 700 }}>{formatCurrency(accepted_quantity, ".")}</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="center" index={3}>
                         <div style={{ fontWeight: 700 }}>

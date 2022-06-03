@@ -316,7 +316,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
             if (poData && !isEmpty(procurement_items)) {
               return (
                 <ImportProcurementExcel
-                  onCancel={() => { setIsImport(false) }}
+                  onCancel={(preData: Array<PurchaseProcumentLineItemManual>) => { importRealQuantity(preData) }}
                   onOk={(data: Array<PurchaseProcumentLineItemManual>) => { importRealQuantity(data) }}
                   title="Import số lượng thực nhận"
                   visible={isImport}

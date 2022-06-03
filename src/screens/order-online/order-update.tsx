@@ -325,7 +325,6 @@ export default function Order(props: PropTypes) {
 		}
 	}, [OrderDetail]);
 	let levelOrder = setLevelOrder();
-	console.log('levelOrder', levelOrder)
 
 	let initialForm: OrderRequest = useMemo(() => {
 		return {
@@ -853,12 +852,6 @@ export default function Order(props: PropTypes) {
 		return totalAmountOrder - totalAmountPayment;
 	}, [totalAmountOrder, totalAmountPayment]);
 
-	// const onPayments = (value: Array<OrderPaymentRequest>) => {
-	//   setPayments(value);
-	//   let total = 0;
-	//   value.forEach((p) => (total = total + p.amount));
-	//   setTotalPaid(total);
-	// };
 	useEffect(() => {
 		dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
 		dispatch(getLoyaltyRate(setLoyaltyRate));
@@ -1440,7 +1433,6 @@ export default function Order(props: PropTypes) {
 	}, [OrderDetail?.shipping_address]);
 
 	const eventKeyBoardFunction = useCallback((event: KeyboardEvent) => {
-		console.log(event.key);
 		if (event.key === "F9" || event.key === "F4") {
 			event.preventDefault();
 			event.stopPropagation();

@@ -50,7 +50,7 @@ import InventoryStep from "./components/InventoryTransferStep";
 import { STATUS_INVENTORY_TRANSFER } from "../constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
@@ -335,18 +335,6 @@ const DetailTicket: FC = () => {
     let dataTemp = [...dataTable];
     let selectedItem = item;
 
-    if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-      if (dataTable.length > 0) {
-        const findIndex = dataTemp.findIndex((i) => i.product_id === item.product_id);
-
-        if (findIndex === -1) {
-          showError("Sản Phẩm không có trong phiếu chuyển");
-        }
-      } else {
-        showError("Sản Phẩm không có trong phiếu chuyển");
-      }
-    }
-
     const variantPrice =
       selectedItem &&
       selectedItem.variant_prices &&
@@ -385,7 +373,7 @@ const DetailTicket: FC = () => {
     }
     setDataTable([...dataTemp]);
     setResultSearch([]);
-  },[data?.status, dataTable]);
+  },[dataTable]);
 
   function getTotalRealQuantity() {
     let total = 0;
@@ -446,15 +434,15 @@ const DetailTicket: FC = () => {
 
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
-      console.log('da')
       setLoadingBtn(false);
       if (result) {
         showSuccess("Nhập hàng thành công");
         setDataTable(result.line_items);
-        dispatch(getDetailInventoryTransferAction(idNumber, onResult));
+        setData(result);
+        history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       }
     },
-    [dispatch, idNumber, onResult]
+    [history]
   );
 
   const updateCallback = useCallback(
@@ -1004,16 +992,6 @@ const DetailTicket: FC = () => {
     [data, history]
   );
 
-  const receive = () => {
-    const dataTableFiltered = dataTable.filter((i: any) => i.real_quantity !== 0 && i.real_quantity !== null);
-    if (dataTableFiltered.length === 0) {
-      showError("Vui lòng nhập ít nhất 1 sản phẩm số lượng thực nhận khác 0");
-      return;
-    }
-
-    setIsVisibleModalReceiveWarning(true)
-  }
-
   return (
     <StyledWrapper>
       <ContentContainer
@@ -1189,6 +1167,12 @@ const DetailTicket: FC = () => {
                         summary={() => {
                           let totalQuantity = 0;
                           let totalAmount = 0;
+                          // let totalDifferenceAmount = 0;
+                          dataTable.forEach((element: LineItem) => {
+                            // totalDifferenceAmount += (element.real_quantity - element.transfer_quantity) * element.price;
+                            totalQuantity += element.transfer_quantity;
+                            totalAmount += element.transfer_quantity * element.price;
+                          });
                           return (
                           <Table.Summary fixed>
                             <Table.Summary.Row>
@@ -1200,6 +1184,15 @@ const DetailTicket: FC = () => {
 
                               <Table.Summary.Cell align={"center"} index={3} >
                                 <b>{totalQuantity}</b>
+                              </Table.Summary.Cell>
+
+                              <Table.Summary.Cell align={"center"} index={4}>
+                                <b><NumberFormat
+                                  value={totalAmount}
+                                  className="foo"
+                                  displayType={"text"}
+                                  thousandSeparator={true}
+                                /></b>
                               </Table.Summary.Cell>
 
                               <Table.Summary.Cell align={"center"} index={5}>
@@ -1229,7 +1222,7 @@ const DetailTicket: FC = () => {
                                 className="ant-btn-primary"
                                 size="large"
                                 disabled={isLoadingBtn}
-                                onClick={receive}
+                                onClick={() => setIsVisibleModalReceiveWarning(true)}
                               >
                                 Nhận hàng
                               </Button>
@@ -1251,49 +1244,37 @@ const DetailTicket: FC = () => {
                   extra={<Tag className={classTag}>{textTag}</Tag>}
                 >
                   <Col>
-                    <div className="row-detail">
-                      <div className="row-detail-left title" style={{ width: '50%' }}>ID Phiếu</div>
-                      <div className="dot data">:</div>
-                      <div className="row-detail-right data" style={{ width: '50%' }}>
-                        <span>{data.code}</span>
-                      </div>
-                    </div>
-                    <div className="row-detail">
-                      <div className="row-detail-left title" style={{ width: '50%' }}>Người tạo</div>
-                      <div className="dot data">:</div>
-                      <div className="row-detail-right data" style={{ width: '50%' }}>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${data.created_by}`}>
-                          <span>{data.created_by} {data.created_by && '-'} {data.created_name}</span>
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="row-detail">
-                      <div className="row-detail-left title" style={{ width: '50%' }}>Người chuyển</div>
-                      <div className="dot data">:</div>
-                      <div className="row-detail-right data" style={{ width: '50%' }}>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${data.transfer_by}`}>
-                          <span>{data.transfer_by} {data.transfer_by && '-'} {data.transfer_name}</span>
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="row-detail">
-                      <div className="row-detail-left title" style={{ width: '50%' }}>Người nhận</div>
-                      <div className="dot data">:</div>
-                      <div className="row-detail-right data" style={{ width: '50%' }}>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${data.received_by}`}>
-                          <span>{data.received_by} {data.received_by && '-'} {data.received_name}</span>
-                        </Link>
-                      </div>
-                    </div>
-                    <div className="row-detail">
-                      <div className="row-detail-left title" style={{ width: '50%' }}>Người hủy</div>
-                      <div className="dot data">:</div>
-                      <div className="row-detail-right data" style={{ width: '50%' }}>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${data.cancel_by}`}>
-                          <span>{data.cancel_by} {data.cancel_by && '-'} {data.cancel_name}</span>
-                        </Link>
-                      </div>
-                    </div>
+                    <RowDetail title="ID Phiếu" value={data.code} />
+                    <RowDetail title="Người tạo" value={data.created_name} />
+                    <RowDetail
+                      title="Ngày tạo"
+                      value={ConvertUtcToLocalDate(
+                        data.created_date,
+                        "DD/MM/YYYY"
+                      )}
+                    />
+                    <RowDetail
+                      title="Ngày chuyển"
+                      value={
+                        data.transfer_date
+                          ? ConvertUtcToLocalDate(
+                              data.transfer_date,
+                              "DD/MM/YYYY"
+                            )
+                          : " ---"
+                      }
+                    />
+                    <RowDetail
+                      title="Ngày nhận"
+                      value={
+                        data.receive_date
+                          ? ConvertUtcToLocalDate(
+                              data.receive_date,
+                              "DD/MM/YYYY"
+                            )
+                          : " ---"
+                      }
+                    />
                   </Col>
                 </Card>
                 <Card
