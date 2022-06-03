@@ -88,7 +88,7 @@ import {
 	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
 	replaceFormatString,
-	sortFulfillments, SumWeightResponse,
+	SumWeightResponse,
 	totalAmount,
 	TrackingCode
 } from "utils/AppUtils";
@@ -232,7 +232,9 @@ export default function Order(props: PropTypes) {
 
 	const [isDisableSelectSource, setIsDisableSelectSource] = useState(false)
 
-	const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+	const sortedFulfillments = useMemo(() => {
+		return OrderDetail?.fulfillments ?  OrderDetail?.fulfillments : [];
+	}, [OrderDetail?.fulfillments]);
 
 	const stepsStatusValue = useMemo(() => {
 		if (OrderDetail?.status === OrderStatus.DRAFT) {
