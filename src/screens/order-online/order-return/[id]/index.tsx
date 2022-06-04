@@ -91,7 +91,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
+  const [loyaltyUsageRules, setLoyaltyUsageRules] = useState<
     Array<LoyaltyUsageResponse>
   >([]);
 
@@ -117,7 +117,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
     );
   };
 
-  const hanldeDeleteOrderReturn = useCallback(() => {
+  const handleDeleteOrderReturn = useCallback(() => {
     if (!OrderDetail) {
       showErrorReport("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
       return;
@@ -161,11 +161,11 @@ const ScreenReturnDetail = (props: PropTypes) => {
       ),
       okText: "Xóa",
       cancelText: "Hủy",
-      onOk: hanldeDeleteOrderReturn,
+      onOk: handleDeleteOrderReturn,
       //onCancel:onCancel,
-      className: "comfirm-order-return",
+      className: "confirm-order-return",
     });
-  }, [OrderDetail?.code, hanldeDeleteOrderReturn]);
+  }, [OrderDetail?.code, handleDeleteOrderReturn]);
 
   const [returnPaymentStatus, setReturnPaymentStatus] = useState(ORDER_PAYMENT_STATUS.paid);
 
@@ -473,7 +473,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
   }, [dispatch, customerDetail]);
 
   useEffect(() => {
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRules));
   }, [dispatch]);
 
   return (
