@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-.comfirm-order-return{
+.confirm-order-return{
     .ant-btn-primary{
     color: white;
     background-color: #e24343;

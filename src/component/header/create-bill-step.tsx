@@ -101,7 +101,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
             p.return_status === FulFillmentStatus.RETURNED &&
             p.status_before_cancellation === FulFillmentStatus.SHIPPING)
       )
-      return moment(fulfillmentFind?.receive_cancallation_on).format(formatDate)
+      return moment(fulfillmentFind?.receive_cancellation_on).format(formatDate)
     }
     return undefined;
   };

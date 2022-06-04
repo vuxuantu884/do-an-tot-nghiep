@@ -178,7 +178,6 @@ export interface FulFillmentResponse {
   reason_name?: string;
   sub_reason_name?: string;
   returning_on?:string|null;
-  receive_cancallation_on?:string|null;
 }
 
 export interface EcommerceDeliveryResponse {
