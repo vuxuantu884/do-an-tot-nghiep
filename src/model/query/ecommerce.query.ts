@@ -34,6 +34,7 @@ export interface GetOrdersMappingQuery extends BaseQuery {
   ecommerce_id: number | null;
   ecommerce_order_code: string | null;
   core_order_code: string | null;
+  core_sub_status_code?: Array<any> | [];
   connected_status: string | null;
   created_date_from: number | null;
   created_date_to: number | null;

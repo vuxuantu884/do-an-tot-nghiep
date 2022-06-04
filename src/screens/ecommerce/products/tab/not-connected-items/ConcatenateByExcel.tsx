@@ -14,13 +14,26 @@ import { isNullOrUndefined } from "utils/AppUtils";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
 type ConcatenateByExcelType = {
+  title?: any;
+  visible: boolean;
+  setVisible: (item: any) => void;
+  descText?: string;
+  syncType?: string;
   onCancelConcatenateByExcel: () => void;
   onOkConcatenateByExcel: () => void;
 };
 
 const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateByExcelType) => {
   
-  const {onCancelConcatenateByExcel, onOkConcatenateByExcel} = props
+  const {
+    title,
+    visible,
+    setVisible,
+    descText,
+    syncType,
+    onCancelConcatenateByExcel,
+    onOkConcatenateByExcel
+  } = props
   
   const dispatch = useDispatch();
   
@@ -32,8 +45,7 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
   const [isVisibleExitConcatenateByExcelModal, setIsVisibleExitConcatenateByExcelModal] = useState<boolean>(false);
-  const [isVisibleImportModal, setIsVisibleImportModal] = useState(true);
-  const [selectedShopId, setSelectedtShopId] = useState<number>(0);
+  const [selectedShopId, setSelectedShopId] = useState<number>(0);
 
   useEffect(() => {
     dispatch(getShopEcommerceList({}, setEcommerceShopList));
@@ -70,7 +82,7 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
   ))
 
   const onCancelConcatenateByExcelModal = () => {
-    setIsVisibleImportModal(false);
+    setVisible(false);
     onCancelConcatenateByExcel && onCancelConcatenateByExcel();
   }
 
@@ -84,7 +96,9 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
       const formData = new FormData();
       formData.append("file_upload", fileList[0]);
       formData.append("shop_id", selectedShopId.toString());
+      formData.append("type", syncType as any)
       dispatch(concatenateByExcelAction(formData,  callbackImportExcel));
+      setVisible(true);
     } else {
       showWarning("Vui lòng chọn file!")
     }
@@ -92,7 +106,6 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
 
 
   const callbackImportExcel = (response: any) => {
-    setIsVisibleImportModal(false);
     if (response) {
       setProcessId(response.data.process_id);
       setIsVisibleProgressModal(true);
@@ -109,12 +122,13 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
   }
 
   const onCancelProgressConcatenateByExcel = () => {
-    setIsVisibleExitConcatenateByExcelModal(true);
+    setIsVisibleExitConcatenateByExcelModal(true)
   }
 
   const onOKProgressConcatenateByExcel = () => {
     resetProgress();
     setIsVisibleProgressModal(false);
+    setVisible(false);
     onOkConcatenateByExcel && onOkConcatenateByExcel();
   }
 
@@ -151,16 +165,16 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
   }, [getProgressImportFile, importProgressPercent , processId]);
 
   const onCancelExitConcatenateByExcelModal = () => {
-    setIsVisibleExitConcatenateByExcelModal(false);
+    setIsVisibleExitConcatenateByExcelModal(false)
   }
 
   const onOkExitConcatenateByExcelModal = () => {
-    setIsVisibleExitConcatenateByExcelModal(false);
+    setVisible(false);
     onOKProgressConcatenateByExcel();
   }
 
   const getSelectedShop = (shop_id: number) => {
-    setSelectedtShopId(shop_id)
+    setSelectedShopId(shop_id)
   }
 
   return (
@@ -168,8 +182,8 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
       <Modal
         width="600px"
         centered
-        visible={isVisibleImportModal}
-        title=" Ghép nối sản phẩm"
+        visible={visible}
+        title={title}
         maskClosable={false}
         okText="Tải file lên"
         cancelText="Hủy"
@@ -221,6 +235,7 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
       </Modal>
       {isVisibleProgressModal &&
         <ProgressConcatenateByExcelModal
+          title={title}
           isVisibleProgressModal={isVisibleProgressModal}
           onCancelProgressConcatenateByExcel={onCancelProgressConcatenateByExcel}
           onOKProgressConcatenateByExcel={onOKProgressConcatenateByExcel}
@@ -245,8 +260,12 @@ const ConcatenateByExcel: React.FC<ConcatenateByExcelType> = (props:ConcatenateB
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src={DeleteIcon} alt="" />
             <div style={{ marginLeft: 15 }}>
-              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy ghép nối sản phẩm không?</strong>
-              <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc ghép nối sản phẩm, các sản phẩm ghép nối<br /> thành công sẽ được hiển thị ở màn hình "Sản phẩm đã ghép"</div>
+              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy {descText} không?</strong>
+              <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc {descText}. {descText === "ghép nối sản phẩm" && 
+                <div>
+                  <span>Các sản phẩm ghép nối thành công sẽ được hiển thị ở màn hình "Sản phẩm đã ghép"</span>
+                </div>}
+              </div>
             </div>
           </div>
         </Modal>

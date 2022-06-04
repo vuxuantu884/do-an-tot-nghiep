@@ -45,7 +45,6 @@ import {formatCurrency, generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
 import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
 
-import NumberFormat from "react-number-format";
 import {showSuccess, showWarning} from "utils/ToastUtils";
 import DeleteTicketModal from "screens/inventory/common/DeleteTicketPopup";
 import {useReactToPrint} from "react-to-print";
@@ -263,8 +262,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       visible: true,
       align: "center",
       render: (item: string) => {
-        let textTag = "";
-        let classTag = "";
+        let textTag: string;
+        let classTag: string;
         switch (item) {
           case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
             textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
@@ -314,7 +313,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         return (
           <>
             <div>SL Gửi</div>
-            <div>({formatCurrency(0)})</div>
+            <div className="t-primary">{formatCurrency(0, ".")}</div>
           </>
         );
       },
@@ -331,7 +330,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         return (
           <>
             <div>SL Nhận</div>
-            <div>({formatCurrency(0)})</div>
+            <div className="t-primary">({formatCurrency(0, '.')})</div>
           </>
         );
       },
@@ -348,16 +347,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dataIndex: "total_amount",
       visible: true,
       align: "center",
-      width: 120,
+      width: 150,
       render: (value: number) => {
-        return (
-          <NumberFormat
-            value={value}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
-        );
+        return formatCurrency(value,".");
       },
     },
     {
@@ -521,7 +513,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                   return (
                     <>
                       <div>SL Gửi</div>
-                      <div>({formatCurrency(total)})</div>
+                      <div className="t-primary">{formatCurrency(total, ".")}</div>
                     </>
                   );
                 },
@@ -541,7 +533,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                   return (
                     <>
                       <div>SL Nhận</div>
-                      <div>({formatCurrency(totalReceivedQuantity)})</div>
+                      <div className="t-primary">{formatCurrency(totalReceivedQuantity, '.')}</div>
                     </>
                   );
                 },
@@ -561,7 +553,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                   return (
                     <>
                       <div>SP</div>
-                      <div>({formatCurrency(totalProduct)})</div>
+                      <div className="t-primary">{formatCurrency(totalProduct, '.')}</div>
                     </>
                   );
                 },
@@ -588,7 +580,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         firstLoad = false;
       }
     },
-    [columns]
+    [columns, defaultColumns]
   );
 
   const getAccounts = async (codes: string) => {

@@ -27,7 +27,7 @@ import UrlConfig from "config/url.config";
 import CustomTable from "component/table/CustomTable";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { findAvatar, findPrice, formatCurrency, generateQuery } from "utils/AppUtils";
-import {fullTextSearch} from "utils/StringUtils";
+import { fullTextSearch } from "utils/StringUtils";
 
 import { ProductEcommerceQuery, RequestExportExcelQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -74,7 +74,7 @@ import ConcatenateByExcel from "./ConcatenateByExcel";
 import { EcommerceProductTabUrl } from "config/url.config";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
-import _, {debounce} from "lodash";
+import _, { debounce } from "lodash";
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
@@ -97,7 +97,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
-  const {isReloadPage, setIsReloadPage, handleMappingVariantJob} = props;
+  const { isReloadPage, setIsReloadPage, handleMappingVariantJob } = props;
 
   const [allowProductsConnect] = useAuthorization({
     acceptPermissions: productsConnectPermission,
@@ -125,6 +125,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
   const [isVisibleConcatenateByExcelModal, setIsVisibleConcatenateByExcelModal] = useState(false);
 
+
   //export file excel
   const [isShowExportExcelModal, setIsShowExportExcelModal] = useState(false);
   const [exportProcessId, setExportProcessId] = useState<any>(null);
@@ -143,7 +144,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [connectItemList, setConnectItemList] = useState<Array<any>>([]);
   let notMatchSelectedRow: any[] = [];
   const [selectedRow, setSelectedRow] = useState<Array<any>>([]);
-  
+
   const initialFormValues: ProductEcommerceQuery = useMemo(
     () => ({
       page: 1,
@@ -500,7 +501,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       <StyledYodyProductColumn>
         {(!productSelected || !productSelected.id) && (
           <AutoComplete
-            notFoundContent={isSearching ? <Spin size="small"/> : "Không tìm thấy sản phẩm"}
+            notFoundContent={isSearching ? <Spin size="small" /> : "Không tìm thấy sản phẩm"}
             id="search_product"
             ref={autoCompleteRef}
             onSelect={onSearchVariantSelect}
@@ -696,7 +697,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       list.push({
         key: "ecommerce_id",
         name: "Sàn",
-        value: ECOMMERCE_LIST[initialValues.ecommerce_id - 1].title ,
+        value: ECOMMERCE_LIST[initialValues.ecommerce_id - 1].title,
       });
     }
 
@@ -739,31 +740,31 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      let dataQuery :any;
+      let dataQuery: any;
       switch (tag.key) {
         case "shop_ids":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{[tag.key]: []}
+            ...{ [tag.key]: [] }
           };
           break;
         case "ecommerce_id":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{[tag.key]: [], shop_ids: []}
+            ...{ [tag.key]: [], shop_ids: [] }
           };
           break;
         default:
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{[tag.key]: null}
+            ...{ [tag.key]: null }
           };
           break;
       }
-      
+
       let queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
-      
+
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [query, formAdvance]
@@ -797,26 +798,26 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setQuery(dataQuery);
     getEcommerceProduct(dataQuery);
     window.scrollTo(0, 0);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search])
 
-  const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery)=> {
+  const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery) => {
     let checkEcommerceShop = Array.isArray(dataquery.shop_ids)
-    ? dataquery.shop_ids
-    : [dataquery.shop_ids];
+      ? dataquery.shop_ids
+      : [dataquery.shop_ids];
     formAdvance.setFieldsValue(dataquery);
     setEcommerceIdSelected(dataquery.ecommerce_id);
     getEcommerceShop(dataquery.ecommerce_id);
-    if (dataquery.ecommerce_id === null){
+    if (dataquery.ecommerce_id === null) {
       removeEcommerce();
     } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
-      formAdvance.setFieldsValue({ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id-1].ecommerce_id})
-      if (dataquery.shop_ids !== null){
-        formAdvance.setFieldsValue({shop_ids: checkEcommerceShop.map(item => +item)})
+      formAdvance.setFieldsValue({ ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id })
+      if (dataquery.shop_ids !== null) {
+        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => +item) })
       }
-      
+
     } else {
-      formAdvance.setFieldsValue({ecommerce_id: null})
+      formAdvance.setFieldsValue({ ecommerce_id: null })
       removeEcommerce();
     }
   }
@@ -975,7 +976,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setSelectedRow(newSelectedRow);
   }, []);
 
-  
+
 
 
   //handle export file
@@ -1015,7 +1016,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     }
 
     if (exportProductType === EXPORT_PRODUCT_OPTION.FILTERED) {
-      const queryParam = {...query};
+      const queryParam = { ...query };
       delete queryParam.page;
       delete queryParam.limit;
       const generateQueryParam = generateQuery(queryParam);
@@ -1069,9 +1070,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         }
       });
     })
-    .catch(() => {
-      showError("Có lỗi xảy ra, vui lòng thử lại sau");
-    });
+      .catch(() => {
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
   }, [exportProcessId]);
 
   useEffect(() => {
@@ -1138,7 +1139,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const onOkConcatenateByExcel = () => {
     setIsVisibleConcatenateByExcelModal(false);
   }
-  
+
   const onCancelConcatenateByExcel = () => {
     setIsVisibleConcatenateByExcelModal(false);
   }
@@ -1241,13 +1242,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                         value={shopItem.id}
                         title={
                           <span>
-                      <img
-                        src={getEcommerceIcon(shopItem.ecommerce)}
-                        alt={shopItem.id}
-                        style={{ marginRight: "5px", height: "16px" }}
-                      />
+                            <img
+                              src={getEcommerceIcon(shopItem.ecommerce)}
+                              alt={shopItem.id}
+                              style={{ marginRight: "5px", height: "16px" }}
+                            />
                             {shopItem.name}
-                    </span>
+                          </span>
                         }
                       />
                     ))}
@@ -1278,7 +1279,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
               </div>
             </Form>
             <div className="order-filter-tags">
-              {filters && filters.map((filter: any, index:any) => {
+              {filters && filters.map((filter: any, index: any) => {
                 return (
                   <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
                 )
@@ -1337,11 +1338,16 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
       {/* Import customer file */}
       {isVisibleConcatenateByExcelModal &&
-          <ConcatenateByExcel
-            onCancelConcatenateByExcel={onCancelConcatenateByExcel}
-            onOkConcatenateByExcel={onOkConcatenateByExcel}
-          />
-        }
+        <ConcatenateByExcel
+          title="Ghép nối sản phẩm"
+          visible={isVisibleConcatenateByExcelModal}
+          setVisible={setIsVisibleConcatenateByExcelModal}
+          descText="ghép nối sản phẩm"
+          syncType="variant-sync"
+          onCancelConcatenateByExcel={onCancelConcatenateByExcel}
+          onOkConcatenateByExcel={onOkConcatenateByExcel}
+        />
+      }
 
       {/*<ResultConnectProductModal*/}
       {/*  visible={isShowResultConnectProductModal}*/}
@@ -1446,6 +1452,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           </div>
         </div>
       </Modal>
+
+      {/* Import customer file */}
 
     </StyledComponent>
   );

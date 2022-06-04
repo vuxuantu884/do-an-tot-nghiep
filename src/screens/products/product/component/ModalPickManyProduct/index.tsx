@@ -30,15 +30,28 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
   const [selection, setSelection] = useState<Array<VariantResponse>>([]);
   const [query, setQuery] = useState<VariantSearchQuery>(initQuery);
+  const [checked, setChecked] = useState<boolean>(false);
+
+  const checkAll = useCallback((dataParam: PageResponse<VariantResponse>) => {
+    let checkAll = true;
+    dataParam?.items.forEach((item) => {
+      if (selection.findIndex((selected) => selected.id === item.id) === -1) {
+        checkAll = false;
+      }
+    })
+    setChecked(checkAll);
+  }, [selection]);
 
   const onResultSuccess = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
       if (!!result) {
         setData(result);
+        checkAll(result);
       }
     },
-    []
+    [checkAll]
   );
+
   const onCheckedChange = useCallback(
     (checked, variantResponse: VariantResponse) => {
       if (checked) {
@@ -48,17 +61,20 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         if (index === -1) {
           selection.push(variantResponse);
         }
+        //check all
+        data && checkAll(data);
       } else {
         let index = selection.findIndex(
           (item) => item.id === variantResponse.id
         );
         if (index !== -1) {
           selection.splice(index, 1);
+          setChecked(false);
         }
       }
       setSelection([...selection]);
     },
-    [selection]
+    [selection, checkAll, data]
   );
   const onPageChange = useCallback(
     (page, size) => {
@@ -70,21 +86,41 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const fillAll = useCallback(
     (checked: boolean) => {
       if (checked) {
-        if (data) setSelection(data?.items);
+        if (data) {
+          data?.items.forEach((item) => {
+            let index = selection.findIndex(
+              (selected) => selected.id === item.id
+            );
+            if (index === -1) {
+              selection.push(item);
+            }
+          })
+          setSelection([...selection]);
+        }
       } else {
-        setSelection([]);
+        data?.items.forEach((item) => {
+          let index = selection.findIndex(
+            (selected) => selected.id === item.id
+          );
+          if (index !== -1) {
+            selection.splice(index, 1);
+          }
+        });
+        setSelection([...selection]);
       }
     },
-    [data, setSelection]
+    [data, setSelection, selection]
   );
   useEffect(() => {
     dispatch(searchVariantsRequestAction(query, onResultSuccess));
   }, [dispatch, onResultSuccess, query]);
+
   useEffect(() => {
-    if(props.visible) {
+    if (props.visible) {
       setSelection([...props.selected])
     }
   }, [props.selected, props.visible])
+
   return (
     <Modal
       visible={props.visible}
@@ -114,9 +150,10 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       />
       <Divider />
       <Checkbox
-        style={{marginLeft: 12}}
-        checked={selection.length === data?.metadata.limit}
+        style={{ marginLeft: 12 }}
+        checked={checked}
         onChange={(e) => {
+          setChecked(e.target.checked);
           fillAll(e.target.checked);
         }}
       >

@@ -19,6 +19,13 @@ export const ECOMMERCE_ICON: any = {
   sendo: sendoIcon,
 };
 
+export const ECOMMERCE_ID = {
+  SHOPEE: 1,
+  LAZADA: 2,
+  TIKI: 3,
+  SENDO: 4,
+};
+
 export const ECOMMERCE_LIST = [
   {
     title: "Sàn Shopee",
@@ -146,6 +153,81 @@ export const LAZADA_ORDER_STATUS_LIST = [
   {
     name: "Hỏng hàng",
     value: "DAMAGED_BY_3PL",
+  },
+];
+
+export const TIKI_ORDER_STATUS_LIST = [
+  {
+    name: "Đợi thanh toán",
+    value: "waiting_payment",
+  },
+  {
+    name: "Đợi thanh toán",
+    value: "payment_review",
+  },
+  {
+    name: "Đã thanh toán",
+    value: "paid",
+  },
+  {
+    name: "Đang xử lý",
+    value: "processing",
+  },
+  {
+    name: "Chờ in",
+    value: "queueing",
+  },
+  {
+    name: "Đang đóng gói",
+    value: "packaging",
+  },
+  {
+    name: "Đóng gói xong",
+    value: "finished_packing",
+  },
+  {
+    name: "Đang lấy hàng",
+    value: "picking",
+  },
+  {
+    name: "Đã giữ",
+    value: "holded",
+  },
+  {
+    name: "Bàn giao đối tác",
+    value: "handover_to_partner",
+  },
+  {
+    name: "Đang vận chuyển",
+    value: "shipping",
+  },
+  {
+    name: "Lên kệ",
+    value: "ready_to_ship",
+  },
+  {
+    name: "Giao hàng thành công",
+    value: "delivered",
+  },
+  {
+    name: "Giao hàng thành công",
+    value: "successful_delivery",
+  },
+  {
+    name: "Đã hủy",
+    value: "cancelled",
+  },
+  {
+    name: "Kết thúc",
+    value: "closed",
+  },
+  {
+    name: "Hoàn tất",
+    value: "complete",
+  },
+  {
+    name: "Đã hoàn",
+    value: "returned",
   },
 ];
 

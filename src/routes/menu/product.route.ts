@@ -1,6 +1,6 @@
 import { ProductPermission } from "config/permissions/product.permission";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 import ImportFileProducts from "screens/products/import-products";
@@ -97,7 +97,7 @@ const product: Array<RouteMenu> = [
       ProductPermission.read_variant,
       ProductPermission.read_histories,
     ],
-    activeLink: [UrlConfig.PRODUCT, `${UrlConfig.PRODUCT}/history-prices`, `${UrlConfig.PRODUCT}/histories`],
+    activeLink: [UrlConfig.PRODUCT, ProductTabUrl.HISTORY_PRICES, `${UrlConfig.PRODUCT}/histories`],
     subMenu: [
       {
         path: `${UrlConfig.PRODUCT}/create`,
@@ -148,7 +148,7 @@ const product: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PRODUCT}/histories`,
+        path: ProductTabUrl.PRODUCT_HISTORIES,
         exact: true,
         title: "Lịch sử sản phẩm",
         icon: "icon-dot",
@@ -160,9 +160,21 @@ const product: Array<RouteMenu> = [
         subMenu: [],
       },
       {
-        path: `${UrlConfig.PRODUCT}/history-prices`,
+        path: ProductTabUrl.HISTORY_PRICES,
         exact: true,
         title: "Lịch sử giá",
+        icon: "icon-dot",
+        component: Product,
+        key: "submenu218",
+        isShow: true,
+        permissions: [ProductPermission.read_histories],
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: ProductTabUrl.STAMP_PRINTING_HISTORY,
+        exact: true,
+        title: "Lịch sử tem",
         icon: "icon-dot",
         component: Product,
         key: "submenu218",

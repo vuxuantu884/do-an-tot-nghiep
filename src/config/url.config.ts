@@ -65,7 +65,8 @@ export const ProductTabUrl = {
   VARIANTS: UrlConfig.VARIANTS,
   PRODUCTS: UrlConfig.PRODUCT,
   PRODUCT_HISTORIES: UrlConfig.PRODUCT + "/histories",
-  HISTORY_PRICES: UrlConfig.PRODUCT + "/history-prices",
+  HISTORY_PRICES: UrlConfig.PRODUCT + "/prices-history",
+  STAMP_PRINTING_HISTORY: UrlConfig.PRODUCT + "/stamp-printing-history",
 };
 
 export const SupplierTabUrl = {

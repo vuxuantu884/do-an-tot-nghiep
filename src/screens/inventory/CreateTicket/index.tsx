@@ -454,6 +454,8 @@ const CreateTicket: FC = () => {
         item.variant_prices[0].retail_price;
       return {
         sku: item.sku,
+        on_hand: item.on_hand,
+        total_stock: item.total_stock,
         barcode: item.barcode,
         variant_name: item.name,
         variant_id: item.id,

@@ -77,7 +77,8 @@ import {
 	sortFulfillments,
 	totalAmount,
 	formatCurrency,
-	replaceFormatString
+	replaceFormatString,
+	isOrderFromPOS
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
@@ -186,6 +187,9 @@ export default function Order() {
 	const actionParam = queryParams.get("action") || null;
 	const cloneIdParam = queryParams.get("cloneId") || null;
 	const typeParam = queryParams.get("type") || null;
+
+	const [isCloneOrderFromPOS, setIsCloneOrderFromPOS] = useState(false)
+
 	const handleCustomer = (_objCustomer: CustomerResponse | null) => {
 		setCustomer(_objCustomer);
 	};
@@ -758,6 +762,10 @@ export default function Order() {
 			if (isCloneOrder && cloneIdParam) {
 				dispatch(
 					OrderDetailAction(cloneIdParam, async (response) => {
+						if(isOrderFromPOS(response)) {
+							setIsCloneOrderFromPOS(true);
+							return;
+						}
 						const { customer_id } = response;
 
 						if (customer_id) {
@@ -1230,6 +1238,10 @@ export default function Order() {
 			window.removeEventListener("keydown",eventFunctional);
 		}
 	},[eventFunctional])
+
+	if (isCloneOrderFromPOS) {
+		return <div style={{padding: "20px 0"}}>Đơn hàng offline không thể sao chép</div>
+	}
 
 	return (
 		<React.Fragment>

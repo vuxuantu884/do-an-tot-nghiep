@@ -29,6 +29,8 @@ import {
 } from "utils/AppUtils";
 import {
   getVariantApi,
+  productDetailApi,
+  searchProductWrapperApi,
   searchVariantsApi,
 } from "service/product/product.service";
 import debounce from "lodash/debounce";
@@ -132,7 +134,16 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   
   const [isLoading, setIsLoading] = useState(false);
   const [variantList, setVariantList] = useState<Array<any>>([]);
-  const [initVariantList, setInitVariantList] = useState<Array<any>>([]);
+  const [variantIdSelected, setVariantIdSelected] = useState<string | null>("");
+  const [isSearchingVariant, setIsSearchingVariant] = useState(false);
+  
+  const [productList, setProductList] = useState<Array<any>>([]);
+  const [productIdSelected, setProductIdSelected] = useState<string | null>("");
+  const [isSearchingProduct, setIsSearchingProduct] = useState(false);
+
+  const [initProductVariantList, setInitProductVariantList] = useState<Array<any>>([]);
+  const [productVariantList, setProductVariantList] = useState<Array<any>>([]);
+  const [productVariantSelected, setProductVariantSelected] = useState<any>(null);
 
   const initialValues = useMemo(() => {
     return {
@@ -156,21 +167,57 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
             return [
               {
                 label: response.data?.name,
-                value: response.data?.id?.toString(),
+                value: response.data?.product_id?.toString() + response.data?.id?.toString(),
                 variantId: response.data?.id?.toString(),
-                productId: response.data?.product_id,
+                productId: response.data?.product_id?.toString(),
               }
             ]
           } else {
-            handleFetchApiError(response, "Danh sách tài khoản", dispatch);
+            handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
           }
         }).catch((error) => {
           console.log('getVariantDetailById fail: ', error);
         })
     } catch {}
     setVariantList(variants);
-    setInitVariantList(variants);
+    setInitProductVariantList(variants);
+    if (variants?.length > 0) {
+      setProductVariantSelected(variants[0].value);
+      setVariantIdSelected(variants[0].variantId);
+      setProductIdSelected(variants[0].productId);
+    }
   }, [dispatch]);
+
+  const getProductDetailById = useCallback(
+    async (productId: number) => {
+      let products: any = [];
+      try {
+        products = await productDetailApi(productId)
+          .then((response: any) => {
+            if (isFetchApiSuccessful(response)) {
+              return [
+                {
+                  label: response.data?.name,
+                  value: response.data?.id?.toString(),
+                  variantId: null,
+                  productId: response.data?.id?.toString(),
+                }
+              ]
+            } else {
+              handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
+            }
+          }).catch((error) => {
+            console.log('getVariantDetailById fail: ', error);
+          })
+      } catch {}
+      setProductList(products);
+      setInitProductVariantList(products);
+      if (products?.length > 0) {
+        setProductVariantSelected(products[0].value);
+        setVariantIdSelected(products[0].variantId);
+        setProductIdSelected(products[0].productId);
+      }
+    }, [dispatch]);
   // end handle get variant by filter param
 
   // handle select date by filter param
@@ -199,6 +246,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   useEffect(() => {
     if (initialValues.variant_id) {
       getVariantDetailById(initialValues.variant_id);
+    } else if (initialValues.product_id) {
+      getProductDetailById(Number(initialValues.product_id));
     }
     handleDateFilterParam(initialValues.from_created_date, initialValues.to_created_date, setCreatedDateClick);
     setCreatedDateStart(initialValues.from_created_date);
@@ -206,44 +255,99 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     form.setFieldsValue({
       ...initialValues
     });
-  }, [form, getVariantDetailById, initialValues]);
+  }, [form, getProductDetailById, getVariantDetailById, initialValues]);
   
-  // handle search variants
-  const searchVariants = async (input: any) => {
+  // handle search products, variants
+  const onSearchVariants = async (value: string) => {
+    let variants: any = [];
     try {
-      const result = await searchVariantsApi({info: input})
-      return result?.data?.items?.map(item => {
-        return {
-          label: item.name,
-          value: item.id?.toString(),
-          variantId: item.id?.toString(),
-          productId: item.product_id,
-        }
-      })
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  const onSearchVariants = useCallback((value: string) => {
-    if (value?.trim()?.length >= 3) {
-      setVariantList([]);
-      setIsLoading(true);
-      searchVariants(value)
-        .then((newOptions: any) => {
-          setVariantList(newOptions);
-          setIsLoading(false);
-        })
-        .finally(() => {
-          setIsLoading(false);
+      setIsSearchingVariant(true);
+      variants = await searchVariantsApi({info: value.trim(), page: 1, limit: 30})
+        .then((response) => {
+          setIsSearchingVariant(false);
+          if (isFetchApiSuccessful(response)) {
+            return response.data?.items?.map(item => {
+              return {
+                label: item.name,
+                value: item.product_id?.toString() + item.id?.toString(),
+                variantId: item.id?.toString(),
+                productId: item.product_id?.toString(),
+              }
+            })
+          } else {
+            handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
+          }
+        }).catch((error) => {
+          setIsSearchingVariant(false);
+          console.log('get Variant fail: ', error);
         });
+    } catch {
+      setIsSearchingVariant(false);
     }
-  }, []);
+    setVariantList(variants);
+  };
+
+  const onSearchProduct = async (value: string) => {
+    let products: any = [];
+    try {
+      setIsSearchingProduct(true);
+      products = await searchProductWrapperApi({info: value.trim(), page: 1, limit: 30})
+        .then((response) => {
+          setIsSearchingProduct(false);
+          if (isFetchApiSuccessful(response)) {
+            return response.data?.items?.map(item => {
+              return {
+                label: item.name,
+                value: item.id?.toString(),
+                variantId: null,
+                productId: item.id?.toString(),
+              }
+            })
+          } else {
+            handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
+          }
+        }).catch((error) => {
+          setIsSearchingProduct(false);
+          console.log('get Product fail: ', error);
+        })
+    } catch {
+      setIsSearchingProduct(false);
+    }
+    setProductList(products);
+    };
 
   const handleSearchVariants = debounce((value: string) => {
-    onSearchVariants(value);
+    if (value?.trim()?.length >= 3) {
+      setProductVariantList([]);
+      onSearchProduct(value);
+      onSearchVariants(value);
+    }
   }, 800);
-  // end handle search variants
+
+  useEffect(() => {
+    if (isSearchingProduct || isSearchingVariant) {
+      setIsLoading(true);
+    } else {
+      setIsLoading(false);
+      const newProductVariantList = productList.concat(variantList).sort((a: any, b: any) => {
+        return (Number(b.productId) < Number(a.productId)) ? -1 : ((Number(b.productId) > Number(a.productId)) ? 1 : 0);
+      });
+      setProductVariantList(newProductVariantList);
+    }
+  }, [isSearchingProduct, isSearchingVariant, productList, variantList]);
+
+  const onSelectProduct = (value: string, option: any) => {
+    setProductVariantSelected(value);
+    setVariantIdSelected(option.variantId);
+    setProductIdSelected(option.productId);
+  };
+
+  const onClearVariants = () => {
+    setProductVariantSelected(null);
+    setVariantIdSelected(null);
+    setProductIdSelected(null);
+  };
+  // end handle search products, variants
   
   //handle create date filter
   const [createdDateClick, setCreatedDateClick] = useState("");
@@ -330,20 +434,16 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
   // useCallback
   const onFinish = useCallback((values: DiscountSearchQuery) => {
-    if (values.variant_id) {
-      const variants = variantList.find(item => item.variantId === values.variant_id);
-      values.product_id = variants?.productId;
-    } else {
-      values.product_id = null;
-    }
     const formValues = {
       ...values,
+      variant_id: variantIdSelected,
+      product_id: productIdSelected,
       from_created_date: createdDateStart,
       to_created_date: createdDateEnd,
-      created_date: [createdDateStart, createdDateEnd],
+      created_date: (createdDateStart || createdDateEnd) ? [createdDateStart, createdDateEnd] : null,
     };
     onFilter && onFilter(formValues);
-  }, [createdDateEnd, createdDateStart, onFilter, variantList])
+  }, [createdDateEnd, createdDateStart, onFilter, productIdSelected, variantIdSelected])
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -381,12 +481,19 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       });
     }
     
-    if (initialValues.variant_id) {
-      const variant = initVariantList.find(item => item.variantId?.toString() === initialValues.variant_id?.toString());
+    if (initialValues.variant_id || initialValues.product_id) {
+      let productVariant;
+      if (initialValues.variant_id) {
+        productVariant = initProductVariantList.find(
+          item => item.variantId?.toString() === initialValues.variant_id?.toString());
+      } else {
+        productVariant = initProductVariantList.find(
+          item => item.productId?.toString() === initialValues.product_id?.toString());
+      }
       list.push({
-        key: "variant_id",
+        key: "product_variant_id",
         name: "Sản phẩm",
-        value: variant?.label || initialValues.variant_id,
+        value: productVariant?.label || initialValues.variant_id || initialValues.product_id,
       });
     }
 
@@ -470,6 +577,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   }, [
     initialValues.query,
     initialValues.variant_id,
+    initialValues.product_id,
     initialValues.state,
     initialValues.created_date,
     initialValues.from_created_date,
@@ -477,7 +585,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     initialValues.status,
     initialValues.applied_shop,
     initialValues.discount_method,
-    initVariantList,
+    initProductVariantList,
     listStore,
   ]);
 
@@ -490,13 +598,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           onFilter && onFilter({ ...params, query: null });
           // formCustomerFilter?.setFieldsValue({ gender: null });
           break;
-        case "variant_id":
+        case "product_variant_id":
+          onClearVariants();
           onFilter && onFilter({ ...params, variant_id: null, product_id: null });
-          // formCustomerFilter?.setFieldsValue({ customer_group_ids: [] });
           break;
         case "state":
           onFilter && onFilter({ ...params, state: null });
-          // formCustomerFilter?.setFieldsValue({ customer_group_ids: [] });
           break;
         case "created_date":
           clearCreatedDate();
@@ -545,14 +652,15 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
             </Item>
 
             <Form.Item
-              name="variant_id"
               className="search-variant">
               <Select
                 loading={isLoading}
                 showSearch
                 showArrow
                 onSearch={handleSearchVariants}
+                dropdownMatchSelectWidth={500}
                 allowClear
+                onClear={onClearVariants}
                 optionFilterProp="children"
                 placeholder={"Tìm kiếm theo tên, mã, barcode sản phẩm"}
                 notFoundContent={
@@ -560,7 +668,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 }
                 getPopupContainer={trigger => trigger.parentNode}
                 filterOption={false}
-                options={variantList}
+                options={productVariantList}
+                onSelect={onSelectProduct}
+                value={productVariantSelected}
               />
             </Form.Item>
             

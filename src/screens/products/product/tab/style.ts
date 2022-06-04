@@ -25,4 +25,12 @@ export const StyledComponent = styled.div`
   .ant-tabs-tab a:hover{
     color: #1890ff ;
   }
+  .txt-muted {
+    color: #666666;
+  }
+  .add-in-tem {
+    display: flex;
+    margin-top: 20px;
+    justify-content: flex-end;
+  }
   `;

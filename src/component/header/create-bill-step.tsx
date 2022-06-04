@@ -6,7 +6,6 @@ import { useEffect, useMemo, useState } from "react";
 import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
 import { isDeliveryOrderReturned, isFulfillmentActive } from "utils/OrderUtils";
 // import { FulFillmentStatus } from "utils/Constants";
 import "./create-bill-step.scss";

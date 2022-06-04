@@ -1066,7 +1066,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
   for (const singleReturn of OrderDetail.order_returns) {
      //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
      for (const singleReturnItem of singleReturn.items) {
-       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id);
+       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id && item.type === singleReturnItem.type);
 
        if(index > -1) {
          let duplicatedItem = {...orderReturnItems[index]};
@@ -1078,6 +1078,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
 
      }
   }
+  console.log('orderReturnItems', orderReturnItems)
   return orderReturnItems;
 };
 
@@ -1089,16 +1090,18 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   const OrderDetailClone = cloneDeep(OrderDetail)
   let result:OrderLineItemResponse[] = [];
 	let listReturned = getListReturnedOrders(OrderDetailClone)
+  console.log('listReturned', listReturned)
   let orderReturnItems = [...listReturned]
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
+  console.log('_orderReturnItems', _orderReturnItems)
 	let newReturnItems = cloneDeep(_orderReturnItems);
 	// let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
-
+  console.log('newReturnItems', newReturnItems)
   for (const singleOrder of OrderDetailClone.items) {
 		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau)
     let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id && single.type === singleOrder.type);
     if(duplicatedItem) {
-			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id)
+			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id&& single.type === duplicatedItem.type)
 			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
 			if(quantityLeft ===0) {
 				newReturnItems.splice(index, 1);
@@ -1117,6 +1120,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
       result.push(singleOrder);
     }
   }
+  console.log('result', result)
  return result;
 }
 

@@ -1,39 +1,32 @@
-import { DownOutlined, FilterOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Dropdown,
-  Form,
-  Input,
-  Menu,
-  Select,
-  Tag,
-  TreeSelect,
-  Tooltip
-} from "antd";
+import {DownOutlined, FilterOutlined} from "@ant-design/icons";
+import {Button, Dropdown, Form, Input, Menu, Select, Tag, Tooltip, TreeSelect,} from "antd";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
-import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
+import {GetOrdersMappingQuery} from "model/query/ecommerce.query";
 import moment from "moment";
 import {fullTextSearch} from "utils/StringUtils";
 import {convertItemToArray} from "utils/AppUtils";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import SelectDateFilter from "screens/ecommerce/common/SelectDateFilter";
-import {
-  AllOrdersMappingFilterStyled,
-} from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
-import { StyledEcommerceOrderBaseFilter } from "screens/ecommerce/orders/orderStyles";
+import {AllOrdersMappingFilterStyled,} from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
+import {StyledEcommerceOrderBaseFilter} from "screens/ecommerce/orders/orderStyles";
 import {ConvertDateToUtc, ConvertUtcToLocalDate} from "utils/DateUtils";
-import { useDispatch } from "react-redux";
+import {useDispatch} from "react-redux";
+import {getShopEcommerceList,} from "domain/actions/ecommerce/ecommerce.actions";
 import {
-  getShopEcommerceList,
-} from "domain/actions/ecommerce/ecommerce.actions";
-import {
+  ECOMMERCE_ID,
   ECOMMERCE_LIST,
   getEcommerceIcon,
   LAZADA_ORDER_STATUS_LIST,
   SHOPEE_ORDER_STATUS_LIST,
+  TIKI_ORDER_STATUS_LIST,
 } from "screens/ecommerce/common/commonAction";
 import 'component/filter/order.filter.scss'
+import {actionFetchListOrderProcessingStatus} from "domain/actions/settings/order-processing-status.action";
+import {
+  OrderProcessingStatusModel,
+  OrderProcessingStatusResponseModel
+} from "model/response/order-processing-status.response";
 
 type AllOrdersMappingFilterProps = {
   params: GetOrdersMappingQuery;
@@ -81,6 +74,10 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
   const [ecommerceIdSelected, setEcommerceIdSelected] = useState<any>(null);
 
+  const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
+    OrderProcessingStatusModel[]
+    >([]);
+
   const dispatch = useDispatch();
 
   // useEffect(() => {
@@ -92,20 +89,38 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       ...params,
       ecommerce_order_statuses: convertItemToArray(params.ecommerce_order_statuses),
       shop_ids: convertItemToArray(params.shop_ids),
+      core_sub_status_code: convertItemToArray(params.core_sub_status_code),
     };
   }, [params]);
 
   let ECOMMERCE_ORDER_STATUS_LIST = useMemo(() => {
     switch (params?.ecommerce_id?.toString()) {
-      case "1":
+      case ECOMMERCE_ID.SHOPEE.toString():
         return SHOPEE_ORDER_STATUS_LIST
-      case "2":
+      case ECOMMERCE_ID.LAZADA.toString():
         return LAZADA_ORDER_STATUS_LIST
+      case ECOMMERCE_ID.TIKI.toString():
+        return TIKI_ORDER_STATUS_LIST
       default:
         return [];
     }
   }, [params?.ecommerce_id]);
 
+  useEffect(() => {
+    const params=  {
+      sort_type: "asc",
+      sort_column: "display_order",
+    }
+    dispatch(
+      actionFetchListOrderProcessingStatus(
+        params,
+        (data: OrderProcessingStatusResponseModel) => {
+          setListOrderProcessingStatus(data.items);
+        }
+      )
+    );
+  }, [dispatch])
+  
   const isDisableAction = () => {
     return !selectedRowKeys || selectedRowKeys.length === 0;
   };
@@ -134,10 +149,9 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
   ) => {
     if (date != null) {
       let localDate = moment.utc(date).toDate();
-      let dateFormat = moment(localDate).format(
+      return moment(localDate).format(
         format ? format : "DD/MM/YYYY"
       );
-      return dateFormat;
     }
     return "";
   };
@@ -243,7 +257,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
         const findStatus = ecommerceShopList?.find(
-          (item) => +item.id === +shopId
+          (item) => item.id?.toString() === shopId?.toString()
         );
         shopNameList = findStatus
           ? shopNameList + findStatus.name + "; "
@@ -272,6 +286,22 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       })
     }
 
+    if (initialValues.core_sub_status_code?.length) {
+      let subStatusFilteredList = "";
+      initialValues.core_sub_status_code.forEach((subStatus: any) => {
+        const subStatusItem = listOrderProcessingStatus?.find(
+          (item) => item.code?.toString() === subStatus?.toString()
+        );
+        subStatusFilteredList = subStatusItem
+          ? subStatusFilteredList + subStatusItem.sub_status + "; "
+          : subStatusFilteredList;
+      });
+      list.push({
+        key: "core_sub_status_code",
+        name: "TT xử lý đơn",
+        value: subStatusFilteredList,
+      });
+    }
 
     if (initialValues.connected_status) {
       const connectStatus = CONNECTED_STATUS.find(
@@ -323,12 +353,14 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
     initialValues.shop_ids,
     initialValues.ecommerce_order_code,
     initialValues.core_order_code,
+    initialValues.core_sub_status_code,
     initialValues.connected_status,
     initialValues.created_date_from,
     initialValues.created_date_to,
     initialValues.ecommerce_order_statuses,
     params.ecommerce_id,
     ecommerceShopList,
+    listOrderProcessingStatus,
     ECOMMERCE_ORDER_STATUS_LIST,
   ]);
 
@@ -374,6 +406,10 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         case "ecommerce_order_statuses":
           onFilter && onFilter({ ...params, ecommerce_order_statuses: [] });
           formFilter?.setFieldsValue({ ecommerce_order_statuses: [] });
+          break;
+        case "core_sub_status_code":
+          onFilter && onFilter({ ...params, core_sub_status_code: [] });
+          formFilter?.setFieldsValue({ core_sub_status_code: [] });
           break;
         default:
           break;
@@ -480,6 +516,12 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       shop_ids: [],
       ecommerce_order_statuses: [],
     });
+    onFilter && onFilter({ ...params, ecommerce_id: "", shop_ids: [], ecommerce_order_statuses: [] });
+  };
+
+  const handleOnClearShop = () => {
+    onFilter && onFilter({ ...params, shop_ids: [] });
+    formFilter?.setFieldsValue({ shop_ids: [] });
   };
 
   //handle query params filter
@@ -523,6 +565,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
       ecommerce_order_code: params.ecommerce_order_code,
       core_order_code: params.core_order_code,
       shop_ids: convertItemToArray(params.shop_ids),
+      core_sub_status_code: convertItemToArray(params.core_sub_status_code),
       ecommerce_id: params.ecommerce_id,
       connected_status: params.connected_status,
       created_date_from: params.created_date_from,
@@ -577,7 +620,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
               onSelect={(value) => handleSelectEcommerce(value)}
               onClear={removeEcommerce}>
               {ECOMMERCE_LIST?.map((item: any) => (
-                <Select.Option key={item.ecommerce_id} value={item.ecommerce_id.toString()}>
+                <Select.Option key={item.ecommerce_id} value={item.ecommerce_id?.toString()}>
                   <div>
                     <img
                       src={item.icon}
@@ -595,8 +638,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             className="select-shop-dropdown"
             name="shop_ids"
           >
-
-            {params.ecommerce_id !== null ?
+            {params.ecommerce_id ?
               <TreeSelect
                 placeholder="Chọn gian hàng"
                 treeDefaultExpandAll
@@ -608,6 +650,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                 treeCheckable
                 treeNodeFilterProp="title"
                 maxTagCount="responsive"
+                onClear={handleOnClearShop}
                 filterTreeNode={(textSearch: any, item: any) => {
                   const treeNodeTitle = item?.title?.props?.children[1];
                   return fullTextSearch(textSearch, treeNodeTitle);
@@ -616,7 +659,7 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                 {ecommerceShopList?.map((shopItem: any) => (
                   <TreeSelect.TreeNode
                     key={shopItem.id}
-                    value={shopItem.id}
+                    value={shopItem.id?.toString()}
                     title={
                       <span>
                         {getEcommerceIcon(shopItem.ecommerce) &&
@@ -674,6 +717,26 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
             />
           </Item>
 
+          <Item name="core_sub_status_code" className="select-core-sub-status">
+            <Select
+              mode="multiple"
+              showSearch
+              showArrow
+              allowClear
+              placeholder="TT xử lý đơn"
+              notFoundContent="Không tìm thấy kết quả"
+              disabled={isLoading}
+              optionFilterProp="children"
+              maxTagCount='responsive'
+            >
+              {listOrderProcessingStatus?.map((item: any) => (
+                <Option key={item.id} value={item.code?.toString()}>
+                  {item.sub_status}
+                </Option>
+              ))}
+            </Select>
+          </Item>
+
           <Item style={{ marginRight: "15px"}}>
             <Button type="primary" htmlType="submit" disabled={isLoading}>
               Lọc
@@ -723,6 +786,31 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   endDate={createdDateTo}
                   isUTC={true}
                 />
+              </Form.Item>
+
+              <Form.Item
+                name="ecommerce_id"
+                label="Sàn TMĐT"
+                className="ecommerce-dropdown">
+                <Select
+                  disabled={isLoading}
+                  placeholder="Chọn sàn"
+                  allowClear
+                  onSelect={(value) => handleSelectEcommerce(value)}
+                  onClear={removeEcommerce}>
+                  {ECOMMERCE_LIST?.map((item: any) => (
+                    <Select.Option key={item.ecommerce_id} value={item.ecommerce_id?.toString()}>
+                      <div>
+                        <img
+                          src={item.icon}
+                          alt={item.id}
+                          style={{ marginRight: "10px" }}
+                        />
+                        <span>{item.title}</span>
+                      </div>
+                    </Select.Option>
+                  ))}
+                </Select>
               </Form.Item>
 
               <Form.Item

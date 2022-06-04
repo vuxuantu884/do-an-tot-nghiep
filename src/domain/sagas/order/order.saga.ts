@@ -94,14 +94,14 @@ function* getListOrderSaga(action: YodyAction) {
   try {
     let response: BaseResponse<Array<OrderModel>> = yield call(getListOrderApi, query);
     if (isFetchApiSuccessful(response)) {
-      setData(response.data);
+      setData && setData(response.data);
     } else {
-      handleError();
+      handleError && handleError();
       yield put(fetchApiErrorAction(response, "Danh sách đơn hàng"));
     }
   } catch (error) {
     showError("Có lỗi khi lấy dữ liệu danh sách đơn hàng! Vui lòng thử lại sau!");
-    handleError();
+    handleError && handleError();
   }
 }
 

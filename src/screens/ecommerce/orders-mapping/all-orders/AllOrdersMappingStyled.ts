@@ -10,70 +10,70 @@ export const AllOrdersMappingStyled = styled.div`
     margin: 0 auto;
 	}
   .coordinator_confirmed {
-    background: #52D276 !important;
+    background: #52D276;
   }
   .awaiting_coordinator_confirmation {
     background: #FCAF17;
   }
   .awaiting_saler_confirmation {
-    background: #106227 !important;
+    background: #106227;
   }
   .first_call_attempt {
-    background: #106227 !important;
+    background: #106227;
   }
   .second_call_attempt {
-    background: #00897B !important;
+    background: #00897B;
   }
   .third_call_attempt {
-    background: #E8770A !important;
+    background: #E8770A;
   }
   .merchandise_packed {
-    background: #E8770A !important;
+    background: #E8770A;
   }
   .shipping {
-    background: #00897B !important;
+    background: #00897B;
   }
   .awaiting_shipper {
-    background: #106227 !important;
+    background: #106227;
   }
   .merchandise_picking {
-    background: #C98D17 !important;
+    background: #C98D17;
   }
   .returned {
-    background: #52D276 !important;
+    background: #52D276;
   }
   .fourHour_delivery {
-    background: ${primaryColor} !important;
+    background: ${primaryColor};
   }
   .shipped {
-    background: ${successColor} !important;
+    background: ${successColor};
   }
   .order_return {
-    background: #FCAF17 !important;
+    background: #FCAF17;
   }
   .coordinator_confirming {
-    background: #E8770A  !important;
+    background: #E8770A ;
   }
   .returning {
-    background: #E8770A  !important;
+    background: #E8770A ;
   }
   .awaiting_coordinator_confirmation {
-    background: #FCAF17 !important;
+    background: #FCAF17;
   }
   .require_warehouse_change {
-    background: #8D6E63 !important;
+    background: #8D6E63;
   }
   .cancelled {
-    background: #E24343 !important;
+    background: #E24343;
   }
   .delivery_service_cancelled {
-    background: #E24343 !important;
+    background: #E24343;
   }
   .out_of_stock {
-    background: #E24343 !important;
+    background: #E24343;
   }
   .system_cancelled {
-    background: #E24343 !important;
+    background: #E24343;
   }
 
   .customer_cancelled {
@@ -99,6 +99,10 @@ export const AllOrdersMappingFilterStyled = styled.div`
     .search-input {
       min-width: 100px;
       flex-grow: 1;
+      margin-right: 15px;
+    }
+    .select-core-sub-status {
+      min-width: 150px;
       margin-right: 15px;
     }
   }

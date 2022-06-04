@@ -14,6 +14,7 @@ enum DocumentType {
   ORDER = "order",
   RETURN_ORDER = "return_order",
   RETURN_PO = "return_po",
+  INVENTORY_TRANSFER = "inventory_transfer",
 }
 
 const TabProductHistory: React.FC<IProps> = (props: IProps) => {
@@ -27,7 +28,9 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
         return UrlConfig.ORDERS_RETURN;
       case DocumentType.PURCHASE_ORDER:
       case DocumentType.RETURN_PO:
-        return UrlConfig.PURCHASE_ORDERS;
+        return UrlConfig.PURCHASE_ORDERS; 
+      case DocumentType.INVENTORY_TRANSFER:
+        return UrlConfig.INVENTORY_TRANSFERS;
       default:
         return type;
     }
@@ -54,7 +57,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
               if (record.document_type === DocumentType.RETURN_ORDER) {
                 id = record.document_id;
               }
-      
+              
               return (
                 <div>
                   <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>

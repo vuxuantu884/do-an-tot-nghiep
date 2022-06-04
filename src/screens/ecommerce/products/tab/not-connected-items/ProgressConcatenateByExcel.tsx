@@ -9,6 +9,7 @@ import { useHistory } from "react-router";
 import { EcommerceProductTabUrl } from "config/url.config";
 
 type ProgressConcatenateByExcelModalType = {
+  title: string,
   isVisibleProgressModal: any,
   onCancelProgressConcatenateByExcel: any,
   onOKProgressConcatenateByExcel: any,
@@ -20,7 +21,7 @@ type ProgressConcatenateByExcelModalType = {
 const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalType> = (
   props: ProgressConcatenateByExcelModalType
 ) => {
-  const { isVisibleProgressModal, onCancelProgressConcatenateByExcel,
+  const { title, isVisibleProgressModal, onCancelProgressConcatenateByExcel,
     onOKProgressConcatenateByExcel, progressData, progressPercent, isDownloading } = props;
 
   const [errorData, setErrorData] = useState<Array<any>>([]);
@@ -36,7 +37,9 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
 
   const okProgressProgressConcatenateByExcelModal = () => {
     onOKProgressConcatenateByExcel();
-    history.replace(EcommerceProductTabUrl.CONNECTED);
+    if (title === 'Ghép nối sản phẩm') {
+      history.replace(EcommerceProductTabUrl.CONNECTED);
+    }
   };
 
   const cancelProgressConcatenateByExcelModal = () => {
