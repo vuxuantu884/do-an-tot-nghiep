@@ -792,9 +792,9 @@ function OrderReturnList(props: PropTypes) {
           title: "Xác nhận xóa",
           icon: <ExclamationCircleOutlined />,
           content: (
-            <div style={{ display: "flex", lineHeight: "5px" }}>
+            <div className="yody-modal-confirm-list-code">
               Bạn có chắc chắn xóa ({selectedRow.length}):
-              <div style={{ marginLeft: 10, fontWeight: 500 }}>
+              <div className="yody-modal-confirm-item-code">
                 {selectedRow.map((value, index) => (
                   <p>{value.code_order_return}</p>
                 ))}
