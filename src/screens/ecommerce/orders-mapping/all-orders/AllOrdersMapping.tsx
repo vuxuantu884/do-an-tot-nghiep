@@ -15,7 +15,13 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
-import { getIconByEcommerceId, LAZADA_ORDER_STATUS_LIST, SHOPEE_ORDER_STATUS_LIST } from "screens/ecommerce/common/commonAction";
+import {
+  ECOMMERCE_ID,
+  getIconByEcommerceId,
+  LAZADA_ORDER_STATUS_LIST,
+  SHOPEE_ORDER_STATUS_LIST,
+  TIKI_ORDER_STATUS_LIST,
+} from "screens/ecommerce/common/commonAction";
 
 import AllOrdersMappingFilter from "screens/ecommerce/orders-mapping/all-orders/component/AllOrdersMappingFilter";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -39,6 +45,7 @@ const initQuery: GetOrdersMappingQuery = {
   created_date_to: null,
   ecommerce_order_statuses: [],
   shop_ids: [],
+  core_sub_status_code: [],
 };
 
 type AllOrdersMappingProps = {
@@ -110,20 +117,26 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
   const showEcommerceOrderStatus:any = (status_value: string, item: any) =>{
     let ecommerceStatus: string;
     switch (item?.ecommerce_id?.toString()) {
-      case "1":
+      case ECOMMERCE_ID.SHOPEE.toString():
         const shopeeStatus: any = SHOPEE_ORDER_STATUS_LIST.find(
-          (status) => status.value === status_value.toUpperCase()
+          (status) => status.value === status_value?.toUpperCase()
         );
         ecommerceStatus = shopeeStatus?.name;
         break;
-      case "2":
+      case ECOMMERCE_ID.LAZADA.toString():
         const lazadaStatus: any = LAZADA_ORDER_STATUS_LIST.find(
-          (status) => status.value === status_value.toUpperCase()
+          (status) => status.value === status_value?.toUpperCase()
         );
         ecommerceStatus = lazadaStatus?.name;
         break;
+      case ECOMMERCE_ID.TIKI.toString():
+        const tikiStatus: any = TIKI_ORDER_STATUS_LIST.find(
+          (status) => status.value?.toUpperCase() === status_value?.toUpperCase()
+        );
+        ecommerceStatus = tikiStatus?.name;
+        break;
       default:
-        ecommerceStatus = "";
+        ecommerceStatus = status_value;
     }
 
     return <div>{ecommerceStatus}</div>
@@ -152,7 +165,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         ),
       },
       {
-        title: "ID đơn (Yody)",
+        title: "ID đơn (Unicorn)",
         key: "core_order_code",
         width: "12%",
         render: (item: any) => (
@@ -162,13 +175,19 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         ),
       },
       {
-        title: "Trạng thái (Yody)",
+        title: "Trạng thái xử lý (Unicorn)",
         dataIndex: "core_sub_status_code",
         key: "core_sub_status_code",
         align: "center",
         width: "15%",
         render: (status_value: string) => {
-          const status = subStatuses.find((status) => status.code === status_value);
+          let status: any = subStatuses.find((status) => status.code === status_value);
+          if (!status && status_value?.toLowerCase() === "cancelled") {
+            status = {
+              code: "cancelled",
+              sub_status: "Đã hủy",
+            }
+          }
           return (
             <div className={`core-sub-status ${status?.code}`}>{status?.sub_status}</div>
           );

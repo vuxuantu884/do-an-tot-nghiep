@@ -197,6 +197,7 @@ export interface POStampPrintingVariant {
 export interface POStampPrinting {
   type_name: string;
   order_code: string;
+  order_id:number;
   supplier_id: number;
   supplier: string;
   note: string;

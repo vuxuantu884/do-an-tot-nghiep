@@ -86,6 +86,11 @@ export const productGetHistory = (query: ProductHistoryQuery): Promise<BaseRespo
   return BaseAxios.get(`${ApiConfig.PRODUCT}/products/histories?${queryString}`);
 };
 
+export const productGetHistoryInTem = (query: ProductHistoryQuery): Promise<BaseResponse<PageResponse<ProductHistoryResponse>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/barcode-print-histories?${queryString}`);
+};
+
 export const productDetailApi = (id: number) => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/products/${id}`);
 }
@@ -95,7 +100,7 @@ export const productUpdateApi = (id: number, request: ProductRequest) => {
 }
 
 export const productBarcodeApi = (request: ProductBarcodeRequest) => {
-  return BaseAxios.post(`${ApiConfig.PRODUCT}/products/print`, request);
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/variants/print`, request);
 }
 
 export const productImportApi = (file: File, isCreate: string) => {

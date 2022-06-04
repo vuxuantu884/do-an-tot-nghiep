@@ -37,6 +37,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { SearchContainer } from "./account.search.style";
 import ImportExcel from "./components/me-contact/ImportExcel";
+import uploadIcon from "assets/icon/upload.svg";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -301,7 +302,10 @@ const ListAccountScreen: React.FC = () => {
         <Row>
           <Space>
           <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
-            <Button className="light" size="large"  
+            <Button 
+              className="light" 
+              size="large"
+              icon={<img src={uploadIcon} style={{marginRight: 8}} alt="" />}
               onClick={() =>
                       history.push(`${UrlConfig.ACCOUNTS}/import`)
                     }>

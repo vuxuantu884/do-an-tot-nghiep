@@ -156,7 +156,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [isFetchData, setIsFetchData] = useState(false);
   const [isStepExchange, setIsStepExchange] = useState(false); // đang bị thừa
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
-  const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(true);
+  const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
   const history = useHistory();
   const query = useQuery();
   let queryOrderID = query.get("orderID");
@@ -923,7 +923,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     form
       .validateFields()
       .then(() => {
-        if (isReceivedReturnProducts) {
+        if (isReceivedReturnProducts || orderReturnType === RETURN_TYPE_VALUES.online) {
           handleSubmitFormReturn();
         } else {
           setIsVisibleModalWarning(true);
@@ -935,13 +935,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           scrollAndFocusToDomElement(element);
         }
       });
-  }, [
-    checkIfHasReturnProduct,
-    form,
-    handleSubmitFormReturn,
-    isReceivedReturnProducts,
-    storeReturn,
-  ]);
+  }, [checkIfHasReturnProduct, form, handleSubmitFormReturn, isReceivedReturnProducts, orderReturnType, storeReturn]);
 
   const getOrderSource = useCallback(
     (form: FormInstance<any>) => {
@@ -1531,7 +1525,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     form
       .validateFields()
       .then(() => {
-        if (isReceivedReturnProducts) {
+        if (isReceivedReturnProducts || orderReturnType === RETURN_TYPE_VALUES.online) {
           handleSubmitFormReturnAndExchange();
         } else {
           setIsVisibleModalWarning(true);
@@ -1546,7 +1540,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           scrollAndFocusToDomElement(element);
         }
       });
-  }, [form, handleSubmitFormReturnAndExchange, isReceivedReturnProducts]);
+  }, [form, handleSubmitFormReturnAndExchange, isReceivedReturnProducts, orderReturnType]);
 
   /**
    * theme context data
@@ -1782,11 +1776,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     />
                   </Card>
                 )}
-                <CardReturnReceiveProducts
-                  isDetailPage={false}
-                  isReceivedReturnProducts={isReceivedReturnProducts}
-                  handleReceivedReturnProducts={setIsReceivedReturnProducts}
-                />
+                {orderReturnType === RETURN_TYPE_VALUES.offline && (
+                  <CardReturnReceiveProducts
+                    isDetailPage={false}
+                    isReceivedReturnProducts={isReceivedReturnProducts}
+                    handleReceivedReturnProducts={setIsReceivedReturnProducts}
+                  />
+                )}
               </Col>
 
               <Col md={6}>
@@ -1841,20 +1837,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
             setIsVisibleModalWarning(false);
           }}
           onOk={() => {
+            setIsVisibleModalWarning(false);
             if (!isExchange) {
               handleSubmitFormReturn();
             } else {
-              if (isStepExchange) {
-                onReturnAndExchange();
-              } else {
-                setIsStepExchange(true);
-                setTimeout(() => {
-                  const element: any = document.getElementById("store_id");
-                  scrollAndFocusToDomElement(element);
-                }, 500);
-              }
+              handleSubmitFormReturnAndExchange();
             }
-            setIsVisibleModalWarning(false);
           }}
           okText="Đồng ý"
           cancelText="Hủy"
@@ -2276,6 +2264,17 @@ const ScreenReturnCreate = (props: PropTypes) => {
       window.removeEventListener("keydown", eventKeydown);
     };
   }, [eventFunctional, eventKeydown]);
+
+  useEffect(() => {
+    /**
+    * đơn đổi trả online thì mặc định chưa nhận hàng
+    */
+   if(orderReturnType === RETURN_TYPE_VALUES.online) {
+    setIsReceivedReturnProducts(false)
+   } else {
+    setIsReceivedReturnProducts(true)
+   }
+  }, [orderReturnType])
 
   const checkIfWrongPath = () => {
     const checkIfOnline = () => {

@@ -1,18 +1,19 @@
-import React, { useCallback, useState } from "react";
+import React, { ChangeEvent, useCallback, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Button, Form, Modal, Select, Tooltip } from "antd";
+import { Button, Form, Input, Modal, Radio, RadioChangeEvent, Select, Tooltip } from "antd";
 import moment from "moment";
 
 
 import {
   getShopEcommerceList,
   postEcommerceOrderAction,
+  syncStockEcommerceProduct,
 } from "domain/actions/ecommerce/ecommerce.actions";
 
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import tiktokIcon from "assets/icon/e-tiktok.svg";
 import successIcon from "assets/icon/success_2.svg";
 
 import { StyledDownloadOrderData } from "screens/ecommerce/orders/orderStyles";
@@ -74,13 +75,26 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
       key: "tiki"
     },
     {
-      title: "Sàn Sendo",
-      icon: sendoIcon,
+      title: "Sàn Tiktok",
+      icon: tiktokIcon,
       id: 4,
       isActive: false,
-      key: "sendo",
+      key: "tiktok",
     },
   ]);
+
+  //handle down orders follow order ids
+  const [downloadType, setDownloadType] = useState<Number | null>(1);
+  const [getIdOrderEcommerce, setIdOrderEcommerce] = useState<any>()
+
+  const onInputChange = useCallback((v: ChangeEvent<HTMLInputElement>) => {
+    setIdOrderEcommerce(v.target.value)
+
+  }, [])
+
+  const selectDownloadType = useCallback((e: RadioChangeEvent) => {
+    setDownloadType(e.target.value);
+  }, [])
 
   const getEcommerceIcon = (ecommerce_id: number) => {
     const ecommerce = ecommerceList.find(item => item.id === ecommerce_id);
@@ -146,77 +160,77 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
   }
 
   const onChangeDate = useCallback(
-      () => {
-        let value: any = {};
-        value = formDownloadOrder?.getFieldsValue(["date_from", "date_to"])
+    () => {
+      let value: any = {};
+      value = formDownloadOrder?.getFieldsValue(["date_from", "date_to"])
 
-        const convertDateStartToString = value["date_from"] && value["date_from"].toString()
-        const convertDateEndToString = value["date_to"] && value["date_to"].toString()
+      const convertDateStartToString = value["date_from"] && value["date_from"].toString()
+      const convertDateEndToString = value["date_to"] && value["date_to"].toString()
 
-        const dateStartDayChangeFormat = changeFormatDay(convertDateStartToString)
-        const dateEndDayChangeFormat = changeFormatDay(convertDateEndToString)
-        
-        const date_from = new Date(dateStartDayChangeFormat);
-        const date_to = new Date(dateEndDayChangeFormat)
-        
-        const convertDateStartTimeStamp = convertStartDateToTimestamp(convertDateStartToString)
-        const convertDateEndTimeStamp = convertEndDateToTimestamp(convertDateEndToString)
+      const dateStartDayChangeFormat = changeFormatDay(convertDateStartToString)
+      const dateEndDayChangeFormat = changeFormatDay(convertDateEndToString)
 
+      const date_from = new Date(dateStartDayChangeFormat);
+      const date_to = new Date(dateEndDayChangeFormat)
 
-        setStartDate(convertDateStartTimeStamp)
-        setEndDate(convertDateEndTimeStamp)
-
-        const compareDate = date_from.getTime() - date_to.getTime()
-        const differentDays = compareDate / (1000 * 60 * 60 * 24)
-
-        if (value["date_from"] && value["date_to"]) {
-          setCheckDateStartAndDayEnd(true)
-        }else {
-          setCheckDateStartAndDayEnd(false)
-        }
+      const convertDateStartTimeStamp = convertStartDateToTimestamp(convertDateStartToString)
+      const convertDateEndTimeStamp = convertEndDateToTimestamp(convertDateEndToString)
 
 
-        const getDateFrom = date_from.getTime()
-        const getDateTo = date_to.getTime()
+      setStartDate(convertDateStartTimeStamp)
+      setEndDate(convertDateEndTimeStamp)
 
-        if (getDateFrom > getDateTo) {
-          formDownloadOrder?.setFields([
-            {
-              name: "date_from",
-              errors: ['Ngày từ phải nhỏ hơn ngày đến'],
-            },
-            {
-              name: "date_to",
-              errors: [''],
-            },
-          ])
-          setCheckDateStartAndDayEnd(false)
-        }else if(Math.abs(differentDays) > 15) {
-            formDownloadOrder?.setFields([
-              {
-                name: "date_from",
-                errors: [''],
-              },
-              {
-                name: "date_to",
-                errors: ['Thời gian tải dữ liệu không vượt quá 15 ngày'],
-              },
-            ])
-            setCheckDateStartAndDayEnd(false)
-  
-        } else {
-          formDownloadOrder?.setFields([
-            {
-              name: "date_from",
-              errors: undefined,
-            },
-            {
-              name: "date_to",
-              errors: undefined,
-            },
-          ])
-        }
-      }, [formDownloadOrder]);
+      const compareDate = date_from.getTime() - date_to.getTime()
+      const differentDays = compareDate / (1000 * 60 * 60 * 24)
+
+      if (value["date_from"] && value["date_to"]) {
+        setCheckDateStartAndDayEnd(true)
+      } else {
+        setCheckDateStartAndDayEnd(false)
+      }
+
+
+      const getDateFrom = date_from.getTime()
+      const getDateTo = date_to.getTime()
+
+      if (getDateFrom > getDateTo) {
+        formDownloadOrder?.setFields([
+          {
+            name: "date_from",
+            errors: ['Ngày từ phải nhỏ hơn ngày đến'],
+          },
+          {
+            name: "date_to",
+            errors: [''],
+          },
+        ])
+        setCheckDateStartAndDayEnd(false)
+      } else if (Math.abs(differentDays) > 15) {
+        formDownloadOrder?.setFields([
+          {
+            name: "date_from",
+            errors: [''],
+          },
+          {
+            name: "date_to",
+            errors: ['Thời gian tải dữ liệu không vượt quá 15 ngày'],
+          },
+        ])
+        setCheckDateStartAndDayEnd(false)
+
+      } else {
+        formDownloadOrder?.setFields([
+          {
+            name: "date_from",
+            errors: undefined,
+          },
+          {
+            name: "date_to",
+            errors: undefined,
+          },
+        ])
+      }
+    }, [formDownloadOrder]);
 
   //end handle select date
 
@@ -226,20 +240,56 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     onOk(data);
   }, [onOk]);
 
-  const handleDownloadEcommerceOrders = () => {
-      const params = {
+  const handleDownloadEcommerceOrders = useCallback(() => {
+
+    const params = {
+      ecommerce_id: ecommerceSelected,
+      shop_id: shopIdSelected,
+      update_time_from: startDate,
+      update_time_to: endDate,
+    }
+
+    const listOrderId: Array<any> = [];
+
+    // eslint-disable-next-line array-callback-return
+    getIdOrderEcommerce && getIdOrderEcommerce?.split(',').map((orderId: any) => {
+      listOrderId.push({
         ecommerce_id: ecommerceSelected,
         shop_id: shopIdSelected,
-        update_time_from: startDate,
-        update_time_to: endDate,
-      }
+        order_sn: orderId.trim()
+      })
+    })
 
-      setIsLoading(true);
+    const paramsDownloadOrder = {
+      order_list: listOrderId
+    }
+
+    setIsLoading(true);
+
+    if (downloadType === 1) {
       dispatch(postEcommerceOrderAction(params, updateEcommerceOrderList));
-  };
+    } else {
+      dispatch(syncStockEcommerceProduct(paramsDownloadOrder, updateEcommerceOrderList));
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, downloadType, ecommerceSelected, getIdOrderEcommerce, shopIdSelected, startDate, endDate])
+
+  const handleDownloadOrderCalendar = () => {
+    setIdOrderEcommerce("")
+  }
+
+  const handleDownloadOrderId = () => {
+    formDownloadOrder.setFieldsValue({
+      date_from: "",
+      date_to: ""
+    })
+  }
 
   const isDisableOkButton = () => {
-    return !shopIdSelected || !checkDateStartAndDayEnd;
+    if (shopIdSelected && checkDateStartAndDayEnd) return false
+    return !(shopIdSelected && getIdOrderEcommerce)
+
   }
 
   const cancelGetOrderModal = () => {
@@ -255,7 +305,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     setEcommerceSelected(null);
     setIsEcommerceSelected(false);
     onCancel();
-  };  
+  };
 
   return (
     <Modal
@@ -274,8 +324,8 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     >
       <StyledDownloadOrderData>
         <Form
-            form={formDownloadOrder}
-            layout="vertical"
+          form={formDownloadOrder}
+          layout="vertical"
         >
           <div className="ecommerce-list">
             {ecommerceList.map((item) => (
@@ -357,32 +407,60 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
           {/*    onOpenChange={onOpenChange}*/}
           {/*  />*/}
           {/*</Form.Item>*/}
+          <Radio.Group style={{ width: "100%" }} onChange={(v: RadioChangeEvent) => selectDownloadType(v)} defaultValue={downloadType}>
+            <Radio value={1} style={{ marginBottom: 12 }} onClick={handleDownloadOrderCalendar}>
+              Tải sản phẩm theo thời gian cập nhật
+            </Radio>
+            <div className="date-pick-download-order">
+              <div style={{ display: "flex", width: "100%" }}>
+                <Form.Item name="date_from">
+                  <CustomDatePicker
+                    format="DD-MM-YYYY"
+                    placeholder="Từ ngày"
+                    style={{ width: "100%", borderRadius: 0 }}
+                    onChange={() => onChangeDate()}
+                  />
+                </Form.Item>
 
-          <div className="date-pick-download-order">
-            <Form.Item name="date_from">
-              <CustomDatePicker
-                  format="DD-MM-YYYY"
-                  placeholder="Từ ngày"
-                  style={{ width: "100%", borderRadius: 0 }}
-                  onChange={() => onChangeDate()}
-              />
-            </Form.Item>
+                <div className="date-pick-download-order-icon">
+                  <SwapRightOutlined />
+                </div>
 
-            <div className="date-pick-download-order-icon">
-              <SwapRightOutlined />
+                <Form.Item name="date_to">
+                  <CustomDatePicker
+                    format="DD-MM-YYYY"
+                    placeholder="Đến ngày"
+                    style={{ width: "100%", borderRadius: 0 }}
+                    onChange={() => onChangeDate()}
+                  />
+                </Form.Item>
+              </div>
+
+              <Form.Item>
+                <div style={{ marginTop: '10px' }}>
+                  Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b>
+                </div>
+              </Form.Item>
             </div>
 
-            <Form.Item name="date_to">
-              <CustomDatePicker
-                  format="DD-MM-YYYY"
-                  placeholder="Đến ngày"
-                  style={{ width: "100%", borderRadius: 0 }}
-                  onChange={() => onChangeDate()}
-              />
-            </Form.Item>
-          </div>
+            <Radio value={2} style={{ marginBottom: 12 }} onClick={handleDownloadOrderId}>
+              Tải đơn hàng theo ID
+            </Radio>
 
-          <div><i>Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b></i></div>
+            <Input placeholder={"Nhập ID Đơn hàng"}
+              onInput={onInputChange}
+              disabled={downloadType !== 2}
+              value={getIdOrderEcommerce}
+            />
+
+
+            <Form.Item>
+              <div style={{ marginTop: '10px' }}>
+                Lưu ý: Mỗi ID đơn hàng cách nhau bằng <b>dấu phẩy</b>
+              </div>
+            </Form.Item>
+          </Radio.Group>
+
         </Form>
       </StyledDownloadOrderData>
     </Modal>

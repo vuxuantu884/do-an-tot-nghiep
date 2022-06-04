@@ -2,6 +2,7 @@ import Icon from "@ant-design/icons";
 import React from "react";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import { iconHelper } from "./helper";
 
 type YdCoinProps = {
   paymentData: OrderPaymentRequest[];
@@ -21,9 +22,9 @@ const YdCoin = (props: YdCoinProps) => {
         clipRule="evenodd"
         d="M9.99967 1.375C5.70326 1.375 2.20801 4.87025 2.20801 9.16667C2.20801 13.4631 5.70326 16.9583 9.99967 16.9583C14.2961 16.9583 17.7913 13.4631 17.7913 9.16667C17.7913 4.87025 14.2961 1.375 9.99967 1.375ZM9.99967 18.3333C4.94517 18.3333 0.833008 14.2212 0.833008 9.16667C0.833008 4.11217 4.94517 0 9.99967 0C15.0542 0 19.1663 4.11217 19.1663 9.16667C19.1663 14.2212 15.0542 18.3333 9.99967 18.3333Z"
         fill={
-          props.paymentData.some((p) => p.code === props.method.code)
-            ? "#2a2a86"
-            : "black"
+          props.paymentData.some((p) => p.payment_method_code === props.method.code)
+            ? iconHelper.hoverColor
+            : iconHelper.normalColor
         }
       />
       <path
@@ -31,9 +32,9 @@ const YdCoin = (props: YdCoinProps) => {
         clipRule="evenodd"
         d="M9.9996 2.36607C6.25004 2.36607 3.19967 5.41644 3.19967 9.166C3.19967 12.9156 6.25004 15.9659 9.9996 15.9659C13.7492 15.9659 16.7995 12.9156 16.7995 9.166C16.7995 5.41644 13.7492 2.36607 9.9996 2.36607ZM9.99967 17.1659C5.58852 17.1659 1.99976 13.5771 1.99976 9.16593C1.99976 4.75478 5.58852 1.16602 9.99967 1.16602C14.4108 1.16602 17.9996 4.75478 17.9996 9.16593C17.9996 13.5771 14.4108 17.1659 9.99967 17.1659Z"
         fill={
-          props.paymentData.some((p) => p.code === props.method.code)
-            ? "#2a2a86"
-            : "black"
+          props.paymentData.some((p) => p.payment_method_code === props.method.code)
+            ? iconHelper.hoverColor
+            : iconHelper.normalColor
         }
       />
       <path
@@ -43,17 +44,17 @@ const YdCoin = (props: YdCoinProps) => {
       <path
         d="M4.99976 6.16602L6.90113 10.0449V12.166H7.99564V10.0449L9.89702 6.16602H8.66252L7.47384 8.75H7.42293L6.23425 6.16602H4.99976Z"
         fill={
-          props.paymentData.some((p) => p.code === props.method.code)
-            ? "#2a2a86"
-            : "black"
+          props.paymentData.some((p) => p.payment_method_code === props.method.code)
+            ? iconHelper.hoverColor
+            : iconHelper.normalColor
         }
       />
       <path
         d="M12.4493 12.166C14.0376 12.166 14.9998 11.0352 14.9998 9.16016C14.9998 7.29102 14.0376 6.16602 12.4646 6.16602H10.6014V12.166H12.4493ZM11.7035 11.0791V7.25293H12.406C13.3835 7.25293 13.9002 7.82715 13.9002 9.16016C13.9002 10.499 13.3835 11.0791 12.4035 11.0791H11.7035Z"
         fill={
-          props.paymentData.some((p) => p.code === props.method.code)
-            ? "#2a2a86"
-            : "black"
+          props.paymentData.some((p) => p.payment_method_code === props.method.code)
+            ? iconHelper.hoverColor
+            : iconHelper.normalColor
         }
       />
     </svg>

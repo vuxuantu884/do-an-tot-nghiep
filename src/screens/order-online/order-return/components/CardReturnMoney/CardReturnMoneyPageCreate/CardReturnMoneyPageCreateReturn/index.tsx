@@ -30,8 +30,8 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
   console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
   return (
-    <Card className="margin-top-20" title={<span className="title-card">Hoàn tiền</span>}>
-      <div className="create-order-payment">
+    <Card className="margin-top-20" title={<span className="title-card">Thanh toán</span>}>
+      <div className="create-order-payment return1">
        {/* không cho hoàn tiền sau */}
         {/* <Radio.Group
           value={returnMoneyType}

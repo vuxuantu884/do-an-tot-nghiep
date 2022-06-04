@@ -8,7 +8,7 @@ import CustomAutoComplete from 'component/custom/autocomplete.cusom';
 import NumberInput from 'component/custom/number-input.custom';
 import { IconAddMultiple } from 'component/icon/IconAddMultiple';
 import PickManyModal from 'component/modal/PickManyModal';
-import UrlConfig, { BASE_NAME_ROUTER } from 'config/url.config';
+import UrlConfig, { BASE_NAME_ROUTER, ProductTabUrl } from 'config/url.config';
 import { PoDetailAction } from 'domain/actions/po/po.action';
 import { PurchaseOrderLineItem } from 'model/purchase-order/purchase-item.model';
 import { POStampPrinting, ProductStampPrinting, PurchaseOrder } from 'model/purchase-order/purchase-order.model';
@@ -178,7 +178,7 @@ function PrintingStamp() {
     const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, printVariantBarcodeByPOApi, value);
     if (res) {
       DownloadFile(res);
-      history.push(`${UrlConfig.PURCHASE_ORDERS}/${poId}`)
+      history.push(ProductTabUrl.STAMP_PRINTING_HISTORY)
     }
   }
 
@@ -206,6 +206,7 @@ function PrintingStamp() {
             [FormFiledStampPrinting.supplier]: po.supplier,
             [FormFiledStampPrinting.supplier_id]: po.supplier_id,
             [FormFiledStampPrinting.order_code]: po.code,
+            [FormFiledStampPrinting.order_id]:po.id,
             [FormFiledStampPrinting.variants]: [...selectedProduct]
           });
 
@@ -362,6 +363,7 @@ function PrintingStamp() {
 
           <Item name={FormFiledStampPrinting.type_name} />
           <Item name={FormFiledStampPrinting.order_code} />
+          <Item name={FormFiledStampPrinting.order_id} />
           <Item name={FormFiledStampPrinting.supplier} />
           <Item name={FormFiledStampPrinting.supplier_id} />
 

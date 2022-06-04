@@ -622,7 +622,7 @@ const EcommerceOrders: React.FC = () => {
         key: "customer",
         visible: true,
         width: 160,
-        render: (record) =>
+        render: (record) => 
           record.shipping_address ? (
             <div className="customer custom-td">
               <div className="name p-b-3" style={{ color: "#2A2A86" }}>
@@ -634,7 +634,7 @@ const EcommerceOrders: React.FC = () => {
                   {record.shipping_address.name}
                 </Link>{" "}
               </div>
-              <div className="p-b-3">{record.shipping_address.phone}</div>
+              <div className="p-b-3">{record.customer_phone_number}</div>
               <div><strong>{record.ecommerce_shop_name}</strong></div>
             </div>
           ) : (
@@ -644,7 +644,7 @@ const EcommerceOrders: React.FC = () => {
               </div>
               <div className="p-b-3">{record.customer_phone_number}</div>
             </div>
-          ),
+          )
       },
       {
         title: (

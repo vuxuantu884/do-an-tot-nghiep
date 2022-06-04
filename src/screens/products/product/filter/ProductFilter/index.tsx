@@ -460,12 +460,12 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                 }
 
                 return (
-                  <>
-                  {component ? <Col span={12} key={key}>
+                  <React.Fragment key={key}>
+                  {component ? <Col span={12}>
                     <div className="font-weight-500">{SearchVariantMapping[key]}</div>
                     <Item name={key}>{component}</Item>
                   </Col> : <React.Fragment/>}
-                  </>
+                  </React.Fragment>
                 );
               })}
             </Row>

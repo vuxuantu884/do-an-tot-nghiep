@@ -1,11 +1,10 @@
-import { Button, Card, Row, Space } from "antd";
+import { Card, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import exportIcon from "assets/icon/export.svg";
+// import exportIcon from "assets/icon/export.svg";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { MenuAction } from "component/table/ActionButton";
 import OrderDuplicateFilter from "component/filter/order-duplicate.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -25,26 +24,22 @@ import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 
-const ACTION_ID = {
-  printShipment: 4,
-  printStockExport: 5,
-};
-
-const actions: Array<MenuAction> = [
-  {
-    id: ACTION_ID.printShipment,
-    name: "Xuất file",
-    icon: <img src={exportIcon} style={{ marginRight: 8 }} alt="" />,
-  }
-];
-
 const initQuery: DuplicateOrderSearchQuery = {
   page: 1,
-  limit: 10,
+  limit: 30,
   issued_on_min: "",
   issued_on_max: "",
   search_term: "",
   store_id: undefined
+}
+
+const defaultData: PageResponse<CustomerDuplicateModel> = {
+  metadata: {
+    limit: 30,
+    page: 1,
+    total: 0,
+  },
+  items: [],
 }
 
 const CustomerDuplicate: React.FC = () => {
@@ -60,19 +55,12 @@ const CustomerDuplicate: React.FC = () => {
 
   let [params, setPrams] = useState<DuplicateOrderSearchQuery>(dataQuery);
 
-  const tableLoading = false;
+  const [tableLoading, setTableLoading] = useState(false);
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
-  const dataTest: CustomerDuplicateModel[] = [];
+  const [selectedRowCodes, setSelectedRowCodes] = useState<Array<number>>([]);
+  const [data, setData] = useState<PageResponse<CustomerDuplicateModel>>(defaultData);
 
-  const [data, setData] = useState<PageResponse<CustomerDuplicateModel>>({
-    metadata: {
-      limit: 30,
-      page: 1,
-      total: 3,
-    },
-    items: dataTest,
-  });
 
   const [columns, setColumns] = useState<Array<ICustomTableColumType<CustomerDuplicateModel>>>([
     {
@@ -183,6 +171,33 @@ const CustomerDuplicate: React.FC = () => {
   //cột của bảng
   useSetTableColumns(columnConfigType, tableColumnConfigs, columns, setColumns)
 
+  const onSelectedChange = useCallback((selectedRows: CustomerDuplicateModel[], selected?: boolean, changeRow?: CustomerDuplicateModel[]) => {
+    let selectedRowCodesCopy = [...selectedRowCodes];
+    console.log("changeRow",changeRow)
+
+    if (changeRow && changeRow.length > 0) {
+      if (selected) {
+        changeRow?.forEach((row) => {
+          let index = selectedRowCodesCopy.findIndex((p) => p === row.key)
+          if (index === -1) {
+            selectedRowCodesCopy.push(row.key)
+          }
+        })
+        setSelectedRowCodes(selectedRowCodesCopy);
+      }
+      else {
+        changeRow?.forEach((row) => {
+          let index = selectedRowCodesCopy.findIndex((p) => p === row.key)
+          if (index !== -1) {
+            selectedRowCodesCopy.splice(index, 1)
+          }
+        })
+        setSelectedRowCodes(selectedRowCodesCopy);
+      }
+    }
+  }, [selectedRowCodes]);
+
+
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
     [columns]
@@ -194,98 +209,30 @@ const CustomerDuplicate: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
+      setSelectedRowCodes([]);
       history.replace(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
     },
     [history, params]
   );
 
-  const onMenuClick = useCallback((index: number) => {
-    switch (index) {
-      case 1:
-        break;
-      case 2:
-        break;
-      default:
-        break;
-    }
-  }, []);
-
   const onFilter = useCallback((value: DuplicateOrderSearchQuery) => {
     let newPrams = { ...params, ...value, page: 1 };
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
-    
-    const items = [...columns];
-    items[0] = {
-      ...items[0],
-      render: (value: string, i: CustomerDuplicateModel) => {
-        let queryParamDetail=generateQuery({
-          store_id:i.store_id,
-          issued_on_min:newPrams.issued_on_min,
-          issued_on_max:newPrams.issued_on_max,
-          full_address:i.full_address,
-          ward:i.ward,
-          district:i.district,
-          city:i.city,
-          country:i.country
-        });
-        return (
-          <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}?${queryParamDetail}`}>
-              {value}
-            </Link>
-          </React.Fragment>
-        )
-      },
-    };
-
-    items[1] = {
-      ...items[1],
-      render: (value: string, i: CustomerDuplicateModel) => {
-        let queryParamDetail=generateQuery({
-          store_id:i.store_id,
-          issued_on_min:newPrams.issued_on_min,
-          issued_on_max:newPrams.issued_on_max,
-          full_address:i.full_address,
-          ward:i.ward,
-          district:i.district,
-          city:i.city,
-          country:i.country
-        });
-        return (
-          <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${value}?${queryParamDetail}`}>
-              {value}
-            </Link>
-          </React.Fragment>
-        )
-      }
-    };
-
-    setColumns(items);
     history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
-  }, [history, params, columns]);
+  }, [history, params]);
+
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
-  }, [dispatch,params]);
+  }, [dispatch]);
 
   useEffect(() => {
-    //dispatch(StoreGetListAction(setStore));
+    setTableLoading(true)
     dispatch(getOrderDuplicateAction(params, (data: PageResponse<CustomerDuplicateModel>) => {
-      let result: PageResponse<CustomerDuplicateModel> = {
-        metadata: {
-          limit: 30,
-          page: 1,
-          total: 3,
-        },
-        items: [],
-      }
-      data.items.forEach(function (item, index) {
-        result.items.push({
-          ...item,
-          key: index
-        })
+      let result: PageResponse<CustomerDuplicateModel> = {...defaultData}
+      let resultItem=data.items.map((p, index)=>{
+        return {...p, key:index}
       })
 
       result.metadata={
@@ -293,13 +240,12 @@ const CustomerDuplicate: React.FC = () => {
         page: data.metadata.page,
         total: data.metadata.total,
       }
+      result.items=[...resultItem];
 
       setData(result);
+      setTableLoading(false)
     }))
   }, [dispatch, params]);
-
-  console.log("params",params);
-  
 
   return (
     <ContentContainer
@@ -317,7 +263,7 @@ const CustomerDuplicate: React.FC = () => {
         <Row>
           <Space>
 
-            <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
+            {/* <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
               {(isPassed: boolean) => (
                 <Button
                   type="default"
@@ -332,7 +278,7 @@ const CustomerDuplicate: React.FC = () => {
                   Xuất file
                 </Button>
               )}
-            </AuthWrapper>
+            </AuthWrapper> */}
 
             <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
               {(isPassed: boolean) => (
@@ -345,8 +291,6 @@ const CustomerDuplicate: React.FC = () => {
     >
       <Card className="duplicate-card">
         <OrderDuplicateFilter
-          actions={actions}
-          onMenuClick={onMenuClick}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           listStore={listStore}
           onFilter={onFilter}
@@ -355,6 +299,7 @@ const CustomerDuplicate: React.FC = () => {
 
         <CustomTable
           isRowSelection
+          isShowPaginationAtHeader
           isLoading={tableLoading}
           showColumnSetting={true}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
@@ -367,11 +312,16 @@ const CustomerDuplicate: React.FC = () => {
             onShowSizeChange: onPageChange,
           }}
 
+          onSelectedChange={(selectedRows, selected, changeRow) =>
+            onSelectedChange(selectedRows, selected, changeRow)
+          }
+          selectedRowKey={selectedRowCodes}
           dataSource={data.items}
           columns={columnFinal}
           rowKey={(item: CustomerDuplicateModel) => item.key}
           className="order-list"
         />
+
       </Card>
 
       {showSettingColumn && (

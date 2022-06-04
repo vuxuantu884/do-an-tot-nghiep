@@ -1,7 +1,6 @@
 import { CloseSquareOutlined, ShrinkOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Tag } from "antd";
 import exportIcon from "assets/icon/export.svg";
-import importIcon from "assets/icon/import.svg";
 import ContentContainer from "component/container/content.container";
 import OrderFilter from "component/filter/order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -1085,7 +1084,7 @@ const OrderDuplicate: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
+              {/* <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
                 {(isPassed: boolean) =>
                   <Button
                     type="default"
@@ -1097,7 +1096,7 @@ const OrderDuplicate: React.FC = () => {
                   >
                     Nhập file
                   </Button>}
-              </AuthWrapper>
+              </AuthWrapper> */}
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
                 {(isPassed: boolean) =>
                   <Button

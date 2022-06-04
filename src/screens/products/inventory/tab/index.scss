@@ -16,3 +16,15 @@
 .ant-table-expanded-row-fixed{
     padding-right: 8px !important;
 }
+
+.column-product {
+    .image-product{
+        display: inline-flex;
+    }
+    .product-name {
+        margin-left: 8px;
+    }
+    .ant-image-img{
+        width: 40px;
+    }
+}

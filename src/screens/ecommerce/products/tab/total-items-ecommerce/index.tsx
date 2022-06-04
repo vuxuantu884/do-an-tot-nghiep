@@ -62,7 +62,8 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import {useHistory, useLocation} from "react-router";
 import {getQueryParamsFromQueryString} from "utils/useQuery";
 import queryString from "query-string";
-import './style.scss'
+import ConcatenateByExcel from "screens/ecommerce/products/tab/not-connected-items/ConcatenateByExcel";
+
 
 const STATUS = {
   WAITING: "waiting",
@@ -104,11 +105,13 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const [visibleFilter, setVisibleFilter] = useState<boolean>(false);
   const [isShowModalDisconnect, setIsShowModalDisconnect] = useState(false);
   const [idDisconnectItem, setIdDisconnectItem] = useState(null);
+  const [isShowExistSafeModal, setIsShowExistSafeModal] = useState(false);
   const [isShowDeleteItemModal, setIsShowDeleteItemModal] = useState(false);
   const [isShowLogInventoryModal, setShowLogInventoryModal] = useState(false);
   const [isShowExportExcelModal, setIsShowExportExcelModal] = useState(false);
   const [idDeleteItem, setIdDeleteItem] = useState(null);
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
+
 
   // export product
   const [exportProductType, setExportProductType] = useState<string>("");
@@ -393,8 +396,18 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
       visible: true,
       align: "center",
       width: "60px",
-      render: (l: any) => {
-        return <span>{l.stock}</span>;
+      render: (item: any) => {
+        return <span>{item.stock}</span>;
+      },
+    },
+
+    {
+      title: "Tồn an toàn",
+      visible: true,
+      align: "center",
+      width: "120px",
+      render: (item: any) => {
+        return <span>{item?.available_minimum ? item.available_minimum : item.available_minimum === 0 ? 0 : '-' }</span>;
       },
     },
     {
@@ -1042,6 +1055,21 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   };
   // end handle export file
 
+
+  //handle preparation safe stock product
+  const handlePreparationExistSafe = () => {
+    setIsShowExistSafeModal(true)
+  }
+
+  const onOkConcatenateByExcel = () => {
+    setIsShowExistSafeModal(false);
+  }
+  
+  const onCancelConcatenateByExcel = () => {
+    setIsShowExistSafeModal(false);
+  }
+  //end handle preparation safe stock product
+
   // handle exit export product
   const [isVisibleExitProcessModal, setIsVisibleExitProcessModal] = useState<boolean>(false);
 
@@ -1076,8 +1104,15 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           Xuất excel
         </span>
       </Menu.Item>
+
+      <Menu.Item key="sync-safe-stock" onClick={handlePreparationExistSafe}>
+          <span>
+            Báo tồn an toàn
+          </span>
+        </Menu.Item>
     </Menu>
   );
+  
 
   return (
     <StyledComponent>
@@ -1431,6 +1466,19 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
             />
           </div>
         </Modal>
+
+         {/* Import customer file */}
+         {isShowExistSafeModal &&
+          <ConcatenateByExcel
+            title="Tồn an toàn"
+            visible={isShowExistSafeModal}
+            setVisible={setIsShowExistSafeModal}
+            descText="đồng bộ tồn an toàn"
+            syncType="min-stock"
+            onCancelConcatenateByExcel={onCancelConcatenateByExcel}
+            onOkConcatenateByExcel={onOkConcatenateByExcel}
+          />
+        }
 
         {/*Exit export product process modal*/}
         <Modal

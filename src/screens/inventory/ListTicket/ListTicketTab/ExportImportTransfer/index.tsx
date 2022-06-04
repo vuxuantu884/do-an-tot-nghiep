@@ -27,7 +27,6 @@ import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { useHistory } from "react-router-dom";
 import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
 
-import NumberFormat from "react-number-format";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import InventoryExportFilters from "../../Components/FIlter/InventoryListExportFilter";
@@ -194,7 +193,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         return (
           <div className="text-center">
             <div>SL Gửi</div>
-            <div className="total-quantity">{formatCurrency(0)}</div>
+            <div className="total-quantity">{formatCurrency(0, '.')}</div>
           </div>
         );
       },
@@ -215,7 +214,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         return (
           <div className="text-center">
             <div>SL Nhận</div>
-            <div className="total-quantity">{formatCurrency(0)}</div>
+            <div className="total-quantity">{formatCurrency(0, '.')}</div>
           </div>
         );
       },
@@ -239,12 +238,9 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       width: 120,
       render: (value: number) => {
         return (
-          <NumberFormat
-            value={value}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          <div>
+            <span>{formatCurrency(value,".")}</span>
+          </div>
         );
       },
     },
@@ -252,7 +248,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       title: "Thành tiền",
       dataIndex: "amount",
       visible: true,
-      width: 120,
+      width: 250,
       render: (value: number, row: InventoryExportImportTransferDetailItem) => {
         return (
           <div>
@@ -428,7 +424,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
               return (
                 <div className="text-center">
                   <div>SL Gửi</div>
-                  <div className="total-quantity">{formatCurrency(total)}</div>
+                  <div className="total-quantity">{formatCurrency(total, '.')}</div>
                 </div>
               );
             },
@@ -453,7 +449,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
               return (
                 <div className="text-center">
                   <div>SL Nhận</div>
-                  <div className="total-quantity">{formatCurrency(totalReceived)}</div>
+                  <div className="total-quantity">{formatCurrency(totalReceived, '.')}</div>
                 </div>
               );
             },

@@ -396,7 +396,7 @@ const onRemoveFile = () => {
                   <img src={excelIcon} alt="" /> <a href="/" onClick={(e: any)=>{
                     e.preventDefault();
                     ActionImport.ExportTemplate();
-                  }}>Excel 2007 (.xlsx)</a>
+                  }}>Ấn để tải file xuống (.xlsx)</a>
                 </Typography.Text>
             </Card>
           </Col>

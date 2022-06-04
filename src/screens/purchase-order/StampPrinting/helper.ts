@@ -9,6 +9,7 @@ export enum FormFiledStampPrinting {
     supplier_id = "supplier_id",
     supplier = "supplier",
     note = "note",
+    order_id = "order_id",
 }
 export const initFormValueStampPrinting = {
     type_name: "excel",

@@ -970,10 +970,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   }
 
   useEffect(() => {
-    let checkEcommerceShop = Array.isArray(params.ecommerce_shop_ids)
-      ? params.ecommerce_shop_ids
-      : [params.ecommerce_shop_ids];
-
     let channelCodes = convertItemToArray(params.channel_codes);
     if (channelCodes.length !== 1) {
       channelCodes = [];
@@ -981,7 +977,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
     form.setFieldsValue({
       channel_codes: channelCodes,
-      ecommerce_shop_ids: checkEcommerceShop.map(item => +item),
+      ecommerce_shop_ids: Array.isArray(params.ecommerce_shop_ids) ?
+        params.ecommerce_shop_ids.map(i => Number(i))
+        : [Number(params.ecommerce_shop_ids)],
       search_term: params.search_term,
       reference_code: params.reference_code,
       tracking_codes: params.tracking_codes,

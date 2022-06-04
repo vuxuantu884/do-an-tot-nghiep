@@ -14,10 +14,11 @@ type Props<T> = {
     listItem: (item: T, index: number) => React.ReactNode
     options: T[];
     onSelectAll: (checked: boolean) => void
+    loading?:boolean;
 }
 
 function PickManyModal<T>(props: Props<T>) {
-    const { modalProps, listItem: ListItem, inputProps, options, rowKey, pagingProps, onSelectAll } = props
+    const { modalProps, listItem: ListItem, inputProps, options, rowKey, pagingProps, onSelectAll, loading } = props
     const handleSelectAll = (e: CheckboxChangeEvent) => {
         onSelectAll(e.target.checked)
     }
@@ -57,6 +58,7 @@ function PickManyModal<T>(props: Props<T>) {
                         dataSource={options}
                         rowKey={rowKey}
                         renderItem={ListItem}
+                        loading={loading}
                     />
                     {options.length > 0 && <CustomPagination
                         pagination={pagingProps}

@@ -36,6 +36,8 @@ import InventoryExport from "../component/InventoryExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
 import InventoryExportModal from "../component/InventoryExportV2";
+import ImageProduct from "screens/products/product/component/image-product.component";
+import { Image } from "antd";
 
 let varaintName = "";
 
@@ -203,8 +205,11 @@ const AllTab: React.FC<any> = (props) => {
          className: "column-product",
          render: (value, record, index) => {
           let strName = ellipName(record.name);
+          let image = Products.findAvatar(record.variant_images);
            return (
-             <div>
+             <div className="image-product">
+              {image ? <Image width={40} height={40} placeholder="Xem" src={image.url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={image} />}
+              <div className="product-name">
                  <div>
                  <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
                      {record.sku}
@@ -213,6 +218,7 @@ const AllTab: React.FC<any> = (props) => {
                  <div>
                    <TextEllipsis value={strName} line={1} />
                  </div>
+             </div>
              </div>
              )
          }

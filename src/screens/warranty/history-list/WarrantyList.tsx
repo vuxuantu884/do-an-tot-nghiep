@@ -1358,12 +1358,13 @@ function WarrantyHistoryList(props: PropTypes) {
               }}
             >
               Xuất file
-            </Button>,
+            </Button>
           <Button
             type="primary"
             onClick={() => history.push(UrlConfig.WARRANTY + "/create")}
+            style={{ marginLeft: 20 }}
           >
-            Thêm mới phiếu tiếp nhận yêu cầu bảo hành
+            Thêm mới yêu cầu bảo hành
           </Button>
         </>
       }

@@ -262,7 +262,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                             (
                               orderDetail?.order_return_origin !== null
                               && orderDetail?.order_return_origin !== undefined
-                            )
+                            ) || isOrderFromPOS(orderDetail)
                           }
                         >
                           Sao chép đơn hàng

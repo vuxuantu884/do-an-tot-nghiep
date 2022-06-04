@@ -75,6 +75,8 @@ import SyncProductModal from "./SyncProductModal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
+import ConcatenateByExcel from "screens/ecommerce/products/tab/not-connected-items/ConcatenateByExcel";
+
 
 
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
@@ -133,6 +135,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   //export file excel
   const [isShowExportExcelModal, setIsShowExportExcelModal] = useState(false);
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
+  const [isShowExistSafeModal, setIsShowExistSafeModal] = useState(false);
   const [exportProcessPercent, setExportProcessPercent] = useState<number>(0);
 
   const [exportProductType, setExportProductType] = useState<string>("");
@@ -233,7 +236,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     setIdsItemSelected(itemSelected);
     setIsShowSyncStockModal(true);
   };
-
+  
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
   };
@@ -351,6 +354,18 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       );
     }
   };
+
+  //handle preparation safe stock product
+  const handlePreparationExistSafe = () => {
+    setIsShowExistSafeModal(true)
+  }
+  const onOkConcatenateByExcel = () => {
+    setIsShowExistSafeModal(false);
+  }
+  
+  const onCancelConcatenateByExcel = () => {
+    setIsShowExistSafeModal(false);
+  }
 
   //handle show log history inventory
   const GetRequestResponseInventoryLog = (data: any) => {
@@ -606,6 +621,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       width: "60px",
       render: (item: any) => {
         return <span>{item.stock}</span>;
+      },
+    },
+
+    {
+      title: "Tồn an toàn",
+      visible: true,
+      align: "center",
+      width: "120px",
+      render: (item: any) => {
+        return <span>{item?.available_minimum ? item.available_minimum : item.available_minimum === 0 ? 0 : '-' }</span>;
       },
     },
     {
@@ -1084,6 +1109,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           Xuất excel
         </span>
       </Menu.Item>
+
+      <Menu.Item key="sync-safe-stock" onClick={handlePreparationExistSafe}>
+          <span>
+            Báo tồn an toàn
+          </span>
+      </Menu.Item>
     </Menu>
   );
 
@@ -1550,6 +1581,20 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <Table columns={columnLogInventory} dataSource={inventoryHistoryLog} rowClassName="log-history-list" />
         </Modal>
       }
+
+       {/* Import customer file */}
+       {isShowExistSafeModal &&
+          <ConcatenateByExcel
+            title="Tồn an toàn"
+            visible={isShowExistSafeModal}
+            setVisible={setIsShowExistSafeModal}
+            descText="đồng bộ tồn an toàn"
+            syncType="min-stock"
+            onCancelConcatenateByExcel={onCancelConcatenateByExcel}
+            onOkConcatenateByExcel={onOkConcatenateByExcel}
+          />
+        }
+
 
     </StyledComponent>
   );

@@ -307,7 +307,8 @@ export const StyledDownloadOrderData = styled.div`
   .date-pick-download-order {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 20px;
+    flex-wrap: wrap;
+    margin-bottom: 10px;
     & .ant-form-item {
       width: 100%;
       margin: 0;
