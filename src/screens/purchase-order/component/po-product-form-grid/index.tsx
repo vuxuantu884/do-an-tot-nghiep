@@ -97,7 +97,8 @@ const POProductForm = ({
         }
 
         if (data.variants) {
-
+          const variants = data.variants.filter(variant => variant.status !== "inactive");
+          data.variants = variants;
           const procurements = formMain.getFieldValue(POField.procurements);
           formMain.setFieldsValue({
             [POField.line_items]: data.variants,

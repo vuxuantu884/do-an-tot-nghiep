@@ -607,9 +607,11 @@ export const fetchProductGridData = async (isGridMode: boolean,
      *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
      */
     const productId = poData.line_items[0].product_id // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
-    const product = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
+    const product: ProductResponse = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
 
     if (product.variants) {
+      const variants = product.variants.filter(variant => variant.status !== "inactive");
+      product.variants = variants;
       /**
        * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
        */
