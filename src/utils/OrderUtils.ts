@@ -2,8 +2,8 @@ import { OrderPaymentRequest } from "model/request/order.request";
 import { FulFillmentResponse, OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { sortFulfillments } from "./AppUtils";
-import { FulFillmentStatus, PaymentMethodCode } from "./Constants";
-import { FulfillmentCancelStatus } from "./Order.constants";
+import { DELIVERY_SERVICE_PROVIDER_CODE, FulFillmentStatus, PaymentMethodCode } from "./Constants";
+import { FulfillmentCancelStatus, ORDER_PAYMENT_STATUS } from "./Order.constants";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -148,3 +148,68 @@ export const isDeliveryOrderReturned = (
     return true;
   return false; //default
 };
+
+export const getLink = (providerCode: string, trackingCode: string) => {
+  switch (providerCode) {
+    case DELIVERY_SERVICE_PROVIDER_CODE.ghn:
+      return `https://donhang.ghn.vn/?order_code=${trackingCode}`
+    case DELIVERY_SERVICE_PROVIDER_CODE.ghtk:
+      return `https://i.ghtk.vn/${trackingCode}`
+    case DELIVERY_SERVICE_PROVIDER_CODE.vtp:
+      return `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don/`
+    default:
+      break;
+  }
+};
+
+export const getReturnMoneyStatusText=(paymentStatus:string)=>{
+  let textResult = "";
+  switch (paymentStatus) {
+    // case "unpaid":
+    case ORDER_PAYMENT_STATUS.unpaid:
+      // processIcon = "icon-blank";
+      textResult = "Chưa hoàn tiền"
+      break;
+    // case "paid":
+    case ORDER_PAYMENT_STATUS.paid:
+      // processIcon = "icon-full";
+      textResult = "Đã hoàn tiền"
+      break;
+    // case "partial_paid":
+    case ORDER_PAYMENT_STATUS.partial_paid:
+      // processIcon = "icon-full";
+      textResult = "Hoàn tiền một phần"
+      break;
+    default:
+      textResult="";
+      break;
+  }
+
+  return textResult;
+}
+
+export const getReturnMoneyStatusColor=(paymentStatus:string)=>{
+  let textResult = "";
+  switch (paymentStatus) {
+    // case "unpaid":
+    case ORDER_PAYMENT_STATUS.unpaid:
+      // processIcon = "icon-blank";
+      textResult = "rgb(226, 67, 67)"
+      break;
+    // case "paid":
+    case ORDER_PAYMENT_STATUS.paid:
+      // processIcon = "icon-full";
+      textResult = "rgb(16, 98, 39)"
+      break;
+    // case "partial_paid":
+    case ORDER_PAYMENT_STATUS.partial_paid:
+      // processIcon = "icon-full";
+      textResult = "rgb(252, 175, 23)"
+      break;
+    default:
+      textResult="";
+      break;
+  }
+
+  return textResult;
+}

@@ -1,27 +1,26 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Col, Form, Tooltip} from "antd";
+import {Button, Col, Form, Popover, Tooltip} from "antd";
 import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
 import NumberFormat from "react-number-format";
 import {Link, useHistory, useLocation} from "react-router-dom";
 import UrlConfig from "config/url.config";
-import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {convertItemToArray, checkIfOrderCanBeReturned, formatCurrency, generateQuery, getOrderTotalPaymentAmount} from "utils/AppUtils";
+import { DATE_FORMAT} from "utils/DateUtils";
+import {convertItemToArray, checkIfOrderCanBeReturned, formatCurrency, generateQuery, getOrderTotalPaymentAmount, getTotalQuantity, copyTextToClipboard} from "utils/AppUtils";
 import {PageResponse} from "model/base/base-metadata.response";
 import moment from "moment";
-import {DeliveryServiceResponse} from "model/response/order/order.response";
+import {DeliveryServiceResponse, ShipmentResponse} from "model/response/order/order.response";
 import {dangerColor, primaryColor, yellowColor} from "utils/global-styles/variables";
 import {nameQuantityWidth, StyledPurchaseHistory,} from "screens/customer/customer-detail/customerDetailStyled";
 import EditNote from "screens/order-online/component/edit-note";
 import {
   COD,
-  FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
   POS,
   ShipmentMethod,
 } from "utils/Constants";
-import {DeliveryServicesGetList, updateOrderPartial,} from "domain/actions/order/order.action";
+import {DeliveryServicesGetList, getTrackingLogFulfillmentAction, updateOrderPartial,} from "domain/actions/order/order.action";
 
 import iconShippingFeeInformedToCustomer
   from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
@@ -45,7 +44,17 @@ import queryString from "query-string";
 import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
 import _ from "lodash";
 import {RootReducerType} from "../../../model/reducers/RootReducerType";
-import {ORDER_PAYMENT_STATUS, PAYMENT_METHOD_ENUM} from "utils/Order.constants";
+import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM} from "utils/Order.constants";
+import {getLink, getReturnMoneyStatusColor, isFulfillmentActive} from 'utils/OrderUtils';
+import { showSuccess } from "utils/ToastUtils";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import { OrderExtraModel, OrderModel } from "model/order/order.model";
+import IconTrackingCode from "assets/img/iconTrackingCode.svg";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
+import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
+import { getReturnMoneyStatusText } from "utils/OrderUtils";
+import 'assets/css/order-status.scss'
+import TrackingLog from "screens/order-online/component/TrackingLog/TrackingLog";
 
 
 const PAYMENT_ICON = [
@@ -96,6 +105,8 @@ const initOrderSearchingQuery: any = {
   variant_ids: [],
 }
 
+type dataExtra = PageResponse<OrderExtraModel>;
+
 function PurchaseHistory(props: PurchaseHistoryProps) {
   const { customer } = props;
   const history = useHistory()
@@ -109,6 +120,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   const [formOrderHistoryFilter] = Form.useForm()
 
   const dispatch = useDispatch();
+
+  const subStatuses = useGetOrderSubStatuses();
+
+  const type = {
+    trackingCode: "trackingCode",
+    subStatus: "subStatus",
+    setSubStatus: "setSubStatus",
+  };
 
   const [deliveryServices, setDeliveryServices] = useState<
     Array<DeliveryServiceResponse>
@@ -127,6 +146,9 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   const [orderHistoryQueryParams, setOrderHistoryQueryParams] = useState<any>(initOrderSearchingQuery);
   const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
   const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
+  const [typeAPi, setTypeAPi] = useState("");
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
 
   const [purchaseHistoryData, setPurchaseHistoryData] = useState<PageResponse<any>>({
     metadata: {
@@ -465,13 +487,126 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     }
   };
 
+  const renderTrackingCode = (shipment: ShipmentResponse) => {
+    const trackingCode = shipment?.tracking_code;
+    if (!trackingCode) {
+      return null;
+    }
+    let html: string | null = null;
+    let stringReverse = trackingCode.split("").reverse().join("");
+    const dot = ".";
+    const index = stringReverse.indexOf(dot);
+    if (index > 0) {
+      html = stringReverse.substring(0, index).split("").reverse().join("");
+    } else {
+      html = trackingCode;
+    }
+    const linkText = shipment?.delivery_service_provider_code ? getLink(shipment.delivery_service_provider_code, trackingCode) : ""
+    return (
+      <span
+        onClick={(e) => {
+          if (html) {
+            copyTextToClipboard(e, html);
+            showSuccess("Đã copy mã vận đơn!");
+          }
+        }}>
+        {linkText ? (
+          <a href={linkText} target="_blank" title={linkText} rel="noreferrer">
+            {html}
+          </a>
+        ) : html }
+        <Tooltip title="Click để copy mã vận đơn">
+          <img
+            onClick={(e) => {
+              copyTextToClipboard(e, html)
+              showSuccess("Đã copy mã vận đơn!")
+            }}
+            src={copyFileBtn}
+            alt=""
+            style={{ width: 18, cursor: "pointer" }}
+          />
+        </Tooltip>
+      </span>
+    );
+  };
+
+  const renderOrderTrackingLog = (record: OrderExtraModel) => {
+    // let html: ReactNode= "aaaaaaaaaa";
+    // if(!trackingLogFulfillment) {
+    //   return html;
+    // }
+    if (!record?.fulfillments || !record.isShowTrackingLog) {
+      return;
+    }
+    const trackingLogFulfillment = record?.trackingLog;
+    const fulfillment = isFulfillmentActive(record?.fulfillments);
+    const trackingCode = fulfillment?.shipment?.tracking_code;
+    if (!trackingCode) {
+      return " Không có mã vận đơn!";
+    }
+    if (!trackingLogFulfillment) {
+      return " Không có log tiến trình đơn hàng!";
+    }
+    let html = null;
+    if (trackingLogFulfillment) {
+      html = (
+        <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
+      );
+    }
+    return html;
+  };
+
+  const changeSubStatusCallback = (value: string) => {
+    const index = purchaseHistoryData.items?.findIndex(
+      (single) => single.id === selectedOrder?.id
+    );
+    if (index > -1) {
+      let dataResult: dataExtra = { ...purchaseHistoryData };
+      // selected = value;
+      dataResult.items[index].sub_status_code = value;
+      dataResult.items[index].sub_status = subStatuses?.find(
+        (single) => single.code === value
+      )?.sub_status;
+      setPurchaseHistoryData(dataResult);
+    }
+  };
+
+  useEffect(() => {
+    if (!purchaseHistoryData?.items) {
+      return;
+    }
+    if (typeAPi === type.trackingCode) {
+      if (selectedOrder && selectedOrder.fulfillments) {
+        const fulfillment = isFulfillmentActive(selectedOrder.fulfillments);
+        if (!fulfillment?.code) {
+          return;
+        }
+        dispatch(
+          getTrackingLogFulfillmentAction(fulfillment?.code, (response) => {
+            // setIsVisiblePopup(true)
+            const index = purchaseHistoryData.items?.findIndex((single) => single.id === selectedOrder.id);
+            if (index > -1) {
+              let dataResult: dataExtra = { ...purchaseHistoryData };
+              dataResult.items[index].trackingLog = response;
+              dataResult.items[index].isShowTrackingLog = true;
+              setPurchaseHistoryData(dataResult);
+            }
+          })
+        );
+      }
+    } else if (typeAPi === type.setSubStatus) {
+    }
+    //xóa data
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedOrder, setPurchaseHistoryData, type.subStatus, type.trackingCode, typeAPi]);
+
   const columnsPurchaseHistory: Array<ICustomTableColumType<any>> = useMemo(() =>
     [
       {
         title: "Khách hàng",
         visible: true,
         fixed: "left",
-        width: 110,
+        width: 100,
         render: (item: any) => {
           return (
             <div>
@@ -486,20 +621,47 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         visible: true,
         fixed: "left",
         className: "custom-shadow-td",
-        width: 180,
+        width: 130,
         render: (item: any) => {
           return (
             <div>
-              {item.code_order_return ?
-                <Tooltip title="Mã đơn trả hàng">
-                  <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">{item.code_order_return}</Link>
-                </Tooltip>
-                :
-                <Tooltip title="Mã đơn hàng">
-                  <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">{item.code}</Link>
-                </Tooltip>
-              }
-
+              <div className="noWrap">
+                {item.code_order_return ?
+                  <>
+                  <Tooltip title="Mã đơn trả hàng">
+                    <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">{item.code_order_return}</Link>
+                  </Tooltip>
+                  <Tooltip title="Click để copy">
+                  <img
+                    onClick={(e) => {
+                      copyTextToClipboard(e, item.code_order_return.toString())
+                      showSuccess("Đã copy mã đơn hàng!")
+                    }}
+                    src={copyFileBtn}
+                    alt=""
+                    style={{ width: 18, cursor: "pointer" }}
+                  />
+                </Tooltip></>
+                  :
+                  <>
+                    <Tooltip title="Mã đơn hàng">
+                    <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">{item.code}</Link>
+                  </Tooltip>
+                   <Tooltip title="Click để copy">
+                   <img
+                     onClick={(e) => {
+                       copyTextToClipboard(e, item.code.toString())
+                       showSuccess("Đã copy mã đơn hàng!")
+                     }}
+                     src={copyFileBtn}
+                     alt=""
+                     style={{ width: 18, cursor: "pointer" }}
+                   />
+                 </Tooltip>
+                  </>
+                }
+                
+              </div>
               <div style={{ fontSize: "12px", color: "#666666" }}>
                 <div>
                   {moment(item.created_date).format(
@@ -509,26 +671,56 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                     <div>{item.store}</div>
                   </Tooltip>
                 </div>
-                {item.source && (
-                  <div style={{ fontSize: "12px" }}>
-                    <strong style={{ color: "#000000" }}>Nguồn: </strong>
-                    <span
-                      style={{ color: "#222222", wordBreak: "break-all" }}>
-                      {item.source}
-                    </span>
+                
+              </div>
+
+              {item.channel_id === POS.channel_id ? null : (
+                <div className="textSmall single">
+                  <Tooltip title="Nguồn">{item.source}</Tooltip>
+                </div>
+              )}
+              {item.channel_id === POS.channel_id ? (
+                <React.Fragment>
+                  <div className="textSmall single mainColor">
+                    <Tooltip title="Chuyên gia tư vấn">
+                      <Link to={`${UrlConfig.ACCOUNTS}/${item.assignee_code}`}>
+                        <strong>CGTV: </strong>{item.assignee_code} - {item.assignee}
+                      </Link>
+                    </Tooltip>
                   </div>
-                )}
+                  <div className="textSmall single mainColor">
+                    <Tooltip title="Thu ngân">
+                      <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}>
+                        <strong>Thu ngân: </strong>{item.account_code} - {item.account}
+                      </Link>
+                    </Tooltip>
+                  </div>
+                </React.Fragment>
+              ) :null}
+              { item.channel_id !== POS.channel_id && item.source && (
+                <React.Fragment>
+                  <div className="textSmall single mainColor">
+                    <Tooltip title="Nhân viên bán hàng">
+                      <Link to={`${UrlConfig.ACCOUNTS}/${item.assignee_code}`}>
+                        <strong>NV bán hàng: </strong>{item.assignee_code} - {item.assignee}
+                      </Link>
+                    </Tooltip>
+                  </div>
+                </React.Fragment>
+              )}
+              <div className="textSmall single">
+                <strong>Tổng SP: {getTotalQuantity(item.items)}</strong>
               </div>
 
               {item.code_order_return ?
                 <>
-                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                  <div className="textSmall">
                     <span style={{ fontWeight: "bold" }}>Đơn gốc: </span>
                     <Tooltip title="Mã đơn gốc">
                       <Link to={`${UrlConfig.ORDER}/${item.order_id}`} target="_blank">{item.code_order}</Link>
                     </Tooltip>
                   </div>
-                  <div style={{ color: "red", fontWeight: "bold" }}>Trả hàng</div>
+                  <div className="textSmall" style={{ color: "red", fontWeight: "bold" }}>Trả hàng</div>
                 </>
                 :
                 renderReturn(item)
@@ -624,7 +816,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "customer.amount_money",
         visible: true,
         align: "right",
-        width: 100,
+        width: 80,
         render: (record: any) => {
           const discountAmount = record.discounts && record.discounts[0]?.amount;
           return (
@@ -701,7 +893,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "payment_status",
         visible: true,
         align: "left",
-        width: 120,
+        width: 90,
         render: (data: any) => {
           return (
             <React.Fragment>
@@ -719,20 +911,20 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "customer.amount_money",
         visible: true,
         align: "left",
-        width: 130,
+        width: 60,
         render: (data: any) => (
           <>
             {data.code_order_return ?
               <div>
-                <div style={{ color: "#27AE60" }}>{`Trừ Tích: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
-                <div style={{ color: "#E24343" }}>{`Hoàn Tiêu: ${data.change_point?.add ? data.change_point?.add : 0}`}</div>
+                <div className="plus-point">{`Trừ Tích: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
+                <div className="minus-point">{`Hoàn Tiêu: ${data.change_point?.add ? data.change_point?.add : 0}`}</div>
               </div>
               :
               <div>
-                <div style={{ color: "#27AE60" }}>{`Tích: ${data.change_point?.add ? data.change_point?.add : 0}`}</div>
-                <div style={{ color: "#E24343" }}>{`Tiêu: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
+                <div className="plus-point">{`Tích: ${data.change_point?.add ? data.change_point?.add : 0}`}</div>
+                <div className="minus-point">{`Tiêu: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
                 {data.status === OrderStatus.CANCELLED &&
-                  <div style={{ color: "#E24343" }}>{`Hoàn tiêu: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
+                  <div className="minus-point">{`Hoàn tiêu: ${data.change_point?.subtract ? data.change_point?.subtract : 0}`}</div>
                 }
               </div>
             }
@@ -741,99 +933,71 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
       },
       {
         title: "Trạng thái",
+        dataIndex: "status",
         key: "status",
         className: "orderStatus",
-        visible: true,
-        align: "left",
-        width: 140,
-        render: (record: any) => {
-          if (!record) {
+        render: (value: string, record: any) => {
+          if (!record || !status_order) {
             return null;
           }
-          const status = status_order?.find((status) => status.value === record.status);
-
-          // handle returned order
-          const received = {
-            text: record.received ? "Đã nhận" : "Chưa nhận",
-            color: record.received ? "#27AE60" : "#E24343",
-          };
-
-          const paymentStatus = {
-            text: "",
-            color: "",
-          };
-          switch (record.payment_status) {
-            case ORDER_PAYMENT_STATUS.unpaid:
-              paymentStatus.text = "Chưa hoàn"
-              paymentStatus.color = "#E24343"
-              break;
-            case ORDER_PAYMENT_STATUS.paid:
-              paymentStatus.text = "Đã hoàn"
-              paymentStatus.color = "#27AE60"
-              break;
-            case ORDER_PAYMENT_STATUS.partial_paid:
-              paymentStatus.text = "Hoàn 1 phần"
-              paymentStatus.color = "#FCAF17"
-              break;
-            default:
-              break;
+          if(record.code_order_return){
+            let textResult = getReturnMoneyStatusText(record?.payment_status);
+            let textColor = getReturnMoneyStatusColor(record?.payment_status);
+            return (
+              <React.Fragment>
+                <div className="text-return-status 111">
+                  <span style={{color:textColor}}>{textResult}</span>
+                </div>
+              </React.Fragment>
+            );
           }
-
+          //const status = status_order.find((status) => status.value === record.status);
+          let recordStatuses = record?.statuses;
+          if (!recordStatuses) {
+            recordStatuses = [];
+          }
+          let selected = record.sub_status_code ? record.sub_status_code : "finished";
+          if (!recordStatuses.some((single:any) => single.code === selected)) {
+            recordStatuses.push({
+              name: record.sub_status,
+              code: record.sub_status_code,
+            });
+          }
+          let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery ? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
+          
           return (
-            <>
-              {/*Đơn hàng*/}
-              {!record.code_order_return &&
-                <div className="orderStatus">
-                  <div className="inner">
-                    <div className="single">
-                      <div><strong>Xử lý đơn: </strong></div>
-                      {record.sub_status ? record.sub_status : "-"}
+            <div className="orderStatus">
+              <div className="inner">
+                <div className="single">
+                  <div>
+                    <strong>Xử lý đơn: </strong>
+                  </div>
+
+                  {subStatuses? (
+                    <div className={`status-order ${className}`}>
+                     { subStatuses.find(p=>p.code===record.sub_status_code)?.sub_status}
                     </div>
-
-                    <div className="single">
-                      <div><strong>Đơn hàng: </strong></div>
-                      {record.status === OrderStatus.DRAFT && (
-                        <div style={{ color: "#737373" }}>{status?.name}</div>
-                      )}
-
-                      {record.status === OrderStatus.FINALIZED && (
-                        <div style={{ color: "#FCAF17" }}>{status?.name}</div>
-                      )}
-
-                      {record.status === OrderStatus.FINISHED && (
-                        <div style={{ color: "#27AE60" }}>{status?.name}</div>
-                      )}
-
-                      {record.status === OrderStatus.CANCELLED && (
-                        <div style={{ color: "#E24343" }}>{status?.name}</div>
-                      )}
-                    </div>
+                  ): undefined}
+                </div>
+                <div className="single">
+                  <div className="coordinator-item">
+                    <strong>NV điều phối: </strong>
+                    {record.coordinator?(
+                      <React.Fragment>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}</Link>
+                      </React.Fragment>
+                    ):"N/a"}
                   </div>
                 </div>
-              }
-
-              {/*Đơn trả*/}
-              {record.code_order_return &&
-                <div style={{ paddingLeft: 10 }}>
-                  <div>
-                    <div>
-                      <strong>Hàng: </strong>
-                      <span style={{ color: received.color }}>{received.text}</span>
-                    </div>
-                    <div style={{ fontSize: "12px", color: "#666666" }}>
-                      {record.receive_date ? moment(record.receive_date).format(DATE_FORMAT.HHmm_DDMMYYYY) : ""}
-                    </div>
-                  </div>
-
-                  <div>
-                    <strong>Tiền: </strong>
-                    <span style={{ color: paymentStatus.color }}>{paymentStatus.text}</span>
-                  </div>
-                </div>
-              }
-            </>
+              </div>
+            </div>
           );
         },
+        visible: true,
+        align: "left",
+        width: 110,
+        isHideInOffline: true,
       },
       {
         title: "Ghi chú",
@@ -841,7 +1005,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "note",
         visible: true,
         align: "left",
-        width: 160,
+        width: 90,
         render: (data: any) => {
           const orderReturnReason = data.return_reason?.name || data.reason || "";    // cập nhật lại khi BE thay đổi theo SO
           return (
@@ -886,12 +1050,9 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "shipment.type",
         className: "shipmentType",
         visible: true,
-        width: 120,
+        width: 110,
         align: "left",
         render: (value: string, record: any) => {
-          const sortedFulfillments = record.fulfillments?.sort(
-            (a: any, b: any) => b.id - a.id
-          );
           if (record.source_id === POS.source_id) {
             return (
               <React.Fragment>
@@ -903,373 +1064,355 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             );
           }
 
-          if (
-            record?.fulfillments &&
-            record.fulfillments[0]?.status === FulFillmentStatus.CANCELLED
-          ) {
-            return (
-              <div className="single">
-                <img
-                  src={iconShippingFeePay3PL}
-                  alt=""
-                  className="iconShipping"
-                />
-                Đã hủy vận chuyển
-              </div>
-            );
+          const fulfillment = isFulfillmentActive(record.fulfillments);
+          if (!fulfillment) {
+            return "";
+          }
+          if(!fulfillment.shipment){
+            return "";
           }
 
-          if (sortedFulfillments) {
-            if (sortedFulfillments[0]?.shipment) {
-              switch (
-                sortedFulfillments[0].shipment?.delivery_service_provider_type
-              ) {
-                case ShipmentMethod.EXTERNAL_SERVICE:
-                  const thirdPLId =
-                    sortedFulfillments[0].shipment
-                      .delivery_service_provider_id;
-                  const service = deliveryServices.find(
-                    (service) => service.id === thirdPLId
-                  );
-                  return (
-                    <React.Fragment>
-                      {service && (
-                        <React.Fragment>
-                          <div className="single">
-                            <img
-                              src={service.logo ? service.logo : ""}
-                              alt=""
-                            />
-                          </div>
-                          <Tooltip title="Tổng khối lượng">
-                            <div className="single">
-                              <img src={iconWeight} alt="" />
-                              <span>{record.total_weight || 0} gr</span>
-                            </div>
-                          </Tooltip>
-                          <Tooltip title="Phí ship báo khách">
-                            <div className="single">
-                              <img
-                                src={iconShippingFeeInformedToCustomer}
-                                alt=""
-                              />
-                              <span>
-                                {formatCurrency(
-                                  sortedFulfillments[0].shipment
-                                    .shipping_fee_informed_to_customer || 0
-                                )}
-                              </span>
-                            </div>
-                          </Tooltip>
-
-                          <Tooltip title="Phí vận chuyển">
-                            <div className="single">
-                              <img
-                                src={iconShippingFeePay3PL}
-                                alt=""
-                                className="iconShipping"
-                              />
-                              {formatCurrency(
-                                sortedFulfillments[0].shipment
-                                  .shipping_fee_paid_to_three_pls || 0
-                              )}
-                            </div>
-                          </Tooltip>
-                        </React.Fragment>
-                      )}
-                    </React.Fragment>
-                  );
-                case ShipmentMethod.EMPLOYEE:
-                case ShipmentMethod.EXTERNAL_SHIPPER:
-                  return (
-                    <React.Fragment>
-                      <div className="single">
-                        Đối tác {" - "}
-                        <span style={{ color: primaryColor }}>
-                          {sortedFulfillments[0].shipment.shipper_code}-
-                          {sortedFulfillments[0].shipment.shipper_name}
-                        </span>
-                      </div>
-                      <Tooltip title="Tổng khối lượng">
-                        <div className="single">
-                          <img src={iconWeight} alt="" />
-                          <span>{record.total_weight || 0} gr</span>
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="Phí ship báo khách">
-                        <div className="single">
-                          <img
-                            src={iconShippingFeeInformedToCustomer}
-                            alt=""
-                          />
-                          <span>
-                            {formatCurrency(
-                              sortedFulfillments[0].shipment
-                                .shipping_fee_informed_to_customer || 0
-                            )}
-                          </span>
-                        </div>
-                      </Tooltip>
-
-                      <Tooltip title="Phí vận chuyển">
-                        <div className="single">
-                          <img src={iconShippingFeePay3PL} alt="" />
-                          {formatCurrency(
-                            sortedFulfillments[0].shipment
-                              .shipping_fee_paid_to_three_pls || 0
-                          )}
-                        </div>
-                      </Tooltip>
-                    </React.Fragment>
-                  );
-                case ShipmentMethod.PICK_AT_STORE:
-                  return (
-                    <React.Fragment>
-                      <div className="single">
-                        Nhận tại {" - "}
-                        <Link
-                          target="_blank"
-                          to={`${UrlConfig.STORE}/${record?.store_id}`}>
-                          {record.store}
-                        </Link>
-                      </div>
-                      <Tooltip title="Tổng khối lượng">
-                        <div className="single">
-                          <img src={iconWeight} alt="" />
-                          <span>{record.total_weight || 0} gr</span>
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="Phí ship báo khách">
-                        <div className="single">
-                          <img
-                            src={iconShippingFeeInformedToCustomer}
-                            alt=""
-                          />
-                          <span>
-                            {formatCurrency(
-                              sortedFulfillments[0].shipment
-                                .shipping_fee_informed_to_customer || 0
-                            )}
-                          </span>
-                        </div>
-                      </Tooltip>
-
-                      <Tooltip title="Phí vận chuyển">
-                        <div className="single">
-                          <img src={iconShippingFeePay3PL} alt="" />
-                          {formatCurrency(
-                            sortedFulfillments[0].shipment
-                              .shipping_fee_paid_to_three_pls || 0
-                          )}
-                        </div>
-                      </Tooltip>
-                    </React.Fragment>
-                  );
-                case ShipmentMethod.SHOPEE:
-                  return (
-                    <React.Fragment>
-                      <div className="single">Shopee</div>
-                      <Tooltip title="Tổng khối lượng">
-                        <div className="single">
-                          <img src={iconWeight} alt="" />
-                          <span>{record.total_weight || 0} gr</span>
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="Phí ship báo khách">
-                        <div className="single">
-                          <img
-                            src={iconShippingFeeInformedToCustomer}
-                            alt=""
-                          />
-                          <span>
-                            {formatCurrency(
-                              sortedFulfillments[0].shipment
-                                .shipping_fee_informed_to_customer || 0
-                            )}
-                          </span>
-                        </div>
-                      </Tooltip>
-
-                      <Tooltip title="Phí vận chuyển">
-                        <div className="single">
-                          <img src={iconShippingFeePay3PL} alt="" />
-                          {formatCurrency(
-                            sortedFulfillments[0].shipment
-                              .shipping_fee_paid_to_three_pls || 0
-                          )}
-                        </div>
-                      </Tooltip>
-                    </React.Fragment>
-                  );
-                default:
-                  return (
-                    <React.Fragment>
-                      <Tooltip title="Tổng khối lượng">
-                        <div className="single">
-                          <img src={iconWeight} alt="" />
-                          <span>{record.total_weight || 0} gr</span>
-                        </div>
-                      </Tooltip>
-                      <Tooltip title="Phí ship báo khách">
-                        <div className="single">
-                          <img
-                            src={iconShippingFeeInformedToCustomer}
-                            alt=""
-                          />
-                          <span>
-                            {formatCurrency(
-                              sortedFulfillments[0].shipment
-                                .shipping_fee_informed_to_customer || 0
-                            )}
-                          </span>
-                        </div>
-                      </Tooltip>
-
-                      <Tooltip title="Phí vận chuyển">
-                        <div className="single">
-                          <img src={iconShippingFeePay3PL} alt="" />
-                          {formatCurrency(
-                            sortedFulfillments[0].shipment
-                              .shipping_fee_paid_to_three_pls || 0
-                          )}
-                        </div>
-                      </Tooltip>
-                    </React.Fragment>
-                  );
-              }
-            }
-          }
-          return "";
-        },
-      },
-      {
-        title: "NV bán hàng",
-        key: "assignee",
-        visible: true,
-        align: "center",
-        width: 136,
-        render: (record: any) => (
-          <Link
-            target="_blank"
-            to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
-            {`${record.assignee_code} - ${record.assignee}`}
-          </Link>
-        ),
-      },
-      {
-        title: "NV tạo đơn",
-        key: "account",
-        visible: true,
-        align: "center",
-        width: 130,
-        render: (record: any) => (
-          <Link
-            target="_blank"
-            to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
-          >
-            {record.account && record.account_code &&
-              `${record.account_code} - ${record.account}`
-            }
-          </Link>
-        ),
-      },
-      {
-        title: "Ngày hoàn tất đơn",
-        key: "finished_on",
-        visible: true,
-        align: "center",
-        width: 150,
-        render: (data: any) => <div>{ConvertUtcToLocalDate(data.finished_on)}</div>,
-      },
-      {
-        title: "Ngày huỷ đơn",
-        key: "cancelled_on",
-        visible: true,
-        align: "center",
-        width: 150,
-        render: (data: any) => <div>{ConvertUtcToLocalDate(data.cancelled_on)}</div>,
-      },
-      {
-        title: "Biên bản bàn giao",
-        key: "goods_receipt_id",
-        align: "center",
-        visible: false,
-        width: 160,
-        render: (data: any) => {
-          if (data.goods_receipt_id) {
-            return (
-              <Link to={`${UrlConfig.PACK_SUPPORT}/${data.goods_receipt_id}`}>
-                {data.goods_receipt_id}
-              </Link>
-            );
-          } else {
-            return "-";
-          }
-        },
-      },
-      {
-        title: "Mã Afilliate",
-        key: "Mã Afilliate",
-        visible: true,
-        render: () => null,
-        // width: 160,
-      },
-      {
-        title: "Ghi chú hóa đơn",
-        key: "Ghi chú hóa đơn",
-        visible: true,
-        render: () => null,
-        // width: 190,
-      },
-      {
-        title: "Tag",
-        key: "tags",
-        visible: true,
-        align: "left",
-        width: 150,
-        render: (data: any) => {
-          let result: React.ReactNode = null;
-          if (data?.tags) {
-            const listTags = data?.tags.split(",");
-            if (listTags && listTags.length > 0) {
-              result = (
-                <ul>
-                  {listTags.map((tag: any, index: number) => {
-                    return <li key={index}>{tag}</li>;
-                  })}
-                </ul>
+          switch (fulfillment.shipment.delivery_service_provider_type) {
+            case ShipmentMethod.EXTERNAL_SERVICE:
+              const thirdPLId = fulfillment.shipment.delivery_service_provider_id;
+              const service = deliveryServices.find(
+                (service) => service.id === thirdPLId
               );
-            }
+              return (
+                <React.Fragment>
+                  {service && (
+                    <React.Fragment>
+                      <div className="single">
+                        <img src={service.logo ? service.logo : ""} alt="" />
+                      </div>
+                      <Tooltip title="Tổng khối lượng">
+                        <div className="single">
+                          <img src={iconWeight} alt="" />
+                          <span>{record.total_weight || 0} gr</span>
+                        </div>
+                      </Tooltip>
+                      <Tooltip title="Phí ship báo khách">
+                        <div className="single">
+                          <img src={iconShippingFeeInformedToCustomer} alt="" />
+                          <span>
+                            {formatCurrency(
+                              record.shipping_fee_informed_to_customer || 0
+                            )}
+                          </span>
+                        </div>
+                      </Tooltip>
+          
+                      <Tooltip title="Phí vận chuyển">
+                        <div className="single">
+                          <img
+                            src={iconShippingFeePay3PL}
+                            alt=""
+                            className="iconShipping"
+                          />
+                          {formatCurrency(
+                            fulfillment.shipment?.shipping_fee_paid_to_three_pls || 0
+                          )}
+                        </div>
+                      </Tooltip>
+          
+                      {fulfillment.shipment?.tracking_code ? (
+                        <div className="single trackingCode">
+                          {renderTrackingCode(fulfillment.shipment)}
+                        </div>
+                      ) : null}
+          
+                      {fulfillment.code ? (
+                        <div className="single">
+                          {true && (
+                            <Popover
+                              placement="left"
+                              content={renderOrderTrackingLog(record)}
+                              trigger="click"
+                            >
+                              <Tooltip title="Tiến trình giao hàng">
+                                <img
+                                  src={IconTrackingCode}
+                                  alt=""
+                                  className="trackingCodeImg"
+                                  onClick={() => {
+                                    setTypeAPi(type.trackingCode);
+                                    setSelectedOrder(record);
+                                  }}
+                                />
+                              </Tooltip>
+                            </Popover>
+                          )}
+                        </div>
+                      ) : null}
+                    </React.Fragment>
+                  )}
+                </React.Fragment>
+              );
+            case ShipmentMethod.EMPLOYEE:
+            case ShipmentMethod.EXTERNAL_SHIPPER:
+              return (
+                <React.Fragment>
+                  <div className="single">
+                    {fulfillment.shipment?.service === "4h_delivery"
+                      ? "Đơn giao 4H"
+                      : "Đơn giao thường"}
+                    {" - "}
+                    <span style={{ color: primaryColor }}>
+                      {fulfillment.shipment?.shipper_code}-
+                      {fulfillment.shipment?.shipper_name}
+                    </span>
+                  </div>
+                  <Tooltip title="Tổng khối lượng">
+                    <div className="single">
+                      <img src={iconWeight} alt="" />
+                      <span>{record.total_weight || 0} gr</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Phí ship báo khách">
+                    <div className="single">
+                      <img src={iconShippingFeeInformedToCustomer} alt="" />
+                      <span>
+                        {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                      </span>
+                    </div>
+                  </Tooltip>
+          
+                  <Tooltip title="Phí vận chuyển">
+                    <div className="single">
+                      <img src={iconShippingFeePay3PL} alt="" />
+                      {formatCurrency(
+                        fulfillment.shipment?.shipping_fee_paid_to_three_pls || 0
+                      )}
+                    </div>
+                  </Tooltip>
+                </React.Fragment>
+              );
+            case ShipmentMethod.PICK_AT_STORE:
+              return (
+                <React.Fragment>
+                  <div className="single">
+                    <strong className="textSmall">Nhận tại {" - "}</strong>
+                    <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
+                      {record.store}
+                    </Link>
+                  </div>
+                  <Tooltip title="Tổng khối lượng">
+                    <div className="single">
+                      <img src={iconWeight} alt="" />
+                      <span>{record.total_weight || 0} gr</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Phí ship báo khách">
+                    <div className="single">
+                      <img src={iconShippingFeeInformedToCustomer} alt="" />
+                      <span>
+                        {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                      </span>
+                    </div>
+                  </Tooltip>
+          
+                  <Tooltip title="Phí vận chuyển">
+                    <div className="single">
+                      <img src={iconShippingFeePay3PL} alt="" />
+                      {formatCurrency(
+                        fulfillment.shipment?.shipping_fee_paid_to_three_pls ||
+                          0
+                      )}
+                    </div>
+                  </Tooltip>
+                </React.Fragment>
+              );
+            case ShipmentMethod.SHOPEE:
+              return (
+                <React.Fragment>
+                  <div className="single">Shopee</div>
+                  <Tooltip title="Tổng khối lượng">
+                    <div className="single">
+                      <img src={iconWeight} alt="" />
+                      <span>{record.total_weight || 0} gr</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Phí ship báo khách">
+                    <div className="single">
+                      <img src={iconShippingFeeInformedToCustomer} alt="" />
+                      <span>
+                        {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                      </span>
+                    </div>
+                  </Tooltip>
+          
+                  <Tooltip title="Phí vận chuyển">
+                    <div className="single">
+                      <img src={iconShippingFeePay3PL} alt="" />
+                      {formatCurrency(
+                        fulfillment.shipment?.shipping_fee_paid_to_three_pls ||
+                          0
+                      )}
+                    </div>
+                  </Tooltip>
+                </React.Fragment>
+              );
+            default:
+              return (
+                <React.Fragment>
+                  <Tooltip title="Tổng khối lượng">
+                    <div className="single">
+                      <img src={iconWeight} alt="" />
+                      <span>{record.total_weight || 0} gr</span>
+                    </div>
+                  </Tooltip>
+                  <Tooltip title="Phí ship báo khách">
+                    <div className="single">
+                      <img src={iconShippingFeeInformedToCustomer} alt="" />
+                      <span>
+                        {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                      </span>
+                    </div>
+                  </Tooltip>
+          
+                  <Tooltip title="Phí vận chuyển">
+                    <div className="single">
+                      <img src={iconShippingFeePay3PL} alt="" />
+                      {formatCurrency(
+                        fulfillment.shipment.shipping_fee_paid_to_three_pls ||
+                          0
+                      )}
+                    </div>
+                  </Tooltip>
+                </React.Fragment>
+              );
           }
-          return result;
         },
       },
-      {
-        title: "Mã tham chiếu",
-        key: "reference_code",
-        visible: true,
-        width: 150,
-        render: (data: any) => {
-          let result: React.ReactNode = null;
-          if (data?.url) {
-            result = <a href={data?.url}>{data.reference_code}</a>;
-          }
-          if (data?.linked_order_code) {
-            return (
-              <Link to={`${UrlConfig.ORDER}/${data.linked_order_code}`} target="_blank">
-                {data?.linked_order_code}
-              </Link>
-            );
-          } else {
-            result = data.reference_code;
-          }
-          return result;
-        },
-      },
+      // {
+      //   title: "NV bán hàng",
+      //   key: "assignee",
+      //   visible: true,
+      //   align: "center",
+      //   width: 136,
+      //   render: (record: any) => (
+      //     <Link
+      //       target="_blank"
+      //       to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
+      //       {`${record.assignee_code} - ${record.assignee}`}
+      //     </Link>
+      //   ),
+      // },
+      // {
+      //   title: "NV tạo đơn",
+      //   key: "account",
+      //   visible: true,
+      //   align: "center",
+      //   width: 130,
+      //   render: (record: any) => (
+      //     <Link
+      //       target="_blank"
+      //       to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
+      //     >
+      //       {record.account && record.account_code &&
+      //         `${record.account_code} - ${record.account}`
+      //       }
+      //     </Link>
+      //   ),
+      // },
+      // {
+      //   title: "Ngày hoàn tất đơn",
+      //   key: "finished_on",
+      //   visible: true,
+      //   align: "center",
+      //   width: 150,
+      //   render: (data: any) => <div>{ConvertUtcToLocalDate(data.finished_on)}</div>,
+      // },
+      // {
+      //   title: "Ngày huỷ đơn",
+      //   key: "cancelled_on",
+      //   visible: true,
+      //   align: "center",
+      //   width: 150,
+      //   render: (data: any) => <div>{ConvertUtcToLocalDate(data.cancelled_on)}</div>,
+      // },
+      // {
+      //   title: "Biên bản bàn giao",
+      //   key: "goods_receipt_id",
+      //   align: "center",
+      //   visible: false,
+      //   width: 160,
+      //   render: (data: any) => {
+      //     if (data.goods_receipt_id) {
+      //       return (
+      //         <Link to={`${UrlConfig.PACK_SUPPORT}/${data.goods_receipt_id}`}>
+      //           {data.goods_receipt_id}
+      //         </Link>
+      //       );
+      //     } else {
+      //       return "-";
+      //     }
+      //   },
+      // },
+      // {
+      //   title: "Mã Afilliate",
+      //   key: "Mã Afilliate",
+      //   visible: true,
+      //   render: () => null,
+      //   // width: 160,
+      // },
+      // {
+      //   title: "Ghi chú hóa đơn",
+      //   key: "Ghi chú hóa đơn",
+      //   visible: true,
+      //   render: () => null,
+      //   // width: 190,
+      // },
+      // {
+      //   title: "Tag",
+      //   key: "tags",
+      //   visible: true,
+      //   align: "left",
+      //   width: 150,
+      //   render: (data: any) => {
+      //     let result: React.ReactNode = null;
+      //     if (data?.tags) {
+      //       const listTags = data?.tags.split(",");
+      //       if (listTags && listTags.length > 0) {
+      //         result = (
+      //           <ul>
+      //             {listTags.map((tag: any, index: number) => {
+      //               return <li key={index}>{tag}</li>;
+      //             })}
+      //           </ul>
+      //         );
+      //       }
+      //     }
+      //     return result;
+      //   },
+      // },
+      // {
+      //   title: "Mã tham chiếu",
+      //   key: "reference_code",
+      //   visible: true,
+      //   width: 150,
+      //   render: (data: any) => {
+      //     let result: React.ReactNode = null;
+      //     if (data?.url) {
+      //       result = <a href={data?.url}>{data.reference_code}</a>;
+      //     }
+      //     if (data?.linked_order_code) {
+      //       return (
+      //         <Link to={`${UrlConfig.ORDER}/${data.linked_order_code}`} target="_blank">
+      //           {data?.linked_order_code}
+      //         </Link>
+      //       );
+      //     } else {
+      //       result = data.reference_code;
+      //     }
+      //     return result;
+      //   },
+      // },
     ],
-  [deliveryServices, editNote, renderOrderPayments, renderOrderReturnPayments, status_order]
+  [deliveryServices, editNote, renderOrderPayments, renderOrderReturnPayments, status_order, subStatuses, type.trackingCode]
   );
 
+  console.log("purchaseHistoryData",purchaseHistoryData.items)
   return (
     <StyledPurchaseHistory>
       <Form
@@ -1304,7 +1447,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         bordered
         isLoading={tableLoading}
         showColumnSetting={true}
-        scroll={{ x: 2900 }}
+        scroll={{ x: 1900 }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
           pageSize: purchaseHistoryData.metadata?.limit,
@@ -1317,6 +1460,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         dataSource={purchaseHistoryData.items}
         columns={columnsPurchaseHistory}
         rowKey={(item: any) => item.id}
+      />
+      <SubStatusChange
+        orderId={selectedOrder?.id}
+        toSubStatus={toSubStatusCode}
+        setToSubStatusCode={setToSubStatusCode}
+        changeSubStatusCallback={changeSubStatusCallback}
       />
     </StyledPurchaseHistory>
   );
