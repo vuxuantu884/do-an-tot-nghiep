@@ -45,7 +45,7 @@ import {
   isOrderFromPOS, sortFulfillments
 } from "utils/AppUtils";
 import {
-  COD, COLUMN_CONFIG_TYPE, DELIVERY_SERVICE_PROVIDER_CODE, FACEBOOK,
+  COD, COLUMN_CONFIG_TYPE, FACEBOOK,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
@@ -56,6 +56,7 @@ import {
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, textLinkColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
+import { getLink } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
@@ -381,19 +382,6 @@ function OrdersTable(props: PropTypes) {
       }
     }
     return html
-  };
-
-  const getLink = (providerCode: string, trackingCode: string) => {
-    switch (providerCode) {
-      case DELIVERY_SERVICE_PROVIDER_CODE.ghn:
-        return `https://donhang.ghn.vn/?order_code=${trackingCode}`
-      case DELIVERY_SERVICE_PROVIDER_CODE.ghtk:
-        return `https://i.ghtk.vn/${trackingCode}`
-      case DELIVERY_SERVICE_PROVIDER_CODE.vtp:
-        return `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don/`
-      default:
-        break;
-    }
   };
 
   const renderTrackingCode = (shipment: ShipmentResponse) => {

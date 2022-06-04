@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
-import {borderColor, dangerColor, primaryColor} from "utils/global-styles/variables";
+import {borderColor, dangerColor, primaryColor, successColor} from "utils/global-styles/variables";
 
 
 // Inherit StyledCustomerInfo in StyledCustomerDetail
@@ -123,14 +123,13 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
       padding-left: 3px;
     }
   }
+`
 
-`;
-
-export const nameQuantityWidth = 400;
-const quantityWidth = 50;
-const massWidth = 100;
-const priceWidth = 100;
-const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
+export const nameQuantityWidth = 200;
+// const quantityWidth = 50;
+// const massWidth = 100;
+// const priceWidth = 100;
+// const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledPurchaseHistory = styled.div`
   th {
@@ -165,8 +164,7 @@ export const StyledPurchaseHistory = styled.div`
     transition: unset;
   }
 
-  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-body>table>tbody>tr>td,
-  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-header>table>thead>tr>th{
+  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-body>table>tbody>tr>td {
     border-right: 1px solid #ddd;
   }
 
@@ -179,43 +177,21 @@ export const StyledPurchaseHistory = styled.div`
     justify-content: space-between;
   }
   .productNameWidth {
-    width: ${nameWidth}px;
-    &:before {
-      content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        bottom: 0;
-        right: ${quantityWidth + priceWidth}px;
-        background-color: ${borderColor};
-    }
+    width: 60% ;
   }
   .quantityWidth {
-    width: ${quantityWidth}px;
+    width: 15%;
     text-align: center;
-    &:before {
-      content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        bottom: 0;
-        right: ${priceWidth}px;
-        background-color: ${borderColor};
-    }
-  }
-  .massWidth {
-    width: ${massWidth}px;
-    text-align: center;
+    position: relative;
   }
   .priceWidth {
-    width: ${priceWidth}px;
+    width: 30%;
     text-align: center;
 		justify-content: flex-end;
 		padding: 0 10px;
+  }
+  .ant-table-cell {
+    overflow: hidden;
   }
   .custom-td {
     height: 100%;
@@ -238,52 +214,36 @@ export const StyledPurchaseHistory = styled.div`
       white-space: nowrap;
       display: flex;
       align-items: center;
+      position: relative;
       &:before {
         content: "";
         display: block;
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0;
-        bottom: 0;
-        right: ${quantityWidth + priceWidth}px;
+        top: -999px;
+        bottom: -999px;
+        left: 0;
         background-color: ${borderColor};
       }
     }
 		.quantity {
 			justify-content: center;
 		}
-    .mass {
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      &:before {
-        content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        bottom: 0;
-        right: ${massWidth}px;
-        background-color: ${borderColor};
-      }
-    }
     .price {
       white-space: nowrap;
       display: flex;
       align-items: center;
 			justify-content: flex-end;
       &:before {
-        content: "";
+        // content: "";
         display: block;
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: 0;
-        bottom: 0;
-        right: ${priceWidth}px;
+        top: -999px;
+        bottom:-999px;
+        left: 0;
         background-color: ${borderColor};
       }
     }
@@ -374,6 +334,320 @@ export const StyledPurchaseHistory = styled.div`
   .orderTotalLeftAmount {
     color: ${dangerColor};
     font-weight: 500;
+  }
+  .textSmall {
+    font-size: 0.86em;
+    line-height: 1.25;
+  }
+  .trackingCodeImg {
+    cursor: pointer;
+    margin-right: 5px;
+  }
+
+  .ant-select {
+    margin-top: 5px;
+    &.coordinator_confirmed {
+      .ant-select-selector {
+        color: #fff;
+        background: #52D276 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.awaiting_coordinator_confirmation {
+      .ant-select-selector {
+        color: #fff;
+        background: #FCAF17 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.awaiting_saler_confirmation {
+      .ant-select-selector {
+        color: #fff;
+        background: #106227 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.first_call_attempt {
+      .ant-select-selector {
+        color: #fff;
+        background: #106227 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.second_call_attempt {
+      .ant-select-selector {
+        color: #fff;
+        background: #00897B !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.third_call_attempt {
+      .ant-select-selector {
+        color: #fff;
+        background: #E8770A !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.merchandise_packed {
+      .ant-select-selector {
+        color: #fff;
+        background: #E8770A !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.shipping {
+      .ant-select-selector {
+        color: #fff;
+        background: #00897B !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.awaiting_shipper {
+      .ant-select-selector {
+        color: #fff;
+        background: #106227 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.merchandise_picking {
+      .ant-select-selector {
+        color: #fff;
+        background: #C98D17 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.returned {
+      .ant-select-selector {
+        color: #fff;
+        background: #52D276 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.fourHour_delivery {
+      .ant-select-selector {
+        color: #fff;
+        background: ${primaryColor} !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.shipped {
+      .ant-select-selector {
+        color: #fff;
+        background: ${successColor} !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.order_return {
+      .ant-select-selector {
+        color: #fff;
+        background: #FCAF17 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.coordinator_confirming {
+      .ant-select-selector {
+        color: #fff;
+        background: #E8770A  !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.returning {
+      .ant-select-selector {
+        color: #fff;
+        background: #E8770A  !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.awaiting_coordinator_confirmation {
+      .ant-select-selector {
+        color: #fff;
+        background: #FCAF17 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.require_warehouse_change {
+      .ant-select-selector {
+        color: #fff;
+        background: #8D6E63 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.cancelled {
+      .ant-select-selector {
+        color: #fff;
+        background: #E24343 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.delivery_fail,
+    &.compensate,
+    &.customer_cancelled,
+    &.delivery_service_cancelled {
+      .ant-select-selector {
+        color: #fff;
+        background: #E24343 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.out_of_stock {
+      .ant-select-selector {
+        color: #fff;
+        background: #E24343 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+    &.system_cancelled {
+      .ant-select-selector {
+        color: #fff;
+        background: #E24343 !important;
+      }
+      .ant-select-arrow {
+        color: #fff;
+      }
+      &.ant-select-single.ant-select-open .ant-select-selection-item {
+        color: #fff;
+      }
+    }
+  }
+  .noWrap {
+    white-space: nowrap;
+  }
+  .plus-point{
+    color: rgb(39, 174, 96);
+    font-weight: 500;
+  }
+  .minus-point{
+    color: rgb(226, 67, 67);
+    font-weight: 500;
+  }
+  .text-return-status{
+    text-align: left;
+    padding: 10px;
+    //color:rgb(39, 174, 96) !important;
+    font-weight: 500;
+  }
+  .status-order{
+    box-sizing: border-box;
+    margin: 0;
+    padding: 6px 10px;
+    font-size: 14px;
+    font-variant: tabular-nums;
+    list-style: none;
+    font-feature-settings: "tnum";
+    position: relative;
+    display: inline-block;
+    overflow: hidden;
+    color: #fff;
+    white-space: nowrap;
+    text-align: left;
+    vertical-align: middle;
+    background: #ccc;
+    width: 160px;
   }
 `;
 
