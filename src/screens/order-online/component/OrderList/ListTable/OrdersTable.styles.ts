@@ -606,7 +606,8 @@ export const StyledComponent = styled.div.attrs((props:any) => {
       margin-bottom: 5px;
     }
   }
-  .mainColor {
+  .mainColor,
+  .mainColor a {
     color: ${primaryColor};
   }
   .orderTotal {
