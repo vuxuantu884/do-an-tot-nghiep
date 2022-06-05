@@ -9,13 +9,13 @@ type ReturnDetailBottomType={
     hiddenButtonUpdate?:boolean;
 }
 const ReturnDetailBottom:React.FC<ReturnDetailBottomType> = (props: ReturnDetailBottomType) => {
-    const { hiddenButtonRemove, hiddenButtonUpdate, onOk}= props;
+    const { hiddenButtonRemove, onOk}= props;
 
     return (
         <StyledComponent>
             <div className="bottomBar bottomBar-detail">
                 <Button hidden={hiddenButtonRemove} danger className='btn-detail' onClick={onOk}>Xóa</Button>
-                <Button hidden={hiddenButtonUpdate} type="primary" ghost className='btn-detail' id='btn-order-return'>Sửa đơn trả (F9)</Button>
+                {/* <Button hidden={hiddenButtonUpdate} type="primary" ghost className='btn-detail' id='btn-order-return'>Sửa đơn trả (F9)</Button> */}
             </div>
         </StyledComponent>
     );
