@@ -561,9 +561,9 @@ const OrderDetail = (props: PropType) => {
       icon: <ExclamationCircleOutlined />,
       content: (
         <React.Fragment>
-          <div style={{ display: "flex", lineHeight: "5px" }}>
+          <div className="yody-modal-confirm-list-code">
             Bạn có chắc chắn xóa:
-            <div style={{ marginLeft: 10, fontWeight: 500 }}>
+            <div className="yody-modal-confirm-item-code">
               <p>{OrderDetail?.code}</p>
             </div>
           </div>

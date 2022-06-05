@@ -491,17 +491,9 @@ function OrderList(props: PropTypes) {
               icon: <ExclamationCircleOutlined />,
               content: (
                 <React.Fragment>
-                  <div
-                    style={{
-                      display: "flex",
-                      lineHeight: "5px",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      paddingTop: "7px",
-                    }}
-                  >
+                  <div className="yody-modal-confirm-list-code">
                     Bạn có chắc chắn xóa ({selectedRow.length}):
-                    <div style={{ marginLeft: 10, fontWeight: 500 }}>
+                    <div className="yody-modal-confirm-item-code">
                       {selectedRow.map((value) => (
                         <p>{value?.code}</p>
                       ))}

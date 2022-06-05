@@ -45,7 +45,7 @@ import {
   isOrderFromPOS, sortFulfillments
 } from "utils/AppUtils";
 import {
-  COD, COLUMN_CONFIG_TYPE, DELIVERY_SERVICE_PROVIDER_CODE, FACEBOOK,
+  COD, COLUMN_CONFIG_TYPE, FACEBOOK,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
@@ -54,8 +54,9 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, textLinkColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
+import { getLink } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
@@ -383,19 +384,6 @@ function OrdersTable(props: PropTypes) {
     return html
   };
 
-  const getLink = (providerCode: string, trackingCode: string) => {
-    switch (providerCode) {
-      case DELIVERY_SERVICE_PROVIDER_CODE.ghn:
-        return `https://donhang.ghn.vn/?order_code=${trackingCode}`
-      case DELIVERY_SERVICE_PROVIDER_CODE.ghtk:
-        return `https://i.ghtk.vn/${trackingCode}`
-      case DELIVERY_SERVICE_PROVIDER_CODE.vtp:
-        return `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don/`
-      default:
-        break;
-    }
-  };
-
   const renderTrackingCode = (shipment: ShipmentResponse) => {
     const trackingCode = shipment?.tracking_code;
     if (!trackingCode) {
@@ -545,10 +533,10 @@ function OrdersTable(props: PropTypes) {
           return (
             <React.Fragment>
               <div className="noWrap">
-                <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }}>
+                <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }} title="Chi tiết đơn">
                   {value}
                 </Link>
-                <Tooltip title="Click để copy">
+                <span title="Click để copy">
                   <img
                     onClick={(e) => {
                       copyTextToClipboard(e, i.code.toString())
@@ -558,47 +546,52 @@ function OrdersTable(props: PropTypes) {
                     alt=""
                     style={{ width: 18, cursor: "pointer" }}
                   />
-                </Tooltip>
+                </span>
               </div>
-              <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
+              <div className="textSmall" title="Ngày tạo đơn">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
               <div className="textSmall">
-                <Tooltip title="Cửa hàng">
-                  <Link to={`${UrlConfig.STORE}/${i?.store_id}`}>
-                    {i.store}
-                  </Link>
-                </Tooltip>
+                <Link to={`${UrlConfig.STORE}/${i?.store_id}`} title="Cửa hàng">
+                  {i.store}
+                </Link>
               </div>
               {orderType === ORDER_TYPES.offline ? null : (
-                <div className="textSmall single">
-                  <Tooltip title="Nguồn">{i.source}</Tooltip>
+                <div className="textSmall single" title="Nguồn">
+                  {i.source}
                 </div>
               )}
               { orderType === ORDER_TYPES.offline ? (
                 <React.Fragment>
                   <div className="textSmall single mainColor">
-                    <Tooltip title="Chuyên gia tư vấn">
-                      <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
-                        <strong>CGTV: </strong>{i.assignee_code} - {i.assignee}
-                      </Link>
-                    </Tooltip>
+                    <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`} title="Chuyên gia tư vấn">
+                      <strong>CGTV: </strong>{i.assignee_code} - {i.assignee}
+                    </Link>
                   </div>
                   <div className="textSmall single mainColor">
-                    <Tooltip title="Thu ngân">
-                      <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
-                        <strong>Thu ngân: </strong>{i.account_code} - {i.account}
-                      </Link>
-                    </Tooltip>
+                    <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
+                      <strong>Thu ngân: </strong>{i.account_code} - {i.account}
+                    </Link>
                   </div>
                 </React.Fragment>
               ) :null}
               { orderType === ORDER_TYPES.online && i.source && (
-                <div className="textSmall single mainColor">
-                  <Tooltip title="Nhân viên bán hàng">
+                <React.Fragment>
+                  <div className="textSmall single mainColor">
                     <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
                       <strong>NV bán hàng: </strong>{i.assignee_code} - {i.assignee}
                     </Link>
-                  </Tooltip>
-                </div>
+                  </div>
+                  <div className="textSmall single mainColor">
+                    {i.marketer_code ? (
+                        <Link to={`${UrlConfig.ACCOUNTS}/${i.marketer_code}`}>
+                          <strong>NV marketing: </strong>{i.marketer_code} - {i.marketer}
+                        </Link>
+                    ) : (
+                      <React.Fragment>
+                        <strong>NV marketing: </strong>-
+                      </React.Fragment>
+                    )}
+                  </div>
+                </React.Fragment>
               )}
               <div className="textSmall single">
                 <strong>Tổng SP: {getTotalQuantity(i.items)}</strong>
@@ -627,7 +620,7 @@ function OrdersTable(props: PropTypes) {
                   }
                   }>
                   {record.customer_phone_number}
-                  <Tooltip title="Click để copy">
+                  <span title="Click để copy">
                     <img
                       onClick={(e) => {
                         copyTextToClipboard(e, (record?.customer_phone_number || "").toString())
@@ -637,7 +630,7 @@ function OrdersTable(props: PropTypes) {
                       alt=""
                       style={{ width: 18, cursor: "pointer" }}
                     />
-                  </Tooltip>
+                  </span>
 
                 </div>
                 <Popover placement="bottomLeft" content={
@@ -702,6 +695,7 @@ function OrdersTable(props: PropTypes) {
               <Link
                 target="_blank"
                 to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+                title="Chi tiết khách hàng"
                 className="primary">
                 {record.customer}
               </Link>{" "}
@@ -1477,7 +1471,7 @@ function OrdersTable(props: PropTypes) {
           <div className="actionButton">
             <Link
               to={`${UrlConfig.WARRANTY}/create?orderID=${record.id}`}
-              title="Bảo hành"
+              title="Tạo bảo hành"
               target = "_blank"
             >
               <img alt="" src={iconWarranty} className="iconReturn" style={{ filter: 'brightness(0.5)' }}/>
