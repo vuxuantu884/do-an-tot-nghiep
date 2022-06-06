@@ -286,12 +286,13 @@ function PrintingStamp() {
                 prevValues[FormFiledStampPrinting.variants] !== curValues[FormFiledStampPrinting.variants]
               }>
               {({ getFieldValue }) => {
-                const productList: ProductStampPrinting[] = getFieldValue(FormFiledStampPrinting.variants) || [];
+                const variantList: ProductStampPrinting[] = getFieldValue(FormFiledStampPrinting.variants) || [];
                 return <Table
                   className='margin-top-20'
                   bordered
+                  
                   scroll={{ x: "max-content" }}
-                  dataSource={productList}
+                  dataSource={variantList}
                   columns={[
                     {
                       title: 'STT',
@@ -347,7 +348,7 @@ function PrintingStamp() {
                       }
                     }
                   ]}
-                  rowKey="product_id"
+                  rowKey="id"
                   pagination={false}
                 />
               }}
