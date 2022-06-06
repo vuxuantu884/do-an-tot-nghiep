@@ -305,7 +305,7 @@ function OrderCreateProduct(props: PropTypes) {
 				findProductInput?.focus()
 				break;
 			case "F12":
-				if(levelOrder <= 3){
+				if (levelOrder <= 3) {
 					form.setFieldsValue({
 						automatic_discount: !isAutomaticDiscount
 					})
@@ -317,7 +317,7 @@ function OrderCreateProduct(props: PropTypes) {
 						showSuccess("Bật chiết khấu tự động thành công!")
 					}
 				}
-				
+
 				break;
 			default:
 				break;
@@ -387,7 +387,7 @@ function OrderCreateProduct(props: PropTypes) {
 				if (event.key !== "Enter") barcode = barcode + event.key;
 
 				if (event.key === "Enter") {
-					onClearVariant();
+					onClearVariantSearch();
 					isBarcode = true;
 					if (barcode !== "" && event && items) {
 						handleSearchBarcode(barcode, items);
@@ -417,7 +417,7 @@ function OrderCreateProduct(props: PropTypes) {
 
 	useEffect(() => {
 		window.addEventListener("keypress", eventKeyPress);
-		window.addEventListener("keydown",eventKeydown);
+		window.addEventListener("keydown", eventKeydown);
 		window.addEventListener("keydown", handlePressKeyBoards);
 		return () => {
 			window.removeEventListener("keypress", eventKeyPress);
@@ -528,8 +528,6 @@ function OrderCreateProduct(props: PropTypes) {
 			setItems(_items);
 		}
 	};
-
-	console.log('items', items)
 
 	const handleDelayCalculateWhenChangeOrderInput = (
 		inputRef: React.MutableRefObject<any>,
@@ -809,7 +807,7 @@ function OrderCreateProduct(props: PropTypes) {
 					<NumberInput
 						// format={(a: string) => formatCurrency(a)}
 						format={(a: string) => {
-							if(a && a !=="0") {
+							if (a && a !== "0") {
 								return formatCurrency(a)
 							} else {
 								return formatCurrency(1)
@@ -1156,8 +1154,8 @@ function OrderCreateProduct(props: PropTypes) {
 	// };
 
 	/**
-  * nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
-  */
+	* nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
+	*/
 	const checkIfReplaceDiscountLineItem = (item: OrderLineItemRequest, newDiscountValue: number) => {
 		if (item.discount_items[0] && !item.discount_items[0].promotion_id) {
 			return false;
@@ -1197,6 +1195,7 @@ function OrderCreateProduct(props: PropTypes) {
 			rate = Math.min(rate, 100);
 
 			const discountItem: OrderItemDiscountRequest = {
+				..._item.discount_items[0],
 				rate,
 				value,
 				amount: value * item.quantity,
@@ -1654,6 +1653,7 @@ function OrderCreateProduct(props: PropTypes) {
 												let discount_rate = (discount_value * 100) / singleItem.price;
 												singleItem.discount_items = [
 													{
+														...singleItem.discount_items[0],
 														amount: singleItem.quantity * discount_value,
 														value: discount_value,
 														rate: discount_rate
@@ -1709,8 +1709,8 @@ function OrderCreateProduct(props: PropTypes) {
 	};
 
 	const onSearchVariantSelect = useCallback(
-		 (v, o) => {
-			const selectProduct=()=>{
+		(v, o) => {
+			const selectProduct = () => {
 				if (isBarcode === true) return;
 				if (!items) {
 					return;
@@ -1750,7 +1750,7 @@ function OrderCreateProduct(props: PropTypes) {
 				}
 				autoCompleteRef.current?.blur();
 				setIsInputSearchProductFocus(false);
-				onClearVariant();
+				onClearVariantSearch();
 			}
 			handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
 				selectProduct()
@@ -1824,7 +1824,7 @@ function OrderCreateProduct(props: PropTypes) {
 					}
 				}
 				else {
-					onClearVariant();
+					onClearVariantSearch();
 					setSearchProducts(false);
 				}
 
@@ -1967,13 +1967,13 @@ function OrderCreateProduct(props: PropTypes) {
 				let totalOrderAmount = totalAmount(_items);
 				if (discountType === MoneyType.MONEY) {
 					_value = promotion?.value || 0;
-					if(_value > totalOrderAmount) {
+					if (_value > totalOrderAmount) {
 						_value = totalOrderAmount;
 					}
 					_rate = (_value / totalOrderAmount) * 100;
 				} else if (discountType === MoneyType.PERCENT) {
 					_rate = promotion?.rate || 0;
-					if(_rate > 100) {
+					if (_rate > 100) {
 						_rate = 100;
 					}
 					_value = (_rate * totalOrderAmount) / 100;
@@ -2190,7 +2190,7 @@ function OrderCreateProduct(props: PropTypes) {
 	// 	);
 	// };
 
-	const onClearVariant = () => {
+	const onClearVariantSearch = () => {
 		setKeySearchVariant("");
 		setResultSearchVariant({
 			metadata: {
@@ -2202,33 +2202,22 @@ function OrderCreateProduct(props: PropTypes) {
 		});
 	}
 
-	const onChangeStore=useCallback((value:number)=>{
+	const onChangeStore = useCallback((value: number) => {
 		setStoreId(value);
 		setIsShowProductSearch(true);
-		onClearVariant();
-		if(items && inventoryResponse)
-		{
-			let inventoryInStore = inventoryResponse?.filter(p=>p.store_id===value);
-			let itemCopy=[...items];
-			console.log("item",items)
-			console.log("inventoryInStore",inventoryInStore)
-			if(inventoryInStore && inventoryInStore.length>0)
-			{
-				inventoryInStore?.forEach((data)=>{
-					let index=itemCopy.findIndex((p)=>p.variant_id===data.variant_id);
-					if(index!==-1) itemCopy[index].available=data?.available;
-				})
-			}
-			else{
-				items.forEach(p=>{
-					let index=itemCopy.findIndex((p1)=>p1.variant_id===p.variant_id);
-					itemCopy[index].available=0;
-				})
-			}
-			
+		onClearVariantSearch();
+		if (items && inventoryResponse) {
+			let inventoryInStore = inventoryResponse?.filter(p => p.store_id === value);
+			let itemCopy = [...items].map(item => {
+				const itemInStore = inventoryInStore?.find(i => i.variant_id === item.variant_id)
+				return {
+					...item,
+					available: itemInStore ? itemInStore.available : 0
+				}
+			});
 			setItems(itemCopy)
 		}
-	},[inventoryResponse, items, setItems, setStoreId])
+	}, [inventoryResponse, items, setItems, setStoreId])
 
 	useEffect(() => {
 		if (items && items.length > 0) {
@@ -2240,15 +2229,15 @@ function OrderCreateProduct(props: PropTypes) {
 	 * gọi lại api chiết khấu khi update cửa hàng, khách hàng, nguồn, số lượng item
 	 */
 	useEffect(() => {
-		if (isShouldUpdateDiscountRef.current)
-			if (
-				isShouldUpdateDiscountRef.current &&
-				isAutomaticDiscount &&
-				items &&
-				items?.length > 0
-			) {
-				handleApplyDiscount(items);
-			} else isShouldUpdateDiscountRef.current = true;
+		if (
+			isShouldUpdateDiscountRef.current &&
+			isAutomaticDiscount &&
+			items &&
+			items?.length > 0
+		) {
+			handleApplyDiscount(items);
+			console.log("items items", items)
+		} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
 
@@ -2365,9 +2354,6 @@ function OrderCreateProduct(props: PropTypes) {
 								notFoundContent="Không tìm thấy kết quả"
 								onChange={(value?: number) => {
 									if (value) {
-										// setStoreId(value);
-										// setIsShowProductSearch(true);
-										// onClearVariant();
 										onChangeStore(value)
 									} else {
 										setIsShowProductSearch(false);
