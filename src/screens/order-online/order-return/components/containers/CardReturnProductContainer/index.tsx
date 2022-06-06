@@ -268,7 +268,8 @@ function CardReturnProductContainer(props: PropTypes) {
     }
     let resultListReturnProducts = [...listReturnProducts];
     resultListReturnProducts[index].quantity = Number(
-      value === null ? "0" : value.toString().replace(".", "")
+      // value === null ? "0" : value.toString().replace(".", "")
+      value ? value : 0
     );
     if (value) {
       resultListReturnProducts[index].amount = resultListReturnProducts[index].price * value;

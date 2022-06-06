@@ -154,7 +154,6 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [isOrderFinished, setIsOrderFinished] = useState(false);
   const [isExchange, setIsExchange] = useState(false);
   const [isFetchData, setIsFetchData] = useState(false);
-  const [isStepExchange, setIsStepExchange] = useState(false); // đang bị thừa
   const [itemGifts, setItemGift] = useState<Array<OrderLineItemRequest>>([]);
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
   const history = useHistory();
@@ -494,23 +493,22 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
   };
 
-  const handleRecalculateOriginDiscount = useCallback(
-    (itemsResult: any) => {
-      return (
-        OrderDetail?.discounts?.map((singleDiscount) => {
-          let value = Math.round(
-            ((singleDiscount?.rate || 0) / 100) * getTotalAmountAfterDiscount(itemsResult)
-          );
-          return {
-            ...singleDiscount,
-            value: value,
-            amount: value,
-          };
-        }) || null
-      );
-    },
-    [OrderDetail?.discounts]
-  );
+  // ko dùng useCallback trường hợp tính sai do máy cấu hình yếu: test
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const handleRecalculateOriginDiscount = (itemsResult: any) => {
+    return (
+      OrderDetail?.discounts?.map((singleDiscount) => {
+        let value = Math.round(
+          ((singleDiscount?.rate || 0) / 100) * getTotalAmountAfterDiscount(itemsResult)
+        );
+        return {
+          ...singleDiscount,
+          value: value,
+          amount: value,
+        };
+      }) || null
+    );
+  };
 
   const handlePrintOrderReturnOrExchange = useCallback(
     (orderId: number, printType: string) => {
@@ -2217,7 +2215,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         source_id: undefined,
       });
     }
-  }, [OrderDetail, OrderDetail?.source_id, form, isStepExchange, shipmentMethod]);
+  }, [OrderDetail, OrderDetail?.source_id, form, shipmentMethod]);
 
   useEffect(() => {
     if (listExchangeProducts && listExchangeProducts != null && listExchangeProducts?.length > 0) {
