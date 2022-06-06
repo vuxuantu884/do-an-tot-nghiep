@@ -111,7 +111,7 @@ const ListProductScreen: React.FC = () => {
         isShow: canReadHistories,
       },
       {
-        name: "Lịch sử tem",
+        name: "Lịch sử in tem",
         key: ProductTabUrl.STAMP_PRINTING_HISTORY,
         component: <TabHistoryInTem onTogglePickManyModal={onTogglePickManyModal} visiblePickManyModal={visiblePickManyModal} />,
         isShow: canReadHistories,
