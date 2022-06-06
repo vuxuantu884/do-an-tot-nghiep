@@ -1334,6 +1334,7 @@ const ProductCreateScreen: React.FC = () => {
                                   }
                                   placeholder="VD: 100,000"
                                   onChange={onChangeImportPrice}
+                                  disabled
                                 />
                               </Item>
                             </Col>
@@ -1356,7 +1357,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
-                                  disabled={true}
+                                  disabled
                                   maxLength={15}
                                   format={(a: string) => formatCurrencyForProduct(a)}
                                   replace={(a: string) =>
