@@ -1107,8 +1107,8 @@ const EcommerceOrders: React.FC = () => {
   const handleReportPreparationShopeeProductModal = () => {
     const shopIds : any[] = [];
     selectedRow.length && selectedRow.map(
-      item => (item.ecommerce_shop_id !== null && shopIds.includes(item.ecommerce_shop_id))
-      ? "" : shopIds.push(item.ecommerce_shop_id)
+      (item: any) => (item?.ecommerce_shop_id !== null && shopIds.includes(item?.ecommerce_shop_id))
+      ? "" : shopIds.push(item?.ecommerce_shop_id?.toString())
     );
 
 
@@ -1174,7 +1174,7 @@ const EcommerceOrders: React.FC = () => {
         dispatch(
           getAddressByShopIdAction(
           {
-            shop_ids: params.ecommerce_shop_ids,
+            shop_ids: params?.ecommerce_shop_ids?.toString(),
           },
           handleGetAddressByShopId
           )
@@ -1357,7 +1357,7 @@ const EcommerceOrders: React.FC = () => {
         if (orderMatched) {
           const orderRequest: EcommerceOrderList = {
             "order_sn": orderMatched.reference_code,
-            "shop_id": orderMatched.ecommerce_shop_id
+            "shop_id": orderMatched.ecommerce_shop_id.toString()
           };
           order_list.push(orderRequest)
         }
@@ -1429,7 +1429,7 @@ const EcommerceOrders: React.FC = () => {
             "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
             "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
             "ecommerce_id": getEcommerceIdByChannelId(orderMatched.channel_id),
-            "shop_id": orderMatched.ecommerce_shop_id
+            "shop_id": orderMatched.ecommerce_shop_id.toString()
           }
           order_list.push(orderRequest)
         }

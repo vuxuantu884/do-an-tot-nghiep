@@ -29,9 +29,10 @@ const LogisticConfirmModal: React.FC<LogisticConfirmModalProps> = (
   const [pickupTime, setPickupTime] = useState<Number | null>(null);
 
   const handleConfirmToEcommerce = () => {
+    const convertShopId: any = OrderDetail?.ecommerce_shop_id
     const request = {
       order_sn: OrderDetail?.reference_code,
-      shop_id: OrderDetail?.ecommerce_shop_id,
+      shop_id: convertShopId?.toString(),
       pickup: {
         address_id: addressSelected,
         pickup_time_id: pickupTime && pickupTime.toString()

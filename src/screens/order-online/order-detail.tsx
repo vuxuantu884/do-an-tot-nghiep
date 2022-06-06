@@ -392,9 +392,10 @@ const OrderDetail = (props: PropType) => {
 
   const handleEcommerceStoreAddress = useCallback(() => {
     if (OrderDetail) {
+      const convertShopId: any = OrderDetail?.ecommerce_shop_id
       const ecommerceAddressQuery: EcommerceAddressQuery = {
         order_sn: OrderDetail.reference_code,
-        shop_id: OrderDetail.ecommerce_shop_id,
+        shop_id: convertShopId?.toString(),
       }
       dispatch(getEcommerceStoreAddress(ecommerceAddressQuery, ecommerceStoreAddressCallback));
     }
@@ -408,9 +409,10 @@ const OrderDetail = (props: PropType) => {
     };
     let order_list: Array<EcommerceOrderList> = [];
     if (OrderDetail && OrderDetail.reference_code && OrderDetail.ecommerce_shop_id) {
+      const convertShopId: any = OrderDetail?.ecommerce_shop_id
       const orderRequest: EcommerceOrderList = {
         order_sn: OrderDetail.reference_code,
-        shop_id: OrderDetail.ecommerce_shop_id
+        shop_id: convertShopId?.toString(),
       };
       order_list.push(orderRequest);
     }
