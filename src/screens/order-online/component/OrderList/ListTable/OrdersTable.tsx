@@ -62,22 +62,24 @@ import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../EditOrderNote";
 import TrackingLog from "../../TrackingLog/TrackingLog";
-import IconPaymentBank from "./images/chuyen-khoan.svg";
-import IconPaymentCod from "./images/cod.svg";
+import InventoryTable from "./InventoryTable";
+import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
 import IconTrackingCode from "./images/iconTrackingCode.svg";
 import iconWeight from "./images/iconWeight.svg";
-import IconPaymentCard from "./images/paymentCard.svg";
-import IconPaymentPoint from "./images/paymentPoint.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
-import IconPaymentReturn from "./images/tien-hoan.svg";
-import IconPaymentCash from "./images/tien-mat.svg";
-import InventoryTable from "./InventoryTable";
-// import IconWebsite from "./images/website.svg";
-import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
+import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
+import IconPaymentQRCode from "assets/icon/payment/qr.svg";
+import IconPaymentSwipeCard from "assets/icon/payment/quet-the.svg";
+import IconPaymentCod from "assets/icon/payment/cod.svg";
+import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
+import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
+import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
+import IconPaymentMOMO from "assets/icon/payment/momo.svg";
+import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -159,12 +161,12 @@ function OrdersTable(props: PropTypes) {
     },
     {
       payment_method_code: PaymentMethodCode.QR_CODE,
-      icon: IconPaymentBank,
+      icon: IconPaymentQRCode,
       tooltip: "Mã QR",
     },
     {
       payment_method_code: PaymentMethodCode.CARD,
-      icon: IconPaymentCard,
+      icon: IconPaymentSwipeCard,
       tooltip: "Đã quẹt thẻ",
     },
     {
@@ -187,6 +189,16 @@ function OrdersTable(props: PropTypes) {
       icon: IconPaymentPoint,
       tooltip: "Tiêu điểm",
     },
+    {
+      payment_method_code: PaymentMethodCode.MOMO,
+      icon: IconPaymentMOMO,
+      Tooltip:"MOMO"
+    },
+    {
+      payment_method_code: PaymentMethodCode.VN_PAY,
+      icon: IconPaymentVNPay,
+      Tooltip:"VNPay"
+    }
   ];
 
   // ảnh hiển thị
@@ -282,6 +294,7 @@ function OrdersTable(props: PropTypes) {
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
+    
     let html = null;
     html = orderDetail.payments.map((payment) => {
       let selectedPayment = paymentIcons.find(
@@ -295,6 +308,7 @@ function OrdersTable(props: PropTypes) {
           }
         }
       );
+      
       return (
         <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={payment.id}>
           <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
