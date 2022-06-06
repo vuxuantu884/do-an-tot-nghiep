@@ -4,7 +4,7 @@ import {
   LoadingOutlined, SettingOutlined,
   SwapRightOutlined
 } from "@ant-design/icons";
-import { AutoComplete, Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Tag } from "antd";
+import { AutoComplete, Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Switch, Tag } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
 import search from "assets/img/search.svg";
@@ -137,6 +137,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
+  const [visibleUTM, setVisibleUTM]= useState<boolean>(false);
   // const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
   const loadingFilter = useMemo(() => {
     return !!isLoading;
@@ -369,6 +370,39 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     [onMenuClick]
   );
 
+  // const isValueUTMExist = useMemo(() => {
+  //   if (
+  //     params.utm_source ||
+  //     params.utm_medium ||
+  //     params.utm_content ||
+  //     params.utm_term ||
+  //     params.utm_id ||
+  //     params.utm_campaign ||
+  //     params.affiliate
+  //   ) {
+  //     return true;
+  //   }
+  //   return false;
+  // }, [params.affiliate, params.utm_campaign, params.utm_content, params.utm_id, params.utm_medium, params.utm_source, params.utm_term]);
+
+  useEffect(()=>{
+    if (
+      params.utm_source ||
+      params.utm_medium ||
+      params.utm_content ||
+      params.utm_term ||
+      params.utm_id ||
+      params.utm_campaign ||
+      params.affiliate
+    ) {
+      setVisibleUTM(true);
+    }
+    else{
+      setVisibleUTM(false);
+    }
+    console.log("ok")
+  },[params.affiliate, params.utm_campaign, params.utm_content, params.utm_id, params.utm_medium, params.utm_source, params.utm_term, visible])
+
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
@@ -494,6 +528,27 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "discount_codes":
           onFilter && onFilter({ ...params, discount_codes: [] });
           break;
+        case "utm_source":
+          onFilter && onFilter({ ...params, utm_source: null });
+          break;
+        case "utm_medium":
+          onFilter && onFilter({ ...params, utm_medium: null });
+          break;
+        case "utm_content":
+          onFilter && onFilter({ ...params, utm_content: null });
+          break;
+        case "utm_term":
+          onFilter && onFilter({ ...params, utm_term: null });
+          break;
+        case "utm_id":
+          onFilter && onFilter({ ...params, utm_id: null });
+          break;
+        case "utm_campaign":
+          onFilter && onFilter({ ...params, utm_campaign: null });
+          break;
+        case "affiliate":
+          onFilter && onFilter({ ...params, affiliate: null });
+          break;
         default:
           break;
       }
@@ -586,6 +641,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       discount_codes:textDiscount,
     };
   }, [params]);
+
+  console.log("initialValues",initialValues)
 
   const [filterTagFormatted, setFilterTagFormatted] = useState<any>(null);
   useEffect(() => {
@@ -1267,22 +1324,69 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
 
     if (initialValues.discount_codes && initialValues.discount_codes.length > 0) {
-      // let textDiscount= "";
-      // initialValues.discount_codes.forEach((value,index)=>{
-      //   if((initialValues.discount_codes?.length||0 - 1) === index)
-      //     textDiscount=textDiscount+ value;
-      //   else 
-      //     textDiscount=textDiscount + `${value}, ` ;
-      // })
-
       list.push({
         key: "discount_codes",
         name: "Mã giảm giá",
         value:  <React.Fragment>{initialValues.discount_codes}</React.Fragment>
       })
     }
+
+    /**
+     * webApp
+     */
+    if(initialValues.utm_source && initialValues.utm_source.length!==0){
+      list.push({
+        key:"utm_source",
+        name:"UTM_Source",
+        value: <React.Fragment>{initialValues.utm_source}</React.Fragment>,
+      })
+    }
+
+    if(initialValues.utm_medium && initialValues.utm_medium.length!==0){
+      list.push({
+        key:"utm_medium",
+        name:"UTM_Medium",
+        value: <React.Fragment>{initialValues.utm_medium}</React.Fragment>,
+      })
+    }
+    if(initialValues.utm_content && initialValues.utm_content.length!==0){
+      list.push({
+        key:"utm_content",
+        name:"UTM_content",
+        value: <React.Fragment>{initialValues.utm_content}</React.Fragment>,
+      })
+    }
+    if(initialValues.utm_term && initialValues.utm_term.length!==0){
+      list.push({
+        key:"utm_term",
+        name:"UTM_term",
+        value: <React.Fragment>{initialValues.utm_term}</React.Fragment>,
+      })
+    }
+    if(initialValues.utm_id && initialValues.utm_id.length!==0){
+      list.push({
+        key:"utm_id",
+        name:"UTM_id",
+        value: <React.Fragment>{initialValues.utm_id}</React.Fragment>,
+      })
+    }
+    if(initialValues.utm_campaign && initialValues.utm_campaign.length!==0){
+      list.push({
+        key:"utm_campaign",
+        name:"UTM_campagin",
+        value: <React.Fragment>{initialValues.utm_campaign}</React.Fragment>,
+      })
+    }
+    if(initialValues.affiliate && initialValues.affiliate.length!==0){
+      list.push({
+        key:"affiliate",
+        name:"Affiate code",
+        value: <React.Fragment>{initialValues.affiliate}</React.Fragment>,
+      })
+    }
+
     return list;
-  }, [initialValues?.discount_codes, filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initialValues.discount_codes, initialValues.utm_source, initialValues.utm_medium, initialValues.utm_content, initialValues.utm_term, initialValues.utm_id, initialValues.utm_campaign, initialValues.affiliate, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1911,7 +2015,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     formRef={formRef}
                   />
                 </Col>
-
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Ngày đang hoàn</label>
@@ -1938,7 +2041,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     formRef={formRef}
                   />
                 </Col>
-
                 <Col span={8} xxl={8}>
                   <Item name="fulfillment_status" label="Trạng thái giao hàng">
                     <CustomSelect
@@ -1997,7 +2099,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-
                 <Col span={8} xxl={8}>
                   <Item name="shipper_codes" label="Đối tác giao hàng">
                     <CustomSelect
@@ -2025,7 +2126,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     <Input placeholder="Tìm kiếm theo mã tham chiếu" />
                   </Item>
                 </Col>
-
                 <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Tổng tiền</label>
@@ -2057,7 +2157,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     </Item>
                   </div>
                 </Col>
-
                 <Col span={8} xxl={8}>
                   <Item label="Đơn tự giao hàng">
                     <div className="button-option-1">
@@ -2072,7 +2171,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     </div>
                   </Item>
                 </Col>
-
                 <Col span={8} xxl={8}>
                   <Item name="channel_codes" label="Kênh bán hàng">
                     <CustomSelect
@@ -2111,18 +2209,65 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 <Col span={8} xxl={8}>
                   <Item name="discount_codes" label="Mã giảm giá">
                     <Input placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)" style={{ width: "100%" }} />
-                    {/* <CustomSelect
-                      mode="tags"
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      allowClear
-                      placeholder="Điền 1 hoặc nhiều tag"
-                      style={{ width: "100%" }}
-                    /> */}
                   </Item>
                 </Col>
               </Row>
+              {orderType===ORDER_TYPES.online &&(
+                <React.Fragment>
+                  <Row style={{display:"flex", alignItems:"center", marginBottom:"24px"}}>
+                      <Switch 
+                        size="small"
+                        onChange={(value)=>{
+                          setVisibleUTM(value)
+                        }}
+                        checked={visibleUTM}
+                      />
+                      <span style={{paddingLeft:"10px", fontWeight:500}}>Đơn hàng Web/App</span>
+                  </Row>
+                  {visibleUTM &&(
+                    <React.Fragment>
+                      <Row gutter={20}>
+                        <Col span={8} xxl={8}>
+                          <Item label="UTM_Source" name="utm_source">
+                            <Input placeholder="..." style={{width:"100%"}}/>
+                          </Item>
+                        </Col>
+                        <Col span={8} xxl={8}>
+                          <Item label="UTM_Medium" name="utm_medium">
+                            <Input placeholder="..." style={{width:"100%"}}/>
+                          </Item>
+                        </Col>
+                        <Col span={8} xxl={8}>
+                          <Item label="UTM_content" name="utm_content">
+                            <Input placeholder="..." style={{width:"100%"}}/>
+                          </Item>
+                        </Col>
+                        <Col span={8} xxl={8}>
+                          <Item label="UTM_term" name="utm_term">
+                            <Input placeholder="..." style={{width:"100%"}}/>
+                          </Item>
+                        </Col>
+                        <Col span={8} xxl={8}>
+                          <Item label="UTM_id" name="utm_id">
+                            <Input placeholder="..." style={{width:"100%"}}/>
+                          </Item>
+                        </Col>
+                        <Col span={8} xxl={8}>
+                          <Item label="UTM_campagin" name="utm_campaign">
+                            <Input placeholder="..." style={{width:"100%"}}/>
+                          </Item>
+                        </Col>
+                        <Col span={8} xxl={8}>
+                          <Item label="Affiate code" name="affiliate">
+                            <Input placeholder="..." style={{width:"100%"}}/>
+                          </Item>
+                        </Col>
+                      </Row>
+                    </React.Fragment>
+                  )}
+                </React.Fragment>
+              )}
+            
             </Form>
           )}
         </BaseFilter>
