@@ -606,7 +606,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         title: "Khách hàng",
         visible: true,
         fixed: "left",
-        width: 100,
+        width: 75,
         render: (item: any) => {
           return (
             <div>
@@ -621,7 +621,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         visible: true,
         fixed: "left",
         className: "custom-shadow-td",
-        width: 130,
+        width: 110,
         render: (item: any) => {
           return (
             <div>
@@ -816,7 +816,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "customer.amount_money",
         visible: true,
         align: "right",
-        width: 80,
+        width: 65,
         render: (record: any) => {
           const discountAmount = record.discounts && record.discounts[0]?.amount;
           return (
@@ -893,7 +893,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "payment_status",
         visible: true,
         align: "left",
-        width: 90,
+        width: 65,
         render: (data: any) => {
           return (
             <React.Fragment>
@@ -1005,7 +1005,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         key: "note",
         visible: true,
         align: "left",
-        width: 90,
+        width: 110,
         render: (data: any) => {
           const orderReturnReason = data.return_reason?.name || data.reason || "";    // cập nhật lại khi BE thay đổi theo SO
           return (
@@ -1447,7 +1447,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         bordered
         isLoading={tableLoading}
         showColumnSetting={true}
-        scroll={{ x: 1900 }}
+        scroll={{ x: 1550 }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
           pageSize: purchaseHistoryData.metadata?.limit,
