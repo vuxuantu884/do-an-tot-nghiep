@@ -127,15 +127,17 @@ const BarcodeProductScreen: React.FC = () => {
     },
     [data, dataSelected]
   );
+
   useEffect(() => {
     if (state && state.selected) {
       let dataSelect1: Array<VariantBarcodeLineItem> = []
-      state.selected.forEach((item: VariantResponse) => {
-        dataSelect1.push({ ...item, quantity_req: 1 });
+      state.selected.forEach((item: VariantBarcodeLineItem) => {
+        dataSelect1.push({ ...item, quantity_req: item?.quantity_req || 1 });
       });
       setDataSelected(dataSelect1);
     }
   }, [state]);
+
   return (
     <ContentContainer
       title="In mã vạch"
@@ -246,7 +248,6 @@ const BarcodeProductScreen: React.FC = () => {
                       <Button
                         onClick={() => {
                           dataSelected.splice(index, 1);
-                          history.replace(`${UrlConfig.PRODUCT}/barcode`, { selected: dataSelected });
                           setDataSelected([...dataSelected]);
                         }}
                         icon={<CloseOutlined />}

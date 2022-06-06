@@ -169,7 +169,7 @@ export interface VariantResponse extends BaseObject {
   on_way?: number,
   transferring?: number,
   shipping?: number,
-  reference_barcodes?: string | null
+  reference_barcodes?: string | null,
 }
 
 export interface VariantView extends BaseObject {
