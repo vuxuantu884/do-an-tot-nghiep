@@ -85,9 +85,9 @@ const TabProduct: React.FC<any> = (props) => {
   const listStatus = useSelector((state: RootReducerType) => {
     return state.bootstrapReducer.data?.variant_status;
   });
-  const userAccount = useSelector((state: RootReducerType) => {
-    return state.userReducer.account;
-  })
+  const currentPermissions: string[] = useSelector(
+    (state: RootReducerType) => state.permissionReducer.permissions
+  );
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [listCountry, setCountry] = useState<Array<CountryResponse>>();
@@ -289,9 +289,17 @@ const TabProduct: React.FC<any> = (props) => {
   );
 
   const ckeckPermissionReadCostPrice = (): boolean => {
-    if(userAccount){
-      const userProductsPermission = userAccount.permissions.modules.find((el) => el.code === 'products')
-      if(userProductsPermission && userProductsPermission.permissions.find((i) => i.code === 'read_cost')) return true
+    if(currentPermissions){
+      if(currentPermissions.find(e=>e === ProductPermission.read_cost)) return true
+      else return false
+    }else {
+      return false
+    }
+  }
+
+  const ckeckPermissionReadImportPrice = (): boolean => {
+    if(currentPermissions){
+      if(currentPermissions.find(e=>e === ProductPermission.read_import)) return true
       else return false
     }else {
       return false
@@ -357,6 +365,24 @@ const TabProduct: React.FC<any> = (props) => {
         if (prices !== null) {
 
           return formatCurrency(prices.cost_price);
+        }
+        return 0;
+      },
+    },
+    {
+      title: "Giá nhập",
+      dataIndex: "variant_prices",
+      align: "right",
+      visible: ckeckPermissionReadImportPrice(),
+      width: 110,
+      render: (value) => {
+        let prices: VariantPricesResponse | null = Products.findPrice(
+          value,
+          AppConfig.currency
+        );
+        if (prices !== null) {
+
+          return formatCurrency(prices.import_price);
         }
         return 0;
       },

@@ -31,6 +31,8 @@ export const ProductPermission = {
   sizes_read : `${products}_sizes_read`,
   read_cost: `${products}_read_cost`,
   update_cost: `${products}_update_cost`,
+  read_import: `${products}_read_import`,
+  update_import: `${products}_update_import`,
   collections_create : `${products}_collections_create`,
   collections_update : `${products}_collections_update`,
   collections_delete : `${products}_collections_delete`,

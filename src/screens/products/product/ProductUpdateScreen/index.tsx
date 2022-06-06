@@ -148,7 +148,7 @@ const ProductDetailScreen: React.FC = () => {
       items: [],
       metadata: { limit: 20, page: 1, total: 0 }
     }
-  );
+  );  
 
   const categoryFilter = useMemo(() => {
     if (data === null) {
@@ -163,6 +163,9 @@ const ProductDetailScreen: React.FC = () => {
   const [fieldList, setFieldList] = useState<Array<UploadFile>>([]);
   const [canUpdateCost] = useAuthorization({
     acceptPermissions: [ProductPermission.update_cost],
+  });
+  const [canUpdateImport] = useAuthorization({
+    acceptPermissions: [ProductPermission.update_import],
   });
   const setCurrentVariant = useCallback(
     (newActive: number) => {
@@ -1354,7 +1357,6 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                   </Row>
-                                  <AuthWrapper acceptPermissions={[ProductPermission.read_cost, ProductPermission.update_cost]}>
                                     <Form.List name={[name, "variant_prices"]}>
                                       {(fields, {add, remove}) => (
                                         <>
@@ -1432,6 +1434,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     />
                                                   </Item>
                                                 </Col>
+                                                <AuthWrapper acceptPermissions={[ProductPermission.read_import]}>
                                                 <Col md={4}>
                                                   <Item
                                                     name={[name, "import_price"]}
@@ -1456,11 +1459,14 @@ const ProductDetailScreen: React.FC = () => {
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
                                                       }
+                                                      disabled={!canUpdateImport}
                                                       placeholder="VD: 100,000"
                                                       maxLength={15}
                                                     />
                                                   </Item>
                                                 </Col>
+                                                </AuthWrapper>
+                                                <AuthWrapper acceptPermissions={[ProductPermission.read_cost]}>
                                                 <Col md={4}>
                                                   <Item
                                                     name={[name, "cost_price"]}
@@ -1493,6 +1499,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     />
                                                   </Item>
                                                 </Col>
+                                                </AuthWrapper>
                                                 <Col md={4}>
                                                   <Item
                                                     label="Thuế"
@@ -1542,7 +1549,6 @@ const ProductDetailScreen: React.FC = () => {
                                         </>
                                       )}
                                     </Form.List>
-                                  </AuthWrapper>
                                   <Row gutter={50}>
                                     <Col span={24} sm={12}>
                                     <Item name={[name, "color_id"]} label="Màu sắc">
