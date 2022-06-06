@@ -118,6 +118,8 @@ export const StyledComponent = styled.div`
           }
           .variant-price {
             margin-left: 10px;
+            position: absolute;
+            right: 0;
           }
           .sku {
             font-weight: 500;
@@ -126,11 +128,14 @@ export const StyledComponent = styled.div`
           .variant-name {
             white-space: nowrap;
             width: 90%;
-            max-width: 250px;
             overflow: hidden;
+            max-width: 250px;
             text-overflow: ellipsis;
             font-size: 12px;
             opacity: 0.8;
+          }
+          .variant-sku{
+            display: flex;
           }
         }
       }

@@ -152,20 +152,23 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                     <div className="info">
                       {item.id ? (
                         <div>
-                          <div className="sku text-truncate-1">{item.sku}</div>
-                          <div className="variant-name">{variantName}</div>
+                          <div className="variant-sku">
+                            <div className="sku text-truncate-1">{item.sku}</div>
+                            <div className="variant-price">
+                              {`${
+                              (item && item.variant_prices != null && item.variant_prices[0]?.retail_price)
+                                  ? formatCurrency(item.variant_prices[0].retail_price)
+                                  : "-"
+                              }`}
+                            </div>
+                          </div>
+                          
+                          <div className="variant-name" title={item.name}>{variantName}</div>
                         </div>
                       ) : (
                         <div className="item-new">Phiên bản mới</div>
                       )}
                     </div>
-                  </div>
-                  <div className="variant-price">
-                    {`${
-                     (item && item.variant_prices != null && item.variant_prices[0]?.retail_price)
-                        ? formatCurrency(item.variant_prices[0].retail_price)
-                        : "-"
-                    }`}
                   </div>
                 </div>
               </div>
