@@ -810,10 +810,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     getEcommerceShop(dataquery.ecommerce_id);
     if (dataquery.ecommerce_id === null) {
       removeEcommerce();
-    } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
+    } else if (dataquery.ecommerce_id in [1, 2, 3, 4, 5, 6]) {
       formAdvance.setFieldsValue({ ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id })
       if (dataquery.shop_ids !== null) {
-        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => +item) })
+        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => item.toString()) })
       }
 
     } else {
@@ -1239,7 +1239,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                     {ecommerceShopList?.map((shopItem: any) => (
                       <TreeSelect.TreeNode
                         key={shopItem.id}
-                        value={shopItem.id}
+                        value={shopItem.id.toString()}
                         title={
                           <span>
                             <img
