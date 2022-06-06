@@ -26,12 +26,6 @@ import iconShippingFeeInformedToCustomer
   from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeePay3PL.svg";
 import iconWeight from "screens/order-online/component/OrderList/ListTable/images/iconWeight.svg";
-import IconPaymentBank from "screens/order-online/component/OrderList/ListTable/images/chuyen-khoan.svg";
-import IconPaymentCard from "screens/order-online/component/OrderList/ListTable/images/paymentCard.svg";
-import IconPaymentCod from "screens/order-online/component/OrderList/ListTable/images/cod.svg";
-import IconPaymentReturn from "screens/order-online/component/OrderList/ListTable/images/tien-hoan.svg";
-import IconPaymentCash from "screens/order-online/component/OrderList/ListTable/images/tien-mat.svg";
-import IconPaymentPoint from "screens/order-online/component/OrderList/ListTable/images/paymentPoint.svg";
 import IconStore from "screens/order-online/component/OrderList/ListTable/images/store.svg";
 import {
   getCustomerOrderHistoryAction,
@@ -56,6 +50,16 @@ import { getReturnMoneyStatusText } from "utils/OrderUtils";
 import 'assets/css/order-status.scss'
 import TrackingLog from "screens/order-online/component/TrackingLog/TrackingLog";
 
+import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
+import IconPaymentQRCode from "assets/icon/payment/qr.svg";
+import IconPaymentSwipeCard from "assets/icon/payment/quet-the.svg";
+import IconPaymentCod from "assets/icon/payment/cod.svg";
+import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
+import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
+import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
+import IconPaymentMOMO from "assets/icon/payment/momo.svg";
+import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
+
 
 const PAYMENT_ICON = [
   {
@@ -65,18 +69,18 @@ const PAYMENT_ICON = [
   },
   {
     payment_method_code: PaymentMethodCode.QR_CODE,
-    icon: IconPaymentBank,
+    icon: IconPaymentQRCode,
     tooltip: "Mã QR",
   },
   {
     payment_method_code: PaymentMethodCode.CARD,
-    icon: IconPaymentCard,
+    icon: IconPaymentSwipeCard,
     tooltip: "Đã quẹt thẻ",
   },
   {
     payment_method_code: PaymentMethodCode.CASH,
     icon: IconPaymentCash,
-    tooltip: "Đã thanh toán tiền mặt",
+    tooltip: "Tiền khách đưa",
   },
   {
     payment_method_code: COD.code,
@@ -93,6 +97,16 @@ const PAYMENT_ICON = [
     icon: IconPaymentPoint,
     tooltip: "Tiêu điểm",
   },
+  {
+    payment_method_code: PaymentMethodCode.MOMO,
+    icon: IconPaymentMOMO,
+    Tooltip:"MOMO"
+  },
+  {
+    payment_method_code: PaymentMethodCode.VN_PAY,
+    icon: IconPaymentVNPay,
+    Tooltip:"VNPay"
+  }
 ];
 
 type PurchaseHistoryProps = {
@@ -422,11 +436,13 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
           <Tooltip title="Tiền trả khách" placement="topLeft">
             <div style={{ fontWeight: 500 }}>
+              <img src={IconPaymentReturn} alt=""/>
               <NumberFormat
                 value={record.money_refund || 0}
                 className="foo"
                 displayType={"text"}
                 thousandSeparator={true}
+                style={{ paddingLeft: 5 }}
               />
             </div>
           </Tooltip>
