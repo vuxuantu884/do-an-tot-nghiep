@@ -275,7 +275,7 @@ export const getListSubStatusAction = (
 export const setSubStatusAction = (
   order_id: number,
   statusCode: string,
-  handleData: () => void,
+  handleData: (data:any) => void,
   handleError?: () => void,
   reason_id?: number,
   sub_reason_id?: number,

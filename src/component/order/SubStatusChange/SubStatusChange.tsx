@@ -1,5 +1,6 @@
 import ModalConfirm from "component/modal/ModalConfirm";
 import { setSubStatusAction } from "domain/actions/order/order.action";
+import { OrderResponse } from "model/response/order/order.response";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ORDER_SUB_STATUS, SUB_STATUS_CANCEL_CODE } from "utils/Order.constants";
@@ -13,11 +14,12 @@ type PropTypes = {
   subReasonRequireWarehouseChange?: number;
   changeSubStatusCallback: (value: string) => void;
   setToSubStatusCode: (value: string | undefined) => void;
+  setOrderDetail?:(data:OrderResponse)=>void;
 };
 
 let isConfirmedChangeSubStatus = false;
 function SubStatusChange(props: PropTypes): JSX.Element {
-  const { orderId, toSubStatus, changeSubStatusCallback, setToSubStatusCode, isEcommerceOrder, reasonId, subReasonRequireWarehouseChange } = props;
+  const { orderId, toSubStatus, changeSubStatusCallback, setToSubStatusCode, isEcommerceOrder, reasonId, subReasonRequireWarehouseChange, setOrderDetail } = props;
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [subText, setSubText] = useState("");
 
@@ -61,10 +63,11 @@ function SubStatusChange(props: PropTypes): JSX.Element {
           setSubStatusAction(
             orderId,
             toSubStatus,
-            () => {
+            (data) => {
               resetValues();
               changeSubStatusCallback(toSubStatus);
               setToSubStatusCode(undefined);
+              setOrderDetail && setOrderDetail(data)
             },
             () => {
               resetValues();
@@ -87,6 +90,7 @@ function SubStatusChange(props: PropTypes): JSX.Element {
     isEcommerceOrder,
     reasonId,
     subReasonRequireWarehouseChange,
+    setOrderDetail
   ]);
 
   useEffect(() => {
