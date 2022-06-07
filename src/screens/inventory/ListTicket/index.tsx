@@ -69,8 +69,6 @@ const InventoryListScreen: React.FC = () => {
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
-  console.log(userReducer)
-
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -78,8 +76,8 @@ const InventoryListScreen: React.FC = () => {
       }
       setAccounts(data.items);
 
-      if (queryParamsParsed.created_by || queryParamsParsed.updated_by) {
-        getAccounts(queryParamsParsed.created_by || queryParamsParsed.updated_by).then();
+      if (queryParamsParsed.created_by || queryParamsParsed.updated_by || queryParamsParsed.received_code) {
+        getAccounts(queryParamsParsed.created_by || queryParamsParsed.updated_by || queryParamsParsed.received_code).then();
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
