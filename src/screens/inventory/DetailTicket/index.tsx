@@ -43,7 +43,6 @@ import {
   SumWeightInventory,
   // SumWeightLineItems,
 } from "utils/AppUtils";
-import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryStep from "./components/InventoryTransferStep";
@@ -732,12 +731,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return <NumberFormat
-          value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+        return formatCurrency(value, ".")
       },
     },
     {
@@ -750,6 +744,9 @@ const DetailTicket: FC = () => {
       width: 70,
       align: "center",
       dataIndex: "transfer_quantity",
+      render: (value) => {
+        return formatCurrency(value, ".")
+      },
     },
     {
       title: <div>
@@ -787,12 +784,7 @@ const DetailTicket: FC = () => {
       render: (item, row: LineItem) => {
         const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
         if (totalDifference) {
-          return <NumberFormat
-            value={totalDifference}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          return formatCurrency(totalDifference, ".")
         }
         return 0;
       },
@@ -1181,7 +1173,6 @@ const DetailTicket: FC = () => {
                         columns={columnsTransfer}
                         dataSource={dataTable}
                         summary={() => {
-                          let totalQuantity = 0;
                           return (
                           <Table.Summary fixed>
                             <Table.Summary.Row>
@@ -1192,7 +1183,7 @@ const DetailTicket: FC = () => {
                               </Table.Summary.Cell>
 
                               <Table.Summary.Cell align={"center"} index={3} >
-                                <b>{totalQuantity}</b>
+                                <b>{formatCurrency(data.total_quantity, ".")}</b>
                               </Table.Summary.Cell>
 
                               <Table.Summary.Cell align={"center"} index={5}>
