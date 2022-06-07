@@ -156,6 +156,7 @@ const DetailTicket: FC = () => {
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
       setLoading(false);
+      setLoadingBtn(false);
       setIsDisableEditNote(false);
       if (!result) {
         setError(true);
@@ -467,6 +468,7 @@ const DetailTicket: FC = () => {
   );
 
   const updateNoteApi = (key: string) => {
+    setLoadingBtn(true);
     if (data && dataTable) {
       setIsDisableEditNote(true);
       data.line_items = dataTable;
@@ -850,7 +852,6 @@ const DetailTicket: FC = () => {
   }
 
   const onReload = useCallback(()=>{
-    setLoadingBtn(false);
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   },[dispatch,idNumber,onResult])
 
@@ -1212,7 +1213,7 @@ const DetailTicket: FC = () => {
                                 type="primary"
                                 className="ant-btn-primary"
                                 size="large"
-                                disabled={isLoadingBtn}
+                                loading={isLoadingBtn}
                                 onClick={receive}
                               >
                                 Nhận hàng
@@ -1305,6 +1306,7 @@ const DetailTicket: FC = () => {
                         <div className="button-save">
                           <Button
                             disabled={isDisableEditNote}
+                            loading={isLoadingBtn}
                             onClick={() => updateNoteApi(form.getFieldValue('note'))}
                             size="small"
                             type="primary"
@@ -1434,7 +1436,9 @@ const DetailTicket: FC = () => {
                         <Button
                           className="export-button"
                           type="primary"
+                          loading={isLoadingBtn}
                           onClick={() => {
+                            setLoadingBtn(true);
                             if(data) dispatch(exportInventoryAction(data?.id,
                               onReload
                             ));
