@@ -55,7 +55,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
             >
               Xuất file chi tiết
             </Button>)}
-            {/* <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
               <Button
                 type="primary"
                 className="ant-btn-primary"
@@ -65,7 +65,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
               >
                 Nhập kho bằng tải file
               </Button>
-            </AuthWrapper> */}
+            </AuthWrapper>
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
               <Button
                 type="primary"

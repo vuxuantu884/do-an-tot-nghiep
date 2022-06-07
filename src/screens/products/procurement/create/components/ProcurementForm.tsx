@@ -4,21 +4,17 @@ import { Store } from "antd/lib/form/interface";
 import Text from "antd/lib/typography/Text";
 import { UploadFile } from "antd/lib/upload/interface";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
-import { EnumImportStatus, EnumJobStatus } from "config/enum.config";
-import { HttpStatus } from "config/http-status.config";
+import { EnumImportStatus } from "config/enum.config";
 import UrlConfig from "config/url.config";
 import { uploadFileAction } from "domain/actions/core/import.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
-import { importProcumentAction } from "domain/actions/po/po-procument.action";
 import { debounce, isEmpty } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { SupplierResponse } from "model/core/supplier.model";
-import { ProcurementCreate } from "model/procurement";
 import { ProcurementField } from "model/procurement/field";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { ImportProcument } from "model/purchase-order/purchase-procument";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { VscError } from "react-icons/vsc";
@@ -27,44 +23,49 @@ import { Link } from "react-router-dom";
 import SupplierItem from "screens/purchase-order/component/supplier-item";
 import { getAccountDetail } from "service/accounts/account.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
-import { listPurchaseOrderApi } from "service/purchase-order/purchase-order.service";
-import { getJobImport } from "service/purchase-order/purchase-procument.service";
 import { callApiNative } from "utils/ApiUtils";
 import excelIcon from "assets/icon/icon-excel.svg";
+import { CON_STATUS_IMPORT } from "..";
 
 interface ProcurementFormProps {
 	formMain: FormInstance;
-	setDataResult: (data: ProcurementCreate) => void;
-	setListPO: (listPO: Array<PurchaseOrder>) => void;
+	listPO: Array<PurchaseOrder>;
+	setLinkFileImport: (file: string) => void;
+	linkFileImport?: string;
+	setStatusImport: (step: number) => void;
+	statusImport: number;
+	uploadStatus?: UploadStatus;
+	setUploadStatus: (status: UploadStatus) => void;
+	setErrorMessage: (err: string) => void;
+	errorMessage?: string;
+	showModal: boolean;
+	setShowModal: (modal: boolean) => void;
+	setFileList: (file: any) => void;
+	fileList: Array<UploadFile>;
 }
-
-export const CON_STATUS_IMPORT = {
-	DEFAULT: 1,
-	CHANGE_FILE: 2,
-	CREATE_JOB_SUCCESS: 3,
-	JOB_FINISH: 4,
-	ERROR: 5,
-};
 
 type UploadStatus = "ERROR" | "SUCCESS" | "DONE" | "PROCESSING" | "REMOVED" | undefined;
 
 const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormProps) => {
-	const { formMain, setDataResult, setListPO } = props
+	const { 
+		formMain,
+		listPO, 
+		setLinkFileImport, 
+		setStatusImport, 
+		statusImport,
+		uploadStatus,
+		setUploadStatus,
+		errorMessage,
+		setErrorMessage,
+		showModal,
+		setShowModal,
+		fileList,
+		setFileList
+	} = props
 	const [data, setData] = useState<Array<SupplierResponse>>([]);
-	const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(false);
 	const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
-	const [fileList, setFileList] = useState<Array<UploadFile>>([]);
 	const [listStore, setListStore] = useState<Array<Store>>([]);
 	const [accountStores, setAccountStores] = useState<Array<AccountStoreResponse>>([]);
-	const [statusImport, setStatusImport] = useState<number>(CON_STATUS_IMPORT.DEFAULT);
-	const [jobImportStatus, setJobImportStatus] = useState<EnumJobStatus>();
-	const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
-	const [lstJob, setLstJob] = useState<Array<string>>([]);
-	const [storeID, setStoreID] = useState<number | undefined>(undefined)
-	const [supplierID, setSupplierID] = useState<string | undefined>(undefined)
-	const [linkFileImport, setLinkFileImport] = useState<string>();
-	const [showModal, setShowModal] = useState<boolean>(false)
-	const [errorMessage, setErrorMessage] = useState<string>('')
 
 	const dispatch = useDispatch()
 
@@ -99,7 +100,6 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
       listStore.forEach((element) => {
         if (element.id === accountStores[0].store_id) {
 					formMain.setFieldsValue({ [ProcurementField.store_id]: element.id })
-					setStoreID(element.id)
         }
       });
     }
@@ -128,7 +128,6 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
       listStore.forEach((element) => {
         if (element.id === accountStores[0].store_id) {
 					formMain.setFieldsValue({ [ProcurementField.store_id]: element.id })
-					setStoreID(element.id)
         }
       });
     }
@@ -180,8 +179,6 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 			[ProcurementField.supplier]: null,
 			[ProcurementField.supplier_phone]: null,
 		});
-		setSupplierID(undefined)
-		setIsSelectSupplier(false);
 	};
 
 	const onSelect = (value: string) => {
@@ -193,100 +190,17 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 			[ProcurementField.supplier]: data[index].name,
 			[ProcurementField.supplier_phone]: supplier.phone,
 		});
-		setSupplierID(value)
-		setIsSelectSupplier(true);
 	};
 
 	const onChangeStore = useCallback((value: any) => {
 		formMain.setFieldsValue({ [ProcurementField.store_id]: value })
-		setStoreID(value)
 	}, [formMain])
 
 	const onChangeFile = useCallback((info: any) => {
 		if (info.file.status !== 'removed') {
 			setFileList([info.file]);
 		}
-	},[]);
-
-	const getPOItems = useCallback(async (purchaseOrderIDS: string) => {
-		const ids = purchaseOrderIDS.split(',').join('&ids=')
-		const listPoRes = await callApiNative({ isShowError: true }, dispatch, listPurchaseOrderApi, { ids })
-		if (listPoRes) {
-			setListPO(listPoRes)
-		} else {
-			setUploadStatus(EnumJobStatus.error);
-			setErrorMessage('Không tìm thấy đơn nào')
-		}
-	}, [dispatch, setListPO])
-
-	const checkImportFile = useCallback(() => {
-		let getFilePromises = lstJob.map((code) => {
-			return getJobImport(code);
-		});
-
-		Promise.all(getFilePromises).then((responses) => {
-			responses.forEach((response) => {
-				if (response.code === HttpStatus.SUCCESS) {
-
-					if (response.data && response.data.status === EnumJobStatus.finish) {
-						if (response.data.message[0].po_ids) {
-							getPOItems(response.data.message[0].po_ids)
-							setDataResult(response.data)
-							setUploadStatus(EnumJobStatus.success);
-						}else {
-							setUploadStatus(EnumJobStatus.error);
-							setErrorMessage('Không tìm thấy đơn nào')
-						}
-						if(response.data.error > 0) {
-							var downLoad = document.createElement("a");
-							downLoad.href = response.data.url;
-							downLoad.download = "download";
-							downLoad.click()
-							setErrorMessage('Sản phẩm lỗi được hiển thị trong file tải về')
-						}
-						setJobImportStatus(EnumJobStatus.finish);
-						setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
-						const fileCode = response.data.code;
-						const newListExportFile = lstJob.filter((item) => {
-							return item !== fileCode;
-						});
-
-						setLstJob(newListExportFile);
-						return
-					} else if (response.data && response.data.status === EnumJobStatus.error) {
-						setJobImportStatus(EnumJobStatus.error);
-						setUploadStatus(EnumJobStatus.error);
-						setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
-						const fileCode = response.data.code;
-						const newListExportFile = lstJob.filter((item) => {
-							return item !== fileCode;
-						});
-						setLstJob(newListExportFile);
-						return
-					}
-					setJobImportStatus(EnumJobStatus.processing);
-				}
-			});
-		});
-	}, [getPOItems, lstJob, setDataResult]);
-
-	useEffect(() => {
-		if (lstJob.length === 0 || jobImportStatus !== EnumJobStatus.processing) return;
-		checkImportFile();
-		const getFileInterval = setInterval(checkImportFile, 3000);
-		return () => clearInterval(getFileInterval);
-	}, [lstJob, checkImportFile, jobImportStatus]);
-
-	const onResultImport = useCallback((res) => {
-		if (res) {
-			const { status, code } = res;
-			if (status === EnumImportStatus.processing) {
-				setUploadStatus(status);
-				setLstJob([code]);
-				checkImportFile();
-			}
-		}
-	}, [checkImportFile]);
+	},[setFileList]);
 
 	const onResultChange = useCallback((res)=>{
 		if (res) {
@@ -294,29 +208,9 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 			setFileList([...fileList]);
 			setLinkFileImport(res[0]);
 			setStatusImport(CON_STATUS_IMPORT.CREATE_JOB_SUCCESS);
-			setShowModal(true)
 		} 
 
-	},[fileList]);
-
-	//Đọc file excel chi tiết sản phẩm để map với DDH đã đặt
-	const onImportFile = useCallback(() => {
-		if (linkFileImport && linkFileImport.length > 0) {
-			setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
-			const supplier_id = formMain.getFieldValue([ProcurementField.supplier_id])
-			const store_id = formMain.getFieldValue([ProcurementField.store_id])
-			const note = formMain.getFieldValue([ProcurementField.note])
-			const params: ImportProcument = {
-				url: linkFileImport,
-				conditions: `${supplier_id},${store_id}`,
-				type: "IMPORT_PROCUREMENT_CREATE",
-				note: note
-			}
-			setJobImportStatus(EnumJobStatus.processing);
-			dispatch(importProcumentAction(params, onResultImport))
-		}
-	}, [dispatch, formMain, onResultImport, linkFileImport])
-
+	},[fileList, setFileList, setLinkFileImport, setStatusImport]);
 
 	return (
 		<Row gutter={50}>
@@ -334,7 +228,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 								let phone = getFieldValue([ProcurementField.supplier_phone])
 								return (
 									<>
-										{((isSelectSupplier) || supplier_id) ? (
+										{supplier_id ? (
 											<div style={{ marginBottom: 15 }}>
 												<div style={{ display: 'flex', alignItems: "center" }}>
 													<Link
@@ -344,7 +238,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 														style={{ fontSize: "16px", marginRight: 10 }}>
 														{supplier}
 													</Link>
-													{isSelectSupplier && (
+													{isEmpty(listPO) && supplier_id && (
 														<Button type="link" onClick={removeSupplier} style={{ display: "flex", alignItems: "center" }} icon={<AiOutlineClose />} />
 													)}
 												</div>
@@ -363,7 +257,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 													</Row>
 												</>
 											</div>
-										) : <><Text strong>Chọn nhà cung cấp</Text><span style={{ color: 'red' }}>*</span>
+										) : <><Text strong>Chọn nhà cung cấp</Text><span style={{ color: 'red' }}> *</span>
 											<Form.Item
 												name={[ProcurementField.supplier_id]}
 												rules={[
@@ -410,6 +304,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 								optionFilterProp="children"
 								placeholder="Chọn kho nhận"
 								onChange={onChangeStore}
+								disabled={!isEmpty(listPO)}
 							>
 								{!isEmpty(accountStores) && accountStores.map((item) => (
 									<Select.Option key={item.id} value={item.store_id || 0}>
@@ -447,11 +342,11 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 								}}
 							>
 								<Button
-									disabled={storeID === undefined || supplierID === undefined ? true : false}
+									disabled={!isEmpty(listPO)}
 									size="middle"
 									icon={<UploadOutlined />}
 								>
-									Nhập file sản phẩm
+									Nhập file sản phẩm <span style={{ color: 'red', marginLeft: 3 }}>*</span>
 								</Button>
 							</Upload>
 						</Form.Item>
@@ -461,7 +356,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 							<Typography.Text strong>Link file excel mẫu: </Typography.Text>
 							<Typography.Text>
 								<img src={excelIcon} alt="" />{" "}
-								<a href="https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_94ff77ce-d369-4732-b649-f1ba70e29b77_original.xlsx" download="Import_Procurement">Mẫu file nhập kho NCC(.xlsx)</a>
+								<a href="https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/M%E1%BA%ABu%20file%20nh%E1%BA%ADp%20kho%20ncc_1654596346688.xlsx" download="Import_Procurement">Mẫu file nhập kho NCC(.xlsx)</a>
 							</Typography.Text>
 						</Form.Item>
 					</Col>
@@ -470,7 +365,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 			<Col span={8}>
 				<Text strong>Ghi chú </Text>
 				<Form.Item name={[ProcurementField.note]}>
-					<Input.TextArea rows={4} maxLength={500} placeholder="Nhập ghi chú" />
+					<Input.TextArea rows={4} maxLength={500} placeholder="Nhập ghi chú" disabled={!isEmpty(listPO)}/>
 				</Form.Item>
 			</Col>
 
@@ -484,12 +379,12 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 					setErrorMessage('')
 				}}
 				footer={[<>
-					{statusImport === CON_STATUS_IMPORT.CREATE_JOB_SUCCESS && (
+					{/* {statusImport === CON_STATUS_IMPORT.CREATE_JOB_SUCCESS && (
 						<>
 							<Button
 								key="ok"
 								type="primary"
-								onClick={onImportFile}
+								// onClick={onImportFile}
 							>
 								Xác nhận
 							</Button>
@@ -506,7 +401,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 								Hủy
 							</Button>
 						</>
-					)}
+					)} */}
 					{(statusImport === CON_STATUS_IMPORT.JOB_FINISH || statusImport === CON_STATUS_IMPORT.ERROR) && (
 						<Button key="link" type="primary" onClick={() => {
 							setUploadStatus(undefined);
@@ -522,10 +417,10 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 				<div
 				>
 					<Row justify={"center"}>
-						{!uploadStatus ?
+						{/* {!uploadStatus ?
 							<div>
 								<p>Bạn chắc chắn muốn tạo phiếu?</p>
-							</div> : ""}
+							</div> : ""} */}
 						{uploadStatus === EnumImportStatus.processing ? (
 							<Col span={24}>
 								<Row justify={"center"}>
