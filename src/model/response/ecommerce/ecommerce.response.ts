@@ -24,6 +24,7 @@ export interface EcommerceResponse extends BaseObject {
   ecommerce_id: number; //id sàn
   ecommerce_shop: String; //tên sàn
   email: String; //email shop
+  shop_id: any // id shop
   store_id: number; // id cửa hàng
   store: String; // tên cửa hàng
   assign_account_code: String; // mã người phụ trách /vd: YD23123
