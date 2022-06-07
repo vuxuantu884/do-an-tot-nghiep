@@ -18,7 +18,7 @@ import { searchAccountPublicAction } from "../../../domain/actions/account/accou
 import { inventoryGetSenderStoreAction } from "../../../domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { Store } from "../../../model/inventory/transfer";
 import { PageResponse } from "model/base/base-metadata.response";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import queryString from "query-string";
 import exportIcon from "assets/icon/export.svg";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
@@ -37,11 +37,10 @@ const InventoryListScreen: React.FC = () => {
   const [vExportDetailTransfer,setVExportDetailTransfer] = useState(false);
 
   useEffect(() => {
-    let redirectUrl = path;
-    if (redirectUrl) {
-      setActiveTab(redirectUrl);
+    if (path) {
+      setActiveTab(path);
     }
-  }, [history, path]);
+  }, [path]);
 
   const location = useLocation()
 
@@ -151,11 +150,10 @@ const InventoryListScreen: React.FC = () => {
       >
         <Card>
           <Tabs
-            style={{overflow: "initial"}}
+            style={{ overflow: "initial" }}
             activeKey={activeTab}
-            onChange={(active) => history.replace(active)}
           >
-            <TabPane tab="Danh sách phiếu" key={InventoryTransferTabUrl.LIST}>
+            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST}>Danh sách phiếu</Link>} key={InventoryTransferTabUrl.LIST}>
               {activeTab === InventoryTransferTabUrl.LIST && (
                 <InventoryTransferTab
                   activeTab={activeTab}
@@ -171,7 +169,7 @@ const InventoryListScreen: React.FC = () => {
                 />
               )}
             </TabPane>
-            <TabPane tab="Chuyển đi" key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>
+            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>Chuyển đi</Link>} key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && (
                 <InventoryTransferTab
                   activeTab={activeTab}
@@ -187,7 +185,7 @@ const InventoryListScreen: React.FC = () => {
                 />
               )}
             </TabPane>
-            <TabPane tab="Chuyển đến" key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>
+            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>Chuyển đến</Link>} key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE && (
                 <InventoryTransferTab
                   activeTab={activeTab}
@@ -203,7 +201,7 @@ const InventoryListScreen: React.FC = () => {
                 />
               )}
             </TabPane>
-            <TabPane tab="Sản phẩm chuyển kho" key={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}>
+            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}>Sản phẩm chuyển kho</Link>} key={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}>
               {activeTab === InventoryTransferTabUrl.LIST_EXPORT_IMPORT && (
                 <ExportImportTab
                   activeTab={activeTab}
@@ -217,7 +215,7 @@ const InventoryListScreen: React.FC = () => {
                 />
               )}
             </TabPane>
-            <TabPane tab="Lịch sử phiếu" key={InventoryTransferTabUrl.HISTORIES}>
+            <TabPane tab={<Link to={InventoryTransferTabUrl.HISTORIES}>Lịch sử phiếu</Link>} key={InventoryTransferTabUrl.HISTORIES}>
               <HistoryInventoryTransferTab
                 stores={stores}
                 accounts={accounts}

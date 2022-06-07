@@ -120,8 +120,6 @@ export const WebAppConfigTabUrl = {
 };
 
 export const BASE_NAME_ROUTER = "/admin";
-// export const BASE_NAME_ROUTER = `${process.env.REACT_APP_BASE_URL}/admin`;
-export default UrlConfig;
 
 export const WARRANTY_URL = {
   productStatus: "product-statuses",
@@ -130,5 +128,9 @@ export const WARRANTY_URL = {
 }
 
 export const AccountUrl = {
-  UPDATE_PASSWORD: `${UrlConfig.ACCOUNTS}/me/update-password`
+  UPDATE_PASSWORD: `${UrlConfig.ACCOUNTS}/me/update-password`,
+  USER_DETAIL: `${UrlConfig.ACCOUNTS}/:code`,
+  USER_PERMISSION: `${UrlConfig.ACCOUNTS}/:code/permissions`,  
 }
+
+export default UrlConfig;
