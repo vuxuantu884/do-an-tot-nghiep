@@ -43,7 +43,6 @@ import {
   SumWeightInventory,
   // SumWeightLineItems,
 } from "utils/AppUtils";
-import NumberFormat from "react-number-format";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryStep from "./components/InventoryTransferStep";
@@ -157,6 +156,7 @@ const DetailTicket: FC = () => {
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
       setLoading(false);
+      setLoadingBtn(false);
       setIsDisableEditNote(false);
       if (!result) {
         setError(true);
@@ -468,6 +468,7 @@ const DetailTicket: FC = () => {
   );
 
   const updateNoteApi = (key: string) => {
+    setLoadingBtn(true);
     if (data && dataTable) {
       setIsDisableEditNote(true);
       data.line_items = dataTable;
@@ -732,12 +733,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return <NumberFormat
-          value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+        return formatCurrency(value, ".")
       },
     },
     {
@@ -750,6 +746,9 @@ const DetailTicket: FC = () => {
       width: 70,
       align: "center",
       dataIndex: "transfer_quantity",
+      render: (value) => {
+        return formatCurrency(value, ".")
+      },
     },
     {
       title: <div>
@@ -787,12 +786,7 @@ const DetailTicket: FC = () => {
       render: (item, row: LineItem) => {
         const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
         if (totalDifference) {
-          return <NumberFormat
-            value={totalDifference}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          return formatCurrency(totalDifference, ".")
         }
         return 0;
       },
@@ -858,7 +852,6 @@ const DetailTicket: FC = () => {
   }
 
   const onReload = useCallback(()=>{
-    setLoadingBtn(false);
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   },[dispatch,idNumber,onResult])
 
@@ -1181,7 +1174,6 @@ const DetailTicket: FC = () => {
                         columns={columnsTransfer}
                         dataSource={dataTable}
                         summary={() => {
-                          let totalQuantity = 0;
                           return (
                           <Table.Summary fixed>
                             <Table.Summary.Row>
@@ -1192,7 +1184,7 @@ const DetailTicket: FC = () => {
                               </Table.Summary.Cell>
 
                               <Table.Summary.Cell align={"center"} index={3} >
-                                <b>{totalQuantity}</b>
+                                <b>{formatCurrency(data.total_quantity, ".")}</b>
                               </Table.Summary.Cell>
 
                               <Table.Summary.Cell align={"center"} index={5}>
@@ -1221,7 +1213,7 @@ const DetailTicket: FC = () => {
                                 type="primary"
                                 className="ant-btn-primary"
                                 size="large"
-                                disabled={isLoadingBtn}
+                                loading={isLoadingBtn}
                                 onClick={receive}
                               >
                                 Nhận hàng
@@ -1314,6 +1306,7 @@ const DetailTicket: FC = () => {
                         <div className="button-save">
                           <Button
                             disabled={isDisableEditNote}
+                            loading={isLoadingBtn}
                             onClick={() => updateNoteApi(form.getFieldValue('note'))}
                             size="small"
                             type="primary"
@@ -1443,7 +1436,9 @@ const DetailTicket: FC = () => {
                         <Button
                           className="export-button"
                           type="primary"
+                          loading={isLoadingBtn}
                           onClick={() => {
+                            setLoadingBtn(true);
                             if(data) dispatch(exportInventoryAction(data?.id,
                               onReload
                             ));
