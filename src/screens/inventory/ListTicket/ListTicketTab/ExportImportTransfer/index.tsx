@@ -383,7 +383,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
       history.push(`${history.location.pathname}?${queryParam}`);
-      getAccounts(newParams.created_by).then();
+      getAccounts(newParams.received_code).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, params]

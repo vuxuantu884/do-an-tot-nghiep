@@ -580,7 +580,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         firstLoad = false;
       }
     },
-    [columns, defaultColumns]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [columns]
   );
 
   const getAccounts = async (codes: string) => {
