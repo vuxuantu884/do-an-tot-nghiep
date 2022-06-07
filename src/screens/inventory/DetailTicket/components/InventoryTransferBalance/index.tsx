@@ -10,6 +10,7 @@ import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import { adjustmentInventoryAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { useDispatch } from "react-redux";
+import { useState } from "react";
 
 type InventoryTransferBalanceModalProps = {
   data: InventoryTransferDetailItem | null;
@@ -22,6 +23,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
   const { data, onCancel, onOk, visible } = props;
 
   const dispatch = useDispatch();
+  const [loading, setLoading] = useState<boolean>(false);
 
   const columns: ColumnsType<any> = [
     {
@@ -130,6 +132,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
   return (
     <StyledWrapper>
       <Modal
+        confirmLoading={loading}
         onCancel={onCancel}
         visible={visible}
         centered
@@ -143,11 +146,14 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
             Kiểm kho theo sản phẩm
           </Button>,
           <Button
+            loading={loading}
             key="submit"
             type="primary"
             onClick={() => {
               if (data?.id) {
+                setLoading(true);
                 dispatch(adjustmentInventoryAction(data.id, (result) => {
+                  setLoading(false);
                   if (result) {
                     onOk(result);
                   }
