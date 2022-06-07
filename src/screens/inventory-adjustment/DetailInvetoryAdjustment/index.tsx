@@ -2,12 +2,12 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState
 import { StyledWrapper } from "./styles";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig, { BASE_NAME_ROUTER, InventoryTabUrl } from "config/url.config";
-import { Button, Card, Col, Form, Input, Radio, Row, Space, Tabs, Tag, Tooltip, Upload } from "antd";
+import { Button, Card, Col, Form, Input, Modal, Radio, Row, Space, Tabs, Tag, Tooltip, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import {
-  CodepenOutlined,
+  CodepenOutlined, DeleteOutlined,
   InfoCircleOutlined,
   PaperClipOutlined, PieChartOutlined,
   PrinterOutlined,
@@ -79,13 +79,13 @@ import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
 import {
-  addLineItem,
+  addLineItem, cancelInventoryTicket,
   deleteLineItem,
   getTotalOnHand,
   updateOnHandItemOnlineInventoryApi, updateReasonItemOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import { searchVariantsApi } from "../../../service/product/product.service";
+import { searchVariantsApi } from "service/product/product.service";
 import EditNote from "../../order-online/component/edit-note";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
@@ -128,10 +128,12 @@ const DetailInvetoryAdjustment: FC = () => {
   const [dataTab, setDataTab] = useState<any>();
   const [isShowConfirmAdited, setIsShowConfirmAdited] = useState<boolean>(false);
   const [isShowConfirmAdj, seIsShowConfirmAdj] = useState<boolean>(false);
+  const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
 
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isLoadingBtn, setIsLoadingBtn] = useState<boolean>(false);
+  const [isLoadingBtnCancel, setIsLoadingBtnCancel] = useState<boolean>(false);
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const {id} = useParams<InventoryParams>();
@@ -246,6 +248,10 @@ const DetailInvetoryAdjustment: FC = () => {
     case STATUS_INVENTORY_ADJUSTMENT.AUDITED.status:
       textTag = STATUS_INVENTORY_ADJUSTMENT.AUDITED.name;
       classTag = STATUS_INVENTORY_ADJUSTMENT.AUDITED.status;
+      break;
+    case STATUS_INVENTORY_ADJUSTMENT.CANCELED.status:
+      textTag = STATUS_INVENTORY_ADJUSTMENT.CANCELED.name;
+      classTag = STATUS_INVENTORY_ADJUSTMENT.CANCELED.status;
       break;
     default:
       textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
@@ -1228,6 +1234,19 @@ const onChangeNote = useCallback(
  [data, dispatch, onRealQuantityChange, onEnterFilterVariant, form, keySearch]
  );
 
+  const onCancelTicket = async () => {
+    const res = await callApiNative({isShowLoading: false}, dispatch, cancelInventoryTicket, data?.id);
+
+    if (res) {
+      showSuccess(`Hủy phiếu kiểm ${data?.code} thành công`);
+      const newData: any = {...data}
+      newData.status = 'canceled';
+
+      setData(newData);
+    }
+    setIsLoadingBtnCancel(false);
+  };
+
   return (
     <StyledWrapper>
       <ContentContainer
@@ -1569,6 +1588,23 @@ const onChangeNote = useCallback(
               }
               rightComponent={
                 <Space>
+                  {data.status !== STATUS_INVENTORY_ADJUSTMENT.CANCELED.status
+                    && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
+                    <AuthWrapper
+                      acceptPermissions={[InventoryAdjustmentPermission.cancel]}
+                    >
+                      <Button
+                        loading={isLoadingBtnCancel}
+                        type="primary"
+                        danger
+                        onClick={() => {
+                          setIsDeleteTicket(true);
+                        }}
+                      >
+                        Hủy phiếu
+                      </Button>
+                    </AuthWrapper>
+                  )}
                   {(data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status
                     && data.status !== STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <AuthWrapper
@@ -1724,6 +1760,37 @@ const onChangeNote = useCallback(
                 subTitle='Phiếu kiểm kho sẽ chuyển sang trạng thái "Đã cân tồn" và tính toán lại tồn kho.'
                 visible={isShowConfirmAdj}
               />
+            )}
+
+            {isDeleteTicket && (
+              <Modal
+                width={500}
+                centered
+                visible={isDeleteTicket}
+                confirmLoading={isLoadingBtnCancel}
+                onCancel={() => setIsDeleteTicket(false)}
+                onOk={() => {
+                  setIsDeleteTicket(false);
+                  setIsLoadingBtnCancel(true);
+                  onCancelTicket().then();
+                }}
+                cancelText={`Hủy`}
+                okText={`Đồng ý`}
+              >
+                <Row align="top">
+                  <DeleteOutlined
+                    style={{
+                      fontSize: 40,
+                      background: "#e24343",
+                      color: "white",
+                      borderRadius: "50%",
+                      padding: 10,
+                      marginRight: 10,
+                    }}
+                  />
+                  <strong className="margin-top-10">Bạn chắc chắn Hủy phiếu kiểm kho {data?.code}?</strong>
+                </Row>
+              </Modal>
             )}
           </>
         )}

@@ -239,6 +239,10 @@ const InventoryAdjustment: React.FC = () => {
             textTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.name;
             classTag = STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status;
             break;
+          case STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.CANCELED:
+            textTag = STATUS_INVENTORY_ADJUSTMENT.CANCELED.name;
+            classTag = STATUS_INVENTORY_ADJUSTMENT.CANCELED.status;
+            break;
           default:
             textTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.name;
             classTag = STATUS_INVENTORY_ADJUSTMENT.DRAFT.status;
