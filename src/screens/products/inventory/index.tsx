@@ -12,6 +12,7 @@ import { getQueryParams } from "utils/useQuery";
 import AllTab from "./tab/all.tab";
 import HistoryTab from "./tab/history.tab";
 import exportIcon from "assets/icon/export.svg";
+import { Link } from "react-router-dom";
 
 const { TabPane } = Tabs;
 
@@ -105,10 +106,9 @@ const InventoryScreen: React.FC = () => {
         <Tabs
           style={{ overflow: "initial" }}
           activeKey={activeTab}
-          onChange={(active) => history.replace(active)}
-          renderTabBar={RenderTabBar}
+          renderTabBar={RenderTabBar}          
         >
-          <TabPane tab="Tồn kho" key={InventoryTabUrl.ALL}>
+          <TabPane tab={<Link to={InventoryTabUrl.ALL}>Tồn kho</Link>} key={InventoryTabUrl.ALL}>
             <AllTab
              showExportModal={showExportModal} 
              setShowExportModal={setShowExportModal} 
@@ -116,7 +116,8 @@ const InventoryScreen: React.FC = () => {
              setVExportInventory={setVExportInventory}
              stores={stores} current={activeTab} />
           </TabPane>
-          <TabPane tab="Lịch sử tồn kho" key={InventoryTabUrl.HISTORIES}>
+          
+          <TabPane tab={<Link to={InventoryTabUrl.HISTORIES}>Lịch sử tồn kho</Link>} key={InventoryTabUrl.HISTORIES} >
             <HistoryTab vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} stores={stores} current={activeTab} />
           </TabPane>
         </Tabs>
