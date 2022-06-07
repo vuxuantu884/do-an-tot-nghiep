@@ -583,6 +583,21 @@ const OrderDetail = (props: PropType) => {
     });
   }, [OrderDetail, dispatch, history]);
 
+  const handleStatusOrder=useCallback((data:OrderResponse|null)=>{
+    if(!OrderDetail || !data) return;
+    let orderDetailCopy= {...OrderDetail};
+    orderDetailCopy.sub_status=data.sub_status;
+    orderDetailCopy.sub_status_code=data.sub_status_code;
+    orderDetailCopy.sub_status_id=data.sub_status_id;
+
+    orderDetailCopy.sub_reason_id=data.sub_reason_id;
+    orderDetailCopy.sub_reason_name=data.sub_reason_name;
+
+    console.log("orderDetailCopy",orderDetailCopy)
+
+    onGetDetailSuccess(orderDetailCopy)
+  },[OrderDetail,onGetDetailSuccess])
+
   const [disabledBottomActions, setDisabledBottomActions] = useState(false);
 
   const disabledActions = useCallback(
@@ -972,6 +987,7 @@ const OrderDetail = (props: PropType) => {
               {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
               <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
               <SubStatusOrder
+                setOrderDetail= {handleStatusOrder}
                 subStatusCode={subStatusCode}
                 status={OrderDetail?.status}
                 orderId={OrderDetail?.id}
