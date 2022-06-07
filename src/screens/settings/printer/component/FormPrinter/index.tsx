@@ -217,6 +217,18 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   useEffect(() => {
     dispatch(
       actionFetchListPrinterVariables((data: PrinterVariableResponseModel) => {
+        //hard code "ecommerce_cod", remove later
+        if (data?.print_order_variable) {
+          data?.print_order_variable.push(
+            {
+              preview_value_format: [],
+              preview_value: "320,000",
+              name: "Tiền khách phải trả trên sàn",
+              value: "{ecommerce_cod}",
+            }
+          );
+        }
+
         setPrinterVariables(data);
       })
     );

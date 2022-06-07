@@ -1566,9 +1566,10 @@ const EcommerceOrders: React.FC = () => {
         })
         .finally(() => {
           dispatch(hideLoading());
+          reloadPage();
         });
     }
-  }, [dispatch]);
+  }, [dispatch, reloadPage]);
   
   const handlePrintEcommerceDeliveryNote = useCallback(() => {
     if (selectedRowKeys?.length > 0) {
@@ -1615,7 +1616,7 @@ const EcommerceOrders: React.FC = () => {
       };
       const queryParam = generateQuery(params);
       const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
-      window.open(printPreviewUrl);
+      window.open(printPreviewUrl, '_blank', 'noopener,noreferrer');
     },
     [selectedRowKeys]
   );
@@ -1772,34 +1773,41 @@ const EcommerceOrders: React.FC = () => {
   // actions list
   const actions = [
     {
-      id: 1,
+      key: "export_ecommerce_order",
       icon: <FileExcelOutlined />,
       name: "Xuất excel",
       onClick: () => handleExportOrder()
     },
     {
-      id: 2,
+      key: "print_new_Ecommerce_shipment",
+      name: "In phiếu nhặt hàng sàn",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length || !data.items.length,
+      onClick: () => printAction("ecommerce_shipment")
+    },
+    {
+      key: "print_SO_shipment",
       name: "In phiếu giao hàng",
       icon: <PrinterOutlined />,
       disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: () => handlePrintShipment()
     },
     {
-      id: 3,
-      name: "In phiếu xuất kho",
-      icon: <PrinterOutlined />,
-      disabled: !selectedRowKeys?.length || !data.items.length,
-      onClick: () => printAction("stock_export")
-    },
-    {
-      id: "ecommerce_print_shipment",
+      key: "ecommerce_print_shipment",
       name: "In phiếu giao hàng sàn",
       icon: <PrinterOutlined />,
       disabled: !selectedRowKeys?.length || !data.items.length,
       onClick: handlePrintEcommerceDeliveryNote
     },
     {
-      id: "change-order-status",
+      key: "print_stock_export",
+      name: "In phiếu xuất kho",
+      icon: <PrinterOutlined />,
+      disabled: !selectedRowKeys?.length || !data.items.length,
+      onClick: () => printAction("stock_export")
+    },
+    {
+      key: "change_order_status",
       name: "Chuyển trạng thái đơn hàng",
       icon: <PrinterOutlined />,
       disabled: !selectedRow.length,
@@ -1809,14 +1817,14 @@ const EcommerceOrders: React.FC = () => {
 
   const lazadaActions = [
     {
-      id: "lazada_create_package",
+      key: "lazada_create_package",
       name: "Tạo gói hàng Lazada",
       icon: <PrinterOutlined />,
       disabled: !data.items.length || !selectedRowKeys?.length,
       onClick: () => { changeLazadaOrderStatus(EcommerceOrderStatus.PACKED) }
     },
     {
-      id: "lazada_notify_ready_to_deliver",
+      key: "lazada_notify_ready_to_deliver",
       name: "Báo Lazada sẵn sàng giao",
       icon: <PrinterOutlined />,
       disabled: !data.items.length || !selectedRowKeys?.length,
@@ -1827,7 +1835,7 @@ const EcommerceOrders: React.FC = () => {
 
   const shopeeActions = [
     {
-      id: "shopee_ready_create_product",
+      key: "shopee_ready_create_product",
       name: "Báo shopee chuẩn bị hàng",
       icon: <PrinterOutlined />,
       disabled: handleDisablePreparationShopee(),
