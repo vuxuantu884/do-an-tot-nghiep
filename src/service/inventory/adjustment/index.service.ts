@@ -93,6 +93,12 @@ const updateOnlineInventoryApi = (id: number): Promise<BaseResponse<string>> => 
   );
 };
 
+const cancelInventoryTicket = (id?: number): Promise<BaseResponse<string>> => {
+  return BaseAxios.put(
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/cancel`
+  );
+};
+
 const adjustInventoryApi = (id: number): Promise<BaseResponse<string>> => {
   return BaseAxios.put(
     `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/adjust/${id}`
@@ -150,5 +156,6 @@ export {
   addLineItem,
   getTotalOnHand,
   updateReasonItemOnlineInventoryApi,
-  updateOnHandItemOnlineInventoryApi
+  updateOnHandItemOnlineInventoryApi,
+  cancelInventoryTicket
 };

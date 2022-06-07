@@ -16,6 +16,10 @@ export const STATUS_INVENTORY_ADJUSTMENT = {
     status: "adjusted",
     name: "Đã cân tồn"
   },
+  CANCELED : {
+    status: "canceled",
+    name: "Đã hủy"
+  },
 }
 
 export const STATUS_INVENTORY_ADJUSTMENT_ARRAY = [
