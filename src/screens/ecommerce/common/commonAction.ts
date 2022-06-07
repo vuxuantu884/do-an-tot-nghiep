@@ -1,14 +1,14 @@
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import tiktokIcon from "assets/icon/e-tiktok.svg";
 
-export const ECOMMERCE_CHANNEL = ["shopee", "lazada", "tiki", "sendo"];
+export const ECOMMERCE_CHANNEL = ["shopee", "lazada", "tiki", "tiktok"];
 
 export enum EcommerceChannelId {
   SHOPEE = 3,
   LAZADA = 15,
-  SENDO = 16,
+  TIKTOK = 20,
   TIKI = 17,
 }
 
@@ -16,14 +16,14 @@ export const ECOMMERCE_ICON: any = {
   shopee: shopeeIcon,
   lazada: lazadaIcon,
   tiki: tikiIcon,
-  sendo: sendoIcon,
+  tiktok: tiktokIcon,
 };
 
 export const ECOMMERCE_ID = {
   SHOPEE: 1,
   LAZADA: 2,
   TIKI: 3,
-  SENDO: 4,
+  TIKTOK: 4,
 };
 
 export const ECOMMERCE_LIST = [
@@ -34,6 +34,7 @@ export const ECOMMERCE_LIST = [
     ecommerce_id: 1,
     channel_id: 3
   },
+
   {
     title: "Sàn Lazada",
     icon: lazadaIcon,
@@ -41,6 +42,7 @@ export const ECOMMERCE_LIST = [
     ecommerce_id: 2,
     channel_id: 15
   },
+
   {
     title: "Sàn Tiki",
     icon: tikiIcon,
@@ -48,13 +50,13 @@ export const ECOMMERCE_LIST = [
     ecommerce_id: 3,
     channel_id: 16
   },
+
   {
-    title: "Sàn Sendo",
-    icon: sendoIcon,
-    key: "sendo",
-    isActive: false,
+    title: "Sàn Tiktok",
+    icon: tiktokIcon,
+    key: "tiktok",
     ecommerce_id: 4,
-    channel_id: 17
+    channel_id: 20
   },
 ];
 
@@ -228,6 +230,37 @@ export const TIKI_ORDER_STATUS_LIST = [
   {
     name: "Đã hoàn",
     value: "returned",
+  },
+]
+
+export const TIKTOK_ORDER_STATUS_LIST = [
+  {
+    name: "Chưa thanh toán",
+    value: "UNPAID",
+  },
+  {
+    name: "Đang chờ vận chuyển",
+    value: "AWAITING_SHIPMENT",
+  },
+  {
+    name: "Đang chờ lấy hàng",
+    value: "AWAITING_COLLECTION",
+  },
+  {
+    name: "Đang vận chuyển",
+    value: "IN_TRANSIT",
+  },
+  {
+    name: "Đã giao hàng",
+    value: "DELIVERED",
+  },
+  {
+    name: "Đã hoàn thành",
+    value: "COMPLETED",
+  },
+  {
+    name: "Đã hủy",
+    value: "CANCELLED",
   },
 ];
 

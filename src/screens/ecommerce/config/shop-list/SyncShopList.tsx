@@ -184,10 +184,11 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       isActive: false,
       key: 3,
     },
+
     {
-      title: "Sàn Sendo",
-      icon: ECOMMERCE_ICON.sendo,
-      id: "sendo",
+      title: "Sàn Tiktok",
+      icon: ECOMMERCE_ICON.tiktok,
+      id: "tiktok",
       isActive: false,
       key: 4,
     },

@@ -35,7 +35,7 @@ const PurchaseOrderStampPrinting= React.lazy(
 //PR
 const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
 const ProcurementDetailScreen = React.lazy(() => import("screens/products/procurement/detail/ProcurementDetailScreen"));
-// const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
+const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
 const ProcurementCreateManualScreen = React.lazy(() => import("screens/products/procurement/create-manual"));
 
 //Kiểm kê, DUOCNC 20211021
@@ -157,18 +157,18 @@ export const inventory: Array<RouteMenu> = [
     header: null,
     permissions: [PurchaseOrderPermission.procurements_read],
     subMenu: [
-      // {
-      //   path: `${UrlConfig.PROCUREMENT}/create`,
-      //   exact: true,
-      //   title: "Tạo phiếu nhập kho",
-      //   icon: "icon-dot",
-      //   component: ProcurementCreateScreen,
-      //   key: "submenu251",
-      //   isShow: true,
-      //   header: null,
-      //   permissions: [PurchaseOrderPermission.procurements_create],
-      //   subMenu: [],
-      // },
+      {
+        path: `${UrlConfig.PROCUREMENT}/create`,
+        exact: true,
+        title: "Tạo phiếu nhập kho",
+        icon: "icon-dot",
+        component: ProcurementCreateScreen,
+        key: "submenu251",
+        isShow: true,
+        header: null,
+        permissions: [PurchaseOrderPermission.procurements_create],
+        subMenu: [],
+      },
       {
         path: `${UrlConfig.PROCUREMENT}/create-manual`,
         exact: true,

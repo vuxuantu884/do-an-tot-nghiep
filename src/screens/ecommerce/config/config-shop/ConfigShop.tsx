@@ -78,7 +78,6 @@ const ConfigShop: React.FC<ConfigShopProps> = (
   const [inventories, setInventories] = React.useState<Array<EcommerceShopInventoryDto>>([]);
   const [isConfigExist, setIsConfigExist] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [allowShopsUpdate] = useAuthorization({
     acceptPermissions: shopsUpdatePermission,
     not: false,
@@ -395,7 +394,6 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     }
   };
 
-
   const renderComponent = () => {
     return (
       <StyledConfig className="padding-20">
@@ -486,7 +484,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 <Row>
                   <Col span={5}>ID Shop</Col>
                   <Col span={19}>
-                    <span className="fw-500">: {configDetail?.id || "---"}</span>
+                    <span className="fw-500">: {configDetail?.id || '---'}</span>
                   </Col>
                 </Row>
                 {configDetail?.email &&

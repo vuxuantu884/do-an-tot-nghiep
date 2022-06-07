@@ -7,4 +7,5 @@ export const STATUS_INVENTORY_ADJUSTMENT_CONSTANTS = {
   DRAFT: "draft",
   AUDITED: "audited",
   ADJUSTED: "adjusted",
+  CANCELED: "canceled",
 };

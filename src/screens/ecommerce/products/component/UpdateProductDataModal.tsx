@@ -11,7 +11,7 @@ import {getIconByEcommerceId} from "screens/ecommerce/common/commonAction";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import tiktokIcon from "assets/icon/e-tiktok.svg";
 import successIcon from "assets/icon/success_2.svg";
 
 import {StyledUpdateProductDataModal} from "screens/ecommerce/products/styles";
@@ -79,11 +79,11 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
       key: "tiki"
     },
     {
-      title: "Sàn Sendo",
-      icon: sendoIcon,
+      title: "Sàn Tiktok",
+      icon: tiktokIcon,
       id: 4,
       isActive: false,
-      key: "sendo",
+      key: "tiktok"
     },
   ]);
 

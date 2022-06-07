@@ -240,6 +240,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
         value: initialValues.note
       });
     }
+    console.log(initialValues)
     if (initialValues.received_code.length && initialValues.received_code[0]) {
       let textAccount = ""
       if (initialValues.received_code.length > 1) {

@@ -4,7 +4,7 @@ import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
-import { useHistory } from "react-router-dom";
+import { Link, useHistory } from "react-router-dom";
 // import TabCurrent from "./tabs/TabCurrent";
 // import TabSevenDays from "./tabs/TabSevenDays";
 import TabList from "./tabs/TabList/index";
@@ -27,10 +27,9 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
     if (Object.values(ProcurementTabUrl).includes(path)) {
       setActiveTab(path);
     } else {
-      history.push(ProcurementTabUrl.TODAY);
-      setActiveTab(ProcurementTabUrl.TODAY);
+      setActiveTab(ProcurementTabUrl.ALL);
     }
-  }, [history, path]);
+  }, [path]);
 
 
   return (
@@ -56,7 +55,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
             >
               Xuất file chi tiết
             </Button>)}
-            {/* <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
+            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
               <Button
                 type="primary"
                 className="ant-btn-primary"
@@ -66,7 +65,7 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
               >
                 Nhập kho bằng tải file
               </Button>
-            </AuthWrapper> */}
+            </AuthWrapper>
             <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_create]}>
               <Button
                 type="primary"
@@ -86,10 +85,6 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
         <Tabs
           style={{ overflow: "initial" }}
           activeKey={activeTab}
-          onChange={(active) => {
-            setActiveTab(active);
-            history.push(active);
-          }}
           renderTabBar={RenderTabBar}
         >
           {/* Do cải tiến PO và Procurement nên tạm thời k sử dụng 2 tabs này */}
@@ -99,13 +94,13 @@ const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
           <TabPane tab="Hàng về 7 ngày" key={ProcurementTabUrl.SEVEN_DAYS}>
             <TabSevenDays />
           </TabPane> */}
-          <TabPane tab="Danh sách phiếu nhập kho" key={ProcurementTabUrl.ALL}>
+          <TabPane tab={<Link to={ProcurementTabUrl.ALL}>Danh sách phiếu nhập kho</Link>} key={ProcurementTabUrl.ALL}>
             <TabList vExportDetailProcurement={vExportDetailProcurement} setVExportDetailProcurement={setVExportDetailProcurement}/>
           </TabPane>
-          <TabPane tab="Danh sách sản phẩm nhập kho" key={ProcurementTabUrl.PRODUCTS}>
+          <TabPane tab={<Link to={ProcurementTabUrl.PRODUCTS}>Danh sách sản phẩm nhập kho</Link>} key={ProcurementTabUrl.PRODUCTS}>
             <TabProducts />
           </TabPane>
-          <TabPane tab="Lịch sử phiếu nhập kho" key={ProcurementTabUrl.LOGS}>
+          <TabPane tab={<Link to={ProcurementTabUrl.LOGS}>Lịch sử phiếu nhập kho</Link>} key={ProcurementTabUrl.LOGS}>
             <TabLogs />
           </TabPane>
         </Tabs>

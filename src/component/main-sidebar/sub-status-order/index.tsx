@@ -12,6 +12,7 @@ import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { showError, showWarning } from "utils/ToastUtils";
 
 type PropTypes = {
+  setOrderDetail?:(data: OrderResponse | null)=>void;
   subStatusCode?: string | undefined;
   status?: string | null;
   orderId?: number;
@@ -24,6 +25,7 @@ type PropTypes = {
 function SubStatusOrder(props: PropTypes): React.ReactElement {
   const {
     // status,
+    setOrderDetail,
     orderId,
     subStatusCode,
     handleUpdateSubStatus,
@@ -47,28 +49,33 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     OrderReturnReasonDetailModel[]
   >([]);
 
+  console.log("OrderDetailAllFulfillment",OrderDetailAllFulfillment)
   const subStatuses = useGetOrderSubStatuses();
 
   const changeSubStatusCode = (
     sub_status_code: string,
     reasonId?: number,
-    subReasonRequireWarehouseChange?: number
+    subReason?: number
   ) => {
     if (orderId) {
       dispatch(
         setSubStatusAction(
           orderId,
           sub_status_code,
-          () => {
+          (data:OrderResponse) => {
             setValueSubStatusCode(sub_status_code);
             handleUpdateSubStatus();
+            setOrderDetail && setOrderDetail(data);
             // setReload(true);
-            setIsShowReason(false);
-            setSubReasonRequireWarehouseChange(undefined);
+            // setIsShowReason(false);
+            if(data.sub_reason_id)
+              setSubReasonRequireWarehouseChange(data.sub_reason_id);
+            else
+              setSubReasonRequireWarehouseChange(undefined);
           },
           undefined,
           reasonId,
-          subReasonRequireWarehouseChange
+          subReason
         )
       );
     }
@@ -83,6 +90,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
       element?.focus();
     }, 500);
     setValueSubStatusCode(sub_status_code);
+    setSubReasonRequireWarehouseChange(undefined)
     return;
   };
 
@@ -93,6 +101,12 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
       handleIfRequireWareHouseChange(sub_status_code);
     } else {
+      if(subStatusCode===sub_status_code)
+      {
+        setValueSubStatusCode(subStatusCode);
+        setIsShowReason(false);
+        return;
+      }
       setToSubStatusCode(sub_status_code);
     }
   };
@@ -129,7 +143,14 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
       setIsShowReason(true);
       setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id);
     }
+    else{
+      setIsShowReason(false);
+    }
   }, [OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
+
+  console.log("subStatusCode",subStatusCode)
+  console.log("toSubStatusCode",toSubStatusCode)
+  console.log("subReasonsRequireWarehouseChange",subReasonsRequireWarehouseChange)
 
   return (
     <Card title="Xử lý đơn hàng">
@@ -178,10 +199,10 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
                   showError("Vui lòng chọn lý do đổi kho hàng chi tiết!");
                   return;
                 }
-                setSubReasonRequireWarehouseChange(value);
+                //setSubReasonRequireWarehouseChange(value);
                 changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change, reasonId, value);
               }}
-              disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment)}
+              disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment) || checkIfIsDisableUpdateSubStatus()}
               value={subReasonRequireWarehouseChange}
               notFoundContent="Không tìm thấy lý do đổi kho hàng">
               {subReasonsRequireWarehouseChange &&
@@ -202,6 +223,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
         toSubStatus={toSubStatusCode}
         setToSubStatusCode={setToSubStatusCode}
         changeSubStatusCallback={changeSubStatusCallback}
+        setOrderDetail={setOrderDetail}
       />
     </Card>
   );

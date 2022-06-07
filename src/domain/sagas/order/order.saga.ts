@@ -578,7 +578,7 @@ function* setSubStatusSaga(action: YodyAction) {
     );
     if (isFetchApiSuccessful(response)) {
       showSuccess("Cập nhật trạng thái phụ đơn hàng thành công!");
-      handleData();
+      handleData(response.data);
     } else {
       handleError && handleError();
       yield put(fetchApiErrorAction(response, "Cập nhật trạng thái phụ đơn hàng"));

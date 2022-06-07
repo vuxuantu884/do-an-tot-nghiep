@@ -17,7 +17,7 @@ import {
   ecommerceConnectAction,
   ecommerceConfigInfoAction,
 } from "domain/actions/ecommerce/ecommerce.actions";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { ecommerceConfigDeleteAction } from "domain/actions/ecommerce/ecommerce.actions"
 
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -33,7 +33,7 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import tikiIcon from "assets/icon/e-tiki.svg";
 import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
-import sendoIcon from "assets/icon/e-sendo.svg";
+import tiktokIcon from "assets/icon/e-tiktok.svg";
 import connectedShopIcon from "assets/icon/connected_shop.svg";
 
 
@@ -70,6 +70,7 @@ const EcommerceConfig: React.FC = () => {
   const [initQueryConnect] = React.useState<EcommerceSearchQuery>({
     shop_id: connectQuery.get("shop_id") || "",
     code: connectQuery.get("code"),
+    state: connectQuery.get("state")
   });
   const [isGetAllShop, setIsGetAllShop] = React.useState(false);
   const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse | undefined>()
@@ -99,7 +100,7 @@ const EcommerceConfig: React.FC = () => {
 
   const onOkDeleteEcommerce = React.useCallback(() => {
     setIsShowDeleteModal(false)
-    if (modalShopInfo) dispatch(ecommerceConfigDeleteAction(modalShopInfo?.id, deleteCallback))
+    if (modalShopInfo) dispatch(ecommerceConfigDeleteAction(modalShopInfo?.shop_id, deleteCallback))
   }, [deleteCallback, dispatch, modalShopInfo])
 
 
@@ -120,13 +121,14 @@ const EcommerceConfig: React.FC = () => {
     shopee: 1,
     lazada: 2,
     tiki: 3,
-    sendo: 4
+    tiktok: 4,
+    sendo: 5,
   }
 
   // tiki
   const handleConnectTiki = React.useCallback(() => {
-    showWarning("Chức năng này làm sau bạn nhé!");
-  }, []);
+    handleConnectEcommerce(ECOMMERCE_ID.tiki);
+  }, [ECOMMERCE_ID.tiki, handleConnectEcommerce]);
   // end
 
   // shopee
@@ -142,11 +144,12 @@ const EcommerceConfig: React.FC = () => {
   }, [ECOMMERCE_ID.lazada, handleConnectEcommerce]);
   //end
 
-  // lazada
-  const handleConnectSendo = React.useCallback(() => {
-    showWarning("Chức năng này làm sau bạn nhé!");
-  }, []);
+  // tiktok
+  const handleConnectTiktok = React.useCallback(() => {
+    handleConnectEcommerce(ECOMMERCE_ID.tiktok);
+  }, [ECOMMERCE_ID.tiktok, handleConnectEcommerce]);
   //end
+
   // end link to ecommerce
 
   // get all ecommerce
@@ -180,7 +183,7 @@ const EcommerceConfig: React.FC = () => {
   React.useEffect(() => {
     if (initQueryConnect.code && !isConnectedShop && isGetAllShop) {
       isConnectedShop = true;
-      const generatedParams = `shop_id=${initQueryConnect.shop_id}&code=${initQueryConnect.code}`;
+      const generatedParams = `shop_id=${initQueryConnect.shop_id}&code=${initQueryConnect.code}&state=${initQueryConnect.state}`;
       dispatch(ecommerceConfigInfoAction(generatedParams, configInfoCallback));
     }
   }, [initQueryConnect, configInfoCallback, dispatch, isGetAllShop]);
@@ -209,30 +212,34 @@ const EcommerceConfig: React.FC = () => {
   //Thêm kết nối sàn mới
   const ECOMMERCE_LIST = useMemo(() => [
     {
-      title: "Kết nối Tiki",
-      icon: tikiIcon,
-      key: "tiki",
-      action: handleConnectTiki
-    },
-    {
       title: "Kết nối Shopee",
       icon: shopeeIcon,
       key: "shopee",
       action: handleConnectShopee
     },
+
     {
       title: "Kết nối Lazada",
       icon: lazadaIcon,
       key: "lazada",
       action: handleConnectLazada
     },
+
     {
-      title: "Kết nối Sendo",
-      icon: sendoIcon,
-      key: "sendo",
-      action: handleConnectSendo
-    }
-  ], [handleConnectLazada, handleConnectSendo, handleConnectShopee, handleConnectTiki]);
+      title: "Kết nối Tiki",
+      icon: tikiIcon,
+      key: "tiki",
+      action: handleConnectTiki
+    },
+
+    {
+      title: "Kết nối Tiktok",
+      icon: tiktokIcon,
+      key: "tiktok",
+      action: handleConnectTiktok
+    },
+    
+  ], [handleConnectShopee, handleConnectLazada, handleConnectTiki, handleConnectTiktok]);
 
   const ecommerceList = (
     <Menu>

@@ -49,18 +49,18 @@ import warningCircleIcon from "assets/icon/warning-circle.svg";
 import filterIcon from "assets/icon/filter.svg";
 import circleDeleteIcon from "assets/icon/circle-delete.svg";
 
-import {StyledBaseFilter, StyledComponent} from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
-import {StyledProductFilter, StyledProductLink,} from "screens/ecommerce/products/styles";
-import {ECOMMERCE_LIST, getEcommerceIcon,} from "screens/ecommerce/common/commonAction";
-import {StyledStatus} from "screens/ecommerce/common/commonStyle";
+import { StyledBaseFilter, StyledComponent } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
+import { StyledProductFilter, StyledProductLink, } from "screens/ecommerce/products/styles";
+import { ECOMMERCE_LIST, getEcommerceIcon, } from "screens/ecommerce/common/commonAction";
+import { StyledStatus } from "screens/ecommerce/common/commonStyle";
 import useAuthorization from "hook/useAuthorization";
-import {EcommerceProductPermission} from "config/permissions/ecommerce.permission";
-import {exportFileProduct, getFileProduct} from "service/other/export.service";
-import {HttpStatus} from "config/http-status.config";
+import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
+import { exportFileProduct, getFileProduct } from "service/other/export.service";
+import { HttpStatus } from "config/http-status.config";
 import BaseResponse from "base/base.response";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import {useHistory, useLocation} from "react-router";
-import {getQueryParamsFromQueryString} from "utils/useQuery";
+import { useHistory, useLocation } from "react-router";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import ConcatenateByExcel from "screens/ecommerce/products/tab/not-connected-items/ConcatenateByExcel";
 
@@ -695,10 +695,10 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     getEcommerceShop(dataquery.ecommerce_id);
     if (dataquery.ecommerce_id === null) {
       removeEcommerce();
-    } else if (dataquery.ecommerce_id in [1, 2, 3, 4]) {
+    } else if (dataquery.ecommerce_id in [1, 2, 3, 4, 5, 6]) {
       formAdvance.setFieldsValue({ ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id })
       if (dataquery.shop_ids !== null) {
-        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => +item) })
+        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => item.toString()) })
       }
 
     } else {
@@ -1184,7 +1184,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
                       {ecommerceShopList?.map((shopItem: any) => (
                         <TreeSelect.TreeNode
                           key={shopItem.id}
-                          value={shopItem.id}
+                          value={shopItem.id.toString()}
                           title={
                             <span>
                               <img
@@ -1500,7 +1500,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
           </div>
         </Modal>
 
-      {inventoryHistoryLog.length && 
+      {inventoryHistoryLog.length > 0 && 
         <Modal
           title="Chi tiết lịch sử đồng bộ"
           centered

@@ -45,6 +45,14 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_id:</Col>
+          <Col span={14}>
+            <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
+              {OrderDetail?.utm_tracking?.utm_id}
+            </span>
+          </Col>
+        </Row>
+        <Row gutter={5}>
           <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_content:</Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
