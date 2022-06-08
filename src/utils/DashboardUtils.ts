@@ -59,7 +59,10 @@ export const getDataManyQueryDashboard = async (dispatch: Dispatch<any>, showMyD
   const conditions = [...locationCondition, userCondition];
 
   queries.forEach((item: AnalyticSampleQuery) => {
-    item.query.conditions = [];
+    if (!deparmentIdList.length && item.query.conditions) {
+      item.query.conditions = item.query.conditions.filter(item => item && item[0] !== 'pos_location_id')
+    }
+    item.query.conditions = (deparmentIdList.length || (condition && isSeeMyData && myCode)) ? [] : (item.query.conditions || []);
     // lọc theo cửa hàng 
     if (!Array(item.query.conditions)) {
       item.query.conditions = [];
@@ -85,17 +88,17 @@ export const getDataManyQueryDashboard = async (dispatch: Dispatch<any>, showMyD
  * @returns 
  */
 export const getDataOneQueryDashboard = async (dispatch: Dispatch<any>, showMyData: DashboardShowMyData, deparmentIdList: Array<string | number>, queries: AnalyticSampleQuery): Promise<AnalyticDataQuery> => {
-  queries.query.conditions = [];
   const { condition, isSeeMyData, myCode } = showMyData;
+  if (!deparmentIdList.length && queries.query.conditions) {
+    queries.query.conditions = queries.query.conditions.filter(item => item && item[0] !== 'pos_location_id')
+  }
+  
+  queries.query.conditions = (deparmentIdList.length || (condition && isSeeMyData && myCode)) ? [] : (queries.query.conditions || []);
   // Data từ bộ lọc bộ phận
   const locationCondition = deparmentIdList ? setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField) : [];
   // Data từ bộ lọc xem dữ liệu của tôi
   const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
   const conditions = [...locationCondition, userCondition];
-
-  if (!Array(queries.query.conditions)) {
-    queries.query.conditions = [];
-  }
 
   queries.query.conditions = [...queries.query.conditions, ...conditions];
   const q = generateRQuery(queries.query);

@@ -40,6 +40,9 @@ export const DashboardContainer = styled.div`
       }
     }
   ${breakpoint.phone`
+      &__title {
+        display: none;
+      }
       &__content {
         margin-left: 16px;
         .name {
@@ -133,8 +136,15 @@ export const DashboardContainer = styled.div`
     @media screen and (max-width: 576px) {
       height: auto;
       border-left: none;
+      padding: 20px 0 0;
+      .monthly-chart {
+        &__info {
+          margin-bottom: 20px;
+        }
+      }
     }
   }
+
   .monthly-chart {
     &__info {
       margin-bottom: 45px;
@@ -185,12 +195,23 @@ export const DashboardContainer = styled.div`
     }
     .store-rank {
       padding: 20px 30px;
-       border-right: 1px solid #E5E5E5;
-       border-left :1px solid #E5E5E5
-      } 
-      .department-rank {
-        padding: 20px 0 20px 30px;
+      border-right: 1px solid #E5E5E5;
+      border-left :1px solid #E5E5E5
+    } 
+    .department-rank {
+      padding: 20px 0 20px 30px;
+    }
+    @media screen and (max-width: 576px) {
+      .store-rank {
+        padding: 20px 0;
+        border: none;
+        border-top: 1px solid #E5E5E5;
+        border-bottom: 1px solid #E5E5E5;
       }
+      .department-rank {
+        padding: 20px 0;
+      }
+    }
   }
  .product-dashboard{
    &>.ant-card-body{
@@ -201,8 +222,8 @@ export const DashboardContainer = styled.div`
   .product-group{
     &-cart{
       border:none;
-       border-right: 1px solid ${grayE5};
-        box-shadow: none;
+      border: 1px solid ${grayE5};
+      box-shadow: none;
        
       .ant-card-bordered{
         border : none;
