@@ -69,11 +69,11 @@ export const BUSINESS_RESULT_CANCELED_QUERY: AnalyticSampleQuery = {
     // options: time:"cancelled_at"`
     query: {
         columns: [{
-            field: "pre_total_sales "
+            field: "total_sales "
         }],
         rows: ["day"],
         cube: "sales",
-        conditions: [["order_status", "==", "Đã hủy"]],
+        conditions: [["sale_area", "==", ReportDatavalue.KD_ONLINE], ["cancelled", "==", "Đã hủy"]],
         from: START_OF_MONTH,
         to: TODAY,
     },
@@ -89,7 +89,8 @@ export const BUSINESS_RESULT_SUCCESS_RATE_QUERY: AnalyticSampleQuery = {
         }],
         rows: ["day"],
         cube: "sales",
-        conditions: [["sale_area", "==", ReportDatavalue.KD_ONLINE]],
+        // conditions: [["sale_area", "==", ReportDatavalue.KD_ONLINE], ["cancelled", "==", 'Chưa hủy']],
+        conditions: [],
         from: START_OF_MONTH,
         to: TODAY,
     },
