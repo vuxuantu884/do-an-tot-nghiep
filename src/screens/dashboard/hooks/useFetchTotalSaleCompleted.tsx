@@ -68,7 +68,7 @@ function useFetchBusinessResultComplete() {
             })
 
             // Doanh thu trả hàng
-            const accumulateReturn = response.result.summary[2];
+            const accumulateReturn = response.result.summary[3];
 
             let returnToday = 0;
             response.result.data.forEach((value: ArrayAny) => {
