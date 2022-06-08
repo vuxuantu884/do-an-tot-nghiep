@@ -17,7 +17,7 @@ interface Props {
 
 RankHorizontalChart.defaultProps = {
   title: "Bảng thi đua giữa các shop",
-  subTitle: "Top 5 cửa hàng có doanh thu cao nhất",
+  subTitle: "Top 5 shop có doanh thu cao nhất",
   legendPrimary: "Doanh thu",
   legendSecondary: "GTTB/Hóa đơn",
 };

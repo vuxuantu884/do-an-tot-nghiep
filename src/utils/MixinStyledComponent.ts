@@ -2,7 +2,7 @@ import { css } from "styled-components";
 // Mixin breakpoint
 export const breakpoint = {
     phone: (...args: Parameters<typeof css>) => css`
-      @media (max-width: 767.98px) {
+      @media (max-width: 576px) {
         ${css(...args)}
       }
     `,

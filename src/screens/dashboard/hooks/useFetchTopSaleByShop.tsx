@@ -1,4 +1,4 @@
-import { MAX_TOP_RANK, TOP_CHARTS_KEY, TOP_SALES_BY_SHOP_OFFLINE, TOP_SALES_BY_SHOP_ONLINE } from 'config/dashboard';
+import { MAX_TOP_RANK, TOP_CHARTS_KEY, TOP_SALES_BY_SHOP_ONLINE } from 'config/dashboard';
 import { DashboardShowMyData, DashboardTopSale } from 'model/dashboard/dashboard.model';
 import { AnalyticDataQuery } from 'model/report/analytics.model';
 import React, { useEffect, useState } from 'react';
@@ -17,7 +17,7 @@ function useFetchTopSaleByShop() {
             setIsFetching(true);
 
             const response = await getDataManyQueryDashboard(dispatch, {} as DashboardShowMyData, [],
-                [TOP_SALES_BY_SHOP_ONLINE, TOP_SALES_BY_SHOP_OFFLINE])
+                [TOP_SALES_BY_SHOP_ONLINE])
 
             setIsFetching(false);
             if (!response) {

@@ -1,6 +1,7 @@
 import { Card, Col, Row } from 'antd';
 import React from 'react';
 import ProductSaleGroup from './product-business-result';
+import TotalSalesByStoreTable from './total-sales-by-store-table';
 
 
 function ProductDashboard() {
@@ -8,9 +9,14 @@ function ProductDashboard() {
     return (
         <Card className="product-dashboard">
             <Row gutter={20}>
-                <Col xs={24} md={10}>
+                <Col xs={24} md={8}>
                     <Card title="Doanh thu theo nhóm sản phẩm" className="product-group-cart">
                         <ProductSaleGroup  />
+                    </Card>
+                </Col>
+                <Col xs={24} md={8}>
+                    <Card title="Doanh thu theo cửa hàng" className="product-group-cart">
+                        <TotalSalesByStoreTable  />
                     </Card>
                 </Col>
                 {/* <Col span={14}>
