@@ -54,7 +54,7 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, textLinkColor, yellowColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
 import { getLink } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";

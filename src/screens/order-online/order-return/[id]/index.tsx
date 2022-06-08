@@ -45,6 +45,7 @@ import CardShowReturnProducts from "../components/CardShowReturnProducts";
 import ReturnDetailBottom from "../components/ReturnBottomBar/return-detail-bottom";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
+import 'assets/css/_modal-confirm.scss'
 
 type PropTypes = {};
 type OrderParam = {
@@ -59,8 +60,8 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const history = useHistory();
 
   const [allowDeleteOrderReturn] = useAuthorization({
-    acceptPermissions:[ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
-    not:false
+    acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
+    not: false
   })
 
   const [isError, setError] = useState(false);
@@ -96,17 +97,20 @@ const ScreenReturnDetail = (props: PropTypes) => {
   >([]);
 
   const handleReceivedReturnProducts = () => {
-    setIsReceivedReturnProducts(true);
+    if(!OrderDetail?.id) {
+      return;
+    }
     dispatch(
-      actionSetIsReceivedOrderReturn(returnOrderId, () => {
+      actionSetIsReceivedOrderReturn(OrderDetail.id, () => {
         dispatch(
           actionGetOrderReturnDetails(
-            returnOrderId,
+            OrderDetail.id,
             (data: OrderReturnModel) => {
               if (!data) {
                 setError(true);
               } else {
                 let _data = { ...data };
+                setIsReceivedReturnProducts(true);
                 setOrderDetail(_data);
               }
               setCountChangeSubStatus(countChangeSubStatus + 1);
@@ -123,16 +127,15 @@ const ScreenReturnDetail = (props: PropTypes) => {
       return;
     }
     let ids: number[] = [OrderDetail.id];
-  
+
     dispatch(showLoading());
     deleteOrderReturnService(ids)
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           history.push(
-            `${
-              OrderDetail.channel === POS.channel_code
-                ? UrlConfig.OFFLINE_ORDERS
-                : UrlConfig.ORDER
+            `${OrderDetail.channel === POS.channel_code
+              ? UrlConfig.OFFLINE_ORDERS
+              : UrlConfig.ORDER
             }${UrlConfig.ORDERS_RETURN}`
           );
         } else {
@@ -194,17 +197,17 @@ const ScreenReturnDetail = (props: PropTypes) => {
               payment_method: returnMoneyMethod.name,
               name: returnMoneyMethod.name,
               note: formValuePayment.returnMoneyNote || "",
-              amount: Math.round(formValuePayment?.returnMoneyAmount || 0) ,
+              amount: Math.round(formValuePayment?.returnMoneyAmount || 0),
               paid_amount:
-                Math.round(formValuePayment?.returnMoneyAmount || 0) ,
-              return_amount:0,
+                Math.round(formValuePayment?.returnMoneyAmount || 0),
+              return_amount: 0,
               customer_id: OrderDetail?.customer_id,
               payment_method_code: returnMoneyMethod.code,
             },
           ];
-          if(refund.money > 0 && refund.point > 0 && OrderDetail?.payment_status === ORDER_PAYMENT_STATUS.unpaid) {
+          if (refund.money > 0 && refund.point > 0 && OrderDetail?.payment_status === ORDER_PAYMENT_STATUS.unpaid) {
             const pointPaymentMethod = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.POINT);
-            if(pointPaymentMethod) {
+            if (pointPaymentMethod) {
               payments.push({
                 payment_method_id: pointPaymentMethod.id,
                 payment_method: pointPaymentMethod.name,
@@ -215,25 +218,32 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 return_amount: 0,
                 customer_id: OrderDetail?.customer_id,
                 payment_method_code: pointPaymentMethod.code,
-            })
-          }}
+              })
+            }
+          }
           console.log('payments', payments);
           // return;
+          if (!OrderDetail?.id) {
+            return;
+          }
           dispatch(
-            actionOrderRefund(returnOrderId, { payments }, (response) => {
+            actionOrderRefund(OrderDetail?.id, { payments }, (response) => {
               dispatch(
                 actionGetOrderReturnDetails(
-                  returnOrderId,
+                  OrderDetail?.id,
                   (data: OrderReturnModel) => {
+                    console.log('data333', data)
                     if (!data) {
                       setError(true);
                     } else {
-                      let _data = { ...data };
-                      setOrderDetail(_data);
-                      if (_data.payments) {
-                        setPayments(_data.payments);
+                      setOrderDetail(data);
+                      if (data.payments) {
+                        setPayments(data.payments);
                       }
-                      if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                      if (data?.payment_status) {
+                        setReturnPaymentStatus(data?.payment_status);
+                      }
+                      if (data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
                         setIsShowPaymentMethod(true)
                       } else {
                         setIsShowPaymentMethod(false)
@@ -243,7 +253,6 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   }
                 )
               );
-              setReturnPaymentStatus(ORDER_PAYMENT_STATUS.paid);
             })
           );
         }
@@ -259,7 +268,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const totalAmountHasPaidToCustomerWithoutPointRefund = useMemo(() => {
     let result = 0;
     OrderDetail?.payments?.forEach(single => {
-      if(single.status === ORDER_PAYMENT_STATUS.paid && single.payment_method_code !== PaymentMethodCode.POINT_REFUND) {
+      if (single.status === ORDER_PAYMENT_STATUS.paid && single.payment_method_code !== PaymentMethodCode.POINT_REFUND) {
         result = result + single.paid_amount;
       }
     })
@@ -269,7 +278,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const totalAmountReturnToCustomerLeft = useMemo(() => {
     return totalAmountReturnToCustomer - totalAmountHasPaidToCustomerWithoutPointRefund;
   }, [totalAmountHasPaidToCustomerWithoutPointRefund, totalAmountReturnToCustomer]);
-  
+
   console.log('totalAmountReturnToCustomerLeft', totalAmountReturnToCustomerLeft)
 
   useEffect(() => {
@@ -283,7 +292,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
       ],
     })
   }, [form, initialFormValue.returnMoneyField, returnPaymentMethodCode, totalAmountReturnToCustomerLeft])
- 
+
   /**
    * theme context data
    */
@@ -367,7 +376,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   const calculateRefund = useCallback(
     (OrderDetail: OrderResponse | null) => {
-      if(OrderDetail?.point_refund) {
+      if (OrderDetail?.point_refund) {
         setRefund({
           money: OrderDetail.money_amount || 0,
           point: OrderDetail?.point_refund,
@@ -380,13 +389,13 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const editNote = useCallback(
     (note, customerNote, orderID) => {
 
-      updateNoteOrderReturnService(orderID,note,customerNote).then((response)=>{
+      updateNoteOrderReturnService(orderID, note, customerNote).then((response) => {
         if (isFetchApiSuccessful(response)) {
-          let orderDetailCopy:any= {...OrderDetail};
-            orderDetailCopy.note=note;
-            orderDetailCopy.customer_note=customerNote;
-            console.log("orderDetailCopy",orderDetailCopy)
-            setOrderDetail({...orderDetailCopy});
+          let orderDetailCopy: any = { ...OrderDetail };
+          orderDetailCopy.note = note;
+          orderDetailCopy.customer_note = customerNote;
+          console.log("orderDetailCopy", orderDetailCopy)
+          setOrderDetail({ ...orderDetailCopy });
           showSuccess("Cập nhật ghi chú thành công")
         } else {
           handleFetchApiError(response, "Cập nhật ghi chú đơn trả", dispatch);
@@ -395,7 +404,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
     },
     [OrderDetail, dispatch]
   );
-  
+
   useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
@@ -432,19 +441,21 @@ const ScreenReturnDetail = (props: PropTypes) => {
                     });
                   setListReturnProducts(returnProductFormatted);
                 }
-    
+
                 if (_data.payments) {
                   setPayments(_data.payments);
                 }
-    
+
                 // const orderOriginId = _data.order_id; // tìm đơn gốc để lấy thông tin điểm
                 // lấy luôn trường money_amount, ko cần gọi loyalty nữa
                 // handleOrderOriginId(orderOriginId, _data, response);
                 calculateRefund(_data);
-                if(_data?.payment_status) {
+                if (_data?.payment_status) {
                   setReturnPaymentStatus(_data.payment_status);
-                  if(_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                  if (_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
                     setIsShowPaymentMethod(true)
+                  } else {
+                    setIsShowPaymentMethod(false)
                   }
                 }
                 setLoadingData(false)
@@ -516,7 +527,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   pointUsing={refund.point}
                   totalAmountReturnToCustomer={totalAmountReturnToCustomer}
                   isDetailPage
-									OrderDetail={OrderDetail}
+                  OrderDetail={OrderDetail}
                 />
                 <CardReturnMoneyPageDetail
                   listPaymentMethods={listPaymentMethods}
@@ -542,11 +553,11 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 orderId={returnOrderId}
                 countChangeSubStatus={countChangeSubStatus}
               />
-              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote}/>
+              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
             </Col>
             <ReturnDetailBottom
               onOk={onDeleteReturn}
-              hiddenButtonRemove={!allowDeleteOrderReturn}
+              hiddenButtonRemove={allowDeleteOrderReturn}
             ></ReturnDetailBottom>
           </Row>
         </div>
