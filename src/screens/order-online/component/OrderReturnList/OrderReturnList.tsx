@@ -417,30 +417,7 @@ function OrderReturnList(props: PropTypes) {
     //     <Tooltip title="Nguồn">{i.source}</Tooltip>
     //   </div>
     // )}
-    {
-      title: "Trạng thái nhận hàng",
-      dataIndex: "received",
-      key: "received",
-      render: (value: boolean) => {
-        let processIcon = null;
-        switch (value) {
-          case true:
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
-      },
-      visible: true,
-      align: "center",
-      width: 140,
-    },
+
     {
       title: "Hoàn tiền",
       //dataIndex: "total_amount",
@@ -538,11 +515,34 @@ function OrderReturnList(props: PropTypes) {
       visible: true,
       align: "center",
     },
-
+    {
+      title: "Trạng thái nhận hàng",
+      dataIndex: "received",
+      key: "received",
+      render: (value: boolean) => {
+        let processIcon = null;
+        switch (value) {
+          case true:
+            processIcon = "icon-full";
+            break;
+          default:
+            processIcon = "icon-blank";
+            break;
+        }
+        return (
+          <div className="text-center">
+            <div className={processIcon} />
+          </div>
+        );
+      },
+      visible: true,
+      align: "center",
+      width: 140,
+    },
     {
       title: "Ngày nhận hàng",
       dataIndex: "receive_date",
-      render: (value: string) => <div>{moment(value).format(DATE_FORMAT.fullDate)}</div>,
+      render: (value: string) => <div>{value && moment(value).format(DATE_FORMAT.fullDate)}</div>,
       key: "receive_date",
       visible: true,
       align: "center",
