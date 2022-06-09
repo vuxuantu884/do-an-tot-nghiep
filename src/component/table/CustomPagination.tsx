@@ -36,7 +36,9 @@ const showTotal = (pagination: ICustomTablePaginationConfig) => {
     return "Không có kết quả";
   }
   if (to > total) to = total;
-  return `${from} - ${to} trong tổng ${total}`;
+  return <span>
+    <span className="text-bold">{from}</span> - <span className="text-bold">{to}</span> trong tổng <span className="text-bold">{total}</span>
+  </span>;
 };
 
 const handleLastNextPage = (
