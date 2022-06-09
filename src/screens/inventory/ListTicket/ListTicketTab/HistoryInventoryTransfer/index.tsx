@@ -340,6 +340,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
         setAccountStoresSelected={(value => setAccountStoresSelected(value))}
       />
       <CustomTable
+        bordered
         isRowSelection
         isLoading={tableLoading}
         scroll={{ x: 1300 }}

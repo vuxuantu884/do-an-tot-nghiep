@@ -112,6 +112,7 @@ const TreeStore = (props: Props) => {
 
   return (
     <TreeSelect
+      showArrow
       placeholder={placeholder}
       treeDefaultExpandAll
       showCheckedStrategy={TreeSelect.SHOW_CHILD}

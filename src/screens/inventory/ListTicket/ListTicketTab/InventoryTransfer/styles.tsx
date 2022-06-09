@@ -3,16 +3,19 @@ import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
 
 export const BG_COLOR_TAG = {
   TRANSFERRING: {
-    background: '#FFF7E8',
     color: '#FCAF17'
   },
+  CONFIRM: {
+    color: '#666666'
+  },
   PENDING: {
-    background: '#F7F0EA',
-    color: '#E24343'
+    color: '#FCAF17'
   },
   RECEIVED: {
-    background: '#EAF7F0',
     color: '#27AE60'
+  },
+  CANCELED: {
+    color: '#E24343'
   },
 }
 
@@ -26,21 +29,26 @@ export const InventoryTransferTabWrapper = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .ant-tag {
+  .status {
     padding: 2px 8px;
     border-radius: 20px;
+    display: flex;
+    align-items: center;
 
-    &.${STATUS_INVENTORY_TRANSFER.TRANSFERRING.status} {
-      background: ${BG_COLOR_TAG.TRANSFERRING.background};
+    .${STATUS_INVENTORY_TRANSFER.TRANSFERRING.status} {
       color: ${BG_COLOR_TAG.TRANSFERRING.color};
     }
-    &.${STATUS_INVENTORY_TRANSFER.PENDING.status} {
-      background: ${BG_COLOR_TAG.PENDING.background};
+    .${STATUS_INVENTORY_TRANSFER.PENDING.status} {
       color: ${BG_COLOR_TAG.PENDING.color};
     }
-    &.${STATUS_INVENTORY_TRANSFER.RECEIVED.status} {
-      background: ${BG_COLOR_TAG.RECEIVED.background};
+    .${STATUS_INVENTORY_TRANSFER.RECEIVED.status} {
       color: ${BG_COLOR_TAG.RECEIVED.color};
+    }
+    .${STATUS_INVENTORY_TRANSFER.CANCELED.status} {
+      color: ${BG_COLOR_TAG.CANCELED.color};
+    }
+    .${STATUS_INVENTORY_TRANSFER.CONFIRM.status} {
+      color: ${BG_COLOR_TAG.CONFIRM.color};
     }
   }
 
@@ -56,6 +64,11 @@ export const InventoryTransferTabWrapper = styled.div`
         display: unset;
       }
     }
+  }
+  
+  .mr-5 {
+    margin-right: 5px;
+    height: 20px;
   }
   
 `;
