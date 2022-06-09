@@ -1,5 +1,6 @@
 import {Card, Col, Row} from "antd";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
+import { AppConfig } from "config/app.config";
+import UrlConfig, { BASE_NAME_ROUTER, SAPO_URL, SHOPIFY_URL } from "config/url.config";
 import {OrderResponse} from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -110,6 +111,43 @@ function SidebarOrderDetailInformation(props: PropTypes) {
       <Col span={10}>{title}</Col>
     )
   };
+
+  const renderElementReference = (order?: OrderResponse | null) => {
+    let link = "";
+
+    if (order?.created_by && order?.created_by.toLocaleUpperCase() === "YD0WEB") {
+      let environment = AppConfig.ENV;
+      switch (environment) {
+        case "DEV":
+          link = `${SAPO_URL.TEST}/${order.reference_code}`;
+          break;
+        default:
+          link = `${SAPO_URL.PRODUCTION}/${order.reference_code}`;
+          break;
+      }
+    }else if(order?.created_by && order?.created_by.toLocaleUpperCase() === "YD0WEBUSA"){
+      let environment = AppConfig.ENV;
+      switch (environment) {
+        case "DEV":
+          link = `${SHOPIFY_URL.TEST}/${order.reference_code}`;
+          break;
+        default:
+          link = `${SHOPIFY_URL.PRODUCTION}/${order.reference_code}`;
+          break;
+      }
+    }
+    else if(order?.url) {
+     link= order?.url;
+    }else{
+      link = `${BASE_NAME_ROUTER}${UrlConfig.ORDER}/${order?.reference_code}`;
+    }
+    return (
+      <React.Fragment>
+        <a href={link} target="_blank" rel="noreferrer">{order?.reference_code}</a>
+      </React.Fragment>
+    )
+  }
+
 
   return (
     <StyledComponent>
@@ -239,12 +277,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row gutter={5}>
           <Col span={10}>Tham chiếu:</Col>
           <Col span={14} style={{wordWrap: "break-word"}}>
-            {OrderDetail?.url ? (
-              <a href={OrderDetail?.url} target="_blank" rel="noreferrer">{OrderDetail?.reference_code}</a>
-            ) : (
-              <a href={`${BASE_NAME_ROUTER}${UrlConfig.ORDER}/${OrderDetail?.reference_code}`} target="_blank" rel="noreferrer">{OrderDetail?.reference_code}</a>
-              // <span className="text-focus">{OrderDetail?.reference_code} ss</span>
-            )}
+            {renderElementReference(OrderDetail)}
           </Col>
         </Row>
         {OrderDetail?.reason_name && (
