@@ -29,7 +29,7 @@ import {
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { deleteOrderReturnService, updateNoteOrderReturnService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
@@ -45,7 +45,8 @@ import CardShowReturnProducts from "../components/CardShowReturnProducts";
 import ReturnDetailBottom from "../components/ReturnBottomBar/return-detail-bottom";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
-import 'assets/css/_modal-confirm.scss'
+import 'assets/css/_modal-confirm.scss';
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 type PropTypes = {};
 type OrderParam = {
@@ -58,11 +59,6 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
-
-  const [allowDeleteOrderReturn] = useAuthorization({
-    acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
-    not: false
-  })
 
   const [isError, setError] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
@@ -96,10 +92,47 @@ const ScreenReturnDetail = (props: PropTypes) => {
     Array<LoyaltyUsageResponse>
   >([]);
 
-  const handleReceivedReturnProducts = () => {
-    if(!OrderDetail?.id) {
+  const currentStores = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores
+  );
+
+  const [allowDeleteOrderReturn] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
+    not: false
+  })
+
+  const [allowReceiveReturn] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.RECEIVE_RETURN],
+    not: false,
+    acceptStoreIds:[OrderDetail?.store_id||0]
+  })
+
+  console.log("allowReceiveReturn",allowReceiveReturn)
+
+  const renderModalNotificationReturn = (content: string) => {
+    Modal.error({
+      title: "Không thể nhận hàng",
+      content: content,
+      okType: 'danger'
+    });
+  }
+
+  const handleReceivedReturnProducts = useCallback(() => {
+    if(!OrderDetail?.id || !currentStores) {
       return;
     }
+
+    const storeIds = currentStores.map(p => p.store_id);
+    if (storeIds.indexOf(OrderDetail.store_id || 0) === -1) {
+      renderModalNotificationReturn("Tài khoản không thuộc cửa hàng được phân bổ");
+      return;
+    }
+
+    if (!allowReceiveReturn) {
+      renderModalNotificationReturn("Tài khoản không có quyền nhận hàng vui lòng liên hệ IT để được cấp");
+      return;
+    }
+
     dispatch(
       actionSetIsReceivedOrderReturn(OrderDetail.id, () => {
         dispatch(
@@ -119,7 +152,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
         );
       })
     );
-  };
+  },[OrderDetail?.id, OrderDetail?.store_id, allowReceiveReturn, countChangeSubStatus, currentStores, dispatch])
 
   const handleDeleteOrderReturn = useCallback(() => {
     if (!OrderDetail) {
