@@ -244,7 +244,7 @@ function OrderPayments(props: PropType): JSX.Element {
     return storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount)
   }, [selectedStoreBankAccount, storeBankAccountNumbers]);
 
-  const renderQrCodeTitle = (index:number)=>{
+  const renderDefaultReference = (index:number)=>{
     return (
       <Col
       className="point-spending"
@@ -260,8 +260,6 @@ function OrderPayments(props: PropType): JSX.Element {
             }
             disabled={
               levelOrder > 2 
-              // || 
-              // storeBankAccountNumbers.length === 0
             }
           />
         </div>
@@ -269,7 +267,7 @@ function OrderPayments(props: PropType): JSX.Element {
     );
   }
 
-  const renderBankTransferTitle = (index:number) => {
+  const renderBankTransferReference = (index:number) => {
     return (
       <Col
         className="point-spending"
@@ -485,9 +483,11 @@ function OrderPayments(props: PropType): JSX.Element {
                   ) : null}
 
                   {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? (
-                    renderBankTransferTitle(index)
-                    ) : method.payment_method_code === PaymentMethodCode.QR_CODE?(renderQrCodeTitle(index))
-                      : undefined }
+                    renderBankTransferReference(index)
+                    ) : method.payment_method_code === PaymentMethodCode.QR_CODE 
+                    || method.payment_method_code === PaymentMethodCode.MOMO 
+                    || method.payment_method_code === PaymentMethodCode.VN_PAY?renderDefaultReference(index)
+                    : undefined }
                 </Row>
               </Col>
               {method.payment_method_code !== PaymentMethodCode.POINT ? (
