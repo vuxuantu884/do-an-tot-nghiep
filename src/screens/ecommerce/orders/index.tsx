@@ -1108,7 +1108,7 @@ const EcommerceOrders: React.FC = () => {
     const shopIds : any[] = [];
     selectedRow.length && selectedRow.map(
       (item: any) => (item?.ecommerce_shop_id !== null && shopIds.includes(item?.ecommerce_shop_id))
-      ? "" : shopIds.push(item?.ecommerce_shop_id?.toString())
+      ? "" : shopIds.push(item?.ecommerce_shop_id)
     );
 
 
