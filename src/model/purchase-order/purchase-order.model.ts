@@ -66,6 +66,7 @@ export interface PurchaseOrder extends BaseObject {
   reference?: string;
   waiting_approval_date?: string;
   receive_finished_date?: string;
+  supplier_code?: string;
 }
 
 export interface PurchaseOrderQuery extends BaseQuery {
