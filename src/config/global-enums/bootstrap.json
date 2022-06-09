@@ -263,6 +263,11 @@
       "preview_value": "",
       "name": "Bảng kế hoạch thanh toán",
       "value": "{po_payment_plan_array}"
+    },
+    {
+      "preview_value": "Hàng lỗi nhiều",
+      "name": "Lý do trả hàng",
+      "value": "{rt_note}"
     }
   ],
   "goods": [
@@ -385,6 +390,10 @@
     {
       "name": "Đơn nhập kho",
       "value": "purchase_order_procurement"
+    },
+    {
+      "name": "Phiếu trả hàng nhà cung cấp",
+      "value": "purchase_order_return"
     }
   ],
   "moq_unit": [

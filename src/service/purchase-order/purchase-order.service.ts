@@ -175,3 +175,12 @@ export const printProcurementApi = (
 export const printVariantBarcodeByPOApi = (params: POStampPrinting): Promise<BaseResponse<string>> => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/variants/print`, params);
 }
+
+export const printPurchaseOrderReturnApi = (
+  id: number,
+  poId: number,
+): Promise<Array<PurchaseOrderPrint>> => {
+  return BaseAxios.get(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-purchase-order-return?id=${id}&poId=${poId}`
+  );
+};
