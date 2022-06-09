@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import {Link} from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
+import { YODY_APP, YODY_LANDING_PAGE, YODY_WEB } from "utils/Constants";
 import {StyledComponent} from "./styles";
 
 type PropTypes = {
@@ -92,7 +93,23 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         })
     }
   }, [OrderDetail?.created_by, dispatch])
-  
+
+  const getTitleEcommerce= (channelId:number|null)=>{
+    let title= "";
+
+    if(channelId === YODY_WEB.channel_id){
+      title= "Website:";
+    }else if(channelId === YODY_APP.channel_id){
+      title="App:";
+    }else if(channelId===YODY_LANDING_PAGE.channel_id){
+      title="Landing page:"
+    }else{
+      title="Gian hàng TMĐT:";
+    }
+    return (
+      <Col span={10}>{title}</Col>
+    )
+  };
 
   return (
     <StyledComponent>
@@ -125,7 +142,8 @@ function SidebarOrderDetailInformation(props: PropTypes) {
 				)}
         {OrderDetail?.ecommerce_shop_name && (
           <Row gutter={5}>
-            <Col span={10}>Gian hàng TMĐT:</Col>
+            {/* <Col span={10}>Gian hàng TMĐT:</Col> */}
+            {getTitleEcommerce(OrderDetail?.channel_id)}
             <Col span={14}>
               <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
                 {OrderDetail?.ecommerce_shop_name}
