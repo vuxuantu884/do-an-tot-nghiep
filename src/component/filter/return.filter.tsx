@@ -18,7 +18,7 @@ import CustomFilter from "component/table/custom.filter";
 import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
-import CustomRangeDatePicker from "component/custom/new-date-range-picker";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ReturnSearchQuery } from "model/order/return.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
@@ -703,7 +703,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
               </Col>
               <Col span={12} style={{ marginBottom: 20 }}>
                 <p>Ngày tạo đơn</p>
-                <CustomRangeDatePicker
+                <CustomFilterDatePicker
                   fieldNameFrom="created_on_min"
                   fieldNameTo="created_on_max"
                   activeButton={createdClick}
@@ -715,7 +715,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
 
               <Col span={12} style={{ marginBottom: 20 }}>
                 <p>Ngày trả hàng</p>
-                <CustomRangeDatePicker
+                <CustomFilterDatePicker
                   fieldNameFrom="received_on_min"
                   fieldNameTo="received_on_max"
                   activeButton={receivedClick}

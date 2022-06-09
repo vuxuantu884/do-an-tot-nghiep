@@ -19,7 +19,7 @@ import CustomFilter from "component/table/custom.filter";
 import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
 import './order.filter.scss'
 import CustomSelect from "component/custom/select.custom";
-import CustomRangeDatePicker from "component/custom/new-date-range-picker";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ShipmentSearchQuery } from "model/order/shipment.model";
 import { SourceResponse } from "model/response/order/source.response";
 import { StoreResponse } from "model/core/store.model";
@@ -31,7 +31,6 @@ import { Link } from "react-router-dom";
 import { searchAccountApi } from "service/accounts/account.service";
 import { StyledComponent } from "component/filter/shipment.filter.styles";
 import TreeStore from "component/tree-node/tree-store";
-import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 
 type OrderFilterProps = {
   params: ShipmentSearchQuery;
@@ -857,7 +856,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày đóng gói</p>
-                <CustomRangeDatePicker
+                <CustomFilterDatePicker
                   fieldNameFrom="packed_on_min"
                   fieldNameTo="packed_on_max"
                   activeButton={packedClick}
@@ -868,7 +867,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày xuất kho</p>
-                <CustomRangeDatePicker
+                <CustomFilterDatePicker
                   fieldNameFrom="exported_on_min"
                   fieldNameTo="exported_on_max"
                   activeButton={exportedClick}
@@ -879,7 +878,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày giao hàng</p>
-                <CustomRangeDatePicker
+                <CustomFilterDatePicker
                   fieldNameFrom="ship_on_min"
                   fieldNameTo="ship_on_max"
                   activeButton={shipClick}
@@ -890,7 +889,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
               </Col>
               <Col span={12} xxl={8} style={{ marginBottom: '20px' }}>
                 <p>Ngày hoàn tất đơn</p>
-                <CustomRangeDatePicker
+                <CustomFilterDatePicker
                   fieldNameFrom="shipped_on_min"
                   fieldNameTo="shipped_on_max"
                   activeButton={shippedClick}
