@@ -75,23 +75,26 @@ const POReturnList: React.FC<POReturnListProps> = (
           {return_orders.map((item) => {
             let total = 0;
             let totalValue = 0;
-            if(item.line_return_items) {
+            if (item.line_return_items) {
               item.line_return_items.forEach((lineReturn) => {
                 total += lineReturn.quantity_return;
               })
               item.line_return_items.forEach((item) => {
+
+                const caculatePrice = POUtils.caculatePrice(
+                  item.price,
+                  item.discount_rate,
+                  item.discount_value
+                );
                 totalValue +=
-                  item.quantity_return *
-                  POUtils.caculatePrice(
-                    item.price,
-                    item.discount_rate,
-                    item.discount_value
-                  );
+                  item.quantity_return * caculatePrice
+                  + ((item.tax_rate / 100) * item.quantity_return * caculatePrice)
+                  ;
               });
             }
-           
+
             return (
-              <Timeline key={item.id} style={{marginTop: 10}}>
+              <Timeline key={item.id} style={{ marginTop: 10 }}>
                 <Timeline.Item className="active">
                   <Row>
                     <Col span={12}>
