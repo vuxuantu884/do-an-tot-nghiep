@@ -245,9 +245,8 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                     ]}
                   >
                     <NumberInput
-                      placeholder="Tối đã 1,000 mã"
+                      placeholder="Nhập số lượng mã"
                       style={{textAlign: "left"}}
-                      max={1000}
                       min={0}
                     />
                   </Form.Item>
