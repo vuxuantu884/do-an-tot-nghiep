@@ -334,6 +334,10 @@ export interface ProductRequest {
   product_collections?: Array<string>,
 }
 
+export interface BarcodePrintTemEditNoteRequest {
+  note: Pick<BarcodePrintHistoriesResponse, "note">;
+}
+
 export interface VariantRequestView {
   name: string,
   color_id: number | null,

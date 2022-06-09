@@ -282,7 +282,6 @@ const BarcodeProductScreen: React.FC = () => {
               dataSelect1.unshift({ ...item, quantity_req: dataSelected[index].quantity_req });
             }
           });
-          history.replace(`${UrlConfig.PRODUCT}/barcode`, { selected: dataSelect1 });
           setDataSelected(dataSelect1);
           setVisibleProduct(false);
         }}

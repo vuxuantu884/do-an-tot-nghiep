@@ -13,21 +13,22 @@ import {
   VariantResponse,
   VariantSearchQuery,
   ProductBarcodeRequest,
+  BarcodePrintTemEditNoteRequest,
 } from "model/product/product.model";
 import { ProductUploadModel } from "model/product/product-upload.model";
-import { ExportRequest, ExportResponse, JobResponse} from "model/other/files/export-model";
+import { ExportRequest, ExportResponse, JobResponse } from "model/other/files/export-model";
 
 export const searchVariantsSimpleApi = (
   query: VariantSearchQuery
 ): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
-  const queryString = generateQuery(query);  
+  const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/simple?${queryString}`);
 };
 
 export const searchVariantsApi = (
   query: VariantSearchQuery
 ): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
-  const queryString = generateQuery(query);  
+  const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants?${queryString}`);
 };
 
@@ -91,6 +92,10 @@ export const productGetHistoryInTem = (query: ProductHistoryQuery): Promise<Base
   return BaseAxios.get(`${ApiConfig.PRODUCT}/barcode-print-histories?${queryString}`);
 };
 
+export const productUpdateHistoryInTem = (id: number, request: BarcodePrintTemEditNoteRequest) => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/barcode-print-histories/${id}`, request);
+}
+
 export const productDetailApi = (id: number) => {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/products/${id}`);
 }
@@ -113,9 +118,9 @@ export const productImportApi = (file: File, isCreate: string) => {
   });
 }
 
-export const productCheckDuplicateCodeApi = (code: string) : Promise<BaseResponse<null>>=>{
+export const productCheckDuplicateCodeApi = (code: string): Promise<BaseResponse<null>> => {
   const url = `${ApiConfig.PRODUCT}/products/validate`;
-  return BaseAxios.post(url,{code})
+  return BaseAxios.post(url, { code })
 }
 
 export const exportFile = (
@@ -133,7 +138,7 @@ export const getJobByCode = (
 export const productImportFile = (file: any) => {
   const formData = new FormData();
   formData.append('file', file)
-  return BaseAxios.post(`${ApiConfig.PRODUCT}/variants/barcode/job`, formData , {
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/variants/barcode/job`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });
 }
@@ -145,7 +150,7 @@ export const getFileProductByCode = (code: string) => {
 export const producImagetUploadApi = (
   files: Array<File>,
   folder: string,
-  productId: number|undefined
+  productId: number | undefined
 ): Promise<BaseResponse<Array<ProductUploadModel>>> => {
   let body = new FormData();
   body.append("folder", folder);

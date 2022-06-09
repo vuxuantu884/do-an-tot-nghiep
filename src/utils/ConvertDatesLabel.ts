@@ -1,6 +1,5 @@
 export const isExistInArr = (arr: string[], el: string) => {
   const arrFiltered = arr.filter((i) => el.indexOf(i) !== -1);
-
   return arrFiltered.length > 0;
 };
 
