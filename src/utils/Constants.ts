@@ -418,6 +418,16 @@ export const STATUS_IMPORT_EXPORT = {
   ERROR: 4,
 };
 
+export const WEIGHT_UNIT = {
+  gram: {
+    "name": "Gram",
+    "value": "g"
+  },
+  kilogram: {
+    "name": "Kilogram",
+    "value": "kg"
+  }
+};
 export const ArrDefects = [
   {code: 'L10',name:'Lỗi 10%',value:10},
   {code: 'L20',name:'Lỗi 20%',value:20},

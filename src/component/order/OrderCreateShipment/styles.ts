@@ -2,6 +2,9 @@ import styled from "styled-components";
 import { borderColor, primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
+  .orders-shipment {
+    margin-top: 30px;
+  }
   .saleorder_shipment_method_btn {
     display: flex;
     align-items: center;

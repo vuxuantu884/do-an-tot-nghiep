@@ -47,10 +47,11 @@ import { ShippingServiceConfigDetailResponseModel } from "model/response/setting
 import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { BaseFilterTag } from "../model/base/base-filter-tag";
-import { ArrDefects, FulFillmentStatus, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
+import { ArrDefects, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
+import { checkIfFulfillmentCancelled } from "./OrderUtils";
 import { RegUtil } from "./RegUtils";
 import { showError, showSuccess } from "./ToastUtils";
 
@@ -1544,7 +1545,8 @@ export const sortFulfillments = (fulfillments: FulFillmentResponse[] | null | un
   if(!fulfillments) {
     return []
   }
-  return fulfillments.sort((a, b) =>(b.id - a.id));
+  // lấy ffm có shipment, ko phải ffm ẩn rồi so sánh
+  return fulfillments.filter(single =>single.shipment).sort((a, b) =>(b.id - a.id));
 }
 
 export const goToTopPage = () => {
@@ -1780,7 +1782,7 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
     case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
       if (
         !sortedFulfillments[0]?.shipment ||
-        (sortedFulfillments[0]?.status && checkIfFulfillmentCanceled(sortedFulfillments[0]))
+        (sortedFulfillments[0]?.status && checkIfFulfillmentCancelled(sortedFulfillments[0]))
       ) {
         isChange = true;
       } else {
@@ -1791,7 +1793,7 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
     }
     case ORDER_SUB_STATUS.coordinator_confirmed: {
       if (
-        (sortedFulfillments[0]?.status && checkIfFulfillmentCanceled(sortedFulfillments[0])) ||
+        (sortedFulfillments[0]?.status && checkIfFulfillmentCancelled(sortedFulfillments[0])) ||
         !sortedFulfillments[0]?.shipment
       ) {
         isChange = false;
@@ -1817,15 +1819,6 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
   return isChange;
 };
 
-export const checkIfFulfillmentCanceled = (fulfillment: FulFillmentResponse) => {
-  if (fulfillment.status === FulFillmentStatus.CANCELLED ||
-    fulfillment.status === FulFillmentStatus.RETURNING ||
-    fulfillment.status === FulFillmentStatus.RETURNED) {
-    return true
-  }
-  return false
-};
-
 export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, sub_status_code: string) => {
   if(isOrderFromSaleChannel(orderDetail)) {
     return true;
@@ -1834,7 +1827,7 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, 
     return false;
   }
   let isChange = true;
-  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !checkIfFulfillmentCanceled(single)) : [];
+  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !checkIfFulfillmentCancelled(single)) : [];
   switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
     // giao hàng hvc, tự giao hàng
     case ShipmentMethod.EXTERNAL_SERVICE:

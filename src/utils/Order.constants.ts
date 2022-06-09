@@ -217,3 +217,9 @@ export const  PAYMENT_METHOD_ENUM = {
     name: "Hoàn điểm",
   },
 }
+
+export const FULFILLMENT_PUSHING_STATUS = {
+  failed: "failed",
+  waiting: "waiting",
+  completed: "completed",
+}
