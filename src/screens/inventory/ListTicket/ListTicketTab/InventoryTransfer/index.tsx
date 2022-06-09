@@ -25,9 +25,15 @@ import {getQueryParams, useQuery} from "utils/useQuery";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Input, Modal, Tag, Form, Button, Row, Typography } from "antd";
+import { Input, Modal, Form, Button, Row, Typography } from "antd";
 import {InventoryTransferTabWrapper} from "./styles";
 import {STATUS_INVENTORY_TRANSFER,STATUS_INVENTORY_TRANSFER_ARRAY} from "../../../constants";
+
+import confirmedIcon from 'assets/icon/cho_chuyen.svg';
+import transferringIcon from 'assets/icon/dang_chuyen.svg';
+import pendingIcon from 'assets/icon/cho_xu_ly.svg';
+import receivedIcon from 'assets/icon/da_nhan.svg';
+import canceledIcon from 'assets/icon/da_huy.svg';
 
 import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
 import {
@@ -264,32 +270,40 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (item: string) => {
         let textTag: string;
         let classTag: string;
+        let img: any;
         switch (item) {
           case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
             textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
             classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
+            img = transferringIcon;
             break;
 
           case STATUS_INVENTORY_TRANSFER.PENDING.status:
             textTag = STATUS_INVENTORY_TRANSFER.PENDING.name;
             classTag = STATUS_INVENTORY_TRANSFER.PENDING.status;
+            img = pendingIcon;
             break;
           case STATUS_INVENTORY_TRANSFER.RECEIVED.status:
             textTag = STATUS_INVENTORY_TRANSFER.RECEIVED.name;
             classTag = STATUS_INVENTORY_TRANSFER.RECEIVED.status;
+            img = receivedIcon;
             break;
           case STATUS_INVENTORY_TRANSFER.CANCELED.status:
             textTag = STATUS_INVENTORY_TRANSFER.CANCELED.name;
             classTag = STATUS_INVENTORY_TRANSFER.CANCELED.status;
+            img = canceledIcon;
             break;
           default:
             textTag = STATUS_INVENTORY_TRANSFER.CONFIRM.name;
             classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+            img = confirmedIcon;
             break;
         }
-        return <Tag className={classTag}>{textTag}</Tag>;
+        return <div className="status">
+          <div className={classTag}><img className="mr-5" src={img} alt="" /><span>{textTag}</span></div>
+        </div>;
       },
-      width: 100,
+      width: 150,
     },
     {
       title: () => {
@@ -581,7 +595,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns]
+    [columns, defaultColumns]
   );
 
   const getAccounts = async (codes: string) => {
@@ -956,6 +970,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         onClearFilter={() => onClearFilter()}
       />
       <CustomTable
+        bordered
         isRowSelection
         isLoading={tableLoading}
         scroll={{x: 1000}}

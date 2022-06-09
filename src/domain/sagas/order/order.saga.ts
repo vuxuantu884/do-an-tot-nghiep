@@ -232,12 +232,12 @@ function* updateFulFillmentStatusSaga(action: YodyAction) {
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
     } else {
-      setError(true);
       yield put(fetchApiErrorAction(response, "Cập nhật trạng thái fulfillment"));
+      setError && setError(true);
     }
   } catch (error) {
-    setError(true);
     showError("Có lỗi khi cập nhật trạng thái fulfillment! Vui lòng thử lại sau!");
+    setError && setError(true);
   } finally {
     yield put(hideLoading());
   }

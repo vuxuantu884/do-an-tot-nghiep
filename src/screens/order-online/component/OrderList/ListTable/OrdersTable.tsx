@@ -2,6 +2,15 @@ import { DownOutlined, EyeOutlined, PhoneOutlined, PictureOutlined, PlusOutlined
 import { Button, Col, Image, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
+import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
+import IconPaymentCod from "assets/icon/payment/cod.svg";
+import IconPaymentMOMO from "assets/icon/payment/momo.svg";
+import IconPaymentQRCode from "assets/icon/payment/qr.svg";
+import IconPaymentSwipeCard from "assets/icon/payment/quet-the.svg";
+import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
+import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
+import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
+import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import iconPrint from "assets/icon/Print.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
@@ -33,7 +42,6 @@ import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
 import { getVariantApi } from "service/product/product.service";
 import {
-  checkIfFulfillmentCanceled,
   checkIfOrderCanBeReturned,
   copyTextToClipboard,
   findVariantAvatar,
@@ -54,16 +62,14 @@ import {
   SHOPEE
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, textLinkColor, yellowColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
-import { getLink } from "utils/OrderUtils";
+import { checkIfFulfillmentCancelled, getLink } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../EditOrderNote";
 import TrackingLog from "../../TrackingLog/TrackingLog";
-import InventoryTable from "./InventoryTable";
-import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
@@ -71,15 +77,8 @@ import IconTrackingCode from "./images/iconTrackingCode.svg";
 import iconWeight from "./images/iconWeight.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
-import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
-import IconPaymentQRCode from "assets/icon/payment/qr.svg";
-import IconPaymentSwipeCard from "assets/icon/payment/quet-the.svg";
-import IconPaymentCod from "assets/icon/payment/cod.svg";
-import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
-import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
-import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
-import IconPaymentMOMO from "assets/icon/payment/momo.svg";
-import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
+import InventoryTable from "./InventoryTable";
+import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -496,7 +495,7 @@ function OrdersTable(props: PropTypes) {
     const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
       return (
         !orderDetail.fulfillments?.some(single => {
-          return single.shipment && !checkIfFulfillmentCanceled(single)
+          return single.shipment && !checkIfFulfillmentCancelled(single)
         }
       ))
     }

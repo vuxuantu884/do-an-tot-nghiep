@@ -1,20 +1,19 @@
-import { Fragment, useMemo } from "react";
 import { DownOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, FormInstance, Menu, Row } from "antd";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import CreateBillStep from "component/header/create-bill-step";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import UrlConfig from "config/url.config";
+import { RootReducerType } from "model/reducers/RootReducerType";
 // import CreateBillStep from "component/header/create-bill-step";
 import { OrderResponse } from "model/response/order/order.response";
-import React, { useCallback } from "react";
-import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import { StyledComponent } from "./styles";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
+import React, { Fragment, useCallback, useMemo } from "react";
 import { useSelector } from "react-redux";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
 import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
-import CreateBillStep from "component/header/create-bill-step";
-import UrlConfig from "config/url.config";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   orderDetail?: OrderResponse | null;
@@ -65,6 +64,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     (state: RootReducerType) => state.orderReducer.isLoadingDiscount
   );
 
+  console.log('stepsStatusValue', stepsStatusValue)
+
   const acceptPermissionsUpdate = useCallback(() => {
     switch (stepsStatusValue) {
       case 'packed':
@@ -97,7 +98,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
       if(!orderDetail || !orderDetail?.fulfillments || orderDetail?.fulfillments.length === 0) {
         return true
       }
-      if(sortedFulfillment[0].status === FulFillmentStatus.RETURNED || sortedFulfillment[0].status === FulFillmentStatus.CANCELLED || sortedFulfillment[0].status === FulFillmentStatus.RETURNING) {
+      if(sortedFulfillment[0]?.status === FulFillmentStatus.RETURNED || sortedFulfillment[0]?.status === FulFillmentStatus.CANCELLED || sortedFulfillment[0]?.status === FulFillmentStatus.RETURNING) {
         return true
       }
       return false
@@ -243,7 +244,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           key="cancel"
                           onClick={() => orderActionsClick && orderActionsClick("cancel")}
                           disabled={
-                            stepsStatusValue === OrderStatus.CANCELLED ||
+                            // stepsStatusValue === OrderStatus.CANCELLED ||
                             stepsStatusValue === FulFillmentStatus.SHIPPED ||
                             stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed
                           }

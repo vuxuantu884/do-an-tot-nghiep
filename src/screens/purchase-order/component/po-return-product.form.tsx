@@ -28,7 +28,7 @@ type POReturnFormProps = {
   totalReturn: number;
   totalVat: number;
   listStore: Array<StoreResponse>;
-  poData:  PurchaseOrder;
+  poData: PurchaseOrder;
 };
 const POReturnForm: React.FC<POReturnFormProps> = (
   props: POReturnFormProps
@@ -80,45 +80,53 @@ const POReturnForm: React.FC<POReturnFormProps> = (
   };
 
   const vatLine = useMemo(() => {
-    let vats: Array<Vat> = [];
-    console.log(currentLineReturn);
+    const vats: Array<Vat> = [];
     currentLineReturn.forEach((item) => {
       let index = vats.findIndex((item1) => item.tax_rate === item1.rate);
       if (index === -1) {
         if (item.tax_rate > 0) {
-          vats.push({
+          const vat: Vat = {
             rate: item.tax_rate,
-            amount: item.amount_tax_refunds ? item.amount_tax_refunds : 0,
-          });
+            amount: Number(item.amount_tax_refunds) || 0,
+          }
+          vats.push(vat);
         }
       } else {
-        vats[index].amount =
-          vats[index].amount + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
+        const vat: Vat = {
+          rate: item.tax_rate,
+          amount: vats[index].amount + (Number(item.amount_tax_refunds) || 0),
+        }
+        vats[index] = vat;
       }
     });
-    console.log(vats);
+    if (!vats.length) {
+      vats.push({
+        rate: 0,
+        amount: 0,
+      });
+    }
     return vats;
   }, [currentLineReturn]);
 
   const returnedItemRef = useRef<Map<number, number>>(new Map());
   useEffect(() => {
-    if(poData)
-    poData?.return_orders?.forEach((item) => {
-      item?.line_return_items?.forEach((lineItemReturn) => {
-        const currentItem = returnedItemRef.current.get(lineItemReturn.variant_id);
-        if (currentItem) {
-          returnedItemRef.current.set(
-            lineItemReturn.variant_id,
-            lineItemReturn.quantity_return + currentItem
-          );
-        } else {
-          returnedItemRef.current.set(
-            lineItemReturn.variant_id,
-            lineItemReturn.quantity_return
-          );
-        }
+    if (poData)
+      poData?.return_orders?.forEach((item) => {
+        item?.line_return_items?.forEach((lineItemReturn) => {
+          const currentItem = returnedItemRef.current.get(lineItemReturn.variant_id);
+          if (currentItem) {
+            returnedItemRef.current.set(
+              lineItemReturn.variant_id,
+              lineItemReturn.quantity_return + currentItem
+            );
+          } else {
+            returnedItemRef.current.set(
+              lineItemReturn.variant_id,
+              lineItemReturn.quantity_return
+            );
+          }
+        });
       });
-    });
   }, [poData]);
 
   useEffect(() => {
@@ -147,7 +155,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
             prevValues.planned_quantity !== curValues.planned_quantity ||
             prevValues[POField.line_items] !== curValues[POField.line_items] ||
             prevValues[POField.line_return_items] !==
-              curValues[POField.line_return_items] ||
+            curValues[POField.line_return_items] ||
             prevValues.expected_store !== curValues.expected_store ||
             prevValues.expect_import_date !== curValues.expect_import_date
           }
@@ -161,9 +169,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                     shouldUpdate={(prevValues, curValues) =>
                       prevValues.expected_store !== curValues.expected_store ||
                       prevValues.expect_import_date !==
-                        curValues.expect_import_date ||
+                      curValues.expect_import_date ||
                       prevValues.receipt_quantity !==
-                        curValues.receipt_quantity ||
+                      curValues.receipt_quantity ||
                       prevValues.planned_quantity !== curValues.planned_quantity
                     }
                   >
@@ -180,7 +188,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                       return (
                         <Fragment>
                           <Row gutter={50}>
-                          <Col span={24} md={12}>
+                            <Col span={24} md={12}>
                               <Form.Item
                                 name={POProcumentField.store_id}
                                 rules={[
@@ -251,9 +259,9 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                     shouldUpdate={(prevValues, curValues) => {
                       return (
                         prevValues[POField.line_items] !==
-                          curValues[POField.line_items] ||
+                        curValues[POField.line_items] ||
                         prevValues[POField.line_return_items] !==
-                          curValues[POField.line_return_items]
+                        curValues[POField.line_return_items]
                       );
                     }}
                   >
@@ -270,7 +278,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                           rowClassName="product-table-row"
                           dataSource={items}
                           tableLayout="fixed"
-                          scroll={{y: 300, x: 950}}
+                          scroll={{ y: 300, x: 950 }}
                           pagination={false}
                           columns={[
                             {
@@ -460,19 +468,19 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                     }}
                                   >
                                     <NumberInput
-                                      style={{width: "70%"}}
+                                      style={{ width: "70%" }}
                                       className="hide-number-handle"
                                       min={0}
                                       format={(a: string) =>
                                         formatCurrency(
                                           a
                                             ? Math.round(
-                                                POUtils.caculatePrice(
-                                                  parseInt(a),
-                                                  item.discount_rate,
-                                                  item.discount_value
-                                                )
+                                              POUtils.caculatePrice(
+                                                parseInt(a),
+                                                item.discount_rate,
+                                                item.discount_value
                                               )
+                                            )
                                             : 0
                                         )
                                       }
@@ -544,11 +552,11 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                                 if (item.quantity_return) {
                                   displayValue = Math.round(
                                     item.quantity_return *
-                                      POUtils.caculatePrice(
-                                        item.price,
-                                        item.discount_rate,
-                                        item.discount_value
-                                      )
+                                    POUtils.caculatePrice(
+                                      item.price,
+                                      item.discount_rate,
+                                      item.discount_value
+                                    )
                                   );
                                 }
                                 return (
@@ -579,7 +587,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                         required: true,
                         message: "Vui lòng nhập lý do"
                       }]}
-                      label="Lý do hoàn trả:"
+                        label="Lý do hoàn trả:"
                       >
                         <Input.TextArea
                           size="large"
@@ -608,7 +616,7 @@ const POReturnForm: React.FC<POReturnFormProps> = (
                           {vatLine.map((item: Vat, index: number) => {
                             return (
                               <div className="po-payment-row" key={index}>
-                                <div>{`VAT (${item.rate}%):`}</div>
+                                <div>VAT<span className="po-payment-row-error">{` (${item.rate}%):`}</span></div>
                                 <div className="po-payment-row-result">
                                   {formatCurrency(Math.round(item.amount))}
                                 </div>

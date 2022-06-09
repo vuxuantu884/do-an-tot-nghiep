@@ -21,17 +21,21 @@ import { DistrictResponse } from "model/content/district.model";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import "./po-return-list.scss";
+import IconPrintHover from "assets/img/iconPrintHover.svg";
+
 interface POReturnListProps {
   id: string;
   params: PurchaseOrder | null;
   listCountries: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
+  actionPrint?: (poReturnId: number)=>{},
+  printElementRefReturn?: any
 }
 
 const POReturnList: React.FC<POReturnListProps> = (
   props: POReturnListProps
 ) => {
-  const { id, params, listCountries, listDistrict } = props;
+  const { id, params, listCountries, listDistrict,actionPrint } = props;
   const history = useHistory();
   const return_orders = useMemo(() => {
     return params?.return_orders;
@@ -71,23 +75,26 @@ const POReturnList: React.FC<POReturnListProps> = (
           {return_orders.map((item) => {
             let total = 0;
             let totalValue = 0;
-            if(item.line_return_items) {
+            if (item.line_return_items) {
               item.line_return_items.forEach((lineReturn) => {
                 total += lineReturn.quantity_return;
               })
               item.line_return_items.forEach((item) => {
+
+                const caculatePrice = POUtils.caculatePrice(
+                  item.price,
+                  item.discount_rate,
+                  item.discount_value
+                );
                 totalValue +=
-                  item.quantity_return *
-                  POUtils.caculatePrice(
-                    item.price,
-                    item.discount_rate,
-                    item.discount_value
-                  );
+                  item.quantity_return * caculatePrice
+                  + ((item.tax_rate / 100) * item.quantity_return * caculatePrice)
+                  ;
               });
             }
-           
+
             return (
-              <Timeline key={item.id} style={{marginTop: 10}}>
+              <Timeline key={item.id} style={{ marginTop: 10 }}>
                 <Timeline.Item className="active">
                   <Row>
                     <Col span={12}>
@@ -97,10 +104,22 @@ const POReturnList: React.FC<POReturnListProps> = (
                       </div>
                     </Col>
                     <Col span={12}>
-                      <div className="text-muted text-right">
-                        {`Ngày trả hàng: ${ConvertUtcToLocalDate(
-                          item.expect_return_date
-                        )}`}
+                      <div className="return-right">
+                        <div className="text-center">
+                          {`Ngày trả hàng: ${ConvertUtcToLocalDate(
+                            item.expect_return_date
+                          )}`}
+                        </div>
+                        <div>
+                            <Button
+                                 className="ant-btn-outline"
+                                 size="large"
+                                 onClick={()=>{actionPrint && actionPrint(item.id)}}
+                                 icon={<img src={IconPrintHover} style={{ marginRight: 8 }} alt="" />}
+                               >
+                              In phiếu trả
+                            </Button>
+                        </div>
                       </div>
                     </Col>
                   </Row>

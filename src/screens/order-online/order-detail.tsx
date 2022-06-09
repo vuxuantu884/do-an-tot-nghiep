@@ -967,9 +967,9 @@ const OrderDetail = (props: PropType) => {
               <Alert
                 message={
                   <React.Fragment>
-                    <div style={{lineHeight:"10px",fontWeight:"500", fontSize:"15px"}}>
+                    <div style={{lineHeight:"10px",fontWeight:"500", fontSize:"15px", padding: "10px 0"}}>
                       <p>Lưu ý : Đối với đơn ở trạng thái đang hoàn</p>
-                      <ul style={{lineHeight:"18px"}}>
+                      <ul style={{lineHeight:"18px", marginBottom: 0}}>
                         <li>Nếu chọn nhận hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành Đã hoàn và cộng tồn đã hoàn cho các sản phẩm thuộc đơn hàng về kho</li>
                         <li>Nếu chọn đã giao hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành công</li>
                       </ul>

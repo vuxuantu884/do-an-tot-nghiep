@@ -12,7 +12,7 @@ import {VariantResponse} from "model/product/product.model";
 import {getQueryParams, useQuery} from "utils/useQuery";
 
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Input, Modal, Form, Tag, Row, Col } from "antd";
+import { Input, Modal, Form, Row, Col } from "antd";
 import { ExportImportTransferTabWrapper } from "./styles";
 import rightArrow from "assets/icon/arrow-right.svg";
 
@@ -34,6 +34,11 @@ import { getListImportExportTransferApi, updateNoteTransferApi } from "service/i
 import CustomPagination from "component/table/CustomPagination";
 import { showSuccess } from "utils/ToastUtils";
 import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
+import transferringIcon from "assets/icon/dang_chuyen.svg";
+import pendingIcon from "assets/icon/cho_xu_ly.svg";
+import receivedIcon from "assets/icon/da_nhan.svg";
+import canceledIcon from "assets/icon/da_huy.svg";
+import confirmedIcon from "assets/icon/cho_chuyen.svg";
 const { TextArea } = Input;
 
 const initQuery: InventoryTransferImportExportSearchQuery = {
@@ -88,11 +93,35 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
 
   const defaultColumns = [
     {
+      title: "Sản phẩm",
+      width: "200px",
+      visible: true,
+      fixed: "left",
+      className: "ant-col-info",
+      dataIndex: "variant_name",
+      render: (value: string, record: VariantResponse) => (
+        <div>
+          <div>
+            <div className="product-item-sku custom-title">
+              <Link
+                target="_blank"
+                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
+              >
+                {record.sku}
+              </Link>
+            </div>
+            <div className="product-item-name custom-name">
+              <span>{value}</span>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "Mã phiếu chuyển",
       dataIndex: "code",
       visible: true,
       align: "left",
-      fixed: "left",
       width: 200,
       render: (value: string, row: InventoryExportImportTransferDetailItem) => (
         <div>
@@ -137,56 +166,40 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       render: (item: string, row: InventoryExportImportTransferDetailItem) => {
         let textTag: string;
         let classTag: string;
+        let img: any;
         switch (row.inventory_transfer.status) {
           case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
             textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
             classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
+            img = transferringIcon;
             break;
 
           case STATUS_INVENTORY_TRANSFER.PENDING.status:
             textTag = STATUS_INVENTORY_TRANSFER.PENDING.name;
             classTag = STATUS_INVENTORY_TRANSFER.PENDING.status;
+            img = pendingIcon;
             break;
           case STATUS_INVENTORY_TRANSFER.RECEIVED.status:
             textTag = STATUS_INVENTORY_TRANSFER.RECEIVED.name;
             classTag = STATUS_INVENTORY_TRANSFER.RECEIVED.status;
+            img = receivedIcon;
             break;
           case STATUS_INVENTORY_TRANSFER.CANCELED.status:
             textTag = STATUS_INVENTORY_TRANSFER.CANCELED.name;
             classTag = STATUS_INVENTORY_TRANSFER.CANCELED.status;
+            img = canceledIcon;
             break;
           default:
             textTag = STATUS_INVENTORY_TRANSFER.CONFIRM.name;
             classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+            img = confirmedIcon;
             break;
         }
-        return <Tag className={classTag}>{textTag}</Tag>;
+        return <div className="status">
+          <div className={classTag}><img className="mrh-5" src={img} alt="" />{textTag}</div>
+        </div>;
       },
-      width: 100,
-    },
-    {
-      title: "Sản phẩm",
-      width: "200px",
-      visible: true,
-      className: "ant-col-info",
-      dataIndex: "variant_name",
-      render: (value: string, record: VariantResponse) => (
-        <div>
-          <div>
-            <div className="product-item-sku custom-title">
-              <Link
-                target="_blank"
-                to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}
-              >
-                {record.sku}
-              </Link>
-            </div>
-            <div className="product-item-name custom-name">
-              <span>{value}</span>
-            </div>
-          </div>
-        </div>
-      ),
+      width: 150,
     },
     {
       title: () => {
@@ -260,16 +273,16 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     },
     {
       title: "Thao tác",
-      width: "300px",
+      width: "210px",
       visible: true,
       dataIndex: "",
       render: (value: string, record: InventoryExportImportTransferDetailItem) => (
         <div>
-          <Row gutter={12}>
-            <Col span={8}>
-              Người tạo:
+          <Row className="mb-10" gutter={6}>
+            <Col span={9}>
+              <div className="custom-name">Người tạo:</div>
             </Col>
-            <Col span={16}>
+            <Col span={15}>
               <div className="product-item-sku custom-title">
                 <Link
                   target="_blank"
@@ -283,11 +296,11 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
               </div>
             </Col>
           </Row>
-          <Row gutter={12}>
-            <Col span={8}>
-              Người gửi:
+          <Row className="mb-10" gutter={6}>
+            <Col span={9}>
+              <div className="custom-name">Người gửi:</div>
             </Col>
-            <Col span={16}>
+            <Col span={15}>
               <div className="product-item-sku custom-title">
                 <Link
                   target="_blank"
@@ -301,11 +314,11 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
               </div>
             </Col>
           </Row>
-          <Row gutter={12}>
-            <Col span={8}>
-              Người nhận:
+          <Row gutter={6}>
+            <Col span={9}>
+              <div className="custom-name">Người nhận:</div>
             </Col>
-            <Col span={16}>
+            <Col span={15}>
               <div className="product-item-sku custom-title">
                 <Link
                   target="_blank"
@@ -526,6 +539,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         }}
       />
       <CustomTable
+        bordered
         isLoading={tableLoading}
         scroll={{x: 1000}}
         sticky={{offsetScroll: 5, offsetHeader: 55}}

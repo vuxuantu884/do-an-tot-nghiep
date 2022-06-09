@@ -282,14 +282,20 @@ export const SHOPEE = {
   channel_code: "SHOPEE"
 };
 
-export const WEB = {
+export const YODY_WEB = {
   channel_id: 4,
   channel_code : "web"
 }
 
-// export const App = {
-//   chan
-// }
+export const YODY_APP = {
+  channel_id: 5,
+  channel_code : "APP"
+}
+
+export const YODY_LANDING_PAGE={
+  channel_id:6,
+  channel_code:"LANDING_PAGE"
+}
 
 export const TIKI = {
 	channel_id: 17,
@@ -418,6 +424,16 @@ export const STATUS_IMPORT_EXPORT = {
   ERROR: 4,
 };
 
+export const WEIGHT_UNIT = {
+  gram: {
+    "name": "Gram",
+    "value": "g"
+  },
+  kilogram: {
+    "name": "Kilogram",
+    "value": "kg"
+  }
+};
 export const ArrDefects = [
   {code: 'L10',name:'Lỗi 10%',value:10},
   {code: 'L20',name:'Lỗi 20%',value:20},

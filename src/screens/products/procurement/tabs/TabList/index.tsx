@@ -63,7 +63,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import statusDraft from 'assets/icon/status-draft-new.svg'
 import statusFinalized from 'assets/icon/status-finalized-new.svg'
-import statusStored from 'assets/icon/status-stored-new.svg'
+import statusStored from 'assets/icon/status-finished-new.svg'
 import statusCancelled from 'assets/icon/status-cancelled-new.svg'
 
 const ProcumentConfirmModal = lazy(() => import("screens/purchase-order/modal/procument-confirm.modal"))
@@ -411,7 +411,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
               break;
             case ProcurementStatus.received:
               icon = statusStored
-              color = "#FCAF17"
+              color = "#27AE60"
               break;
             case ProcurementStatus.cancelled:
               icon = statusCancelled
@@ -874,24 +874,28 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     let arr = [];
     for (let i = 0; i < arrItem.length; i++) {
       const item = arrItem[i];
-
       arr.push({
         [ProcurementExportLineItemField.code]: procurement.code,
         [ProcurementExportLineItemField.purchase_order_code]: procurement.purchase_order.code,
         [ProcurementExportLineItemField.purchase_order_reference]: procurement.purchase_order.reference,
         [ProcurementExportLineItemField.status]: ProcurementStatusName[procurement.status],
+        [ProcurementExportLineItemField.purchase_order_supplier_code]: procurement.purchase_order.supplier_code,
         [ProcurementExportLineItemField.supplier]: procurement.purchase_order.supplier,
         [ProcurementExportLineItemField.store]: procurement.store,
         [ProcurementExportLineItemField.product_code]: item.sku.substring(0, 7),
+        [ProcurementExportLineItemField.product_name]: item.product_name,
         [ProcurementExportLineItemField.sku]: item.sku,
         [ProcurementExportLineItemField.variant]: item.variant,
         [ProcurementExportLineItemField.barcode]: item.barcode,
         [ProcurementExportLineItemField.real_quantity]: item.real_quantity,
+        [ProcurementExportLineItemField.price]: item.price || 0,
+        [ProcurementExportLineItemField.amount]: item.amount || 0,
         [ProcurementExportLineItemField.created_date]: ConvertUtcToLocalDate(procurement.created_date, DATE_FORMAT.DDMMYYY),
         [ProcurementExportLineItemField.stock_in_date]: ConvertUtcToLocalDate(procurement.stock_in_date, DATE_FORMAT.DDMMYYY),
         [ProcurementExportLineItemField.stock_in_by]: `${procurement.stock_in_by}`,
         [ProcurementExportLineItemField.purchase_order_merchandiser]: `${procurement.purchase_order.merchandiser}`,
-        [ProcurementExportLineItemField.purchase_order_designer]: `${procurement.purchase_order.designer}`,
+        [ProcurementExportLineItemField.purchase_order_designer]: `${procurement.purchase_order.designer ?? ""}`,
+        [ProcurementExportLineItemField.note]: `${procurement.note ?? ""}`,
 
       });
     }

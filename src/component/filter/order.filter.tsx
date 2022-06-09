@@ -98,19 +98,6 @@ const initQueryVariant: VariantSearchQuery = {
   saleable: true,
 };
 
-// async function searchVariants(input: any) {
-//   try {
-//     const result = await searchVariantsApi({ info: input });
-//     return result.data.items.map((item) => {
-//       return {
-//         label: item.name,
-//         value: item.id.toString(),
-//       };
-//     });
-//   } catch (error) {
-//     console.log(error);
-//   }
-// }
 
 function OrdersFilter(props: PropTypes): JSX.Element {
   const {
@@ -130,15 +117,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     onClearFilter,
     onFilter,
     onShowColumnSetting,
-    // setListOrderProcessingStatus,
     orderType,
     initChannelCodes,
     channels,
   } = props;
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
-  const [visibleUTM, setVisibleUTM]= useState<boolean>(false);
-  // const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
+  const [visibleUTM, setVisibleUTM] = useState<boolean>(false);
   const loadingFilter = useMemo(() => {
     return !!isLoading;
   }, [isLoading]);
@@ -148,7 +133,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   const dispatch = useDispatch();
 
   const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
-  // const [showedStatusCodes, setShowStatusCodes] = useState<string[]>([])
 
   const [services, setServices] = useState<any[]>([]);
 
@@ -162,12 +146,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     setSelectedSubStatusCodes(initSubStatus?.map(single => single.code) || []);
   }, [initSubStatus])
 
-  // useEffect(() => {
-  //   setShowStatusCodes(status?.map(single => single.value) || []);
-  // }, [status])
 
   const [keySearchVariant, setKeySearchVariant] = useState("");
-  console.log('keySearchVariant', keySearchVariant)
   const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 0,
@@ -297,7 +277,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   // lưu bộ lọc
   const onShowSaveFilter = useCallback(() => {
-    // setModalAction("create");
     let values = formRef.current?.getFieldsValue();
     if (values) {
       values.services = services;
@@ -370,22 +349,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     [onMenuClick]
   );
 
-  // const isValueUTMExist = useMemo(() => {
-  //   if (
-  //     params.utm_source ||
-  //     params.utm_medium ||
-  //     params.utm_content ||
-  //     params.utm_term ||
-  //     params.utm_id ||
-  //     params.utm_campaign ||
-  //     params.affiliate
-  //   ) {
-  //     return true;
-  //   }
-  //   return false;
-  // }, [params.affiliate, params.utm_campaign, params.utm_content, params.utm_id, params.utm_medium, params.utm_source, params.utm_term]);
 
-  useEffect(()=>{
+  useEffect(() => {
     if (
       params.utm_source ||
       params.utm_medium ||
@@ -397,11 +362,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     ) {
       setVisibleUTM(true);
     }
-    else{
+    else {
       setVisibleUTM(false);
     }
-    console.log("ok")
-  },[params.affiliate, params.utm_campaign, params.utm_content, params.utm_id, params.utm_medium, params.utm_source, params.utm_term, visible])
+  }, [params.affiliate, params.utm_campaign, params.utm_content, params.utm_id, params.utm_medium, params.utm_source, params.utm_term, visible])
 
   const onCloseTag = useCallback(
     (e, tag) => {
@@ -489,9 +453,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "payment_method":
           onFilter && onFilter({ ...params, payment_method_ids: [] });
           break;
-        // case "expected_receive_predefined":
-        //   onFilter && onFilter({ ...params, expected_receive_predefined: "" });
-        //   break;
         case "delivery_types":
           onFilter && onFilter({ ...params, delivery_types: [] });
           break;
@@ -568,24 +529,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   }, [listSource]);
 
   const initialValues = useMemo(() => {
-    let textDiscount= "";
-    if(Array.isArray(params.discount_codes))
-    {
-      if(params.discount_codes && params.discount_codes.length>0)
-      {
-        let indexExt=params.discount_codes.length -1;
-        params.discount_codes.forEach((value,index)=>{
-          if(indexExt === index)
-            textDiscount=textDiscount+ value;
-          else 
-            textDiscount=textDiscount + `${value}, ` ;
+    let textDiscount = "";
+    if (Array.isArray(params.discount_codes)) {
+      if (params.discount_codes && params.discount_codes.length > 0) {
+        let indexExt = params.discount_codes.length - 1;
+        params.discount_codes.forEach((value, index) => {
+          if (indexExt === index)
+            textDiscount = textDiscount + value;
+          else
+            textDiscount = textDiscount + `${value}, `;
         })
       }
-    }else
-    {
-      textDiscount =  params.discount_codes || "";
+    } else {
+      textDiscount = params.discount_codes || "";
     }
-   
+
     return {
       ...params,
       store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
@@ -617,8 +575,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       marketing_campaign: Array.isArray(params.marketing_campaign) ? params.marketing_campaign : [params.marketing_campaign],
       variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
-      // searched_product: Array.isArray(params.searched_product) ? params.searched_product : [params.searched_product],
-      // tracking_codes: params?.tracking_codes ? params?.tracking_codes : "",
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
@@ -638,11 +594,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         ? params.delivery_types
         : [params.delivery_types],
       services: Array.isArray(params.services) ? params.services : [params.services],
-      discount_codes:textDiscount,
+      discount_codes: textDiscount,
     };
   }, [params]);
-
-  console.log("initialValues",initialValues)
 
   const [filterTagFormatted, setFilterTagFormatted] = useState<any>(null);
   useEffect(() => {
@@ -725,13 +679,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
           };
         }
-        
-        let discount_codes=[];
-        if(values.discount_codes)
-        {
-          discount_codes = values.discount_codes.split(",").map((p:string)=>p?.trim());
+        let discount_codes = [];
+        if (values.discount_codes) {
+          discount_codes = values.discount_codes.split(",").map((p: string) => p?.trim());
         }
-        onFilter && onFilter({...values, discount_codes: discount_codes});
+        onFilter && onFilter({ ...values, discount_codes: discount_codes });
         setRerender(false);
       }
     },
@@ -1083,21 +1035,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         value: text,
       });
     }
-    // if (initialValues.variant_ids.length) {
-    //   let textVariant = "";
-    //   for (let i = 0; i < optionsVariant.length; i++) {
-    //     if (i < optionsVariant.length - 1) {
-    //       textVariant = textVariant + optionsVariant[i].label + splitCharacter;
-    //     } else {
-    //       textVariant = textVariant + optionsVariant[i].label;
-    //     }
-    //   }
-    //   list.push({
-    //     key: "variant_ids",
-    //     name: "Sản phẩm",
-    //     value: <React.Fragment>{textVariant}</React.Fragment>,
-    //   });
-    // }
 
     if (initialValues.searched_product) {
       let textVariant = initialValues.searched_product;
@@ -1327,60 +1264,60 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       list.push({
         key: "discount_codes",
         name: "Mã giảm giá",
-        value:  <React.Fragment>{initialValues.discount_codes}</React.Fragment>
+        value: <React.Fragment>{initialValues.discount_codes}</React.Fragment>
       })
     }
 
     /**
      * webApp
      */
-    if(initialValues.utm_source && initialValues.utm_source.length!==0){
+    if (initialValues.utm_source && initialValues.utm_source.length !== 0) {
       list.push({
-        key:"utm_source",
-        name:"UTM_Source",
+        key: "utm_source",
+        name: "UTM_Source",
         value: <React.Fragment>{initialValues.utm_source}</React.Fragment>,
       })
     }
 
-    if(initialValues.utm_medium && initialValues.utm_medium.length!==0){
+    if (initialValues.utm_medium && initialValues.utm_medium.length !== 0) {
       list.push({
-        key:"utm_medium",
-        name:"UTM_Medium",
+        key: "utm_medium",
+        name: "UTM_Medium",
         value: <React.Fragment>{initialValues.utm_medium}</React.Fragment>,
       })
     }
-    if(initialValues.utm_content && initialValues.utm_content.length!==0){
+    if (initialValues.utm_content && initialValues.utm_content.length !== 0) {
       list.push({
-        key:"utm_content",
-        name:"UTM_content",
+        key: "utm_content",
+        name: "UTM_content",
         value: <React.Fragment>{initialValues.utm_content}</React.Fragment>,
       })
     }
-    if(initialValues.utm_term && initialValues.utm_term.length!==0){
+    if (initialValues.utm_term && initialValues.utm_term.length !== 0) {
       list.push({
-        key:"utm_term",
-        name:"UTM_term",
+        key: "utm_term",
+        name: "UTM_term",
         value: <React.Fragment>{initialValues.utm_term}</React.Fragment>,
       })
     }
-    if(initialValues.utm_id && initialValues.utm_id.length!==0){
+    if (initialValues.utm_id && initialValues.utm_id.length !== 0) {
       list.push({
-        key:"utm_id",
-        name:"UTM_id",
+        key: "utm_id",
+        name: "UTM_id",
         value: <React.Fragment>{initialValues.utm_id}</React.Fragment>,
       })
     }
-    if(initialValues.utm_campaign && initialValues.utm_campaign.length!==0){
+    if (initialValues.utm_campaign && initialValues.utm_campaign.length !== 0) {
       list.push({
-        key:"utm_campaign",
-        name:"UTM_campagin",
+        key: "utm_campaign",
+        name: "UTM_campagin",
         value: <React.Fragment>{initialValues.utm_campaign}</React.Fragment>,
       })
     }
-    if(initialValues.affiliate && initialValues.affiliate.length!==0){
+    if (initialValues.affiliate && initialValues.affiliate.length !== 0) {
       list.push({
-        key:"affiliate",
-        name:"Affiate code",
+        key: "affiliate",
+        name: "Affiate code",
         value: <React.Fragment>{initialValues.affiliate}</React.Fragment>,
       })
     }
@@ -1513,8 +1450,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     params.coordinator_codes,
   ]);
 
-  console.log('params', params)
-
   useEffect(() => {
     formSearchRef.current?.setFieldsValue({
       search_term: params.search_term,
@@ -1545,9 +1480,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
   }, [channels, dispatch, initialValues.services]);
 
-  // useEffect(() => {
-  // setFiltersResult(filters);
-  // }, [filters])
 
   const renderFilterTag = (filter: ListFilterTagTypes) => {
     if (filter.isExpand) {
@@ -1575,8 +1507,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const onSearchVariantSelect = useCallback(
     (v, variant) => {
-      console.log('v', v)
-      console.log('variant', variant)
       setKeySearchVariant(variant.value)
       autoCompleteRef.current?.blur();
       setResultSearchVariant({
@@ -1836,9 +1766,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     </CustomSelect>
                   </Item>
                 </Col>
-                <Col span={8} xxl={8}>
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
-                    <label>Ngày duyệt đơn</label>
+                    <label>Ngày xác nhận</label>
                   </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="finalized_on_min"
@@ -1848,7 +1778,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     format={dateFormat}
                     formRef={formRef}
                   />
-                </Col>
+                </Col>}
                 <Col span={8} xxl={8}>
                   <Item name="payment_method_ids" label="Phương thức thanh toán">
                     <CustomSelect
@@ -1886,7 +1816,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                <Col span={8} xxl={8}>
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Ngày huỷ đơn</label>
                   </div>
@@ -1898,8 +1828,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     format={dateFormat}
                     formRef={formRef}
                   />
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="marketer_codes" label="Nhân viên marketing">
                     <AccountCustomSearchSelect
                       placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -1911,7 +1841,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       maxTagCount="responsive"
                     />
                   </Item>
-                </Col>
+                </Col>}
                 <Col span={8} xxl={8}>
                   <Item name="assignee_codes" label="Nhân viên bán hàng">
                     <AccountCustomSearchSelect
@@ -1925,7 +1855,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                <Col span={8} xxl={8}>
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Ngày thành công</label>
                   </div>
@@ -1937,8 +1867,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     format={dateFormat}
                     formRef={formRef}
                   />
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="delivery_types" label="Hình thức vận chuyển">
                     <CustomSelect
                       mode="multiple"
@@ -1959,8 +1889,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       ))}
                     </CustomSelect>
                   </Item>
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="coordinator_codes" label="Nhân viên điều phối">
                     <AccountCustomSearchSelect
                       placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -1972,10 +1902,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       maxTagCount="responsive"
                     />
                   </Item>
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
-                    <label>Ngày giao hàng cho HVC</label>
+                    <label>Ngày xuất kho</label>
                   </div>
                   <CustomFilterDatePicker
                     fieldNameFrom="exported_on_min"
@@ -1985,7 +1915,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     format={dateFormat}
                     formRef={formRef}
                   />
-                </Col>
+                </Col>}
                 <Col span={8} xxl={8}>
                   <Item name="note" label="Ghi chú nội bộ">
                     <Input.TextArea
@@ -2002,7 +1932,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                <Col span={8} xxl={8}>
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Ngày dự kiến nhận hàng</label>
                   </div>
@@ -2014,8 +1944,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     format={dateFormat}
                     formRef={formRef}
                   />
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Ngày đang hoàn</label>
                   </div>
@@ -2027,8 +1957,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     format={dateFormat}
                     formRef={formRef}
                   />
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <div className="ant-form-item-label">
                     <label>Ngày đã hoàn</label>
                   </div>
@@ -2040,8 +1970,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     format={dateFormat}
                     formRef={formRef}
                   />
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="fulfillment_status" label="Trạng thái giao hàng">
                     <CustomSelect
                       mode="multiple"
@@ -2064,8 +1994,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       ))}
                     </CustomSelect>
                   </Item>
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="delivery_provider_ids" label="Đơn vị vận chuyển">
                     <CustomSelect
                       mode="multiple"
@@ -2085,7 +2015,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       ))}
                     </CustomSelect>
                   </Item>
-                </Col>
+                </Col>}
                 <Col span={8} xxl={8}>
                   <Item name="tags" label="Tags">
                     <CustomSelect
@@ -2099,7 +2029,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                <Col span={8} xxl={8}>
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="shipper_codes" label="Đối tác giao hàng">
                     <CustomSelect
                       mode="multiple"
@@ -2120,7 +2050,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         ))}
                     </CustomSelect>
                   </Item>
-                </Col>
+                </Col>}
                 <Col span={8} xxl={8}>
                   <Item name="reference_code" label="Mã tham chiếu">
                     <Input placeholder="Tìm kiếm theo mã tham chiếu" />
@@ -2157,7 +2087,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     </Item>
                   </div>
                 </Col>
-                <Col span={8} xxl={8}>
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item label="Đơn tự giao hàng">
                     <div className="button-option-1">
                       {serviceListVariables.map((single) => (
@@ -2170,8 +2100,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       ))}
                     </div>
                   </Item>
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="channel_codes" label="Kênh bán hàng">
                     <CustomSelect
                       mode="multiple"
@@ -2192,8 +2122,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         ))}
                     </CustomSelect>
                   </Item>
-                </Col>
-                <Col span={8} xxl={8}>
+                </Col>}
+                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
                   <Item name="marketing_campaign" label="Marketing Campaign">
                     <CustomSelect
                       mode="tags"
@@ -2205,61 +2135,61 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                     />
                   </Item>
-                </Col>
+                </Col>}
                 <Col span={8} xxl={8}>
                   <Item name="discount_codes" label="Mã giảm giá">
                     <Input placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)" style={{ width: "100%" }} />
                   </Item>
                 </Col>
               </Row>
-              {orderType===ORDER_TYPES.online &&(
+              {orderType === ORDER_TYPES.online && (
                 <React.Fragment>
-                  <Row style={{display:"flex", alignItems:"center", marginBottom:"24px"}}>
-                      <Switch 
-                        size="small"
-                        onChange={(value)=>{
-                          setVisibleUTM(value)
-                        }}
-                        checked={visibleUTM}
-                      />
-                      <span style={{paddingLeft:"10px", fontWeight:500}}>Đơn hàng Web/App</span>
+                  <Row style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
+                    <Switch
+                      size="small"
+                      onChange={(value) => {
+                        setVisibleUTM(value)
+                      }}
+                      checked={visibleUTM}
+                    />
+                    <span style={{ paddingLeft: "10px", fontWeight: 500 }}>Đơn hàng Web/App</span>
                   </Row>
-                  {visibleUTM &&(
+                  {visibleUTM && (
                     <React.Fragment>
                       <Row gutter={20}>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_Source" name="utm_source">
-                            <Input placeholder="..." style={{width:"100%"}}/>
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_Medium" name="utm_medium">
-                            <Input placeholder="..." style={{width:"100%"}}/>
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_content" name="utm_content">
-                            <Input placeholder="..." style={{width:"100%"}}/>
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_term" name="utm_term">
-                            <Input placeholder="..." style={{width:"100%"}}/>
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_id" name="utm_id">
-                            <Input placeholder="..." style={{width:"100%"}}/>
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_campagin" name="utm_campaign">
-                            <Input placeholder="..." style={{width:"100%"}}/>
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="Affiate code" name="affiliate">
-                            <Input placeholder="..." style={{width:"100%"}}/>
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                       </Row>
@@ -2267,7 +2197,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   )}
                 </React.Fragment>
               )}
-            
+
             </Form>
           )}
         </BaseFilter>

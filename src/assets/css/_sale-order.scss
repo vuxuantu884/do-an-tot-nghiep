@@ -562,6 +562,10 @@
   font-weight: 500;
 }
 
+.text-bold {
+  font-weight: bold;
+}
+
 .font-size-text {
   font-size: 14px;
   color: #222222;
@@ -1241,7 +1245,7 @@
       align-items: center;
       flex-direction: column;
       width: 157px;
-      height: 16px;
+      // height: 16px;
       span {
         &:first-child {
           color: #000000;
@@ -1252,7 +1256,7 @@
         }
       }
     }
-    .saleorder-steps-one {
+    .saleorder-steps:not(:last-child) {
       position: relative;
       &:before {
         content: "";

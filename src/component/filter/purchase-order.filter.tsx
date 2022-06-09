@@ -34,7 +34,7 @@ import CustomFilterDatePicker from "../custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import { isArray } from "lodash";
 import BaseSelect from "../base/BaseSelect/BaseSelect";
-import {useFetchMerchans} from "../../hook/useFetchMerchans";
+import { useFetchMerchans } from "../../hook/useFetchMerchans";
 import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
 
 const { Option } = Select;
@@ -152,7 +152,7 @@ const convertStoreLabel = (store: string, allStore: StoreResponse[]) => {
 };
 
 const FilterList = ({ filters, resetField, allStores }: any) => {
-  const newFilters = {...filters};
+  const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
   const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
   filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateFilter, i));
@@ -282,7 +282,7 @@ const AdvanceFormItems = ({
               fieldNameFrom={`from_${field}`}
               fieldNameTo={`to_${field}`}
               activeButton={''}
-              setActiveButton={() => {}}
+              setActiveButton={() => { }}
               formRef={formRef}
             />
             break;
@@ -305,17 +305,17 @@ const AdvanceFormItems = ({
               <AccountSearchPaging fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                 tagRender={tagRender}
                 mode="multiple"
-                placeholder="Chọn 1 hoặc nhiều QC"/>
+                placeholder="Chọn 1 hoặc nhiều QC" />
             );
             break;
           case filterFields.is_have_returned:
             collapseChildren = (
-              <CustomSelectOne span={12} data={{"true": "Có trả hàng", "false": "Không có trả hàng"}} />
+              <CustomSelectOne span={12} data={{ "true": "Có trả hàng", "false": "Không có trả hàng" }} />
             )
             break;
           case filterFields.tax_included:
             collapseChildren = (
-              <CustomSelectOne span={12} data={{"true": "Có VAT", "false": "Không VAT"}} />
+              <CustomSelectOne span={12} data={{ "true": "Có VAT", "false": "Không VAT" }} />
             );
             break;
           case filterFields.expected_store:
@@ -338,7 +338,7 @@ const AdvanceFormItems = ({
               //     </CustomSelect.Option>
               //   ))}
               // </CustomSelect>
-              <TreeStore listStore={listStore} placeholder="Kho nhận hàng dự kiến"/>
+              <TreeStore listStore={listStore} placeholder="Kho nhận hàng dự kiến" />
             );
             break;
           case filterFields.note:
@@ -363,9 +363,9 @@ const AdvanceFormItems = ({
             collapseChildren = null;
         }
         return (
-          <Col span={8} key={field} hidden={ field === filterFields.status || field === filterFields.merchandiser }>
+          <Col span={8} key={field} hidden={field === filterFields.status || field === filterFields.merchandiser}>
             <div className="font-weight-500">{filterFieldsMapping[field]}</div>
-            <Item  name={field}>{collapseChildren}</Item>
+            <Item name={field}>{collapseChildren}</Item>
           </Col>
         );
       })}
@@ -384,15 +384,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     actions,
   } = props;
   const [visible, setVisible] = useState(false);
-
   const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>([]);
-  const [tagAcitve, setTagActive] = useState<number|null>();
+  const [tagAcitve, setTagActive] = useState<number | null>();
   const [configId, setConfigId] = useState<number>();
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
   const dispatch = useDispatch();
   const [showModalSaveFilter, setShowModalSaveFilter] = useState(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const {account} = userReducer;
+  const { account } = userReducer;
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [wins, setWins] = useState<PageResponse<AccountResponse>>(
     {
@@ -400,7 +399,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans()
 
   const [lstQC, setlstQC] = useState<PageResponse<AccountResponse>>(
     {
@@ -461,13 +460,12 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const onResetFilter = useCallback(() => {
     let fields = formAdvanceFilter.getFieldsValue(true);
     for (let key in fields) {
-      if(fields[key] instanceof Array) {
+      if (fields[key] instanceof Array) {
         fields[key] = [];
       } else {
         fields[key] = null;
       }
     }
-    console.log(fields)
     formAdvanceFilter.setFieldsValue(fields);
     formAdvanceFilter.resetFields(['merchandiser', 'qc']);
     formAdvanceFilter.submit();
@@ -475,107 +473,109 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     setTagActive(null);
   }, [formAdvanceFilter]);
 
-  const onSelectFilterConfig = useCallback((index: number, id: number)=>{
+  const onSelectFilterConfig = useCallback((index: number, id: number) => {
     setTagActive(index);
-    const filterConfig = lstConfigFilter.find(e=>e.id === id);
+    const filterConfig = lstConfigFilter.find(e => e.id === id);
     if (filterConfig) {
       let json_content = JSON.parse(filterConfig.json_content);
 
-      Object.keys(json_content).forEach(function(key, index) {
+      Object.keys(json_content).forEach(function (key, index) {
         if (json_content[key] == null) json_content[key] = undefined;
       }, json_content);
       formAdvanceFilter.setFieldsValue(json_content);
     }
-},[lstConfigFilter, formAdvanceFilter]);
+  }, [lstConfigFilter, formAdvanceFilter]);
 
-  const FilterConfigCom = (props: any)=> {
+  const FilterConfigCom = (props: any) => {
     return (
-      <div style={{marginRight: 20, display: "inline-flex"}}>
-          <Tag onClick={(e)=>{
-              onSelectFilterConfig(props.index, props.id);
-              }} style={{cursor: "pointer",
-                  wordBreak: "break-all", whiteSpace: "unset" , backgroundColor: tagAcitve === props.index ? primaryColor: '',
-                    color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />}
-                    closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
-                      e.preventDefault();
-                      setConfigId(props.id);
-                      setIsShowConfirmDelete(true);
-                    }}>
-              {props.name}
-            </Tag>
+      <div style={{ marginRight: 20, display: "inline-flex" }}>
+        <Tag onClick={(e) => {
+          onSelectFilterConfig(props.index, props.id);
+        }} style={{
+          cursor: "pointer",
+          wordBreak: "break-all", whiteSpace: "unset", backgroundColor: tagAcitve === props.index ? primaryColor : '',
+          color: tagAcitve === props.index ? "white" : ''
+        }} key={props.index} icon={<StarOutlined />}
+          closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e) => {
+            e.preventDefault();
+            setConfigId(props.id);
+            setIsShowConfirmDelete(true);
+          }}>
+          {props.name}
+        </Tag>
       </div>
     )
   }
 
-  const onResultGetConfig = useCallback((res: BaseResponse<Array<FilterConfig>>)=>{
+  const onResultGetConfig = useCallback((res: BaseResponse<Array<FilterConfig>>) => {
     if (res && res.data && res.data.length > 0) {
-     const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_PO);
-     setLstConfigFilter(configFilters);
+      const configFilters = res.data.filter(e => e.type === FILTER_CONFIG_TYPE.FILTER_PO);
+      setLstConfigFilter(configFilters);
     }
-    else{
+    else {
       setLstConfigFilter([]);
-     }
-  },[]);
+    }
+  }, []);
 
-  const getConfigPo = useCallback(()=>{
+  const getConfigPo = useCallback(() => {
     if (account && account.code) {
       dispatch(
         getConfigPoAction(
-           account.code,
-           onResultGetConfig
+          account.code,
+          onResultGetConfig
         )
       );
     }
-  },[account, dispatch, onResultGetConfig])
+  }, [account, dispatch, onResultGetConfig])
 
-  const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
+  const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>) => {
     if (res) {
       showSuccess(`Xóa bộ lọc thành công`);
       setIsShowConfirmDelete(false);
       getConfigPo();
     }
-  },[getConfigPo])
+  }, [getConfigPo])
 
-  const onMenuDeleteConfigFilter =useCallback(()=>{
+  const onMenuDeleteConfigFilter = useCallback(() => {
     if (configId) {
       dispatch(deleteConfigPoAction(configId, onResultDeleteConfig));
     }
-  },[dispatch ,configId, onResultDeleteConfig]);
+  }, [dispatch, configId, onResultDeleteConfig]);
 
   const onShowSaveFilter = useCallback(() => {
     setModalAction("create");
     setShowModalSaveFilter(true);
   }, []);
 
-  const onResult = useCallback((res: BaseResponse<FilterConfig>) =>{
+  const onResult = useCallback((res: BaseResponse<FilterConfig>) => {
     if (res) {
       showSuccess(`Lưu bộ lọc thành công`);
       setShowModalSaveFilter(false);
       getConfigPo();
     }
-  },[getConfigPo]);
+  }, [getConfigPo]);
 
   const onSaveFilter = useCallback((request: FilterConfigRequest) => {
     if (request) {
       let json_content = JSON.stringify(
         formAdvanceFilter.getFieldsValue(),
-        function(k, v) { return v === undefined ? null : v; }
+        function (k, v) { return v === undefined ? null : v; }
       );;
       request.type = FILTER_CONFIG_TYPE.FILTER_PO;
       request.json_content = json_content;
 
       if (request.id && request.id !== null) {
-        const config = lstConfigFilter.find(e=>e.id.toString() === request.id.toString());
+        const config = lstConfigFilter.find(e => e.id.toString() === request.id.toString());
         if (lstConfigFilter && config) {
           request.name = config.name;
         }
-        dispatch(updateConfigPoAction(request,onResult));
-      }else{
-        dispatch(createConfigPoAction(request ,onResult));
+        dispatch(updateConfigPoAction(request, onResult));
+      } else {
+        dispatch(createConfigPoAction(request, onResult));
       }
     }
 
-  }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
+  }, [dispatch, formAdvanceFilter, onResult, lstConfigFilter]);
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -632,20 +632,20 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     getConfigPo();
   }, [getConfigPo]);
 
-  useEffect(()=>{
+  useEffect(() => {
     getAccounts('', 1, true, true);
-  },[getAccounts]);
+  }, [getAccounts]);
 
   const formRef = createRef<FormInstance>();
 
   return (
     <div className="purchase-order-form">
       <Form.Provider
-        onFormFinish={(name, {values, forms}) => {
-          const {formBaseFilter, formAdvanceFilter} = forms;
+        onFormFinish={(name, { values, forms }) => {
+          const { formBaseFilter, formAdvanceFilter } = forms;
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
-          let data = {...baseValues, ...advanceValues};
+          let data = { ...baseValues, ...advanceValues };
           let from_order_date = data[rangeFilter.from_order_date],
             to_order_date = data[rangeFilter.to_order_date],
             from_activated_date = data[rangeFilter.from_activated_date],
@@ -676,7 +676,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             from_expect_import_date: getStartOfDayCommon(from_expect_import_date),
             to_expect_import_date: getEndOfDayCommon(to_expect_import_date),
           };
-          formBaseFilter.setFieldsValue({...data});
+          formBaseFilter.setFieldsValue({ ...data });
           formAdvanceFilter?.setFieldsValue({
             ...data,
           });
@@ -697,7 +697,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                   placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT, Mã tham chiếu, ncc"
                 />
               </Item>
-              <Item name={filterFields.merchandiser} style={{width: 250}}>
+              <Item name={filterFields.merchandiser} style={{ width: 250 }}>
                 <BaseSelectMerchans
                   mode={"tags"}
                   tagRender={tagRender}
@@ -717,7 +717,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                     <Option key={item} value={item}>{listPOStatus[item]}</Option>
                   )}
                   notFoundContent="Không tìm thấy kết quả"
-                  style={{width: 200}}
+                  style={{ width: 200 }}
                 />
               </Item>
               <Item>
@@ -770,11 +770,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             {
               (lstConfigFilter && lstConfigFilter.length > 0) &&
               <div style={{ marginBottom: 20 }}>
-                   {
-                     lstConfigFilter?.map((e, index)=>{
-                       return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
-                     })
-                   }
+                {
+                  lstConfigFilter?.map((e, index) => {
+                    return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
+                  })
+                }
               </div>
             }
             <Row gutter={12}>
@@ -809,7 +809,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                       <Option key={item} value={item}>{listPOStatus[item]}</Option>
                     )}
                     notFoundContent="Không tìm thấy kết quả"
-                    style={{width: 200}}
+                    style={{ width: 200 }}
                   />
                 </Item>
               </Col>
@@ -822,13 +822,13 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
               tempAdvanceFilters={tempAdvanceFilters}
               getAccounts={getAccounts}
             />
-             <CustomModal
+            <CustomModal
               createText="Lưu lại"
               updateText="Lưu lại"
               visible={showModalSaveFilter}
-              onCreate={(formValues)=>{onSaveFilter(formValues)}}
-              onEdit={()=>{}}
-              onDelete={()=>{}}
+              onCreate={(formValues) => { onSaveFilter(formValues) }}
+              onEdit={() => { }}
+              onDelete={() => { }}
               onCancel={() => setShowModalSaveFilter(false)}
               modalAction={modalAction}
               componentForm={FormSaveFilter}
@@ -840,11 +840,11 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
         </BaseFilter>
       </Form.Provider>
       <ModalDeleteConfirm
-          visible={isShowConfirmDelete}
-          onOk={onMenuDeleteConfigFilter}
-          onCancel={() => setIsShowConfirmDelete(false)}
-          title="Xác nhận"
-          subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
+        visible={isShowConfirmDelete}
+        onOk={onMenuDeleteConfigFilter}
+        onCancel={() => setIsShowConfirmDelete(false)}
+        title="Xác nhận"
+        subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
       />
     </div>
   );

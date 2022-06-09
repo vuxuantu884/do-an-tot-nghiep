@@ -546,6 +546,7 @@ function AddVariantsModal(props: Props) {
                                     }
                                     placeholder="VD: 100,000"
                                     maxLength={15}
+                                    disabled
                                 />
                             </Item>
                         </Col>
@@ -576,6 +577,7 @@ function AddVariantsModal(props: Props) {
                                     }
                                     placeholder="VD: 100,000"
                                     maxLength={15}
+                                    disabled
                                 />
                             </Item>
                         </Col>

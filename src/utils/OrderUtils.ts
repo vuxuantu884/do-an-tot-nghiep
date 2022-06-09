@@ -1,9 +1,20 @@
 import { OrderPaymentRequest } from "model/request/order.request";
-import { FulFillmentResponse, OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
+import {
+  FulFillmentResponse,
+  OrderLineItemResponse,
+  OrderPaymentResponse,
+  OrderResponse
+} from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { sortFulfillments } from "./AppUtils";
-import { DELIVERY_SERVICE_PROVIDER_CODE, FulFillmentStatus, PaymentMethodCode } from "./Constants";
-import { FulfillmentCancelStatus, ORDER_PAYMENT_STATUS } from "./Order.constants";
+import {
+  DELIVERY_SERVICE_PROVIDER_CODE, FulFillmentReturnStatus,
+  FulFillmentStatus,
+  PaymentMethodCode,
+  ShipmentMethod,
+  WEIGHT_UNIT
+} from "./Constants";
+import { FulfillmentCancelStatus, OrderStatus, ORDER_PAYMENT_STATUS, ORDER_SUB_STATUS } from "./Order.constants";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -59,7 +70,9 @@ export const checkIfOrderHasPaidAllMoneyAmount = (
   return false;
 };
 
-export const renderContentWithBreakLine = (content: string | null | undefined) => {
+export const renderContentWithBreakLine = (
+  content: string | null | undefined,
+) => {
   if (!content) {
     return [""];
   }
@@ -77,14 +90,77 @@ export const checkIfOrderHasShipmentCod = (
   return sortedFulfillments[0]?.shipment?.cod;
 };
 
-export const checkIfOrderCancelled = (
-  OrderDetail: OrderResponse | null,
+export const checkIfOrderCancelled = (OrderDetail: OrderResponse | null) => {
+  return OrderDetail?.status === OrderStatus.CANCELLED;
+};
+
+export const checkIfFulfillmentCancelled = (
+  fulfillment: FulFillmentResponse,
 ) => {
-  const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-  if(!sortedFulfillments[0]?.status) {
-    return false
+  if (!fulfillment?.status) {
+    return false;
   }
-  return FulfillmentCancelStatus.includes(sortedFulfillments[0]?.status);
+  return (
+    FulfillmentCancelStatus.includes(fulfillment.status) ||
+    checkIfFulfillmentReturned(fulfillment) ||
+    checkIfFulfillmentReturning(fulfillment)
+  );
+};
+
+export const checkIfFulfillmentIsAtStore = (
+  fulfillment: FulFillmentResponse,
+) => {
+  return (
+    fulfillment.shipment?.delivery_service_provider_type ===
+    ShipmentMethod.PICK_AT_STORE
+  );
+};
+
+export const calculateSumWeightResponse = (items?: OrderLineItemResponse[]) => {
+  let totalWeight = 0;
+  if (items) {
+    items.forEach((item) => {
+      let itemWeightUnit = item.weight;
+      if (item.weight_unit === WEIGHT_UNIT.kilogram.value) {
+        itemWeightUnit = item.weight * 1000;
+      }
+      totalWeight = totalWeight + itemWeightUnit * item.quantity;
+    });
+  }
+  return totalWeight;
+};
+
+export const getQuantityWithTwoCharacter = (quantity: number) => {
+  if (quantity < 10) {
+    return "0" + quantity;
+  }
+  return quantity;
+};
+
+export const getTrackingCodeFulfillment = (
+  fulfillment: FulFillmentResponse | undefined | null,
+) => {
+  if (fulfillment) {
+    return fulfillment.shipment?.tracking_code;
+  }
+};
+
+export const checkIfFulfillmentReturning = (
+  fulfillment: FulFillmentResponse | undefined | null,
+) => {
+  if (!fulfillment) {
+    return false;
+  }
+  return fulfillment.return_status === FulFillmentReturnStatus.RETURNING && fulfillment.status === FulFillmentStatus.SHIPPING;
+};
+
+export const checkIfFulfillmentReturned = (
+  fulfillment: FulFillmentResponse | undefined | null,
+) => {
+  if (!fulfillment) {
+    return false;
+  }
+  return fulfillment.return_status === FulFillmentReturnStatus.RETURNED && fulfillment.status === FulFillmentStatus.CANCELLED;
 };
 
 export const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
@@ -122,6 +198,11 @@ export const isFulfillmentActive = (
   return sortedFulfillments[0];
 };
 
+export const checkIfOrderFinished = (orderDetail: OrderResponse | null | undefined) => {
+  return  orderDetail?.status === OrderStatus.FINISHED ||
+   orderDetail?.status === OrderStatus.COMPLETED
+};
+
 /*
 kiểm tra đơn đã hoàn true:false
 */
@@ -149,6 +230,13 @@ export const isDeliveryOrderReturned = (
   return false; //default
 };
 
+export const checkIfOrderReturned = (orderDetail: OrderResponse | null | undefined) => {
+  return orderDetail?.sub_status_code === ORDER_SUB_STATUS.returned
+};
+
+export const checkIfOrderIsCancelledBy3PL = (orderDetail: OrderResponse | null | undefined) => {
+  return orderDetail?.sub_status_code === ORDER_SUB_STATUS.delivery_service_cancelled
+};
 export const getLink = (providerCode: string, trackingCode: string) => {
   switch (providerCode) {
     case DELIVERY_SERVICE_PROVIDER_CODE.ghn:

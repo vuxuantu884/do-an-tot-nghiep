@@ -143,23 +143,24 @@ export const StyledWrapper = styled.div`
   }
 
   .inventory-transfer-table, .inventory-info {
-    .ant-tag {
+    .status {
       padding: 2px 8px;
       border-radius: 20px;
 
-      &.${STATUS_INVENTORY_TRANSFER.TRANSFERRING.status} {
-        background: ${BG_COLOR_TAG.TRANSFERRING.background};
+      .${STATUS_INVENTORY_TRANSFER.TRANSFERRING.status} {
         color: ${BG_COLOR_TAG.TRANSFERRING.color};
       }
-
-      &.${STATUS_INVENTORY_TRANSFER.PENDING.status} {
-        background: ${BG_COLOR_TAG.PENDING.background};
+      .${STATUS_INVENTORY_TRANSFER.PENDING.status} {
         color: ${BG_COLOR_TAG.PENDING.color};
       }
-
-      &.${STATUS_INVENTORY_TRANSFER.RECEIVED.status} {
-        background: ${BG_COLOR_TAG.RECEIVED.background};
+      .${STATUS_INVENTORY_TRANSFER.RECEIVED.status} {
         color: ${BG_COLOR_TAG.RECEIVED.color};
+      }
+      .${STATUS_INVENTORY_TRANSFER.CANCELED.status} {
+        color: ${BG_COLOR_TAG.CANCELED.color};
+      }
+      .${STATUS_INVENTORY_TRANSFER.CONFIRM.status} {
+        color: ${BG_COLOR_TAG.CONFIRM.color};
       }
     }
   }
