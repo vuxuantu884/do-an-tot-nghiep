@@ -77,7 +77,6 @@ import {
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { changeEcommerceOrderStatus } from "domain/actions/ecommerce/ecommerce.actions";
 import {
-  checkIfFulfillmentCanceled,
   generateQuery,
   handleFetchApiError,
   isFetchApiSuccessful,
@@ -110,6 +109,7 @@ import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import {RootReducerType} from "model/reducers/RootReducerType";
 import {getOrderReasonService} from "service/order/return.service";
+import { checkIfFulfillmentCancelled } from "utils/OrderUtils";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -502,7 +502,7 @@ const EcommerceOrders: React.FC = () => {
     const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
       return (
         !orderDetail.fulfillments?.some(single => {
-            return single.shipment && !checkIfFulfillmentCanceled(single)
+            return single.shipment && !checkIfFulfillmentCancelled(single)
           }
         ))
     }

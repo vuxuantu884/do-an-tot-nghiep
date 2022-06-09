@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/rules-of-hooks */
+import { ExclamationCircleOutlined } from "@ant-design/icons";
 import {
-	Badge, Card,
+	Card,
 	Col,
 	Collapse, Form,
 	FormInstance,
@@ -8,13 +9,11 @@ import {
 	Modal,
 	Row,
 	Space,
-	Tag,
-	Typography
+	Tag
 } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
-import storeBluecon from "assets/img/storeBlue.svg";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
 import CreateBillStep from "component/header/create-bill-step";
@@ -24,27 +23,23 @@ import OrderCreateShipment from "component/order/OrderCreateShipment";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
-import {
-	ShipperGetListAction
-} from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
 	getLoyaltyPoint,
 	getLoyaltyRate,
 	getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-	changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, DeliveryServicesGetList,
-	getListSubStatusAction, getStoreBankAccountNumbersAction, getTrackingLogFulfillmentAction, orderConfigSaga, OrderDetailAction,
+	changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, DeliveryServicesGetList, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
 	orderUpdateAction,
 	PaymentMethodGetList, setIsExportBillAction,
 	setIsShouldSetDefaultStoreBankAccountAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useFetchStores from "hook/useFetchStores";
-import { AccountResponse } from "model/account/account.model";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -70,8 +65,7 @@ import {
 	DeliveryServiceResponse,
 	FulFillmentResponse, OrderResponse,
 	OrderSubStatusResponse,
-	StoreCustomResponse,
-	TrackingLogFulfillmentResponse
+	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
@@ -81,31 +75,21 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-	CheckShipmentType,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
 	handleFetchApiError,
 	isFetchApiSuccessful,
 	reCalculatePaymentReturn,
-	replaceFormatString,
-	SumWeightResponse,
-	totalAmount,
-	TrackingCode
+	replaceFormatString, totalAmount
 } from "utils/AppUtils";
 import {
 	DEFAULT_COMPANY, FulFillmentStatus, OrderStatus,
 	PaymentMethodCode,
-	PaymentMethodOption,
-	POS,
-	ShipmentMethod,
-	ShipmentMethodOption,
-	TaxTreatment
+	PaymentMethodOption, POS, ShipmentMethodOption, TaxTreatment
 } from "utils/Constants";
-import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { DATE_FORMAT } from "utils/DateUtils";
 // import { yellowColor } from "utils/global-styles/variables";
-import { isDeliveryOrder } from "utils/OrderUtils";
-import { FulfillmentCancelStatus } from "utils/Order.constants";
-import { checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod } from "utils/OrderUtils";
+import { checkIfFulfillmentCancelled, checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod, isDeliveryOrder } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
@@ -115,8 +99,10 @@ import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayment
 // import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
-import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import OrderFulfillmentCancelledShowDate from "./component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
+import OrderFulfillmentDetail from "./component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
+import OrderFulfillmentShowFulfillment from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
+import OrderFulfillmentShowProduct from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
 
 // let typeButton = "";
 type PropTypes = {
@@ -128,6 +114,7 @@ type OrderParam = {
 };
 export default function Order(props: PropTypes) {
 	const dispatch = useDispatch();
+	const dateFormat = DATE_FORMAT.DDMMYY_HHmm
 	const history = useHistory();
 	let { id } = useParams<OrderParam>();
 	const queryParams = useQuery();
@@ -379,14 +366,6 @@ export default function Order(props: PropTypes) {
 		[setTag]
 	);
 
-	const getImageDeliveryService = useCallback(
-		(service_code) => {
-			const service = deliveryServices.find((item) => item.code === service_code);
-			return service?.logo;
-		},
-		[deliveryServices]
-	);
-
 	const copyOrderID = (e: any, data: string | null) => {
 		e.stopPropagation();
 		e.target.style.width = "26px";
@@ -560,57 +539,13 @@ export default function Order(props: PropTypes) {
 		getRequirementName();
 	}, [getRequirementName]);
 
-	const [shipper, setShipper] = useState<Array<AccountResponse> | null>(null);
 	useEffect(() => {
-		dispatch(ShipperGetListAction(setShipper));
 		dispatch(
 			DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
 				setDeliveryServices(response);
 			})
 		);
 	}, [dispatch]);
-
-	const [trackingLogFulfillment, setTrackingLogFulfillment] =
-		useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-
-	useEffect(() => {
-		if (TrackingCode(OrderDetail) !== "Đang xử lý") {
-			if (
-				OrderDetail &&
-				OrderDetail.fulfillments &&
-				OrderDetail.fulfillments.length > 0 &&
-				OrderDetail.fulfillments[0].code
-			) {
-				dispatch(
-					getTrackingLogFulfillmentAction(
-						OrderDetail.fulfillments[0].code,
-						setTrackingLogFulfillment
-					)
-				);
-			}
-		}
-		if (OrderDetail?.status) {
-			let resultStatus = OrderDetail.status;
-			if (OrderDetail.status === OrderStatus.FINALIZED && OrderDetail.fulfillments && OrderDetail.fulfillments.length > 0) {
-				switch (OrderDetail.fulfillments[0].status) {
-					case 'packed':
-						resultStatus = 'packed';
-						break;
-					case 'shipping':
-						resultStatus = 'shipping';
-						break;
-					default:
-						break;
-				}
-
-			}
-			dispatch(
-				getListSubStatusAction(resultStatus, (data: OrderSubStatusResponse[]) => {
-					setListOrderSubStatus(data);
-				})
-			);
-		}
-	}, [dispatch, OrderDetail]); //logne
 
 	const createDiscountRequest = () => {
 		let objDiscount: OrderDiscountRequest = {
@@ -1392,19 +1327,6 @@ export default function Order(props: PropTypes) {
 		);
 	}, [dispatch]);
 
-	// const setStoreForm = useCallback(
-	//   (id: number | null) => {
-	//     formRef.current?.setFieldsValue({store_id: id});
-	//   },
-	//   [formRef]
-	// );
-	const isFulfillmentCancelled = (fulfillment: FulFillmentResponse) => {
-		if(!fulfillment.status) {
-			return false
-		}
-		return FulfillmentCancelStatus.includes(fulfillment.status);
-	};
-
 	const checkIfShowCreatePayment = () => {
 		return (
 			checkIfOrderHasNoPayment(OrderDetail) && 
@@ -1645,24 +1567,20 @@ export default function Order(props: PropTypes) {
 													// OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
 													(
 														<div className="text-menu">
-															{OrderDetail?.fulfillments[0].shipment?.expected_received_date && (
+															{sortedFulfillments[0]?.shipment?.expected_received_date && (
 																<React.Fragment>
 																	<img src={calendarOutlined} style={{ marginRight: 9.5 }} alt=""></img>
 																	<span style={{ color: "#222222", lineHeight: "16px" }}>
-																		{OrderDetail?.fulfillments &&
-																			OrderDetail?.fulfillments.length > 0 &&
-																			OrderDetail?.fulfillments[0].shipment?.expected_received_date
+																		{sortedFulfillments[0]?.shipment?.expected_received_date
 																			? moment(
-																				OrderDetail?.fulfillments[0].shipment
+																				sortedFulfillments[0]?.shipment
 																					?.expected_received_date
-																			).format("DD/MM/YYYY")
+																			).format(dateFormat)
 																			: ""}
 																	</span>
 																</React.Fragment>
 															)}
-															{OrderDetail?.fulfillments &&
-																OrderDetail?.fulfillments.length > 0 &&
-																OrderDetail?.fulfillments[0].shipment?.office_time && (
+															{sortedFulfillments[0]?.shipment?.office_time && (
 																	<span
 																		style={{
 																			marginLeft: 6,
@@ -1712,8 +1630,7 @@ export default function Order(props: PropTypes) {
 															<Collapse
 																className="saleorder_shipment_order_colapse payment_success"
 																defaultActiveKey={[
-																	fulfillment.status === FulFillmentStatus.RETURNED || fulfillment.status === FulFillmentStatus.CANCELLED ||
-																		fulfillment.status === FulFillmentStatus.RETURNING ? "0" : "1",
+																	checkIfFulfillmentCancelled(fulfillment) ? "0" : "1",
 																]}
 																onChange={(e) => { }}
 																expandIcon={({ isActive }) => (
@@ -1732,12 +1649,7 @@ export default function Order(props: PropTypes) {
 															>
 																<Collapse.Panel
 																	className={
-																		fulfillment.status ===
-																			FulFillmentStatus.CANCELLED ||
-																			fulfillment.status ===
-																			FulFillmentStatus.RETURNING ||
-																			fulfillment.status === FulFillmentStatus.RETURNED
-																			? "orders-timeline-custom order-shipment-dot-cancelled"
+																		checkIfFulfillmentCancelled(fulfillment) ? "orders-timeline-custom order-shipment-dot-cancelled"
 																			: fulfillment.status === FulFillmentStatus.SHIPPED
 																				? "orders-timeline-custom order-shipment-dot-active"
 																				: "orders-timeline-custom order-shipment-dot-default"
@@ -1777,9 +1689,7 @@ export default function Order(props: PropTypes) {
 																				<FulfillmentStatusTag
 																					fulfillment={fulfillment}
 																				/>
-																				{!(fulfillment.status === FulFillmentStatus.CANCELLED ||
-																					fulfillment.status === FulFillmentStatus.RETURNING ||
-																					fulfillment.status === FulFillmentStatus.RETURNED) &&
+																				{!checkIfFulfillmentCancelled(fulfillment) &&
 																					<PrintShippingLabel
 																						fulfillment={fulfillment}
 																						orderSettings={orderSettings}
@@ -1788,9 +1698,7 @@ export default function Order(props: PropTypes) {
 																			</div>
 
 																			<div className="saleorder-header-content__date" style={{ display: "none", width: "100%", alignItems: "center" }}>
-																				{(fulfillment.status === FulFillmentStatus.CANCELLED ||
-																					fulfillment.status === FulFillmentStatus.RETURNING ||
-																					fulfillment.status === FulFillmentStatus.RETURNED) ?
+																				{checkIfFulfillmentCancelled(fulfillment) ?
 																					<span>
 																						<span
 																							style={{
@@ -1803,7 +1711,7 @@ export default function Order(props: PropTypes) {
 																						<span style={{ color: "#000000d9" }}>
 																							{fulfillment.cancel_date ? moment(
 																								fulfillment.cancel_date
-																							).format("DD/MM/YYYY HH:mm") : ''}
+																							).format(dateFormat) : ''}
 																						</span>
 																					</span> :
 																					<span>
@@ -1818,7 +1726,7 @@ export default function Order(props: PropTypes) {
 																						<span style={{ color: "#000000d9" }}>
 																							{moment(
 																								fulfillment.shipment?.created_date
-																							).format("DD/MM/YYYY")}
+																							).format(dateFormat)}
 																						</span>
 																					</span>}
 																			</div>
@@ -1826,520 +1734,18 @@ export default function Order(props: PropTypes) {
 																	}
 																	key="1"
 																>
-																	{fulfillment.shipment
-																		?.delivery_service_provider_type ===
-																		"pick_at_store" ? (
-																		<div>
-																			<Row gutter={24}>
-																				<Col md={24}>
-																					<Col span={24}>
-																						<b>
-																							<img
-																								style={{ marginRight: 12 }}
-																								src={storeBluecon}
-																								alt=""
-																							/>
-																							NHẬN TẠI CỬA HÀNG
-																						</b>
-																					</Col>
-																				</Col>
-																			</Row>
-																			<Row gutter={24} style={{ paddingTop: "15px" }}>
-																				<Col md={6}>
-																					<Col span={24}>
-																						<p className="text-field">Tên cửa hàng:</p>
-																					</Col>
-																					<Col span={24}>
-																						<b>{OrderDetail?.store}</b>
-																					</Col>
-																				</Col>
-
-																				<Col md={6}>
-																					<Col span={24}>
-																						<p className="text-field">Số điện thoại:</p>
-																					</Col>
-																					<Col span={24}>
-																						<b className="text-field">
-																							{OrderDetail?.store_phone_number}
-																						</b>
-																					</Col>
-																				</Col>
-
-																				<Col md={6}>
-																					<Col span={24}>
-																						<p className="text-field">Địa chỉ:</p>
-																					</Col>
-																					<Col span={24}>
-																						<b className="text-field">
-																							{OrderDetail?.store_full_address}
-																						</b>
-																					</Col>
-																				</Col>
-																			</Row>
-																		</div>
-																	) : (
-																		<Row gutter={24}>
-																			<Col md={12}>
-																				<Row gutter={30}>
-																					<Col span={10}>
-																						<p className="text-field">
-																							Đối tác giao hàng:
-																						</p>
-																					</Col>
-																					<Col span={14}>
-																						<b>
-																							{/* Lấy ra đối tác */}
-																							{(fulfillment.shipment
-																								?.delivery_service_provider_type ===
-																								"external_service" ||
-																								fulfillment.shipment
-																									?.delivery_service_provider_type ===
-																								"shopee") && (
-																									<img
-																										style={{
-																											width: "112px",
-																											height: 25,
-																										}}
-																										src={getImageDeliveryService(
-																											fulfillment.shipment
-																												.delivery_service_provider_code
-																										)}
-																										alt=""
-																									></img>
-																								)}
-
-																							{fulfillment.shipment
-																								?.delivery_service_provider_type ===
-																								"shipper" &&
-																								shipper &&
-																								shipper.find(
-																									(s) =>
-																										fulfillment.shipment
-																											?.shipper_code === s.code
-																								)?.full_name}
-
-																							{fulfillment.shipment
-																								?.delivery_service_provider_type ===
-																								ShipmentMethod.EXTERNAL_SHIPPER &&
-																								(
-																									<span>{fulfillment.shipment.shipper_code} - {fulfillment.shipment.shipper_name}</span>
-																								)
-																							}
-																							{fulfillment.shipment
-																								?.delivery_service_provider_type ===
-																								ShipmentMethod.EMPLOYEE &&
-																								(
-																									<span>{fulfillment.shipment.info_shipper}</span>
-																								)
-																							}
-																						</b>
-																					</Col>
-																				</Row>
-																			</Col>
-																			{CheckShipmentType(OrderDetail!) ===
-																				"external_service" && (
-																					<Col md={12}>
-																						<Row gutter={30}>
-																							<Col span={10}>
-																								<p className="text-field">Dịch vụ:</p>
-																							</Col>
-																							<Col span={14}>
-																								<b className="text-field">
-																									{/* {getServiceName(OrderDetail!)} */}
-																									{
-																										fulfillment.shipment
-																											?.delivery_transport_type
-																									}
-																								</b>
-																							</Col>
-																						</Row>
-																					</Col>
-																				)}
-
-																			<Col md={12}>
-																				<Row gutter={30}>
-																					<Col span={10}>
-																						<p className="text-field">
-																							Phí ship trả HVC:
-																						</p>
-																					</Col>
-																					<Col span={14}>
-																						<b className="text-field">
-																							{OrderDetail?.fulfillments &&
-																								formatCurrency(
-																									fulfillment.shipment
-																										?.shipping_fee_paid_to_three_pls
-																										? fulfillment.shipment
-																											?.shipping_fee_paid_to_three_pls
-																										: 0
-																								)}
-																						</b>
-																					</Col>
-																				</Row>
-																			</Col>
-
-																			<Col md={12}>
-																				<Row gutter={30}>
-																					<Col span={10}>
-																						<p className="text-field">
-																							Phí ship báo khách:
-																						</p>
-																					</Col>
-																					<Col span={14}>
-																						<b className="text-field">
-																							{formatCurrency(OrderDetail?.shipping_fee_informed_to_customer || 0)}
-																						</b>
-																					</Col>
-																				</Row>
-																			</Col>
-																			<Col md={12}>
-																				<Row gutter={30}>
-																					<Col span={10}>
-																						<p className="text-field">Loại đơn giao hàng:</p>
-																					</Col>
-																					<Col span={14}>
-																						<b className="text-field" style={{ color: fulfillment.shipment?.service === '4h_delivery' ? '#E24343' : '' }}>
-																							{fulfillment.shipment?.service === '4h_delivery' ? 'Đơn giao 4H' : 'Đơn giao bình thường'}
-																						</b>
-																					</Col>
-																				</Row>
-																			</Col>
-
-																			{CheckShipmentType(OrderDetail!) ===
-																				"external_service" && (
-																					<Col md={12}>
-																						<Row gutter={30}>
-																							<Col span={10}>
-																								<p className="text-field">Trọng lượng:</p>
-																							</Col>
-																							<Col span={14}>
-																								<b className="text-field">
-																									{OrderDetail?.fulfillments &&
-																										OrderDetail?.fulfillments.length >
-																										0 &&
-																										formatCurrency(
-																											OrderDetail.items &&
-																											SumWeightResponse(
-																												OrderDetail.items
-																											)
-																										)}
-																									g
-																								</b>
-																							</Col>
-																						</Row>
-																					</Col>
-																				)}
-																			<Col md={12}>
-																				<Row gutter={30}>
-																					<Col span={10}>
-																						<p className="text-field">{!isFulfillmentCancelled(fulfillment) ? "Ngày tạo" : "Ngày hủy"}:</p>
-																					</Col>
-																					<Col span={14}>
-																						<b className="text-field">
-																							{!isFulfillmentCancelled(fulfillment) ? ConvertUtcToLocalDate(fulfillment.shipment?.created_date, DATE_FORMAT.fullDate) : ConvertUtcToLocalDate(fulfillment?.cancel_date, DATE_FORMAT.fullDate)
-																							}
-																						</b>
-																					</Col>
-																				</Row>
-																			</Col>
-
-																			{fulfillment?.reason_name && (
-																				<Col md={12}>
-																					<Row gutter={30}>
-																						<Col span={10}>
-																							<p className="text-field">Lý do hủy:</p>
-																						</Col>
-																						<Col span={14}>
-																							<b className="text-field">
-																								{fulfillment?.reason_name}
-																								{fulfillment?.sub_reason_name && (
-																									<span>
-																										{" "}- {fulfillment?.sub_reason_name}
-																									</span>
-																								)}
-																							</b>
-																						</Col>
-																					</Row>
-																				</Col>
-																			)}
-
-																			{requirementNameView && (
-																				<Col md={12}>
-																					<Row gutter={30}>
-																						<Col span={10}>
-																							<p className="text-field">Yêu cầu:</p>
-																						</Col>
-																						<Col span={14}>
-																							<b className="text-field">
-																								{requirementNameView}
-																							</b>
-																						</Col>
-																					</Row>
-																				</Col>
-																			)}
-																		</Row>
-																	)}
-																	<Row className="orders-shipment-item">
-																		<Collapse ghost>
-																			<Collapse.Panel
-																				header={
-																					<Row>
-																						<Col style={{ alignItems: "center" }}>
-																							<b
-																								style={{
-																									marginRight: "10px",
-																									color: "#222222",
-																								}}
-																							>
-																								{OrderDetail?.items.reduce(
-																									(a: any, b: any) => a + b.quantity,
-																									0
-																								)}{" "}
-																								SẢN PHẨM
-																							</b>
-																						</Col>
-																					</Row>
-																				}
-																				key="1"
-																			>
-																				{OrderDetail?.items.map((item, index) => (
-																					<div
-																						className="orders-shipment-item-view"
-																						key={index}
-																					>
-																						<div className="orders-shipment-item-view-wrap">
-																							<div className="orders-shipment-item-name">
-																								<div>
-																									<Typography.Link
-																										style={{
-																											color: "#2A2A86",
-																										}}
-																									>
-																										{item.sku}
-																									</Typography.Link>
-																								</div>
-																								<Badge
-																									status="default"
-																									text={item.variant}
-																									style={{ marginLeft: 7 }}
-																								/>
-																							</div>
-																							<div
-																								style={{
-																									width: "30%",
-																									display: "flex",
-																									justifyContent: "space-between",
-																								}}
-																							>
-																								{item.type === "gift" ? (
-																									<span>Quà tặng</span>
-																								) : (
-																									<div></div>
-																								)}
-																								<span style={{ marginRight: 10 }}>
-																									{item.quantity >= 10
-																										? item.quantity
-																										: "0" + item.quantity}
-																								</span>
-																							</div>
-																						</div>
-																					</div>
-																				))}
-																			</Collapse.Panel>
-																		</Collapse>
-																	</Row>
-																	{CheckShipmentType(OrderDetail!) ===
-																		"external_service" &&
-																		fulfillment.status !==
-																		FulFillmentStatus.CANCELLED &&
-																		fulfillment.status !==
-																		FulFillmentStatus.RETURNING &&
-																		fulfillment.status !==
-																		FulFillmentStatus.RETURNED && (
-																			<Row
-																				gutter={24}
-																				style={{
-																					marginTop: 12,
-																					marginBottom: 0,
-																					padding: "0 12px 0 0",
-																				}}
-																			>
-																				<Col span={24}>
-																					<Collapse ghost>
-																						<Collapse.Panel
-																							header={
-																								<Row>
-																									<Col style={{ display: "flex", width: "100%", alignItems: "center" }}>
-																										<span
-																											style={{
-																												marginRight: "10px",
-																												color: "#222222",
-																											}}
-																										>
-																											Mã vận đơn:
-																										</span>
-																										<Typography.Link
-																											className="text-field"
-																											style={{
-																												color: "#2A2A86",
-																												fontWeight: 500,
-																												fontSize: 16,
-																											}}
-																										>
-																											{TrackingCode(OrderDetail)}
-																										</Typography.Link>
-																										<div
-																											style={{
-																												width: 30,
-																												padding: "0 4px",
-																											}}
-																										>
-																											<img
-																												onClick={(e) =>
-																													copyOrderID(
-																														e,
-																														TrackingCode(OrderDetail)!
-																													)
-																												}
-																												src={copyFileBtn}
-																												alt=""
-																												style={{ width: 23 }}
-																											/>
-																										</div>
-																									</Col>
-																									<Col>
-																										<span
-																											style={{
-																												color: "#000000d9",
-																												marginRight: 6,
-																											}}
-																										></span>
-																									</Col>
-																								</Row>
-																							}
-																							key="1"
-																							className="custom-css-collapse"
-																						>
-																							<Collapse
-																								className="orders-timeline"
-																								expandIcon={({ isActive }) => (
-																									<img
-																										src={doubleArrow}
-																										alt=""
-																										style={{
-																											transform: isActive
-																												? "rotate(0deg)"
-																												: "rotate(270deg)",
-																											float: "right",
-																										}}
-																									/>
-																								)}
-																								ghost
-																								defaultActiveKey={["0"]}
-																							>
-																								{trackingLogFulfillment?.map(
-																									(item, index) => (
-																										<Collapse.Panel
-																											className="orders-timeline-custom orders-dot-status"
-																											header={
-																												<div>
-																													<b
-																														style={{
-																															paddingLeft: "14px",
-																															color: "#222222",
-																														}}
-																													>
-																														{item.message}
-																													</b>
-																													<i
-																														className="icon-dot"
-																														style={{
-																															fontSize: "4px",
-																															margin:
-																																"16px 10px 10px 10px",
-																															color: "#737373",
-																														}}
-																													></i>{" "}
-																													<span
-																														style={{
-																															color: "#737373",
-																														}}
-																													>
-																														{moment(
-																															item.created_date
-																														).format(
-																															"DD/MM/YYYY HH:mm"
-																														)}
-																													</span>
-																												</div>
-																											}
-																											key={index}
-																											showArrow={false}
-																										/>
-																									)
-																								)}
-																							</Collapse>
-																						</Collapse.Panel>
-																					</Collapse>
-																				</Col>
-																			</Row>
-																		)}
-																	{fulfillment.status === FulFillmentStatus.CANCELLED ||
-																		fulfillment.status === FulFillmentStatus.RETURNING ||
-																		fulfillment.status === FulFillmentStatus.RETURNED ? (
-																		<div className="saleorder-custom-steps">
-																			<div className="saleorder-steps-one saleorder-steps dot-active">
-																				<span>Ngày tạo</span>
-																				<span>
-																					{moment(fulfillment?.created_date).format(
-																						"DD/MM/YYYY HH:mm"
-																					)}
-																				</span>
-																			</div>
-																			{fulfillment.status_before_cancellation ===
-																				FulFillmentStatus.SHIPPING && (
-																					<div
-																						className={
-																							fulfillment.status ===
-																								FulFillmentStatus.RETURNED
-																								? "saleorder-steps-two saleorder-steps dot-active hide-steps-two-line"
-																								: "saleorder-steps-two saleorder-steps dot-active"
-																						}
-																					>
-																						<span>Ngày hủy</span>
-																						<span>
-																							{moment(fulfillment?.cancel_date).format(
-																								"DD/MM/YYYY HH:mm"
-																							)}
-																						</span>
-																					</div>
-																				)}
-																			{fulfillment.status_before_cancellation !==
-																				FulFillmentStatus.SHIPPING && (
-																					<div className="saleorder-steps-three saleorder-steps dot-active">
-																						<span>Ngày nhận lại</span>
-																						<span>
-																							{moment(fulfillment?.cancel_date).format(
-																								"DD/MM/YYYY HH:mm"
-																							)}
-																						</span>
-																					</div>
-																				)}
-																			{fulfillment.status_before_cancellation ===
-																				FulFillmentStatus.SHIPPING &&
-																				fulfillment.status ===
-																				FulFillmentStatus.RETURNED && (
-																					<div className="saleorder-steps-three saleorder-steps dot-active">
-																						<span>Ngày nhận lại</span>
-																						<span>
-																							{moment(
-																								fulfillment?.receive_cancellation_on
-																							).format("DD/MM/YYYY HH:mm")}
-																						</span>
-																					</div>
-																				)}
-																		</div>
-																	) : null}
+																	<OrderFulfillmentDetail 
+																		deliveryServices={deliveryServices}
+																		fulfillment={fulfillment}
+																		requirementNameView={requirementNameView}
+																		orderDetail={OrderDetail}
+																		isUpdateOrder
+																	/>
+																	<OrderFulfillmentShowProduct orderDetail={OrderDetail} />
+																	<OrderFulfillmentShowFulfillment 
+																		fulfillment={fulfillment}
+																	/>
+																	<OrderFulfillmentCancelledShowDate fulfillment={fulfillment} />
 																</Collapse.Panel>
 															</Collapse>
 														</div>

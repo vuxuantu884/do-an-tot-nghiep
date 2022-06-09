@@ -5,6 +5,9 @@ type PropTypes = {
   note: string | undefined | null;
 };
 
+/**
+* render ghi chú có text xuống dòng
+*/
 function TextWithLineBreak(props: PropTypes) {
   const { note } = props;
   const renderContent = (content: string | null | undefined) => {
