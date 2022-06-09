@@ -21,17 +21,21 @@ import { DistrictResponse } from "model/content/district.model";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import "./po-return-list.scss";
+import IconPrintHover from "assets/img/iconPrintHover.svg";
+
 interface POReturnListProps {
   id: string;
   params: PurchaseOrder | null;
   listCountries: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
+  actionPrint?: (poReturnId: number)=>{},
+  printElementRefReturn?: any
 }
 
 const POReturnList: React.FC<POReturnListProps> = (
   props: POReturnListProps
 ) => {
-  const { id, params, listCountries, listDistrict } = props;
+  const { id, params, listCountries, listDistrict,actionPrint } = props;
   const history = useHistory();
   const return_orders = useMemo(() => {
     return params?.return_orders;
@@ -97,10 +101,22 @@ const POReturnList: React.FC<POReturnListProps> = (
                       </div>
                     </Col>
                     <Col span={12}>
-                      <div className="text-muted text-right">
-                        {`Ngày trả hàng: ${ConvertUtcToLocalDate(
-                          item.expect_return_date
-                        )}`}
+                      <div className="return-right">
+                        <div className="text-center">
+                          {`Ngày trả hàng: ${ConvertUtcToLocalDate(
+                            item.expect_return_date
+                          )}`}
+                        </div>
+                        <div>
+                            <Button
+                                 className="ant-btn-outline"
+                                 size="large"
+                                 onClick={()=>{actionPrint && actionPrint(item.id)}}
+                                 icon={<img src={IconPrintHover} style={{ marginRight: 8 }} alt="" />}
+                               >
+                              In phiếu trả
+                            </Button>
+                        </div>
                       </div>
                     </Col>
                   </Row>

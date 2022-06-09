@@ -40,7 +40,7 @@ import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useSt
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
-import { getPrintContent } from "service/purchase-order/purchase-order.service";
+import { getPrintContent, printPurchaseOrderReturnApi } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
@@ -113,6 +113,7 @@ const PODetailScreen: React.FC = () => {
   const { id } = useParams<PurchaseOrderParam>();
   let idNumber = parseInt(id);
   const printElementRef = useRef(null);
+  const printElementRefReturn = useRef(null);
   const dispatch = useDispatch();
   const history = useHistory();
   const [formMain] = Form.useForm();
@@ -129,6 +130,7 @@ const PODetailScreen: React.FC = () => {
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [poData, setPurchaseItem] = useState<PurchaseOrder>();
   const [printContent, setPrintContent] = useState<string>("");
+  const [printContentReturn, setPrintContentReturn] = useState<string>("");
   const [isEditDetail, setIsEditDetail] = useState<boolean>(false);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isSuggest, setSuggest] = useState<boolean>(false);
@@ -148,10 +150,23 @@ const PODetailScreen: React.FC = () => {
     content: () => printElementRef.current,
   });
 
+  const handlePrintReturn = useReactToPrint({
+    content: () => printElementRefReturn.current,
+    documentTitle: "Đơn trả hàng nhà cung cấp",
+  });
+
   const printContentCallback = useCallback(
     (printContent: Array<PurchaseOrderPrint>) => {
       if (!printContent || printContent.length === 0) return;
       setPrintContent(printContent[0].html_content);
+    },
+    []
+  );
+
+  const printContentReturnCallback = useCallback(
+    (printContent: PurchaseOrderPrint) => {
+      if (!printContent) return;
+      setPrintContentReturn(printContent.html_content);
     },
     []
   );
@@ -316,6 +331,20 @@ const PODetailScreen: React.FC = () => {
       handlePrint && handlePrint();
     }
   }, [dispatch, handlePrint, printContentCallback]);
+
+  const actionPrintReturn = useCallback(async (returnId: number) => {
+    const res = await callApiNative({isShowLoading: true},dispatch,printPurchaseOrderReturnApi,returnId,poData?.id ?? 0);
+    console.log('res',res);
+    
+    if (res && res.data && res.data.errors) {
+      res.data.errors.forEach((e:string) => {
+        showError(e);
+      });
+    }else{
+      printContentReturnCallback(res);
+      handlePrintReturn && handlePrintReturn();
+    }
+  }, [dispatch, handlePrintReturn, poData?.id, printContentReturnCallback]);
 
   const onMenuPrint = (index: number) => {
     dispatch(showLoading());
@@ -648,6 +677,17 @@ const PODetailScreen: React.FC = () => {
                 />
               </div>
             </div>
+            <div style={{ display: "none" }}>
+              <div className="printContent" ref={printElementRefReturn}>
+                <div
+                  dangerouslySetInnerHTML={{
+                    __html: purify.sanitize(printContentReturn),
+                  }}
+                />
+              </div>
+            </div>
+            <div style={{ display: "none" }}>
+          </div>
           </Space>
         </div>
         <ActionByStatus />
@@ -667,6 +707,7 @@ const PODetailScreen: React.FC = () => {
           params={formMain.getFieldsValue(true)}
           listCountries={listCountries}
           listDistrict={listDistrict}
+          actionPrint={actionPrintReturn}
         />
       );
     } else {
