@@ -298,8 +298,10 @@ const POUtils = {
         quantity: 0,
         real_quantity: 0,
         note: "",
-        retail_price: item.price,
+        retail_price: item.retail_price,
         variant_id: item.variant_id,
+        price: item.price,
+        product_name: item.product,
       });
     });
     return result;
@@ -360,7 +362,9 @@ const POUtils = {
               real_quantity: 0,
               note: "",
               variant_id: lineItem.variant_id,
-            retail_price: lineItem.retail_price,
+              retail_price: lineItem.retail_price,
+              price: lineItem.price,
+              product_name: lineItem.product
             });
           } else if (procuments.length === 1) {
             newProcumentLineItem[index].quantity = lineItem.quantity;
@@ -645,7 +649,7 @@ export const fetchProductGridData = async (isGridMode: boolean,
 export const getUntaxedAmountByLineItemType = (lineItem: PurchaseOrderLineItem[], type: POLoadType) => {
   return Math.round(lineItem.reduce((prev: number, cur: PurchaseOrderLineItem) => {
     const amount = prev + cur.quantity * cur.price ;
-    
+
     if (type === POLoadType.SUPPLEMENT && cur.type === POLineItemType.SUPPLEMENT) {
       return amount;
     } else if (type === POLoadType.NOT_SUPPLEMENT && cur.type !== POLineItemType.SUPPLEMENT) {

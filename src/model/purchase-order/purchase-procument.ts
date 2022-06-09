@@ -74,6 +74,9 @@ export interface PurchaseProcumentLineItem {
   note: string;
   variant_id: number;
   retail_price: number;
+  price: number;
+  product_name: string;
+  amount?: number;
 }
 
 export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {
