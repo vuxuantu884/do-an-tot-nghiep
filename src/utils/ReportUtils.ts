@@ -334,3 +334,20 @@ export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
       return `${url}${OfflineSales}`;
   }
 }
+
+export const getPermissionViewCustomizeReport = (cube: AnalyticCube) => {
+  const { Sales, Payments, Costs, OfflineSales } = AnalyticCube;
+  const permission = "reports_report_";
+  switch (cube) {
+    case Sales:
+      return `${permission}sales`;
+    case Payments:
+      return `${permission}customers`;
+    case OfflineSales:
+      return `${permission}pos`;
+    case Costs:
+      return `${permission}costs`;
+    default:
+      return `${permission}sales`;
+  }
+};

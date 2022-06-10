@@ -1,4 +1,5 @@
 // import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { ReportPermissions } from "config/permissions/report.permisstion";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -31,6 +32,7 @@ const reports: Array<RouteMenu> = [
     key: "menureport0",
     isShow: true,
     header: null,
+    permissions: [ReportPermissions.report_pos],
     subMenu: [
       {
         path: `${UrlConfig.ANALYTICS}/:id`,
@@ -45,6 +47,7 @@ const reports: Array<RouteMenu> = [
       },
       {
         path: `${UrlConfig.ANALYTIC_SALES_OFFLINE}/:id`,
+        permissions: [ReportPermissions.report_pos],
         exact: true,
         title: "Mẫu báo cáo bán hàng",
         icon: "icon-dot",
@@ -76,6 +79,7 @@ const reports: Array<RouteMenu> = [
     key: "menureport01",
     isShow: true,
     header: null,
+    permissions: [ReportPermissions.report_sales],
     subMenu: [
       {
         path: `${UrlConfig.ANALYTICS}/:id`,
@@ -90,6 +94,7 @@ const reports: Array<RouteMenu> = [
       },
       {
         path: `${UrlConfig.ANALYTIC_SALES_ONLINE}/:id`,
+        permissions: [ReportPermissions.report_sales],
         exact: true,
         title: "Mẫu báo cáo bán hàng",
         icon: "icon-dot",
@@ -110,9 +115,11 @@ const reports: Array<RouteMenu> = [
     key: "menureport1",
     isShow: true,
     header: null,
+    permissions: [ReportPermissions.report_costs],
     subMenu: [
       {
         path: `${UrlConfig.ANALYTIC_FINACE}/:id`,
+        permissions: [ReportPermissions.report_costs],
         exact: true,
         title: "Mẫu báo cáo tài chính",
         icon: "icon-dot",
@@ -133,9 +140,11 @@ const reports: Array<RouteMenu> = [
     key: "menureport2",
     isShow: true,
     header: null,
+    permissions: [ReportPermissions.repost_customers],
     subMenu: [
       {
         path: `${UrlConfig.ANALYTIC_CUSTOMER}/:id`,
+        permissions: [ReportPermissions.repost_customers],
         exact: true,
         title: "Mẫu báo cáo khách hàng",
         icon: "icon-dot",

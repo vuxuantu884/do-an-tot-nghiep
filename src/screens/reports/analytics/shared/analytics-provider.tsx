@@ -10,6 +10,7 @@ type Props = {
     setMetadata: (metadata: AnalyticMetadata) => void;
     setDataQuery: (dataQuery: AnalyticDataQuery) => void;
     cubeRef: React.MutableRefObject<string>; 
+    permissionViewReport: React.MutableRefObject<string>; 
     chartDataQuery?: AnalyticDataQuery;
     setChartDataQuery: (chartDataQuery: AnalyticDataQuery) => void;
     chartColumnSelected?: string[],
@@ -33,6 +34,7 @@ function AnalyticsProvider(props: { children: ReactNode }) {
     const [chartColumnSelected, setChartColumnSelected] = useState<string[]>();
     const [activeFilters, setActiveFilters] = useState<Map<string, any>>(new Map<string, any>());
     const cubeRef = React.useRef<string>('');
+    const permissionViewReport = React.useRef<string>('');
     const [rowsInQuery, setRowsInQuery] = useState<string[]>([]);
     const [isMyReport, setIsMyReport] = useState<boolean>(true);
     const [loadingChart, setLoadingChart] = useState<boolean>(false);
@@ -56,7 +58,8 @@ function AnalyticsProvider(props: { children: ReactNode }) {
                 isMyReport,
                 setIsMyReport,
                 loadingChart,
-                setLoadingChart
+                setLoadingChart,
+                permissionViewReport
             }}
         />
     )

@@ -1,6 +1,7 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import { Button, Collapse, Form } from 'antd'
 import exportIcon from "assets/icon/export.svg"
+import AuthWrapper from 'component/authorization/AuthWrapper'
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
@@ -13,9 +14,10 @@ import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
 import { useDispatch, useSelector } from 'react-redux'
 import { useHistory, useParams } from 'react-router-dom'
+import NoPermission from 'screens/no-permission.screen'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, saveAnalyticsCustomService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getConditionsFormServerToForm, getPropertiesValue, getTranslatePropertyKey, setReportsCustomizeUrl } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getConditionsFormServerToForm, getPermissionViewCustomizeReport, getPropertiesValue, getTranslatePropertyKey, setReportsCustomizeUrl } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ReportBottomBarStyle } from '../index.style'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
@@ -34,7 +36,7 @@ function CreateAnalytics() {
     let { id } = useParams<{ id: string }>();
 
     const [reportInfo, setReportInfo] = React.useState<AnalyticCustomize>({} as AnalyticCustomize);
-    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport, setLoadingChart } = useContext(AnalyticsContext)
+    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport, setLoadingChart, permissionViewReport } = useContext(AnalyticsContext)
     const [mode, setMode] = React.useState<SUBMIT_MODE>(SUBMIT_MODE.GET_DATA);
     const [isLoadingExport, setIsLoadingExport] = React.useState<boolean>(false);
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
@@ -44,6 +46,7 @@ function CreateAnalytics() {
     const [isVisibleAnnotation, setIsVisibleAnnotation] = React.useState(false);
 
     const username = useSelector((state: RootReducerType) => state.userReducer.account?.user_name);
+    const allPermissions = useSelector((state: RootReducerType) => state.permissionReducer?.permissions);
 
     const currentAnnotation: AnnotationData | undefined = useMemo(() => {
         return AnnotationDataList.find((item) => dataQuery && item.cubes.includes(dataQuery.query.cube as AnalyticCube));
@@ -176,6 +179,10 @@ function CreateAnalytics() {
         const report: AnalyticCustomize = await callApiNative({ isShowLoading: true }, dispatch, getAnalyticsCustomByIdService, Number(id));
         setReportInfo(report);
         if (report && report.query) {
+            permissionViewReport.current = getPermissionViewCustomizeReport(report.group as AnalyticCube);
+            if (!allPermissions.includes(permissionViewReport.current)) {
+                return;
+            }
             if (username && username.toLocaleLowerCase() === report.created_by?.toLocaleLowerCase()) {
                 setIsMyReport(true);
             } else {
@@ -241,14 +248,14 @@ function CreateAnalytics() {
         if (report?.chart_query) {
             const fullChartParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.chart_query, options: report.options } : { q: report.chart_query };
             const chartResponse = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullChartParams);
-            if (chartResponse.query.columns && chartResponse.query.columns.length) {
+            if (chartResponse && chartResponse.query.columns && chartResponse.query.columns.length) {
                 setChartColumnSelected(chartResponse.query.columns.map((item: any) => item.field));
                 form.setFieldsValue({
                     [ReportifyFormFields.chartFilter]: chartResponse.query.columns.map((item: any) => item.field),
                 })
             }
         }
-    }, [dispatch, id, username, formEditInfo, formCloneReport, cubeRef, setDataQuery, setIsMyReport, form, setMetadata, setRowsInQuery, setActiveFilters, setChartColumnSelected])
+    }, [dispatch, id, permissionViewReport, allPermissions, username, formEditInfo, formCloneReport, cubeRef, setDataQuery, setIsMyReport, form, setMetadata, setRowsInQuery, setActiveFilters, setChartColumnSelected])
 
     useEffect(() => {
 
@@ -307,155 +314,157 @@ function CreateAnalytics() {
     }, [chartColumnSelected, dataQuery, dispatch, form, setChartDataQuery, setLoadingChart])
 
     return (
-      <ContentContainer
-        title={reportInfo?.name || "Báo cáo tuỳ chỉnh"}
-        breadcrumb={[
-          {
-            name: "Danh sách báo cáo tuỳ chỉnh",
-            path: setReportsCustomizeUrl(cubeRef.current as AnalyticCube),
-          },
-          {
-            name: reportInfo?.name || "Báo cáo tuỳ chỉnh",
-          },
-        ]}>
-        <AnalyticsForm form={form} handleRQuery={handleRQuery} mode={mode} chartInfo={chartInfo} />
-        <ReportBottomBarStyle>
-          <BottomBarContainer
-            classNameContainer="report-bottom-bar-container"
-            back="Quay lại trang danh sách"
-            rightComponent={
-              <>
-                <Collapse accordion bordered={false} className="report-actions-collapse">
-                  <Panel header="Thao tác với báo cáo" key="1">
-                    <div
-                      className="function-buttons"
-                      style={{ display: "inline-flex", gap: "10px" }}>
-                      {currentAnnotation && (
-                        <Button
-                          type="primary"
-                          ghost
-                          onClick={() => setIsVisibleAnnotation(true)}>
-                          <QuestionCircleOutlined />
-                          <span className="margin-left-10">Giải thích thuật ngữ</span>
-                        </Button>
-                      )}
-                      {isMyReport && (
-                        <>
-                          <Button
-                            danger
-                            onClick={() => {
-                              setIsConfirmDeleteVisible(true);
-                            }}>
-                            Xoá
-                          </Button>
-                          <Button
-                            onClick={() => setIsModalEditNameVisible(true)}
-                            icon={<AiOutlineEdit />}>
-                            &nbsp; Đổi tên
-                          </Button>
-                        </>
-                      )}
+        <AuthWrapper acceptPermissions={[permissionViewReport.current]} passThrough>
+            {(allowed: boolean) => (allowed ?
+                <ContentContainer
+                    title={reportInfo?.name || "Báo cáo tuỳ chỉnh"}
+                    breadcrumb={[
+                        {
+                            name: "Danh sách báo cáo tuỳ chỉnh",
+                            path: setReportsCustomizeUrl(cubeRef.current as AnalyticCube),
+                        },
+                        {
+                            name: reportInfo?.name || "Báo cáo tuỳ chỉnh",
+                        },
+                    ]}>
+                    <AnalyticsForm form={form} handleRQuery={handleRQuery} mode={mode} chartInfo={chartInfo} />
+                    <ReportBottomBarStyle>
+                        <BottomBarContainer
+                            classNameContainer="report-bottom-bar-container"
+                            back="Quay lại trang danh sách"
+                            rightComponent={
+                                <>
+                                    <Collapse accordion bordered={false} className="report-actions-collapse">
+                                        <Panel header="Thao tác với báo cáo" key="1">
+                                            <div
+                                                className="function-buttons"
+                                                style={{ display: "inline-flex", gap: "10px" }}>
+                                                {currentAnnotation && (
+                                                    <Button
+                                                        type="primary"
+                                                        ghost
+                                                        onClick={() => setIsVisibleAnnotation(true)}>
+                                                        <QuestionCircleOutlined />
+                                                        <span className="margin-left-10">Giải thích thuật ngữ</span>
+                                                    </Button>
+                                                )}
+                                                {isMyReport && (
+                                                    <>
+                                                        <Button
+                                                            danger
+                                                            onClick={() => {
+                                                                setIsConfirmDeleteVisible(true);
+                                                            }}>
+                                                            Xoá
+                                                        </Button>
+                                                        <Button
+                                                            onClick={() => setIsModalEditNameVisible(true)}
+                                                            icon={<AiOutlineEdit />}>
+                                                            &nbsp; Đổi tên
+                                                        </Button>
+                                                    </>
+                                                )}
 
-                      {
-                        <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
-                          Nhân bản báo cáo
-                        </Button>
-                      }
+                                                {
+                                                    <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
+                                                        Nhân bản báo cáo
+                                                    </Button>
+                                                }
 
-                      <Button
-                        icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                        loading={isLoadingExport}
-                        onClick={handleExportReport}>
-                        Xuất báo cáo
-                      </Button>
+                                                <Button
+                                                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                                                    loading={isLoadingExport}
+                                                    onClick={handleExportReport}>
+                                                    Xuất báo cáo
+                                                </Button>
 
-                      {isMyReport && (
-                        <Button type="primary" onClick={handleSaveReport}>
-                          Lưu báo cáo
-                        </Button>
-                      )}
-                    </div>
-                  </Panel>
-                </Collapse>
-                <div className="report-actions" style={{ display: "inline-flex", gap: "10px" }}>
-                  {currentAnnotation && (
-                    <Button
-                      type="primary"
-                      ghost
-                      onClick={() => setIsVisibleAnnotation(true)}>
-                      <QuestionCircleOutlined />
-                      <span className="margin-left-10">Giải thích thuật ngữ</span>
-                    </Button>
-                  )}
-                  {isMyReport && (
-                    <>
-                      <Button
-                        danger
-                        onClick={() => {
-                          setIsConfirmDeleteVisible(true);
-                        }}>
-                        Xoá
-                      </Button>
-                      <Button
-                        onClick={() => setIsModalEditNameVisible(true)}
-                        icon={<AiOutlineEdit />}>
-                        &nbsp; Đổi tên
-                      </Button>
-                    </>
-                  )}
+                                                {isMyReport && (
+                                                    <Button type="primary" onClick={handleSaveReport}>
+                                                        Lưu báo cáo
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        </Panel>
+                                    </Collapse>
+                                    <div className="report-actions" style={{ display: "inline-flex", gap: "10px" }}>
+                                        {currentAnnotation && (
+                                            <Button
+                                                type="primary"
+                                                ghost
+                                                onClick={() => setIsVisibleAnnotation(true)}>
+                                                <QuestionCircleOutlined />
+                                                <span className="margin-left-10">Giải thích thuật ngữ</span>
+                                            </Button>
+                                        )}
+                                        {isMyReport && (
+                                            <>
+                                                <Button
+                                                    danger
+                                                    onClick={() => {
+                                                        setIsConfirmDeleteVisible(true);
+                                                    }}>
+                                                    Xoá
+                                                </Button>
+                                                <Button
+                                                    onClick={() => setIsModalEditNameVisible(true)}
+                                                    icon={<AiOutlineEdit />}>
+                                                    &nbsp; Đổi tên
+                                                </Button>
+                                            </>
+                                        )}
 
-                  {
-                    <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
-                      Nhân bản báo cáo
-                    </Button>
-                  }
+                                        {
+                                            <Button type="primary" onClick={() => setVisiableCloneReportModal(true)}>
+                                                Nhân bản báo cáo
+                                            </Button>
+                                        }
 
-                  <Button
-                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                    loading={isLoadingExport}
-                    onClick={handleExportReport}>
-                    Xuất báo cáo
-                  </Button>
+                                        <Button
+                                            icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                                            loading={isLoadingExport}
+                                            onClick={handleExportReport}>
+                                            Xuất báo cáo
+                                        </Button>
 
-                  {isMyReport && (
-                    <Button type="primary" onClick={handleSaveReport}>
-                      Lưu báo cáo
-                    </Button>
-                  )}
-                </div>
-              </>
-            }
-          />
-        </ReportBottomBarStyle>
-        <ModalFormAnalyticsInfo
-          form={formEditInfo}
-          title="Đổi tên báo cáo"
-          isVisiable={isModalEditNameVisible}
-          handleOk={handleOk}
-          handleCancel={handleCancel}
-        />
-        <ModalDeleteConfirm
-          onOk={confirmDelete}
-          onCancel={() => setIsConfirmDeleteVisible(false)}
-          visible={isConfirmDeleteVisible}
-          title="Xóa báo cáo"
-          subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
-        />
-        <ModalFormAnalyticsInfo
-          form={formCloneReport}
-          title="Nhân bản báo cáo"
-          isVisiable={visiableCloneReportModal}
-          handleOk={handleCloneReport}
-          handleCancel={handleCancelCloneReport}
-        />
-        <AnnotationTableModal
-          isVisiable={isVisibleAnnotation}
-          handleCancel={() => setIsVisibleAnnotation(false)}
-          annotationData={currentAnnotation?.data || []}
-          documentLink={currentAnnotation?.documentLink || ""}
-        />
-      </ContentContainer>
-    );
+                                        {isMyReport && (
+                                            <Button type="primary" onClick={handleSaveReport}>
+                                                Lưu báo cáo
+                                            </Button>
+                                        )}
+                                    </div>
+                                </>
+                            }
+                        />
+                    </ReportBottomBarStyle>
+                    <ModalFormAnalyticsInfo
+                        form={formEditInfo}
+                        title="Đổi tên báo cáo"
+                        isVisiable={isModalEditNameVisible}
+                        handleOk={handleOk}
+                        handleCancel={handleCancel}
+                    />
+                    <ModalDeleteConfirm
+                        onOk={confirmDelete}
+                        onCancel={() => setIsConfirmDeleteVisible(false)}
+                        visible={isConfirmDeleteVisible}
+                        title="Xóa báo cáo"
+                        subTitle="Bạn có chắc chắn muốn xóa báo cáo này?"
+                    />
+                    <ModalFormAnalyticsInfo
+                        form={formCloneReport}
+                        title="Nhân bản báo cáo"
+                        isVisiable={visiableCloneReportModal}
+                        handleOk={handleCloneReport}
+                        handleCancel={handleCancelCloneReport}
+                    />
+                    <AnnotationTableModal
+                        isVisiable={isVisibleAnnotation}
+                        handleCancel={() => setIsVisibleAnnotation(false)}
+                        annotationData={currentAnnotation?.data || []}
+                        documentLink={currentAnnotation?.documentLink || ""}
+                    />
+                </ContentContainer> : <NoPermission />
+            )}</AuthWrapper>)
 }
 
 const CreateAnalyticsWithProvider = () => {
