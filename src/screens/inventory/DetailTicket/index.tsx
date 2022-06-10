@@ -164,15 +164,97 @@ const DetailTicket: FC = () => {
       } else {
         let dataLineItems = sessionStorage.getItem(`dataItems${result.id}`);
         let dataId = sessionStorage.getItem(`id${result.id}`);
-        if (dataLineItems) {
+
+        let newDataTable = dataLineItems && dataId === `${result.id}` ? JSON.parse(dataLineItems) : result.line_items;
+
+        setDataTable(newDataTable);
+
+        let newColumns: any = [...columnsTransferState];
+        if (result.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+          || result.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+
+          newColumns.splice(columnsTransferState.length - 1, 0, {
+            title: "Tồn kho nhận",
+            align: "center",
+            width: 80,
+            dataIndex: "receive_on_hand",
+            render: (value: any) => {
+              return formatCurrency(value, ".")
+            },
+          });
         }
 
-        if (dataLineItems && dataId === `${result.id}`) {
-          setDataTable(JSON.parse(dataLineItems));
+        newColumns[4] = {
+          title: <div>
+            <div>SL Gửi</div>
+            <div className="text-center">
+              {result && formatCurrency(result.total_quantity, ".")}
+            </div>
+          </div>,
+          width: 70,
+          align: "center",
+          dataIndex: "transfer_quantity",
+          render: (value: any) => {
+            return formatCurrency(value, ".")
+          },
         }
-        else {
-          setDataTable(result.line_items);
+
+        newColumns[5] = {
+          title: <div>
+            <div>SL Nhận</div>
+            <div className="text-center">
+              {getTotalRealQuantity()}
+            </div>
+          </div>,
+          dataIndex: "real_quantity",
+          align: "center",
+          width: 70,
+          render: (value: any, row: any, index: number) => {
+            if (result?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+              return <NumberInput
+                disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [result.to_store_id], currentStores)}
+                isFloat={false}
+                id={`item-quantity-${index}`}
+                min={0}
+                value={value ? value : 0}
+                onChange={(quantity) => {
+                  onRealQuantityChange(quantity, index);
+                }}
+                className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+              />
+            }
+            else {
+              return value ? formatCurrency(value, '.') : 0;
+            }
+          },
         }
+
+        newColumns = [
+          ...newColumns,
+          {
+            title: "",
+            fixed: newDataTable?.length !== 0 && "right",
+            width: 40,
+            dataIndex: "transfer_quantity",
+            render: (value: string, row: any, index: number) => {
+              if (
+                (parseInt(value) !== 0 &&
+                  (result?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+                    || result?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+                )
+                || result?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+                return false;
+              }
+              return <Button
+                onClick={() => onDeleteItem(index)}
+                className="product-item-delete"
+                icon={<AiOutlineClose />}
+              />
+            },
+          },
+        ]
+        setColumnsTransferState(newColumns);
+
         setData(result);
         version = result.version;
         form.setFieldsValue({ note: result.note });
@@ -195,10 +277,11 @@ const DetailTicket: FC = () => {
   );
 
   function onRealQuantityChange(quantity: number | null, index: number) {
-    const dataTableClone = _.cloneDeep(dataTable);
-    dataTableClone[index].real_quantity = quantity;
-
-    setDataTable(dataTableClone);
+    setDataTable((dataTable: any) => {
+      const dataTableClone = _.cloneDeep(dataTable);
+      dataTableClone[index].real_quantity = quantity;
+      return dataTableClone
+    })
   }
 
   const [resultSearch, setResultSearch] = useState<
@@ -398,9 +481,11 @@ const DetailTicket: FC = () => {
 
   function onDeleteItem(index: number) {
     // delete row
-    const temps = [...dataTable];
-    temps.splice(index, 1);
-    setDataTable(temps);
+    setDataTable((dataTable: any) => {
+      const temps = [...dataTable];
+      temps.splice(index, 1);
+      return temps;
+    })
   }
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
@@ -760,24 +845,6 @@ const DetailTicket: FC = () => {
       dataIndex: "real_quantity",
       align: "center",
       width: 70,
-      render: (value, row, index: number) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-          return <NumberInput
-            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
-            isFloat={false}
-            id={`item-quantity-${index}`}
-            min={0}
-            value={value ? value : 0}
-            onChange={(quantity) => {
-              onRealQuantityChange(quantity, index);
-            }}
-            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
-          />
-        }
-        else {
-          return value ? formatCurrency(value, '.') : 0;
-        }
-      },
     },
     {
       title: "Lệch",
@@ -790,29 +857,10 @@ const DetailTicket: FC = () => {
         }
         return 0;
       },
-    },
-    {
-      title: "",
-      fixed: dataTable?.length !== 0 && "right",
-      width: 40,
-      dataIndex: "transfer_quantity",
-      render: (value: string, row, index) => {
-        if (
-          (parseInt(value) !== 0 &&
-            (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-            || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-          )
-          || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-          return false;
-        }
-        return <Button
-          onClick={() => onDeleteItem(index)}
-          className="product-item-delete"
-          icon={<AiOutlineClose />}
-        />
-      },
-    },
+    }
   ];
+
+  const [columnsTransferState, setColumnsTransferState] = useState(columnsTransfer);
 
   const deleteTicketResult = useCallback(result => {
     setLoadingBtn(false);
@@ -1171,7 +1219,7 @@ const DetailTicket: FC = () => {
                         tableLayout="fixed"
                         scroll={{ x: "max-content" }}
                         pagination={false}
-                        columns={columnsTransfer}
+                        columns={columnsTransferState}
                         dataSource={dataTable}
                         summary={() => {
                           return (
