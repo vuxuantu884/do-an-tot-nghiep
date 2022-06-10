@@ -178,7 +178,7 @@ const DepartmentUpdateScreen: React.FC = () => {
                   label="Mã phòng ban"
                   name="code"
                 >
-                  <Input maxLength={13} placeholder="Nhập mã phòng ban" />
+                  <Input disabled maxLength={13} placeholder="Nhập mã phòng ban" />
                 </Form.Item>
               </Col>
               <Col span={8}>
