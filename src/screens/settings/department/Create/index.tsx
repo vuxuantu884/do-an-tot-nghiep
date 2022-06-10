@@ -119,35 +119,33 @@ const DepartmentCreateScreen: React.FC = () => {
           <Row gutter={50}>
             <Col span={8}>
               <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập mã phòng ban",
-                  },
-                  {
-                    pattern: RegUtil.BOTH_NUMBER_AND_STRING,
-                    message: "Sai định dạng mã phòng ban"
-                  }
-                ]}
-                label="Mã phòng ban"
-                name="code"
-              >
-                <Input maxLength={13} placeholder="Nhập mã phòng ban" />
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng nhập tên phòng ban",
+                    },
+                  ]}
+                  label="Tên phòng ban"
+                  name="name"
+                >
+                  <Input maxLength={255} placeholder="Tên phòng ban" />
               </Form.Item>
             </Col>
             <Col span={8}>
               <Form.Item
-                rules={[
-                  {
-                    required: true,
-                    message: "Vui lòng nhập tên phòng ban",
-                  },
-                ]}
-                label="Tên phòng ban"
-                name="name"
-              >
-                <Input maxLength={255} placeholder="Tên phòng ban" />
-              </Form.Item>
+                  name="level"
+                  label="Cấp độ"
+                >
+                  <Select placeholder="Chọn cấp độ">
+                    {levels.map((item) => {
+                      return (
+                        <Select.Option value={item}>
+                          {item}
+                        </Select.Option>
+                      )
+                    })}
+                  </Select>
+                </Form.Item>
             </Col>
           </Row>
           <Row gutter={50}>
@@ -192,24 +190,6 @@ const DepartmentCreateScreen: React.FC = () => {
                 label="Địa chỉ liên hệ"
               >
                 <Input maxLength={255} placeholder="Địa chỉ liên hệ" />
-              </Form.Item>
-            </Col>
-          </Row>
-          <Row gutter={50}>
-            <Col span={8}>
-              <Form.Item
-                name="level"
-                label="Cấp độ"
-              >
-                <Select placeholder="Chọn cấp độ">
-                  {levels.map((item) => {
-                    return (
-                      <Select.Option value={item}>
-                        {item}
-                      </Select.Option>
-                    )
-                  })}
-                </Select>
               </Form.Item>
             </Col>
           </Row>
