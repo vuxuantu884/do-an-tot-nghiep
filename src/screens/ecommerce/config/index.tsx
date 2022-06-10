@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import { useHistory } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { Card, Tabs, Form, Button, Dropdown, Menu, Modal } from "antd";
@@ -35,6 +35,10 @@ import shopeeIcon from "assets/icon/e-shopee.svg";
 import lazadaIcon from "assets/icon/e-lazada.svg";
 import tiktokIcon from "assets/icon/e-tiktok.svg";
 import connectedShopIcon from "assets/icon/connected_shop.svg";
+import {SourceResponse} from "model/response/order/source.response";
+import {SourceSearchQuery} from "model/request/source.request";
+import {actionFetchListOrderSources} from "domain/actions/settings/order-sources.action";
+import {PageResponse} from "model/base/base-metadata.response";
 
 
 const { TabPane } = Tabs;
@@ -76,6 +80,25 @@ const EcommerceConfig: React.FC = () => {
   const [configFromEcommerce, setConfigFromEcommerce] = React.useState<EcommerceResponse | undefined>()
   const [modalShopInfo, setModalShopInfo] = React.useState<EcommerceResponse>()
   const [isConfirmUpdateShop, setIsConfirmUpdateShop] = useState(false);
+
+  //get source
+  const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
+
+  const updateSourceData = useCallback((response: PageResponse<any>) => {
+    if (response) {
+      setSourceList(response.items);
+    }
+  },[]);
+
+  useEffect(() => {
+    const query: SourceSearchQuery = {
+      page: 1,
+      limit: 1000,
+      active: true,
+    }
+    dispatch(actionFetchListOrderSources(query, updateSourceData));
+  }, [dispatch, updateSourceData]);
+  // end get source
 
   const reloadConfigData = React.useCallback(() => {
     setIsLoading(true);
@@ -310,6 +333,7 @@ const EcommerceConfig: React.FC = () => {
                   <TabPane tab="Gian hàng" key="sync">
                     <SyncShopList
                       configData={configData}
+                      sourceList={sourceList}
                       setConfigToView={setConfigToView}
                       reloadConfigData={reloadConfigData}
                       showDeleteModal={handleShowDeleteModal}
