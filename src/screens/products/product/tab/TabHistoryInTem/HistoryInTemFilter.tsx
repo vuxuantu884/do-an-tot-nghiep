@@ -106,6 +106,7 @@ const HistoryInTemFilter: React.FC<ProductFilterProps> = (props: ProductFilterPr
                     ...form.getFieldsValue(),
                     [field]: [],
                 });
+                form.submit();
             } else {
                 formAvd.resetFields([field]);
             }
@@ -127,7 +128,7 @@ const HistoryInTemFilter: React.FC<ProductFilterProps> = (props: ProductFilterPr
                                     })
                                 }
                                 prefix={<img src={search} alt="" />}
-                                placeholder="Tìm kiếm theo Tên/ Mã sản phẩm/ Mã đơn đặt hàng/ Tên, SĐT nhà cung cấp"
+                                placeholder="Tìm kiếm theo Tên/ Mã sản phẩm"
                             />
                         </Item>
                         <Item name={SearchBarcodePrintHistoryField.created_bys} style={{ width: 250 }}>
@@ -217,10 +218,10 @@ const HistoryInTemFilter: React.FC<ProductFilterProps> = (props: ProductFilterPr
 
 const FilterItemMerchandisers = ({ values, resetField, wins }: any) => {
     let merchandiserTag = useRef("");
-    const data = useMemo(() => values || [], [values]);
+    const data = useMemo(() => Array.isArray(values) ? values : [values] || [], [values]);
     useEffect(() => {
         merchandiserTag.current = ""
-        data.forEach((item: string) => {
+        data?.forEach((item: string) => {
             const win = wins.items?.find((e: any) => e.code === item);
             merchandiserTag.current = win ? merchandiserTag.current + win.full_name + "; " : merchandiserTag.current;
         });
