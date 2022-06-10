@@ -2,7 +2,7 @@ import BaseResponse from "../../../base/base.response";
 import BaseAxios from "../../../base/base.axios";
 import { ApiConfig } from "../../../config/api.config";
 import {
-  DataExport,
+  DataExport, DataMultipleCancel,
   DeleteTicketRequest,
   FileParam,
   InventoryTransferDetailItem, InventoryTransferImportExportSearchQuery,
@@ -62,6 +62,12 @@ export const DeleteInventoryService = (
   request: DeleteTicketRequest
 ): Promise<BaseResponse<InventoryTransferDetailItem>> => {
   return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/cancel/${id}`, request);
+};
+
+export const cancelMultipleTransferTicketApi = (
+  request: any
+): Promise<BaseResponse<InventoryTransferDetailItem>> => {
+  return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-cancel`, request);
 };
 
 export const getInfoDeliveryFees = (
@@ -169,6 +175,12 @@ const TransferService = {
       data: DataExport
     ): Promise<BaseResponse<string>> => {
       return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-export`, data);
+    },
+
+    cancelMultipleInventoryTransfer: (
+      data: DataMultipleCancel
+    ): Promise<BaseResponse<string>> => {
+      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-cancel`, data);
     }
 };
 
@@ -184,6 +196,7 @@ export const {
   cancelShipmentInventoryTransfer,
   exportShipmentInventoryTransfer,
   exportMultipleInventoryTransfer,
+  cancelMultipleInventoryTransfer,
   adjustmentInventory
 } =
   TransferService;
