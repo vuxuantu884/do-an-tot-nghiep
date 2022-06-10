@@ -18,7 +18,7 @@ function BaseSelectPaging<T>({ metadata, fetchData, valueSearch, ...props }: Bas
     }
   };
   return (
-    <BaseSelect
+    <BaseSelect<T>
       optionFilterProp="children"
       showSearch
       onSearch={debounce(onSearchValue, AppConfig.TYPING_TIME_REQUEST)}
