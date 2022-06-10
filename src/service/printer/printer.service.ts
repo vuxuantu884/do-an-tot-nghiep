@@ -67,3 +67,10 @@ export const getPrintTicketIdsService = (
   
   return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/print_forms?${queryString}`);
 };
+
+export const updatePrinterService = (
+  formValue: BasePrinterModel,
+  id: number
+): Promise<BaseResponse<PrinterResponseModel>> => {
+  return BaseAxios.put(`${ApiConfig.CORE}/print-template/${id}`, formValue);
+};
