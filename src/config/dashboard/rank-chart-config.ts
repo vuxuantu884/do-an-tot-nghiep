@@ -1,6 +1,13 @@
 import { AnalyticSampleQuery } from "model/report/analytics.model";
 import { TODAY } from "./time-query-config";
 
+export enum TOTAL_SALES_STORE_TAB_KEY {
+    TotalSales = "totalSales",
+};
+export const TOTAL_SALES_STORE_TAB_NAME = {
+    [TOTAL_SALES_STORE_TAB_KEY.TotalSales]: "Doanh thu",
+};
+
 export const MAX_TOP_RANK = 5;
 
 export const TOP_CHARTS_KEY = {
