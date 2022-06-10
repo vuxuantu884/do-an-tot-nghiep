@@ -1111,7 +1111,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     {ecommerceShopList?.map((shopItem: any) => (
                       <TreeSelect.TreeNode
                         key={shopItem.id}
-                        value={shopItem.id}
+                        value={Number(shopItem.id)}
                         title={
                           <span>
                             {getEcommerceIcon(shopItem.ecommerce) &&
