@@ -1,5 +1,6 @@
+import { useFetchMerchans } from 'hook/useFetchMerchans';
 import { POLineItemGridSchema, POLineItemGridValue } from 'model/purchase-order/purchase-order.model';
-import React, { createContext, ReactNode, useState } from 'react'
+import React, { createContext, ReactNode, useState } from 'react';
 
 export enum QUANTITY_PROCUREMENT_UNIT {
   SL = "SL",
@@ -13,8 +14,6 @@ export declare type QuickInputQtySizesOne = Array<{ size: string, value: number 
 export declare type QuickInputQtySizesMany = Array<{ sku: string, value: number }>;
 
 type PurchaseOrderCreateAction = {
-  // quickInputQtyProcurementLineItem: QuickInputQtyProcurementLineItem,
-  // setQuickInputQtyProcurementLineItem: React.Dispatch<React.SetStateAction<QuickInputQtyProcurementLineItem>>,
   isGridMode: boolean,
   setIsGridMode: React.Dispatch<React.SetStateAction<boolean>>,
   poLineItemGridChema: Array<POLineItemGridSchema>,
@@ -23,8 +22,8 @@ type PurchaseOrderCreateAction = {
   setPoLineItemGridValue: React.Dispatch<React.SetStateAction<Array<Map<string, POLineItemGridValue>>>>,
   taxRate: number,
   setTaxRate: React.Dispatch<React.SetStateAction<number>>,
-  // quickInputProductLineItem:Map<number, number>,
-  // setQuickInputProductLineItem: React.Dispatch<React.SetStateAction<Map<number, number>>>
+  fetchMerchandiser: ReturnType<typeof useFetchMerchans>,
+  fetchDesigner: ReturnType<typeof useFetchMerchans>
 }
 
 export const PurchaseOrderCreateContext = createContext<PurchaseOrderCreateAction>({} as PurchaseOrderCreateAction);
@@ -32,13 +31,6 @@ export const PurchaseOrderCreateContext = createContext<PurchaseOrderCreateActio
 function PurchaseOrderProvider(props: { children: ReactNode }) {
   // mode grid or not
   const [isGridMode, setIsGridMode] = useState(true);
-
-  // quick input qty cho bảng procurement
-  // const [quickInputQtyProcurementLineItem, setQuickInputQtyProcurementLineItem] =
-  //   useState<QuickInputQtyProcurementLineItem>([{ value: 100, unit: QUANTITY_PROCUREMENT_UNIT.PERCENT }]);
-
-  // Lưu lại giá trị nhập nhanh số lượng sản phẩm trong bảng Sản phẩm (line_items) Map<variantId, quantity> 
-  // const [quickInputProductLineItem, setQuickInputProductLineItem] = useState<Map<number, number>>(new Map());
 
   // schema cho phần nhập nhanh số lượng line item 
   const [poLineItemGridChema, setPoLineItemGridChema] = useState<Array<POLineItemGridSchema>>([]);
@@ -49,12 +41,14 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
   // thuế chung cho các line-item sử dụng bảng grid
   const [taxRate, setTaxRate] = useState<number>(0);
 
+  const fetchMerchandiser = useFetchMerchans();
+  
+  const fetchDesigner = useFetchMerchans();
+
   return (
     <PurchaseOrderCreateContext.Provider
       {...props}
       value={{
-        // quickInputQtyProcurementLineItem,
-        // setQuickInputQtyProcurementLineItem,
         isGridMode,
         setIsGridMode,
         poLineItemGridChema,
@@ -63,8 +57,8 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
         setPoLineItemGridValue,
         taxRate,
         setTaxRate,
-        // quickInputProductLineItem,
-        // setQuickInputProductLineItem
+        fetchMerchandiser,
+        fetchDesigner
       }}
     />
   )

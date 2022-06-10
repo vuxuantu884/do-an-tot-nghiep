@@ -47,9 +47,12 @@ const POProductForm = ({
     poLineItemGridChema,
     poLineItemGridValue,
     taxRate,
-    setTaxRate
+    setTaxRate,
+    fetchMerchandiser,
+    fetchDesigner
   } = useContext(PurchaseOrderCreateContext);
-
+  const { fetchMerchans } = fetchMerchandiser;
+  const { fetchMerchans: fetchDesigns } = fetchDesigner;
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
   const [productList, setProductList] = useState<PageResponse<ProductResponse>>({
     metadata: {
@@ -90,7 +93,7 @@ const POProductForm = ({
 
     dispatch(
       productGetDetail(value, (data: ProductResponse) => {
-        if(data.status === 'inactive'){
+        if (data.status === 'inactive') {
           showError('Sản phẩm đã ngừng hoạt động')
           setIsSelecttingProduct(false);
           return
@@ -137,6 +140,20 @@ const POProductForm = ({
           })
           setPoLineItemGridValue(newpoLineItemGridValue);
         }
+        if (data.merchandiser_code) {
+          fetchMerchans({ codes: data.merchandiser_code, page: 1, limit: 30 })
+          formMain.setFieldsValue({
+            [POField.merchandiser_code]: data.merchandiser_code,
+          });
+        }
+
+        if (data.designer_code) {
+          fetchDesigns({ codes: data.designer_code, page: 1, limit: 30 })
+          formMain.setFieldsValue({
+            [POField.designer_code]: data.designer_code,
+          });
+        }
+
         setIsSelecttingProduct(false);
       })
     );

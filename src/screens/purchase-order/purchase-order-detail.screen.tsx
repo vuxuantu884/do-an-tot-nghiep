@@ -220,7 +220,6 @@ const PODetailScreen: React.FC = () => {
     [idNumber, loadDetail, dispatch]
   );
   const onFinish = (value: PurchaseOrder) => {
-    console.log(statusAction);
     try {
       value.is_grid_mode = isGridMode;
       if (isGridMode) {
