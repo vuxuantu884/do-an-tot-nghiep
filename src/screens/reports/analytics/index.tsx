@@ -17,6 +17,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Link, useRouteMatch } from 'react-router-dom'
 import { deleteAnalyticsCustomService, getAnalyticsCustomByService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
+import { getPermissionViewCustomizeReport } from 'utils/ReportUtils'
 import { strForSearch } from 'utils/StringUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ListAnalyticsStyle } from './index.style'
@@ -40,6 +41,7 @@ function Analytics() {
     const [filteredAnalyticList, setFilteredAnalyticList] = React.useState<Array<any>>()
 
     const currentUsername = useSelector((state: RootReducerType) => state.userReducer.account?.user_name);
+    const allPermissions = useSelector((state: RootReducerType) => state.permissionReducer?.permissions);
 
     const fetchCustomAnalytics = useCallback(async () => {
         setIsLoadingAnalyticList(true)
@@ -50,11 +52,16 @@ function Analytics() {
         }
         
         const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, { "cube.in": cubes, onlyMe: onlyMe ?? true });
+            
         if (response) {
+            response.analytics = response.analytics.filter((item: any) => {
+                const { group } = item;
+                return group && allPermissions.includes(getPermissionViewCustomizeReport(group as AnalyticCube))
+            })
             setAnalyticList(response.analytics)
         }
         setIsLoadingAnalyticList(false)
-    }, [dispatch, formFilterCustomReport, matchPath])
+    }, [allPermissions, dispatch, formFilterCustomReport, matchPath])
 
 
     const handleFormFinish = async (name: string, values: FormFinishInfo) => {
@@ -116,7 +123,7 @@ function Analytics() {
             return;
         }
         if (!keySearch) {
-            setFilteredAnalyticList([...analyticList]);
+            setFilteredAnalyticList(undefined);
         } else {
             const filteredData = analyticList.filter(item => {
                 const { name } = item;
