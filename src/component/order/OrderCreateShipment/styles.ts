@@ -74,5 +74,17 @@ export const StyledComponent = styled.div`
         color: ${primaryColor};
       }
     }
+    .anticon{
+      padding-right: 8px;
+      display: inline-block;
+      color: inherit;
+      font-style: normal;
+      line-height: 0;
+      text-align: center;
+      text-transform: none;
+      vertical-align: -0.3em;
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
   }
 `;
