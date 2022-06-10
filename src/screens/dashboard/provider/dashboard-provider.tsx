@@ -1,4 +1,4 @@
-import { BusinessResultCartItem, DashboardShowMyData, DashboardTopProduct, DashboardTopSale, DayTotalSale } from 'model/dashboard/dashboard.model';
+import { BusinessResultCartItem, DashboardProductList, DashboardShowMyData, DashboardTopProduct, DashboardTopSale, DayTotalSale } from 'model/dashboard/dashboard.model';
 import React from 'react';
 
 type DashboardProviderValue = {
@@ -14,6 +14,8 @@ type DashboardProviderValue = {
     setTopSale: React.Dispatch<React.SetStateAction<Map<string, DashboardTopSale[]>>>;
     dataSrcTopProduct: DashboardTopProduct[];
     setDataSrcTopProduct: React.Dispatch<React.SetStateAction<DashboardTopProduct[]>>;
+    dataProductList: DashboardProductList[];
+    setDataProductList: React.Dispatch<React.SetStateAction<DashboardProductList[]>>;
     showMyData: DashboardShowMyData;
     setShowMyData: React.Dispatch<React.SetStateAction<DashboardShowMyData>>;
 }
@@ -32,6 +34,9 @@ function DashboardPrivider(props: { children: React.ReactNode }) {
     // Lưu data cho bảng top doanh thu và số lượng sản phẩm
     const [dataSrcTopProduct, setDataSrcTopProduct] = React.useState<Array<DashboardTopProduct>>([]);
 
+    // Data bảng số lượng/ tồn/ doanh thu theo từng sản phẩm
+    const [dataProductList, setDataProductList] = React.useState<Array<DashboardProductList>>([]);
+
     const [showMyData, setShowMyData] = React.useState<DashboardShowMyData>({ isSeeMyData: false });
     return (
         <DashboardContext.Provider
@@ -49,6 +54,8 @@ function DashboardPrivider(props: { children: React.ReactNode }) {
                 setTopSale,
                 dataSrcTopProduct,
                 setDataSrcTopProduct,
+                dataProductList,
+                setDataProductList,
                 showMyData,
                 setShowMyData,
             }}
