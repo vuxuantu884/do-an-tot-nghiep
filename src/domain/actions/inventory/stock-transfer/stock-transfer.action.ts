@@ -1,7 +1,7 @@
 import BaseAction from "base/base.action";
 import { InventoryType } from "../../../types/inventory.type";
 import {
-  DataExport,
+  DataExport, DataMultipleCancel,
   DeleteTicketRequest,
   FileParam,
   InventoryTransferDetailItem,
@@ -166,6 +166,10 @@ const actionExportInventoryByIds = (data: DataExport, onResult: (data: any) => v
   return BaseAction(InventoryType.EXPORT_MULTIPLE_INVENTORY, {data, onResult})
 }
 
+const actionCancelTicketByIds = (data: DataMultipleCancel, onResult: (data: any) => void) => {
+  return BaseAction(InventoryType.CANCEL_MULTIPLE_TICKET_TRANSFER, {data, onResult})
+}
+
 export {
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
@@ -186,4 +190,5 @@ export {
   cancelShipmentInventoryTransferAction,
   exportInventoryAction,
   actionExportInventoryByIds,
+  actionCancelTicketByIds,
 };

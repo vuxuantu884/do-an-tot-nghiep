@@ -274,6 +274,11 @@ export type DataExport = {
   transfers: Object[]
 }
 
+export type DataMultipleCancel = {
+  note: string,
+  transfers: Object[]
+}
+
 export interface InventoryTransferLog {
     id: number;
     code: string;
