@@ -89,6 +89,7 @@ const UpdateTicket: FC = () => {
 
   const location = useLocation();
   const stateImport: any = location.state;
+  console.log(stateImport)
   const query = useQuery();
   const queryParam: any = getQueryParams(query);
 
