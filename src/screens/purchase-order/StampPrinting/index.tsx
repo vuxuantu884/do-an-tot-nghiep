@@ -8,6 +8,7 @@ import CustomAutoComplete from 'component/custom/autocomplete.cusom';
 import NumberInput from 'component/custom/number-input.custom';
 import { IconAddMultiple } from 'component/icon/IconAddMultiple';
 import PickManyModal from 'component/modal/PickManyModal';
+import { AppConfig } from 'config/app.config';
 import UrlConfig, { BASE_NAME_ROUTER, ProductTabUrl } from 'config/url.config';
 import { PoDetailAction } from 'domain/actions/po/po.action';
 import { PurchaseOrderLineItem } from 'model/purchase-order/purchase-item.model';
@@ -129,9 +130,12 @@ function PrintingStamp() {
     const selectedProduct: ProductStampPrinting[] = form.getFieldValue(FormFiledStampPrinting.variants) || [];
     const lineItem = notSelectedProducts().find(item => item.id === Number(value));
     if (lineItem && !selectedProduct.some(item => item.variant_id === lineItem.product_id)) {
+      const quantity = lineItem.quantity;
+      const surplus = (quantity || 0) % AppConfig.AMOUNT_IN_STAMP_ON_ONE_LINE;
+      const quantity_req = !surplus ? quantity : (quantity + (AppConfig.AMOUNT_IN_STAMP_ON_ONE_LINE - surplus));
       selectedProduct.push({
         variant_id: lineItem.variant_id,
-        quantity_req: lineItem.quantity,
+        quantity_req,
         name: lineItem.variant,
         sku: lineItem.sku,
         barcode: lineItem.barcode,
@@ -149,9 +153,12 @@ function PrintingStamp() {
     selectedIdsModal.forEach(variantId => {
       const lineItem = notSelectedProducts().find(item => item.variant_id === Number(variantId));
       if (lineItem && !selectedProduct.some(item => item.variant_id === lineItem.product_id)) {
+        const quantity = lineItem.quantity;
+              const surplus = (quantity || 0) % AppConfig.AMOUNT_IN_STAMP_ON_ONE_LINE;
+              const quantity_req = !surplus ? quantity : (quantity + (AppConfig.AMOUNT_IN_STAMP_ON_ONE_LINE - surplus));
         selectedProduct.push({
           variant_id: lineItem.variant_id,
-          quantity_req: lineItem.quantity,
+          quantity_req,
           name: lineItem.variant,
           sku: lineItem.sku,
           barcode: lineItem.barcode,
@@ -188,9 +195,12 @@ function PrintingStamp() {
         if (po) {
           const selectedProduct: ProductStampPrinting[] = po.line_items.reduce((acc: ProductStampPrinting[], lineItem: PurchaseOrderLineItem) => {
             if (lineItem.variant_id) {
+              const quantity = lineItem.quantity;
+              const surplus = (quantity || 0) % AppConfig.AMOUNT_IN_STAMP_ON_ONE_LINE;
+              const quantity_req = !surplus ? quantity : (quantity + (AppConfig.AMOUNT_IN_STAMP_ON_ONE_LINE - surplus));
               acc.push({
                 variant_id: lineItem.variant_id,
-                quantity_req: lineItem.quantity,
+                quantity_req,
                 name: lineItem.variant,
                 sku: lineItem.sku,
                 barcode: lineItem.barcode,
@@ -206,7 +216,7 @@ function PrintingStamp() {
             [FormFiledStampPrinting.supplier]: po.supplier,
             [FormFiledStampPrinting.supplier_id]: po.supplier_id,
             [FormFiledStampPrinting.order_code]: po.code,
-            [FormFiledStampPrinting.order_id]:po.id,
+            [FormFiledStampPrinting.order_id]: po.id,
             [FormFiledStampPrinting.variants]: [...selectedProduct]
           });
 
@@ -290,7 +300,7 @@ function PrintingStamp() {
                 return <Table
                   className='margin-top-20'
                   bordered
-                  
+
                   scroll={{ x: "max-content" }}
                   dataSource={variantList}
                   columns={[
@@ -336,6 +346,7 @@ function PrintingStamp() {
                       align: 'center',
                       dataIndex: 'variant_id',
                       render: (variantId, record) => {
+
                         return <InputNumber className='input-number' value={record.quantity_req} onChange={(value) => handleChangeQtyPrintByVariantId(variantId, value, form)} />
                       }
                     },
