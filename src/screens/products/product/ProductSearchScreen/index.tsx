@@ -146,16 +146,19 @@ const ListProductScreen: React.FC = () => {
                 </Button>
               </Link>
             </AuthWrapper>
-            <AuthWrapper acceptPermissions={[ProductPermission.print_temp]}>
-              <Button
-                className="light"
-                size="large"
-                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                onClick={() => { setVExportProduct(true) }}
-              >
-                Xuất file
-              </Button>
-            </AuthWrapper>
+            {
+              activeTab === UrlConfig.VARIANTS &&
+              <AuthWrapper acceptPermissions={[ProductPermission.export_excel]}>
+                <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  onClick={() => { setVExportProduct(true) }}
+                >
+                  Xuất file
+                </Button>
+              </AuthWrapper>
+            }
             {
               (activeTab === UrlConfig.PRODUCT || activeTab === UrlConfig.VARIANTS) &&
               <AuthWrapper acceptPermissions={[ProductPermission.create]}>
