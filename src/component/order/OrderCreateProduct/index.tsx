@@ -2014,9 +2014,14 @@ function OrderCreateProduct(props: PropTypes) {
 
 	const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
-		if (listStores && listStores.length) {
+
+		//loại bỏ kho Kho dự trữ, Kho phân phối
+		let listStoresCopy = listStores.filter((store) => store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER
+			&& store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE)
+			
+		if (listStoresCopy && listStoresCopy.length) {
 			if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
-				newData = listStores.filter((store) =>
+				newData = listStoresCopy.filter((store) =>
 					haveAccess(
 						store.id,
 						userReducer.account ? userReducer.account.account_stores : []
@@ -2024,13 +2029,13 @@ function OrderCreateProduct(props: PropTypes) {
 				);
 			}
 			else {
-				newData = listStores;
+				newData = listStoresCopy;
 			}
 
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
 			if (storeId && userReducer.account) {
 				if (newData.map((single) => single.id).indexOf(storeId) === -1) {
-					let initStore = listStores.find((single) => single.id === storeId)
+					let initStore = listStoresCopy.find((single) => single.id === storeId)
 					if (initStore) {
 						newData.push(initStore);
 					}
@@ -2365,10 +2370,7 @@ function OrderCreateProduct(props: PropTypes) {
 								disabled={levelOrder > 3}
 							>
 								{dataCanAccess.map((item, index) => (
-									<Select.Option
-										disabled={item.type.toLocaleLowerCase() === STORE_TYPE.DISTRIBUTION_CENTER
-											|| item.type.toLocaleLowerCase() === STORE_TYPE.STOCKPILE} key={index} value={item.id}
-									>
+									<Select.Option key={index} value={item.id}>
 										{item.name}
 									</Select.Option>
 								))}
