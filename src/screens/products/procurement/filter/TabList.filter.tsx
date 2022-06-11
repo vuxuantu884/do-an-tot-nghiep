@@ -1,5 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
@@ -15,7 +15,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { ProcurementStatus, ProcurementStatusName } from "utils/Constants";
-import { FilterProcurementStyle, ProcurementStatusStyle } from "./styles";
+import { FilterProcurementStyle } from "./styles";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { splitDateRange } from "utils/DateUtils";
 import BaseFilterResult from "component/base/BaseFilterResult";
@@ -36,6 +36,7 @@ import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
 import { callApiNative } from "../../../../utils/ApiUtils";
 import { supplierGetApi } from "../../../../service/core/supplier.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
+import BaseSelect from "component/base/BaseSelect/BaseSelect";
 
 const { Item } = Form;
 
@@ -52,11 +53,12 @@ function TabListFilter(props: ProcurementFilterProps) {
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState('');
   const [allStore, setAllStore] = useState<Array<StoreResponse>>();
-  const {array: selectedStatuses, set: setSelectedStatuses, remove: removeStatus} = useArray([])
+  // const { array: selectedStatuses, set: setSelectedStatuses, remove: removeStatus } = useArray([])
   const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
 
   const [formBase] = useForm();
   const [formAdvanced] = useForm();
+  const { Option } = Select;
 
   const openVisibleFilter = () => setVisible(true)
   const cancelFilter = () => setVisible(false)
@@ -77,19 +79,19 @@ function TabListFilter(props: ProcurementFilterProps) {
 
   const onAdvanceFinish = async (data: ProcurementFilter) => {
     setVisible(false);
-    setSelectedStatuses(formAdvanced.getFieldValue('status'))
+    // setSelectedStatuses(formAdvanced.getFieldValue('status'))
     await history.replace(`${UrlConfig.PROCUREMENT}?${generateQuery({ ...paramsUrl, ...data })}`);
   }
 
-  const handleClickStatus = (value: string) => {
-    const findSelected = selectedStatuses.find(status => status === value)
-    if(!findSelected) {
-      setSelectedStatuses([...selectedStatuses, value])
-    } else {
-      const findIndexSelected = selectedStatuses.findIndex(status => status === value)
-      removeStatus(findIndexSelected)
-    }
-  }
+  // const handleClickStatus = (value: string) => {
+  //   const findSelected = selectedStatuses.find(status => status === value)
+  //   if (!findSelected) {
+  //     setSelectedStatuses([...selectedStatuses, value])
+  //   } else {
+  //     const findIndexSelected = selectedStatuses.findIndex(status => status === value)
+  //     removeStatus(findIndexSelected)
+  //   }
+  // }
 
   const onRemoveStatus = useCallback((index: number) => {
     remove(index)
@@ -98,8 +100,8 @@ function TabListFilter(props: ProcurementFilterProps) {
   const convertParams = (params: any) => {
     return {
       ...params,
-      [ProcurementFilterAdvanceEnum.status]: params.status,
-      [ProcurementFilterAdvanceEnum.stores]: params.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
+      // [ProcurementFilterAdvanceEnum.status]: params.status,
+      // [ProcurementFilterAdvanceEnum.stores]: params.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
     };
   }
 
@@ -147,7 +149,7 @@ function TabListFilter(props: ProcurementFilterProps) {
           }
           const findSupplier = allSupplier?.find(supplier => +supplier.id === +item.valueId)
           return {...item, valueName: findSupplier?.name}
-        case ProcurementFilterAdvanceEnum.stores:
+        // case ProcurementFilterAdvanceEnum.stores:
         case ProcurementFilterBasicEnum.store_ids:
           if(isArray(item.valueId)) {
             const filterStore = allStore?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
@@ -156,7 +158,7 @@ function TabListFilter(props: ProcurementFilterProps) {
           }
           const findStore= allStore?.find(store => +store.id === +item.valueId)
           return {...item, valueName: findStore?.name}
-        case ProcurementFilterAdvanceEnum.status:
+        case ProcurementFilterBasicEnum.status:
           let statuses: any = [];
           if(isArray(item.valueId)) {
             item.valueId.forEach((item: any) => {statuses.push(ProcurementStatusName[item])})
@@ -165,10 +167,11 @@ function TabListFilter(props: ProcurementFilterProps) {
           }
           return {...item, valueName: statuses?.toString()}
         case ProcurementFilterBasicEnum.content:
-        case ProcurementFilterBasicEnum.merchandisers:
+        case ProcurementFilterAdvanceEnum.merchandisers:
         case ProcurementFilterAdvanceEnum.active:
         case ProcurementFilterAdvanceEnum.stock_in:
         case ProcurementFilterAdvanceEnum.expect_receipt:
+        case ProcurementFilterAdvanceEnum.note:
           return {...item, valueName: item.valueId.toString()}
         default:
           return item
@@ -188,8 +191,8 @@ function TabListFilter(props: ProcurementFilterProps) {
   useEffect(() => {
     (async () => {
       if(paramsArray.length < (prevArray?.length || 0)) {
-        const filterStatusInParams = paramsArray.filter((item: any) => item.keyId === 'status').map((param: any) => param.status)
-        setSelectedStatuses(filterStatusInParams)
+        // const filterStatusInParams = paramsArray.filter((item: any) => item.keyId === 'status').map((param: any) => param.status)
+        // setSelectedStatuses(filterStatusInParams)
         let newParams = transformParamsToObject(paramsArray)
         if(newParams?.active) {
           removeDate(newParams, ProcurementFilterAdvanceEnum.active)
@@ -206,10 +209,10 @@ function TabListFilter(props: ProcurementFilterProps) {
         await history.push(`${history.location.pathname}?${generateQuery(newParams)}`)
       }
     })();
-  }, [setSelectedStatuses, paramsArray, history, prevArray])
+  }, [paramsArray, history, prevArray])
 
   const getSupplierByCode = async (ids: string) => {
-    const res = await callApiNative({isShowLoading: false}, dispatch, supplierGetApi, {
+    const res = await callApiNative({ isShowLoading: false }, dispatch, supplierGetApi, {
       ids,
     });
     if (res) setAllSupplier(res.items);
@@ -220,18 +223,20 @@ function TabListFilter(props: ProcurementFilterProps) {
     formBase.setFieldsValue({
       [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers?.toString()?.split(',').map((x: string) => parseInt(x)),
       [ProcurementFilterBasicEnum.content]: paramsUrl.content,
-      [ProcurementFilterBasicEnum.merchandisers]: paramsUrl.merchandisers?.toString()?.split(','),
+      [ProcurementFilterBasicEnum.status]: paramsUrl.status,
       [ProcurementFilterBasicEnum.store_ids]: paramsUrl.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
     })
     formAdvanced.setFieldsValue({
       ...filters,
-      status: filters.status,
+      // status: filters.status,
       active_from: filters.active_from,
       active_to: filters.active_to,
       stock_in_from: filters.stock_in_from,
       stock_in_to: filters.stock_in_to,
       expect_receipt_from: filters.expect_receipt_from,
       expect_receipt_to: filters.expect_receipt_to,
+      merchandisers: filters.merchandisers,
+      note: filters.note
     });
     if (paramsUrl.suppliers) {
       getSupplierByCode(paramsUrl.suppliers).then();
@@ -239,13 +244,31 @@ function TabListFilter(props: ProcurementFilterProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formAdvanced, paramsUrl, formBase]);
 
-  useEffect(() => {
-    setSelectedStatuses(selectedStatuses)
-    formAdvanced.setFieldsValue({
-      ...formAdvanced.getFieldsValue(),
-      status: selectedStatuses
-    });
-  }, [setSelectedStatuses, selectedStatuses, formAdvanced])
+  // useEffect(() => {
+  //   setSelectedStatuses(selectedStatuses)
+  //   formAdvanced.setFieldsValue({
+  //     ...formAdvanced.getFieldsValue(),
+  //     status: selectedStatuses
+  //   });
+  // }, [setSelectedStatuses, selectedStatuses, formAdvanced])
+
+  const tagRender = (props: any) => {
+    const { label, closable, onClose } = props;
+    const onPreventMouseDown = (event: any) => {
+      event.preventDefault();
+      event.stopPropagation();
+    };
+    return (
+      <Tag
+        className="primary-bg"
+        onMouseDown={onPreventMouseDown}
+        closable={closable}
+        onClose={onClose}
+      >
+        {label}
+      </Tag>
+    );
+  }
 
   return (
     <Form.Provider>
@@ -275,12 +298,18 @@ function TabListFilter(props: ProcurementFilterProps) {
               maxTagCount="responsive"
             />
           </Item>
-          <Item className="merchandisers" name={ProcurementFilterBasicEnum.merchandisers}>
-            <BaseSelectMerchans
-              merchans={merchans}
-              fetchMerchans={fetchMerchans}
-              isLoadingMerchans={isLoadingMerchans}
-              mode={"multiple"}
+          <Item name={ProcurementFilterBasicEnum.status}>
+            <BaseSelect
+              showArrow
+              mode={"tags"}
+              placeholder="Trạng thái"
+              tagRender={tagRender}
+              data={Object.keys(ProcurementStatus)}
+              renderItem={(item) => (
+                <Option key={item} value={item}>{ProcurementStatusName[item]}</Option>
+              )}
+              notFoundContent="Không tìm thấy kết quả"
+              style={{ minWidth: 180 }}
             />
           </Item>
           <div className="btn-action">
@@ -332,30 +361,33 @@ function TabListFilter(props: ProcurementFilterProps) {
                     showTime
                   />;
                   break;
-                case ProcurementFilterAdvanceEnum.stores:
-                  component = <TreeStore placeholder="Chọn kho nhận" name={field} form={formAdvanced} listStore={allStore} />;
+                case ProcurementFilterAdvanceEnum.merchandisers:
+                  component = <BaseSelectMerchans
+                    merchans={merchans}
+                    fetchMerchans={fetchMerchans}
+                    isLoadingMerchans={isLoadingMerchans}
+                    mode={"multiple"}
+                  />;
                   break;
-                case ProcurementFilterAdvanceEnum.status:
+                case ProcurementFilterAdvanceEnum.note:
                   component = (
-                    <ProcurementStatusStyle>
-                      {Object.keys(ProcurementStatus).map((item) => (
-                        <Button
-                          key={item}
-                          value={item}
-                          onClick={() => handleClickStatus(item)}
-                          className={selectedStatuses?.includes(item) ? "active" : ""}
-                        >
-                          {ProcurementStatusName[item]}
-                        </Button>
-                      ))}
-                    </ProcurementStatusStyle>
+                    <Input placeholder="Tìm kiếm theo nội dung ghi chú" />
                   );
                   break;
               }
               return (
-                <Col span={field === ProcurementFilterAdvanceEnum.status ? 24 : 12} key={field}>
+                <Col span={field === ProcurementFilterAdvanceEnum.note ? 24 : 12} key={field}>
                   <div className="font-weight-500">{ProcurementFilterAdvanceName[field]}</div>
-                  <Item name={field}>{component}</Item>
+                  {field === ProcurementFilterAdvanceEnum.note ?
+                    (<Item
+                      name={field}
+                      rules={[
+                        { max: 255, message: "Thông tin tìm kiếm không được quá 255 ký tự" }
+                      ]}>
+                      {component}
+                    </Item>)
+                    : (<Item name={field}>{component}</Item>)
+                  }
                 </Col>
               );
             })}

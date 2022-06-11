@@ -2,14 +2,14 @@ export enum ProcurementFilterAdvanceEnum {
   active = "active",
   expect_receipt = "expect_receipt",
   stock_in = "stock_in",
-  stores = "stores",
-  status = "status",
+  merchandisers = "merchandisers",
+  note = "note"
 }
 export enum ProcurementFilterBasicEnum {
   content = "content",
   suppliers = "suppliers",
-  merchandisers = "merchandisers",
-  store_ids = "stores"
+  store_ids = "stores",
+  status = "status",
 }
 
 export enum SearchProcurementFieldEnum {
@@ -24,16 +24,16 @@ export enum SearchProcurementFieldEnum {
 export const ProcurementFilterBasicName = {
   [ProcurementFilterBasicEnum.content]: "Thông tin tìm kiếm",
   [ProcurementFilterBasicEnum.suppliers]: "Nhà cung cấp",
-  [ProcurementFilterBasicEnum.merchandisers]: "Merchandiser",
   [ProcurementFilterBasicEnum.store_ids]: "Kho nhận",
+  [ProcurementFilterBasicEnum.status]: "Trạng thái"
 };
 
 export const ProcurementFilterAdvanceName = {
   [ProcurementFilterAdvanceEnum.active]: "Ngày duyệt phiếu nhập",
   [ProcurementFilterAdvanceEnum.stock_in]: "Ngày nhập kho",
-  [ProcurementFilterAdvanceEnum.status]: "Trạng thái phiếu nhập kho",
-  [ProcurementFilterAdvanceEnum.stores]: "Kho nhận hàng",
   [ProcurementFilterAdvanceEnum.expect_receipt]: "Ngày nhận dự kiến",
+  [ProcurementFilterAdvanceEnum.merchandisers]: "Merchandiser",
+  [ProcurementFilterAdvanceEnum.note]: "Ghi chú"
 };
 
 
