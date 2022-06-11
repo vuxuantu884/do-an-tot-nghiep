@@ -16,9 +16,8 @@ import {
   Select,
   Space,
   Upload,
-  Modal,
   Typography,
-  List,
+  List, Modal, Progress,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
@@ -30,8 +29,6 @@ import {
   inventoryGetSenderStoreAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import {
-  InventoryProcessImport,
-  InventoryTransferDetailItem,
   Store,
 } from "model/inventory/transfer";
 
@@ -43,6 +40,7 @@ import { showError } from "utils/ToastUtils";
 import MyStoreSelect from "component/custom/select-search/my-store-select";
 import { strForSearch } from "utils/StringUtils";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { ImportResponse } from "../../../model/other/files/export-model";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -54,9 +52,9 @@ const UpdateTicket: FC = () => {
   const [isLoading, setIsLoading] = useState(false)
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
-
-  const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
-  const [dataProcess, setDataProcess] = useState<InventoryProcessImport | null>(null);
+  const [dataProcess, setDataProcess] = useState<ImportResponse>();
+  const [fileId, setFileId] = useState<string | null>(null);
+  const [data, setData] = useState<any>(null);
   const [dataUploadError, setDataUploadError] = useState<Array<string> | null>(null);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -97,6 +95,27 @@ const UpdateTicket: FC = () => {
     }
   };
 
+  const checkImportFile = () => {
+    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then((res: any) => {
+      if (!res.data) return;
+      console.log(res)
+      setData(res.data);
+      setDataProcess(res.data.process);
+      setDataUploadError(res.errors);
+
+      if (res.data.status !== 'FINISH') return;
+      setFileId(null);
+    });
+  }
+
+  useEffect(() => {
+    if (!fileId) return;
+
+    const getFileInterval = setInterval(checkImportFile, 2000);
+    return () => clearInterval(getFileInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fileId]);
+
   const onFinish = useCallback((data: any) => {
     if (!data.fileUpload || data.fileUpload.length === 0) {
       setIsLoading(false);
@@ -135,16 +154,13 @@ const UpdateTicket: FC = () => {
     formData.append('storeReceive',JSON.stringify(data.storeReceive));
     formData.append('note', data.note ? data.note : '');
 
-    BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData ).then((res: any) => {
-      if (res) {
-      setIsLoading(false);
+    console.log(form.getFieldsValue())
 
+    BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData).then((res: any) => {
+      console.log(res)
+      if (res) {
+        setFileId(res.data);
         setIsStatusModalVisible(true);
-        setDataProcess(res.process);
-        setDataUploadError(res.errors);
-      }
-      if (res.data) {
-        setData(res.data);
         setDataProcess(res.process);
         setDataUploadError(res.errors);
       }
@@ -152,7 +168,7 @@ const UpdateTicket: FC = () => {
       showError(err);
     })
 
-  },[stores]);
+  },[form, stores]);
 
   const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
 
@@ -375,27 +391,26 @@ const UpdateTicket: FC = () => {
         isStatusModalVisible && (
           <Modal
             title="Nhập file"
-            visible={isStatusModalVisible}
             centered
-            onCancel={() => {setIsStatusModalVisible(false)}}
+            visible={isStatusModalVisible}
             footer={[
               <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
                 Huỷ
               </Button>,
               <Button
-                disabled={!!dataUploadError}
+                disabled={!!dataUploadError || data?.status !== 'FINISH'}
                 type="primary"
                 onClick={() => {
-                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, data);
+                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, data.data);
                 }}>
                 Xác nhận
               </Button>,
               <Button
-                disabled={!!dataUploadError}
+                disabled={!!dataUploadError || data?.status !== 'FINISH'}
                 type="primary"
                 onClick={() => {
                   history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
-                    data,
+                    data: data.data,
                     isFastCreate: true
                   });
                 }}>
@@ -407,7 +422,7 @@ const UpdateTicket: FC = () => {
               <Row className="status">
                 <Col span={6}>
                   <div><Text>Tổng cộng</Text></div>
-                  <div><b>{dataProcess?.processed}</b></div>
+                  <div><b>{dataProcess?.total_process}</b></div>
                 </Col>
                 <Col span={6}>
                   <div><Text>Đã xử lí</Text></div>
@@ -421,6 +436,10 @@ const UpdateTicket: FC = () => {
                   <div>Lỗi</div>
                   <div><Text type="danger"><b>{dataProcess?.error}</b></Text></div>
                 </Col>
+
+                <Row className="status">
+                  <Progress percent={dataProcess?.percent} />
+                </Row>
               </Row>
               <Row className="import-info">
                 <div className="title"><b>Chi tiết: </b></div>
@@ -430,12 +449,13 @@ const UpdateTicket: FC = () => {
                       dataUploadError ? dataUploadError.map( item => {
                         return <li><span className="danger">&#8226;</span><Text type="danger">{item}</Text></li>
                       }) : (
-                        <li><span className="success">&#8226;</span><Text type="success">Thành công</Text></li>
+                        <li><span className="success">&#8226;</span><Text type="success">{data?.status === 'FINISH' ? 'Thành công' : 'Đang xử lý...'}</Text></li>
                       )
                     }
                   </ul>
                 </div>
               </Row>
+
 
             </ImportStatusWrapper>
           </Modal>
