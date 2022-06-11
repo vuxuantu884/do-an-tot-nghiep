@@ -98,7 +98,7 @@ import {
 	isOrderFinishedOrCancel,
 	replaceFormatString
 } from "utils/AppUtils";
-import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE, ShipmentMethodOption } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE, ShipmentMethodOption, STORE_TYPE } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
@@ -2052,6 +2052,8 @@ function OrderCreateProduct(props: PropTypes) {
 		return newData;
 	}, [isCreateReturn, listStores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
 
+	// console.log("dataCanAccess",dataCanAccess.map(p=>{return {name:p.name, type:p.type}} ))
+
 	useEffect(() => {
 		if (isCreateReturn) {
 			if (storeIdLogin) {
@@ -2363,7 +2365,10 @@ function OrderCreateProduct(props: PropTypes) {
 								disabled={levelOrder > 3}
 							>
 								{dataCanAccess.map((item, index) => (
-									<Select.Option key={index} value={item.id}>
+									<Select.Option
+										disabled={item.type.toLocaleLowerCase() === STORE_TYPE.DISTRIBUTION_CENTER
+											|| item.type.toLocaleLowerCase() === STORE_TYPE.STOCKPILE} key={index} value={item.id}
+									>
 										{item.name}
 									</Select.Option>
 								))}
