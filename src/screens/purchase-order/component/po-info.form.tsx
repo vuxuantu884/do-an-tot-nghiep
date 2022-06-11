@@ -29,7 +29,6 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { fetchMerchandiser, fetchDesigner } = useContext(PurchaseOrderCreateContext);
   const { setMerchans, fetchMerchans, merchans, isLoadingMerchans } = fetchMerchandiser;
   const {
-    setMerchans: setDesigner,
     fetchMerchans: fetchDesigners,
     merchans: designers,
     isLoadingMerchans: isLoadingDesigners,
