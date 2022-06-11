@@ -98,8 +98,8 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
     const barcodePrintHistories = cloneDeep(data.items);
     const total: Array<any> = [];
     barcodePrintHistories.forEach((element) => {
-      if (!total.includes(element.created_by)) {
-        total.push(element.created_by);
+      if (!total.includes(element?.order_code) && element?.order_code) {
+        total.push(element.order_code);
       }
     });
 
@@ -210,8 +210,9 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
           render: (value) => (value ? formatCurrency(value) : "---"),
         },
         {
-          title: (
+          title:  (
             <div>
+              {" "}
               Số lượng tem (<span style={{ color: "#2A2A86" }}>{getTotalQuantityPrint()}</span>)
             </div>
           ),
@@ -230,12 +231,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
           render: (value) => (value ? ConvertUtcToLocalDate(value) : "---"),
         },
         {
-          title: (
-            <div>
-              {" "}
-              Người thao tác (<span style={{ color: "#2A2A86" }}>{getTotalCountDistinct()}</span>)
-            </div>
-          ),
+          title: "Người thao tác",
           dataIndex: "created_by",
           visible: true,
           width: 200,
@@ -250,14 +246,19 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
               "---"
             ),
         },
+        // {
+        //   title: "Mã tham chiếu",
+        //   dataIndex: "order_reference",
+        //   visible: true,
+        //   fixed: "left",
+        // },
         {
-          title: "Mã tham chiếu",
-          dataIndex: "order_reference",
-          visible: true,
-          fixed: "left",
-        },
-        {
-          title: "Đơn đặt hàng",
+          title: (
+            <div>
+              {" "}
+              Đơn đặt hàng (<span style={{ color: "#2A2A86" }}>{getTotalCountDistinct()}</span>)
+            </div>
+          ),
           visible: true,
           align: "left",
           dataIndex: "supplier",
@@ -317,7 +318,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
           width: 200,
         },
       ];
-    }, [currentPermissions, getTotalQuantityPrint, onUpdateNoteItem]);
+    }, [currentPermissions, getTotalQuantityPrint, onUpdateNoteItem, getTotalCountDistinct]);
 
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<BarcodePrintHistoriesResponse>>>(defaultColumns);
