@@ -27,6 +27,7 @@ const initQuery: ReturnSearchQuery = {
   source_ids: [],
   channel_codes: [],
   assignee_codes: [],
+  marketer_codes: [],
 };
 
 type PropTypes = {
