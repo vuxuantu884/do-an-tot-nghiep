@@ -440,3 +440,10 @@ export const ArrDefects = [
   {code: 'L30',name:'Lỗi 30%',value:30},
   {code: 'L50',name:'Lỗi 50%',value:50},
 ]
+
+export const STORE_TYPE={
+  STORE:"store", //Cửa hàng & kho
+  WARE_HOUSE:"ware_house",//Kho online
+  DISTRIBUTION_CENTER:"distribution_center",//Kho phân phối
+  STOCKPILE:"stockpile"//Kho dự trữ
+}
