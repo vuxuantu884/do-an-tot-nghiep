@@ -1,10 +1,14 @@
 import { AxiosRequestConfig } from "axios";
+import BaseAxios from "base/base.axios";
 import BaseAxiosApi from "base/base.axios.api";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { AppConfig } from "config/app.config";
+import { PageResponse } from "model/base/base-metadata.response";
+import { VariantResponse } from "model/product/product.model";
 import { AnalyticCustomize, AnalyticQueryMany, AnalyticTemplateParams } from "model/report/analytics.model";
 import qs from "query-string";
+import { generateQuery } from "utils/AppUtils";
 import { removeSpacesAndEnterCharacters } from "utils/ReportUtils";
 
 const isUat = AppConfig.ENV === "UAT"; // báo cáo không có server trên UAT=> trên mt uat không call api
@@ -99,4 +103,11 @@ export const updateAnalyticsCustomService = (
 
 export const deleteAnalyticsCustomService = (id: number): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.delete(`${ApiConfig.ANALYTICS}/${id}`);
+};
+
+export const searchVariantsSimpleService = (
+  query: { skus?: string, store_ids?: string | null }
+): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
+  const queryString = generateQuery(query);  
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/simple?${queryString}`);
 };

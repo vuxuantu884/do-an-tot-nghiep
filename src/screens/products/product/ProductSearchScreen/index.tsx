@@ -19,7 +19,7 @@ const TabProduct = React.lazy(() => import("../tab/TabProduct"));
 const TabProductWrapper = React.lazy(() => import("../tab/TabProductWrapper"));
 const TabHistoryInfo = React.lazy(() => import("../tab/TabHistoryInfo"));
 const TabHistoryPrice = React.lazy(() => import("../tab/TabHistoryPrice"));
-const TabHistoryInTem = React.lazy(() => import("../tab/TabHistoryInTem"));
+const TabHistoryInStamp = React.lazy(() => import("../tab/TabHistoryInStamp"));
 
 const ListProductScreen: React.FC = () => {
   const [canReadHistories] = useAuthorization({
@@ -113,7 +113,7 @@ const ListProductScreen: React.FC = () => {
       {
         name: "Lịch sử in tem",
         key: ProductTabUrl.STAMP_PRINTING_HISTORY,
-        component: <TabHistoryInTem onTogglePickManyModal={onTogglePickManyModal} visiblePickManyModal={visiblePickManyModal} />,
+        component: <TabHistoryInStamp onTogglePickManyModal={onTogglePickManyModal} visiblePickManyModal={visiblePickManyModal} />,
         isShow: canReadHistories,
       },
     ];
@@ -146,16 +146,19 @@ const ListProductScreen: React.FC = () => {
                 </Button>
               </Link>
             </AuthWrapper>
-            <AuthWrapper acceptPermissions={[ProductPermission.print_temp]}>
-              <Button
-                className="light"
-                size="large"
-                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                onClick={() => { setVExportProduct(true) }}
-              >
-                Xuất file
-              </Button>
-            </AuthWrapper>
+            {
+              activeTab === UrlConfig.VARIANTS &&
+              <AuthWrapper acceptPermissions={[ProductPermission.export_excel]}>
+                <Button
+                  className="light"
+                  size="large"
+                  icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                  onClick={() => { setVExportProduct(true) }}
+                >
+                  Xuất file
+                </Button>
+              </AuthWrapper>
+            }
             {
               (activeTab === UrlConfig.PRODUCT || activeTab === UrlConfig.VARIANTS) &&
               <AuthWrapper acceptPermissions={[ProductPermission.create]}>

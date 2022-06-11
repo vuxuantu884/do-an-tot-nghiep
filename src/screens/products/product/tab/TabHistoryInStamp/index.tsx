@@ -10,7 +10,7 @@ import {
   BarcodePrintHistoriesResponse,
   BarcodePrintTemEditNoteRequest,
   ProductBarcodePrintHistories,
-  VariantResponse
+  VariantResponse,
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -28,7 +28,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { StyledComponent } from "../style";
 import EditNoteBarcode from "./EditNoteBarcode";
-import HistoryInTemFilter from "./HistoryInTemFilter";
+import HistoryInStampFilter from "./HistoryInStampFilter";
 interface IProps {
   visiblePickManyModal: boolean;
   onTogglePickManyModal: () => void;
@@ -36,10 +36,9 @@ interface IProps {
 
 const initQuery: BaseQuery = {
   sort_column: "created_date",
-  sort_type: "desc"
-
+  sort_type: "desc",
 };
-const TabHistoryInTem: React.FC<IProps> = (props) => {
+const TabHistoryInStamp: React.FC<IProps> = (props) => {
   //props
   const { visiblePickManyModal, onTogglePickManyModal } = props;
   //page hooks
@@ -70,17 +69,17 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
     }
   }, []);
 
-  let dataQuery: ProductBarcodePrintHistories = {
+  const dataQuery: ProductBarcodePrintHistories = {
     ...initQuery,
     ...getQueryParams(query),
   };
-  let [params, setParams] = useState<ProductBarcodePrintHistories>(dataQuery);
+  const [params, setParams] = useState<ProductBarcodePrintHistories>(dataQuery);
 
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
-      let queryParam = generateQuery(params);
+      const queryParam = generateQuery(params);
       setParams({ ...params });
       history.replace(`${ProductTabUrl.STAMP_PRINTING_HISTORY}?${queryParam}`);
     },
@@ -95,38 +94,71 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
     return formatCurrency(total, ".");
   }, [data]);
 
-  const onFilter = useCallback((values) => {
-    let newPrams = {
-      ...params, ...{
-        ...values,
-      }, page: 1
-    };
-    setParams(newPrams);
-    let queryParam = generateQuery(newPrams);
-    history.replace(`${ProductTabUrl.STAMP_PRINTING_HISTORY}?${queryParam}`);
-  }, [params, history]);
+  const getTotalCountDistinct = useCallback(() => {
+    const barcodePrintHistories = cloneDeep(data.items);
+    const total: Array<any> = [];
+    barcodePrintHistories.forEach((element) => {
+      if (!total.includes(element?.order_code) && element?.order_code) {
+        total.push(element.order_code);
+      }
+    });
 
-  const getDataPrintHistories = useCallback(async (paramsQuery: ProductBarcodePrintHistories) => {
-    const response = await callApiNative(
-      { isShowError: true },
-      dispatch,
-      productGetHistoryInTem,
-      paramsQuery
-    );
-    onResult(response);
-  }, [dispatch, onResult]);
+    return formatCurrency(total.length, ".");
+  }, [data]);
 
-  const onUpdateNoteItem = useCallback(async (note: Pick<BarcodePrintHistoriesResponse, "note">, item: BarcodePrintHistoriesResponse, paramsQuery: ProductBarcodePrintHistories) => {
-    setLoading(true);
-    const values: BarcodePrintTemEditNoteRequest = {
-      note
-    };
-    const response = await callApiNative({ isShowError: true }, dispatch, productUpdateHistoryInTem, item.id, values);
-    if (response) {
-      showSuccess("Cập nhật ghi chú thành công");
-      getDataPrintHistories(paramsQuery);
-    }
-  }, [dispatch, getDataPrintHistories]);
+  const onFilter = useCallback(
+    (values) => {
+      const newPrams = {
+        ...params,
+        ...{
+          ...values,
+        },
+        page: 1,
+      };
+      setParams(newPrams);
+      const queryParam = generateQuery(newPrams);
+      history.replace(`${ProductTabUrl.STAMP_PRINTING_HISTORY}?${queryParam}`);
+    },
+    [params, history]
+  );
+
+  const getDataPrintHistories = useCallback(
+    async (paramsQuery: ProductBarcodePrintHistories) => {
+      const response = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        productGetHistoryInTem,
+        paramsQuery
+      );
+      onResult(response);
+    },
+    [dispatch, onResult]
+  );
+
+  const onUpdateNoteItem = useCallback(
+    async (
+      note: Pick<BarcodePrintHistoriesResponse, "note">,
+      item: BarcodePrintHistoriesResponse,
+      paramsQuery: ProductBarcodePrintHistories
+    ) => {
+      setLoading(true);
+      const values: BarcodePrintTemEditNoteRequest = {
+        note,
+      };
+      const response = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        productUpdateHistoryInTem,
+        item.id,
+        values
+      );
+      if (response) {
+        showSuccess("Cập nhật ghi chú thành công");
+        getDataPrintHistories(paramsQuery);
+      }
+    },
+    [dispatch, getDataPrintHistories]
+  );
 
   const defaultColumns: Array<ICustomTableColumType<BarcodePrintHistoriesResponse>> =
     useMemo(() => {
@@ -178,8 +210,9 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
           render: (value) => (value ? formatCurrency(value) : "---"),
         },
         {
-          title: (
+          title:  (
             <div>
+              {" "}
               Số lượng tem (<span style={{ color: "#2A2A86" }}>{getTotalQuantityPrint()}</span>)
             </div>
           ),
@@ -213,9 +246,19 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
               "---"
             ),
         },
-
+        // {
+        //   title: "Mã tham chiếu",
+        //   dataIndex: "order_reference",
+        //   visible: true,
+        //   fixed: "left",
+        // },
         {
-          title: "Đơn đặt hàng",
+          title: (
+            <div>
+              {" "}
+              Đơn đặt hàng (<span style={{ color: "#2A2A86" }}>{getTotalCountDistinct()}</span>)
+            </div>
+          ),
           visible: true,
           align: "left",
           dataIndex: "supplier",
@@ -263,7 +306,10 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
                     const value = newNote as unknown;
                     const urlSearchParams = new URLSearchParams(window.location.search);
                     const paramsQuery = Object.fromEntries(urlSearchParams.entries());
-                    onUpdateNoteItem(value as Pick<BarcodePrintHistoriesResponse, "note">, item, { ...initQuery, ...paramsQuery });
+                    onUpdateNoteItem(value as Pick<BarcodePrintHistoriesResponse, "note">, item, {
+                      ...initQuery,
+                      ...paramsQuery,
+                    });
                   }}
                 />
               </div>
@@ -272,7 +318,7 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
           width: 200,
         },
       ];
-    }, [currentPermissions, getTotalQuantityPrint, onUpdateNoteItem])
+    }, [currentPermissions, getTotalQuantityPrint, onUpdateNoteItem, getTotalCountDistinct]);
 
   const [columns, setColumns] =
     useState<Array<ICustomTableColumType<BarcodePrintHistoriesResponse>>>(defaultColumns);
@@ -287,12 +333,12 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
   }, [getDataPrintHistories, params]);
 
   useEffect(() => {
-    setColumns(defaultColumns)
-  }, [defaultColumns])
+    setColumns(defaultColumns);
+  }, [defaultColumns]);
 
   return (
     <StyledComponent>
-      <HistoryInTemFilter
+      <HistoryInStampFilter
         onMenuClick={() => { }}
         actions={[]}
         onFilter={onFilter}
@@ -341,4 +387,4 @@ const TabHistoryInTem: React.FC<IProps> = (props) => {
   );
 };
 
-export default TabHistoryInTem;
+export default TabHistoryInStamp;

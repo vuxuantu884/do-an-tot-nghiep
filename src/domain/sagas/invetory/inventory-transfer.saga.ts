@@ -31,7 +31,7 @@ import {
   getInfoDeliveryFees,
   inventorGetCopyDetailApi,
   cancelShipmentInventoryTransfer,
-  exportShipmentInventoryTransfer, exportMultipleInventoryTransfer,
+  exportShipmentInventoryTransfer, exportMultipleInventoryTransfer, cancelMultipleInventoryTransfer,
 } from "service/inventory/transfer/index.service";
 import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
@@ -526,6 +526,28 @@ function* exportMultipleTransferSaga(action: YodyAction) {
   }
 }
 
+function* cancelMultipleTransferSaga(action: YodyAction) {
+  let { data, onResult } = action.payload;
+
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      cancelMultipleInventoryTransfer,
+      data,
+    );
+    switch (response.code) {
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(response);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* InfoFeesSaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
@@ -558,6 +580,7 @@ export function* inventoryTransferSaga() {
   yield takeLatest(InventoryType.CANCEL_SHIPMENT_INVENTORY, cancelShipmentInventoryTransferSaga);
   yield takeLatest(InventoryType.EXPORT_INVENTORY, exportShipmentInventoryTransferSaga);
   yield takeLatest(InventoryType.EXPORT_MULTIPLE_INVENTORY, exportMultipleTransferSaga);
+  yield takeLatest(InventoryType.CANCEL_MULTIPLE_TICKET_TRANSFER, cancelMultipleTransferSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER_SHIPMENT, createInventoryTransferShipmentSaga);
   yield takeLatest(InventoryType.ADJUSTMENT_INVENTORY, adjustmentInventorySaga);
   yield takeLatest(InventoryType.UPDATE_INVENTORY_TRANSFER, updateInventoryTransferSaga);

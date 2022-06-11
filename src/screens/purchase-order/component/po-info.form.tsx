@@ -3,46 +3,57 @@ import { Card, Form, FormInstance, Input } from "antd";
 import HashTag from "component/custom/hashtag";
 import RowDetail from "component/custom/RowDetail";
 import { POField } from "model/purchase-order/po-field";
-import React, { Fragment, useEffect } from "react";
-import { POStatus } from "utils/Constants";
+import React, { Fragment, useContext, useEffect } from "react";
 import { useSelector } from "react-redux";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import { useFetchMerchans } from "../../../hook/useFetchMerchans";
+import { POStatus } from "utils/Constants";
 import BaseSelectMerchans from "../../../component/base/BaseSelect/BaseSelectMerchans";
+import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { PurchaseOrderCreateContext } from "../provider/purchase-order.provider";
 
 type POInfoFormProps = {
   isEdit: boolean;
   isEditDetail?: boolean;
-  formMain: FormInstance
+  formMain: FormInstance;
 };
 
 const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
   const { isEdit, isEditDetail, formMain } = props;
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const { fetchMerchans, merchans, isLoadingMerchans, setMerchans } = useFetchMerchans()
-  // const [value] = useLocalStorage<any>(PO_FORM_TEMPORARY);
 
   const designer_code = formMain.getFieldValue(POField.designer_code);
-  const designer = formMain.getFieldValue(POField.designer)
-  const qc_code = formMain.getFieldValue(POField.qc_code)
-  const qc = formMain.getFieldValue(POField.qc)
-  const merchans_code = formMain.getFieldValue(POField.merchandiser_code)
+  const designer = formMain.getFieldValue(POField.designer);
+  const qc_code = formMain.getFieldValue(POField.qc_code);
+  const qc = formMain.getFieldValue(POField.qc);
+  const merchans_code = formMain.getFieldValue(POField.merchandiser_code);
+
+  const { fetchMerchandiser, fetchDesigner } = useContext(PurchaseOrderCreateContext);
+  const { setMerchans, fetchMerchans, merchans, isLoadingMerchans } = fetchMerchandiser;
+  const {
+    fetchMerchans: fetchDesigners,
+    merchans: designers,
+    isLoadingMerchans: isLoadingDesigners,
+  } = fetchDesigner;
+
   useEffect(() => {
-    if (merchans.items?.length) {
-      const findCurrentUser = merchans.items?.find(merchan => merchan.code === userReducer.account?.code);
+    if (Array.isArray(merchans?.items)) {
+      const findCurrentUser = merchans.items.find(
+        (merchan) => merchan.code === userReducer.account?.code
+      );
       //Check nếu tài khoản hiện tại không có trong danh sách merchandiser thì thêm vào
       if (!findCurrentUser && userReducer) {
         setMerchans({
           ...merchans,
           items: [
-            { code: userReducer.account?.code || "", full_name: userReducer.account?.full_name || "" },
+            {
+              code: userReducer.account?.code || "",
+              full_name: userReducer.account?.full_name || "",
+            },
             ...merchans.items,
-          ]
-        })
+          ],
+        });
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [JSON.stringify(merchans)])
+  }, [merchans, setMerchans, userReducer]);
 
   if (isEdit && !isEditDetail) {
     return (
@@ -53,8 +64,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             <div className="d-flex">
               <span className="title-card">THÔNG TIN ĐƠN MUA HÀNG</span>
             </div>
-          }
-        >
+          }>
           <div>
             <Form.Item name={POField.code} noStyle hidden>
               <Input />
@@ -77,14 +87,25 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
 
             <RowDetail title="Mã đơn mua hàng" value={formMain.getFieldValue(POField.code)} />
 
-            <RowDetail title="Merchandiser" value={`${merchans_code && merchans_code.toUpperCase()} - ${formMain.getFieldValue(POField.merchandiser)}`} />
+            <RowDetail
+              title="Merchandiser"
+              value={`${merchans_code && merchans_code.toUpperCase()} - ${formMain.getFieldValue(
+                POField.merchandiser
+              )}`}
+            />
 
-            <RowDetail title="QC" value={`${qc && qc_code ? `${qc_code.toUpperCase()} - ${qc}` : ""}`} />
+            <RowDetail
+              title="QC"
+              value={`${qc && qc_code ? `${qc_code.toUpperCase()} - ${qc}` : ""}`}
+            />
 
-            <RowDetail title="Thiết kế" value={`${designer_code && designer ? `${designer_code.toUpperCase()} - ${designer}` : ""}`} />
+            <RowDetail
+              title="Thiết kế"
+              value={`${designer_code && designer ? `${designer_code.toUpperCase()} - ${designer}` : ""
+                }`}
+            />
 
             <RowDetail title="Mã tham chiếu" value={formMain.getFieldValue(POField.reference)} />
-
           </div>
         </Card>
         <Card
@@ -93,25 +114,17 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
             <div className="d-flex">
               <span className="title-card">THÔNG TIN BỔ SUNG</span>
             </div>
-          }
-        >
+          }>
           <div>
             <Form.Item noStyle hidden name={POField.note}>
               <Input />
             </Form.Item>
             <Form.Item
               label="Ghi chú nội bộ"
-              shouldUpdate={(prev, current) =>
-                prev[POField.note] !== current[POField.note]
-              }
-            >
+              shouldUpdate={(prev, current) => prev[POField.note] !== current[POField.note]}>
               {({ getFieldValue }) => {
                 let note = getFieldValue(POField.note);
-                return (
-                  <div className="row-view">
-                    {note !== null && note !== "" ? note : ""}
-                  </div>
-                );
+                return <div className="row-view">{note !== null && note !== "" ? note : ""}</div>;
               }}
             </Form.Item>
             <Form.Item noStyle hidden name={POField.supplier_note}>
@@ -121,8 +134,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               label="Ghi chú của nhà cung cấp"
               shouldUpdate={(prev, current) =>
                 prev[POField.supplier_note] !== current[POField.supplier_note]
-              }
-            >
+              }>
               {({ getFieldValue }) => {
                 let supplierNote = getFieldValue(POField.supplier_note);
                 return (
@@ -140,11 +152,8 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                 title: "Thẻ ngày giúp tìm kiếm đơn hàng",
                 icon: <InfoCircleOutlined />,
               }}
-              shouldUpdate={(prev, current) =>
-                prev[POField.tags] !== current[POField.tags]
-              }
-              label="Tag"
-            >
+              shouldUpdate={(prev, current) => prev[POField.tags] !== current[POField.tags]}
+              label="Tag">
               {({ getFieldValue }) => {
                 let tags: string = getFieldValue(POField.tags);
                 let listTag = tags && tags !== null ? tags.split(",") : [];
@@ -172,13 +181,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
           <div className="d-flex">
             <span className="title-card">THÔNG TIN ĐƠN MUA HÀNG</span>
           </div>
-        }
-      >
+        }>
         <div>
-          <Form.Item
-            noStyle
-            shouldUpdate={(prev, current) => prev.status !== current.status}
-          >
+          <Form.Item noStyle shouldUpdate={(prev, current) => prev.status !== current.status}>
             {({ getFieldValue }) => {
               let status = getFieldValue(POField.status);
               if (
@@ -206,33 +211,24 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     <Form.Item
                       shouldUpdate={(prev, current) =>
                         prev[POField.code] !== current[POField.code]
-                      }
-                    >
+                      }>
                       {({ getFieldValue }) => {
                         let code = getFieldValue(POField.code);
                         return (
                           <div className="row-view">
-                            <div className="row-view-title">
-                              Mã đơn mua hàng:
-                            </div>
-                            <div className="row-view-result row-view-result-id">
-                              {code}
-                            </div>
+                            <div className="row-view-title">Mã đơn mua hàng:</div>
+                            <div className="row-view-result row-view-result-id">{code}</div>
                           </div>
                         );
                       }}
                     </Form.Item>
                     <Form.Item
                       shouldUpdate={(prev, current) =>
-                        prev[POField.merchandiser] !==
-                        current[POField.merchandiser]
-                      }
-                    >
+                        prev[POField.merchandiser] !== current[POField.merchandiser]
+                      }>
                       {({ getFieldValue }) => {
                         let merchandiser = getFieldValue(POField.merchandiser);
-                        let merchandiser_code = getFieldValue(
-                          POField.merchandiser_code
-                        );
+                        let merchandiser_code = getFieldValue(POField.merchandiser_code);
                         return (
                           <div className="row-view">
                             <div className="row-view-title">Merchandiser:</div>
@@ -244,10 +240,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                       }}
                     </Form.Item>
                     <Form.Item
-                      shouldUpdate={(prev, current) =>
-                        prev[POField.qc] !== current[POField.qc]
-                      }
-                    >
+                      shouldUpdate={(prev, current) => prev[POField.qc] !== current[POField.qc]}>
                       {({ getFieldValue }) => {
                         let qc = getFieldValue(POField.qc);
                         let qc_code = getFieldValue(POField.qc_code);
@@ -255,13 +248,8 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                           <div className="row-view">
                             <div className="row-view-title">QC:</div>
 
-                            {qc_code !== null &&
-                              qc_code !== "" &&
-                              qc !== null &&
-                              qc !== "" ? (
-                              <div className="row-view-result">
-                                {`${qc_code} - ${qc}`}
-                              </div>
+                            {qc_code !== null && qc_code !== "" && qc !== null && qc !== "" ? (
+                              <div className="row-view-result">{`${qc_code} - ${qc}`}</div>
                             ) : null}
                           </div>
                         );
@@ -270,13 +258,10 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     <Form.Item
                       shouldUpdate={(prev, current) =>
                         prev[POField.designer] !== current[POField.designer]
-                      }
-                    >
+                      }>
                       {({ getFieldValue }) => {
                         let designer = getFieldValue(POField.designer);
-                        let designer_code = getFieldValue(
-                          POField.designer_code
-                        );
+                        let designer_code = getFieldValue(POField.designer_code);
                         return (
                           <div className="row-view">
                             <div className="row-view-title">Thiết kế:</div>
@@ -300,8 +285,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                     <Form.Item
                       shouldUpdate={(prev, current) =>
                         prev[POField.reference] !== current[POField.reference]
-                      }
-                    >
+                      }>
                       {({ getFieldValue }) => {
                         let reference = getFieldValue(POField.reference);
                         return (
@@ -346,9 +330,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
                   </Form.Item>
                   <Form.Item name={POField.designer_code} label="Thiết kế">
                     <BaseSelectMerchans
-                      merchans={merchans}
-                      fetchMerchans={fetchMerchans}
-                      isLoadingMerchans={isLoadingMerchans}
+                      merchans={designers}
+                      fetchMerchans={fetchDesigners}
+                      isLoadingMerchans={isLoadingDesigners}
                       placeholder="Chọn Nhà thiết kế"
                     />
                   </Form.Item>
@@ -374,8 +358,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
           <div className="d-flex">
             <span className="title-card">THÔNG TIN BỔ SUNG</span>
           </div>
-        }
-      >
+        }>
         <div>
           <Form.Item label="Ghi chú nội bộ" name="note">
             <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />
@@ -389,8 +372,7 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
               icon: <InfoCircleOutlined />,
             }}
             name="tags"
-            label="Tag"
-          >
+            label="Tag">
             <HashTag placeholder="Thêm tag" />
           </Form.Item>
         </div>

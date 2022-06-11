@@ -432,7 +432,7 @@ const EcommerceOrders: React.FC = () => {
 
     switch(batchShippingType) {
       case "SELECTED":
-        setListShopPickUpAddress([])
+        setListShopOrderList([])
         dispatch(
           batchShippingAction({
             shipping_order_list: listShopOrderList,
@@ -442,7 +442,7 @@ const EcommerceOrders: React.FC = () => {
         ))
         break;
       case "FILTERED":
-        setListShopOrderList([])
+        setListShopPickUpAddress([])
         const convertChannelCodeToArr = Array.isArray(params.channel_codes) ? params.channel_codes : [params.channel_codes]
         const convertEcommerceShopIdToArr = Array.isArray(params.ecommerce_shop_ids) ? params.ecommerce_shop_ids : [params.ecommerce_shop_ids]
         dispatch(
@@ -457,6 +457,12 @@ const EcommerceOrders: React.FC = () => {
         return
 
     }
+  }
+
+  const handleCancelPreparationShopeeProductModal = () => {
+    setShowPreparationModal(false);
+    setListShopOrderList([]);
+    setListShopPickUpAddress([]);
   }
 
   const handleConfirmPreparationShopeeProductModal = () => {
@@ -2106,9 +2112,7 @@ const EcommerceOrders: React.FC = () => {
                 title="Chuẩn bị hàng"
                 visible={showPreparationModal}
                 onOk={handlePreparationShopeeProductModal}
-                onCancel={() => {
-                  setShowPreparationModal(false)
-                }}
+                onCancel={handleCancelPreparationShopeeProductModal}
                 okText="Xác nhận" 
                 cancelText="Hủy"
                 referenceCodeByShopAddress={referenceCodeByShopAddress}

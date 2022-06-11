@@ -1,8 +1,9 @@
 import { DASHBOARD_CONFIG } from "config/dashboard";
-import { DashboardShowMyData } from "model/dashboard/dashboard.model";
+import { PAGE_SIZE } from "config/dashboard/product-list-config";
+import { DashboardProductList, DashboardShowMyData } from "model/dashboard/dashboard.model";
 import { AnalyticDataQuery, AnalyticQueryMany, AnalyticSampleQuery, FIELD_FORMAT } from "model/report/analytics.model";
 import { Dispatch } from "redux";
-import { executeAnalyticsQueryService, executeManyAnalyticsQueryService } from "service/report/analytics.service";
+import { executeAnalyticsQueryService, executeManyAnalyticsQueryService, searchVariantsSimpleService } from "service/report/analytics.service";
 import { callApiNative } from "./ApiUtils";
 import { generateRQuery } from "./ReportUtils";
 
@@ -105,4 +106,20 @@ export const getDataOneQueryDashboard = async (dispatch: Dispatch<any>, showMyDa
   const data: AnalyticDataQuery = await callApiNative({ notifyAction: "HIDE_ALL" }, dispatch, executeAnalyticsQueryService, { q, options: queries.options });
 
   return data;
+}
+
+export const mapOnHandByVariantSkusIntoProducts = async (productList: DashboardProductList[], dispatch: any, page: number, deparmentIdList?: Array<string | number>) => { 
+  const result = [...productList];
+  
+  const skus = result.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item: any) => item.variantSku).join(',');
+  const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsSimpleService, { skus, store_ids: deparmentIdList?.length ? deparmentIdList.map(item => `${item}`).join(',') : null });
+  if (res) {
+      res.items.forEach((item: any) => {
+          const idx = result.findIndex((product: any) => product.variantSku === item.sku);
+          if (idx !== -1) {
+              result[idx].onHand = item.on_hand;
+          }
+      })
+  }
+  return result;
 }

@@ -133,4 +133,14 @@ export const AccountUrl = {
   USER_PERMISSION: `${UrlConfig.ACCOUNTS}/:code/permissions`,  
 }
 
+export const SAPO_URL={
+  TEST:"https://moitruongtest.mysapo.net/admin/orders",
+  PRODUCTION:"https://yodyvn.mysapo.net/admin/orders"
+}
+
+export const SHOPIFY_URL={
+  TEST:"https://yodyusa.myshopify.com/admin/orders",
+  PRODUCTION:"https://yodyusa.myshopify.com/admin/orders"
+}
+
 export default UrlConfig;

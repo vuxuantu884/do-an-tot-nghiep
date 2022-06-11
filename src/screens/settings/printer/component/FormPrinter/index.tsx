@@ -19,10 +19,13 @@ import React, {useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch} from "react-redux";
 import {Prompt} from "react-router";
 import {useHistory} from "react-router-dom";
+import { updatePrinterService } from "service/printer/printer.service";
+import { callApiNative } from "utils/ApiUtils";
 import {DEFAULT_COMPANY} from "utils/Constants";
 import FormFilter from "../FormFilter";
 import Preview from "../preview";
 import {StyledComponent} from "./styles";
+import { showSuccess } from "utils/ToastUtils";
 
 type PropType = {
   id?: string;
@@ -154,13 +157,20 @@ const FormPrinter: React.FC<PropType> = (props: PropType) => {
   }, [isEdit, type, formValue]);
 
   const handleSubmitForm = () => {
-    form.validateFields().then(() => {
+    form.validateFields().then(async () => {
       const formComponentValue = form.getFieldsValue();
       let newFormComponentValue = {
         ...formComponentValue,
       };
       setIsShowPrompt(false);
-      // formComponentValue.
+      if (isEdit && id){
+        const res = await callApiNative({isShowLoading: true},dispatch,updatePrinterService,newFormComponentValue,parseInt(id));
+        if (res) {
+          showSuccess("Lưu thành công");
+          history.push(UrlConfig.PRINTER);
+        }
+        return
+      };
       dispatch(
         actionCreatePrinter(newFormComponentValue, () => {
           history.push(UrlConfig.PRINTER);

@@ -3,6 +3,7 @@ import { Button, Col, DatePicker, Form, Input, Row, Select } from "antd";
 import search from "assets/img/search.svg";
 import { FilterWrapper } from "component/container/filter.container";
 import { MenuAction } from "component/table/ActionButton";
+import ButtonSetting from "component/table/ButtonSetting";
 import TreeDepartment from "component/tree-node/tree-department";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { AccountSearchQuery } from "model/account/account.model";
@@ -21,7 +22,7 @@ import BaseFilter from "./base.filter";
 
 type AccountFilterProps = {
   params: AccountSearchQuery;
-  listDepartment?:  DepartmentResponse[] | undefined;
+  listDepartment?: DepartmentResponse[] | undefined;
   listPosition?: Array<PositionResponse>;
   listStatus?: Array<BaseBootstrapResponse>;
   listStore?: Array<StoreResponse>;
@@ -29,6 +30,8 @@ type AccountFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: AccountSearchQuery) => void;
   onClearFilter?: () => void;
+  onClickOpen?: () => void;
+
 };
 
 const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) => {
@@ -39,6 +42,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     listStatus,
     onClearFilter,
     onFilter,
+    onClickOpen
   } = props;
   const [visible, setVisible] = useState(false);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
@@ -112,7 +116,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
           </Form.Item>
 
           <Form.Item name="department_ids">
-            <TreeDepartment listDepartment={listDepartment} style={{ width: 250}}/>
+            <TreeDepartment listDepartment={listDepartment} style={{ width: 250 }} />
           </Form.Item>
           <Form.Item name="status" style={{ minWidth: 220 }}>
             <Select showArrow placeholder="Trạng thái" allowClear>
@@ -132,6 +136,9 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
             <Button onClick={openFilter} icon={<FilterOutlined />}>
               Thêm bộ lọc
             </Button>
+          </Form.Item>
+          <Form.Item>
+            <ButtonSetting onClick={onClickOpen} />
           </Form.Item>
         </FilterWrapper>
         {/* </Form> */}

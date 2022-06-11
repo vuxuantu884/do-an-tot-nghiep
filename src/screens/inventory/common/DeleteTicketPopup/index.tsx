@@ -5,6 +5,7 @@ import { DeleteTicketWrapper } from "./styles";
 type DeleteTicketModalProps = {
   visible: boolean;
   loading?: boolean;
+  isMultiple?: boolean;
   onCancel: (e: React.MouseEvent<HTMLElement>) => void;
   onOk: (item: string | undefined) => void;
   title: string;
@@ -46,7 +47,8 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
     okText,
     cancelText,
     textStore,
-    loading
+    loading,
+    isMultiple = false
   } = props;
 
   const [deleteTicketForm] = Form.useForm();
@@ -98,16 +100,18 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
             <div className="header" key="1">
               <div>
                 <h3>{title}</h3>
-                <div
-                  style={
-                    title
-                      ? { fontWeight: 400 }
-                      : { fontWeight: 600, fontSize: 16 }
-                  }
-                >
-                  <div>Thao tác này sẽ tính toán lại tồn kho {textStore}</div>
-                  <div>Thao tác này không thể hoàn tác.</div>
-                </div>
+                {!isMultiple && (
+                  <div
+                    style={
+                      title
+                        ? { fontWeight: 400 }
+                        : { fontWeight: 600, fontSize: 16 }
+                    }
+                  >
+                    <div>Thao tác này sẽ tính toán lại tồn kho {textStore}</div>
+                    <div>Thao tác này không thể hoàn tác.</div>
+                  </div>
+                )}
               </div>
             </div>
 

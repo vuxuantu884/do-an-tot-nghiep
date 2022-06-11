@@ -3,6 +3,7 @@ import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { STORE_TYPE } from "utils/Constants";
 import { dangerColor, grayF5Color, successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./inventory.modal.styles";
 
@@ -46,8 +47,8 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
   const rowHeight = 45;
 
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
-  const [storeData, setsStoreData] = useState<StoreResponse[] | null>(null);
-  
+  const [storeData, setStoreData] = useState<StoreResponse[] | null>(null);
+
   const [rowProductHeight, setRowProductHeight] = useState(rowHeight)
 
   const setAllAvailable = (variantId: number) => {
@@ -67,7 +68,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
 
   const onSearchInventory = useCallback((value: string) => {
     let _item: StoreResponse[] | any = storeArrayResponse?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
-    setsStoreData(_item);
+    setStoreData(_item);
   }, [storeArrayResponse])
 
   const handleOk = useCallback(() => {
@@ -77,7 +78,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
 
   const data = useMemo(() => {
     let stores: Array<InventoryStore> = [];
-    storeData?.forEach((value, index) => {
+    if (!storeData) return stores;
+    let validStore = storeData.filter((store) => store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER
+      && store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE)
+
+    validStore?.forEach((value, index) => {
       let store: InventoryStore = {
         id: value.id,
         name: value.name,
@@ -104,18 +109,17 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
         //   item2++;
         // }
 
-        if (a.data[value.variant_id.toString()] > 0 ) {
+        if (a.data[value.variant_id.toString()] > 0) {
           item1++;
         }
-        if(b.data[value.variant_id.toString()]>0)
-        {
+        if (b.data[value.variant_id.toString()] > 0) {
           item2++;
         }
 
-        if (a.data[value.variant_id.toString()] >= b.data[value.variant_id.toString()] ) {
+        if (a.data[value.variant_id.toString()] >= b.data[value.variant_id.toString()]) {
           item1++;
         }
-        else{
+        else {
           item2++;
         }
       });
@@ -146,7 +150,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
   }, [storeId]);
 
   useEffect(() => {
-    if (storeArrayResponse) setsStoreData(storeArrayResponse);
+    if (storeArrayResponse) setStoreData(storeArrayResponse);
   }, [storeArrayResponse]);
 
   const element = document.getElementById("stickyRowProduct")

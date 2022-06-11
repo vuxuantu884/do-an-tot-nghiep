@@ -1,7 +1,7 @@
-import {SupplierQuery} from "../../../model/core/supplier.model";
-import {BaseBootstrapResponse} from "../../../model/content/bootstrap.model";
-import {DistrictResponse} from "../../../model/content/district.model";
-import {MenuAction} from "../../table/ActionButton";
+import { SupplierQuery } from "../../../model/core/supplier.model";
+import { BaseBootstrapResponse } from "../../../model/content/bootstrap.model";
+import { DistrictResponse } from "../../../model/content/district.model";
+import { MenuAction } from "../../table/ActionButton";
 
 export type SupplierFilterProps = {
   initValue: SupplierQuery;
@@ -14,6 +14,7 @@ export type SupplierFilterProps = {
   listDistrict?: Array<DistrictResponse>;
   onMenuClick?: (index: number) => void;
   actions: Array<MenuAction>;
+  onClickOpen?: () => void;
 };
 
 export enum SupplierEnum {

@@ -66,6 +66,15 @@ export interface DashboardTopProduct {
   description?: string;
 }
 
+export interface DashboardProductList {
+  label: string;
+  totalSales: number;
+  netQuantity: number;
+  onHand: number | string;
+  variantSku: string;
+  description?: string;
+}
+
 export interface DashboardShowMyData {
   isSeeMyData: boolean;
   condition?: string;

@@ -1,7 +1,7 @@
 import {MenuAction} from "component/table/ActionButton";
 import {
+  actionCancelTicketByIds,
   actionExportInventoryByIds,
-  deleteInventoryTransferAction,
   getListInventoryTransferAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
@@ -42,7 +42,7 @@ import {
   FormOutlined,
   PaperClipOutlined,
   PrinterOutlined,
-  ExportOutlined,
+  ExportOutlined, CloseCircleOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
@@ -84,6 +84,7 @@ const ACTIONS_INDEX = {
   PRINT_TICKET: 5,
   MAKE_COPY: 7,
   EXPORT: 8,
+  CANCEL: 9,
 };
 
 const initQuery: InventoryTransferSearchQuery = {
@@ -175,6 +176,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const [allowClone] = useAuthorization({
     acceptPermissions: [InventoryTransferPermission.clone],
   });
+  const [allowCancel] = useAuthorization({
+    acceptPermissions: [InventoryTransferPermission.cancel],
+  });
 
   let actionsInit: Array<MenuAction> = [
     // {
@@ -212,6 +216,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       name: "Xuất kho",
       icon: <ExportOutlined />,
     },
+    {
+      id: ACTIONS_INDEX.CANCEL,
+      name: "Hủy phiếu",
+      icon: <CloseCircleOutlined />,
+      disabled: !allowCancel,
+    },
   ];
 
   const dispatch = useDispatch();
@@ -231,6 +241,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     items: [],
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultColumns = [
     {
       title: "ID phiếu chuyển",
@@ -473,15 +484,19 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedRowKeys])
 
-  const onDeleteTicket = (value: string | undefined) => {
+  const onDeleteTicket = async (value: string | undefined) => {
+    const ids = selectedRowKeys.map((i) => {
+      return {
+        id: i,
+      }
+    })
     dispatch(
-      deleteInventoryTransferAction(
-        selectedRowKeys[0],
-        {note: value ? value : ""},
-        () => {
-          setIsDeleteTicket(false);
-          dispatch(getListInventoryTransferAction(params, setSearchResult));
-        }
+      actionCancelTicketByIds(
+        {
+          note: value ? value : '',
+          transfers: ids
+        },
+        dataCancelCallback
       )
     );
   };
@@ -643,6 +658,29 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     [dispatch, printContentCallback, selectedRowKeys]
   );
 
+  const dataCancelCallback = (data: any) => {
+    setTableLoading(false);
+    if (data.code === HttpStatus.SUCCESS) {
+      setSelectedRowKeys([]);
+      setIsDeleteTicket(false);
+      showSuccess(`Hủy phiếu chuyển thành công`);
+      setParams({
+        ...params
+      });
+      return;
+    }
+
+    if (data.code === HttpStatus.BAD_REQUEST) {
+      setIsDeleteTicket(false);
+      setIsStatusModalVisible(true);
+      setParams({
+        ...params
+      });
+      setSelectedRowKeys([]);
+      setDataUploadError(data.errors);
+    }
+  };
+
   const dataExportCallback = (data: any) => {
     setTableLoading(false);
     if (data.code === HttpStatus.SUCCESS) {
@@ -679,6 +717,10 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     );
   };
 
+  const cancelTicket = () => {
+    setIsDeleteTicket(true);
+  };
+
   const onMenuClick = useCallback(
     (index: number) => {
       if (selectedRowKeys && selectedRowKeys.length === 0) {
@@ -703,6 +745,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           break;
         case ACTIONS_INDEX.EXPORT:
           exportMultiple().then();
+          break;
+        case ACTIONS_INDEX.CANCEL:
+          cancelTicket();
           break;
         default:
           break;
@@ -972,6 +1017,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       <CustomTable
         bordered
         isRowSelection
+        selectedRowKey={selectedRowKeys}
         isLoading={tableLoading}
         scroll={{x: 1000}}
         sticky={{offsetScroll: 5, offsetHeader: 55}}
@@ -1062,16 +1108,18 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           </Form>
         </Modal>
       )}
+
       {isDeleteTicket && (
         <DeleteTicketModal
           onOk={onDeleteTicket}
           onCancel={() => setIsDeleteTicket(false)}
           visible={isDeleteTicket}
           icon={WarningRedIcon}
+          isMultiple
           textStore={selectedRowData[0]?.from_store_name}
           okText="Đồng ý"
           cancelText="Thoát"
-          title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${selectedRowData[0]?.code}`}
+          title={`Bạn chắc chắn Hủy những phiếu chuyển hàng: ${selectedRowData.map((i) => i.code).join(', ')}`}
         />
       )}
       <ModalSettingColumn
@@ -1093,7 +1141,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
       {isStatusModalVisible && (
         <Modal
-          title="Xuất kho không thành công"
+          title="Thao tác"
           visible={isStatusModalVisible}
           centered
           onCancel={() => {setIsStatusModalVisible(false)}}

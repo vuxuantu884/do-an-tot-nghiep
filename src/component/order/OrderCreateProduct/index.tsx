@@ -98,7 +98,7 @@ import {
 	isOrderFinishedOrCancel,
 	replaceFormatString
 } from "utils/AppUtils";
-import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE, ShipmentMethodOption } from "utils/Constants";
+import { ACCOUNT_ROLE_ID, ADMIN_ORDER, MoneyType, PRODUCT_TYPE, ShipmentMethodOption, STORE_TYPE } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
@@ -2014,9 +2014,14 @@ function OrderCreateProduct(props: PropTypes) {
 
 	const dataCanAccess = useMemo(() => {
 		let newData: Array<StoreResponse> = [];
-		if (listStores && listStores.length) {
+
+		//loại bỏ kho Kho dự trữ, Kho phân phối
+		let listStoresCopy = listStores.filter((store) => store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER
+			&& store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE)
+			
+		if (listStoresCopy && listStoresCopy.length) {
 			if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
-				newData = listStores.filter((store) =>
+				newData = listStoresCopy.filter((store) =>
 					haveAccess(
 						store.id,
 						userReducer.account ? userReducer.account.account_stores : []
@@ -2024,13 +2029,13 @@ function OrderCreateProduct(props: PropTypes) {
 				);
 			}
 			else {
-				newData = listStores;
+				newData = listStoresCopy;
 			}
 
 			// trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
 			if (storeId && userReducer.account) {
 				if (newData.map((single) => single.id).indexOf(storeId) === -1) {
-					let initStore = listStores.find((single) => single.id === storeId)
+					let initStore = listStoresCopy.find((single) => single.id === storeId)
 					if (initStore) {
 						newData.push(initStore);
 					}
@@ -2051,6 +2056,8 @@ function OrderCreateProduct(props: PropTypes) {
 		}
 		return newData;
 	}, [isCreateReturn, listStores, setStoreId, storeId, storeIdLogin, userReducer?.account]);
+
+	// console.log("dataCanAccess",dataCanAccess.map(p=>{return {name:p.name, type:p.type}} ))
 
 	useEffect(() => {
 		if (isCreateReturn) {

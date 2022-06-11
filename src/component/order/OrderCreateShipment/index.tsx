@@ -9,10 +9,10 @@ import {
 	Select,
 	Space
 } from "antd";
-import IconDelivery from "assets/icon/delivery.svg";
-import IconSelfDelivery from "assets/icon/self_shipping.svg";
-import IconShoppingBag from "assets/icon/shopping_bag.svg";
-import IconWallClock from "assets/icon/wall_clock.svg";
+import DeliverPartnerOutline from "component/icon/DeliverPartnerOutline";
+import PickAtStoreOutline from "component/icon/PickAtStoreOutline";
+import SelfDeliverOutline from "component/icon/SelfDeliverOutline";
+import WallClockOutline from "component/icon/WallClockOutline";
 import ShipmentMethodEcommerce from "component/order/OrderCreateShipment/ShipmentMethodEcommerce";
 import { ExternalShipperGetListAction } from "domain/actions/account/account.action";
 import { DeliveryServicesGetList, getFeesAction } from "domain/actions/order/order.action";
@@ -32,6 +32,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getShippingAddressDefault, handleCalculateShippingFeeApplyOrderSetting, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
+import { primaryColor } from "utils/global-styles/variables";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -41,7 +42,7 @@ import { StyledComponent } from "./styles";
 type ShipmentButtonType = {
   name: string | null;
   value: number;
-  icon: string | undefined;
+  icon?: string;
   isDisabled?: boolean;
 };
 
@@ -176,26 +177,26 @@ function OrderCreateShipment(props: PropType) {
   const shipmentButton: Array<ShipmentButtonType> = [
     {
       name: "Chuyển hãng vận chuyển",
-      value: 1,
-      icon: IconDelivery,
+      value: ShipmentMethodOption.DELIVER_PARTNER,
+      // icon: IconDelivery,
       isDisabled: isOrderReturnFromPOS,
     },
     {
       name: "Tự giao hàng",
-      value: 2,
-      icon: IconSelfDelivery,
+      value: ShipmentMethodOption.SELF_DELIVER,
+      // icon: IconSelfDelivery,
       isDisabled: isOrderReturnFromPOS,
     },
     {
       name: "Nhận tại cửa hàng",
-      value: 3,
-      icon: IconShoppingBag,
+      value: ShipmentMethodOption.PICK_AT_STORE,
+      // icon: IconShoppingBag,
       isDisabled: false,
     },
     {
       name: "Giao hàng sau",
-      value: 4,
-      icon: IconWallClock,
+      value: ShipmentMethodOption.DELIVER_LATER,
+      // icon: IconWallClock,
       isDisabled: isOrderReturnFromPOS,
     },
   ];
@@ -203,41 +204,60 @@ function OrderCreateShipment(props: PropType) {
   const renderShipmentTabHeader = () => {
     return (
       <React.Fragment>
-        {shipmentButton.map((button) => (
-          <div key={button.value}>
-            {shipmentMethod !== button.value ? (
-              <div
-                className={`saleorder_shipment_button 23 ${button.isDisabled ? "disabled" : ""}`}
-                key={button.value}
-                style={isOrderFinishedOrCancel(OrderDetail) ? {pointerEvents: "none"} : undefined}
-                onClick={() => {
-                  levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value)
-                  if(items?.length && items?.length > 0 && button.value === 2) {
-                    handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
-                      undefined, form, setShippingFeeInformedToCustomer
+        {shipmentButton.map((button) => {
+          let icon = null;
+          let color= shipmentMethod === button.value ? primaryColor: undefined;
+          switch (button.value) {
+            case ShipmentMethodOption.DELIVER_PARTNER:
+              icon = <DeliverPartnerOutline color={color} />;
+              break;
+            case ShipmentMethodOption.SELF_DELIVER:
+              icon = <SelfDeliverOutline color={color} />;
+              break;
+            case ShipmentMethodOption.PICK_AT_STORE:
+              icon = <PickAtStoreOutline color={color} />;
+              break;
+            case ShipmentMethodOption.DELIVER_LATER: 
+              icon = <WallClockOutline color={color} />;
+              break;
+            default: break;
+          }
+          return (
+            <div key={button.value}>
+              {shipmentMethod !== button.value ? (
+                <div
+                  className={`saleorder_shipment_button ${button.isDisabled ? "disabled" : ""}`}
+                  key={button.value}
+                  style={isOrderFinishedOrCancel(OrderDetail) ? { pointerEvents: "none" } : undefined}
+                  onClick={() => {
+                    levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value)
+                    if (items?.length && items?.length > 0 && button.value === 2) {
+                      handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
+                        undefined, form, setShippingFeeInformedToCustomer
                       );
+                    }
+                  }}
+                >
+                  {icon}
+                  <span>{button.name}</span>
+                </div>
+              ) : (
+                <div
+                  className={
+                    shipmentMethod === ShipmentMethodOption.DELIVER_LATER
+                      ? "saleorder_shipment_button border"
+                      : "saleorder_shipment_button active"
                   }
-                }}
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            ) : (
-              <div
-                className={
-                  shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                    ? "saleorder_shipment_button border"
-                    : "saleorder_shipment_button active"
-                }
-                key={button.value}
-                style={isOrderFinishedOrCancel(OrderDetail) ? {pointerEvents: "none"} : undefined}
-              >
-                <img src={button.icon} alt="icon"></img>
-                <span>{button.name}</span>
-              </div>
-            )}
-          </div>
-        ))}
+                  key={button.value}
+                  style={isOrderFinishedOrCancel(OrderDetail) ? { pointerEvents: "none" } : undefined}
+                >
+                  {icon}
+                  <span>{button.name}</span>
+                </div>
+              )}
+            </div>
+          )
+        })}
       </React.Fragment>
     );
   };

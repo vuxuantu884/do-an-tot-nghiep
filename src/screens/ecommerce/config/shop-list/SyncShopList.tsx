@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useCallback, useMemo, useState} from "react";
 import { Button } from "antd";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import CustomTable from "component/table/CustomTable";
@@ -9,9 +9,11 @@ import { ECOMMERCE_ICON } from "screens/ecommerce/common/commonAction";
 import { StyledHeader, StyledComponent } from "screens/ecommerce/config/shop-list/StyledSyncShopList";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import {SourceResponse} from "model/response/order/source.response";
 
 type SyncShopListProps = {
   configData: any;
+  sourceList: Array<SourceResponse>;
   setConfigToView: (value: EcommerceResponse) => void;
   reloadConfigData: () => void;
   showDeleteModal: (value: EcommerceResponse) => void;
@@ -31,7 +33,7 @@ const SYNC_TYPE = [
 const SyncShopList: React.FC<SyncShopListProps> = (
   props: SyncShopListProps
 ) => {
-  const { configData, setConfigToView, showDeleteModal } = props;
+  const { configData, sourceList, setConfigToView, showDeleteModal } = props;
   const history = useHistory();
   const [activatedBtn, setActivatedBtn] = React.useState({
     title: "",
@@ -41,119 +43,132 @@ const SyncShopList: React.FC<SyncShopListProps> = (
     key: 0,
   });
 
-  const handleUpdate = (item: any) => {
+  const handleUpdate = useCallback((item: any) => {
     setConfigToView(item);
     history.replace(`${history.location.pathname}#setting`);
-  };
+  }, [history, setConfigToView]);
 
-  const handleShowDeleteModal = (item: EcommerceResponse) => {
+  const handleShowDeleteModal = useCallback((item: EcommerceResponse) => {
     showDeleteModal(item);
-  };
+  }, [showDeleteModal]);
 
-  const [columns] = useState<any>([
-    {
-      title: "STT",
-      align: "center",
-      width: "70px",
-      fixed: "left",
-      render: (l: any, v: any, i: any) => {
-        return <span>{i + 1}</span>
-      }
-    },
-    {
-      title: "Gian hàng",
-      width: "10%",
-      fixed: "left",
-      render: (value: any, data: any, index: any) => {
-        return (
-          <div style={{ display: "flex" }}>
-            <img src={ECOMMERCE_ICON[data.ecommerce?.toLowerCase()]} alt="" style={{ marginRight: 8 }} />
-            <strong className="link" onClick={() => handleUpdate(data)}>{data.name}</strong>
-          </div>
-        )
-      }
-    },
-    {
-      title: "Tên shop (Sàn)",
-      width: "10%",
-      dataIndex: "ecommerce_shop"
-    },
-    {
-      title: "Cửa hàng",
-      width: "10%",
-      dataIndex: "store"
-    },
-    {
-      title: "Kho đồng bộ tồn",
-      // width: "20%",
-      render: (value: any, data: any, index: any) => {
-        let inventories = "";
-        data.inventories?.forEach((item: any) => {
-          inventories = item.deleted ? inventories : inventories + item.store + ", ";
-        })
-        return (
-          <div>{inventories}</div>
-        )
-      }
-    },
-    {
-      title: "Nguồn đơn hàng",
-      width: "10%",
-      dataIndex: "source"
-    },
-    {
-      title: "Kiểu đồng bộ tồn",
-      dataIndex: "inventory_sync",
-      align: "center",
-      width: 150,
-      render: (value: string, data: any, index: any) => {
-        const inventorySyncType = SYNC_TYPE.find((item: any) => item.value === value);
-        return (
-          <div>{inventorySyncType?.name}</div>
-        )
-      }
-    },
-    {
-      title: "Kiểu đồng bộ đơn hàng",
-      dataIndex: "order_sync",
-      align: "center",
-      width: 150,
-      render: (value: string, data: any, index: any) => {
-        const orderSyncType = SYNC_TYPE.find((item: any) => item.value === value);
-        return (
-          <div>{orderSyncType?.name}</div>
-        )
-      }
-    },
-    {
-      title: "Kiểu sản phẩm khi tải đơn về",
-      dataIndex: "product_sync",
-      align: "center",
-      width: 150,
-      render: (value: string, data: any, index: any) => {
-        return (
-          <div>Đợi ghép nối</div>
-        )
-      }
-    },
-    {
-      title: "Nhân viên bán hàng",
-      width: "10%",
-      dataIndex: "assign_account",
-    },
-    {
-      title: "Ngày kết nối",
-      dataIndex: "created_date",
-      width: 120,
-      align: "center",
-      render: (value: string, data: any, index: any) => {
-        return (
-          <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>
-        )
-      }
-    },
-    actionColumn(handleUpdate, handleShowDeleteModal),
-  ]);
+  const getSourceNameById = useCallback((sourceId: number) => {
+    const source = sourceList.find(item => Number(item.id) === Number(sourceId));
+    return source ? source.name : "";
+  }, [sourceList]);
+
+  const columns: any = useMemo(() => {
+    return [
+      {
+        title: "STT",
+        align: "center",
+        width: "70px",
+        fixed: "left",
+        render: (l: any, v: any, i: any) => {
+          return <span>{i + 1}</span>
+        }
+      },
+      {
+        title: "Gian hàng",
+        width: "10%",
+        fixed: "left",
+        render: (value: any, data: any) => {
+          return (
+            <div style={{ display: "flex" }}>
+              <img src={ECOMMERCE_ICON[data.ecommerce?.toLowerCase()]} alt="" style={{ marginRight: 8 }} />
+              <strong className="link" onClick={() => handleUpdate(data)}>{data.name}</strong>
+            </div>
+          )
+        }
+      },
+      {
+        title: "Tên shop (Sàn)",
+        width: "10%",
+        dataIndex: "ecommerce_shop"
+      },
+      {
+        title: "Cửa hàng",
+        width: "10%",
+        dataIndex: "store"
+      },
+      {
+        title: "Kho đồng bộ tồn",
+        // width: "20%",
+        render: (value: any, data: any) => {
+          let inventories = "";
+          data.inventories?.forEach((item: any) => {
+            inventories = item.deleted ? inventories : inventories + item.store + ", ";
+          })
+          return (
+            <div>{inventories}</div>
+          )
+        }
+      },
+      {
+        title: "Nguồn đơn hàng",
+        width: "10%",
+        dataIndex: "source_id",
+        render: (source_id: number) => {
+          const sourceName = getSourceNameById(source_id);
+          return (
+            <div>{sourceName}</div>
+          )
+        }
+      },
+      {
+        title: "Kiểu đồng bộ tồn",
+        dataIndex: "inventory_sync",
+        align: "center",
+        width: 150,
+        render: (value: string) => {
+          const inventorySyncType = SYNC_TYPE.find((item: any) => item.value === value);
+          return (
+            <div>{inventorySyncType?.name}</div>
+          )
+        }
+      },
+      {
+        title: "Kiểu đồng bộ đơn hàng",
+        dataIndex: "order_sync",
+        align: "center",
+        width: 150,
+        render: (value: string) => {
+          const orderSyncType = SYNC_TYPE.find((item: any) => item.value === value);
+          return (
+            <div>{orderSyncType?.name}</div>
+          )
+        }
+      },
+      {
+        title: "Kiểu sản phẩm khi tải đơn về",
+        dataIndex: "product_sync",
+        align: "center",
+        width: 150,
+        render: () => {
+          return (
+            <div>Đợi ghép nối</div>
+          )
+        }
+      },
+      {
+        title: "Nhân viên bán hàng",
+        width: "10%",
+        dataIndex: "assign_account",
+      },
+      {
+        title: "Ngày kết nối",
+        dataIndex: "created_date",
+        width: 120,
+        align: "center",
+        render: (value: string) => {
+          return (
+            <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>
+          )
+        }
+      },
+      actionColumn(handleUpdate, handleShowDeleteModal),
+    ]
+  }, [getSourceNameById, handleShowDeleteModal, handleUpdate]);
 
   const [buttons] = useState<Array<any>>([
     {
