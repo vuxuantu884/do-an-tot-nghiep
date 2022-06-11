@@ -59,6 +59,7 @@ export interface ReturnSearchQuery {
   is_online?: boolean|null;
   source_ids: [];
   channel_codes: [];
+  marketer_codes: [];
 }
 
 export interface ReasonReturn{

@@ -143,6 +143,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         case "assignee_codes":
           onFilter && onFilter({ ...params, assignee_codes: [] });
           break;
+        case "marketer_codes":
+          onFilter && onFilter({ ...params, marketer_codes: [] });
+          break;
         case "account_codes":
           onFilter && onFilter({ ...params, account_codes: [] });
           break;
@@ -171,6 +174,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
+      marketer_codes: Array.isArray(params.marketer_codes)
+      ? params.marketer_codes
+      : [params.marketer_codes],
       account_codes: Array.isArray(params.account_codes)
         ? params.account_codes
         : [params.account_codes],
@@ -330,6 +336,13 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         setAssigneeFound(response.data.items);
       });
     }
+    if (params.marketer_codes && params.marketer_codes?.length > 0) {
+      searchAccountApi({
+        codes: params.marketer_codes,
+      }).then((response) => {
+        setAssigneeFound(response.data.items);
+      });
+    }
     if (params.account_codes && params.account_codes?.length > 0) {
       searchAccountApi({
         codes: params.account_codes,
@@ -340,6 +353,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     
   }, [
     params.assignee_codes,
+    params.marketer_codes,
     params.account_codes,
   ]);
   let filters = useMemo(() => {
@@ -362,7 +376,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       if (!mappedArray) {
         return null;
       };
-      if (type === "account_codes" || type === "assignee_codes") {
+      if (type === "account_codes" || type === "assignee_codes" || type === "marketer_codes") {
         result = mappedArray.map((single, index) => {
           return (
             <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
@@ -494,6 +508,14 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         value: text,
       })
     }
+    if (initialValues.marketer_codes.length) {
+      let text = getFilterString(assigneeFound, "full_name", UrlConfig.ACCOUNTS, "code", "marketer_codes");
+      list.push({
+        key: 'marketer_codes',
+        name: 'Nhân viên marketing',
+        value: text,
+      })
+    }
     if (initialValues.account_codes.length) {
       let text = getFilterString(accountFound, "full_name", UrlConfig.ACCOUNTS, "code", "account_codes");
       list.push({
@@ -504,7 +526,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
 
     return list
-  }, [initialValues.store_ids, initialValues.reason_ids, initialValues.is_received, initialValues.payment_status, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.source_ids, initialValues.channel_codes, initialValues.assignee_codes.length, initialValues.account_codes.length, listStore, reasons, listSource, listChannel, assigneeFound, accountFound]);
+  }, [initialValues.store_ids, initialValues.reason_ids, initialValues.is_received, initialValues.payment_status, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.source_ids, initialValues.channel_codes, initialValues.assignee_codes.length, initialValues.marketer_codes.length, initialValues.account_codes.length, listStore, reasons, listSource, listChannel, assigneeFound, accountFound]);
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
       return 1400
@@ -781,6 +803,19 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   />
                 </Item>
               </Col>
+              {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
+                <Item name="marketer_codes" label="Nhân viên marketing">
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={accounts}
+                    mode="multiple"
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    maxTagCount="responsive"
+                  />
+                </Item>
+              </Col>}
             </Row>
           </Form>}
         </BaseFilter>
