@@ -38,6 +38,7 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { SearchContainer } from "./account.search.style";
 import ImportExcel from "./components/me-contact/ImportExcel";
 import uploadIcon from "assets/icon/upload.svg";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -61,12 +62,14 @@ const ListAccountScreen: React.FC = () => {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+  //page state
   const [tableLoading, setTableLoading] = useState(true);
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
   const [isImport, setIsImport] = useState<boolean>(false);
+  const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   //phân quyền
   const [allowDeleteAcc] = useAuthorization({
@@ -183,6 +186,7 @@ const ListAccountScreen: React.FC = () => {
       title: <AcctionCompoent />,
       fixed: "left",
       width: 130,
+      visible: true,
       render: (value: AccountResponse) => {
         return <Link to={`${UrlConfig.ACCOUNTS}/${value.code}`}>{value.code}</Link>;
       },
@@ -190,19 +194,23 @@ const ListAccountScreen: React.FC = () => {
     {
       title: "Tên đăng nhập",
       dataIndex: "user_name",
+      visible: true,
     },
     {
       title: "Họ tên",
       dataIndex: "full_name",
+      visible: true,
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
+      visible: true,
     },
     {
       title: "Cửa hàng",
       dataIndex: "account_stores",
       width: 300,
+      visible: true,
       render: (stores: Array<AccountStoreResponse>) => (
         <>
           {stores.length < 3 ? (
@@ -225,10 +233,12 @@ const ListAccountScreen: React.FC = () => {
       title: "Phân quyền",
       width: 200,
       dataIndex: "role_name",
+      visible: true,
     },
     {
       title: "Ngày tạo",
       width: 150,
+      visible: true,
       render: (value: AccountResponse) => {
         return ConvertUtcToLocalDate(value.created_date, "DD/MM/YYYY");
       },
@@ -238,6 +248,7 @@ const ListAccountScreen: React.FC = () => {
       dataIndex: "status",
       width: 150,
       align: "center",
+      visible: true,
       render: (value: string, row: AccountResponse) => (
         <Switch
           size="small"
@@ -245,7 +256,7 @@ const ListAccountScreen: React.FC = () => {
           defaultChecked={value === "active"}
           onChange={(checked) => {
             const storeIds: number[] = row.account_stores.reduce((acc: Array<number>, item: AccountStoreResponse) => {
-              if(item.store_id ) {
+              if (item.store_id) {
                 acc.push(item.store_id);
               }
               return acc;
@@ -254,7 +265,7 @@ const ListAccountScreen: React.FC = () => {
               AccountUpdateAction(
                 row.id,
                 { ...row, store_ids: storeIds, status: checked ? "active" : "inactive" },
-                () => { } 
+                () => { }
               )
             );
           }}
@@ -265,6 +276,10 @@ const ListAccountScreen: React.FC = () => {
 
   let [columns, setColumns] =
     useState<Array<ICustomTableColumType<AccountResponse>>>(defaultColumns);
+
+  const columnFinal = useMemo(() => {
+    return columns.filter((item) => item.visible === true);
+  }, [columns]);
 
   useLayoutEffect(() => {
     setColumns(defaultColumns);
@@ -301,20 +316,20 @@ const ListAccountScreen: React.FC = () => {
       extra={
         <Row>
           <Space>
-          <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
-            <Button 
-              className="light" 
-              size="large"
-              icon={<img src={uploadIcon} style={{marginRight: 8}} alt="" />}
-              onClick={() =>
-                      history.push(`${UrlConfig.ACCOUNTS}/import`)
-                    }>
-              Nhập file
-            </Button>
-          </AuthWrapper>
-          <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
-            <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
-          </AuthWrapper>
+            <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
+              <Button
+                className="light"
+                size="large"
+                icon={<img src={uploadIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={() =>
+                  history.push(`${UrlConfig.ACCOUNTS}/import`)
+                }>
+                Nhập file
+              </Button>
+            </AuthWrapper>
+            <AuthWrapper acceptPermissions={[AccountPermissions.CREATE]}>
+              <ButtonCreate child="Thêm người dùng" path={`${UrlConfig.ACCOUNTS}/create`} />
+            </AuthWrapper>
           </Space>
         </Row>
       }
@@ -331,6 +346,7 @@ const ListAccountScreen: React.FC = () => {
             listStatus={listStatus}
             listStore={listStore}
             onClearFilter={onClearFilter}
+            onClickOpen={() => setShowSettingColumn(true)}
           />
           <CustomTable
             isRowSelection
@@ -345,18 +361,28 @@ const ListAccountScreen: React.FC = () => {
             onSelectedChange={onSelect}
             isLoading={tableLoading}
             dataSource={data.items}
-            columns={columns}
+            columns={columnFinal}
             rowKey={(item: AccountResponse) => item.id}
             scroll={{ x: 1500 }}
             sticky={{ offsetScroll: 5, offsetHeader: 55 }}
           />
         </Card>
         <ImportExcel
-          onCancel={()=>{setIsImport(false)}}
-          onOk={()=>{}}
+          onCancel={() => { setIsImport(false) }}
+          onOk={() => { }}
           title="Nhập file người dùng"
           visible={isImport}
-          />
+        />
+        <ModalSettingColumn
+          visible={showSettingColumn}
+          onCancel={() => setShowSettingColumn(false)}
+          onOk={(data) => {
+            console.log(data);
+            setShowSettingColumn(false);
+            setColumns(data);
+          }}
+          data={columns}
+        />
       </SearchContainer>
 
     </ContentContainer>
