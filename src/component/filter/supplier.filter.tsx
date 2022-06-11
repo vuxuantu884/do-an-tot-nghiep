@@ -3,25 +3,26 @@ import "assets/css/custom-filter.scss";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
 import { SupplierQuery } from "model/core/supplier.model";
-import React, {memo, useEffect, useState} from "react";
+import React, { memo, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import CustomSelectOne from "./component/select-one.custom";
-import {PageResponse} from "../../model/base/base-metadata.response";
-import {CollectionResponse} from "../../model/product/collection.model";
-import {getCollectionRequestAction} from "../../domain/actions/product/collection.action";
-import {useDispatch} from "react-redux";
+import { PageResponse } from "../../model/base/base-metadata.response";
+import { CollectionResponse } from "../../model/product/collection.model";
+import { getCollectionRequestAction } from "../../domain/actions/product/collection.action";
+import { useDispatch } from "react-redux";
 import useEffectOnce from "react-use/lib/useEffectOnce";
 import BaseFilterResult from "../base/BaseFilterResult";
-import {FieldMapping, SupplierEnum, SupplierFilterProps} from "./interfaces/supplier";
-import {formatFieldTag, generateQuery, transformParamsToObject} from "../../utils/AppUtils";
-import {useArray} from "../../hook/useArray";
-import {useHistory} from "react-router";
+import { FieldMapping, SupplierEnum, SupplierFilterProps } from "./interfaces/supplier";
+import { formatFieldTag, generateQuery, transformParamsToObject } from "../../utils/AppUtils";
+import { useArray } from "../../hook/useArray";
+import { useHistory } from "react-router";
 import UrlConfig from "../../config/url.config";
-import {isEqual} from "lodash";
+import { isEqual } from "lodash";
 import BaseSelectPaging from "../base/BaseSelect/BaseSelectPaging";
-import {useFetchMerchans} from "../../hook/useFetchMerchans";
+import { useFetchMerchans } from "../../hook/useFetchMerchans";
 import BaseSelect from "../base/BaseSelect/BaseSelect";
 import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
+import ButtonSetting from "component/table/ButtonSetting";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -38,6 +39,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     actions,
     onMenuClick,
     setParams,
+    onClickOpen
   } = props;
   const dispatch = useDispatch()
   const history = useHistory()
@@ -53,20 +55,20 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     items: [],
   });
   const [isSearchingCollections, setIsSearchingCollections] = React.useState(false);
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
-  const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans()
+  const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([])
 
   const onFinish = (values: SupplierQuery) => {
-    onFilter && onFilter({...values, condition: values.condition?.trim()});
+    onFilter && onFilter({ ...values, condition: values.condition?.trim() });
   }
-  const getStatusObjFromEnum= () => {
-  const statusObj:any = {};
-  if (supplierStatus) {
-    supplierStatus.forEach(item => {
-      statusObj[item.value] = item.name;
-    });
-  }
-  return statusObj;
+  const getStatusObjFromEnum = () => {
+    const statusObj: any = {};
+    if (supplierStatus) {
+      supplierStatus.forEach(item => {
+        statusObj[item.value] = item.name;
+      });
+    }
+    return statusObj;
   }
   const onFilterClick = () => {
     setVisible(false);
@@ -117,21 +119,21 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     const newParams = formatted.map((item) => {
       switch (item.keyId) {
         case SupplierEnum.status:
-          return {...item, valueName: item.valueId === "inactive" ? "Ngừng hoạt động" : "Đang hoạt động"}
+          return { ...item, valueName: item.valueId === "inactive" ? "Ngừng hoạt động" : "Đang hoạt động" }
         case SupplierEnum.type:
-          return {...item, valueName: item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân"}
+          return { ...item, valueName: item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân" }
         case SupplierEnum.condition:
-          return {...item, valueName: item.valueId}
+          return { ...item, valueName: item.valueId }
         case SupplierEnum.merchandiser:
-          return {...item, valueName: item.valueId.toString()}
+          return { ...item, valueName: item.valueId.toString() }
         case SupplierEnum.district_id:
           const findDistrict = listDistrict?.find(district => +district.id === +item.valueId)
-          return {...item, valueName: findDistrict?.name}
+          return { ...item, valueName: findDistrict?.name }
         case SupplierEnum.scorecard:
-          return {...item, valueName: item.valueId}
+          return { ...item, valueName: item.valueId }
         case SupplierEnum.collection_id:
           const findCollection = collections.items.find(collection => +collection.id === +item.valueId)
-          return {...item, valueName: findCollection?.name}
+          return { ...item, valueName: findCollection?.name }
         default:
           return item
       }
@@ -142,7 +144,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
 
   useEffect(() => {
     //Xóa tag
-    if(paramsArray.length < (prevArray?.length || 0)) {
+    if (paramsArray.length < (prevArray?.length || 0)) {
       const newParams = transformParamsToObject(paramsArray)
       setParams(newParams)
       history.replace(`${UrlConfig.SUPPLIERS}?${generateQuery(newParams)}`)
@@ -177,6 +179,9 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           <Item>
             <Button onClick={() => setVisible(true)}>Thêm bộ lọc</Button>
           </Item>
+          <Item>
+            <ButtonSetting onClick={onClickOpen} />
+          </Item>
         </Form>
       </CustomFilter>
       <BaseFilter
@@ -193,7 +198,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
           layout="vertical"
         >
           <Item name="status" label="Trạng thái">
-              <CustomSelectOne span={12} data={getStatusObjFromEnum()} />
+            <CustomSelectOne span={12} data={getStatusObjFromEnum()} />
           </Item>
           <Item label="Thông tin liên hệ" name="condition">
             <Input placeholder="Tên/SDT người liên hệ" />
@@ -219,7 +224,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
                 <Option key={item.value} value={item.value.toString()}>
                   {item.name}
                 </Option>
-                )}
+              )}
             />
           </Item>
           <Item name="collection_id" label="Nhóm hàng">
@@ -232,8 +237,8 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
               placeholder="Chọn nhóm hàng"
             />
           </Item>
-           <Item name="type" label="Loại">
-             <BaseSelect
+          <Item name="type" label="Loại">
+            <BaseSelect
               data={listSupplierType}
               renderItem={(item) => (
                 <Select.Option key={item.value} value={item.value}>
@@ -241,11 +246,11 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
                 </Select.Option>
               )}
               placeholder="Loại nhà cung cấp"
-             />
+            />
           </Item>
         </Form>
       </BaseFilter>
-      <BaseFilterResult data={paramsArray} onClose={remove}/>
+      <BaseFilterResult data={paramsArray} onClose={remove} />
     </div>
   );
 };

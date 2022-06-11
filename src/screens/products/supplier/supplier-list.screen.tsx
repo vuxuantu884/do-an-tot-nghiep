@@ -1,15 +1,15 @@
-import {Card} from "antd";
-import {MenuAction} from "component/table/ActionButton";
-import {PageResponse} from "model/base/base-metadata.response";
-import {SupplierResponse, SupplierQuery, SupplierContactResposne} from "model/core/supplier.model";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {Link, useHistory} from "react-router-dom";
-import {generateQuery} from "utils/AppUtils";
-import {getQueryParams, useQuery} from "utils/useQuery";
-import {useDispatch, useSelector, shallowEqual} from "react-redux";
+import { Card } from "antd";
+import { MenuAction } from "component/table/ActionButton";
+import { PageResponse } from "model/base/base-metadata.response";
+import { SupplierResponse, SupplierQuery, SupplierContactResposne } from "model/core/supplier.model";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { Link, useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import SupplierFilter from "component/filter/supplier.filter";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -19,16 +19,17 @@ import {
 } from "domain/actions/core/supplier.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import {showSuccess, showWarning} from "utils/ToastUtils";
-import {DistrictResponse} from "model/content/district.model";
-import {DistrictGetByCountryAction} from "domain/actions/content/content.action";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {DeleteOutlined} from "@ant-design/icons";
-import {SuppliersPermissions} from "config/permissions/supplier.permisssion";
+import { showSuccess, showWarning } from "utils/ToastUtils";
+import { DistrictResponse } from "model/content/district.model";
+import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { DeleteOutlined } from "@ant-design/icons";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import useEffectOnce from "react-use/lib/useEffectOnce";
 import TextEllipsis from "component/table/TextEllipsis";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -95,7 +96,7 @@ const ListSupplierScreen: React.FC = () => {
   const listSupplierType = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
   );
-  let dataQuery: SupplierQuery = {...initQuery, ...getQueryParams(query)};
+  let dataQuery: SupplierQuery = { ...initQuery, ...getQueryParams(query) };
   let [params, setPrams] = useState<SupplierQuery>(dataQuery);
   const [selected, setSelected] = useState<Array<SupplierResponse>>([]);
   const [data, setData] = useState<PageResponse<SupplierResponse>>({
@@ -130,11 +131,11 @@ const ListSupplierScreen: React.FC = () => {
     {
       title: "Số điện thoại",
       dataIndex: "contacts",
-       width: 130,
+      width: 130,
       render: (contacts: Array<SupplierContactResposne>) => {
         let index = contacts.findIndex((value) => value.is_default);
-        if(index === -1) {
-          if(contacts.length > 0) {
+        if (index === -1) {
+          if (contacts.length > 0) {
             return contacts[0].phone;
           }
           return '';
@@ -149,13 +150,13 @@ const ListSupplierScreen: React.FC = () => {
       dataIndex: "pic",
       render: (_, item: SupplierResponse) => (
         item.pic ? <div>
-            <div>
-              {item.pic_code}
-            </div>
-            <div>
-              <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.pic_code}`}>{item.pic}</Link>
-            </div>
-          </div>  :"---"
+          <div>
+            {item.pic_code}
+          </div>
+          <div>
+            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.pic_code}`}>{item.pic}</Link>
+          </div>
+        </div> : "---"
       ),
       visible: true,
     },
@@ -244,7 +245,7 @@ const ListSupplierScreen: React.FC = () => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({...params});
+      setPrams({ ...params });
       history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
     },
     [history, params]
@@ -274,7 +275,7 @@ const ListSupplierScreen: React.FC = () => {
   }, [deleteCallback, dispatch, selected]);
   const onFilter = useCallback(
     (values) => {
-      let newPrams = {...params, ...values, page: 1};
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
@@ -284,11 +285,11 @@ const ListSupplierScreen: React.FC = () => {
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
       case ACTIONS_INDEX.DELETE:
-      if (selected.length === 0) {
-        showWarning("Vui lòng chọn nhà cung cấp cần xóa");
-        return;
-      }
-      setConfirmDelete(true);
+        if (selected.length === 0) {
+          showWarning("Vui lòng chọn nhà cung cấp cần xóa");
+          return;
+        }
+        setConfirmDelete(true);
         break;
     }
   }, [selected]);
@@ -340,6 +341,8 @@ const ListSupplierScreen: React.FC = () => {
               setParams={setPrams}
               initValue={initQuery}
               listSupplierType={listSupplierType}
+              onClickOpen={() => setShowSettingColumn(true)}
+
             />
             <CustomTable
               className="small-padding"
@@ -352,7 +355,8 @@ const ListSupplierScreen: React.FC = () => {
                 onChange: onPageChange,
                 onShowSizeChange: onPageChange,
               }}
-              scroll={{x: 1200}}
+              scroll={{ x: "max-content" }}
+              sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
               isLoading={tableLoading}
               showColumnSetting={true}
               onShowColumnSetting={() => setShowSettingColumn(true)}
