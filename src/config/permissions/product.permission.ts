@@ -11,6 +11,7 @@ export const ProductPermission = {
   read_histories  : `${products}_read_histories`,
   print_temp : `${products}_print_temp`,
   import_excel : `${products}_import_excel`,
+  export_excel : `${products}_export_excel`,
   upload_image : `${products}_upload_image`,
   read_variant : `${products}_read_variant`,
   categories_create : `${products}_categories_create`,
