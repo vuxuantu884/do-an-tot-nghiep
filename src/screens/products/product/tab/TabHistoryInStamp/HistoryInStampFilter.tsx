@@ -37,7 +37,7 @@ type ProductFilterProps = {
 
 const { Item } = Form;
 
-const HistoryInTemFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
+const HistoryInStampFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
     const [formAvd] = Form.useForm();
     const [form] = Form.useForm();
     const formRef = createRef<FormInstance>();
@@ -63,7 +63,11 @@ const HistoryInTemFilter: React.FC<ProductFilterProps> = (props: ProductFilterPr
 
     const onFinish = useCallback(
         (values: any) => {
-            onFilter && onFilter(values);
+            const valuesForm = {
+                ...values,
+                info: values?.info?.trim() || ""
+            }
+            onFilter && onFilter(valuesForm);
         },
         [onFilter]
     );
@@ -128,7 +132,7 @@ const HistoryInTemFilter: React.FC<ProductFilterProps> = (props: ProductFilterPr
                                     })
                                 }
                                 prefix={<img src={search} alt="" />}
-                                placeholder="Tìm kiếm theo Tên/ Mã sản phẩm"
+                                placeholder="Tìm kiếm theo Tên/ Mã sản phẩm/ Mã tham chiếu/ Mã đơn đặt hàng/ Tên, SĐT nhà cung cấp"
                             />
                         </Item>
                         <Item name={SearchBarcodePrintHistoryField.created_bys} style={{ width: 250 }}>
@@ -296,7 +300,7 @@ const FilterList = ({ filters, resetField }: any) => {
     );
 };
 
-export default HistoryInTemFilter;
+export default HistoryInStampFilter;
 
 function tagRender(props: any) {
     const { label, closable, onClose } = props;

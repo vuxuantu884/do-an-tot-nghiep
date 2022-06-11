@@ -481,6 +481,7 @@ export interface BarcodePrintHistoriesResponse extends BaseObject {
   order_id: number;
   product_id: number;
   variant_id: number;
+  order_reference?: string;
 }
 export interface ProductBarcodePrintHistories extends BaseQuery {
   condition?: string

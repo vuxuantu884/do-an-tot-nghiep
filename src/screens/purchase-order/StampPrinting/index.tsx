@@ -174,7 +174,6 @@ function PrintingStamp() {
   }
 
   const handleFinish = async (value: POStampPrinting) => {
-    console.log(value);
     const res = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, printVariantBarcodeByPOApi, value);
     if (res) {
       DownloadFile(res);
