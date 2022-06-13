@@ -34,7 +34,7 @@ import { CollectionResponse } from "model/product/collection.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { convertCategory, formatCurrency } from "utils/AppUtils";
+import { convertCategory, formatCurrencyForProduct } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE } from "utils/Constants";
 import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
@@ -256,10 +256,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
               break
             case AvdAllFilter.from_price:
-                renderTxt = `Giá bán từ: ${formatCurrency(filters.from_price)}`;
+                renderTxt = `Giá bán từ: ${formatCurrencyForProduct(filters.from_price)}`;
               break
             case AvdAllFilter.to_price:
-                renderTxt = `Giá bán đến: ${formatCurrency(filters.to_price)}`;
+                renderTxt = `Giá bán đến: ${formatCurrencyForProduct(filters.to_price)}`;
               break
             default:
               break;

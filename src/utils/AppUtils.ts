@@ -294,7 +294,7 @@ export const formatCurrency = (currency: number | string | boolean, sep: string 
   }
 };
 
-export const formatCurrencyForProduct = (currency: number | string | boolean, sep: string = ","): string => {
+export const formatCurrencyForProduct = (currency: number | string | boolean, sep: string = "."): string => {
   try {
     if (currency === null || currency === undefined || currency === '') return '';
 

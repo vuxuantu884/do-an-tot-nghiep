@@ -6,7 +6,7 @@ import {AppConfig} from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import {createConfigInventoryAction, inventoryByVariantAction, updateConfigInventoryAction} from "domain/actions/inventory/inventory.action";
+import {inventoryByVariantAction, updateConfigInventoryAction} from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
 import {searchVariantsInventoriesRequestAction} from "domain/actions/product/products.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
@@ -26,7 +26,7 @@ import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
 import { getInventoryConfigService } from "service/inventory";
-import {formatCurrency, generateQuery, Products, splitEllipsis} from "utils/AppUtils";
+import {formatCurrencyForProduct, generateQuery, Products, splitEllipsis} from "utils/AppUtils";
 import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -233,7 +233,7 @@ const AllTab: React.FC<any> = (props) => {
          fixed: true,
          render: (value) => {
            let price = Products.findPrice(value, AppConfig.currency);
-           return formatCurrency(price ? price.retail_price : 0);
+           return formatCurrencyForProduct(price ? price.retail_price : 0);
          },
        },
        {
@@ -242,7 +242,6 @@ const AllTab: React.FC<any> = (props) => {
          visible: false,
          dataIndex: "category",
          align: "left",
-         fixed: true,
          width: 100,
          render: (value, row) => {
            return <div>{row.product?.category}</div>
@@ -259,7 +258,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value,record) => {
-           return <div> {value ? formatCurrency(record.total_stock): ""}</div>;
+           return <div> {value ? formatCurrencyForProduct(record.total_stock): ""}</div>;
          },
        },
        {
@@ -267,13 +266,13 @@ const AllTab: React.FC<any> = (props) => {
                             InventoryColumnField.on_hand,
                             (sortColumn:string)=>{onSortASC(sortColumn)},
                             (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Tổng trong kho",
+         titleCustom: "Tồn trong kho",
          visible: true,
          dataIndex: `on_hand`,
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        },
        {
@@ -287,7 +286,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        },
        {
@@ -303,7 +302,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,record.name)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -321,7 +320,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,record.name)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -336,7 +335,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        },{
         title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập",
@@ -351,7 +350,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,record.name)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -368,7 +367,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,record.name)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -385,7 +384,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,record.name)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -400,11 +399,11 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        }
      ]
-   },[objSummaryTable, onSortDESC, onSortASC,goDocument]);
+   },[objSummaryTable, onSortDESC, onSortASC,goDocument]);   
 
    const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
      return [
@@ -436,7 +435,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value,record) => {
-           return <div> {value ? formatCurrency(record.total_stock): ""}</div>;
+           return <div> {value ? formatCurrencyForProduct(record.total_stock): ""}</div>;
          },
        },
        {
@@ -445,7 +444,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        },
        {
@@ -454,7 +453,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        },
        {
@@ -467,7 +466,7 @@ const AllTab: React.FC<any> = (props) => {
            
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,varaintName,record.store_id)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -480,7 +479,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,varaintName,record.store_id)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -490,7 +489,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        },{
          title: "Chờ nhập",
@@ -500,7 +499,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,varaintName,record.store_id)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -512,7 +511,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,varaintName,record.store_id)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -524,7 +523,7 @@ const AllTab: React.FC<any> = (props) => {
          render: (value: number,record: InventoryResponse) => {
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,varaintName,record.store_id)}>
-                     {formatCurrency(value)}
+                     {formatCurrencyForProduct(value)}
               </Link>
             : ""}</div>;
          },
@@ -534,7 +533,7 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80,
          render: (value) => {
-          return <div> {value ? formatCurrency(value): ""}</div>;
+          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
          },
        }
      ]
@@ -681,7 +680,6 @@ const AllTab: React.FC<any> = (props) => {
                 if (res.data && res.data.length > 0) {
                   const userConfigColumn = res.data.filter(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY);
                   const userConfig=   userConfigColumn.reduce((p, c) => p.id > c.id ? p : c);
-
                    if (userConfig){
                        let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
 
@@ -737,11 +735,7 @@ const AllTab: React.FC<any> = (props) => {
     config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
     config.json_content = json_content;
     config.name= `${account?.code}_config_column_inventory`;
-    if (config && config.id && config.id !== null) {
-      dispatch(updateConfigInventoryAction(config));
-    }else{
-      dispatch(createConfigInventoryAction(config));
-    }
+    dispatch(updateConfigInventoryAction(config));
 
   }, [dispatch,account?.code, lstConfig]);
 
@@ -998,6 +992,7 @@ const AllTab: React.FC<any> = (props) => {
       />
       <ModalSettingColumn
         visible={showSettingColumn}
+        isSetDefaultColumn
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {
           setShowSettingColumn(false);

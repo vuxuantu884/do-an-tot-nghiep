@@ -342,6 +342,7 @@ export const COLUMN_CONFIG_TYPE = {
   orderDuplicatedOnline: "column_order_duplicated_online",
   orderDeliveryRecord: "column_order_delivery_record",
   CUSTOMER_COLUMNS: "customer_columns",
+  COLUMN_INVENTORY_HISTORY: "column_inventory_history",
 };
 
 export const ACCOUNT_ROLE_ID = {
