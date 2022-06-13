@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Button,
   Col,
@@ -6,42 +5,45 @@ import {
   FormInstance,
   Input,
   Row,
-  Tag,
+  Tag
 } from "antd";
+import React from "react";
 
-import { MenuAction } from "component/table/ActionButton";
-import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
-import BaseFilter from "./base.filter";
+import { FilterOutlined, SettingOutlined } from "@ant-design/icons";
 import search from "assets/img/search.svg";
-import { AccountResponse } from "model/account/account.model";
-import CustomFilter from "component/table/custom.filter";
-import { SettingOutlined, FilterOutlined } from "@ant-design/icons";
-import './order.filter.scss'
-import CustomSelect from "component/custom/select.custom";
-import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
-import { ReturnSearchQuery } from "model/order/return.model";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreResponse } from "model/core/store.model";
-import TreeStore from "component/tree-node/tree-store";
-import { getSourcesWithParamsService } from "service/order/order.service";
-import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { useDispatch } from "react-redux";
-import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
-import { getListChannelRequest } from "domain/actions/order/order.action";
-import { ChannelResponse } from "model/response/product/channel.response";
-import UserCustomFilterTag from "./UserCustomFilterTag";
-import { OrderTypeModel } from "model/order/order.model";
-import { ORDER_TYPES } from "utils/Order.constants";
-import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
 import BaseResponse from "base/base.response";
-import { FilterConfig } from "model/other";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import CustomSelect from "component/custom/select.custom";
 import FilterConfigModal from "component/modal/FilterConfigModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { Link } from "react-router-dom";
-import UrlConfig from "config/url.config";
-import { searchAccountApi } from "service/accounts/account.service";
-import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import { MenuAction } from "component/table/ActionButton";
+import CustomFilter from "component/table/custom.filter";
+import TreeStore from "component/tree-node/tree-store";
 import TreeSource from "component/treeSource";
+import UrlConfig from "config/url.config";
+import { getListChannelRequest } from "domain/actions/order/order.action";
+import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
+import { AccountResponse } from "model/account/account.model";
+import { StoreResponse } from "model/core/store.model";
+import { OrderTypeModel } from "model/order/order.model";
+import { ReturnSearchQuery } from "model/order/return.model";
+import { FilterConfig } from "model/other";
+import { SourceResponse } from "model/response/order/source.response";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { searchAccountApi } from "service/accounts/account.service";
+import { getSourcesWithParamsService } from "service/order/order.service";
+import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
+import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
+import { ORDER_TYPES } from "utils/Order.constants";
+import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
+import BaseFilter from "./base.filter";
+import './order.filter.scss';
+import UserCustomFilterTag from "./UserCustomFilterTag";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
@@ -85,6 +87,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   const loadingFilter = useMemo(() => {
     return isLoading ? true : false
   }, [isLoading])
+
+  const dateFormat = DATE_FORMAT.DD_MM_YY_HHmm;
 
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -180,8 +184,15 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       account_codes: Array.isArray(params.account_codes)
         ? params.account_codes
         : [params.account_codes],
+
+      created_on_min: formatDateFilter(params.created_on_min || undefined),
+      created_on_max: formatDateFilter(params.created_on_max || undefined),
+      received_on_min: formatDateFilter(params.received_on_min || undefined),
+      received_on_max: formatDateFilter(params.received_on_max || undefined),
     }
   }, [params]);
+
+  console.log('initialValues', initialValues)
 
   const sourcesResult = useMemo(() => {
     if(orderType === ORDER_TYPES.online) {
@@ -315,13 +326,17 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           ...values,
           is_received: isReceived,
           payment_status: paymentStatus,
+          created_on_min: formatDateTimeOrderFilter(values.created_on_min || initialValues.created_on_min, dateFormat),
+          created_on_max: formatDateTimeOrderFilter(values.created_on_max || initialValues.created_on_max, dateFormat),
+          received_on_min: formatDateTimeOrderFilter(values.received_on_min || initialValues.received_on_min, dateFormat),
+          received_on_max: formatDateTimeOrderFilter(values.received_on_max || initialValues.received_on_max, dateFormat),
         }
         onFilter && onFilter(valuesForm);
         setRerender(false)
       }
 
     },
-    [formRef, isReceived, paymentStatus, onFilter]
+    [formRef, isReceived, paymentStatus, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, dateFormat, onFilter]
   );
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
@@ -458,7 +473,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       })
     }
     if (initialValues.created_on_min || initialValues.created_on_max) {
-      let textOrderCreatedDate = (initialValues.created_on_min ? initialValues.created_on_min : '??') + " ~ " + (initialValues.created_on_max ? initialValues.created_on_max : '??')
+      let textOrderCreatedDate = (initialValues.created_on_min ? getTimeFormatOrderFilterTag(initialValues.created_on_min, dateFormat) : '??') + " ~ " + (initialValues.created_on_max ? getTimeFormatOrderFilterTag(initialValues.created_on_max, dateFormat) : '??')
       list.push({
         key: 'created',
         name: 'Ngày tạo đơn',
@@ -467,7 +482,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
 
     if (initialValues.received_on_min || initialValues.received_on_max) {
-      let textOrderReceivedDate = (initialValues.received_on_min ? initialValues.received_on_min : '??') + " ~ " + (initialValues.received_on_max ? initialValues.received_on_max : '??')
+      let textOrderReceivedDate = (initialValues.received_on_min ? getTimeFormatOrderFilterTag(initialValues.received_on_min, dateFormat) : '??') + " ~ " + (initialValues.received_on_max ? getTimeFormatOrderFilterTag(initialValues.received_on_max, dateFormat) : '??')
       list.push({
         key: 'received',
         name: 'Ngày trả hàng',
@@ -526,7 +541,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
 
     return list
-  }, [initialValues.store_ids, initialValues.reason_ids, initialValues.is_received, initialValues.payment_status, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.source_ids, initialValues.channel_codes, initialValues.assignee_codes.length, initialValues.marketer_codes.length, initialValues.account_codes.length, listStore, reasons, listSource, listChannel, assigneeFound, accountFound]);
+  }, [initialValues.store_ids, initialValues.reason_ids, initialValues.is_received, initialValues.payment_status, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.source_ids, initialValues.channel_codes, initialValues.assignee_codes.length, initialValues.marketer_codes.length, initialValues.account_codes.length, listStore, reasons, dateFormat, listSource, listChannel, assigneeFound, accountFound]);
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
       return 1400
@@ -730,8 +745,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   fieldNameTo="created_on_max"
                   activeButton={createdClick}
                   setActiveButton={setCreatedClick}
-                  format="DD-MM-YYYY"
+                  format={dateFormat}
                   formRef={formRef}
+                  showTime
                 />
               </Col>
 
@@ -742,8 +758,9 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   fieldNameTo="received_on_max"
                   activeButton={receivedClick}
                   setActiveButton={setReceivedClick}
-                  format="DD-MM-YYYY"
+                  format={dateFormat}
                   formRef={formRef}
+                  showTime
                 />
               </Col>
               <Col span={12}>

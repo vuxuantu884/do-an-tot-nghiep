@@ -1744,9 +1744,9 @@ export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | unde
    orderDetail?.status === OrderStatus.CANCELLED
 };
 
-export const copyTextToClipboard = (e: any, data: string | null) => {
+export const copyTextToClipboard = (e: any, data: string | null | undefined) => {
   e.stopPropagation();
-  navigator.clipboard.writeText(data ? data : "").then(() => {});
+  navigator.clipboard?.writeText(data ? data : "").then(() => {});
 };
 
 export const isOrderFromSaleChannel = (orderDetail: OrderResponse | null | undefined) => {

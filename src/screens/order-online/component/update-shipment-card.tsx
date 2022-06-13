@@ -48,7 +48,7 @@ import {
 } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus, ShipmentMethod, ShipmentMethodOption } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { checkIfFulfillmentCancelled, checkIfOrderCancelled } from "utils/OrderUtils";
+import { checkIfFulfillmentCancelled } from "utils/OrderUtils";
 // import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CancelFulfillmentModal from "../modal/cancel-fullfilment.modal";
