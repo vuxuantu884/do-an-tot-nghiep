@@ -143,6 +143,12 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
           key: "2",
         },
         {
+          name: "CMND/CCCD",
+          value: customer.identity_number,
+          position: "right",
+          key: "identity_number",
+        },
+        {
           name: "Mã số thuế",
           value: customer.tax_code,
           position: "right",

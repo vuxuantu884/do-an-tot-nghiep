@@ -193,6 +193,7 @@ const CustomerUpdate = (props: any) => {
         return _item;
       }),
       contacts: customer.contacts,
+      identity_number: values.identity_number?.trim(),
     };
 
     setIsLoading(true);
