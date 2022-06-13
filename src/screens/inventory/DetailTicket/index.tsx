@@ -199,11 +199,16 @@ const DetailTicket: FC = () => {
           },
         }
 
+        let total = 0;
+        newDataTable.forEach((element: LineItem) => {
+          total += element.real_quantity;
+        });
+
         newColumns[5] = {
           title: <div>
             <div>SL Nhận</div>
             <div className="text-center">
-              {getTotalRealQuantity()}
+              {total}
             </div>
           </div>,
           dataIndex: "real_quantity",
@@ -218,7 +223,7 @@ const DetailTicket: FC = () => {
                 min={0}
                 value={value ? value : 0}
                 onChange={(quantity) => {
-                  onRealQuantityChange(quantity, index);
+                  onRealQuantityChange(quantity, index, result);
                 }}
                 className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
               />
@@ -229,30 +234,32 @@ const DetailTicket: FC = () => {
           },
         }
 
-        newColumns = [
-          ...newColumns,
-          {
-            title: "",
-            fixed: newDataTable?.length !== 0 && "right",
-            width: 40,
-            dataIndex: "transfer_quantity",
-            render: (value: string, row: any, index: number) => {
-              if (
-                (parseInt(value) !== 0 &&
-                  (result?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-                    || result?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-                )
-                || result?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-                return false;
-              }
-              return <Button
-                onClick={() => onDeleteItem(index)}
-                className="product-item-delete"
-                icon={<AiOutlineClose />}
-              />
+        if (result?.status !== STATUS_INVENTORY_TRANSFER.RECEIVED.status) {
+          newColumns = [
+            ...newColumns,
+            {
+              title: "",
+              fixed: newDataTable?.length !== 0 && "right",
+              width: 40,
+              dataIndex: "transfer_quantity",
+              render: (value: string, row: any, index: number) => {
+                if (
+                  (parseInt(value) !== 0 &&
+                    (result?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+                      || result?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+                  )
+                  || result?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+                  return false;
+                }
+                return <Button
+                  onClick={() => onDeleteItem(index, result)}
+                  className="product-item-delete"
+                  icon={<AiOutlineClose />}
+                />
+              },
             },
-          },
-        ]
+          ]
+        }
         setColumnsTransferState(newColumns);
 
         setData(result);
@@ -276,10 +283,104 @@ const DetailTicket: FC = () => {
     [dispatch]
   );
 
-  function onRealQuantityChange(quantity: number | null, index: number) {
+  function onRealQuantityChange(quantity: number | null, index: number, data: any) {
     setDataTable((dataTable: any) => {
       const dataTableClone = _.cloneDeep(dataTable);
       dataTableClone[index].real_quantity = quantity;
+
+      let newColumns: any = [...columnsTransferState];
+      if (data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+        || data.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+
+        newColumns.splice(columnsTransferState.length - 1, 0, {
+          title: "Tồn kho nhận",
+          align: "center",
+          width: 80,
+          dataIndex: "receive_on_hand",
+          render: (value: any) => {
+            return formatCurrency(value, ".")
+          },
+        });
+      }
+
+      newColumns[4] = {
+        title: <div>
+          <div>SL Gửi</div>
+          <div className="text-center">
+            {data && formatCurrency(data.total_quantity, ".")}
+          </div>
+        </div>,
+        width: 70,
+        align: "center",
+        dataIndex: "transfer_quantity",
+        render: (value: any) => {
+          return formatCurrency(value, ".")
+        },
+      }
+
+      if (newColumns.length < 8) {
+        newColumns = [
+          ...newColumns,
+          {
+            title: "",
+            fixed: dataTableClone?.length !== 0 && "right",
+            width: 40,
+            dataIndex: "transfer_quantity",
+            render: (value: string, row: any, index: number) => {
+              if (
+                (parseInt(value) !== 0 &&
+                  (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+                    || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+                )
+                || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+                return false;
+              }
+              return <Button
+                onClick={() => onDeleteItem(index, data)}
+                className="product-item-delete"
+                icon={<AiOutlineClose />}
+              />
+            },
+          },
+        ]
+      }
+
+      let total = 0;
+      dataTableClone.forEach((element: LineItem) => {
+        total += element.real_quantity;
+      });
+
+      newColumns[5] = {
+        title: <div>
+          <div>SL Nhận</div>
+          <div className="text-center">
+            {total}
+          </div>
+        </div>,
+        dataIndex: "real_quantity",
+        align: "center",
+        width: 70,
+        render: (value: any, row: any, index: number) => {
+          if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+            return <NumberInput
+              disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
+              isFloat={false}
+              id={`item-quantity-${index}`}
+              min={0}
+              value={value ? value : 0}
+              onChange={(quantity) => {
+                onRealQuantityChange(quantity, index, data);
+              }}
+              className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+            />
+          }
+          else {
+            return value ? formatCurrency(value, '.') : 0;
+          }
+        },
+      }
+
+      setColumnsTransferState(newColumns);
       return dataTableClone
     })
   }
@@ -466,8 +567,46 @@ const DetailTicket: FC = () => {
 
       dataTemp[indexItem].real_quantity +=1;
     }
+
+    let newColumns = [...columnsTransferState];
+    let total = 0;
+    [...dataTemp].forEach((element: LineItem) => {
+      total += element.real_quantity;
+    });
+
+    newColumns[5] = {
+      title: <div>
+        <div>SL Nhận</div>
+        <div className="text-center">
+          {total}
+        </div>
+      </div>,
+      dataIndex: "real_quantity",
+      align: "center",
+      width: 70,
+      render: (value: any, row: any, index: number) => {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+          return <NumberInput
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
+            isFloat={false}
+            id={`item-quantity-${index}`}
+            min={0}
+            value={value ? value : 0}
+            onChange={(quantity) => {
+              onRealQuantityChange(quantity, index, data);
+            }}
+            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+          />
+        }
+        else {
+          return value ? formatCurrency(value, '.') : 0;
+        }
+      },
+    }
+    setColumnsTransferState(newColumns);
     setDataTable([...dataTemp]);
     setResultSearch([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[data?.status, dataTable]);
 
   function getTotalRealQuantity() {
@@ -479,17 +618,81 @@ const DetailTicket: FC = () => {
     return formatCurrency(total, ".");
   }
 
-  function onDeleteItem(index: number) {
+  function onDeleteItem(index: number, newData: any) {
     // delete row
-    setDataTable((dataTable: any) => {
+     setDataTable((dataTable: any) => {
       const temps = [...dataTable];
       temps.splice(index, 1);
+
+      let newColumns = [...columnsTransferState];
+      let total = 0;
+      temps.forEach((element: LineItem) => {
+        total += element.real_quantity;
+      });
+
+      newColumns[5] = {
+        title: <div>
+          <div>SL Nhận</div>
+          <div className="text-center">
+            {total}
+          </div>
+        </div>,
+        dataIndex: "real_quantity",
+        align: "center",
+        width: 70,
+        render: (value: any, row: any, index: number) => {
+          if (newData?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+            return <NumberInput
+              disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [newData.to_store_id], currentStores)}
+              isFloat={false}
+              id={`item-quantity-${index}`}
+              min={0}
+              value={value ? value : 0}
+              onChange={(quantity) => {
+                onRealQuantityChange(quantity, index, newData);
+              }}
+              className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+            />
+          }
+          else {
+            return value ? formatCurrency(value, '.') : 0;
+          }
+        },
+      }
+
+       if (newColumns.length < 8) {
+         newColumns = [
+           ...newColumns,
+           {
+             title: "",
+             fixed: temps?.length !== 0 && "right",
+             width: 40,
+             dataIndex: "transfer_quantity",
+             render: (value: string, row: any, index: number) => {
+               if (
+                 (parseInt(value) !== 0 &&
+                   (newData?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+                     || newData?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+                 )
+                 || newData?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+                 return false;
+               }
+               return <Button
+                 onClick={() => onDeleteItem(index, newData)}
+                 className="product-item-delete"
+                 icon={<AiOutlineClose />}
+               />
+             },
+           },
+         ]
+       }
+
+      setColumnsTransferState(newColumns);
       return temps;
-    })
+    });
   }
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
-
     const newResult = result?.map((item) => {
       const variantPrice =
         item &&
@@ -907,6 +1110,8 @@ const DetailTicket: FC = () => {
     setIsReceiveAllProducts(e.target.checked);
     let newDataTable = [...dataTable];
 
+    let newColumns = [...columnsTransferState];
+
     newDataTable = newDataTable.map((i) => {
       return {
         ...i,
@@ -914,12 +1119,87 @@ const DetailTicket: FC = () => {
       }
     });
 
+    let total = 0;
+    newDataTable.forEach((element: LineItem) => {
+      total += element.real_quantity;
+    });
+
+    newColumns[5] = {
+      title: <div>
+        <div>SL Nhận</div>
+        <div className="text-center">
+          {total}
+        </div>
+      </div>,
+      dataIndex: "real_quantity",
+      align: "center",
+      width: 70,
+      render: (value: any, row: any, index: number) => {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+          return <NumberInput
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
+            isFloat={false}
+            id={`item-quantity-${index}`}
+            min={0}
+            value={value ? value : 0}
+            onChange={(quantity) => {
+              onRealQuantityChange(quantity, index, data);
+            }}
+            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+          />
+        }
+        else {
+          return value ? formatCurrency(value, '.') : 0;
+        }
+      },
+    }
+
+    setColumnsTransferState(newColumns);
     setDataTable(newDataTable);
   };
 
-  const importRealQuantity = (data: Array<VariantResponse>)=>{
-    const newArr= convertArrItem(data);
+  const importRealQuantity = (dataImport: Array<VariantResponse>)=>{
+    const newArr= convertArrItem(dataImport);
     setDataTable([...newArr]);
+
+    let newColumns = [...columnsTransferState]
+    let total = 0;
+    [...newArr].forEach((element: any) => {
+      total += element.real_quantity;
+    });
+
+    newColumns[5] = {
+      title: <div>
+        <div>SL Nhận</div>
+        <div className="text-center">
+          {total}
+        </div>
+      </div>,
+      dataIndex: "real_quantity",
+      align: "center",
+      width: 70,
+      render: (value: any, row: any, index: number) => {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+          return <NumberInput
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
+            isFloat={false}
+            id={`item-quantity-${index}`}
+            min={0}
+            value={value ? value : 0}
+            onChange={(quantity) => {
+              onRealQuantityChange(quantity, index, data);
+            }}
+            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+          />
+        }
+        else {
+          return value ? formatCurrency(value, '.') : 0;
+        }
+      },
+    }
+
+    setColumnsTransferState(newColumns);
+
     setIsImport(false);
   }
 
@@ -1573,7 +1853,7 @@ const DetailTicket: FC = () => {
               if (result) {
                 setIsBalanceTransfer(false);
                 showSuccess("Cân bằng kho thành công");
-                setData(result);
+                onReload();
               }
             }}
             onCancel={() => setIsBalanceTransfer(false)}
