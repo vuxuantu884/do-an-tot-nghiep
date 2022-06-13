@@ -12,13 +12,13 @@ type CustomDateRangePickerProps = {
   setActiveButton: (value: string) => void;
   format?: string;
   formRef?: React.RefObject<FormInstance<any>>;
-  
+  showTime?: boolean;
 };
 
 const CustomRangeDatePicker: React.FC<CustomDateRangePickerProps> = (
   props: CustomDateRangePickerProps
 ) => {
-  const { fieldNameFrom, fieldNameTo, format = 'DD-MM-YYYY', activeButton, setActiveButton, formRef } = props;
+  const { fieldNameFrom, fieldNameTo, format = 'DD-MM-YYYY', activeButton, setActiveButton, formRef, showTime } = props;
 
   const clickOptionDate = useCallback(
     (value) => {
@@ -26,28 +26,28 @@ const CustomRangeDatePicker: React.FC<CustomDateRangePickerProps> = (
     let maxValue = null;
     switch(value) {
       case 'today':
-        minValue = moment().startOf('day').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').format('DD-MM-YYYY')
+        minValue = moment().startOf('day').format(format)
+        maxValue = moment().endOf('day').format(format)
         break
       case 'yesterday':
-        minValue = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-        maxValue = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
+        minValue = moment().startOf('day').subtract(1, 'days').format(format)
+        maxValue = moment().endOf('day').subtract(1, 'days').format(format)
         break
       case 'thisweek':
-        minValue = moment().startOf('week').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').format('DD-MM-YYYY')
+        minValue = moment().startOf('week').format(format)
+        maxValue = moment().endOf('week').format(format)
         break
       case 'lastweek':
-        minValue = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-        maxValue = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
+        minValue = moment().subtract(1, 'weeks').startOf('week').format(format)
+        maxValue = moment().subtract(1, 'weeks').endOf('week').format(format)
         break
       case 'thismonth':
-        minValue = moment().startOf('month').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').format('DD-MM-YYYY')
+        minValue = moment().startOf('month').format(format)
+        maxValue = moment().endOf('month').format(format)
         break
       case 'lastmonth':
-        minValue = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-        maxValue = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
+        minValue = moment().subtract(1, 'months').startOf('month').format(format)
+        maxValue = moment().subtract(1, 'months').endOf('month').format(format)
         break  
       default:
         break
@@ -61,11 +61,11 @@ const CustomRangeDatePicker: React.FC<CustomDateRangePickerProps> = (
     } else {
       setActiveButton(value)
       formRef?.current?.setFieldsValue({
-        [fieldNameFrom]: moment(minValue, 'DD-MM-YYYY').format('DD-MM-YYYY'),
-        [fieldNameTo]: moment(maxValue, 'DD-MM-YYYY').format('DD-MM-YYYY')
+        [fieldNameFrom]: moment(minValue, format).format(format),
+        [fieldNameTo]: moment(maxValue, format).format(format)
       })
     }
-  }, [activeButton, fieldNameFrom, fieldNameTo, formRef, setActiveButton]);
+  }, [activeButton, fieldNameFrom, fieldNameTo, formRef, format, setActiveButton]);
 
   const onChangeDate = useCallback(
     () => {
@@ -116,19 +116,21 @@ const CustomRangeDatePicker: React.FC<CustomDateRangePickerProps> = (
           style={{width: "45%", marginBottom: 0}}
         >
           <CustomDatepicker
-            format="DD-MM-YYYY"
+            format={format}
             placeholder="Từ ngày"
             style={{width: "100%"}}
             onChange={() => onChangeDate()}
+            showTime={showTime}
           />
         </Form.Item>
         <div className="swap-right-icon"><SwapRightOutlined /></div>
         <Form.Item name={fieldNameTo} style={{width: "45%", marginBottom: 0}}>
           <CustomDatepicker
-            format="DD-MM-YYYY"
+            format={format}
             placeholder="Đến ngày"
             style={{width: "100%"}}
             onChange={() => onChangeDate()}
+            showTime={showTime}
           />
         </Form.Item>
       </div>
