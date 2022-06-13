@@ -331,23 +331,29 @@ export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
     case Costs:
       return `${url}finance`;
     default:
-      return `${url}${OfflineSales}`;
+      return `${url}sales-offline`;
   }
 }
 
-export const getPermissionViewCustomizeReport = (cube: AnalyticCube) => {
+export const getPermissionViewCustomizeReport = (permissions: string[], cube: AnalyticCube) => {
   const { Sales, Payments, Costs, OfflineSales } = AnalyticCube;
-  const permission = "reports_report_";
+  let permission = "reports_report_";
   switch (cube) {
     case Sales:
-      return `${permission}sales`;
+      permission = `${permission}sales`;
+      break;
     case Payments:
-      return `${permission}customers`;
+      permission = `${permission}customers`;
+      break;
     case OfflineSales:
-      return `${permission}pos`;
+      permission = `${permission}pos`;
+      break;
     case Costs:
-      return `${permission}costs`;
+      permission = `${permission}costs`;
+      break;
     default:
-      return `${permission}sales`;
+      permission = '0';
+      break;
   }
+  return permissions.includes(permission) ? '1' : '0';
 };

@@ -1,7 +1,7 @@
 /**
  * Dùng để lưu metadata và data của báo cáo để các component khác sử dụng nhanh
  */
-import { AnalyticDataQuery, AnalyticMetadata } from 'model/report/analytics.model';
+import { AnalyticDataQuery, AnalyticMetadata, PermissionViewReport } from 'model/report/analytics.model';
 import React, { ReactNode, useState } from 'react';
 
 type Props = {
@@ -9,8 +9,9 @@ type Props = {
     dataQuery?: AnalyticDataQuery;
     setMetadata: (metadata: AnalyticMetadata) => void;
     setDataQuery: (dataQuery: AnalyticDataQuery) => void;
-    cubeRef: React.MutableRefObject<string>; 
-    permissionViewReport: React.MutableRefObject<string>; 
+    cubeRef: React.MutableRefObject<string>;
+    permissionViewReport: PermissionViewReport;
+    setPermissionViewReport: (permissionViewReport: PermissionViewReport | any) => void;
     chartDataQuery?: AnalyticDataQuery;
     setChartDataQuery: (chartDataQuery: AnalyticDataQuery) => void;
     chartColumnSelected?: string[],
@@ -34,10 +35,10 @@ function AnalyticsProvider(props: { children: ReactNode }) {
     const [chartColumnSelected, setChartColumnSelected] = useState<string[]>();
     const [activeFilters, setActiveFilters] = useState<Map<string, any>>(new Map<string, any>());
     const cubeRef = React.useRef<string>('');
-    const permissionViewReport = React.useRef<string>('');
     const [rowsInQuery, setRowsInQuery] = useState<string[]>([]);
     const [isMyReport, setIsMyReport] = useState<boolean>(true);
     const [loadingChart, setLoadingChart] = useState<boolean>(false);
+    const [permissionViewReport, setPermissionViewReport] = useState<PermissionViewReport>({ isPermission: '' });
     return (
         <AnalyticsContext.Provider
             {...props}
@@ -59,7 +60,8 @@ function AnalyticsProvider(props: { children: ReactNode }) {
                 setIsMyReport,
                 loadingChart,
                 setLoadingChart,
-                permissionViewReport
+                permissionViewReport,
+                setPermissionViewReport
             }}
         />
     )
