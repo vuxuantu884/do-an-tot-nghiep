@@ -567,8 +567,46 @@ const DetailTicket: FC = () => {
 
       dataTemp[indexItem].real_quantity +=1;
     }
+
+    let newColumns = [...columnsTransferState];
+    let total = 0;
+    [...dataTemp].forEach((element: LineItem) => {
+      total += element.real_quantity;
+    });
+
+    newColumns[5] = {
+      title: <div>
+        <div>SL Nhận</div>
+        <div className="text-center">
+          {total}
+        </div>
+      </div>,
+      dataIndex: "real_quantity",
+      align: "center",
+      width: 70,
+      render: (value: any, row: any, index: number) => {
+        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+          return <NumberInput
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
+            isFloat={false}
+            id={`item-quantity-${index}`}
+            min={0}
+            value={value ? value : 0}
+            onChange={(quantity) => {
+              onRealQuantityChange(quantity, index, data);
+            }}
+            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+          />
+        }
+        else {
+          return value ? formatCurrency(value, '.') : 0;
+        }
+      },
+    }
+    setColumnsTransferState(newColumns);
     setDataTable([...dataTemp]);
     setResultSearch([]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   },[data?.status, dataTable]);
 
   function getTotalRealQuantity() {
