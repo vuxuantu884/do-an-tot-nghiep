@@ -181,3 +181,8 @@ export interface AnalyticSampleQuery {
   query: AnalyticQuery;
   options: string;
 }
+
+// '0': noPermission, '1': permission, '': default
+export interface PermissionViewReport {
+  isPermission: '0' | '1' | '';
+}

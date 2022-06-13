@@ -213,10 +213,12 @@ export const DashboardContainer = styled.div`
       }
     }
   }
- .product-dashboard{
-   &>.ant-card-body{
-     padding-top: 0;
-     padding-left: 0;
+ .product-dashboard {
+    background: none;
+    box-shadow: none;
+    border: none;
+   &>.ant-card-body {
+     padding: 0 0 20px;
    }
  }
   .product-group{
