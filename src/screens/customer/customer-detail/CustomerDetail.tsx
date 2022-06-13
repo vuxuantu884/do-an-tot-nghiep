@@ -35,11 +35,12 @@ import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import { StyledCustomerDetail } from "screens/customer/customer-detail/customerDetailStyled";
+import {ODERS_PERMISSIONS} from "../../../config/permissions/order.permission";
 
 
 const { TabPane } = Tabs;
 
-const viewCustomerDetailPermission = [CustomerListPermission.customers_read];
+const viewCustomerDetailPermission = [CustomerListPermission.customers_read, ODERS_PERMISSIONS.CREATE];
 const updateCustomerPermission = [CustomerListPermission.customers_update];
 
 const CustomerDetail = () => {
