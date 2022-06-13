@@ -281,21 +281,19 @@ const OrderDetail = (props: PropType) => {
           OrderDetail.fulfillments !== null &&
           OrderDetail.fulfillments.length > 0
         ) {
-          const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.UNSHIPPED || sortedFulfillments[0]?.status === FulFillmentStatus.CANCELLED) {
-            return OrderStatus.FINALIZED;
-          }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.PICKED) {
-            return FulFillmentStatus.PICKED;
-          }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.PACKED) {
-            return FulFillmentStatus.PACKED;
-          }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING) {
-            return FulFillmentStatus.SHIPPING;
-          }
-          if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED) {
-            return FulFillmentStatus.SHIPPED;
+          const sortedFulfillments = OrderDetail?.fulfillments;
+          switch(sortedFulfillments[0]?.status) {
+            case FulFillmentStatus.UNSHIPPED:
+              return OrderStatus.FINALIZED;
+            case FulFillmentStatus.PICKED:
+              return FulFillmentStatus.PICKED;
+            case FulFillmentStatus.PACKED:
+              return FulFillmentStatus.PACKED;
+            case FulFillmentStatus.SHIPPING:
+              return FulFillmentStatus.SHIPPING;
+            case FulFillmentStatus.SHIPPED:
+              return FulFillmentStatus.SHIPPED;
+            default: return OrderStatus.FINALIZED;
           }
         }
       }
