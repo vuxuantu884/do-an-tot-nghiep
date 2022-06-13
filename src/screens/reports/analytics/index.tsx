@@ -56,7 +56,7 @@ function Analytics() {
         if (response) {
             response.analytics = response.analytics.filter((item: any) => {
                 const { group } = item;
-                return group && allPermissions.includes(getPermissionViewCustomizeReport(group as AnalyticCube))
+                return group && getPermissionViewCustomizeReport(allPermissions, group as AnalyticCube) === '1'
             })
             setAnalyticList(response.analytics)
         }
