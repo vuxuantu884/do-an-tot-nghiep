@@ -6,6 +6,7 @@ import {
   OrderResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import moment, { Moment } from "moment";
 import { sortFulfillments } from "./AppUtils";
 import {
   DELIVERY_SERVICE_PROVIDER_CODE, FulFillmentReturnStatus,
@@ -301,3 +302,16 @@ export const getReturnMoneyStatusColor=(paymentStatus:string)=>{
 
   return textResult;
 }
+
+export const getTimeFormatOrderFilterTag = (date: Date | string | number | Moment, dateFormat: string = '') => {
+  return moment(date).format(dateFormat)
+};
+
+export const formatDateTimeOrderFilter = (date: Date | string | number | Moment | undefined, format: string = '') => {
+  if(!date) return
+  return format !== '' ? moment(date, format).utc(true) : moment(date).utc(true)
+}
+
+export const getTimeFormatOrderFilter = (values: string, dateFormat: string = '') => {
+  return values ? moment(values).utc(false) : null
+};

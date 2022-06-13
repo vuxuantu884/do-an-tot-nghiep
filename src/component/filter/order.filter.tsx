@@ -49,7 +49,9 @@ import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountApi } from "service/accounts/account.service";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
+import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
+import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
@@ -128,7 +130,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     return !!isLoading;
   }, [isLoading]);
 
-  const dateFormat = "DD-MM-YYYY";
+  const dateFormat = DATE_FORMAT.DD_MM_YY_HHmm;
 
   const dispatch = useDispatch();
 
@@ -594,6 +596,23 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         ? params.delivery_types
         : [params.delivery_types],
       services: Array.isArray(params.services) ? params.services : [params.services],
+
+      issued_on_min: formatDateFilter(params.issued_on_min || undefined),
+      issued_on_max: formatDateFilter(params.issued_on_max || undefined),
+      finalized_on_min: formatDateFilter(params.finalized_on_min || undefined),
+      finalized_on_max: formatDateFilter(params.finalized_on_max || undefined),
+      cancelled_on_min: formatDateFilter(params.cancelled_on_min || undefined),
+      cancelled_on_max: formatDateFilter(params.cancelled_on_max || undefined),
+      completed_on_min: formatDateFilter(params.completed_on_min || undefined),
+      completed_on_max: formatDateFilter(params.completed_on_max || undefined),
+      exported_on_min: formatDateFilter(params.exported_on_min || undefined),
+      exported_on_max: formatDateFilter(params.exported_on_max || undefined),
+      expected_receive_on_min: formatDateFilter(params.expected_receive_on_min || undefined),
+      expected_receive_on_max: formatDateFilter(params.expected_receive_on_max || undefined),
+      returning_date_min: formatDateFilter(params.returning_date_min || undefined),
+      returning_date_max: formatDateFilter(params.returning_date_max || undefined),
+      returned_date_min: formatDateFilter(params.returned_date_min || undefined),
+      returned_date_max: formatDateFilter(params.returned_date_max || undefined),
       discount_codes: textDiscount,
     };
   }, [params]);
@@ -679,6 +698,25 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
           };
         }
+        values.issued_on_min = formatDateTimeOrderFilter(values.issued_on_min || initialValues.issued_on_min, dateFormat);
+        values.issued_on_max = formatDateTimeOrderFilter(values.issued_on_max || initialValues.issued_on_max, dateFormat);
+        values.finalized_on_min = formatDateTimeOrderFilter(values.finalized_on_min || initialValues.finalized_on_min, dateFormat);
+        values.finalized_on_max = formatDateTimeOrderFilter(values.finalized_on_max || initialValues.finalized_on_max, dateFormat);
+        values.cancelled_on_min = formatDateTimeOrderFilter(values.cancelled_on_min || initialValues.cancelled_on_min, dateFormat);
+        values.cancelled_on_max = formatDateTimeOrderFilter(values.cancelled_on_max || initialValues.cancelled_on_max, dateFormat);
+        values.completed_on_min = formatDateTimeOrderFilter(values.completed_on_min || initialValues.completed_on_min, dateFormat);
+        values.completed_on_max = formatDateTimeOrderFilter(values.completed_on_max || initialValues.completed_on_max, dateFormat);
+        values.exported_on_min = formatDateTimeOrderFilter(values.exported_on_min || initialValues.exported_on_min, dateFormat);
+        values.exported_on_max = formatDateTimeOrderFilter(values.exported_on_max || initialValues.exported_on_max, dateFormat);
+        values.expected_receive_on_min = formatDateTimeOrderFilter(values.expected_receive_on_min || initialValues.expected_receive_on_min, dateFormat);
+        values.expected_receive_on_max = formatDateTimeOrderFilter(values.expected_receive_on_max || initialValues.expected_receive_on_max, dateFormat);
+        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min || initialValues.returning_date_min, dateFormat);
+        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min || initialValues.returning_date_min, dateFormat);
+        values.returning_date_max = formatDateTimeOrderFilter(values.returning_date_max || initialValues.returning_date_max, dateFormat);
+        values.returned_date_min = formatDateTimeOrderFilter(values.returned_date_min || initialValues.returned_date_min, dateFormat);
+        values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max || initialValues.returned_date_max, dateFormat);
+        console.log('values', values);
+        // return;
         let discount_codes = [];
         if (values.discount_codes) {
           discount_codes = values.discount_codes.split(",").map((p: string) => p?.trim());
@@ -687,7 +725,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         setRerender(false);
       }
     },
-    [formRef, keySearchVariant, onFilter, services]
+    [dateFormat, formRef, initialValues.cancelled_on_max, initialValues.cancelled_on_min, initialValues.completed_on_max, initialValues.completed_on_min, initialValues.expected_receive_on_max, initialValues.expected_receive_on_min, initialValues.exported_on_max, initialValues.exported_on_min, initialValues.finalized_on_max, initialValues.finalized_on_min, initialValues.issued_on_max, initialValues.issued_on_min, initialValues.returned_date_max, initialValues.returned_date_min, initialValues.returning_date_max, initialValues.returning_date_min, keySearchVariant, onFilter, services]
   );
 
   let filters = useMemo(() => {
@@ -860,9 +898,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
       let textOrderCreateDate =
-        (initialValues.issued_on_min ? initialValues.issued_on_min : "??") +
+        (initialValues.issued_on_min ? getTimeFormatOrderFilterTag(initialValues.issued_on_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.issued_on_max ? initialValues.issued_on_max : "??");
+        (initialValues.issued_on_max ? getTimeFormatOrderFilterTag(initialValues.issued_on_max, dateFormat) : "??");
       list.push({
         key: "issued",
         name: "Ngày tạo đơn",
@@ -872,9 +910,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
       let textOrderFinalizedDate =
-        (initialValues.finalized_on_min ? initialValues.finalized_on_min : "??") +
+        (initialValues.finalized_on_min ? getTimeFormatOrderFilterTag(initialValues.finalized_on_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.finalized_on_max ? initialValues.finalized_on_max : "??");
+        (initialValues.finalized_on_max ? getTimeFormatOrderFilterTag(initialValues.finalized_on_max, dateFormat) : "??");
       list.push({
         key: "finalized",
         name: "Ngày duyệt đơn",
@@ -883,9 +921,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
       let textOrderCompleteDate =
-        (initialValues.completed_on_min ? initialValues.completed_on_min : "??") +
+        (initialValues.completed_on_min ? getTimeFormatOrderFilterTag(initialValues.completed_on_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.completed_on_max ? initialValues.completed_on_max : "??");
+        (initialValues.completed_on_max ? getTimeFormatOrderFilterTag(initialValues.completed_on_max, dateFormat) : "??");
       list.push({
         key: "completed",
         name: "Ngày hoàn tất đơn",
@@ -894,9 +932,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
       let textOrderCancelDate =
-        (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : "??") +
+        (initialValues.cancelled_on_min ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : "??");
+        (initialValues.cancelled_on_max ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_max, dateFormat) : "??");
       list.push({
         key: "cancelled",
         name: "Ngày huỷ đơn",
@@ -906,9 +944,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
       let textExpectReceiveDate =
-        (initialValues.expected_receive_on_min ? initialValues.expected_receive_on_min : "??") +
+        (initialValues.expected_receive_on_min ? getTimeFormatOrderFilterTag(initialValues.expected_receive_on_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.expected_receive_on_max ? initialValues.expected_receive_on_max : "??");
+        (initialValues.expected_receive_on_max ? getTimeFormatOrderFilterTag(initialValues.expected_receive_on_max, dateFormat) : "??");
       list.push({
         key: "expected",
         name: "Ngày dự kiến nhận hàng",
@@ -918,9 +956,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.returning_date_min || initialValues.returning_date_max) {
       let textExpectReceiveDate =
-        (initialValues.returning_date_min ? initialValues.returning_date_min : "??") +
+        (initialValues.returning_date_min ? getTimeFormatOrderFilterTag(initialValues.returning_date_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.returning_date_max ? initialValues.returning_date_max : "??");
+        (initialValues.returning_date_max ? getTimeFormatOrderFilterTag(initialValues.returning_date_max, dateFormat) : "??");
       list.push({
         key: "returning",
         name: "Ngày đang hoàn ",
@@ -930,9 +968,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.returned_date_min || initialValues.returned_date_max) {
       let textExpectReceiveDate =
-        (initialValues.returned_date_min ? initialValues.returned_date_min : "??") +
+        (initialValues.returned_date_min ? getTimeFormatOrderFilterTag(initialValues.returned_date_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.returned_date_max ? initialValues.returned_date_max : "??");
+        (initialValues.returned_date_max ? getTimeFormatOrderFilterTag(initialValues.returned_date_max, dateFormat) : "??");
       list.push({
         key: "returned",
         name: "Ngày đã hoàn",
@@ -941,9 +979,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.exported_on_min || initialValues.exported_on_max) {
       let textExportedOnDate =
-        (initialValues.exported_on_min ? initialValues.exported_on_min : "??") +
+        (initialValues.exported_on_min ? getTimeFormatOrderFilterTag(initialValues.exported_on_min, dateFormat) : "??") +
         " ~ " +
-        (initialValues.exported_on_max ? initialValues.exported_on_max : "??");
+        (initialValues.exported_on_max ? getTimeFormatOrderFilterTag(initialValues.exported_on_max, dateFormat) : "??");
       list.push({
         key: "exported_on",
         name: "Ngày giao hàng cho HVC",
@@ -1323,7 +1361,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
 
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initialValues.discount_codes, initialValues.utm_source, initialValues.utm_medium, initialValues.utm_content, initialValues.utm_term, initialValues.utm_id, initialValues.utm_campaign, initialValues.affiliate, initChannelCodes, orderType, listStore, listSources, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initialValues.discount_codes, initialValues.utm_source, initialValues.utm_medium, initialValues.utm_content, initialValues.utm_term, initialValues.utm_id, initialValues.utm_campaign, initialValues.affiliate, initChannelCodes, orderType, listStore, listSources, dateFormat, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1719,6 +1757,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setIssuedClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1777,6 +1816,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setFinalizedClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>}
                 <Col span={8} xxl={8}>
@@ -1827,6 +1867,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setCancelledClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -1866,6 +1907,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setCompletedClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -1914,6 +1956,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExportedClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>}
                 <Col span={8} xxl={8}>
@@ -1943,6 +1986,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExpectedClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -1956,6 +2000,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExpectedClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -1969,6 +2014,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExpectedClick}
                     format={dateFormat}
                     formRef={formRef}
+                    showTime
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
