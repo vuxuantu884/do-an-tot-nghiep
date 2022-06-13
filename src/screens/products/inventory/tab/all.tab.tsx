@@ -75,7 +75,7 @@ export interface SummaryInventory {
 }
 
 const AllTab: React.FC<any> = (props) => {
-  const { stores,showExportModal,setShowExportModal,setVExportInventory,vExportInventory} = props;
+  const { stores,showExportModal,setShowExportModal,setVExportInventory,vExportInventory,setConditionFilter,setStoreIds} = props;
   const history = useHistory();
   const pageSizeOptions: Array<string> =["50","100"];
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
@@ -166,11 +166,13 @@ const AllTab: React.FC<any> = (props) => {
     (values) => {
       const newValues = {...values,info: values.info?.trim()}
       const newPrams = {...params, ...newValues, page: 1};
+      setConditionFilter(newPrams.info);
+      setStoreIds(newPrams.store_ids);
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     },
-    [history, params]
+    [history, params, setConditionFilter, setStoreIds]
   );
 
   const onSortASC = useCallback((sortColumn: string)=>{
