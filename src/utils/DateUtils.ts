@@ -9,6 +9,7 @@ export const DATE_FORMAT = {
   YYYYMMDD: "YYYY-MM-DD",
   MMYYYY: "MM/YYYY",
   DD_MM_YYYY: "DD-MM-YYYY",
+  DD_MM_YY_HHmm: "DD-MM-YYYY HH:mm",
 };
 
 export const ConvertUtcToLocalDate = (
