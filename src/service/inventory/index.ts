@@ -85,7 +85,7 @@ const createInventoryConfigService = (
   request: FilterConfigRequest
 ): Promise<BaseResponse<FilterConfig>> => {
   return BaseAxios.post(
-    `${ApiConfig.INVENTORY}/config`,
+    `${ApiConfig.CORE}/config`,
       request
   );
 };
@@ -94,7 +94,7 @@ const updateInventoryConfigService = (
   request: FilterConfigRequest
 ): Promise<BaseResponse<FilterConfig>> => {
   return BaseAxios.post(
-    `${ApiConfig.INVENTORY}/config`,
+    `${ApiConfig.CORE}/config`,
       request
   );
 };
@@ -103,7 +103,7 @@ const getInventoryConfigService = (
   code: string
 ): Promise<BaseResponse<Array<FilterConfig>>> => {
   return BaseAxios.get(
-    `${ApiConfig.INVENTORY}/config/${code}`,
+    `${ApiConfig.CORE}/config/${code}`,
   );
 };
 
@@ -111,7 +111,7 @@ const deleteInventoryConfigService = (
   id: number
 ): Promise<BaseResponse<Array<FilterConfig>>> => {
   return BaseAxios.delete(
-    `${ApiConfig.INVENTORY}/config/${id}`,
+    `${ApiConfig.CORE}/config/${id}`,
   );
 };
 

@@ -65,6 +65,7 @@ import { colorDetailApi } from "service/product/color.service";
 import { callApiNative } from "utils/ApiUtils";
 import {
   convertCategory,
+  formatCurrency,
   formatCurrencyForProduct,
   Products,
   replaceFormatString,
@@ -1276,7 +1277,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
-                                  format={(a: string) => formatCurrencyForProduct(a)}
+                                  format={(a: string) => formatCurrencyForProduct(a,",")}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1302,7 +1303,7 @@ const ProductCreateScreen: React.FC = () => {
                                 }}
                               >
                                 <NumberInput
-                                  format={(a: string) => formatCurrencyForProduct(a)}
+                                  format={(a: string) => formatCurrencyForProduct(a,",")}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1328,7 +1329,7 @@ const ProductCreateScreen: React.FC = () => {
                               >
                                 <NumberInput
                                   maxLength={15}
-                                  format={(a: string) => formatCurrencyForProduct(a)}
+                                  format={(a: string) => formatCurrencyForProduct(a,",")}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1359,7 +1360,7 @@ const ProductCreateScreen: React.FC = () => {
                                 <NumberInput
                                   disabled
                                   maxLength={15}
-                                  format={(a: string) => formatCurrencyForProduct(a)}
+                                  format={(a: string) => formatCurrency(a)}
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }

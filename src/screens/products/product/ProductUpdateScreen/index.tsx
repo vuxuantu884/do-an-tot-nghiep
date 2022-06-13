@@ -1394,7 +1394,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <NumberInput
                                                       onChange={onChangePrice}
-                                                      format={(a: string) => formatCurrencyForProduct(a)}
+                                                      format={(a: string) => formatCurrencyForProduct(a,",")}
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
                                                       }
@@ -1424,7 +1424,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <NumberInput
                                                       format={(a: string) =>
-                                                        formatCurrencyForProduct(a)
+                                                        formatCurrencyForProduct(a,",")
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
@@ -1454,7 +1454,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     <NumberInput
                                                       onChange={onChangeImportPrice}
                                                       format={(a: string) =>
-                                                        formatCurrencyForProduct(a)
+                                                        formatCurrencyForProduct(a,",")
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
@@ -1488,7 +1488,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <NumberInput
                                                       format={(a: string) =>
-                                                        formatCurrencyForProduct(a)
+                                                        formatCurrencyForProduct(a,",")
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)

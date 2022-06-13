@@ -485,7 +485,7 @@ function AddVariantsModal(props: Props) {
                             >
                                 <NumberInput
                                     format={(a: string) =>
-                                        formatCurrencyForProduct(a)
+                                        formatCurrencyForProduct(a,",")
                                     }
                                     replace={(a: string) =>
                                         replaceFormatString(a)
@@ -512,7 +512,7 @@ function AddVariantsModal(props: Props) {
                             >
                                 <NumberInput
                                     format={(a: string) =>
-                                        formatCurrencyForProduct(a)
+                                        formatCurrencyForProduct(a,",")
                                     }
                                     replace={(a: string) =>
                                         replaceFormatString(a)
@@ -539,7 +539,7 @@ function AddVariantsModal(props: Props) {
                             >
                                 <NumberInput
                                     format={(a: string) =>
-                                        formatCurrencyForProduct(a)
+                                        formatCurrencyForProduct(a,",")
                                     }
                                     replace={(a: string) =>
                                         replaceFormatString(a)
@@ -570,7 +570,7 @@ function AddVariantsModal(props: Props) {
                             >
                                 <NumberInput
                                     format={(a: string) =>
-                                        formatCurrencyForProduct(a)
+                                        formatCurrencyForProduct(a,",")
                                     }
                                     replace={(a: string) =>
                                         replaceFormatString(a)

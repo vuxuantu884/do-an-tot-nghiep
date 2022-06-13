@@ -26,7 +26,7 @@ import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
-import {convertCategory, formatCurrency, generateQuery} from "utils/AppUtils";
+import {convertCategory, formatCurrencyForProduct, generateQuery} from "utils/AppUtils";
 import {OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showInfo, showSuccess} from "utils/ToastUtils";
@@ -157,7 +157,7 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       visible: true,
       width: 120,
-      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"0"}</div>,
+      render: (value: number) => <div> {value!==null?formatCurrencyForProduct(value):"0"}</div>,
     },
     {
       align: "right",
@@ -165,7 +165,7 @@ const TabProductWrapper: React.FC = () => {
       dataIndex: "available",
       visible: true,
       width: 100,
-      render: (value: number) => <div> {value!==null?formatCurrency(value,"."):"0"}</div>,
+      render: (value: number) => <div> {value!==null?formatCurrencyForProduct(value):"0"}</div>,
     },
     {
       title: "Trạng thái",

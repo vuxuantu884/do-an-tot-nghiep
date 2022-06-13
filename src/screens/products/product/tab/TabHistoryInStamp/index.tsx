@@ -20,7 +20,7 @@ import { Link } from "react-router-dom";
 import ModalPickManyProduct from "screens/products/product/component/ModalPickManyProduct";
 import { productGetHistoryInTem, productUpdateHistoryInTem } from "service/product/product.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency, generateQuery, splitEllipsis } from "utils/AppUtils";
+import { formatCurrencyForProduct, generateQuery, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
@@ -90,8 +90,8 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
     const barcodePrintHistories = cloneDeep(data.items);
     const total = barcodePrintHistories.reduce((value, element) => {
       return value + element.quantity_print || 0;
-    }, 0);
-    return formatCurrency(total, ".");
+    }, 0);    
+    return formatCurrencyForProduct(total);
   }, [data]);
 
   const getTotalCountDistinct = useCallback(() => {
@@ -103,7 +103,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
       }
     });
 
-    return formatCurrency(total.length, ".");
+    return formatCurrencyForProduct(total.length);
   }, [data]);
 
   const onFilter = useCallback(
@@ -207,7 +207,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
           visible: true,
           align: "right",
           width: 120,
-          render: (value) => (value ? formatCurrency(value) : "---"),
+          render: (value) => (value ? formatCurrencyForProduct(value) : "---"),
         },
         {
           title:  (
@@ -220,7 +220,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
           visible: true,
           align: "center",
           width: 200,
-          render: (value) => value || "---",
+          render: (value) => (value ? formatCurrencyForProduct(value) : "---"),
         },
         {
           title: "Thơi gian in",
