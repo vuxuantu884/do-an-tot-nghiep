@@ -1,115 +1,105 @@
-import React, {ReactNode, useCallback, useEffect, useMemo, useState} from "react";
-import { Link, useHistory, useLocation } from "react-router-dom";
-import {useDispatch, useSelector} from "react-redux";
-import NumberFormat from "react-number-format";
-import {Button, Card, Select, Tooltip} from "antd";
-import { DownloadOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
-
+import { DownloadOutlined, EyeOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
+import { Button, Card, Input, Popover, Row, Select, Tooltip } from "antd";
+import CircleEmptyIcon from "assets/icon/circle_empty.svg";
+import CircleFullIcon from "assets/icon/circle_full.svg";
+import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
+import CustomerIcon from "assets/icon/customer-icon.svg";
+import DeliveryrIcon from "assets/icon/gray-delivery.svg";
+import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import BaseResponse from "base/base.response";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import ContentContainer from "component/container/content.container";
+import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
+import CustomTable, {
+  ICustomTableColumType
+} from "component/table/CustomTable";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { HttpStatus } from "config/http-status.config";
+import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import {dangerColor, primaryColor, successColor} from "utils/global-styles/variables";
-import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
-
-import { StoreResponse } from "model/core/store.model";
+import { AccountSearchAction } from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
-  OrderModel,
-  EcommerceOrderSearchQuery,
-  ChangeOrderStatusHtmlModel,
-  OrderExtraModel,
-} from "model/order/order.model";
-import { AccountResponse } from "model/account/account.model";
-import { EcommerceId, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
-
+  batchShippingAction, changeEcommerceOrderStatus, downloadPrintForm,
+  exitEcommerceJobsAction,
+  exitProgressDownloadEcommerceAction,
+  getAddressByShopIdAction
+} from "domain/actions/ecommerce/ecommerce.actions";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   DeliveryServicesGetList,
   getListOrderAction,
   getTrackingLogFulfillmentAction,
-  PaymentMethodGetList,
+  PaymentMethodGetList, updateOrderPartial
 } from "domain/actions/order/order.action";
-import { AccountSearchAction } from "domain/actions/account/account.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 
+import useAuthorization from "hook/useAuthorization";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
+import { AccountResponse } from "model/account/account.model";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
+import { ErrorMessageBatchShipping, ShopAddressByShopId } from "model/ecommerce/ecommerce.model";
+import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
+import {
+  ChangeOrderStatusHtmlModel, EcommerceOrderSearchQuery, OrderExtraModel, OrderModel
+} from "model/order/order.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
+import { ChangeOrderStatusErrorLine, ChangeOrderStatusErrorLineType, EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import {
   OrderProcessingStatusModel,
-  OrderProcessingStatusResponseModel,
+  OrderProcessingStatusResponseModel
 } from "model/response/order-processing-status.response";
-
-import ContentContainer from "component/container/content.container";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
-import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
-import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
-import EcommerceChangeOrderStatusModal from "screens/ecommerce/orders/component/EcommerceChangeOrderStatusModal";
-import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
-
-import { updateOrderPartial } from "domain/actions/order/order.action";
-
-import AuthWrapper from "component/authorization/AuthWrapper";
-import NoPermission from "screens/no-permission.screen";
-import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
-
-import CircleEmptyIcon from "assets/icon/circle_empty.svg";
-import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
-import CircleFullIcon from "assets/icon/circle_full.svg";
-import CustomerIcon from "assets/icon/customer-icon.svg";
-import DeliveryrIcon from "assets/icon/gray-delivery.svg";
-import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-
-import { nameQuantityWidth, StyledComponentEcommerceOrder } from "screens/ecommerce/orders/orderStyles";
-import useAuthorization from "hook/useAuthorization";
-import { SourceResponse } from "model/response/order/source.response";
-import { getListSourceRequest } from "domain/actions/product/source.action";
 import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { HttpStatus } from "config/http-status.config";
-import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import { showError, showSuccess } from "utils/ToastUtils";
-import {
-  batchShippingAction,
-  downloadPrintForm,
-  exitEcommerceJobsAction,
-  exitProgressDownloadEcommerceAction,
-  getAddressByShopIdAction,
-} from "domain/actions/ecommerce/ecommerce.actions";
-import { changeEcommerceOrderStatus } from "domain/actions/ecommerce/ecommerce.actions";
+import { SourceResponse } from "model/response/order/source.response";
+import queryString from "query-string";
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import NumberFormat from "react-number-format";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import { getEcommerceIdByChannelId } from "screens/ecommerce/common/commonAction";
+import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
+import EcommerceChangeOrderStatusModal from "screens/ecommerce/orders/component/EcommerceChangeOrderStatusModal";
+import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
+import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
+import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
+import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
+import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
+import { nameQuantityWidth, StyledComponentEcommerceOrder } from "screens/ecommerce/orders/orderStyles";
+import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
+import NoPermission from "screens/no-permission.screen";
+import EditNote from "screens/order-online/component/EditOrderNote";
+import InventoryTable from "screens/order-online/component/OrderList/ListTable/InventoryTable";
+import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
+import ExportModal from "screens/order-online/modal/export.modal";
+import { getEcommerceJobsApi, getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
+import { inventoryGetApi } from "service/inventory";
+import { changeOrderStatusToPickedService, setSubStatusService } from "service/order/order.service";
+import { getOrderReasonService } from "service/order/return.service";
+import { exportFile, getFile } from "service/other/export.service";
 import {
   generateQuery,
   handleFetchApiError,
   isFetchApiSuccessful,
   isNullOrUndefined,
-  sortFulfillments,
+  sortFulfillments
 } from "utils/AppUtils";
-import BaseResponse from "base/base.response";
-import { getEcommerceJobsApi, getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
-import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
-import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
-import {changeOrderStatusToPickedService, setSubStatusService} from "service/order/order.service";
-import { exportFile, getFile } from "service/other/export.service";
-import ExportModal from "screens/order-online/modal/export.modal";
-import {getEcommerceIdByChannelId} from "screens/ecommerce/common/commonAction";
-import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
-import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
-import queryString from "query-string";
-import { EcommerceOrderList, EcommerceOrderStatus } from "model/request/ecommerce.request";
-import { EcommerceChangeOrderStatusReponse, ChangeOrderStatusErrorLine, ChangeOrderStatusErrorLineType } from "model/response/ecommerce/ecommerce.response";
-import { ErrorMessageBatchShipping, ShopAddressByShopId } from "model/ecommerce/ecommerce.model";
-import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
-import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
-import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
-import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
-import {ORDER_EXPORT_TYPE, ORDER_SUB_STATUS} from "utils/Order.constants";
-import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {getOrderReasonService} from "service/order/return.service";
+import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
+import { ORDER_EXPORT_TYPE, ORDER_SUB_STATUS } from "utils/Order.constants";
 import { checkIfFulfillmentCancelled } from "utils/OrderUtils";
-import EditNote from 'screens/order-online/component/EditOrderNote';
+import { fullTextSearch } from "utils/StringUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
+import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
+import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
+import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
+
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -241,6 +231,11 @@ const EcommerceOrders: React.FC = () => {
     subStatus: "subStatus",
     setSubStatus: "setSubStatus",
   };
+
+  //show inventory every store with product
+  const [inventoryData, setInventoryData] = useState<AllInventoryProductInStore[]>([]);
+  const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
+
 
   //export order
   const [showExportModal, setShowExportModal] = useState(false);
@@ -616,6 +611,90 @@ const EcommerceOrders: React.FC = () => {
     }
     return result;
   }
+
+  const handleInventoryData = useCallback((
+    variantIds: number[],
+  ) => {
+    if (listStore) setStoreInventory([...listStore]);
+    let inventoryQuery: InventoryVariantListQuery = {
+      is_detail: true,
+      variant_ids: variantIds,
+      store_ids: listStore?.map((p) => p.id)
+    }
+
+    inventoryGetApi(inventoryQuery).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        console.log(response)
+
+        setInventoryData(response.data);
+
+      } else {
+        handleFetchApiError(response, "Danh sách tồn kho", dispatch)
+      }
+    })
+      .catch((e) => {
+        console.log(e)
+      })
+  }, [dispatch, listStore]);
+
+
+  const onSearchInventory = useCallback((value: string) => {
+    let _item: StoreResponse[] | any = listStore?.filter(x => fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()) === true);
+    setStoreInventory(_item);
+  }, [listStore]);
+
+ 
+
+
+  const rowSelectionRenderCell = (
+    checked: boolean,
+    record: OrderModel,
+    index: number,
+    originNode: ReactNode
+  ) => {
+    return (
+      <React.Fragment>
+        <div className="actionButton">
+          {originNode}
+        </div>
+        <div className="actionButton">
+          <Popover
+            placement="right"
+            overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
+            title={
+              <Row
+                justify="space-between"
+                align="middle"
+                style={{ width: "100%" }}
+              >
+                <Input.Search
+                  placeholder="Tìm kiếm kho"
+                  allowClear
+                  onSearch={onSearchInventory}
+                />
+              </Row>
+            }
+            content={<InventoryTable
+              inventoryData={inventoryData}
+              storeId={record.store_id || 0}
+              items={record.items}
+              listStore={storeInventory}
+            />
+            }
+            trigger="click"
+            onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
+          >
+            <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }} title="Kiểm tra tồn kho"></Button>
+          </Popover>
+        </div>
+        {record?.order_returns && record?.order_returns?.length > 0 ? (
+          <div className="actionButton" title="Đơn hàng có đổi trả">
+            <b>[Đ]</b>
+          </div>
+        ) : null}
+      </React.Fragment>
+    );
+  };
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
     if (data.items.length === 0) {
@@ -1985,6 +2064,7 @@ const EcommerceOrders: React.FC = () => {
 
               <CustomTable
                 isRowSelection
+                rowSelectionRenderCell={rowSelectionRenderCell}
                 bordered
                 isLoading={tableLoading}
                 scroll={{ x: 2300 }}
