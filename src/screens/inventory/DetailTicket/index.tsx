@@ -860,7 +860,9 @@ const DetailTicket: FC = () => {
        if (event.key !== "Enter") {
          barCode = barCode + event.key;
        } else if (event && event.key === "Enter") {
-           handleSearchProduct(event.key,barCode);
+           if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+            handleSearchProduct(event.key,barCode);
+           }
        }
        return;
      }
@@ -868,7 +870,7 @@ const DetailTicket: FC = () => {
 
    // eslint-disable-next-line react-hooks/exhaustive-deps
    [
-     dispatch,handleSearchProduct
+     dispatch,handleSearchProduct,data?.status
    ]
  );
 
