@@ -26,12 +26,14 @@ const InventoryScreen: React.FC = () => {
   const [vExportProduct,setVExportProduct] = useState(false);
   const [showExportModal,setShowExportModal] = useState(false);
   const [vExportInventory,setVExportInventory] = useState(false);
+  const [conditionFilter,setConditionFilter] = useState(null);
+  const [storeIds,setStoreIds] = useState(null);
 
   useEffect(() => {
     let redirectUrl = path;
     if (redirectUrl) {
       const search = new URLSearchParams(history.location.search);
-      const newPrams = {...getQueryParams(search)};
+      let newPrams = {...getQueryParams(search)};
       if (newPrams) redirectUrl += `?${generateQuery(newPrams)}`;
 
       switch (path) {
@@ -40,17 +42,27 @@ const InventoryScreen: React.FC = () => {
           setActiveTab(InventoryTabUrl.ALL);
           break;
         case InventoryTabUrl.HISTORIES:
+          if (conditionFilter) {
+            newPrams = {...newPrams,
+              condition:conditionFilter};
+          }
+          if (storeIds) {
+            newPrams = {...newPrams,
+              store_ids: storeIds};
+          }
+          redirectUrl = `?${generateQuery(newPrams)}`;
           history.replace(redirectUrl);
           setActiveTab(InventoryTabUrl.HISTORIES);
           break;
       }
     }
-  }, [history, path]);
+  }, [history, path, conditionFilter, storeIds]);
 
   useEffect(() => {
     setLoading(false)
     dispatch(StoreGetListAction(setStores));
   }, [dispatch]);
+  
   return (
     <ContentContainer
       isLoading={loading}
@@ -114,7 +126,9 @@ const InventoryScreen: React.FC = () => {
              setShowExportModal={setShowExportModal} 
              vExportInventory={vExportInventory}
              setVExportInventory={setVExportInventory}
-             stores={stores} current={activeTab} />
+             stores={stores} current={activeTab}
+             setConditionFilter={setConditionFilter}
+             setStoreIds={setStoreIds} />
           </TabPane>
           
           <TabPane tab={<Link to={InventoryTabUrl.HISTORIES}>Lịch sử tồn kho</Link>} key={InventoryTabUrl.HISTORIES} >
