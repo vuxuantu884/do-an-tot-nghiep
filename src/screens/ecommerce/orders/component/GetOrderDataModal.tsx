@@ -409,7 +409,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
           {/*</Form.Item>*/}
           <Radio.Group style={{ width: "100%" }} onChange={(v: RadioChangeEvent) => selectDownloadType(v)} defaultValue={downloadType}>
             <Radio value={1} style={{ marginBottom: 12 }} onClick={handleDownloadOrderCalendar}>
-              Tải sản phẩm theo thời gian cập nhật
+              Tải đơn hàng theo thời gian cập nhật
             </Radio>
             <div className="date-pick-download-order">
               <div style={{ display: "flex", width: "100%" }}>
