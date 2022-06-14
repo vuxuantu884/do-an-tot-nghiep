@@ -3,6 +3,7 @@ import UrlConfig from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryResponse } from "model/inventory";
 import { Link } from "react-router-dom";
+import { formatCurrencyForProduct } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 interface IProps {
@@ -75,7 +76,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
           {
             title: "Thời gian",
             dataIndex: "transaction_date",
-            render: (value) => ConvertUtcToLocalDate(value),
+            render: (value) => ConvertUtcToLocalDate(formatCurrencyForProduct(value)),
             align: 'left',
             width: 120
           },
@@ -83,12 +84,15 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
             title: "SL Thay đổi",
             dataIndex: "quantity",
             align: 'center',
-            render: (value)=> parseInt(value) >0 ? `+${value}` : value 
+            render: (value)=> parseInt(value) >0 ? `+${formatCurrencyForProduct(value)}` : formatCurrencyForProduct(value) 
           },
           {
             title: "Tồn trong kho",
             dataIndex: "on_hand",
             align: 'center',
+            render: (value)=>{
+              return formatCurrencyForProduct(value);
+            }
           },
           {
             title: "Kho hàng",

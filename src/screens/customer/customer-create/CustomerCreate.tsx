@@ -156,6 +156,7 @@ const CustomerCreate = (props: any) => {
       ward: wardSelected ? wardSelected.name : null,
       responsible_staff: staffSelected ? staffSelected.full_name : null,
       phone: values.phone?.trim(),
+      identity_number: values.identity_number?.trim(),
       contacts: [
         {
           ...CustomerContactClass,

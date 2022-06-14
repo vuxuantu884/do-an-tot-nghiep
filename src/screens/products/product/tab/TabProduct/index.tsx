@@ -35,7 +35,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
 import { searchVariantsApi } from "service/product/product.service";
-import { formatCurrency, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
+import { formatCurrencyForProduct, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
@@ -364,7 +364,7 @@ const TabProduct: React.FC<any> = (props) => {
         );
         if (prices !== null) {
 
-          return formatCurrency(prices.cost_price);
+          return formatCurrencyForProduct(prices.cost_price);
         }
         return 0;
       },
@@ -382,7 +382,7 @@ const TabProduct: React.FC<any> = (props) => {
         );
         if (prices !== null) {
 
-          return formatCurrency(prices.import_price);
+          return formatCurrencyForProduct(prices.import_price);
         }
         return 0;
       },
@@ -400,7 +400,7 @@ const TabProduct: React.FC<any> = (props) => {
         );
         if (prices !== null) {
 
-          return formatCurrency(prices.retail_price);
+          return formatCurrencyForProduct(prices.retail_price);
         }
         return 0;
       },
@@ -411,7 +411,7 @@ const TabProduct: React.FC<any> = (props) => {
       visible: true,
       align: "right",
       width: 110,
-      render: (value: number) => <div> {value ? formatCurrency(value, ".") : "0"}</div>,
+      render: (value: number) => <div> {value ? formatCurrencyForProduct(value) : "0"}</div>,
     },
 
     {

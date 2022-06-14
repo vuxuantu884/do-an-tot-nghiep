@@ -33,6 +33,7 @@ import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ProductResponse } from "../../model/product/product.model";
 import { combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, POUtils, validateLineItemQuantity } from "../../utils/POUtils";
+import POInfoPO from "./component/po-info-po";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
 import PoProductContainer from "./component/po-product-form-grid/po-product-container";
@@ -304,7 +305,7 @@ const POCreateScreen: React.FC = () => {
         <Form.Item name={POField.procurements} noStyle hidden>
           <Input />
         </Form.Item>
-        <Row gutter={24} style={{ paddingBottom: 30 }}>
+        <Row gutter={24}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
@@ -315,40 +316,42 @@ const POCreateScreen: React.FC = () => {
               listDistrict={listDistrict}
               formMain={formMain}
             />
-            <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
-              {
-                isGridMode ? (
-                  <POProductFormNew
-                    formMain={formMain}
-                    isEditMode={true}
-                  />
-                ) : (
-                  <POProductFormOld poLineItemType={POLineItemType.NORMAL} isEdit={true} formMain={formMain} />
-                )
-              }
-            </PoProductContainer>
-            <POInventoryForm
-              isEdit={false}
-              now={now}
-              status={formMain.getFieldValue(POField.status)}
-              stores={listStore}
-              formMain={formMain}
-              isShowStatusTag={false}
-            />
-            <POPaymentConditionsForm
-              formMain={formMain}
-              isEdit={false}
-              listPayment={listPaymentConditions}
-            />
+            <POInfoPO formMain={formMain} />
           </Col>
           {/* Right Side */}
           <Col md={6}>
             <POInfoForm
               isEdit={false}
-              formMain={formMain}
             />
           </Col>
         </Row>
+        <div style={{ padding: "0 12px", width: "100%" }}>
+          <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
+            {
+              isGridMode ? (
+                <POProductFormNew
+                  formMain={formMain}
+                  isEditMode={true}
+                />
+              ) : (
+                <POProductFormOld poLineItemType={POLineItemType.NORMAL} isEdit={true} formMain={formMain} />
+              )
+            }
+          </PoProductContainer>
+          <POInventoryForm
+            isEdit={false}
+            now={now}
+            status={formMain.getFieldValue(POField.status)}
+            stores={listStore}
+            formMain={formMain}
+            isShowStatusTag={false}
+          />
+          <POPaymentConditionsForm
+            formMain={formMain}
+            isEdit={false}
+            listPayment={listPaymentConditions}
+          />
+        </div>
         <BottomBarContainer
           back={false}
           leftComponent={

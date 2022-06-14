@@ -30,7 +30,10 @@ function ModalCreateReport({
     const dispatch = useDispatch();
     const [templateList, setTemplateList] = useState<Array<AnalyticCustomizeTemplateForCreate>>([]);
     const onFinish = async (values: any) => {
-        const { name, templateIndex } = values;
+        const { name, templateIndex, templateGroupIndex } = values;
+        const reportGroup = Object.keys(ANALYTIC_TEMPLATE_GROUP).reduce((res: any, key: string) => {
+            return [...res, ...ANALYTIC_TEMPLATE_GROUP[key]]
+        }, []).find((item: any) => item.cube === templateGroupIndex);
         const template = templateList.find((item, index) => templateIndex === index);
         const { cube, query, timeAtOption, chart_query } = template as AnalyticCustomizeTemplateForCreate;
         if (cube && query) {
@@ -38,7 +41,7 @@ function ModalCreateReport({
 
             const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, saveAnalyticsCustomService, {
                 query: query,
-                group: cube,
+                group: reportGroup?.group,
                 name,
                 chart_query: chartQuery,
                 options: timeAtOption,

@@ -235,7 +235,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
             ref={formRef}
             layout="vertical"
           >
-            {Object.keys(HistoryInventoryMappingField).filter(e=>e !== "quantity").map((field) => {
+            {Object.keys(HistoryInventoryMappingField).filter(e=>e !== "quantity").map((field,index) => {
                   let component: any = null;
                   switch (field) {
                     case AvdHistoryInventoryFilter.transaction_date:
@@ -252,7 +252,7 @@ const HistoryInventoryFilter: React.FC<HistoryInventoryFilterProps> = (
                       break;
                     }
                   return (
-                    <Row>
+                    <Row key={index}>
                       <Col span={24} key={field}>
                         <div className="font-weight-500">{HistoryInventoryMappingField[field]}</div>
                         <Item name={field}>{component}</Item>

@@ -405,7 +405,7 @@ const POProductForm = ({
         return {
           title: <div>
             <p>{size}</p>
-            {isEditMode && <NumberInput min={0} onChange={(value) => onChangeQuantityHeader(value, size)} />}
+            {isEditMode && <NumberInput size="small" min={0} onChange={(value) => onChangeQuantityHeader(value, size)} />}
           </div>,
           dataIndex: size,
           key: size,
@@ -562,7 +562,7 @@ const POProductForm = ({
             const amount: number = getTotalPriceOfAllLineItem(poLineItemGridValue);
             formMain.setFieldsValue({ [POField.total]: Math.round(amount + (amount * (taxRate / 100))) });
             return (
-              <Row className="footer">
+              <Row className="footer" style={{ background: "white" }}>
                 <Col span={14} />
                 <Col span={10}>
                   <div className="po-payment-row">

@@ -32,7 +32,7 @@ import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
-import { getFullfilmentPacked, getFullfilmentReturning, bolFullfilmentShiping } from "./pack-utils";
+import { getFullfilmentPacked, getFullfilmentReturning, bolFullfilmentShiping, insertArray } from "./pack-utils";
 
 const { Item } = Form;
 type PackParam = {
@@ -172,13 +172,6 @@ const PackUpdate: React.FC = () => {
     [PackId, dispatch, packDetail, selectedRowOrderId]
   );
 
-
-  const insert = (arr: any, index: number, newItem: any) => [
-    ...arr.slice(0, index),
-    newItem,
-    ...arr.slice(index)
-  ]
-
   const handleSubmit = useCallback(
     (value: any) => {
 
@@ -248,7 +241,7 @@ const PackUpdate: React.FC = () => {
           });
       }
 
-      codes = insert([...codes], 0, order_id);
+      codes = insertArray([...codes], 0, order_id);
 
       let id = packDetail?.id ? packDetail?.id : 0;
       let param: any = {
@@ -402,7 +395,7 @@ const PackUpdate: React.FC = () => {
         });
 
         if (codes.indexOf(barcode) === -1) {
-          codes = insert([...codes], 0, barcode);
+          codes = insertArray([...codes], 0, barcode);
           let id = packDetail?.id ? packDetail?.id : 0;
           let param: any = {
             ...packDetail,

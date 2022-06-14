@@ -294,7 +294,7 @@ export const formatCurrency = (currency: number | string | boolean, sep: string 
   }
 };
 
-export const formatCurrencyForProduct = (currency: number | string | boolean, sep: string = ","): string => {
+export const formatCurrencyForProduct = (currency: number | string | boolean, sep: string = "."): string => {
   try {
     if (currency === null || currency === undefined || currency === '') return '';
 
@@ -1700,16 +1700,6 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     }
   }
 
-
-  //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
-  const flattenArray = (arr: any) => {
-    return arr.reduce(function (flat: any, toFlatten: any) {
-      return flat.concat(
-        Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten
-      );
-    }, []);
-  };
-
   // console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
 
   const listCheckedShippingFeeConfigFlatten = flattenArray(
@@ -2005,3 +1995,12 @@ export const checkIfOrderCanBeReturned = (orderDetail: OrderResponse) => {
 export const removeMultiWhitespaceAndTrimText = (value: string) => {
   return value.trim().replace(/\s\s+/g, ' ');
 }
+
+  //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+export const flattenArray = (arr: any) => {
+  return arr.reduce(function (flat: any, toFlatten: any) {
+    return flat.concat(
+      Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten
+    );
+  }, []);
+};

@@ -223,11 +223,8 @@ export const DashboardContainer = styled.div`
  }
   .product-group{
     &-cart{
-      border:none;
-      border: 1px solid ${grayE5};
-      box-shadow: none;
-       
-      .ant-card-bordered{
+      border: none;
+      .ant-card-bordered {
         border : none;
       }
       .ant-card-body{

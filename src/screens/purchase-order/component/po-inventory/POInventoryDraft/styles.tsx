@@ -27,6 +27,9 @@ export const POInventoryDraftTable = styled.div`
   .ant-input-number-handler-wrap {
     display: none;
   }
+  p {
+    margin-bottom: 0;
+  }
 `;
 
 export const ActionsTableColumn = styled.div`

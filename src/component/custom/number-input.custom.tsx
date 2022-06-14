@@ -1,4 +1,5 @@
 import { Input } from "antd";
+import { SizeType } from "antd/lib/config-provider/SizeContext";
 import React, { useEffect, useState } from "react";
 import { CSSProperties, useCallback } from "react";
 import { RegUtil } from "utils/RegUtils";
@@ -10,7 +11,7 @@ interface NumberInputProps {
   onChange?: (v: number | null) => void;
   onBlur?: (e: any) => void;
   onKeyPress?: (event: any) => void;
-  onPressEnter?: (event:any) => void;
+  onPressEnter?: (event: any) => void;
   style?: CSSProperties;
   placeholder?: string;
   format?: (a: string) => string;
@@ -26,8 +27,9 @@ interface NumberInputProps {
   autoFocus?: boolean;
   onFocus?: (e: any) => void;
   disabled?: boolean;
-  step?:number;
+  step?: number;
   isChangeAfterBlur?: boolean; // khi blur thì gọi lại hàm onChange
+  size?: SizeType;
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
@@ -52,6 +54,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     disabled = false,
     step,
     isChangeAfterBlur = true,
+    size
   } = props;
   const [data, setData] = useState<string>('');
   const onChangeText = useCallback(
@@ -66,7 +69,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       if (isFloat) {
         if (RegUtil.FLOATREG.test(valueS)) {
           setData(valueS);
-          if(valueS[valueS.length - 1] !== '.') {
+          if (valueS[valueS.length - 1] !== '.') {
             onChange && onChange(parseFloat(valueS));
           }
           return;
@@ -88,9 +91,9 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
         if (temp.charAt(temp.length - 1) === "." || temp === "-") {
           valueTemp = temp.slice(0, -1);
         }
-        if (props.min !== undefined && value < props.min && value!== undefined) {
+        if (props.min !== undefined && value < props.min && value !== undefined) {
           onChange && onChange(props.min);
-        } else if (props.max !== undefined && value > props.max && value!== undefined) {
+        } else if (props.max !== undefined && value > props.max && value !== undefined) {
           onChange && onChange(props.max);
         } else {
           onChange &&
@@ -98,7 +101,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
             onChange(parseFloat(valueTemp.replace(/0*(\d+)/, "$1")));
         }
       } else {
-        if (props.default !== undefined ) {
+        if (props.default !== undefined) {
           onChange && onChange(props.default);
         }
       }
@@ -112,11 +115,12 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
 
   return (
     <Input
+      size={size}
       id={id}
       className={className}
       placeholder={placeholder}
       value={format ? format(data) : data}
-      style={{textAlign: 'right', ...style}}
+      style={{ textAlign: 'right', ...style }}
       onBlur={onBlurEvent}
       onKeyPress={onKeyPress}
       onChange={onChangeText}

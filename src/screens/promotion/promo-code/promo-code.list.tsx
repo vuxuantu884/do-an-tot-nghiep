@@ -1,11 +1,9 @@
 import {
-  CheckCircleOutlined,
   FilterOutlined,
-  LoadingOutlined,
   PlusOutlined
 } from "@ant-design/icons";
 import {
-  Button, Card, Col, Divider, Form,
+  Button, Card, Col, Form,
   Input, message, Modal, Row, Select, Space
 } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
@@ -26,7 +24,6 @@ import {
   addPromoCode, deletePromoCodeById, disableBulkPromoCode, enableBulkPromoCode, getListPromoCode, publishedBulkPromoCode, updatePromoCodeById
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DiscountCode, PriceRule } from "model/promotion/price-rules.model";
 import { DiscountSearchQuery } from "model/query/discount.query";
@@ -37,7 +34,7 @@ import { RiUpload2Line } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { showSuccess } from "utils/ToastUtils";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import { AppConfig } from "../../../config/app.config";
 import { getToken } from "../../../utils/LocalStorageUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
@@ -45,24 +42,14 @@ import { ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE } from "../constants";
 import ActionColumn from "./actions/promo.action.column";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
-import { generateQuery } from "../../../utils/AppUtils";
+import {generateQuery, isNullOrUndefined} from "../../../utils/AppUtils";
 import { useHistory } from "react-router-dom";
+import {HttpStatus} from "config/http-status.config";
+import {addPromotionCodeApi, getPromotionJobsApi} from "service/promotion/promo-code/promo-code.service";
+import {EnumJobStatus} from "config/enum.config";
+import ProcessAddDiscountCodeModal from "screens/promotion/promo-code/components/ProcessAddDiscountCodeModal";
 const { Item } = Form;
 const { Option } = Select;
-
-const csvColumnMapping: any = {
-  sku: "Mã SKU",
-  min_amount: "SL Tối thiểu",
-  usage_limit: "Giới hạn",
-  discount_percentage: "Chiết khấu (%)",
-  fixed_amount: "Chiết khấu (VND)",
-  invalid: "không đúng định dạng CHỮ HOA + SỐ",
-  notfound: "không tìm thấy",
-  required: "Không được trống",
-  code: "Mã chiết khấu",
-  already_exist: "Đã tồn tại trong hệ thống",
-  duplicate: "Mã đã bị trùng trong file",
-};
 
 const ListCode = () => {
   const token = getToken() || "";
@@ -77,7 +64,7 @@ const ListCode = () => {
     page: 1,
     ...getQueryParams(query),
   };
-  const [tableLoading, setTableLoading] = useState<boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showModalAdd, setShowModalAdd] = useState<boolean>(false);
   const [showAddCodeManual, setShowAddCodeManual] = React.useState<boolean>(false);
   const [showAddCodeRandom, setShowAddCodeRandom] = React.useState<boolean>(false);
@@ -99,12 +86,7 @@ const ListCode = () => {
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [promoValue, setPromoValue] = useState<any>();
   const [params, setParams] = useState<DiscountSearchQuery>(dataQuery);
-  const [importTotal, setImportTotal] = useState(0);
-  const [successCount, setSuccessCount] = useState(0);
-  const [codeErrorsResponse, setCodeErrorsResponse] = useState<Array<any>>([]);
-  const [uploadStatus, setUploadStatus] = useState<
-    "error" | "success" | "done" | "uploading" | "removed"
-  >();
+  const [uploadStatus, setUploadStatus] = useState<"error">();
 
   //phân quyền
   const [allowCreatePromoCode] = useAuthorization({
@@ -178,22 +160,26 @@ const ListCode = () => {
 
   // handle response get list
   const onSetPromoListData = useCallback((data: PageResponse<DiscountCode>) => {
+    setIsLoading(false);
     if (data) {
       setPromoCodeList(data);
-      setTableLoading(false);
     }
   }, []);
 
+  const getDiscountCodeData = useCallback(() => {
+    setIsLoading(true);
+    dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
+  }, [dispatch, onSetPromoListData, params, priceRuleId]);
 
   const onUpdateSuccess = useCallback(
     (response) => {
       dispatch(hideLoading());
       if (response) {
         showSuccess("Cập nhật thành công");
-        dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
+        getDiscountCodeData();
       }
     },
-    [dispatch, priceRuleId, params, onSetPromoListData]
+    [dispatch, getDiscountCodeData]
   );
 
   // section DELETE by Id
@@ -218,9 +204,67 @@ const ListCode = () => {
     form.resetFields();
   }
 
-  function handleAddRandom(value: any) {
+  // handle jobs create new discount code
+  const [jobCreateCode, setJobCreateCode] = useState<string>("");
+  const [isVisibleProcessModal, setIsVisibleProcessModal] = useState(false);
+  const [processPercent, setProcessPercent] = useState<number>(0);
+  const [progressData, setProgressData] = useState(null);
+  const [isProcessing, setIsProcessing] = useState<boolean>(false);
+
+  const resetProgress = () => {
+    setProcessPercent(0);
+    setJobCreateCode("");
+    setProgressData(null);
+  }
+
+  const getPromotionJobs = useCallback(() => {
+    if (!jobCreateCode) return;
+
+    let promotionJobsPromises: any = getPromotionJobsApi(jobCreateCode);
+    Promise.all([promotionJobsPromises]).then((responses) => {
+      responses.forEach((response) => {
+        const processData = response?.data;
+        if (response.code === HttpStatus.SUCCESS && processData && !isNullOrUndefined(processData.total)) {
+          setProgressData(processData);
+          if (processData.status?.toUpperCase() === EnumJobStatus.finish) {
+            setProcessPercent(100);
+            setJobCreateCode("");
+            setIsProcessing(false);
+          } else {
+            if (processData.processed >= processData.total) {
+              setProcessPercent(99);
+            } else {
+              const percent = Math.round((processData.processed / processData.total) * 100 * 100) / 100;
+              setProcessPercent(percent);
+            }
+          }
+        }
+      });
+    });
+  }, [jobCreateCode]);
+
+  useEffect(() => {
+    if (processPercent === 100 || !jobCreateCode) return;
+
+    getPromotionJobs();
+
+    const getFileInterval = setInterval(getPromotionJobs,3000);
+    return () => clearInterval(getFileInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getPromotionJobs, jobCreateCode]);
+  
+  const onOKProgressImportCustomer = () => {
+    resetProgress();
+    setIsVisibleProcessModal(false);
+    setUploadStatus(undefined);
+    getDiscountCodeData();
+  }
+  // end handle jobs create new discount code
+
+  const handleAddRandom = (value: any) => {
     if (!value) return;
-    let body = {
+    resetProgress();
+    const body = {
       discount_codes: null,
       generate_discount_codes: {
         prefix: value.prefix,
@@ -229,8 +273,28 @@ const ListCode = () => {
         count: value.count,
       },
     };
+
     dispatch(showLoading());
-    dispatch(addPromoCode(priceRuleId, body, onAddSuccess));
+    addPromotionCodeApi(priceRuleId, body)
+      .then((response) => {
+        setShowAddCodeManual(false);
+        if (response?.code) {
+          setIsVisibleProcessModal(true);
+          setJobCreateCode(response.code);
+          setIsProcessing(true);
+        } else {
+          showWarning("Có lỗi khi tạo tiến trình Thêm mới mã giảm giá");
+        }
+      })
+      .catch((error) => {
+        if (error.response?.data?.errors?.length > 0) {
+          const errorMessage = error.response?.data?.errors[0];
+          showError(`${errorMessage ? errorMessage: "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+        }
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
   }
 
   const onAddSuccess = useCallback(
@@ -239,10 +303,10 @@ const ListCode = () => {
       if (response) {
         showSuccess("Thêm thành công");
         setShowAddCodeManual(false);
-        dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
+        getDiscountCodeData();
       }
     },
-    [dispatch, priceRuleId, params, onSetPromoListData]
+    [dispatch, getDiscountCodeData]
   );
 
   // section DELETE bulk
@@ -251,10 +315,10 @@ const ListCode = () => {
       dispatch(hideLoading());
       if (response) {
         showSuccess("Thao tác thành công");
-        dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
+        getDiscountCodeData();
       }
     },
-    [dispatch, priceRuleId, params, onSetPromoListData]
+    [dispatch, getDiscountCodeData]
   );
 
   // section Ngưng áp dụng
@@ -354,8 +418,8 @@ const ListCode = () => {
 
   // Call API get list
   useEffect(() => {
-    dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
-  }, [dispatch, onSetPromoListData, priceRuleId, params]);
+    getDiscountCodeData();
+  }, [getDiscountCodeData]);
 
 
 
@@ -439,7 +503,7 @@ const ListCode = () => {
                   setSelectedRowKey(rowKey);
                 }}
                 isRowSelection
-                isLoading={tableLoading}
+                isLoading={isLoading}
                 // sticky={{offsetScroll: 5}}
                 pagination={{
                   pageSize: promoCodeList.metadata.limit,
@@ -586,12 +650,7 @@ const ListCode = () => {
               </Button>,
             ]}
           >
-            <div
-              style={{
-                display:
-                  uploadStatus === undefined || uploadStatus === "removed" ? "" : "none",
-              }}
-            >
+            <div style={{ display: uploadStatus === undefined ? "" : "none" }}>
               <Row gutter={12}>
                 <Col span={3}>Chú ý:</Col>
                 <Col span={19}>
@@ -614,46 +673,37 @@ const ListCode = () => {
                     accept=".xlsx"
                     multiple={false}
                     showUploadList={false}
-                    action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file`}
+                    action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file2`}
                     headers={{ Authorization: `Bearer ${token}` }}
                     beforeUpload={(file) => {
-                      if (
-                        file.type !==
-                        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                      ) {
+                      if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
                         setUploadStatus("error");
                         setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
                         return false;
                       }
-                      setUploadStatus("uploading");
+                      setShowImportFile(false);
+                      setIsVisibleProcessModal(true);
                       setUploadError([]);
                       return true;
                     }}
                     onChange={(info) => {
                       const { status } = info.file;
                       if (status === "done") {
-                        const response = info.file.response;
-                        if (response.code === 20000000) {
-                          if (response.data.errors.length > 0) {
-                            const errors: Array<any> = _.uniqBy(
-                              response.data.errors,
-                              "index"
-                            ).sort((a: any, b: any) => a.index - b.index);
-                            setCodeErrorsResponse([...errors]);
-                          } else {
-                            setCodeErrorsResponse([]);
-                          }
-                          setImportTotal(response.data.total);
-                          setSuccessCount(response.data.success_count);
-                          setUploadStatus(status);
-                          dispatch(getListPromoCode(priceRuleId, params, onSetPromoListData));
+                        setUploadStatus(undefined);
+                        if (info.file?.response?.code) {
+                          setIsVisibleProcessModal(true);
+                          resetProgress();
+                          setJobCreateCode(info.file.response.code);
+                          setIsProcessing(true);
                         } else {
+                          setIsVisibleProcessModal(false);
                           setUploadStatus("error");
-                          setUploadError(response.errors);
+                          setUploadError("Có lỗi khi tạo tiến trình Thêm mới mã giảm giá.");
                         }
                       } else if (status === "error") {
+                        setIsVisibleProcessModal(false);
                         message.error(`${info.file.name} file upload failed.`);
-                        setUploadStatus(status);
+                        setUploadStatus("error");
                       }
                     }}
                   >
@@ -668,32 +718,8 @@ const ListCode = () => {
               </Row>
             </div>
             <Row>
-              <div
-                style={{
-                  display:
-                    uploadStatus === "done" ||
-                      uploadStatus === "uploading" ||
-                      uploadStatus === "success" ||
-                      uploadStatus === "error"
-                      ? ""
-                      : "none",
-                }}
-              >
+              <div style={{ display: uploadStatus === "error" ? "" : "none" }}>
                 <Row justify={"center"}>
-                  {uploadStatus === "uploading" ? (
-                    <Col span={24}>
-                      <Row justify={"center"}>
-                        {/*<Col span={24}>*/}
-                        <Space size={"large"}>
-                          <LoadingOutlined style={{ fontSize: "78px", color: "#E24343" }} />
-                          <h2 style={{ padding: "10px 30px" }}>Đang upload file...</h2>
-                        </Space>
-                        {/*</Col>*/}
-                      </Row>
-                    </Col>
-                  ) : (
-                    ""
-                  )}
                   {uploadStatus === "error" ? (
                     <Col span={24}>
                       <Row justify={"center"}>
@@ -704,48 +730,6 @@ const ListCode = () => {
                           </h2>
                         </Space>
                       </Row>
-                    </Col>
-                  ) : (
-                    ""
-                  )}
-                  {uploadStatus === "done" ? (
-                    <Col span={24}>
-                      <Row justify={"center"}>
-                        <CheckCircleOutlined
-                          style={{ fontSize: "78px", color: "#27AE60" }}
-                        />
-                      </Row>
-                      <Row justify={"center"}>
-                        <h2 style={{ padding: "10px 30px" }}>
-                          Xử lý file nhập toàn tất:{" "}
-                          <strong style={{ color: "#2A2A86" }}>
-                            {successCount} / {importTotal}
-                          </strong>{" "}
-                          mã giảm giá thành công
-                        </h2>
-                      </Row>
-                      {codeErrorsResponse.length > 0 ? (
-                        <div>
-                          <Divider />
-                          <Row justify={"start"}>
-                            <h3 style={{ color: "#E24343" }}>Danh sách lỗi: </h3>
-                          </Row>
-                          <Row justify={"start"}>
-                            <li style={{ padding: "10px 30px" }}>
-                              {codeErrorsResponse?.map((error: any, index) => (
-                                <ul key={index}>
-                                  <span>
-                                    - Dòng {error.index + 2}: {error.value}{" "}
-                                    {csvColumnMapping[error.type.toLowerCase()]}
-                                  </span>
-                                </ul>
-                              ))}
-                            </li>
-                          </Row>
-                        </div>
-                      ) : (
-                        ""
-                      )}
                     </Col>
                   ) : (
                     ""
@@ -782,6 +766,17 @@ const ListCode = () => {
             subTitle="Bạn có chắc chắn xóa mã giảm giá, ..."
             visible={isShowDeleteModal}
           />
+
+          {/* Process create new discount code */}
+          {isVisibleProcessModal &&
+            <ProcessAddDiscountCodeModal
+              visible={isVisibleProcessModal}
+              onOk={onOKProgressImportCustomer}
+              progressData={progressData}
+              progressPercent={processPercent}
+              isProcessing={isProcessing}
+            />
+          }
         </ContentContainer>
 
 

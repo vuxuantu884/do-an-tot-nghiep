@@ -9,13 +9,15 @@ import { PurchaseOrderPermission } from "config/permissions/purchase-order.permi
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction
+  DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import {
-  POCancelAction, PoDetailAction, POGetPurchaseOrderActionLogs, PoUpdateAction
+  POCancelAction,
+  PoDetailAction,
+  PoUpdateAction,
 } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
@@ -28,23 +30,35 @@ import { StoreResponse } from "model/core/store.model";
 import { ImportResponse } from "model/other/files/export-model";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
-import { POLineItemType, POLoadType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
-  PurchaseOrder,
-  PurchaseOrderPrint
-} from "model/purchase-order/purchase-order.model";
+  POLineItemType,
+  POLoadType,
+  PurchaseOrderLineItem,
+} from "model/purchase-order/purchase-item.model";
+import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import { PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
 import moment from "moment";
 import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
-import { getPrintContent, printPurchaseOrderReturnApi } from "service/purchase-order/purchase-order.service";
+import {
+  getPrintContent,
+  printPurchaseOrderReturnApi,
+} from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
-import { checkCanEditDraft, combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, isExpandsSupplement, isShowSupplement, POUtils, validateLineItemQuantity } from "utils/POUtils";
+import {
+  checkCanEditDraft,
+  combineLineItemToSubmitData,
+  fetchProductGridData,
+  getUntaxedAmountByLineItemType,
+  isExpandsSupplement,
+  isShowSupplement,
+  POUtils,
+  validateLineItemQuantity,
+} from "utils/POUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
@@ -56,30 +70,32 @@ import POReturnList from "./component/po-return-list";
 import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
-import PurchaseOrderProvider, { PurchaseOrderCreateContext } from "./provider/purchase-order.provider";
-import ActionPurchaseOrderHistory from "./Sidebar/ActionHistory";
+import PurchaseOrderProvider, {
+  PurchaseOrderCreateContext,
+} from "./provider/purchase-order.provider";
+import POInfoPO from "./component/po-info-po";
 
-const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
-const ModalExport = lazy(() => import("./modal/ModalExport"))
+const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
+const ModalExport = lazy(() => import("./modal/ModalExport"));
 
 const ActionMenu = {
   EXPORT: 1,
   DELETE: 2,
   CLONE: 3,
   PRINTING_STAMP: 4,
-}
+};
 
 const ActionMenuPrint = {
   FGG: 1, //mẫu in fgg
   NORMAL: 2, //mẫu in thông thường
-}
+};
 
 const PrintTypePo = {
   PURCHASE_ORDER: "purchase_order",
   PURCHASE_ORDER_MA_7: "purchase_order_ma_7",
   PURCHASE_ORDER_FGG: "purchase_order_fgg",
   PURCHASE_ORDER_MA_7_FGG: "purchase_order_ma_7_fgg",
-}
+};
 type PurchaseOrderParam = {
   id: string;
 };
@@ -118,17 +134,16 @@ const PODetailScreen: React.FC = () => {
   const history = useHistory();
   const [formMain] = Form.useForm();
 
-  const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false)
+  const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false);
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
-  const [listPaymentConditions, setListPaymentConditions] = useState<
-    Array<PoPaymentConditions>
-  >([]);
+  const [listPaymentConditions, setListPaymentConditions] = useState<Array<PoPaymentConditions>>(
+    []
+  );
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
-  const [poData, setPurchaseItem] = useState<PurchaseOrder>();
   const [printContent, setPrintContent] = useState<string>("");
   const [printContentReturn, setPrintContentReturn] = useState<string>("");
   const [isEditDetail, setIsEditDetail] = useState<boolean>(false);
@@ -137,12 +152,23 @@ const PODetailScreen: React.FC = () => {
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [initValue, setInitValue] = useState<PurchasePayments | null>(null);
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
-  const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
+  // const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
   const [activePanel, setActivePanel] = useState<string | string[]>();
-  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] })
-  const statusAction = useRef<string>("")
+  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] });
+  const statusAction = useRef<string>("");
 
-  const { setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate, isGridMode, setIsGridMode, poLineItemGridValue, poLineItemGridChema, taxRate } = useContext(PurchaseOrderCreateContext);
+  const {
+    setPoLineItemGridChema,
+    setPoLineItemGridValue,
+    setTaxRate,
+    isGridMode,
+    setIsGridMode,
+    poLineItemGridValue,
+    poLineItemGridChema,
+    taxRate,
+    purchaseOrder,
+    setPurchaseOrder
+  } = useContext(PurchaseOrderCreateContext);
 
   const SUPPLEMENT_PANEL_KEY = "supplement";
 
@@ -155,21 +181,15 @@ const PODetailScreen: React.FC = () => {
     documentTitle: "Đơn trả hàng nhà cung cấp",
   });
 
-  const printContentCallback = useCallback(
-    (printContent: Array<PurchaseOrderPrint>) => {
-      if (!printContent || printContent.length === 0) return;
-      setPrintContent(printContent[0].html_content);
-    },
-    []
-  );
+  const printContentCallback = useCallback((printContent: Array<PurchaseOrderPrint>) => {
+    if (!printContent || printContent.length === 0) return;
+    setPrintContent(printContent[0].html_content);
+  }, []);
 
-  const printContentReturnCallback = useCallback(
-    (printContent: PurchaseOrderPrint) => {
-      if (!printContent) return;
-      setPrintContentReturn(printContent.html_content);
-    },
-    []
-  );
+  const printContentReturnCallback = useCallback((printContent: PurchaseOrderPrint) => {
+    if (!printContent) return;
+    setPrintContentReturn(printContent.html_content);
+  }, []);
 
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -177,12 +197,17 @@ const PODetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
-        setPurchaseItem(result);
+        setPurchaseOrder(result);
         formMain.setFieldsValue(result);
+        let closingDate = result.ap_closing_date ? moment(result.ap_closing_date) : null;
+        if (!closingDate && result.status === POStatus.STORED && result.receive_status !== "finished") {
+          closingDate = moment();
+        }
+        formMain.setFieldsValue({ ap_closing_date: closingDate });
         setStatus(result.status);
       }
     },
-    [formMain]
+    [formMain, setPurchaseOrder]
   );
 
   const loadDetail = useCallback(
@@ -202,7 +227,7 @@ const PODetailScreen: React.FC = () => {
 
   const onStoreResult = useCallback((result: Array<StoreResponse>) => {
     if (result) {
-      const storeTotals = result.filter(e => e.name?.toLocaleLowerCase().includes('kho tổng'));
+      const storeTotals = result.filter((e) => e.name?.toLocaleLowerCase().includes("kho tổng"));
 
       let res = _.uniqBy([...storeTotals, ...result], "name");
       setListStore(res);
@@ -213,23 +238,29 @@ const PODetailScreen: React.FC = () => {
       dispatch(hideLoading());
       setIsEditDetail(false);
       if (result !== null) {
-        showSuccess("Cập nhật nhập hàng thành công");
         loadDetail(idNumber, true, false);
+        showSuccess("Cập nhật nhập hàng thành công");
       }
     },
     [idNumber, loadDetail, dispatch]
   );
   const onFinish = (value: PurchaseOrder) => {
+    dispatch(showLoading());
     try {
       value.is_grid_mode = isGridMode;
       if (isGridMode) {
         if (poLineItemGridValue.length === 0) {
           throw new Error("Vui lòng thêm sản phẩm");
         }
-        const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
-        const supplementLineItems = value?.line_items?.filter(e => e.type === POLineItemType.SUPPLEMENT) || [];
+        const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(
+          poLineItemGridValue,
+          poLineItemGridChema,
+          taxRate
+        );
+        const supplementLineItems =
+          value?.line_items?.filter((e) => e.type === POLineItemType.SUPPLEMENT) || [];
         value.line_items = [...gridLineItems, ...supplementLineItems];
-      } else if (poData?.line_items.length === 0) {
+      } else if (purchaseOrder?.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
         const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
@@ -242,25 +273,27 @@ const PODetailScreen: React.FC = () => {
         throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
 
-      const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL)
-      value.untaxed_amount = untaxed_amount
+      const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
+      value.untaxed_amount = untaxed_amount;
       value.tax_lines = [
         {
           rate: taxRate,
-          amount: Math.round((untaxed_amount * taxRate) / 100)
-        }
-      ]
+          amount: Math.round((untaxed_amount * taxRate) / 100),
+        },
+      ];
       value.trade_discount_amount = POUtils.getTotalDiscount(formMain, untaxed_amount);
       const total_after_tax = POUtils.getTotalAfterTax(formMain);
       value.payment_discount_amount = POUtils.getTotalDiscount(formMain, total_after_tax);
-      value.total = Math.round(value.line_items.reduce((prev: number, cur: PurchaseOrderLineItem) => {
-        const untaxAmount = cur.quantity * cur.price
-        return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100)
-      }, 0))
-
-      const dataClone: any = { ...poData, ...value, status: statusAction.current };
+      value.total = Math.round(
+        value.line_items.reduce((prev: number, cur: PurchaseOrderLineItem) => {
+          const untaxAmount = cur.quantity * cur.price;
+          return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100);
+        }, 0)
+      );
+      value.ap_closing_date = value.ap_closing_date? ConvertDateToUtc(value.ap_closing_date) : null;
+      const dataClone: any = { ...purchaseOrder, ...value, status: statusAction.current };
+      console.log(dataClone);
       dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
-
     } catch (error: any) {
       showError(error.message);
       dispatch(hideLoading());
@@ -284,7 +317,7 @@ const PODetailScreen: React.FC = () => {
     Cancel: useCallback(() => {
       setShowExportModal(false);
     }, []),
-  }
+  };
 
   const onCancel = useCallback(() => {
     dispatch(showLoading());
@@ -300,11 +333,13 @@ const PODetailScreen: React.FC = () => {
   }, [dispatch, idNumber, loadDetail]);
 
   const handleClonePo = useCallback(() => {
-    window.open(`${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/create?poId=${idNumber}`, "_blank");
+    window.open(
+      `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/create?poId=${idNumber}`,
+      "_blank"
+    );
   }, [idNumber]);
 
   const onMenuClick = (index: number) => {
-    
     switch (index) {
       case ActionMenu.DELETE:
         setConfirmDelete(true);
@@ -321,29 +356,47 @@ const PODetailScreen: React.FC = () => {
     }
   };
 
-  const actionPrint = useCallback(async (poId: number, printType: string) => {
-    const res = await callApiNative({ isShowLoading: true }, dispatch, getPrintContent, poId, printType);
-    if (res && res.data && res.data.message) {
-      showError(res.data.message);
-    } else {
-      printContentCallback(res);
-      handlePrint && handlePrint();
-    }
-  }, [dispatch, handlePrint, printContentCallback]);
+  const actionPrint = useCallback(
+    async (poId: number, printType: string) => {
+      const res = await callApiNative(
+        { isShowLoading: true },
+        dispatch,
+        getPrintContent,
+        poId,
+        printType
+      );
+      if (res && res.data && res.data.message) {
+        showError(res.data.message);
+      } else {
+        printContentCallback(res);
+        handlePrint && handlePrint();
+      }
+    },
+    [dispatch, handlePrint, printContentCallback]
+  );
 
-  const actionPrintReturn = useCallback(async (returnId: number) => {
-    const res = await callApiNative({isShowLoading: true},dispatch,printPurchaseOrderReturnApi,returnId,poData?.id ?? 0);
-    console.log('res',res);
-    
-    if (res && res.data && res.data.errors) {
-      res.data.errors.forEach((e:string) => {
-        showError(e);
-      });
-    }else{
-      printContentReturnCallback(res);
-      handlePrintReturn && handlePrintReturn();
-    }
-  }, [dispatch, handlePrintReturn, poData?.id, printContentReturnCallback]);
+  const actionPrintReturn = useCallback(
+    async (returnId: number) => {
+      const res = await callApiNative(
+        { isShowLoading: true },
+        dispatch,
+        printPurchaseOrderReturnApi,
+        returnId,
+        purchaseOrder?.id ?? 0
+      );
+      console.log("res", res);
+
+      if (res && res.data && res.data.errors) {
+        res.data.errors.forEach((e: string) => {
+          showError(e);
+        });
+      } else {
+        printContentReturnCallback(res);
+        handlePrintReturn && handlePrintReturn();
+      }
+    },
+    [dispatch, handlePrintReturn, purchaseOrder?.id, printContentReturnCallback]
+  );
 
   const onMenuPrint = (index: number) => {
     dispatch(showLoading());
@@ -366,27 +419,24 @@ const PODetailScreen: React.FC = () => {
   };
 
   const redirectToReturn = useCallback(() => {
-    if (poData?.status === POStatus.FINALIZED) {
+    if (purchaseOrder?.status === POStatus.FINALIZED) {
       setPaymentItem(undefined);
-      setVisiblePaymentModal(true)
+      setVisiblePaymentModal(true);
       setInitValue({
         is_refund: true,
-        amount: poData.total_paid,
+        amount: purchaseOrder.total_paid,
       });
     } else {
       history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`, {
-        params: poData,
+        params: purchaseOrder,
         listCountries: listCountries,
         listDistrict: listDistrict,
       });
     }
-
-  }, [history, id, listCountries, listDistrict, poData, setVisiblePaymentModal]);
-
-
+  }, [history, id, listCountries, listDistrict, purchaseOrder, setVisiblePaymentModal]);
 
   const handleExport = useCallback(() => {
-    dispatch(showLoading())
+    dispatch(showLoading());
     // khởi tạo, đơn vị px, khổ a4
     const pdf = new jsPDF("portrait", "px", "a4");
     const pageMargin = 10;
@@ -406,30 +456,29 @@ const PODetailScreen: React.FC = () => {
     temp.style.position = "absolute";
     temp.style.zIndex = "-2";
     temp.style.top = "0px";
-    temp.style.margin = 'auto';
+    temp.style.margin = "auto";
     tempChild.style.width = `100%`;
     tempChild.style.height = `100%`;
-    temp.style.display = 'block';
+    temp.style.display = "block";
     temp.id = "temp";
     tempChild.innerHTML = printContent;
     let value = document.body.appendChild(temp);
     if (value === null) return;
 
-
     const imgWidth = pageWidth;
-    const rate = 1.8 // mò ra
-    const imgHeight = (value.offsetHeight) * (value.offsetWidth / canvasFormWidth) / rate;
+    const rate = 1.8; // mò ra
+    const imgHeight = (value.offsetHeight * (value.offsetWidth / canvasFormWidth)) / rate;
 
     var heightLeft = imgHeight;
     var position = 0;
     const getCanvas = (canvas: HTMLCanvasElement, pdf: jsPDF) => {
-      pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+      pdf.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight);
       heightLeft = heightLeft - pageHeight;
       // tách trang
       while (heightLeft >= 0) {
         position = heightLeft - imgHeight;
         pdf.addPage();
-        pdf.addImage(canvas, 'PNG', 0, position, imgWidth, imgHeight);
+        pdf.addImage(canvas, "PNG", 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
     };
@@ -440,7 +489,7 @@ const PODetailScreen: React.FC = () => {
       getCanvas(canvas, pdf);
       temp.remove();
       pdf.save(`Đơn hàng ${idNumber}.pdf`);
-      dispatch(hideLoading())
+      dispatch(hideLoading());
     });
   }, [dispatch, idNumber, printContent]);
 
@@ -453,24 +502,28 @@ const PODetailScreen: React.FC = () => {
       {
         id: ActionMenu.CLONE,
         name: "Sao chép đơn đặt hàng",
-      }
+      },
     ];
-    if (!poData) return [];
-    const poStatus = poData.status;
+    if (!purchaseOrder) return [];
+    const poStatus = purchaseOrder.status;
     if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",
       });
     }
-    if ([POStatus.FINALIZED, POStatus.STORED, POStatus.COMPLETED, POStatus.FINISHED].includes(poStatus)) {
+    if (
+      [POStatus.FINALIZED, POStatus.STORED, POStatus.COMPLETED, POStatus.FINISHED].includes(
+        poStatus
+      )
+    ) {
       menuActions.unshift({
         id: ActionMenu.PRINTING_STAMP,
         name: "In mã vạch",
-      })
+      });
     }
     return menuActions;
-  }, [poData, canCancelPO]);
+  }, [purchaseOrder, canCancelPO]);
 
   const menuPrint: Array<MenuAction> = useMemo(() => {
     return [
@@ -481,10 +534,9 @@ const PODetailScreen: React.FC = () => {
       {
         id: ActionMenuPrint.NORMAL,
         name: "In đơn đặt hàng NCC",
-      }
+      },
     ];
   }, []);
-
 
   const renderModalDelete = useCallback(() => {
     let title = "Bạn chắc chắn hủy đơn nhập hàng này không ?",
@@ -496,8 +548,8 @@ const PODetailScreen: React.FC = () => {
         setConfirmDelete(false);
       };
 
-    if (!poData) return;
-    const { receipt_quantity, total_paid } = poData;
+    if (!purchaseOrder) return;
+    const { receipt_quantity, total_paid } = purchaseOrder;
     if (!receipt_quantity && total_paid && total_paid > 0) {
       subTitle =
         "Đơn nhập đã được thanh toán với nhà cung cấp. Bạn có muốn tạo hoàn tiền từ nhà cung cấp trước khi hủy đơn nhập hàng không?";
@@ -519,8 +571,7 @@ const PODetailScreen: React.FC = () => {
           setConfirmDelete(false);
           deleteFunc();
         }}
-        type="primary"
-      >
+        type="primary">
         {okText}
       </Button>,
     ];
@@ -537,8 +588,7 @@ const PODetailScreen: React.FC = () => {
         footer={footer}
       />
     );
-  }, [onCancel, poData, isConfirmDelete, redirectToReturn]);
-
+  }, [onCancel, purchaseOrder, isConfirmDelete, redirectToReturn]);
 
   const RightAction = () => {
     const ActionByStatus = () => {
@@ -554,14 +604,12 @@ const PODetailScreen: React.FC = () => {
                   icon={!isEditDetail && <EditOutlined />}
                   onClick={() => {
                     if (isEditDetail) {
-                      dispatch(showLoading());
                       statusAction.current = POStatus.DRAFT;
                       formMain.submit();
                     } else {
                       setIsEditDetail(!isEditDetail);
                     }
-                  }}
-                >
+                  }}>
                   {isEditDetail ? "Lưu nháp" : "Chỉnh sửa"}
                 </Button>
               </AuthWrapper>
@@ -569,44 +617,42 @@ const PODetailScreen: React.FC = () => {
                 <Button
                   type="primary"
                   onClick={() => handleChangeStatusPO(POStatus.WAITING_APPROVAL)}
-                  className="create-button-custom"
-                >
+                  className="create-button-custom">
                   {isEditDetail ? "Lưu và chờ duyệt" : "Chờ duyệt"}
                 </Button>
               </AuthWrapper>
             </>
           );
         case POStatus.WAITING_APPROVAL:
-          return <>
-            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
-              <Button
-                type="primary"
-                className="create-button-custom ant-btn-outline"
-                ghost
-                icon={!isEditDetail && <EditOutlined />}
-                onClick={() => {
-                  if (isEditDetail) {
-                    dispatch(showLoading());
-                    statusAction.current = POStatus.WAITING_APPROVAL;
-                    formMain.submit();
-                  } else {
-                    setIsEditDetail(!isEditDetail);
-                  }
-                }}
-              >
-                {isEditDetail ? "Lưu" : "Chỉnh sửa"}
-              </Button>
-            </AuthWrapper>
-            <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
-              <Button
-                type="primary"
-                onClick={() => handleChangeStatusPO(POStatus.FINALIZED)}
-                className="create-button-custom"
-              >
-                {isEditDetail ? "Lưu và duyệt" : "Duyệt"}
-              </Button>
-            </AuthWrapper>
-          </>
+          return (
+            <>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
+                <Button
+                  type="primary"
+                  className="create-button-custom ant-btn-outline"
+                  ghost
+                  icon={!isEditDetail && <EditOutlined />}
+                  onClick={() => {
+                    if (isEditDetail) {
+                      statusAction.current = POStatus.WAITING_APPROVAL;
+                      formMain.submit();
+                    } else {
+                      setIsEditDetail(!isEditDetail);
+                    }
+                  }}>
+                  {isEditDetail ? "Lưu" : "Chỉnh sửa"}
+                </Button>
+              </AuthWrapper>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
+                <Button
+                  type="primary"
+                  onClick={() => handleChangeStatusPO(POStatus.FINALIZED)}
+                  className="create-button-custom">
+                  {isEditDetail ? "Lưu và duyệt" : "Duyệt"}
+                </Button>
+              </AuthWrapper>
+            </>
+          );
 
         case POStatus.CANCELLED:
           return null;
@@ -620,20 +666,19 @@ const PODetailScreen: React.FC = () => {
                 icon={!isEditDetail && <EditOutlined />}
                 onClick={() => {
                   if (isEditDetail) {
-                    dispatch(showLoading());
+                    
                     statusAction.current = status;
                     formMain.submit();
                   } else {
                     setIsEditDetail(!isEditDetail);
                   }
-                }}
-              >
+                }}>
                 {isEditDetail ? "Lưu lại" : "Chỉnh sửa"}
               </Button>
             </AuthWrapper>
           );
       }
-    }
+    };
 
     return (
       <>
@@ -646,13 +691,14 @@ const PODetailScreen: React.FC = () => {
                 e.stopPropagation();
                 handleExport();
               }}
-              icon={<FilePdfOutlined />}
-            >Xuất file</Button>
+              icon={<FilePdfOutlined />}>
+              Xuất file
+            </Button>
             <ActionButton
               menu={menu}
               onMenuClick={onMenuClick}
               type="primary"
-              placement={'topCenter'}
+              placement={"topCenter"}
               buttonStyle={{ borderRadius: 2 }}
               getPopupContainer={(trigger: any) => trigger.parentNode}
             />
@@ -661,7 +707,7 @@ const PODetailScreen: React.FC = () => {
                 menu={menuPrint}
                 onMenuClick={onMenuPrint}
                 type="primary"
-                placement={'topCenter'}
+                placement={"topCenter"}
                 buttonStyle={{ borderRadius: 2 }}
                 buttonText="In phiếu"
                 getPopupContainer={(trigger: any) => trigger.parentNode}
@@ -685,20 +731,19 @@ const PODetailScreen: React.FC = () => {
                 />
               </div>
             </div>
-            <div style={{ display: "none" }}>
-          </div>
+            <div style={{ display: "none" }}></div>
           </Space>
         </div>
         <ActionByStatus />
       </>
-    )
+    );
   };
 
   const showPOReturnList = () => {
     if (
-      poData &&
-      ((poData.receipt_quantity && poData.receipt_quantity > 0) ||
-        (poData.total_paid && poData.total_paid > 0))
+      purchaseOrder &&
+      ((purchaseOrder.receipt_quantity && purchaseOrder.receipt_quantity > 0) ||
+        (purchaseOrder.total_paid && purchaseOrder.total_paid > 0))
     ) {
       return (
         <POReturnList
@@ -727,34 +772,41 @@ const PODetailScreen: React.FC = () => {
     }
   }, [dispatch, idNumber, loadDetail, onStoreResult, printContentCallback]);
 
-  useEffect(() => {
-    if (poData?.id) {
-      dispatch(
-        POGetPurchaseOrderActionLogs(poData?.id, (response: PurchaseOrderActionLogResponse[]) => {
-          setActionLog(response);
-        })
-      );
-    }
-  }, [dispatch, poData?.id, poData]);
-
+  // useEffect(() => {
+  //   if (poData?.id) {
+  //     dispatch(
+  //       POGetPurchaseOrderActionLogs(poData?.id, (response: PurchaseOrderActionLogResponse[]) => {
+  //         setActionLog(response);
+  //       })
+  //     );
+  //   }
+  // }, [dispatch, poData?.id, poData]);
 
   /**
    * Load data cho lineItem dạng bảng grid
    */
   useEffect(() => {
-    if (poData) {
-      setIsGridMode?.(poData?.is_grid_mode);
-      fetchProductGridData(!!poData.is_grid_mode, poData, "READ_UPDATE", dispatch, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate);
+    if (purchaseOrder) {
+      setIsGridMode?.(purchaseOrder?.is_grid_mode);
+      fetchProductGridData(
+        !!purchaseOrder.is_grid_mode,
+        purchaseOrder,
+        "READ_UPDATE",
+        dispatch,
+        setPoLineItemGridChema,
+        setPoLineItemGridValue,
+        setTaxRate
+      );
     }
-  }, [poData, dispatch, setPoLineItemGridValue, setPoLineItemGridChema, setTaxRate, setIsGridMode]);
+  }, [purchaseOrder, dispatch, setPoLineItemGridValue, setPoLineItemGridChema, setTaxRate, setIsGridMode]);
 
   useEffect(() => {
     if (isExpandsSupplement(formMain, isEditDetail)) {
       setActivePanel([SUPPLEMENT_PANEL_KEY]);
-    }else{
+    } else {
       setActivePanel([]);
     }
-  }, [isEditDetail, formMain])
+  }, [isEditDetail, formMain]);
 
   return (
     <ContentContainer
@@ -770,14 +822,14 @@ const PODetailScreen: React.FC = () => {
           path: `${UrlConfig.PURCHASE_ORDERS}`,
         },
         {
-          name: `Đơn đặt hàng ${poData?.code || ""}`,
+          name: `Đơn đặt hàng ${purchaseOrder?.code || ""}`,
         },
       ]}
-      extra={poData && <POStep poData={poData} />}
-    >
+      extra={purchaseOrder && <POStep poData={purchaseOrder} />}>
       <Form
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
+          dispatch(hideLoading());
           statusAction.current = "";
           const element: any = document.getElementById(errorFields[0].name.join(""));
           element?.focus();
@@ -786,8 +838,7 @@ const PODetailScreen: React.FC = () => {
         }}
         onFinish={onFinish}
         initialValues={initPurchaseOrder}
-        layout="vertical"
-      >
+        layout="vertical">
         <Form.Item name={POField.id} noStyle hidden>
           <Input />
         </Form.Item>
@@ -803,44 +854,64 @@ const PODetailScreen: React.FC = () => {
         <Form.Item name={POField.procurements} noStyle hidden>
           <Input />
         </Form.Item>
+
         <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
-          <Col md={18}>
-            <POSupplierForm
-              showSupplierAddress={true}
-              showBillingAddress={true}
-              isEdit={!isEditDetail}
-              listCountries={listCountries}
-              listDistrict={listDistrict}
-              formMain={formMain}
-              stepStatus={status}
-            />
-            <PoProductContainer isEditMode={checkCanEditDraft(formMain, isEditDetail)} isDisableSwitch={true} form={formMain}>
-              {
-                isGridMode ? (
-                  <POProductFormNew
-                    formMain={formMain}
-                    isEditMode={checkCanEditDraft(formMain, isEditDetail)}
+          <div style={{ display: "flex", width: "100%", marginBottom: "20px" }}>
+            <Col md={18} flex={1}>
+              <POSupplierForm
+                showSupplierAddress={true}
+                showBillingAddress={true}
+                isEdit={!isEditDetail}
+                listCountries={listCountries}
+                listDistrict={listDistrict}
+                formMain={formMain}
+                stepStatus={status}
+              />
+              <POInfoPO formMain={formMain} isEditDetail={!isEditDetail} />
+            </Col>
+            {/* Right Side */}
+            <Col md={6} flex={1}>
+              <POInfoForm isEdit={true} isEditDetail={isEditDetail} />
+              {/* <ActionPurchaseOrderHistory actionLog={actionLog} /> */}
+            </Col>
+          </div>
+          <div style={{ padding: "0 12px", width: "100%" }}>
 
-                  />
-                ) :
-                  <POProductFormOld isEdit={isEditDetail} formMain={formMain} poLineItemType={POLineItemType.NORMAL} />
-              }
+            <PoProductContainer
+              isEditMode={checkCanEditDraft(formMain, isEditDetail)}
+              isDisableSwitch={true}
+              form={formMain}>
+              {isGridMode ? (
+                <POProductFormNew
+                  formMain={formMain}
+                  isEditMode={checkCanEditDraft(formMain, isEditDetail)}
+                />
+              ) : (
+                <POProductFormOld
+                  isEdit={isEditDetail}
+                  formMain={formMain}
+                  poLineItemType={POLineItemType.NORMAL}
+                />
+              )}
             </PoProductContainer>
-
             {isShowSupplement(formMain) && (
-              <Collapse activeKey={activePanel} onChange={(key: string | string[]) => setActivePanel(key)}>
+              <Collapse
+                activeKey={activePanel}
+                onChange={(key: string | string[]) => setActivePanel(key)}>
                 <Collapse.Panel header="SẢN PHẨM BỔ SUNG" key={SUPPLEMENT_PANEL_KEY}>
-                  <POProductFormOld isEdit={isEditDetail} formMain={formMain} poLineItemType={POLineItemType.SUPPLEMENT} />
+                  <POProductFormOld
+                    isEdit={isEditDetail}
+                    formMain={formMain}
+                    poLineItemType={POLineItemType.SUPPLEMENT}
+                  />
                 </Collapse.Panel>
               </Collapse>
-            )
-            }
-
+            )}
             <POInventoryForm
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
-              poData={poData}
+              poData={purchaseOrder}
               isEdit={true}
               isEditDetail={isEditDetail}
               now={now}
@@ -849,11 +920,11 @@ const PODetailScreen: React.FC = () => {
               status={status}
               stores={listStore}
             />
-            {poData && poData.status !== POStatus.DRAFT ? (
+            {purchaseOrder && purchaseOrder.status !== POStatus.DRAFT ? (
               <POPaymentForm
                 setSuggest={(isSuggest) => setSuggest(isSuggest)}
                 isSuggest={isSuggest}
-                poData={poData}
+                poData={purchaseOrder}
                 poId={parseInt(id)}
                 loadDetail={loadDetail}
                 isVisiblePaymentModal={visiblePaymentModal}
@@ -862,36 +933,23 @@ const PODetailScreen: React.FC = () => {
                 setVisiblePaymentModal={setVisiblePaymentModal}
                 initValue={initValue}
                 setInitValue={setInitValue}
+                isEditMode={isEditDetail}
               />
             ) : (
               <POPaymentConditionsForm
-                poDataPayments={poData?.payments}
+                poDataPayments={purchaseOrder?.payments}
                 isEdit={true}
                 formMainEdit={formMain}
                 listPayment={listPaymentConditions}
                 isEditDetail={isEditDetail}
               />
             )}
-
             {showPOReturnList()}
-          </Col>
-          {/* Right Side */}
-          <Col md={6}>
-            <POInfoForm
-              isEdit={true}
-              isEditDetail={isEditDetail}
-              formMain={formMain}
-            />
-            <ActionPurchaseOrderHistory
-              actionLog={actionLog}
-            />
-          </Col>
+          </div>
         </Row>
         <BottomBarContainer
           back={false}
-          leftComponent={
-            <React.Fragment>{poData && <POStep poData={poData} />}</React.Fragment>
-          }
+          leftComponent={<React.Fragment>{purchaseOrder && <POStep poData={purchaseOrder} />}</React.Fragment>}
           height={55}
           rightComponent={<RightAction />}
         />
@@ -900,14 +958,20 @@ const PODetailScreen: React.FC = () => {
 
       <ModalExport
         visible={showExportModal}
-        onOk={(res) => { ActionExport.Ok(res) }}
+        onOk={(res) => {
+          ActionExport.Ok(res);
+        }}
         onCancel={ActionExport.Cancel}
         title="Tải đề xuất NPL"
         okText="Export"
         cancelText="Đóng"
         templateUrl={AppConfig.PO_EXPORT_URL}
         forder="stock-transfer"
-        customParams={{ url_template: AppConfig.PO_EXPORT_TEMPLATE_URL, conditions: poData?.id, type: "EXPORT_PO_NPL" }}
+        customParams={{
+          url_template: AppConfig.PO_EXPORT_TEMPLATE_URL,
+          conditions: purchaseOrder?.id,
+          type: "EXPORT_PO_NPL",
+        }}
       />
     </ContentContainer>
   );
@@ -916,5 +980,5 @@ const PODetailWithProvider = (props: any) => (
   <PurchaseOrderProvider>
     <PODetailScreen {...props} />
   </PurchaseOrderProvider>
-)
-export default PODetailWithProvider
+);
+export default PODetailWithProvider;

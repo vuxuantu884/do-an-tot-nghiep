@@ -283,6 +283,7 @@ export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
     {
       name: 'Nhóm báo cáo bán hàng',
       cube: AnalyticCube.OfflineSales,
+      group: AnalyticCube.OfflineSales,
     },
     // {
     //   name: 'Nhóm báo cáo thanh toán',
@@ -293,6 +294,7 @@ export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
     {
       name: 'Nhóm báo cáo đơn hàng',
       cube: AnalyticCube.Sales,
+      group: AnalyticCube.Sales,
     },
     // {
     //   name: 'Nhóm báo cáo thanh toán',
@@ -303,12 +305,14 @@ export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
     {
       name: 'Nhóm báo cáo lợi nhuận',
       cube: AnalyticCube.Costs,
+      group: AnalyticCube.Costs,
     }
   ],
   [UrlConfig.ANALYTIC_CUSTOMER]: [
     {
       name: 'Nhóm báo cáo khách hàng',
       cube: AnalyticCube.All,
+      group: AnalyticCube.Customers,
     }
   ],
 };

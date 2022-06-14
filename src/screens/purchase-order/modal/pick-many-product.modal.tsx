@@ -21,7 +21,7 @@ type PickManyProductModalType = {
   selected: Array<any>;
   onSave: (result: Array<VariantResponse>) => void;
   storeID?: number;
-  emptyText?:string
+  emptyText?: string
 };
 
 let initQuery = {
@@ -89,7 +89,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const fillAll = useCallback(
     (checked: boolean) => {
       if (checked) {
-        if (data) setSelection([...selection,...data?.items]);
+        if (data) setSelection([...selection, ...data?.items]);
         if (data && data.items.some(el => el.status === 'inactive')) {
           const variantsClone = [...data?.items]
           const filterVariantsInactive = variantsClone.filter((el) => el.status !== 'inactive')
@@ -106,7 +106,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     if (props.storeID) {
       dispatch(inventoryGetVariantByStoreAction(query, onResultSuccess));
     } else {
-      dispatch(searchVariantsRequestAction({...query, sort_column: 'sku.keyword', sort_type: 'asc'}, onResultSuccess));
+      dispatch(searchVariantsRequestAction({ ...query, sort_column: 'sku.keyword', sort_type: 'asc' }, onResultSuccess));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, onResultSuccess, query]);
@@ -115,6 +115,9 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     if (props.visible) {
       setSelection([...props.selected]);
     }
+    return () => {
+      setSelection([]);
+    }
   }, [props.selected, props.visible]);
 
   const searchVariantDebounce = debounce((e) => {
@@ -122,7 +125,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   }, 300);
 
   const fillAllChecked = () => {
-    if(data){
+    if (data) {
       const dataClone = [...data.items]
       const filterVariantsInactive = dataClone.filter((el) => el.status !== 'inactive')
       return filterVariantsInactive.every(item => selection.findIndex(s => s.id === item.id) > -1)
@@ -202,7 +205,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
           />
         </div>
       ) : (
-        <Skeleton loading={true} active avatar/>
+        <Skeleton loading={true} active avatar />
       )}
     </Modal>
   );

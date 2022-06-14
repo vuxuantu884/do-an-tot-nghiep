@@ -74,5 +74,14 @@ export const PoProductFormContainer = styled.div` .header {
     vertical-align: bottom;
    }
  }
+ .ant-table-thead > tr > th {
+  border-bottom: 1px solid #f0f0f0;
+ }
+ .ant-table-cell.ant-table-cell-scrollbar {
+  display: none;
+ }
+ .ant-table-body {
+  overflow-y: hidden !important;
+ }
 }
 `;

@@ -53,3 +53,12 @@ export const updatePromoCodeById = (priceRuleId: number, body: any): Promise<Dis
 export const addPromoCode = (priceRuleId: number, body: any): Promise<DiscountCode> => {
   return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}${priceRuleId}/batch`, body);
 };
+
+export const addPromotionCodeApi = (priceRuleId: number, body: any): Promise<DiscountCode> => {
+  return BaseAxios.post(`${ApiConfig.PROMOTION}${END_POINT}${priceRuleId}/batch2`, body);
+};
+
+// get promotion jobs api
+export const getPromotionJobsApi = (processId: string): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/jobs/${processId}`);
+};

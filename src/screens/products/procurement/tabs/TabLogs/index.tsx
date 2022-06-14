@@ -51,7 +51,7 @@ const TabLogs: React.FC = () => {
   const history = useHistory();
 
   const query = useQuery();
-  let dataQuery: ProcumentLogQuery = {...getQueryParams(query), sort_column:"updatedDate",sort_type:"desc"};
+  let dataQuery: ProcumentLogQuery = {...getQueryParams(query)};
   const [params, setPrams] = useState<ProcumentLogQuery>(dataQuery);
   const [actionId, setActionId] = useState<number>();
   const [visibleProcurement, setVisibleProcurement] = useState(false);
@@ -124,7 +124,7 @@ const TabLogs: React.FC = () => {
     {
       title: "Người sửa",
       visible: true,
-      width: 120,
+      width: 250,
       render: (record: PurchaseOrderActionLogResponse)=>{
         return (
           <>

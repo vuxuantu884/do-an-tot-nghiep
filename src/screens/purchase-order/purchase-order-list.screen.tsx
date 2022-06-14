@@ -334,6 +334,15 @@ const PurchaseOrderListScreen: React.FC = () => {
         width: 120,
       },
       {
+        title: "Ngày chốt công nợ",
+        dataIndex: "ap_closing_date",
+        width: 120,
+        visible: true,
+        render: (date: string, row: PurchaseOrder) => {
+          return date ? ConvertUtcToLocalDate(date, DATE_FORMAT.DDMMYYY) : "";
+        }
+      },
+      {
         title: "Thanh toán",
         align: "center",
         dataIndex: "financial_status",
@@ -365,10 +374,11 @@ const PurchaseOrderListScreen: React.FC = () => {
           );
         },
         visible: true,
-        width: 120,
+        width: 100,
       },
       {
-        title: "Tổng SL sp",
+        title: "Tổng SLSP",
+        width: 100,
         dataIndex: "planned_quantity",
         render: (value, row: PurchaseOrder) => {
           return <div>{formatCurrency(value,",")}</div>;
@@ -426,7 +436,7 @@ const PurchaseOrderListScreen: React.FC = () => {
       },
       {
         title: "Ngày duyệt đơn",
-        width: 150,
+        width: 120,
         dataIndex: "activated_date",
         render: (value: string) => {
           return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
@@ -447,21 +457,21 @@ const PurchaseOrderListScreen: React.FC = () => {
           return <div>{display}</div>;
         },
         visible: true,
-        width: 200,
+        width: 120,
       },
       {
         title: "Ngày hoàn thành đơn",
         dataIndex: "completed_date",
         render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
         visible: true,
-        width: 200,
+        width: 120,
       },
       {
         title: "Ngày hủy đơn",
         dataIndex: "cancelled_date",
         render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
         visible: true,
-        width: 200,
+        width: 120,
       },
       {
         title: "Ghi chú nội bộ",
@@ -719,7 +729,8 @@ const PurchaseOrderListScreen: React.FC = () => {
             onSaveConfigColumn(data);
             setColumn(data);
           }}
-          data={columns}
+          data={defaultColumns}
+          isSetDefaultColumn
         />
         <ModalDeleteConfirm
           onCancel={() => setConfirmDelete(false)}

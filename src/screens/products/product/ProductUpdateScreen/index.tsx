@@ -315,7 +315,20 @@ const ProductDetailScreen: React.FC = () => {
 
     for (let i = 0; i < newData.variants.length; i++) {
       if (newData.variants[i].name.slice(0, newData.variants[i].name.indexOf('-')).trim() === newData.name.trim()) {
-        newData.variants[i].name = newName + ' - ' + newData.variants[i].color + ' - ' + newData.variants[i].size;
+        if (newData.variants[i].name.indexOf('Lỗi') !== -1) {
+          const errorName = newData.variants[i].name.split(' - ') ? newData.variants[i].name.split(' - ')[1] : '';
+          newData.variants[i].name = newName.trim() + ' - ' + errorName;
+        }else{
+          if (newData.variants[i].color === null && newData.variants[i].size !=null) {
+            newData.variants[i].name = newName.trim() + ' - ' + newData.variants[i].size;
+          }
+          else if (newData.variants[i].color !== null && newData.variants[i].size ===null) {
+            newData.variants[i].name = newName.trim() + ' - ' + newData.variants[i].color;
+          }
+          else if(newData.variants[i].color !== null && newData.variants[i].size !==null){
+            newData.variants[i].name = newName.trim() + ' - ' + newData.variants[i].color;
+          }
+        }
       }
     }
 
@@ -1394,7 +1407,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <NumberInput
                                                       onChange={onChangePrice}
-                                                      format={(a: string) => formatCurrencyForProduct(a)}
+                                                      format={(a: string) => formatCurrencyForProduct(a,",")}
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
                                                       }
@@ -1424,7 +1437,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <NumberInput
                                                       format={(a: string) =>
-                                                        formatCurrencyForProduct(a)
+                                                        formatCurrencyForProduct(a,",")
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
@@ -1454,7 +1467,7 @@ const ProductDetailScreen: React.FC = () => {
                                                     <NumberInput
                                                       onChange={onChangeImportPrice}
                                                       format={(a: string) =>
-                                                        formatCurrencyForProduct(a)
+                                                        formatCurrencyForProduct(a,",")
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)
@@ -1488,7 +1501,7 @@ const ProductDetailScreen: React.FC = () => {
                                                   >
                                                     <NumberInput
                                                       format={(a: string) =>
-                                                        formatCurrencyForProduct(a)
+                                                        formatCurrencyForProduct(a,",")
                                                       }
                                                       replace={(a: string) =>
                                                         replaceFormatString(a)

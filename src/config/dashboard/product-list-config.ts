@@ -11,7 +11,7 @@ export const PRODUCT_LIST_TAB_NAME = {
     [PRODUCT_LIST_TAB_KEY.OnHand]: "Tồn trong kho",
 };
 
-export const PAGE_SIZE = 5;
+export const PAGE_SIZE = 10;
 
 export const PRODUCT_LIST_CONFIG: AnalyticSampleQuery = {
     // q: SHOW total_sales, net_quantity BY product_name,variant_sku FROM sales SINCE 2022-06-09 UNTIL 2022-06-09 ORDER BY total_sales DESC 
