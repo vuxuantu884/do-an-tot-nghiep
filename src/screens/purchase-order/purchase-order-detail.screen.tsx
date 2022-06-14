@@ -199,6 +199,11 @@ const PODetailScreen: React.FC = () => {
       } else {
         setPurchaseOrder(result);
         formMain.setFieldsValue(result);
+        let closingDate = result.ap_closing_date ? moment(result.ap_closing_date) : null;
+        if (!closingDate && result.status === POStatus.STORED && result.receive_status !== "finished") {
+          closingDate = moment();
+        }
+        formMain.setFieldsValue({ ap_closing_date: closingDate });
         setStatus(result.status);
       }
     },
@@ -240,6 +245,7 @@ const PODetailScreen: React.FC = () => {
     [idNumber, loadDetail, dispatch]
   );
   const onFinish = (value: PurchaseOrder) => {
+    dispatch(showLoading());
     try {
       value.is_grid_mode = isGridMode;
       if (isGridMode) {
@@ -284,7 +290,7 @@ const PODetailScreen: React.FC = () => {
           return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100);
         }, 0)
       );
-
+      value.ap_closing_date = value.ap_closing_date? ConvertDateToUtc(value.ap_closing_date) : null;
       const dataClone: any = { ...purchaseOrder, ...value, status: statusAction.current };
       console.log(dataClone);
       dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
@@ -598,7 +604,6 @@ const PODetailScreen: React.FC = () => {
                   icon={!isEditDetail && <EditOutlined />}
                   onClick={() => {
                     if (isEditDetail) {
-                      dispatch(showLoading());
                       statusAction.current = POStatus.DRAFT;
                       formMain.submit();
                     } else {
@@ -629,7 +634,6 @@ const PODetailScreen: React.FC = () => {
                   icon={!isEditDetail && <EditOutlined />}
                   onClick={() => {
                     if (isEditDetail) {
-                      dispatch(showLoading());
                       statusAction.current = POStatus.WAITING_APPROVAL;
                       formMain.submit();
                     } else {
@@ -662,7 +666,7 @@ const PODetailScreen: React.FC = () => {
                 icon={!isEditDetail && <EditOutlined />}
                 onClick={() => {
                   if (isEditDetail) {
-                    dispatch(showLoading());
+                    
                     statusAction.current = status;
                     formMain.submit();
                   } else {
@@ -825,6 +829,7 @@ const PODetailScreen: React.FC = () => {
       <Form
         form={formMain}
         onFinishFailed={({ errorFields }: any) => {
+          dispatch(hideLoading());
           statusAction.current = "";
           const element: any = document.getElementById(errorFields[0].name.join(""));
           element?.focus();
@@ -928,6 +933,7 @@ const PODetailScreen: React.FC = () => {
                 setVisiblePaymentModal={setVisiblePaymentModal}
                 initValue={initValue}
                 setInitValue={setInitValue}
+                isEditMode={isEditDetail}
               />
             ) : (
               <POPaymentConditionsForm

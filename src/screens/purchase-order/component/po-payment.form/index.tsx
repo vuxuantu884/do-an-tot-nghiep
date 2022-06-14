@@ -7,6 +7,7 @@ import {
   Button,
   Card,
   Col,
+  DatePicker,
   Form,
   Input,
   Progress,
@@ -23,6 +24,7 @@ import { PoUpdateFinancialStatusAction } from "domain/actions/po/po.action";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import moment from "moment";
 import React, { lazy, useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
 import { useDispatch } from "react-redux";
@@ -34,7 +36,7 @@ import {
   POStatus,
   ProcumentStatus
 } from "utils/Constants";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
@@ -47,17 +49,18 @@ type POPaymentFormProps = {
   poData: PurchaseOrder;
   isSuggest: boolean;
   setSuggest: (isSuggest: boolean) => void;
-  setVisiblePaymentModal : (value: boolean) => void;
-  isVisiblePaymentModal : boolean;
-  paymentItem: PurchasePayments|undefined,
-  setPaymentItem: (paymentItem: PurchasePayments|undefined) => void;
+  setVisiblePaymentModal: (value: boolean) => void;
+  isVisiblePaymentModal: boolean;
+  paymentItem: PurchasePayments | undefined,
+  setPaymentItem: (paymentItem: PurchasePayments | undefined) => void;
   initValue: any,
-  setInitValue: (initValue: any) => void
+  setInitValue: (initValue: any) => void,
+  isEditMode: boolean;
 };
 const POPaymentForm: React.FC<POPaymentFormProps> = (
   props: POPaymentFormProps
 ) => {
- const {isVisiblePaymentModal, setVisiblePaymentModal, paymentItem, setPaymentItem, initValue, setInitValue}=props
+  const { isVisiblePaymentModal, setVisiblePaymentModal, paymentItem, setPaymentItem, initValue, setInitValue, isEditMode } = props
   const dispatch = useDispatch();
   // const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
@@ -226,7 +229,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                 financial_status !== PoFinancialStatus.CANCELLED &&
                 financial_status !== PoFinancialStatus.PAID &&
                 financial_status !== PoFinancialStatus.FINISHED;
-              if(status === POStatus.CANCELLED) {
+              if (status === POStatus.CANCELLED) {
                 checkStatus = false;
               }
               return (
@@ -256,63 +259,83 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           <Input />
         </Form.Item>
         <div>
-          <div className="card__section shortInformation">
-            <Row gutter={24} className="margin-bottom-40">
-              <Col md={12}>
-                {/* <Form.Item label="Điều khoản thanh toán"> Sau 15 ngày</Form.Item> */}
-                <div className="shortInformation__column">
-                  <span className="text-field margin-right-10">
-                    Điều khoản thanh toán:
-                  </span>
-                  <span>
-                    {" "}
-                    <strong className="po-payment-row-title">
-                      <Form.Item
-                        name={POField.payment_condition_id}
-                        noStyle
-                        hidden
-                      >
-                        <Input />
-                      </Form.Item>
-                      <Form.Item
-                        noStyle
-                        shouldUpdate={(prev, current) =>
-                          prev[POField.payment_condition_name] !==
-                          current[POField.payment_condition_name]
-                        }
-                      >
-                        {({ getFieldValue }) => {
-                          let payment_condition_name = getFieldValue(
-                            POField.payment_condition_name
-                          );
-                          return payment_condition_name;
-                        }}
-                      </Form.Item>
-                    </strong>
-                  </span>
-                </div>
-              </Col>
-              <Col md={12}>
-                <div className="shortInformation__column">
-                  <span className="text-field margin-right-10">Diễn giải:</span>
-                  <span>
+          <Row gutter={24} className="margin-bottom-20 row-payment-info">
+            <Col xs={24} lg={8} className="closing-date">
+              {isEditMode ? <Form.Item
+                name={POField.ap_closing_date}
+                rules={[{ required: (poData.status === POStatus.STORED && poData.receive_status !== "finished"), message: "" }]}
+              >
+                <DatePicker
+                  style={{ width: "100%", maxWidth: 250 }}
+                  placeholder="Ngày chốt công nợ"
+                  disabled={!(poData.status === POStatus.STORED && poData.receive_status !== "finished")}
+                  format={DATE_FORMAT.DDMMYYY}
+                  disabledDate={(current) => current >= moment().endOf("day") || current < moment().endOf("days").subtract(7, "days")}
+                />
+             
+              </Form.Item>
+                :
+                <> <span className="text-field margin-right-10">
+                  Ngày chốt công nợ:
+                </span><strong className="po-payment-row-title">
+                    {poData.ap_closing_date ? moment(poData.ap_closing_date).format(DATE_FORMAT.DDMMYYY) : ""}
+                  </strong>
+                </>
+              }
+            </Col>
+            <Col xs={24} lg={8}>
+              <div className="shortInformation__column">
+                <span className="text-field margin-right-10">
+                  Điều khoản thanh toán:
+                </span>
+                <span>
+                  <strong className="po-payment-row-title">
+                    <Form.Item
+                      name={POField.payment_condition_id}
+                      noStyle
+                      hidden
+                    >
+                      <Input />
+                    </Form.Item>
                     <Form.Item
                       noStyle
                       shouldUpdate={(prev, current) =>
-                        prev[POField.payment_note] !==
-                        current[POField.payment_note]
+                        prev[POField.payment_condition_name] !==
+                        current[POField.payment_condition_name]
                       }
                     >
                       {({ getFieldValue }) => {
-                        let payment_note = getFieldValue(POField.payment_note);
-                        return payment_note;
+                        let payment_condition_name = getFieldValue(
+                          POField.payment_condition_name
+                        );
+                        return payment_condition_name;
                       }}
                     </Form.Item>
-                  </span>
-                </div>
-              </Col>
-            </Row>
-          </div>
+                  </strong>
+                </span>
+              </div>
+            </Col>
+            <Col xs={24} lg={8}>
+              <div className="shortInformation__column">
+                <span className="text-field margin-right-10">Diễn giải:</span>
+                <span>
+                  <Form.Item
+                    noStyle
+                    shouldUpdate={(prev, current) =>
+                      prev[POField.payment_note] !==
+                      current[POField.payment_note]
+                    }
+                  >
+                    {({ getFieldValue }) => {
+                      let payment_note = getFieldValue(POField.payment_note);
+                      return payment_note;
+                    }}
+                  </Form.Item>
+                </span>
+              </div>
+            </Col>
+          </Row>
+
           <div className="card__section checkOut">
             <Row gutter={24}>
               <Col md={14}>
@@ -323,9 +346,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       noStyle
                       shouldUpdate={(prev, current) =>
                         prev[POField.total_paid] !==
-                          current[POField.total_paid] ||
+                        current[POField.total_paid] ||
                         prev[POField.total_payment] !==
-                          current[POField.total_payment]
+                        current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
@@ -392,9 +415,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                       noStyle
                       shouldUpdate={(prev, current) =>
                         prev[POField.total_paid] !==
-                          current[POField.total_paid] ||
+                        current[POField.total_paid] ||
                         prev[POField.total_payment] !==
-                          current[POField.total_payment]
+                        current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
@@ -443,7 +466,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                   <div className="timeline__colTitle">
                                     <h3 className="po-payment-row-title">
                                       {item.payment_method_code ===
-                                      PoPaymentMethod.BANK_TRANSFER
+                                        PoPaymentMethod.BANK_TRANSFER
                                         ? "Chuyển khoản"
                                         : "Tiền mặt"}
                                     </h3>
@@ -472,7 +495,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                 {item.status === PoPaymentStatus.PAID ? (
                                   <Col md={8}>
                                     <div className="timeline__status">
-                                      <CheckCircleOutlined style={{fontSize: "18px"}} />{" "}
+                                      <CheckCircleOutlined style={{ fontSize: "18px" }} />{" "}
                                       Đã duyệt
                                     </div>
                                     <div>
@@ -491,7 +514,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                         ]}
                                       >
                                         <Button onClick={() => editPayment(item, index)}>
-                                          <EditOutlined style={{fontSize: "18px"}} /> Sửa
+                                          <EditOutlined style={{ fontSize: "18px" }} /> Sửa
                                         </Button>
 
                                         <Button
@@ -502,7 +525,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                           }
                                         >
                                           <CheckCircleOutlined
-                                            style={{fontSize: "18px"}}
+                                            style={{ fontSize: "18px" }}
                                           />{" "}
                                           Duyệt
                                         </Button>
@@ -518,7 +541,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                           color: "#E24343",
                                         }}
                                       />{" "}
-                                      <div style={{color: "#E24343"}}>Đã hủy</div>
+                                      <div style={{ color: "#E24343" }}>Đã hủy</div>
                                     </div>
                                     <div>
                                       Hủy thanh toán <br />
@@ -545,7 +568,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           shouldUpdate={(prev, current) =>
             prev[POField.payments] !== current[POField.payments] ||
             prev[POField.financial_status] !==
-              current[POField.financial_status] ||
+            current[POField.financial_status] ||
             prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
