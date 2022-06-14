@@ -28,3 +28,9 @@ export const bolFullfilmentShiping=(fullfilment?:FulFillmentResponse[]|null)=>{
 
     return fulfillmentBol;
 }
+
+export const insertArray = (arr: any, index: number, newItem: any) => [
+    ...arr.slice(0, index),
+    newItem,
+    ...arr.slice(index)
+]

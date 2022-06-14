@@ -165,6 +165,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   const column: Array<ICustomTableColumType<GoodsReceiptsOrderListModel>> = [
     {
       title: "STT",
+      key:"key",
       dataIndex: "key",
       visible: true,
       width: "60px",
@@ -175,6 +176,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "ID đơn ",
+      key:"order_code",
       dataIndex: "order_code",
       visible: true,
       width: "130px",
@@ -191,6 +193,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Khách hàng",
+      key:"customer_name",
       dataIndex: "customer_name",
       visible: true,
       width: "200px",
@@ -221,7 +224,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           <div className="items">
             {items.map((item, i) => {
               return (
-                <div className="item custom-td">
+                <div className="item custom-td" key={i}>
                   <div className="product productNameWidth">
                     <Link
                       target="_blank"
@@ -251,6 +254,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Phí thu khách",
+      key:"postage",
       dataIndex: "postage",
       visible: true,
       width: "150",
@@ -261,6 +265,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Thanh toán",
+      key:"card_number",
       dataIndex: "card_number",
       visible: true,
       width: "150",
@@ -271,6 +276,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Trạng thái",
+      key:"sub_status",
       dataIndex: "sub_status",
       visible: true,
       width: "150",
@@ -281,6 +287,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Ghi chú",
+      key:"note",
       dataIndex: "note",
       visible: true,
       width: "150",

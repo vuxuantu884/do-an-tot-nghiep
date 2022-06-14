@@ -10,14 +10,18 @@ import {
   GoodsReceiptsTotalProductModel,
 } from "model/pack/pack.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
-import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
-import React, { useEffect, useState } from "react";
+import { GoodsReceiptsOrder, GoodsReceiptsResponse } from "model/response/pack/pack.response";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
+import { flattenArray } from "utils/AppUtils";
 import PackDetailInfo from "./detail/pack-detail-info";
 import PackListOrder from "./detail/pack-list-order";
 import PackQuantityProduct from "./detail/pack-quantity-product";
+import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import './styles.scss';
+import { PageResponse } from "model/base/base-metadata.response";
+import { VariantResponse } from "model/product/product.model";
 
 type PackParam = {
   id: string;
@@ -27,7 +31,7 @@ const PackDetail: React.FC = () => {
   const dispatch = useDispatch();
 
   let { id } = useParams<PackParam>();
-  let PackId = parseInt(id);
+  let packId = parseInt(id);
 
   const [isError, setError] = useState<boolean>(false);
   const [packDetail, setPackDetail] = useState<GoodsReceiptsResponse>();
@@ -48,47 +52,83 @@ const PackDetail: React.FC = () => {
 
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
+  const fetchProductData = useCallback((storeId:number, order : GoodsReceiptsOrder[])=>{
+
+    let listVariant :OrderLineItemResponse[] =flattenArray(order.map(p=>p.fulfillments?.map(p1=>p1.items)));
+    let uniqueListVariant : OrderLineItemResponse[]=[];
+
+    listVariant.forEach((itemVariant, i)=>{
+      let isVariant= uniqueListVariant.some(p1=>p1.variant_id===itemVariant.variant_id);
+      if(!isVariant){
+        uniqueListVariant.push({...itemVariant,quantity:itemVariant.quantity})
+      }else{
+        let quantity= itemVariant.quantity;
+        let index= uniqueListVariant.findIndex(p1=>p1.variant_id===itemVariant.variant_id);
+        
+        uniqueListVariant[index].quantity=uniqueListVariant[index].quantity + quantity;
+      }
+    })
+
+    let variantIds=uniqueListVariant.map(p=>p.variant_id)
+
+    const query:any ={
+      store_ids:[storeId],
+      variant_ids:variantIds,
+      limit: 1000
+    }
+
+    dispatch(searchVariantsRequestAction(query,(data: PageResponse<VariantResponse>|false)=>{
+      if(data && data.items && data.items.length>0)
+      {
+        
+        const getLineItemProduct = (key:number,itemProduct: VariantResponse) => {
+          let quantity = uniqueListVariant.find(p=>p.variant_id===itemProduct.id)?.quantity
+          let price = uniqueListVariant.find(p=>p.variant_id===itemProduct.id)?.price
+
+          /**
+           *  Tổng số lượng -Tồn trong kho > 0 thì là thiếu, 
+           *  Tổng số lượng-Tồn trong kho <=0 là đủ
+              
+           */
+          let totalIncomplate= (quantity||0) - itemProduct.on_hand;
+          totalIncomplate = totalIncomplate > 0 ? totalIncomplate : 0; 
+          return {
+            key: key,
+            barcode: itemProduct.barcode,
+            product_id: itemProduct.product_id,
+            product_sku: itemProduct.sku,
+            product_name: itemProduct.name,
+            variant_id: itemProduct.id,
+            inventory: 0,
+            price: price||0,
+            total_quantity: quantity||0,
+            total_incomplate: totalIncomplate,
+            on_hand: itemProduct.on_hand,
+          }
+        }
+
+        let resultListProduct: GoodsReceiptsTotalProductModel[] = [];
+
+        data.items.forEach((value, index)=>{
+          resultListProduct.push(getLineItemProduct(index,value));
+        })
+        setPackProductQuantity([...resultListProduct]);
+      }
+    }))
+
+  },[dispatch])
 
   useEffect(() => {
-    if (PackId) {
+    if (packId) {
       dispatch(
-        getByIdGoodsReceipts(PackId, (data: GoodsReceiptsResponse) => {
+        getByIdGoodsReceipts(packId, (data: GoodsReceiptsResponse) => {
           setPackDetail(data);
-
-          //PackQuantityProduct
-          let keyProduct = 0;
-          let resultListProduct: any[] = [];
+          if(data && data.orders){
+            fetchProductData(data.store_id,data.orders);
+          }
 
           let keyOrder = 0;
           let resultListOrder: GoodsReceiptsOrderListModel[] = [];
-
-          data.orders?.forEach(function (itemOrder) {
-            const setLineItemProduct: any = (key:number,itemProduct: OrderLineItemResponse) => {
-              const productOnHand = data.variant?.find(i => i.sku === itemProduct.sku)
-              return {
-                key: key,
-                barcode: itemProduct.variant_barcode,
-                product_id: itemProduct.product_id,
-                product_sku: itemProduct.sku,
-                product_name: itemProduct.product,
-                variant_id: itemProduct.variant_id,
-                // inventory: itemProduct.available ? itemProduct.available : 0,
-                price: itemProduct.price,
-                total_quantity: itemProduct.quantity,
-                total_incomplate: 0,
-                on_hand: productOnHand ? productOnHand.on_hand : undefined,
-              }
-            }
-
-            if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0){
-              let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
-              let itemFFM = itemOrder.fulfillments[indexFFM];
-              itemFFM.items?.forEach((itemProduct, index)=>{
-                let key= keyProduct++;
-                resultListProduct.push(setLineItemProduct(key,itemProduct));
-              })
-            }
-          });
 
           data.orders?.forEach((itemOrder) => {
             let total_quantity = 0;
@@ -143,14 +183,14 @@ const PackDetail: React.FC = () => {
               items: _itemProduct
             })
           });
-          setPackProductQuantity(resultListProduct);
+          
           setPackOrderList(resultListOrder);
         })
       );
     } else {
       setError(true);
     }
-  }, [dispatch, PackId]);
+  }, [dispatch, packId, fetchProductData]);
 
   const handleDownLoad = () => { };
   const handleDeleteFile = () => { };
@@ -161,7 +201,7 @@ const PackDetail: React.FC = () => {
 
   return (
     <ContentContainer
-      title={`Biên bản bàn giao: ${PackId}`}
+      title={`Biên bản bàn giao: ${packId}`}
       isError={isError}
       breadcrumb={[
         {
@@ -173,7 +213,7 @@ const PackDetail: React.FC = () => {
           path: UrlConfig.DELIVERY_RECORDS,
         },
         {
-          name: `Biên bản bàn giao: ${PackId}`,
+          name: `Biên bản bàn giao: ${packId}`,
         },
       ]}
     >
