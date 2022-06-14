@@ -1,7 +1,7 @@
 import { YodyAction } from "base/base.action";
 import { AppConfig } from "config/app.config";
 import { TIME_GROUP_BY } from "config/report";
-import { AnalyticConditions, AnalyticCube, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
+import { AnalyticConditions, AnalyticCube, AnalyticGroupUrl, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
@@ -279,7 +279,7 @@ export const getChartQuery = (queryObject: AnalyticQuery, chartColumnSelected: s
   if (conditions?.length) {
     mapperConditions = conditions.map(condition => {
       if (condition.findIndex(item => item === 'IN') !== -1) {
-        condition = [...condition.slice(0, 2), ...(condition.slice(2).map((item, index) => !(item === ',' && condition.slice(2)[index+1]?.length > 1) ? encodeURIComponent(item) : item).join("").split(",").map((item: string) => decodeURIComponent(`'${item}'`)).join(","))].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
+        condition = [...condition.slice(0, 2), ...(condition.slice(2).map((item, index) => !(item === ',' && condition.slice(2)[index + 1]?.length > 1) ? encodeURIComponent(item) : item).join("").split(",").map((item: string) => decodeURIComponent(`'${item}'`)).join(","))].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
       }
       return condition;
     })
@@ -323,26 +323,27 @@ export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
   const url = '/analytics/'
   switch (cube) {
     case Sales:
-      return `${url}sales-online`;    
+      return `${url}${AnalyticGroupUrl.Sales}`;
     case Payments:
-      return `${url}customers`;    
+      return `${url}${AnalyticGroupUrl.Customers}`;
     case OfflineSales:
-      return `${url}sales-offline`;   
+      return `${url}${AnalyticGroupUrl.OfflineSales}`;
     case Costs:
-      return `${url}finance`;
+      return `${url}${AnalyticGroupUrl.Costs}`;
     default:
-      return `${url}sales-offline`;
+      return `${url}${AnalyticGroupUrl.OfflineSales}`;
   }
 }
 
 export const getPermissionViewCustomizeReport = (permissions: string[], cube: AnalyticCube) => {
-  const { Sales, Payments, Costs, OfflineSales } = AnalyticCube;
+  const { Sales, Payments, Costs, OfflineSales, Customers } = AnalyticCube;
   let permission = "reports_report_";
   switch (cube) {
     case Sales:
       permission = `${permission}sales`;
       break;
     case Payments:
+    case Customers:
       permission = `${permission}customers`;
       break;
     case OfflineSales:
@@ -357,3 +358,19 @@ export const getPermissionViewCustomizeReport = (permissions: string[], cube: An
   }
   return permissions.includes(permission) ? '1' : '0';
 };
+
+export const getReportGroup = (reportUrlString: string) => {
+  const { Sales, OfflineSales, Costs, Customers } = AnalyticGroupUrl;
+  switch (reportUrlString) {
+    case Sales:
+      return AnalyticCube.Sales;
+    case OfflineSales:
+      return AnalyticCube.OfflineSales;
+    case Costs:
+      return AnalyticCube.Costs;
+    case Customers:
+      return AnalyticCube.Customers;
+    default:
+      return '';
+  }
+}
