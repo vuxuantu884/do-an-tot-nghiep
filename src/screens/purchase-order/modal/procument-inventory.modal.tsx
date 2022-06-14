@@ -27,7 +27,10 @@ import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import useAuthorization from "hook/useAuthorization";
 import { StyledComponent } from "../../products/procurement/tabs/TabList/styles";
-import BaseTagStatus from "../../../component/base/BaseTagStatus";
+import statusDraft from 'assets/icon/status-draft-new.svg'
+import statusFinalized from 'assets/icon/status-finalized-new.svg'
+import statusStored from 'assets/icon/status-finished-new.svg'
+import statusCancelled from 'assets/icon/status-cancelled-new.svg'
 
 type ProcumentInventoryModalProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
@@ -100,7 +103,42 @@ const ProcumentInventoryModal: React.FC<ProcumentInventoryModalProps> = (
     },[poData, dispatch, onDetail]),
     Cancel: useCallback(()=>{
       setShowImportModal(false);
-    },[]),
+    }, []),
+  }
+
+  const renderStatusIcon = (procurement: PurchaseProcument | null) => {
+    let icon = "";
+    let color = ""
+    if (!procurement) {
+      return "";
+    }
+    switch (procurement.status) {
+      case ProcurementStatus.draft:
+        icon = statusDraft
+        color = "#666666"
+        break;
+      case ProcurementStatus.not_received:
+        icon = statusFinalized
+        color = "#2A2A86"
+        break;
+      case ProcurementStatus.received:
+        icon = statusStored
+        color = "#27AE60"
+        break;
+      case ProcurementStatus.cancelled:
+        icon = statusCancelled
+        color = "#E24343"
+        break;
+    }
+    return (
+      <>
+        <span>{procurement?.code} </span>
+        <span style={{ color: color }} >
+          {icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }} />}
+          {ProcurementStatusName[procurement.status]}
+        </span>
+      </>
+    )
   }
 
   if (visible) {
@@ -126,15 +164,7 @@ const ProcumentInventoryModal: React.FC<ProcumentInventoryModalProps> = (
         title={
           <StyledComponent>
             {isEdit ? "Sửa phiếu nhập kho " : isDetail ? "Phiếu nhập kho " : "Xác nhận nhập kho "}
-            <span>
-              {item?.code} - { item?.status === ProcurementStatus.cancelled ? ProcurementStatusName[`${item?.status}`] :
-              <BaseTagStatus color={
-                item?.status === ProcurementStatus.draft ? "gray"
-                : item?.status === ProcurementStatus.not_received ? "blue"
-                  : item?.status === ProcurementStatus.received ? "green"
-                    : undefined
-            }>{ProcurementStatusName[`${item?.status}`]}</BaseTagStatus>}
-            </span>
+              {renderStatusIcon(item)}
           </StyledComponent>
         }
         okText={isEdit ? "Lưu phiếu nhập kho" : (allowConfirm ? "Xác nhận nhập": "")}
