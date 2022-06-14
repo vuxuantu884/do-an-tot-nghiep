@@ -118,8 +118,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     formMain.setFieldsValue({
       line_items: [...lineItems]
     });
-   
-   
+
+
     let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
     if (oldLineItems) {
       const indexOld = oldLineItems.findIndex((a) => a.sku === lineItem.sku);
@@ -154,7 +154,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       formMain.setFieldsValue({
         line_items: [...lineItems],
       })
-   
+
       const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
         POField.procurements
       );
@@ -246,7 +246,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       formMain.setFieldsValue({
         line_items: [...lineItems],
       })
-       
+
       let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
         POField.procurements
       );
@@ -317,7 +317,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     if (poLineItemType === POLineItemType.SUPPLEMENT) {
       items.forEach((item) => {
-        if (lineItems.find((line) => line.variant_id === item.id && line.id) ) {
+        if (lineItems.find((line) => line.variant_id === item.id && line.id)) {
           variantsSelected.splice(variantsSelected.findIndex((a) => a.id === item.id), 1);
           numberOfExistItem++;
         }
@@ -336,7 +336,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     formMain.setFieldsValue({
       line_items: newLineItems
     });
-  
+
     const oldLineItems = formMain.getFieldValue(POField.line_items_old);
     if (oldLineItems) {
       const newOldLineItems = POUtils.addProduct(oldLineItems, newItems, false);
@@ -564,6 +564,9 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   useEffect(() => {
     if (isPressed) {
       onSearchProduct()
+    }
+    return () => {
+      setResultSearch([]);
     }
   }, [isPressed])
 
@@ -1182,8 +1185,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             >
               {({ getFieldValue }) => {
                 const line_items = getFieldValue(POField.line_items);
-                const untaxedAmountSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.SUPPLEMENT);                
-                const untaxedAmountNotSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);                
+                const untaxedAmountSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.SUPPLEMENT);
+                const untaxedAmountNotSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);
                 const totalNotSupplement = getTotalAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);
 
                 return (
@@ -1205,26 +1208,26 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           : formatCurrency(Math.round(untaxedAmountNotSupplement || 0))}
                       </div>
                     </div>
-:
-                    <div className="po-payment-row">
-                      <div>Tiền bổ sung:</div>
-                      <div className="po-payment-row-result">
-                        {untaxedAmountSupplement === 0
-                          ? "-"
-                          : formatCurrency(Math.round(untaxedAmountSupplement || 0))}
-                      </div>
-                    </div>}
+                      :
+                      <div className="po-payment-row">
+                        <div>Tiền bổ sung:</div>
+                        <div className="po-payment-row-result">
+                          {untaxedAmountSupplement === 0
+                            ? "-"
+                            : formatCurrency(Math.round(untaxedAmountSupplement || 0))}
+                        </div>
+                      </div>}
                   </div>
                 );
               }}
-            </Form.Item>            
+            </Form.Item>
             <Form.Item
               shouldUpdate={(prevValues, curValues) => prevValues[POField.line_items] !== curValues[POField.line_items]}
               noStyle
             >
               {() => {
                 const taxLines: Vat[] = POUtils.getVatList(formMain, poLineItemType === POLineItemType.SUPPLEMENT);
-                return taxLines.filter((tax: Vat)=> tax.rate !== 0).map((item: Vat, index: number) => (
+                return taxLines.filter((tax: Vat) => tax.rate !== 0).map((item: Vat, index: number) => (
                   <div className="po-payment-row" key={index}>
                     <div>VAT<span className="po-payment-row-error">{`(${item.rate}%)`}:</span></div>
                     <div className="po-payment-row-result">

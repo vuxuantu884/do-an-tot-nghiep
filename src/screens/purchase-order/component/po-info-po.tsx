@@ -1,4 +1,4 @@
-import { Card, Form, FormInstance, Input, Row } from "antd";
+import { Card, Form, FormInstance, Input } from "antd";
 import { POField } from "model/purchase-order/po-field";
 import React, { Fragment, useContext, useEffect } from "react";
 import PORowDetail from "./po-row-detail";
@@ -52,10 +52,14 @@ const POInfoPO: React.FC<POInfoPOProps> = (props: POInfoPOProps) => {
             <div className="d-flex">
                 <span className="title-card">THÔNG TIN ĐƠN MUA HÀNG</span>
             </div>
-        }>
+        }
+        style={{
+            marginBottom: "0"
+        }}
+    >
         <div style={{
             display: "flex",
-            gap: "20px"
+            gap: "20px",
         }}>
             <Form.Item noStyle shouldUpdate={(prev, current) => prev.status !== current.status}>
                 {({ getFieldValue }) => {
@@ -180,7 +184,7 @@ const CreateInfoPo = () => {
             }}
             name={POField.reference}
             label="Số tham chiếu">
-            <Input placeholder="Nhập số tham chiếu" maxLength={255} />
+            <Input placeholder="Nhập số tham chiếu" maxLength={255} disabled />
         </StyledFormItem>
     </Fragment>
 }
