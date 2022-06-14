@@ -33,7 +33,7 @@ const PoProductContainer = ({ children, isEditMode, isDisableSwitch, form }: PoP
   };
   return (
     <Card
-      className="po-form margin-top-20"
+      className="po-form"
       title={
         <>
           <div className="d-flex">

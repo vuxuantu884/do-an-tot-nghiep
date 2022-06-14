@@ -1,5 +1,5 @@
 import { useFetchMerchans } from 'hook/useFetchMerchans';
-import { POLineItemGridSchema, POLineItemGridValue } from 'model/purchase-order/purchase-order.model';
+import { POLineItemGridSchema, POLineItemGridValue, PurchaseOrder } from 'model/purchase-order/purchase-order.model';
 import React, { createContext, ReactNode, useState } from 'react';
 
 export enum QUANTITY_PROCUREMENT_UNIT {
@@ -24,11 +24,14 @@ type PurchaseOrderCreateAction = {
   setTaxRate: React.Dispatch<React.SetStateAction<number>>,
   fetchMerchandiser: ReturnType<typeof useFetchMerchans>,
   fetchDesigner: ReturnType<typeof useFetchMerchans>
+  purchaseOrder: PurchaseOrder,
+  setPurchaseOrder: React.Dispatch<React.SetStateAction<PurchaseOrder>>,
 }
 
 export const PurchaseOrderCreateContext = createContext<PurchaseOrderCreateAction>({} as PurchaseOrderCreateAction);
 
 function PurchaseOrderProvider(props: { children: ReactNode }) {
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder>({} as PurchaseOrder);
   // mode grid or not
   const [isGridMode, setIsGridMode] = useState(true);
 
@@ -42,7 +45,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
   const [taxRate, setTaxRate] = useState<number>(0);
 
   const fetchMerchandiser = useFetchMerchans();
-  
+
   const fetchDesigner = useFetchMerchans();
 
   return (
@@ -58,7 +61,9 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
         taxRate,
         setTaxRate,
         fetchMerchandiser,
-        fetchDesigner
+        fetchDesigner,
+        purchaseOrder,
+        setPurchaseOrder
       }}
     />
   )
