@@ -14,7 +14,7 @@ import { useDispatch } from 'react-redux'
 import { useHistory, useParams, useRouteMatch } from 'react-router-dom'
 import { executeAnalyticsQueryService, getAnalyticsMetadataService, saveAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getTranslatePropertyKey } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getReportGroup, getTranslatePropertyKey } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ReportBottomBarStyle } from '../index.style'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
@@ -83,9 +83,11 @@ function UpdateAnalytics() {
                 break;
             case SUBMIT_MODE.SAVE_QUERY:
                 const chartQuery = getChartQuery(params, chartColumnSelected || []);
+                const reportGroup = getReportGroup(matchPath.split('/')[2]);
+                
                 const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, saveAnalyticsCustomService, {
                     query: rQuery,
-                    group: cubeRef.current,
+                    group: reportGroup,
                     name: formSaveInfo.getFieldValue("name"),
                     chart_query: chartQuery,
                     options: timeOptionAt
@@ -98,7 +100,7 @@ function UpdateAnalytics() {
                 }
                 break;
         }
-    }, [mode, chartColumnSelected, history, dispatch, form, cubeRef, formSaveInfo, CURRENT_REPORT_TEMPLATE]);
+    }, [form, mode, dispatch, CURRENT_REPORT_TEMPLATE.type, CURRENT_REPORT_TEMPLATE.name, chartColumnSelected, matchPath, formSaveInfo, history]);
 
     const getConditionsFormServerToForm = useCallback((conditions: AnalyticConditions) => {
         const conditionsValue: any = {};
