@@ -100,4 +100,16 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .row-payment-info{
+    align-items: baseline;
+  }
+  .closing-date {
+    
+  .ant-form-item{
+    margin-bottom: 0;
+  }
+  .ant-form-item-explain{
+    display: none;
+  }
+  }
 `;
