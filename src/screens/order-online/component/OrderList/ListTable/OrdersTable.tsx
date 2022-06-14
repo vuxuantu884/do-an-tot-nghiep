@@ -73,12 +73,12 @@ import TrackingLog from "../../TrackingLog/TrackingLog";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
-import IconTrackingCode from "./images/iconTrackingCode.svg";
 import iconWeight from "./images/iconWeight.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import InventoryTable from "./InventoryTable";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
+import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
 
 type PropTypes = {
   tableLoading: boolean;
@@ -299,7 +299,7 @@ function OrdersTable(props: PropTypes) {
       let selectedPayment = paymentIcons.find(
         (single) => {
           if(single.payment_method_code === PaymentMethodCode.COD) {
-            return single.payment_method_code === payment.payment_method
+            return single.payment_method_code === payment.payment_method_code
           } else if(!single.payment_method_code ){
             return payment.payment_method=== PAYMENT_METHOD_ENUM.exchange.name
           } else {
@@ -955,25 +955,14 @@ function OrdersTable(props: PropTypes) {
                                   trigger="click">
                                   <Tooltip title="Tiến trình giao hàng">
                                     <img
-                                      src={IconTrackingCode}
+                                      src={iconDeliveryProgress}
                                       alt=""
                                       className="trackingCodeImg"
                                       onClick={() => {
-                                        // if(!sortedFulfillments[0]?.code) {
-                                        //   return;
-                                        // }
                                         setTypeAPi(type.trackingCode);
-                                        setSelectedOrder(record);
-                                        // dispatch(
-                                        //   getTrackingLogFulfillmentAction(
-                                        //     sortedFulfillments[0]?.code,
-                                        //     (data => {
-                                        //       setTrackingLogFulfillment(data)
-
-                                        //     })
-                                        //   )
-                                        // );
+                                        setSelectedOrder(record); 
                                       }}
+                                      style={{width:"18px"}}
                                     />
                                   </Tooltip>
                                 </Popover>
