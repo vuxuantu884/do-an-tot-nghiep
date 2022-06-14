@@ -80,6 +80,7 @@ const Customer = () => {
 
   // Tạm ẩn Xuất file khách hàng
   const allowExportCustomer = false;
+  console.log("exportCustomerPermission: ", exportCustomerPermission);
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer

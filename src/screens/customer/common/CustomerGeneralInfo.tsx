@@ -364,17 +364,24 @@ const CustomerGeneralInfo = (props: any) => {
 
         <div className="row-item">
           <Form.Item
-            name="website"
-            label={<b>Facebook:</b>}
-            rules={[
-              {
-                pattern: RegUtil.WEBSITE_URL_2,
-                message: "Facebook chưa đúng định dạng",
-              },
-            ]}
             className="left-item"
+            label={<b>CMND/CCCD:</b>}
+            name="identity_number"
+            rules={[
+              () => ({
+                validator(_, value) {
+                  if (!RegUtil.NUMBERREG.test(value.trim())) {
+                    return Promise.reject(new Error("CMND/CCCD chỉ được phép nhập số"));
+                  }
+                  if (value.trim().length !== 9 && value.trim().length !== 12) {
+                    return Promise.reject(new Error("CMND/CCCD chỉ bao gồm 9 hoặc 12 số"));
+                  }
+                  return Promise.resolve();
+                },
+              })
+            ]}
           >
-            <Input disabled={isLoading} maxLength={255} placeholder="Nhập Facebook" />
+            <Input disabled={isLoading} maxLength={255} placeholder="Nhập CMND/CCCD" />
           </Form.Item>
 
           <Form.Item
@@ -437,7 +444,23 @@ const CustomerGeneralInfo = (props: any) => {
             </Select>
           </Form.Item>
 
-          <div className="right-item">
+          <Form.Item
+            name="website"
+            label={<b>Facebook:</b>}
+            rules={[
+              {
+                pattern: RegUtil.WEBSITE_URL_2,
+                message: "Facebook chưa đúng định dạng",
+              },
+            ]}
+            className="right-item"
+          >
+            <Input disabled={isLoading} maxLength={255} placeholder="Nhập Facebook" />
+          </Form.Item>
+        </div>
+
+        <div className="row-item">
+          <div className="left-item">
             <div style={{ paddingBottom: 8 }}><b>Khu vực:</b></div>
             <Form.Item
               // label={<b>Khu vực:</b>}  // hide label to autofill address
@@ -461,10 +484,8 @@ const CustomerGeneralInfo = (props: any) => {
               </Select>
             </Form.Item>
           </div>
-        </div>
 
-        <div className="row-item">
-          <div className="left-item">
+          <div className="right-item">
             <div style={{ paddingBottom: 8 }}><b>Phường/Xã:</b></div>
             <Form.Item
               // label={<b>Phường/Xã:</b>}   // hide label to autofill address
@@ -486,8 +507,10 @@ const CustomerGeneralInfo = (props: any) => {
               </Select>
             </Form.Item>
           </div>
+        </div>
 
-          <div className="right-item">
+        <div className="row-item">
+          <div className="left-item">
             <div style={{ paddingBottom: 8 }}><b>Địa chỉ chi tiết:</b></div>
             <Form.Item
               name="full_address"

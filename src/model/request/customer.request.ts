@@ -161,6 +161,7 @@ export interface CustomerRequest extends BaseObject {
   phone: string | null;
   email: string | null;
   gender: string | null;
+  identity_number: string | null;
   birthday: string | null;
   website: string | null;
   wedding_date: string | null;
@@ -196,6 +197,7 @@ export class CustomerModel implements CustomerRequest {
   full_name = "";
   card_number = "";
   phone = "";
+  identity_number = "";
   email = "";
   gender = "other";
   birthday = "";
