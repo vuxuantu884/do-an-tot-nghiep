@@ -109,6 +109,7 @@ export interface GoodsReceiptsTotalProductModel{
   price:number;
   total_quantity:number;
   total_incomplate:number;
+  on_hand:number;
 }
 
 export interface GoodsReceiptsOrderListModel{
