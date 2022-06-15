@@ -831,7 +831,7 @@ const PODetailScreen: React.FC = () => {
         onFinishFailed={({ errorFields }: any) => {
           dispatch(hideLoading());
           statusAction.current = "";
-          const element: any = document.getElementById(errorFields[0].name.join(""));
+          const element: any = document.getElementById(errorFields[0].name.join("_"));
           element?.focus();
           const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
           window.scrollTo({ top: y, behavior: "smooth" });
