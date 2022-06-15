@@ -370,10 +370,10 @@ const CustomerGeneralInfo = (props: any) => {
             rules={[
               () => ({
                 validator(_, value) {
-                  if (value.trim() && !RegUtil.NUMBERREG.test(value.trim())) {
+                  if (value?.trim() && !RegUtil.NUMBERREG.test(value.trim())) {
                     return Promise.reject(new Error("CMND/CCCD chỉ được phép nhập số"));
                   }
-                  if (value.trim() && value.trim().length !== 9 && value.trim().length !== 12) {
+                  if (value?.trim() && value.trim().length !== 9 && value.trim().length !== 12) {
                     return Promise.reject(new Error("CMND/CCCD chỉ bao gồm 9 hoặc 12 số"));
                   }
                   return Promise.resolve();
