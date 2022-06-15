@@ -389,7 +389,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           <Item name="adjusted_store_id">
             <CustomSelect
               style={{
-                width: 150,
+                width: 300,
               }}
               allowClear={true}
               placeholder="Chọn kho kiểm"
