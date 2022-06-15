@@ -548,6 +548,9 @@ export default function Order(props: PropTypes) {
 	}, [dispatch]);
 
 	const createDiscountRequest = () => {
+		if(!promotion || !promotion?.value) {
+			return []
+		}
 		let objDiscount: OrderDiscountRequest = {
 			rate: promotion?.rate,
 			value: promotion?.value,
@@ -582,7 +585,7 @@ export default function Order(props: PropTypes) {
 				order_id: null,
 			});
 		} else if (!promotion) {
-			return null;
+			return [];
 		} else {
 			listDiscountRequest.push(objDiscount);
 		}
@@ -1058,7 +1061,7 @@ export default function Order(props: PropTypes) {
 								product: item.product,
 								is_composite: false,
 								line_amount_after_line_discount: item.line_amount_after_line_discount,
-								discount_items: item.discount_items,
+								discount_items: item.discount_items.filter(single => single.amount && single.value),
 								discount_rate: item.discount_rate,
 								discount_value: item.discount_value,
 								discount_amount: item.discount_amount,

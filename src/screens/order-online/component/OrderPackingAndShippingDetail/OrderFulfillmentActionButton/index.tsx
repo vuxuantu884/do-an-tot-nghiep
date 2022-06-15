@@ -191,7 +191,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
   const renderButtonStepAction = () => {
     switch (stepsStatusValue) {
       case OrderStatus.FINALIZED:
-        if (checkIfFulfillmentCancelled(sortedFulfillments[0])) {
+        if (sortedFulfillments.length === 0 || checkIfFulfillmentCancelled(sortedFulfillments[0])) {
           return;
         }
         if (
