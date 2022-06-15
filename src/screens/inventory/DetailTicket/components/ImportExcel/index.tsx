@@ -172,7 +172,8 @@ const ImportExcel: React.FC<ModalImportProps> = (
 
           for (let i = 0; i < convertData.length; i++) {
             for (let j = 0; j < dataTable.length; j++) {
-              if (convertData[i].barcode.toString() === dataTable[j].barcode.toString()) {
+              if (convertData[i].barcode.toString() === dataTable[j].barcode.toString()
+                || (dataTable[j].reference_barcodes && convertData[i].barcode.toString() === dataTable[j].reference_barcodes.toString())) {
                 process.success += 1;
                 break;
               }
