@@ -226,6 +226,8 @@ export default function Order() {
 		setOrderAmount(amount);
 		if (_promotion !== undefined) {
 			setPromotion(_promotion);
+		} else {
+			setPromotion(null)
 		}
 	};
 
@@ -444,11 +446,11 @@ export default function Order() {
 	};
 
 	const createDiscountRequest = () => {
-		let listDiscountRequest = [];
-		if (promotion) {
-			listDiscountRequest.push(promotion);
+		if (!promotion || !promotion.amount || !promotion.value) {
+			return [];
+		} else {
+			return [promotion]
 		}
-		return listDiscountRequest;
 	};
 
 	const createOrderCallback = useCallback(
@@ -609,6 +611,8 @@ export default function Order() {
 						setCreating(false);
 					} else {
 						(async () => {
+							console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount)
+							// return;
 							try {
 								await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 									// on error
@@ -646,6 +650,8 @@ export default function Order() {
 							let isPointFocus = checkPointFocus(values);
 							if (isPointFocus) {
 								(async () => {
+									console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount)
+									// return;
 									try {
 										await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
 											// on error
@@ -819,7 +825,7 @@ export default function Order() {
 										product: item.product,
 										is_composite: false,
 										line_amount_after_line_discount: item.line_amount_after_line_discount,
-										discount_items: item.discount_items,
+										discount_items: item.discount_items.filter(single => single.amount && single.value),
 										discount_rate: item.discount_rate,
 										discount_value: item.discount_value,
 										discount_amount: item.discount_amount,
@@ -828,6 +834,7 @@ export default function Order() {
 										available: item.available,
 									};
 								});
+								console.log('responseItems', responseItems)
 							setItems(responseItems);
 							dispatch(changeOrderLineItemsAction(responseItems));
 
@@ -1218,14 +1225,14 @@ export default function Order() {
 			event.stopPropagation();
 		}
 		if(creating || isLoadingDiscount || isSaveDraft) return;
-		const btnSaveAndComfirm=document.getElementById("save-and-confirm");
-		const btnSaveDrafComfirm=document.getElementById("save-draft-confirm");
+		const btnSaveAndConfirm=document.getElementById("save-and-confirm");
+		const btnSaveDraftConfirm=document.getElementById("save-draft-confirm");
 		switch(event.key){
 			case "F6":
-				btnSaveDrafComfirm?.click();
+				btnSaveDraftConfirm?.click();
 				break;
 			case "F9":
-				btnSaveAndComfirm?.click();
+				btnSaveAndConfirm?.click();
 				break;
 			default:
 				break;

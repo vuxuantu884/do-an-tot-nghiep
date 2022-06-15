@@ -209,7 +209,6 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     let price = findPriceInVariant(variant.variant_prices, AppConfig.currency);
     let taxRate = findTaxInVariant(variant.variant_prices, AppConfig.currency);
     let avatar = findAvatar(variant.variant_images);
-    const discountItem: OrderItemDiscountModel = createNewDiscountItem();
     let orderLine: OrderLineItemRequest = {
       id: new Date().getTime(),
       sku: variant.sku,
@@ -229,7 +228,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       weight: variant.weight,
       weight_unit: variant.weight_unit,
       warranty: variant.product.care_labels,
-      discount_items: [discountItem],
+      discount_items: [],
       discount_amount: 0,
       discount_rate: 0,
       composite: variant.composite,
@@ -275,16 +274,6 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     [props, resultSearch.items, createItem]
     // autoCompleteRef, dispatch, resultSearch
   );
-
-  const createNewDiscountItem = () => {
-    const newDiscountItem: OrderItemDiscountModel = {
-      amount: 0,
-      rate: 0,
-      reason: "",
-      value: 0,
-    };
-    return newDiscountItem;
-  };
 
   const onOkPress = useCallback(() => {
     onOk();
