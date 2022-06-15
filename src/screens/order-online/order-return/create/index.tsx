@@ -1176,6 +1176,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
   );
 
   const createDiscountRequest = useCallback(() => {
+    if(!promotion || !promotion?.value) {
+			return []
+		}
     let objDiscount: OrderDiscountRequest = {
       rate: promotion?.rate,
       value: promotion?.value,
@@ -1210,7 +1213,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_id: null,
       });
     } else if (!promotion) {
-      return null;
+      return [];
     } else {
       listDiscountRequest.push(objDiscount);
     }

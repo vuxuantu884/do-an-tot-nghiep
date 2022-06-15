@@ -126,7 +126,7 @@ type PropTypes = {
 	setStoreId: (item: number) => void;
 	setCoupon?: (item: string) => void;
 	setPromotion?: (item: OrderDiscountRequest | null) => void;
-	setItemGift: (item: []) => void;
+	setItemGift: (item: OrderLineItemRequest[]) => void;
 	changeInfo: (
 		items: Array<OrderLineItemRequest>,
 		promotion: OrderDiscountRequest | null,
@@ -497,13 +497,18 @@ function OrderCreateProduct(props: PropTypes) {
 		if (items) {
 			let amount = totalAmount(items);
 			setChangeMoney(amount);
-			let _itemGifts: any = [];
+			let _itemGifts: OrderLineItemRequest[] = [];
 			for (let i = 0; i < items.length; i++) {
 				if (!items[i].gifts) {
 					return;
 				}
 				_itemGifts = [..._itemGifts, ...items[i].gifts];
 			}
+			console.log('_itemGifts', _itemGifts);
+			_itemGifts.forEach(item => {
+				item.discount_items = item.discount_items.filter(single => single.amount && single.value)
+			})
+			
 			props.setItemGift(_itemGifts);
 		}
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1996,8 +2001,11 @@ function OrderCreateProduct(props: PropTypes) {
 				_promotion = null
 			}
 		}
-		fillCustomNote(_items);
+		if (!_promotion || !_promotion.amount || !_promotion.value) {
+			_promotion = null
+		}
 		props.changeInfo(_items, _promotion);
+		fillCustomNote(_items);
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
 		const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
