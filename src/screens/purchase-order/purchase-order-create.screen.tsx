@@ -317,7 +317,7 @@ const POCreateScreen: React.FC = () => {
             />
           </Col>
         </Row>
-        <div style={{ padding: "0 12px", width: "100%" }}>
+        <div style={{ width: "100%" }}>
           <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
             {
               isGridMode ? (
