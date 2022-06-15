@@ -394,7 +394,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         });
       });
     }
-
+    
     setEcommerceShopList(shopList);
     setEcommerceShopListByAddress(shopList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1111,7 +1111,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     {ecommerceShopList?.map((shopItem: any) => (
                       <TreeSelect.TreeNode
                         key={shopItem.id}
-                        value={Number(shopItem.id)}
+                        value={shopItem.id}
                         title={
                           <span>
                             {getEcommerceIcon(shopItem.ecommerce) &&
