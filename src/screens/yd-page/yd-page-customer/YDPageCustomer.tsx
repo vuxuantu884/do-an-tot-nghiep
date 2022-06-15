@@ -6,10 +6,9 @@ import NoPermission from "screens/no-permission.screen";
 import YDPageCustomerView from "screens/yd-page/yd-page-customer/YDPageCustomerView/YDPageCustomerView";
 import YDPageCustomerCreateUpdate from "screens/yd-page/yd-page-customer/YDPageCustomerCreateUpdate/YDPageCustomerCreateUpdate";
 
-
-const customersReadPermission = [YDpagePermission.customers_read];
-const customersCreatePermission = [YDpagePermission.customers_create];
-const customersUpdatePermission = [YDpagePermission.customers_update];
+const customersReadPermission = [YDpagePermission.customers_read, YDpagePermission.orders_create];
+const customersCreatePermission = [YDpagePermission.customers_create, YDpagePermission.orders_create];
+const customersUpdatePermission = [YDpagePermission.customers_update, YDpagePermission.orders_create];
 
 
 const YDPageCustomer = (props: any) => {
