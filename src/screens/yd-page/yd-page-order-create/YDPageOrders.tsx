@@ -838,7 +838,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     product: item.product,
                     is_composite: false,
                     line_amount_after_line_discount: item.line_amount_after_line_discount,
-                    discount_items: item.discount_items,
+                    discount_items: item.discount_items.filter(single => single.amount && single.value),
                     discount_rate: item.discount_rate,
                     discount_value: item.discount_value,
                     discount_amount: item.discount_amount,
