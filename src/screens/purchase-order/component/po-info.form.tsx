@@ -122,7 +122,9 @@ const POInfoForm: React.FC<POInfoFormProps> = (props: POInfoFormProps) => {
           <div className="d-flex">
             <span className="title-card">THÔNG TIN BỔ SUNG</span>
           </div>
-        }>
+        }
+        style={{ marginBottom: "0" }}
+      >
         <div>
           <Form.Item label="Ghi chú nội bộ" name="note">
             <Input.TextArea maxLength={500} placeholder="Nhập ghi chú" />

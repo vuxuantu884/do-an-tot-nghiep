@@ -1,7 +1,7 @@
 import { Card, Input, Form, Button, Row, Divider, Col, FormInstance, Checkbox } from "antd";
 
 import { MailFilled } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState, lazy } from "react";
+import React, { useCallback, useMemo, useState, lazy, useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -20,6 +20,7 @@ import _ from "lodash";
 import POSupplierAddress from "./POSupplierAddress";
 import { EmailWrap } from "./index.style";
 import { POField } from "model/purchase-order/po-field";
+import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 
 const SupplierAddModal = lazy(
   () => import("screens/products/supplier/modal/supplier-add-modal.screen")
@@ -46,11 +47,15 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     hideExpand,
     stepStatus,
   } = props;
+  const {
+    purchaseOrder,
+  } = useContext(PurchaseOrderCreateContext);
+
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const dispatch = useDispatch();
-  const [isSendInvoice, setIsSendInvoice] = useState(!!hideExpand);
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
+  const [isSendInvoice, setIsSendInvoice] = useState((!!hideExpand) || (!!purchaseOrder?.billing_address?.email));
   const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] = useState(false);
   const onResult = useCallback((result: PageResponse<SupplierResponse>) => {
     setLoadingSearch(false);
@@ -59,6 +64,10 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
   const [addressChange, setAddressChange] = useState<PurchaseAddress>();
   const [addressChangeType, setAddressChangeType] = useState<string>("");
   const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(isEdit);
+
+  useEffect(() => {
+    setIsSendInvoice((!!hideExpand) || (!!purchaseOrder?.billing_address?.email))
+  }, [purchaseOrder?.billing_address?.email, hideExpand])
 
   const debouncedSearchSupplier = React.useMemo(
     () =>
@@ -180,7 +189,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
           </div>
         }>
         <div>
-          <Form.Item name={POField.payment_condition_name} noStyle/>
+          <Form.Item name={POField.payment_condition_name} noStyle />
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
@@ -205,7 +214,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                     </Link>
                     {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
                     {!isEdit && (!status || status === POStatus.DRAFT) && (
-                      <Button type="link" onClick={removeSupplier} style={{display: "flex", alignItems: "center"}} icon={<AiOutlineClose />} />
+                      <Button type="link" onClick={removeSupplier} style={{ display: "flex", alignItems: "center" }} icon={<AiOutlineClose />} />
                     )}
                   </Row>
                   <Divider style={{ marginBottom: 0 }} />
@@ -254,8 +263,8 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                           />
                           <Divider style={{ marginTop: 0 }} />
                           {isEdit ||
-                          stepStatus === POStatus.COMPLETED ||
-                          stepStatus === POStatus.FINISHED ? (
+                            stepStatus === POStatus.COMPLETED ||
+                            stepStatus === POStatus.FINISHED ? (
                             <EmailWrap>
                               <MailFilled />
                               <span className="label">
