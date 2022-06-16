@@ -16,30 +16,26 @@ import {
   AutoComplete,
   Spin,
 } from "antd";
-import {FilterOutlined, DownOutlined, LoadingOutlined} from "@ant-design/icons";
+import {DownOutlined, FilterOutlined, LoadingOutlined} from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
 import CustomSelect from "component/custom/select.custom";
-import CustomRangeDatePicker from "component/custom/new-date-range-picker";
 import {fullTextSearch} from "utils/StringUtils";
 
-import { AccountResponse } from "model/account/account.model";
+import {AccountResponse} from "model/account/account.model";
 import {EcommerceOrderSearchQuery, OrderSearchQuery} from "model/order/order.model";
-import { SourceResponse } from "model/response/order/source.response";
-import { StoreResponse } from "model/core/store.model";
-import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { getShopEcommerceList } from "domain/actions/ecommerce/ecommerce.actions";
+import {SourceResponse} from "model/response/order/source.response";
+import {StoreResponse} from "model/core/store.model";
+import {OrderProcessingStatusModel} from "model/response/order-processing-status.response";
+import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
+import {getShopEcommerceList} from "domain/actions/ecommerce/ecommerce.actions";
 
-import { StyledOrderFilter } from "screens/ecommerce/orders/orderStyles";
-import 'component/filter/order.filter.scss'
+import {StyledOrderFilter} from "screens/ecommerce/orders/orderStyles";
 
-// import search from "assets/img/search.svg";
-import { ECOMMERCE_LIST, getEcommerceIcon, getEcommerceIdByChannelCode } from "screens/ecommerce/common/commonAction";
+import {ECOMMERCE_LIST, getEcommerceIcon, getEcommerceIdByChannelCode} from "screens/ecommerce/common/commonAction";
 import TreeStore from "component/tree-node/tree-store";
 import "screens/ecommerce/orders/ecommerce-order.scss"
 import CustomSelectTags from "component/custom/custom-select-tag";
-import moment from "moment";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import {searchAccountApi} from "service/accounts/account.service";
 import {convertItemToArray, handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
@@ -49,6 +45,10 @@ import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
 import {RefSelectProps} from "antd/lib/select";
 import {searchVariantsOrderRequestAction} from "domain/actions/product/products.action";
 import {showError} from "utils/ToastUtils";
+import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
+import {DATE_FORMAT, formatDateFilter} from "utils/DateUtils";
+import {formatDateTimeOrderFilter, getTimeFormatOrderFilterTag} from "utils/OrderUtils";
+import {POS} from "utils/Constants";
 
 type EcommerceOrderFilterProps = {
   params: EcommerceOrderSearchQuery;
@@ -76,6 +76,8 @@ const initQueryVariant: VariantSearchQuery = {
   page: 1,
   saleable: true,
 };
+
+const dateFormat = DATE_FORMAT.DD_MM_YY_HHmm;
 
 
 const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
@@ -296,7 +298,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   
   const listSources = useMemo(() => {
-    return listSource.filter((item) => item.code !== "pos");  // todo thai need check and update
+    return listSource.filter((item) => item.code?.toUpperCase() !== POS.source_code);
   }, [listSource]);
 
   const initialValues = useMemo(() => {
@@ -321,8 +323,17 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
       assignee_codes: Array.isArray(params.assignee_codes) ? params.assignee_codes : [params.assignee_codes],
       account_codes: Array.isArray(params.account_codes) ? params.account_codes : [params.account_codes],
-  }}, [params])
-  
+      issued_on_min: formatDateFilter(params.issued_on_min || undefined),
+      issued_on_max: formatDateFilter(params.issued_on_max || undefined),
+      finalized_on_min: formatDateFilter(params.finalized_on_min || undefined),
+      finalized_on_max: formatDateFilter(params.finalized_on_max || undefined),
+      cancelled_on_min: formatDateFilter(params.cancelled_on_min || undefined),
+      cancelled_on_max: formatDateFilter(params.cancelled_on_max || undefined),
+      completed_on_min: formatDateFilter(params.completed_on_min || undefined),
+      completed_on_max: formatDateFilter(params.completed_on_max || undefined),
+    };
+  }, [params])
+
   const onFinish = useCallback(
     (values) => {
       let error = false;
@@ -331,14 +342,15 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         'finalized_on_min', 'finalized_on_max',
         'completed_on_min', 'completed_on_max',
         'cancelled_on_min', 'cancelled_on_max',
-        'expected_receive_on_min', 'expected_receive_on_max',
       ]).forEach(field => {
         if (field.errors.length) {
           error = true
         }
       })
 
-      if (!error) {
+      if (error) {
+        showError("Dữ liệu bộ lọc chưa đúng. Vui lòng kiểm tra lại.")
+      } else {
         setVisible(false);
         values.searched_product = keySearchVariant;
         if (values?.price_min > values?.price_max) {
@@ -348,6 +360,15 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             price_max: values?.price_min,
           }
         }
+        values.issued_on_min = formatDateTimeOrderFilter(values.issued_on_min || initialValues.issued_on_min, dateFormat);
+        values.issued_on_max = formatDateTimeOrderFilter(values.issued_on_max || initialValues.issued_on_max, dateFormat);
+        values.finalized_on_min = formatDateTimeOrderFilter(values.finalized_on_min || initialValues.finalized_on_min, dateFormat);
+        values.finalized_on_max = formatDateTimeOrderFilter(values.finalized_on_max || initialValues.finalized_on_max, dateFormat);
+        values.cancelled_on_min = formatDateTimeOrderFilter(values.cancelled_on_min || initialValues.cancelled_on_min, dateFormat);
+        values.cancelled_on_max = formatDateTimeOrderFilter(values.cancelled_on_max || initialValues.cancelled_on_max, dateFormat);
+        values.completed_on_min = formatDateTimeOrderFilter(values.completed_on_min || initialValues.completed_on_min, dateFormat);
+        values.completed_on_max = formatDateTimeOrderFilter(values.completed_on_max || initialValues.completed_on_max, dateFormat);
+
         onFilter && onFilter({...values, tags: [...tags]});
         setRerender(false)
       }
@@ -535,8 +556,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       })
     }
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
-      let textOrderCreateDate = (initialValues.issued_on_min ? initialValues.issued_on_min : '??')
-        + " ~ " + (initialValues.issued_on_max ? initialValues.issued_on_max : '??')
+      const textOrderCreateDate =
+        (initialValues.issued_on_min ? getTimeFormatOrderFilterTag(initialValues.issued_on_min, dateFormat) : "??") +
+        " ~ " +
+        (initialValues.issued_on_max ? getTimeFormatOrderFilterTag(initialValues.issued_on_max, dateFormat) : "??");
       list.push({
         key: 'issued',
         name: 'Ngày tạo đơn',
@@ -544,23 +567,32 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       })
     }
     if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
-      let textOrderFinalizedDate = (initialValues.finalized_on_min ? initialValues.finalized_on_min : '??') + " ~ " + (initialValues.finalized_on_max ? initialValues.finalized_on_max : '??')
+      const textOrderFinalizedDate =
+        (initialValues.finalized_on_min ? getTimeFormatOrderFilterTag(initialValues.finalized_on_min, dateFormat) : "??") +
+        " ~ " +
+        (initialValues.finalized_on_max ? getTimeFormatOrderFilterTag(initialValues.finalized_on_max, dateFormat) : "??");
       list.push({
         key: 'finalized',
-        name: 'Ngày duyệt đơn',
+        name: 'Ngày xác nhận',
         value: textOrderFinalizedDate
       })
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
-      let textOrderCompleteDate = (initialValues.completed_on_min ? initialValues.completed_on_min : '??') + " ~ " + (initialValues.completed_on_max ? initialValues.completed_on_max : '??')
+      const textOrderCompleteDate =
+        (initialValues.completed_on_min ? getTimeFormatOrderFilterTag(initialValues.completed_on_min, dateFormat) : "??") +
+        " ~ " +
+        (initialValues.completed_on_max ? getTimeFormatOrderFilterTag(initialValues.completed_on_max, dateFormat) : "??");
       list.push({
         key: 'completed',
-        name: 'Ngày hoàn tất đơn',
+        name: 'Ngày thành công',
         value: textOrderCompleteDate
       })
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
-      let textOrderCancelDate = (initialValues.cancelled_on_min ? initialValues.cancelled_on_min : '??') + " ~ " + (initialValues.cancelled_on_max ? initialValues.cancelled_on_max : '??')
+      const textOrderCancelDate =
+        (initialValues.cancelled_on_min ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_min, dateFormat) : "??") +
+        " ~ " +
+        (initialValues.cancelled_on_max ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_max, dateFormat) : "??");
       list.push({
         key: 'cancelled',
         name: 'Ngày huỷ đơn',
@@ -568,14 +600,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       })
     }
 
-    if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
-      let textExpectReceiveDate = (initialValues.expected_receive_on_min ? initialValues.expected_receive_on_min : '??') + " ~ " + (initialValues.expected_receive_on_max ? initialValues.expected_receive_on_max : '??')
-      list.push({
-        key: 'expected',
-        name: 'Ngày dự kiến nhận hàng',
-        value: textExpectReceiveDate
-      })
-    }
     if (initialValues.order_status.length) {
       let textStatus = ""
       initialValues.order_status.forEach(i => {
@@ -782,8 +806,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     initialValues.completed_on_max,
     initialValues.cancelled_on_min,
     initialValues.cancelled_on_max,
-    initialValues.expected_receive_on_min,
-    initialValues.expected_receive_on_max,
     initialValues.order_status,
     initialValues.sub_status_code,
     initialValues.fulfillment_status,
@@ -853,10 +875,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
           setCancelledClick('')
           onFilter && onFilter({...params, cancelled_on_min: null, cancelled_on_max: null});
           break;
-        // case 'expected':
-        //   setExpectedClick('')
-        //   onFilter && onFilter({...params, expected_receive_on_min: null, expected_receive_on_max: null});
-        //   break;
         case 'order_status':
           onFilter && onFilter({...params, order_status: []});
           break;
@@ -931,86 +949,10 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
   );
   // end handle tag filter
 
-  //handle query params filter
-  const onCheckDateFilterParam = (date_from: any, date_to: any, setDate: any) => {
-      const todayFrom = moment().startOf('day').format('DD-MM-YYYY')
-      const todayTo = moment().endOf('day').format('DD-MM-YYYY')
-
-      const yesterdayFrom = moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-      const yesterdayTo = moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY')
-
-      const thisWeekFrom = moment().startOf('week').format('DD-MM-YYYY')
-      const thisWeekTo = moment().endOf('week').format('DD-MM-YYYY')
-
-      const lastWeekFrom = moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-      const lastWeekTo = moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY')
-
-      const thisMonthFrom = moment().startOf('month').format('DD-MM-YYYY')
-      const thisMonthTo = moment().endOf('month').format('DD-MM-YYYY')
-
-      const lastMonthFrom = moment().startOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-      const lastMonthTo = moment().endOf('month').subtract(1, 'months').format('DD-MM-YYYY')
-
-      
-      if (date_from === todayFrom && date_to === todayTo) {
-        setDate("today");
-      }else if (date_from === yesterdayFrom && date_to === yesterdayTo) {
-        setDate("yesterday");
-      }else if (date_from === thisWeekFrom && date_to === thisWeekTo) {
-        setDate("thisweek");
-      }else if (date_from === lastWeekFrom && date_to === lastWeekTo) {
-        setDate("lastweek");
-      }else if(date_from === thisMonthFrom && date_to === thisMonthTo) {
-        setDate("thismonth");
-      }else if (date_from === lastMonthFrom && date_to === lastMonthTo) {
-        setDate("lastmonth");
-      }else {
-        setDate("")
-      }
-  }
-
   useEffect(() => {
-    let channelCodes = convertItemToArray(params.channel_codes);
-    if (channelCodes.length !== 1) {
-      channelCodes = [];
-    }
-
     form.setFieldsValue({
-      channel_codes: channelCodes,
-      ecommerce_shop_ids: Array.isArray(params.ecommerce_shop_ids) ?
-        params.ecommerce_shop_ids.map(i => i)
-        : [params.ecommerce_shop_ids],
-      search_term: params.search_term,
-      reference_code: params.reference_code,
-      tracking_codes: params.tracking_codes,
-      sub_status_code: params.sub_status_code
+      ...initialValues
     });
-
-    formRef?.current?.setFieldsValue({
-      store_ids: params.store_ids,
-      source_ids: params.source_ids,
-      issued_on_min: params.issued_on_min,
-      issued_on_max: params.issued_on_max,
-      finalized_on_min: params.finalized_on_min,
-      finalized_on_max: params.finalized_on_max,
-      completed_on_min: params.completed_on_min,
-      completed_on_max: params.completed_on_max,
-      cancelled_on_min: params.cancelled_on_min,
-      cancelled_on_max: params.cancelled_on_max,
-      order_status: params.order_status,
-      fulfillment_status: params.fulfillment_status,
-      return_status: params.return_status,
-      assignee_codes: params.assignee_codes,
-      delivery_provider_ids: params.delivery_provider_ids,
-      note: params.note,
-      customer_note: params.customer_note,
-      tags: params.tags,
-    })
-
-    onCheckDateFilterParam(params.issued_on_min, params.issued_on_max, setIssuedClick)
-    onCheckDateFilterParam(params.finalized_on_min, params.finalized_on_max, setFinalizedClick)
-    onCheckDateFilterParam(params.completed_on_min, params.completed_on_max, setCompletedClick)
-    onCheckDateFilterParam(params.cancelled_on_min, params.cancelled_on_max, setCancelledClick)
 
     if(!params.tags.length) {
       setTags([]);
@@ -1021,6 +963,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       : [params.tags];
       tagsFilter.length > 0 && tagsFilter.map(item => tagsArr.push(item))
       setTags(tagsArr);
+    }
+
+    let channelCodes = convertItemToArray(params.channel_codes);
+    if (channelCodes.length !== 1) {
+      channelCodes = [];
     }
 
     if (channelCodes.length === 1) {
@@ -1037,7 +984,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     handleOnSearchProduct(params.searched_product || "");
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, params]);
+  }, [form, params, initialValues]);
 
 
   return (
@@ -1246,55 +1193,19 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
             onFinish={onFinish}
             ref={formRef}
             initialValues={params}
+            form={form}
             layout="vertical"
           >
             
             <Row gutter={20}>
-              <Col span={8} xxl={6}>
-                <p>Kho cửa hàng</p>
-                <Item name="store_ids">
-                  {/* <CustomSelect
-                    mode="multiple"
-                    showArrow allowClear
-                    showSearch
-                    placeholder="Cửa hàng"
-                    notFoundContent="Không tìm thấy kết quả"
-                    style={{
-                      width: '100%'
-                    }}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {listStore?.map((item) => (
-                      <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect> */}
+              <Col span={8} xxl={8}>
+                <Item name="store_ids" label="Kho cửa hàng">
                   <TreeStore listStore={listStore} placeholder="Cửa hàng" notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}/>
                 </Item>
-                <p>Trạng thái đơn</p>
-                <Item name="order_status">
-                  <CustomSelect
-                    mode="multiple" allowClear
-                    showSearch placeholder="Chọn trạng thái đơn hàng"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children" showArrow
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {status?.map((item) => (
-                      <CustomSelect.Option key={item.value} value={item.value.toString()}>
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item>
               </Col>
-              <Col span={8} xxl={6}>
-                <p>Nguồn đơn hàng</p>
-                <Item name="source_ids">
+
+              <Col span={8} xxl={8}>
+                <Item name="source_ids" label="Nguồn đơn hàng">
                   <CustomSelect
                     mode="multiple"
                     style={{ width: '100%'}}
@@ -1317,8 +1228,42 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     ))}
                   </CustomSelect>
                 </Item>
-                <p>Giao hàng</p>
-                <Item name="fulfillment_status">
+              </Col>
+
+              <Col span={8} xxl={8}>
+                <div className="ant-form-item-label"><label>Ngày tạo đơn</label></div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="issued_on_min"
+                  fieldNameTo="issued_on_max"
+                  activeButton={issuedClick}
+                  setActiveButton={setIssuedClick}
+                  format={dateFormat}
+                  formRef={formRef}
+                  showTime
+                />
+              </Col>
+
+              <Col span={8}  xxl={8}>
+                <Item name="order_status" label="Trạng thái đơn">
+                  <CustomSelect
+                    mode="multiple" allowClear
+                    showSearch placeholder="Chọn trạng thái đơn hàng"
+                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    optionFilterProp="children" showArrow
+                    getPopupContainer={trigger => trigger.parentNode}
+                    maxTagCount='responsive'
+                  >
+                    {status?.map((item) => (
+                      <CustomSelect.Option key={item.value} value={item.value.toString()}>
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+              </Col>
+
+              <Col span={8}  xxl={8}>
+                <Item name="fulfillment_status" label="Giao hàng">
                   <CustomSelect
                     mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn trạng thái giao hàng"
@@ -1327,67 +1272,54 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                     getPopupContainer={trigger => trigger.parentNode}
                     maxTagCount='responsive'
                   >
-                      {fulfillmentStatus.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value.toString()}
-                        >
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
+                    {fulfillmentStatus.map((item, index) => (
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.value.toString()}
+                      >
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
                   </CustomSelect>
                 </Item>
               </Col>
-              <Col span={8}  xxl={6}>
-                <p>Ngày tạo đơn</p>
-                <CustomRangeDatePicker
-                  fieldNameFrom="issued_on_min"
-                  fieldNameTo="issued_on_max"
-                  activeButton={issuedClick}
-                  setActiveButton={setIssuedClick}
-                  format="DD-MM-YYYY"
-                  formRef={formRef}
-                />
-              </Col>
             
-              <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
-                <p>Ngày duyệt đơn</p>
-                <CustomRangeDatePicker
+              <Col span={8} xxl={8}>
+                <div className="ant-form-item-label"><label>Ngày xác nhận</label></div>
+                <CustomFilterDatePicker
                   fieldNameFrom="finalized_on_min"
                   fieldNameTo="finalized_on_max"
                   activeButton={finalizedClick}
                   setActiveButton={setFinalizedClick}
-                  format="DD-MM-YYYY"
+                  format={dateFormat}
                   formRef={formRef}
+                  showTime
                 />
               </Col>
-              <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
-                <p>Ngày hoàn tất đơn</p>
-                <CustomRangeDatePicker
-                  fieldNameFrom="completed_on_min"
-                  fieldNameTo="completed_on_max"
-                  activeButton={completedClick}
-                  setActiveButton={setCompletedClick}
-                  format="DD-MM-YYYY"
-                  formRef={formRef}
-                />
+
+              <Col span={8} xxl={8}>
+                <Item name="return_status" label="Trả hàng">
+                  <CustomSelect
+                    mode="multiple" showSearch allowClear
+                    showArrow placeholder="Chọn trạng thái trả hàng"
+                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key="1"
+                      value="1"
+                    >
+                      Pending trạng thái trả hàng
+                    </CustomSelect.Option>
+                  </CustomSelect>
+                </Item>
               </Col>
-              <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
-                <p>Ngày huỷ đơn</p>
-                <CustomRangeDatePicker
-                  fieldNameFrom="cancelled_on_min"
-                  fieldNameTo="cancelled_on_max"
-                  activeButton={cancelledClick}
-                  setActiveButton={setCancelledClick}
-                  format="DD-MM-YYYY"
-                  formRef={formRef}
-                />
-              </Col>
-            
-              <Col span={8} xxl={6}>
-                <p>Sản phẩm</p>
-                <Item>
+
+              <Col span={8} xxl={8}>
+                <Item label="Sản phẩm">
                   <AutoComplete
                     notFoundContent={isSearchingProducts ? <Spin size="small"/> : "Không tìm thấy sản phẩm"}
                     id="search_product"
@@ -1417,26 +1349,23 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   </AutoComplete>
                 </Item>
               </Col>
-              <Col span={8} xxl={6}>
-                <p>Trả hàng</p>
-                <Item name="return_status">
-                  <CustomSelect
-                    mode="multiple" showSearch allowClear
-                    showArrow placeholder="Chọn trạng thái trả hàng"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                  >
-                    <CustomSelect.Option
-                      style={{ width: "100%" }}
-                      key="1"
-                      value="1"
-                    >
-                      Pending trạng thái trả hàng
-                    </CustomSelect.Option>
-                  </CustomSelect>
-                </Item>
 
+              <Col span={8} xxl={8}>
+                <div className="ant-form-item-label">
+                  <label>Ngày thành công</label>
+                </div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="completed_on_min"
+                  fieldNameTo="completed_on_max"
+                  activeButton={completedClick}
+                  setActiveButton={setCompletedClick}
+                  format={dateFormat}
+                  formRef={formRef}
+                  showTime
+                />
+              </Col>
+
+              <Col span={8} xxl={8}>
                 <Item name="assignee_codes" label="Nhân viên bán hàng">
                   <AccountCustomSearchSelect
                     placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -1449,128 +1378,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   />
                 </Item>
               </Col>
-              {/* <Col span={8} xxl={6}>
-                <p>Nhân viên tạo đơn</p>
-                <Item name="account_codes">
-                  <CustomSelect
-                    mode="multiple" showSearch allowClear
-                    showArrow placeholder="Chọn nhân viên tạo đơn"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {accounts.map((item, index) => (
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.code.toString()}
-                      >
-                        {`${item.full_name} - ${item.code}`}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item>
-                <p>Tổng tiền</p>
-                <div className="date-range">
-                  <Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
-                    <InputNumber
-                      className="price_min"
-                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      placeholder="Từ"
-                      min="0"
-                      max="100000000"
-                    />
-                  </Item>
-                  
-                  <div className="swap-right-icon"><SwapRightOutlined /></div>
-                  <Item name="price_max" style={{width: '45%', marginBottom: 0}}>
-                    <InputNumber
-                      className="site-input-right price_max"
-                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                      placeholder="Đến"
-                      min="0"
-                      max="1000000000"
-                    />
-                  </Item>
-                </div>
-              </Col> */}
-              
-              {/* <Col span={8} xxl={6}>
-                <p>Phương thức thanh toán</p>
-                <Item name="payment_method_ids">
-                  <CustomSelect
-                    mode="multiple" optionFilterProp="children"
-                    showSearch showArrow allowClear
-                    notFoundContent="Không tìm thấy kết quả"
-                    placeholder="Chọn phương thức thanh toán" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {listPaymentMethod.map((item, index) => (
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.id.toString()}
-                      >
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item>
-                <p>Đối tác giao hàng</p>
-                <Item name="shipper_ids">
-                  <CustomSelect
-                    mode="multiple" showSearch allowClear
-                    showArrow placeholder="Chọn đối tác giao hàng"
-                    notFoundContent="Không tìm thấy kết quả" style={{width: '100%'}}
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {accounts.filter(account => account.is_shipper === true)?.map((account) => (
-                      <CustomSelect.Option key={account.id} value={account.id}>
-                        {account.full_name} - {account.code}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item>
-              </Col> */}
 
-              {/* <Col span={8} xxl={6} style={{ marginBottom: '20px'}}>
-                <p>Ngày dự kiến nhận hàng</p>
-                
-                <CustomRangeDatePicker
-                  fieldNameFrom="expected_receive_on_min"
-                  fieldNameTo="expected_receive_on_max"
-                  activeButton={expectedClick}
-                  setActiveButton={setExpectedClick}
-                  format="DD-MM-YYYY"
-                  formRef={formRef}
-                />
-              </Col> */}
-
-              <Col span={8} xxl={6}>
-                {/* <p>Hình thức vận chuyển</p>
-                <Item name="delivery_types">
-                  <CustomSelect
-                    mode="multiple" allowClear
-                    optionFilterProp="children" showSearch
-                    showArrow notFoundContent="Không tìm thấy kết quả"
-                    placeholder="Chọn hình thức vận chuyển" style={{width: '100%'}}
-                    getPopupContainer={trigger => trigger.parentNode}
-                    maxTagCount='responsive'
-                  >
-                    {serviceType?.map((item) => (
-                      <CustomSelect.Option key={item.value} value={item.value}>
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item> */}
-
-                <p>Đơn vị vận chuyển</p>
-                <Item name="delivery_provider_ids">
+              <Col span={8} xxl={8}>
+                <Item name="delivery_provider_ids" label="Đơn vị vận chuyển">
                   <CustomSelect
                     mode="multiple" showSearch allowClear
                     showArrow placeholder="Chọn đơn vị vận chuyển"
@@ -1588,23 +1398,36 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                 </Item>
               </Col>
 
-              <Col span={8} xxl={6}>
-                <p>Tags</p>
-                <Item name="tags">
-                 <CustomSelectTags onChangeTag={onChangeTag} tags={tags} />
+              <Col span={8} xxl={8}>
+                <div className="ant-form-item-label">
+                  <label>Ngày huỷ đơn</label>
+                </div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="cancelled_on_min"
+                  fieldNameTo="cancelled_on_max"
+                  activeButton={cancelledClick}
+                  setActiveButton={setCancelledClick}
+                  format={dateFormat}
+                  formRef={formRef}
+                  showTime
+                />
+              </Col>
+
+              <Col span={8} xxl={8}>
+                <Item name="tags" label="Tags">
+                  <CustomSelectTags onChangeTag={onChangeTag} tags={tags} />
                 </Item>
               </Col>
 
-              <Col span={8} xxl={6}>
-                <p>Ghi chú nội bộ</p>
-                <Item name="note">
+              <Col span={8} xxl={8}>
+                <Item name="note" label="Ghi chú nội bộ">
                   <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú nội bộ" />
                 </Item>
               </Col>
-              <Col span={8} xxl={6}>
-                <p>Ghi chú của khách</p>
-                <Item name="customer_note">
-                <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
+
+              <Col span={8} xxl={8}>
+                <Item name="customer_note" label="Ghi chú của khách">
+                  <Input.TextArea style={{ width: "100%" }} placeholder="Tìm kiếm theo nội dung ghi chú của khách" />
                 </Item>
               </Col>
             </Row>
