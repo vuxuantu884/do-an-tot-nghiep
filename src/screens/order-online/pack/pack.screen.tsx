@@ -23,7 +23,7 @@ import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receip
 import { StyledComponent } from "./styles";
 import './styles.scss';
 import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
-import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getListOrderApi } from "service/order/order.service";
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
@@ -106,7 +106,7 @@ const PackSupportScreen: React.FC = () => {
     if (packInfo) {
       dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
-      let packData: PackModel = { ...new PackModelDefaltValue(), ...packInfoConvertJson };
+      let packData: PackModel = { ...new PackModelDefaultValue(), ...packInfoConvertJson };
       // let storeId: number | null | undefined = packData.store_id ? 
       //   listStoresDataCanAccess.findIndex((p) => p.id === packData.store_id) !== -1 
       //   ? packData.store_id : null : null;

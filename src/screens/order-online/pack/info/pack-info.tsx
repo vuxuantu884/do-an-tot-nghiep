@@ -27,7 +27,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import barcodeIcon from "assets/img/scanbarcode.svg";
-import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { RegUtil } from "utils/RegUtils";
 import { FulFillmentStatus } from "utils/Constants";
 import { FulfillmentsOrderPackQuery } from "model/order/order.model";
@@ -40,7 +40,7 @@ import { ArrowRightOutlined } from "@ant-design/icons";
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
   color: string;
-  reference_barcodes?: string | null;
+  reference_barcode?: string | null;
 }
 
 var barcode = "";
@@ -60,7 +60,7 @@ const PackInfo: React.FC = () => {
   const [itemProductList, setItemProductList] = useState<OrderLineItemResponseExt[]>([]);
 
   const [disableStoreId, setDisableStoreId] = useState(false);
-  const [disableDeliveryPproviderId, setDisableDeliveryProviderId] = useState(false);
+  const [disableDeliveryProviderId, setDisableDeliveryProviderId] = useState(false);
   const [disableOrder, setDisableOrder] = useState(false);
   const [disableProduct, setDisableProduct] = useState(true);
   const [disableQuality, setDisableQuality] = useState(true);
@@ -69,15 +69,15 @@ const PackInfo: React.FC = () => {
   //element
   const btnFinishPackElement = document.getElementById("btnFinishPack");
   const btnClearPackElement = document.getElementById("btnClearPack");
-  const OrderRequestElement: any = document.getElementById("order_request");
-  const ProductRequestElement: any = document.getElementById("inputProduct");
+  const orderRequestElement: any = document.getElementById("order_request");
+  const productRequestElement: any = document.getElementById("inputProduct");
 
-  OrderRequestElement?.addEventListener("focus", (e: any) => {
-    OrderRequestElement.select();
+  orderRequestElement?.addEventListener("focus", (e: any) => {
+    orderRequestElement.select();
   });
 
-  ProductRequestElement?.addEventListener("focus", (e: any) => {
-    ProductRequestElement.select();
+  productRequestElement?.addEventListener("focus", (e: any) => {
+    productRequestElement.select();
   });
 
   //context
@@ -119,9 +119,9 @@ const PackInfo: React.FC = () => {
   // },[dispatch]);
 
   const handleProducrSearch = useCallback((data: PackFulFillmentResponse) => {
-    let barcodes = data.items.map(p => p.variant_barcode);
+    let variantBarcode = data.items.map(p => p.variant_barcode);
     let initQueryVariant: any = {
-      barcode: barcodes
+      barcode: variantBarcode
     }
 
     dispatch(searchVariantsRequestAction(initQueryVariant, (response: false | PageResponse<VariantResponse>) => {
@@ -144,7 +144,7 @@ const PackInfo: React.FC = () => {
 
               if (order_request && packFulFillmentResponse) {
                 formRef.current?.setFieldsValue({ product_request: barcode });
-                ProductRequestElement?.blur();
+                productRequestElement?.blur();
                 ProductPack(barcode, 1);
                 //btnFinishPackElement?.click();
               }
@@ -155,7 +155,7 @@ const PackInfo: React.FC = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [formRef, packFulFillmentResponse, ProductRequestElement]
+    [formRef, packFulFillmentResponse, productRequestElement]
   );
 
   const eventKeyboardFunction=useCallback((event:KeyboardEvent)=>{
@@ -167,11 +167,11 @@ const PackInfo: React.FC = () => {
     }
     switch(event.key){
       case "F3": 
-        OrderRequestElement?.focus();
+        orderRequestElement?.focus();
         break;
       default: break;
     }
-  },[OrderRequestElement])
+  },[orderRequestElement])
 
   const onPressEnterOrder = useCallback(
     (value: string) => {
@@ -197,7 +197,7 @@ const PackInfo: React.FC = () => {
                 setDisableDeliveryProviderId(true);
                 setDisableOrder(true);
                 setPackModel({
-                  ...new PackModelDefaltValue(),
+                  ...new PackModelDefaultValue(),
                   ...packModel,
                   store_id: storeId
                 });
@@ -210,7 +210,7 @@ const PackInfo: React.FC = () => {
               }
               else
                 showError("Đơn hàng không thuộc cửa hàng được phân bổ");
-              OrderRequestElement?.blur();
+              orderRequestElement?.blur();
 
 
               handleProducrSearch(fMSuccess[0])
@@ -223,20 +223,20 @@ const PackInfo: React.FC = () => {
           })
         );
 
-        OrderRequestElement?.select();
+        orderRequestElement?.select();
       }
     },
-    [formRef, dispatch, OrderRequestElement, listStoresDataCanAccess, handleProducrSearch, setPackModel, packModel]
+    [formRef, dispatch, orderRequestElement, listStoresDataCanAccess, handleProducrSearch, setPackModel, packModel]
   );
 
   const onPressEnterProduct = useCallback(
     (value: string) => {
       if (value.trim()) {
         btnFinishPackElement?.click();
-        ProductRequestElement?.select();
+        productRequestElement?.select();
       }
     },
-    [btnFinishPackElement, ProductRequestElement]
+    [btnFinishPackElement, productRequestElement]
   );
 
   const onPressEnterQuality = useCallback(
@@ -268,7 +268,7 @@ const PackInfo: React.FC = () => {
   const ProductPack = useCallback((product_request: string, quality_request: number) => {
     let indexPack = itemProductList.findIndex(
       (p) =>
-        p.sku === product_request.trim() || p.variant_barcode === product_request.trim() || fullTextSearch(product_request.trim(),p.reference_barcodes||"")
+        p.sku === product_request.trim() || p.variant_barcode === product_request.trim() || fullTextSearch(product_request.trim(),p.reference_barcode||"")
     );
 
     if (indexPack !== -1) {
@@ -312,11 +312,11 @@ const PackInfo: React.FC = () => {
   }, [formRef, ProductPack]);
 
   const onChangeStoreId = useCallback((value?: number) => {
-    setPackModel({ ...new PackModelDefaltValue(), ...packModel, store_id: value });
+    setPackModel({ ...new PackModelDefaultValue(), ...packModel, store_id: value });
     setPackInfo({ ...packModel, store_id: value });
   }, [packModel, setPackModel]);
   const onChangeDeliveryServiceId = useCallback((value?: number) => {
-    setPackModel({ ...new PackModelDefaltValue(), ...packModel, delivery_service_provider_id: value });
+    setPackModel({ ...new PackModelDefaultValue(), ...packModel, delivery_service_provider_id: value });
     setPackInfo({ ...packModel, delivery_service_provider_id: value });
     idDonHangRef?.current?.focus();
   }, [idDonHangRef, packModel, setPackModel]);
@@ -366,10 +366,10 @@ const PackInfo: React.FC = () => {
           let quantity = item[indexDuplicate].quantity + i.quantity;
 
           item[indexDuplicate].quantity = quantity;
-          item[indexDuplicate].reference_barcodes = reference_barcodes;
+          item[indexDuplicate].reference_barcode = reference_barcodes;
         }
         else
-          item.push({ ...i, pick: 0, color: "#E24343", reference_barcodes: reference_barcodes });
+          item.push({ ...i, pick: 0, color: "#E24343", reference_barcode: reference_barcodes });
       });
       setItemProductList(item);
     }
@@ -394,25 +394,25 @@ const PackInfo: React.FC = () => {
           items: packFulFillmentResponse.items,
         };
 
-        let packData: PackModel = { ...new PackModelDefaltValue(), ...packModel };
+        let packData: PackModel = { ...new PackModelDefaultValue(), ...packModel };
         // console.log("PackModel", packData);
 
         dispatch(
           getFulfillmentsPack(request, (data: any) => {
             if (data) {
               btnClearPackElement?.click();
-
-              packData?.order?.push({ ...packFulFillmentResponse });
+              // let insertOrderData: PackFulFillmentResponse[]= insertArray([...packData?.order],0, {...packFulFillmentResponse})
+              packData.order.unshift({...packFulFillmentResponse});
               setPackModel(packData);
               setPackInfo(packData);
-              OrderRequestElement?.focus();
+              orderRequestElement?.focus();
               showSuccess("Đóng gói đơn hàng thành công");
             }
           })
         );
       }
     }
-  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history, OrderRequestElement]);
+  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history, orderRequestElement]);
 
   useEffect(() => {
     if (disableOrder) {
@@ -440,7 +440,7 @@ const PackInfo: React.FC = () => {
   ///useEffect
 
   //columns
-  const SttColumn = {
+  const sttColumn = {
     title: () => (
       <span style={{ textAlign: "right" }}>STT</span>
     ),
@@ -451,7 +451,7 @@ const PackInfo: React.FC = () => {
       return <div className="yody-pos-qtt">{index + 1}</div>;
     },
   };
-  const ProductColumn = {
+  const productColumn = {
     title: () => (
       <div className="text-center">
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
@@ -501,7 +501,7 @@ const PackInfo: React.FC = () => {
       );
     },
   };
-  const QualtityOrderColumn = {
+  const quantityOrderColumn = {
     title: () => (
       <div className="text-center">
         <div>Số lượng đặt</div>
@@ -514,7 +514,7 @@ const PackInfo: React.FC = () => {
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
   };
-  const QualtityPickColumn = {
+  const quantityPickColumn = {
     title: () => (
       <div>
         <span style={{ color: "#222222", textAlign: "right" }}>Đã nhặt hàng</span>
@@ -535,7 +535,7 @@ const PackInfo: React.FC = () => {
     },
   };
 
-  const columns = [SttColumn, ProductColumn, QualtityOrderColumn, QualtityPickColumn];
+  const columns = [sttColumn, productColumn, quantityOrderColumn, quantityPickColumn];
   ///columns
   return (
     <React.Fragment>
@@ -592,7 +592,7 @@ const PackInfo: React.FC = () => {
                   allowClear
                   placeholder="Chọn hãng vận chuyển"
                   notFoundContent="Không tìm thấy kết quả"
-                  disabled={disableDeliveryPproviderId}
+                  disabled={disableDeliveryProviderId}
                   onChange={(value?: number) => onChangeDeliveryServiceId(value)}
                   filterOption={(input, option) =>
                     fullTextSearch(input, option?.children)
