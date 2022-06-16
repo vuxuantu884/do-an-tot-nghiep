@@ -49,7 +49,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
   }
   .priceWidth {
     width: 25%;
-    text-align: center;
+    text-align: right;
 		justify-content: flex-end;
 		padding: 0 10px;
   }
@@ -61,13 +61,17 @@ export const StyledComponent = styled.div.attrs((props:any) => {
       border-bottom: 1px solid ${borderColor};
     }
     .product {
-      padding: 10px 10px;
       height: 100%;
       display: flex;
       align-items: center;
     }
     p {
       margin-bottom: 0;
+    }
+    .product,
+    .quantity,
+    .priceWidth {
+      padding: 10px 10px;
     }
     .quantity,
     .priceWidth {
