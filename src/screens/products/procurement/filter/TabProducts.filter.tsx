@@ -150,17 +150,17 @@ const TabProductsFilter: React.FC<ProcurementItemsFilterProps> = (props: Procure
   const openVisibleFilter = () => setVisible(true)
 
   const onBaseFinish = (data: any) => {
-    let queryParam = generateQuery({ ...paramsUrl, ...data });
+    let queryParam = generateQuery({ ...paramsUrl, ...data, page: 1 });
     history.replace(`${ProcurementTabUrl.PRODUCTS}?${queryParam}`);
   };
 
   const onAdvanceFinish = (data: any) => {
     setVisible(false);
-    history.replace(`${ProcurementTabUrl.PRODUCTS}?${generateQuery({ ...paramsUrl, ...data })}`);
+    history.replace(`${ProcurementTabUrl.PRODUCTS}?${generateQuery({ ...paramsUrl, ...data, page: 1 })}`);
   }
 
   const onSearch = debounce((content: string) => {
-    let queryParam = generateQuery({ ...paramsUrl, content });
+    let queryParam = generateQuery({ ...paramsUrl, content, page: 1 });
     history.replace(`${ProcurementTabUrl.PRODUCTS}?${queryParam}`);
   }, 300)
 

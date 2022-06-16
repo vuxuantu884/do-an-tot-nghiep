@@ -279,7 +279,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Mã phiếu nhập kho",
         dataIndex: "code",
         fixed: "left",
-        width: 150,
+        width: "17%",
         visible: true,
         render: (value, record, index) => {
           // Cải tiến UI chuyển từ modal sang chế độ view full screen
@@ -293,15 +293,15 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                   <b>{value}</b>
                 </Link>
               </div>
-              <div style={{fontSize: 12}}>
+              <div style={{ fontSize: 12 }}>
                 <div>
-                  <div>Mã đơn đặt hàng:</div>
+                  Mã đơn đặt hàng: {" "}
                   <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
                     {record.purchase_order.code}
                   </Link>
                 </div>
                 <div>
-                  <div>Mã tham chiếu:</div>
+                  Mã tham chiếu: {" "}
                   <Link to={`${UrlConfig.PURCHASE_ORDERS}/${record.purchase_order.id}`} target="_blank" rel="noopener noreferrer">
                     {record.purchase_order.reference}
                   </Link>
@@ -321,6 +321,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Nhà cung cấp",
         dataIndex: "purchase_order",
         visible: true,
+        width: "17%",
         render: (value, record) => {
           return (
             <div style={{ fontSize: 12 }}>
@@ -335,7 +336,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                 <PhoneOutlined /> {value?.phone}
               </div>
               <div>
-                <div>Merchandiser: </div>
+                Merchandiser: {" "}
                 <Link to={`${UrlConfig.ACCOUNTS}/${value.merchandiser_code}`} target="_blank" rel="noopener noreferrer">
                   {`${value?.merchandiser_code} - ${value?.merchandiser}`}
                 </Link>
@@ -348,6 +349,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Kho nhận hàng",
         dataIndex: "store",
         align: 'center',
+        width: "10%",
         render: (value, record, index) => {
           return (
             <>
@@ -367,6 +369,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         dataIndex: "stock_in_by",
         align: 'center',
         visible: true,
+        width: "10%",
         render: (value, row) => {
           if (value) {
             const name = value.split('-')
@@ -393,10 +396,10 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Trạng thái",
         dataIndex: "status",
         visible: true,
+        width: "9%",
         render: (status: string, record) => {
           let icon = "";
           let color = ""
-          // let type = TagStatusType.normal;
           if (!status) {
             return "";
           }
@@ -420,47 +423,20 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           }
           return (
             <>
-              {/* <div> */}
-              {
-                // <TagStatus
-                //   icon={icon}
-                //   // type={type}
-                // >
-                //   {ProcurementStatusName[status]}
-                // </TagStatus>
-                <div style={{ color: color }} >
-                  {icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }} />}
-                  {ProcurementStatusName[status]}
-                </div>
-              }
-              {/* </div> */}
+              <div style={{ color: color }} >
+                {icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }} />}
+                {ProcurementStatusName[status]}
+              </div>
             </>
           );
         },
         align: "center",
         // width: 200,
       },
-      // {
-      //   title: <div>SL được duyệt (<span style={{color: "#2A2A86"}}>{getTotalProcurementQuantity(getTotalProcurementItemsQuantity)}</span>)</div>,
-      //   align: "center",
-      //   dataIndex: "procurement_items",
-      //   visible: true,
-      //   render: (value, record: PurchaseProcument, index) => {
-      //     if (
-      //       record.status === ProcurementStatus.not_received ||
-      //       record.status === ProcurementStatus.received
-      //     ) {
-      //       let totalConfirmQuantity = 0;
-      //       value.forEach((item: PurchaseProcumentLineItem) => {
-      //         totalConfirmQuantity += item.quantity;
-      //       });
-      //       return formatCurrency(totalConfirmQuantity, ".");
-      //     }
-      //   },
-      // },
       {
-        title: <div>Sản phẩm (<span style={{ color: "#2A2A86" }}>{getTotalProcurementItems()}</span>)</div>,
+        title: <div><div>Sản phẩm</div><div>(<span style={{ color: "#2A2A86" }}>{getTotalProcurementItems()}</span>)</div></div>,
         align: "center",
+        width: "8%",
         dataIndex: "procurement_items",
         visible: true,
         render: (value, record, index) => {
@@ -469,10 +445,11 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         },
       },
       {
-        title: <div>SL thực nhận (<span style={{ color: "#2A2A86" }}>{getTotalProcurementQuantity(getTotalProcurementItemsRealQuantity)}</span>)</div>,
+        title: <div><div>SL thực nhận</div> (<span style={{ color: "#2A2A86" }}>{getTotalProcurementQuantity(getTotalProcurementItemsRealQuantity)}</span>)</div>,
         align: "center",
         dataIndex: "procurement_items",
         visible: true,
+        width: "10%",
         render: (value, record, index) => {
           let totalRealQuantity = 0;
           value.forEach((item: PurchaseProcumentLineItem) => {
@@ -495,7 +472,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
               <EditNote
                 isHaveEditPermission={hasPermission}
                 note={value}
-                title="Ghi chú: "
+                title=""
                 color={primaryColor}
                 onOk={(newNote) => {
                   onUpdateReceivedProcurement(newNote, record)
