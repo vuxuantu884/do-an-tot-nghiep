@@ -29,6 +29,7 @@ import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inv
 import { OrderExtraModel, OrderModel, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import {
   DeliveryServiceResponse,
@@ -58,6 +59,7 @@ import {
   OrderStatus,
   PaymentMethodCode,
   POS,
+  PRODUCT_TYPE,
   ShipmentMethod,
   SHOPEE
 } from "utils/Constants";
@@ -536,6 +538,16 @@ function OrdersTable(props: PropTypes) {
     })
   };
 
+  const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
+    let total = 0;
+    items.forEach((a) => {
+      if (a.product_type === PRODUCT_TYPE.normal || PRODUCT_TYPE.combo) {
+        total = total + (a.quantity * a.price);
+      }
+    });
+    return total;
+  };
+
   const initColumnsDefault: ICustomTableColumTypeExtra = useMemo(() => {
     return [
       {
@@ -783,11 +795,18 @@ function OrdersTable(props: PropTypes) {
                         </Tooltip>
 
                         {item?.discount_items && item.discount_items[0]?.value ? (
-                          <Tooltip title="Khuyến mại sản phẩm">
-                            <div className="itemDiscount" style={{ color: dangerColor }}>
-                              <span> - {formatCurrency(item.discount_items[0].value)}</span>
-                            </div>
-                          </Tooltip>
+                          <React.Fragment>
+                            <Tooltip title="Khuyến mại sản phẩm (đ)">
+                              <div className="itemDiscount" style={{ color: dangerColor }}>
+                                <span> - {formatCurrency(item.discount_items[0].value)}</span>
+                              </div>
+                            </Tooltip>
+                            <Tooltip title="Khuyến mại sản phẩm (%)">
+                              <div className="itemDiscount" style={{ color: dangerColor }}>
+                                <span> - {Math.round(item.discount_items[0].value/item.price *10000)/100}%</span>
+                              </div>
+                            </Tooltip>
+                          </React.Fragment>
                         ) : null}
                       </div>
                     </div>
@@ -806,35 +825,50 @@ function OrdersTable(props: PropTypes) {
         // dataIndex: "",
         render: (record: any) => (
           <React.Fragment>
-            <Tooltip title="Tổng tiền">
-              <NumberFormat
-                value={record.total}
-                className="orderTotal"
-                displayType={"text"}
-                thousandSeparator={true}
-              />
-            </Tooltip>
-
-            {record?.discounts && record.discounts[0] && record.discounts[0]?.amount ? (
-              <Tooltip title="Chiết khấu">
-                <div>
+            <div>
+              <Tooltip title="Tổng tiền khi sản phẩm còn nguyên giá">
+                <NumberFormat
+                  value={formatCurrency(getTotalAmountBeforeDiscount(record.items))}
+                  className="orderTotal"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                />
+              </Tooltip>
+            </div>
+            <div>
+              <Tooltip title="Tổng tiền">
+                <NumberFormat
+                  value={record.total}
+                  className="orderTotal"
+                  displayType={"text"}
+                  thousandSeparator={true}
+                />
+              </Tooltip>
+            </div>
+            {record.total_discount ? (
+              <div>
+                <Tooltip title="Tổng tiền chiết khấu">
                   <span style={{ color: "#EF5B5B" }}>
                     -<NumberFormat
-                      value={record.discounts[0]?.amount}
-                      className="foo"
+                      value={formatCurrency(record.total_discount)}
+                      className="orderTotal"
                       displayType={"text"}
                       thousandSeparator={true}
                     />
                   </span>
-
-                </div>
-                <div className="textSmall">
-                  <span style={{ color: "#EF5B5B" }}>
-                    -{Math.round(record.discounts[0]?.amount * 100 / record.total_line_amount_after_line_discount * 100) / 100}%
-                  </span>
-                </div>
-
-              </Tooltip>
+                </Tooltip>
+              </div>
+            ) : null}
+            {record.shipping_fee_informed_to_customer ? (
+              <div>
+                <Tooltip title="Phí ship báo khách">
+                  <NumberFormat
+                    value={formatCurrency(record.shipping_fee_informed_to_customer)}
+                    displayType={"text"}
+                    thousandSeparator={true}
+                  />
+                </Tooltip>
+              </div>
             ) : null}
           </React.Fragment>
         ),
