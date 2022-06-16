@@ -24,7 +24,7 @@ type PropTypes = {
 	className?: string;
 	disableDate?: (date: Moment) => boolean;
 	format?: string;
-	showTime?: boolean;
+	showTime?: boolean|object;
 	defaultValue?: Moment | undefined;
 	activeButton: string;
 	setActiveButton: (value: string) => void;

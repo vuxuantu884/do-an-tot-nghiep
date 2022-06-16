@@ -130,7 +130,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     return !!isLoading;
   }, [isLoading]);
 
-  const dateFormat = DATE_FORMAT.DD_MM_YY_HHmm;
+  const dateFormat = DATE_FORMAT.DD_MM_YY_HHmmss;
+  const timeFormat = DATE_FORMAT.HH_mm;
 
   const dispatch = useDispatch();
 
@@ -1757,7 +1758,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setIssuedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1816,7 +1817,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setFinalizedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>}
                 <Col span={8} xxl={8}>
@@ -1867,7 +1868,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setCancelledClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -1907,7 +1908,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setCompletedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -1956,7 +1957,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExportedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>}
                 <Col span={8} xxl={8}>
@@ -1986,7 +1987,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExpectedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -2000,7 +2001,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExpectedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
@@ -2014,7 +2015,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setExpectedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime
+                    showTime = {{format: timeFormat}}
                   />
                 </Col>}
                 {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>

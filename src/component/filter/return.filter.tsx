@@ -88,7 +88,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     return isLoading ? true : false
   }, [isLoading])
 
-  const dateFormat = DATE_FORMAT.DD_MM_YY_HHmm;
+  const dateFormat = DATE_FORMAT.DD_MM_YY_HHmmss;
+  const timeFormat = DATE_FORMAT.HH_mm
 
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
@@ -747,7 +748,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   setActiveButton={setCreatedClick}
                   format={dateFormat}
                   formRef={formRef}
-                  showTime
+                  showTime = {{format: timeFormat}}
                 />
               </Col>
 
@@ -760,7 +761,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                   setActiveButton={setReceivedClick}
                   format={dateFormat}
                   formRef={formRef}
-                  showTime
+                  showTime = {{format: timeFormat}}
                 />
               </Col>
               <Col span={12}>
