@@ -3,6 +3,7 @@ import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { Input } from "antd";
 import { useContext, useMemo } from "react";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
+import { fullTextSearch } from "utils/StringUtils";
 const { TextArea } = Input;
 
 type ReportHandOverModalProps = {
@@ -16,7 +17,7 @@ type ReportHandOverModalProps = {
 const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   props: ReportHandOverModalProps
 ) => {
-  const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit } = props;
+  const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit} = props;
 
   const orderPackContextData = useContext(OrderPackContext);
 
@@ -34,7 +35,6 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
     });
     return dataAccess;
   }, [listThirdPartyLogistics]);
-
 
   return (
     <>
@@ -66,16 +66,9 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   notFoundContent="Không tìm thấy kết quả"
                   onChange={(value?: number) => {
                   }}
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
+                  filterOption={(input, option) =>
+                    fullTextSearch(input, option?.children)
+                  }
                 >
                  
                   {listStoresDataCanAccess?.map((item, index) => (
@@ -108,16 +101,9 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   notFoundContent="Không tìm thấy kết quả"
                   onChange={(value?: number) => {
                   }}
-                  filterOption={(input, option) => {
-                    if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
-                    }
-                    return false;
-                  }}
+                  filterOption={(input, option) =>
+                    fullTextSearch(input, option?.children)
+                  }
                 >
                    <Select.Option key={-1} value={-1}>
                     Tự giao hàng

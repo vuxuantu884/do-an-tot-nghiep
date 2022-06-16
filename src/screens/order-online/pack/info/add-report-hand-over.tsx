@@ -24,7 +24,7 @@ import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment, { Moment } from "moment";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
-import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
 import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
 import UrlConfig from "config/url.config";
@@ -268,7 +268,7 @@ const AddReportHandOver: React.FC = () => {
                   //removePackInfo();
 
                   let packData: PackModel = {
-                    ...new PackModelDefaltValue(),
+                    ...new PackModelDefaultValue(),
                     ...packModel,
                     order: [...notSelectOrderPackSuccess]
                   }
@@ -334,6 +334,14 @@ const AddReportHandOver: React.FC = () => {
     },
     [listGoodsReceipts]
   );
+
+  useEffect(()=>{
+    formRef.current?.setFieldsValue({
+      store_id: packModel?.store_id,
+      //delivery_service_id:packModel?.delivery_service_provider_id
+    })
+  },[formRef, packModel?.store_id])
+
   return (
     <Card
       title="Cho vào biên bản bàn giao"
