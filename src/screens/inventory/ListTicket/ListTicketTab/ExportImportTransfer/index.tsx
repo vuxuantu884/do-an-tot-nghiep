@@ -44,15 +44,24 @@ const { TextArea } = Input;
 const initQuery: InventoryTransferImportExportSearchQuery = {
   page: 1,
   limit: 30,
+  simple: true,
   condition: null,
   from_store_id: [],
   to_store_id: [],
+  status: [],
   note: null,
-  received_code: [],
+  created_by: [],
+  received_by: [],
+  cancel_by: [],
+  transfer_by: [],
+  from_created_date: null,
+  to_created_date: null,
   from_transfer_date: null,
   to_transfer_date: null,
   from_receive_date: null,
   to_receive_date: null,
+  from_cancel_date: null,
+  to_cancel_date: null,
   from_pending_date: null,
   to_pending_date: null,
 };
@@ -118,7 +127,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       ),
     },
     {
-      title: "Mã phiếu chuyển",
+      title: "ID phiếu chuyển",
       dataIndex: "code",
       visible: true,
       align: "left",
@@ -396,7 +405,24 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
       history.push(`${history.location.pathname}?${queryParam}`);
-      getAccounts(newParams.received_code).then();
+      let codes = '';
+
+      if (newParams.created_by) {
+        codes = newParams.created_by
+      }
+      if (newParams.updated_by) {
+        codes = codes + ',' + newParams.updated_by
+      }
+      if (newParams.received_by) {
+        codes = codes + ',' + newParams.received_by
+      }
+      if (newParams.transfer_by) {
+        codes = codes + ',' + newParams.transfer_by
+      }
+      if (newParams.cancel_by) {
+        codes = codes + ',' + newParams.cancel_by
+      }
+      getAccounts(codes).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, params]

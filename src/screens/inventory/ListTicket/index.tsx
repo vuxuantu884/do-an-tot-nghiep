@@ -75,9 +75,25 @@ const InventoryListScreen: React.FC = () => {
       }
       setAccounts(data.items);
 
-      if (queryParamsParsed.created_by || queryParamsParsed.updated_by || queryParamsParsed.received_code) {
-        getAccounts(queryParamsParsed.created_by || queryParamsParsed.updated_by || queryParamsParsed.received_code).then();
+      let codes = '';
+
+      if (queryParamsParsed.created_by) {
+        codes = queryParamsParsed.created_by
       }
+      if (queryParamsParsed.updated_by) {
+        codes = codes + ',' + queryParamsParsed.updated_by
+      }
+      if (queryParamsParsed.received_by) {
+        codes = codes + ',' + queryParamsParsed.received_by
+      }
+      if (queryParamsParsed.transfer_by) {
+        codes = codes + ',' + queryParamsParsed.transfer_by
+      }
+      if (queryParamsParsed.cancel_by) {
+        codes = codes + ',' + queryParamsParsed.cancel_by
+      }
+
+      getAccounts(codes).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
