@@ -14,6 +14,7 @@ export interface ExportResponse extends BaseObject {
   num_of_record: number;
   total: number;
   url: string;
+  percent?: number;
 }
 
 

@@ -4,7 +4,7 @@ import {showError, showSuccess} from "utils/ToastUtils";
 
 import {generateQuery} from "utils/AppUtils";
 import {HttpStatus} from "config/http-status.config";
-import {exportCustomerFile, getCustomerFile} from "service/customer/customer.service";
+import {exportFile, getFile} from "service/other/export.service";
 
 import {ExportCustomerModalStyled} from "screens/customer/export-file/ExportCustomerStyled";
 
@@ -47,18 +47,29 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
     setIsExporting(true);
     const exportParams = generateQuery(newParams);
 
-    exportCustomerFile({
+    const defaultHiddenFields = "city,district,ward,full_address,total_finished_order,remain_amount_to_level_up,average_order_value,total_returned_order,total_refunded_amount,number_of_days_without_purchase,store_of_first_order,store_of_last_order,description";
+    let hiddenFields;
+    if (exportColumnAll) {
+      hiddenFields = defaultHiddenFields;
+    } else {
+      const notSelectColumnList = columnListOption.filter((item: any) => item.isSelected === false);
+      hiddenFields = defaultHiddenFields + "," + notSelectColumnList.map((column: any) => column.value)?.toString();
+    }
+
+    exportFile({
       conditions: exportParams,
-      fields: exportColumnAll ? null : columnSelectedList,
+      hidden_fields: hiddenFields,
       type: "EXPORT_CUSTOMER",
     })
       .then((response) => {
+        setIsExporting(false);
         if (response.code === HttpStatus.SUCCESS) {
           setIsVisibleProgressModal(true);
           handleCancelExportModal();
           setExportCodeList([...exportCodeList, response.data.code]);
+        } else {
+          showError(`${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
         }
-        setIsExporting(false);
       })
       .catch(() => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
@@ -86,40 +97,41 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
     setExportItemNumber(0);
   }
 
-  const onCancelProgressModal = () => {
+  const onCancelProgressModal = useCallback(() => {
     resetProgress();
     setExportPageAll(true);
     setIsVisibleProgressModal(false);
-  };
+  }, []);
 
   const checkExportFile = useCallback(() => {
     let getFilePromises = exportCodeList.map((code) => {
-      return getCustomerFile(code);
+      return getFile(code);
     });
 
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
-        if (isVisibleProgressModal && response.code === HttpStatus.SUCCESS && response.data?.total > 0) {
-          if (response.data.url) {
-            const newExportCode = exportCodeList.filter((item) => {
-              return item !== response.data.code;
-            });
-            setExportCodeList(newExportCode);
-            setExportProgress(100);
-            showSuccess("Xuất file dữ liệu khách hàng thành công!");
-            window.open(response.data.url);
-          } else {
-            if (response.data.processed >= response.data.total) {
-              setExportProgress(99);
-            } else {
-              const percent = Math.round((response.data.processed / response.data.total) * 100 * 100) / 100;
-              setExportProgress(percent);
+        if (isVisibleProgressModal && response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.status === "PROCESSING") {
+            const exportPercent = response.data.percent || Math.round(response.data.num_of_record / response.data.total * 10000) / 100;
+            setExportProgress(exportPercent < 100 ? exportPercent : 99);
+          } else if (response.data && response.data.status === "FINISH") {
+            if (response.data.url) {
+              const newExportCode = exportCodeList.filter((item) => {
+                return item !== response.data.code;
+              });
+              setExportCodeList(newExportCode);
+              setExportProgress(100);
+              showSuccess("Xuất file dữ liệu khách hàng thành công!");
+              window.open(response.data.url);
             }
+          } else if (response.data && response.data.status === "ERROR") {
+            onCancelProgressModal();
+            showError("Xuất file dữ liệu khách hàng thất bại!");
           }
         }
       });
     });
-  }, [exportCodeList, isVisibleProgressModal]);
+  }, [exportCodeList, isVisibleProgressModal, onCancelProgressModal]);
 
   useEffect(() => {
     if (exportProgress === 100 || exportCodeList.length === 0) return;
