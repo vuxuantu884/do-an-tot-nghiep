@@ -137,7 +137,6 @@ const ListProductScreen: React.FC = () => {
             <AuthWrapper acceptPermissions={[ProductPermission.import_excel]}>
               <Link to={`${UrlConfig.PRODUCT}/import`}>
                 <Button
-                  hidden
                   className="light"
                   size="large"
                   icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}

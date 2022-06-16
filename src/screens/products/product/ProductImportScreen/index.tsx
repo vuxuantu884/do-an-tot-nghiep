@@ -1,23 +1,30 @@
 
-import { Button, Card, Col, Modal, Progress, Row, Tabs, Typography, Upload } from "antd";
+import { Button, Card, Col, Modal, Progress, Radio, RadioChangeEvent, Row, Tabs, Typography, Upload } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import updateProductExampleImg from "assets/img/update_product_example.png";
 import createProductExampleImg from "assets/img/create_product_example.png";
 import { UploadOutlined } from "@ant-design/icons";
-import { useCallback, useState } from "react";
-import { showError } from "utils/ToastUtils";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { ConAcceptImport, STATUS_IMPORT_EXPORT } from "utils/Constants";
 import excelIcon from "assets/icon/icon-excel.svg";
 import { HttpStatus } from "config/http-status.config";
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal } from "screens/web-app/common/commonStyle";
+import { getFileV2, importFileV2 } from "service/other/import.inventory.service";
+import { callApiNative } from "utils/ApiUtils";
+import { uploadFileApi } from "service/core/import.service";
+import { useDispatch } from "react-redux";
+import cogoToast from "cogo-toast";
 
-const urlTemplate = 'https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/product-import_21ca2d13-8360-495e-bf57-859ffc4b60be_original.xlsx';
+const urlTemplate = 'https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/product-import_cd692c40-5818-4d7b-b259-01a47c3b0275_original.xlsx';
 
 const ConExportImport = {
     IMPORT: "IMPORT_CREATE_PRODUCT",
+    UPDATE: "IMPORT_UPDATE_VARIANT",
+    UPDATE_PRODUCT: "IMPORT_UPDATE_PRODUCT",
   }
 type process = {
     total: number,
@@ -28,12 +35,14 @@ type process = {
   }
 
 const ProductImportScreen: React.FC = ()=>{
+    const dispatch = useDispatch();
     const { TabPane } = Tabs;
     const [fileList, setFileList] = useState<Array<File>>([]);
-    const [urlFileError, setUrlFileError] = useState<string>("");
     const [errorData, setErrorData] = useState<Array<any>>([]);
     const [statusImport, setStatusImport] = useState<number>(STATUS_IMPORT_EXPORT.NONE);
-    const [importing, setImporting] = useState<boolean>(true);
+    const [importing, setImporting] = useState<boolean>(false);
+    const [listImportFile, setListImportFile] = useState<Array<string>>([]);
+    const [importType, setImportType] = useState<string>(ConExportImport.IMPORT);
     const [progressData, setProgressData] = useState<process>(
         {
         processed: 0,
@@ -45,7 +54,7 @@ const ProductImportScreen: React.FC = ()=>{
     );
 
     const resetFile = ()=>{
-        setUrlFileError("");
+        setListImportFile([]);
         setErrorData([]);
         setFileList([]);
         setProgressData({
@@ -66,20 +75,98 @@ const ProductImportScreen: React.FC = ()=>{
           showError("Chỉ chọn file excel");
           return;
         }
-        
         setFileList([obj.file]);
+        if (obj.file && obj.file.status ==="removed" ) {
+          resetFile();
+        }
       },
       customRequest:()=>false
     }
     const ActionImport = {
       Ok: useCallback(async() => {
-       setImporting(true);
-       
-      }, []),
+        cogoToast.success("Đã gửi yêu cầu nhập file", {position: "top-center"})
+        const res = await callApiNative({isShowLoading: false},dispatch,uploadFileApi,fileList,"");
+        setImporting(true);
+        if (res && res.length > 0) {
+          
+         importFileV2({
+           url: res[0],
+           type: importType,
+         })
+           .then((res) => {
+             setStatusImport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+             if (res.code === HttpStatus.SUCCESS) {
+               setListImportFile([...listImportFile, res.data.code]);
+             }
+           })
+           .catch((e:any) => {
+             setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
+             showError("Có lỗi xảy ra, vui lòng thử lại sau");
+           });
+         
+        }else{
+          showError("Import không thành công");
+        }
+   
+         resetFile();
+       }, [dispatch, fileList, importType, listImportFile]),
       Cancel: useCallback(() => {
+      resetFile();
+      setFileList([]);
        setImporting(false);
       }, []),
     }
+
+    const checkImportFile = useCallback(() => {
+      setStatusImport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+      let getFilePromises = listImportFile.map((code) => {
+        return getFileV2(code);
+      });
+      Promise.all(getFilePromises).then((responses) => {
+        responses.forEach((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            setProgressData({
+              processed:response.data.processed,
+              success:response.data.success,
+              total:response.data.total,
+              error: response.data.error,
+              percent: response.data.percent
+            });
+            if (response.data && response.data.status === "FINISH") {
+              showSuccess("Nhập file thành công");
+              setStatusImport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+              const fileCode = response.data.code;
+              const newListImportFile = listImportFile.filter((item) => {
+                return item !== fileCode;
+              });
+              setListImportFile(newListImportFile);
+              if (response.data.message) {
+                setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
+                setErrorData(JSON.parse(response.data.message));
+              }
+            } else if (response.data && response.data.status === "ERROR") {
+              setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
+              showError("Nhập file không thành công");
+              if (response.data.message) {
+                setErrorData(JSON.parse(response.data.message));
+              }
+            }
+          }
+        });
+      });
+    }, [listImportFile]);
+
+    useEffect(() => {
+      if (listImportFile.length === 0 || statusImport === STATUS_IMPORT_EXPORT.JOB_FINISH || statusImport === STATUS_IMPORT_EXPORT.ERROR) return;
+      checkImportFile();
+  
+      const getFileInterval = setInterval(checkImportFile, 3000);
+      return () => clearInterval(getFileInterval);
+    }, [checkImportFile, listImportFile, listImportFile.length, statusImport]); 
+
+    const disabledImport = useMemo(()=>{
+      return (fileList && fileList.length > 0) ? false:true;
+    },[fileList]);
 
  return (
      <ContentContainer
@@ -111,6 +198,13 @@ const ProductImportScreen: React.FC = ()=>{
          <Col span={16}>
             <Card title="Thông tin import">
             <Row>
+              <Radio.Group onChange={(e:RadioChangeEvent)=>{setImportType(e.target.value)}} value={importType}>
+                <Radio value={ConExportImport.IMPORT}>Thêm mới sản phẩm</Radio>
+                <Radio value={ConExportImport.UPDATE}>Cập nhật sản phẩm</Radio>
+                <Radio value={ConExportImport.UPDATE_PRODUCT}>Cập nhật sản phẩm cha</Radio>
+              </Radio.Group>
+            </Row>
+            <Row style={{marginTop: 20}}>
                 <div><b>Tải file lên</b>
                   <span style={{marginLeft: "20px"}}>
                     <Upload
@@ -125,10 +219,10 @@ const ProductImportScreen: React.FC = ()=>{
                 </div>
               </Row>
               <Row style={{marginTop: 20}}>
-                <Col span={24}>
+                <Col span={24} style={{display: "flex",flexDirection: "row-reverse"}}>
                  <Button type="primary"
                     onClick={ActionImport.Ok}
-                    disabled={(fileList && fileList.length > 0 ? false:true)}>
+                    disabled={disabledImport}>
                     Nhập file
                  </Button>
                 </Col>
@@ -153,7 +247,7 @@ const ProductImportScreen: React.FC = ()=>{
         onCancel={ActionImport.Cancel}
        >
            {
-                (statusImport === STATUS_IMPORT_EXPORT.NONE ) &&
+                (statusImport !== STATUS_IMPORT_EXPORT.NONE ) &&
                 <StyledProgressDownloadModal>
                   <div>
                     <div className="progress-body" style={{marginTop: "30px"}}>
