@@ -8,7 +8,6 @@ import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import {inventoryByVariantAction, updateConfigInventoryAction} from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
-import {searchVariantsInventoriesRequestAction} from "domain/actions/product/products.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
 import _ from "lodash";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -38,6 +37,8 @@ import { exportFileV2, getFileV2 } from "service/other/import.inventory.service"
 import InventoryExportModal from "../component/InventoryExportV2";
 import ImageProduct from "screens/products/product/component/image-product.component";
 import { Image } from "antd";
+import { callApiNative } from "utils/ApiUtils";
+import { searchVariantsInventoriesApi } from "service/product/product.service";
 
 let varaintName = "";
 
@@ -83,7 +84,6 @@ const AllTab: React.FC<any> = (props) => {
   const query = useQuery();
 
   const dispatch = useDispatch();
-  const [loading, setLoading] = useState<boolean>(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   let dataQuery: VariantSearchQuery = {
     ...getQueryParams(query),
@@ -98,7 +98,7 @@ const AllTab: React.FC<any> = (props) => {
     items: [],
   });
 
-  const [expandRow, setExpandRow] = useState<Array<string> | undefined>();
+  const [expandRow, setExpandRow] = useState<Array<number> | undefined>();
   const [inventiryVariant, setInventiryVariant] = useState<
     Map<number, AllInventoryResponse[]>
   >(new Map());
@@ -464,8 +464,6 @@ const AllTab: React.FC<any> = (props) => {
          align: "center",
          width: 80, 
          render: (value: number,record: InventoryResponse) => {
-           console.log('record',record);
-           
           return <div> {value ? 
               <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,varaintName,record.store_id)}>
                      {formatCurrencyForProduct(value)}
@@ -594,7 +592,6 @@ const AllTab: React.FC<any> = (props) => {
   }, []);
 
   const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
-    setLoading(false);
     if (result) {
       setInventiryVariant(new Map());
       setData(result);
@@ -607,8 +604,6 @@ const AllTab: React.FC<any> = (props) => {
     result: Array<AllInventoryResponse>,
     variant_ids: Array<number>
   ) => {
-    console.log(result);
-
     if (Array.isArray(result) && variant_ids[0]) {
       const tempMap = new Map(inventiryVariant);
       tempMap.set(variant_ids[0], result);
@@ -637,7 +632,6 @@ const AllTab: React.FC<any> = (props) => {
   const debouncedSearch = React.useMemo(() =>
     _.debounce((keyword: string,filters: any) => {
       
-      setLoading(true);
       const newValues = {...params,info: keyword?.trim(),...filters}
       const newPrams = {...params, ...newValues, page: 1};
       setPrams(newPrams);
@@ -655,11 +649,14 @@ const AllTab: React.FC<any> = (props) => {
   )
 
   useEffect(() => {
-    setLoading(true);
-    const temps = {...params, limit: params.limit ?? 50};
-    delete temps.status;
-
-    dispatch(searchVariantsInventoriesRequestAction(temps, onResult));
+    const getInventories =async ()=>{
+      const temps = {...params, limit: params.limit ?? 50};
+      delete temps.status;
+  
+      const res = await callApiNative({isShowLoading: true},dispatch,searchVariantsInventoriesApi,temps);
+      onResult(res);
+    }
+    getInventories();
   }, [dispatch, onResult, params]);
 
   const storeRef = useRef<Map<number, string>>(new Map<number, string>());
@@ -932,8 +929,6 @@ const AllTab: React.FC<any> = (props) => {
       <CustomTable
         className="small-padding"
         bordered
-        isRowSelection
-        isLoading={loading}
         dataSource={data.items}
         scroll={{x: 1200}}
         sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
@@ -956,21 +951,26 @@ const AllTab: React.FC<any> = (props) => {
             );
           },
           onExpand: (expanded: boolean, record: VariantResponse) => {
-            varaintName = record.name;
-            setExpandRow(undefined);
-            if (expanded) {
-              let store_ids: any[] = params.store_ids
-                ? params.store_ids.toString().split(",")
-                : [];
-
-              store_ids = store_ids.map((item) => parseInt(item));
-              fetchInventoryByVariant([record.id], store_ids);
+            if (!expanded) {
+              setExpandRow([]);
+              return;
             }
+            
+            varaintName = record.name;
+            setExpandRow([record.id]);
+            let store_ids: any[] = params.store_ids
+              ? params.store_ids.toString().split(",")
+              : [];
+
+            store_ids = store_ids.map((item) => parseInt(item));
+            fetchInventoryByVariant([record.id], store_ids);
           },
+          
           expandedRowRender: (record: VariantResponse, index, indent, expanded) => {
             return (
               <CustomTable
                 bordered
+                showHeader={false}
                 dataSource={inventiryVariant.get(record.id) || []}
                 pagination={false}
                 columns={columnsDrill}
@@ -1031,7 +1031,7 @@ const AllTab: React.FC<any> = (props) => {
 
           onSaveConfigColumn(data, columnsInRow);
         }}
-        data={columns}
+        data={defaultColumns}
       />
        <InventoryExport
         onCancel={actionExport.Cancel}

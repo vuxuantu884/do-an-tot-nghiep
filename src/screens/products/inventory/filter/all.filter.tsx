@@ -525,7 +525,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   ))}
                 </CustomSelect>
             </Item>
-            <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 250 }}>
+            <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 300 }}>
               <TreeStore
                 form={formBaseFilter}
                 name={InventoryQueryField.store_ids}
