@@ -73,14 +73,10 @@ const Customer = () => {
     not: false,
   });
 
-  // const [allowExportCustomer] = useAuthorization({
-  //   acceptPermissions: exportCustomerPermission,
-  //   not: false,
-  // });
-
-  // Tạm ẩn Xuất file khách hàng
-  const allowExportCustomer = false;
-  console.log("exportCustomerPermission: ", exportCustomerPermission);
+  const [allowExportCustomer] = useAuthorization({
+    acceptPermissions: exportCustomerPermission,
+    not: false,
+  });
 
   const bootstrapReducer = useSelector(
     (state: RootReducerType) => state.bootstrapReducer
