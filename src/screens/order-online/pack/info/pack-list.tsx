@@ -26,7 +26,7 @@ interface ResultPaging {
 const resultPagingDefault: ResultPaging={
   currentPage: 1,
   lastPage: 1,
-  perPage: 5,
+  perPage: 30,
   total: 0,
   result: []
 }
