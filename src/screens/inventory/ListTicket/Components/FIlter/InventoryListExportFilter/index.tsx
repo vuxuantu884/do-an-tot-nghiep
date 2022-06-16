@@ -30,6 +30,8 @@ import { useDispatch } from "react-redux";
 import { StoreResponse } from "model/core/store.model";
 import { callApiNative } from "utils/ApiUtils";
 import { getStoreApi } from "service/inventory/transfer/index.service";
+import CustomSelect from "../../../../../../component/custom/select.custom";
+import { STATUS_INVENTORY_TRANSFER_ARRAY } from "../../../../constants";
 
 type InventoryExportFiltersProps = {
   accountStores?: Array<AccountStoreResponse>,
@@ -66,11 +68,19 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const filterFromParams = {
     ...params,
-    received_code: Array.isArray(params.received_code) ? params.received_code : [params.received_code],
+    status: Array.isArray(params.status) ? params.status : [params.status],
+    created_by: Array.isArray(params.created_by) ? params.created_by : [params.created_by],
+    transfer_by: Array.isArray(params.transfer_by) ? params.transfer_by : [params.transfer_by],
+    received_by: Array.isArray(params.received_by) ? params.received_by : [params.received_by],
+    cancel_by: Array.isArray(params.cancel_by) ? params.cancel_by : [params.cancel_by],
+    from_created_date: formatDateFilter(params.from_created_date),
+    to_created_date: formatDateFilter(params.to_created_date),
     from_transfer_date: formatDateFilter(params.from_transfer_date),
     to_transfer_date: formatDateFilter(params.to_transfer_date),
     from_receive_date: formatDateFilter(params.from_receive_date),
     to_receive_date: formatDateFilter(params.to_receive_date),
+    from_cancel_date: formatDateFilter(params.from_cancel_date),
+    to_cancel_date: formatDateFilter(params.to_cancel_date),
     from_pending_date: formatDateFilter(params.from_pending_date),
     to_pending_date: formatDateFilter(params.to_pending_date),
   };
@@ -104,28 +114,6 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   const onFilterClick = useCallback(() => {
     setVisible(false);
     let values = formAdv.getFieldsValue(true);
-
-    if (values?.from_total_variant > values?.to_total_variant) {
-      values = {
-        ...values,
-        from_total_variant: values?.to_total_variant,
-        to_total_variant: values?.from_total_variant,
-      }
-    }
-    if (values?.from_total_quantity > values?.to_total_quantity) {
-      values = {
-        ...values,
-        from_total_quantity: values?.to_total_quantity,
-        to_total_quantity: values?.from_total_quantity,
-      }
-    }
-    if (values?.from_total_amount > values?.to_total_amount) {
-      values = {
-        ...values,
-        from_total_amount: values?.to_total_amount,
-        to_total_amount: values?.from_total_amount,
-      }
-    }
     const valuesForm = {
       ...values,
       condition: values.condition ? values.condition.trim() : null,
@@ -186,17 +174,17 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
         case 'note':
           onFilter && onFilter({...params, note: null});
           break;
-        case 'total_variant':
-          onFilter && onFilter({...params, from_total_variant: null, to_total_variant: null});
+        case 'created_by':
+          onFilter && onFilter({...params, created_by: []});
           break;
-        case 'total_quantity':
-          onFilter && onFilter({...params, from_total_quantity: null, to_total_quantity: null});
+        case 'transfer_by':
+          onFilter && onFilter({...params, transfer_by: []});
           break;
-        case 'total_amount':
-          onFilter && onFilter({...params, from_total_amount: null, to_total_amount: null});
+        case 'received_by':
+          onFilter && onFilter({...params, received_by: []});
           break;
-        case 'received_code':
-          onFilter && onFilter({...params, received_code: []});
+        case 'cancel_by':
+          onFilter && onFilter({...params, cancel_by: []});
           break;
         case 'created_date':
           onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
@@ -233,6 +221,28 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
 
   let filters = useMemo(() => {
     let list = []
+    if (initialValues.status.length && initialValues.status[0]) {
+      let textStatus = ""
+      if (initialValues.status.length > 1) {
+        initialValues.status.forEach((statusValue) => {
+          const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(status => status.value === statusValue)
+          textStatus = status ? textStatus + status.name + "; " : textStatus
+        })
+      } else if (initialValues.status.length === 1) {
+
+        initialValues.status.forEach((statusValue) => {
+          const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(status => status.value === statusValue)
+          textStatus = status ? textStatus + status.name : textStatus
+        })
+
+      }
+
+      list.push({
+        key: 'status',
+        name: 'Trạng thái',
+        value: textStatus
+      })
+    }
     if (initialValues.note && initialValues.note !== '') {
       list.push({
         key: 'note',
@@ -240,17 +250,16 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
         value: initialValues.note
       });
     }
-    console.log(initialValues)
-    if (initialValues.received_code.length && initialValues.received_code[0]) {
+    if (initialValues.created_by.length && initialValues.created_by[0]) {
       let textAccount = ""
-      if (initialValues.received_code.length > 1) {
-        initialValues.received_code.forEach((i) => {
+      if (initialValues.created_by.length > 1) {
+        initialValues.created_by.forEach((i) => {
           const findAccount = accounts?.find(item => item.code === i)
           textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
         })
-      } else if (initialValues.received_code.length === 1) {
+      } else if (initialValues.created_by.length === 1) {
 
-        initialValues.received_code.forEach((i) => {
+        initialValues.created_by.forEach((i) => {
           const findAccount = accounts?.find(item => item.code === i)
           textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
         })
@@ -258,39 +267,116 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
       }
 
       list.push({
-        key: 'received_code',
-        name: 'Người nhận',
+        key: 'created_by',
+        name: 'Người tạo',
+        value: textAccount
+      })
+    }
+    if (initialValues.from_created_date || initialValues.to_created_date) {
+      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_created_date ? moment(initialValues.to_created_date).format('DD-MM-YYYY HH:mm') : '??')
+      list.push({
+        key: 'created_date',
+        name: 'Ngày tạo',
+        value: textCreatedDate
+      })
+    }
+    if (initialValues.transfer_by.length && initialValues.transfer_by[0]) {
+      let textAccount = ""
+      if (initialValues.transfer_by.length > 1) {
+        initialValues.transfer_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+      } else if (initialValues.transfer_by.length === 1) {
+
+        initialValues.transfer_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        })
+
+      }
+
+      list.push({
+        key: 'transfer_by',
+        name: 'Người chuyển',
         value: textAccount
       })
     }
     if (initialValues.from_transfer_date || initialValues.to_transfer_date) {
-      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date)
-        .format('DD-MM-YYYY HH:mm'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date)
-        .format('DD-MM-YYYY HH:mm') : '??')
+      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY HH:mm'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'transfer_date',
-        name: 'Ngày gửi',
+        name: 'Ngày chuyển',
         value: textTransferDate
       })
     }
+    if (initialValues.received_by.length && initialValues.received_by[0]) {
+      let textAccount = ""
+      if (initialValues.received_by.length > 1) {
+        initialValues.received_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+      } else if (initialValues.received_by.length === 1) {
+
+        initialValues.received_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        })
+
+      }
+
+      list.push({
+        key: 'received_by',
+        name: 'Người nhận',
+        value: textAccount
+      })
+    }
     if (initialValues.from_receive_date || initialValues.to_receive_date) {
-      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date)
-        .format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date)
-        .format('DD-MM-YYYY HH:mm') : '??')
+      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'receive_date',
         name: 'Ngày nhận',
         value: textReceiveDate
       })
     }
-    if (initialValues.from_pending_date || initialValues.to_pending_date) {
-      let textCancelDate = (initialValues.from_pending_date ? moment(initialValues.from_pending_date)
-        .format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_pending_date ? moment(initialValues.to_pending_date)
-        .format('DD-MM-YYYY HH:mm') : '??')
+    if (initialValues.cancel_by.length && initialValues.cancel_by[0]) {
+      let textAccount = ""
+      if (initialValues.cancel_by.length > 1) {
+        initialValues.cancel_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+      } else if (initialValues.cancel_by.length === 1) {
+
+        initialValues.cancel_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        })
+
+      }
+
+      list.push({
+        key: 'cancel_by',
+        name: 'Người hủy',
+        value: textAccount
+      })
+    }
+    if (initialValues.from_cancel_date || initialValues.to_cancel_date) {
+      let textCancelDate = (initialValues.from_cancel_date ? moment(initialValues.from_cancel_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_cancel_date ? moment(initialValues.to_cancel_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'cancel_date',
         name: 'Ngày hủy',
         value: textCancelDate
+      })
+    }
+
+    if (initialValues.from_pending_date || initialValues.to_pending_date) {
+      let textPendingDate = (initialValues.from_pending_date ? moment(initialValues.from_pending_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_pending_date ? moment(initialValues.to_pending_date).format('DD-MM-YYYY HH:mm') : '??')
+      list.push({
+        key: 'pending_date',
+        name: 'Ngày chờ xử lý',
+        value: textPendingDate
       })
     }
 
@@ -339,7 +425,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
               <Input
                 className="input-search"
                 prefix={<img src={search} alt="" />}
-                placeholder="Mã phiếu chuyển, mã sản phẩm, tên sản phẩm"
+                placeholder="ID phiếu chuyển, mã sản phẩm, tên sản phẩm"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     condition: e.target.value.trim()
@@ -375,7 +461,58 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
           <BaseFilterWrapper>
             <Row gutter={12} style={{marginTop: '10px'}}>
               <Col span={12}>
-                <div className="label-date">Ngày gửi</div>
+                <Item label="Trạng thái" name="status" style={{ margin: "10px 0px" }}>
+                  <CustomSelect
+                    maxTagCount="responsive"
+                    mode="multiple"
+                    style={{ width: '100%'}}
+                    showArrow
+                    placeholder="Chọn trạng thái"
+                    notFoundContent="Không tìm thấy kết quả"
+                    optionFilterProp="children"
+                    getPopupContainer={trigger => trigger.parentNode}
+                  >
+                    {STATUS_INVENTORY_TRANSFER_ARRAY.map((item, index) => (
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key={index.toString()}
+                        value={item.value}
+                      >
+                        {item.name}
+                      </CustomSelect.Option>
+                    ))}
+                  </CustomSelect>
+                </Item>
+              </Col>
+              <Col span={12} />
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Item label="Người tạo" name="created_by">
+                  <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
+                </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày tạo</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_created_date"
+                  fieldNameTo="to_created_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime
+                />
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Item label="Người chuyển" name="transfer_by">
+                  <AccountSearchPaging placeholder="Chọn người chuyển" mode="multiple"/>
+                </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày chuyển</div>
                 <CustomFilterDatePicker
                   fieldNameFrom="from_transfer_date"
                   fieldNameTo="to_transfer_date"
@@ -385,6 +522,13 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
                   format="DD/MM/YYYY HH:mm"
                   showTime
                 />
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Item label="Người nhận" name="received_by">
+                  <AccountSearchPaging placeholder="Chọn người nhận" mode="multiple"/>
+                </Item>
               </Col>
               <Col span={12}>
                 <div className="label-date">Ngày nhận</div>
@@ -399,16 +543,42 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
                 />
               </Col>
             </Row>
-            <Row gutter={12} style={{marginTop: '10px'}}>
+            <Row gutter={12}>
               <Col span={12}>
-                <Item label="Người nhận" name="received_code">
-                  <AccountSearchPaging placeholder="Chọn người nhận" mode="multiple"/>
+                <Item label="Người hủy" name="cancel_by">
+                  <AccountSearchPaging placeholder="Chọn người hủy" mode="multiple"/>
                 </Item>
               </Col>
               <Col span={12}>
+                <div className="label-date">Ngày Hủy</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_cancel_date"
+                  fieldNameTo="to_cancel_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime
+                />
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
                 <Item name="note" label="Ghi chú">
-                  <Input placeholder="Tìm kiếm theo nội dung ghi chú" className="w-100" />
+                  <Input className="w-100" placeholder="Nhập ghi chú để tìm kiếm" />
                 </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày chờ xử lý</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_pending_date"
+                  fieldNameTo="to_pending_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime
+                />
               </Col>
             </Row>
           </BaseFilterWrapper>
