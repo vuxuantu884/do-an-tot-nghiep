@@ -15,7 +15,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { EcommerceOrderPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   batchShippingAction, changeEcommerceOrderStatus, downloadPrintForm,
@@ -1857,7 +1857,7 @@ const EcommerceOrders: React.FC = () => {
 
   useEffect(() => {
     if (allowOrdersView) {
-      dispatch(AccountSearchAction({}, setDataAccounts));
+      dispatch(searchAccountPublicAction({}, setDataAccounts));
       dispatch(getListSourceRequest(setListSource));
       dispatch(PaymentMethodGetList(setListPaymentMethod));
       dispatch(StoreGetListAction(setStore));

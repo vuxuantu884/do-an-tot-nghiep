@@ -13,7 +13,6 @@ import { showSuccess, showError } from "utils/ToastUtils";
 
 import {
   AccountResponse,
-  AccountSearchQuery,
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { WardResponse } from "model/content/ward.model";
@@ -24,7 +23,7 @@ import {
   DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import {
   getCustomerDetailAction,
   CustomerGroups,
@@ -39,9 +38,7 @@ import arrowBack from "assets/icon/arrow-back.svg";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
 import "screens/customer/customer.scss";
 
-const initQueryAccount: AccountSearchQuery = {
-  info: "",
-};
+
 const CustomerUpdate = (props: any) => {
   const params = useParams() as any;
   const [customerForm] = Form.useForm();
@@ -66,16 +63,14 @@ const CustomerUpdate = (props: any) => {
       if (!data) {
         return;
       }
-      const _items = data.items.filter((item) => item.status === "active");
-      setAccounts(_items);
+      setAccounts(data.items);
     },
     []
   );
 
   const AccountChangeSearch = React.useCallback(
     (value) => {
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+      dispatch(searchAccountPublicAction({condition: value}, setDataAccounts));
     },
     [dispatch, setDataAccounts]
   );
@@ -114,7 +109,7 @@ const CustomerUpdate = (props: any) => {
   }, [customer]);
 
   React.useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
   React.useEffect(() => {
