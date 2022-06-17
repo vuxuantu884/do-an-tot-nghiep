@@ -15,7 +15,7 @@ import {
   CustomerGroups,
   CustomerTypes,
 } from "domain/actions/customer/customer.action";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
 import {
@@ -24,7 +24,6 @@ import {
 } from "model/request/customer.request";
 import {
   AccountResponse,
-  AccountSearchQuery,
 } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 
@@ -37,9 +36,6 @@ import { StyledCustomerInfo } from "screens/customer/customerStyled";
 import "screens/customer/customer.scss";
 
 
-const initQueryAccount: AccountSearchQuery = {
-  info: "",
-};
 const CustomerCreate = (props: any) => {
   const [customerForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -63,16 +59,14 @@ const CustomerCreate = (props: any) => {
       if (!data) {
         return;
       }
-      const _items = data.items.filter((item) => item.status === "active");
-      setAccounts(_items);
+      setAccounts(data.items);
     },
     []
   );
 
   const AccountChangeSearch = React.useCallback(
     (value) => {
-      initQueryAccount.info = value;
-      dispatch(AccountSearchAction(initQueryAccount, setDataAccounts));
+      dispatch(searchAccountPublicAction({condition: value}, setDataAccounts));
     },
     [dispatch, setDataAccounts]
   );
@@ -109,7 +103,7 @@ const CustomerCreate = (props: any) => {
   }, [dispatch, districtId]);
 
   React.useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({}, setDataAccounts));
   }, [dispatch, setDataAccounts]);
 
   React.useEffect(() => {

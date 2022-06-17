@@ -1,7 +1,7 @@
 import {Card, Col, Divider, Form, FormInstance, Input, Modal, Row, Table, Tooltip} from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import { Type } from "config/type.config";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 
@@ -765,7 +765,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   }, [dispatch, storeId]);
 
   useEffect(() => {
-    dispatch(AccountSearchAction({}, setDataAccounts));
+    dispatch(searchAccountPublicAction({}, setDataAccounts));
     dispatch(getLoyaltyRate(setLoyaltyRate));
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
     // dispatch(
