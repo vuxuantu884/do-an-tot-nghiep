@@ -55,7 +55,7 @@ const UpdateTicket: FC = () => {
   const [dataProcess, setDataProcess] = useState<ImportResponse>();
   const [fileId, setFileId] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
-  const [dataUploadError, setDataUploadError] = useState<Array<string> | null>(null);
+  const [dataUploadError, setDataUploadError] = useState<any>(null);
   const dispatch = useDispatch();
   const history = useHistory();
 
@@ -98,10 +98,9 @@ const UpdateTicket: FC = () => {
   const checkImportFile = () => {
     BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then((res: any) => {
       if (!res.data) return;
-      console.log(res)
       setData(res.data);
       setDataProcess(res.data.process);
-      setDataUploadError(res.errors);
+      setDataUploadError(!res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors);
 
       if (res.data.status !== 'FINISH') return;
       setFileId(null);
@@ -154,21 +153,18 @@ const UpdateTicket: FC = () => {
     formData.append('storeReceive',JSON.stringify(data.storeReceive));
     formData.append('note', data.note ? data.note : '');
 
-    console.log(form.getFieldsValue())
-
     BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData).then((res: any) => {
-      console.log(res)
       if (res) {
         setFileId(res.data);
         setIsStatusModalVisible(true);
         setDataProcess(res.process);
-        setDataUploadError(res.errors);
+        setDataUploadError(!res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors);
       }
     }).catch( err => {
       showError(err);
     })
 
-  },[form, stores]);
+  },[stores]);
 
   const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
 
@@ -192,6 +188,21 @@ const UpdateTicket: FC = () => {
     }
     return e && e.fileList;
   };
+
+  const downloadErrorDetail = () => {
+    if (!dataUploadError) return;
+    let newDataUploadError = '';
+
+    dataUploadError.forEach((item: any) => {
+      newDataUploadError = newDataUploadError + item + '\n';
+    })
+    const downloadableLink = document.createElement('a');
+    downloadableLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(newDataUploadError));
+    downloadableLink.download = "Log.txt";
+    document.body.appendChild(downloadableLink);
+    downloadableLink.click();
+    document.body.removeChild(downloadableLink);
+  }
 
   return (
     <StyledWrapper>
@@ -392,9 +403,10 @@ const UpdateTicket: FC = () => {
           <Modal
             title="Nhập file"
             centered
+            onCancel={() => {setIsStatusModalVisible(false); setIsLoading(false);}}
             visible={isStatusModalVisible}
             footer={[
-              <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
+              <Button key="back" onClick={() => {setIsStatusModalVisible(false); setIsLoading(false);}}>
                 Huỷ
               </Button>,
               <Button
@@ -446,17 +458,15 @@ const UpdateTicket: FC = () => {
                 <div className="content">
                   <ul>
                     {
-                      dataUploadError ? dataUploadError.map( item => {
-                        return <li><span className="danger">&#8226;</span><Text type="danger">{item}</Text></li>
-                      }) : (
+                      dataUploadError ? (
+                          <li><span className="danger">&#8226;</span><Text type="danger" style={{ cursor: "pointer" }} onClick={downloadErrorDetail}>Tải chi tiết lỗi</Text></li>
+                      ) : (
                         <li><span className="success">&#8226;</span><Text type="success">{data?.status === 'FINISH' ? 'Thành công' : 'Đang xử lý...'}</Text></li>
                       )
                     }
                   </ul>
                 </div>
               </Row>
-
-
             </ImportStatusWrapper>
           </Modal>
         )

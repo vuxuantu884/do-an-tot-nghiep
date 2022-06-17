@@ -69,6 +69,8 @@ const CreateTicket: FC = () => {
   const [toStoreData, setToStoreData] = useState<Store>();
   const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
+  const [current, setCurrent] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
 
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
@@ -92,6 +94,14 @@ const CreateTicket: FC = () => {
 
     return total;
   }
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      setCurrent(page);
+      setSize(size);
+    },
+    []
+  );
 
   function onDeleteItem(variantId: number) {
     // delete row
@@ -582,7 +592,7 @@ const CreateTicket: FC = () => {
       align: "center",
       width: "50px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        index + 1,
+        size * (current - 1) + index + 1,
     },
     {
       title: "Ảnh",
@@ -885,7 +895,13 @@ const CreateTicket: FC = () => {
                     className="inventory-table"
                     rowClassName="product-table-row"
                     tableLayout="fixed"
-                    pagination={false}
+                    pagination={{
+                      pageSize: size,
+                      total: dataTable.length,
+                      current: current,
+                      showSizeChanger: true,
+                      onChange: onPageChange
+                    }}
                     columns={columns}
                     loading={isLoadingTable}
                     dataSource={dataTable}
