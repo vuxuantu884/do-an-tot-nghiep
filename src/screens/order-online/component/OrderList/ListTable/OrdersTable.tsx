@@ -1194,10 +1194,9 @@ function OrdersTable(props: PropTypes) {
                     <strong>NV điều phối: </strong>
                     {record.coordinator?(
                       <React.Fragment>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code}</Link>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator}</Link>
+                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code} - {record.coordinator}</Link>
                       </React.Fragment>
-                    ):"N/a"}
+                    ):"-"}
                   </div>
                   {/* {record.status === OrderStatus.DRAFT && (
                     <div
