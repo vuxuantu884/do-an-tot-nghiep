@@ -239,7 +239,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultColumns = [
     {
-      title: "ID phiếu chuyển",
+      title: "Mã phiếu chuyển",
       dataIndex: "code",
       visible: true,
       align: "left",

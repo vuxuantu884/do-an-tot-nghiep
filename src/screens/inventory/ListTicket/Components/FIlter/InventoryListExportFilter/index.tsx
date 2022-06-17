@@ -425,7 +425,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
               <Input
                 className="input-search"
                 prefix={<img src={search} alt="" />}
-                placeholder="ID phiếu chuyển, mã sản phẩm, tên sản phẩm"
+                placeholder="Mã phiếu chuyển, mã sản phẩm, tên sản phẩm"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
                     condition: e.target.value.trim()

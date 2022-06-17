@@ -142,7 +142,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       ),
     },
     {
-      title: "ID phiếu chuyển",
+      title: "Mã phiếu chuyển",
       dataIndex: "code",
       visible: true,
       align: "left",

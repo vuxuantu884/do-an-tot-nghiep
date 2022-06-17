@@ -1436,7 +1436,7 @@ const onChangeNote = useCallback(
                   <Col>
                     <Row>
                       <Col span={10}>
-                        <div className="label" style={{ float: 'left' }}>ID phiếu</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
+                        <div className="label" style={{ float: 'left' }}>Mã phiếu</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
                       </Col>
                       <Col span={14}>
                         <div className="data">{data.code}</div>
