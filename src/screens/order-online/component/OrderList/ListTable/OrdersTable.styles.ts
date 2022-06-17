@@ -290,7 +290,14 @@ export const StyledComponent = styled.div.attrs((props:any) => {
       &.second_call_attempt,
       &.third_call_attempt {
         .ant-select-selector {
+          color: ${textBodyColor};
           background: #ffff00 !important;
+        }
+        .ant-select-arrow {
+          color: ${textBodyColor};
+        }
+        .ant-select-selection-item {
+          color: ${textBodyColor};
         }
       }
       &.shipping,
