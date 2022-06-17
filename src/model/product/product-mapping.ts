@@ -10,7 +10,8 @@ const SearchVariantField = {
   main_colors: 'main_colors',
   suppliers: 'suppliers',
   saleable: 'saleable',
-  brands: 'brands'
+  brands: 'brands',
+  is_exist_images: 'is_exist_images'
 };
 
 const keysDateFilter = ['created_date'];
@@ -27,6 +28,7 @@ const SearchVariantMapping = {
   [SearchVariantField.main_colors]: "Màu chủ đạo",
   [SearchVariantField.suppliers]: "Nhà cung cấp",
   [SearchVariantField.brands]: "Thương hiệu",
+  [SearchVariantField.is_exist_images]: "Ảnh sản phẩm",
 };
 
 const SearchVariantWrapperField = {

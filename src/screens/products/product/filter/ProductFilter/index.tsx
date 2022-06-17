@@ -457,6 +457,15 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         ))}
                       </Select>
                     );
+                    break;
+                  case SearchVariantField.is_exist_images:
+                    component = (
+                      <CustomSelectOne
+                        span={12}
+                        data={{true: "Có", false: "Không"}}
+                      />
+                    );
+                    break;
                 }
 
                 return (
@@ -585,7 +594,12 @@ const FilterList = ({
               brandTag = brand ? brandTag + brand.name + "; " : brandTag
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${brandTag}`;
-            break
+            break;
+          case SearchVariantField.is_exist_images:
+          renderTxt = `${SearchVariantMapping[filterKey]} : ${
+            value === "true" ? "Có" : "Không"
+          }`;
+            break;
         }
         return (
           <Tag
