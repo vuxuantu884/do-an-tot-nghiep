@@ -14,7 +14,7 @@ import { CreateOrderReturnContext } from "contexts/order-return/create-order-ret
 import {
   getListStoresSimpleAction,
   StoreDetailAction,
-  StoreDetailCustomAction,
+  StoreDetailCustomAction
 } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
@@ -23,7 +23,7 @@ import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty
 import {
   actionCreateOrderExchange,
   actionCreateOrderReturn,
-  actionGetOrderReturnReasons,
+  actionGetOrderReturnReasons
 } from "domain/actions/order/order-return.action";
 import {
   changeOrderCustomerAction,
@@ -34,7 +34,7 @@ import {
   orderConfigSaga,
   OrderDetailAction,
   PaymentMethodGetList,
-  setIsShouldSetDefaultStoreBankAccountAction,
+  setIsShouldSetDefaultStoreBankAccountAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import purify from "dompurify";
@@ -55,7 +55,7 @@ import {
   OrderPaymentRequest,
   OrderRequest,
   ReturnRequest,
-  ShipmentRequest,
+  ShipmentRequest
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
@@ -66,12 +66,12 @@ import {
   OrderResponse,
   ReturnProductModel,
   ShippingAddress,
-  StoreCustomResponse,
+  StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import {
   OrderConfigResponseModel,
-  ShippingServiceConfigDetailResponseModel,
+  ShippingServiceConfigDetailResponseModel
 } from "model/response/settings/order-settings.response";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { TiWarningOutline } from "react-icons/ti";
@@ -81,7 +81,7 @@ import { useReactToPrint } from "react-to-print";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
 import {
   getPrintOrderReturnContentService,
-  getStoreBankAccountNumbersService,
+  getStoreBankAccountNumbersService
 } from "service/order/order.service";
 import {
   checkIfOrderCanBeReturned,
@@ -95,9 +95,10 @@ import {
   handleFetchApiError,
   isFetchApiSuccessful,
   isOrderFromPOS,
+  reCalculateOrderItem,
   replaceFormatString,
   scrollAndFocusToDomElement,
-  totalAmount,
+  totalAmount
 } from "utils/AppUtils";
 import {
   ADMIN_ORDER,
@@ -109,13 +110,13 @@ import {
   POS,
   ShipmentMethod,
   ShipmentMethodOption,
-  TaxTreatment,
+  TaxTreatment
 } from "utils/Constants";
 import {
   ORDER_PAYMENT_STATUS,
   PAYMENT_METHOD_ENUM,
   RETURN_MONEY_TYPE,
-  RETURN_TYPE_VALUES,
+  RETURN_TYPE_VALUES
 } from "utils/Order.constants";
 import { findPaymentMethodByCode } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
@@ -422,7 +423,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       if (listItemCanReturn.length > 0) {
         setIsReturnAll(false);
       }
-      setListItemCanBeReturn(listItemCanReturn);
+      setListItemCanBeReturn(reCalculateOrderItem(listItemCanReturn))
       let returnProduct: ReturnProductModel[] = listItemCanReturn.map((single) => {
         return {
           ...single,
