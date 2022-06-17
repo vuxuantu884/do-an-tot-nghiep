@@ -281,6 +281,9 @@ const OrderFilter = (props: OrderFilterProps) => {
         else if (tag.key === "price") {
             newParams = { ...newParams, ...{ price_min: undefined, price_max: undefined } };
         }
+        else if (tag.key === "ecommerce_shop_ids") {
+            newParams = { ...newParams, ...{ ecommerce_shop_ids: [] } };
+        }
         else {
             newParams = { ...newParams, ...{ [tag.key]: null } };
         }
@@ -325,7 +328,8 @@ const OrderFilter = (props: OrderFilterProps) => {
             price_min: params.price_min,
             price_max: params.price_max,
             customer_note: params.customer_note,
-            marketing_campaign: params.marketing_campaign
+            marketing_campaign: params.marketing_campaign,
+            ecommerce_shop_ids: params.ecommerce_shop_ids
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);

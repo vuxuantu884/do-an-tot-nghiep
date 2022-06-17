@@ -5,7 +5,7 @@ import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal, StyledModalFooter } from "screens/web-app/common/commonStyle";
 import { useHistory } from "react-router";
-import { EcommerceProductTabUrl } from "config/url.config";
+import { WebAppProductTabUrl } from "config/url.config";
 
 type ProgressConnectByExcelModalProps = {
     isVisibleProgressModal: any,
@@ -35,7 +35,7 @@ const ProgressConnectByExcelModal: React.FC<ProgressConnectByExcelModalProps> = 
 
     const okProgressProgressConcatenateByExcelModal = () => {
         onOKProgressConcatenateByExcel();
-        history.replace(EcommerceProductTabUrl.CONNECTED);
+        history.replace(WebAppProductTabUrl.NOT_CONNECTED);
     };
 
     const cancelProgressConcatenateByExcelModal = () => {

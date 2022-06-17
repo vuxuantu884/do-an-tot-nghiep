@@ -295,6 +295,12 @@ const ProductList = (props: ProductListprops) => {
      const getVarinantData = () => {
         setIsLoading(true);
         let newParams = { ...params };
+        if (newParams.connected_date_from != null) {
+            newParams.connected_date_from = moment(newParams.connected_date_from, "DD-MM-YYYY").utc(true);
+        }
+        if (newParams.connected_date_to != null) {
+            newParams.connected_date_to = moment(newParams.connected_date_to, "DD-MM-YYYY").utc(true);
+        }
         if (type === "connected")
             newParams.connect_status = "connected";
         dispatch(getWebAppProductAction(newParams, (result: PageResponse<any> | false) => {
@@ -430,7 +436,7 @@ const ProductList = (props: ProductListprops) => {
             },
         },
         {
-            title: "Ngày đồng bộ",
+            title: "Ngày ghép nối",
             dataIndex: "connected_date_from",
             key: "connected_date",
             align: "left",
