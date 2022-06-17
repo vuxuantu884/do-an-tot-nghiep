@@ -187,6 +187,7 @@ export const StyledOrderFilter = styled.div`
   }
 
   .order-filter-tags .tag {
+    border-radius: 50px;
     margin-bottom: 10px;
     margin-top: 0;
     padding: 5px 15px;

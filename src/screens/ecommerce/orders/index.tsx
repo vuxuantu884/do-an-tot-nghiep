@@ -109,6 +109,7 @@ const BATCHING_SHIPPING_TYPE = {
 const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
   limit: 30,
+  is_online: "true",
   sort_type: null,
   sort_column: null,
   code: null,
@@ -2002,6 +2003,14 @@ const EcommerceOrders: React.FC = () => {
     let dataQuery: EcommerceOrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
+      issued_on_min: queryParamsParsed.issued_on_min,
+      issued_on_max: queryParamsParsed.issued_on_max,
+      finalized_on_min: queryParamsParsed.finalized_on_min,
+      finalized_on_max: queryParamsParsed.finalized_on_max,
+      cancelled_on_min: queryParamsParsed.cancelled_on_min,
+      cancelled_on_max: queryParamsParsed.cancelled_on_max,
+      completed_on_min: queryParamsParsed.completed_on_min,
+      completed_on_max: queryParamsParsed.completed_on_max,
     };
     setPrams(dataQuery);
   // eslint-disable-next-line react-hooks/exhaustive-deps
