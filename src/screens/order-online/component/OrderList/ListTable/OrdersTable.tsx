@@ -14,6 +14,7 @@ import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import iconPrint from "assets/icon/Print.svg";
 // import { display } from "html2canvas/dist/types/css/property-descriptors/display";
 // import 'assets/css/_sale-order.scss';
+import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
 import search from "assets/img/search.svg";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -47,7 +48,7 @@ import {
   copyTextToClipboard,
   findVariantAvatar,
   formatCurrency,
-  getOrderTotalPaymentAmount,
+  formatNumber, getOrderTotalPaymentAmount,
   getTotalQuantity, handleFetchApiError,
   isFetchApiSuccessful,
   isNormalTypeVariantItem,
@@ -80,7 +81,6 @@ import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import InventoryTable from "./InventoryTable";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
 
 type PropTypes = {
   tableLoading: boolean;
@@ -783,9 +783,8 @@ function OrdersTable(props: PropTypes) {
                     </div>
                     <div className="quantity quantityWidth">
                       <NumberFormat
-                        value={item.quantity}
+                        value={formatNumber(item.quantity)}
                         displayType={"text"}
-                        thousandSeparator={true}
                       />
                     </div>
                     <div className="price priceWidth">
@@ -853,7 +852,6 @@ function OrdersTable(props: PropTypes) {
                       value={formatCurrency(record.total_discount)}
                       className="orderTotal"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </span>
                 </Tooltip>

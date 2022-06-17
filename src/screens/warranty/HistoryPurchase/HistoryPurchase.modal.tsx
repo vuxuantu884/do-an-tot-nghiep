@@ -11,6 +11,7 @@ import { AiOutlinePlusCircle } from "react-icons/ai";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
+import { formatNumber } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { HistoryPurchaseStyled } from "./HistoryPurchase.styles";
 // import { fields_order, fields_shipment, fields_return} from "../common/fields.export";
@@ -131,9 +132,8 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
                     </div>
                     <div className="quantity quantityWidth">
                       <NumberFormat
-                        value={item.quantity}
+                        value={formatNumber(item.quantity)}
                         displayType={"text"}
-                        thousandSeparator={true}
                       />
                     </div>
                     <div className="price priceWidth">

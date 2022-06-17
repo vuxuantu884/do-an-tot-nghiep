@@ -1,11 +1,12 @@
 import { Badge, Button, Col, Collapse, Row, Typography } from "antd";
+import { StyledComponent } from "component/order/OrderCreateShipment/ShipmentMethodEcommerce/styles";
 import { EcommerceDeliveryResponse, OrderResponse } from "model/response/order/order.response";
-import {StyledComponent} from "component/order/OrderCreateShipment/ShipmentMethodEcommerce/styles";
 
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import { showSuccess } from "utils/ToastUtils";
-import { SHIPPING_TYPE } from "utils/Constants";
 import NumberFormat from "react-number-format";
+import { formatCurrency } from "utils/AppUtils";
+import { SHIPPING_TYPE } from "utils/Constants";
+import { showSuccess } from "utils/ToastUtils";
 
 type PropType = {
   ecommerceShipment?: EcommerceDeliveryResponse | null;
@@ -57,9 +58,8 @@ function ShipmentMethodEcommerce(props: PropType) {
               <span className="content">
                 {ecommerceShipment ?
                   <NumberFormat
-                    value={ecommerceShipment.shipping_fee_paid_to_three_pls || 0}
+                    value={formatCurrency(ecommerceShipment.shipping_fee_paid_to_three_pls || 0)}
                     displayType={"text"}
-                    thousandSeparator={true}
                   />
                   : 0
                 }
@@ -73,9 +73,8 @@ function ShipmentMethodEcommerce(props: PropType) {
               <span className="content">
                 {OrderDetail?.shipping_fee_informed_to_customer ?
                   <NumberFormat
-                    value={OrderDetail.shipping_fee_informed_to_customer}
+                    value={formatCurrency(OrderDetail.shipping_fee_informed_to_customer)}
                     displayType={"text"}
-                    thousandSeparator={true}
                   />
                   : 0
                 }

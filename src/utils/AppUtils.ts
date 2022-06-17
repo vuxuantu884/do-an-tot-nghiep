@@ -280,15 +280,38 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
   return sizeConvert;
 };
 
-export const formatCurrency = (currency: number | string | boolean, sep: string = ","): string => {
+export const formatCurrency = (currency: number | string | boolean, sep: string = "."): string => {
   try {
     if(typeof currency ==="number") {
       currency = Math.round(currency);
     } else if(typeof currency ==="string") {
       currency = Math.round(Number(currency));
     }
-    let format = currency.toString();
-    return format.replace(/(\d)(?=(\d{3})+(?!\d))/g, `$1${sep}`);
+    let format = currency.toLocaleString();
+    return format;
+  } catch (e) {
+    return "";
+  }
+};
+
+export const formatNumber = (value: number | string | boolean): string => {
+  try {
+    let format = Number(value).toLocaleString();
+    return format;
+  } catch (e) {
+    return "";
+  }
+};
+
+export const formatPercentage = (percentage: number | string | boolean,): string => {
+  try {
+    if(typeof percentage ==="number") {
+      percentage = (Math.round(percentage*100))/100;
+    } else if(typeof percentage ==="string") {
+      percentage = (Math.round(Number(percentage)*100))/100;
+    }
+    let format = percentage.toLocaleString();
+    return format;
   } catch (e) {
     return "";
   }
@@ -412,12 +435,12 @@ export const findPrice = (
 
 export const replaceFormat = (currency: number | string): number => {
   let format = currency.toString();
-  return parseInt(format.replace(/,/gi, ""));
+  return parseInt(format.replace(/\.|,/gi, ""));
 };
 
 export const replaceFormatString = (currency: number | string): string => {
   let format = currency.toString();
-  return format.replace(/,/gi, "");
+  return format.replace(/\.|,/gi, "");
 };
 
 export const findAvatar = (VariantImage: Array<VariantImage>): string => {

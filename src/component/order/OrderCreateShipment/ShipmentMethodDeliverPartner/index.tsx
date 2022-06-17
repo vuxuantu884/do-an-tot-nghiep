@@ -196,10 +196,9 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       >
                                         {/* {service.total_fee} */}
                                         <NumberFormat
-                                          value={fee.total_fee}
+                                          value={formatCurrency(fee.total_fee)}
                                           className="foo"
                                           displayType={"text"}
-                                          thousandSeparator={true}
                                         />
                                       </div>
                                     </>

@@ -2,6 +2,7 @@ import { Button, Divider, Modal, Row, Table } from "antd";
 import { useState } from "react";
 // import { ShipmentModel } from "model/order/shipment.model";
 import NumberFormat from "react-number-format";
+import { formatCurrency } from "utils/AppUtils";
 
 type ShipmentDetailsModalProps = {
   visible: boolean;
@@ -54,10 +55,9 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
       title: <span><span>Thành tiền </span><span style={{color: '#737373', fontWeight: 400}}> đ</span></span>,
       render: (record: any) => (
         <NumberFormat
-          value={record.price * record.quantity}
+          value={formatCurrency(record.price * record.quantity)}
           className="foo"
           displayType={"text"}
-          thousandSeparator={true}
         />
       ),
       visible: true,
@@ -110,10 +110,9 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
             <div>Tổng tiền:</div>
             <div style={{ color: "#2A2A86"}}>
               <NumberFormat
-                value={shipmentDetails.total}
+                value={formatCurrency(shipmentDetails.total)}
                 className="foo"
                 displayType={"text"}
-                thousandSeparator={true}
               />
             </div>
           </div>
@@ -121,10 +120,9 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
             <div>Chiết khấu:</div>
             <div style={{ color: "#2A2A86" }}>
               <NumberFormat
-                value={shipmentDetails.total_discount? shipmentDetails.total_discount : 0}
+                value={formatCurrency(shipmentDetails.total_discount? shipmentDetails.total_discount : 0)}
                 className="foo"
                 displayType={"text"}
-                thousandSeparator={true}
               />
             </div>
           </div>
@@ -132,10 +130,9 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
             <div>Phí giao hàng:</div>
             <div style={{ color: "#2A2A86" }}>
               <NumberFormat
-                value={shipmentDetails?.order?.shipping_fee_informed_to_customer || 0}
+                value={formatCurrency(shipmentDetails?.order?.shipping_fee_informed_to_customer || 0)}
                 className="foo"
                 displayType={"text"}
-                thousandSeparator={true}
               />
             </div>
           </div>
@@ -144,10 +141,9 @@ const ShipmentDetailsModal: React.FC<ShipmentDetailsModalProps> = (
             <div>COD:</div>
             <div style={{ color: "#2A2A86"}}>
               <NumberFormat
-                value={shipmentDetails?.shipment?.cod ? shipmentDetails.shipment.cod : 0}
+                value={formatCurrency(shipmentDetails?.shipment?.cod ? shipmentDetails.shipment.cod : 0)}
                 className="foo"
                 displayType={"text"}
-                thousandSeparator={true}
               />
             </div>
           </div>

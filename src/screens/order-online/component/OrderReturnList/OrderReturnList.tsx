@@ -35,7 +35,7 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
-import { copyTextToClipboard, formatCurrency, generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { copyTextToClipboard, formatCurrency, formatNumber, generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor } from "utils/global-styles/variables";
@@ -368,9 +368,8 @@ function OrderReturnList(props: PropTypes) {
                   </div>
                   <div className="quantity quantityWidth">
                     <NumberFormat
-                      value={item.quantity}
+                      value={formatNumber(item.quantity)}
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </div>
                   <div className="price priceWidth">
@@ -466,10 +465,9 @@ function OrderReturnList(props: PropTypes) {
         <>
           <Tooltip title="Hoàn tiền">
             <NumberFormat
-              value={record.total}
+              value={formatCurrency(record.total)}
               className="foo"
               displayType={"text"}
-              thousandSeparator={true}
               style={{ fontWeight: 500, color: "#27ae60"}}
             />
           </Tooltip>
@@ -481,10 +479,9 @@ function OrderReturnList(props: PropTypes) {
                 <span>
                   <img src={IconPaymentPoint} alt="" />
                   <NumberFormat
-                    value={record.point_refund}
+                    value={formatNumber(record.point_refund)}
                     className="foo"
                     displayType={"text"}
-                    thousandSeparator={true}
                     style={{ fontWeight: 500, color: "#fcaf17", paddingLeft: 5 }}
                   />
                 </span>
@@ -496,7 +493,6 @@ function OrderReturnList(props: PropTypes) {
                     value={record.total}
                     className="foo"
                     displayType={"text"}
-                    thousandSeparator={true}
                   />
                 </span>
               </Tooltip> */}

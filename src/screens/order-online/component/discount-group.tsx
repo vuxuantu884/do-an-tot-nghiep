@@ -1,11 +1,11 @@
 import { Input, Select, Typography } from "antd";
+import OrderNumberInputCustom from "component/custom/order/order-number-input.custom";
+import _ from "lodash";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { useCallback, useState } from "react";
-import { formatCurrency, getLineAmountAfterLineDiscount, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue, replaceFormatString } from "utils/AppUtils";
-import _ from "lodash";
+import { formatCurrency, formatPercentage, getLineAmountAfterLineDiscount, getLineItemDiscountAmount, getLineItemDiscountRate, getLineItemDiscountValue, replaceFormatString } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
-import OrderNumberInputCustom from "component/custom/order/order-number-input.custom";
 
 type DiscountGroupProps = {
   price: number;
@@ -99,9 +99,13 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 				<OrderNumberInputCustom
 					className="hide-number-handle "
 					onChange={ChangeValueDiscount}
-					format={(a: string) =>
-						formatCurrency(a)
-					}
+					format={(a: string) => {
+            if(selected === MoneyType.MONEY) {
+              return formatCurrency(a)
+            } else {
+              return formatPercentage(a)
+            }
+          }}
 					replace={(a: string) =>
 						replaceFormatString(a)
 					}
@@ -124,7 +128,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
         <div className="d-flex justify-content-end yody-table-discount-converted">
           <Text type="danger">
             {selected === MoneyType.MONEY
-							? (Math.round(props.discountRate * 100) / 100) + "%"
+							? formatPercentage(props.discountRate) + "%"
               : formatCurrency(props.discountAmount)}
           </Text>
         </div>

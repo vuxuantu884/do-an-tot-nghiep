@@ -20,7 +20,7 @@ import {
 } from "model/response/order/order.response";
 import React from "react";
 import { Link } from "react-router-dom";
-import { formatCurrency, getTotalQuantity, handleDisplayCoupon } from "utils/AppUtils";
+import { formatCurrency, formatPercentage, getTotalQuantity, handleDisplayCoupon } from "utils/AppUtils";
 import { successColor } from "utils/global-styles/variables";
 //#endregion
 
@@ -144,7 +144,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
               <div className="d-flex justify-content-end yody-table-discount-converted">
                 <Typography.Text type="danger">
                   <span style={{fontSize: "0.857rem"}}>
-                    {Math.round(l.discount_items[0]?.rate * 100 || 0)/100}%
+                    {formatPercentage(Math.round(l.discount_items[0]?.rate * 100 || 0)/100)}%
                   </span>
                 </Typography.Text>
               </div>
@@ -352,7 +352,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                       }}
                       className="orders-tag orders-tag-danger"
                     >
-                      {props.OrderDetail?.discounts[0]?.rate ? Math.round(props.OrderDetail?.discounts[0].rate*100)/100 : 0} %
+                      {props.OrderDetail?.discounts[0]?.rate ? formatPercentage(props.OrderDetail?.discounts[0].rate) : 0} %
                     </Tag>
                   </div>
                 )}
