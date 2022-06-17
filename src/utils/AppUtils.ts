@@ -1106,6 +1106,20 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
   return orderReturnItems;
 };
 
+export const reCalculateOrderItem = (orderLineItems: OrderLineItemResponse[]) => {
+  return orderLineItems.map(item => {
+    return {
+      ...item,
+      discount_items: item.discount_items.map(discount => {
+        return {
+          ...discount,
+          value: item.quantity ? (discount.amount / item.quantity) : discount.value,
+        }
+      })
+    }
+  })
+};
+
 // lấy danh sách còn có thể đổi trả
 export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   if(!OrderDetail) {
