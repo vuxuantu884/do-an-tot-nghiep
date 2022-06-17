@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor, dangerColor, primaryColor, successColor, yellowColor} from "utils/global-styles/variables";
+import {borderColor, dangerColor, primaryColor, successColor, textBodyColor, yellowColor} from "utils/global-styles/variables";
 
 let nameQuantityWidth = 200;
 
@@ -190,6 +190,14 @@ export const StyledComponent = styled.div.attrs((props:any) => {
 			}
       .ant-select-selection-item {
         font-size: ${13/14}em;
+        font-weight: 500;
+        color: #fff;
+      }
+      .ant-select-selector {
+        color: #fff;
+      }
+      .ant-select-arrow {
+        color: #fff;
       }
       .ant-select-single .ant-select-selector {
         padding-left: 5px;
@@ -263,14 +271,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
       margin-top: 5px;
       &.coordinator_confirmed {
         .ant-select-selector {
-          color: #fff;
-          background: #52D276 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
+          background: #01b0f1 !important;
         }
       }
       &.awaiting_coordinator_confirmation {
@@ -285,124 +286,29 @@ export const StyledComponent = styled.div.attrs((props:any) => {
           color: #fff;
         }
       }
-      &.awaiting_saler_confirmation {
-        .ant-select-selector {
-          color: #fff;
-          background: #106227 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.first_call_attempt {
-        .ant-select-selector {
-          color: #fff;
-          background: #106227 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.second_call_attempt {
-        .ant-select-selector {
-          color: #fff;
-          background: #00897B !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
+      &.first_call_attempt,
+      &.second_call_attempt,
       &.third_call_attempt {
         .ant-select-selector {
-          color: #fff;
-          background: #E8770A !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
+          background: #ffff00 !important;
         }
       }
-      &.merchandise_packed {
+      &.shipping,
+      &.fourHour_delivery {
         .ant-select-selector {
           color: #fff;
-          background: #E8770A !important;
+          background: #008081 !important;
         }
         .ant-select-arrow {
           color: #fff;
         }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.shipping {
-        .ant-select-selector {
-          color: #fff;
-          background: #00897B !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
+        .ant-select-selection-item {
           color: #fff;
         }
       }
       &.awaiting_shipper {
         .ant-select-selector {
-          color: #fff;
-          background: #106227 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.merchandise_picking {
-        .ant-select-selector {
-          color: #fff;
-          background: #C98D17 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.returned {
-        .ant-select-selector {
-          color: #fff;
-          background: #52D276 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.fourHour_delivery {
-        .ant-select-selector {
-          color: #fff;
-          background: ${primaryColor} !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
+          background: #ff0066 !important;
         }
       }
       &.shipped {
@@ -413,7 +319,7 @@ export const StyledComponent = styled.div.attrs((props:any) => {
         .ant-select-arrow {
           color: #fff;
         }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
+        .ant-select-selection-item {
           color: #fff;
         }
       }
@@ -429,103 +335,55 @@ export const StyledComponent = styled.div.attrs((props:any) => {
           color: #fff;
         }
       }
-      &.coordinator_confirming {
+      &.coordinator_confirming,
+      &.awaiting_saler_confirmation {
         .ant-select-selector {
-          color: #fff;
-          background: #E8770A  !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.returning {
-        .ant-select-selector {
-          color: #fff;
-          background: #E8770A  !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
+          background: #fe9900  !important;
         }
       }
       &.awaiting_coordinator_confirmation {
         .ant-select-selector {
           color: #fff;
-          background: #FCAF17 !important;
+          background: #01b0f1 !important;
         }
         .ant-select-arrow {
           color: #fff;
         }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
+        .ant-select-selection-item {
           color: #fff;
         }
       }
-      &.require_warehouse_change {
+      &.require_warehouse_change,
+      &.merchandise_packed,
+      &.merchandise_picking {
         .ant-select-selector {
-          color: #fff;
-          background: #8D6E63 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
+          background: #9b2531 !important;
         }
       }
       &.cancelled {
         .ant-select-selector {
-          color: #fff;
           background: #E24343 !important;
         }
-        .ant-select-arrow {
-          color: #fff;
+      }
+      &.compensate {
+        .ant-select-selector {
+          background: #7030a0 !important;
         }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
+      }
+      &.customer_cancelled,
+      &.delivery_service_cancelled,
+      &.system_cancelled,
+      &.out_of_stock {
+        .ant-select-selector {
+          background: #a6a6a6 !important;
         }
       }
       &.delivery_fail,
-      &.compensate,
-      &.customer_cancelled,
-      &.delivery_service_cancelled {
+      &.returning,
+      &.confirm_returned,
+      &.returned {
         .ant-select-selector {
-          color: #fff;
-          background: #E24343 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.out_of_stock {
-        .ant-select-selector {
-          color: #fff;
-          background: #E24343 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
-        }
-      }
-      &.system_cancelled {
-        .ant-select-selector {
-          color: #fff;
-          background: #E24343 !important;
-        }
-        .ant-select-arrow {
-          color: #fff;
-        }
-        &.ant-select-single.ant-select-open .ant-select-selection-item {
-          color: #fff;
+          background: #fe0000 !important;
         }
       }
     }
