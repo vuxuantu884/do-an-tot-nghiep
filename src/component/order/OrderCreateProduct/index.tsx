@@ -234,6 +234,7 @@ function OrderCreateProduct(props: PropTypes) {
 		isExchange
 	} = props;
 
+	console.log('items', items)
 	const orderCustomer = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
 
 	const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);

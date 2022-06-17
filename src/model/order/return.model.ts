@@ -92,3 +92,13 @@ export interface RefundTransactionModel {
   sub_order_id: number;
   type: string|null;
 }
+
+export interface CalculateMoneyRefundRequestModel {
+  items: {
+    order_line_id: number | null | undefined;
+    sku: string;
+    quantity: number;
+  }[]
+}
+
+export type CalculateMoneyRefundResponseModel = number;

@@ -445,7 +445,11 @@ function CardReturnProducts(props: PropTypes) {
           sticky
         />
         <Row className="boxPayment" gutter={24}>
-          <Col xs={24} lg={11}></Col>
+          <Col xs={24} lg={11}>
+            <Row className="payment-row" justify="space-between">
+                (*) Chú ý: có thể tính toán lệch một hai đồng do làm tròn
+              </Row>
+          </Col>
           <Col xs={24} lg={2}></Col>
           <Col xs={24} lg={10}>
             <Row className="payment-row" justify="space-between">

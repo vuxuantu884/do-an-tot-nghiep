@@ -760,7 +760,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let returnMoneyAmount = formValuePayment?.returnMoneyAmount
         ? formValuePayment?.returnMoneyAmount
         : 0;
-      const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
+      const moneyPayment = findPaymentMethodByCode(listPaymentMethods, formValuePayment.returnMoneyMethod);
       if (moneyPayment) {
         result.push({
           payment_method_id: moneyPayment.id,
