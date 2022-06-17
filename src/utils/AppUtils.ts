@@ -1205,15 +1205,17 @@ export const getProductDiscountPerProduct = (product: OrderLineItemResponse) => 
 
 export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
 	let discountPerOrder = 0;
-	let totalDiscountRatePerOrder = 0;
-	OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
-		if (singleOrderDiscount?.rate) {
-			totalDiscountRatePerOrder = totalDiscountRatePerOrder + singleOrderDiscount.rate;
-		}
-	});
-	product.discount_value = getLineItemDiscountValue(product)
-	discountPerOrder =
-		(totalDiscountRatePerOrder/100 * (product.price - product.discount_value))
+  let totalDiscountAmountPerOrder = 0;
+  if(OrderDetail?.total_line_amount_after_line_discount) {
+    OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
+      if (singleOrderDiscount?.amount) {
+        totalDiscountAmountPerOrder = totalDiscountAmountPerOrder + (singleOrderDiscount?.amount);
+      }
+    });
+    product.discount_value = getLineItemDiscountValue(product)
+    discountPerOrder =
+      (totalDiscountAmountPerOrder/OrderDetail?.total_line_amount_after_line_discount * (product.price - product.discount_value))
+  }
 	return discountPerOrder;
 }
 
@@ -1250,9 +1252,9 @@ export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		_items.forEach((i) => {
 			let total_discount_items = 0;
 			i.discount_items.forEach((d) => {
-				total_discount_items = total_discount_items + d.value;
+				total_discount_items = total_discount_items + d.amount;
 			});
-			let amountItem = (i.price - total_discount_items) * i.quantity;
+			let amountItem = i.amount - total_discount_items;
 			i.line_amount_after_line_discount = amountItem;
 			i.amount = i.price * i.quantity;
 			_amount += amountItem;
