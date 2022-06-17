@@ -37,7 +37,7 @@ import TreeStore from "component/tree-node/tree-store";
 import "screens/ecommerce/orders/ecommerce-order.scss"
 import CustomSelectTags from "component/custom/custom-select-tag";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
-import {searchAccountApi} from "service/accounts/account.service";
+import {searchAccountPublicApi} from "service/accounts/account.service";
 import {convertItemToArray, handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
 import search from "assets/img/search.svg";
 import {PageResponse} from "model/base/base-metadata.response";
@@ -169,7 +169,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
 
   useEffect(() => {
     if (params.assignee_codes && params.assignee_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.assignee_codes,
       }).then((response) => {
         setAssigneeFound(response.data.items);
@@ -733,7 +733,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     if (initialValues.shipper_ids.length) {
       let textAccount = ""
       initialValues.shipper_ids.forEach(i => {
-        const findAccount = accounts.filter(item => item.is_shipper === true)?.find(item => item.id === i)
+        const findAccount = accounts?.find(item => item.id === i)
         textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
       })
       list.push({

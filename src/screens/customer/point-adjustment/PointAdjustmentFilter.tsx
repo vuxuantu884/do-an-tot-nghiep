@@ -13,7 +13,7 @@ import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.reques
 import search from "assets/img/search.svg";
 import { StyledPointAdjustment } from "screens/customer/point-adjustment/StyledPointAdjustment";
 import {
-  searchAccountApi,
+  searchAccountPublicApi,
 } from "service/accounts/account.service";
 import { useDispatch } from "react-redux";
 import rightArrow from "assets/icon/right-arrow.svg";
@@ -185,7 +185,7 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   // handle account by filter param
   const getAccountDataFiltered = useCallback((accountParam: any) => {
     if (accountParam && accountParam.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: accountParam,
       }).then((response) => {
         setAccountDataFiltered(response.data.items);

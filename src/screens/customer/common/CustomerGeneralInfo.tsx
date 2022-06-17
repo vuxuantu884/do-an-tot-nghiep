@@ -20,6 +20,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { GENDER_OPTIONS } from "utils/Constants";
 import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
 import {WardGetByDistrictAction} from "domain/actions/content/content.action";
+import {debounce} from "lodash";
 
 const { Option } = Select;
 
@@ -205,6 +206,10 @@ const CustomerGeneralInfo = (props: any) => {
     form?.setFieldsValue({ "full_address": value.trim() });
   }
   // end handle input address
+
+  const onSearchAccount = debounce((key: string) => {
+    AccountChangeSearch(key);
+  }, 800);
 
   return (
     <div className="customer-info">
@@ -588,7 +593,8 @@ const CustomerGeneralInfo = (props: any) => {
               placeholder="Chọn nv phụ trách"
               allowClear
               optionFilterProp="children"
-              onSearch={(value) => AccountChangeSearch(value)}
+              onSearch={(value) => onSearchAccount(value.trim() || "")}
+              onClear={() => onSearchAccount("")}
             >
               {props.accounts &&
                 props.accounts.map((c: any) => (
