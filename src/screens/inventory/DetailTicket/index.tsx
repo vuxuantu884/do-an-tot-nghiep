@@ -1567,7 +1567,7 @@ const DetailTicket: FC = () => {
                 >
                   <Col>
                     <div className="row-detail">
-                      <div className="row-detail-left title" style={{ width: '50%' }}>ID Phiếu</div>
+                      <div className="row-detail-left title" style={{ width: '50%' }}>Mã phiếu</div>
                       <div className="dot data">:</div>
                       <div className="row-detail-right data" style={{ width: '50%' }}>
                         <span>{data.code}</span>
