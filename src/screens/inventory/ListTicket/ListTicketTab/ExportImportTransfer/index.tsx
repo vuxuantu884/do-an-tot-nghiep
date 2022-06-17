@@ -118,7 +118,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
   const defaultColumns = [
     {
       title: "Sản phẩm",
-      width: "200px",
+      width: "180px",
       visible: true,
       fixed: "left",
       className: "ant-col-info",
@@ -146,7 +146,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       dataIndex: "code",
       visible: true,
       align: "left",
-      width: 200,
+      width: 180,
       render: (value: string, row: InventoryExportImportTransferDetailItem) => (
         <div>
           <div className="custom-title">
@@ -223,7 +223,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
           <div className={classTag}><img className="mrh-5" src={img} alt="" />{textTag}</div>
         </div>;
       },
-      width: 150,
+      width: 130,
     },
     {
       title: () => {
@@ -272,7 +272,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       dataIndex: "price",
       visible: true,
       align: "center",
-      width: 120,
+      width: 100,
       render: (value: number) => {
         return (
           <div>
@@ -285,7 +285,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       title: "Thành tiền",
       dataIndex: "amount",
       visible: true,
-      width: 250,
+      width: 120,
       render: (value: number, row: InventoryExportImportTransferDetailItem) => {
         return (
           <div>
@@ -297,7 +297,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
     },
     {
       title: "Thao tác",
-      width: "210px",
+      width: "170px",
       visible: true,
       dataIndex: "",
       render: (value: string, record: InventoryExportImportTransferDetailItem) => (
@@ -364,7 +364,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       dataIndex: "note",
       visible: true,
       align: "left",
-      width: "220px",
+      width: "170px",
       render: (item: string, row: InventoryExportImportTransferDetailItem) => {
         return (
           <div className={item ? 'note': ''}>
