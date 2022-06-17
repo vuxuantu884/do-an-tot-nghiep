@@ -430,7 +430,7 @@ export const findPrice = (
       price = v.retail_price.toString();
     }
   });
-  return price.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  return formatCurrency(price);
 };
 
 export const replaceFormat = (currency: number | string): number => {
