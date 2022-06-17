@@ -1274,9 +1274,13 @@ export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 
 		_items.forEach((i) => {
 			let total_discount_items = 0;
+			let discountRate = 0;
 			i.discount_items.forEach((d) => {
 				total_discount_items = total_discount_items + d.amount;
+        d.rate = d.amount / i.amount * 100;
+        discountRate = discountRate + (d.amount / i.amount * 100)
 			});
+      i.discount_rate = discountRate
 			let amountItem = i.amount - total_discount_items;
 			i.line_amount_after_line_discount = amountItem;
 			i.amount = i.price * i.quantity;
