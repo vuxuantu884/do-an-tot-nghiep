@@ -139,7 +139,7 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
 
   const [columns, setColumn] = useState<Array<any>>([
     {
-      title: "Phiếu chuyển",
+      title: "Mã phiếu chuyển",
       dataIndex: "data",
       width: "150px",
       fixed: "left",

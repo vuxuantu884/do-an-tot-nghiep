@@ -23,6 +23,10 @@ export const STATUS_INVENTORY_TRANSFER = {
 }
 
 export const STATUS_INVENTORY_TRANSFER_ARRAY = [
+  // {
+  //   value: "requested",
+  //   name: "Yêu cầu"
+  // },
   {
     value: "confirmed",
     name: "Chờ chuyển"

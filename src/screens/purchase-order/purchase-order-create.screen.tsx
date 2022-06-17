@@ -10,6 +10,7 @@ import {
   DistrictGetByCountryAction
 } from "domain/actions/content/content.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import { PoCreateAction, PoDetailAction } from "domain/actions/po/po.action";
 import { CountryResponse } from "model/content/country.model";
@@ -120,8 +121,6 @@ const POCreateScreen: React.FC = () => {
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
-  const [loadingDraftButton, setLoadingDraftButton] = useState(false);
-  const [loadingSaveButton, setLoadingSaveButton] = useState(false);
 
   //context 
   const { taxRate, poLineItemGridChema, poLineItemGridValue, isGridMode, setIsGridMode, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate } = useContext(PurchaseOrderCreateContext);
@@ -134,15 +133,15 @@ const POCreateScreen: React.FC = () => {
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.PURCHASE_ORDERS}/${result.id}`);
-      } else {
-        setLoadingSaveButton(false);
-        setLoadingDraftButton(false);
       }
+      dispatch(hideLoading());
+
     },
-    [history]
+    [history, dispatch]
   );
 
   const onFinish = (value: PurchaseOrder) => {
+    dispatch(showLoading());
     try {
       value.is_grid_mode = isGridMode;
       if (isGridMode) {
@@ -181,21 +180,13 @@ const POCreateScreen: React.FC = () => {
       }, 0))
       const dataClone = { ...value, status: statusAction };
 
-      switch (dataClone.status) {
-        case POStatus.DRAFT:
-          setLoadingDraftButton(true);
-          break;
-        case POStatus.FINALIZED:
-          setLoadingSaveButton(true);
-          break;
-      }
+
 
       dispatch(PoCreateAction(dataClone, createCallback));
 
     } catch (error: any) {
       showError(error.message);
-      setLoadingSaveButton(false);
-      setLoadingDraftButton(false);
+      dispatch(hideLoading());
     } finally {
     }
   };
@@ -203,16 +194,17 @@ const POCreateScreen: React.FC = () => {
   const onFinishFailed = ({ errorFields }: any) => {
     setStatusAction("");
     const element: any = document.getElementById(
-      errorFields[0].name.join("")
+      errorFields[0].name.join("_")
     );
     element?.focus();
     const y =
       element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-
     window.scrollTo({ top: y, behavior: "smooth" });
+    dispatch(hideLoading());
   }
 
   const createPurchaseOrder = (status: string) => {
+
     setStatusAction(status);
     formMain.submit();
   }
@@ -305,7 +297,7 @@ const POCreateScreen: React.FC = () => {
         <Form.Item name={POField.procurements} noStyle hidden>
           <Input />
         </Form.Item>
-        <Row gutter={24}>
+        <Row gutter={24} style={{ marginBottom: "20px" }}>
           {/* Left Side */}
           <Col md={18}>
             <POSupplierForm
@@ -325,7 +317,7 @@ const POCreateScreen: React.FC = () => {
             />
           </Col>
         </Row>
-        <div style={{ padding: "0 12px", width: "100%" }}>
+        <div style={{ width: "100%" }}>
           <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
             {
               isGridMode ? (
@@ -360,7 +352,6 @@ const POCreateScreen: React.FC = () => {
           rightComponent={
             <React.Fragment>
               <Button
-                disabled={loadingDraftButton || loadingSaveButton}
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => history.push(UrlConfig.PURCHASE_ORDERS)}
               >
@@ -368,20 +359,16 @@ const POCreateScreen: React.FC = () => {
               </Button>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
                 <Button
-                  disabled={loadingSaveButton}
                   type="primary"
                   className="create-button-custom ant-btn-outline fixed-button"
-                  loading={loadingDraftButton}
                   onClick={() => createPurchaseOrder(POStatus.DRAFT)}
                   ghost
                 >
                   Tạo nháp
                 </Button>
                 <Button
-                  disabled={loadingDraftButton}
                   type="primary"
                   className="create-button-custom"
-                  loading={loadingSaveButton}
                   onClick={() => createPurchaseOrder(POStatus.WAITING_APPROVAL)}
                 >
                   Tạo và chờ duyệt

@@ -156,6 +156,12 @@ const WebAppProducts = () => {
             core_variant_id: null,
             variant_ids: ids,
         }
+        if(activeTab === WebAppProductTabUrl.CONNECTED){
+            RequestExportExcel.download_type = "connected";
+        }
+        if(activeTab === WebAppProductTabUrl.NOT_CONNECTED){
+            RequestExportExcel.download_type = "waiting";
+        }
         webAppExportFileProduct(RequestExportExcel)
             .then((response) => {
                 if (response.code === HttpStatus.SUCCESS) {
@@ -217,7 +223,7 @@ const WebAppProducts = () => {
             if (statusExport === ExportFileStatus.Exporting && processType === ProcessTypeContants.Export) {
                 checkExportFile();
             }
-            if (processType === ProcessTypeContants.Download || processType === ProcessTypeContants.Sync) {
+            if (processType === ProcessTypeContants.Download || processType === ProcessTypeContants.Sync || processType === ProcessTypeContants.Connect) {
                 getProcessDownloadProduct();
             }
         }
@@ -227,7 +233,7 @@ const WebAppProducts = () => {
             const getFileInterval = setInterval(checkExportFile, 3000);
             return () => clearInterval(getFileInterval);
         }
-        if (processType === ProcessTypeContants.Download || processType === ProcessTypeContants.Sync) {
+        if (processType === ProcessTypeContants.Download || processType === ProcessTypeContants.Sync || processType === ProcessTypeContants.Connect) {
             const downloadInterval = setInterval(getProcessDownloadProduct, 3000);
             return () => clearInterval(downloadInterval);
         }
@@ -269,7 +275,15 @@ const WebAppProducts = () => {
                         setProcessId(null);
                         setIsProcessing(false);
                         if (!processData.api_error) {
-                            processType === ProcessTypeContants.Download ? showSuccess("Tải sản phẩm thành công!") : showSuccess("Đồng bộ tồn thành công!");
+                            if(processType === ProcessTypeContants.Download){
+                                showSuccess("Tải sản phẩm thành công!")
+                            }
+                            else if(processType === ProcessTypeContants.Sync){
+                                showSuccess("Đồng bộ tồn thành công!");
+                            }
+                            else if(processType === ProcessTypeContants.Connect){
+                                showSuccess("Ghép nối sản phẩm thành công!");
+                            }
 
                         } else {
                             resetProgress();
@@ -339,7 +353,7 @@ const WebAppProducts = () => {
     }
 
     const handleMappingVariantJob = (id: any) => {
-        setProcessType(ProcessTypeContants.Sync);
+        setProcessType(ProcessTypeContants.Connect);
         setProcessId(id);
         setIsProcessing(true);
         setIsReloadData(true);

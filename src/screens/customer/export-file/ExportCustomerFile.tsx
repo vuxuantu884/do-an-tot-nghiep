@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Button, Checkbox, Col, Modal, Progress, Radio, Row, Space} from "antd";
+import {Button, Checkbox, Col, Divider, Modal, Progress, Radio, Row, Space} from "antd";
 import {showError, showSuccess} from "utils/ToastUtils";
 
 import {generateQuery} from "utils/AppUtils";
@@ -27,6 +27,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
   const [exportItemNumber, setExportItemNumber] = useState<number>(0);
   const [isExporting, setIsExporting] = useState(false);
+  const [isVisibleExportWarningModal, setIsVisibleExportWarningModal] = useState(false);
   
   const onChangeExportPageOption = (e: any) => {
     setExportPageAll(e.target.value);
@@ -37,44 +38,50 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   };
 
   const okExportModal = () => {
-    let newParams = { ...params };
+    let newParams = {...params};
     newParams.search_type = undefined;  //remove search_type param
     if (exportPageAll) {
       newParams.limit = customerData?.metadata?.total;
       newParams.page = undefined;
     }
-    setExportItemNumber(newParams.limit);
-    setIsExporting(true);
-    const exportParams = generateQuery(newParams);
 
-    const defaultHiddenFields = "city,district,ward,full_address,total_finished_order,remain_amount_to_level_up,average_order_value,total_returned_order,total_refunded_amount,number_of_days_without_purchase,store_of_first_order,store_of_last_order,description";
-    let hiddenFields;
-    if (exportColumnAll) {
-      hiddenFields = defaultHiddenFields;
+    // Chặn xuất file nếu lớn hơn 40.000 bản ghi
+    if (newParams.limit > 40000) {
+      setIsVisibleExportWarningModal(true);
     } else {
-      const notSelectColumnList = columnListOption.filter((item: any) => item.isSelected === false);
-      hiddenFields = defaultHiddenFields + "," + notSelectColumnList.map((column: any) => column.value)?.toString();
-    }
+      setExportItemNumber(newParams.limit);
+      setIsExporting(true);
+      const exportParams = generateQuery(newParams);
 
-    exportFile({
-      conditions: exportParams,
-      hidden_fields: hiddenFields,
-      type: "EXPORT_CUSTOMER",
-    })
-      .then((response) => {
-        setIsExporting(false);
-        if (response.code === HttpStatus.SUCCESS) {
-          setIsVisibleProgressModal(true);
-          handleCancelExportModal();
-          setExportCodeList([...exportCodeList, response.data.code]);
-        } else {
-          showError(`${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
-        }
+      const defaultHiddenFields = "city,district,ward,full_address,total_finished_order,remain_amount_to_level_up,average_order_value,total_returned_order,total_refunded_amount,number_of_days_without_purchase,store_of_first_order,store_of_last_order,description";
+      let hiddenFields;
+      if (exportColumnAll) {
+        hiddenFields = defaultHiddenFields;
+      } else {
+        const notSelectColumnList = columnListOption.filter((item: any) => item.isSelected === false);
+        hiddenFields = defaultHiddenFields + "," + notSelectColumnList.map((column: any) => column.value)?.toString();
+      }
+
+      exportFile({
+        conditions: exportParams,
+        hidden_fields: hiddenFields,
+        type: "EXPORT_CUSTOMER",
       })
-      .catch(() => {
-        showError("Có lỗi xảy ra, vui lòng thử lại sau");
-        setIsExporting(false);
-      });
+        .then((response) => {
+          setIsExporting(false);
+          if (response.code === HttpStatus.SUCCESS) {
+            setIsVisibleProgressModal(true);
+            handleCancelExportModal();
+            setExportCodeList([...exportCodeList, response.data.code]);
+          } else {
+            showError(`${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+          }
+        })
+        .catch(() => {
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          setIsExporting(false);
+        });
+    }
   };
 
   const onOkExportModal = () => {
@@ -112,7 +119,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
       responses.forEach((response) => {
         if (isVisibleProgressModal && response.code === HttpStatus.SUCCESS) {
           if (response.data && response.data.status === "PROCESSING") {
-            const exportPercent = response.data.percent || Math.round(response.data.num_of_record / response.data.total * 10000) / 100;
+            const exportPercent = Number(response?.data?.percent);
             setExportProgress(exportPercent < 100 ? exportPercent : 99);
           } else if (response.data && response.data.status === "FINISH") {
             if (response.data.url) {
@@ -214,6 +221,11 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           <ExportCustomerModalStyled>
             <div className="export-customer-modal">
               <div>
+                <i><strong>Lưu ý:</strong> Vui lòng xuất dữ liệu dưới <strong>40.000</strong> bản ghi để đảm bảo quá trình xuất dữ liệu thành công.</i>
+              </div>
+              <Divider style={{margin: "10px 0"}} />
+
+              <div>
                 <div><strong>Chọn trang</strong></div>
                 <Radio.Group onChange={onChangeExportPageOption} value={exportPageAll} className="radio-group">
                   <Space className="radio-option">
@@ -248,6 +260,27 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
               }
             </div>
           </ExportCustomerModalStyled>
+        </Modal>
+      }
+
+      {isVisibleExportWarningModal &&
+        <Modal
+          width="600px"
+          visible={isVisibleExportWarningModal}
+          title="Cảnh báo xuất dữ liệu khách hàng"
+          okText=""
+          cancelText=""
+          onCancel={() => setIsVisibleExportWarningModal(false)}
+          maskClosable={false}
+          footer={[
+            <Button type="primary" onClick={() => setIsVisibleExportWarningModal(false)}>
+              Đồng ý
+            </Button>
+          ]}>
+          <div>
+            <div>Số lượng khách hàng vượt quá <b>40.000</b> bản ghi sẽ ảnh hưởng đến quá trình xuất dữ liệu khách hàng trên Unicorn.</div>
+            <div>Bạn vui lòng sử dụng bộ lọc để tách nhỏ file dữ liệu hiện tại.</div>
+          </div>
         </Modal>
       }
 

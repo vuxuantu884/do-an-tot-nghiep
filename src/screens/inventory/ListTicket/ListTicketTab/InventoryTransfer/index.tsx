@@ -95,14 +95,11 @@ const initQuery: InventoryTransferSearchQuery = {
   from_store_id: [],
   to_store_id: [],
   status: [],
-  from_total_variant: null,
-  to_total_variant: null,
-  from_total_quantity: null,
-  to_total_quantity: null,
-  from_total_amount: null,
-  to_total_amount: null,
   note: null,
   created_by: [],
+  received_by: [],
+  cancel_by: [],
+  transfer_by: [],
   from_created_date: null,
   to_created_date: null,
   from_transfer_date: null,
@@ -113,8 +110,6 @@ const initQuery: InventoryTransferSearchQuery = {
   to_cancel_date: null,
   from_pending_date: null,
   to_pending_date: null,
-  from_total_received_quantity: null,
-  to_total_received_quantity: null,
 };
 
 type InventoryTransferTabProps = {
@@ -244,7 +239,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const defaultColumns = [
     {
-      title: "ID phiếu chuyển",
+      title: "Mã phiếu chuyển",
       dataIndex: "code",
       visible: true,
       align: "left",
@@ -633,7 +628,24 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
       history.push(`${history.location.pathname}?${queryParam}`);
-      getAccounts(newParams.created_by).then();
+      let codes = '';
+
+      if (newParams.created_by) {
+        codes = newParams.created_by
+      }
+      if (newParams.updated_by) {
+        codes = codes + ',' + newParams.updated_by
+      }
+      if (newParams.received_by) {
+        codes = codes + ',' + newParams.received_by
+      }
+      if (newParams.transfer_by) {
+        codes = codes + ',' + newParams.transfer_by
+      }
+      if (newParams.cancel_by) {
+        codes = codes + ',' + newParams.cancel_by
+      }
+      getAccounts(codes).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [history, params]

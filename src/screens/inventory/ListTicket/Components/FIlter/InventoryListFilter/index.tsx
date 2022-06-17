@@ -7,7 +7,6 @@ import {
   Row,
   Select,
   Tag,
-  InputNumber,
 } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
@@ -25,7 +24,6 @@ import { BaseFilterWrapper, InventoryFiltersWrapper } from "./styles";
 import { STATUS_INVENTORY_TRANSFER_ARRAY } from "screens/inventory/constants";
 import ButtonSetting from "component/table/ButtonSetting";
 import "assets/css/custom-filter.scss";
-import { FormatTextMonney } from "utils/FormatMonney";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 import { strForSearch } from "utils/StringUtils";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
@@ -87,6 +85,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     ...params,
     status: Array.isArray(params.status) ? params.status.length > 0 ? params.status : status : [params.status],
     created_by: Array.isArray(params.created_by) ? params.created_by : [params.created_by],
+    transfer_by: Array.isArray(params.transfer_by) ? params.transfer_by : [params.transfer_by],
+    received_by: Array.isArray(params.received_by) ? params.received_by : [params.received_by],
+    cancel_by: Array.isArray(params.cancel_by) ? params.cancel_by : [params.cancel_by],
     from_created_date: formatDateFilter(params.from_created_date),
     to_created_date: formatDateFilter(params.to_created_date),
     from_transfer_date: formatDateFilter(params.from_transfer_date),
@@ -97,8 +98,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     to_cancel_date: formatDateFilter(params.to_cancel_date),
     from_pending_date: formatDateFilter(params.from_pending_date),
     to_pending_date: formatDateFilter(params.to_pending_date),
-    from_total_received_quantity: formatDateFilter(params.from_total_received_quantity),
-    to_total_received_quantity: formatDateFilter(params.to_total_received_quantity),
   };
   const initialValues = useMemo(() => {
     return filterFromParams;
@@ -147,34 +146,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     setVisible(false);
     let values = formAdv.getFieldsValue(true);
 
-    if (values?.from_total_variant > values?.to_total_variant) {
-      values = {
-        ...values,
-        from_total_variant: values?.to_total_variant,
-        to_total_variant: values?.from_total_variant,
-      }
-    }
-    if (values?.from_total_quantity > values?.to_total_quantity) {
-      values = {
-        ...values,
-        from_total_quantity: values?.to_total_quantity,
-        to_total_quantity: values?.from_total_quantity,
-      }
-    }
-    if (values?.from_total_received_quantity > values?.to_total_received_quantity) {
-      values = {
-        ...values,
-        from_total_received_quantity: values?.to_total_received_quantity,
-        to_total_received_quantity: values?.from_total_received_quantity,
-      }
-    }
-    if (values?.from_total_amount > values?.to_total_amount) {
-      values = {
-        ...values,
-        from_total_amount: values?.to_total_amount,
-        to_total_amount: values?.from_total_amount,
-      }
-    }
     const valuesForm = {
       ...values,
       condition: values.condition ? values.condition.trim() : null,
@@ -247,20 +218,17 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         case 'note':
           onFilter && onFilter({...params, note: null});
           break;
-        case 'total_variant':
-          onFilter && onFilter({...params, from_total_variant: null, to_total_variant: null});
-          break;
-        case 'total_quantity':
-          onFilter && onFilter({...params, from_total_quantity: null, to_total_quantity: null});
-          break;
-        case 'total_received_quantity':
-          onFilter && onFilter({...params, from_total_received_quantity: null, to_total_received_quantity: null});
-          break;
-        case 'total_amount':
-          onFilter && onFilter({...params, from_total_amount: null, to_total_amount: null});
-          break;
         case 'created_by':
           onFilter && onFilter({...params, created_by: []});
+          break;
+        case 'transfer_by':
+          onFilter && onFilter({...params, transfer_by: []});
+          break;
+        case 'received_by':
+          onFilter && onFilter({...params, received_by: []});
+          break;
+        case 'cancel_by':
+          onFilter && onFilter({...params, cancel_by: []});
           break;
         case 'created_date':
           onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
@@ -323,38 +291,6 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         value: textStatus
       })
     }
-    if (initialValues.from_total_variant || initialValues.to_total_variant) {
-      let textTotalVariant = (initialValues.from_total_variant ? initialValues.from_total_variant : " ?? ") + " ~ " + (initialValues.to_total_variant ? initialValues.to_total_variant : " ?? ")
-      list.push({
-        key: 'total_variant',
-        name: 'Sản phẩm',
-        value: textTotalVariant
-      })
-    }
-    if (initialValues.from_total_quantity || initialValues.to_total_quantity) {
-      let textTotalQuantity = (initialValues.from_total_quantity ? initialValues.from_total_quantity : " ?? ") + " ~ " + (initialValues.to_total_quantity ? initialValues.to_total_quantity : " ?? ")
-      list.push({
-        key: 'total_quantity',
-        name: 'SL Gửi',
-        value: textTotalQuantity
-      })
-    }
-    if (initialValues.from_total_received_quantity || initialValues.to_total_received_quantity) {
-      let textTotalQuantity = (initialValues.from_total_received_quantity ? initialValues.from_total_received_quantity : " ?? ") + " ~ " + (initialValues.to_total_received_quantity ? initialValues.to_total_received_quantity : " ?? ")
-      list.push({
-        key: 'total_quantity',
-        name: 'SL Nhận',
-        value: textTotalQuantity
-      })
-    }
-    if (initialValues.from_total_amount || initialValues.to_total_amount) {
-      let textTotalAmount = (initialValues.from_total_amount ? FormatTextMonney(initialValues.from_total_amount) : " 0 ") + " ~ " + (initialValues.to_total_amount ? FormatTextMonney(initialValues.to_total_amount) : " 0 ")
-      list.push({
-        key: 'total_amount',
-        name: 'Thành tiền',
-        value: textTotalAmount
-      })
-    }
     if (initialValues.note && initialValues.note !== '') {
       list.push({
         key: 'note',
@@ -367,7 +303,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
       if (initialValues.created_by.length > 1) {
         initialValues.created_by.forEach((i) => {
           const findAccount = accounts?.find(item => item.code === i)
-            textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
         })
       } else if (initialValues.created_by.length === 1) {
 
@@ -392,6 +328,28 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         value: textCreatedDate
       })
     }
+    if (initialValues.transfer_by.length && initialValues.transfer_by[0]) {
+      let textAccount = ""
+      if (initialValues.transfer_by.length > 1) {
+        initialValues.transfer_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+      } else if (initialValues.transfer_by.length === 1) {
+
+        initialValues.transfer_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        })
+
+      }
+
+      list.push({
+        key: 'transfer_by',
+        name: 'Người chuyển',
+        value: textAccount
+      })
+    }
     if (initialValues.from_transfer_date || initialValues.to_transfer_date) {
       let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY HH:mm'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
@@ -400,12 +358,56 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
         value: textTransferDate
       })
     }
+    if (initialValues.received_by.length && initialValues.received_by[0]) {
+      let textAccount = ""
+      if (initialValues.received_by.length > 1) {
+        initialValues.received_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+      } else if (initialValues.received_by.length === 1) {
+
+        initialValues.received_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        })
+
+      }
+
+      list.push({
+        key: 'received_by',
+        name: 'Người nhận',
+        value: textAccount
+      })
+    }
     if (initialValues.from_receive_date || initialValues.to_receive_date) {
       let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY HH:mm') : '??')
       list.push({
         key: 'receive_date',
         name: 'Ngày nhận',
         value: textReceiveDate
+      })
+    }
+    if (initialValues.cancel_by.length && initialValues.cancel_by[0]) {
+      let textAccount = ""
+      if (initialValues.cancel_by.length > 1) {
+        initialValues.cancel_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+        })
+      } else if (initialValues.cancel_by.length === 1) {
+
+        initialValues.cancel_by.forEach((i) => {
+          const findAccount = accounts?.find(item => item.code === i)
+          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
+        })
+
+      }
+
+      list.push({
+        key: 'cancel_by',
+        name: 'Người hủy',
+        value: textAccount
       })
     }
     if (initialValues.from_cancel_date || initialValues.to_cancel_date) {
@@ -524,7 +526,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
             <Input
               className="input-search"
               prefix={<img src={search} alt="" />}
-              placeholder="Tìm kiếm theo ID phiếu, SKU"
+              placeholder="Tìm kiếm theo mã phiếu chuyển, SKU"
               onBlur={(e) => {
                 formSearchRef?.current?.setFieldsValue({
                   condition: e.target.value.trim()
@@ -584,107 +586,13 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                   </CustomSelect>
                 </Item>
               </Col>
-              <Col span={12}>
-                <div className="label">Sản phẩm</div>
-                <Input.Group compact>
-                  <Item name="from_total_variant" style={{ width: '45%', textAlign: 'center' }}>
-                    <InputNumber
-                      className="price_min"
-                      placeholder="Từ"
-                      min="0"
-                      max="100000000"
-                    />
-                  </Item>
-                  <div
-                    className="site-input-split"
-                  >~</div>
-                  <Item name="to_total_variant" style={{width: '45%',textAlign: 'center'}}>
-                    <InputNumber
-                      className="site-input-right price_max"
-                      placeholder="Đến"
-                      min="0"
-                      max="1000000000"
-                    />
-                  </Item>
-                </Input.Group>
-              </Col>
-            </Row>
-            <Row gutter={12} className="price">
-              <Col span={12}>
-                <div className="label">SL Gửi</div>
-                <Input.Group compact>
-                  <Item name="from_total_quantity" style={{ width: '45%', textAlign: 'center' }}>
-                    <InputNumber
-                      className="price_min"
-                      placeholder="Từ"
-                      min="0"
-                      max="100000000"
-                    />
-                  </Item>
-                  <div
-                    className="site-input-split"
-                  >~</div>
-                  <Item name="to_total_quantity" style={{width: '45%',textAlign: 'center'}}>
-                    <InputNumber
-                      className="site-input-right price_max"
-                      placeholder="Đến"
-                      min="0"
-                      max="1000000000"
-                    />
-                  </Item>
-                </Input.Group>
-              </Col>
-              <Col span={12}>
-                <div className="label">Thành tiền</div>
-                <Input.Group compact>
-                  <Item name="from_total_amount" style={{ width: '45%', textAlign: 'center' }}>
-                    <InputNumber
-                      className="price_min"
-                      placeholder="Từ"
-                      formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
-                      min="0"
-                      max="100000000"
-                    />
-                  </Item>
-                  <div
-                    className="site-input-split"
-                  >~</div>
-                  <Item name="to_total_amount" style={{width: '45%',textAlign: 'center'}}>
-                    <InputNumber
-                      className="site-input-right price_max"
-                      placeholder="Đến"
-                      formatter={value => FormatTextMonney(value ? parseInt(value) : 0)}
-                      min="0"
-                      max="1000000000"
-                    />
-                  </Item>
-                </Input.Group>
-              </Col>
+              <Col span={12} />
             </Row>
             <Row gutter={12}>
               <Col span={12}>
-                <div className="label">SL Nhận</div>
-                <Input.Group compact>
-                  <Item name="from_total_received_quantity" style={{ width: '45%', textAlign: 'center' }}>
-                    <InputNumber
-                      className="price_min"
-                      placeholder="Từ"
-                      min="0"
-                      max="100000000"
-                    />
-                  </Item>
-                  <div
-                    className="site-input-split"
-                  >~</div>
-                  <Item name="to_total_received_quantity" style={{width: '45%',textAlign: 'center'}}>
-                    <InputNumber
-                      className="site-input-right price_max"
-                      placeholder="Đến"
-                      min="0"
-                      max="1000000000"
-                    />
-                  </Item>
-                </Input.Group>
+                <Item label="Người tạo" name="created_by">
+                  <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
+                </Item>
               </Col>
               <Col span={12}>
                 <div className="label-date">Ngày tạo</div>
@@ -701,8 +609,27 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12}>
               <Col span={12}>
-                <Item label="Người tạo" name="created_by">
-                  <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
+                <Item label="Người chuyển" name="transfer_by">
+                  <AccountSearchPaging placeholder="Chọn người chuyển" mode="multiple"/>
+                </Item>
+              </Col>
+              <Col span={12}>
+                <div className="label-date">Ngày chuyển</div>
+                <CustomFilterDatePicker
+                  fieldNameFrom="from_transfer_date"
+                  fieldNameTo="to_transfer_date"
+                  activeButton={dateClick}
+                  setActiveButton={setDateClick}
+                  formRef={formRef}
+                  format="DD/MM/YYYY HH:mm"
+                  showTime
+                />
+              </Col>
+            </Row>
+            <Row gutter={12}>
+              <Col span={12}>
+                <Item label="Người nhận" name="received_by">
+                  <AccountSearchPaging placeholder="Chọn người nhận" mode="multiple"/>
                 </Item>
               </Col>
               <Col span={12}>
@@ -720,16 +647,9 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
             </Row>
             <Row gutter={12}>
               <Col span={12}>
-                <div className="label-date">Ngày chuyển</div>
-                <CustomFilterDatePicker
-                  fieldNameFrom="from_transfer_date"
-                  fieldNameTo="to_transfer_date"
-                  activeButton={dateClick}
-                  setActiveButton={setDateClick}
-                  formRef={formRef}
-                  format="DD/MM/YYYY HH:mm"
-                  showTime
-                />
+                <Item label="Người hủy" name="cancel_by">
+                  <AccountSearchPaging placeholder="Chọn người hủy" mode="multiple"/>
+                </Item>
               </Col>
               <Col span={12}>
                 <div className="label-date">Ngày Hủy</div>
@@ -744,7 +664,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
                 />
               </Col>
             </Row>
-            <Row gutter={12} className="margin-top-20">
+            <Row gutter={12}>
               <Col span={12}>
                 <Item name="note" label="Ghi chú">
                   <Input className="w-100" placeholder="Nhập ghi chú để tìm kiếm" />

@@ -1,31 +1,30 @@
-import { Modal, Input, Table, Button, AutoComplete, Badge } from "antd";
-import XCloseBtn from "assets/icon/X_close.svg";
-import searchGift from "assets/icon/search.svg";
-import React, { createRef, useCallback, useMemo, useState } from "react";
+import { AutoComplete, Badge, Button, Input, Modal, Table } from "antd";
 import { RefSelectProps } from "antd/lib/select";
+import imgdefault from "assets/icon/img-default.svg";
+import searchGift from "assets/icon/search.svg";
+import XCloseBtn from "assets/icon/X_close.svg";
+import { AppConfig } from "config/app.config";
+import { Type } from "config/type.config";
+import UrlConfig from "config/url.config";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import {
+  OrderItemModel
+} from "model/other/order/order-model";
+import {
+  VariantResponse,
+  VariantSearchQuery
+} from "model/product/product.model";
+import { OrderLineItemRequest } from "model/request/order.request";
+import React, { createRef, useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   findAvatar,
   findPrice,
   findPriceInVariant,
-  findTaxInVariant,
+  findTaxInVariant
 } from "utils/AppUtils";
-import { AppConfig } from "config/app.config";
-import imgdefault from "assets/icon/img-default.svg";
-import { Type } from "config/type.config";
-import { Link } from "react-router-dom";
-import {
-  OrderItemDiscountModel,
-  OrderItemModel,
-} from "model/other/order/order-model";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import { OrderLineItemRequest } from "model/request/order.request";
-import UrlConfig from "config/url.config";
 
 type AddGiftModalProps = {
   visible: boolean;

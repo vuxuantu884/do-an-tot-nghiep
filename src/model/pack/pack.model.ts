@@ -140,7 +140,7 @@ export interface FulfillmentsItemModel{
   price:number|undefined|null;
 }
 
-export class PackModelDefaltValue implements PackModel{
+export class PackModelDefaultValue implements PackModel{
   store_id=null;
   delivery_service_id=null;
   order=[];

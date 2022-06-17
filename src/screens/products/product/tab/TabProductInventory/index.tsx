@@ -28,7 +28,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Tổng tồn",
             dataIndex: "total_stock",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -36,7 +36,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Tồn trong kho",
             dataIndex: "on_hand",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -44,7 +44,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Đang giao dịch",
             dataIndex: "committed",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -52,7 +52,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Có thể bán",
             dataIndex: "available",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -60,7 +60,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Tạm giữ",
             dataIndex: "on_hold",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -68,7 +68,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Hàng lỗi",
             dataIndex: "defect",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -76,7 +76,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Chờ nhập",
             dataIndex: "in_coming",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -84,7 +84,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Đang chuyển đến",
             dataIndex: "transferring",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -92,7 +92,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Đang chuyển đi",
             dataIndex: "on_way",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
           {
@@ -100,7 +100,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             title: "Hàng đang giao",
             dataIndex: "shipping",
             render: (value)=>{
-              return formatCurrencyForProduct(value);
+              return value ? formatCurrencyForProduct(value): "";
             }
           },
         ]}

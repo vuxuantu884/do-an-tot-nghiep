@@ -75,9 +75,25 @@ const InventoryListScreen: React.FC = () => {
       }
       setAccounts(data.items);
 
-      if (queryParamsParsed.created_by || queryParamsParsed.updated_by || queryParamsParsed.received_code) {
-        getAccounts(queryParamsParsed.created_by || queryParamsParsed.updated_by || queryParamsParsed.received_code).then();
+      let codes = '';
+
+      if (queryParamsParsed.created_by) {
+        codes = queryParamsParsed.created_by
       }
+      if (queryParamsParsed.updated_by) {
+        codes = codes + ',' + queryParamsParsed.updated_by
+      }
+      if (queryParamsParsed.received_by) {
+        codes = codes + ',' + queryParamsParsed.received_by
+      }
+      if (queryParamsParsed.transfer_by) {
+        codes = codes + ',' + queryParamsParsed.transfer_by
+      }
+      if (queryParamsParsed.cancel_by) {
+        codes = codes + ',' + queryParamsParsed.cancel_by
+      }
+
+      getAccounts(codes).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
@@ -93,6 +109,63 @@ const InventoryListScreen: React.FC = () => {
     );
   }, [dispatch, setDataAccounts]);
 
+  const renderExtraContainer = () => {
+    if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE
+      || activeTab === InventoryTransferTabUrl.LIST) {
+      return (
+        <Row>
+          <Space>
+            <Button
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => { setVExportTransfer(true) }}
+            >
+              Xuất file danh sách
+            </Button>
+            <Button
+              className="light"
+              size="large"
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={() => { setVExportDetailTransfer(true) }}
+            >
+              Xuất file chi tiết
+            </Button>
+            <AuthWrapper acceptPermissions={[InventoryTransferPermission.import]}>
+              <Button
+                className="light"
+                size="large"
+                icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={() =>
+                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`)
+                }
+                type="ghost"
+              >
+                Nhập file
+              </Button>
+            </AuthWrapper>
+            <AuthWrapper acceptPermissions={[InventoryTransferPermission.create]}>
+              <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
+            </AuthWrapper>
+          </Space>
+        </Row>
+      )
+    } else if (activeTab === InventoryTransferTabUrl.LIST_EXPORT_IMPORT) {
+      return (
+        <Button
+          className="light"
+          size="large"
+          icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+          onClick={() => { setVExportDetailTransfer(true) }}
+        >
+          Xuất file chi tiết
+        </Button>
+      )
+    } else {
+      return ""
+    }
+  }
+
   return (
     <ListTicketStylesWrapper>
       <ContentContainer
@@ -105,47 +178,7 @@ const InventoryListScreen: React.FC = () => {
             name: "Chuyển hàng",
           },
         ]}
-        extra={
-          (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE
-            || activeTab === InventoryTransferTabUrl.LIST) && (
-            <Row>
-              <Space>
-              <Button
-                  className="light"
-                  size="large"
-                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                  onClick={() => {setVExportTransfer(true)}}
-                >
-                  Xuất file danh sách
-              </Button>
-              <Button
-                  className="light"
-                  size="large"
-                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                  onClick={() => {setVExportDetailTransfer(true)}}
-                >
-                  Xuất file chi tiết
-              </Button>
-                <AuthWrapper acceptPermissions={[InventoryTransferPermission.import]}>
-                  <Button
-                   className="light"
-                   size="large"
-                   icon={<img src={importIcon} style={{marginRight: 8}} alt="" />}
-                    onClick={() =>
-                      history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`)
-                    }
-                    type="ghost"
-                  >
-                    Nhập file
-                  </Button>
-                </AuthWrapper>
-                <AuthWrapper acceptPermissions={[InventoryTransferPermission.create]}>
-                  <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
-                </AuthWrapper>
-              </Space>
-            </Row>
-          )
-        }
+        extra={renderExtraContainer()}
       >
         <Card>
           <Tabs
@@ -206,6 +239,8 @@ const InventoryListScreen: React.FC = () => {
                   activeTab={activeTab}
                   stores={stores}
                   accounts={accounts}
+                  vExportDetailTransfer={vExportDetailTransfer} 
+                  setVExportDetailTransfer={setVExportDetailTransfer}
                   accountStores={userReducer.account?.account_stores}
                   setAccounts={(value) => setAccounts([
                     ...value,

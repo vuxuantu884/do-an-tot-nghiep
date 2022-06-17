@@ -4,10 +4,8 @@ import CircleEmptyIcon from "assets/icon/circle_empty.svg";
 import CircleFullIcon from "assets/icon/circle_full.svg";
 import CircleHalfFullIcon from "assets/icon/circle_half_full.svg";
 import CustomerIcon from "assets/icon/customer-icon.svg";
-import DeliveryrIcon from "assets/icon/gray-delivery.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import BaseResponse from "base/base.response";
-import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, {
@@ -52,9 +50,21 @@ import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel
 } from "model/response/order-processing-status.response";
-import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
-import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+
+import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
+import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
+import EcommerceChangeOrderStatusModal from "screens/ecommerce/orders/component/EcommerceChangeOrderStatusModal";
+import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
+
+import AuthWrapper from "component/authorization/AuthWrapper";
+import NoPermission from "screens/no-permission.screen";
+
+import DeliveryIcon from "assets/icon/gray-delivery.svg";
+
+import { nameQuantityWidth, StyledComponentEcommerceOrder } from "screens/ecommerce/orders/orderStyles";
 import { SourceResponse } from "model/response/order/source.response";
+import { DeliveryServiceResponse, FulFillmentResponse, OrderResponse } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import queryString from "query-string";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
@@ -62,15 +72,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { getEcommerceIdByChannelId } from "screens/ecommerce/common/commonAction";
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
-import EcommerceChangeOrderStatusModal from "screens/ecommerce/orders/component/EcommerceChangeOrderStatusModal";
-import EcommerceOrderFilter from "screens/ecommerce/orders/component/EcommerceOrderFilter";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
-import GetOrderDataModal from "screens/ecommerce/orders/component/GetOrderDataModal";
-import ProgressDownloadOrdersModal from "screens/ecommerce/orders/component/ProgressDownloadOrdersModal";
-import { nameQuantityWidth, StyledComponentEcommerceOrder } from "screens/ecommerce/orders/orderStyles";
-import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
-import NoPermission from "screens/no-permission.screen";
 import EditNote from "screens/order-online/component/EditOrderNote";
 import InventoryTable from "screens/order-online/component/OrderList/ListTable/InventoryTable";
 import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
@@ -92,14 +95,15 @@ import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import { ORDER_EXPORT_TYPE, ORDER_SUB_STATUS } from "utils/Order.constants";
-import { checkIfFulfillmentCancelled } from "utils/OrderUtils";
+import { checkIfFulfillmentCancelled, getTrackingCodeFulfillment } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
-import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
-import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
-import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
 
+import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
+import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
+import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
+import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -696,6 +700,14 @@ const EcommerceOrders: React.FC = () => {
       </React.Fragment>
     );
   };
+  const renderTrackingCode = (fulfillments: FulFillmentResponse[]) => {
+    const fulfillmentsHasShipment = fulfillments?.filter((item: any) => !!item.shipment);
+		const fulfillment = fulfillmentsHasShipment ? fulfillmentsHasShipment[0] : null;
+
+    return (
+      <span>{getTrackingCodeFulfillment(fulfillment)}</span>
+    )
+  }
 
   const initColumns: ICustomTableColumType<OrderModel>[] = useMemo(() => {
     if (data.items.length === 0) {
@@ -716,12 +728,7 @@ const EcommerceOrders: React.FC = () => {
             <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
             <div>({data.reference_code})</div>
             <div>
-              {
-                data?.fulfillments.length > 0
-                && data?.fulfillments[0].shipment !== null
-                && data?.fulfillments[0].shipment.tracking_code !== null
-                && `(${data?.fulfillments[0].shipment.tracking_code})`
-              }
+              {renderTrackingCode(data.fulfillments)}
             </div>
           </div>
         ),
@@ -1052,7 +1059,7 @@ const EcommerceOrders: React.FC = () => {
                     />
                   </div>
                   <div>
-                    <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
+                    <img src={DeliveryIcon} alt="" style={{ marginRight: 5, height: 13 }} />
                     <NumberFormat
                       value={shipment?.shipping_fee_paid_to_three_pls}
                       className="foo"

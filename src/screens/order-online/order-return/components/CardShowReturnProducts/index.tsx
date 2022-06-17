@@ -10,7 +10,7 @@ import {
 } from "model/response/order/order.response";
 import React from "react";
 import { Link } from "react-router-dom";
-import { formatCurrency, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
+import { formatCurrency, formatPercentage, getProductDiscountPerOrder, getProductDiscountPerProduct, getTotalQuantity } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -142,7 +142,7 @@ function CardShowReturnProducts(props: PropTypes) {
               <div className="d-flex justify-content-end yody-table-discount-converted">
                 <Typography.Text type="danger">
                   <span style={{fontSize: "0.857rem"}}>
-                    {Math.round(value.discount_items[0]?.rate * 100 || 0)/100}%
+                    {formatPercentage(Math.round(value.discount_items[0]?.rate * 100 || 0)/100)}%
                   </span>
                 </Typography.Text>
               </div>
@@ -232,9 +232,9 @@ function CardShowReturnProducts(props: PropTypes) {
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
-              Math.round((value.price - discountPerProduct - discountPerOrder) *
+              Math.round((value.price - discountPerProduct - discountPerOrder)) *
                 value.quantity
-            ))}
+            )}
           </div>
         );
       },

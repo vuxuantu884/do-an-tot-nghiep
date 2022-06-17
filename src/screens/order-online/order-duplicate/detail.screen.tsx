@@ -1,16 +1,20 @@
 import { CloseSquareOutlined, ShrinkOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space, Tag } from "antd";
 import exportIcon from "assets/icon/export.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import OrderFilter from "component/filter/order.filter";
 import ButtonCreate from "component/header/ButtonCreate";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { searchAccountPublicAction, ShipperGetListAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getDetailOrderDuplicateAction, putOrderDuplicateCancel, putOrderDuplicateMerge } from "domain/actions/order/order-duplicate.action";
 import { DeliveryServicesGetList, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
@@ -24,10 +28,12 @@ import {
   OrderPaymentModel,
   OrderSearchQuery
 } from "model/order/order.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel
 } from "model/response/order-processing-status.response";
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
@@ -36,23 +42,17 @@ import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { exportFile, getFile } from "service/other/export.service";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { OrderStatus, ShipmentMethod } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
+import EditNote from "../component/edit-note";
 import { nameQuantityWidth, StyledComponent } from "../index.screen.styles";
 import ExportModal from "../modal/export.modal";
 import "../scss/index.screen.scss";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import { OrderStatus, ShipmentMethod } from "utils/Constants";
-import EditNote from "../component/edit-note";
 import MergeOrderModel from "./modal/merge-order.modal";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import { getDetailOrderDuplicateAction, putOrderDuplicateCancel, putOrderDuplicateMerge } from "domain/actions/order/order-duplicate.action";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { ORDER_TYPES } from "utils/Order.constants";
 
 const ACTION_ID = {
   mergeOrder: 1,
@@ -541,10 +541,9 @@ const OrderDuplicate: React.FC = () => {
         <>
           <span>
             <NumberFormat
-              value={record.total_line_amount_after_line_discount}
+              value={formatCurrency(record.total_line_amount_after_line_discount)}
               className="foo"
               displayType={"text"}
-              thousandSeparator={true}
             />
           </span>
           <br />
@@ -552,10 +551,9 @@ const OrderDuplicate: React.FC = () => {
             {" "}
             -
             <NumberFormat
-              value={record.total_discount}
+              value={formatCurrency(record.total_discount)}
               className="foo"
               displayType={"text"}
-              thousandSeparator={true}
             />
           </span>
         </>
@@ -576,10 +574,9 @@ const OrderDuplicate: React.FC = () => {
         });
         return (
           <NumberFormat
-            value={total}
+            value={formatCurrency(total)}
             className="foo"
             displayType={"text"}
-            thousandSeparator={true}
           />
         );
       },
@@ -599,10 +596,9 @@ const OrderDuplicate: React.FC = () => {
           : 0;
         return (
           <NumberFormat
-            value={missingPaid > 0 ? missingPaid : 0}
+            value={formatCurrency(missingPaid > 0 ? missingPaid : 0)}
             className="foo"
             displayType={"text"}
-            thousandSeparator={true}
           />
         );
       },

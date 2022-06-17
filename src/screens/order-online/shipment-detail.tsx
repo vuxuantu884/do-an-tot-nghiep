@@ -1,24 +1,24 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
 import { Button, Card, Col, Collapse, Divider, Row, Table } from "antd";
+import doubleArrow from "assets/icon/double_arrow.svg";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { getFulfillmentDetail, getTrackingLogFulfillmentAction, RePushFulFillmentAction, UpdateFulFillmentStatusAction } from "domain/actions/order/order.action";
-import { OrderResponse, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { UpdateFulFillmentStatusRequest } from "model/request/order.request";
+import { TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import moment from "moment";
-import React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
-import { useHistory, useParams } from "react-router";
-import doubleArrow from "assets/icon/double_arrow.svg";
-import "./scss/shipment-detail.scss";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
-import { UpdateFulFillmentStatusRequest } from "model/request/order.request";
-import { showSuccess } from "utils/ToastUtils";
+import { useParams } from "react-router";
 import { Link } from "react-router-dom";
-import { RootReducerType } from "model/reducers/RootReducerType";
+import { formatCurrency, formatNumber, formatPercentage } from "utils/AppUtils";
+import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showSuccess } from "utils/ToastUtils";
+import "./scss/shipment-detail.scss";
 
 type ShipmentParam = {
   code: string;
@@ -85,10 +85,9 @@ const ShipmentDetail: React.FC = () => {
       render: (quantity: number) => (
         <div>
           <NumberFormat
-            value={quantity}
+            value={formatNumber(quantity)}
             className="foo"
             displayType={"text"}
-            thousandSeparator={true}
           />
           <div style={{ height: 40 }}></div>
         </div>
@@ -103,10 +102,9 @@ const ShipmentDetail: React.FC = () => {
       render: (price: number) => (
         <div>
           <NumberFormat
-            value={price}
+            value={formatCurrency(price)}
             className="foo"
             displayType={"text"}
-            thousandSeparator={true}
           />
           <div style={{ height: 40 }}></div>
         </div>
@@ -120,12 +118,11 @@ const ShipmentDetail: React.FC = () => {
       render: (record: any) => (
         <div>
           <NumberFormat
-            value={record.discount_amount}
+            value={formatCurrency(record.discount_amount)}
             className="foo"
             displayType={"text"}
-            thousandSeparator={true}
           />
-          <div style={{ color: '#E24343', height: 40 }}>{record.discount_rate}%</div>
+          <div style={{ color: '#E24343', height: 40 }}>{formatPercentage(record.discount_rate)}%</div>
         </div>
       ),
       visible: true,
@@ -137,10 +134,9 @@ const ShipmentDetail: React.FC = () => {
       render: (record: any) => (
         <div>
           <NumberFormat
-            value={record.price * record.quantity - record.discount_amount}
+            value={formatCurrency(record.price * record.quantity - record.discount_amount)}
             className="foo"
             displayType={"text"}
-            thousandSeparator={true}
           />
           <div style={{ height: 40 }}></div>
         </div>
@@ -395,40 +391,36 @@ const ShipmentDetail: React.FC = () => {
                 <span style={{ width: '15%', padding: 16 }}>
                   <span style={{ float: 'right' }}>
                     <NumberFormat
-                      value={itemTotal.quantityTotal ? itemTotal.quantityTotal : 0}
+                      value={formatNumber(itemTotal.quantityTotal ? itemTotal.quantityTotal : 0)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </span>
                 </span>
                 <span style={{ width: '15%', padding: 16 }}>
                   <span style={{ float: 'right' }}>
                     <NumberFormat
-                      value={itemTotal.amountTotal ? itemTotal.amountTotal : 0}
+                      value={formatCurrency(itemTotal.amountTotal ? itemTotal.amountTotal : 0)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </span>
                 </span>
                 <span style={{ width: '15%', padding: 16 }}>
                   <span style={{ float: 'right' }}>
                     <NumberFormat
-                      value={itemTotal.discountTotal ? itemTotal.discountTotal : 0}
+                      value={formatCurrency(itemTotal.discountTotal ? itemTotal.discountTotal : 0)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </span>
                 </span>
                 <span style={{ width: '20%', padding: 16, fontWeight: 700 }}>
                   <span style={{ float: 'right' }}>
                     <NumberFormat
-                      value={itemTotal.afterDiscountTotal ? itemTotal.afterDiscountTotal : 0}
+                      value={formatNumber(itemTotal.afterDiscountTotal ? itemTotal.afterDiscountTotal : 0)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </span>
                 </span>
@@ -438,10 +430,9 @@ const ShipmentDetail: React.FC = () => {
                   <div>Tổng tiền:</div>
                   <div>
                     <NumberFormat
-                      value={fulfillmentDetail.total_line_amount_after_line_discount}
+                      value={formatCurrency(fulfillmentDetail.total_line_amount_after_line_discount)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </div>
                 </div>
@@ -449,10 +440,9 @@ const ShipmentDetail: React.FC = () => {
                   <div>Chiết khấu:</div>
                   <div>
                     <NumberFormat
-                      value={fulfillmentDetail.discount_amount ? fulfillmentDetail.discount_amount : 0}
+                      value={formatCurrency(fulfillmentDetail.discount_amount ? fulfillmentDetail.discount_amount : 0)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                     {/* <br />
                     <span style={{ color: '#E24343' }}>{fulfillmentDetail.discount_rate} %</span> */}
@@ -465,7 +455,6 @@ const ShipmentDetail: React.FC = () => {
                       value={0}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </div>
                 </div>
@@ -473,10 +462,9 @@ const ShipmentDetail: React.FC = () => {
                   <div>Phí ship báo khách:</div>
                   <div>
                     <NumberFormat
-                      value={fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer ? fulfillmentDetail.shipment.shipping_fee_informed_to_customer : 0}
+                      value={formatCurrency(fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer ? fulfillmentDetail.shipment.shipping_fee_informed_to_customer : 0)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </div>
                 </div>
@@ -485,10 +473,9 @@ const ShipmentDetail: React.FC = () => {
                   <div style={{ fontWeight: 700 }}>Khách cần phải trả:</div>
                   <div style={{ color: "#2A2A86", fontSize: 18, fontWeight: 700 }}>
                     <NumberFormat
-                      value={fulfillmentDetail?.order?.total ? fulfillmentDetail.order.total : 0}
+                      value={formatCurrency(fulfillmentDetail?.order?.total ? fulfillmentDetail.order.total : 0)}
                       className="foo"
                       displayType={"text"}
-                      thousandSeparator={true}
                     />
                   </div>
                 </div>
@@ -564,10 +551,9 @@ const ShipmentDetail: React.FC = () => {
               <span className="name">Tiền thu hộ COD:</span>
               <span className="value">
                 <NumberFormat
-                  value={fulfillmentDetail?.shipment?.cod}
+                  value={formatCurrency(fulfillmentDetail?.shipment?.cod)}
                   className="foo"
                   displayType={"text"}
-                  thousandSeparator={true}
                 />
               </span>
             </div>
@@ -575,10 +561,9 @@ const ShipmentDetail: React.FC = () => {
               <span className="name">Tiền trả HVC:</span>
               <span className="value">
                 <NumberFormat
-                  value={fulfillmentDetail?.shipment?.shipping_fee_paid_to_three_pls}
+                  value={formatCurrency(fulfillmentDetail?.shipment?.shipping_fee_paid_to_three_pls)}
                   className="foo"
                   displayType={"text"}
-                  thousandSeparator={true}
                 />
               </span>
             </div>
@@ -586,10 +571,9 @@ const ShipmentDetail: React.FC = () => {
               <span className="name">Phí ship báo khách:</span>
               <span className="value">
                 <NumberFormat
-                  value={fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer}
+                  value={formatCurrency(fulfillmentDetail?.shipment?.shipping_fee_informed_to_customer)}
                   className="foo"
                   displayType={"text"}
-                  thousandSeparator={true}
                 />
               </span>
             </div>

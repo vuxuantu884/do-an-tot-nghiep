@@ -1,7 +1,7 @@
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { ReturnCalculateRefundModel } from "model/order/return.model";
+import { CalculateMoneyRefundRequestModel, CalculateMoneyRefundResponseModel, ReturnCalculateRefundModel } from "model/order/return.model";
 import { ExchangeRequest, OrderRequest, OrderReturnCalculateRefundRequestModel } from "model/request/order.request";
 import { OrderActionLogResponse } from "model/response/order/action-log.response";
 import {
@@ -83,4 +83,9 @@ export const updateNoteOrderReturnService=(id:number, note:string|null, customer
   }
   let link = `${ApiConfig.ORDER}/orders/returns/partial/${id}`;
   return BaseAxios.put(link, params);
+}
+
+export const calculateMoneyRefundService=(orderId: number, params: CalculateMoneyRefundRequestModel):Promise<BaseResponse<CalculateMoneyRefundResponseModel>>=>{
+  const link = `${ApiConfig.ORDER}/orders/${orderId}/calculate-money-refund`;
+  return BaseAxios.post(link, params);
 }

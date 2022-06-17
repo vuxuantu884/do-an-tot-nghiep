@@ -788,6 +788,7 @@ export default function Order() {
 							);
 						}
 						if (response) {
+							console.log('response', response)
 							const isFBOrder = response.channel_id === FACEBOOK.channel_id;
 							let getGiftResponse = (itemNormal:OrderLineItemResponse ) => {
 								return response.items.filter((item) => {
@@ -800,41 +801,12 @@ export default function Order() {
 								})
 								.map((item) => {
 									return {
-										id: item.id,
-										sku: item.sku,
-										variant_id: item.variant_id,
-										variant: item.variant,
-										show_note: item.show_note,
-										variant_barcode: item.variant_barcode,
-										product_id: item.product_id,
-										product_code: item.product_code,
-										product_type: item.product_type,
-										quantity: item.quantity,
-										price: item.price,
-										amount: item.amount,
-										note: item.note,
-										type: item.type,
-										variant_image: item.variant_image,
-										unit: item.unit,
-										weight: item.weight,
-										weight_unit: item.weight_unit,
-										warranty: item.warranty,
-										tax_rate: item.tax_rate,
-										tax_include: item.tax_include,
-										composite: false,
-										product: item.product,
-										is_composite: false,
-										line_amount_after_line_discount: item.line_amount_after_line_discount,
+										...item,
 										discount_items: item.discount_items.filter(single => single.amount && single.value),
-										discount_rate: item.discount_rate,
-										discount_value: item.discount_value,
-										discount_amount: item.discount_amount,
-										position: item.position,
 										gifts: getGiftResponse(item),
-										available: item.available,
 									};
 								});
-								console.log('responseItems', responseItems)
+							console.log('responseItems', responseItems)
 							setItems(responseItems);
 							dispatch(changeOrderLineItemsAction(responseItems));
 

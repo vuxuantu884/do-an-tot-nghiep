@@ -8,7 +8,7 @@ import { OrderResponse, PackFulFillmentResponse } from "model/response/order/ord
 import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { DeleteOutlined } from "@ant-design/icons";
-import { PackModel, PackModelDefaltValue } from "model/pack/pack.model";
+import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { setPackInfo } from "utils/LocalStorageUtils";
 
 interface PagingParam {
@@ -21,6 +21,14 @@ interface ResultPaging {
   perPage: number;
   total: number;
   result: any;
+}
+
+const resultPagingDefault: ResultPaging={
+  currentPage: 1,
+  lastPage: 1,
+  perPage: 30,
+  total: 0,
+  result: []
 }
 
 interface OrderResponseTable extends PackFulFillmentResponse {
@@ -40,20 +48,14 @@ function PackList() {
     let order = orderPackContextData?.packModel?.order;
     let result = order?.map((p, index) => ({ ...p, key: index }));
 
-    return result?.reverse()
+    return result
   }, [orderPackContextData]);
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
-    currentPage: 1,
-    perPage: 30
+    currentPage: resultPagingDefault.currentPage,
+    perPage: resultPagingDefault.perPage
   });
-  const [resultPaging, setResultPaging] = useState<ResultPaging>({
-    currentPage: 1,
-    lastPage: 1,
-    perPage: 30,
-    total: 0,
-    result: []
-  });
+  const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
   const removeOrderPacked = useCallback((code: string) => {
     if (packModel && packModel.order) {
@@ -62,7 +64,7 @@ function PackList() {
       console.log("order", order)
       order.splice(index, 1)
       let packData: PackModel = {
-        ...new PackModelDefaltValue(),
+        ...new PackModelDefaultValue(),
         ...packModel,
         order: [...order]
       }
@@ -75,13 +77,7 @@ function PackList() {
 
   useEffect(() => {
     if (!orderData || (orderData && orderData.length <= 0)) {
-      setResultPaging({
-        currentPage: 1,
-        lastPage: 1,
-        perPage: 30,
-        total: 0,
-        result: []
-      })
+      setResultPaging(resultPagingDefault)
     }
     else {
       let total: number = orderData.length;
@@ -92,7 +88,6 @@ function PackList() {
 
       let start: number = (pagingParam.currentPage - 1) * pagingParam.perPage;
       let end: number = start + pagingParam.perPage;
-      // let orderDataReverse = orderData.reverse();
       let orderDataCopy = orderData.slice(start, end);
 
       let result: ResultPaging = {
@@ -110,6 +105,14 @@ function PackList() {
 
 
   const columnsOrderPack: Array<ICustomTableColumType<any>> = [
+    {
+      title: "STT",
+      dataIndex: "key",
+      visible: true,
+      align: "center",
+      width:"70px",
+      render: (value: any, record: any, index: number) => <div>{value + 1}</div>
+    },
     {
       title: "Đơn hàng",
       dataIndex: "order_code",
@@ -200,6 +203,7 @@ function PackList() {
   ];
 
   const onSelectedChange = (selectedRow: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
+    console.log(changeRow)
     let isFulFillmentPackCopy = [...isFulFillmentPack];
 
     if (selected === true) {
@@ -221,7 +225,7 @@ function PackList() {
     }
 
     setIsFulFillmentPack([...isFulFillmentPackCopy]);
-    // console.log("code", isFulFillmentPackCopy);
+    console.log("code", isFulFillmentPackCopy);
   };
 
   // console.log("isFulFillmentPack",isFulFillmentPack)
