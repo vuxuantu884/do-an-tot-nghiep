@@ -34,7 +34,7 @@ import { ChannelResponse } from "model/response/product/channel.response";
 import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { searchAccountApi } from "service/accounts/account.service";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
@@ -346,21 +346,21 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
 
   useEffect(() => {
     if (params.assignee_codes && params.assignee_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.assignee_codes,
       }).then((response) => {
         setAssigneeFound(response.data.items);
       });
     }
     if (params.marketer_codes && params.marketer_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.marketer_codes,
       }).then((response) => {
         setAssigneeFound(response.data.items);
       });
     }
     if (params.account_codes && params.account_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.account_codes,
       }).then((response) => {
         setAccountFound(response.data.items);
