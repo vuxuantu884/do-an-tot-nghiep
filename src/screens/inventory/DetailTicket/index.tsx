@@ -105,6 +105,8 @@ const DetailTicket: FC = () => {
     useState<boolean>(false);
 
   const [keySearch, setKeySearch] = useState<string>("");
+  const [current, setCurrent] = useState<number>(1);
+  const [size, setSize] = useState<number>(10);
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -135,6 +137,15 @@ const DetailTicket: FC = () => {
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
+
+  const onPageChange = useCallback(
+    (page, size) => {
+      setCurrent(page);
+      setSize(size);
+    },
+    []
+  );
+
   const printContentCallback = useCallback(
     (printContent: Array<PrinterInventoryTransferResponseModel>) => {
       if (!printContent || printContent.length === 0) return;
@@ -153,6 +164,7 @@ const DetailTicket: FC = () => {
     },
     [handlePrint]
   );
+
   const onResult = useCallback(
     (result: InventoryTransferDetailItem | false) => {
       setLoading(false);
@@ -913,9 +925,9 @@ const DetailTicket: FC = () => {
     {
       title: "STT",
       align: "center",
-      width: "70px",
+      width: "50px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        index + 1,
+        size * (current - 1) + index + 1,
     },
     {
       title: "Ảnh",
@@ -980,7 +992,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: "50px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        index + 1,
+        size * (current - 1) + index + 1,
     },
     {
       title: "Ảnh",
@@ -1413,7 +1425,13 @@ const DetailTicket: FC = () => {
                             rowClassName="product-table-row"
                             tableLayout="fixed"
                             scroll={{ x: "max-content" }}
-                            pagination={false}
+                            pagination={{
+                              pageSize: size,
+                              total: data.line_items.length,
+                              current: current,
+                              showSizeChanger: true,
+                              onChange: onPageChange
+                            }}
                             columns={columns}
                             dataSource={data.line_items}
                             summary={() => (
@@ -1500,7 +1518,13 @@ const DetailTicket: FC = () => {
                         rowClassName="product-table-row"
                         tableLayout="fixed"
                         scroll={{ x: "max-content" }}
-                        pagination={false}
+                        pagination={{
+                          pageSize: size,
+                          total: dataTable.length,
+                          current: current,
+                          showSizeChanger: true,
+                          onChange: onPageChange
+                        }}
                         columns={columnsTransferState}
                         dataSource={dataTable}
                         summary={() => {
