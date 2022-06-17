@@ -28,7 +28,7 @@ import { searchVariantsApi, getVariantApi } from "service/product/product.servic
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
-import { searchAccountApi } from "service/accounts/account.service";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { StyledComponent } from "component/filter/shipment.filter.styles";
 import TreeStore from "component/tree-node/tree-store";
 
@@ -141,7 +141,7 @@ const OrderFilter: React.FC<OrderFilterProps> = (
 
   useEffect(() => {
     if (params.account_codes && params.account_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.account_codes
       }).then((response) => {
         setAccountFound(response.data.items)
