@@ -1,5 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row } from "antd";
 import { useForm } from "antd/es/form/Form";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
@@ -30,13 +30,13 @@ import {
   ProcurementFilterProps,
 } from "component/filter/interfaces/procurement";
 import isEqual from "lodash/isEqual";
-import { isArray } from "lodash";
+import { debounce, isArray } from "lodash";
 import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
 import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
 import { callApiNative } from "../../../../utils/ApiUtils";
 import { supplierGetApi } from "../../../../service/core/supplier.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
-import BaseSelect from "component/base/BaseSelect/BaseSelect";
+import CustomSelect from "component/custom/select.custom";
 
 const { Item } = Form;
 
@@ -58,7 +58,6 @@ function TabListFilter(props: ProcurementFilterProps) {
 
   const [formBase] = useForm();
   const [formAdvanced] = useForm();
-  const { Option } = Select;
 
   const openVisibleFilter = () => setVisible(true)
   const cancelFilter = () => setVisible(false)
@@ -80,7 +79,7 @@ function TabListFilter(props: ProcurementFilterProps) {
   const onAdvanceFinish = async (data: ProcurementFilter) => {
     setVisible(false);
     // setSelectedStatuses(formAdvanced.getFieldValue('status'))
-    await history.replace(`${UrlConfig.PROCUREMENT}?${generateQuery({ ...paramsUrl, ...data })}`);
+    await history.replace(`${UrlConfig.PROCUREMENT}?${generateQuery({ ...paramsUrl, ...data, page: 1 })}`);
   }
 
   // const handleClickStatus = (value: string) => {
@@ -106,7 +105,7 @@ function TabListFilter(props: ProcurementFilterProps) {
   }
 
   const onBaseFinish = (data: any) => {
-    let queryParam = generateQuery({ ...paramsUrl, ...data });
+    let queryParam = generateQuery({ ...paramsUrl, ...data, page: 1 });
     history.replace(`${UrlConfig.PROCUREMENT}?${queryParam}`);
   };
 
@@ -252,23 +251,10 @@ function TabListFilter(props: ProcurementFilterProps) {
   //   });
   // }, [setSelectedStatuses, selectedStatuses, formAdvanced])
 
-  const tagRender = (props: any) => {
-    const { label, closable, onClose } = props;
-    const onPreventMouseDown = (event: any) => {
-      event.preventDefault();
-      event.stopPropagation();
-    };
-    return (
-      <Tag
-        className="primary-bg"
-        onMouseDown={onPreventMouseDown}
-        closable={closable}
-        onClose={onClose}
-      >
-        {label}
-      </Tag>
-    );
-  }
+  const onSearch = debounce((content: string) => {
+    let queryParam = generateQuery({ ...paramsUrl, content, page: 1 });
+    history.replace(`${UrlConfig.PROCUREMENT}?${queryParam}`);
+  }, 300)
 
   return (
     <Form.Provider>
@@ -279,6 +265,12 @@ function TabListFilter(props: ProcurementFilterProps) {
               prefix={<img src={search} alt="" />}
               allowClear
               placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng, Mã tham chiếu"
+              onChange={(e) => {
+                const content = e.target.value
+                if (content.length > 2) {
+                  onSearch(content)
+                }
+              }}
             />
           </Item>
           <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 200 }}>
@@ -299,18 +291,26 @@ function TabListFilter(props: ProcurementFilterProps) {
             />
           </Item>
           <Item name={ProcurementFilterBasicEnum.status}>
-            <BaseSelect
-              showArrow
-              mode={"tags"}
-              placeholder="Trạng thái"
-              tagRender={tagRender}
-              data={Object.keys(ProcurementStatus)}
-              renderItem={(item) => (
-                <Option key={item} value={item}>{ProcurementStatusName[item]}</Option>
-              )}
-              notFoundContent="Không tìm thấy kết quả"
+            <CustomSelect
+              maxTagCount="responsive"
+              mode="multiple"
               style={{ minWidth: 180 }}
-            />
+              showArrow
+              placeholder="Chọn trạng thái"
+              notFoundContent="Không tìm thấy kết quả"
+              optionFilterProp="children"
+              getPopupContainer={trigger => trigger.parentNode}
+            >
+              {Object.keys(ProcurementStatus).map((item, index) => (
+                <CustomSelect.Option
+                  style={{ width: "100%" }}
+                  key={index.toString()}
+                  value={item}
+                >
+                  {ProcurementStatusName[item]}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>
           </Item>
           <div className="btn-action">
             <Item>

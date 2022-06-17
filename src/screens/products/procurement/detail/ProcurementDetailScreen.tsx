@@ -1,5 +1,4 @@
 import { Button, Card, Col, Divider, Image, Modal, Row, Table, Tabs, Typography } from 'antd';
-import BaseTagStatus from 'component/base/BaseTagStatus';
 import BottomBarContainer from 'component/container/bottom-bar.container';
 import ContentContainer from 'component/container/content.container';
 import RenderTabBar from 'component/table/StickyTabBar';
@@ -15,7 +14,6 @@ import { getPurchaseOrderApi, printProcurementApi } from 'service/purchase-order
 import { callApiNative } from 'utils/ApiUtils';
 import { OFFSET_HEADER_TABLE, ProcurementStatus, ProcurementStatusName } from 'utils/Constants';
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
-import { StyledComponent } from '../styles';
 import ImageProduct from 'screens/products/product/component/image-product.component';
 import { POUtils } from 'utils/POUtils';
 import { formatCurrency } from 'utils/AppUtils';
@@ -30,6 +28,10 @@ import { updatePurchaseProcumentNoteService } from 'service/purchase-order/purch
 import { RootReducerType } from 'model/reducers/RootReducerType';
 import { useReactToPrint } from 'react-to-print';
 import purify from "dompurify";
+import statusDraft from 'assets/icon/status-draft-new.svg'
+import statusFinalized from 'assets/icon/status-finalized-new.svg'
+import statusStored from 'assets/icon/status-finished-new.svg'
+import statusCancelled from 'assets/icon/status-cancelled-new.svg'
 
 type ProcurementParam = {
   id: string;
@@ -95,23 +97,49 @@ const ProcurementDetailScreen: React.FC = () => {
   }
 
   const renderTitle = () => {
-    return (activeTab === PurchaseOrderTabUrl.INVENTORY ? <StyledComponent>
-      <span>Phiếu nhập kho</span>{" "}
-      <span>
-        {procurementData?.code} - {procurementData?.status === ProcurementStatus.cancelled ? ProcurementStatusName[`${procurementData?.status}`] :
-          <BaseTagStatus color={
-            procurementData?.status === ProcurementStatus.draft ? "gray"
-              : procurementData?.status === ProcurementStatus.not_received ? "blue"
-                : procurementData?.status === ProcurementStatus.received ? "green"
-                  : undefined
-          }>{ProcurementStatusName[`${procurementData?.status}`]}</BaseTagStatus>}
-      </span>
-    </StyledComponent> : (
-      <div>
-        {"Chi tiết log phiếu nhập kho "}
-        <span style={{ color: "#2A2A86" }}>{procurementData?.code}</span>
-      </div>
-    ))
+    if (activeTab === PurchaseOrderTabUrl.INVENTORY) {
+      let icon = "";
+      let color = ""
+      if (!procurementData) {
+        return "";
+      }
+      switch (procurementData.status) {
+        case ProcurementStatus.draft:
+          icon = statusDraft
+          color = "#666666"
+          break;
+        case ProcurementStatus.not_received:
+          icon = statusFinalized
+          color = "#2A2A86"
+          break;
+        case ProcurementStatus.received:
+          icon = statusStored
+          color = "#27AE60"
+          break;
+        case ProcurementStatus.cancelled:
+          icon = statusCancelled
+          color = "#E24343"
+          break;
+      }
+      return (
+        <>
+          <span>Phiếu nhập kho</span>{" "}
+          <span>
+            {procurementData?.code} - <span style={{ color: color }} >
+              {icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }} />}
+              {ProcurementStatusName[procurementData.status]}
+            </span>
+          </span>
+        </>
+      )
+    } else {
+      return (
+        <div>
+          {"Chi tiết log phiếu nhập kho "}
+          <span style={{ color: "#2A2A86" }}>{procurementData?.code}</span>
+        </div>
+      )
+    }
   }
 
   const confirmDeletePhrase: string = useMemo(() => {
@@ -304,12 +332,12 @@ const ProcurementDetailScreen: React.FC = () => {
                 },
                 {
                   title: (
-                    <div>
-                      SL Đặt hàng
-                      <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
+                    <>
+                      <div>SL Đặt hàng</div>
+                      <div style={{ color: "#2A2A86" }}>
                         ({formatCurrency(POUtils.totalOrderQuantityProcument(procurementData?.procurement_items ?? []), ".")})
                       </div>
-                    </div>
+                    </>
                   ),
                   width: 100,
                   align: "center",
@@ -320,12 +348,12 @@ const ProcurementDetailScreen: React.FC = () => {
                 },
                 {
                   title: (
-                    <div>
-                      SL nhận được duyệt
-                      <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
+                    <>
+                      <div>SL nhận được duyệt</div>
+                      <div style={{ color: "#2A2A86" }}>
                         ({formatCurrency(POUtils.totalAccpectQuantityProcument(procurementData?.procurement_items ?? []), ".")})
                       </div>
-                    </div>
+                    </>
                   ),
                   align: "center",
                   width: 100,
@@ -336,12 +364,12 @@ const ProcurementDetailScreen: React.FC = () => {
                 },
                 {
                   title: (
-                    <div>
-                      SL thực nhận
-                      <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
+                    <>
+                      <div>SL thực nhận</div>
+                      <div style={{ color: "#2A2A86" }}>
                         ({formatCurrency(POUtils.totalRealQuantityProcument(procurementData?.procurement_items ?? []), ".")})
                       </div>
-                    </div>
+                    </>
                   ),
                   align: "center",
                   width: 100,
