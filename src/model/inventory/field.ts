@@ -167,7 +167,7 @@ const TransferLineItemField = {
   price: 'price',
   created_date: 'created_date',
   created_name: 'created_name',
-  transfer_date: 'updated_date',
+  transfer_date: 'transfer_date',
   receive_date: 'receive_date',
   updated_name: 'updated_name',
   store: 'store',

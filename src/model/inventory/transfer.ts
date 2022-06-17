@@ -267,7 +267,8 @@ export interface InventoryExportImportTransferDetailItem {
   received_by: string,
   received_name: string,
   receive_date: Date,
-  inventory_transfer: InventoryTransferDetailItem
+  inventory_transfer: InventoryTransferDetailItem,
+  barcode: string
 }
 
 export type DeleteTicketRequest = {
