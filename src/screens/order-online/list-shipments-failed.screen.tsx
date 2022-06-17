@@ -1,52 +1,52 @@
+import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
 import { Button, Card, Row, Space } from "antd";
-import { MenuAction } from "component/table/ActionButton";
-import { PageResponse } from "model/base/base-metadata.response";
-import { useCallback, useEffect, useMemo, useState } from "react";
-import { Link, useHistory, withRouter } from "react-router-dom";
-import { generateQuery } from "utils/AppUtils";
-import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
-import { useDispatch } from "react-redux";
-import ShipmentFilter from "component/filter/shipment.filter";
-import CustomTable, {
-	ICustomTableColumType,
-} from "component/table/CustomTable";
-import {
-	Item,
-	ShipmentModel,
-	ShipmentSearchQuery,
-} from "model/order/shipment.model";
-import { AccountResponse } from "model/account/account.model";
-import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
-import UrlConfig from "config/url.config";
-import ButtonCreate from "component/header/ButtonCreate";
+import importIcon from "assets/icon/import.svg";
+import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
+import ShipmentFilter from "component/filter/shipment.filter";
+import ButtonCreate from "component/header/ButtonCreate";
+import { MenuAction } from "component/table/ActionButton";
+import CustomTable, {
+	ICustomTableColumType
+} from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { HttpStatus } from "config/http-status.config";
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import UrlConfig from "config/url.config";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
 	DeliveryServicesGetList,
 	getListReasonRequest,
-	getShipmentsAction,
+	getShipmentsAction
 } from "domain/actions/order/order.action";
-import "./scss/index.screen.scss";
-import { DATE_FORMAT } from "utils/DateUtils";
-import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
-import { SourceResponse } from "model/response/order/source.response";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
-import NumberFormat from "react-number-format";
-import { StyledComponent } from "./list-shipments-failed.styles";
-import queryString from "query-string";
-import { exportFile, getFile } from "service/other/export.service";
-import { HttpStatus } from "config/http-status.config";
-import { showError, showSuccess } from "utils/ToastUtils";
-import ExportModal from "./modal/export.modal";
-import { DeleteOutlined, ExportOutlined } from "@ant-design/icons";
+import {
+	Item,
+	ShipmentModel,
+	ShipmentSearchQuery
+} from "model/order/shipment.model";
 import { DeliveryServiceResponse } from "model/response/order/order.response";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import { ShipmentMethod } from "utils/Constants";
+import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
+import queryString from "query-string";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import NumberFormat from "react-number-format";
+import { useDispatch } from "react-redux";
+import { Link, useHistory, withRouter } from "react-router-dom";
+import { exportFile, getFile } from "service/other/export.service";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { ShipmentMethod } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
+import { StyledComponent } from "./list-shipments-failed.styles";
+import ExportModal from "./modal/export.modal";
+import "./scss/index.screen.scss";
 
 const ACTION_ID = {
 	delete: 1,
@@ -270,10 +270,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 									<span className="label">Tiền COD: </span>
 									<span className="value">
 										<NumberFormat
-											value={record.shipment?.cod}
+											value={formatCurrency(record.shipment?.cod)}
 											className="foo"
 											displayType={"text"}
-											thousandSeparator={true}
 										/>
 									</span>
 								</p>
@@ -285,10 +284,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 									<span className="label">Phí giao: </span>
 									<span className="value">
 										<NumberFormat
-											value={record.shipment?.shipping_fee_paid_to_three_pls}
+											value={formatCurrency(record.shipment?.shipping_fee_paid_to_three_pls)}
 											className="foo"
 											displayType={"text"}
-											thousandSeparator={true}
 										/>
 									</span>
 								</p>}
@@ -303,10 +301,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 									<span className="label">Tiền COD: </span>
 									<span className="value">
 										<NumberFormat
-											value={record.shipment?.cod}
+											value={formatCurrency(record.shipment?.cod)}
 											className="foo"
 											displayType={"text"}
-											thousandSeparator={true}
 										/>
 									</span>
 								</p>
@@ -318,10 +315,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 									<span className="label">Phí giao: </span>
 									<span className="value">
 										<NumberFormat
-											value={record.shipment?.shipping_fee_paid_to_three_pls}
+											value={formatCurrency(record.shipment?.shipping_fee_paid_to_three_pls)}
 											className="foo"
 											displayType={"text"}
-											thousandSeparator={true}
 										/>
 									</span>
 								</p>}
@@ -335,10 +331,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 										<span className="label">Tiền COD: </span>
 										<span className="value">
 											<NumberFormat
-												value={record.shipment?.cod}
+												value={formatCurrency(record.shipment?.cod)}
 												className="foo"
 												displayType={"text"}
-												thousandSeparator={true}
 											/>
 										</span>
 									</p>
@@ -350,10 +345,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 										<span className="label">Phí giao: </span>
 										<span className="value">
 											<NumberFormat
-												value={record.shipment?.shipping_fee_paid_to_three_pls}
+												value={formatCurrency(record.shipment?.shipping_fee_paid_to_three_pls)}
 												className="foo"
 												displayType={"text"}
-												thousandSeparator={true}
 											/>
 										</span>
 									</p>}
@@ -367,10 +361,9 @@ const ShipmentsFailedScreen:React.FC=(props: any)=>{
 									<span className="label">Tiền COD: </span>
 									<span className="value">
 										<NumberFormat
-											value={record.shipment?.cod}
+											value={formatCurrency(record.shipment?.cod)}
 											className="foo"
 											displayType={"text"}
-											thousandSeparator={true}
 										/>
 									</span>
 								</p>

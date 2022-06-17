@@ -2,7 +2,7 @@ import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from "@a
 import { Col, Divider, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
-import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
+import { formatCurrency, formatPercentage, handleDisplayCoupon } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -119,7 +119,7 @@ function CardProductBottom(props: PropType) {
 										calculateChangeMoney(items, null);
 									}}
 								>
-									{discountRate ? Math.round(discountRate * 100) / 100 : 0}%{" "}
+									{discountRate ? formatPercentage(discountRate) : 0}%{" "}
 								</Tag>
 							)}
 						</Space>

@@ -2,7 +2,7 @@ import { Col, Divider, Row, Space, Tag, Typography } from "antd";
 import { OrderCreateContext } from "contexts/order-online/order-create-context";
 import { OrderLineItemRequest } from "model/request/order.request";
 import { useContext } from "react";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, formatPercentage } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -106,7 +106,7 @@ function CardProductBottom(props: PropType) {
                     calculateChangeMoney(items, amount, 0, 0);
                   }}
                 >
-                  {discountRate !== 0 ? Math.round(discountRate*100)/100 : 0}%{" "}
+                  {discountRate !== 0 ? formatPercentage(discountRate) : 0}%{" "}
                 </Tag>
               )}
             </Space>
