@@ -46,7 +46,7 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
-import { searchAccountApi } from "service/accounts/account.service";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
@@ -1455,28 +1455,28 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   useEffect(() => {
     if (params.assignee_codes && params.assignee_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.assignee_codes,
       }).then((response) => {
         setAssigneeFound(response.data.items);
       });
     }
     if (params.account_codes && params.account_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.account_codes,
       }).then((response) => {
         setAccountFound(response.data.items);
       });
     }
     if (params.marketer_codes && params.marketer_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.marketer_codes,
       }).then((response) => {
         setMarketerFound(response.data.items);
       });
     }
     if (params.coordinator_codes && params.coordinator_codes?.length > 0) {
-      searchAccountApi({
+      searchAccountPublicApi({
         codes: params.coordinator_codes,
       }).then((response) => {
         setCoordinatorFound(response.data.items);
