@@ -18,7 +18,7 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import DownloadDataModal from "../components/DownloadDataModal";
 import OrderSyncFilter from "./OrderSyncFilter";
 import { OrderSyncStyle, StyledStatus } from "./style";
-import { getQueryParamsFromQueryString } from "utils/useQuery";
+import { getParamsFromQuery, getQueryParamsFromQueryString } from "utils/useQuery";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { getSourceListAction, getOrderMappingListAction, downloadWebAppOrderAction, syncWebAppOrderAction } from "domain/actions/web-app/web-app.actions";
@@ -80,7 +80,7 @@ const OrdersSync = () => {
   };
   let queryParams: WebAppGetOrdersMappingQuery = {
     ...initQuery,
-    ...getQueryParamsFromQueryString(queryParamsParsed),
+    ...getParamsFromQuery(queryParamsParsed,initQuery),
   };
   const [params, setParams] = useState<WebAppGetOrdersMappingQuery>(queryParams);
   const sourceListRef = useRef<Array<SourceResponse>>([]);

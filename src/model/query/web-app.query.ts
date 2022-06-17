@@ -59,6 +59,7 @@ export interface WebAppRequestExportExcelQuery extends WebAppProductQuery {
   category_id: number | null;
   core_variant_id: any;
   variant_ids: Array<number> | null;
+  download_type?: string;
 }
 
 export interface WebAppShopInventoryDto {

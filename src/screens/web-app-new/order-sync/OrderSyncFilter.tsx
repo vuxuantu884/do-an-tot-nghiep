@@ -146,12 +146,16 @@ const OrderSyncFilter = (props: OrderSyncFilterProps) => {
 
         setFilterTags(filters);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params, sourceList])
+    }, [params, sourceList,shopList])
     const handleRemoveTag = (e: any, tag: any) => {
         e.preventDefault();
         let newParams = { ...params };
         if (tag.key === "created_date") {
             newParams = { ...newParams, ...{ created_date_from: null, created_date_to: null } };
+            setCreatedClick("");
+        }
+        else if (tag.key === "shop_ids") {
+            newParams = { ...newParams, ...{ shop_ids: []} };
             setCreatedClick("");
         }
         else {
@@ -164,6 +168,7 @@ const OrderSyncFilter = (props: OrderSyncFilterProps) => {
     useEffect(() => {
         formRef.current?.setFieldsValue({
             source_id: params.source_id,
+            shop_ids: params.shop_ids,
             ecommerce_order_code: params.ecommerce_order_code,
             core_order_code: params.core_order_code,
             connected_status: params.connected_status,
