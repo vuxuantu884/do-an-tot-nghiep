@@ -613,7 +613,7 @@ const PODetailScreen: React.FC = () => {
                   {isEditDetail ? "Lưu nháp" : "Chỉnh sửa"}
                 </Button>
               </AuthWrapper>
-              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
                 <Button
                   type="primary"
                   onClick={() => handleChangeStatusPO(POStatus.WAITING_APPROVAL)}
@@ -749,8 +749,6 @@ const PODetailScreen: React.FC = () => {
         <POReturnList
           id={id}
           params={formMain.getFieldsValue(true)}
-          listCountries={listCountries}
-          listDistrict={listDistrict}
           actionPrint={actionPrintReturn}
         />
       );

@@ -15,8 +15,6 @@ import { useMemo, Fragment } from "react";
 import UrlConfig from "config/url.config";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
-import { CountryResponse } from "model/content/country.model";
-import { DistrictResponse } from "model/content/district.model";
 
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -26,8 +24,6 @@ import IconPrintHover from "assets/img/iconPrintHover.svg";
 interface POReturnListProps {
   id: string;
   params: PurchaseOrder | null;
-  listCountries: Array<CountryResponse>;
-  listDistrict: Array<DistrictResponse>;
   actionPrint?: (poReturnId: number)=>{},
   printElementRefReturn?: any
 }
@@ -35,7 +31,7 @@ interface POReturnListProps {
 const POReturnList: React.FC<POReturnListProps> = (
   props: POReturnListProps
 ) => {
-  const { id, params, listCountries, listDistrict,actionPrint } = props;
+  const { id, params, actionPrint } = props;
   const history = useHistory();
   const return_orders = useMemo(() => {
     return params?.return_orders;
@@ -52,11 +48,7 @@ const POReturnList: React.FC<POReturnListProps> = (
       extra={
         <Button
           onClick={() => {
-            history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`, {
-              params,
-              listCountries: listCountries,
-              listDistrict: listDistrict,
-            });
+            history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`);
           }}
           style={{
             alignItems: "center",
