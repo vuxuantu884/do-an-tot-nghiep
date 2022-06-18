@@ -30,6 +30,7 @@ interface InventoryStore {
   name: string,
   pitority: number,
   data: any,
+  color:string
 }
 
 const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProps) => {
@@ -83,10 +84,23 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       && store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE)
 
     validStore?.forEach((value, index) => {
+      
+      // columnsItem?.forEach((value1)=>{
+      //   let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
+      //   if((inventory?.available||0) < (value1.quantity||0)){
+      //     colorStyle =  "";
+      //   }
+      // })
+
+      let colorSuccess= columnsItem?.some(p=>(inventoryArray?.find((value2) => p.variant_id === value2.variant_id && value.id === value2.store_id)?.available||0)<p.quantity);
+
+      let colorStyle= !colorSuccess?successColor:"";
+
       let store: InventoryStore = {
         id: value.id,
         name: value.name,
         pitority: value.type === "ware_house" ? pitority.ware_house : 1,
+        color:colorStyle,
         data: {},
       };
 
@@ -102,12 +116,12 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       // let totalAvaiable1 = 0;
       // let totalAvaiable2 = 0;
       columnsItem?.forEach((value) => {
-        // if (a.data[value.variant_id.toString()] >= value.quantity) {
-        //   item1++;
-        // }
-        // if (b.data[value.variant_id.toString()] >= value.quantity) {
-        //   item2++;
-        // }
+        if (a.data[value.variant_id.toString()] >= value.quantity) {
+          item1++;
+        }
+        if (b.data[value.variant_id.toString()] >= value.quantity) {
+          item2++;
+        }
 
         if (a.data[value.variant_id.toString()] > 0) {
           item1++;
@@ -163,6 +177,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     console.log('element?.clientHeight', element?.clientHeight)
   }, [element?.clientHeight])
   
+  console.log("columnsItem",columnsItem)
 
   return (
     <Modal
@@ -223,11 +238,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                     {data?.map((item, index) => (
                       <tr key={index}>
                         <th className="condition" key={index}>
-                          <Radio value={item.id}>{item.name}</Radio>
+                          <Radio value={item.id} style={{color:item.color}}>{item.name}</Radio>
                         </th>
 
                         {columnsItem?.map((_itemi, index) => (
-                          <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 ? {color: dangerColor} : {color:successColor}}>
+                          <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 || item.data[_itemi.variant_id] <_itemi.quantity? {color: dangerColor} : {color:successColor}}>
                             {item.data[_itemi.variant_id]}
                           </td>
                         ))}
