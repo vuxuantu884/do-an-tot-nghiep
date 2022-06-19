@@ -2,7 +2,7 @@ import { Card, Space, Table, Form, Input, Button } from "antd";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import "component/filter/order.filter.scss";
-import { useCallback, useContext, useEffect, useState } from "react";
+import React, { useCallback, useContext, useEffect, useState } from "react";
 import { showWarning } from "utils/ToastUtils";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import UrlConfig from "config/url.config";
@@ -13,6 +13,7 @@ import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-ov
 import { ICustomTableColumType } from "component/table/CustomTable";
 import { formatCurrency } from "utils/AppUtils";
 import { FulFillmentStatus } from "utils/Constants";
+import { dangerColor } from "utils/global-styles/variables";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
@@ -136,6 +137,14 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
     {
+      title: "STT",
+      width: "60px",
+      align: "center",
+      render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
+        return (<>{l.key + 1}</>);
+      },
+    },
+    {
       title: "ID",
       align: "center",
       render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
@@ -223,9 +232,19 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       setIsOrderPack(order_code);
     }
   };
+  //``
 
   return (
-    <Card title="Danh sách đơn hàng trong biên bản" className="pack-card">
+    <Card title={
+      <React.Fragment>
+        <div style={{display:"flex"}}>
+          Danh sách đơn hàng trong biên bản
+          <div style={{color:dangerColor, paddingLeft:7}}>
+            ({packOrderProductList?packOrderProductList.length:0})
+          </div>
+        </div>
+      </React.Fragment>
+    } className="pack-card">
       <div className="order-filter yody-pack-row">
         <div className="page-filter">
           <div className="page-filter-heading">
