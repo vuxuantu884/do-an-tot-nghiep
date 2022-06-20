@@ -1,7 +1,7 @@
 import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import { Button, Card, Col, Row, Space, Table, Tag, Input, AutoComplete, Form, Checkbox } from "antd";
+import { AutoComplete, Button, Card, Checkbox, Col, Form, Input, Row, Space, Table, Tag } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -9,12 +9,13 @@ import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model"
 import PlusOutline from "assets/icon/plus-outline.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import {
-  CloseCircleOutlined, CopyOutlined,
+  CloseCircleOutlined,
+  CopyOutlined,
   EditOutlined,
+  ExportOutlined,
   ImportOutlined,
   PaperClipOutlined,
   PrinterOutlined,
-  ExportOutlined
 } from "@ant-design/icons";
 import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -22,38 +23,38 @@ import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  cancelShipmentInventoryTransferAction,
   deleteInventoryTransferAction,
+  exportInventoryAction,
   getDetailInventoryTransferAction,
+  getFeesAction,
   inventoryGetSenderStoreAction,
   inventoryGetVariantByStoreAction,
   receivedInventoryTransferAction,
-  getFeesAction,
-  cancelShipmentInventoryTransferAction,
-  exportInventoryAction, updateInventoryTransferAction,
-  // createInventoryTransferShipmentAction,
+  updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
-import InventoryShipment  from "../common/ChosesShipment";
+import InventoryShipment from "../common/ChosesShipment";
 import {
-  findAvatar, formatCurrency,
+  findAvatar,
+  formatCurrency,
   handleDelayActionWhenInsertTextInSearchInput,
   SumWeightInventory,
-  // SumWeightLineItems,
 } from "utils/AppUtils";
 import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryStep from "./components/InventoryTransferStep";
-import { STATUS_INVENTORY_TRANSFER } from "../constants";
+import { STATUS_INVENTORY_TRANSFER, STATUS_INVENTORY_TRANSFER_ARRAY } from "../constants";
 import NumberInput from "component/custom/number-input.custom";
 import { VariantResponse } from "model/product/product.model";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ProductItem from "screens/purchase-order/component/product-item";
 import { PageResponse } from "model/base/base-metadata.response";
 import PickManyProductModal from "screens/purchase-order/modal/pick-many-product.modal";
-import _  from "lodash";
+import _ from "lodash";
 import { AiOutlineClose } from "react-icons/ai";
 import InventoryTransferBalanceModal from "./components/InventoryTransferBalance";
 import ModalConfirm from "component/modal/ModalConfirm";
@@ -61,7 +62,10 @@ import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/print
 import { useReactToPrint } from "react-to-print";
 import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
 import AuthWrapper from "component/authorization/AuthWrapper";
-import { InventoryTransferPermission, ShipmentInventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
+import {
+  InventoryTransferPermission,
+  ShipmentInventoryTransferPermission,
+} from "config/permissions/inventory-transfer.permission";
 import { RefSelectProps } from "antd/lib/select";
 import { callApiNative } from "utils/ApiUtils";
 import TextArea from "antd/es/input/TextArea";
@@ -73,10 +77,9 @@ import ImportExcel from "./components/ImportExcel";
 import ActionButton, { MenuAction } from "../../../component/table/ActionButton";
 import useAuthorization from "../../../hook/useAuthorization";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
-import { STATUS_INVENTORY_TRANSFER_ARRAY } from "../constants";
-import {DATE_FORMAT} from "utils/DateUtils";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import moment from "moment";
+
 export interface InventoryParams {
   id: string;
 }
@@ -105,8 +108,6 @@ const DetailTicket: FC = () => {
     useState<boolean>(false);
 
   const [keySearch, setKeySearch] = useState<string>("");
-  const [current, setCurrent] = useState<number>(1);
-  const [size, setSize] = useState<number>(10);
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
@@ -137,14 +138,6 @@ const DetailTicket: FC = () => {
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
-
-  const onPageChange = useCallback(
-    (page, size) => {
-      setCurrent(page);
-      setSize(size);
-    },
-    []
-  );
 
   const printContentCallback = useCallback(
     (printContent: Array<PrinterInventoryTransferResponseModel>) => {
@@ -179,100 +172,16 @@ const DetailTicket: FC = () => {
 
         let newDataTable = dataLineItems && dataId === `${result.id}` ? JSON.parse(dataLineItems) : result.line_items;
 
+        if (newDataTable.length > 0) {
+          newDataTable = newDataTable.map((item: any) => {
+            return {
+              ...item,
+              status: result.status,
+              to_store_id: result.to_store_id
+            }
+          })
+        }
         setDataTable(newDataTable);
-
-        let newColumns: any = [...columnsTransferState];
-        if (result.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-          || result.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-
-          newColumns.splice(columnsTransferState.length - 1, 0, {
-            title: "Tồn kho nhận",
-            align: "center",
-            width: 80,
-            dataIndex: "receive_on_hand",
-            render: (value: any) => {
-              return formatCurrency(value, ".")
-            },
-          });
-        }
-
-        newColumns[4] = {
-          title: <div>
-            <div>SL Gửi</div>
-            <div className="text-center">
-              {result && formatCurrency(result.total_quantity, ".")}
-            </div>
-          </div>,
-          width: 70,
-          align: "center",
-          dataIndex: "transfer_quantity",
-          render: (value: any) => {
-            return formatCurrency(value, ".")
-          },
-        }
-
-        let total = 0;
-        newDataTable.forEach((element: LineItem) => {
-          total += element.real_quantity;
-        });
-
-        newColumns[5] = {
-          title: <div>
-            <div>SL Nhận</div>
-            <div className="text-center">
-              {total}
-            </div>
-          </div>,
-          dataIndex: "real_quantity",
-          align: "center",
-          width: 70,
-          render: (value: any, row: any, index: number) => {
-            if (result?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-              return <NumberInput
-                disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [result.to_store_id], currentStores)}
-                isFloat={false}
-                id={`item-quantity-${index}`}
-                min={0}
-                value={value ? value : 0}
-                onChange={(quantity) => {
-                  onRealQuantityChange(quantity, index, result);
-                }}
-                className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
-              />
-            }
-            else {
-              return value ? formatCurrency(value, '.') : 0;
-            }
-          },
-        }
-
-        if (result?.status !== STATUS_INVENTORY_TRANSFER.RECEIVED.status) {
-          newColumns = [
-            ...newColumns,
-            {
-              title: "",
-              fixed: newDataTable?.length !== 0 && "right",
-              width: 40,
-              dataIndex: "transfer_quantity",
-              render: (value: string, row: any, index: number) => {
-                if (
-                  (parseInt(value) !== 0 &&
-                    (result?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-                      || result?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-                  )
-                  || result?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-                  return false;
-                }
-                return <Button
-                  onClick={() => onDeleteItem(index, result)}
-                  className="product-item-delete"
-                  icon={<AiOutlineClose />}
-                />
-              },
-            },
-          ]
-        }
-        setColumnsTransferState(newColumns);
 
         setData(result);
         version = result.version;
@@ -295,106 +204,11 @@ const DetailTicket: FC = () => {
     [dispatch]
   );
 
-  function onRealQuantityChange(quantity: number | null, index: number, data: any) {
-    setDataTable((dataTable: any) => {
-      const dataTableClone = _.cloneDeep(dataTable);
-      dataTableClone[index].real_quantity = quantity;
+  function onRealQuantityChange(quantity: number | null, index: number) {
+    const dataTableClone = _.cloneDeep(dataTable);
+    dataTableClone[index].real_quantity = quantity;
 
-      let newColumns: any = [...columnsTransferState];
-      if (data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-        || data.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-
-        newColumns.splice(columnsTransferState.length - 1, 0, {
-          title: "Tồn kho nhận",
-          align: "center",
-          width: 80,
-          dataIndex: "receive_on_hand",
-          render: (value: any) => {
-            return formatCurrency(value, ".")
-          },
-        });
-      }
-
-      newColumns[4] = {
-        title: <div>
-          <div>SL Gửi</div>
-          <div className="text-center">
-            {data && formatCurrency(data.total_quantity, ".")}
-          </div>
-        </div>,
-        width: 70,
-        align: "center",
-        dataIndex: "transfer_quantity",
-        render: (value: any) => {
-          return formatCurrency(value, ".")
-        },
-      }
-
-      if (newColumns.length < 8) {
-        newColumns = [
-          ...newColumns,
-          {
-            title: "",
-            fixed: dataTableClone?.length !== 0 && "right",
-            width: 40,
-            dataIndex: "transfer_quantity",
-            render: (value: string, row: any, index: number) => {
-              if (
-                (parseInt(value) !== 0 &&
-                  (data?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-                    || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-                )
-                || data?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-                return false;
-              }
-              return <Button
-                onClick={() => onDeleteItem(index, data)}
-                className="product-item-delete"
-                icon={<AiOutlineClose />}
-              />
-            },
-          },
-        ]
-      }
-
-      let total = 0;
-      dataTableClone.forEach((element: LineItem) => {
-        total += element.real_quantity;
-      });
-
-      newColumns[5] = {
-        title: <div>
-          <div>SL Nhận</div>
-          <div className="text-center">
-            {total}
-          </div>
-        </div>,
-        dataIndex: "real_quantity",
-        align: "center",
-        width: 70,
-        render: (value: any, row: any, index: number) => {
-          if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-            return <NumberInput
-              disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
-              isFloat={false}
-              id={`item-quantity-${index}`}
-              min={0}
-              value={value ? value : 0}
-              onChange={(quantity) => {
-                onRealQuantityChange(quantity, index, data);
-              }}
-              className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
-            />
-          }
-          else {
-            return value ? formatCurrency(value, '.') : 0;
-          }
-        },
-      }
-
-      setColumnsTransferState(newColumns);
-      return dataTableClone
-    })
+    setDataTable(dataTableClone);
   }
 
   const [resultSearch, setResultSearch] = useState<
@@ -569,57 +383,27 @@ const DetailTicket: FC = () => {
 
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === newResult?.sku
+        (variant: VariantResponse) => variant.sku === newResult?.sku,
       )
     ) {
-      setDataTable((prev: any) => prev.concat([{...newResult,transfer_quantity: 0, real_quantity: 1}]));
-      dataTemp = dataTemp.concat([{...newResult, transfer_quantity: 0,real_quantity: 1}]);
-    }else{
-      const indexItem = dataTemp.findIndex(e=>e.sku === item.sku);
+      setDataTable((prev: any) => {
+        return [
+          { ...newResult, transfer_quantity: 0, real_quantity: 1, status: data?.status, to_store_id: data?.to_store_id, },
+          ...prev,
+        ];
+      });
+    } else {
+      const indexItem = dataTemp.findIndex(e => e.sku === item.sku);
 
-      dataTemp[indexItem].real_quantity +=1;
+      dataTemp[indexItem].real_quantity += 1;
+      dataTemp[indexItem].status = data?.status;
+      dataTemp[indexItem].to_store_id = data?.to_store_id;
+      const dataSelected = dataTemp[indexItem];
+      dataTemp.splice(indexItem, 1);
+      setDataTable([dataSelected, ...dataTemp]);
     }
-
-    let newColumns = [...columnsTransferState];
-    let total = 0;
-    [...dataTemp].forEach((element: LineItem) => {
-      total += element.real_quantity;
-    });
-
-    newColumns[5] = {
-      title: <div>
-        <div>SL Nhận</div>
-        <div className="text-center">
-          {total}
-        </div>
-      </div>,
-      dataIndex: "real_quantity",
-      align: "center",
-      width: 70,
-      render: (value: any, row: any, index: number) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-          return <NumberInput
-            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
-            isFloat={false}
-            id={`item-quantity-${index}`}
-            min={0}
-            value={value ? value : 0}
-            onChange={(quantity) => {
-              onRealQuantityChange(quantity, index, data);
-            }}
-            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
-          />
-        }
-        else {
-          return value ? formatCurrency(value, '.') : 0;
-        }
-      },
-    }
-    setColumnsTransferState(newColumns);
-    setDataTable([...dataTemp]);
     setResultSearch([]);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[data?.status, dataTable]);
+  },[data?.status, data?.to_store_id, dataTable]);
 
   function getTotalRealQuantity() {
     let total = 0;
@@ -630,78 +414,11 @@ const DetailTicket: FC = () => {
     return formatCurrency(total, ".");
   }
 
-  function onDeleteItem(index: number, newData: any) {
+  function onDeleteItem(index: number) {
     // delete row
-     setDataTable((dataTable: any) => {
-      const temps = [...dataTable];
-      temps.splice(index, 1);
-
-      let newColumns = [...columnsTransferState];
-      let total = 0;
-      temps.forEach((element: LineItem) => {
-        total += element.real_quantity;
-      });
-
-      newColumns[5] = {
-        title: <div>
-          <div>SL Nhận</div>
-          <div className="text-center">
-            {total}
-          </div>
-        </div>,
-        dataIndex: "real_quantity",
-        align: "center",
-        width: 70,
-        render: (value: any, row: any, index: number) => {
-          if (newData?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-            return <NumberInput
-              disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [newData.to_store_id], currentStores)}
-              isFloat={false}
-              id={`item-quantity-${index}`}
-              min={0}
-              value={value ? value : 0}
-              onChange={(quantity) => {
-                onRealQuantityChange(quantity, index, newData);
-              }}
-              className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
-            />
-          }
-          else {
-            return value ? formatCurrency(value, '.') : 0;
-          }
-        },
-      }
-
-       if (newColumns.length < 8) {
-         newColumns = [
-           ...newColumns,
-           {
-             title: "",
-             fixed: temps?.length !== 0 && "right",
-             width: 40,
-             dataIndex: "transfer_quantity",
-             render: (value: string, row: any, index: number) => {
-               if (
-                 (parseInt(value) !== 0 &&
-                   (newData?.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
-                     || newData?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-                 )
-                 || newData?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
-                 return false;
-               }
-               return <Button
-                 onClick={() => onDeleteItem(index, newData)}
-                 className="product-item-delete"
-                 icon={<AiOutlineClose />}
-               />
-             },
-           },
-         ]
-       }
-
-      setColumnsTransferState(newColumns);
-      return temps;
-    });
+    const temps = [...dataTable];
+    temps.splice(index, 1);
+    setDataTable(temps);
   }
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
@@ -712,6 +429,8 @@ const DetailTicket: FC = () => {
         item.variant_prices[0] &&
         item.variant_prices[0].retail_price;
       return {
+        status: data?.status,
+        to_store_id: data?.to_store_id,
         sku: item.sku,
         barcode: item.barcode,
         variant_name: item.name,
@@ -927,7 +646,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: "50px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        size * (current - 1) + index + 1,
+        index + 1
     },
     {
       title: "Ảnh",
@@ -992,7 +711,7 @@ const DetailTicket: FC = () => {
       align: "center",
       width: "50px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        size * (current - 1) + index + 1,
+        index + 1,
     },
     {
       title: "Ảnh",
@@ -1048,7 +767,7 @@ const DetailTicket: FC = () => {
       width: 70,
       align: "center",
       dataIndex: "transfer_quantity",
-      render: (value) => {
+      render: (value: any) => {
         return formatCurrency(value, ".")
       },
     },
@@ -1062,6 +781,24 @@ const DetailTicket: FC = () => {
       dataIndex: "real_quantity",
       align: "center",
       width: 70,
+      render: (value: any, row: any, index: number) => {
+        if (row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
+          return <NumberInput
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [row.to_store_id], currentStores)}
+            isFloat={false}
+            id={`item-quantity-${index}`}
+            min={0}
+            value={value ? value : 0}
+            onChange={(quantity) => {
+              onRealQuantityChange(quantity, index);
+            }}
+            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
+          />
+        }
+        else {
+          return value ? formatCurrency(value, '.') : 0;
+        }
+      },
     },
     {
       title: "Lệch",
@@ -1074,10 +811,38 @@ const DetailTicket: FC = () => {
         }
         return 0;
       },
-    }
+    },
+    {
+      title: "Tồn kho nhận",
+      align: "center",
+      width: 80,
+      dataIndex: "receive_on_hand",
+      render: (value: any) => {
+        return formatCurrency(value, ".")
+      },
+    },
+    {
+      title: "",
+      fixed: dataTable?.length !== 0 && "right",
+      width: 40,
+      dataIndex: "transfer_quantity",
+      render: (value: string, row: any, index: number) => {
+        if (
+          (parseInt(value) !== 0 &&
+            (row.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+              || row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+          )
+          || row?.status === STATUS_INVENTORY_TRANSFER.PENDING.status) {
+          return false;
+        }
+        return <Button
+          onClick={() => onDeleteItem(index)}
+          className="product-item-delete"
+          icon={<AiOutlineClose />}
+        />
+      },
+    },
   ];
-
-  const [columnsTransferState, setColumnsTransferState] = useState(columnsTransfer);
 
   const deleteTicketResult = useCallback(result => {
     setLoadingBtn(false);
@@ -1124,8 +889,6 @@ const DetailTicket: FC = () => {
     setIsReceiveAllProducts(e.target.checked);
     let newDataTable = [...dataTable];
 
-    let newColumns = [...columnsTransferState];
-
     newDataTable = newDataTable.map((i) => {
       return {
         ...i,
@@ -1133,87 +896,12 @@ const DetailTicket: FC = () => {
       }
     });
 
-    let total = 0;
-    newDataTable.forEach((element: LineItem) => {
-      total += element.real_quantity;
-    });
-
-    newColumns[5] = {
-      title: <div>
-        <div>SL Nhận</div>
-        <div className="text-center">
-          {total}
-        </div>
-      </div>,
-      dataIndex: "real_quantity",
-      align: "center",
-      width: 70,
-      render: (value: any, row: any, index: number) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-          return <NumberInput
-            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
-            isFloat={false}
-            id={`item-quantity-${index}`}
-            min={0}
-            value={value ? value : 0}
-            onChange={(quantity) => {
-              onRealQuantityChange(quantity, index, data);
-            }}
-            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
-          />
-        }
-        else {
-          return value ? formatCurrency(value, '.') : 0;
-        }
-      },
-    }
-
-    setColumnsTransferState(newColumns);
     setDataTable(newDataTable);
   };
 
-  const importRealQuantity = (dataImport: Array<VariantResponse>)=>{
-    const newArr= convertArrItem(dataImport);
+  const importRealQuantity = (data: Array<VariantResponse>)=>{
+    const newArr= convertArrItem(data);
     setDataTable([...newArr]);
-
-    let newColumns = [...columnsTransferState]
-    let total = 0;
-    [...newArr].forEach((element: any) => {
-      total += element.real_quantity;
-    });
-
-    newColumns[5] = {
-      title: <div>
-        <div>SL Nhận</div>
-        <div className="text-center">
-          {total}
-        </div>
-      </div>,
-      dataIndex: "real_quantity",
-      align: "center",
-      width: 70,
-      render: (value: any, row: any, index: number) => {
-        if (data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
-          return <NumberInput
-            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [data.to_store_id], currentStores)}
-            isFloat={false}
-            id={`item-quantity-${index}`}
-            min={0}
-            value={value ? value : 0}
-            onChange={(quantity) => {
-              onRealQuantityChange(quantity, index, data);
-            }}
-            className={value !== row.transfer_quantity || value === 0 ? 'border-red' : ''}
-          />
-        }
-        else {
-          return value ? formatCurrency(value, '.') : 0;
-        }
-      },
-    }
-
-    setColumnsTransferState(newColumns);
-
     setIsImport(false);
   }
 
@@ -1425,13 +1113,7 @@ const DetailTicket: FC = () => {
                             rowClassName="product-table-row"
                             tableLayout="fixed"
                             scroll={{ x: "max-content" }}
-                            pagination={{
-                              pageSize: size,
-                              total: data.line_items.length,
-                              current: current,
-                              showSizeChanger: true,
-                              onChange: onPageChange
-                            }}
+                            pagination={false}
                             columns={columns}
                             dataSource={data.line_items}
                             summary={() => (
@@ -1495,7 +1177,7 @@ const DetailTicket: FC = () => {
                             <Input
                               size="middle"
                               className="yody-search"
-                              placeholder="Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
+                              placeholder=" Tìm kiếm Mã vạch, Mã sản phẩm, Tên sản phẩm"
                               prefix={<i className="icon-search icon" />}
                               ref={productSearchRef}
                             />
@@ -1518,14 +1200,8 @@ const DetailTicket: FC = () => {
                         rowClassName="product-table-row"
                         tableLayout="fixed"
                         scroll={{ x: "max-content" }}
-                        pagination={{
-                          pageSize: size,
-                          total: dataTable.length,
-                          current: current,
-                          showSizeChanger: true,
-                          onChange: onPageChange
-                        }}
-                        columns={columnsTransferState}
+                        pagination={false}
+                        columns={columnsTransfer}
                         dataSource={dataTable}
                         summary={() => {
                           return (
