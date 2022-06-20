@@ -1,5 +1,5 @@
 import { CaretDownOutlined, CaretUpOutlined } from "@ant-design/icons";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrencyForProduct } from "utils/AppUtils";
 import { sortActionColor } from "utils/global-styles/variables";
 import "./index.scss";
 let fieldActive = "";
@@ -27,8 +27,13 @@ export const HeaderSummary = (
     if (total) { 
       Component = () => (
         <>
-          <div className={fieldActive=== field? 'field-active':''} style={{display: "inline-flex",wordBreak: "initial"}}>{header} <SortComponent/></div>
-          <div>{`(${formatCurrency(total,".")})`}</div>
+          <div className={fieldActive=== field? 'field-active':''} style={{display: "inline-flex",wordBreak: "initial",lineHeight: 1}}>
+            {header}
+            <SortComponent/>
+          </div>
+          <div style={{  display: "flex",justifyContent: "center",marginTop: 8}}>
+            <div style={{fontSize: "80%",color: "#808080",position: "absolute", bottom: 0}}>{`${formatCurrencyForProduct(total,".")}`}</div>
+          </div>
         </>
       );
     }
