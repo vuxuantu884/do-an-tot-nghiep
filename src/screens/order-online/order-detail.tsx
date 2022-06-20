@@ -884,6 +884,7 @@ const OrderDetail = (props: PropType) => {
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
                 customerNeedToPayValue={customerNeedToPayValue}
                 totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_amount}
+                paymentMethods={listPaymentMethods}
               />
               {/*--- end product ---*/}
 

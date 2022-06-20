@@ -322,3 +322,9 @@ export type ChangeOrderStatusHtmlModel = {
 }
 
 export type OrderTypeModel = typeof ORDER_TYPES[keyof typeof ORDER_TYPES];
+
+export type CalculateVariantPointInOrderModel = {
+  point_add: number;
+  point_subtract: number;
+  variant_id: number;
+}
