@@ -13,6 +13,7 @@ const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CopyTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateTicket"));
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
+const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/index"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
 
 //PO
@@ -337,6 +338,18 @@ export const inventory: Array<RouteMenu> = [
         isShow: true,
         header: null,
         permissions:[InventoryTransferPermission.create],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.INVENTORY_TRANSFERS}/request`,
+        exact: true,
+        title: "Chuyển hàng",
+        icon: "icon-dot",
+        component: RequestTicket,
+        key: "submenu31",
+        isShow: true,
+        header: null,
+        // permissions:[InventoryTransferPermission.request],
         subMenu: [],
       },
       {

@@ -144,6 +144,9 @@ const InventoryListScreen: React.FC = () => {
                 Nhập file
               </Button>
             </AuthWrapper>
+            <AuthWrapper acceptPermissions={[InventoryTransferPermission.request]}>
+              <ButtonCreate children="Yêu cầu" path={`${UrlConfig.INVENTORY_TRANSFERS}/request`} />
+            </AuthWrapper>
             <AuthWrapper acceptPermissions={[InventoryTransferPermission.create]}>
               <ButtonCreate path={`${UrlConfig.INVENTORY_TRANSFERS}/create`} />
             </AuthWrapper>
@@ -239,7 +242,7 @@ const InventoryListScreen: React.FC = () => {
                   activeTab={activeTab}
                   stores={stores}
                   accounts={accounts}
-                  vExportDetailTransfer={vExportDetailTransfer} 
+                  vExportDetailTransfer={vExportDetailTransfer}
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   accountStores={userReducer.account?.account_stores}
                   setAccounts={(value) => setAccounts([

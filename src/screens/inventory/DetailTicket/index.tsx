@@ -23,6 +23,7 @@ import RowDetail from "screens/products/product/component/RowDetail";
 import { useHistory, useParams } from "react-router";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  acceptInventoryAction,
   cancelShipmentInventoryTransferAction,
   deleteInventoryTransferAction,
   exportInventoryAction,
@@ -91,6 +92,7 @@ let version = 0;
 const DetailTicket: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
+  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
   const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
   // const [dataShipment, setDataShipment] = useState<ShipmentItem | undefined>();
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
@@ -98,11 +100,13 @@ const DetailTicket: FC = () => {
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
   const [isDisableEditNote, setIsDisableEditNote] = useState<boolean>(false);
   const [isReceiveAllProducts, setIsReceiveAllProducts] = useState<boolean>(false);
+  const [isHavePermissionAccept, setIsHavePermissionAccept] = useState<boolean>(true);
 
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isLoadingBtn, setLoadingBtn] = useState<boolean>(false);
+  const [isLoadingBtnSave, setIsLoadingBtnSave] = useState<boolean>(false);
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
@@ -162,11 +166,16 @@ const DetailTicket: FC = () => {
     (result: InventoryTransferDetailItem | false) => {
       setLoading(false);
       setLoadingBtn(false);
+      setIsLoadingBtnSave(false);
       setIsDisableEditNote(false);
       if (!result) {
         setError(true);
         return;
       } else {
+        if (myStores.length > 0) {
+          const storeFiltered = myStores.filter((item: any) => Number(item.store_id) === Number(result.from_store_id));
+          setIsHavePermissionAccept(storeFiltered.length > 0);
+        }
         let dataLineItems = sessionStorage.getItem(`dataItems${result.id}`);
         let dataId = sessionStorage.getItem(`id${result.id}`);
 
@@ -271,11 +280,14 @@ const DetailTicket: FC = () => {
   let textTag: string;
   let classTag: string;
   switch (data?.status) {
+    case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
+      textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
+      classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+      break;
     case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
       textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
       classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
       break;
-
     case STATUS_INVENTORY_TRANSFER.PENDING.status:
       textTag = STATUS_INVENTORY_TRANSFER.PENDING.name;
       classTag = STATUS_INVENTORY_TRANSFER.PENDING.status;
@@ -487,7 +499,7 @@ const DetailTicket: FC = () => {
   );
 
   const updateNoteApi = (key: string) => {
-    setLoadingBtn(true);
+    setIsLoadingBtnSave(true);
     if (data && dataTable) {
       setIsDisableEditNote(true);
       data.line_items = dataTable;
@@ -1102,6 +1114,7 @@ const DetailTicket: FC = () => {
 
                     {
                      (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
+                     data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status ||
                       data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && (
                         <Card
                           title="DANH SÁCH SẢN PHẨM"
@@ -1336,7 +1349,7 @@ const DetailTicket: FC = () => {
                         <div className="button-save">
                           <Button
                             disabled={isDisableEditNote}
-                            loading={isLoadingBtn}
+                            loading={isLoadingBtnSave}
                             onClick={() => updateNoteApi(form.getFieldValue('note'))}
                             size="small"
                             type="primary"
@@ -1456,6 +1469,43 @@ const DetailTicket: FC = () => {
                         <EditOutlined /> Sửa thông tin
                       </Button>
                     </AuthWrapper>
+                  }
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status) &&
+                    <AuthWrapper
+                      acceptPermissions={[InventoryTransferPermission.update]}
+                    >
+                      <Button
+                        onClick={() => {
+                          history.push(
+                            `${UrlConfig.INVENTORY_TRANSFERS}/${data?.id}/update`
+                          );
+                        }}
+                      >
+                        <EditOutlined /> Sửa thông tin
+                      </Button>
+                    </AuthWrapper>
+                  }
+                  {
+                    (data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status && data.from_store_id && isHavePermissionAccept && (
+                      <AuthWrapper
+                        acceptPermissions={[InventoryTransferPermission.create]}
+                      >
+                        <Button
+                          className="export-button"
+                          type="primary"
+                          loading={isLoadingBtn}
+                          onClick={() => {
+                            setLoadingBtn(true);
+                            if(data) dispatch(acceptInventoryAction(data?.id,
+                              onReload
+                            ));
+                          }}
+                        >
+                          Xác nhận
+                        </Button>
+                      </AuthWrapper>
+                    ))
                   }
                   {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (

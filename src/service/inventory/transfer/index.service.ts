@@ -131,6 +131,12 @@ const TransferService = {
     return BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers`, data);
   },
 
+  createInventoryTransferRequest: (
+    data: StockTransferSubmit
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/transfer-request`, data);
+  },
+
   createInventoryTransferShipment: (
     id: number,
     data: InventoryTransferShipmentRequest
@@ -171,6 +177,12 @@ const TransferService = {
       return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/export`);
     },
 
+    acceptInventoryTransfer: (
+      transferId: number
+    ): Promise<BaseResponse<string>> => {
+      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/accept-request`);
+    },
+
     exportMultipleInventoryTransfer: (
       data: DataExport
     ): Promise<BaseResponse<string>> => {
@@ -190,11 +202,13 @@ export const {
   getVariantByStoreApi,
   uploadFileApi,
   createInventoryTransfer,
+  createInventoryTransferRequest,
   updateInventoryTransfer,
   createInventoryTransferShipment,
   receivedInventoryTransfer,
   cancelShipmentInventoryTransfer,
   exportShipmentInventoryTransfer,
+  acceptInventoryTransfer,
   exportMultipleInventoryTransfer,
   cancelMultipleInventoryTransfer,
   adjustmentInventory

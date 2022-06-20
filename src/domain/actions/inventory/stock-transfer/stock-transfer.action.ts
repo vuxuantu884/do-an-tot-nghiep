@@ -49,6 +49,16 @@ const creatInventoryTransferAction = (
   });
 };
 
+const creatInventoryTransferRequestAction = (
+  data: Partial<StockTransferSubmit>,
+  onResult: (data: InventoryTransferDetailItem) => void
+) => {
+  return BaseAction(InventoryType.CREATE_INVENTORY_TRANSFER_REQUEST, {
+    data,
+    onResult,
+  });
+};
+
 const cancelShipmentInventoryTransferAction = (
   transferId: number,
   onResult: (data: InventoryTransferDetailItem) => void
@@ -162,6 +172,10 @@ const exportInventoryAction = (transferId: number, onResult: (data: InventoryTra
   return BaseAction(InventoryType.EXPORT_INVENTORY, {transferId, onResult})
 }
 
+const acceptInventoryAction = (transferId: number, onResult: (data: InventoryTransferDetailItem) => void) => {
+  return BaseAction(InventoryType.ACCEPT_INVENTORY, {transferId, onResult})
+}
+
 const actionExportInventoryByIds = (data: DataExport, onResult: (data: any) => void) => {
   return BaseAction(InventoryType.EXPORT_MULTIPLE_INVENTORY, {data, onResult})
 }
@@ -191,4 +205,6 @@ export {
   exportInventoryAction,
   actionExportInventoryByIds,
   actionCancelTicketByIds,
+  acceptInventoryAction,
+  creatInventoryTransferRequestAction,
 };
