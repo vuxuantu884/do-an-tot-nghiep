@@ -861,24 +861,8 @@
         margin: 0 0 0px 0;
         display: flex;
         align-items: center;
-        &:nth-child(5) {
+        &[role="separator"] {
           height: 10px;
-        }
-        &:nth-child(6) {
-          strong {
-            &:nth-child(1) {
-              display: flex;
-              align-items: center;
-              font-weight: bold;
-              font-size: 14px;
-              line-height: 16px;
-            }
-            &:nth-child(2) {
-              display: flex;
-              align-items: center;
-              color: #2a2a86;
-            }
-          }
         }
       }
     }

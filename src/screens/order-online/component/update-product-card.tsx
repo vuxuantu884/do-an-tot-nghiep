@@ -1,46 +1,55 @@
 //#region Import
 import {
-	Button,
-	Card, Col,
-	Divider,
-	Row,
-	Space,
-	Table,
-	Tag,
-	Tooltip,
+  Button,
+  Card, Col,
+  Divider,
+  Row,
+  Space,
+  Table,
+  Tag,
+  Tooltip,
   Typography
 } from "antd";
 import giftIcon from "assets/icon/gift.svg";
-import storeBluecon from "assets/img/storeBlue.svg";
+import storeBlueIcon from "assets/img/storeBlue.svg";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import {
-	OrderLineItemResponse,
-	OrderResponse
+  OrderDetailWithCalculatePointVariantModel,
+  OrderLineItemResponse,
+  OrderResponse
 } from "model/response/order/order.response";
-import React from "react";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import React, { useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import { formatCurrency, formatPercentage, getTotalQuantity, handleDisplayCoupon } from "utils/AppUtils";
+import { calculateVariantPointInOrderService } from "service/order/order.service";
+import { formatCurrency, formatNumber, formatPercentage, getTotalQuantity, handleDisplayCoupon, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { successColor } from "utils/global-styles/variables";
-//#endregion
 
 type ProductCardUpdateProps = {
   shippingFeeInformedCustomer: number | null;
   OrderDetail: OrderResponse | null;
   customerNeedToPayValue: any;
   totalAmountReturnProducts?: number;
+  paymentMethods: PaymentMethodResponse[];
 };
 const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   props: ProductCardUpdateProps
 ) => {
-  const { shippingFeeInformedCustomer = 0, OrderDetail, totalAmountReturnProducts, customerNeedToPayValue = 0 } = props;
-  const ProductColumn = {
+  const { shippingFeeInformedCustomer = 0, OrderDetail, totalAmountReturnProducts, customerNeedToPayValue = 0, paymentMethods } = props;
+
+  const [orderDetailCalculatePointInVariant, setOrderDetailCalculatePointInVariant] = useState<OrderDetailWithCalculatePointVariantModel | null>(null);
+
+  const dispatch = useDispatch();
+
+  const productColumn = {
     title: () => (
       <div className="text-center">
         <div style={{ textAlign: "left" }}>Sản phẩm</div>
       </div>
     ),
-    width: "40%",
+    width: "35%",
     className: "yody-pos-name",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       return (
@@ -93,7 +102,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     },
   };
 
-  const AmountColumnt = {
+  const amountColumn = {
     title: () => (
       <div className="text-center">
         <div>Số lượng</div>
@@ -103,14 +112,14 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       </div>
     ),
     className: "yody-pos-quantity text-center",
-    width: "15%",
+    width: "10%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       console.log('item', item)
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
   };
 
-  const PriceColumnt = {
+  const priceColumn = {
     title: () => (
       <div>
         <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
@@ -125,7 +134,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     },
   };
 
-  const DiscountColumnt = {
+  const discountColumn = {
     title: () => (
       <div className="text-right">
         <div>Chiết khấu</div>
@@ -154,10 +163,29 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     },
   };
 
-  const TotalPriceColumn = {
+  const pointColumn = {
+    title: () => (
+      <div className="text-right">
+        <div>Tích điểm</div>
+      </div>
+    ),
+    align: "right",
+    width: "10%",
+    className: "yody-table-point text-right 33",
+    render: (l: OrderLineItemResponse, item: any, index: number) => {
+      console.log('item', item)
+      return (
+        <div>
+          {item?.point_add !== null && item?.point_add !== undefined ? item.point_add : "-"}
+        </div>
+      );
+    },
+  };
+
+  const totalPriceColumn = {
     title: () => (
       <div>
-        <span style={{ color: "#222222" }}>Tổng tiền</span>
+        <span style={{ color: "#222222" }}>Tổng tiền:</span>
         <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
@@ -174,13 +202,45 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
   };
 
   const columns = [
-    ProductColumn,
-    AmountColumnt,
-    PriceColumnt,
-    DiscountColumnt,
-    TotalPriceColumn,
+    productColumn,
+    amountColumn,
+    priceColumn,
+    discountColumn,
+    pointColumn,
+    totalPriceColumn,
   ];
-  //#endregion
+
+  useEffect(() => {
+    if(OrderDetail) {
+      const customerId = OrderDetail.customer_id;
+      const orderId = OrderDetail.id;
+      if(customerId) {
+        calculateVariantPointInOrderService(customerId, orderId).then(response => {
+          if(isFetchApiSuccessful(response)) {
+            console.log('response', response);
+            let orderDetailResult:OrderDetailWithCalculatePointVariantModel = {
+              ...OrderDetail,
+              items: OrderDetail.items.map(item => {
+                return {
+                  ...item,
+                  point_add: response.data.find(single => single.variant_id === item.variant_id)?.point_add,
+                  point_subtract: response.data.find(single => single.variant_id === item.variant_id)?.point_subtract,
+                }
+              })
+            }
+            setOrderDetailCalculatePointInVariant(orderDetailResult)
+
+          } else {
+            handleFetchApiError(response, "Tính điểm tiêu/tích đơn hàng", dispatch);
+            setOrderDetailCalculatePointInVariant(OrderDetail);
+          }
+        }).catch(() => {
+          setOrderDetailCalculatePointInVariant(OrderDetail)
+        })
+      }
+    }
+  }, [OrderDetail, dispatch, paymentMethods])
+  
 
   return (
     <Card
@@ -196,7 +256,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <div className="view-inventory-box">
               <Button type="link" className="p-0" style={{ color: "#000000" }}>
                 <Space>
-                  <img src={storeBluecon} alt="" />
+                  <img src={storeBlueIcon} alt="" />
                   <Link target="_blank" to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}>
                     {OrderDetail?.store}
                   </Link>
@@ -231,19 +291,19 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             }}
             rowKey={(record) => record.id}
             columns={columns}
-            dataSource={props.OrderDetail?.items.filter(
+            dataSource={orderDetailCalculatePointInVariant?.items.filter(
               (item) => item.type === Type.NORMAL || item.type === Type.SERVICE
             )}
             className="sale-product-box-table2 w-100"
             tableLayout="fixed"
             pagination={false}
             footer={() =>
-              props.OrderDetail && props.OrderDetail?.items.length > 0 ? (
+              orderDetailCalculatePointInVariant && orderDetailCalculatePointInVariant?.items.length > 0 ? (
                 <div className="row-footer-custom">
                   <div
                     className="yody-foot-total-text"
                     style={{
-                      width: "40%",
+                      width: "35%",
                       float: "left",
                       fontWeight: 700,
                       padding: "0 16px",
@@ -253,14 +313,14 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   </div>
                   <div
                     style={{
-                      width: "15%",
+                      width: "10%",
                       float: "left",
                       textAlign: "center",
                       fontWeight: 400,
                     }}
                   >
-                    {props.OrderDetail?.items &&
-                      getTotalQuantity(props.OrderDetail?.items)}
+                    {orderDetailCalculatePointInVariant?.items &&
+                      getTotalQuantity(orderDetailCalculatePointInVariant?.items)}
                   </div>
 
                   <div
@@ -273,7 +333,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                     }}
                   >
                     {formatCurrency(
-                      props.OrderDetail?.items.reduce((a, b) => a + b.amount, 0)
+                      orderDetailCalculatePointInVariant?.items.reduce((a, b) => a + b.amount, 0)
                     )}
                   </div>
                   <div
@@ -286,8 +346,24 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                     }}
                   >
                     {formatCurrency(
-                      props.OrderDetail?.items.reduce(
+                      orderDetailCalculatePointInVariant?.items.reduce(
                         (a, b) => a + (b.amount - b.line_amount_after_line_discount),
+                        0
+                      )
+                    )}
+                  </div>
+                  <div
+                    style={{
+                      width: "10%",
+                      float: "left",
+                      textAlign: "right",
+                      fontWeight: 400,
+                      padding: "0 16px",
+                    }}
+                  >
+                    {formatNumber(
+                      orderDetailCalculatePointInVariant?.items.reduce(
+                        (a, b) => a + (b?.point_add || 0),
                         0
                       )
                     )}
@@ -303,7 +379,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                     }}
                   >
                     {formatCurrency(
-                      props.OrderDetail?.items.reduce(
+                      orderDetailCalculatePointInVariant?.items.reduce(
                         (a, b) => a + b.line_amount_after_line_discount,
                         0
                       )
@@ -329,12 +405,23 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
           </Col>
           <Col xs={24} lg={12}>
             <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500">Tổng tiền</div>
+              <div className="font-weight-500">Tổng tiền:</div>
               <div className="font-weight-500">
                 {props.OrderDetail?.total_line_amount_after_line_discount !== undefined &&
                   props.OrderDetail?.total_line_amount_after_line_discount !== null &&
                   formatCurrency(
                     props.OrderDetail?.total_line_amount_after_line_discount
+                  )}
+              </div>
+            </Row>
+            
+            <Row className="payment-row" justify="space-between">
+              <div className="font-weight-500">Tổng chiết khấu đơn:</div>
+              <div className="font-weight-500">
+                {props.OrderDetail?.total_discount !== undefined &&
+                  props.OrderDetail?.total_discount !== null &&
+                  formatCurrency(
+                    props.OrderDetail?.total_discount
                   )}
               </div>
             </Row>
@@ -371,7 +458,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             </Row>
 
             <Row className="payment-row" justify="space-between">
-              <div className="font-weight-500">Phí ship báo khách:</div>
+              <div className="font-weight-500 78">Phí ship báo khách:</div>
               <div className="font-weight-500 payment-row-money">
                 {formatCurrency(shippingFeeInformedCustomer || 0)}
               </div>
@@ -396,7 +483,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                   style={{ height: "auto", margin: " 5px 0" }}
                 />
                 <Row className="payment-row" justify="space-between">
-                  <strong className="font-size-text" style={{ fontWeight: "bold" }}>
+                  <strong className="font-size-text 55" style={{ fontWeight: "bold" }}>
                     {customerNeedToPayValue - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
                       : "Khách cần trả:"}

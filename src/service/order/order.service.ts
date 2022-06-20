@@ -2,7 +2,7 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import {ApiConfig} from "config/api.config";
 import {PageResponse} from "model/base/base-metadata.response";
-import {FulfillmentsOrderPackQuery, OrderModel, OrderSearchQuery, StoreBankAccountNumberModel, StoreBankAccountNumbersQueryModel} from "model/order/order.model";
+import {CalculateVariantPointInOrderModel, FulfillmentsOrderPackQuery, OrderModel, OrderSearchQuery, StoreBankAccountNumberModel, StoreBankAccountNumbersQueryModel} from "model/order/order.model";
 import {RefundTransactionModel, ReturnModel, ReturnSearchQuery} from "model/order/return.model";
 import {ShipmentModel, ShipmentSearchQuery} from "model/order/shipment.model";
 import {
@@ -496,3 +496,11 @@ export const deleteOrderService=(ids:number[]):Promise<BaseResponse<any>>=>{
   let link =`${ApiConfig.ORDER}/orders?ids=${ids}`;
   return BaseAxios.delete(link);
 }
+
+/**
+* Tính điểm tiêu tích với từng sản phẩm đơn hàng
+*/
+export const calculateVariantPointInOrderService  = (customerId: number, orderId: number):Promise<
+BaseResponse<CalculateVariantPointInOrderModel[]>> => {
+  return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/order/${orderId}/calculate-variant-point`);
+};

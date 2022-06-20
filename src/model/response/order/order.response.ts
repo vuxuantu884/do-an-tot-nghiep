@@ -138,6 +138,14 @@ export interface ReturnProductModel extends OrderLineItemResponse {
   maxQuantityCanBeReturned: number;
 }
 
+/**
+* thêm điểm tích/ tiêu
+*/
+export interface OrderLineItemWithCalculateVariantPointModel extends OrderLineItemResponse {
+  point_add?: number;
+  point_subtract?: number;
+}
+
 export interface FulFillmentResponse {
   id: number;
   code: string | null;
@@ -520,4 +528,8 @@ export interface OrderReturnResponse {
   html_content: string;
   order_id: number;
   size: string;
+}
+
+export interface OrderDetailWithCalculatePointVariantModel extends OrderResponse {
+  items: Array<OrderLineItemWithCalculateVariantPointModel>;
 }
