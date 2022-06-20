@@ -49,19 +49,20 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     point();
   }, [point, props.status]);
 
-  const progressDot = (dot: any, { status, index }: any) => (
+  const progressDot = (dot: any, { status }: any) => (
     <div className="ant-steps-icon-dot">
       {(status === "process") && <CheckOutlined />}
       {(status === "error") && <CloseOutlined style={{ fontSize: '16px', color: '#fff' }} />}
     </div>
   );
 
+  const RequestedDate = props.inventoryTransferDetail?.requested_date ? moment(props.inventoryTransferDetail?.requested_date).format(formatDate) : '';
+  const ConfirmedDate = props.inventoryTransferDetail?.confirmed_date ? moment(props.inventoryTransferDetail?.confirmed_date).format(formatDate) : '';
   const CreateDate = props.inventoryTransferDetail?.created_date ? moment(props.inventoryTransferDetail?.created_date).format(formatDate) : '';
   const TransferDate = props.inventoryTransferDetail?.transfer_date ? moment(props.inventoryTransferDetail?.transfer_date).format(formatDate) : '';
   const PendingDate = props.inventoryTransferDetail?.pending_date ? moment(props.inventoryTransferDetail?.pending_date).format(formatDate) : '';
   const ReceiveDate = props.inventoryTransferDetail?.receive_date ? moment(props.inventoryTransferDetail?.receive_date).format(formatDate) : '';
   const CanceledDate = props.inventoryTransferDetail?.cancel_date ? moment(props.inventoryTransferDetail?.cancel_date).format(formatDate) : '';
-
 
   return (
     <StyledWrapper>
@@ -75,14 +76,14 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           props.status === "canceled" ? (
             <>
               <Steps.Step
-                status={(CreateDate !== '') ? "process" : undefined}
+                status={(RequestedDate !== '') ? "process" : undefined}
                 title="Yêu cầu"
-                description={CreateDate}
+                description={RequestedDate}
               />
               <Steps.Step
-                status={(CreateDate !== '') ? "process" : undefined}
+                status={ConfirmedDate !== '' ? CreateDate !== '' ? "process" : undefined : undefined}
                 title="Chờ chuyển"
-                description={CreateDate}
+                description={RequestedDate !== '' ? ConfirmedDate : CreateDate}
               />
               <Steps.Step
                 status={(TransferDate !== '') ? "process" : undefined}
@@ -103,14 +104,14 @@ const InventoryStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
           ) : (
             <>
               <Steps.Step
+                status={(RequestedDate !== '') ? "process" : undefined}
                 title="Yêu cầu"
-                status={(CreateDate !== '') ? "process" : undefined}
-                description={CreateDate}
+                description={RequestedDate}
               />
               <Steps.Step
+                status={ConfirmedDate !== '' ? CreateDate !== '' ? "process" : undefined : undefined}
                 title="Chờ chuyển"
-                status={(CreateDate !== '') ? "process" : undefined}
-                description={CreateDate}
+                description={RequestedDate !== '' ? ConfirmedDate : CreateDate}
               />
               <Steps.Step
                 title="Đang chuyển"

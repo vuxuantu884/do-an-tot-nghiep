@@ -16,7 +16,7 @@ import arrowLeft from "assets/icon/arrow-back.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import { useDispatch } from "react-redux";
 import {
-  creatInventoryTransferAction,
+  creatInventoryTransferAction, creatInventoryTransferRequestAction,
   deleteInventoryTransferAction,
   getCopyDetailInventoryTransferAction,
   getDetailInventoryTransferAction,
@@ -135,6 +135,7 @@ const UpdateTicket: FC = () => {
 
   function getTotalQuantity() {
     let total = 0;
+    console.log(dataTable)
     dataTable.forEach((element: LineItem) => {
       total += element.transfer_quantity;
     });
@@ -179,6 +180,13 @@ const UpdateTicket: FC = () => {
       if (stateImport) {
         if (stateImport.isFastCreate) {
           onFinish(stateImport.data);
+          return;
+        }
+
+        if (stateImport.isCreateRequest) {
+          form.setFieldsValue(stateImport.data);
+          setInitDataForm(stateImport.data);
+          setDataTable(stateImport.data.line_items);
           return;
         }
 
@@ -485,7 +493,7 @@ const UpdateTicket: FC = () => {
         okText: "Đồng ý",
         title: "Bạn có chắc thay đổi Kho gửi?",
         cancelText: "Hủy",
-        subTitle: `Thay đổi kho gửi sẽ tính toán lại tồn kho ${fromStoreData?.name ? fromStoreData?.name : initDataForm?.from_store_name}.`,
+        subTitle: "",
         onCancel: () => {
           setModalConfirm({ visible: false });
           form.setFieldsValue({ from_store_id: fromStoreData ? fromStoreData.id : initDataForm?.from_store_id });
@@ -501,7 +509,7 @@ const UpdateTicket: FC = () => {
           }
         },
       });
-    }, [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id, initDataForm?.from_store_name]
+    }, [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id]
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
@@ -584,7 +592,10 @@ const UpdateTicket: FC = () => {
       dataCreate.note = data.note;
       dataCreate.attached_files = data.attached_files;
       setIsLoading(true);
-      dispatch(creatInventoryTransferAction(dataCreate, createCallback));
+      dispatch(stateImport && stateImport.isCreateRequest
+        ? creatInventoryTransferRequestAction(dataCreate, createCallback)
+        : creatInventoryTransferAction(dataCreate, createCallback)
+      );
     }
     else {
       if (stores) {
@@ -821,7 +832,7 @@ const UpdateTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return value || 0;
+        return form.getFieldValue('from_store_id') ? value || 0 : '';
       },
     },
     {
@@ -911,7 +922,7 @@ const UpdateTicket: FC = () => {
                     <Form.Item
                       name="from_store_id"
                       label={<b>Kho gửi</b>}
-                      rules={[
+                      rules={stateImport && stateImport.isCreateRequest ? [] : [
                         {
                           required: true,
                           message: "Vui lòng chọn kho gửi",

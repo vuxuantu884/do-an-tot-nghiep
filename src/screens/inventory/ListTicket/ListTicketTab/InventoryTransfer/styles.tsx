@@ -47,6 +47,9 @@ export const InventoryTransferTabWrapper = styled.div`
     .${STATUS_INVENTORY_TRANSFER.CANCELED.status} {
       color: ${BG_COLOR_TAG.CANCELED.color};
     }
+    .${STATUS_INVENTORY_TRANSFER.REQUESTED.status} {
+      color: ${BG_COLOR_TAG.CONFIRM.color};
+    }
     .${STATUS_INVENTORY_TRANSFER.CONFIRM.status} {
       color: ${BG_COLOR_TAG.CONFIRM.color};
     }

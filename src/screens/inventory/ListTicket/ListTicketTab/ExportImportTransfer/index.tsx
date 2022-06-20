@@ -192,6 +192,12 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
         let classTag: string;
         let img: any;
         switch (row.inventory_transfer.status) {
+          case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
+            textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
+            classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+            img = confirmedIcon;
+            break;
+
           case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
             textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
             classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
