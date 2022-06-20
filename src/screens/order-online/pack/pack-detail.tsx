@@ -230,9 +230,8 @@ const PackDetail: React.FC = () => {
       />
 
       <PackListOrder
-       packDetail={packDetail}
+        packDetail={packDetail}
         packOrderList={packOrderList}
-        handleSearchOrder={handleSearchOrder}
       />
     </ContentContainer>
   );
