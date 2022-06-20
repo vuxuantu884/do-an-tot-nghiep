@@ -78,8 +78,6 @@ const UpdateTicket: FC = () => {
   const productSearchRef = React.useRef<any>(null);
   const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
-  const [current, setCurrent] = useState<number>(1);
-  const [size, setSize] = useState<number>(10);
 
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
@@ -91,7 +89,6 @@ const UpdateTicket: FC = () => {
 
   const location = useLocation();
   const stateImport: any = location.state;
-  console.log(stateImport)
   const query = useQuery();
   const queryParam: any = getQueryParams(query);
 
@@ -781,7 +778,7 @@ const UpdateTicket: FC = () => {
       align: "center",
       width: "70px",
       render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        size * (current - 1) + index + 1,
+        index + 1,
     },
     {
       title: "Ảnh",
@@ -873,14 +870,6 @@ const UpdateTicket: FC = () => {
       ),
     },
   ];
-
-  const onPageChange = useCallback(
-    (page, size) => {
-      setCurrent(page);
-      setSize(size);
-    },
-    []
-  );
 
   return (
     <ContentContainer
@@ -1122,13 +1111,7 @@ const UpdateTicket: FC = () => {
                     className="inventory-table"
                     rowClassName="product-table-row"
                     tableLayout="fixed"
-                    pagination={{
-                      pageSize: size,
-                      total: dataTable.length,
-                      current: current,
-                      showSizeChanger: true,
-                      onChange: onPageChange
-                    }}
+                    pagination={false}
                     columns={columns}
                     loading={isLoadingTable}
                     dataSource={dataTable}
@@ -1190,7 +1173,7 @@ const UpdateTicket: FC = () => {
             rightComponent={
               <Space>
 
-                {(!CopyId || !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
+                {(!CopyId && !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
 
                 <Button
                   disabled={isLoading}
