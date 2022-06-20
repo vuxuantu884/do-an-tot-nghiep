@@ -1383,7 +1383,7 @@ const EcommerceOrders: React.FC = () => {
               showError(responseData.api_error);
             }
           } else {
-            const progressCount = responseData.total_created + responseData.total_updated + responseData.total_error;
+            const progressCount = responseData.total_created + responseData.total_updated + responseData.total_success + responseData.total_error;
             const percent = Math.floor(progressCount / responseData.total * 100);
             setCommonProcessPercent(percent);
           }
