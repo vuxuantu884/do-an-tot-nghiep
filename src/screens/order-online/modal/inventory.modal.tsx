@@ -18,7 +18,7 @@ type InventoryModalProps = {
   handleCancel: () => void;
 };
 
-const pitority = {
+const priority = {
   ware_house: 2,
   store: 1,
   distribution_center: 1,
@@ -28,7 +28,7 @@ const pitority = {
 interface InventoryStore {
   id: number,
   name: string,
-  pitority: number,
+  priority: number,
   data: any,
   color:string
 }
@@ -99,7 +99,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       let store: InventoryStore = {
         id: value.id,
         name: value.name,
-        pitority: value.type === "ware_house" ? pitority.ware_house : 1,
+        priority: value.type === "ware_house" ? priority.ware_house : 1,
         color:colorStyle,
         data: {},
       };
@@ -110,11 +110,10 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       });
       stores.push(store);
     });
+
     stores.sort((a, b) => {
       let item1 = 0;
       let item2 = 0;
-      // let totalAvaiable1 = 0;
-      // let totalAvaiable2 = 0;
       columnsItem?.forEach((value) => {
         if (a.data[value.variant_id.toString()] >= value.quantity) {
           item1++;
@@ -123,37 +122,13 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
           item2++;
         }
 
-        if (a.data[value.variant_id.toString()] > 0) {
+        if (a.data[value.variant_id.toString()] >= 0) {
           item1++;
         }
-        if (b.data[value.variant_id.toString()] > 0) {
-          item2++;
-        }
-
-        if (a.data[value.variant_id.toString()] >= b.data[value.variant_id.toString()]) {
-          item1++;
-        }
-        else {
+        if (b.data[value.variant_id.toString()] >= 0) {
           item2++;
         }
       });
-
-      // Object.keys(a.data).forEach((key) => {
-      //   totalAvaiable1 = totalAvaiable1 + a.data[key];
-      // })
-      // Object.keys(b.data).forEach((key) => {
-      //   totalAvaiable2 = totalAvaiable2 + b.data[key];
-      // })
-      // if (item1 === columnsItem?.length && item2 === columnsItem?.length) {
-      //   if (a.pitority >= b.pitority) {
-      //     return totalAvaiable2 - totalAvaiable1;
-      //   } else {
-      //     return b.pitority - a.pitority;
-      //   }
-      // }
-      // if (totalAvaiable1 !== totalAvaiable2) {
-      //   return totalAvaiable2 - totalAvaiable1;
-      // }
       return item2 - item1;
     })
     return stores;
