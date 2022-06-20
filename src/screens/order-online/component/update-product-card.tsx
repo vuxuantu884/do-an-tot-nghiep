@@ -176,7 +176,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       console.log('item', item)
       return (
         <div>
-          {item?.point_add || 0}
+          {item?.point_add !== null && item?.point_add !== undefined ? item.point_add : "-"}
         </div>
       );
     },
