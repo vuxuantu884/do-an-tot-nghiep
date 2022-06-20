@@ -22,6 +22,7 @@ import { searchVariantsRequestAction } from "domain/actions/product/products.act
 import './styles.scss';
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
+import PackDetailBottomBar from "./detail/pack-detail-bottom-bar";
 
 type PackParam = {
   id: string;
@@ -29,6 +30,7 @@ type PackParam = {
 
 const PackDetail: React.FC = () => {
   const dispatch = useDispatch();
+
 
   let { id } = useParams<PackParam>();
   let packId = parseInt(id);
@@ -233,6 +235,11 @@ const PackDetail: React.FC = () => {
         packDetail={packDetail}
         packOrderList={packOrderList}
       />
+      
+      <PackDetailBottomBar
+        packDetail={packDetail}
+      />
+      
     </ContentContainer>
   );
 };
