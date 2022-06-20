@@ -2,14 +2,13 @@ import styled from "styled-components";
 import {borderColor, primaryColor} from "utils/global-styles/variables";
 import {StyledComponent} from "screens/order-online/component/OrderList/ListTable/OrdersTable.styles";
 export const nameQuantityWidth = 300;
-const quantityWidth = 50;
-const priceWidth = 85;
-const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
+// const quantityWidth = 50;
+// const priceWidth = 85;
+// const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledComponentEcommerceOrder = styled(StyledComponent)`
   .ant-table-thead > tr > th {
     border-right: 1px solid #ddd !important;
-    text-align: center;
   }
   .ant-table-body>table>tbody>tr>td {
     border-right: 1px solid #ddd !important;
@@ -31,13 +30,25 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
     justify-content: space-between;
     align-items: center;
     .product-name {
-      width: ${nameWidth}px;
-      text-align: center;
+      width: 60%;
+      padding-left: 10px;
     }
 
     .item-price {
       align-items: center;
     }
+  }
+
+  .quantityWidth {
+    width: 15%;
+    text-align: center;
+  }
+
+  .priceWidth {
+    width: 25%;
+    text-align: center;
+		justify-content: flex-end;
+		padding: 0 10px;
   }
 
   .item-custom-td {
@@ -49,50 +60,52 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
     }
 
     .product {
-      width: ${nameWidth}px;
+      width: 60% ;
       padding: 10px;
     }
   }
 
-  .quantity {
-    width: ${quantityWidth}px;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    &:before {
-      content: "";
-      display: block;
-      width: 1px;
-      position: absolute;
-      z-index: 1;
-      top: 0;
-      bottom: 0;
-      right: ${quantityWidth + priceWidth}px;
-      background-color: ${borderColor};
+   .quantity,
+    .priceWidth {
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      &:before {
+        content: "";
+        display: block;
+        width: 1px;
+        position: absolute;
+        z-index: 1;
+        top: -999px;
+        bottom: -999px;
+        left: 0;
+        background-color: ${borderColor};
+      }
     }
-  }
 
-  .item-price {
-    width: ${priceWidth}px;
-    padding: 10px;
-    align-items: flex-end;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-		text-align: right;
-    &:before {
-      content: "";
-      display: block;
-      width: 1px;
-      position: absolute;
-      z-index: 1;
-      top: 0;
-      bottom: 0;
-      right: ${priceWidth}px;
-      background-color: ${borderColor};
+    .price {
+      align-items: flex-end;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      &:before {
+        // content: "";
+        display: block;
+        width: 1px;
+        position: absolute;
+        z-index: 1;
+        top: -999px;
+        bottom:-999px;
+        left: 0;
+        background-color: ${borderColor};
+      }
+
+      &-title {
+        align-items: unset;
+      }
     }
-  }
 
   .ecommerce-order-list {
     .cell-items {
@@ -110,6 +123,12 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
         text-overflow: ellipsis;
         white-space: nowrap;
       }
+    }
+  }
+
+  th.ant-table-cell {
+    &.orderStatus, &.notes {
+      padding-left: 10px !important;
     }
   }
 
