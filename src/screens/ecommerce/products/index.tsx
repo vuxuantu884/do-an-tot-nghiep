@@ -131,7 +131,7 @@ const Products: React.FC = () => {
         const processData = response.data;
         if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(processData.total)) {
           setProgressData(response.data);
-          const progressCount = processData.total_created + processData.total_updated + processData.total_error;
+          const progressCount = processData.total_created + processData.total_updated + processData.total_success + processData.total_error;
           if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
