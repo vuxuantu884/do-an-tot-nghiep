@@ -16,10 +16,7 @@ import { fullTextSearch } from "utils/StringUtils";
 import {
   FileExcelOutlined,
   PrinterOutlined,
-  ReconciliationOutlined,
 } from "@ant-design/icons";
-import { getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
-import { useReactToPrint } from "react-to-print";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -34,33 +31,33 @@ type PackListOrderProps = {
   packDetail: GoodsReceiptsResponse | undefined;
 };
 
-interface GoodReceiptPrint {
-  good_receipt_id: number;
-  html_content: string;
-  size: string;
-}
+// interface GoodReceiptPrint {
+//   good_receipt_id: number;
+//   html_content: string;
+//   size: string;
+// }
 
 const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "In biên bản đầy đủ",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 2,
-    name: "In biên bản rút gọn",
-    icon: <PrinterOutlined />,
-  },
+  // {
+  //   id: 1,
+  //   name: "In biên bản đầy đủ",
+  //   icon: <PrinterOutlined />,
+  // },
+  // {
+  //   id: 2,
+  //   name: "In biên bản rút gọn",
+  //   icon: <PrinterOutlined />,
+  // },
   {
     id: 3,
     name: "Xuất excel đơn hàng trong biên bản",
     icon: <FileExcelOutlined />,
   },
-  {
-    id: 4,
-    name: "Thêm/xoá đơn hàng vào biên bản",
-    icon: <ReconciliationOutlined />,
-  },
+  // {
+  //   id: 4,
+  //   name: "Thêm/xoá đơn hàng vào biên bản",
+  //   icon: <ReconciliationOutlined />,
+  // },
   {
     id: 5,
     name: "In phiếu giao hàng",
@@ -73,10 +70,10 @@ const actions: Array<MenuAction> = [
   }
 ];
 
-const typePrint = {
-  simple: "simple",
-  detail: "detail"
-}
+// const typePrint = {
+//   simple: "simple",
+//   detail: "detail"
+// }
 
 var barcode: string = "";
 
@@ -94,11 +91,11 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowOrderId, setSelectedRowOrderId] = useState([]);
 
-  const [htmlContent, setHtmlContent] = useState("");
+  // const [htmlContent, setHtmlContent] = useState("");
 
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
+  // const handlePrint = useReactToPrint({
+  //   content: () => printElementRef.current,
+  // });
   const [statusExport, setStatusExport] = useState<number>(1);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
 
@@ -333,20 +330,20 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
   ];
 
-  const handlePrintPack = useCallback((type: string) => {
-    if (packDetail) {
-      dispatch(getPrintGoodsReceipts([packDetail.id], type, (data: GoodReceiptPrint[]) => {
-        if (data && data.length > 0) {
-          setHtmlContent(data[0].html_content);
-          setTimeout(() => {
-            if (handlePrint) {
-              handlePrint();
-            }
-          }, 500);
-        }
-      }))
-    }
-  }, [dispatch, handlePrint, packDetail]);
+  // const handlePrintPack = useCallback((type: string) => {
+  //   if (packDetail) {
+  //     dispatch(getPrintGoodsReceipts([packDetail.id], type, (data: GoodReceiptPrint[]) => {
+  //       if (data && data.length > 0) {
+  //         setHtmlContent(data[0].html_content);
+  //         setTimeout(() => {
+  //           if (handlePrint) {
+  //             handlePrint();
+  //           }
+  //         }, 500);
+  //       }
+  //     }))
+  //   }
+  // }, [dispatch, handlePrint, packDetail]);
 
   const handleExportExcelOrderPack = useCallback(() => {
     let codes: any[] = [];
@@ -393,12 +390,12 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       let queryParam = setParamPrint(index, selectedRowOrderId);
 
       switch (index) {
-        case 1:
-          handlePrintPack(typePrint.detail);
-          break;
-        case 2:
-          handlePrintPack(typePrint.simple);
-          break;
+        // case 1:
+        //   handlePrintPack(typePrint.detail);
+        //   break;
+        // case 2:
+        //   handlePrintPack(typePrint.simple);
+        //   break;
         case 3:
           handleExportExcelOrderPack();
           break;
@@ -456,7 +453,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           break;
       }
     },
-    [packDetail, selectedRowOrderId, handlePrintPack, handleExportExcelOrderPack, history, selectedRowKeys]
+    [packDetail, selectedRowOrderId, handleExportExcelOrderPack, history, selectedRowKeys]
   );
 
   const checkExportFile = useCallback(() => {
@@ -592,7 +589,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
         </Card>
       </StyledComponent>
 
-      <div style={{ display: "none" }}>
+      {/* <div style={{ display: "none" }}>
         <div className="printContent" ref={printElementRef}>
           <div
             dangerouslySetInnerHTML={{
@@ -601,7 +598,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           >
           </div>
         </div>
-      </div>
+      </div> */}
     </React.Fragment>
   );
 };
