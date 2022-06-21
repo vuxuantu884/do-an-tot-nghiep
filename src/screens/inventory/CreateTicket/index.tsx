@@ -241,7 +241,7 @@ const CreateTicket: FC = () => {
         };
       });
       setDataTable([...newResult]);
-      form.setFieldsValue({ [VARIANTS_FIELD]: cloneResult });
+      form.setFieldsValue({ [VARIANTS_FIELD]: [...newResult] });
       return;
     }
 
