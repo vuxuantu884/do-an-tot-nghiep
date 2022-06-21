@@ -2,7 +2,8 @@ import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from 'antd';
 import { FormInstance } from 'antd/es/form/Form';
 import React, { ReactElement, useContext } from 'react';
 import { DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE, PRICE_RULE_FIELDS } from 'screens/promotion/constants';
-import { formatDiscountValue } from 'utils/PromotionUtils';
+import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import NumberInput from "component/custom/number-input.custom";
 import { IssueContext } from './issue-provider';
 
 interface Props {
@@ -40,7 +41,7 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                                                 if (typeof value === "number" && value <= 0) {
                                                     return Promise.reject("Giá trị khuyến mại phải lớn hơn 0");
                                                 } else if (value > 100) {
-                                                    return Promise.reject("Giá trị khuyến mại phải nhỏ hơn hoặc bằng 100");
+                                                    return Promise.reject("Giá trị khuyến mại phải nhỏ hơn hoặc bằng 100%");
                                                 }
                                             } else {
                                                 if (typeof value === "number") {
@@ -59,12 +60,13 @@ function OrderThresholdIssueTypeForm(props: Props): ReactElement {
                                 name={[PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value]}
                                 noStyle
                             >
-                                <InputNumber
-                                    style={{ borderRadius: "0px", width: "calc(100% - 70px)" }}
-                                    min={0}
-                                    formatter={(value) => formatDiscountValue(value, checkIsPercentUnit())}
-                                    max={checkIsPercentUnit() ? 100 : MAX_FIXED_DISCOUNT_VALUE}
-                                    step={checkIsPercentUnit() ? 0.01 : 1}
+                                <NumberInput
+                                  style={{ width: "calc(100% - 70px)", textAlign: "left" }}
+                                  format={(a: string) => formatCurrency(a)}
+                                  replace={(a: string) => replaceFormatString(a)}
+                                  placeholder="Nhập giá trị khuyến mại"
+                                  maxLength={checkIsPercentUnit() ? 3 : 11}
+                                  minLength={0}
                                 />
                             </Form.Item>
                             <Form.Item name={[PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]} noStyle>
