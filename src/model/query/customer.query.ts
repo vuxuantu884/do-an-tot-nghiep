@@ -13,6 +13,10 @@ export interface CustomerSearchQuery extends BaseQuery {
   assign_store_ids?: Array<any> | [];
   store_ids?: Array<any> | [];
   source_ids?: Array<any> | [];
+  source_of_first_order_ids?: Array<any> | [];
+  source_of_last_order_ids?: Array<any> | [];
+  first_order_type?: string | null;
+  last_order_type?: string | null;
   channel_ids?: Array<any> | [];
   day_of_birth_from?: number | undefined;
   day_of_birth_to?: number | undefined;

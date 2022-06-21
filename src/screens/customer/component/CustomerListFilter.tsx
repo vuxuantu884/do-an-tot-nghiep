@@ -55,6 +55,7 @@ import {
 import { RegUtil } from "utils/RegUtils";
 import { showError } from "utils/ToastUtils";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import TreeSource from "component/treeSource";
 
 type CustomerListFilterProps = {
   isLoading?: boolean;
@@ -223,6 +224,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       assign_store_ids: Array.isArray(params.assign_store_ids) ? params.assign_store_ids.map((item: any) => Number(item)) : [Number(params.assign_store_ids)],
       channel_ids: Array.isArray(params.channel_ids) ? params.channel_ids : [params.channel_ids],
       source_ids: Array.isArray(params.source_ids) ? params.source_ids : [params.source_ids],
+      source_of_first_order_ids: Array.isArray(params.source_of_first_order_ids) ? params.source_of_first_order_ids.map((i: any) => Number(i)) : [Number(params.source_of_first_order_ids)],
+      source_of_last_order_ids: Array.isArray(params.source_of_last_order_ids) ? params.source_of_last_order_ids.map((i: any) => Number(i)) : [Number(params.source_of_last_order_ids)],
       store_ids: Array.isArray(params.store_ids) ? params.store_ids.map((item: any) => Number(item)) : [Number(params.store_ids)],
       store_of_first_order_ids: Array.isArray(params.store_of_first_order_ids) ? params.store_of_first_order_ids.map((item: any) => Number(item)) : [Number(params.store_of_first_order_ids)],
       store_of_last_order_ids: Array.isArray(params.store_of_last_order_ids) ? params.store_of_last_order_ids.map((item: any) => Number(item)) : [Number(params.store_of_last_order_ids)],
@@ -1102,6 +1105,68 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
+    if (initialValues.source_of_first_order_ids?.length) {
+      let sourcesFiltered = "";
+      initialValues.source_of_first_order_ids.forEach((source_id: any) => {
+        const source = listSource?.find(
+          (item) => item.id?.toString() === source_id?.toString()
+        );
+        sourcesFiltered = source
+          ? sourcesFiltered + source.name + "; "
+          : sourcesFiltered;
+      });
+      list.push({
+        key: "source_of_first_order_ids",
+        name: "Nguồn mua đầu",
+        value: sourcesFiltered,
+      });
+    }
+
+    if (initialValues.source_of_last_order_ids?.length) {
+      let sourcesFiltered = "";
+      initialValues.source_of_last_order_ids.forEach((source_id: any) => {
+        const source = listSource?.find(
+          (item) => item.id?.toString() === source_id?.toString()
+        );
+        sourcesFiltered = source
+          ? sourcesFiltered + source.name + "; "
+          : sourcesFiltered;
+      });
+      list.push({
+        key: "source_of_last_order_ids",
+        name: "Nguồn mua cuối",
+        value: sourcesFiltered,
+      });
+    }
+
+    if (initialValues.first_order_type) {
+      let firstOrderType;
+      if (initialValues.first_order_type.toLowerCase() === "online") {
+        firstOrderType = "Online"
+      } else {
+        firstOrderType = "Offline"
+      }
+      list.push({
+        key: "first_order_type",
+        name: "Loại mua đầu",
+        value: firstOrderType,
+      });
+    }
+
+    if (initialValues.last_order_type) {
+      let lastOrderType;
+      if (initialValues.last_order_type.toLowerCase() === "online") {
+        lastOrderType = "Online"
+      } else {
+        lastOrderType = "Offline"
+      }
+      list.push({
+        key: "last_order_type",
+        name: "Loại mua cuối",
+        value: lastOrderType,
+      });
+    }
+
     if (
       !isNullOrUndefined(initialValues.number_of_days_without_purchase_from) ||
       !isNullOrUndefined(initialValues.number_of_days_without_purchase_to)
@@ -1182,6 +1247,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     initialValues.year_of_birth_to,
     initialValues.channel_ids,
     initialValues.source_ids,
+    initialValues.source_of_first_order_ids,
+    initialValues.source_of_last_order_ids,
+    initialValues.first_order_type,
+    initialValues.last_order_type,
     initialValues.age_from,
     initialValues.age_to,
     initialValues.city_ids,
@@ -1389,6 +1458,22 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           break;
         case "store_of_last_order_ids":
           onFilter && onFilter({ ...params, store_of_last_order_ids: [] });
+          break;
+        case "source_of_first_order_ids":
+          onFilter && onFilter({ ...params, source_of_first_order_ids: [] });
+          formCustomerFilter?.setFieldsValue({ source_of_first_order_ids: [] });
+          break;
+        case "source_of_last_order_ids":
+          onFilter && onFilter({ ...params, source_of_last_order_ids: [] });
+          formCustomerFilter?.setFieldsValue({ source_of_last_order_ids: [] });
+          break;
+        case "first_order_type":
+          onFilter && onFilter({ ...params, first_order_type: null });
+          formCustomerFilter?.setFieldsValue({ first_order_type: null });
+          break;
+        case "last_order_type":
+          onFilter && onFilter({ ...params, last_order_type: null });
+          formCustomerFilter?.setFieldsValue({ last_order_type: null });
           break;
         case "days_without_purchase":
           onFilter &&
@@ -2559,6 +2644,64 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         placeholder="Đến"
                         maxLength={8}
                       />
+                    </Form.Item>
+                  </div>
+                </div>
+              </div>
+
+              <div className="base-filter-row">
+                <Form.Item
+                  name="source_of_first_order_ids"
+                  label="Nguồn mua đầu"
+                  className="left-filter">
+                  <TreeSource
+                    placeholder="Chọn cửa hàng"
+                    name="source_of_first_order_ids"
+                    listSource={listSource}
+                  />
+                </Form.Item>
+
+                <Form.Item
+                  name="source_of_last_order_ids"
+                  label="Nguồn mua cuối"
+                  className="center-filter">
+                  <TreeSource
+                    placeholder="Chọn cửa hàng"
+                    name="source_of_last_order_ids"
+                    listSource={listSource}
+                  />
+                </Form.Item>
+
+                <div className="right-filter">
+                  <div className="select-scope">
+                    <Form.Item
+                      name="first_order_type"
+                      label="Loại mua đầu"
+                      className="select-item">
+                      <Select
+                        showSearch
+                        placeholder="Chọn loại"
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        optionFilterProp="children">
+                          <Option key={"online"} value={"online"}>Online</Option>
+                          <Option key={"offline"} value={"offline"}>Offline</Option>
+                      </Select>
+                    </Form.Item>
+
+                    <Form.Item
+                      name="last_order_type"
+                      label="Loại mua cuối"
+                      className="select-item">
+                      <Select
+                        showSearch
+                        placeholder="Chọn loại"
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        optionFilterProp="children">
+                          <Option key={"online"} value={"online"}>Online</Option>
+                          <Option key={"offline"} value={"offline"}>Offline</Option>
+                      </Select>
                     </Form.Item>
                   </div>
                 </div>

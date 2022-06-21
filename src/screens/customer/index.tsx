@@ -54,6 +54,8 @@ import ExportCustomerFile from "screens/customer/export-file/ExportCustomerFile"
 import {COLUMN_CONFIG_TYPE} from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
+import {SourceResponse} from "../../model/response/order/source.response";
+import {getListAllSourceRequest} from "../../domain/actions/product/source.action";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];
@@ -96,6 +98,10 @@ const Customer = () => {
       assign_store_ids: [],
       store_ids: [],
       source_ids: [],
+      source_of_first_order_ids: [],
+      source_of_last_order_ids: [],
+      first_order_type: null,
+      last_order_type: null,
       channel_ids: [],
       day_of_birth_from: undefined,
       day_of_birth_to: undefined,
