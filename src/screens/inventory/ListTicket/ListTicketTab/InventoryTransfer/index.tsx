@@ -130,6 +130,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
 
+  const [loadingBtn, setLoadingBtn] = useState(false);
   const [tableLoading, setTableLoading] = useState(false);
   const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
@@ -151,6 +152,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   });
   const printContentCallback = useCallback(
     (printContent: Array<PrinterInventoryTransferResponseModel>) => {
+      setTableLoading(false);
       if (!printContent || printContent.length === 0) return;
       const textResponse = printContent.map((single) => {
         return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
@@ -486,6 +488,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }, [selectedRowKeys])
 
   const onDeleteTicket = async (value: string | undefined) => {
+    setLoadingBtn(true);
     const ids = selectedRowKeys.map((i) => {
       return {
         id: i,
@@ -677,6 +680,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   );
 
   const dataCancelCallback = (data: any) => {
+    setLoadingBtn(false);
     setTableLoading(false);
     if (data.code === HttpStatus.SUCCESS) {
       setSelectedRowKeys([]);
@@ -745,6 +749,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         showWarning("Cần chọn ít nhất một phiếu chuyển.");
         return;
       }
+
+      // setLoad
 
       switch (index) {
         case ACTIONS_INDEX.PRINT_TICKET:
@@ -1021,6 +1027,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         </div>
       </div>
       <InventoryFilters
+        isLoadingAction={tableLoading}
         activeTab={activeTab}
         accounts={accounts}
         params={params}
@@ -1130,6 +1137,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       {isDeleteTicket && (
         <DeleteTicketModal
           onOk={onDeleteTicket}
+          loading={loadingBtn}
           onCancel={() => setIsDeleteTicket(false)}
           visible={isDeleteTicket}
           icon={WarningRedIcon}
