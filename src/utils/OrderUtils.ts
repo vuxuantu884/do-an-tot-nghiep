@@ -189,11 +189,11 @@ export const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
 }
 
 export const isFulfillmentActive = (
-  fulfillments?: FulFillmentResponse[] | null
+  fulfillments?: FulFillmentResponse[] | null | any
 ) => {
   if (!fulfillments) return undefined; //không tìm thấy ffm
 
-  let fulfillmentsExitsShipment = fulfillments.filter((p) => p.shipment);
+  let fulfillmentsExitsShipment = fulfillments.filter((p:any) => p.shipment);
 
   const sortedFulfillments = sortFulfillments(fulfillmentsExitsShipment);
   return sortedFulfillments[0];

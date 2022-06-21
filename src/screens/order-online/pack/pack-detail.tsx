@@ -23,6 +23,7 @@ import './styles.scss';
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import PackDetailBottomBar from "./detail/pack-detail-bottom-bar";
+import { isFulfillmentActive } from "utils/OrderUtils";
 
 type PackParam = {
   id: string;
@@ -55,8 +56,10 @@ const PackDetail: React.FC = () => {
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
   const fetchProductData = useCallback((storeId:number, order : GoodsReceiptsOrder[])=>{
-
-    let listVariant :OrderLineItemResponse[] =flattenArray(order.map(p=>p.fulfillments?.map(p1=>p1.items)));
+    let listVariant :OrderLineItemResponse[] =flattenArray(order.map((p)=>{
+      return isFulfillmentActive(p.fulfillments)?.items
+    }));
+    
     let uniqueListVariant : OrderLineItemResponse[]=[];
 
     listVariant.forEach((itemVariant, i)=>{
@@ -142,16 +145,14 @@ const PackDetail: React.FC = () => {
 
             let _itemProduct: FulfillmentsItemModel[] = [];
             
-            if (itemOrder.fulfillments && itemOrder.fulfillments.length !== 0) {
-              let indexFFM = itemOrder.fulfillments?.length - 1;// xác định fulfillments cuối cùng. xử dụng cho case hiện tại-> 1 đơn hàng có 1 fulfillments
-              let itemFFM = itemOrder.fulfillments[indexFFM];
-
-              total_quantity += itemFFM.total_quantity ? itemFFM.total_quantity : 0;
-              total_price += itemFFM.total ? itemFFM.total : 0;
+            let fulfillments = isFulfillmentActive(itemOrder.fulfillments);
+            if (fulfillments) {
+              total_quantity += fulfillments.total_quantity ? fulfillments.total_quantity : 0;
+              total_price += fulfillments.total ? fulfillments.total : 0;
               postage += itemOrder?.shipping_fee_informed_to_customer ? itemOrder.shipping_fee_informed_to_customer : 0;
-              ffrmCode = itemFFM.code;
-              trackingCode = itemFFM.shipment?.tracking_code;
-              itemFFM.items.forEach((itemProduct) => {
+              ffrmCode = fulfillments.code;
+              trackingCode = fulfillments.shipment?.tracking_code;
+              fulfillments.items.forEach((itemProduct) => {
                 _itemProduct.push({
                   sku: itemProduct.sku,
                   product_id: itemProduct.product_id,
@@ -198,8 +199,6 @@ const PackDetail: React.FC = () => {
   const handleDeleteFile = () => { };
 
   const handleAddOrderInPack = () => { };
-
-  const handleSearchOrder = (value: any) => { };
 
   return (
     <ContentContainer

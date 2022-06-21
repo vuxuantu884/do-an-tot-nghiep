@@ -8,9 +8,8 @@ import {
   Input,
   Button,
   FormInstance,
-  Table,
 } from "antd";
-import { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ContentContainer from "component/container/content.container";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import UrlConfig from "config/url.config";
@@ -33,11 +32,22 @@ import { StyledComponent } from "./styles";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { getFullfilmentPacked, getFullfilmentReturning, bolFullfilmentShiping, insertArray } from "./pack-utils";
+import { PagingParam, ResultPaging } from "model/paging";
+import { flatDataPaging } from "utils/Paging";
+import { isFulfillmentActive } from "utils/OrderUtils";
 
 const { Item } = Form;
 type PackParam = {
   id: string;
 };
+
+const resultPagingDefault: ResultPaging = {
+  currentPage: 1,
+  lastPage: 1,
+  perPage: 30,
+  total: 0,
+  result: []
+}
 
 var barcode = "";
 
@@ -55,9 +65,14 @@ const PackUpdate: React.FC = () => {
   >([]);
   // const [orderList, setOrderList] = useState<OrderResponse[]>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [selectedRowCode, setSelectedRowCode] = useState([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [selectedRowOrderId, setSelectedRowOrderId] = useState([]);
+  const [selectedRowCode, setSelectedRowCode] = useState<string[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
+  const [selectedRowOrderId, setSelectedRowOrderId] = useState<number[]>([]);
+  const [pagingParam, setPagingParam] = useState<PagingParam>({
+    currentPage: resultPagingDefault.currentPage,
+    perPage: resultPagingDefault.perPage
+  });
+  const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
   const actions: Array<MenuAction> = [
     {
@@ -86,14 +101,13 @@ const PackUpdate: React.FC = () => {
         let product: VariantModel[] = [];
         let ship_price = 0;
         let total_price = 0;
-        let ffrmCode = null;
 
-        let fulfillments = itemOrder.fulfillments
+        let fulfillments = isFulfillmentActive(itemOrder.fulfillments);
 
         ship_price = itemOrder?.shipping_fee_informed_to_customer || 0;
-        total_price = (fulfillments && fulfillments[0].total) || 0;
+        total_price = (fulfillments && fulfillments.total) || 0;
 
-        fulfillments && fulfillments[0].items.forEach((itemProduct) => {
+        fulfillments && fulfillments.items.forEach((itemProduct) => {
           product.push({
             sku: itemProduct.sku,
             product_id: itemProduct.product_id,
@@ -111,7 +125,7 @@ const PackUpdate: React.FC = () => {
           key: index,
           order_id: itemOrder.id ? itemOrder.id : 0,
           order_code: itemOrder.code ? itemOrder.code : "",
-          fulfillment_code: ffrmCode,
+          fulfillment_code: fulfillments?.code,
           customer_id: itemOrder.customer_id || 0,
           customer_name: itemOrder.shipping_address ? itemOrder.shipping_address.name : "",
           customer_phone: itemOrder.shipping_address
@@ -129,18 +143,37 @@ const PackUpdate: React.FC = () => {
     }
   }, [packDetail]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const rowSelection = {
-    selectedRowKeys: selectedRowKeys,
-    onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
-      const keys = selectedRows.map((row: any) => row.key);
-      const codes = selectedRows.map((row: any) => row.fulfillment_code);
-      const orderIds = selectedRows.map((row: any) => row.order_id);
-      console.log(selectedRows);
-      setSelectedRowKeys(keys);
-      setSelectedRowCode(codes);
-      setSelectedRowOrderId(orderIds);
+  const onSelectedChange = (selectedRow: GoodsReceiptsInfoOrderModel[], selected?: boolean, changeRow?: any[]) => {
+    let selectedRowKeysCopy: number[] = [...selectedRowKeys];
+    let selectedRowOrderIdCopy: number[] = [...selectedRowOrderId];
+    let selectedRowCodeCopy:string[]=[...selectedRowCode]
+
+    if (selected === true) {
+      changeRow?.forEach((data, index) => {
+        let indexItem = selectedRowKeys.findIndex((p) => p === data.key)
+        if (indexItem === -1) {
+          selectedRowKeysCopy.push(data.key);
+          selectedRowOrderIdCopy.push(data.order_id);
+          selectedRowCodeCopy.push(data.fulfillment_code);
+        }
+      })
     }
+    else {
+      selectedRowKeys.forEach((data, index) => {
+        let indexItem = changeRow?.findIndex((p) => p.key === data);
+
+        if (indexItem !== -1) {
+          let i = selectedRowKeysCopy.findIndex((p) => p === data);
+          selectedRowKeysCopy.splice(i, 1);
+          selectedRowOrderIdCopy.splice(i, 1);
+          selectedRowCodeCopy.splice(i, 1);
+        }
+      })
+    }
+    
+    setSelectedRowOrderId([...selectedRowOrderIdCopy]);
+    setSelectedRowKeys([...selectedRowKeysCopy]);
+    setSelectedRowCode([...selectedRowCodeCopy]);
   };
 
   const onMenuClick = useCallback(
@@ -432,6 +465,16 @@ const PackUpdate: React.FC = () => {
     }
   }, [eventBarcodeOrder]);
 
+  useEffect(() => {
+    if (!goodsReceiptsInfoOrderModel || (goodsReceiptsInfoOrderModel && goodsReceiptsInfoOrderModel.length <= 0)) {
+      setResultPaging(resultPagingDefault)
+    }
+    else {
+      let result = flatDataPaging(goodsReceiptsInfoOrderModel, pagingParam)
+      setResultPaging(result);
+    }
+  }, [goodsReceiptsInfoOrderModel, pagingParam])
+
   return (
     <StyledComponent>
       <ContentContainer
@@ -555,7 +598,7 @@ const PackUpdate: React.FC = () => {
               </div>
             </div>
           </div>
-          <Table
+          {/* <Table
             rowSelection={{
               type: "checkbox",
               ...rowSelection,
@@ -563,7 +606,29 @@ const PackUpdate: React.FC = () => {
             bordered
             columns={columns}
             dataSource={goodsReceiptsInfoOrderModel}
-          //key={Math.random()}
+          /> */}
+
+          <CustomTable
+            bordered
+            isRowSelection
+            pagination={{
+              pageSize: resultPaging.perPage,
+              total: resultPaging.total,
+              current: resultPaging.currentPage,
+              showSizeChanger: true,
+              onChange: (page, size) => {
+                console.log("size", size)
+                setPagingParam({ perPage: size || 10, currentPage: page })
+              },
+              onShowSizeChange: (page, size) => {
+                setPagingParam({ perPage: size || 10, currentPage: page })
+              },
+            }}
+            onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+            selectedRowKey={selectedRowKeys}
+            dataSource={resultPaging.result}
+            columns={columns}
+            rowKey={(item: any) => item.key}
           />
         </Card>
       </ContentContainer>

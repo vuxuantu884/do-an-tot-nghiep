@@ -1,6 +1,6 @@
-import { Button, Card, Table, Input, Form, FormInstance } from "antd";
+import { Button, Card, Input, Form, FormInstance } from "antd";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
-import { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { FulfillmentsItemModel, GoodsReceiptsOrderListModel } from "model/pack/pack.model";
 import React, { createRef, useCallback, useEffect, useState } from "react";
@@ -22,6 +22,8 @@ import { generateQuery } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { HttpStatus } from "config/http-status.config";
+import { PagingParam, ResultPaging } from "model/paging";
+import { flatDataPaging } from "utils/Paging";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 // import { changeOrderStatusToPickedService } from "service/order/order.service";
 
@@ -75,6 +77,14 @@ const actions: Array<MenuAction> = [
 //   detail: "detail"
 // }
 
+const resultPagingDefault: ResultPaging = {
+  currentPage: 1,
+  lastPage: 1,
+  perPage: 30,
+  total: 0,
+  result: []
+}
+
 var barcode: string = "";
 
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
@@ -84,12 +94,11 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   const history = useHistory();
 
   //Ref
-  const printElementRef = React.useRef(null);
   const searchTermRef = createRef<Input>();
 
   const [dataPackOrderList, setDataPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
-  const [selectedRowKeys, setSelectedRowKeys] = useState([]);
-  const [selectedRowOrderId, setSelectedRowOrderId] = useState([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
+  const [selectedRowOrderId, setSelectedRowOrderId] = useState<number[]>([]);
 
   // const [htmlContent, setHtmlContent] = useState("");
 
@@ -98,6 +107,12 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   // });
   const [statusExport, setStatusExport] = useState<number>(1);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
+
+  const [pagingParam, setPagingParam] = useState<PagingParam>({
+    currentPage: resultPagingDefault.currentPage,
+    perPage: resultPagingDefault.perPage
+  });
+  const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
   const handleSearchOrder = useCallback(
     (query?: string) => {
@@ -146,10 +161,10 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
-      if (newNote && newNote.length > 255) {
-        showError("độ dài kí tự phải từ 0 đến 255");
-        return;
-      }
+      // if (newNote && newNote.length > 255) {
+      //   showError("độ dài kí tự phải từ 0 đến 255");
+      //   return;
+      // }
       let params: any = {};
       if (noteType === "note") {
         params.note = newNote;
@@ -166,7 +181,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   useEffect(() => {
     if (packOrderList)
-      setDataPackOrderList(packOrderList);
+      setDataPackOrderList([...packOrderList]);
   }, [packOrderList]);
 
   const column: Array<ICustomTableColumType<GoodsReceiptsOrderListModel>> = [
@@ -410,29 +425,6 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               break;
             }
 
-            // packDetail.orders?.forEach((order) => {
-            //   if (selectedRowKeys.some((p: any) => p === order.id)) {
-            //     order.fulfillments?.forEach((ffm) => {
-            //       fullfilmentPrint.push(ffm.id);
-            //     })
-            //   }
-            // })
-            // dispatch(showLoading());
-            // changeOrderStatusToPickedService(fullfilmentPrint)
-            //   .then((response) => {
-            //     if (isFetchApiSuccessful(response)) {
-            //       window.location.reload();
-            //     } else {
-            //       handleFetchApiError(response, "In phiếu giao hàng", dispatch)
-            //     }
-            //   })
-            //   .catch((error) => {
-            //     console.log("error", error);
-            //   })
-            //   .finally(() => {
-            //     dispatch(hideLoading());
-            //   });
-
             const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
             window.open(printPreviewUrl);
             break;
@@ -486,19 +478,6 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     });
   }, [listExportFile]);
 
-  const rowSelection = {
-    selectedRowKeys: selectedRowKeys,
-    onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
-      const keys = selectedRows.map((row: any) => row.key);
-      //const codes = selectedRows.map((row: any) => row.fulfillment_code);
-      const orderIds = selectedRows.map((row: any) => row.order_id);
-      console.log(selectedRows);
-      setSelectedRowKeys(keys);
-      // setSelectedRowCode(codes);
-      setSelectedRowOrderId(orderIds);
-    }
-  };
-
   useEffect(() => {
     if (listExportFile.length === 0 || statusExport === 3 || statusExport === 4) return;
     checkExportFile();
@@ -529,12 +508,51 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     }
   }, [searchTermRef])
 
+  const onSelectedChange = (selectedRow: GoodsReceiptsOrderListModel[], selected?: boolean, changeRow?: any[]) => {
+    let selectedRowKeysCopy: number[] = [...selectedRowKeys];
+    let selectedRowOrderIdCopy: number[] = [...selectedRowOrderId];
+    if (selected === true) {
+      changeRow?.forEach((data, index) => {
+        let indexItem = selectedRowKeys.findIndex((p) => p === data.key)
+        if (indexItem === -1) {
+          selectedRowKeysCopy.push(data.key);
+          selectedRowOrderIdCopy.push(data.order_id);
+        }
+      })
+    }
+    else {
+      selectedRowKeys.forEach((data, index) => {
+        let indexItem = changeRow?.findIndex((p) => p.key === data);
+
+        if (indexItem !== -1) {
+          let i = selectedRowKeysCopy.findIndex((p) => p === data);
+          selectedRowKeysCopy.splice(i, 1);
+          selectedRowOrderIdCopy.splice(i, 1);
+        }
+      })
+    }
+
+    setSelectedRowOrderId([...selectedRowOrderIdCopy]);
+    setSelectedRowKeys([...selectedRowKeysCopy]);
+  };
+
   useEffect(() => {
     window.addEventListener("keydown", handleEventKeydown);
     return () => {
       window.removeEventListener("keydown", handleEventKeydown);
     };
   }, [handleEventKeydown]);
+
+  useEffect(() => {
+    if (!dataPackOrderList || (dataPackOrderList && dataPackOrderList.length <= 0)) {
+      setResultPaging(resultPagingDefault)
+    }
+    else {
+      let result = flatDataPaging(dataPackOrderList, pagingParam)
+      setResultPaging(result);
+    }
+
+  }, [dataPackOrderList, pagingParam])
 
   return (
     <React.Fragment>
@@ -575,16 +593,28 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               </div>
             </div>
           </div>
-          <Table
-            dataSource={dataPackOrderList}
-            scroll={{ x: 1500 }}
-            columns={column}
-            //pagination={false}
+
+          <CustomTable
             bordered
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
+            isRowSelection
+            pagination={{
+              pageSize: resultPaging.perPage,
+              total: resultPaging.total,
+              current: resultPaging.currentPage,
+              showSizeChanger: true,
+              onChange: (page, size) => {
+                console.log("size",size)
+                setPagingParam({ perPage: size || 10, currentPage: page })
+              },
+              onShowSizeChange: (page, size) => {
+                setPagingParam({ perPage: size || 10, currentPage: page })
+              },
             }}
+            onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+            selectedRowKey={selectedRowKeys}
+            dataSource={resultPaging.result}
+            columns={column}
+            rowKey={(item: any) => item.key}
           />
         </Card>
       </StyledComponent>
