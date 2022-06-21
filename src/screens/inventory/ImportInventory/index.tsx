@@ -101,8 +101,10 @@ const UpdateTicket: FC = () => {
       if (!res.data) return;
       setData(res.data);
       setDataProcess(res.data.process);
-      setDataUploadError(!res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors);
 
+      const newDataUpdateError = !res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors;
+      downloadErrorDetail(newDataUpdateError)
+      setDataUploadError(newDataUpdateError)
       if (res.data.status !== 'FINISH') return;
       setFileId(null);
     });
@@ -160,7 +162,9 @@ const UpdateTicket: FC = () => {
         setFileId(res.data);
         setIsStatusModalVisible(true);
         setDataProcess(res.process);
-        setDataUploadError(!res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors);
+        const newDataUpdateError = !res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors;
+        downloadErrorDetail(newDataUpdateError)
+        setDataUploadError(newDataUpdateError)
       }
     }).catch( err => {
       showError(err);
@@ -191,7 +195,7 @@ const UpdateTicket: FC = () => {
     return e && e.fileList;
   };
 
-  const downloadErrorDetail = () => {
+  const downloadErrorDetail = (dataUploadError: any) => {
     if (!dataUploadError) return;
     let newDataUploadError = '';
 
@@ -502,7 +506,7 @@ const UpdateTicket: FC = () => {
                   <ul>
                     {
                       dataUploadError ? (
-                          <li><span className="danger">&#8226;</span><Text type="danger" style={{ cursor: "pointer" }} onClick={downloadErrorDetail}>Tải chi tiết lỗi</Text></li>
+                        <li><span className="danger">&#8226;</span><Text type="danger">Nhập file thất bại</Text></li>
                       ) : (
                         <li><span className="success">&#8226;</span><Text type="success">{data?.status === 'FINISH' ? 'Thành công' : 'Đang xử lý...'}</Text></li>
                       )
