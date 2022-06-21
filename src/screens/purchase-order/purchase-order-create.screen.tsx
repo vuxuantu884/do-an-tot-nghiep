@@ -256,6 +256,7 @@ const POCreateScreen: React.FC = () => {
             payment_note: null,
             payment_refunds: null,
             receive_status: POStatus.DRAFT,
+            reference: null,
           }
           formMain.setFieldsValue(params);
         }
