@@ -65,7 +65,7 @@ const ProductUpdateScreen = React.lazy(
   () => import("screens/products/product/ProductUpdateScreen")
 );
 const ProductImportScreen = React.lazy(
-  () => import("screens/products/product/ImportScreen")
+  () => import("screens/products/product/ProductImportScreen")
 );
 const ProductBarcodeScreen = React.lazy(
   () => import("screens/products/product/BarcodeProductScreen")
