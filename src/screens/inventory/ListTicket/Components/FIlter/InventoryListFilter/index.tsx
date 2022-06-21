@@ -36,6 +36,7 @@ type OrderFilterProps = {
   params: InventoryTransferSearchQuery;
   actions: Array<MenuAction>;
   isLoading?: Boolean;
+  isLoadingAction?: boolean;
   accounts: Array<AccountResponse> | undefined;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery| Object) => void;
@@ -55,6 +56,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
     params,
     actions,
     isLoading,
+    isLoadingAction,
     onMenuClick,
     onClearFilter,
     onFilter,
@@ -434,7 +436,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (
   return (
     <InventoryFiltersWrapper>
       <div className="custom-filter">
-      <CustomFilter onMenuClick={onActionClick} menu={actions}>
+      <CustomFilter onMenuClick={onActionClick} menu={actions} actionDisable={isLoadingAction}>
         <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
           <Item
             name="from_store_id"
