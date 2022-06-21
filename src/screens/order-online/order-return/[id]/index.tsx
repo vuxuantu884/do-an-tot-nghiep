@@ -151,6 +151,10 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 if (_data?.payment_status) {
                   setReturnPaymentStatus(_data?.payment_status);
                 }
+                setRefund({
+                  money: _data.money_refund || 0,
+                  point: _data.point_refund || 0,
+                })
               }
               setCountChangeSubStatus(countChangeSubStatus + 1);
             }
