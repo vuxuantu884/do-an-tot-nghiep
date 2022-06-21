@@ -13,7 +13,7 @@ import {
   inventoryGetApi,
   logisticGateAwayGetApi,
 } from "service/inventory";
-import { showError } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   getStoreApi,
   getVariantByStoreApi,
@@ -31,7 +31,10 @@ import {
   getInfoDeliveryFees,
   inventorGetCopyDetailApi,
   cancelShipmentInventoryTransfer,
-  exportShipmentInventoryTransfer, exportMultipleInventoryTransfer, cancelMultipleInventoryTransfer,
+  exportShipmentInventoryTransfer,
+  exportMultipleInventoryTransfer,
+  cancelMultipleInventoryTransfer,
+  createInventoryTransferRequest, acceptInventoryTransfer,
 } from "service/inventory/transfer/index.service";
 import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
@@ -344,6 +347,32 @@ function* createInventoryTransferSaga(action: YodyAction) {
   }
 }
 
+function* createInventoryTransferRequestSaga(action: YodyAction) {
+  let { data, onResult } = action.payload;
+
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      createInventoryTransferRequest,
+      data
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* createInventoryTransferShipmentSaga(action: YodyAction) {
   let { pathVariantId, body, onResult } = action.payload;
 
@@ -504,6 +533,33 @@ function* exportShipmentInventoryTransferSaga(action: YodyAction) {
   }
 }
 
+function* acceptInventoryTransferSaga(action: YodyAction) {
+  let { transferId, onResult } = action.payload;
+
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(
+      acceptInventoryTransfer,
+      transferId,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        showSuccess("Xác nhận chuyển kho thành công");
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 function* exportMultipleTransferSaga(action: YodyAction) {
   let { data, onResult } = action.payload;
 
@@ -577,7 +633,9 @@ export function* inventoryTransferSaga() {
   yield takeLatest(InventoryType.GET_INFO_FEES_INVENTORY, InfoFeesSaga);
   yield takeLatest(InventoryType.DELETE_INVENTORY_TRANSFER, inventoryTransferDeleteSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER, createInventoryTransferSaga);
+  yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER_REQUEST, createInventoryTransferRequestSaga);
   yield takeLatest(InventoryType.CANCEL_SHIPMENT_INVENTORY, cancelShipmentInventoryTransferSaga);
+  yield takeLatest(InventoryType.ACCEPT_INVENTORY, acceptInventoryTransferSaga);
   yield takeLatest(InventoryType.EXPORT_INVENTORY, exportShipmentInventoryTransferSaga);
   yield takeLatest(InventoryType.EXPORT_MULTIPLE_INVENTORY, exportMultipleTransferSaga);
   yield takeLatest(InventoryType.CANCEL_MULTIPLE_TICKET_TRANSFER, cancelMultipleTransferSaga);

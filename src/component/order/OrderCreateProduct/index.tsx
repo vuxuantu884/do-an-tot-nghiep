@@ -601,8 +601,17 @@ function OrderCreateProduct(props: PropTypes) {
 				setIsLineItemChanging(false)
 				return;
 			}
-			if (value !== null && value !== _items[index].price) {
-				_items[index].price = value;
+			if(value) {
+				if(value !== _items[index].price) {
+					_items[index].price = value;
+					handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);
+				}
+			} else {
+				_items[index].price = 0;
+				_items[index].discount_items = [];
+				_items[index].discount_amount = 0;
+				_items[index].discount_value = 0;
+				_items[index].discount_rate = 0;
 				handleDelayCalculateWhenChangeOrderInput(lineItemPriceInputTimeoutRef, _items);
 			}
 		}

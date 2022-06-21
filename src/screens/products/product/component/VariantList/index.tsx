@@ -5,7 +5,7 @@ import classNames from "classnames";
 import ActionButton from "component/table/ActionButton";
 import { ProductResponse, VariantResponse } from "model/product/product.model";
 import React, { useCallback, useLayoutEffect, useRef, useState } from "react";
-import { formatCurrency, formatCurrencyForProduct, Products } from "utils/AppUtils";
+import { formatCurrencyForProduct, Products } from "utils/AppUtils";
 import { StyledComponent } from "./style";
 
 interface VariantListProps {

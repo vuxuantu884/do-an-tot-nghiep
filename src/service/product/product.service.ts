@@ -161,3 +161,9 @@ export const producImagetUploadApi = (
     headers: { "content-type": "multipart/form-data" },
   });
 };
+
+export const getFile = (
+  code: string
+): Promise<BaseResponse<JobResponse>> => {
+  return BaseAxios.get(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs/${code}`);
+};

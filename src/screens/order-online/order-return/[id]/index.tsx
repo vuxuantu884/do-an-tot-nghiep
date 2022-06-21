@@ -145,6 +145,16 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 let _data = { ...data };
                 setIsReceivedReturnProducts(true);
                 setOrderDetail(_data);
+                if(_data.payments) {
+                  setPayments(_data.payments);
+                }
+                if (_data?.payment_status) {
+                  setReturnPaymentStatus(_data?.payment_status);
+                }
+                setRefund({
+                  money: _data.money_refund || 0,
+                  point: _data.point_refund || 0,
+                })
               }
               setCountChangeSubStatus(countChangeSubStatus + 1);
             }
@@ -525,12 +535,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
       <ContentContainer
         isLoading={loadingData}
         isError={isError}
-        title="Trả hàng cho đơn hàng"
+        title= {
+          OrderDetail?.code
+          ? `Chi tiết đơn trả hàng ${OrderDetail?.code}`
+          : "Đang tải dữ liệu..."
+        }
         breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: `${UrlConfig.HOME}`,
-          },
           {
             name: "Danh sách đơn trả hàng",
             path: isOrderFromPOS(OrderDetail) ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}` : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,

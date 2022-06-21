@@ -16,7 +16,7 @@ import {
   AutoComplete,
   Spin,
 } from "antd";
-import {DownOutlined, FilterOutlined, LoadingOutlined} from "@ant-design/icons";
+import {FilterOutlined, DownOutlined, LoadingOutlined, SettingOutlined} from "@ant-design/icons";
 
 import BaseFilter from "component/filter/base.filter";
 import CustomSelect from "component/custom/select.custom";
@@ -64,8 +64,9 @@ type EcommerceOrderFilterProps = {
   isLoading?: boolean | undefined;
   onFilter?: (values: OrderSearchQuery| Object) => void;
   setEcommerceShopListByAddress: (item: any) => void;
-
   onClearFilter?: () => void;
+  onShowColumnSetting?: () => void;
+  setListShopIdEcommerce: (item: any) => void;
 };
 
 const { Item } = Form;
@@ -97,7 +98,9 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     isLoading,
     onClearFilter,
     onFilter,
-    setEcommerceShopListByAddress
+    setEcommerceShopListByAddress,
+    onShowColumnSetting,
+    setListShopIdEcommerce
 
   } = props;
 
@@ -418,6 +421,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     
     setEcommerceShopList(shopList);
     setEcommerceShopListByAddress(shopList)
+    setListShopIdEcommerce(shopList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -1140,23 +1144,25 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                   ))}
                 </Select>
               </Item>
+              <div className="buttonGroup">
+                  <Button
+                    type="primary"
+                    htmlType="submit"
+                    disabled={isLoading}
+                  >
+                    Lọc
+                  </Button>
 
-              <div style={{ marginRight: "10px"}}>
-                <Button
-                  type="primary"
-                  htmlType="submit"
-                  disabled={isLoading}
-                >
-                  Lọc
-                </Button>
-              </div>
-
-              <div style={{ marginRight: "10px"}}>
-                <Button
+                  <Button
                   icon={<FilterOutlined />}
                   onClick={openFilter}
                   disabled={isLoading}
-                />
+                  style={{ margin: '0 10px' }}
+                  >
+                    Thêm bộ lọc
+                  </Button>
+
+                  <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} />
               </div>
             </div>
 

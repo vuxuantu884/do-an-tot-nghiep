@@ -32,6 +32,8 @@ import {
 } from "domain/actions/order/order.action";
 import { getListSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 
 import useAuthorization from "hook/useAuthorization";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
@@ -91,7 +93,7 @@ import {
   sortFulfillments
 } from "utils/AppUtils";
 
-import { FulFillmentStatus, OrderStatus } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { dangerColor, primaryColor, successColor } from "utils/global-styles/variables";
 import { ORDER_EXPORT_TYPE, ORDER_SUB_STATUS } from "utils/Order.constants";
@@ -237,6 +239,8 @@ const EcommerceOrders: React.FC = () => {
     setSubStatus: "setSubStatus",
   };
 
+  const [listShopIdEcommerce, setListShopIdEcommerce] = useState<Array<any>>([]);
+
   //show inventory every store with product
   const [inventoryData, setInventoryData] = useState<AllInventoryProductInStore[]>([]);
   const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
@@ -269,6 +273,10 @@ const EcommerceOrders: React.FC = () => {
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
   >([]);
+
+  // cột column
+  const columnConfigType = COLUMN_CONFIG_TYPE.orderOnline
+  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(columnConfigType)
 
   const [data, setData] = useState<PageResponse<any>>({
     metadata: {
@@ -715,12 +723,13 @@ const EcommerceOrders: React.FC = () => {
     }
     return [
       {
-        title: "ID",
+        title: "ID đơn hàng",
         key: "order_id",
         visible: true,
         fixed: "left",
         className: "custom-shadow-td",
         width: 175,
+        align: "left",
         render: (data: any, item: OrderModel) => (
           <div>
             <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong>{data.code}</strong></Link>
@@ -738,6 +747,7 @@ const EcommerceOrders: React.FC = () => {
         key: "customer",
         visible: true,
         width: 160,
+        align: "left",
         render: (record) => 
           record.shipping_address ? (
             <div className="customer custom-td">
@@ -765,9 +775,15 @@ const EcommerceOrders: React.FC = () => {
       {
         title: (
           <div className="product-and-quantity-header">
-            <span className="product-name">Sản phẩm</span>
-            <span className="quantity">SL</span>
-            <span className="item-price">Giá</span>
+            <span className="product-name">
+              Sản phẩm
+              <span className="separator">, </span>
+              </span>
+            <span className="quantity quantityWidth">
+              SL
+              <span className="separator">, </span>
+            </span>
+            <span className="price price-title priceWidth">Giá</span>
           </div>
         ),
         dataIndex: "items",
@@ -779,7 +795,7 @@ const EcommerceOrders: React.FC = () => {
               {items.map((item: any, index: number) => {
                 return (
                   <div className="item-custom-td" key={index}>
-                    <div className="product">
+                    <div className="product productNameWidth 2">
                       <Link
                         target="_blank"
                         to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
@@ -788,8 +804,8 @@ const EcommerceOrders: React.FC = () => {
                         {item.variant}
                       </Link>
                     </div>
-                    <div className="quantity">{item.quantity}</div>
-                    <div className="item-price">
+                    <div className="quantity quantityWidth">{item.quantity}</div>
+                    <div className="price priceWidth">
                       <Tooltip title="Giá sản phẩm">
                         <NumberFormat
                           value={item.price}
@@ -828,10 +844,11 @@ const EcommerceOrders: React.FC = () => {
         key: "customer_amount_money",
         visible: true,
         width: 95,
+        align: "left",
         render: (record: any) => {
           const discountAmount = record.discounts && record.discounts[0]?.amount;
           return (
-            <div style={{ textAlign: "right" }}>
+            <div style={{ textAlign: "left" }}>
               <Tooltip title="Tổng tiền">
                 <NumberFormat
                   value={record.total_line_amount_after_line_discount}
@@ -868,12 +885,13 @@ const EcommerceOrders: React.FC = () => {
         },
       },
       {
-        title: "TT Xử lý",
+        title: "Trạng thái",
         dataIndex: "status",
         key: "status",
         visible: true,
         width: 145,
         className: "orderStatus",
+        align: "left",
         render: (value: string, record: OrderExtraModel) => {
           if (!record || !status_order) {
             return null;
@@ -1041,7 +1059,7 @@ const EcommerceOrders: React.FC = () => {
         key: "delivery_service",
         visible: true,
         width: 130,
-        align: "center",
+        align: "left",
         render: (order: any) => {
           const shipment = order.fulfillments && order.fulfillments[0] && order.fulfillments[0].shipment;
           return (
@@ -1087,7 +1105,7 @@ const EcommerceOrders: React.FC = () => {
         title: "Biên bản bàn giao",
         dataIndex: "goods_receipt_id",
         key: "goods_receipt_id",
-        align: "center",
+        align: "left",
         visible: true,
         width: 140,
         render: (value, record: OrderModel) => {
@@ -1114,6 +1132,7 @@ const EcommerceOrders: React.FC = () => {
         title: "Địa chỉ giao hàng",
         key: "shipping_address",
         visible: true,
+        align: "left",
         width: 200,
         render: (item: any) => {
           return (
@@ -1126,7 +1145,7 @@ const EcommerceOrders: React.FC = () => {
         dataIndex: "payment_status",
         key: "payment_status",
         visible: true,
-        align: "center",
+        align: "left",
         width: 100,
         render: (value: string) => {
           const processIcon = convertProgressStatus(value);
@@ -1138,7 +1157,7 @@ const EcommerceOrders: React.FC = () => {
         dataIndex: "sub_status_code",
         key: "sub_status_code",
         visible: true,
-        align: "center",
+        align: "left",
         width: 150,
         render: (value: any, item: any) => (
           renderOrderReturn(item)
@@ -1148,7 +1167,7 @@ const EcommerceOrders: React.FC = () => {
         title: "NV bán hàng",
         key: "assignee",
         visible: true,
-        align: "center",
+        align: "left",
         width: 200,
         render: (data) => <div>{`${data.assignee_code} - ${data.assignee}`}</div>,
       },
@@ -1157,7 +1176,7 @@ const EcommerceOrders: React.FC = () => {
         dataIndex: "finished_on",
         key: "finished_on",
         visible: true,
-        align: "center",
+        align: "left",
         width: 150,
         render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on, "DD/MM/YYYY")}</div>,
       },
@@ -1166,14 +1185,15 @@ const EcommerceOrders: React.FC = () => {
         dataIndex: "cancelled_on",
         key: "cancelled_on",
         visible: true,
-        align: "center",
+        align: "left",
+        width: 100,
         render: (cancelled_on) => (
           <div>{ConvertUtcToLocalDate(cancelled_on, "DD/MM/YYYY")}</div>
         ),
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.items.length, deliveryServices, editNote, status_order]);
+  }, [data.items.length, deliveryServices, editNote, status_order]);  
 
   useEffect(() => {
     if (columns.length === 0) {
@@ -1181,6 +1201,8 @@ const EcommerceOrders: React.FC = () => {
     }
   }, [columns, initColumns, setColumns]);
   // handle set table columns
+
+  useSetTableColumns(columnConfigType, tableColumnConfigs, initColumns, setColumns)
 
   const onSelectTableRow = useCallback((selectedRowTable) => {
     setSelectedRow(selectedRowTable);
@@ -1383,7 +1405,7 @@ const EcommerceOrders: React.FC = () => {
               showError(responseData.api_error);
             }
           } else {
-            const progressCount = responseData.total_created + responseData.total_updated + responseData.total_error;
+            const progressCount = responseData.total_created + responseData.total_updated + responseData.total_success + responseData.total_error;
             const percent = Math.floor(progressCount / responseData.total * 100);
             setCommonProcessPercent(percent);
           }
@@ -1551,12 +1573,23 @@ const EcommerceOrders: React.FC = () => {
       selectedRowKeys.forEach(idSelected => {
         const orderMatched = data?.items.find(i => i.id === idSelected)
         if (orderMatched) {
+
+          const shop_id = listShopIdEcommerce.filter((shop) => {
+              const sliceShopId = shop.id.slice(0, -4);
+              const sliceEcommerceShopId = orderMatched.ecommerce_shop_id.toString().slice(0, -4);
+
+              return sliceShopId === sliceEcommerceShopId
+          })
+
+          const [ shopId ] = shop_id?.map((shop: any) => shop.id)
+
+
           const orderRequest = {
             "order_sn": orderMatched.reference_code,
             "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
             "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
             "ecommerce_id": getEcommerceIdByChannelId(orderMatched.channel_id),
-            "shop_id": orderMatched.ecommerce_shop_id.toString()
+            "shop_id": shopId
           }
           order_list.push(orderRequest)
         }
@@ -1565,7 +1598,7 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(true);
       dispatch(downloadPrintForm({order_list}, downloadEcommerceDeliveryNote))
     }
-  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
+  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items, listShopIdEcommerce]);
   // handle print ecommerce delivery note
 
   // handle print yody delivery note
@@ -1992,7 +2025,7 @@ const EcommerceOrders: React.FC = () => {
       return message
     }
   }
-
+  
   //get amout order success when preparation shopee
   useEffect(() => {
     const listOrderErrorMessage: any[] = []
@@ -2021,7 +2054,7 @@ const EcommerceOrders: React.FC = () => {
     };
     setPrams(dataQuery);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, location.search]);
+  }, [dispatch, location.search]);  
 
 
   return (
@@ -2061,21 +2094,22 @@ const EcommerceOrders: React.FC = () => {
           {(allowed: boolean) => (allowed ?
             <Card>
               <EcommerceOrderFilter
-                 actions={actions}
-                 shopeeActions={shopeeActions}
-                 lazadaActions={lazadaActions}
-                 onFilter={onFilter}
-                 isLoading={tableLoading}
-                 params={params}
-                 listSource={listSource}
-                 listStore={listStore}
-                 accounts={accounts}
-                 deliveryService={deliveryServices}
-                 listPaymentMethod={listPaymentMethod}
-                 subStatus={listOrderProcessingStatus}
-                 setEcommerceShopListByAddress={setEcommerceShopListByAddress}
-                 onClearFilter={() => onClearFilter()}
- 
+                actions={actions}
+                shopeeActions={shopeeActions}
+                lazadaActions={lazadaActions}
+                onFilter={onFilter}
+                isLoading={tableLoading}
+                params={params} 
+                listSource={listSource}
+                listStore={listStore}
+                accounts={accounts}
+                deliveryService={deliveryServices}
+                listPaymentMethod={listPaymentMethod}
+                subStatus={listOrderProcessingStatus}
+                setEcommerceShopListByAddress={setEcommerceShopListByAddress}
+                onClearFilter={() => onClearFilter()}
+                onShowColumnSetting={() => setShowSettingColumn(true)}
+                setListShopIdEcommerce={setListShopIdEcommerce}
               />
 
               <CustomTable
@@ -2083,7 +2117,7 @@ const EcommerceOrders: React.FC = () => {
                 rowSelectionRenderCell={rowSelectionRenderCell}
                 bordered
                 isLoading={tableLoading}
-                scroll={{ x: 2300 }}
+                scroll={{ x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1) }}
                 sticky={{ offsetScroll: 10, offsetHeader: 55 }}
                 pagination={
                   tableLoading
@@ -2188,11 +2222,11 @@ const EcommerceOrders: React.FC = () => {
         {showSettingColumn && (
           <ModalSettingColumn
             visible={showSettingColumn}
-            isSetDefaultColumn={true}
             onCancel={() => setShowSettingColumn(false)}
             onOk={(data) => {
               setShowSettingColumn(false);
               setColumns(data);
+              onSaveConfigTableColumn(data);
             }}
             data={columns}
           />

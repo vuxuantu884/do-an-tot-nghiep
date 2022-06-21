@@ -214,6 +214,8 @@ export interface InventoryTransferDetailItem {
   cancel_by: string;
   cancel_name: string;
   created_date: Date;
+  requested_date: Date;
+  confirmed_date: Date;
   updated_by: string;
   updated_name: string;
   updated_date: Date;

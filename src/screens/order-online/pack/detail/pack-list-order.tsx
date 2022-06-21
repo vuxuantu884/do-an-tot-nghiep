@@ -11,15 +11,12 @@ import EditNote from "screens/order-online/component/edit-note";
 // import { OrderModel } from "model/order/order.model";
 import { useDispatch } from "react-redux";
 import { updateOrderPartial } from "domain/actions/order/order.action";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import {
   FileExcelOutlined,
   PrinterOutlined,
-  ReconciliationOutlined,
 } from "@ant-design/icons";
-import { getPrintGoodsReceipts } from "domain/actions/goods-receipts/goods-receipts.action";
-import { useReactToPrint } from "react-to-print";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -31,37 +28,36 @@ import { HttpStatus } from "config/http-status.config";
 const { Item } = Form;
 type PackListOrderProps = {
   packOrderList: GoodsReceiptsOrderListModel[];
-  handleSearchOrder: (item: any) => void;
   packDetail: GoodsReceiptsResponse | undefined;
 };
 
-interface GoodReceiptPrint {
-  good_receipt_id: number;
-  html_content: string;
-  size: string;
-}
+// interface GoodReceiptPrint {
+//   good_receipt_id: number;
+//   html_content: string;
+//   size: string;
+// }
 
 const actions: Array<MenuAction> = [
-  {
-    id: 1,
-    name: "In biên bản đầy đủ",
-    icon: <PrinterOutlined />,
-  },
-  {
-    id: 2,
-    name: "In biên bản rút gọn",
-    icon: <PrinterOutlined />,
-  },
+  // {
+  //   id: 1,
+  //   name: "In biên bản đầy đủ",
+  //   icon: <PrinterOutlined />,
+  // },
+  // {
+  //   id: 2,
+  //   name: "In biên bản rút gọn",
+  //   icon: <PrinterOutlined />,
+  // },
   {
     id: 3,
     name: "Xuất excel đơn hàng trong biên bản",
     icon: <FileExcelOutlined />,
   },
-  {
-    id: 4,
-    name: "Thêm/xoá đơn hàng vào biên bản",
-    icon: <ReconciliationOutlined />,
-  },
+  // {
+  //   id: 4,
+  //   name: "Thêm/xoá đơn hàng vào biên bản",
+  //   icon: <ReconciliationOutlined />,
+  // },
   {
     id: 5,
     name: "In phiếu giao hàng",
@@ -74,50 +70,61 @@ const actions: Array<MenuAction> = [
   }
 ];
 
-const typePrint = {
-  simple: "simple",
-  detail: "detail"
-}
+// const typePrint = {
+//   simple: "simple",
+//   detail: "detail"
+// }
+
+var barcode: string = "";
 
 const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) => {
-  const { packOrderList, handleSearchOrder, packDetail } = props;
+  const { packOrderList, packDetail } = props;
   const dispatch = useDispatch();
   const formSearchOrderRef = createRef<FormInstance>();
   const history = useHistory();
 
-  //useRef
+  //Ref
   const printElementRef = React.useRef(null);
+  const searchTermRef = createRef<Input>();
 
   const [dataPackOrderList, setDataPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [selectedRowOrderId, setSelectedRowOrderId] = useState([]);
 
-  const [htmlContent, setHtmlContent] = useState("");
+  // const [htmlContent, setHtmlContent] = useState("");
 
-  const handlePrint = useReactToPrint({
-    content: () => printElementRef.current,
-  });
+  // const handlePrint = useReactToPrint({
+  //   content: () => printElementRef.current,
+  // });
   const [statusExport, setStatusExport] = useState<number>(1);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
 
-  const packOrderLists = useCallback(
-    (value: any) => {
-      let query: string = value?.search_term ? value?.search_term.trim() : "";
+  const handleSearchOrder = useCallback(
+    (query?: string) => {
 
       if (!query || query.length <= 0) {
         setDataPackOrderList([...packOrderList])
       } else {
         let newData: GoodsReceiptsOrderListModel[] = packOrderList.filter(function (el) {
           // return el.order_code.toLowerCase().indexOf(query.toLowerCase()) !== -1
-          return fullTextSearch(el.order_code, query)
-            || (el.ffm_code && fullTextSearch(el.ffm_code, query))
-            || (el.tracking_code && fullTextSearch(el.tracking_code, query));
+          return fullTextSearch(query, el.order_code)
+            || (el.ffm_code && fullTextSearch(query, el.ffm_code))
+            || (el.tracking_code && fullTextSearch(query, el.tracking_code));
         })
         setDataPackOrderList(newData);
       }
 
     },
     [packOrderList],
+  )
+
+  const handleSearch = useCallback(
+    () => {
+      let query: string = formSearchOrderRef.current?.getFieldValue("search_term");
+
+      handleSearchOrder(query)
+    },
+    [formSearchOrderRef, handleSearchOrder],
   )
 
   const onSuccessEditNote = useCallback(
@@ -139,7 +146,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   const editNote = useCallback(
     (newNote, noteType, orderID) => {
-      if(newNote && newNote.length>255){
+      if (newNote && newNote.length > 255) {
         showError("độ dài kí tự phải từ 0 đến 255");
         return;
       }
@@ -165,7 +172,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   const column: Array<ICustomTableColumType<GoodsReceiptsOrderListModel>> = [
     {
       title: "STT",
-      key:"key",
+      key: "key",
       dataIndex: "key",
       visible: true,
       width: "60px",
@@ -176,7 +183,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "ID đơn ",
-      key:"order_code",
+      key: "order_code",
       dataIndex: "order_code",
       visible: true,
       width: "130px",
@@ -193,7 +200,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Khách hàng",
-      key:"customer_name",
+      key: "customer_name",
       dataIndex: "customer_name",
       visible: true,
       width: "200px",
@@ -254,7 +261,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Phí thu khách",
-      key:"postage",
+      key: "postage",
       dataIndex: "postage",
       visible: true,
       width: "150",
@@ -265,7 +272,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Thanh toán",
-      key:"card_number",
+      key: "card_number",
       dataIndex: "card_number",
       visible: true,
       width: "150",
@@ -276,7 +283,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Trạng thái",
-      key:"sub_status",
+      key: "sub_status",
       dataIndex: "sub_status",
       visible: true,
       width: "150",
@@ -287,7 +294,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
     {
       title: "Ghi chú",
-      key:"note",
+      key: "note",
       dataIndex: "note",
       visible: true,
       width: "150",
@@ -323,20 +330,20 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     },
   ];
 
-  const handlePrintPack = useCallback((type: string) => {
-    if (packDetail) {
-      dispatch(getPrintGoodsReceipts([packDetail.id], type, (data: GoodReceiptPrint[]) => {
-        if (data && data.length > 0) {
-          setHtmlContent(data[0].html_content);
-          setTimeout(() => {
-            if (handlePrint) {
-              handlePrint();
-            }
-          }, 500);
-        }
-      }))
-    }
-  }, [dispatch, handlePrint, packDetail]);
+  // const handlePrintPack = useCallback((type: string) => {
+  //   if (packDetail) {
+  //     dispatch(getPrintGoodsReceipts([packDetail.id], type, (data: GoodReceiptPrint[]) => {
+  //       if (data && data.length > 0) {
+  //         setHtmlContent(data[0].html_content);
+  //         setTimeout(() => {
+  //           if (handlePrint) {
+  //             handlePrint();
+  //           }
+  //         }, 500);
+  //       }
+  //     }))
+  //   }
+  // }, [dispatch, handlePrint, packDetail]);
 
   const handleExportExcelOrderPack = useCallback(() => {
     let codes: any[] = [];
@@ -380,15 +387,15 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     (index: number) => {
       if (!packDetail) return;
       //let fullfilmentPrint: number[] = [];
-      let queryParam=  setParamPrint(index, selectedRowOrderId);
+      let queryParam = setParamPrint(index, selectedRowOrderId);
 
       switch (index) {
-        case 1:
-          handlePrintPack(typePrint.detail);
-          break;
-        case 2:
-          handlePrintPack(typePrint.simple);
-          break;
+        // case 1:
+        //   handlePrintPack(typePrint.detail);
+        //   break;
+        // case 2:
+        //   handlePrintPack(typePrint.simple);
+        //   break;
         case 3:
           handleExportExcelOrderPack();
           break;
@@ -402,7 +409,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               showError("Vui lòng chọn đơn hàng cần xử lí");
               break;
             }
-  
+
             // packDetail.orders?.forEach((order) => {
             //   if (selectedRowKeys.some((p: any) => p === order.id)) {
             //     order.fulfillments?.forEach((ffm) => {
@@ -425,7 +432,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
             //   .finally(() => {
             //     dispatch(hideLoading());
             //   });
-            
+
             const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
             window.open(printPreviewUrl);
             break;
@@ -436,7 +443,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               showError("Vui lòng chọn đơn hàng cần xử lí");
               break;
             }
-            
+
             const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
             window.open(printPreviewUrlExport);
             break;
@@ -446,7 +453,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           break;
       }
     },
-    [packDetail, selectedRowOrderId, handlePrintPack, handleExportExcelOrderPack, history, selectedRowKeys]
+    [packDetail, selectedRowOrderId, handleExportExcelOrderPack, history, selectedRowKeys]
   );
 
   const checkExportFile = useCallback(() => {
@@ -500,6 +507,35 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
 
+  const handleEventKeydown = useCallback((event: KeyboardEvent) => {
+    if (event.target instanceof HTMLInputElement) {
+      if (event.target.id === "search_term") {
+        console.log(event.key)
+        if (event.key !== "Enter") {
+          barcode = barcode + event.key;
+
+          handleDelayActionWhenInsertTextInSearchInput(
+            searchTermRef,
+            () => {
+              barcode = "";
+            },
+            300
+          );
+        } else if (barcode !== "") {
+          const searchTermElement: any = document.getElementById("search_term");
+          searchTermElement?.select();
+        }
+      }
+    }
+  }, [searchTermRef])
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleEventKeydown);
+    return () => {
+      window.removeEventListener("keydown", handleEventKeydown);
+    };
+  }, [handleEventKeydown]);
+
   return (
     <React.Fragment>
       <StyledComponent>
@@ -510,7 +546,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                 <div className="page-filter-left">
                   <ActionButton menu={actions} onMenuClick={onMenuClick} />
                 </div>
-                <Form layout="inline" ref={formSearchOrderRef} onFinish={packOrderLists}
+                <Form layout="inline" ref={formSearchOrderRef}
                   className="page-filter-right"
                   style={{ width: "40%", flexWrap: "nowrap", justifyContent: " flex-end" }}
                 >
@@ -519,14 +555,18 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                       style={{ width: "100%" }}
                       prefix={<img src={search} alt="" />}
                       placeholder="ID đơn hàng/Mã vận đơn"
+                      onChange={handleSearch}
+                      onFocus={() => {
+                        const searchTermElement: any = document.getElementById("search_term");
+                        searchTermElement?.select();
+                      }}
                     />
                   </Item>
 
                   <Item style={{ width: "62px", marginRight: 0 }}>
                     <Button
                       type="primary"
-                      htmlType="submit"
-                      onClick={handleSearchOrder}
+                      onClick={handleSearch}
                     >
                       Lọc
                     </Button>
@@ -549,7 +589,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
         </Card>
       </StyledComponent>
 
-      <div style={{ display: "none" }}>
+      {/* <div style={{ display: "none" }}>
         <div className="printContent" ref={printElementRef}>
           <div
             dangerouslySetInnerHTML={{
@@ -558,7 +598,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           >
           </div>
         </div>
-      </div>
+      </div> */}
     </React.Fragment>
   );
 };

@@ -18,7 +18,7 @@ import {
 import {
   checkIfFulfillmentCancelled, checkIfFulfillmentReturning, checkIfOrderCancelled, checkIfOrderFinished, checkIfOrderIsCancelledBy3PL,
   checkIfOrderReturned,
-  isDeliveryOrder
+  canCreateShipment
 } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
@@ -305,7 +305,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
   const checkIfShowButtonShipping = () => {
     return (
       isVisibleShipping === false &&
-      (isDeliveryOrder(props?.OrderDetailAllFulfillment?.fulfillments) ||
+      (canCreateShipment(props?.OrderDetailAllFulfillment?.fulfillments) ||
         checkIfOrderReturned(OrderDetailAllFulfillment) ||
         checkIfOrderIsCancelledBy3PL(OrderDetailAllFulfillment)) &&
       !isOrderFromPOS(OrderDetailAllFulfillment) &&

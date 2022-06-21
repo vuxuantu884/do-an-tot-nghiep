@@ -17,7 +17,7 @@ import {
   Space,
   Upload,
   Typography,
-  List, Modal, Progress,
+  List, Modal, Progress, Radio,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
@@ -55,6 +55,7 @@ const UpdateTicket: FC = () => {
   const [dataProcess, setDataProcess] = useState<ImportResponse>();
   const [fileId, setFileId] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
+  const [createType, setCreateType] = useState<string>('CREATE');
   const [dataUploadError, setDataUploadError] = useState<any>(null);
   const dispatch = useDispatch();
   const history = useHistory();
@@ -100,8 +101,10 @@ const UpdateTicket: FC = () => {
       if (!res.data) return;
       setData(res.data);
       setDataProcess(res.data.process);
-      setDataUploadError(!res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors);
 
+      const newDataUpdateError = !res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors;
+      downloadErrorDetail(newDataUpdateError)
+      setDataUploadError(newDataUpdateError)
       if (res.data.status !== 'FINISH') return;
       setFileId(null);
     });
@@ -149,8 +152,9 @@ const UpdateTicket: FC = () => {
 
     const formData = new FormData();
     formData.append('fileUpload', data.fileUpload);
-    formData.append('storeTransfer',JSON.stringify(data.storeTransfer));
-    formData.append('storeReceive',JSON.stringify(data.storeReceive));
+    formData.append('isTransferRequest', JSON.stringify(createType === 'REQUEST'));
+    if (data.storeTransfer) formData.append('storeTransfer', JSON.stringify(data.storeTransfer));
+    formData.append('storeReceive', JSON.stringify(data.storeReceive));
     formData.append('note', data.note ? data.note : '');
 
     BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData).then((res: any) => {
@@ -158,13 +162,15 @@ const UpdateTicket: FC = () => {
         setFileId(res.data);
         setIsStatusModalVisible(true);
         setDataProcess(res.process);
-        setDataUploadError(!res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors);
+        const newDataUpdateError = !res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors;
+        downloadErrorDetail(newDataUpdateError)
+        setDataUploadError(newDataUpdateError)
       }
     }).catch( err => {
       showError(err);
     })
 
-  },[stores]);
+  },[createType, stores]);
 
   const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
 
@@ -189,7 +195,7 @@ const UpdateTicket: FC = () => {
     return e && e.fileList;
   };
 
-  const downloadErrorDetail = () => {
+  const downloadErrorDetail = (dataUploadError: any) => {
     if (!dataUploadError) return;
     let newDataUploadError = '';
 
@@ -247,11 +253,23 @@ const UpdateTicket: FC = () => {
                   className={"inventory-selectors"}
                 >
                   <Row gutter={24}>
+                    <Col span={24}>
+                      <Radio.Group value={createType} onChange={(e) => setCreateType(e.target.value)}>
+                        <Radio value="CREATE">
+                          Tạo phiếu
+                        </Radio>
+                        <Radio value="REQUEST">
+                          Tạo yêu cầu
+                        </Radio>
+                      </Radio.Group>
+                    </Col>
+                  </Row>
+                  <Row gutter={24}>
                     <Col span={12}>
                       <Form.Item
                         name="from_store_id"
                         label={<b>Kho gửi</b>}
-                        rules={[
+                        rules={createType === 'CREATE' ? [
                           {
                             required: true,
                             message: "Vui lòng chọn kho gửi",
@@ -259,13 +277,25 @@ const UpdateTicket: FC = () => {
                           {
                             validator: validateStore,
                           },
-                        ]}
+                        ] : []}
                         labelCol={{ span: 24, offset: 0 }}
                       >
-                        {myStores.length > 0 ? (
+                        {myStores.length > 0 && createType === 'CREATE' ? (
                           <MyStoreSelect placeholder="Chọn kho gửi" optionFilterProp="children"/>
                         ) : (
-                          <Select placeholder="Chọn kho gửi">
+                          <Select
+                            placeholder="Chọn kho gửi"
+                            showArrow
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input: String, option: any) => {
+                              if (option.props.value) {
+                                return strForSearch(option.props.children).includes(strForSearch(input));
+                              }
+
+                              return false;
+                            }}
+                          >
                             {stores.map((item, index) => (
                               <Option
                                 key={"store_id" + index}
@@ -293,30 +323,32 @@ const UpdateTicket: FC = () => {
                         ]}
                         labelCol={{ span: 24, offset: 0 }}
                       >
-                        <Select
-                          placeholder="Chọn kho nhận"
-                          showArrow
-                          showSearch
-                          optionFilterProp="children"
-                          filterOption={(input: String, option: any) => {
-                            if (option.props.value) {
-                              return strForSearch(option.props.children).includes(strForSearch(input));
-                            }
+                        {myStores.length > 0 && createType === 'REQUEST' ? (
+                          <MyStoreSelect placeholder="Chọn kho nhận" optionFilterProp="children"/>
+                        ) : (
+                          <Select
+                            placeholder="Chọn kho nhận"
+                            showArrow
+                            showSearch
+                            optionFilterProp="children"
+                            filterOption={(input: String, option: any) => {
+                              if (option.props.value) {
+                                return strForSearch(option.props.children).includes(strForSearch(input));
+                              }
 
-                            return false;
-                          }}
-                        >
-                          {Array.isArray(stores) &&
-                            stores.length > 0 &&
-                            stores.map((item, index) => (
+                              return false;
+                            }}
+                          >
+                            {stores.map((item, index) => (
                               <Option
-                                key={"to_store_id" + index}
-                                value={item.id}
+                                key={"store_id" + index}
+                                value={item.id.toString()}
                               >
                                 {item.name}
                               </Option>
                             ))}
-                        </Select>
+                          </Select>
+                        )}
                       </Form.Item>
                     </Col>
                   </Row>
@@ -405,7 +437,7 @@ const UpdateTicket: FC = () => {
             centered
             onCancel={() => {setIsStatusModalVisible(false); setIsLoading(false);}}
             visible={isStatusModalVisible}
-            footer={[
+            footer={createType === 'CREATE' ? [
               <Button key="back" onClick={() => {setIsStatusModalVisible(false); setIsLoading(false);}}>
                 Huỷ
               </Button>,
@@ -427,6 +459,21 @@ const UpdateTicket: FC = () => {
                   });
                 }}>
                 Tạo và xác nhận
+              </Button>,
+            ] : [
+              <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
+                Huỷ
+              </Button>,
+              <Button
+                disabled={!!dataUploadError || data?.status !== 'FINISH'}
+                type="primary"
+                onClick={() => {
+                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
+                    data: data.data,
+                    isCreateRequest: true
+                  });
+                }}>
+                Yêu cầu
               </Button>,
             ]}
           >
@@ -459,7 +506,7 @@ const UpdateTicket: FC = () => {
                   <ul>
                     {
                       dataUploadError ? (
-                          <li><span className="danger">&#8226;</span><Text type="danger" style={{ cursor: "pointer" }} onClick={downloadErrorDetail}>Tải chi tiết lỗi</Text></li>
+                        <li><span className="danger">&#8226;</span><Text type="danger">Nhập file thất bại</Text></li>
                       ) : (
                         <li><span className="success">&#8226;</span><Text type="success">{data?.status === 'FINISH' ? 'Thành công' : 'Đang xử lý...'}</Text></li>
                       )

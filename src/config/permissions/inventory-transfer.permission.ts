@@ -3,6 +3,8 @@ const shipment_inventory_transfer = "inventory_transfer_shipment";
 
 export const InventoryTransferPermission = {
   create: `${inventory_transfer}_create`, //Tạo phiếu chuyển kho
+  request: `${inventory_transfer}_request`, //Tạo phiếu chuyển kho
+  accept: `${inventory_transfer}_accept_request`, // Xác nhận
   update:`${inventory_transfer}_update`, //Sửa phiếu chuyển kho
   cancel:`${inventory_transfer}_cancel`, //Hủy phiếu chuyển kho
   read:`${inventory_transfer}_read`, //Xem phiếu chuyển kho

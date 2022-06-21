@@ -280,6 +280,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         let classTag: string;
         let img: any;
         switch (item) {
+          case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
+            textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
+            classTag = STATUS_INVENTORY_TRANSFER.REQUESTED.status;
+            img = confirmedIcon;
+            break;
+
           case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
             textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
             classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;

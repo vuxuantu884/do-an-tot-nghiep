@@ -833,14 +833,18 @@ const OrderDetail = (props: PropType) => {
     <ContentContainer
       isLoading={loadingData}
       isError={isError}
-      title= {isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`}
+      title= {
+        OrderDetail?.code
+        ? `Đơn hàng ${OrderDetail?.code}`
+        : "Đang tải dữ liệu..."
+      }
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: `${UrlConfig.HOME}`,
+          name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+          path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
         },
         {
-          name: isOrderFromPOS(OrderDetail) ? `Danh sách đơn hàng offline` : `Danh sách đơn hàng online`,
+          name: "Danh sách đơn hàng",
           path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
         },
         {

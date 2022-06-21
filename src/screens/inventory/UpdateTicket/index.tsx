@@ -16,7 +16,7 @@ import arrowLeft from "assets/icon/arrow-back.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import { useDispatch } from "react-redux";
 import {
-  creatInventoryTransferAction,
+  creatInventoryTransferAction, creatInventoryTransferRequestAction,
   deleteInventoryTransferAction,
   getCopyDetailInventoryTransferAction,
   getDetailInventoryTransferAction,
@@ -182,6 +182,13 @@ const UpdateTicket: FC = () => {
           return;
         }
 
+        if (stateImport.isCreateRequest) {
+          form.setFieldsValue(stateImport.data);
+          setInitDataForm(stateImport.data);
+          setDataTable(stateImport.data.line_items);
+          return;
+        }
+
         form.setFieldsValue(stateImport);
         setInitDataForm(stateImport);
         setDataTable(stateImport.line_items);
@@ -324,8 +331,48 @@ const UpdateTicket: FC = () => {
   },[resultSearch, dataTable]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
+    setVisibleManyProduct(false);
+    const cloneResult = [...result];
+    const newDataTable = [...dataTable];
 
-    const newResult = result?.map((item) => {
+    if (dataTable.length === 0) {
+      const newResult = cloneResult?.map((item) => {
+        const variantPrice =
+          item &&
+          item.variant_prices &&
+          item.variant_prices[0] &&
+          item.variant_prices[0].retail_price;
+        return {
+          sku: item.sku,
+          barcode: item.barcode,
+          variant_name: item.name,
+          variant_id: item.id,
+          variant_image: findAvatar(item.variant_images),
+          product_name: item.product.name,
+          product_id: item.product.id,
+          available: item.available,
+          amount: 0,
+          price: variantPrice,
+          transfer_quantity: 1,
+          weight: item.weight,
+          weight_unit: item.weight_unit
+        };
+      });
+      setDataTable([...newResult]);
+      form.setFieldsValue({ [VARIANTS_FIELD]: [...newResult] });
+      return;
+    }
+
+    newDataTable.forEach((i: any, idx) => {
+      const findIndex = cloneResult.findIndex(e => e.id === i.variant_id);
+
+      if (findIndex >= 0) {
+        newDataTable[idx].transfer_quantity = newDataTable[idx].transfer_quantity + 1;
+        cloneResult.splice(findIndex, 1);
+      }
+    });
+
+    const newResult = cloneResult?.map((item) => {
       const variantPrice =
         item &&
         item.variant_prices &&
@@ -342,25 +389,15 @@ const UpdateTicket: FC = () => {
         available: item.available,
         amount: 0,
         price: variantPrice,
-        transfer_quantity: 0,
+        transfer_quantity: 1,
         weight: item.weight,
         weight_unit: item.weight_unit
       };
     });
 
-    newResult.forEach((item, index) => {
-      let isFindIndex = dataTable.findIndex(
-        (itemOld: VariantResponse) => itemOld.variant_id === item.variant_id
-      );
-      if (isFindIndex !== -1) {
-        newResult.splice(index, 1);
-      }
-    });
-
-    const dataTemp = [...dataTable, ...newResult];
+    const dataTemp = [...newDataTable, ...newResult];
 
     setDataTable(dataTemp);
-    setVisibleManyProduct(false);
   };
 
   const onBeforeUpload = useCallback((file) => {
@@ -485,7 +522,7 @@ const UpdateTicket: FC = () => {
         okText: "Đồng ý",
         title: "Bạn có chắc thay đổi Kho gửi?",
         cancelText: "Hủy",
-        subTitle: `Thay đổi kho gửi sẽ tính toán lại tồn kho ${fromStoreData?.name ? fromStoreData?.name : initDataForm?.from_store_name}.`,
+        subTitle: "",
         onCancel: () => {
           setModalConfirm({ visible: false });
           form.setFieldsValue({ from_store_id: fromStoreData ? fromStoreData.id : initDataForm?.from_store_id });
@@ -501,7 +538,7 @@ const UpdateTicket: FC = () => {
           }
         },
       });
-    }, [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id, initDataForm?.from_store_name]
+    }, [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id]
   );
 
   const onFinish = useCallback((data: StockTransferSubmit) => {
@@ -584,7 +621,10 @@ const UpdateTicket: FC = () => {
       dataCreate.note = data.note;
       dataCreate.attached_files = data.attached_files;
       setIsLoading(true);
-      dispatch(creatInventoryTransferAction(dataCreate, createCallback));
+      dispatch(stateImport && stateImport.isCreateRequest
+        ? creatInventoryTransferRequestAction(dataCreate, createCallback)
+        : creatInventoryTransferAction(dataCreate, createCallback)
+      );
     }
     else {
       if (stores) {
@@ -821,7 +861,7 @@ const UpdateTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return value || 0;
+        return form.getFieldValue('from_store_id') ? value || 0 : '';
       },
     },
     {
@@ -911,7 +951,7 @@ const UpdateTicket: FC = () => {
                     <Form.Item
                       name="from_store_id"
                       label={<b>Kho gửi</b>}
-                      rules={[
+                      rules={stateImport && stateImport.isCreateRequest ? [] : [
                         {
                           required: true,
                           message: "Vui lòng chọn kho gửi",

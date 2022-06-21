@@ -417,7 +417,7 @@ function CardReturnProducts(props: PropTypes) {
         )}
         <Table
           locale={{
-            emptyText: (
+            emptyText: !OrderDetail ? (
               <div className="sale_order_empty_product">
                 <img src={emptyProduct} alt="empty product"></img>
                 <p>Chưa có sản phẩm đổi trả!</p>
@@ -434,7 +434,7 @@ function CardReturnProducts(props: PropTypes) {
                   Thêm sản phẩm ngay (F3)
                 </Button>
               </div>
-            ),
+            ) : null,
           }}
           rowKey={(record: any) => record.id}
           columns={columns}

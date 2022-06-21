@@ -257,18 +257,24 @@ const ShipmentDetail: React.FC = () => {
 
   return (
     <ContentContainer
-      title="Chi tiết đơn giao hàng"
+      title= {
+        code
+        ? `Đơn giao hàng ${code}`
+        : "Đang tải dữ liệu..."
+      }
       breadcrumb={[
         {
-          name: "Tổng quan",
+          name: "Đơn giao hàng",
           path: UrlConfig.HOME,
         },
         {
-          name: "Đơn giao hàng",
+          name: "Danh sách đơn giao hàng",
           path: UrlConfig.SHIPMENTS,
         },
         {
-          name: code,
+          name: code
+          ? `Đơn giao hàng ${code}`
+          : "Đang tải dữ liệu..."
         },
       ]}
     >
