@@ -17,6 +17,7 @@ import UrlConfig from "config/url.config";
 import {
   OrderDetailWithCalculatePointVariantModel,
   OrderLineItemResponse,
+  OrderLineItemWithCalculateVariantPointModel,
   OrderResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -24,7 +25,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { calculateVariantPointInOrderService } from "service/order/order.service";
-import { formatCurrency, formatNumber, formatPercentage, getTotalQuantity, handleDisplayCoupon, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { formatCurrency, formatPercentage, getTotalQuantity, handleDisplayCoupon, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { successColor } from "utils/global-styles/variables";
 
 type ProductCardUpdateProps = {
@@ -176,7 +177,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       console.log('item', item)
       return (
         <div>
-          {item?.point_add !== null && item?.point_add !== undefined ? item.point_add : "-"}
+          {item?.point_add ? item.point_add : "-"}
         </div>
       );
     },
@@ -240,6 +241,13 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       }
     }
   }, [OrderDetail, dispatch, paymentMethods])
+
+  const getTotalLineItemsPointAdd = (lineItems: OrderLineItemWithCalculateVariantPointModel[]) => {
+    return lineItems.reduce(
+      (a, b) => a + (b?.point_add || 0),
+      0
+    )
+  };
   
 
   return (
@@ -271,7 +279,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
         <Row className="sale-product-box" justify="space-between">
           <Table
             locale={{
-              emptyText: (
+              emptyText: !OrderDetail ? (
                 <Button
                   type="text"
                   className="font-weight-500"
@@ -287,7 +295,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                 >
                   Thêm sản phẩm ngay (F3)
                 </Button>
-              ),
+              ) : null,
             }}
             rowKey={(record) => record.id}
             columns={columns}
@@ -361,12 +369,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                       padding: "0 16px",
                     }}
                   >
-                    {formatNumber(
-                      orderDetailCalculatePointInVariant?.items.reduce(
-                        (a, b) => a + (b?.point_add || 0),
-                        0
-                      )
-                    )}
+                    {getTotalLineItemsPointAdd(orderDetailCalculatePointInVariant?.items) || "-"}
                   </div>
                   <div
                     style={{
@@ -418,11 +421,9 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             <Row className="payment-row" justify="space-between">
               <div className="font-weight-500">Tổng chiết khấu đơn:</div>
               <div className="font-weight-500">
-                {props.OrderDetail?.total_discount !== undefined &&
-                  props.OrderDetail?.total_discount !== null &&
-                  formatCurrency(
+                {props.OrderDetail?.total_discount ? formatCurrency(
                     props.OrderDetail?.total_discount
-                  )}
+                  ) : "-"}
               </div>
             </Row>
 

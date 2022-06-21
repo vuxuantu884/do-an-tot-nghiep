@@ -39,22 +39,20 @@ function SingleThirdPartyLogisticLayout(props: PropType) {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Chỉnh sửa Kết nối hãng vận chuyển"
+        title= {
+          nameSingleThirdPartyLogistic
+          ? `Chỉnh sửa Kết nối hãng vận chuyển ${nameSingleThirdPartyLogistic}`
+          : "Đang tải dữ liệu..."
+        }
         breadcrumb={[
-          {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Cài đặt",
-            path: UrlConfig.ACCOUNTS,
-          },
           {
             name: "Kết nối hãng vận chuyển",
             path: UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION,
           },
           {
-            name: nameSingleThirdPartyLogistic || "",
+            name: nameSingleThirdPartyLogistic
+            ? `${nameSingleThirdPartyLogistic}`
+            : "Đang tải dữ liệu..."
           },
         ]}
       >
