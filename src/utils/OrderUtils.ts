@@ -164,28 +164,16 @@ export const checkIfFulfillmentReturned = (
   return fulfillment.return_status === FulFillmentReturnStatus.RETURNED && fulfillment.status === FulFillmentStatus.CANCELLED;
 };
 
-export const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
-  if (!fulfillment) return false;
-  let success = false;
-  if (// tạo giao hàng
-    !fulfillment.some(
-    (p) =>
-      p.status !== FulFillmentStatus.CANCELLED &&
-      p.return_status !== FulFillmentStatus.RETURNED &&
-      p?.shipment?.delivery_service_provider_type
-    )
-  )
-    success = true;
-  
-  if (//không tạo giao hàng nếu đã bàn giao sang hvc
-    fulfillment.some(
-    (p) => p.status_before_cancellation === FulFillmentStatus.SHIPPING
-    )
-  ){
-    success = false;
-  }
-  
-  return success;
+export const canCreateShipment = (fulfillments?: FulFillmentResponse[] | null) => {
+  if (!fulfillments) return false;
+  let createShipment = false;
+  if (!fulfillments.some((p) =>
+    p.status !== FulFillmentStatus.CANCELLED &&
+    p.status !== FulFillmentStatus.RETURNING &&
+    p.status !== FulFillmentStatus.RETURNED &&
+    p?.shipment?.delivery_service_provider_type
+  )) createShipment = true;
+  return createShipment;
 }
 
 export const isFulfillmentActive = (
@@ -200,8 +188,8 @@ export const isFulfillmentActive = (
 };
 
 export const checkIfOrderFinished = (orderDetail: OrderResponse | null | undefined) => {
-  return  orderDetail?.status === OrderStatus.FINISHED ||
-   orderDetail?.status === OrderStatus.COMPLETED
+  return orderDetail?.status === OrderStatus.FINISHED ||
+    orderDetail?.status === OrderStatus.COMPLETED
 };
 
 /*
@@ -211,13 +199,12 @@ export const isDeliveryOrderReturned = (
   fulfillments?: FulFillmentResponse | FulFillmentResponse[] | null
 ) => {
   if (!fulfillments) return false; //không tìm thấy ffm
-  let fulfillment: FulFillmentResponse | null | undefined=null;
-  if(Array.isArray(fulfillments))
-  {
+  let fulfillment: FulFillmentResponse | null | undefined = null;
+  if (Array.isArray(fulfillments)) {
     fulfillment = isFulfillmentActive(fulfillments);
   }
-  else{
-    fulfillment=fulfillments;
+  else {
+    fulfillment = fulfillments;
   }
 
   if (
@@ -251,7 +238,7 @@ export const getLink = (providerCode: string, trackingCode: string) => {
   }
 };
 
-export const getReturnMoneyStatusText=(paymentStatus:string)=>{
+export const getReturnMoneyStatusText = (paymentStatus: string) => {
   let textResult = "";
   switch (paymentStatus) {
     // case "unpaid":
@@ -270,14 +257,14 @@ export const getReturnMoneyStatusText=(paymentStatus:string)=>{
       textResult = "Hoàn tiền một phần"
       break;
     default:
-      textResult="";
+      textResult = "";
       break;
   }
 
   return textResult;
 }
 
-export const getReturnMoneyStatusColor=(paymentStatus:string)=>{
+export const getReturnMoneyStatusColor = (paymentStatus: string) => {
   let textResult = "";
   switch (paymentStatus) {
     // case "unpaid":
@@ -296,7 +283,7 @@ export const getReturnMoneyStatusColor=(paymentStatus:string)=>{
       textResult = "rgb(252, 175, 23)"
       break;
     default:
-      textResult="";
+      textResult = "";
       break;
   }
 
@@ -308,7 +295,7 @@ export const getTimeFormatOrderFilterTag = (date: Date | string | number | Momen
 };
 
 export const formatDateTimeOrderFilter = (date: Date | string | number | Moment | undefined, format: string = '') => {
-  if(!date) return
+  if (!date) return
   return format !== '' ? moment(date, format).utc(true) : moment(date).utc(true)
 }
 
