@@ -100,7 +100,6 @@ const DetailTicket: FC = () => {
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
   const [isDisableEditNote, setIsDisableEditNote] = useState<boolean>(false);
   const [isReceiveAllProducts, setIsReceiveAllProducts] = useState<boolean>(false);
-  const [isHavePermissionAccept, setIsHavePermissionAccept] = useState<boolean>(true);
 
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [isError, setError] = useState(false);
@@ -172,10 +171,6 @@ const DetailTicket: FC = () => {
         setError(true);
         return;
       } else {
-        if (myStores.length > 0) {
-          const storeFiltered = myStores.filter((item: any) => Number(item.store_id) === Number(result.from_store_id));
-          setIsHavePermissionAccept(storeFiltered.length > 0);
-        }
         let dataLineItems = sessionStorage.getItem(`dataItems${result.id}`);
         let dataId = sessionStorage.getItem(`id${result.id}`);
 
@@ -200,8 +195,12 @@ const DetailTicket: FC = () => {
 
         callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
           if (res) {
-            const fromStoreFiltered = res.account_stores.filter((i: any) => i.store_id === result.from_store_id);
-            setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase() || fromStoreFiltered.length > 0);
+            if (res.account_stores.length === 0) {
+              setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase());
+            } else {
+              const fromStoreFiltered = res.account_stores.filter((i: any) => i.store_id === result.from_store_id);
+              setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase() || fromStoreFiltered.length > 0);
+            }
             return;
           }
 
@@ -1242,7 +1241,7 @@ const DetailTicket: FC = () => {
                           <div className="inventory-transfer-action">
                             <AuthWrapper
                               acceptPermissions={[InventoryTransferPermission.receive]}
-                              acceptStoreIds={[data.to_store_id]}
+                              acceptStoreIds={myStores.length > 0 ? [data.to_store_id] : []}
                             >
                               <Button
                                 type="default"
@@ -1457,7 +1456,7 @@ const DetailTicket: FC = () => {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) &&
                     <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.update]}
-                      acceptStoreIds={[data.from_store_id]}
+                      acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
                     >
                       <Button
                         onClick={() => {
@@ -1487,9 +1486,10 @@ const DetailTicket: FC = () => {
                     </AuthWrapper>
                   }
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status && data.from_store_id && isHavePermissionAccept && (
+                    (data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status && (
                       <AuthWrapper
                         acceptPermissions={[InventoryTransferPermission.create]}
+                        acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
                       >
                         <Button
                           className="export-button"
@@ -1511,7 +1511,7 @@ const DetailTicket: FC = () => {
                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
                       <AuthWrapper
                         acceptPermissions={[ShipmentInventoryTransferPermission.export]}
-                        acceptStoreIds={[data.from_store_id]}
+                        acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
                       >
                         <Button
                           className="export-button"
