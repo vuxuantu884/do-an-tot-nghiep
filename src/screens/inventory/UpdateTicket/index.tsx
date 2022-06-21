@@ -135,7 +135,6 @@ const UpdateTicket: FC = () => {
 
   function getTotalQuantity() {
     let total = 0;
-    console.log(dataTable)
     dataTable.forEach((element: LineItem) => {
       total += element.transfer_quantity;
     });
@@ -332,8 +331,48 @@ const UpdateTicket: FC = () => {
   },[resultSearch, dataTable]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
+    setVisibleManyProduct(false);
+    const cloneResult = [...result];
+    const newDataTable = [...dataTable];
 
-    const newResult = result?.map((item) => {
+    if (dataTable.length === 0) {
+      const newResult = cloneResult?.map((item) => {
+        const variantPrice =
+          item &&
+          item.variant_prices &&
+          item.variant_prices[0] &&
+          item.variant_prices[0].retail_price;
+        return {
+          sku: item.sku,
+          barcode: item.barcode,
+          variant_name: item.name,
+          variant_id: item.id,
+          variant_image: findAvatar(item.variant_images),
+          product_name: item.product.name,
+          product_id: item.product.id,
+          available: item.available,
+          amount: 0,
+          price: variantPrice,
+          transfer_quantity: 1,
+          weight: item.weight,
+          weight_unit: item.weight_unit
+        };
+      });
+      setDataTable([...newResult]);
+      form.setFieldsValue({ [VARIANTS_FIELD]: cloneResult });
+      return;
+    }
+
+    newDataTable.forEach((i: any, idx) => {
+      const findIndex = cloneResult.findIndex(e => e.id === i.variant_id);
+
+      if (findIndex >= 0) {
+        newDataTable[idx].transfer_quantity = newDataTable[idx].transfer_quantity + 1;
+        cloneResult.splice(findIndex, 1);
+      }
+    });
+
+    const newResult = cloneResult?.map((item) => {
       const variantPrice =
         item &&
         item.variant_prices &&
@@ -350,25 +389,15 @@ const UpdateTicket: FC = () => {
         available: item.available,
         amount: 0,
         price: variantPrice,
-        transfer_quantity: 0,
+        transfer_quantity: 1,
         weight: item.weight,
         weight_unit: item.weight_unit
       };
     });
 
-    newResult.forEach((item, index) => {
-      let isFindIndex = dataTable.findIndex(
-        (itemOld: VariantResponse) => itemOld.variant_id === item.variant_id
-      );
-      if (isFindIndex !== -1) {
-        newResult.splice(index, 1);
-      }
-    });
-
-    const dataTemp = [...dataTable, ...newResult];
+    const dataTemp = [...newDataTable, ...newResult];
 
     setDataTable(dataTemp);
-    setVisibleManyProduct(false);
   };
 
   const onBeforeUpload = useCallback((file) => {

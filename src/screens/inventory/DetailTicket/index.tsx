@@ -434,15 +434,56 @@ const DetailTicket: FC = () => {
   }
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
-    const newResult = result?.map((item) => {
+    setVisibleManyProduct(false);
+    const cloneResult = [...result];
+    const newDataTable = [...dataTable];
+
+    if (dataTable.length === 0) {
+      const newResult = cloneResult?.map((item) => {
+        const variantPrice =
+          item &&
+          item.variant_prices &&
+          item.variant_prices[0] &&
+          item.variant_prices[0].retail_price;
+        return {
+          sku: item.sku,
+          barcode: item.barcode,
+          variant_name: item.name,
+          variant_id: item.id,
+          variant_image: findAvatar(item.variant_images),
+          product_name: item.product.name,
+          product_id: item.product.id,
+          available: item.available,
+          amount: 0,
+          status: data?.status,
+          to_store_id: data?.to_store_id,
+          price: variantPrice,
+          transfer_quantity: 0,
+          real_quantity: 1,
+          weight: item.weight,
+          weight_unit: item.weight_unit
+        };
+      });
+      setDataTable([...newResult]);
+      return;
+    }
+
+    newDataTable.forEach((i: any, idx) => {
+      const findIndex = cloneResult.findIndex(e => e.id === i.variant_id);
+
+      if (findIndex >= 0) {
+        newDataTable[idx].real_quantity = newDataTable[idx].real_quantity + 1;
+        cloneResult.splice(findIndex, 1);
+      }
+    });
+
+    const newResult = cloneResult?.map((item) => {
       const variantPrice =
         item &&
         item.variant_prices &&
         item.variant_prices[0] &&
         item.variant_prices[0].retail_price;
       return {
-        status: data?.status,
-        to_store_id: data?.to_store_id,
         sku: item.sku,
         barcode: item.barcode,
         variant_name: item.name,
@@ -452,27 +493,19 @@ const DetailTicket: FC = () => {
         product_id: item.product.id,
         available: item.available,
         amount: 0,
+        status: data?.status,
+        to_store_id: data?.to_store_id,
         price: variantPrice,
         transfer_quantity: 0,
-        real_quantity: 0,
+        real_quantity: 1,
         weight: item.weight,
         weight_unit: item.weight_unit
       };
     });
 
-    newResult.forEach((item, index) => {
-      let isFindIndex = dataTable.findIndex(
-        (itemOld: VariantResponse) => itemOld.variant_id === item.variant_id
-      );
-      if (isFindIndex !== -1) {
-        newResult.splice(index, 1);
-      }
-    });
-
-    const dataTemp = [...dataTable, ...newResult];
+    const dataTemp = [...newDataTable, ...newResult];
 
     setDataTable(dataTemp);
-    setVisibleManyProduct(false);
   };
 
   const createCallback = useCallback(

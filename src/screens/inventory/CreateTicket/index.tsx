@@ -229,22 +229,42 @@ const CreateTicket: FC = () => {
   },[dataTable, form]);
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
-    const newResult = result?.map((item) => {
+    setVisibleManyProduct(false);
+    const cloneResult = [...result];
+    const newDataTable = [...dataTable];
+
+    if (dataTable.length === 0) {
+      const newResult = cloneResult?.map((item) => {
+        return {
+          ...item,
+          transfer_quantity: 1,
+        };
+      });
+      setDataTable([...newResult]);
+      form.setFieldsValue({ [VARIANTS_FIELD]: cloneResult });
+      return;
+    }
+
+    newDataTable.forEach((i: any, idx) => {
+      const findIndex = cloneResult.findIndex(e => e.id === i.id);
+
+      if (findIndex >= 0) {
+        newDataTable[idx].transfer_quantity = newDataTable[idx].transfer_quantity + 1;
+        cloneResult.splice(findIndex, 1);
+      }
+    });
+
+    const newResult = cloneResult?.map((item) => {
       return {
         ...item,
         transfer_quantity: 1,
       };
     });
 
-    const dataTemp = [...dataTable, ...newResult];
+    const dataTemp = [...newDataTable, ...newResult];
 
-    const arrayUnique = [
-      ...new Map(dataTemp.map((item) => [item.id, item])).values(),
-    ];
-
-    setDataTable(arrayUnique);
-    form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
-    setVisibleManyProduct(false);
+    setDataTable(dataTemp);
+    form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
   };
 
   const onBeforeUpload = useCallback((file) => {
@@ -955,7 +975,7 @@ const CreateTicket: FC = () => {
           {visibleManyProduct && (
             <PickManyProductModal
               storeID={form.getFieldValue("from_store_id")}
-              selected={dataTable}
+              selected={[]}
               isTransfer
               onSave={onPickManyProduct}
               onCancel={() => setVisibleManyProduct(false)}
