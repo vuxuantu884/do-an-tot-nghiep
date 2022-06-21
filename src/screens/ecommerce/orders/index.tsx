@@ -239,6 +239,8 @@ const EcommerceOrders: React.FC = () => {
     setSubStatus: "setSubStatus",
   };
 
+  const [listShopIdEcommerce, setListShopIdEcommerce] = useState<Array<any>>([]);
+
   //show inventory every store with product
   const [inventoryData, setInventoryData] = useState<AllInventoryProductInStore[]>([]);
   const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
@@ -1571,12 +1573,23 @@ const EcommerceOrders: React.FC = () => {
       selectedRowKeys.forEach(idSelected => {
         const orderMatched = data?.items.find(i => i.id === idSelected)
         if (orderMatched) {
+
+          const shop_id = listShopIdEcommerce.filter((shop) => {
+              const sliceShopId = shop.id.slice(0, -4);
+              const sliceEcommerceShopId = orderMatched.ecommerce_shop_id.toString().slice(0, -4);
+
+              return sliceShopId === sliceEcommerceShopId
+          })
+
+          const [ shopId ] = shop_id?.map((shop: any) => shop.id)
+
+
           const orderRequest = {
             "order_sn": orderMatched.reference_code,
             "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
             "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
             "ecommerce_id": getEcommerceIdByChannelId(orderMatched.channel_id),
-            "shop_id": orderMatched.ecommerce_shop_id.toString()
+            "shop_id": shopId
           }
           order_list.push(orderRequest)
         }
@@ -1585,7 +1598,7 @@ const EcommerceOrders: React.FC = () => {
       setIsPrintEcommerceDeliveryNote(true);
       dispatch(downloadPrintForm({order_list}, downloadEcommerceDeliveryNote))
     }
-  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
+  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items, listShopIdEcommerce]);
   // handle print ecommerce delivery note
 
   // handle print yody delivery note
@@ -2096,6 +2109,7 @@ const EcommerceOrders: React.FC = () => {
                 setEcommerceShopListByAddress={setEcommerceShopListByAddress}
                 onClearFilter={() => onClearFilter()}
                 onShowColumnSetting={() => setShowSettingColumn(true)}
+                setListShopIdEcommerce={setListShopIdEcommerce}
               />
 
               <CustomTable
