@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/rules-of-hooks */
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import {
 	Card,
@@ -63,8 +62,7 @@ import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.respons
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
 	DeliveryServiceResponse,
-	FulFillmentResponse, OrderResponse,
-	OrderSubStatusResponse,
+	OrderResponse,
 	StoreCustomResponse
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -88,15 +86,13 @@ import {
 	PaymentMethodOption, POS, ShipmentMethodOption, TaxTreatment
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-// import { yellowColor } from "utils/global-styles/variables";
-import { checkIfFulfillmentCancelled, checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod, isDeliveryOrder } from "utils/OrderUtils";
+import { checkIfFulfillmentCancelled, checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod, canCreateShipment } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardCustomer from "./component/order-detail/CardCustomer";
 import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
-// import CardProduct from "./component/order-detail/CardProduct";
 import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
 import OrderFulfillmentCancelledShowDate from "./component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
@@ -104,7 +100,6 @@ import OrderFulfillmentDetail from "./component/OrderPackingAndShippingDetail/Or
 import OrderFulfillmentShowFulfillment from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
 import OrderFulfillmentShowProduct from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
 
-// let typeButton = "";
 type PropTypes = {
 	id?: string;
 	isCloneOrder?: boolean;
@@ -149,11 +144,7 @@ export default function Order(props: PropTypes) {
 	const [listPaymentMethod, setListPaymentMethod] = useState<
 		Array<PaymentMethodResponse>
 	>([]);
-	// const [shippingFeeInformedToCustomerHVC, setShippingFeeCustomerHVC] = useState<number | null>(
-	//   null
-	// );
 	const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-	const [fulfillments, setFulfillments] = useState<Array<FulFillmentResponse>>([]);
 	const [tags, setTag] = useState<string>("");
 	const formRef = createRef<FormInstance>();
 	const [form] = Form.useForm();
@@ -186,10 +177,6 @@ export default function Order(props: PropTypes) {
 	const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
 		setBillingAddress(_objBillingAddress);
 	};
-
-	const [listOrderSubStatus, setListOrderSubStatus] = useState<OrderSubStatusResponse[]>(
-		[]
-	);
 
 	const [shippingServiceConfig, setShippingServiceConfig] = useState<
 		ShippingServiceConfigDetailResponseModel[]
@@ -224,54 +211,39 @@ export default function Order(props: PropTypes) {
 	}, [OrderDetail?.fulfillments]);
 
 	const stepsStatusValue = useMemo(() => {
-		if (OrderDetail?.status === OrderStatus.DRAFT) {
-			return OrderStatus.DRAFT;
-		}
-
-		if (OrderDetail?.status === OrderStatus.CANCELLED) {
-			return OrderStatus.CANCELLED;
-		}
-		if (OrderDetail?.status === OrderStatus.FINISHED) {
-			return FulFillmentStatus.SHIPPED;
-		}
-		if (OrderDetail?.status === OrderStatus.FINALIZED) {
-			if (
-				OrderDetail.fulfillments === undefined ||
-				OrderDetail.fulfillments === null ||
-				OrderDetail.fulfillments.length === 0
-			) {
-				return OrderStatus.FINALIZED;
-			} else {
-				if (
-					OrderDetail.fulfillments !== undefined &&
-					OrderDetail.fulfillments !== null &&
-					OrderDetail.fulfillments.length > 0
-				) {
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.UNSHIPPED
-						|| sortedFulfillments[0]?.status === FulFillmentStatus.CANCELLED
-						|| sortedFulfillments[0]?.status === FulFillmentStatus.RETURNED
-						|| sortedFulfillments[0]?.status === FulFillmentStatus.RETURNING) {
-						return OrderStatus.FINALIZED;
-					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.PICKED) {
-						return FulFillmentStatus.PICKED;
-					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.PACKED) {
-						return FulFillmentStatus.PACKED;
-					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING) {
-						return FulFillmentStatus.SHIPPING;
-					}
-					if (sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED) {
-						return FulFillmentStatus.SHIPPED;
+		switch (OrderDetail?.status) {
+			case OrderStatus.DRAFT:
+				return OrderStatus.DRAFT;
+			case OrderStatus.CANCELLED:
+				return OrderStatus.CANCELLED;
+			case OrderStatus.FINISHED:
+				return FulFillmentStatus.SHIPPED;
+			case OrderStatus.FINALIZED:
+				if (sortedFulfillments.length === 0) {
+					return OrderStatus.FINALIZED;
+				} else {
+					switch (sortedFulfillments[0]?.status) {
+						case FulFillmentStatus.UNSHIPPED:
+						case FulFillmentStatus.CANCELLED:
+						case FulFillmentStatus.RETURNED:
+						case FulFillmentStatus.RETURNING:
+							return OrderStatus.FINALIZED;
+						case FulFillmentStatus.PICKED:
+							return FulFillmentStatus.PICKED;
+						case FulFillmentStatus.PACKED:
+							return FulFillmentStatus.PACKED;
+						case FulFillmentStatus.SHIPPING:
+							return FulFillmentStatus.SHIPPING;
+						case FulFillmentStatus.SHIPPED:
+							return FulFillmentStatus.SHIPPED;
+						default:
+							return OrderStatus.FINALIZED;
 					}
 				}
-			}
-		} else if (OrderDetail?.status === OrderStatus.FINISHED) {
-			return FulFillmentStatus.SHIPPED;
+			default:
+				return OrderStatus.FINALIZED;
 		}
-		return "";
-	}, [OrderDetail?.fulfillments, OrderDetail?.status, sortedFulfillments]);
+	}, [OrderDetail?.status, sortedFulfillments]);
 
 	const setLevelOrder = useCallback(() => {
 		switch (OrderDetail?.status) {
@@ -283,10 +255,8 @@ export default function Order(props: PropTypes) {
 				return 5;
 			case OrderStatus.FINALIZED:
 				if (
-					OrderDetail.fulfillments === undefined ||
-					OrderDetail.fulfillments === null ||
-					!OrderDetail.fulfillments.length ||
-					OrderDetail.fulfillments[0].shipment === null
+					!sortedFulfillments.length ||
+					sortedFulfillments[0].shipment === null
 				) {
 					if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
 						return 2;
@@ -295,12 +265,10 @@ export default function Order(props: PropTypes) {
 					}
 				} else {
 					if (
-						OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNED
-						|| OrderDetail.fulfillments[0].status === FulFillmentStatus.CANCELLED
-						|| OrderDetail.fulfillments[0].status === FulFillmentStatus.RETURNING
-						// || OrderDetail.fulfillments[0].status === FulFillmentStatus.UNSHIPPED
+						sortedFulfillments[0].status === FulFillmentStatus.RETURNED
+						|| sortedFulfillments[0].status === FulFillmentStatus.CANCELLED
+						|| sortedFulfillments[0].status === FulFillmentStatus.RETURNING
 					) {
-						// return 1
 						if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
 							return 2;
 						} else {
@@ -312,7 +280,7 @@ export default function Order(props: PropTypes) {
 			default:
 				return 1;
 		}
-	}, [OrderDetail]);
+	}, [OrderDetail?.payment_status, OrderDetail?.status, sortedFulfillments]);
 	let levelOrder = setLevelOrder();
 
 	let initialForm: OrderRequest = useMemo(() => {
@@ -407,8 +375,13 @@ export default function Order(props: PropTypes) {
 				}
 			}),
 		};
-		if (OrderDetail?.fulfillments && OrderDetail?.fulfillments.length) {
-			request.id = shipmentMethod === ShipmentMethodOption.DELIVER_LATER || !OrderDetail?.fulfillments[0].shipment ? OrderDetail?.fulfillments[0].id : null;
+		if (sortedFulfillments && sortedFulfillments.length) {
+			const ffm =  sortedFulfillments.filter(i =>
+				i.status !== FulFillmentStatus.CANCELLED
+				&& i.status !== FulFillmentStatus.RETURNING
+				&& i.status !== FulFillmentStatus.RETURNED
+			);
+			request.id = shipmentMethod === ShipmentMethodOption.DELIVER_LATER || (ffm.length && !ffm[0].shipment) ? ffm[0].id : null;
 		}
 		let listFulfillmentRequest = [];
 		if (
@@ -524,16 +497,12 @@ export default function Order(props: PropTypes) {
 	const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
 
 	const getRequirementName = useCallback(() => {
-		if (
-			OrderDetail &&
-			OrderDetail?.fulfillments &&
-			OrderDetail?.fulfillments.length > 0
-		) {
-			let requirement = OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+		if (sortedFulfillments.length > 0) {
+			let requirement = sortedFulfillments[0].shipment?.requirements?.toString();
 			const reqObj = shipping_requirements?.find((r) => r.value === requirement);
 			setRequirementNameView(reqObj ? reqObj?.name : "");
 		}
-	}, [OrderDetail, shipping_requirements]);
+	}, [sortedFulfillments, shipping_requirements]);
 
 	useEffect(() => {
 		getRequirementName();
@@ -709,7 +678,6 @@ export default function Order(props: PropTypes) {
 								isFinalized ? setUpdatingConfirm(false) : setUpdating(false)
 							}
 						})();
-						// dispatch(orderUpdateAction(id, values, createOrderCallback));
 					}
 				} else {
 					if (
@@ -738,7 +706,6 @@ export default function Order(props: PropTypes) {
 										isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
 									}
 								})();
-								// dispatch(orderUpdateAction(id, values, createOrderCallback));
 							}
 						}
 					}
@@ -766,8 +733,6 @@ export default function Order(props: PropTypes) {
 		}
 		setShipmentMethod(value);
 	};
-
-	// const [totalPaid, setTotalPaid] = useState(0);
 
 	/**
 	 * tổng số tiền đã trả
@@ -807,10 +772,6 @@ export default function Order(props: PropTypes) {
 		service: "",
 		shipping_fee_paid_to_three_pls: null,
 	});
-
-	// const handleCardItems = (cardItems: Array<OrderLineItemRequest>) => {
-	//   setItems(cardItems);
-	// };
 
 	const updateCancelClick = useCallback(() => {
 		history.push(`${UrlConfig.ORDER}/${id}`);
@@ -983,30 +944,6 @@ export default function Order(props: PropTypes) {
 	}
 	// end handle for ecommerce order
 
-	// const isDeliveryOrder = (fulfillment?: FulFillmentResponse[] | null) => {
-	// 	if (!fulfillment) return false;
-	// 	let success = false;
-	// 	if (// tạo giao hàng
-	// 	  !fulfillment.some(
-	// 		(p) =>
-	// 		  p.status !== FulFillmentStatus.CANCELLED &&
-	// 		  p.return_status !== FulFillmentStatus.RETURNED &&
-	// 		  p?.shipment?.delivery_service_provider_type
-	// 	  )
-	// 	)
-	// 	  success = true;
-	  
-	// 	if (//không tạo giao hàng nếu đã bàn giao sang hvc
-	// 	  fulfillment.some(
-	// 		(p) => p.status_before_cancellation === FulFillmentStatus.SHIPPING
-	// 	  )
-	// 	)
-	// 	  success = false;
-	// 	console.log("fulfillment", fulfillment);
-	  
-	// 	return success;
-	// };
-
 	const fetchData = () => {
 		dispatch(
 			OrderDetailAction(id, async (res) => {
@@ -1117,26 +1054,9 @@ export default function Order(props: PropTypes) {
 					});
 					setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
 
-					if (
-						(response.fulfillments && response.fulfillments[0] && response?.fulfillments[0]?.shipment) 
-						||(response.fulfillments && !isDeliveryOrder(response.fulfillments))
-					)
-					// if (
-					// 	response.fulfillments &&
-					// 	response.fulfillments[0] &&
-					// 	response?.fulfillments[0]?.shipment
-					// ) 
-					{
+					if (!canCreateShipment(response.fulfillments)){
 						setShipmentMethod(0);
-						const newFulfillments = [...response.fulfillments];
-						setFulfillments(newFulfillments.reverse());
-
-						if (
-							response.fulfillments[0] &&
-							response.fulfillments[0]?.shipment?.office_time
-						) {
-							setOfficeTime(true);
-						}
+						setOfficeTime(true);
 					}
 					if (response.store_id) {
 						setStoreId(response.store_id);
@@ -1229,11 +1149,6 @@ export default function Order(props: PropTypes) {
 					(loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
 			);
 
-			// let curenPoint = !loyaltyPoint
-			//   ? 0
-			//   : loyaltyPoint.point === null
-			//   ? 0
-			//   : loyaltyPoint.point;
 			let point = !pointFocus ? 0 : pointFocus.point === undefined ? 0 : pointFocus.point;
 
 			let totalAmountPayable =
@@ -1260,10 +1175,6 @@ export default function Order(props: PropTypes) {
 				return false;
 			}
 
-			// if (point > curenPoint) {
-			//   showError("Số điểm tiêu phải nhỏ hơn hoặc bằng số điểm hiện có");
-			//   return false;
-			// }
 			return true;
 		},
 		[payments, loyaltyUsageRules, orderAmount, shippingFeeInformedToCustomer, promotion, loyaltyPoint]
@@ -1341,10 +1252,10 @@ export default function Order(props: PropTypes) {
 		if (OrderDetail?.status === OrderStatus.DRAFT) {
 			return;
 		}
-		if (OrderDetail?.fulfillments && OrderDetail?.fulfillments[0]) {
+		if (sortedFulfillments && sortedFulfillments[0]) {
 			setIsDisableSelectSource(true);
 		}
-	}, [OrderDetail?.fulfillments, OrderDetail?.status])
+	}, [sortedFulfillments, OrderDetail?.status])
 
 	useEffect(() => {
 		dispatch(
@@ -1547,9 +1458,8 @@ export default function Order(props: PropTypes) {
 												<div className="d-flex">
 													<span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
 												</div>
-												{OrderDetail?.fulfillments &&
-													OrderDetail?.fulfillments.length > 0 &&
-													OrderDetail?.fulfillments[0].status ===
+												{sortedFulfillments.length > 0 &&
+													sortedFulfillments[0].status ===
 													FulFillmentStatus.SHIPPED && (
 														<Tag
 															className="orders-tag text-menu"
@@ -1565,8 +1475,7 @@ export default function Order(props: PropTypes) {
 										}
 										extra={
 											<Space size={26}>
-												{OrderDetail?.fulfillments &&
-													OrderDetail?.fulfillments.length > 0 &&
+												{sortedFulfillments.length > 0 &&
 													// OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
 													(
 														<div className="text-menu">
@@ -1621,9 +1530,8 @@ export default function Order(props: PropTypes) {
 											</Space>
 										}
 									>
-										{fulfillments &&
-											fulfillments.length > 0 &&
-											fulfillments.map(
+										{sortedFulfillments.length > 0 &&
+											sortedFulfillments.reverse().map(
 												(fulfillment) =>
 													fulfillment.shipment && (
 														<div
@@ -1754,7 +1662,7 @@ export default function Order(props: PropTypes) {
 														</div>
 													)
 											)}
-										{OrderDetail?.fulfillments && isDeliveryOrder(OrderDetail?.fulfillments) && (
+										{canCreateShipment(sortedFulfillments) && (
 												<OrderCreateShipment
 													shipmentMethod={shipmentMethod}
 													orderPrice={orderAmount}
@@ -1784,7 +1692,6 @@ export default function Order(props: PropTypes) {
 										tags={tags}
 										onChangeTag={onChangeTag}
 										customerId={customer?.id}
-										listOrderSubStatus={listOrderSubStatus}
 										form={form}
 										storeId={storeId}
 										orderDetail={OrderDetail}
@@ -1793,20 +1700,6 @@ export default function Order(props: PropTypes) {
 									/>
 								</Col>
 							</Row>
-							{/* {isShowBillStep && (
-								<OrderDetailBottomBar
-									isVisibleUpdateButtons={true}
-									stepsStatusValue={stepsStatusValue}
-									formRef={formRef}
-									handleTypeButton={handleTypeButton}
-									orderDetail={OrderDetail}
-									isVisibleGroupButtons={false}
-									updateCancelClick={updateCancelClick}
-									showSaveAndConfirmModal={() => { }}
-									updating={updating}
-									updatingConfirm={updatingConfirm}
-								/>
-							)} */}
 							<OrderDetailBottomBar
 								isVisibleUpdateButtons={true}
 								stepsStatusValue={stepsStatusValue}
