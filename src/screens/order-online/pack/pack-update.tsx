@@ -439,10 +439,6 @@ const PackUpdate: React.FC = () => {
         isError={isError}
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
             name: "Đơn hàng",
             path: UrlConfig.ORDER,
           },
@@ -451,7 +447,7 @@ const PackUpdate: React.FC = () => {
             path: UrlConfig.DELIVERY_RECORDS,
           },
           {
-            name: `Biên bản bàn giao: ${PackId}`,
+            name: `Biên bản bàn giao ${PackId}`,
             path: `${UrlConfig.DELIVERY_RECORDS}/${PackId}`
           },
           {

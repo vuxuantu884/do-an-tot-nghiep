@@ -2,6 +2,7 @@ import { FormInstance } from "antd/es/form/Form";
 import { UploadFile } from "antd/lib/upload/interface";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
+import UrlConfig from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import _, { cloneDeep, sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
@@ -68,6 +69,7 @@ export const findCurrentRoute = (
 ) => {
   let current: Array<string> = [];
   let subMenu: Array<string> = [];
+  
   routes.forEach((route) => {
     if (route.subMenu.length > 0) {
       route.subMenu.forEach((item) => {
@@ -83,6 +85,16 @@ export const findCurrentRoute = (
         if (path === item.path || item?.activeLink?.includes(path)) {
           current.push(item.key);
           subMenu.push(route.key);
+        } else {
+          // admin/orders/597827 thì active cả danh sách đơn hàng
+          if(path !== item.path && path.includes(item.path) && path.replace("/", "").includes("/")) {
+            // loại trừ đường dẫn bị trùng
+            const subMenuPathArr = route.subMenu.map(single => single.path);
+            if(!subMenuPathArr.includes(path))  {
+              current.push(item.key);
+              subMenu.push(route.key);
+            }
+          }
         }
       });
     }

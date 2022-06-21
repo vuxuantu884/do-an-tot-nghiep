@@ -29,14 +29,6 @@ function ThirdPartyLogisticsIntegration() {
         title="Kết nối hãng vận chuyển"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Cài đặt",
-            path: UrlConfig.ACCOUNTS,
-          },
-          {
             name: "Kết nối hãng vận chuyển",
           },
         ]}

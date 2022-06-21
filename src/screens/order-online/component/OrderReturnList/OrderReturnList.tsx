@@ -876,10 +876,6 @@ function OrderReturnList(props: PropTypes) {
         title="Danh sách đơn trả hàng"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
             name: "Danh sách đơn trả hàng",
           },
         ]}
