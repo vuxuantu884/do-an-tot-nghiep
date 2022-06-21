@@ -1119,6 +1119,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
 };
 
 export const reCalculateOrderItem = (orderLineItems: OrderLineItemResponse[]) => {
+  console.log('orderLineItems', orderLineItems)
   return orderLineItems.map(item => {
     return {
       ...item,
@@ -1130,6 +1131,23 @@ export const reCalculateOrderItem = (orderLineItems: OrderLineItemResponse[]) =>
       })
     }
   })
+};
+
+/**
+* tính lại discount và quantity theo quantity mới
+*/
+export const reCalculateDiscountReturnByOrigin = (itemResult: OrderLineItemResponse, itemOrigin: OrderLineItemResponse, quantity: number) => {
+  if(!quantity) {
+    return;
+  }
+  itemResult.quantity = quantity;
+  itemResult.discount_items = itemOrigin.discount_items.map(single => {
+    return {
+      ...single,
+      amount: itemOrigin?.quantity ? (single.amount / itemOrigin?.quantity * quantity) : single.amount,
+    }
+  })
+  itemResult.discount_amount = itemOrigin?.quantity ? (itemOrigin.discount_amount / itemOrigin?.quantity * quantity) : itemOrigin.discount_amount
 };
 
 // lấy danh sách còn có thể đổi trả
@@ -1151,18 +1169,21 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
 		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau)
     let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id && single.type === singleOrder.type);
     if(duplicatedItem) {
+      console.log('duplicatedItem', duplicatedItem)
 			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id&& single.type === duplicatedItem.type)
 			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
 			if(quantityLeft ===0) {
 				newReturnItems.splice(index, 1);
 			} else if(quantityLeft > 0) {
 				newReturnItems[index].quantity = quantityLeft;
-				const clone = {...duplicatedItem}
-				clone.quantity = quantityLeft;
+				const clone = cloneDeep(duplicatedItem);
+        reCalculateDiscountReturnByOrigin(clone, duplicatedItem, quantityLeft)
 				clone.id = singleOrder.id;
 				// result.push(clone)
 			} else {
-				singleOrder.quantity = singleOrder.quantity - duplicatedItem.quantity;
+        console.log('duplicatedItem', duplicatedItem);
+        const quantityLeft = singleOrder.quantity - duplicatedItem.quantity;
+        reCalculateDiscountReturnByOrigin(singleOrder, duplicatedItem, quantityLeft)
 				newReturnItems.splice(index, 1);
 				result.push(singleOrder);
 			}

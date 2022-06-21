@@ -145,6 +145,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 let _data = { ...data };
                 setIsReceivedReturnProducts(true);
                 setOrderDetail(_data);
+                if(_data.payments) {
+                  setPayments(_data.payments);
+                }
+                if (_data?.payment_status) {
+                  setReturnPaymentStatus(_data?.payment_status);
+                }
               }
               setCountChangeSubStatus(countChangeSubStatus + 1);
             }
