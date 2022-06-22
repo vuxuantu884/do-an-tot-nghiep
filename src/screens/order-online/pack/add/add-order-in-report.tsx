@@ -1,4 +1,4 @@
-import { Card, Space, Table, Form, Input, Button } from "antd";
+import { Card, Space, Form, Input, Button } from "antd";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import "component/filter/order.filter.scss";
@@ -7,13 +7,14 @@ import { showWarning } from "utils/ToastUtils";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
-import emptyProduct from "assets/icon/empty_products.svg";
 import { OrderConcernGoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-over-context";
-import { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { formatCurrency } from "utils/AppUtils";
-import { FulFillmentStatus } from "utils/Constants";
 import { dangerColor } from "utils/global-styles/variables";
+import { isFulfillmentActive } from "utils/OrderUtils";
+import { PagingParam, ResultPaging } from "model/paging";
+import { flatDataPaging } from "utils/Paging";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
@@ -23,21 +24,33 @@ type AddOrderInReportProps = {
   handleAddOrder: (code: string) => void;
   formSearchOrderRef: any;
   goodsReceiptForm: any;
-  codes: Array<String>
-  setCodes: (codes: Array<String>) => void;
 };
 const { Item } = Form;
+
+const resultPagingDefault: ResultPaging = {
+  currentPage: 1,
+  lastPage: 1,
+  perPage: 5,
+  total: 0,
+  result: []
+}
 
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, codes, goodsReceiptForm, setCodes } = props;
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef,  goodsReceiptForm } = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
     useState<GoodsReceiptsInfoOrderModel[]>();
 
-  const [isOrderPack, setIsOrderPack] = useState<string[]>([]);
+  const [pagingParam, setPagingParam] = useState<PagingParam>({
+    currentPage: resultPagingDefault.currentPage,
+    perPage: resultPagingDefault.perPage
+  });
+  const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
+
+  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
 
   const addReportHandOverContextData = useContext(AddReportHandOverContext);
   const setOrderListResponse = addReportHandOverContextData?.setOrderListResponse;
@@ -56,52 +69,46 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
     (index: number) => {
       switch (index) {
         case 1:
-          if (isOrderPack && isOrderPack.length <= 0) {
+          if (selectedRowKeys && selectedRowKeys.length <= 0) {
             showWarning("Vui lòng chọn đơn hàng cần xóa");
             break;
           }
           let orderListResponseCopy = [...orderListResponse];
-          isOrderPack.forEach((value) => {
+          selectedRowKeys.forEach((value) => {
             let indexOrder = orderListResponseCopy.findIndex((p) => p.code === value);
             if (indexOrder !== -1) {
-              let indexOrder2 = codes.findIndex((p) => orderListResponseCopy[indexOrder].fulfillments.findIndex((f2) => f2.code === p) !== -1);
               orderListResponseCopy.splice(indexOrder, 1);
-              codes.splice(indexOrder2, 1);
             }
           })
           setOrderListResponse([...orderListResponseCopy]);
-          setCodes(codes);
-          setIsOrderPack([]);
+          setSelectedRowKeys([]);
           break;
         default:
           break;
       }
     },
-    [isOrderPack, orderListResponse, setOrderListResponse, setCodes, codes]
+    [selectedRowKeys, orderListResponse, setOrderListResponse]
   );
-
-  //console.log("isOrderPack", formSearchOrderRef)
 
   useEffect(() => {
     if (orderListResponse.length > 0) {
       let result: Array<GoodsReceiptsInfoOrderModel> = [];
-      let receiptTypeId = goodsReceiptForm.getFieldValue('receipt_type_id');
+      //let receiptTypeId = goodsReceiptForm.getFieldValue('receipt_type_id');
       orderListResponse.forEach((order, index) => {
-        let fulfillments = order.fulfillments?.filter(ffm => {
-          if (receiptTypeId === 1) {
-            return ffm.status === FulFillmentStatus.PACKED
-          }
-          return ffm.status === FulFillmentStatus.SHIPPING && ffm.return_status === FulFillmentStatus.RETURNING
-        });
+        // let fulfillments = order.fulfillments?.filter(ffm => {
+        //   if (receiptTypeId === 1) {
+        //     return ffm.status === FulFillmentStatus.PACKED
+        //   }
+        //   return ffm.status === FulFillmentStatus.SHIPPING && ffm.return_status === FulFillmentStatus.RETURNING
+        // });
 
-        if (fulfillments.length > 0) {
+        let fulfillment = isFulfillmentActive(order.fulfillments);
+        if (fulfillment) {
           let product: VariantModel[] = [];
-          // chỉ lấy ffm active cuối cùng
-          let indexFFM = fulfillments.length - 1;
-          let ship_price = fulfillments[indexFFM].shipment.shipping_fee_informed_to_customer || 0;
-          let total_price = fulfillments[indexFFM].total || 0;
+          let ship_price = fulfillment?.shipment?.shipping_fee_informed_to_customer || 0;
+          let total_price = fulfillment.total || 0;
 
-          fulfillments[indexFFM].items.forEach(function (itemProduct) {
+          fulfillment.items.forEach(function (itemProduct) {
             product.push({
               sku: itemProduct.sku,
               product_id: itemProduct.product_id,
@@ -222,25 +229,50 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       render: (value) => formatCurrency(value),
     },
   ];
+  
+  const onSelectedChange = (selectedRow: GoodsReceiptsInfoOrderModel[], selected?: boolean, changeRow?: any[]) => {
+    let selectedRowKeysCopy: string[] = [...selectedRowKeys];
 
-  const rowSelection = {
-    selectedRowKeys: isOrderPack,
-    onChange: (selectedRowKeys: React.Key[], selectedRows: GoodsReceiptsInfoOrderModel[]) => {
-      console.log(`selectedRowKeys: ${selectedRowKeys}`, 'selectedRows: ', selectedRows);
-      let order_code: string[] = selectedRows.map((p) => p.order_code);
-      console.log(order_code);
-      setIsOrderPack(order_code);
+    if (selected === true) {
+      changeRow?.forEach((data, index) => {
+        let indexItem = selectedRowKeys.findIndex((p) => p === data.order_code)
+        if (indexItem === -1) {
+          selectedRowKeysCopy.push(data.order_code);
+        }
+      })
     }
+    else {
+      selectedRowKeys.forEach((data, index) => {
+        let indexItem = changeRow?.findIndex((p) => p.order_code === data);
+
+        if (indexItem !== -1) {
+          let i = selectedRowKeysCopy.findIndex((p) => p === data);
+          selectedRowKeysCopy.splice(i, 1);
+        }
+      })
+    }
+
+    console.log("selectedRowKeysCopy",selectedRowKeysCopy)
+    setSelectedRowKeys([...selectedRowKeysCopy]);
   };
-  //``
+
+  useEffect(() => {
+    if (!packOrderProductList || (packOrderProductList && packOrderProductList.length <= 0)) {
+      setResultPaging(resultPagingDefault)
+    }
+    else {
+      let result = flatDataPaging(packOrderProductList, pagingParam)
+      setResultPaging(result);
+    }
+  }, [packOrderProductList, pagingParam])
 
   return (
     <Card title={
       <React.Fragment>
-        <div style={{display:"flex"}}>
+        <div style={{ display: "flex" }}>
           Danh sách đơn hàng trong biên bản
-          <div style={{color:dangerColor, paddingLeft:7}}>
-            ({packOrderProductList?packOrderProductList.length:0})
+          <div style={{ color: dangerColor, paddingLeft: 7 }}>
+            ({packOrderProductList ? packOrderProductList.length : 0})
           </div>
         </div>
       </React.Fragment>
@@ -275,7 +307,29 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       </div>
       {orderListResponse && orderListResponse.length > 0 && (
         <div className="yody-pack-row">
-          <Table
+          <CustomTable
+            bordered
+            isRowSelection
+            pagination={{
+              pageSize: resultPaging.perPage,
+              total: resultPaging.total,
+              current: resultPaging.currentPage,
+              showSizeChanger: true,
+              onChange: (page, size) => {
+                console.log("size", size)
+                setPagingParam({ perPage: size || 10, currentPage: page })
+              },
+              onShowSizeChange: (page, size) => {
+                setPagingParam({ perPage: size || 10, currentPage: page })
+              },
+            }}
+            onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+            selectedRowKey={selectedRowKeys}
+            dataSource={resultPaging.result}
+            columns={columns}
+            rowKey={(item: any) => item.order_code}
+          />
+          {/* <Table
             columns={columns}
             dataSource={packOrderProductList}
             key={Math.random()}
@@ -292,7 +346,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               ...rowSelection,
             }}
             rowKey={(item) => item.order_code}
-          />
+          /> */}
         </div>
 
       )}

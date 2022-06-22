@@ -10,18 +10,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { DeleteOutlined } from "@ant-design/icons";
 import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { setPackInfo } from "utils/LocalStorageUtils";
-
-interface PagingParam {
-  currentPage: number;
-  perPage: number;
-}
-interface ResultPaging {
-  currentPage: number;
-  lastPage: number;
-  perPage: number;
-  total: number;
-  result: any;
-}
+import { PagingParam, ResultPaging } from "model/paging";
+import { flatDataPaging } from "utils/Paging";
 
 const resultPagingDefault: ResultPaging={
   currentPage: 1,
@@ -30,7 +20,6 @@ const resultPagingDefault: ResultPaging={
   total: 0,
   result: []
 }
-
 interface OrderResponseTable extends PackFulFillmentResponse {
   key: number;
 }
@@ -80,23 +69,25 @@ function PackList() {
       setResultPaging(resultPagingDefault)
     }
     else {
-      let total: number = orderData.length;
-      let totalPage: number = Math.ceil(total / pagingParam.perPage);
+      // let total: number = orderData.length;
+      // let totalPage: number = Math.ceil(total / pagingParam.perPage);
 
-      if (pagingParam.currentPage > total)
-        pagingParam.currentPage = totalPage;
+      // if (pagingParam.currentPage > total)
+      //   pagingParam.currentPage = totalPage;
 
-      let start: number = (pagingParam.currentPage - 1) * pagingParam.perPage;
-      let end: number = start + pagingParam.perPage;
-      let orderDataCopy = orderData.slice(start, end);
+      // let start: number = (pagingParam.currentPage - 1) * pagingParam.perPage;
+      // let end: number = start + pagingParam.perPage;
+      // let orderDataCopy = orderData.slice(start, end);
 
-      let result: ResultPaging = {
-        currentPage: pagingParam.currentPage,
-        lastPage: totalPage,
-        perPage: pagingParam.perPage,
-        total: total,
-        result: orderDataCopy
-      }
+      // let result: ResultPaging = {
+      //   currentPage: pagingParam.currentPage,
+      //   lastPage: totalPage,
+      //   perPage: pagingParam.perPage,
+      //   total: total,
+      //   result: orderDataCopy
+      // }
+
+      let result = flatDataPaging(orderData, pagingParam)
 
       setResultPaging(result);
     }
