@@ -134,6 +134,7 @@ const ProgressDownloadModal = (props: ProgressDownloadModalProps) => {
                         <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
                         <span>:</span>
                         <span>{error.split(":")[1]}</span>
+                        <span>{error.split(":")[2]}</span>
                       </li>
                     ))}
                   </ul>
