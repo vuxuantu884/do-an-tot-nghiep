@@ -561,7 +561,8 @@ const EcommerceOrders: React.FC = () => {
     return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
   };
 
-  const changeSubStatusCallback = (value: string) => {
+  const changeSubStatusCallback = (value: string, response?: any) => {
+    console.log('response', response)
     const index = data.items?.findIndex(
       (single) => single.id === selectedOrder?.id
     );
@@ -572,6 +573,8 @@ const EcommerceOrders: React.FC = () => {
       dataResult.items[index].sub_status = subStatuses?.find(
         (single) => single.code === value
       )?.sub_status;
+      dataResult.items[index].coordinator = response?.coordinator;
+      dataResult.items[index].coordinator_code = response?.coordinator_code;
       setData(dataResult);
     }
   };

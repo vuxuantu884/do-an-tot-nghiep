@@ -12,7 +12,7 @@ type PropTypes = {
   isEcommerceOrder?: boolean;
   reasonId?: number;
   subReasonRequireWarehouseChange?: number;
-  changeSubStatusCallback: (value: string) => void;
+  changeSubStatusCallback: (value: string, data?: any) => void;
   setToSubStatusCode: (value: string | undefined) => void;
   setOrderDetail?:(data:OrderResponse)=>void;
 };
@@ -65,7 +65,7 @@ function SubStatusChange(props: PropTypes): JSX.Element {
             toSubStatus,
             (data) => {
               resetValues();
-              changeSubStatusCallback(toSubStatus);
+              changeSubStatusCallback(toSubStatus, data);
               setToSubStatusCode(undefined);
               setOrderDetail && setOrderDetail(data)
             },
