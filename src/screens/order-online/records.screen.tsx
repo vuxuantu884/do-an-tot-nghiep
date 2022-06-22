@@ -87,11 +87,7 @@ const PackSupportScreen: React.FC = () => {
         title="Biên bản bàn giao"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
-          },
-          {
-            name: "Đơn hàng",
+            name: "Đơn hàng online",
             path: UrlConfig.ORDER,
           },
           {

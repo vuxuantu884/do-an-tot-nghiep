@@ -838,13 +838,13 @@ const OrderDetail = (props: PropType) => {
         ? `Đơn hàng ${OrderDetail?.code}`
         : "Đang tải dữ liệu..."
       }
-      breadcrumb={[
+      breadcrumb={OrderDetail ? [
         {
           name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
           path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
         },
         {
-          name: "Danh sách đơn hàng",
+          name: `Danh sách đơn hàng ${ isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
           path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
         },
         {
@@ -852,7 +852,7 @@ const OrderDetail = (props: PropType) => {
             ? `Đơn hàng ${OrderDetail?.code}`
             : "Đang tải dữ liệu...",
         },
-      ]}
+      ]: undefined}
       extra={isOrderFromPOS(OrderDetail) ? undefined :
         <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
       }

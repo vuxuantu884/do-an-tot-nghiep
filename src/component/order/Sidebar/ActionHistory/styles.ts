@@ -1,3 +1,4 @@
+import { primaryColor } from './../../../../utils/global-styles/variables';
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
 
@@ -36,6 +37,11 @@ export const StyledComponent = styled.div`
     &__title {
       font-size: 1em;
       font-weight: 500;
+    }
+    &__store {
+      font-size: ${13/14}em;
+      font-weight: 500;
+      color: ${primaryColor};
     }
     &__date {
       color: #737373;

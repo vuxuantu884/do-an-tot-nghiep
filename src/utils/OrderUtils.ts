@@ -119,15 +119,17 @@ export const checkIfFulfillmentIsAtStore = (
 
 export const calculateSumWeightResponse = (items?: OrderLineItemResponse[]) => {
   let totalWeight = 0;
+  console.log('items', items)
   if (items) {
     items.forEach((item) => {
-      let itemWeightUnit = item.weight;
+      let itemWeightByUnit = item.weight;
       if (item.weight_unit === WEIGHT_UNIT.kilogram.value) {
-        itemWeightUnit = item.weight * 1000;
+        itemWeightByUnit = item.weight * 1000;
       }
-      totalWeight = totalWeight + itemWeightUnit * item.quantity;
+      totalWeight = totalWeight + itemWeightByUnit * item.quantity;
     });
   }
+  console.log('totalWeight', totalWeight)
   return totalWeight;
 };
 

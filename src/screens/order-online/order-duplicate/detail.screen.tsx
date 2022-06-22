@@ -1066,8 +1066,8 @@ const OrderDuplicate: React.FC = () => {
         title="Danh sách đơn trùng"
         breadcrumb={[
           {
-            name: "Tổng quan",
-            path: UrlConfig.HOME,
+            name: "Đơn hàng online",
+            path: UrlConfig.ORDER,
           },
           {
             name: "Đơn trùng",
