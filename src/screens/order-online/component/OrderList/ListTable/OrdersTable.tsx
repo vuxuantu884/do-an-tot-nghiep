@@ -478,7 +478,8 @@ function OrdersTable(props: PropTypes) {
     }
   };
 
-  const changeSubStatusCallback = (value: string) => {
+  const changeSubStatusCallback = (value: string, response?: any) => {
+    console.log('response', response)
     const index = data.items?.findIndex(
       (single) => single.id === selectedOrder?.id
     );
@@ -489,6 +490,9 @@ function OrdersTable(props: PropTypes) {
       dataResult.items[index].sub_status = subStatuses?.find(
         (single) => single.code === value
       )?.sub_status;
+      dataResult.items[index].coordinator = response?.coordinator;
+      dataResult.items[index].coordinator_code = response?.coordinator_code;
+      dataResult.items[index] = response;
       setData(dataResult);
     }
   };
