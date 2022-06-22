@@ -80,8 +80,5 @@ export const PoProductFormContainer = styled.div` .header {
  .ant-table-cell.ant-table-cell-scrollbar {
   display: none;
  }
- .ant-table-body {
-  overflow-y: hidden !important;
- }
 }
 `;
