@@ -23,7 +23,9 @@ import {
   getLineItemDiscountRate,
   getLineItemDiscountValue,
   getProductDiscountPerOrder,
-  getProductDiscountPerProduct
+  getProductDiscountPerProduct,
+  handleFetchApiError,
+  isFetchApiSuccessful
 } from "utils/AppUtils";
 import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
@@ -491,11 +493,16 @@ function CardReturnProductContainer(props: PropTypes) {
           console.log('params', params)
           dispatch(showLoading())
           calculateMoneyRefundService(orderId, params).then(response => {
-            console.log('response', response)
-            result = response.data;
-            if (setTotalAmountReturnProducts) {
-              setTotalAmountReturnProducts(Math.round(result));
+            if (isFetchApiSuccessful(response)) {
+              result = response.data;
+              if (setTotalAmountReturnProducts) {
+                setTotalAmountReturnProducts(Math.round(result));
+              }
+            } else {
+              handleFetchApiError(response, "Tính tiền hoàn lại", dispatch);
             }
+            console.log('response', response)
+            
           }).finally(() => {
             dispatch(hideLoading())
           })

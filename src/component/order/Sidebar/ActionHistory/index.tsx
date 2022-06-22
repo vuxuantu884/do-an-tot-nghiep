@@ -128,8 +128,8 @@ function ActionHistory(props: PropType) {
                   <Col span={12}>
                     <div className="singleActionHistory__info">
                       {singleActionHistory?.store && (
-                        <h4 className="singleActionHistory__title">
-                          {singleActionHistory?.store}
+                        <h4 className="singleActionHistory__store">
+                          <span title="Kho hàng">{singleActionHistory?.store}</span>
                         </h4>
                       )}
 

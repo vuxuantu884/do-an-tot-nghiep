@@ -540,15 +540,15 @@ const ScreenReturnDetail = (props: PropTypes) => {
           ? `Chi tiết đơn trả hàng ${OrderDetail?.code}`
           : "Đang tải dữ liệu..."
         }
-        breadcrumb={[
+        breadcrumb={OrderDetail ? [
           {
-            name: "Danh sách đơn trả hàng",
+            name: `Danh sách đơn trả hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
             path: isOrderFromPOS(OrderDetail) ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}` : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
           },
           {
             name: OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
           },
-        ]}
+        ]: undefined}
       >
         <div className="orders">
           <Row gutter={24} style={{ marginBottom: "70px" }}>
