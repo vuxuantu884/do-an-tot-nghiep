@@ -873,10 +873,13 @@ function OrderReturnList(props: PropTypes) {
   return (
     <StyledComponent>
       <ContentContainer
-        title="Danh sách đơn trả hàng"
+        title= {`Danh sách đơn trả hàng ${ orderType === ORDER_TYPES.online ? "online" : "offline"}`}
         breadcrumb={[
           {
-            name: "Danh sách đơn trả hàng",
+            name: orderType === ORDER_TYPES.online ? "Đơn hàng online" : "Đơn hàng offline",
+          },
+          {
+            name: `Danh sách đơn trả hàng ${ orderType === ORDER_TYPES.online ? "online" : "offline"}`,
           },
         ]}
         extra={

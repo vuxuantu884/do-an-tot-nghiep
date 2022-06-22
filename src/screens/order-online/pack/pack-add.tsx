@@ -309,11 +309,7 @@
           title="Thêm mới biên bản bàn giao"
           breadcrumb={[
             {
-              name: "Tổng quan",
-              path: UrlConfig.HOME,
-            },
-            {
-              name: "Đơn hàng",
+              name: "Đơn hàng online",
               path: UrlConfig.ORDER,
             },
             {

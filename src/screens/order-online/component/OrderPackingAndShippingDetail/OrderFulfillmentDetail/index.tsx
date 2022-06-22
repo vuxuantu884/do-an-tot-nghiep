@@ -277,11 +277,9 @@ function OrderFulfillmentDetail(props: PropTypes) {
                 <b className="text-field">
                   {orderDetail?.fulfillments &&
                     orderDetail?.fulfillments.length > 0 &&
-                    formatCurrency(
-                      orderDetail.items &&
-                        calculateSumWeightResponse(orderDetail.items),
-                    )}
-                  g
+                    orderDetail.items &&
+                    calculateSumWeightResponse(orderDetail.items)}
+                  {` g`}
                 </b>
               </Col>
             </Row>
