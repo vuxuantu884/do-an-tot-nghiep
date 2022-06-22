@@ -85,12 +85,14 @@
     text-align: center;
   }
   .header-wrap-code{
-    width: 40px;
+    width: 50px;
+    text-align: center;
   }
   .wrap-text-code {
-    transform: rotate(-90deg);
+   // transform: rotate(-90deg);
     display:inline-block;
-    width: 40px;
+    text-align: center;
+    width: 50px;
   }
   .cloth {
     overflow-wrap: break-word;
