@@ -2,7 +2,6 @@ import { FormInstance } from "antd/es/form/Form";
 import { UploadFile } from "antd/lib/upload/interface";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
-import UrlConfig from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import _, { cloneDeep, sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
@@ -1167,7 +1166,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
   console.log('newReturnItems', newReturnItems)
   for (const singleOrder of OrderDetailClone.items) {
 		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau)
-    let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id && single.type === singleOrder.type);
+    let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id && single.type === singleOrder.type && single.order_line_item_id === singleOrder.id);
     if(duplicatedItem) {
       console.log('duplicatedItem', duplicatedItem)
 			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id&& single.type === duplicatedItem.type)
