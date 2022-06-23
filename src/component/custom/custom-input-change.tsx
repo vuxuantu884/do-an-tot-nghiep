@@ -1,7 +1,7 @@
 import { Input, InputNumber, Select, Typography } from "antd";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, parseLocaleNumber } from "utils/AppUtils";
 import { MoneyType } from "utils/Constants";
 
 interface CustomInputChangeProps {
@@ -95,6 +95,13 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
             handleChangeInput(e);
           }}
           formatter={(value?: number) => formatCurrency(value || 0)}
+          parser={(value?: string) => {  
+            let parseValue = 0        
+            if (value) {
+              parseValue = parseLocaleNumber(value);
+            }
+            return parseValue;
+          }}
           max={getMaxInput()}
           value={data}
         />

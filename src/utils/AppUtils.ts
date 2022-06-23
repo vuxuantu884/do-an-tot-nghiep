@@ -1207,35 +1207,6 @@ export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) =>
   return result;
 }
 
-export const customGroupBy = (array:any, groupBy:any) => {
-  let groups = {};
-  array.forEach((o: any) => {
-    const group:string = groupBy.map((e: any) => `{"${e}": "${o[e]}"}`);
-    // @ts-ignore
-    groups[group] = groups[group] || [];
-    const e = Object.assign({}, o);
-    groupBy.forEach((g:string) => {
-      // @ts-ignore
-      groups[group][g] = e[g];
-      delete e[g];
-    })
-    // @ts-ignore
-    groups[group].push(e);
-  });
-  return Object.keys(groups).map((group) => {
-    // @ts-ignore
-    const r = {variants: groups[group]};
-    groupBy.forEach((b: string) => {
-      // @ts-ignore
-      r[b] = groups[group][b];
-      // @ts-ignore
-      delete groups[group][b]
-    })
-    return r;
-  });
-};
-
-
 export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowedBeforeAndAfter: number = 2) => {
   if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
     const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
@@ -1496,35 +1467,6 @@ export const reCalculatePaymentReturn = (payments: OrderPaymentRequest[], totalA
   }
   return payments;
 };
-
-/**
-* utils to remove all XSS  attacks potential
-* @param
-{
-    String
-}
-html
-* @return
-{
-    Object
-}
-*/
-// export const safeContent = (html: any) => {
-//   if(!html) return html
-//   const SCRIPT_REGEX = /<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi;
-
-//   //Removing the <script> tags
-//   while (SCRIPT_REGEX.test(html)) {
-//     html = html.replace(SCRIPT_REGEX, "");
-//   }
-
-//   //Removing all events from tags...
-//   html = html.replace(/ on\w+="[^"]*"/g, "");
-
-//   return {
-//     __html: html,
-//   };
-// };
 
 export const isFetchApiSuccessful = (response:BaseResponse<any>) => {
 	if(response){
@@ -2079,3 +2021,18 @@ export const flattenArray = (arr: any) => {
     );
   }, []);
 };
+
+/**
+ * Parse a localized number to a float.
+ * @param {string} stringNumber - the localized number
+ * @param {string} locale - [optional] the locale that the number is represented in. Omit this parameter to use the current locale.
+ */
+ export function parseLocaleNumber(stringNumber: string, locale?: string) {
+  const thousandSeparator = Intl.NumberFormat(locale).format(11111).replace(/\p{Number}/gu, '');
+  const decimalSeparator = Intl.NumberFormat(locale).format(1.1).replace(/\p{Number}/gu, '');
+
+  return parseFloat(stringNumber
+      .replace(new RegExp('\\' + thousandSeparator, 'g'), '')
+      .replace(new RegExp('\\' + decimalSeparator), '.')
+  );
+}
