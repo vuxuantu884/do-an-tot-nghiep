@@ -828,7 +828,7 @@ const DetailTicket: FC = () => {
       render: (value: any, row: any, index: number) => {
         if (row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status) {
           return <NumberInput
-            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, [row.to_store_id], currentStores)}
+            disabled={!checkUserPermission([InventoryTransferPermission.receive], currentPermissions, myStores.length > 0 ? [row.to_store_id] : [], currentStores)}
             isFloat={false}
             id={`item-quantity-${index}`}
             min={0}
