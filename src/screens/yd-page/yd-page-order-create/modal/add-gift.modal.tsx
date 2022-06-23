@@ -15,7 +15,6 @@ import imgdefault from "assets/icon/img-default.svg";
 import { Type } from "config/type.config";
 import { Link } from "react-router-dom";
 import {
-  OrderItemDiscountModel,
   OrderItemModel,
 } from "model/other/order/order-model";
 import {
