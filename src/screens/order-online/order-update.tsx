@@ -381,7 +381,7 @@ export default function Order(props: PropTypes) {
 				&& i.status !== FulFillmentStatus.RETURNING
 				&& i.status !== FulFillmentStatus.RETURNED
 			);
-			request.id = shipmentMethod === ShipmentMethodOption.DELIVER_LATER || (ffm.length && !ffm[0].shipment) ? ffm[0].id : null;
+			request.id = shipmentMethod === ShipmentMethodOption.DELIVER_LATER || (ffm.length && !ffm[0].shipment) ? ffm[0]?.id : null;
 		}
 		let listFulfillmentRequest = [];
 		if (
