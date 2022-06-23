@@ -163,7 +163,7 @@ const initQuery: EcommerceOrderSearchQuery = {
   reference_code: null,
 };
 
-const ALL_CHANNEL = ["Shopee", "lazada", "sendo", "tiki"];
+const ALL_CHANNEL = ["Shopee", "lazada", "tiki", "tiktok"];
 
 type dataExtra = PageResponse<OrderExtraModel>;
 let isLoadingSetSubStatus = false
