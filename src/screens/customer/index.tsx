@@ -54,8 +54,6 @@ import ExportCustomerFile from "screens/customer/export-file/ExportCustomerFile"
 import {COLUMN_CONFIG_TYPE} from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
-import {SourceResponse} from "../../model/response/order/source.response";
-import {getListAllSourceRequest} from "../../domain/actions/product/source.action";
 
 const viewCustomerPermission = [CustomerListPermission.customers_read];
 const createCustomerPermission = [CustomerListPermission.customers_create];

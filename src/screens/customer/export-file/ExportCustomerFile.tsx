@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from "react";
-import {Button, Checkbox, Col, Divider, Modal, Progress, Radio, Row, Space} from "antd";
+import {Button, Checkbox, Col, Divider, Modal, Progress, Radio, Row, Space, Tooltip} from "antd";
 import {showError, showSuccess} from "utils/ToastUtils";
 
 import {generateQuery} from "utils/AppUtils";
@@ -7,6 +7,7 @@ import {HttpStatus} from "config/http-status.config";
 import {exportFile, getFile} from "service/other/export.service";
 
 import {ExportCustomerModalStyled} from "screens/customer/export-file/ExportCustomerStyled";
+import _ from "lodash";
 
 type ExportCustomerFileType = {
   cancelExportModal: () => void;
@@ -23,6 +24,8 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
 
   // handle export file
   const [exportPageAll, setExportPageAll] = useState(true);
+  const [isSelectAll, setIsSelectAll] = useState<boolean>(false);
+  const [indeterminate, setIndeterminate] = useState(false);
   const [exportColumnAll, setExportColumnAll] = useState(true);
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
   const [exportItemNumber, setExportItemNumber] = useState<number>(0);
@@ -53,7 +56,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
       setIsExporting(true);
       const exportParams = generateQuery(newParams);
 
-      const defaultHiddenFields = "city,district,ward,full_address,total_finished_order,remain_amount_to_level_up,average_order_value,total_returned_order,total_refunded_amount,number_of_days_without_purchase,store_of_first_order,store_of_last_order,description";
+      const defaultHiddenFields = "total_finished_order,remain_amount_to_level_up,average_order_value,total_returned_order,total_refunded_amount,number_of_days_without_purchase,description";
       let hiddenFields;
       if (exportColumnAll) {
         hiddenFields = defaultHiddenFields;
@@ -168,34 +171,76 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
     {name: "Ngày kích hoạt thẻ", value: "assigned_date", isSelected: false},
     {name: "Cửa hàng kích hoạt", value: "assigned_store", isSelected: false},
     {name: "Mã số thẻ", value: "card_number", isSelected: false},
-    {name: "Đơn vị", value: "code", isSelected: false},
+    {name: "Đơn vị", value: "company", isSelected: false},
     {name: "Điểm hiện tại", value: "point", isSelected: false},
     {name: "Tiền tích lũy", value: "total_paid_amount", isSelected: false},
     {name: "Ngày mua đầu", value: "first_order_time", isSelected: false},
+    {name: "Ngày mua đầu (online)", value: "first_order_time_online", isSelected: false},
+    {name: "Ngày mua đầu (offline)", value: "first_order_time_offline", isSelected: false},
     {name: "Ngày mua cuối", value: "last_order_time", isSelected: false},
+    {name: "Ngày mua cuối (online)", value: "last_order_time_online", isSelected: false},
+    {name: "Ngày mua cuối (offline)", value: "last_order_time_offline", isSelected: false},
+    {name: "Cửa hàng mua đầu", value: "store_of_first_order_offline", isSelected: false, tooltip: "Cửa hàng mua offline đầu của KH"},
+    {name: "Cửa hàng mua cuối", value: "store_of_last_order_offline", isSelected: false, tooltip: "Cửa hàng mua offline cuối của KH"},
+    {name: "Nguồn mua đầu", value: "source_of_first_order_online", isSelected: false, tooltip: "Nguồn mua online đầu của KH"},
+    {name: "Nơi mua đầu", value: "first_order_place", isSelected: false, tooltip: "Cửa hàng mua offline hoặc Nguồn mua online đầu của KH"},
+    {name: "Nơi mua cuối", value: "last_order_place", isSelected: false, tooltip: "Cửa hàng mua offline hoặc Nguồn mua online cuối của KH"},
+    {name: "Nguồn mua cuối", value: "source_of_last_order_online", isSelected: false, tooltip: "Nguồn mua online cuối của KH"},
+    {name: "Loại mua đầu", value: "first_order_type", isSelected: false, tooltip: "Loại mua đầu: online hoặc offline"},
+    {name: "Loại mua cuối", value: "last_order_type", isSelected: false, tooltip: "Loại mua cuối: online hoặc offline"},
+    {name: "Tỉnh/Thành phố", value: "city", isSelected: false},
+    {name: "Quận/Huyện", value: "district", isSelected: false},
+    {name: "Xã/Phường", value: "ward", isSelected: false},
+    {name: "Địa chỉ", value: "full_address", isSelected: false},
   ];
 
   const [columnListOption, setColumnListOption] = useState<any>(columnListOptionDefault);
   const [columnSelectedList, setColumnSelectedList] = useState<Array<string>>([]);
 
+  const onSelectAllColumn = (e: any) => {
+    let columnListOptionClone = _.cloneDeep(columnListOption)
+    let newColumnSelectedList: Array<any> = [];
+    columnListOptionClone.forEach((column: any) => {
+      column.isSelected = e.target?.checked;
+      if (e.target?.checked) {
+        newColumnSelectedList.push(column.value);
+      }
+    });
+    setColumnListOption(columnListOptionClone);
+    setColumnSelectedList(newColumnSelectedList);
+
+    setIsSelectAll(e.target.checked);
+    setIndeterminate(false);
+  };
+
   const onChangeColumnSelect = (e: any, column: any, index: number) => {
-    const newColumnListOption = [...columnListOption];
+    let newColumnListOption = _.cloneDeep(columnListOption)
     if (newColumnListOption && newColumnListOption[index]) {
       newColumnListOption[index].isSelected = e.target?.checked;
     }
     setColumnListOption(newColumnListOption);
 
+    let newColumnSelectedList: any;
     if (e.target.checked) {
-      // column.isSelected = true;
-      const newColumnSelectedList = [...columnSelectedList];
+      newColumnSelectedList = _.cloneDeep(columnSelectedList);
       newColumnSelectedList.push(column.value);
       setColumnSelectedList(newColumnSelectedList);
     } else {
-      // column.isSelected = false;
-      const newColumnSelectedList = columnSelectedList?.filter((columnSelected: any) => {
+      newColumnSelectedList = columnSelectedList?.filter((columnSelected: any) => {
         return columnSelected !== column.value;
       });
       setColumnSelectedList(newColumnSelectedList);
+    }
+
+    if (newColumnSelectedList?.length === columnListOption.length) {
+      setIsSelectAll(true);
+      setIndeterminate(false);
+    } else if (newColumnSelectedList?.length === 0) {
+      setIsSelectAll(false);
+      setIndeterminate(false);
+    } else {
+      setIndeterminate(true);
+      setIsSelectAll(true);
     }
   };
   //end handle select column export
@@ -247,13 +292,33 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
 
               {!exportColumnAll &&
                 <Row style={{ marginTop: 20 }}>
+                  <Col key="all" span={24} style={{ marginBottom: 10 }}>
+                    <Checkbox
+                      checked={isSelectAll}
+                      indeterminate={indeterminate}
+                      onChange={(e) => onSelectAllColumn(e)}
+                    >
+                      Chọn tất cả
+                    </Checkbox>
+                  </Col>
+
                   {columnListOption?.map((column: any, index: number) => (
                     <Col key={column.value} span={8} style={{ marginBottom: 10 }}>
-                      <Checkbox
-                        onChange={(e) => onChangeColumnSelect(e, column, index)}
-                        checked={column.isSelected}>
-                        {column.name}
-                      </Checkbox>
+                      {column.tooltip ?
+                        <Tooltip title={column.tooltip} color={"blue"}>
+                          <Checkbox
+                            onChange={(e) => onChangeColumnSelect(e, column, index)}
+                            checked={column.isSelected}>
+                            {column.name}
+                          </Checkbox>
+                        </Tooltip>
+                        :
+                        <Checkbox
+                          onChange={(e) => onChangeColumnSelect(e, column, index)}
+                          checked={column.isSelected}>
+                          {column.name}
+                        </Checkbox>
+                      }
                     </Col>
                   ))}
                 </Row>
