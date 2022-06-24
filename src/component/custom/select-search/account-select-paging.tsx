@@ -6,7 +6,7 @@
 import { SelectProps } from "antd";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import _ from "lodash";
-import { AccountPublicSearchQuery, AccountResponse } from "model/account/account.model";
+import { AccountPublicSearchQueryModel, AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -51,7 +51,7 @@ function SelectSearch(contentProps: SelectContentProps) {
 
   const [defaultOptons, setDefaultOptons] = useState<AccountResponse[]>([]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const handleSearch = (queryParams: AccountPublicSearchQuery) => {
+  const handleSearch = (queryParams: AccountPublicSearchQueryModel) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
     dispatch(

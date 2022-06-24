@@ -1,5 +1,5 @@
 import { SelectProps, Select } from "antd";
-import { AccountPublicSearchQuery } from "model/account/account.model";
+import { AccountPublicSearchQueryModel } from "model/account/account.model";
 import { BaseMetadata } from "model/base/base-metadata.response";
 import React from "react";
 import SelectPagingV2 from "../SelectPaging/SelectPagingV2";
@@ -34,7 +34,7 @@ function SelectSearchPaging<T>({
   isLoading,
   ...rest
 }: SelectContentProps<T>) {
-  const handleSearch = (queryParams: AccountPublicSearchQuery) => {
+  const handleSearch = (queryParams: AccountPublicSearchQueryModel) => {
     const query = { ...fixedQuery, ...queryParams };
     onSearch(query);
   };
