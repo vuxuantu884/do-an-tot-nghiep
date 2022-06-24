@@ -20,6 +20,7 @@ import {
   LAZADA_ORDER_STATUS_LIST,
   SHOPEE_ORDER_STATUS_LIST,
   TIKI_ORDER_STATUS_LIST,
+  TIKTOK_ORDER_STATUS_LIST,
 } from "screens/ecommerce/common/commonAction";
 import 'component/filter/order.filter.scss'
 import {actionFetchListOrderProcessingStatus} from "domain/actions/settings/order-processing-status.action";
@@ -101,6 +102,8 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
         return LAZADA_ORDER_STATUS_LIST
       case ECOMMERCE_ID.TIKI.toString():
         return TIKI_ORDER_STATUS_LIST
+      case ECOMMERCE_ID.TIKTOK.toString():
+        return TIKTOK_ORDER_STATUS_LIST
       default:
         return [];
     }
