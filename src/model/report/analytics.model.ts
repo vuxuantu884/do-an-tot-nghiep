@@ -67,7 +67,12 @@ export enum ChartTypeValue {
 }
 
 export enum FormFilterCustomReport {
-  OnlyMyReport = 'onlyMyReport'
+  OnlyMyReport = 'onlyMyReport',
+  NameReport = 'nameReport',
+}
+
+export enum ReportProperty {
+  PosLocationName = 'pos_location_name'
 }
 
 export declare type QueryMode = "table" | "chart"

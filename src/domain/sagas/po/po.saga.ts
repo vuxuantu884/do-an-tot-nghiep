@@ -209,8 +209,11 @@ function* poDeleteSaga(action: YodyAction) {
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
         break;
+      case HttpStatus.BAD_REQUEST:
+        response.errors.forEach((e) => showError(e));
+        break;
       default:
-        deleteCallback(false);
+        // deleteCallback(false);
         // response.errors.forEach((e) => showError(e));
         break;
     }

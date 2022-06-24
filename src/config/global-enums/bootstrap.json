@@ -394,6 +394,10 @@
     {
       "name": "Phiếu trả hàng nhà cung cấp",
       "value": "purchase_order_return"
+    },
+    {
+      "name": "Phiếu nhặt hàng sàn",
+      "value": "ecommerce_shipment"
     }
   ],
   "moq_unit": [

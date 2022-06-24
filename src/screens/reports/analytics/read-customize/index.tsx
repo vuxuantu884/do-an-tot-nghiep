@@ -7,7 +7,7 @@ import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
 import { AnnotationDataList, TIME_GROUP_BY } from 'config/report'
 import UrlConfig from 'config/url.config'
 import { RootReducerType } from 'model/reducers/RootReducerType'
-import { AnalyticChartInfo, AnalyticCube, AnalyticCustomize, AnalyticQuery, AnnotationData, ChartTypeValue, FIELD_FORMAT, SUBMIT_MODE } from 'model/report/analytics.model'
+import { AnalyticChartInfo, AnalyticCube, AnalyticCustomize, AnalyticQuery, AnnotationData, ChartTypeValue, FIELD_FORMAT, ReportProperty, SUBMIT_MODE } from 'model/report/analytics.model'
 import moment from 'moment'
 import React, { useCallback, useContext, useEffect, useMemo } from 'react'
 import { AiOutlineEdit } from 'react-icons/ai'
@@ -16,7 +16,7 @@ import { useHistory, useParams } from 'react-router-dom'
 import NoPermission from 'screens/no-permission.screen'
 import { deleteAnalyticsCustomService, executeAnalyticsQueryService, getAnalyticsCustomByIdService, saveAnalyticsCustomService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
-import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getConditionsFormServerToForm, getPermissionViewCustomizeReport, getPropertiesValue, getTranslatePropertyKey, setReportsCustomizeUrl } from 'utils/ReportUtils'
+import { checkArrayHasAnyValue, exportReportToExcel, formatReportTime, getChartQuery, getConditionsFormServerToForm, getNoPermissionStores, getPermissionViewCustomizeReport, getPropertiesValue, getTranslatePropertyKey, setReportsCustomizeUrl } from 'utils/ReportUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ReportBottomBarStyle } from '../index.style'
 import AnalyticsForm, { ReportifyFormFields } from '../shared/analytics-form'
@@ -35,7 +35,7 @@ function CreateAnalytics() {
     let { id } = useParams<{ id: string }>();
 
     const [reportInfo, setReportInfo] = React.useState<AnalyticCustomize>({} as AnalyticCustomize);
-    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport, setLoadingChart, permissionViewReport, setPermissionViewReport } = useContext(AnalyticsContext)
+    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport, setLoadingChart, permissionViewReport, setPermissionViewReport, setPermissionStores } = useContext(AnalyticsContext)
     const [mode, setMode] = React.useState<SUBMIT_MODE>(SUBMIT_MODE.GET_DATA);
     const [isLoadingExport, setIsLoadingExport] = React.useState<boolean>(false);
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
@@ -46,6 +46,7 @@ function CreateAnalytics() {
 
     const username = useSelector((state: RootReducerType) => state.userReducer.account?.user_name);
     const allPermissions = useSelector((state: RootReducerType) => state.permissionReducer?.permissions);
+    const myStores = useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
 
     const currentAnnotation: AnnotationData | undefined = useMemo(() => {
         return AnnotationDataList.find((item) => dataQuery && item.cubes.includes(dataQuery.query.cube as AnalyticCube));
@@ -177,6 +178,7 @@ function CreateAnalytics() {
     const fetchQueryData = useCallback(async () => {
         const report: AnalyticCustomize = await callApiNative({ isShowLoading: true }, dispatch, getAnalyticsCustomByIdService, Number(id));
         setReportInfo(report);
+        // let havePermissionStore = true;
         if (report && report.query) {
             const isPermission = getPermissionViewCustomizeReport(allPermissions, report.group as AnalyticCube);
             setPermissionViewReport(() => {
@@ -206,6 +208,15 @@ function CreateAnalytics() {
 
                 const propertiesValue = getPropertiesValue(rows || [], response);
                 const whereValue = getConditionsFormServerToForm(conditions || []);
+                if (Object.keys(whereValue).length && Object.keys(whereValue).includes(ReportProperty.PosLocationName)) {
+                    const filterStores = whereValue[ReportProperty.PosLocationName];
+                    const noPermissionStore = getNoPermissionStores(filterStores, myStores);
+                    setPermissionStores(() => [...noPermissionStore]);
+                    // if (noPermissionStore.length && noPermissionStore.length === filterStores.length) {
+                    //     havePermissionStore = false;
+                    // }
+                }
+                
 
                 // case: view and update report : load data vào form
                 form.setFieldsValue({
@@ -247,6 +258,9 @@ function CreateAnalytics() {
             }
             setDataQuery(response);
         }
+        // if (!havePermissionStore) {
+        //     return;
+        // }
         if (report?.chart_query) {
             const fullChartParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.chart_query, options: report.options } : { q: report.chart_query };
             const chartResponse = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullChartParams);
@@ -257,7 +271,7 @@ function CreateAnalytics() {
                 })
             }
         }
-    }, [dispatch, id, setPermissionViewReport, username, formEditInfo, formCloneReport, cubeRef, setDataQuery, allPermissions, setIsMyReport, form, setMetadata, setRowsInQuery, setActiveFilters, setChartColumnSelected])
+    }, [dispatch, id, allPermissions, setPermissionViewReport, username, formEditInfo, formCloneReport, cubeRef, setDataQuery, setIsMyReport, myStores, form, setMetadata, setPermissionStores, setRowsInQuery, setActiveFilters, setChartColumnSelected])
 
     useEffect(() => {
 

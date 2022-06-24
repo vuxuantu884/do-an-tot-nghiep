@@ -65,8 +65,8 @@ export const StyledComponent = styled.div`
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: -999px;
-        bottom: -999px;
+        top: -2px;
+        bottom: -2px;
         right: ${quantityWidth}px;
         background-color: ${borderColor};
       }
@@ -100,8 +100,8 @@ export const StyledComponent = styled.div`
         width: 1px;
         position: absolute;
         z-index: 1;
-        top: -999px;
-        bottom: -999px;
+        top: -2x;
+        bottom: -2px;
         right: ${priceWidth}px;
         background-color: ${borderColor};
       }

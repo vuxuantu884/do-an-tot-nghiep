@@ -59,7 +59,7 @@ import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
 import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import IconPaymentMOMO from "assets/icon/payment/momo.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
-
+import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 
 const PAYMENT_ICON = [
   {
@@ -491,18 +491,6 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     [dispatch, onSuccessEditNote]
   );
 
-  const renderReturn = (item: any) => {
-    if (!item.code_order_return) {
-      return (
-        checkIfOrderCanBeReturned(item) ? (
-          <div style={{marginTop: 5}}>
-          <ButtonCreateOrderReturn orderDetail={item} />
-        </div>
-        ) : null
-      )
-    }
-  };
-
   const renderTrackingCode = (shipment: ShipmentResponse) => {
     const trackingCode = shipment?.tracking_code;
     if (!trackingCode) {
@@ -727,20 +715,38 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
               <div className="textSmall single">
                 <strong>Tổng SP: {getTotalQuantity(item.items)}</strong>
               </div>
-
-              {item.code_order_return ?
-                <>
-                  <div className="textSmall">
-                    <span style={{ fontWeight: "bold" }}>Đơn gốc: </span>
-                    <Tooltip title="Mã đơn gốc">
-                      <Link to={`${UrlConfig.ORDER}/${item.order_id}`} target="_blank">{item.code_order}</Link>
-                    </Tooltip>
+              
+              <div style={{ display: 'flex' }}>
+                {item.code_order_return ?
+                  <div style={{ display: 'block' }}>
+                    <div className="textSmall">
+                      <span style={{ fontWeight: "bold" }}>Đơn gốc: </span>
+                      <Tooltip title="Mã đơn gốc">
+                        <Link to={`${UrlConfig.ORDER}/${item.order_id}`} target="_blank">{item.code_order}</Link>
+                      </Tooltip>
+                    </div>
+                    <div className="textSmall" style={{ color: "red", fontWeight: "bold" }}>Trả hàng</div>
                   </div>
-                  <div className="textSmall" style={{ color: "red", fontWeight: "bold" }}>Trả hàng</div>
-                </>
-                :
-                renderReturn(item)
-              }
+                  : (!item.code_order_return
+                    && checkIfOrderCanBeReturned(item) ? 
+                      <div style={{marginRight: 5}}>
+                        <ButtonCreateOrderReturn orderDetail={item} />
+                      </div>
+                      : null
+                    )
+                }
+                {(item.status === OrderStatus.FINISHED || item.status === OrderStatus.COMPLETED) ? (
+                  <div className="actionButton">
+                    <Link
+                      to={`${UrlConfig.WARRANTY}/create?orderID=${item.id}`}
+                      title="Tạo bảo hành"
+                      target = "_blank"
+                    >
+                      <img alt="" src={iconWarranty} className="iconReturn" style={{ filter: 'brightness(0.5)' }}/>
+                    </Link>
+                  </div>
+                ) : null}
+              </div>
             </div>
           );
         },

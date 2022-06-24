@@ -18,13 +18,13 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import DownloadDataModal from "../components/DownloadDataModal";
 import OrderSyncFilter from "./OrderSyncFilter";
 import { OrderSyncStyle, StyledStatus } from "./style";
-import { getParamsFromQuery, getQueryParamsFromQueryString } from "utils/useQuery";
+import { getParamsFromQuery } from "utils/useQuery";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
 import { getSourceListAction, getOrderMappingListAction, downloadWebAppOrderAction, syncWebAppOrderAction } from "domain/actions/web-app/web-app.actions";
 import { SourceResponse } from "model/response/order/source.response";
 import TableRowAction from "screens/ecommerce/common/TableRowAction";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
 import { EcommerceOrderPermission, EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import ProgressDownloadModal from "./ProcessDownloadModal";
 import { getProgressDownloadEcommerceApi } from "service/web-app/web-app.service";
@@ -254,10 +254,10 @@ const OrdersSync = () => {
   const handleFilter = (value: any) => {
     let newParams = { ...params, ...value, page: 1 };
     if (newParams.created_date_from != null) {
-      newParams.created_date_from = moment(newParams.created_date_from, "DD-MM-YYYY").utc(true);
+        newParams.created_date_from = moment(newParams.created_date_from, "DD-MM-YYYY").format("DD-MM-YYYY");
     }
     if (newParams.created_date_to != null) {
-      newParams.created_date_to = moment(newParams.created_date_to, "DD-MM-YYYY").utc(true);
+        newParams.created_date_to = moment(newParams.created_date_to, "DD-MM-YYYY").format("DD-MM-YYYY");
     }
     let queryParam = generateQuery(params);
     let newQueryParam = generateQuery(newParams);
@@ -320,8 +320,11 @@ const OrdersSync = () => {
   //get data
   const getOrderSyncList = () => {
     setIsLoading(true);
+    const newParam = {...queryParams}
+    newParam.created_date_from = newParam.created_date_from ? moment(newParam.created_date_from, "DD-MM-YYYY").utc(true).format() : null
+    newParam.created_date_to = newParam.created_date_to ? moment(newParam.created_date_to, "DD-MM-YYYY").utc(true).format() : null
     dispatch(
-      getOrderMappingListAction(queryParams, (result) => {
+      getOrderMappingListAction(newParam, (result) => {
         setIsLoading(false);
         if (!!result) {
           setData(result);

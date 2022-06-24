@@ -13,6 +13,10 @@ export interface CustomerSearchQuery extends BaseQuery {
   assign_store_ids?: Array<any> | [];
   store_ids?: Array<any> | [];
   source_ids?: Array<any> | [];
+  source_of_first_order_online_ids?: Array<any> | [];
+  source_of_last_order_online_ids?: Array<any> | [];
+  first_order_type?: string | null;
+  last_order_type?: string | null;
   channel_ids?: Array<any> | [];
   day_of_birth_from?: number | undefined;
   day_of_birth_to?: number | undefined;
@@ -37,8 +41,8 @@ export interface CustomerSearchQuery extends BaseQuery {
   average_order_amount_to?: number | undefined;
   total_returned_amount_from?: number | undefined;
   total_returned_amount_to?: number | undefined;
-  store_of_first_order_ids?: Array<any> | [];
-  store_of_last_order_ids?: Array<any> | [];
+  store_of_first_order_offline_ids?: Array<any> | [];
+  store_of_last_order_offline_ids?: Array<any> | [];
   number_of_days_without_purchase_from?: number | undefined;
   number_of_days_without_purchase_to?: number | undefined;
   point_from?: number | undefined;

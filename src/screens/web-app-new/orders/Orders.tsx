@@ -44,6 +44,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { SaveSearchType } from "utils/SaveSearchType";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import React from "react";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { AccountResponse } from "model/account/account.model";
 
 const WebAppOrders: React.FC = () => {
     const dispatch = useDispatch();
@@ -118,6 +120,7 @@ const WebAppOrders: React.FC = () => {
     };
 
     //state
+    const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
     const [tableLoading, setTableLoading] = useState(false);
     const [isShowExportFileModal, setIsShowExportFileModal] = useState(false);
     const [selectedRows, setSelectedRows] = useState<OrderResponse[]>([]);
@@ -207,6 +210,19 @@ const WebAppOrders: React.FC = () => {
             }
         })
     }
+
+    useEffect(() => {
+        const getAccountList = () => {
+            dispatch(searchAccountPublicAction({}, (data: PageResponse<AccountResponse> | false) => {
+                if (!!data) {
+                    setAccounts(data.items);
+                }
+            }));
+        }
+        getAccountList();
+    }, [dispatch])
+
+    
     useEffect(() => {
         if (statusExport === ExportFileStatus.Exporting)
             checkExportFile();
@@ -870,6 +886,7 @@ const WebAppOrders: React.FC = () => {
                                 actionList={actionList}
                                 onFilter={handleFilter}
                                 isLoading={tableLoading}
+                                accounts={accounts}
                                 params={params}
                                 onClearFilter={handleClearFilter}
                                 initParams={initParams}

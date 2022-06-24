@@ -64,12 +64,13 @@ export interface AccountSearchQuery extends BaseQuery {
   is_shipper?: number;
 }
 
-export interface AccountPublicSearchQuery extends BaseQuery {
+export interface AccountPublicSearchQueryModel extends BaseQuery {
   condition?: string;
   department_ids?: Array<number>;
   position_ids?: number;
   store_ids?: Array<number>;
   codes?: Array<string> | string;
+  status?: "active" | "inactive";
 }
 
 export interface AccountJobResponse {
