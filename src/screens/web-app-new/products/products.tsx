@@ -274,6 +274,7 @@ const WebAppProducts = () => {
                         setProgressPercent(100);
                         setProcessId(null);
                         setIsProcessing(false);
+                        setIsReloadData(false);
                         if (!processData.api_error) {
                             if(processType === ProcessTypeContants.Download){
                                 showSuccess("Tải sản phẩm thành công!")
