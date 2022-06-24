@@ -235,6 +235,16 @@ export const getLogInventoryVariantApi = (variant_id: any) => {
   return BaseAxios.get(link);
 }
 
+//print ecommerce order shipment
+export const getEcommerceOrdersPrintFormService = (ids: string[], type: string): Promise<BaseResponse<any>> => {
+  const queryParams = {
+    ids,
+    type,
+  };
+  const queryString = generateQuery(queryParams);
+  return BaseAxios.get(`${ApiConfig.ECOMMERCE}/orders/core-print-forms?${queryString}`);
+};
+
 export {
   ecommerceCreateApi,
   ecommerceGetApi,

@@ -16,6 +16,7 @@ import BaseResponse from "base/base.response";
 import { PrintFormByOrderIdsResponseModel } from "model/response/printer.response";
 import { getPrintFormByWarrantyIdsService } from "service/warranty/warranty.service";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import {getEcommerceOrdersPrintFormService} from "service/ecommerce/ecommerce.service";
 
 interface GoodReceiptPrint {
   good_receipt_id: number;
@@ -29,6 +30,7 @@ const printType = {
   order_exchange: "order_exchange",
   warranty: "warranty",
   warranty_returns: "warranty_returns",
+  ecommerce_shipment: "ecommerce_shipment",
 };
 
 type PropType = {};
@@ -129,6 +131,19 @@ function OrderPrint(props: PropType) {
                 "Lấy dữ liệu in bảo hành",
                 dispatch,
               );
+            }
+            dispatch(hideLoading())
+          },
+        );
+      }
+    } else if (queryPrintType && queryPrintType === printType.ecommerce_shipment) {
+      if (queryIds && queryIds.length > 0) {
+        getEcommerceOrdersPrintFormService(queryIds, queryPrintType).then(
+          (response) => {
+            if (isFetchApiSuccessful(response)) {
+              handlePrintIfGetData(response);
+            } else {
+              handleFetchApiError(response, "In phiếu nhặt hàng sàn", dispatch);
             }
             dispatch(hideLoading())
           },
