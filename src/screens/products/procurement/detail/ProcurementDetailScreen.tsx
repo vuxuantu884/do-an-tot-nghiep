@@ -335,7 +335,7 @@ const ProcurementDetailScreen: React.FC = () => {
                     <>
                       <div>SL Đặt hàng</div>
                       <div style={{ color: "#2A2A86" }}>
-                        ({formatCurrency(POUtils.totalOrderQuantityProcument(procurementData?.procurement_items ?? []), ".")})
+                        <span>{`(${formatCurrency(POUtils.totalOrderQuantityProcument(procurementData?.procurement_items ?? []), ".")})`}</span>
                       </div>
                     </>
                   ),
@@ -351,7 +351,7 @@ const ProcurementDetailScreen: React.FC = () => {
                     <>
                       <div>SL nhận được duyệt</div>
                       <div style={{ color: "#2A2A86" }}>
-                        ({formatCurrency(POUtils.totalAccpectQuantityProcument(procurementData?.procurement_items ?? []), ".")})
+                        <span>{`(${formatCurrency(POUtils.totalAccpectQuantityProcument(procurementData?.procurement_items ?? []), ".")})`}</span>
                       </div>
                     </>
                   ),
@@ -367,7 +367,7 @@ const ProcurementDetailScreen: React.FC = () => {
                     <>
                       <div>SL thực nhận</div>
                       <div style={{ color: "#2A2A86" }}>
-                        ({formatCurrency(POUtils.totalRealQuantityProcument(procurementData?.procurement_items ?? []), ".")})
+                        <span>{`(${formatCurrency(POUtils.totalRealQuantityProcument(procurementData?.procurement_items ?? []), ".")})`}</span>
                       </div>
                     </>
                   ),

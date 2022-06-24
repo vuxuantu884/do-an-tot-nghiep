@@ -65,6 +65,8 @@ import statusDraft from 'assets/icon/status-draft-new.svg'
 import statusFinalized from 'assets/icon/status-finalized-new.svg'
 import statusStored from 'assets/icon/status-finished-new.svg'
 import statusCancelled from 'assets/icon/status-cancelled-new.svg'
+import { AccountResponse } from "model/account/account.model";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 
 const ProcumentConfirmModal = lazy(() => import("screens/purchase-order/modal/procument-confirm.modal"))
 // const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
@@ -120,6 +122,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     {} as PurchaseOrder
   );
   const [totalItems, setTotalItems] = useState<number>(0);
+  const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
 
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions
@@ -346,7 +349,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         }
       },
       {
-        title: "Kho nhận hàng",
+        title: "Kho nhập hàng",
         dataIndex: "store",
         align: 'center',
         width: "10%",
@@ -355,7 +358,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
             <>
               {value}
               <div>
-                Ngày nhận:
+                Ngày nhập:
                 <div>{ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.HHmm_DDMMYYYY)}</div>
               </div>
             </>
@@ -365,7 +368,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         // width: 200,
       },
       {
-        title: "Người nhận",
+        title: "Người nhập",
         dataIndex: "stock_in_by",
         align: 'center',
         visible: true,
@@ -749,9 +752,26 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     }
   }, [dispatch, poId, visibleDraft, onDetail]);
 
+  const getAccounts = async (codes: string) => {
+    const response = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      searchAccountPublicApi,
+      {
+        codes
+      }
+    );
+    if (response) {
+      setAccounts(response.items);
+    }
+  }
+
   useEffect(() => {
     if (history.location.pathname === ProcurementTabUrl.ALL) {
       search();
+    }
+    if (paramsrUrl.stock_in_bys) {
+      getAccounts(paramsrUrl.stock_in_bys)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.location.search, dispatch, loadingData]);
@@ -936,7 +956,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   return (
     <StyledComponent>
       <div className="margin-top-20">
-        <TabListFilter paramsUrl={paramsrUrl} onClickOpen={() => setShowSettingColumn(true)} />
+        <TabListFilter paramsUrl={paramsrUrl} onClickOpen={() => setShowSettingColumn(true)} accounts={accounts}/>
         <div style={{ marginTop: -20 }}>
           <CustomTable
             isRowSelection
