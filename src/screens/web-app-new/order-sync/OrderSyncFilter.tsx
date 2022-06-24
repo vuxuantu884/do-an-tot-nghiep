@@ -12,6 +12,7 @@ import { OrderSyncBaseFilterStyle, OrderSyncFilterStyle } from "./style";
 import search from "assets/img/search.svg";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
 import { getWebAppShopList } from "domain/actions/web-app/web-app.actions";
+import moment from "moment";
 
 
 type OrderSyncFilterProps = {
@@ -131,11 +132,11 @@ const OrderSyncFilter = (props: OrderSyncFilterProps) => {
         if (params.created_date_from || params.created_date_to) {
             let textOrderCreateDate =
                 (params.created_date_from
-                    ? ConvertUtcToLocalDate(params.created_date_from, "DD/MM/YYYY")
+                    ? moment(params.created_date_from, "DD-MM-YYYY").format("DD-MM-YYYY")
                     : "??") +
                 " ~ " +
                 (params.created_date_to
-                    ? ConvertUtcToLocalDate(params.created_date_to, "DD/MM/YYYY")
+                    ? moment(params.created_date_to, "DD-MM-YYYY").format("DD-MM-YYYY")
                     : "??");
             filters.push({
                 key: "created_date",
