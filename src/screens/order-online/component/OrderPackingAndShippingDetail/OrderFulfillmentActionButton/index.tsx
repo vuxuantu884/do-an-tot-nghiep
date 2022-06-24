@@ -189,11 +189,12 @@ function OrderFulfillmentActionButton(props: PropTypes) {
   };
 
   const renderButtonStepAction = () => {
+    console.log('stepsStatusValue', stepsStatusValue)
+    if (sortedFulfillments.length === 0 || checkIfFulfillmentCancelled(sortedFulfillments[0])) {
+      return null;
+    }
     switch (stepsStatusValue) {
       case OrderStatus.FINALIZED:
-        if (sortedFulfillments.length === 0 || checkIfFulfillmentCancelled(sortedFulfillments[0])) {
-          return;
-        }
         if (
           sortedFulfillments[0]?.shipment?.delivery_service_provider_type !==
           ShipmentMethod.PICK_AT_STORE
