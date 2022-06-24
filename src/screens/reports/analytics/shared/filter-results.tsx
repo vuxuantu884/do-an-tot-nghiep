@@ -3,7 +3,7 @@ import { Button, FormInstance, Select } from "antd";
 import { fieldsTypeNumber } from "config/report";
 import _, { isEmpty } from "lodash";
 import { AnalyticDataQuery, AnalyticProperties } from "model/report/analytics.model";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useCallback, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { executeAnalyticsQueryService } from "service/report/analytics.service";
 import { callApiNative } from "utils/ApiUtils";
@@ -30,15 +30,22 @@ function FilterResults({ properties, form }: Props) {
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
   const { cubeRef, metadata, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
-  const [optionList, setOptionList] = useState<any[]>([]);
+  const [listFetchOptions, setListFetchOptions] = useState<any[]>([]);
   const [loadingInputs, setLoadingInputs] = useState<number[]>([]);
   const [additionalOptions, setAdditionalOptions] = useState<any>();
+  const [finalOptions, setFinalOptions] = useState<any[]>();
+
+  const ALL_OPTION = { label: `Tất cả`, value: "" };
+
+  const shouldAddOption = useCallback((keySearch: string, listOption: any[]) => {
+    return listOption.every((item) => item.value !== keySearch)
+  }, []);
 
   const getOptionData = async (index: number, propertyField: string, keySearch?: string) => {
     setAdditionalOptions(null)
     //thêm loading
     setLoadingInputs([...loadingInputs, index]);
-   
+
     const timeRange = transformDateRangeToString(form.getFieldValue(ReportifyFormFields.timeRange))
 
     if (metadata && !_.isEmpty(timeRange) && cubeRef.current) {
@@ -50,17 +57,23 @@ function FilterResults({ properties, form }: Props) {
       const response: AnalyticDataQuery = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
       if (response) {
         const data = response?.result.data.map((item: Array<any>) => ({ label: item[0], value: item[0] }))
-        setOptionList(data)
+        setListFetchOptions(data)
+        setFinalOptions(() => {
+          //rất xin lỗi vì code bẩn, hôm nay em mất trí
+          const additionalOpt = additionalOptions?.value && shouldAddOption(additionalOptions.value, [...data, { label: additionalOptions.value, value: additionalOptions.value }]) ? additionalOptions : null
+          return additionalOpt ? [ALL_OPTION, ...data, additionalOpt] : [ALL_OPTION, ...data]
+        })
+
       } else {
         //reset option list, để phần reset vào trong cho ui mượt, nếu reset trước khi fetch data thì bị giật
-        setOptionList([]);
+        setListFetchOptions([]);
       }
 
       //dừng loading
       setLoadingInputs((loadingInputs) => loadingInputs.filter((item) => item !== index));
     } else {
       //reset option list, để phần reset vào trong cho ui mượt, nếu reset trước khi fetch data thì bị giật
-      setOptionList([]);
+      setListFetchOptions([]);
     }
 
   }
@@ -71,6 +84,11 @@ function FilterResults({ properties, form }: Props) {
         [ReportifyFormFields.where]: {
           [propertyField]: [""]
         }
+      })
+    } else if (!isEmpty(additionalOptions) && values.includes(additionalOptions?.value)) {
+      setFinalOptions(() => {
+        const additionalOpt = additionalOptions?.value && shouldAddOption(additionalOptions.value, listFetchOptions) ? additionalOptions : null
+        return additionalOpt ? [ALL_OPTION, ...listFetchOptions, { label: additionalOpt.value, value: additionalOpt.value }] : [ALL_OPTION, ...listFetchOptions]
       })
     }
   }
@@ -87,24 +105,28 @@ function FilterResults({ properties, form }: Props) {
     form.setFieldsValue({ [ReportifyFormFields.where]: undefined });
   };
 
-  const addAdditionalOptions = (keySearch: string) => {
-    if (optionList.every((item) => item.value !== keySearch)) {
-      setAdditionalOptions({ label: `Thêm '${keySearch}'`, value: keySearch })
-    }else{
+  const addAdditionalOptions = (propertyField: string, keySearch: string) => {
+    const isSelected = form.getFieldValue([ReportifyFormFields.where, propertyField])?.includes(keySearch)
+    if (shouldAddOption(keySearch, listFetchOptions) && !isSelected) {
+      const opt = { label: `Thêm '${keySearch}'`, value: keySearch }
+      setAdditionalOptions(opt)
+      setFinalOptions([ALL_OPTION, ...listFetchOptions, opt])
+    } else {
       setAdditionalOptions(null)
+      setFinalOptions([ALL_OPTION, ...listFetchOptions])
     }
   }
 
-  const handleSubmit=()=>{
+  const handleSubmit = () => {
     const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
     if (Object.keys(fieldWhereValue).length) {
       Object.keys(fieldWhereValue).forEach((key: string) => {
         const value = fieldWhereValue[key];
         if (value && Array.isArray(value) && value.length) {
           if (value.length === 1 && value[0] === '') {
-            setActiveFilters(activeFilters.set(key, {value: ['Tất cả'], title: metadata ? getTranslatePropertyKey(metadata, key) : key}));
+            setActiveFilters(activeFilters.set(key, { value: ['Tất cả'], title: metadata ? getTranslatePropertyKey(metadata, key) : key }));
           } else {
-            setActiveFilters(activeFilters.set(key, {value: fieldWhereValue[key], title: metadata ? getTranslatePropertyKey(metadata, key) : key}));
+            setActiveFilters(activeFilters.set(key, { value: fieldWhereValue[key], title: metadata ? getTranslatePropertyKey(metadata, key) : key }));
           }
         } else {
           activeFilters.delete(key);
@@ -138,14 +160,6 @@ function FilterResults({ properties, form }: Props) {
     return listProperties;
   }, [properties])
 
-  const selectOptions = useMemo(() => {
-    const listOpts = [{ label: "Tất cả", value: "" }, ...optionList];
-    if (!isEmpty(additionalOptions)) {
-      listOpts.push(additionalOptions);
-    }
-    return listOpts;
-  }, [optionList, additionalOptions])
-
   const renderFormItem = (
     item: any, //TODO: type item
     index: number,
@@ -164,13 +178,12 @@ function FilterResults({ properties, form }: Props) {
         }
         onChange={(value: string) => {
           handleSelectAllOptions(item.key, value)
-        }}        
-        onSearch={addAdditionalOptions}
+        }}
+        onSearch={(value) => addAdditionalOptions(item.key, value)}
         filterOption={(input, option) => {
-          return searchNumberString(input, option?.value)
-        }
-        }
-        options={selectOptions}
+          return option?.label && input ? searchNumberString(input, option?.label as string) : false
+        }}
+        options={finalOptions}
         loading={loadingInputs.includes(index)}
       />
     </FilterAdvancedItem>
@@ -183,19 +196,19 @@ function FilterResults({ properties, form }: Props) {
       </Button>
       <FilterAdvancedDrawer width={"400px"} visible={visible} onClose={handleCancel} onSubmit={handleSubmit} onClearFilter={handleClearFilter}>
         <FilterResultStyle>
-        <div className="ant-form ant-form-vertical">
-          {propertiesFilter.map((propertyGroup, index) =>
-            <React.Fragment key={index}>
-              <div className="divider-filter">
-                <span className="divider-filter__name">
-                  {propertyGroup.groupName}
-                </span>
-              </div>
-              <FilterAdvancedList data={propertyGroup.groupLabel} renderItem={renderFormItem} />
-            </React.Fragment>
+          <div className="ant-form ant-form-vertical">
+            {propertiesFilter.map((propertyGroup, index) =>
+              <React.Fragment key={index}>
+                <div className="divider-filter">
+                  <span className="divider-filter__name">
+                    {propertyGroup.groupName}
+                  </span>
+                </div>
+                <FilterAdvancedList data={propertyGroup.groupLabel} renderItem={renderFormItem} />
+              </React.Fragment>
 
-          )}
-        </div>
+            )}
+          </div>
         </FilterResultStyle>
       </FilterAdvancedDrawer>
     </div>
