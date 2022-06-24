@@ -1,6 +1,6 @@
 import { DeleteFilled, DownOutlined, FilterOutlined, SwapRightOutlined } from "@ant-design/icons";
 import { Button, Col, Dropdown, Form, FormInstance, Input, InputNumber, Menu, Row, Select, Tag, TreeSelect } from "antd";
-import { createRef, useEffect, useState } from "react";
+import { createRef, useCallback, useEffect, useState } from "react";
 import { StyledOrderFilter, OrderBaseFilterStyle } from "./style";
 import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
@@ -19,17 +19,20 @@ import { getSourceListAction, getWebAppShopList } from "domain/actions/web-app/w
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction } from "domain/actions/account/account.action";
+import { AccountSearchAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SaveSearchType } from "utils/SaveSearchType";
 import SaveSearchModal from "component/modal/SaveSearchModal/SaveSearchModal";
 import { getSaveSearchLocalStorage } from "utils/LocalStorageUtils";
 import { generateQuery } from "utils/AppUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
+import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 
 type OrderFilterProps = {
     params: EcommerceOrderSearchQuery;
     actionList: Array<any>;
+    accounts: Array<any>;
     deliveryService?: Array<any>;
     listPaymentMethod?: Array<PaymentMethodResponse>;
     isLoading?: boolean | undefined;
@@ -43,7 +46,7 @@ type OrderFilterProps = {
 }
 
 const OrderFilter = (props: OrderFilterProps) => {
-    const { params, actionList, isLoading, onFilter, initParams, onClearFilter,
+    const { params, actionList, isLoading, accounts, onFilter, initParams, onClearFilter,
         changeActiveTabSaveSearch, deleteSaveSearch, isShowButtonRemoveSaveSearch } = props;
 
     const formRef = createRef<FormInstance>();
@@ -54,6 +57,7 @@ const OrderFilter = (props: OrderFilterProps) => {
 
     //state
     const [accountList, setAccountList] = useState<Array<AccountResponse>>([]);
+    const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>([]);
     const [storeList, setStoreList] = useState<Array<StoreResponse>>();
     const [sourceList, setSourceList] = useState<Array<SourceResponse>>([]);
     const [subStatusList, setSubStatusList] = useState<OrderProcessingStatusModel[]>([]);
@@ -83,6 +87,22 @@ const OrderFilter = (props: OrderFilterProps) => {
             </Menu>
         )
     }
+    
+    useEffect(() => {
+        if (accounts) {
+            setAccountList(accounts);
+        }
+    }, [accounts]);
+
+    useEffect(() => {
+        if (params.assignee_codes && params.assignee_codes?.length > 0) {
+            searchAccountPublicApi({
+                codes: params.assignee_codes,
+            }).then((response) => {
+                setAssigneeFound(response.data.items);
+            });
+        }
+    }, [params.assignee_codes])
 
     //get init data filter
     useEffect(() => {
@@ -105,15 +125,6 @@ const OrderFilter = (props: OrderFilterProps) => {
             )
             );
         }
-        const getAccountList = () => {
-            dispatch(AccountSearchAction({}, (data: PageResponse<AccountResponse> | false) => {
-                if (!!data) {
-                    setAccountList(data.items);;
-                }
-
-            }));
-        }
-        getAccountList();
         getStoreList();
         getSourceList();
         getSubStatusList();
@@ -123,18 +134,18 @@ const OrderFilter = (props: OrderFilterProps) => {
     //handle tag
     useEffect(() => {
         let filters = [];
-        if (params.assignee_codes && params.assignee_codes.length > 0) {
-            let text = "";
-            params.assignee_codes?.forEach(i => {
-                let account = accountList.find(item => item.code === i);
-                text = account ? text + account.full_name + " - " + account.code + "; " : text
-            })
-            filters.push({
-                key: "assignee_codes",
-                name: "Sku, tên sản phẩm (shop)",
-                value: text
-            })
-        }
+        // if (params.assignee_codes && params.assignee_codes.length > 0) {
+        //     let text = "";
+        //     params.assignee_codes?.forEach(i => {
+        //         let account = accountList.find(item => item.code === i);
+        //         text = account ? text + account.full_name + " - " + account.code + "; " : text
+        //     })
+        //     filters.push({
+        //         key: "assignee_codes",
+        //         name: "Sku, tên sản phẩm (shop)",
+        //         value: text
+        //     })
+        // }
         if (params.store_ids && params.store_ids.length > 0) {
             let text = "";
             params.store_ids.forEach((store_id: any) => {
@@ -224,8 +235,8 @@ const OrderFilter = (props: OrderFilterProps) => {
         if (params.assignee_codes && params.assignee_codes.length > 0) {
             let textAccount = ""
             params.assignee_codes.forEach(i => {
-                const findAccount = accountList?.find(item => item.code === i)
-                textAccount += findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
+                const findAccount = assigneeFound?.find(item => item.code === i)
+                textAccount = findAccount ? textAccount + findAccount.code + " - " + findAccount.full_name + "; " : textAccount
             })
             filters.push({
                 key: 'assignee_codes',
@@ -265,8 +276,9 @@ const OrderFilter = (props: OrderFilterProps) => {
         }
         setFilterTags(filters);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params, storeList, sourceList])
-    const handleRemoveTag = (e: any, tag: any) => {
+    }, [params, storeList, sourceList, assigneeFound])
+
+    const handleRemoveTag = useCallback( (e: any, tag: any) => {
         e.preventDefault();
         let newParams = { ...params };
         if (tag.key === "issued") {
@@ -281,14 +293,14 @@ const OrderFilter = (props: OrderFilterProps) => {
         else if (tag.key === "price") {
             newParams = { ...newParams, ...{ price_min: undefined, price_max: undefined } };
         }
-        else if (tag.key === "ecommerce_shop_ids") {
-            newParams = { ...newParams, ...{ ecommerce_shop_ids: [] } };
+        else if (tag.key === "assignee_codes") {
+            newParams = { ...newParams, assignee_codes:[] };
         }
         else {
             newParams = { ...newParams, ...{ [tag.key]: null } };
         }
         onFilter && onFilter(newParams);
-    }
+    },[onFilter,params])
 
     //handle form
     const handleFinish = (value: any) => {
@@ -596,25 +608,16 @@ const OrderFilter = (props: OrderFilterProps) => {
                                     <Row gutter={24}>
                                         <Col span={8}>
                                             <p>Nhân viên bán hàng</p>
-                                            <Item name="assignee_codes">
-                                                <CustomSelect
-                                                    mode="multiple" showSearch allowClear
-                                                    showArrow placeholder="Chọn nhân viên bán hàng"
-                                                    notFoundContent="Không tìm thấy kết quả" style={{ width: '100%' }}
-                                                    optionFilterProp="children"
-                                                    getPopupContainer={trigger => trigger.parentNode}
-                                                    maxTagCount='responsive'
-                                                >
-                                                    {accountList.map((item, index) => (
-                                                        <CustomSelect.Option
-                                                            style={{ width: "100%" }}
-                                                            key={index.toString()}
-                                                            value={item.code.toString()}
-                                                        >
-                                                            {`${item.full_name} - ${item.code}`}
-                                                        </CustomSelect.Option>
-                                                    ))}
-                                                </CustomSelect>
+                                            <Item name="assignee_codes" >
+                                                <AccountCustomSearchSelect
+                                                    placeholder="chọn nhân viên bán hàng"
+                                                    dataToSelect={accountList}
+                                                    setDataToSelect={setAccountList}
+                                                    initDataToSelect={accounts}
+                                                    mode="multiple"
+                                                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                                                    maxTagCount="responsive"
+                                                />
                                             </Item>
                                         </Col>
                                         <Col span={8}>
