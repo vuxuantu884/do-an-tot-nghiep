@@ -4,6 +4,7 @@ import search from "assets/img/search.svg"
 import BottomBarContainer from 'component/container/bottom-bar.container'
 import ContentContainer from 'component/container/content.container'
 import ModalDeleteConfirm from 'component/modal/ModalDeleteConfirm'
+import { AppConfig } from 'config/app.config'
 import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from 'config/report/report-templates'
 import UrlConfig from 'config/url.config'
 import _ from 'lodash'
@@ -18,7 +19,6 @@ import { Link, useRouteMatch } from 'react-router-dom'
 import { deleteAnalyticsCustomService, getAnalyticsCustomByService, updateAnalyticsCustomService } from 'service/report/analytics.service'
 import { callApiNative } from 'utils/ApiUtils'
 import { getPermissionViewCustomizeReport } from 'utils/ReportUtils'
-import { strForSearch } from 'utils/StringUtils'
 import { showError, showSuccess } from 'utils/ToastUtils'
 import { ListAnalyticsStyle } from './index.style'
 import ModalCreateReport from './shared/create-report-modal'
@@ -38,7 +38,6 @@ function Analytics() {
     const [isModalCreateVisible, setIsModalCreateVisible] = React.useState<boolean>(false)
     const [isConfirmDeleteVisible, setIsConfirmDeleteVisible] = React.useState<boolean>(false)
     const [handlingReportId, setHanlingReportId] = React.useState<number>()
-    const [filteredAnalyticList, setFilteredAnalyticList] = React.useState<Array<any>>()
 
     const currentUsername = useSelector((state: RootReducerType) => state.userReducer.account?.user_name);
     const allPermissions = useSelector((state: RootReducerType) => state.permissionReducer?.permissions);
@@ -47,12 +46,13 @@ function Analytics() {
         setIsLoadingAnalyticList(true)
         const cubes = REPORT_CUBES[matchPath]
         const onlyMe = formFilterCustomReport.getFieldValue(FormFilterCustomReport.OnlyMyReport);
+        const nameReport = formFilterCustomReport.getFieldValue(FormFilterCustomReport.NameReport);
+        
         if (onlyMe === undefined) {
             formFilterCustomReport.setFieldsValue({[FormFilterCustomReport.OnlyMyReport]: true})
         }
-        
-        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, { "cube.in": cubes, onlyMe: onlyMe ?? true });
-            
+
+        const response = await callApiNative({ notifyAction: 'SHOW_ALL' }, dispatch, getAnalyticsCustomByService, { "cube.in": cubes, onlyMe: onlyMe ?? true, "name.contains": nameReport });
         if (response) {
             response.analytics = response.analytics.filter((item: any) => {
                 const { group } = item;
@@ -118,20 +118,6 @@ function Analytics() {
         fetchCustomAnalytics();
     }, [dispatch, fetchCustomAnalytics]);
 
-    const onSearchCustomReport = (keySearch: string) => {
-        if (!analyticList?.length) {
-            return;
-        }
-        if (!keySearch) {
-            setFilteredAnalyticList(undefined);
-        } else {
-            const filteredData = analyticList.filter(item => {
-                const { name } = item;
-                return name && strForSearch(name.toLowerCase()).includes(strForSearch(keySearch.toLowerCase()));
-            })
-            setFilteredAnalyticList([...filteredData]);
-        }
-    }
 
     return (
         <ContentContainer
@@ -190,13 +176,13 @@ function Analytics() {
                                     <Form.Item className="m-0" name={FormFilterCustomReport.OnlyMyReport} valuePropName="checked">
                                         <Checkbox onChange={fetchCustomAnalytics}>Báo cáo của tôi</Checkbox>
                                     </Form.Item>
-                                    <Form.Item className="m-0 w-sm-100">
+                                    <Form.Item className="m-0 w-sm-100" name={FormFilterCustomReport.NameReport}>
                                         <Input
                                             className="search"
                                             allowClear
                                             prefix={<img src={search} alt="" />}
                                             placeholder="Tìm kiếm theo Tên báo cáo tuỳ chỉnh"
-                                            onChange={_.debounce((event) => onSearchCustomReport(event.target.value), 200)}
+                                            onChange={_.debounce(() => fetchCustomAnalytics(), AppConfig.TYPING_TIME_REQUEST)}
                                         />
                                     </Form.Item>
                                     <Button type='primary' className="w-sm-100" onClick={() => setIsModalCreateVisible(true)}>
@@ -206,7 +192,7 @@ function Analytics() {
                             </div>
                         }
                     >
-                        <Table dataSource={filteredAnalyticList ? filteredAnalyticList : analyticList}
+                        <Table dataSource={analyticList}
                             scroll={{ x: 'max-content' }}
                             rowKey={(record: any) => record.id}
                             rowClassName="ana-list__item"

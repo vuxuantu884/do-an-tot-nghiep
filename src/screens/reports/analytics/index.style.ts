@@ -111,6 +111,10 @@ export const AnalyticsStyle = styled.div`
     margin-right: 20px;
 }
 
+.text-warning {
+    color: rgb(252, 175, 23);
+}
+
 `;
 
 export const AddPropertiesModalStyle = styled.div`

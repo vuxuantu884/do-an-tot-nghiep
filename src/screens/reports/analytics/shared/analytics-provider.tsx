@@ -24,6 +24,8 @@ type Props = {
     setIsMyReport: (isMyReport: boolean) => void;
     loadingChart: boolean;
     setLoadingChart: (loadingChart: boolean | any) => void;
+    permissionStores: string[];
+    setPermissionStores: (permissionStores: string[] | any) => void;
 }
 
 export const AnalyticsContext = React.createContext<Props>({} as Props)
@@ -39,6 +41,7 @@ function AnalyticsProvider(props: { children: ReactNode }) {
     const [isMyReport, setIsMyReport] = useState<boolean>(true);
     const [loadingChart, setLoadingChart] = useState<boolean>(false);
     const [permissionViewReport, setPermissionViewReport] = useState<PermissionViewReport>({ isPermission: '' });
+    const [permissionStores, setPermissionStores] = useState<string[]>([]);
     return (
         <AnalyticsContext.Provider
             {...props}
@@ -61,7 +64,9 @@ function AnalyticsProvider(props: { children: ReactNode }) {
                 loadingChart,
                 setLoadingChart,
                 permissionViewReport,
-                setPermissionViewReport
+                setPermissionViewReport,
+                permissionStores,
+                setPermissionStores
             }}
         />
     )
