@@ -1,6 +1,9 @@
+import { AccountResponse } from "model/account/account.model";
+
 export enum ProcurementFilterAdvanceEnum {
   active = "active",
   expect_receipt = "expect_receipt",
+  stock_in_bys = "stock_in_bys",
   stock_in = "stock_in",
   merchandisers = "merchandisers",
   note = "note"
@@ -30,6 +33,7 @@ export const ProcurementFilterBasicName = {
 
 export const ProcurementFilterAdvanceName = {
   [ProcurementFilterAdvanceEnum.active]: "Ngày duyệt phiếu nhập",
+  [ProcurementFilterAdvanceEnum.stock_in_bys]: "Người nhập kho",
   [ProcurementFilterAdvanceEnum.stock_in]: "Ngày nhập kho",
   [ProcurementFilterAdvanceEnum.expect_receipt]: "Ngày nhận dự kiến",
   [ProcurementFilterAdvanceEnum.merchandisers]: "Merchandiser",
@@ -40,6 +44,7 @@ export const ProcurementFilterAdvanceName = {
 export interface ProcurementFilterProps{
   onClickOpen?: () => void;
   paramsUrl?: any;
+  accounts?: Array<AccountResponse>
 }
 
 export interface ProcurementFilter {

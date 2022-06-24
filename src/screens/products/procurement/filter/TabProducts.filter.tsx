@@ -150,19 +150,20 @@ const TabProductsFilter: React.FC<ProcurementItemsFilterProps> = (props: Procure
   const openVisibleFilter = () => setVisible(true)
 
   const onBaseFinish = (data: any) => {
+    if(data.content) {
+      data = {...data, content: data.content.trim()}
+    }
     let queryParam = generateQuery({ ...paramsUrl, ...data, page: 1 });
     history.replace(`${ProcurementTabUrl.PRODUCTS}?${queryParam}`);
   };
 
   const onAdvanceFinish = (data: any) => {
     setVisible(false);
+    if(data.note) {
+      data = {...data, note: data.note.trim()}
+    }
     history.replace(`${ProcurementTabUrl.PRODUCTS}?${generateQuery({ ...paramsUrl, ...data, page: 1 })}`);
   }
-
-  const onSearch = debounce((content: string) => {
-    let queryParam = generateQuery({ ...paramsUrl, content, page: 1 });
-    history.replace(`${ProcurementTabUrl.PRODUCTS}?${queryParam}`);
-  }, 300)
 
   const onSearchAccount = debounce(async (value: string) => {
     const res = await callApiNative({ isShowError: true }, dispatch, searchAccountPublicApi, { condition: value })
@@ -180,12 +181,6 @@ const TabProductsFilter: React.FC<ProcurementItemsFilterProps> = (props: Procure
               prefix={<img src={search} alt="" />}
               allowClear
               placeholder="Tìm kiếm theo mã phiếu nhập kho, mã sản phẩm, tên sản phẩm"
-              onChange={(e) => {
-                const content = e.target.value
-                if (content.length > 2) {
-                  onSearch(content)
-                }
-              }}
             />
           </Item>
           <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 200 }}>
