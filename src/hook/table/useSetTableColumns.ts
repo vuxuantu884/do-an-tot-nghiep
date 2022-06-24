@@ -41,7 +41,11 @@ function useSetTableColumns(
       })
       const leftColumnArr = initColumns.filter(column => !config.map(single => single.key).includes(column.key))
       let columnResult:ICustomTableColumType<any>[] = [...columnsWithConfigArr, ...leftColumnArr];
-      setColumns(columnResult);
+      // đặt column có fixed lên trước
+      let fixedColumnResult = columnResult.filter(column => column.fixed);
+      let notFixedColumnResult = columnResult.filter(column => !column.fixed);
+      const sortedColumnResult = [...fixedColumnResult, ...notFixedColumnResult];
+      setColumns(sortedColumnResult);
     }
   // bỏ initColumns, thêm orderVariable
   // eslint-disable-next-line react-hooks/exhaustive-deps
