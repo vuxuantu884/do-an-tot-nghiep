@@ -1286,16 +1286,20 @@ export const totalAmount = (items: Array<OrderLineItemRequest>) => {
 		_items.forEach((i) => {
 			let total_discount_items = 0;
 			let discountRate = 0;
+			i.amount = i.price * i.quantity;
 			i.discount_items.forEach((d) => {
+        if(d.amount > (i.price * i.quantity)) {
+          d.amount = i.price * i.quantity;
+          d.value = i.price;
+        }
 				total_discount_items = total_discount_items + d.amount;
         d.rate = d.amount / i.amount * 100;
         discountRate = discountRate + (d.amount / i.amount * 100)
 			});
       i.discount_rate = discountRate
-			let amountItem = i.amount - total_discount_items;
-			i.line_amount_after_line_discount = amountItem;
-			i.amount = i.price * i.quantity;
+			let amountItem = (i.price * i.quantity) - total_discount_items;
 			_amount += amountItem;
+			i.line_amount_after_line_discount = amountItem;
 			if (i.amount !== null) {
 				let totalDiscount = 0;
 				i.discount_items.forEach((a) => {
