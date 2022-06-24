@@ -1,7 +1,7 @@
 import { FilterOutlined } from "@ant-design/icons";
 import { Button, FormInstance, Select } from "antd";
 import { fieldsTypeNumber } from "config/report";
-import _ from "lodash";
+import _, { isEmpty } from "lodash";
 import { AnalyticDataQuery, AnalyticProperties } from "model/report/analytics.model";
 import React, { useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -32,29 +32,35 @@ function FilterResults({ properties, form }: Props) {
   const { cubeRef, metadata, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
   const [optionList, setOptionList] = useState<any[]>([]);
   const [loadingInputs, setLoadingInputs] = useState<number[]>([]);
+  const [additionalOptions, setAdditionalOptions] = useState<any>();
 
   const getOptionData = async (index: number, propertyField: string, keySearch?: string) => {
+    setAdditionalOptions(null)
     //thêm loading
     setLoadingInputs([...loadingInputs, index]);
-    //reset option list
-    setOptionList([]);
-
+   
     const timeRange = transformDateRangeToString(form.getFieldValue(ReportifyFormFields.timeRange))
 
     if (metadata && !_.isEmpty(timeRange) && cubeRef.current) {
       let firstAggregate = Object.keys(metadata.aggregates)[0]
 
-      const query = `SHOW ${firstAggregate} BY ${propertyField} FROM ${cubeRef.current} ` + 
-      (!fieldsTypeNumber.includes(propertyField) ? `WHERE ${propertyField} ${keySearch ? " == '~" + keySearch + "'" : " != '' "} `: '') +
-      `SINCE ${timeRange?.from} UNTIL ${timeRange?.to} ORDER BY ${propertyField} ASC`;
+      const query = `SHOW ${firstAggregate} BY ${propertyField} FROM ${cubeRef.current} ` +
+        (!fieldsTypeNumber.includes(propertyField) ? `WHERE ${propertyField} ${keySearch ? " == '~" + keySearch + "'" : " != '' "} ` : '') +
+        `SINCE ${timeRange?.from} UNTIL ${timeRange?.to} ORDER BY ${propertyField} ASC`;
       const response: AnalyticDataQuery = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });
       if (response) {
         const data = response?.result.data.map((item: Array<any>) => ({ label: item[0], value: item[0] }))
         setOptionList(data)
+      } else {
+        //reset option list, để phần reset vào trong cho ui mượt, nếu reset trước khi fetch data thì bị giật
+        setOptionList([]);
       }
 
       //dừng loading
       setLoadingInputs((loadingInputs) => loadingInputs.filter((item) => item !== index));
+    } else {
+      //reset option list, để phần reset vào trong cho ui mượt, nếu reset trước khi fetch data thì bị giật
+      setOptionList([]);
     }
 
   }
@@ -80,6 +86,14 @@ function FilterResults({ properties, form }: Props) {
   const handleClearFilter = () => {
     form.setFieldsValue({ [ReportifyFormFields.where]: undefined });
   };
+
+  const addAdditionalOptions = (keySearch: string) => {
+    if (optionList.every((item) => item.value !== keySearch)) {
+      setAdditionalOptions({ label: `Thêm '${keySearch}'`, value: keySearch })
+    }else{
+      setAdditionalOptions(null)
+    }
+  }
 
   const handleSubmit=()=>{
     const fieldWhereValue = form.getFieldValue(ReportifyFormFields.where);
@@ -124,6 +138,13 @@ function FilterResults({ properties, form }: Props) {
     return listProperties;
   }, [properties])
 
+  const selectOptions = useMemo(() => {
+    const listOpts = [{ label: "Tất cả", value: "" }, ...optionList];
+    if (!isEmpty(additionalOptions)) {
+      listOpts.push(additionalOptions);
+    }
+    return listOpts;
+  }, [optionList, additionalOptions])
 
   const renderFormItem = (
     item: any, //TODO: type item
@@ -143,11 +164,13 @@ function FilterResults({ properties, form }: Props) {
         }
         onChange={(value: string) => {
           handleSelectAllOptions(item.key, value)
-        }}
-        // onSearch={_.debounce((keySearch) => getOptionData(index, item.key, keySearch), AppConfig.TYPING_TIME_REQUEST)} 
-        filterOption={(input, option) => searchNumberString(input, option?.value)
+        }}        
+        onSearch={addAdditionalOptions}
+        filterOption={(input, option) => {
+          return searchNumberString(input, option?.value)
         }
-        options={[{ label: "Tất cả", value: "" }, ...optionList]}
+        }
+        options={selectOptions}
         loading={loadingInputs.includes(index)}
       />
     </FilterAdvancedItem>
