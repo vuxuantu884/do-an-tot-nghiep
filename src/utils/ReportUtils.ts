@@ -1,6 +1,7 @@
 import { YodyAction } from "base/base.action";
 import { AppConfig } from "config/app.config";
 import { TIME_GROUP_BY } from "config/report";
+import { AccountStoreResponse } from "model/account/account.model";
 import { AnalyticConditions, AnalyticCube, AnalyticGroupUrl, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
@@ -373,4 +374,16 @@ export const getReportGroup = (reportUrlString: string) => {
     default:
       return '';
   }
+}
+
+export const getNoPermissionStores = (filterStores: string[], myStores: AccountStoreResponse[] | undefined): string[] => {
+  return filterStores.reduce((res: string[], storeItem: string) => {
+    if (storeItem) {
+      const myStoreIdx = myStores && myStores.length ? myStores.findIndex(item => item.store && item.store.trim() === storeItem.trim()) : 1;
+      if (myStoreIdx === -1) {
+        return [...res, storeItem];
+      }
+    }
+    return res;
+  }, []);
 }

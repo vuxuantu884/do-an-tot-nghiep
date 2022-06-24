@@ -4,17 +4,18 @@ import { AppConfig } from 'config/app.config';
 import { chartTypes } from 'config/report/chart-types';
 import { DETAIL_LINKS, TIME_AT_OPTION, TIME_GROUP_BY } from 'config/report/report-templates';
 import _ from 'lodash';
-import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ChartTypeValue, ColumnType, FIELD_FORMAT, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
+import { RootReducerType } from 'model/reducers/RootReducerType';
+import { AnalyticChartInfo, AnalyticConditions, AnalyticCube, AnalyticQuery, ChartTypeValue, ColumnType, FIELD_FORMAT, ReportProperty, SUBMIT_MODE, TIME } from 'model/report/analytics.model';
 import moment from 'moment';
-import React, { useContext, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import { useContext, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { executeAnalyticsQueryService } from 'service/report/analytics.service';
 import { callApiNative } from 'utils/ApiUtils';
 import { formatCurrency } from 'utils/AppUtils';
 import { OFFSET_HEADER_UNDER_NAVBAR } from 'utils/Constants';
 import { DATE_FORMAT } from 'utils/DateUtils';
-import { formatDataToSetUrl, formatReportTime, generateRQuery, getTranslatePropertyKey, transformDateRangeToString } from 'utils/ReportUtils';
+import { formatDataToSetUrl, formatReportTime, generateRQuery, getNoPermissionStores, getTranslatePropertyKey, transformDateRangeToString } from 'utils/ReportUtils';
 import { strForSearch } from 'utils/StringUtils';
 import { ActiveFiltersStyle, AnalyticsStyle } from '../index.style';
 import ActiveFilters from './active-filters';
@@ -47,9 +48,11 @@ export const ReportifyFormFields = {
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
 function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
-    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery, setRowsInQuery } = useContext(AnalyticsContext)
+    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery, setRowsInQuery, permissionStores, setPermissionStores } = useContext(AnalyticsContext)
     const [loadingTable, setLoadingTable] = useState<boolean>(false);
     const [chartType, setChartType] = useState<ChartTypeValue>(ChartTypeValue.VerticalColumn);
+
+    const myStores = useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
 
     const dispatch = useDispatch();
     const [warningChooseColumn, setWarningChooseColumn] = useState(false);
@@ -141,6 +144,11 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             }
             setLoadingTable(false);
             console.log('get data report', response)
+        }
+        if (Object.keys(where).length && Object.keys(where).includes(ReportProperty.PosLocationName)) {
+            const filterStores = where[ReportProperty.PosLocationName];
+            const noPermissionStore = getNoPermissionStores(filterStores, myStores);
+            setPermissionStores(() => [...noPermissionStore]);
         }
     }
 
@@ -448,6 +456,19 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                         </Form.Item>
                     </div>
                 </Card>
+                {
+                    permissionStores.length > 0 && <Card bodyStyle={{ paddingBottom: 8, paddingTop: 8 }}>
+                        <div className="text-warning">
+                            Dữ liệu dưới đây không bao gồm dữ liệu của cửa hàng
+                            {permissionStores.map((storeName, index) => {
+                                return <strong key={index}>
+                                    <span> {storeName}</span>
+                                    {index !== (permissionStores.length - 1) ? <span>,</span> : ''}
+                                </strong>
+                            })}. Vì tài khoản của bạn không có quyền xem dữ liệu của các cửa hàng này.
+                        </div>
+                    </Card>
+                }
                 <Card
                     className="chart-filter-wrapper"
                     title="Biểu đồ"
