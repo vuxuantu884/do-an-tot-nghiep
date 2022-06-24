@@ -1,6 +1,6 @@
 import { useState } from "react";
 import {
-  AccountPublicSearchQuery,
+  AccountPublicSearchQueryModel,
   MerchandiserSelectResponse,
 } from "../model/account/account.model";
 import { callApiNative } from "../utils/ApiUtils";
@@ -28,7 +28,7 @@ export const useFetchMerchans = () => {
     fetchMerchans(merchans.metadata);
   });
 
-  const fetchMerchans = async (query: AccountPublicSearchQuery) => {
+  const fetchMerchans = async (query: AccountPublicSearchQueryModel) => {
     setIsLoading(true);
     try {
       const response = await callApiNative(

@@ -2,7 +2,7 @@ import { generateQuery } from 'utils/AppUtils';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { AccountSearchQuery, LoginResponse, AccountResponse, AccountRequest, MeRequest, AccountPublicSearchQuery } from "model/account/account.model";
+import { AccountSearchQuery, LoginResponse, AccountResponse, AccountRequest, MeRequest, AccountPublicSearchQueryModel } from "model/account/account.model";
 import { AuthenLogoutRequest, AuthenRequest } from "model/auth/roles.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { DepartmentResponse } from 'model/account/department.model';
@@ -25,7 +25,7 @@ export const searchAccountApi = (query: AccountSearchQuery): Promise<BaseRespons
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts?${params}`);
 }
 
-export const searchAccountPublicApi = (query?: AccountPublicSearchQuery): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
+export const searchAccountPublicApi = (query?: AccountPublicSearchQueryModel): Promise<BaseResponse<PageResponse<AccountResponse>>> => {
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ACCOUNTS}/accounts/public?${params}`);
 }

@@ -17,22 +17,24 @@ import {
 } from "utils/AppUtils";
 import CustomSelect from "../select.custom";
 
-type PropType = {
+type PropTypes = {
   placeholder: string;
   initValue?: string;
   dataToSelect: AccountResponse[];
   initDataToSelect: AccountResponse[];
   setDataToSelect: (value: AccountResponse[]) => void;
   [res: string]: any;
+  isSearchAccountActive?: boolean;
 };
 
-function AccountCustomSearchSelect(props: PropType) {
+function AccountCustomSearchSelect(props: PropTypes) {
   const {
     placeholder,
     initValue,
     dataToSelect,
     initDataToSelect,
     setDataToSelect,
+    isSearchAccountActive,
     ...rest
   } = props;
   const [isLoading, setIsLoading] = useState(false);
@@ -48,6 +50,7 @@ function AccountCustomSearchSelect(props: PropType) {
           searchAccountPublicApi({
             condition: value,
             limit: undefined,
+            status: isSearchAccountActive ? "active": undefined,
           })
             .then((response) => {
               if (isFetchApiSuccessful(response)) {
