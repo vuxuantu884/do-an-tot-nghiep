@@ -4,7 +4,7 @@ import BaseResponse from "../../../base/base.response";
 import {BaseQuery} from './../../../model/base/base.query';
 import {PageResponse} from "../../../model/base/base-metadata.response";
 import {ApiConfig} from "../../../config/api.config";
-import { DiscountCode } from 'model/promotion/price-rules.model';
+import {DiscountCode, DiscountUsageDetailResponse} from 'model/promotion/price-rules.model';
 
 const END_POINT = "/price-rules/";
 
@@ -20,6 +20,10 @@ export const getAllPromoCodeList = (priceRuleId: number, query: BaseQuery): Prom
 
 export const getPromoCodeById = (priceRuleId: number, id: number): Promise<DiscountCode> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}${priceRuleId}/discount-codes/${id}`);
+};
+
+export const getDiscountUsageDetailApi = (discountCode: string): Promise<DiscountUsageDetailResponse> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}/discount-usage/search?discount_code=${discountCode}`);
 };
 
 export const createPromoCode = (priceRuleId: number, body: any) : Promise<DiscountCode> => {
