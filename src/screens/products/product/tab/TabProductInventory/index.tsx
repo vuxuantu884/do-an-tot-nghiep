@@ -87,7 +87,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "committed",
             render: (value: number,record: InventoryResponse) => {
               return <div> {value ?
-                <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,record.sku,record.name)}>
+                <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,record.sku,record.name,record.store_id)}>
                   {formatCurrencyForProduct(value)}
                 </Link>
                 : ""}</div>;
@@ -107,7 +107,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "on_hold",
             render: (value: number,record: InventoryResponse) => {
               return <div> {value ?
-                <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,record.sku,record.name)}>
+                <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,record.sku,record.name,record.store_id)}>
                   {formatCurrencyForProduct(value)}
                 </Link>
                 : ""}</div>;
@@ -127,7 +127,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "in_coming",
             render: (value: number,record: InventoryResponse) => {
               return <div> {value ?
-                <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,record.sku,record.name)}>
+                <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,record.sku,record.name,record.store_id)}>
                   {formatCurrencyForProduct(value)}
                 </Link>
                 : ""}</div>;
@@ -139,7 +139,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "transferring",
             render: (value: number,record: InventoryResponse) => {
               return <div> {value ?
-                <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,record.sku,record.name)}>
+                <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,record.sku,record.name,record.store_id)}>
                   {formatCurrencyForProduct(value)}
                 </Link>
                 : ""}</div>;
@@ -151,7 +151,7 @@ const TabProductInventory: React.FC<IProps> = (props: IProps) => {
             dataIndex: "on_way",
             render: (value: number,record: InventoryResponse) => {
               return <div> {value ?
-                <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,record.sku,record.name)}>
+                <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,record.sku,record.name,record.store_id)}>
                   {formatCurrencyForProduct(value)}
                 </Link>
                 : ""}</div>;
