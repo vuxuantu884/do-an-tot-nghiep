@@ -114,6 +114,7 @@ const AllTab: React.FC<any> = (props) => {
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
   const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
+  const [loading,setLoading]=useState<boolean>(false);
 
   const goDocument = useCallback((inventoryStatus: string,sku: string,variantName: string,store_id?:number)=>{
     let linkDocument ="";
@@ -599,6 +600,7 @@ const AllTab: React.FC<any> = (props) => {
   }, []);
 
   const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
+    setLoading(false);
     if (result) {
       setInventiryVariant(new Map());
       setData(result);
@@ -667,8 +669,8 @@ const AllTab: React.FC<any> = (props) => {
     const getInventories =async ()=>{
       const temps = {...params, limit: params.limit ?? 50};
       delete temps.status;
-  
-      const res = await callApiNative({isShowLoading: true},dispatch,searchVariantsInventoriesApi,temps);
+      setLoading(true);
+      const res = await callApiNative({isShowLoading: false},dispatch,searchVariantsInventoriesApi,temps);
       onResult(res);
     }
     getInventories();
@@ -942,11 +944,12 @@ const AllTab: React.FC<any> = (props) => {
         }}
       />
       <CustomTable
+        isLoading={loading}
         className="small-padding"
         bordered
         dataSource={data.items}
         scroll={{x: 1200}}
-        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        sticky={{ offsetHeader: OFFSET_HEADER_TABLE,offsetSummary: 10}}
         expandedRowKeys={expandRow}
         onSelectedChange={onSelect}
         pagination={false}
