@@ -1,4 +1,7 @@
 .custom-table {
+  .ant-spin-blur .ant-table-sticky-holder {
+    top: 0 !important;
+  }
   margin-bottom: 0;
   .ant-table-expanded-row {
     & > .ant-table-cell {
