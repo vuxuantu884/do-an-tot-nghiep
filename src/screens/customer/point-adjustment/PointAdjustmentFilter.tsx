@@ -40,6 +40,7 @@ const POINT_ADJUSTMENT_REASON = [
   "Tặng điểm sự cố",
   "Trừ điểm bù",
   "Tặng tiền tích lũy",
+  "Tặng tiền duy trì hạng VIP",
   "Trừ tiền tích lũy",
   "Khác",
 ];
