@@ -185,8 +185,10 @@ const CustomerDetail = () => {
         value: purchaseInfo?.total_finished_order || null,
       },
       {
-        name: "Cửa hàng mua đầu",
-        value: purchaseInfo?.store_of_first_order_offline || null,
+        name: "Nơi mua đầu",
+        value: purchaseInfo ?
+          (purchaseInfo.first_order_type?.toLowerCase() === "online" ? purchaseInfo.source_of_first_order_online : purchaseInfo.store_of_first_order_offline)
+          : null,
       },
       {
         name: "Số đơn trả",
@@ -230,8 +232,10 @@ const CustomerDetail = () => {
         value: purchaseInfo?.number_of_days_without_purchase || null,
       },
       {
-        name: "Cửa hàng mua cuối",
-        value: purchaseInfo?.store_of_last_order_offline || null,
+        name: "Nơi mua cuối",
+        value: purchaseInfo ?
+          (purchaseInfo.last_order_type?.toLowerCase() === "online" ? purchaseInfo.source_of_last_order_online : purchaseInfo.store_of_last_order_offline)
+          : null,
       },
       
       {
