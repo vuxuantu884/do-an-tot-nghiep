@@ -124,7 +124,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
         const params: AnalyticQuery = {
             columns: columns,
             rows: timeGroupBy ? [timeGroupBy, ...rowsInQueryNoTimeGroup] : rowsInQueryNoTimeGroup,
-            cube: values?.reportType || cubeRef.current,
+            cube: dataQuery?.query.cube,
             from: ranges?.from,
             to: ranges?.to,
             conditions: whereParams,
