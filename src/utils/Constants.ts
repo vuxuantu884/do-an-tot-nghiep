@@ -67,6 +67,7 @@ export const FulFillmentStatus = {
   CANCELLED: "cancelled",
   RETURNING: "returning",
   RETURNED: "returned",
+  UNRETURNED:"unreturned"
 };
 
 export const FulFillmentReturnStatus = {

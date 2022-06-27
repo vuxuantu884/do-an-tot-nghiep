@@ -29,9 +29,9 @@ import "./styles.scss";
 import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model";
 import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showModalError, showSuccess, showWarning } from "utils/ToastUtils";
 import { formatCurrency } from "utils/AppUtils";
-import { getFullfilmentPacked, getFullfilmentReturning, bolFullfilmentShiping, insertArray } from "./pack-utils";
+import { insertArray, isFullfilmentPacked } from "./pack-utils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
 import { isFulfillmentActive } from "utils/OrderUtils";
@@ -146,7 +146,7 @@ const PackUpdate: React.FC = () => {
   const onSelectedChange = (selectedRow: GoodsReceiptsInfoOrderModel[], selected?: boolean, changeRow?: any[]) => {
     let selectedRowKeysCopy: number[] = [...selectedRowKeys];
     let selectedRowOrderIdCopy: number[] = [...selectedRowOrderId];
-    let selectedRowCodeCopy:string[]=[...selectedRowCode]
+    let selectedRowCodeCopy: string[] = [...selectedRowCode]
 
     if (selected === true) {
       changeRow?.forEach((data, index) => {
@@ -170,7 +170,7 @@ const PackUpdate: React.FC = () => {
         }
       })
     }
-    
+
     setSelectedRowOrderId([...selectedRowOrderIdCopy]);
     setSelectedRowKeys([...selectedRowKeysCopy]);
     setSelectedRowCode([...selectedRowCodeCopy]);
@@ -226,52 +226,35 @@ const PackUpdate: React.FC = () => {
         showWarning("Đơn hàng đã tồn tại trong biên bản");
         return;
       }
-      let codes: string[] = []
+      let codes: string[] = [];
+
 
       if (packDetail && packDetail.orders && packDetail.orders.length > 0) {
-        console.log("orders", packDetail.orders)
-        console.log("1", packDetail?.orders)
-        console.log("1", packDetail.receipt_type_id)
-        let indexShipping = packDetail.orders?.findIndex(p => bolFullfilmentShiping(p.fulfillments));
+        packDetail?.orders?.forEach((orderItem) => {
+          let fulfillments = orderItem.fulfillments;
+          let fulfillment = isFulfillmentActive(fulfillments);
+          /**
+           * receipt_type_id === 1 => đơn chuyển đi
+           */
+          if (!isFullfilmentPacked(fulfillment) && packDetail.receipt_type_id === 1) {
+            success = false;
+            showModalError(`Không thể cập nhật biên bản, Đơn hàng ${orderItem?.code} không ở trạng thái đã đóng gói`);
+          }
 
-        console.log("indexShipping", indexShipping)
-        if (indexShipping !== -1 && packDetail.receipt_type_id === 1) {
-          success = false;
-          console.log("indexShipping 1", indexShipping)
-          showError(`Không thể cập nhật biên bản, Đơn hàng ${packDetail.orders[indexShipping].code} đã xuất kho`);
-        }
-
-        if (success === true)
-          packDetail?.orders?.forEach((item) => {
-            if (item.fulfillments && item.fulfillments.length > 0) {
-              if (packDetail.receipt_type_id === 1) {
-                let fulfillments = getFullfilmentPacked(item.fulfillments);
-                if (fulfillments.length > 0) {
-                  let indexFFM = fulfillments.length - 1;
-                  let FFMCode: string | null = fulfillments[indexFFM].code;
-                  if (FFMCode && order_id !== FFMCode)
-                    codes.push(FFMCode);
-                  else {
-                    success = false;
-                    showError(`Đơn hàng ${item.code} đã có trong biên bản`);
-                  }
-                }
-              }
-              else if (packDetail.receipt_type_id === 2) {
-                let fulfillments = getFullfilmentReturning(item.fulfillments);
-                if (fulfillments.length > 0) {
-                  let indexFFM = fulfillments.length - 1;
-                  let FFMCode: string | null = fulfillments[indexFFM].code;
-                  if (FFMCode && order_id !== FFMCode)
-                    codes.push(FFMCode);
-                  else {
-                    success = false;
-                    showError(`Đơn hàng ${item.code} đã có trong biên bản`);
-                  }
-                }
-              }
+          if (success) {
+            if (fulfillment?.code && order_id !== fulfillment?.code)
+              codes.push(fulfillment?.code);
+            else {
+              success = false;
+              showModalError(`Đơn hàng ${fulfillment?.code} đã có trong biên bản`);
             }
-          });
+          }
+        })
+
+        if (packDetail.orders?.length !== codes.length && success) {
+          showModalError("Không thể cập nhật biên bản do mất đơn hàng");
+          success = false;
+        }
       }
 
       codes = insertArray([...codes], 0, order_id);
@@ -598,15 +581,6 @@ const PackUpdate: React.FC = () => {
               </div>
             </div>
           </div>
-          {/* <Table
-            rowSelection={{
-              type: "checkbox",
-              ...rowSelection,
-            }}
-            bordered
-            columns={columns}
-            dataSource={goodsReceiptsInfoOrderModel}
-          /> */}
 
           <CustomTable
             bordered
