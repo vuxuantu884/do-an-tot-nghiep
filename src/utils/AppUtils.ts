@@ -532,8 +532,10 @@ export const Products = {
     });
     
     arrVariants.forEach((item) => {
+      item.type = 0;
       let vp = _.cloneDeep(variant_prices);
       if (item.defect_code) {
+        item.type = 1;
         vp.forEach((itemPrice)=>{
           const valueDefect = ArrDefects.find((e:any)=>e.code === item.defect_code)?.value;
           if(!valueDefect) return;
@@ -549,6 +551,7 @@ export const Products = {
       }
       
       variants.push({
+        type: item.type,
         status: status,
         name: item.name,
         color_id: item.color_id,
