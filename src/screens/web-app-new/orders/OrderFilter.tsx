@@ -193,8 +193,8 @@ const OrderFilter = (props: OrderFilterProps) => {
                 value: text
             })
         }
-        if (params.finalized_on_min || params.finalized_on_max) {
-            let textOrderCompleteDate = (params.finalized_on_min ? moment(params.finalized_on_min, "DD-MM-YYYY").format("DD-MM-YYYY") : '??') + " ~ " + (params.finalized_on_max ? moment(params.finalized_on_max, "DD-MM-YYYY").format("DD-MM-YYYY") : '??')
+        if (params.completed_on_min || params.completed_on_max) {
+            let textOrderCompleteDate = (params.completed_on_min ? moment(params.completed_on_min, "DD-MM-YYYY").format("DD-MM-YYYY") : '??') + " ~ " + (params.completed_on_max ? moment(params.completed_on_max, "DD-MM-YYYY").format("DD-MM-YYYY") : '??')
             filters.push({
                 key: 'completed',
                 name: 'Ngày hoàn tất đơn',
@@ -294,7 +294,7 @@ const OrderFilter = (props: OrderFilterProps) => {
             setIssuedClick("");
         }
         else if (tag.key === "completed") {
-            newParams = { ...newParams, ...{ finalized_on_min: null, finalized_on_max: null } };
+            newParams = { ...newParams, ...{ completed_on_min: null, completed_on_max: null } };
             setCompletedClick("");
         }
         else if (tag.key === "cancelled") {
@@ -366,8 +366,8 @@ const OrderFilter = (props: OrderFilterProps) => {
             store_ids: params.store_ids,
             issued_on_min: params.issued_on_min,
             issued_on_max: params.issued_on_max,
-            finalized_on_min: params.finalized_on_min,
-            finalized_on_max: params.finalized_on_max,
+            completed_on_min: params.completed_on_min,
+            completed_on_max: params.completed_on_max,
             cancelled_on_min: params.cancelled_on_min,
             cancelled_on_max: params.cancelled_on_max,
             order_status: params.order_status,
@@ -621,8 +621,8 @@ const OrderFilter = (props: OrderFilterProps) => {
                                         <Col span={8} style={{ marginBottom: '20px' }}>
                                             <p>Ngày hoàn tất đơn</p>
                                             <CustomRangeDatePicker
-                                                fieldNameFrom="finalized_on_min"
-                                                fieldNameTo="finalized_on_max"
+                                                fieldNameFrom="completed_on_min"
+                                                fieldNameTo="completed_on_max"
                                                 activeButton={completedClick}
                                                 setActiveButton={setCompletedClick}
                                                 format="DD-MM-YYYY"
