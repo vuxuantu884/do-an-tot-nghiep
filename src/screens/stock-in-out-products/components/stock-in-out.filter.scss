@@ -1,0 +1,14 @@
+
+
+.stock-in-out-drawer {
+  .active {
+    color: #ffffff;
+    border-color: rgba(42, 42, 134, 0.1);
+    background-color: #2a2a86;
+  }
+  .deactive {
+    color: #2a2a86;
+    border-color: rgba(42, 42, 134, 0.05);
+    background-color: rgba(42, 42, 134, 0.05);
+  }
+}

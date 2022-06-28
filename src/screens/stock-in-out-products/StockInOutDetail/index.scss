@@ -1,0 +1,45 @@
+.ie-detail {
+  &-stock-code {
+    display: flex;
+    align-items: center;
+  }
+  &-stock-code-icon {
+    background-color: #f4f4fc;
+    height: 44px;
+    width: 44px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+  }
+  &-stock-code-icon > img {
+    display: block;
+  }
+  &-text-field {
+    color: #666666;
+  }
+  &-text-field-result {
+    font-weight: 700;
+    color: #2a2a86;
+  }
+}
+
+.ie-detail .ant-card-extra {
+  margin: 0px 0px 0px 10px;
+}
+
+.ie-detail .ant-card-head-title {
+  flex: inherit;
+}
+
+.ie-payment-detail-row {
+  margin-top: 10px;
+  color: #222222;
+  display: flex;
+  &-result {
+    font-weight: 700;
+    color: #2a2a86;
+    text-align: center;
+  }
+}

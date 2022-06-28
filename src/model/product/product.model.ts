@@ -30,7 +30,8 @@ export interface VariantPricesResponse {
   currency_code: string,
   currency_symbol: string,
   retail_price: number,
-  tax_percent: number
+  tax_percent:number,
+  [key: string]: any,
 }
 
 export interface ProductResponse extends BaseObject {
