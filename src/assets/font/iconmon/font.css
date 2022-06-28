@@ -85,3 +85,6 @@
 .icon-warranty:before {
     content: url("assets/icon/icon-warranty-menu.svg");
 }
+.icon-supplier:before {
+    content: url("assets/icon/menu-supplier.svg");
+}
