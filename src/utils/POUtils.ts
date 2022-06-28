@@ -711,4 +711,33 @@ export const checkImportPriceLowByLineItem = (minPrice: number, lineItems: Purch
 }
 
 export const MIN_IMPORT_PRICE_WARNING = 1000;
+export const convertLineItemsToProcurementItems = (lineItems: Array<PurchaseOrderLineItem>, procurements:  Array<PurchaseProcument>) => {
+  const procurementItems: Array<PurchaseProcumentLineItem> = []
+  const newProcurement: Array<PurchaseProcument> = []
+  procurements.forEach((procurement: PurchaseProcument) => {
+    lineItems.forEach((lineItem: PurchaseOrderLineItem) => {
+      procurementItems.push({
+        barcode: lineItem.barcode,
+        line_item_id: lineItem.position ?? 0,
+        // code: lineItem.code,
+        sku: lineItem.sku,
+        variant: lineItem.variant,
+        variant_image: lineItem.variant_image,
+        ordered_quantity: lineItem.quantity ?? 0,
+        planned_quantity: lineItem.planned_quantity ?? 0,
+        accepted_quantity: lineItem.receipt_quantity ?? 0,
+        quantity: lineItem.quantity ?? 0,
+        real_quantity: 0,
+        note: "",
+        variant_id: lineItem.variant_id,
+        retail_price: lineItem.retail_price,
+        price: lineItem.price,
+        product_name: lineItem.product
+      })
+    })
+    procurement.procurement_items = procurementItems
+    newProcurement.push(procurement)
+  })
+  return newProcurement
+}
 export { POUtils };

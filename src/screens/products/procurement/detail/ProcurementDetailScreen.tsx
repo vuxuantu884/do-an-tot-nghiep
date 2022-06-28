@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useHistory, useParams } from 'react-router-dom'
 import PurchaseOrderHistory from 'screens/purchase-order/tab/PurchaseOrderHistory';
-import { getPurchaseOrderApi, printProcurementApi } from 'service/purchase-order/purchase-order.service';
+import { getPurchaseOrderApi, printMultipleProcurementApi } from 'service/purchase-order/purchase-order.service';
 import { callApiNative } from 'utils/ApiUtils';
 import { OFFSET_HEADER_TABLE, ProcurementStatus, ProcurementStatusName } from 'utils/Constants';
 import { ConvertUtcToLocalDate } from 'utils/DateUtils';
@@ -176,24 +176,33 @@ const ProcurementDetailScreen: React.FC = () => {
   });
 
   const printContentCallback = useCallback(
-    (printContent: PurchaseOrderPrint) => {
-      if (!printContent) return;
-      setPrintContent(printContent.html_content);
+    (printContent: Array<PurchaseOrderPrint>) => {
+      const pageBreak = "<div class='pageBreak'></div>";
+      if (!printContent || printContent.length === 0) return;
+      const textResponse = printContent.map((single) => {
+        return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
+      });
+      let textResponseFormatted = textResponse.join(pageBreak);
+      //xóa thẻ p thừa
+      let result = textResponseFormatted.replaceAll("<p></p>", "");
+      setPrintContent(result);
+      handlePrint && handlePrint();
     },
-    []
+    [handlePrint]
   );
 
   const onPrint = useCallback(async () =>{
-    const res = await callApiNative({isShowLoading: true},dispatch,printProcurementApi,procurementData?.id ?? 0,poData?.id ?? 0);
-    if (res && res.data && res.data.errors) {
-      res.data.errors.forEach((e:string) => {
+    const res = await callApiNative({isShowLoading: true},dispatch,printMultipleProcurementApi,procurementData?.id.toString() ?? "0");
+    if (res && res.errors) {
+      res.errors.forEach((e: string) => {
         showError(e);
       });
+      return
     }else{
       printContentCallback(res);
       handlePrint && handlePrint();
     }
-  },[dispatch, procurementData?.id, poData?.id, printContentCallback, handlePrint]);
+  },[dispatch, procurementData?.id, printContentCallback, handlePrint]);
 
   return (
     <ContentContainer
