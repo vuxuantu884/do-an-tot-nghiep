@@ -4,6 +4,7 @@ import React from "react";
 import UrlConfig, { InventoryTabUrl } from "../../config/url.config";
 import { RouteMenu } from "../../model/other";
 import { InventoryDefectsPermission } from './../../config/permissions/inventory-defects.permission';
+import { StockInOutOthersPermission } from 'config/permissions/stock-in-out.permission';
 const ListInventoryDefect = React.lazy(() => import("screens/inventory-defects/ListInventoryDefect"));
 const InventoryDefectCreate = React.lazy(() => import("screens/inventory-defects/CreateInventoryDefects"));
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
@@ -14,6 +15,12 @@ const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateT
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
 const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/index"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
+
+//STOCK IN OUT
+const StockInOutOtherScreen = React.lazy(() => import("screens/stock-in-out-products"))
+const StockInOtherCreate = React.lazy(() => import ("screens/stock-in-out-products/StockInOtherCreate"))
+const StockOutOtherCreate = React.lazy(() => import ("screens/stock-in-out-products/StockOutOtherCreate"))
+const StockInOutDetail = React.lazy(() => import ("screens/stock-in-out-products/StockInOutDetail"))
 
 //Kiểm kê, DUOCNC 20211021
 
@@ -275,6 +282,55 @@ export const inventory: Array<RouteMenu> = [
         isShow: true,
         header: null,
         permissions:[InventoryDefectsPermission.create],
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    path: UrlConfig.STOCK_IN_OUT_OTHERS,
+    exact: true,
+    title: "Nhập xuất khác",
+    icon: "icon-dot",
+    component: StockInOutOtherScreen,
+    key: "submenu35",
+    isShow: true,
+    header: null,
+    permissions:[StockInOutOthersPermission.read],
+    subMenu: [
+      {
+        path: `${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-in`,
+        exact: true,
+        title: "Thêm nhập khác",
+        icon: "icon-dot",
+        component: StockInOtherCreate,
+        key: "submenu35",
+        isShow: true,
+        header: null,
+        permissions:[StockInOutOthersPermission.create],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-out`,
+        exact: true,
+        title: "Thêm xuất khác",
+        icon: "icon-dot",
+        component: StockOutOtherCreate,
+        key: "submenu35",
+        isShow: true,
+        header: null,
+        permissions:[StockInOutOthersPermission.create],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.STOCK_IN_OUT_OTHERS}/:id`,
+        exact: true,
+        title: "Chi tiết xuất nhập khác",
+        icon: "icon-dot",
+        component: StockInOutDetail,
+        key: "submenu35",
+        isShow: true,
+        header: null,
+        permissions:[StockInOutOthersPermission.read],
         subMenu: [],
       },
     ],

@@ -331,6 +331,7 @@ export const FILTER_CONFIG_TYPE = {
   orderOffline: "filter_order_offline",
   orderReturnOnline: "filter_order_return_online",
   orderReturnOffline: "filter_order_return_offline",
+  FILTER_STOCK_IN_OUT: "filter_stock_in_out"
 };
 
 export const COLUMN_CONFIG_TYPE = {

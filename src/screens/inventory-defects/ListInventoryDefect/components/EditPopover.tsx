@@ -12,11 +12,12 @@ type EditPopoverProps = {
 	isHaveEditPermission?: boolean;
   onOk: (newContent: string) => void;
 	label?: string;
+	isRequire?: boolean;
 };
 const EditPopover: React.FC<EditPopoverProps> = (
   props: EditPopoverProps
 ) => {
-  const { content, title, onOk, isDisable=false, label, isHaveEditPermission = true } = props;
+  const { content, title, onOk, isDisable=false, label, isHaveEditPermission = true, isRequire } = props;
   const [visible, setVisible] = useState(false);
   const [newContent, setNewContent] = useState(content);
   const handleVisibleChange = (visible: boolean) => {
@@ -39,6 +40,7 @@ const EditPopover: React.FC<EditPopoverProps> = (
 								onClick={() => {
 									onOk(newContent)
 									setVisible(false);
+									isRequire && !newContent && setNewContent(content);
 								}}
 								disabled={isDisable}
 							>Lưu</Button>
