@@ -4,7 +4,6 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   categoryDeleteAction,
-  getCategoryRequestAction,
 } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -20,13 +19,15 @@ import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons"
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { showLoading } from "domain/actions/loading.action";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
 import CustomSelect from "component/custom/select.custom";
+import { callApiNative } from "utils/ApiUtils";
+import { getCategoryApi } from "service/product/category.service";
 
 const actions: Array<MenuAction> = [
   {
@@ -137,13 +138,15 @@ const Category = () => {
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
     setData(newData);
-    setLoading(false);
   }, []);
-  const onDeleteSuccess = useCallback(() => {
+  const onDeleteSuccess = useCallback(async() => {
     setSelected([]);
-    dispatch(hideLoading());
     showSuccess("Xóa danh mục thành công");
-    dispatch(getCategoryRequestAction(params, onGetSuccess));
+    const res  = await callApiNative({isShowLoading: false},dispatch,getCategoryApi,params);
+    setLoading(false);
+    if (res && res.data) {
+      onGetSuccess(res.data);
+    }
   }, [dispatch, onGetSuccess, params]);
   const onMenuClick = useCallback(
     (index: number) => {
@@ -197,10 +200,19 @@ const Category = () => {
     );
   }, []);
 
+  const getData = useCallback(async ()=>{
+    const res  = await callApiNative({isShowLoading: false},dispatch,getCategoryApi,params);
+    if (res) {
+      onGetSuccess(res);
+    }
+    setLoading(false);
+  },[dispatch, onGetSuccess, params])
+
   useEffect(() => {
     setLoading(true);
-    dispatch(getCategoryRequestAction(params, onGetSuccess));
-  }, [dispatch, onGetSuccess, params]);
+    getData();
+  }, [getData]);
+
   return (
     <ContentContainer
       title="Quản lý danh mục"

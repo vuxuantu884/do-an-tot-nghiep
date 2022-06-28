@@ -30,7 +30,8 @@ export interface VariantPricesResponse {
   currency_code: string,
   currency_symbol: string,
   retail_price: number,
-  tax_percent: number
+  tax_percent:number,
+  [key: string]: any,
 }
 
 export interface ProductResponse extends BaseObject {
@@ -283,6 +284,7 @@ export interface VariantRequest {
   variant_images: Array<VariantImage>,
   inventory: 0,
   version?: number,
+  type?:  number
 }
 
 export interface VariantUpdateRequest {
@@ -332,6 +334,7 @@ export interface ProductRequest {
   material: string | null,
   collections: Array<string>,
   product_collections?: Array<string>,
+  type?: number
 }
 
 export interface BarcodePrintTemEditNoteRequest {
@@ -349,7 +352,8 @@ export interface VariantRequestView {
   quantity: number | null,
   variant_images: Array<VariantImage>,
   saleable?: boolean,
-  defect_code?: string
+  defect_code?: string,
+  type?: number
 }
 
 export interface VariantPriceViewRequest {

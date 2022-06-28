@@ -90,8 +90,20 @@ export const findCurrentRoute = (
             // loại trừ đường dẫn bị trùng
             const subMenuPathArr = route.subMenu.map(single => single.path);
             if(!subMenuPathArr.includes(path))  {
-              current.push(item.key);
-              subMenu.push(route.key);
+            const pathArray = path.split("/")
+            const subPath = []
+            // xử lý trường hợp lấy subroute active /purchase-orders/123/procurements/345 
+            for (let i = 1; i < pathArray.length + 1; i += 2) {
+              pathArray[i] && subPath.push(pathArray[i])
+            }
+              if(subPath.length === 1){
+                current.push(item.key);
+                subMenu.push(route.key);
+              }
+              if(subPath.length > 1 && item.path.replace("/", "") === subPath[subPath.length - 1]){
+                current.push(item.key);
+                subMenu.push(route.key);
+              }
             }
           }
         }
@@ -532,8 +544,10 @@ export const Products = {
     });
     
     arrVariants.forEach((item) => {
+      item.type = 0;
       let vp = _.cloneDeep(variant_prices);
       if (item.defect_code) {
+        item.type = 1;
         vp.forEach((itemPrice)=>{
           const valueDefect = ArrDefects.find((e:any)=>e.code === item.defect_code)?.value;
           if(!valueDefect) return;
@@ -549,6 +563,7 @@ export const Products = {
       }
       
       variants.push({
+        type: item.type,
         status: status,
         name: item.name,
         color_id: item.color_id,

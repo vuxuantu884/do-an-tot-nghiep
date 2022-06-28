@@ -151,6 +151,14 @@ export interface DiscountCode {
   remaining_count: number;
 }
 
+export interface DiscountUsageDetailResponse {
+  customer_phone: string;
+  customer_id: number;
+  customer_name: string;
+  order_id: number;
+  order_code: string;
+}
+
 export interface PriceRule extends BaseObject {
   activated_by: string;
   activated_date: Date;

@@ -1,3 +1,4 @@
+import { ProcurementCancel } from './../../model/purchase-order/purchase-procument';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -141,3 +142,9 @@ export const getListProcurementItemsReceipt = (
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements/items?${queryString}`
   );
 };
+
+export const cancelMultipleProcurement = (ids: string): Promise<BaseResponse<ProcurementCancel>> => {
+  return BaseAxios.delete(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/procurements/cancel-list?procurement_ids=${ids}`
+  );
+}

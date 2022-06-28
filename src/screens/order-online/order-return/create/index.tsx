@@ -38,6 +38,7 @@ import {
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import purify from "dompurify";
+import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import useFetchStores from "hook/useFetchStores";
 import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import { cloneDeep } from "lodash";
@@ -265,6 +266,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const handlePrint = useReactToPrint({
     content: () => printElementRef.current,
   });
+
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
 
   const recentAccountCode = useMemo(() => {
     return {
@@ -584,6 +587,15 @@ const ScreenReturnCreate = (props: PropTypes) => {
       return single.quantity > 0;
     });
   }, [listReturnProducts]);
+
+  /**
+  * trả hàng online thì ko show hoàn tiền
+  */
+  const checkIfNotShowMoneyRefund = useMemo(() => {
+    return orderReturnType === RETURN_TYPE_VALUES.online
+  }, [orderReturnType]);
+
+  const isReturnAndNotShowMoneyRefund = !isExchange && checkIfNotShowMoneyRefund;
 
   console.log("refund", refund);
 
@@ -1429,7 +1441,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
           )?.name || "",
         reason: form.getFieldValue("reason"),
         sub_reason_id: form.getFieldValue("sub_reason_id") || null,
-        received: isReceivedReturnProducts,
+        // received: isReceivedReturnProducts,
+        received: orderReturnType === RETURN_TYPE_VALUES.online ? true : isReceivedReturnProducts,
         discounts: handleRecalculateOriginDiscount(itemsResult),
         account_code: recentAccountCode.accountCode,
         assignee_code: OrderDetail.assignee_code || null,
@@ -1572,23 +1585,18 @@ const ScreenReturnCreate = (props: PropTypes) => {
   useEffect(() => {
     let initMoneyAmount =
       totalAmountCustomerNeedToPay < 0 ? Math.round(Math.abs(totalAmountCustomerNeedToPay)) : 0;
-
-    console.log("initMoneyAmount111", initMoneyAmount);
+    console.log('isReturnAndNotShowMoneyRefund', isReturnAndNotShowMoneyRefund)
+    // console.log("initMoneyAmount111", initMoneyAmount);
     form.setFieldsValue({
       returnMoneyField: [
         {
           ...initialFormValueWithReturn.returnMoneyField[0],
           returnMoneyMethod: returnPaymentMethodCode,
-          returnMoneyAmount: initMoneyAmount,
+          returnMoneyAmount: (isReturnAndNotShowMoneyRefund) ? 0 : initMoneyAmount,
         },
       ],
     });
-  }, [
-    form,
-    initialFormValueWithReturn.returnMoneyField,
-    returnPaymentMethodCode,
-    totalAmountCustomerNeedToPay,
-  ]);
+  }, [form, initialFormValueWithReturn.returnMoneyField, isReturnAndNotShowMoneyRefund, returnPaymentMethodCode, totalAmountCustomerNeedToPay]);
 
   const renderIfOrderNotFinished = () => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
@@ -1695,7 +1703,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   shipmentMethod={shipmentMethod}
                   listStores={listStores}
                 />
-                {!isExchange && (
+                {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
+                {/* {!isExchange && ( */}
+                {(!isExchange && !isReturnAndNotShowMoneyRefund && canCreateMoneyRefund) && (
                   <CardReturnMoneyPageCreateReturn
                     listPaymentMethods={listPaymentMethods}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
@@ -1703,6 +1713,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     setReturnMoneyType={setReturnMoneyType}
                     returnPaymentMethodCode={returnPaymentMethodCode}
                     setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+                    canCreateMoneyRefund={canCreateMoneyRefund}
                   />
                 )}
 
@@ -1726,6 +1737,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     isOrderReturnFromPOS={isOrderFromPOS(OrderDetail)}
                     returnPaymentMethodCode={returnPaymentMethodCode}
                     setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+                    canCreateMoneyRefund // đơn đổi có thể tạo trả tiền
                   />
                 )}
                 {isExchange && (

@@ -51,11 +51,13 @@ import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import {
   checkCanEditDraft,
+  checkImportPriceLowByLineItem,
   combineLineItemToSubmitData,
   fetchProductGridData,
   getUntaxedAmountByLineItemType,
   isExpandsSupplement,
   isShowSupplement,
+  MIN_IMPORT_PRICE_WARNING,
   POUtils,
   validateLineItemQuantity,
 } from "utils/POUtils";
@@ -74,6 +76,7 @@ import PurchaseOrderProvider, {
   PurchaseOrderCreateContext,
 } from "./provider/purchase-order.provider";
 import POInfoPO from "./component/po-info-po";
+import ModalConfirm from "component/modal/ModalConfirm";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
 const ModalExport = lazy(() => import("./modal/ModalExport"));
@@ -154,6 +157,7 @@ const PODetailScreen: React.FC = () => {
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   // const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
   const [activePanel, setActivePanel] = useState<string | string[]>();
+  const [isShowWarningPriceModal, setShowWarningPriceModal] = useState<boolean>(false);
   const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] });
   const statusAction = useRef<string>("");
 
@@ -219,10 +223,9 @@ const PODetailScreen: React.FC = () => {
   );
 
   const handleChangeStatusPO = (status: string) => {
-    dispatch(showLoading());
     setIsEditDetail(false);
     statusAction.current = status;
-    formMain.submit();
+    handleBeforeSave();
   };
 
   const onStoreResult = useCallback((result: Array<StoreResponse>) => {
@@ -290,7 +293,7 @@ const PODetailScreen: React.FC = () => {
           return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100);
         }, 0)
       );
-      value.ap_closing_date = value.ap_closing_date? ConvertDateToUtc(value.ap_closing_date) : null;
+      value.ap_closing_date = value.ap_closing_date ? ConvertDateToUtc(value.ap_closing_date) : null;
       const dataClone: any = { ...purchaseOrder, ...value, status: statusAction.current };
       console.log(dataClone);
       dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
@@ -384,7 +387,6 @@ const PODetailScreen: React.FC = () => {
         returnId,
         purchaseOrder?.id ?? 0
       );
-      console.log("res", res);
 
       if (res && res.data && res.data.errors) {
         res.data.errors.forEach((e: string) => {
@@ -590,6 +592,29 @@ const PODetailScreen: React.FC = () => {
     );
   }, [onCancel, purchaseOrder, isConfirmDelete, redirectToReturn]);
 
+  const handleBeforeSave = () => {
+    const status = purchaseOrder?.status;
+    // case: chưa duyệt => check tất cả sp có giá nhỏ hơn 1000đ trong line item 
+    if (status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) {
+      const lineItems = isGridMode ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate) : formMain.getFieldsValue()[POField.line_items];
+
+      if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
+        setShowWarningPriceModal(true)
+        return;
+      }
+    } else if ([POStatus.FINALIZED, POStatus.STORED].includes(status) && purchaseOrder.receive_status !== ProcumentStatus.FINISHED) {
+      //case: đã duyệt - trước kết thúc nhập kho: chỉ check những sản phẩm bổ sung được thêm mới vào có giá nhỏ hơn 1000đ
+      const formLineItems: PurchaseOrderLineItem[] = formMain.getFieldValue([POField.line_items]);
+      const newSupplementItems = formLineItems.filter(item => item.type === POLineItemType.SUPPLEMENT && !item.id);
+      if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, newSupplementItems)) {
+        setShowWarningPriceModal(true)
+        return
+      }
+    }
+    // trạng thái khác : không check giá
+    formMain.submit();
+  }
+
   const RightAction = () => {
     const ActionByStatus = () => {
       switch (status) {
@@ -605,7 +630,7 @@ const PODetailScreen: React.FC = () => {
                   onClick={() => {
                     if (isEditDetail) {
                       statusAction.current = POStatus.DRAFT;
-                      formMain.submit();
+                      handleBeforeSave();
                     } else {
                       setIsEditDetail(!isEditDetail);
                     }
@@ -635,7 +660,7 @@ const PODetailScreen: React.FC = () => {
                   onClick={() => {
                     if (isEditDetail) {
                       statusAction.current = POStatus.WAITING_APPROVAL;
-                      formMain.submit();
+                      handleBeforeSave();
                     } else {
                       setIsEditDetail(!isEditDetail);
                     }
@@ -666,9 +691,8 @@ const PODetailScreen: React.FC = () => {
                 icon={!isEditDetail && <EditOutlined />}
                 onClick={() => {
                   if (isEditDetail) {
-                    
                     statusAction.current = status;
-                    formMain.submit();
+                    handleBeforeSave();
                   } else {
                     setIsEditDetail(!isEditDetail);
                   }
@@ -810,7 +834,7 @@ const PODetailScreen: React.FC = () => {
     <ContentContainer
       isError={isError}
       isLoading={isLoading}
-      title="Quản lý đơn đặt hàng"
+      title={"Quản lý đơn đặt hàng " + (purchaseOrder?.code || "")}
       breadcrumb={[
         {
           name: "Kho hàng",
@@ -970,6 +994,12 @@ const PODetailScreen: React.FC = () => {
           conditions: purchaseOrder?.id,
           type: "EXPORT_PO_NPL",
         }}
+      />
+      <ModalConfirm title="Giá nhập sản phẩm nhỏ hơn 1.000đ"
+        subTitle="Bạn có chắc chắn muốn lưu đơn đặt hàng này?"
+        visible={isShowWarningPriceModal}
+        onCancel={() => setShowWarningPriceModal(false)}
+        onOk={() => { formMain.submit(); setShowWarningPriceModal(false) }}
       />
     </ContentContainer>
   );

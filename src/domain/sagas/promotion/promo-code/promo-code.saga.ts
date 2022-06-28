@@ -9,6 +9,7 @@ import {
   publishedBulkPromoCode,
   enableBulkPromoCode,
   disableBulkPromoCode,
+  getDiscountUsageDetailApi,
 } from "../../../../service/promotion/promo-code/promo-code.service";
 import {YodyAction} from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
@@ -19,8 +20,9 @@ import {showError} from "../../../../utils/ToastUtils";
 import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {PromoCodeType} from "../../../types/promotion.type";
 import {all} from "redux-saga/effects";
-import {DiscountCode} from "model/promotion/price-rules.model";
+import {DiscountCode, DiscountUsageDetailResponse} from "model/promotion/price-rules.model";
 import {callApiSaga} from "utils/ApiUtils";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* checkPromoCodeAtc(action: YodyAction) {
   const {code, handleResponse} = action.payload;
@@ -75,6 +77,35 @@ function* getPromoCodeByIdAct(action: YodyAction) {
   } catch (error) {
     onResult(false);
     // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getDiscountUsageDetailSaga(action: YodyAction) {
+  const {discountCode, onResult} = action.payload;
+  yield put(showLoading());
+  try {
+    let response: BaseResponse<Array<DiscountUsageDetailResponse>> = yield call(
+      getDiscountUsageDetailApi,
+      discountCode
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onResult(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+  }
+  finally {
+    yield put(hideLoading());
   }
 }
 
@@ -280,6 +311,7 @@ export function* promoCodeSaga() {
     takeLatest(PromoCodeType.CHECK_PROMO_CODE, checkPromoCodeAtc),
     takeLatest(PromoCodeType.GET_LIST_PROMO_CODE, getPromoCode),
     takeLatest(PromoCodeType.GET_PROMO_CODE_BY_ID, getPromoCodeByIdAct),
+    takeLatest(PromoCodeType.GET_DISCOUNT_USAGE_DETAIL, getDiscountUsageDetailSaga),
     takeLatest(PromoCodeType.DELETE_PROMO_CODE_BY_ID, deletePromoCodeByIdAct),
     takeLatest(PromoCodeType.UPDATE_PROMO_CODE_BY_ID, updatePromoCodeByIdAct),
     takeLatest(PromoCodeType.ADD_PROMO_CODE, addPromoCodeManualAct),

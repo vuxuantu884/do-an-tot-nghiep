@@ -18,6 +18,7 @@ export interface SelectContentProps extends SelectProps<any> {
   merchandiser?: string;
   fixedQuery?: any;
   isFilter?: boolean | false;
+  isGetName?: boolean | false;
   [name: string]: any;
 }
 const defaultSelectProps: SelectProps<any> = {
@@ -36,7 +37,7 @@ SelectSearch.defaultProps = {
 };
 
 function SelectSearch(contentProps: SelectContentProps) {
-  const { id: name, value, mode, fixedQuery, key, isFilter, ...selectProps } = contentProps;
+  const { id: name, value, mode, fixedQuery, key, isFilter, isGetName, ...selectProps } = contentProps;
 
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
@@ -159,7 +160,7 @@ function SelectSearch(contentProps: SelectContentProps) {
       value={contentProps.defaultValue || value}
       >
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code + name} value={isFilter ? JSON.stringify({
+        <SelectPagingV2.Option key={item.code + name} value={isFilter || isGetName ? JSON.stringify({
           code: item.code,
           name: item.full_name
         }) : item.code}>

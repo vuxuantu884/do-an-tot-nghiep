@@ -15,6 +15,7 @@ import { ODERS_PERMISSIONS } from 'config/permissions/order.permission';
 import offlineOrdersRoute from './offline-orders.route';
 import webAppRoute from "./web-app.route";
 import warrantyRoute from './warranty.route';
+import supplierRoutes from './supplier.route';
 
 const Dashboard = React.lazy(() => import ("screens/dashboard"));
 const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
@@ -61,6 +62,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: inventory,
+  },
+  {
+    path: UrlConfig.SUPPLIERS,
+    exact: true,
+    title: "Nhà cung cấp",
+    icon: 'icon-supplier',
+    component: null,
+    key: UrlConfig.SUPPLIERS,
+    isShow: true,
+    header: null,
+    subMenu: supplierRoutes,
   },
   {
     path: UrlConfig.ORDER,

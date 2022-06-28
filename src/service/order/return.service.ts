@@ -41,7 +41,7 @@ export const getOrderReasonService = (orderCodes: string[]): Promise<
 export const orderRefundService = (
   id: number,
   params: {
-    payments: OrderPaymentResponse[];
+    payments: OrderPaymentResponse[]|any[];
   }
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/returns/${id}/refund`, params);
