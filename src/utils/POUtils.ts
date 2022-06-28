@@ -705,4 +705,10 @@ export const isShowSupplement = (form : FormInstance) => {
   const stt = form.getFieldValue(POField.status);
   return [POStatus.FINALIZED, POStatus.STORED, POStatus.FINISHED, POStatus.COMPLETED].includes(stt);
 }
+
+export const checkImportPriceLowByLineItem = (minPrice: number, lineItems: PurchaseOrderLineItem[]) => {
+  return lineItems?.some((item) => item.price <= minPrice);
+}
+
+export const MIN_IMPORT_PRICE_WARNING = 1000;
 export { POUtils };
