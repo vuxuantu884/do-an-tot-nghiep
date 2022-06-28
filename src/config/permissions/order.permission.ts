@@ -35,5 +35,6 @@ export const ODERS_PERMISSIONS = {
   CONFIG_UPDATE:"orders_config_update",
    //RETURN
    RECEIVE_RETURN:"orders_receive_returns",
+   CREATE_MONEY_REFUND:"orders_returns_refund",
 }
 

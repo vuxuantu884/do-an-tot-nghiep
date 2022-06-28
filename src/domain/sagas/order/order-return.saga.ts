@@ -123,6 +123,8 @@ function* orderRefundSaga(action: YodyAction) {
   } catch (error) {
     console.log("error", error);
 		showError("Có lỗi khi hoàn tiền đơn trả hàng! Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
   }
 }
 
