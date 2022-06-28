@@ -13,9 +13,7 @@ import {
   getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  actionGetOrderReturnDetails,
-  actionOrderRefund,
-  actionSetIsReceivedOrderReturn
+  actionGetOrderReturnDetails, actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
@@ -108,7 +106,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
     acceptStoreIds:[OrderDetail?.store_id||0]
   });
 
-  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts)
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
 
   const renderModalNotificationReturn = (content: string) => {
     Modal.error({
