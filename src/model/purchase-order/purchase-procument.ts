@@ -164,4 +164,12 @@ export interface ProcurementManual {
   procurement_items: Array<PurchaseProcumentLineItem>;
 }
 
+export type ProcurementCancel = {
+  total: number;
+  processed: number;
+  success: number;
+  errors: number;
+  message_errors: Array<string>
+}
+
 export { POProcumentField, POProcumentLineItemField };

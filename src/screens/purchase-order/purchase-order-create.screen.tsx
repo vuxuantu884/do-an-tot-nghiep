@@ -34,7 +34,7 @@ import {
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ProductResponse } from "../../model/product/product.model";
-import { checkImportPriceLowByLineItem, combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, MIN_IMPORT_PRICE_WARNING, POUtils, validateLineItemQuantity } from "../../utils/POUtils";
+import { checkImportPriceLowByLineItem, combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, MIN_IMPORT_PRICE_WARNING, POUtils, validateLineItemQuantity, convertLineItemsToProcurementItems } from "../../utils/POUtils";
 import POInfoPO from "./component/po-info-po";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
@@ -150,6 +150,8 @@ const POCreateScreen: React.FC = () => {
           throw new Error("Vui lòng thêm sản phẩm");
         }
         value.line_items = combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate);
+        const newProcurement = convertLineItemsToProcurementItems(value.line_items, value.procurements)
+        value.procurements = newProcurement
       } else if (Array.isArray(value.line_items) && value.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
