@@ -21,11 +21,18 @@ import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
 import {
-  addPromoCode, deletePromoCodeById, disableBulkPromoCode, enableBulkPromoCode, getListPromoCode, publishedBulkPromoCode, updatePromoCodeById
+  addPromoCode,
+  deletePromoCodeById,
+  disableBulkPromoCode,
+  enableBulkPromoCode,
+  getDiscountUsageDetailAction,
+  getListPromoCode,
+  publishedBulkPromoCode,
+  updatePromoCodeById
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
-import { DiscountCode, PriceRule } from "model/promotion/price-rules.model";
+import {DiscountCode, DiscountUsageDetailResponse, PriceRule} from "model/promotion/price-rules.model";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
@@ -48,6 +55,10 @@ import {HttpStatus} from "config/http-status.config";
 import {addPromotionCodeApi, getPromotionJobsApi} from "service/promotion/promo-code/promo-code.service";
 import {EnumJobStatus} from "config/enum.config";
 import ProcessAddDiscountCodeModal from "screens/promotion/promo-code/components/ProcessAddDiscountCodeModal";
+
+import eyeIcon from "assets/icon/eye.svg";
+import DiscountUsageDetailModal from "./components/DiscountUsageDetailModal";
+
 const { Item } = Form;
 const { Option } = Select;
 
@@ -329,13 +340,30 @@ const ListCode = () => {
     dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
   }, [deleteCallBack, dispatch, priceRuleId]);
 
+  // handle detail modal
+  const [isVisibleDiscountUsageDetailModal, setIsVisibleDiscountUsageDetailModal] = useState(false);
+  const [discountUsageDetailList, setDiscountUsageDetailList] = useState<Array<DiscountUsageDetailResponse>>([]);
+
+  const onCloseDiscountUsageDetailModal = () => {
+    setIsVisibleDiscountUsageDetailModal(false);
+
+  }
+  const openDiscountCodeDetailModal = (data: any) => {
+    dispatch(getDiscountUsageDetailAction(data.code, (response) => {
+      if (!!response) {
+        setDiscountUsageDetailList(response);
+        setIsVisibleDiscountUsageDetailModal(true);
+      }
+    }));
+  }
+  // end handle detail modal
 
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "Mã giảm giá",
       visible: true,
       fixed: "left",
-      width: "30%",
+      width: "25%",
       dataIndex: "code",
     },
     {
@@ -343,7 +371,23 @@ const ListCode = () => {
       visible: true,
       fixed: "left",
       dataIndex: "usage_count",
-      width: "10%",
+      width: "15%",
+      render: (value: number, data: any) => {
+        return (
+          <>
+            {value > 0 ?
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center"}}>
+                <div >{value}</div>
+                <Button onClick={() => openDiscountCodeDetailModal(data)} style={{ border: '1px solid #2A2A86'}}>
+                  <img src={eyeIcon} style={{ marginRight: 10 }} alt="" />
+                  <span style={{ color: '#2A2A86'}}>Chi tiết</span>
+                </Button>
+              </div>
+              : <div>{value}</div>
+            }
+          </>
+        );
+      },
     },
     {
       title: "Lượt áp dụng còn lại",
@@ -429,15 +473,18 @@ const ListCode = () => {
           title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ''}`}
           breadcrumb={[
             {
-              name: "Tổng quan",
-              path: UrlConfig.HOME,
+              name: "Khuyến mại",
             },
             {
-              name: "Khuyến mại",
+              name: "Đợt phát hành",
               path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
             },
             {
-              name: "Mã chiết khấu đơn hàng",
+              name: `${promoValue?.code}`,
+              path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${promoValue?.id}`,
+            },
+            {
+              name: "Danh sách mã giảm giá",
             },
           ]}
           extra={
@@ -498,6 +545,7 @@ const ListCode = () => {
               </CustomFilter>
 
               <CustomTable
+                bordered
                 selectedRowKey={selectedRowKey}
                 onChangeRowKey={(rowKey) => {
                   setSelectedRowKey(rowKey);
@@ -775,6 +823,15 @@ const ListCode = () => {
               progressData={progressData}
               progressPercent={processPercent}
               isProcessing={isProcessing}
+            />
+          }
+
+          {/* Process create new discount code */}
+          {isVisibleDiscountUsageDetailModal &&
+            <DiscountUsageDetailModal
+              visible={isVisibleDiscountUsageDetailModal}
+              discountUsageDetailList={discountUsageDetailList}
+              onCloseModal={onCloseDiscountUsageDetailModal}
             />
           }
         </ContentContainer>
