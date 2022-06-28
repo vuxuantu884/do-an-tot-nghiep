@@ -177,6 +177,14 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
           isWebsite: true,
           key: "5",
         },
+        {
+          name: "Ngày tạo",
+          value: customer.created_date
+            ? ConvertUtcToLocalDate(customer.created_date, DATE_FORMAT.DDMMYYY)
+            : null,
+          position: "left",
+          key: "created_date",
+        },
       ];
       return details;
     }
