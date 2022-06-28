@@ -293,7 +293,7 @@ const PODetailScreen: React.FC = () => {
           return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100);
         }, 0)
       );
-      value.ap_closing_date = value.ap_closing_date? ConvertDateToUtc(value.ap_closing_date) : null;
+      value.ap_closing_date = value.ap_closing_date ? ConvertDateToUtc(value.ap_closing_date) : null;
       const dataClone: any = { ...purchaseOrder, ...value, status: statusAction.current };
       console.log(dataClone);
       dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
@@ -387,7 +387,6 @@ const PODetailScreen: React.FC = () => {
         returnId,
         purchaseOrder?.id ?? 0
       );
-      console.log("res", res);
 
       if (res && res.data && res.data.errors) {
         res.data.errors.forEach((e: string) => {
@@ -835,7 +834,7 @@ const PODetailScreen: React.FC = () => {
     <ContentContainer
       isError={isError}
       isLoading={isLoading}
-      title="Quản lý đơn đặt hàng"
+      title={"Quản lý đơn đặt hàng " + (purchaseOrder?.code || "")}
       breadcrumb={[
         {
           name: "Kho hàng",
@@ -1000,7 +999,7 @@ const PODetailScreen: React.FC = () => {
         subTitle="Bạn có chắc chắn muốn lưu đơn đặt hàng này?"
         visible={isShowWarningPriceModal}
         onCancel={() => setShowWarningPriceModal(false)}
-        onOk={() => {formMain.submit(); setShowWarningPriceModal(false)}}
+        onOk={() => { formMain.submit(); setShowWarningPriceModal(false) }}
       />
     </ContentContainer>
   );
