@@ -64,6 +64,8 @@ const ProductDetailScreen: React.FC = () => {
   const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
   const [visibleDes,setVisibleDes] = useState<boolean>(false);
+  const [loadingHis,setLoadingHis] = useState<boolean>(false);
+  const [loadingInventories,setLoadingInventories] = useState<boolean>(false);
   const [dataInventory, setDataInventory] = useState<
     PageResponse<InventoryResponse>
   >({
@@ -287,6 +289,7 @@ const ProductDetailScreen: React.FC = () => {
   );
 
   const onResultDetail = useCallback((result) => {
+    setLoadingInventories(false);  
     if (!result) {
     } else {
       setDataInventory(result);
@@ -294,6 +297,7 @@ const ProductDetailScreen: React.FC = () => {
   }, []);
 
   const onResultInventoryHistory = useCallback((result) => {
+    setLoadingHis(false);  
     if (!result) {
     } else {
       setDataHistory(result);
@@ -304,6 +308,7 @@ const ProductDetailScreen: React.FC = () => {
     (page) => {
       if (data && data?.variants.length > 0) {
         let variantSelect = data.variants[active].id;
+        setLoadingInventories(true);
         dispatch(
           inventoryGetDetailAction(
             { variant_id: variantSelect, page: page,limit: 500 },
@@ -319,12 +324,13 @@ const ProductDetailScreen: React.FC = () => {
     (page) => {
       if (data && data?.variants.length > 0) {
         let variantSelect = data.variants[active].id;
+        setLoadingHis(true);
         dispatch(
           inventoryGetHistoryAction(
             { variant_id: variantSelect, page: page,limit: 300 },
             onResultInventoryHistory
           )
-        );       
+        );  
       }
     },
     [active, data, dispatch, onResultInventoryHistory]
@@ -342,6 +348,7 @@ const ProductDetailScreen: React.FC = () => {
   useEffect(() => {
     if (data && data?.variants.length > 0) {
       let variantSelect = data.variants[active].id;
+      setLoadingHis(true);setLoadingInventories(true);  
       dispatch(
         inventoryGetDetailAction({ variant_id: variantSelect,limit: 500 }, onResultDetail)
       );
@@ -741,16 +748,17 @@ const tab= document.getElementById("tab");
                     <Tabs
                       style={{overflow: "initial"}}
                       defaultActiveKey={activeTab}
-                      onTabClick={onTabClick}
                     >
                       <Tabs.TabPane tab="Danh sách tồn kho" key={TabName.INVENTORY}>
                         <TabProductInventory
+                          loadingInventories={loadingInventories}
                           onChange={onChangeDataInventory}
                           data={dataInventory}
                         />
                       </Tabs.TabPane>
                       <Tabs.TabPane tab="Lịch sử tồn kho" key={TabName.HISTORY}>
                         <TabProductHistory
+                          loadingHis={loadingHis}
                           onChange={onChangeDataHistory}
                           data={dataHistory}
                         />
