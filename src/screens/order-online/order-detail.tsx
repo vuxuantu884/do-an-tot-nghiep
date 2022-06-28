@@ -21,6 +21,7 @@ import {
   UpdatePaymentAction
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
+import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
@@ -154,6 +155,8 @@ const OrderDetail = (props: PropType) => {
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
   console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
+
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts)
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
@@ -906,6 +909,7 @@ const OrderDetail = (props: PropType) => {
                     handleReturnMoney={handleReturnMoney}
                     returnPaymentMethodCode={returnPaymentMethodCode}
                     setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+                    canCreateMoneyRefund={canCreateMoneyRefund}
                   />
                 )}
               

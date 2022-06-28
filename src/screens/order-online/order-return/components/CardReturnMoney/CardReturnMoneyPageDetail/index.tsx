@@ -18,6 +18,7 @@ type PropTypes = {
   returnPaymentMethodCode: string;
   setReturnPaymentMethodCode: (value: string) => void;
   returnPaymentStatus: string;
+  canCreateMoneyRefund: boolean;
 };
 
 function CardReturnMoneyPageDetail(props: PropTypes) {
@@ -31,6 +32,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
     setReturnPaymentMethodCode,
     returnPaymentStatus,
     isShowPaymentMethod,
+    canCreateMoneyRefund,
   } = props;
 
   const renderCardTitle = () => {
@@ -125,6 +127,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
             isShowButtonReturnMoney={true}
             returnPaymentMethodCode={returnPaymentMethodCode}
             setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+            canCreateMoneyRefund={canCreateMoneyRefund}
           />
         )}
       </Card>

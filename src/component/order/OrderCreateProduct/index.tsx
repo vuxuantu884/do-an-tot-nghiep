@@ -1763,7 +1763,7 @@ function OrderCreateProduct(props: PropTypes) {
 				} else if (couponInputText && _items.length > 0) {
 					handleApplyCouponWhenInsertCoupon(couponInputText, _items);
 				}
-				autoCompleteRef.current?.blur();
+				autoCompleteRef?.current?.blur();
 				setIsInputSearchProductFocus(false);
 				onClearVariantSearch();
 			}
