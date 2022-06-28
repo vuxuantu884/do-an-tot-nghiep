@@ -2,6 +2,7 @@ import { Button, Col, Form, Input, Row } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import ModalConfirm from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
@@ -33,7 +34,7 @@ import {
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ProductResponse } from "../../model/product/product.model";
-import { combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, POUtils, validateLineItemQuantity } from "../../utils/POUtils";
+import { checkImportPriceLowByLineItem, combineLineItemToSubmitData, fetchProductGridData, getUntaxedAmountByLineItemType, MIN_IMPORT_PRICE_WARNING, POUtils, validateLineItemQuantity } from "../../utils/POUtils";
 import POInfoPO from "./component/po-info-po";
 import POInfoForm from "./component/po-info.form";
 import POInventoryForm from "./component/po-inventory.form";
@@ -121,7 +122,7 @@ const POCreateScreen: React.FC = () => {
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
-
+  const [isShowWarningPriceModal, setIsShowWarningPriceModal] = useState<boolean>(false);
   //context 
   const { taxRate, poLineItemGridChema, poLineItemGridValue, isGridMode, setIsGridMode, setPoLineItemGridChema, setPoLineItemGridValue, setTaxRate } = useContext(PurchaseOrderCreateContext);
 
@@ -204,9 +205,13 @@ const POCreateScreen: React.FC = () => {
   }
 
   const createPurchaseOrder = (status: string) => {
-
     setStatusAction(status);
-    formMain.submit();
+    const lineItems =isGridMode ?  combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate): formMain.getFieldsValue()[POField.line_items];
+    if(checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)){
+      setIsShowWarningPriceModal(true)
+    }else{
+      formMain.submit();
+    }   
   }
 
   useEffect(() => {
@@ -379,6 +384,12 @@ const POCreateScreen: React.FC = () => {
           }
         />
       </Form>
+      <ModalConfirm title="Giá nhập sản phẩm nhỏ hơn 1.000đ"
+        subTitle="Bạn có chắc chắn muốn tạo đơn đặt hàng này?"
+        visible={isShowWarningPriceModal}
+        onCancel={() => setIsShowWarningPriceModal(false)}
+        onOk={() => {formMain.submit(); setIsShowWarningPriceModal(false)}}
+      />
     </ContentContainer>
   );
 };
