@@ -156,7 +156,7 @@ const OrderDetail = (props: PropType) => {
   console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
-  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts)
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);

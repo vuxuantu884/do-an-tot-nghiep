@@ -267,7 +267,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     content: () => printElementRef.current,
   });
 
-  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts)
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
 
   const recentAccountCode = useMemo(() => {
     return {
