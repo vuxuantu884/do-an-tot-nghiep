@@ -1,3 +1,4 @@
+import { Modal } from 'antd';
 import cogoToast from 'cogo-toast';
 import { ReactNode } from 'react';
 
@@ -37,4 +38,11 @@ export const showWarning = (msg: ReactNode) => {
 
 export const showInfo = (msg: ReactNode) => {
 	cogoToast.info(msg, option)
-  }
+}
+
+  export const showModalError = (msg: ReactNode, title?: string) => {
+	Modal.error({
+		title: title || 'Thông báo lỗi',
+		content: msg,
+	});
+};
