@@ -1,10 +1,9 @@
-import { InventoryDefectsPermission } from './../../config/permissions/inventory-defects.permission';
-import { RouteMenu } from "../../model/other";
-import UrlConfig, { InventoryTabUrl, ProcurementTabUrl } from "../../config/url.config";
-import React from "react";
-import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
+import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
+import React from "react";
+import UrlConfig, { InventoryTabUrl } from "../../config/url.config";
+import { RouteMenu } from "../../model/other";
+import { InventoryDefectsPermission } from './../../config/permissions/inventory-defects.permission';
 const ListInventoryDefect = React.lazy(() => import("screens/inventory-defects/ListInventoryDefect"));
 const InventoryDefectCreate = React.lazy(() => import("screens/inventory-defects/CreateInventoryDefects"));
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
@@ -15,29 +14,6 @@ const CreateTicketFromExcel = React.lazy(() => import("screens/inventory/UpdateT
 const CreateTicket = React.lazy(() => import("screens/inventory/CreateTicket/index"));
 const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/index"));
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
-
-//PO
-const PurchaseOrderListScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-list.screen")
-);
-const PurchaseOrderCreateScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-create.screen")
-);
-const PurchaseOrderDetailScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-detail.screen")
-);
-const PurchaseOrderReturnScreen = React.lazy(
-  () => import("screens/purchase-order/purchase-order-return.screen")
-);
-const PurchaseOrderStampPrinting= React.lazy(
-  () => import("screens/purchase-order/StampPrinting")
-);
-
-//PR
-const ProcurementScreen = React.lazy(() => import("screens/products/procurement"));
-const ProcurementDetailScreen = React.lazy(() => import("screens/products/procurement/detail/ProcurementDetailScreen"));
-const ProcurementCreateScreen = React.lazy(() => import("screens/products/procurement/create"));
-const ProcurementCreateManualScreen = React.lazy(() => import("screens/products/procurement/create-manual"));
 
 //Kiểm kê, DUOCNC 20211021
 
@@ -83,180 +59,7 @@ export const inventory: Array<RouteMenu> = [
       subMenu: [],
     },],
   },
-  {
-    path: UrlConfig.PURCHASE_ORDERS,
-    exact: true,
-    title: "Đặt hàng",
-    icon: "icon-dot",
-    component: PurchaseOrderListScreen,
-    key: "submenu22",
-    isShow: true,
-    header: null,
-    permissions: [PurchaseOrderPermission.read],
-    subMenu: [
-      {
-        path: `${UrlConfig.PURCHASE_ORDERS}/create`,
-        exact: true,
-        title: "Tạo mới đơn đặt hàng",
-        icon: "icon-dot",
-        component: PurchaseOrderCreateScreen,
-        key: "submenu221",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.create],
-        subMenu: [],
-      },
-      {
-        path: `${UrlConfig.PURCHASE_ORDERS}/:id`,
-        exact: true,
-        title: "Quản lý đơn đặt hàng",
-        icon: "icon-dot",
-        component: PurchaseOrderDetailScreen,
-        key: "submenu222",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.read, PurchaseOrderPermission.update],
-        subMenu: [],
-        pathIgnore: ["create"],
-      },
-      {
-        path: `${UrlConfig.PURCHASE_ORDERS}/:id/return`,
-        exact: true,
-        title: "Trả hàng cho đơn mua hàng",
-        icon: "icon-dot",
-        component: PurchaseOrderReturnScreen,
-        key: "submenu223",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.return],
-        subMenu: [],
-        pathIgnore: ["create"],
-      },
-      {
-        path: `${UrlConfig.PURCHASE_ORDERS}/:id/stamp-printing`,
-        exact: true,
-        title: "In barcode đơn đặt hàng",
-        icon: "icon-dot",
-        component: PurchaseOrderStampPrinting,
-        key: "submenu224",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.print],
-        subMenu: [],
-      },
-    ],
-  },
-  {
-    // path: `${ProcurementTabUrl.TODAY}`,
-    path: `${UrlConfig.PROCUREMENT}`,
-    exact: true,
-    title: "Nhập kho",
-    icon: "icon-dot",
-    component: ProcurementScreen,
-    key: "submenu25",
-    isShow: true,
-    header: null,
-    permissions: [PurchaseOrderPermission.procurements_read],
-    subMenu: [
-      {
-        path: `${UrlConfig.PROCUREMENT}/create`,
-        exact: true,
-        title: "Tạo phiếu nhập kho",
-        icon: "icon-dot",
-        component: ProcurementCreateScreen,
-        key: "submenu251",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_create],
-        subMenu: [],
-      },
-      {
-        path: `${UrlConfig.PROCUREMENT}/create-manual`,
-        exact: true,
-        title: "Tạo phiếu nhập kho",
-        icon: "icon-dot",
-        component: ProcurementCreateManualScreen,
-        key: "submenu252",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_create],
-        subMenu: [],
-      },
-      {
-        path: `${UrlConfig.PURCHASE_ORDERS}/:id/procurements/:prID`,
-        exact: true,
-        title: "Nhập kho",
-        icon: "icon-dot",
-        component: ProcurementDetailScreen,
-        key: "submenu251",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_read],
-        subMenu: [],
-      },
-      {
-        path: `${ProcurementTabUrl.ALL}`,
-        exact: true,
-        title: "Nhập kho",
-        icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu25",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_read],
-        subMenu: [],
-      },
-      {
-        path: `${ProcurementTabUrl.PRODUCTS}`,
-        exact: true,
-        title: "Nhập kho",
-        icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu254",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_read],
-        subMenu: [],
-      },
-      // Do cải tiến PO và Procurement nên tạm thời k sử dụng 2 tabs này
-      // {
-      //   path: `${ProcurementTabUrl.TODAY}`,
-      //   exact: true,
-      //   title: "Nhập kho",
-      //   icon: "icon-dot",
-      //   component: ProcurementScreen,
-      //   key: "submenu25",
-      //   isShow: true,
-      //   header: null,
-      //   permissions: [PurchaseOrderPermission.procurements_read],
-      //   subMenu: [],
-      // },
-      // {
-      //   path: `${ProcurementTabUrl.SEVEN_DAYS}`,
-      //   exact: true,
-      //   title: "Nhập kho",
-      //   icon: "icon-dot",
-      //   component: ProcurementScreen,
-      //   key: "submenu25",
-      //   isShow: true,
-      //   header: null,
-      //   permissions: [PurchaseOrderPermission.procurements_read],
-      //   subMenu: [],
-      // },
-      {
-        path: `${ProcurementTabUrl.LOGS}`,
-        exact: true,
-        title: "Lịch sử phiếu nhập kho",
-        icon: "icon-dot",
-        component: ProcurementScreen,
-        key: "submenu25",
-        isShow: true,
-        header: null,
-        permissions: [PurchaseOrderPermission.procurements_read],
-        subMenu: [],
-      },
-    ],
-  },
+  
   {
     path: UrlConfig.INVENTORY_TRANSFERS,
     exact: true,
