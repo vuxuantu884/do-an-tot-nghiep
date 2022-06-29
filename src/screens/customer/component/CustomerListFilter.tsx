@@ -2,7 +2,7 @@ import { DownOutlined, SearchOutlined } from "@ant-design/icons";
 import {
   Button,
   Dropdown, Form,
-  Input, Menu, Select,
+  Input, Menu, Row, Select, Switch,
   Tag
 } from "antd";
 import filterIcon from "assets/icon/filter.svg";
@@ -73,6 +73,7 @@ type CustomerListFilterProps = {
 };
 
 const { Option } = Select;
+const { Item } = Form;
 const today = new Date();
 const THIS_YEAR = today.getFullYear();
 const START_YEAR = 1900;
@@ -135,6 +136,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const LIST_GENDER = bootstrapReducer.data?.gender;
 
   const [visibleBaseFilter, setVisibleBaseFilter] = useState(false);
+  const [visibleUTM, setVisibleUTM] = useState<boolean>(false);
 
   const [initPublicAccounts, setInitPublicAccounts] = useState<Array<AccountResponse>>([]);
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
@@ -332,6 +334,20 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     handleDateFilterParam(initialValues?.last_order_time_from, initialValues?.last_order_time_to, setLastOrderDateClick);
     setLastDateStart(initialValues?.last_order_time_from);
     setLastDateEnd(initialValues?.last_order_time_to);
+
+    if (
+      initialValues.utm_source ||
+      initialValues.utm_medium ||
+      initialValues.utm_content ||
+      initialValues.utm_term ||
+      initialValues.utm_id ||
+      initialValues.utm_campaign
+    ) {
+      setVisibleUTM(true);
+    }
+    else {
+      setVisibleUTM(false);
+    }
   }, [formCustomerFilter, handleStaffCodesFilterParam, initialValues]);
 
   // initialization birth day
@@ -1231,6 +1247,53 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
+    /**
+     * Web/App customer
+     */
+    if (initialValues.utm_source && initialValues.utm_source.length !== 0) {
+      list.push({
+        key: "utm_source",
+        name: "UTM_Source",
+        value: initialValues.utm_source,
+      })
+    }
+
+    if (initialValues.utm_medium && initialValues.utm_medium.length !== 0) {
+      list.push({
+        key: "utm_medium",
+        name: "UTM_Medium",
+        value: initialValues.utm_medium,
+      })
+    }
+    if (initialValues.utm_content && initialValues.utm_content.length !== 0) {
+      list.push({
+        key: "utm_content",
+        name: "UTM_content",
+        value: initialValues.utm_content,
+      })
+    }
+    if (initialValues.utm_term && initialValues.utm_term.length !== 0) {
+      list.push({
+        key: "utm_term",
+        name: "UTM_term",
+        value: initialValues.utm_term,
+      })
+    }
+    if (initialValues.utm_id && initialValues.utm_id.length !== 0) {
+      list.push({
+        key: "utm_id",
+        name: "UTM_id",
+        value: initialValues.utm_id,
+      })
+    }
+    if (initialValues.utm_campaign && initialValues.utm_campaign.length !== 0) {
+      list.push({
+        key: "utm_campaign",
+        name: "UTM_campagin",
+        value: initialValues.utm_campaign,
+      })
+    }
+
     return list;
   }, [initialValues.gender,
     initialValues.customer_group_ids,
@@ -1278,6 +1341,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     initialValues.last_order_time_to,
     initialValues.point_from,
     initialValues.point_to,
+    initialValues.utm_campaign,
+    initialValues.utm_content,
+    initialValues.utm_id,
+    initialValues.utm_medium,
+    initialValues.utm_source,
+    initialValues.utm_term,
     LIST_GENDER,
     groups,
     loyaltyUsageRules,
@@ -1515,6 +1584,24 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
             point_from: null,
             point_to: null,
           });
+          break;
+        case "utm_source":
+          onFilter && onFilter({ ...params, utm_source: null });
+          break;
+        case "utm_medium":
+          onFilter && onFilter({ ...params, utm_medium: null });
+          break;
+        case "utm_content":
+          onFilter && onFilter({ ...params, utm_content: null });
+          break;
+        case "utm_term":
+          onFilter && onFilter({ ...params, utm_term: null });
+          break;
+        case "utm_id":
+          onFilter && onFilter({ ...params, utm_id: null });
+          break;
+        case "utm_campaign":
+          onFilter && onFilter({ ...params, utm_campaign: null });
           break;
 
         default:
@@ -2815,6 +2902,48 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   </div>
                 </div>
               </div>
+
+              <React.Fragment>
+                <Row style={{ display: "flex", alignItems: "center", marginBottom: "20px" }}>
+                  <Switch
+                    size="small"
+                    onChange={(value) => { setVisibleUTM(value) }}
+                    checked={visibleUTM}
+                  />
+                  <span style={{ paddingLeft: "10px", fontWeight: "bold" }}>Khách hàng Web/App</span>
+                </Row>
+                {visibleUTM && (
+                  <React.Fragment>
+                    <div className="base-filter-row">
+                      <Item label="UTM_Source" name="utm_source" className="left-filter">
+                        <Input placeholder="..." />
+                      </Item>
+
+                      <Item label="UTM_Medium" name="utm_medium" className="center-filter">
+                        <Input placeholder="..." />
+                      </Item>
+
+                      <Item label="UTM_content" name="utm_content" className="right-filter">
+                        <Input placeholder="..." />
+                      </Item>
+                    </div>
+
+                    <div className="base-filter-row">
+                      <Item label="UTM_term" name="utm_term" className="left-filter">
+                        <Input placeholder="..." />
+                      </Item>
+
+                      <Item label="UTM_id" name="utm_id" className="center-filter">
+                        <Input placeholder="..." />
+                      </Item>
+
+                      <Item label="UTM_campagin" name="utm_campaign" className="right-filter">
+                        <Input placeholder="..." />
+                      </Item>
+                    </div>
+                  </React.Fragment>
+                )}
+              </React.Fragment>
             </div>
           </Form>
         </StyledCustomerBaseFilter>
