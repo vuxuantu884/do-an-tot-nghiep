@@ -1055,7 +1055,7 @@ export const CheckShipmentType = (item: OrderResponse) => {
   }
 };
 
-export const TrackingCode = (item: OrderResponse | null) => {
+export const TrackingCode = (item: OrderResponse | OrderModel | null) => {
   if (item) {
     if (item.fulfillments) {
       if (item.fulfillments.length > 0) {
@@ -1540,7 +1540,7 @@ export async function sortSources(orderSources: SourceResponse[], departmentIds:
 	return result;
 }
 
-export const isOrderFromPOS = (OrderDetail: OrderResponse | null|undefined) => {
+export const isOrderFromPOS = (OrderDetail: OrderModel|OrderResponse | null|undefined) => {
 	if(OrderDetail?.channel_id === POS.channel_id || OrderDetail?.source_code === POS.source_code) {
 		return true;
 	}
@@ -1769,7 +1769,7 @@ export const copyTextToClipboard = (e: any, data: string | null | undefined) => 
   navigator.clipboard?.writeText(data ? data : "").then(() => {});
 };
 
-export const isOrderFromSaleChannel = (orderDetail: OrderResponse | null | undefined) => {
+export const isOrderFromSaleChannel = (orderDetail: OrderResponse | OrderModel | null | undefined) => {
   if(!orderDetail || !orderDetail?.channel_id) {
     return false;
   }
@@ -1839,7 +1839,7 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
   return isChange;
 };
 
-export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | null, sub_status_code: string) => {
+export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | OrderResponse |null, sub_status_code: string) => {
   if(isOrderFromSaleChannel(orderDetail)) {
     return true;
   }
@@ -2018,7 +2018,7 @@ export const formatCurrencyInputValue = (a: string) => {
   return a;
 };
 
-export const checkIfOrderCanBeReturned = (orderDetail: OrderResponse) => {
+export const checkIfOrderCanBeReturned = (orderDetail: OrderResponse | OrderModel) => {
   return orderDetail.status === OrderStatus.FINISHED || orderDetail.status === OrderStatus.COMPLETED;
 };
 

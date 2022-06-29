@@ -32,7 +32,7 @@ import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerShippingAddress } from "model/request/customer.request";
-import { OrderRequest } from "model/request/order.request";
+import { OrderBillRequestFormModel, OrderRequest } from "model/request/order.request";
 import { SourceSearchQuery } from "model/request/source.request";
 import {
   BillingAddress,
@@ -85,6 +85,8 @@ type CustomerCardProps = {
   setShippingFeeInformedToCustomer?:(value:number | null)=>void;
   customerChange: boolean;
   setCustomerChange: (value: boolean) => void;
+  handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
+  initOrderBillRequest: OrderBillRequestFormModel | undefined;
 };
 
 //Add query for search Customer
@@ -128,7 +130,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setShippingFeeInformedToCustomer,
     form,
     customerChange,
-    setCustomerChange
+    setCustomerChange,
+    handleOrderBillRequest,
+    initOrderBillRequest,
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -857,6 +861,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 form={form}
                 customerChange={customerChange}
                 setCustomerChange={setCustomerChange}
+                isPageOrderUpdate={OrderDetail ? true : false}
+                orderDetail={OrderDetail}
+                handleOrderBillRequest={handleOrderBillRequest}
+                initOrderBillRequest={initOrderBillRequest}
               />
             )}
           </div>

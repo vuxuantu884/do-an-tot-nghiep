@@ -27,21 +27,29 @@ import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   CustomerUpdateAction, getCustomerDetailAction
 } from "domain/actions/customer/customer.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { WardResponse } from "model/content/ward.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
+import { OrderBillRequestFormModel } from "model/request/order.request";
 import {
   CustomerResponse,
   ShippingAddress
 } from "model/response/customer/customer.response";
+import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
+import { deleteOrderBillDetailService } from "service/order/order.service";
+import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, handleFindArea, isFetchApiSuccessful, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import CustomerShippingAddressOrder from "./customer-shipping";
+import DeleteOrderBillRequestConfirmModal from "./OrderBillRequest/DeleteOrderBillRequestConfirmModal";
+import OrderBillRequestButton from "./OrderBillRequest/OrderBillRequestButton";
+import OrderBillRequestModal from "./OrderBillRequest/OrderBillRequestModal";
+import { StyledComponent } from "./updateCustomer.styles";
 
 type UpdateCustomerProps = {
   areas: any;
@@ -61,6 +69,10 @@ type UpdateCustomerProps = {
   form: FormInstance<any>;
   customerChange: boolean;
   setCustomerChange: (value: boolean) => void;
+  isPageOrderUpdate: boolean;
+  orderDetail: OrderResponse | null | undefined;
+  handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
+  initOrderBillRequest: OrderBillRequestFormModel | undefined;
 };
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
@@ -81,7 +93,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     setShippingFeeInformedToCustomer,
     form,
     customerChange,
-    setCustomerChange
+    setCustomerChange,
+    isPageOrderUpdate,
+    orderDetail,
+    handleOrderBillRequest,
+    initOrderBillRequest,
   } = props;
 
   const fullAddressRef = useRef()
@@ -100,9 +116,14 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
+  const [isVisibleOrderBillRequestModal, setIsVisibleOrderBillRequestModal] = useState(false);
+  const [isVisibleConfirmDeleteOrderBillRequestModal, setIsVisibleConfirmDeleteOrderBillRequestModal] = useState(false);
+
   // const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [shippingWards, setShippingWards] = useState<Array<WardResponse>>([]);
+
+  const [orderBillId, setOrderBillId] = useState<number|null>(null)
 
   const newAreas = useMemo(() => {
     return areas.map((area: any) => {
@@ -398,15 +419,56 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     }
   }, [formRefCustomer, getShippingWards, getWards, newAreas]);
 
+  const handleClickDeleteExportRequest = () => {
+    console.log('handleClickDeleteExportRequest');
+    setIsVisibleOrderBillRequestModal(false);
+    setIsVisibleConfirmDeleteOrderBillRequestModal(true)
+  };
+
+  console.log('orderBillId', orderBillId)
+
+  const handleDeleteExportRequest = () => {
+    if(!orderBillId) {
+      return;
+    }
+    console.log('handleDeleteExportRequest');
+    setIsVisibleConfirmDeleteOrderBillRequestModal(false);
+    dispatch(showLoading())
+    deleteOrderBillDetailService(orderBillId).then(response => {
+      if(isFetchApiSuccessful(response)) {
+        showSuccess("Xóa thông tin xuất hóa đơn thành công!")
+        setOrderBillId(null)
+      } else {
+        handleFetchApiError(response, "Xóa thông tin xuất hóa đơn", dispatch)
+      }
+    }).finally(() => {
+      dispatch(hideLoading())
+    })
+  };
+
+  const handleOkOrderBillRequest = (values:OrderBillRequestFormModel, orderBillId: number | null) => {
+    console.log('values', values);
+    setIsVisibleOrderBillRequestModal(false);
+    handleOrderBillRequest(values, orderBillId);
+    setOrderBillId(orderBillId);
+  };
 
   useEffect(() => {
     customerForm.resetFields();
   }, [customerForm,shippingAddress]);
 
   return (
-    <>
+    <StyledComponent>
       <Row style={{ margin: "10px 0px" }}>
-        <div className="page-filter-left">ĐỊA CHỈ GIAO HÀNG</div>
+        <Col span={12}>
+          <div className="page-filter-left 22">ĐỊA CHỈ GIAO HÀNG</div>
+        </Col>
+        <Col span={12}>
+          <OrderBillRequestButton 
+            handleClickOrderBillRequestButton={() => setIsVisibleOrderBillRequestModal(true)} 
+            orderDetail={orderDetail} 
+          />
+        </Col>
       </Row>
       <Form
         layout="vertical"
@@ -1008,7 +1070,26 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         </Spin>
 
       </Form>
-    </>
+      <OrderBillRequestModal
+        modalTitle= {orderDetail?.bill?.id ? "Chỉnh sửa thông tin xuất hóa đơn" :"Thông tin xuất hóa đơn"}
+        isVisibleOrderBillRequestModal={isVisibleOrderBillRequestModal}
+        handleCancel={() =>{setIsVisibleOrderBillRequestModal(false)}}
+        isPageOrderUpdate = {isPageOrderUpdate}
+        handleClickDelete = {isPageOrderUpdate ? handleClickDeleteExportRequest : undefined}
+        orderDetail = {orderDetail}
+        handleOk={handleOkOrderBillRequest}
+        initOrderBillRequest={initOrderBillRequest}
+        orderBillId={orderBillId}
+        setOrderBillId={setOrderBillId}
+      />
+      {isPageOrderUpdate && (
+        <DeleteOrderBillRequestConfirmModal
+          isVisibleDeleteOrderBillRequestConfirmModal={isVisibleConfirmDeleteOrderBillRequestModal}
+          handleCancel={() =>{setIsVisibleConfirmDeleteOrderBillRequestModal(false)}}
+          handleDeleteExportRequest={handleDeleteExportRequest}
+        />
+      )}
+    </StyledComponent>
   );
 };
 export default UpdateCustomer;
