@@ -72,6 +72,7 @@ import { TransferExportField, TransferExportLineItemField } from "model/inventor
 import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
 import { STATUS_IMPORT_EXPORT } from "utils/Constants";
+import CustomPagination from "../../../../../component/table/CustomPagination";
 const { TextArea } = Input;
 const { Text } = Typography;
 
@@ -1039,6 +1040,15 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         onFilter={onFilter}
         onClearFilter={() => onClearFilter()}
       />
+      <CustomPagination
+        pagination={{
+          showSizeChanger: true,
+          pageSize: data.metadata.limit,
+          current: data.metadata.page,
+          total: data.metadata.total,
+          onChange: onPageChange,
+        }}
+      />
       <CustomTable
         bordered
         isRowSelection
@@ -1046,14 +1056,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         isLoading={tableLoading}
         scroll={{x: 1000}}
         sticky={{offsetScroll: 5, offsetHeader: 55}}
-        pagination={{
-          pageSize: data.metadata.limit,
-          total: data.metadata.total,
-          current: data.metadata.page,
-          showSizeChanger: true,
-          onChange: onPageChange,
-          onShowSizeChange: onPageChange,
-        }}
+        pagination={false}
         onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={data.items}
