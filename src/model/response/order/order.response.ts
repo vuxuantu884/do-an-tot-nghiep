@@ -98,6 +98,7 @@ export interface OrderResponse extends BaseObject {
   };
   export_bill: boolean;
   sub_reason_id?: number;
+  bill: OrderBillResponseModel|null;
 }
 
 export interface OrderLineItemResponse {
@@ -532,4 +533,15 @@ export interface OrderReturnResponse {
 
 export interface OrderDetailWithCalculatePointVariantModel extends OrderResponse {
   items: Array<OrderLineItemWithCalculateVariantPointModel>;
+}
+
+export interface OrderBillResponseModel extends BaseObject{
+  address: string;
+  company: string;
+  contract: boolean;
+  id: number;
+  note: string;
+  order_id: number;
+  pic: string;
+  tax: string;
 }

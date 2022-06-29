@@ -10,6 +10,7 @@ import {
   CreateShippingOrderRequest,
   GetFeesRequest,
   GHNFeeRequest,
+  OrderBillRequestModel,
   OrderRequest,
   ShippingGHTKRequest,
   SplitOrderRequest,
@@ -37,6 +38,7 @@ import {
   DeliveryTransportTypesResponse,
   ErrorLogResponse,
   GHNFeeResponse,
+  OrderBillResponseModel,
   OrderResponse,
   OrderReturnResponse,
   ShippingGHTKResponse,
@@ -504,3 +506,26 @@ export const calculateVariantPointInOrderService  = (customerId: number, orderId
 BaseResponse<CalculateVariantPointInOrderModel[]>> => {
   return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/order/${orderId}/calculate-variant-point`);
 };
+
+/**
+* xuất hóa đơn
+*/
+export const createOrderBillService = (
+  request: OrderBillRequestModel
+): Promise<BaseResponse<OrderBillResponseModel>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/bill`, request);
+};
+
+export const updateOrderBillService = (
+  orderBillId: number, request: OrderBillRequestModel,
+): Promise<BaseResponse<OrderBillResponseModel>> => {
+  return BaseAxios.put(`${ApiConfig.ORDER}/bill/${orderBillId}`, request);
+};
+
+ export const getOrderBillDetailService = (orderId: number): Promise<BaseResponse<OrderBillResponseModel>> => {
+ return BaseAxios.get(`${ApiConfig.ORDER}/bill/${orderId}`);
+};
+
+export const deleteOrderBillDetailService = (orderId: number): Promise<BaseResponse<OrderBillResponseModel>> => {
+  return BaseAxios.delete(`${ApiConfig.ORDER}/bill/${orderId}`);
+ };

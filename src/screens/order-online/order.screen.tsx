@@ -41,6 +41,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import {
 	BillingAddress,
 	FulFillmentRequest,
+	OrderBillRequestFormModel,
 	OrderDiscountRequest,
 	OrderLineItemRequest,
 	OrderPaymentRequest,
@@ -163,6 +164,8 @@ export default function Order() {
 	})
 	const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 
+	const [orderBillRequest, setOrderBillRequest] = useState<OrderBillRequestFormModel | undefined>(undefined);
+	
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 	// const [listOrderConfigs, setListOrderConfigs] =
 	//   useState<OrderConfigResponseModel | null>(null);
@@ -533,6 +536,7 @@ export default function Order() {
 		values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 		values.export_bill = isExportBill;
 		values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
+		values.bill = orderBillRequest;
 
 		//Nếu là lưu nháp Fulfillment = [], payment = []
 		if (typeButton === OrderStatus.DRAFT) {
@@ -968,6 +972,7 @@ export default function Order() {
 							} else {
 								dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
 							}
+							setOrderBillRequest(response.bill || undefined);
 						}
 					})
 				);
@@ -1294,6 +1299,8 @@ export default function Order() {
 											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 											customerChange={customerChange}
                     	setCustomerChange={setCustomerChange}
+                    	handleOrderBillRequest={setOrderBillRequest}
+											initOrderBillRequest = {orderBillRequest}
 										/>
 										<OrderCreateProduct
 											orderAmount={orderAmount}
