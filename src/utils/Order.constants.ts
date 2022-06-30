@@ -28,6 +28,10 @@ export const ORDER_RETURN_HISTORY = [
     code: "payment",
     title: "Hoàn tiền",
   },
+  {
+    code: "update",
+    title: "Cập nhật",
+  }
 ];
 
 export const DISCOUNT_VALUE_TYPE = {
