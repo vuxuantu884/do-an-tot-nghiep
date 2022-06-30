@@ -68,7 +68,7 @@ export const findCurrentRoute = (
 ) => {
   let current: Array<string> = [];
   let subMenu: Array<string> = [];
-  
+
   routes.forEach((route) => {
     if (route.subMenu.length > 0) {
       route.subMenu.forEach((item) => {
@@ -276,6 +276,7 @@ export const getArrDepartment = (
     level: level,
     parent: parentTemp,
     name: i.name,
+    isHaveChild: i.children.length > 0
   });
   if (i.children.length > 0) {
     i.children.forEach((i1) => {
@@ -530,7 +531,7 @@ export const Products = {
   ) => {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
-   
+
     pr.variant_prices.forEach((item) => {
       variant_prices.push({
         cost_price: item.cost_price === "" ? null : item.cost_price,
@@ -542,7 +543,7 @@ export const Products = {
           item.wholesale_price === "" ? null : item.wholesale_price,
       });
     });
-    
+
     arrVariants.forEach((item) => {
       item.type = 0;
       let vp = _.cloneDeep(variant_prices);
@@ -561,7 +562,7 @@ export const Products = {
             itemPrice.wholesale_price = parseFloat(((itemPrice.wholesale_price*(100-(valueDefect))/100)).toFixed(2));
         })
       }
-      
+
       variants.push({
         type: item.type,
         status: status,
@@ -585,7 +586,7 @@ export const Products = {
         supplier_id: pr.supplier_id,
       });
     });
-    
+
     let productRequest: ProductRequest = {
       brand: pr.brand,
       category_id: pr.category_id,
@@ -1629,17 +1630,17 @@ export const transformParamsToObject = (arrays: BaseFilterTag[]) => {
    * check cấu hình đơn hàng để tính phí ship báo khách
    */
 export const handleCalculateShippingFeeApplyOrderSetting = (
-  customerShippingAddressCityId: number | null | undefined = -999, 
-  orderPrice: number = 0, 
-  shippingServiceConfig: ShippingServiceConfigDetailResponseModel[], 
-  transportService: string | null | undefined, 
-  form: FormInstance<any>, 
+  customerShippingAddressCityId: number | null | undefined = -999,
+  orderPrice: number = 0,
+  shippingServiceConfig: ShippingServiceConfigDetailResponseModel[],
+  transportService: string | null | undefined,
+  form: FormInstance<any>,
   setShippingFeeInformedToCustomer?: (value: number) => void,
   isApplyALl = true,
 ) => {
- 
+
   if(!transportService && !isApplyALl) {
-    return; 
+    return;
   }
 
   if(!isApplyALl) {
@@ -1989,7 +1990,7 @@ export const handleFindArea = (value: string, newAreas: any) => {
     const findArea = newAreas.filter((area: any) => {
       // replace quận trong list danh sách tỉnh huyện có sẵn
       const districtString = convertStringDistrict(area.name).replace("dao ", "");
-       // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao: 
+       // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao:
       // test Thị xã Phú Mỹ, bà rịa vũng tàu
       // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
       const cityString = convertStringDistrict(area.city_name);
@@ -1999,7 +2000,7 @@ export const handleFindArea = (value: string, newAreas: any) => {
     });
     console.log('findArea1111', findArea)
     let result = findArea.reverse()[0];
-    
+
     return result
 };
 
