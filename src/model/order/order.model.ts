@@ -327,4 +327,5 @@ export type CalculateVariantPointInOrderModel = {
   point_add: number;
   point_subtract: number;
   variant_id: number;
+  order_line_id: number;
 }

@@ -225,7 +225,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
                 return {
                   ...item,
                   point_add: response.data.find(single => single.variant_id === item.variant_id)?.point_add,
-                  point_subtract: response.data.find(single => single.variant_id === item.variant_id)?.point_subtract,
+                  point_subtract: response.data.find(single => single.order_line_id === item.order_line_item_id)?.point_subtract,
                 }
               })
             }
