@@ -52,7 +52,7 @@ const WebAppOrders: React.FC = () => {
     const dispatch = useDispatch();
     const history = useHistory();
     const location = useLocation();
-    const ALL_CHANNEL = ["WEBSITE", "MOBILE_APP", "LANDING_PAGE"];
+    const ALL_CHANNEL = ["WEBSITE", "APP", "LANDINGPAGE"];
     const user = useSelector((state: RootReducerType) => state.userReducer.account);
     const { TabPane } = Tabs;
 
