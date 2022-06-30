@@ -112,11 +112,16 @@ const TabProduct: React.FC<any> = (props) => {
   const dispatch = useDispatch();
   const [totalVariant,setTotalVariant] = useState<number>(0)
   const [exportProgress, setExportProgress] = useState<number>(0);
-  const [loadingExport, setLoadingExport] = useState<boolean>(false);
+  const [loadingExport, setLoadingExport] = useState<boolean>(false);  
+  const [canUpdateCost] = useAuthorization({
+    acceptPermissions: [ProductPermission.update_cost],
+  });
 
   const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
 
+    console.log('disabled && canUpdateCost',disabled && canUpdateCost);
+    
     return [
       {
         id: ACTIONS_INDEX.PRINT_BAR_CODE,
@@ -125,12 +130,12 @@ const TabProduct: React.FC<any> = (props) => {
       {
         id: ACTIONS_INDEX.ACTIVE,
         name: "Cho phép bán",
-        disabled: disabled
+        disabled: disabled || !canUpdateCost
       },
       {
         id: ACTIONS_INDEX.INACTIVE,
         name: "Ngừng bán",
-        disabled: disabled
+        disabled: disabled || !canUpdateCost
       },
       {
         id: ACTIONS_INDEX.DELETE,
@@ -138,7 +143,7 @@ const TabProduct: React.FC<any> = (props) => {
         disabled: disabled
       },
     ]
-  }, [selected]);
+  }, [canUpdateCost, selected]);
 
   const onPageChange = useCallback(
     (page, size) => {

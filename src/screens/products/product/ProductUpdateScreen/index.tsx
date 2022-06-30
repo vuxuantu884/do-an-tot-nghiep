@@ -1244,6 +1244,7 @@ const ProductDetailScreen: React.FC = () => {
                         active={active}
                         setActive={onActive}
                         productData={data}
+                        canUpdateCost={canUpdateCost}
                       />
                     </Item>
                     <Divider />
@@ -1261,22 +1262,27 @@ const ProductDetailScreen: React.FC = () => {
                                     <b>THÔNG TIN PHIÊN BẢN</b>
                                   </div>
                                   <div className="header-view-right">
-                                    <b>Cho phép bán:</b>
-                                    <Form.Item
-                                      valuePropName="checked"
-                                      name={[name, "saleable"]}
-                                      fieldKey={[fieldKey, "saleable"]}
-                                      noStyle
-                                    >
-                                      <Switch
-                                        disabled={status === "inactive"}
-                                        style={{marginLeft: 10}}
-                                        className="ant-switch-success"
-                                        onChange={() => {
-                                          getFirstAvatar();
-                                        }}
-                                      />
-                                    </Form.Item>
+                                    {
+                                      canUpdateCost && 
+                                      <>
+                                      <b>Cho phép bán:</b>
+                                      <Form.Item
+                                        valuePropName="checked"
+                                        name={[name, "saleable"]}
+                                        fieldKey={[fieldKey, "saleable"]}
+                                        noStyle
+                                      >
+                                        <Switch
+                                          disabled={status === "inactive"}
+                                          style={{marginLeft: 10}}
+                                          className="ant-switch-success"
+                                          onChange={() => {
+                                            getFirstAvatar();
+                                          }}
+                                        />
+                                        </Form.Item>
+                                      </>
+                                    }
                                   </div>
                                 </div>
                                 <div className="container-view padding-20">

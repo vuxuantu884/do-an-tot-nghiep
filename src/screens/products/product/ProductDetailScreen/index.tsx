@@ -34,6 +34,7 @@ import VariantList from "../component/VariantList";
 import TabProductHistory from "../tab/TabProductHistory";
 import TabProductInventory from "../tab/TabProductInventory";
 import { StyledComponent } from "./styles";
+import useAuthorization from "hook/useAuthorization";
 
 export interface ProductParams {
   id: string;
@@ -87,6 +88,9 @@ const ProductDetailScreen: React.FC = () => {
     },
   });
   const idNumber = parseInt(id);
+  const [canUpdateCost] = useAuthorization({
+    acceptPermissions: [ProductPermission.update_cost],
+  });
 
   const onEdit =() => {
     if(variantId){
@@ -597,6 +601,7 @@ const tab= document.getElementById("tab");
                         }}
                         loading={loadingVariant}
                         productData={data}
+                        canUpdateCost={canUpdateCost}
                       />
                     </Col>
 
@@ -608,13 +613,12 @@ const tab= document.getElementById("tab");
                               <b>THÔNG TIN PHIÊN BẢN</b>
                             </div>
                             <div className="header-view-right">
-                            
-                                <Switch
+                              {canUpdateCost && <Switch
                                   onChange={onChangeChecked}
                                   className="ant-switch-success"
                                   disabled={data.status === "inactive"}
                                   checked={currentVariant.saleable}
-                                />
+                                />}
                              
                               <label className="label-switch">
                                 {currentVariant.saleable
