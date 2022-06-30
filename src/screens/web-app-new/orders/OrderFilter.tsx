@@ -18,8 +18,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSourceListAction, getWebAppShopList } from "domain/actions/web-app/web-app.actions";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SaveSearchType } from "utils/SaveSearchType";
 import SaveSearchModal from "component/modal/SaveSearchModal/SaveSearchModal";
 import { getSaveSearchLocalStorage } from "utils/LocalStorageUtils";
@@ -360,8 +358,12 @@ const OrderFilter = (props: OrderFilterProps) => {
 
     //set params to form
     useEffect(() => {
-        formRef.current?.setFieldsValue({
+        form.setFieldsValue({
             source_ids: params.source_ids,
+            ecommerce_shop_ids: params.ecommerce_shop_ids,
+            search_term: params.search_term,
+        });
+        formRef.current?.setFieldsValue({
             assignee_codes: params.assignee_codes,
             store_ids: params.store_ids,
             issued_on_min: params.issued_on_min,
@@ -376,9 +378,7 @@ const OrderFilter = (props: OrderFilterProps) => {
             price_max: params.price_max,
             customer_note: params.customer_note,
             marketing_campaign: params.marketing_campaign,
-            ecommerce_shop_ids: params.ecommerce_shop_ids,
-            search_term: params.search_term
-        });
+})
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
 
@@ -423,9 +423,10 @@ const OrderFilter = (props: OrderFilterProps) => {
     return (
         <StyledOrderFilter>
             <div className="order-filter">
+                
                 <Form
                     onFinish={handleFinish}
-                    ref={formRef}
+                    form={form}
                     initialValues={params}
                 >
                     <Form.Item className="action-dropdown">
