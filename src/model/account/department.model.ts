@@ -19,6 +19,7 @@ export interface DepartmentView extends BaseObject {
   manager: string,
   phone: string,
   address: string,
+  isHaveChild?: boolean,
   parent: DepartmentParent | null
 }
 

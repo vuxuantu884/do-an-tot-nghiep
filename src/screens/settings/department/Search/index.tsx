@@ -1,4 +1,4 @@
-import {Card} from "antd";
+import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import CustomTable from "component/table/CustomTable";
@@ -14,6 +14,8 @@ import NoPermission from "screens/no-permission.screen";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {DepartmentView} from "model/account/department.model";
 import {OFFSET_HEADER_UNDER_NAVBAR} from "utils/Constants";
+import LevelIcon from 'assets/icon/level.svg';
+import './index.scss';
 
 const DepartmentSearchScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -37,13 +39,13 @@ const DepartmentSearchScreen: React.FC = () => {
         if (result) {
           let array: Array<DepartmentView> = convertDepartment(result);
           setData(array);
-          console.log(array);
         } else {
           setError(false);
         }
       })
     );
   }, [dispatch]);
+
   return (
     <>
       {allowReadDep ? (
@@ -60,12 +62,24 @@ const DepartmentSearchScreen: React.FC = () => {
             },
           ]}
           extra={
-            allowCreateDep ? (
-              <ButtonCreate
-                child="Thêm phòng ban"
-                path={`${UrlConfig.DEPARTMENT}/create`}
-              />
-            ) : null
+            (
+              <>
+                <Link to={`${UrlConfig.DEPARTMENT}/overview`}>
+                  <Button
+                    className="btn-view"
+                    icon={<img className="icon-level" src={LevelIcon} alt="level" />}
+                  >
+                    Xem sơ đồ tổng quan
+                  </Button>
+                </Link>
+                {allowCreateDep && (
+                  <ButtonCreate
+                    child="Thêm phòng ban"
+                    path={`${UrlConfig.DEPARTMENT}/create`}
+                  />
+                )}
+              </>
+            )
           }
         >
           <Card>

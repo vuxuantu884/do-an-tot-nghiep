@@ -105,6 +105,9 @@ const DepartmentSearchScreen = React.lazy(
 const DepartmentCreateScreen = React.lazy(
   () => import("screens/settings/department/Create")
 );
+const DepartmentOverview = React.lazy(
+  () => import("screens/settings/department/Overview")
+);
 const DepartmentDetailScreen = React.lazy(
   () => import("screens/settings/department/Detail")
 );
@@ -230,6 +233,18 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         permissions: [DepartmentsPermissions.CREATE],
+      },
+      {
+        path: `${UrlConfig.DEPARTMENT}/overview`,
+        exact: true,
+        title: "Xem sơ đồ tổng quan",
+        icon: "icon-dot",
+        component: DepartmentOverview,
+        key: "subMenu261",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [],
       },
       {
         path: `${UrlConfig.DEPARTMENT}/:id`,
