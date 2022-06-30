@@ -48,10 +48,11 @@ import {
   ProductResponse,
   VariantResponse,
 } from "../../../../model/product/product.model";
-import { formatCurrency } from "../../../../utils/AppUtils";
+import {formatCurrency, replaceFormatString} from "utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
-import { DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE } from "../../constants";
+import {DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE} from "../../constants";
 import { DiscountContext } from "./discount-provider";
+import NumberInput from "component/custom/number-input.custom";
 const Option = Select.Option;
 
 interface Props {
@@ -328,6 +329,16 @@ const FixedAndQuantityGroup = (props: Props) => {
     }
   }, [dataSourceForm]);
 
+  const checkIsPercentUnit = () => {
+    return form.getFieldValue([
+      "entitlements",
+      name,
+      "prerequisite_quantity_ranges",
+      0,
+      "value_type",
+    ]) === DiscountUnitType.PERCENTAGE.value;
+  };
+
   return (
     <Card key={name} style={{ boxShadow: "none" }}>
       <Row gutter={16}>
@@ -404,49 +415,40 @@ const FixedAndQuantityGroup = (props: Props) => {
                   { required: true, message: "Cần nhập chiết khấu" },
                   () => ({
                     validator(_, value) {
-                      let msg =
-                        discountMethod === DiscountUnitType.FIXED_PRICE.value
-                          ? "Giá cố định "
-                          : "Chiết khấu";
+                      if (checkIsPercentUnit()) {
+                        if (typeof value === "number" && value <= 0) {
+                          return Promise.reject("Giá trị phải lớn hơn 0");
+                        } else if (value > 100) {
+                          return Promise.reject("Giá trị phải nhỏ hơn hoặc bằng 100%");
+                        }
+                      } else {
+                        let msg =
+                          discountMethod === DiscountUnitType.FIXED_PRICE.value
+                            ? "Giá cố định "
+                            : "Chiết khấu";
 
-                      if (typeof value === "number" && value <= 0) {
-                        return Promise.reject(
-                          new Error(msg + " phải lớn hơn 0")
-                        );
+                        if (typeof value === "number") {
+                          if (value <= 0) {
+                            return Promise.reject(
+                              new Error(msg + " phải lớn hơn 0")
+                            );
+                          } else if (value > 999999999) {
+                            return Promise.reject("Giá trị phải nhỏ hơn hoặc bằng 999.999.999");
+                          }
+                        }
                       }
                       return Promise.resolve();
                     },
                   }),
                 ]}
                 noStyle>
-                <InputNumber
-                  style={{ width: "calc(100% - 70px)" }}
-                  min={1}
-                  max={
-                    form.getFieldValue([
-                      "entitlements",
-                      name,
-                      "prerequisite_quantity_ranges",
-                      0,
-                      "value_type",
-                    ]) === DiscountUnitType.PERCENTAGE.value
-                      ? 100
-                      : MAX_FIXED_DISCOUNT_VALUE
-                  }
-                  step={
-                    form.getFieldValue([
-                      "entitlements",
-                      name,
-                      "prerequisite_quantity_ranges",
-                      0,
-                      "value_type",
-                    ]) === DiscountUnitType.PERCENTAGE.value
-                      ? 0.01
-                      : 1
-                  }
-                  formatter={(value) =>
-                    formatDiscountCurrencyByFormValue(value, form)
-                  }
+                <NumberInput
+                  style={{ width: "calc(100% - 70px)", textAlign: "left" }}
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  placeholder="Nhập giá trị"
+                  maxLength={checkIsPercentUnit() ? 3 : 11}
+                  minLength={0}
                 />
               </Form.Item>
               <Form.Item
