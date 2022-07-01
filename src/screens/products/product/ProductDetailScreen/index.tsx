@@ -340,10 +340,6 @@ const ProductDetailScreen: React.FC = () => {
     [active, data, dispatch, onResultInventoryHistory]
   );
 
-  const onTabClick = (key: string) => {
-    history.push(key);
-  };
-
   useEffect(() => {
     dispatch(productGetDetail(idNumber, onResult));
     return () => {};
