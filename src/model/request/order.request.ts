@@ -48,6 +48,7 @@ export interface OrderRequest {
 	automatic_discount?: boolean;
   export_bill?: boolean;
   ecommerce_shop_id?: number | null;
+  bill?: OrderBillRequestFormModel|null;
 }
 
 export interface ReturnRequest extends OrderRequest {
@@ -498,4 +499,22 @@ export interface OrderReturnCalculateRefundRequestModel {
   items: OrderLineItemRequest[],
   return_items: OrderResponse[],
   refund_money: number
+}
+
+/**
+* thông tin xuất hóa đơn
+*/
+
+export interface OrderBillRequestFormModel {
+  company: string | undefined;
+  tax: string | undefined;
+  address: string | undefined;
+  pic: string | undefined;
+  note: string | undefined;
+  email: string | undefined;
+  contract: boolean;
+}
+
+export interface OrderBillRequestModel extends  OrderBillRequestFormModel {
+  order_id: number;
 }

@@ -1653,6 +1653,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     isAutoDefaultOrderSource={false}
                     customerChange={customerChange}
                     setCustomerChange={setCustomerChange}
+                    handleOrderBillRequest={()=>{}}
+                    initOrderBillRequest={undefined}
                   />
                 )}
 

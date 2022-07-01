@@ -203,6 +203,11 @@ export const StyledBaseFilter = styled.div`
       height: 33.5px;
       line-height: 29px;
     }
+    .active {
+        color: #ffffff;
+        border-color: rgba(42, 42, 134, 0.1);
+        background-color: #2a2a86;
+    }
   }
   .ant-picker {
     height: 40px;

@@ -4,7 +4,7 @@ import doubleArrow from "assets/icon/double_arrow.svg";
 import { OrderExtraModel } from "model/order/order.model";
 import moment from "moment";
 import React from "react";
-import { TrackingCode } from "utils/AppUtils";
+import { copyTextToClipboard, TrackingCode } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./SubStatus.styles";
 
@@ -17,16 +17,16 @@ function SubStatus(props: PropTypes): JSX.Element {
 
   const trackingLogFulfillment = record?.trackingLog;
   // copy button
-  const copyOrderID = (e: any, data: string | null) => {
-    e.stopPropagation();
-    e.target.style.width = "26px";
-    const decWidth = setTimeout(() => {
-      e.target.style.width = "23px";
-    }, 100);
-    clearTimeout(decWidth);
-    navigator.clipboard.writeText(data ? data : "").then(() => {});
-    showSuccess("Đã copy mã vận đơn!")
-  };
+  // const copyOrderID = (e: any, data: string | null) => {
+  //   e.stopPropagation();
+  //   e.target.style.width = "26px";
+  //   const decWidth = setTimeout(() => {
+  //     e.target.style.width = "23px";
+  //   }, 100);
+  //   clearTimeout(decWidth);
+  //   navigator.clipboard.writeText(data ? data : "").then(() => {});
+  //   showSuccess("Đã copy mã vận đơn!")
+  // };
 
   return (
     <StyledComponent>
@@ -58,7 +58,10 @@ function SubStatus(props: PropTypes): JSX.Element {
                   }}>
                     <Tooltip title="Click để copy">
                       <img
-                        onClick={(e) => copyOrderID(e, TrackingCode(record)!)}
+                        onClick={(e) => {
+                          copyTextToClipboard(e, TrackingCode(record)!);
+                          showSuccess("Đã copy mã vận đơn!");
+                        }}
                         src={copyFileBtn}
                         alt=""
                         style={{ width: 23 }}

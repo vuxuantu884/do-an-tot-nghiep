@@ -122,10 +122,10 @@ const ProductList = (props: ProductListprops) => {
     const handleFilter = (value: any) => {
         let newParams = { ...params, ...value, page: 1 };
         if (newParams.connected_date_from != null) {
-            newParams.connected_date_from = moment(newParams.connected_date_from, "DD-MM-YYYY").utc(true);
+            newParams.connected_date_from = moment(newParams.connected_date_from, "DD-MM-YYYY").format("DD-MM-YYYY");
         }
         if (newParams.connected_date_to != null) {
-            newParams.connected_date_to = moment(newParams.connected_date_to, "DD-MM-YYYY").utc(true);
+            newParams.connected_date_to = moment(newParams.connected_date_to, "DD-MM-YYYY").format("DD-MM-YYYY");
         }
         let queryParam = generateQuery(params);
         let newQueryParam = generateQuery(newParams);
@@ -295,12 +295,8 @@ const ProductList = (props: ProductListprops) => {
      const getVarinantData = () => {
         setIsLoading(true);
         let newParams = { ...params };
-        if (newParams.connected_date_from != null) {
-            newParams.connected_date_from = moment(newParams.connected_date_from, "DD-MM-YYYY").utc(true);
-        }
-        if (newParams.connected_date_to != null) {
-            newParams.connected_date_to = moment(newParams.connected_date_to, "DD-MM-YYYY").utc(true);
-        }
+        newParams.connected_date_from = newParams.connected_date_from ? moment(newParams.connected_date_from, "DD-MM-YYYY").utc(true).format() : null
+        newParams.connected_date_to = newParams.connected_date_to ? moment(newParams.connected_date_to, "DD-MM-YYYY").utc(true).format() : null
         if (type === "connected")
             newParams.connect_status = "connected";
         dispatch(getWebAppProductAction(newParams, (result: PageResponse<any> | false) => {

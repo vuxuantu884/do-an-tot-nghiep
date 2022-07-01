@@ -1,0 +1,52 @@
+.department-tree {
+  display: flex;
+  overflow: auto;
+  width: 100%;
+
+  .level-one {
+    flex: 0 0 8%;
+    cursor: pointer;
+    font-weight: 400;
+    color: #222222;
+  }
+
+  .other-level {
+    flex: 0 0 15.2%;
+    font-weight: 400;
+    color: #222222;
+  }
+
+  .department-tree-level {
+    margin-top: 8px;
+    margin-left: 20px;
+    display: flex;
+    align-items: start;
+
+    .icon-right {
+      margin-top: 3px;
+      margin-left: auto;
+    }
+  }
+
+  .level-text {
+    font-weight: bold;
+    padding: 7px 0;
+    box-shadow: 0 2px 0 #E5E5E5;
+    background: #F5F5F5;
+    text-align: center;
+    margin-bottom: 17px;
+  }
+}
+
+.d-none {
+  display: none !important;
+}
+
+.cursor-p {
+  cursor: pointer;
+}
+
+.active {
+  color: #2A2A86;
+  font-weight: 500;
+}

@@ -738,7 +738,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
       />
       <CustomPagination
         pagination={{
-          showSizeChanger: false,
+          showSizeChanger: true,
           pageSize: data.metadata.limit,
           current: data.metadata.page,
           total: data.metadata.total,

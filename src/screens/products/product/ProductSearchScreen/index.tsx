@@ -113,7 +113,7 @@ const ListProductScreen: React.FC = () => {
       {
         name: "Lịch sử in tem",
         key: ProductTabUrl.STAMP_PRINTING_HISTORY,
-        component: <TabHistoryInStamp onTogglePickManyModal={onTogglePickManyModal} visiblePickManyModal={visiblePickManyModal} />,
+        component: <TabHistoryInStamp setVExportProduct={setVExportProduct} vExportProduct={vExportProduct} onTogglePickManyModal={onTogglePickManyModal} visiblePickManyModal={visiblePickManyModal} />,
         isShow: canReadHistories,
       },
     ];
@@ -146,7 +146,7 @@ const ListProductScreen: React.FC = () => {
               </Link>
             </AuthWrapper>
             {
-              activeTab === UrlConfig.VARIANTS &&
+              (activeTab === UrlConfig.VARIANTS || activeTab === ProductTabUrl.STAMP_PRINTING_HISTORY) &&
               <AuthWrapper acceptPermissions={[ProductPermission.export_excel]}>
                 <Button
                   className="light"

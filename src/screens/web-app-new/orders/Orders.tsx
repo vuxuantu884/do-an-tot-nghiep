@@ -46,6 +46,7 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import React from "react";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { AccountResponse } from "model/account/account.model";
+import moment from "moment";
 
 const WebAppOrders: React.FC = () => {
     const dispatch = useDispatch();
@@ -297,6 +298,24 @@ const WebAppOrders: React.FC = () => {
     //handle filter
     const handleFilter = (value: any) => {
         let newParams = { ...params, ...value, page: 1 };
+        if (newParams.issued_on_min != null) {
+            newParams.issued_on_min = moment(newParams.issued_on_min, "DD-MM-YYYY").format("DD-MM-YYYY");
+        }
+        if (newParams.issued_on_max != null) {
+            newParams.issued_on_max = moment(newParams.issued_on_max, "DD-MM-YYYY").format("DD-MM-YYYY");
+        }
+        if (newParams.completed_on_min != null) {
+            newParams.completed_on_min = moment(newParams.completed_on_min, "DD-MM-YYYY").format("DD-MM-YYYY");
+        }
+        if (newParams.completed_on_max != null) {
+            newParams.completed_on_max = moment(newParams.completed_on_max, "DD-MM-YYYY").format("DD-MM-YYYY");
+        }
+        if (newParams.cancelled_on_min != null) {
+            newParams.cancelled_on_min = moment(newParams.cancelled_on_min, "DD-MM-YYYY").format("DD-MM-YYYY");
+        }
+        if (newParams.cancelled_on_max != null) {
+            newParams.cancelled_on_max = moment(newParams.cancelled_on_max, "DD-MM-YYYY").format("DD-MM-YYYY");
+        }
         let queryParam = generateQuery(params);
         let newQueryParam = generateQuery(newParams);
         if (newQueryParam !== queryParam) {
@@ -456,7 +475,12 @@ const WebAppOrders: React.FC = () => {
         if (!requestParams.channel_codes?.length) {
             requestParams.channel_codes = ALL_CHANNEL;
         }
-
+        requestParams.issued_on_min = requestParams.issued_on_min ? moment(requestParams.issued_on_min, "DD-MM-YYYY").utc(true).format() : null
+        requestParams.issued_on_max = requestParams.issued_on_max ? moment(requestParams.issued_on_max + " 23:59:59", "DD-MM-YYYY HH:mm:ss").utc(true).format() : null
+        requestParams.completed_on_min = requestParams.completed_on_min ? moment(requestParams.completed_on_min, "DD-MM-YYYY").utc(true).format() : null
+        requestParams.completed_on_max = requestParams.completed_on_max ? moment(requestParams.completed_on_max + " 23:59:59", "DD-MM-YYYY HH:mm:ss").utc(true).format() : null
+        requestParams.cancelled_on_min = requestParams.cancelled_on_min ? moment(requestParams.cancelled_on_min, "DD-MM-YYYY").utc(true).format() : null
+        requestParams.cancelled_on_max = requestParams.cancelled_on_max ? moment(requestParams.cancelled_on_max + " 23:59:59", "DD-MM-YYYY HH:mm:ss").utc(true).format() : null
         setTableLoading(true);
         dispatch(getListOrderAction(requestParams, (result) => {
             setTableLoading(false);
@@ -823,12 +847,12 @@ const WebAppOrders: React.FC = () => {
         },
         {
             title: "Ngày hoàn tất",
-            dataIndex: "completed_on",
-            key: "completed_on",
+            dataIndex: "finished_on",
+            key: "finished_on",
             visible: true,
             align: "center",
             width: 150,
-            render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on, "DD/MM/YYYY")}</div>,
+            render: (finished_on: string) => <div>{ConvertUtcToLocalDate(finished_on, "DD/MM/YYYY")}</div>,
         },
         {
             title: "Ngày huỷ",

@@ -9,12 +9,14 @@ import {
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { copyTextToClipboard } from "utils/AppUtils";
 import { ShipmentMethod } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import {
   checkIfFulfillmentCancelled,
   getTrackingCodeFulfillment
 } from "utils/OrderUtils";
+import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -32,15 +34,16 @@ function OrderFulfillmentShowFulfillment(props: PropTypes) {
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
 
   // copy button
-  const copyOrderID = (e: any, data: string | null) => {
-    e.stopPropagation();
-    e.target.style.width = "26px";
-    const decWidth = setTimeout(() => {
-      e.target.style.width = "23px";
-    }, 100);
-    clearTimeout(decWidth);
-    navigator.clipboard.writeText(data ? data : "").then(() => {});
-  };
+  // const copyOrderID = (e: any, data: string | null) => {
+  //   e.stopPropagation();
+  //   e.target.style.width = "26px";
+  //   const decWidth = setTimeout(() => {
+  //     e.target.style.width = "23px";
+  //   }, 100);
+  //   clearTimeout(decWidth);
+  //   navigator.clipboard.writeText(data ? data : "").then(() => {});
+  //   showSuccess("Đã copy mã vận đơn!")
+  // };
 
   const checkIfFulfillmentExternalOrShopee = () => {
     return (
@@ -91,12 +94,13 @@ function OrderFulfillmentShowFulfillment(props: PropTypes) {
                     </Typography.Link>
                     <div className="copyButton">
                       <img
-                        onClick={(e) =>
-                          copyOrderID(
+                        onClick={(e) =>{
+                          copyTextToClipboard(
                             e,
                             getTrackingCodeFulfillment(fulfillment)!,
                           )
-                        }
+                          showSuccess("Đã copy mã vận đơn!");
+                        }}
                         src={copyFileBtn}
                         alt=""
                         style={{ width: 23 }}

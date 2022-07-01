@@ -47,6 +47,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import {
 	BillingAddress,
 	FulFillmentRequest,
+	OrderBillRequestFormModel,
+	OrderBillRequestModel,
 	OrderDiscountRequest,
 	OrderLineItemRequest,
 	OrderPaymentRequest,
@@ -71,8 +73,9 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
+import { createOrderBillService, deleteOrderService, getStoreBankAccountNumbersService, updateOrderBillService } from "service/order/order.service";
 import {
+	copyTextToClipboard,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
 	handleFetchApiError,
@@ -335,15 +338,16 @@ export default function Order(props: PropTypes) {
 		[setTag]
 	);
 
-	const copyOrderID = (e: any, data: string | null) => {
-		e.stopPropagation();
-		e.target.style.width = "26px";
-		const decWidth = setTimeout(() => {
-			e.target.style.width = "23px";
-		}, 100);
-		clearTimeout(decWidth);
-		navigator.clipboard.writeText(data ? data : "").then(() => { });
-	};
+	// const copyOrderID = (e: any, data: string | null) => {
+	// 	e.stopPropagation();
+	// 	e.target.style.width = "26px";
+	// 	const decWidth = setTimeout(() => {
+	// 		e.target.style.width = "23px";
+	// 	}, 100);
+	// 	clearTimeout(decWidth);
+	// 	navigator.clipboard.writeText(data ? data : "").then(() => { });
+	// 	showSuccess("Đã copy mã vận đơn!")
+	// };
 	//Fulfillment Request
 	const createFulFillmentRequest = (value: OrderRequest) => {
 		let shipmentRequest = createShipmentRequest(value);
@@ -1206,6 +1210,40 @@ export default function Order(props: PropTypes) {
 		return status;
 	};
 
+	const handleOrderBillRequest = (values:OrderBillRequestFormModel,  orderBillId: number | null) => {
+		if(OrderDetail?.id) {
+      let request: OrderBillRequestModel = {
+        ...values,
+        order_id: OrderDetail?.id,
+      }
+      dispatch(showLoading());
+      if(orderBillId) {
+        updateOrderBillService(orderBillId, request).then(response => {
+          console.log('response', response)
+          if (isFetchApiSuccessful(response)) {
+            showSuccess("Cập nhật yêu cầu xuất hóa đơn thành công!")
+          } else {
+            handleFetchApiError(response, "Cập nhật yêu cầu xuất hóa đơn", dispatch);
+          }
+        }).finally(() => {
+          dispatch(hideLoading())
+        })
+
+      } else {
+        createOrderBillService(request).then(response => {
+          console.log('response', response)
+          if (isFetchApiSuccessful(response)) {
+            showSuccess("Tạo yêu cầu xuất hóa đơn thành công!")
+          } else {
+            handleFetchApiError(response, "Tạo yêu cầu xuất hóa đơn", dispatch);
+          }
+        }).finally(() => {
+          dispatch(hideLoading())
+        })
+      }
+    }
+	};
+
 	useEffect(() => {
 		formRef.current?.resetFields();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1376,6 +1414,8 @@ export default function Order(props: PropTypes) {
 										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										customerChange={customerChange}
 										setCustomerChange={setCustomerChange}
+										handleOrderBillRequest = {handleOrderBillRequest}
+										initOrderBillRequest={undefined}
 									/>
 
 									<OrderCreateProduct
@@ -1591,9 +1631,10 @@ export default function Order(props: PropTypes) {
 																					}}
 																				>
 																					<img
-																						onClick={(e) =>
-																							copyOrderID(e, fulfillment.code)
-																						}
+																						onClick={(e) =>{
+																							copyTextToClipboard(e, fulfillment.code)
+																							showSuccess("Đã copy mã vận đơn!");
+																						}}
 																						src={copyFileBtn}
 																						alt=""
 																						style={{ width: 23 }}

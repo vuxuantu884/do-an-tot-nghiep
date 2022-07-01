@@ -345,6 +345,10 @@ export const COLUMN_CONFIG_TYPE = {
   orderDeliveryRecord: "column_order_delivery_record",
   CUSTOMER_COLUMNS: "customer_columns",
   COLUMN_INVENTORY_HISTORY: "column_inventory_history",
+  COLUMN_VARIANT: "column_variant",
+  COLUMN_PRODUCT: "column_product",
+  COLUMN_PRODUCT_HISTORY: "column_product_history",
+  COLUMN_PRODUCT_PRICE: "column_product_price",
 };
 
 export const ACCOUNT_ROLE_ID = {

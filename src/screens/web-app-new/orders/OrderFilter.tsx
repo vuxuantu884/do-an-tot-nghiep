@@ -18,8 +18,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { getSourceListAction, getWebAppShopList } from "domain/actions/web-app/web-app.actions";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
-import { PageResponse } from "model/base/base-metadata.response";
-import { AccountSearchAction, searchAccountPublicAction } from "domain/actions/account/account.action";
 import { SaveSearchType } from "utils/SaveSearchType";
 import SaveSearchModal from "component/modal/SaveSearchModal/SaveSearchModal";
 import { getSaveSearchLocalStorage } from "utils/LocalStorageUtils";
@@ -28,6 +26,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { searchAccountPublicApi } from "service/accounts/account.service";
+import moment from "moment";
 
 type OrderFilterProps = {
     params: EcommerceOrderSearchQuery;
@@ -184,8 +183,8 @@ const OrderFilter = (props: OrderFilterProps) => {
             })
         }
         if (params.issued_on_min || params.issued_on_max) {
-            let text = (params.issued_on_min ? params.issued_on_min : '??')
-                + " ~ " + (params.issued_on_max ? params.issued_on_max : '??')
+            let text = (params.issued_on_min ? moment(params.issued_on_min, "DD-MM-YYYY").format("DD-MM-YYYY"): '??')
+                + " ~ " + (params.issued_on_max ? moment(params.issued_on_max, "DD-MM-YYYY").format("DD-MM-YYYY") : '??')
             filters.push({
                 key: 'issued',
                 name: 'Ngày tạo đơn',
@@ -193,7 +192,7 @@ const OrderFilter = (props: OrderFilterProps) => {
             })
         }
         if (params.completed_on_min || params.completed_on_max) {
-            let textOrderCompleteDate = (params.completed_on_min ? params.completed_on_min : '??') + " ~ " + (params.completed_on_max ? params.completed_on_max : '??')
+            let textOrderCompleteDate = (params.completed_on_min ? moment(params.completed_on_min, "DD-MM-YYYY").format("DD-MM-YYYY") : '??') + " ~ " + (params.completed_on_max ? moment(params.completed_on_max, "DD-MM-YYYY").format("DD-MM-YYYY") : '??')
             filters.push({
                 key: 'completed',
                 name: 'Ngày hoàn tất đơn',
@@ -201,7 +200,7 @@ const OrderFilter = (props: OrderFilterProps) => {
             })
         }
         if (params.cancelled_on_min || params.cancelled_on_max) {
-            let textOrderCancelDate = (params.cancelled_on_min ? params.cancelled_on_min : '??') + " ~ " + (params.cancelled_on_max ? params.cancelled_on_max : '??')
+            let textOrderCancelDate = (params.cancelled_on_min ? moment(params.cancelled_on_min, "DD-MM-YYYY").format("DD-MM-YYYY") : '??') + " ~ " + (params.cancelled_on_max ? moment(params.cancelled_on_max, "DD-MM-YYYY").format("DD-MM-YYYY") : '??')
             filters.push({
                 key: 'cancelled',
                 name: 'Ngày huỷ đơn',
@@ -259,6 +258,13 @@ const OrderFilter = (props: OrderFilterProps) => {
                 value: params.search_term
             })
         }
+        if (params.customer_note) {
+            filters.push({
+                key: 'customer_note',
+                name: 'Ghi chú của khách',
+                value: params.customer_note
+            })
+        }
         if (params.marketing_campaign && params.marketing_campaign.length > 0) {
             let text = "";
             for (let i = 0; i < params.marketing_campaign.length; i++) {
@@ -276,25 +282,52 @@ const OrderFilter = (props: OrderFilterProps) => {
         }
         setFilterTags(filters);
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [params, storeList, sourceList, assigneeFound])
+    }, [params, storeList, sourceList, assigneeFound, shopList])
 
     const handleRemoveTag = useCallback( (e: any, tag: any) => {
         e.preventDefault();
         let newParams = { ...params };
         if (tag.key === "issued") {
             newParams = { ...newParams, ...{ issued_on_min: null, issued_on_max: null } };
+            setIssuedClick("");
         }
         else if (tag.key === "completed") {
             newParams = { ...newParams, ...{ completed_on_min: null, completed_on_max: null } };
+            setCompletedClick("");
         }
         else if (tag.key === "cancelled") {
             newParams = { ...newParams, ...{ cancelled_on_min: null, cancelled_on_max: null } };
+            setCancelledClick("")
         }
         else if (tag.key === "price") {
             newParams = { ...newParams, ...{ price_min: undefined, price_max: undefined } };
         }
         else if (tag.key === "assignee_codes") {
             newParams = { ...newParams, assignee_codes:[] };
+        }
+        else if (tag.key === "ecommerce_shop_ids") {
+            newParams = { ...newParams, ecommerce_shop_ids: [] };
+        }
+        else if (tag.key === "order_status") {
+            newParams = { ...newParams, order_status: [] };
+        }
+        else if (tag.key === "search_term") {
+            newParams = { ...newParams, search_term: null };
+        }
+        else if (tag.key === "store_ids") {
+            newParams = { ...newParams, store_ids: [] };
+        }
+        else if (tag.key === "sub_status_code") {
+            newParams = { ...newParams, sub_status_code: [] };
+        }
+        else if (tag.key === "customer_note") {
+            newParams = { ...newParams, customer_note: null };
+        }
+        else if (tag.key === "source_ids") {
+            newParams = { ...newParams, source_ids: [] };
+        }
+        else if (tag.key === "marketing_campaign") {
+            newParams = { ...newParams, marketing_campaign: [] };
         }
         else {
             newParams = { ...newParams, ...{ [tag.key]: null } };
@@ -325,8 +358,12 @@ const OrderFilter = (props: OrderFilterProps) => {
 
     //set params to form
     useEffect(() => {
-        formRef.current?.setFieldsValue({
+        form.setFieldsValue({
             source_ids: params.source_ids,
+            ecommerce_shop_ids: params.ecommerce_shop_ids,
+            search_term: params.search_term,
+        });
+        formRef.current?.setFieldsValue({
             assignee_codes: params.assignee_codes,
             store_ids: params.store_ids,
             issued_on_min: params.issued_on_min,
@@ -341,8 +378,7 @@ const OrderFilter = (props: OrderFilterProps) => {
             price_max: params.price_max,
             customer_note: params.customer_note,
             marketing_campaign: params.marketing_campaign,
-            ecommerce_shop_ids: params.ecommerce_shop_ids
-        });
+        })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
 
@@ -387,9 +423,10 @@ const OrderFilter = (props: OrderFilterProps) => {
     return (
         <StyledOrderFilter>
             <div className="order-filter">
+                
                 <Form
                     onFinish={handleFinish}
-                    ref={formRef}
+                    form={form}
                     initialValues={params}
                 >
                     <Form.Item className="action-dropdown">
