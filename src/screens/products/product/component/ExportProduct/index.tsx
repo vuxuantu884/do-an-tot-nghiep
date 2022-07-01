@@ -10,12 +10,13 @@ type ExportModalProps = {
   statusExport?: number;
   onCancel: () => void;
   onOk: (record: string) => void;
+  exportError?: string;
 };
    
  
 const ExportProduct: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
-  const { visible, onCancel, onOk,loading= false,exportProgress=0,statusExport=0 } = props;
+  const { visible, onCancel, onOk,loading= false,exportProgress=0,statusExport=0, exportError } = props;
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
@@ -68,7 +69,7 @@ const ExportProduct: React.FC<ExportModalProps> = (props: ExportModalProps) => {
                 <Row style={{ justifyContent: 'center'}}>
                   {statusExport === STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
                   {statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH && <p>Đã tạo file thành công</p>}
-                  {statusExport === STATUS_IMPORT_EXPORT.ERROR && <p>Đã có lỗi xảy ra!!!</p>}
+                  {statusExport === STATUS_IMPORT_EXPORT.ERROR && <p>{exportError ? exportError : "Đã có lỗi xảy ra!!!" }</p>}
                   <Row style={{ justifyContent: 'center', width: '100%'}}><Progress
                     type="circle"
                     strokeColor={{
