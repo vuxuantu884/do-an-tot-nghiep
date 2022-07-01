@@ -8,5 +8,15 @@ export const StyledComponent = styled.div`
     &:hover {
       text-decoration: underline;
     }
+    &.buttonLink {
+      text-decoration: none;
+    }
+  }
+  .buttonLinks {
+    a {
+      &:hover {
+        text-decoration: none;
+      }
+    }
   }
 `;
