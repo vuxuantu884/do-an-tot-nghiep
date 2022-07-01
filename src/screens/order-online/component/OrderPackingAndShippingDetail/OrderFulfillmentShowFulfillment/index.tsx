@@ -88,7 +88,7 @@ function OrderFulfillmentShowFulfillment(props: PropTypes) {
               header={
                 <Row>
                   <Col className="fulfillmentCol">
-                    <span className="fulfillmentCodeTitle">Mã vận đơsn:</span>
+                    <span className="fulfillmentCodeTitle">Mã vận đơn:</span>
                     <Typography.Link className="text-field fulfillmentCode">
                       {getTrackingCodeFulfillment(fulfillment)}
                     </Typography.Link>
