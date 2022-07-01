@@ -140,7 +140,7 @@ const DepartmentCreateScreen: React.FC = () => {
                     <RowDetail title="Tên phòng ban" value={data.name} />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Quản lý" value={`${data.manager_code} - ${data.manager}`} />
+                    <RowDetail title="Quản lý" value={data.manager_code ? `${data.manager_code} - ${data.manager}` : ''} />
                   </Col>
                   <Col span={24}>
                     <RowDetail title="Cấp độ" value={data.level} />
@@ -157,10 +157,10 @@ const DepartmentCreateScreen: React.FC = () => {
                     <RowDetail title="Địa chỉ" value={data.address} />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Người tạo" value={`${data.created_by} - ${data.created_name}`} />
+                    <RowDetail title="Người tạo" value={data.created_by ? `${data.created_by} - ${data.created_name}` : ''} />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Ngày tạo" value={ConvertUtcToLocalDate(data.created_date, DATE_FORMAT.DDMMYYY)} />
+                    <RowDetail title="Ngày tạo" value={ConvertUtcToLocalDate(data.created_date, DATE_FORMAT.DDMMYY_HHmm)} />
                   </Col>
                 </Row>
               </Card>
