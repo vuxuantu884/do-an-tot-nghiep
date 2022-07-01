@@ -36,7 +36,7 @@ import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
 import { searchVariantsApi } from "service/product/product.service";
 import { formatCurrencyForProduct, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
-import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -49,6 +49,8 @@ import * as XLSX from 'xlsx';
 import { VariantExportField, VariantExportMapping } from "model/product/product-mapping";
 import { callApiNative } from "utils/ApiUtils";
 import moment from "moment";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import useSetTableColumns from "hook/table/useSetTableColumns";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -335,11 +337,13 @@ const TabProduct: React.FC<any> = (props) => {
         );
       },
       visible: true,
+      key:'image'
     },
 
     {
       title: "Sản phẩm",
       dataIndex: "sku",
+      key: 'sku',
       render: (value: string, i: VariantResponse) => {
         let strName = (i.name.trim());
         strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
@@ -360,6 +364,7 @@ const TabProduct: React.FC<any> = (props) => {
       title: "Giá vốn",
       dataIndex: "variant_prices",
       align: "right",
+      key: 'cost_price',
       visible: ckeckPermissionReadCostPrice(),
       width: 110,
       render: (value) => {
@@ -378,6 +383,7 @@ const TabProduct: React.FC<any> = (props) => {
       title: "Giá nhập",
       dataIndex: "variant_prices",
       align: "right",
+      key: 'import_price',
       visible: ckeckPermissionReadImportPrice(),
       width: 110,
       render: (value) => {
@@ -395,6 +401,7 @@ const TabProduct: React.FC<any> = (props) => {
     {
       title: "Giá bán",
       dataIndex: "variant_prices",
+      key: "retail_price",
       align: "right",
       visible: true,
       width: 110,
@@ -413,6 +420,7 @@ const TabProduct: React.FC<any> = (props) => {
     {
       title: "Có thể bán",
       dataIndex: "available",
+      key: "available",
       visible: true,
       align: "right",
       width: 110,
@@ -422,6 +430,7 @@ const TabProduct: React.FC<any> = (props) => {
     {
       title: "Trạng thái",
       dataIndex: "saleable",
+      key: "saleable",
       visible: true,
       align: "center",
       width: 120,
@@ -433,6 +442,7 @@ const TabProduct: React.FC<any> = (props) => {
     },
     {
       title: "Nhà thiết kế",
+      key: "designer",
       visible: true,
       align: "left",
       width: 150,
@@ -451,6 +461,7 @@ const TabProduct: React.FC<any> = (props) => {
     },
     {
       title: "Merchandiser",
+      key: "merchandiser",
       align: "left",
       width: 150,
       visible: true,
@@ -470,6 +481,7 @@ const TabProduct: React.FC<any> = (props) => {
     {
       title: "Ngày tạo",
       dataIndex: "created_date",
+      key: "created_date",
       visible: true,
       align: "left",
       width: 110,
@@ -481,6 +493,9 @@ const TabProduct: React.FC<any> = (props) => {
 
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<VariantResponse>>>(defaultColumn);
+
+  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.COLUMN_VARIANT);
+  useSetTableColumns(COLUMN_CONFIG_TYPE.COLUMN_VARIANT, tableColumnConfigs, defaultColumn, setColumn);
 
   const columnFinal = useMemo(() => {
     return columns.filter((item) => item.visible === true);
@@ -710,13 +725,15 @@ const TabProduct: React.FC<any> = (props) => {
         />
       </AuthWrapper>
       <ModalSettingColumn
+        isSetDefaultColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {
           setShowSettingColumn(false);
           setColumn(data);
+          onSaveConfigTableColumn(data);
         }}
-        data={columns}
+        data={defaultColumn}
       />
       <ModalDeleteConfirm
         onCancel={() => setConfirmDelete(false)}

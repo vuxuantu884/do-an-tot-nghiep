@@ -27,7 +27,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {Link, useHistory} from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
 import {convertCategory, formatCurrencyForProduct, generateQuery} from "utils/AppUtils";
-import {OFFSET_HEADER_TABLE} from "utils/Constants";
+import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
 import {ConvertUtcToLocalDate} from "utils/DateUtils";
 import {showInfo, showSuccess} from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
@@ -39,6 +39,8 @@ import { productWrapperPutApi } from 'service/product/product.service';
 import{
   searchProductWrapperApi,
 } from "service/product/product.service";
+import useSetTableColumns from "hook/table/useSetTableColumns";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -102,7 +104,7 @@ const TabProductWrapper: React.FC = () => {
 
   const [params, setParams] = useState<ProductWrapperSearchQuery>(dataQuery);
 
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<ProductResponse>>>([
+  const defaultColumn: Array<ICustomTableColumType<ProductResponse>> = [
     {
       title: "Ảnh",
       align: "center",
@@ -122,11 +124,13 @@ const TabProductWrapper: React.FC = () => {
           </>
         );
       },
+      key: 'image',
       visible: true,
     },
     {
       title: "Sản phẩm",
       dataIndex: "code",
+      key: "code",
       render: (value: string, i: ProductWrapperResponse) => {
         return (
           <>
@@ -143,6 +147,7 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       title: "SL Phiên bản",
       dataIndex: "variants",
+      key: "variants",
       width: 110,
       render: (value: Array<VariantResponse>) => (
         <>
@@ -154,6 +159,7 @@ const TabProductWrapper: React.FC = () => {
     {
       title: "Tồn trong kho",
       dataIndex: "on_hand",
+      key: "on_hand",
       align: "right",
       visible: true,
       width: 120,
@@ -163,6 +169,7 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       title: "Có thể bán",
       dataIndex: "available",
+      key: "available",
       visible: true,
       width: 100,
       render: (value: number) => <div> {value!==null?formatCurrencyForProduct(value):"0"}</div>,
@@ -170,6 +177,7 @@ const TabProductWrapper: React.FC = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
+      key: "status",
       align: "center",
       width: 150,
       render: (value: string, row: ProductWrapperResponse) => (
@@ -183,6 +191,7 @@ const TabProductWrapper: React.FC = () => {
       title: "Ngày tạo",
       align: "left",
       dataIndex: "created_date",
+      key: "created_date",
       render: (value) => value!==null?ConvertUtcToLocalDate(value, "DD/MM/YYYY"):"---",
       width: 110,
       visible: true,
@@ -190,6 +199,7 @@ const TabProductWrapper: React.FC = () => {
     {
       title: "Nhà thiết kế",
       visible: false,
+      key: 'designer',
       render: (record: ProductWrapperResponse) => {
         return(
           <div>
@@ -205,6 +215,7 @@ const TabProductWrapper: React.FC = () => {
     },
     {
       title: "Merchandiser",
+      key: "merchandiser",
       visible: false,
       render: (record: ProductWrapperResponse) => {
         return(
@@ -222,19 +233,29 @@ const TabProductWrapper: React.FC = () => {
     {
       title: "Danh mục",
       dataIndex: "category",
+      key: "category",
       visible: false,
     },
     {
       title: "Ngành hàng",
       dataIndex: "goods",
+      key: "goods",
       visible: false,
     },
     {
       title: "Chất liệu",
       dataIndex: "material",
+      key: "material",
       visible: false,
     },
-  ]);
+  ]
+
+  const [columns, setColumn] = 
+  useState<Array<ICustomTableColumType<ProductResponse>>>(defaultColumn);
+  
+  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.COLUMN_PRODUCT);
+  useSetTableColumns(COLUMN_CONFIG_TYPE.COLUMN_PRODUCT, tableColumnConfigs, defaultColumn, setColumn);
+
   const [canDeleteParentProduct] = useAuthorization({
     acceptPermissions: [ProductPermission.delete],
   });
@@ -425,13 +446,15 @@ const TabProductWrapper: React.FC = () => {
         className="yody-table-product-search small-padding"
       />
       <ModalSettingColumn
+        isSetDefaultColumn
         visible={showSettingColumn}
         onCancel={() => setShowSettingColumn(false)}
         onOk={(data) => {
           setShowSettingColumn(false);
           setColumn(data);
+          onSaveConfigTableColumn(data);
         }}
-        data={columns}
+        data={defaultColumn}
       />
       <ModalDeleteConfirm
         onCancel={() => setConfirmDelete(false)}
