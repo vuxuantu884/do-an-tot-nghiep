@@ -75,6 +75,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { createOrderBillService, deleteOrderService, getStoreBankAccountNumbersService, updateOrderBillService } from "service/order/order.service";
 import {
+	copyTextToClipboard,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
 	getTotalAmountAfterDiscount,
 	handleFetchApiError,
@@ -337,15 +338,16 @@ export default function Order(props: PropTypes) {
 		[setTag]
 	);
 
-	const copyOrderID = (e: any, data: string | null) => {
-		e.stopPropagation();
-		e.target.style.width = "26px";
-		const decWidth = setTimeout(() => {
-			e.target.style.width = "23px";
-		}, 100);
-		clearTimeout(decWidth);
-		navigator.clipboard.writeText(data ? data : "").then(() => { });
-	};
+	// const copyOrderID = (e: any, data: string | null) => {
+	// 	e.stopPropagation();
+	// 	e.target.style.width = "26px";
+	// 	const decWidth = setTimeout(() => {
+	// 		e.target.style.width = "23px";
+	// 	}, 100);
+	// 	clearTimeout(decWidth);
+	// 	navigator.clipboard.writeText(data ? data : "").then(() => { });
+	// 	showSuccess("Đã copy mã vận đơn!")
+	// };
 	//Fulfillment Request
 	const createFulFillmentRequest = (value: OrderRequest) => {
 		let shipmentRequest = createShipmentRequest(value);
@@ -1629,9 +1631,10 @@ export default function Order(props: PropTypes) {
 																					}}
 																				>
 																					<img
-																						onClick={(e) =>
-																							copyOrderID(e, fulfillment.code)
-																						}
+																						onClick={(e) =>{
+																							copyTextToClipboard(e, fulfillment.code)
+																							showSuccess("Đã copy mã vận đơn!");
+																						}}
 																						src={copyFileBtn}
 																						alt=""
 																						style={{ width: 23 }}

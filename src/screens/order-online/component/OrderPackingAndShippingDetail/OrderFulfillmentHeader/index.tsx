@@ -9,7 +9,7 @@ import moment from "moment";
 import React from "react";
 import FulfillmentStatusTag from "screens/order-online/component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "screens/order-online/component/order-detail/PrintShippingLabel";
-import { sortFulfillments } from "utils/AppUtils";
+import { copyTextToClipboard, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { checkIfFulfillmentCancelled } from "utils/OrderUtils";
@@ -28,15 +28,15 @@ function OrderFulfillmentHeader(props: PropTypes) {
 
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
   // copy button
-  const copyOrderID = (e: any, data: string | null) => {
-    e.stopPropagation();
-    e.target.style.width = "26px";
-    const decWidth = setTimeout(() => {
-      e.target.style.width = "23px";
-    }, 100);
-    clearTimeout(decWidth);
-    navigator.clipboard.writeText(data ? data : "").then(() => {});
-  };
+  // const copyOrderID = (e: any, data: string | null) => {
+  //   e.stopPropagation();
+  //   e.target.style.width = "26px";
+  //   const decWidth = setTimeout(() => {
+  //     e.target.style.width = "23px";
+  //   }, 100);
+  //   clearTimeout(decWidth);
+  //   navigator.clipboard.writeText(data ? data : "").then(() => {});
+  // };
 
   const sortedFulfillments = sortFulfillments(orderDetail?.fulfillments);
 
@@ -109,10 +109,10 @@ function OrderFulfillmentHeader(props: PropTypes) {
           <div className="buttonCopy">
             <Tooltip title="Sao chép mã vận đơn">
               <img
-                onClick={(e) => {
-                  copyOrderID(e, fulfillment.code);
-                  showSuccess("Đã copy mã vận đơn!");
-                }}
+                onClick={(e) =>{
+                  copyTextToClipboard(e, fulfillment.code)
+                  showSuccess("Đã copy mã vận đơn!");}
+                }
                 src={copyFileBtn}
                 alt=""
                 style={{ width: 23 }}
