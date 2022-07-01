@@ -4,7 +4,7 @@ import { EcommerceDeliveryResponse, OrderResponse } from "model/response/order/o
 
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import NumberFormat from "react-number-format";
-import { formatCurrency } from "utils/AppUtils";
+import { copyTextToClipboard, formatCurrency } from "utils/AppUtils";
 import { SHIPPING_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 
@@ -31,16 +31,16 @@ function ShipmentMethodEcommerce(props: PropType) {
 
 
   // copy button
-	const copyOrderID = (e: any, data: string | null) => {
-		e.stopPropagation();
-		e.target.style.width = "26px";
-		const decWidth = setTimeout(() => {
-			e.target.style.width = "23px";
-		}, 100);
-		clearTimeout(decWidth);
-		navigator.clipboard.writeText(data ? data : "").then(() => { });
-    showSuccess("Đã sao chép mã vận đơn!");
-	};
+	// const copyOrderID = (e: any, data: string | null) => {
+	// 	e.stopPropagation();
+	// 	e.target.style.width = "26px";
+	// 	const decWidth = setTimeout(() => {
+	// 		e.target.style.width = "23px";
+	// 	}, 100);
+	// 	clearTimeout(decWidth);
+	// 	navigator.clipboard.writeText(data ? data : "").then(() => { });
+  //   showSuccess("Đã sao chép mã vận đơn!");
+	// };
 
   
   return (
@@ -189,12 +189,13 @@ function ShipmentMethodEcommerce(props: PropType) {
             }}
           >
             <img
-              onClick={(e) =>
-                copyOrderID(
+              onClick={(e) =>{
+                copyTextToClipboard(
                   e,
                   ecommerceShipment.tracking_code!
                 )
-              }
+                showSuccess("Đã copy mã vận đơn!");
+              }}
               src={copyFileBtn}
               alt=""
               style={{ width: 23 }}
