@@ -9,6 +9,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 interface IProps {
   data: PageResponse<HistoryInventoryResponse>;
   onChange: (page: number, pageSize?: number) => void;
+  loadingHis?: boolean
 }
 enum DocumentType {
   PURCHASE_ORDER = "purchase_order",
@@ -19,7 +20,7 @@ enum DocumentType {
 }
 
 const TabProductHistory: React.FC<IProps> = (props: IProps) => {
-  const { data, onChange } = props;
+  const { data, onChange, loadingHis } = props;
 
   const getUrlByDocumentType = (type: string) => {
     switch (type) {
@@ -39,6 +40,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
   return (
     <div>
       <CustomTable
+        isLoading={loadingHis}
         className="small-padding"
         dataSource={data.items}
         pagination={{
@@ -76,7 +78,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
           {
             title: "Thời gian",
             dataIndex: "transaction_date",
-            render: (value) => ConvertUtcToLocalDate(formatCurrencyForProduct(value)),
+            render: (value) => ConvertUtcToLocalDate(value),
             align: 'left',
             width: 120
           },

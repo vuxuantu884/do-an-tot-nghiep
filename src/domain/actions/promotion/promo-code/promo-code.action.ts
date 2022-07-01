@@ -1,5 +1,5 @@
 import BaseAction from 'base/base.action';
-import { DiscountCode, PriceRule } from 'model/promotion/price-rules.model';
+import {DiscountCode, DiscountUsageDetailResponse, PriceRule} from 'model/promotion/price-rules.model';
 import {PageResponse} from "../../../../model/base/base-metadata.response";
 import {PromoCodeType} from "../../../types/promotion.type"; 
 import {BaseQuery} from './../../../../model/base/base.query';
@@ -10,6 +10,10 @@ export const checkPromoCode = (code: string, handleResponse: (data: PageResponse
 
 export const getPromoCodeById = (priceRuleId: number, id: number, onResult: (result: PriceRule|false) => void) => {
   return BaseAction(PromoCodeType.GET_PROMO_CODE_BY_ID, {priceRuleId, id, onResult});
+}
+
+export const getDiscountUsageDetailAction = (discountCode: string, onResult: (result: Array<DiscountUsageDetailResponse> | false) => void) => {
+  return BaseAction(PromoCodeType.GET_DISCOUNT_USAGE_DETAIL, {discountCode, onResult});
 }
 
 export const deletePromoCodeById = (priceRuleId: number, id: number, deleteCallBack: (result: PriceRule|false) => void) => {

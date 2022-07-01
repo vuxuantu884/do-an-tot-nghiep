@@ -67,6 +67,7 @@ export const FulFillmentStatus = {
   CANCELLED: "cancelled",
   RETURNING: "returning",
   RETURNED: "returned",
+  UNRETURNED:"unreturned"
 };
 
 export const FulFillmentReturnStatus = {
@@ -330,6 +331,7 @@ export const FILTER_CONFIG_TYPE = {
   orderOffline: "filter_order_offline",
   orderReturnOnline: "filter_order_return_online",
   orderReturnOffline: "filter_order_return_offline",
+  FILTER_STOCK_IN_OUT: "filter_stock_in_out"
 };
 
 export const COLUMN_CONFIG_TYPE = {
@@ -343,6 +345,10 @@ export const COLUMN_CONFIG_TYPE = {
   orderDeliveryRecord: "column_order_delivery_record",
   CUSTOMER_COLUMNS: "customer_columns",
   COLUMN_INVENTORY_HISTORY: "column_inventory_history",
+  COLUMN_VARIANT: "column_variant",
+  COLUMN_PRODUCT: "column_product",
+  COLUMN_PRODUCT_HISTORY: "column_product_history",
+  COLUMN_PRODUCT_PRICE: "column_product_price",
 };
 
 export const ACCOUNT_ROLE_ID = {

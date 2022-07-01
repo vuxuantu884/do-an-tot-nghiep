@@ -378,7 +378,7 @@ const OrderFilter = (props: OrderFilterProps) => {
             price_max: params.price_max,
             customer_note: params.customer_note,
             marketing_campaign: params.marketing_campaign,
-})
+        })
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);
 

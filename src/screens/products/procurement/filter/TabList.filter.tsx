@@ -37,14 +37,23 @@ import { supplierGetApi } from "../../../../service/core/supplier.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import CustomSelect from "component/custom/select.custom";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { MenuAction } from "component/table/ActionButton";
+import CustomFilter from "component/table/custom.filter";
 
 const { Item } = Form;
 
-function TabListFilter(props: ProcurementFilterProps) {
+interface ProcurementTabListFilterProps extends ProcurementFilterProps {
+  actions: Array<MenuAction>;
+  onMenuClick: (index: number) => void;
+}
+
+function TabListFilter(props: ProcurementTabListFilterProps) {
   const {
     onClickOpen,
     paramsUrl,
-    accounts
+    accounts,
+    actions,
+    onMenuClick
   } = props;
   const history = useHistory();
   const dispatch = useDispatch();
@@ -281,140 +290,144 @@ function TabListFilter(props: ProcurementFilterProps) {
 
   return (
     <Form.Provider>
-      <Form onFinish={onBaseFinish} form={formBase} layout="inline">
-        <FilterProcurementStyle>
-          <Item name={ProcurementFilterBasicEnum.content} className="search">
-            <Input
-              prefix={<img src={search} alt="" />}
-              allowClear
-              placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng, Mã tham chiếu"
-            />
-          </Item>
-          <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 200 }}>
-            <TreeStore
-              form={formBase}
-              name={ProcurementFilterBasicEnum.store_ids}
-              placeholder="Chọn kho nhận"
-              listStore={allStore}
-            />
-          </Item>
-          <Item className="suppliers">
-            <SupplierSearchSelect
-              label
-              name={ProcurementFilterBasicEnum.suppliers}
-              mode="multiple"
-              help={false}
-              maxTagCount="responsive"
-            />
-          </Item>
-          <Item name={ProcurementFilterBasicEnum.status}>
-            <CustomSelect
-              maxTagCount="responsive"
-              mode="multiple"
-              style={{ minWidth: 180 }}
-              showArrow
-              placeholder="Chọn trạng thái"
-              notFoundContent="Không tìm thấy kết quả"
-              optionFilterProp="children"
-              getPopupContainer={trigger => trigger.parentNode}
-            >
-              {Object.keys(ProcurementStatus).map((item, index) => (
-                <CustomSelect.Option
-                  style={{ width: "100%" }}
-                  key={index.toString()}
-                  value={item}
+      <div className="custom-filter">
+        <CustomFilter menu={actions} onMenuClick={onMenuClick}>
+          <Form onFinish={onBaseFinish} form={formBase} layout="inline">
+            <FilterProcurementStyle>
+              <Item name={ProcurementFilterBasicEnum.content} className="search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  allowClear
+                  placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng, Mã tham chiếu"
+                />
+              </Item>
+              <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 200 }}>
+                <TreeStore
+                  form={formBase}
+                  name={ProcurementFilterBasicEnum.store_ids}
+                  placeholder="Chọn kho nhận"
+                  listStore={allStore}
+                />
+              </Item>
+              <Item className="suppliers">
+                <SupplierSearchSelect
+                  label
+                  name={ProcurementFilterBasicEnum.suppliers}
+                  mode="multiple"
+                  help={false}
+                  maxTagCount="responsive"
+                />
+              </Item>
+              <Item name={ProcurementFilterBasicEnum.status}>
+                <CustomSelect
+                  maxTagCount="responsive"
+                  mode="multiple"
+                  style={{ minWidth: 180 }}
+                  showArrow
+                  placeholder="Chọn trạng thái"
+                  notFoundContent="Không tìm thấy kết quả"
+                  optionFilterProp="children"
+                  getPopupContainer={trigger => trigger.parentNode}
                 >
-                  {ProcurementStatusName[item]}
-                </CustomSelect.Option>
-              ))}
-            </CustomSelect>
-          </Item>
-          <div className="btn-action">
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
+                  {Object.keys(ProcurementStatus).map((item, index) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={index.toString()}
+                      value={item}
+                    >
+                      {ProcurementStatusName[item]}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              </Item>
+              <div className="btn-action">
+                <Item>
+                  <Button type="primary" htmlType="submit">
+                    Lọc
+                  </Button>
+                </Item>
 
-            <Item>
-              <Button icon={<FilterOutlined />} onClick={openVisibleFilter}>
-                Thêm bộ lọc
-              </Button>
-            </Item>
-            <Item><ButtonSetting onClick={onClickOpen} /></Item>
-          </div>
-        </FilterProcurementStyle>
-      </Form>
-      <BaseFilter
-        onClearFilter={resetFilter}
-        onFilter={formAdvanced.submit}
-        onCancel={cancelFilter}
-        visible={visible}
-        width={700}
-      >
-        <Form ref={formRef} onFinish={onAdvanceFinish} form={formAdvanced}>
-          <Row gutter={20}>
-            {Object.values(ProcurementFilterAdvanceEnum).map((field) => {
-              let component: any = null;
-              switch (field) {
-                case ProcurementFilterAdvanceEnum.active:
-                case ProcurementFilterAdvanceEnum.expect_receipt:
-                  component = <CustomFilterDatePicker
-                    fieldNameFrom={`${field}_from`}
-                    fieldNameTo={`${field}_to`}
-                    activeButton={dateClick}
-                    setActiveButton={setDateClick}
-                    formRef={formRef}
-                  />;
-                  break;
-                case ProcurementFilterAdvanceEnum.stock_in_bys:
-                  component = <AccountSearchPaging placeholder="Chọn người nhập" mode="multiple" />
-                  break;
-                case ProcurementFilterAdvanceEnum.stock_in:
-                  component = <CustomFilterDatePicker
-                    fieldNameFrom={`${field}_from`}
-                    fieldNameTo={`${field}_to`}
-                    activeButton={dateClick}
-                    setActiveButton={setDateClick}
-                    formRef={formRef}
-                    format="DD/MM/YYYY HH:mm"
-                    showTime
-                  />;
-                  break;
-                case ProcurementFilterAdvanceEnum.merchandisers:
-                  component = <BaseSelectMerchans
-                    merchans={merchans}
-                    fetchMerchans={fetchMerchans}
-                    isLoadingMerchans={isLoadingMerchans}
-                    mode={"multiple"}
-                  />;
-                  break;
-                case ProcurementFilterAdvanceEnum.note:
-                  component = (
-                    <Input placeholder="Tìm kiếm theo nội dung ghi chú" />
-                  );
-                  break;
-              }
-              return (
-                <Col span={12} key={field}>
-                  <div className="font-weight-500">{ProcurementFilterAdvanceName[field]}</div>
-                  {field === ProcurementFilterAdvanceEnum.note ?
-                    (<Item
-                      name={field}
-                      rules={[
-                        { max: 255, message: "Thông tin tìm kiếm không được quá 255 ký tự" }
-                      ]}>
-                      {component}
-                    </Item>)
-                    : (<Item name={field}>{component}</Item>)
+                <Item>
+                  <Button icon={<FilterOutlined />} onClick={openVisibleFilter}>
+                    Thêm bộ lọc
+                  </Button>
+                </Item>
+                <Item><ButtonSetting onClick={onClickOpen} /></Item>
+              </div>
+            </FilterProcurementStyle>
+          </Form>
+          <BaseFilter
+            onClearFilter={resetFilter}
+            onFilter={formAdvanced.submit}
+            onCancel={cancelFilter}
+            visible={visible}
+            width={700}
+          >
+            <Form ref={formRef} onFinish={onAdvanceFinish} form={formAdvanced}>
+              <Row gutter={20}>
+                {Object.values(ProcurementFilterAdvanceEnum).map((field) => {
+                  let component: any = null;
+                  switch (field) {
+                    case ProcurementFilterAdvanceEnum.active:
+                    case ProcurementFilterAdvanceEnum.expect_receipt:
+                      component = <CustomFilterDatePicker
+                        fieldNameFrom={`${field}_from`}
+                        fieldNameTo={`${field}_to`}
+                        activeButton={dateClick}
+                        setActiveButton={setDateClick}
+                        formRef={formRef}
+                      />;
+                      break;
+                    case ProcurementFilterAdvanceEnum.stock_in_bys:
+                      component = <AccountSearchPaging placeholder="Chọn người nhập" mode="multiple" />
+                      break;
+                    case ProcurementFilterAdvanceEnum.stock_in:
+                      component = <CustomFilterDatePicker
+                        fieldNameFrom={`${field}_from`}
+                        fieldNameTo={`${field}_to`}
+                        activeButton={dateClick}
+                        setActiveButton={setDateClick}
+                        formRef={formRef}
+                        format="DD/MM/YYYY HH:mm"
+                        showTime
+                      />;
+                      break;
+                    case ProcurementFilterAdvanceEnum.merchandisers:
+                      component = <BaseSelectMerchans
+                        merchans={merchans}
+                        fetchMerchans={fetchMerchans}
+                        isLoadingMerchans={isLoadingMerchans}
+                        mode={"multiple"}
+                      />;
+                      break;
+                    case ProcurementFilterAdvanceEnum.note:
+                      component = (
+                        <Input placeholder="Tìm kiếm theo nội dung ghi chú" />
+                      );
+                      break;
                   }
-                </Col>
-              );
-            })}
-          </Row>
-        </Form>
-      </BaseFilter>
-      <BaseFilterResult data={paramsArray} onClose={onRemoveStatus} />
+                  return (
+                    <Col span={12} key={field}>
+                      <div className="font-weight-500">{ProcurementFilterAdvanceName[field]}</div>
+                      {field === ProcurementFilterAdvanceEnum.note ?
+                        (<Item
+                          name={field}
+                          rules={[
+                            { max: 255, message: "Thông tin tìm kiếm không được quá 255 ký tự" }
+                          ]}>
+                          {component}
+                        </Item>)
+                        : (<Item name={field}>{component}</Item>)
+                      }
+                    </Col>
+                  );
+                })}
+              </Row>
+            </Form>
+          </BaseFilter>
+        </CustomFilter>
+        <BaseFilterResult data={paramsArray} onClose={onRemoveStatus} />
+      </div>
     </Form.Provider>
   );
 }

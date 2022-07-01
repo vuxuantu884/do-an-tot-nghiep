@@ -2,7 +2,7 @@ import {StyledComponent} from './style';
 
 type RowDetailProps = {
   title: string,
-  value: string|null,
+  value: string | null | number | undefined,
 }
 
 const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {

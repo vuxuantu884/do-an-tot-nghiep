@@ -38,7 +38,6 @@ import {
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
-import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
@@ -786,10 +785,7 @@ function OrdersTable(props: PropTypes) {
                       </div>
                     </div>
                     <div className="quantity quantityWidth">
-                      <NumberFormat
-                        value={formatNumber(item.quantity)}
-                        displayType={"text"}
-                      />
+                      {formatNumber(item.quantity)}
                     </div>
                     <div className="price priceWidth">
                       <div>
@@ -830,45 +826,31 @@ function OrdersTable(props: PropTypes) {
           <React.Fragment>
             <div>
               <Tooltip title="Tổng tiền khi sản phẩm còn nguyên giá">
-                <NumberFormat
-                  value={formatCurrency(getTotalAmountBeforeDiscount(record.items))}
-                  className="orderTotal"
-                  displayType={"text"}
-                  thousandSeparator={true}
-                />
+                <strong>
+                  {formatCurrency(getTotalAmountBeforeDiscount(record.items))}
+                </strong>
               </Tooltip>
             </div>
             <div>
               <Tooltip title="Tổng tiền">
-                <NumberFormat
-                  value={record.total}
-                  className="orderTotal"
-                  displayType={"text"}
-                  thousandSeparator={true}
-                />
+                <strong>
+                  {formatCurrency(record.total)}
+                </strong>
               </Tooltip>
             </div>
             {record.total_discount ? (
               <div>
                 <Tooltip title="Tổng tiền chiết khấu">
-                  <span style={{ color: "#EF5B5B" }}>
-                    -<NumberFormat
-                      value={formatCurrency(record.total_discount)}
-                      className="orderTotal"
-                      displayType={"text"}
-                    />
-                  </span>
+                  <strong style={{ color: "#EF5B5B" }}>
+                    -{formatCurrency(record.total_discount)}
+                  </strong>
                 </Tooltip>
               </div>
             ) : null}
             {record.shipping_fee_informed_to_customer ? (
               <div>
                 <Tooltip title="Phí ship báo khách">
-                  <NumberFormat
-                    value={formatCurrency(record.shipping_fee_informed_to_customer)}
-                    displayType={"text"}
-                    thousandSeparator={true}
-                  />
+                  {formatCurrency(record.shipping_fee_informed_to_customer)}
                 </Tooltip>
               </div>
             ) : null}

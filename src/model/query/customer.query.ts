@@ -51,6 +51,14 @@ export interface CustomerSearchQuery extends BaseQuery {
   first_order_time_to?: String | null;
   last_order_time_from?: String | null;
   last_order_time_to?: String | null;
+  // Web/App
+  utm_source?: string|null;
+  utm_medium?: string|null;
+  utm_content?: string|null;
+  utm_term?: string|null;
+  utm_id?: string|null;
+  utm_campaign?: string|null;
+  //
 
   phone?: string | null;
   from_birthday?: String | null;

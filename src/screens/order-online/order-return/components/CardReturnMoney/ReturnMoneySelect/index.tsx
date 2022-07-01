@@ -13,6 +13,7 @@ type PropTypes = {
   handleReturnMoney: () => void;
   setReturnPaymentMethodCode: (value: string) => void;
   returnPaymentMethodCode: string;
+  canCreateMoneyRefund: boolean;
 };
 
 /**
@@ -35,6 +36,7 @@ function ReturnMoneySelect(props: PropTypes) {
     handleReturnMoney,
     // setReturnPaymentMethodCode,
     returnPaymentMethodCode,
+    canCreateMoneyRefund,
   } = props;
 
   console.log('returnPaymentMethodCode', returnPaymentMethodCode)
@@ -86,6 +88,7 @@ function ReturnMoneySelect(props: PropTypes) {
                               style={{ width: "100%" }}
                               placeholder="Chọn hình thức thanh toán"
                               notFoundContent="Không tìm thấy hình thức thanh toán"
+                              disabled={!canCreateMoneyRefund}
                               // value= {returnPaymentMethodCode}
                               // onChange={setReturnPaymentMethodCode}
                             >
@@ -124,6 +127,7 @@ function ReturnMoneySelect(props: PropTypes) {
                                 }
                                 // setInitialReturnAmount(value || 0);
                               }}
+                              disabled={!canCreateMoneyRefund}
                             />
                           </Form.Item>
                         </Col>
@@ -133,7 +137,7 @@ function ReturnMoneySelect(props: PropTypes) {
                             name={[index, "returnMoneyNote"]}
                             style={{ marginBottom: 0 }}
                           >
-                            <Input placeholder="Nội dung" />
+                            <Input placeholder="Nội dung" disabled={!canCreateMoneyRefund} />
                           </Form.Item>
                         </Col>
                         {isShowButtonReturnMoney && (
@@ -143,6 +147,7 @@ function ReturnMoneySelect(props: PropTypes) {
                               onClick={() => {
                                 handleReturnMoney();
                               }}
+                              disabled={!canCreateMoneyRefund}
                             >
                               Xác nhận hoàn tiền
                             </Button>
@@ -155,8 +160,8 @@ function ReturnMoneySelect(props: PropTypes) {
               );
             }}
           </Form.List>
-
         )}
+        <div className="note">* Chú ý: Đối với trả hàng online, yêu cầu đã nhận hàng và tài khoản được cấp quyền mới có thể thực hiện hoàn tiền.</div>
       </div>
     </StyledComponent>
   );

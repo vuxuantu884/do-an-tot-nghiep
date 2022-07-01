@@ -1,10 +1,10 @@
-import { Button, Checkbox, Col, Form, Input, Modal, Radio, Row } from "antd";
+import { AutoComplete, Button, Col, Form, Input, Modal, Radio, Row, Select, Switch, Typography } from "antd";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch } from "react-redux";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { formatCurrency } from "utils/AppUtils";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
-import { showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
   PoPaymentCreateAction,
   PoPaymentDeleteAction,
@@ -16,9 +16,10 @@ import moment from "moment";
 import { DeleteOutlined, InfoCircleOutlined } from "@ant-design/icons";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { HttpStatus } from "config/http-status.config";
-import CustomInputChange from "component/custom/custom-input-change";
+// import CustomInputChange from "component/custom/custom-input-change";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
+import TextArea from "antd/lib/input/TextArea";
 
 type PaymentModalProps = {
   visible: boolean;
@@ -30,7 +31,7 @@ type PaymentModalProps = {
   onCancel: () => void;
   deletePayment: () => void;
   onOk: (isLoad: boolean) => void;
-  initValue: PurchasePayments|null,
+  initValue: PurchasePayments | null,
 };
 const { Item } = Form;
 const PaymentModal: React.FC<PaymentModalProps> = (
@@ -51,6 +52,8 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   const [disabledRef, setDisabledRef] = React.useState(false);
   const [isVisibleModalDeleteWarning, setIsVisibleModalDeleteWarning] =
     React.useState(false);
+  const [dataValue, setDataValue] = React.useState<Array<any>>([])
+  const [percentPayment, setPercentPayment] = React.useState<string>("")
 
   const onOkPress = useCallback(() => {
     // onOk();
@@ -97,14 +100,23 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   );
 
   const onFinish = useCallback(
-    (values: PurchasePayments) => {
+    (values: any) => {
       setConfirmLoading(true);
       let data = formPayment.getFieldsValue(true);
-
+      data.amount = parseInt(data.amount.replace(/\D/g, ''))
       if (data.id) {
+        if (data.amount < 1000) {
+          showError("Thanh toán không được nhỏ hơn 1.000")
+          return
+        }
         dispatch(PoPaymentUpdateAction(poId, data.id, data, updateCallback));
       } else {
         values.status = PoPaymentStatus.UNPAID;
+        values.amount = parseInt(values.amount?.replace(/\D/g, ''))
+        if (values.amount < 1000) {
+          showError("Thanh toán không được nhỏ hơn 1.000")
+          return
+        }
         dispatch(PoPaymentCreateAction(poId, values, createCallback));
       }
     },
@@ -136,23 +148,69 @@ const PaymentModal: React.FC<PaymentModalProps> = (
   useEffect(() => {
     if (!visible && prevVisible) {
       formPayment.resetFields();
+      setPercentPayment("")
+      // setInputNumber("")
+      setDataValue([])
     }
   }, [formPayment, prevVisible, visible]);
   useEffect(() => {
     if (visible) {
       if (purchasePayment) {
-        if(purchasePayment.is_refund && purchasePayment.amount) {
+        if (purchasePayment.is_refund && purchasePayment.amount) {
           purchasePayment.amount = Math.abs(purchasePayment.amount);
         }
         formPayment.setFieldsValue(purchasePayment);
+        const amount = purchasePayment.amount ?? 0
+        const percentage = ((amount / poData.total_payment) * 100).toFixed(2) + "%"
+        setPercentPayment(percentage)
+        formPayment.setFieldsValue({ amount: purchasePayment?.amount?.toLocaleString() });
+      } else {
+        formPayment.setFieldsValue({ payment_method_code: PoPaymentMethod.BANK_TRANSFER })
       }
     }
-  }, [formPayment, purchasePayment, visible]);
+  }, [formPayment, poData.total_payment, purchasePayment, visible]);
   useEffect(() => {
-    if(props.initValue) {
+    if (props.initValue) {
       formPayment.setFieldsValue(props.initValue);
     }
   }, [formPayment, props.initValue])
+
+  const handleSearch = (value: number) => {
+    const dataArray = [
+      { percentage: value, text: `${value}% - Không bao gồm VAT`, tax: false },
+      { percentage: value, text: `${value}% - Bao gồm VAT`, tax: true },
+      { percentage: 100, text: "Thanh toán lần cuối", tax: true },
+    ]
+    if (value > 100) {
+      setDataValue([])
+      formPayment.setFieldsValue({ amount: value.toLocaleString() });
+    } else {
+      setDataValue(dataArray)
+    }
+    const amountPercent = ((value / poData.total_payment) * 100).toFixed(2) + " %"
+    setPercentPayment(amountPercent)
+  }
+
+  const handleSelect = (data: string) => {
+    const array = data.split("-")
+    const number = parseInt(array[0])
+    const taxed = array[1];
+    let percentage: string;
+    if (taxed === "true" && number === 100) {
+      formPayment.setFieldsValue({ amount: remainPayment.toLocaleString() });
+      percentage = ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%"
+    } else if (taxed === "false") {
+      const untaxedAmount = (poData.untaxed_amount * number) / 100
+      formPayment.setFieldsValue({ amount: untaxedAmount.toLocaleString() });
+      percentage = ((untaxedAmount / poData.total_payment) * 100).toFixed(2) + "%"
+    } else {
+      const amount = (poData.total_payment * number) / 100
+      percentage = ((amount / poData.total_payment) * 100).toFixed(2) + "%"
+      formPayment.setFieldsValue({ amount: amount.toLocaleString() });
+    }
+    setPercentPayment(percentage)
+  }
+  const options = dataValue.map((d: any, i) => <Select.Option key={i} value={`${d.percentage}-${d.tax}`}>{d.text}</Select.Option>);
   return (
     <Modal
       title={purchasePayment?.id ? "Sửa thanh toán " : "Tạo thanh toán "}
@@ -168,19 +226,19 @@ const PaymentModal: React.FC<PaymentModalProps> = (
       footer={
         purchasePayment && [
           <AuthWrapper acceptPermissions={[PurchaseOrderPermission.payments_delete]}>
-          <Button
-            danger
-            onClick={() => {
-              setIsVisibleModalDeleteWarning(true);
-            }}
-            style={{ float: "left" }}
-          >
-            <DeleteOutlined /> Xoá
-          </Button>
+            <Button
+              danger
+              onClick={() => {
+                setIsVisibleModalDeleteWarning(true);
+              }}
+              style={{ float: "left" }}
+            >
+              <DeleteOutlined /> Xoá
+            </Button>
           </AuthWrapper>
           ,
           <Button key="back" onClick={handleCancel}>
-            Huỷ
+            Thoát
           </Button>,
           <Button key="submit" type="primary" onClick={onOkPress}>
             {purchasePayment ? "Lưu thanh toán " : "Tạo thanh toán "}
@@ -250,13 +308,57 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                 icon: <InfoCircleOutlined />,
               }}
               help={
-                <div className="text-muted">
-                  {`Số tiền còn phải trả: ${formatCurrency(Math.round(remainPayment))}`}
+                <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                  <div className="text-muted mt-10 mb-10">
+                    {`Số tiền còn phải trả: ${formatCurrency(Math.round(remainPayment))}`}
+                  </div>
+                  <div style={{ textAlign: "right" }}>
+                    <Typography.Text type="danger">
+                      {percentPayment ? "~" + percentPayment : ""}
+                    </Typography.Text>
+                  </div>
                 </div>
               }
             >
-              <CustomInputChange totalPayment={poData.total_payment} placeholder="0" remainPayment={Math.round(remainPayment)}/>
-            </Item>           
+              {/* <CustomInputChange totalPayment={poData.total_payment} placeholder="0" remainPayment={Math.round(remainPayment)}/> */}
+              <AutoComplete
+                style={{ textAlign: 'right', width: '100%', direction: "rtl" }}
+                placeholder="0"
+                defaultActiveFirstOption={false}
+                showArrow={false}
+                onSelect={handleSelect}
+                onChange={(value) => {
+                  const number = Number(value.trim()
+                    .replaceAll(",", "")
+                    .replaceAll(".", "")
+                    .replace(/\D+/g, ""),
+                  );
+
+                  if (!number || isNaN(number)) {
+                    setDataValue([]);
+                    setPercentPayment("");
+                    formPayment.setFieldsValue({ amount: "0" });
+                    return;
+                  } else {
+                    if (remainPayment && number >= remainPayment) {
+                      const percentage = ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%"
+                      setPercentPayment(percentage)
+                      formPayment.setFieldsValue({ amount: remainPayment.toLocaleString() });
+                      return remainPayment
+                    }
+                    handleSearch(number);
+                    formPayment.setFieldsValue({
+                      amount: number.toLocaleString(),
+                    });
+                  }
+                }}
+                notFoundContent={null}
+                dropdownAlign="right"
+              >
+                {options}
+              </AutoComplete>
+
+            </Item>
           </Col>
           <Col xs={24} lg={12}>
             <Item name="reference" label="Số tham chiếu">
@@ -269,15 +371,18 @@ const PaymentModal: React.FC<PaymentModalProps> = (
           </Col>
           <Col xs={24} lg={24}>
             <Item name="note" label="Ghi chú">
-              <Input maxLength={255} placeholder="Nhập ghi chú" />
+              <TextArea rows={2} maxLength={255} placeholder="Nhập ghi chú" />
             </Item>
           </Col>
         </Row>
         <Row gutter={24}>
           <Col>
-            <Item valuePropName="checked" name="is_refund" noStyle>
-              <Checkbox>Yêu cầu nhà cung cấp hoàn tiền</Checkbox>
-            </Item>
+            <div style={{ display: "flex", alignItems: "center" }}>
+              <Item valuePropName="checked" name="is_refund" noStyle>
+                <Switch className="ant-switch-success" />
+              </Item>
+              <span style={{ marginLeft: 5 }}>Yêu cầu nhà cung cấp hoàn tiền</span>
+            </div>
           </Col>
         </Row>
       </Form>

@@ -1,5 +1,4 @@
 import { ProductPermission } from "config/permissions/product.permission";
-import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
@@ -33,12 +32,7 @@ const SizeCreateScreen = React.lazy(
 const SizeUpdateScreen = React.lazy(
   () => import("screens/products/size/size-update.screen")
 );
-const ListSupplier = React.lazy(
-  () => import("screens/products/supplier/supplier-list.screen")
-);
-const ViewSupplier = React.lazy(
-  () => import("screens/products/supplier/supplier-view.screen")
-);
+
 
 const AddCategory = React.lazy(
   () => import("screens/products/category/category-add.screen")
@@ -46,12 +40,7 @@ const AddCategory = React.lazy(
 const UpdateCategory = React.lazy(
   () => import("screens/products/category/category-update.screen")
 );
-const SupplierCreateScreen = React.lazy(
-  () => import("screens/products/supplier/add")
-);
-const SupplierUpdateScreen = React.lazy(
-  () => import("screens/products/supplier/supplier-update.screen")
-);
+
 const ColorCreateScreen = React.lazy(
   () => import("screens/products/color/color-create.screen")
 );
@@ -461,57 +450,7 @@ const product: Array<RouteMenu> = [
       },
     ],
   },
-  {
-    path: UrlConfig.SUPPLIERS,
-    exact: true,
-    title: "Nhà cung cấp",
-    icon: "icon-dot",
-    component: ListSupplier,
-    key: "submenu236",
-    isShow: true,
-    header: null,
-    permissions: [SuppliersPermissions.READ],
-    subMenu: [
-      {
-        path: `${UrlConfig.SUPPLIERS}/create`,
-        exact: true,
-        title: "Thêm mới nhà cung cấp",
-        icon: "icon-dot",
-        component: SupplierCreateScreen,
-        key: "submenu2361",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        permissions: [SuppliersPermissions.CREATE],
-      },
-      {
-        path: `${UrlConfig.SUPPLIERS}/:id/update`,
-        exact: true,
-        title: "Sửa nhà cung cấp",
-        icon: "icon-dot",
-        component: SupplierUpdateScreen,
-        key: "submenu2362",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        pathIgnore: ["create"],
-        permissions: [SuppliersPermissions.UPDATE, SuppliersPermissions.READ],
-      },
-      {
-        path: `${UrlConfig.SUPPLIERS}/:id`,
-        exact: false,
-        title: "Chi tiết nhà cung cấp",
-        icon: "icon-dot",
-        component: ViewSupplier,
-        key: "submenu2351",
-        isShow: true,
-        header: null,
-        subMenu: [],
-        permissions: [SuppliersPermissions.READ],
-      },
-
-    ],
-  },
+  
 ];
 
 export default product;

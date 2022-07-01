@@ -2,6 +2,7 @@ import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Form, Input, Row, Timeline } from "antd";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import React, { useCallback, useEffect, useState, lazy } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
@@ -19,6 +20,7 @@ type POPaymentConditionsFormProps = {
   formMain?: any;
   poDataPayments?: Array<PurchasePayments>;
   formMainEdit?: any;
+  poData?: PurchaseOrder;
 };
 
 export const TYPE_PAYMENTS = {
@@ -34,6 +36,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
     poDataPayments,
     formMainEdit,
     isEditDetail,
+    poData
   } = props;
 
   const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
@@ -43,6 +46,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
   >([]);
   const [paymentItem, setPaymentItem] = useState<PurchasePayments>();
   const [indexPurchasePayment, setIndexPurchasePayment] = useState("");
+  const [remainPayment, setRemainPayment] = useState<number>(0)
 
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
@@ -106,7 +110,14 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
     return () => {
       setPaymentsDataDraft([]);
     }
-  }, [poDataPayments]);
+  }, [formMainEdit, poDataPayments]);
+
+  useEffect(() => {
+    const totalPayment = poData?.total_payment ?? 0
+    const totalPaid = poData?.total_paid ?? 0
+    const remainPayment = totalPayment - totalPaid
+    setRemainPayment(remainPayment)
+  },[poData])
   if (!isEdit) {
     return (
       <POPaymentConditionsFormStyled>
@@ -118,7 +129,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
             </div>
           }
           extra={
-            <Button
+            (poData && <Button
               onClick={ShowPaymentModal}
               style={{
                 alignItems: "center",
@@ -128,7 +139,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
               className="create-button-custom ant-btn-outline fixed-button"
             >
               Tạo thanh toán
-            </Button>
+            </Button>)
           }
         >
           <div>
@@ -355,7 +366,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
           indexPurchasePayment={indexPurchasePayment}
           onCancel={CancelPaymentModal}
           onChangeDataPayments={onChangeDataPayments}
-          remainPayment={formMainEdit.getFieldValue(POField.total)}
+          remainPayment={remainPayment}
           deletePayment={deletePayment}
         />
       </Card>

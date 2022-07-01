@@ -134,6 +134,12 @@ const Customer = () => {
       first_order_time_to: null,
       last_order_time_from: null,
       last_order_time_to: null,
+      utm_source: null,
+      utm_medium: null,
+      utm_content: null,
+      utm_term: null,
+      utm_id: null,
+      utm_campaign: null,
 
       from_birthday: null,
       to_birthday: null,

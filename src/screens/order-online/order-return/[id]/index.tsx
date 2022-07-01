@@ -1,5 +1,6 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Col, Form, Modal, Row } from "antd";
+import 'assets/css/_modal-confirm.scss';
 import ContentContainer from "component/container/content.container";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
@@ -12,12 +13,12 @@ import {
   getLoyaltyUsage
 } from "domain/actions/loyalty/loyalty.action";
 import {
-  actionGetOrderReturnDetails,
-  actionOrderRefund,
-  actionSetIsReceivedOrderReturn
+  actionGetOrderReturnDetails, actionSetIsReceivedOrderReturn
 } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
+import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import useAuthorization from "hook/useAuthorization";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
@@ -31,7 +32,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { deleteOrderReturnService, updateNoteOrderReturnService } from "service/order/return.service";
+import { deleteOrderReturnService, getOrderReturnService, orderRefundService, updateNoteOrderReturnService } from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
@@ -45,8 +46,6 @@ import CardShowReturnProducts from "../components/CardShowReturnProducts";
 import ReturnDetailBottom from "../components/ReturnBottomBar/return-detail-bottom";
 import OrderReturnActionHistory from "../components/Sidebar/OrderReturnActionHistory";
 import OrderShortDetailsReturn from "../components/Sidebar/OrderShortDetailsReturn";
-import 'assets/css/_modal-confirm.scss';
-import { RootReducerType } from "model/reducers/RootReducerType";
 
 type PropTypes = {};
 type OrderParam = {
@@ -105,9 +104,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
     acceptPermissions: [ODERS_PERMISSIONS.RECEIVE_RETURN],
     not: false,
     acceptStoreIds:[OrderDetail?.store_id||0]
-  })
+  });
 
-  console.log("allowReceiveReturn",allowReceiveReturn)
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
 
   const renderModalNotificationReturn = (content: string) => {
     Modal.error({
@@ -269,35 +268,40 @@ const ScreenReturnDetail = (props: PropTypes) => {
           if (!OrderDetail?.id) {
             return;
           }
-          dispatch(
-            actionOrderRefund(OrderDetail?.id, { payments }, (response) => {
-              dispatch(
-                actionGetOrderReturnDetails(
-                  OrderDetail?.id,
-                  (data: OrderReturnModel) => {
-                    console.log('data333', data)
-                    if (!data) {
-                      setError(true);
-                    } else {
-                      setOrderDetail(data);
-                      if (data.payments) {
-                        setPayments(data.payments);
-                      }
-                      if (data?.payment_status) {
-                        setReturnPaymentStatus(data?.payment_status);
-                      }
-                      if (data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
-                        setIsShowPaymentMethod(true)
-                      } else {
-                        setIsShowPaymentMethod(false)
-                      }
-                      setCountChangeSubStatus(countChangeSubStatus + 1);
+          dispatch(showLoading());
+          orderRefundService(OrderDetail?.id, { payments }).then(response => {
+            if(isFetchApiSuccessful(response)) {
+              getOrderReturnService(OrderDetail?.id).then(data => {
+                if(isFetchApiSuccessful(data)) {
+                  if (!data) {
+                    setError(true);
+                  } else {
+                    let dataResult = data.data;
+                    setOrderDetail(dataResult);
+                    if (dataResult.payments) {
+                      setPayments(dataResult.payments);
                     }
+                    if (dataResult?.payment_status) {
+                      setReturnPaymentStatus(dataResult?.payment_status);
+                    }
+                    if (dataResult.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                      setIsShowPaymentMethod(true)
+                    } else {
+                      setIsShowPaymentMethod(false)
+                    }
+                    setCountChangeSubStatus(countChangeSubStatus + 1);
                   }
-                )
-              );
-            })
-          );
+                } else {
+                  handleFetchApiError(data, "Chi tiết đơn trả hàng", dispatch)
+                }
+              }).finally(() => {
+                dispatch(hideLoading())
+              })
+            } else {
+              handleFetchApiError(response, "Tạo hoàn tiền", dispatch)
+              dispatch(hideLoading())
+            }
+          })
         }
       }
     });
@@ -582,6 +586,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                   setIsShowPaymentMethod={setIsShowPaymentMethod}
                   isShowPaymentMethod={isShowPaymentMethod}
+                  canCreateMoneyRefund={canCreateMoneyRefund}
                 />
                 <CardReturnReceiveProducts
                   isDetailPage

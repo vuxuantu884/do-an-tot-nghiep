@@ -5,7 +5,9 @@ export interface DepartmentResponse extends BaseObject {
   manager_code: string,
   manager: string,
   phone: string,
+  status: string,
   address: string,
+  level: number,
   parent_id: number,
   department_id: number,
   parent: string,
@@ -19,6 +21,7 @@ export interface DepartmentView extends BaseObject {
   manager: string,
   phone: string,
   address: string,
+  isHaveChild?: boolean,
   parent: DepartmentParent | null
 }
 

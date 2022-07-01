@@ -295,7 +295,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         onValuesChange={() => setCustomerChange(true)}
       >
         <Row style={{ margin: "-17px 0px 10px 0px" }}>
-          <div className="page-filter-left">THÔNG TIN KHÁCH HÀNG</div>
+          <div className="page-filter-left 11">THÔNG TIN KHÁCH HÀNG</div>
         </Row>
         <Row gutter={24}>
           <Col xs={24} lg={12}>
@@ -630,7 +630,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             // <Form ref={shippingFormRef} layout="vertical" name="shippingAddress_add">
             <>
               <Row style={{ margin: "10px 0px 10px 0px" }}>
-                <div className="page-filter-left">THÔNG TIN GIAO HÀNG</div>
+                <div className="page-filter-left 33">THÔNG TIN GIAO HÀNG</div>
               </Row>
               <Row gutter={24} style={{ marginTop: "14px" }}>
                 <Col xs={24} lg={12}>

@@ -1,17 +1,19 @@
-import {DownOutlined} from "@ant-design/icons";
-import {Button, Card, Col, Row, Tree} from "antd";
-import {DataNode} from "antd/lib/tree";
+import { DownOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Row, Tree } from "antd";
+import { DataNode } from "antd/lib/tree";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { DepartmentsPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
-import {departmentDetailAction} from "domain/actions/account/department.action";
+import { departmentDetailAction, searchDepartmentAction } from "domain/actions/account/department.action";
 import useAuthorization from "hook/useAuthorization";
-import {DepartmentResponse} from "model/account/department.model";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useHistory, useParams} from "react-router-dom";
+import { DepartmentResponse } from "model/account/department.model";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory, useParams } from "react-router-dom";
 import RowDetail from "screens/settings/store/RowDetail";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { convertDepartment } from "utils/AppUtils";
 
 interface DepartmentParam {
   id: string;
@@ -19,33 +21,33 @@ interface DepartmentParam {
 
 const DepartmentCreateScreen: React.FC = () => {
   const history = useHistory();
-  const {id} = useParams<DepartmentParam>();
+  const { id } = useParams<DepartmentParam>();
   const idNumber = parseInt(id);
   const dispatch = useDispatch();
   const [error, setError] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const [data, setData] = useState<DepartmentResponse | null>(null);
+  const [departments, setDepartment] = useState<Array<DepartmentResponse>>([]);
 
-
-  const convertDepTree =useCallback((item:DepartmentResponse): Array<DataNode> =>{
-    let arr= [] as Array<DataNode>;
-    let node= {} as DataNode;
-    node= {
+  const convertDepTree = useCallback((item: DepartmentResponse): Array<DataNode> => {
+    let arr = [] as Array<DataNode>;
+    let node;
+    node = {
       title: item.name,
-      key: item.id
+      key: item.id,
     };
 
     if (item.children.length > 0) {
-      let childs =  [] as Array<DataNode>;
-      item.children.forEach((i)=>{
-       const c = convertDepTree(i);
-       childs = [...childs,...c];
+      let childs = [] as Array<DataNode>;
+      item.children.forEach((i) => {
+        const c = convertDepTree(i);
+        childs = [...childs, ...c];
       });
-      node = {...node, children: childs};
+      node = { ...node, children: childs };
     }
     arr.push(node);
     return arr;
-  },[])
+  }, []);
 
   const dataChildren = useMemo(() => {
     let dataNode: Array<DataNode> = [];
@@ -74,17 +76,46 @@ const DepartmentCreateScreen: React.FC = () => {
         } else {
           setError(true);
         }
-      })
+      }),
+    );
+
+    dispatch(
+      searchDepartmentAction((result) => {
+        if (result) {
+          const converted: any = convertDepartment(result);
+          setDepartment(converted);
+        }
+      }),
     );
   }, [dispatch, idNumber]);
+
+  const convertToDepartmentName = (parentId: number) => {
+    if (departments.length === 0) return "";
+
+    const departmentFiltered = departments.filter((i) => i.id === parentId);
+
+    return departmentFiltered.length > 0 ? departmentFiltered[0].name : "";
+  };
+
+  const convertStatus = (status: string) => {
+    switch (status) {
+      case "active":
+        return <span style={{ color: "#42B873" }}>Đang hoạt động</span>;
+      case "inactive":
+        return <span style={{ color: "#E24343" }}>Ngừng hoạt động</span>;
+      default:
+        return <span style={{ color: "#42B873" }}>Đang hoạt động</span>;
+    }
+  };
+
   return (
     <ContentContainer
-      title="Quản lý phòng ban"
+      title={`Phòng ban ${data?.name}`}
       isError={error}
       isLoading={loading}
       breadcrumb={[
         {
-          name: "Tổng quan",
+          name: "Cài đặt",
           path: UrlConfig.HOME,
         },
         {
@@ -92,7 +123,7 @@ const DepartmentCreateScreen: React.FC = () => {
           path: UrlConfig.DEPARTMENT,
         },
         {
-          name: data !== null ? data.name : "",
+          name: data !== null ? data.code : "",
         },
       ]}
     >
@@ -100,13 +131,22 @@ const DepartmentCreateScreen: React.FC = () => {
         <React.Fragment>
           <Row gutter={24}>
             <Col md={16} span={16}>
-              <Card title="Thông tin chi tiết">
+              <Card title="Thông tin chi tiết" extra={convertStatus(data.status)}>
                 <Row gutter={50}>
+                  <Col span={24}>
+                    <RowDetail title="Mã phòng ban" value={data.code} />
+                  </Col>
                   <Col span={24}>
                     <RowDetail title="Tên phòng ban" value={data.name} />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Quản lý" value={data.manager} />
+                    <RowDetail title="Quản lý" value={`${data.manager_code} - ${data.manager}`} />
+                  </Col>
+                  <Col span={24}>
+                    <RowDetail title="Cấp độ" value={data.level} />
+                  </Col>
+                  <Col span={24}>
+                    <RowDetail title="Trực thuộc" value={convertToDepartmentName(data.parent_id)} />
                   </Col>
                 </Row>
                 <Row gutter={50}>
@@ -116,13 +156,19 @@ const DepartmentCreateScreen: React.FC = () => {
                   <Col span={24}>
                     <RowDetail title="Địa chỉ" value={data.address} />
                   </Col>
+                  <Col span={24}>
+                    <RowDetail title="Người tạo" value={`${data.created_by} - ${data.created_name}`} />
+                  </Col>
+                  <Col span={24}>
+                    <RowDetail title="Ngày tạo" value={ConvertUtcToLocalDate(data.created_date, DATE_FORMAT.DDMMYYY)} />
+                  </Col>
                 </Row>
               </Card>
             </Col>
             <Col md={8} span={8}>
               <Card title="Sơ đồ tổ chức">
                 <Tree
-                  showLine={{showLeafIcon: false}}
+                  showLine={{ showLeafIcon: false }}
                   defaultExpandAll
                   defaultSelectedKeys={["0-0-0"]}
                   switcherIcon={<DownOutlined />}

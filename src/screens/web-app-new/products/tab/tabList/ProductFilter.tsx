@@ -12,6 +12,7 @@ import filterIcon from "assets/icon/filter.svg";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response"
 import { useDispatch } from "react-redux"
 import { getWebAppShopList } from "domain/actions/web-app/web-app.actions"
+import moment from "moment"
 
 type ProductFilterProps = {
     params: WebAppProductQuery;
@@ -33,15 +34,15 @@ const ProductFilter = (props: ProductFilterProps) => {
     const [createdClick, setCreatedClick] = useState('');
     const [shopList, setShopList] = useState<Array<WebAppResponse>>([]);
 
-    useEffect(() => {
-        if((params.connected_date_from !== null && params.connected_date_from.length > 10) || (params.connected_date_from != null && params.connected_date_from._isUTC)){
-            params.connected_date_from = ConvertUtcToLocalDate(params.connected_date_from, "DD-MM-YYYY")
-        }
-        if((params.connected_date_to !== null && params.connected_date_to.length > 10) || (params.connected_date_to !== null && params.connected_date_to._isUTC)){
-            params.connected_date_to = ConvertUtcToLocalDate(params.connected_date_to, "DD-MM-YYYY")
-        }
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    },[params.connected_date_from,params.connected_date_to])
+    // useEffect(() => {
+    //     if((params.connected_date_from !== null && params.connected_date_from.length > 10) || (params.connected_date_from != null && params.connected_date_from._isUTC)){
+    //         params.connected_date_from = ConvertUtcToLocalDate(params.connected_date_from, "DD-MM-YYYY")
+    //     }
+    //     if((params.connected_date_to !== null && params.connected_date_to.length > 10) || (params.connected_date_to !== null && params.connected_date_to._isUTC)){
+    //         params.connected_date_to = ConvertUtcToLocalDate(params.connected_date_to, "DD-MM-YYYY")
+    //     }
+    //     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // },[params.connected_date_from,params.connected_date_to])
 
     //init params
     const initialFormValues: WebAppProductQuery = {
@@ -73,6 +74,7 @@ const ProductFilter = (props: ProductFilterProps) => {
         let newParams = { ...params };
         if (tag.key === "created_date") {
             newParams = { ...newParams, ...{ connected_date_from: null, connected_date_to: null } };
+            setCreatedClick("");
         }
         if (tag.key === "shop_ids") {
             newParams = { ...newParams, ...{ shop_ids: [] } };
@@ -172,11 +174,11 @@ const ProductFilter = (props: ProductFilterProps) => {
         if (params.connected_date_from || params.connected_date_to) {
             let text =
                 (params.connected_date_from
-                    ? params.connected_date_from
+                    ? moment(params.connected_date_from, "DD-MM-YYYY").format("DD-MM-YYYY")
                     : "??") +
                 " ~ " +
                 (params.connected_date_to
-                    ? params.connected_date_to
+                    ? moment(params.connected_date_to, "DD-MM-YYYY").format("DD-MM-YYYY")
                     : "??");
             filters.push({
                 key: "created_date",
@@ -196,8 +198,8 @@ const ProductFilter = (props: ProductFilterProps) => {
             sku_or_name_core: params.sku_or_name_core,
             connect_status: params.connect_status,
             update_stock_status: params.update_stock_status,
-            connected_date_from: params.connected_date_from !== null ? ConvertUtcToLocalDate(params.connected_date_from, "DD-MM-YYYY") : null ,
-            connected_date_to: params.connected_date_to !== null ? ConvertUtcToLocalDate(params.connected_date_to, "DD-MM-YYYY") : null
+            connected_date_from: params.connected_date_from,
+            connected_date_to: params.connected_date_to
         }); 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [params]);

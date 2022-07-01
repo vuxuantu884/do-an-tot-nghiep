@@ -6,6 +6,7 @@ import isEmpty from "lodash/isEmpty";
 import { PODataSourceGrid, PODataSourceVariantItemGrid, POLineItemColor, POLineItemGridSchema, POLineItemGridValue, POPairSizeQuantity } from "model/purchase-order/purchase-order.model";
 import React, { createRef, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 import { getTotalPriceOfAllLineItem, initSchemaLineItem, initValueLineItem, summaryContentByLineItemType } from "utils/POUtils";
 import { sortSizeProduct } from "utils/ProductUtils";
@@ -342,7 +343,7 @@ const POProductForm = ({
       width: 100,
       render: (text: string, row: PODataSourceGrid, index: number) => {
         const obj: any = {
-          children: text,
+          children: <Link target="_blank" to={`${UrlConfig.PRODUCT}/${row.productId}`}>{text}</Link>,
           props: {},
         };
         const { schemaIndex } = row;
