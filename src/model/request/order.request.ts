@@ -511,6 +511,7 @@ export interface OrderBillRequestFormModel {
   address: string | undefined;
   pic: string | undefined;
   note: string | undefined;
+  email: string | undefined;
   contract: boolean;
 }
 

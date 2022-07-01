@@ -8,6 +8,7 @@ import { useDispatch } from "react-redux";
 import { getDetailOrderApi } from "service/order/order.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { OrderStatus } from "utils/Constants";
+import { RegUtil } from "utils/RegUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -50,6 +51,7 @@ function OrderBillRequestModal(props: PropTypes) {
       address: undefined,
       pic: undefined,
       note: undefined,
+      email: undefined,
       contract: false,
     };
   }, [initOrderBillRequest]);
@@ -116,6 +118,7 @@ function OrderBillRequestModal(props: PropTypes) {
               pic: bill.pic,
               note: bill.note,
               contract: bill.contract,
+              email: bill.email,
             } 
             form.setFieldsValue(initValueResult);
           } else {
@@ -150,15 +153,15 @@ function OrderBillRequestModal(props: PropTypes) {
           <div>
             <Form.Item
               name="company"
-              label="Tên công ty"
+              label="Tên đơn vị mua hàng"
               rules={[
                 {
                   required: true,
-                  message: "Bạn chưa nhập tên công ty",
+                  message: "Bạn chưa nhập tên đơn vị mua hàng",
                 },
               ]}
             >
-              <Input placeholder="Nhập tên công ty" disabled={isDisableUpdateExportRequest && !!orderBillId}/>
+              <Input placeholder="Nhập tên đơn vị mua hàng" disabled={isDisableUpdateExportRequest && !!orderBillId}/>
             </Form.Item>
           </div>
           <Row gutter={30}>
@@ -179,30 +182,48 @@ function OrderBillRequestModal(props: PropTypes) {
             <Col span={12}>
               <Form.Item
                 name="pic"
-                label="Người đại diện"
+                label="Người đại diện theo pháp luật"
                 rules={[
                   {
                     required: true,
-                    message: "Bạn chưa nhập người đại diện",
+                    message: "Bạn chưa nhập người đại diện theo pháp luật",
                   },
                 ]}
               >
-                <Input placeholder="Nhập người đại diện" disabled={isDisableUpdateExportRequest && !!orderBillId} />
+                <Input placeholder="Nhập người đại diện theo pháp luật" disabled={isDisableUpdateExportRequest && !!orderBillId} />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item
             name="address"
-            label="Địa chỉ"
+            label="Địa chỉ xuất hóa đơn"
             rules={[
               {
                 required: true,
-                message: "Bạn chưa nhập địa chỉ",
+                message: "Bạn chưa nhập địa chỉ xuất hóa đơn",
               },
             ]}
           >
-            <Input placeholder="Nhập địa chỉ" disabled={isDisableUpdateExportRequest && !!orderBillId} />
+            <Input placeholder="Nhập địa chỉ xuất hóa đơn" disabled={isDisableUpdateExportRequest && !!orderBillId} />
           </Form.Item>
+
+          <Form.Item
+            name="email"
+            label="Email nhận hóa đơn điện tử"
+            rules={[
+              {
+                required: true,
+                message: "Bạn chưa nhập email nhận hóa đơn điện tử",
+              },
+              {
+                pattern: RegUtil.EMAIL,
+                message: "Vui lòng nhập đúng định dạng email",
+              },
+            ]}
+          >
+            <Input placeholder="Nhập email nhận hóa đơn điện tử" disabled={isDisableUpdateExportRequest && !!orderBillId} />
+          </Form.Item>
+
           <Form.Item
             name="contract"
             valuePropName="checked"

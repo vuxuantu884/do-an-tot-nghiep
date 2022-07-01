@@ -22,7 +22,7 @@ function OrderBillRequestDetailModal(props: PropTypes) {
 
   const information = [
     {
-      title: "Tên công ty",
+      title: "Tên đơn vị mua hàng",
       value: bill?.company
     },
     {
@@ -30,12 +30,16 @@ function OrderBillRequestDetailModal(props: PropTypes) {
       value: bill?.tax
     },
     {
-      title: "Địa chỉ",
+      title: "Địa chỉ xuất hóa đơn",
       value: bill?.address
     },
     {
-      title: "Người đại diện",
+      title: "Người đại diện theo pháp luật",
       value: bill?.pic
+    },
+    {
+      title: "Email nhận hóa đơn điện tử",
+      value: bill?.email
     },
     {
       title: "Ghi chú",
@@ -69,7 +73,7 @@ function OrderBillRequestDetailModal(props: PropTypes) {
                   <Col span={8}>
                     <div className="label">{single.title}:</div>
                   </Col>
-                  <Col span={16}><strong>{single.value}</strong></Col>
+                  <Col span={16}><strong>{single.value || "-"}</strong></Col>
                 </Row>
               )
             })}

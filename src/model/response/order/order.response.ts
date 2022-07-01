@@ -544,4 +544,5 @@ export interface OrderBillResponseModel extends BaseObject{
   order_id: number;
   pic: string;
   tax: string;
+  email: string;
 }
