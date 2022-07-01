@@ -6,8 +6,7 @@ import {
   Empty,
   Form,
   FormInstance,
-  Input,
-  Row,
+  Input, Row,
   Table,
   TablePaginationConfig,
   Tooltip
@@ -36,7 +35,7 @@ import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import useKeyboardJs from 'react-use/lib/useKeyboardJs';
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
 import { POStatus, ProcumentStatus } from "utils/Constants";
 import { getTotalAmountByLineItemType, getUntaxedAmountByLineItemType, POUtils, summaryContentByLineItemType } from "utils/POUtils";
 import { showError } from "utils/ToastUtils";
@@ -690,7 +689,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         <img
                           src={value === null ? imgDefIcon : value}
                           alt=""
-                          className=""
                         />
                       </div>
                     ),
@@ -828,9 +826,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           style={{ width: "80%" }}
                           min={0}
                           format={(a: string) => formatCurrency(a ? a : 0, '')}
-                          replace={(a: string) => replaceFormatString(a)}
+                          replace={(value?: string) => {
+                            let parseValue = 0
+                            if (value) {
+                              parseValue = parseLocaleNumber(value);
+                            }
+                            return parseValue + "";
+                          }}
                           onPressEnter={(e) => {
-                            handleChangeAllPriceLineItem(e.target.value || 0)
+                            const value = parseLocaleNumber(e.target.value)
+                            handleChangeAllPriceLineItem(value)
                           }}
                         />
                       </div>
