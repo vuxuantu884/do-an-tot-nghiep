@@ -964,6 +964,7 @@ const PODetailScreen: React.FC = () => {
                 formMainEdit={formMain}
                 listPayment={listPaymentConditions}
                 isEditDetail={isEditDetail}
+                poData={purchaseOrder}
               />
             )}
             {showPOReturnList()}
