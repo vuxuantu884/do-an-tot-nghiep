@@ -38,6 +38,8 @@ type AddGiftModalProps = {
 const initQuery: VariantSearchQuery = {
   limit: 10,
   page: 1,
+  saleable: true,
+	active: true,
 };
 export interface AddGiftRef {
   setGifts: (items: Array<OrderLineItemRequest>) => void;

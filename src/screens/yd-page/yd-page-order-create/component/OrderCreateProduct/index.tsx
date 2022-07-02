@@ -143,6 +143,7 @@ const initQueryVariant: VariantSearchQuery = {
 	limit: 50,
 	page: 1,
 	saleable: true,
+	active: true,	
 };
 
 
