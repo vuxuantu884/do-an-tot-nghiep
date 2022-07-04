@@ -236,6 +236,7 @@ function OrderCreateProduct(props: PropTypes) {
 	} = props;
 
 	console.log('items', items)
+	console.log('promotion', promotion)
 	const orderCustomer = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
 
 	const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
@@ -2284,13 +2285,15 @@ function OrderCreateProduct(props: PropTypes) {
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);
 
-	// đợi 3s cho load trang xong thì sẽ update trong trường hợp clone, update
+	// đợi 3s cho load trang xong thì sẽ update trong trường hợp clone
 	useEffect(() => {
-		setTimeout(() => {
-			isShouldUpdateCouponRef.current = true;
-			isShouldUpdateDiscountRef.current = true;
-		}, 3000);
-	}, []);
+		if(!props.updateOrder) {
+			setTimeout(() => {
+				isShouldUpdateCouponRef.current = true;
+				isShouldUpdateDiscountRef.current = true;
+			}, 3000);
+		}
+	}, [props.updateOrder]);
 
 	useEffect(() => {
 		if (items && items.length === 0) {

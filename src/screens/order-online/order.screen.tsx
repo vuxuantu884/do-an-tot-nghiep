@@ -825,6 +825,9 @@ export default function Order() {
 							}
 							if (response?.discounts && response?.discounts[0]) {
 								setPromotion(response?.discounts[0])
+								if(response.discounts[0].discount_code) {
+									setCoupon(response.discounts[0].discount_code)
+								}
 							}
 							let newDatingShip = initialForm.dating_ship;
 							let newShipperCode = initialForm.shipper_code;
