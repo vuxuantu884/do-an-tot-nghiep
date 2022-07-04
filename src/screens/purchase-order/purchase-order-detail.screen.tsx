@@ -77,6 +77,7 @@ import PurchaseOrderProvider, {
 } from "./provider/purchase-order.provider";
 import POInfoPO from "./component/po-info-po";
 import ModalConfirm from "component/modal/ModalConfirm";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
 const ModalExport = lazy(() => import("./modal/ModalExport"));
@@ -509,6 +510,15 @@ const PODetailScreen: React.FC = () => {
     if (!purchaseOrder) return [];
     const poStatus = purchaseOrder.status;
     if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO) {
+      menuActions.push({
+        id: ActionMenu.DELETE,
+        name: "Hủy",
+      });
+    }
+    const poProcurementsStatus: Array<string> = purchaseOrder?.procurements?.map((item: PurchaseProcument) => item.status).slice(1)
+    // lấy tất cả status của pr trừ pr đầu tiên (bù nhìn)
+    // cho phép hủy PO khi các phiếu PR đã hủy
+    if(poStatus && poStatus === POStatus.STORED && poProcurementsStatus.every((el) => el === ProcumentStatus.CANCELLED) && canCancelPO) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",
