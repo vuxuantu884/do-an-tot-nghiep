@@ -25,7 +25,7 @@ import { WebAppResponse } from "model/response/web-app/ecommerce.response";
 
 type ProductNotConnectProps = {
     handleMappingVariantJob: (x: any) => void;
-    exportFileProduct?: (variantData: any, selectedRows: any, params: any) => void;
+    exportFileProduct?: (selectedRows: any, params: any) => void;
     getVariantData?: (variantData: any) => void;
     isReloadData?: boolean;
 }
@@ -266,7 +266,7 @@ const ProductNotConnect = (props: ProductNotConnectProps) => {
         <Menu>
             <Menu.Item
                 key="2"
-                onClick={() => exportFileProduct && exportFileProduct(variantData, selectedRows, params)}
+                onClick={() => exportFileProduct && exportFileProduct(selectedRows, params)}
                 disabled={!variantData.metadata || !variantData.metadata.total}
             >
                 <span>Xuất excel sản phẩm</span>

@@ -124,7 +124,7 @@ const WebAppProducts = () => {
         {
             value: ExportFileType.CURRENT_SEARCH,
             name: ExportFileType.CURRENT_SEARCH,
-            title: `${variantData.metadata.total} đơn hàng phù hợp với điều kiện tìm kiếm hiện tại`,
+            title: `${variantData.metadata.total} sản phẩm phù hợp với điều kiện tìm kiếm hiện tại`,
             isHidden: false,
             isChecked: false
         }
