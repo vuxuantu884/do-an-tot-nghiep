@@ -17,7 +17,7 @@ interface VariantListProps {
   loading?: boolean;
   disabledAction?: boolean,
   productData?: ProductResponse,
-  canUpdateCost?: boolean
+  canUpdateSaleable?: boolean
 }
 
 const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
@@ -93,12 +93,12 @@ const VariantList: React.FC<VariantListProps> = (props: VariantListProps) => {
                   {
                     id: 1,
                     name: "Ngừng bán",
-                    disabled: !props.canUpdateCost
+                    disabled: !props.canUpdateSaleable
                   },
                   {
                     id: 2,
                     name: "Cho phép bán",
-                    disabled: !props.canUpdateCost
+                    disabled: !props.canUpdateSaleable
                   },
                 ]}
               />

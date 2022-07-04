@@ -166,6 +166,9 @@ const ProductDetailScreen: React.FC = () => {
   });
   const [canUpdateImport] = useAuthorization({
     acceptPermissions: [ProductPermission.update_import],
+  });  
+  const [canUpdateSaleable] = useAuthorization({
+    acceptPermissions: [ProductPermission.update_saleable],
   });
   const setCurrentVariant = useCallback(
     (newActive: number) => {
@@ -1244,7 +1247,7 @@ const ProductDetailScreen: React.FC = () => {
                         active={active}
                         setActive={onActive}
                         productData={data}
-                        canUpdateCost={canUpdateCost}
+                        canUpdateSaleable={canUpdateSaleable}
                       />
                     </Item>
                     <Divider />
@@ -1263,7 +1266,7 @@ const ProductDetailScreen: React.FC = () => {
                                   </div>
                                   <div className="header-view-right">
                                     {
-                                      canUpdateCost && 
+                                      canUpdateSaleable && 
                                       <>
                                       <b>Cho phép bán:</b>
                                       <Form.Item

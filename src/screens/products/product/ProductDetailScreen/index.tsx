@@ -88,8 +88,8 @@ const ProductDetailScreen: React.FC = () => {
     },
   });
   const idNumber = parseInt(id);
-  const [canUpdateCost] = useAuthorization({
-    acceptPermissions: [ProductPermission.update_cost],
+  const [canUpdateSaleable] = useAuthorization({
+    acceptPermissions: [ProductPermission.update_saleable],
   });
 
   const onEdit =() => {
@@ -597,7 +597,7 @@ const tab= document.getElementById("tab");
                         }}
                         loading={loadingVariant}
                         productData={data}
-                        canUpdateCost={canUpdateCost}
+                        canUpdateSaleable={canUpdateSaleable}
                       />
                     </Col>
 
@@ -609,7 +609,7 @@ const tab= document.getElementById("tab");
                               <b>THÔNG TIN PHIÊN BẢN</b>
                             </div>
                             <div className="header-view-right">
-                              {canUpdateCost && <Switch
+                              {canUpdateSaleable && <Switch
                                   onChange={onChangeChecked}
                                   className="ant-switch-success"
                                   disabled={data.status === "inactive"}
