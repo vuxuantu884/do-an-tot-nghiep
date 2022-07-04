@@ -212,15 +212,18 @@ const CreateTicket: FC = () => {
 
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === selectedItem?.sku
+        (variant: VariantResponse) => variant.sku === selectedItem?.sku,
       )
     ) {
-      setDataTable((prev: any) => prev.concat([{...selectedItem, transfer_quantity: 1}]));
-      dataTemp = dataTemp.concat([{...selectedItem, transfer_quantity: 1}]);
-    }else{
-      const indexItem = dataTemp.findIndex(e=>e.sku === item.sku);
+      setDataTable((prev: any) => prev.concat([{ ...selectedItem, transfer_quantity: 1 }]));
+      dataTemp = [
+        ...[{ ...selectedItem, transfer_quantity: 1 }],
+        ...dataTemp,
+      ];
+    } else {
+      const indexItem = dataTemp.findIndex(e => e.sku === item.sku);
 
-      dataTemp[indexItem].transfer_quantity +=1;
+      dataTemp[indexItem].transfer_quantity += 1;
     }
     setDataTable([...dataTemp]);
     setResultSearch([]);

@@ -16,7 +16,8 @@ import arrowLeft from "assets/icon/arrow-back.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import { useDispatch } from "react-redux";
 import {
-  creatInventoryTransferAction, creatInventoryTransferRequestAction,
+  creatInventoryTransferAction,
+  creatInventoryTransferRequestAction,
   deleteInventoryTransferAction,
   getCopyDetailInventoryTransferAction,
   getDetailInventoryTransferAction,
@@ -313,16 +314,21 @@ const UpdateTicket: FC = () => {
 
     if (
       !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === newResult.sku
+        (variant: VariantResponse) => variant.sku === newResult.sku,
       )
-    )  {
-      setDataTable((prev: any) => prev.concat([{...newResult, transfer_quantity: 1}]));
-    }else{
+    ) {
+      setDataTable((prev: any) => {
+        return [
+          ...[{ ...newResult, transfer_quantity: 1 }],
+          ...prev,
+        ];
+      });
+    } else {
       dataTemp?.forEach((e: VariantResponse) => {
         if (e.sku === selectedItem.sku) {
           e.transfer_quantity += 1;
         }
-      })
+      });
       setDataTable(dataTemp);
     }
     setKeySearch("");

@@ -92,7 +92,7 @@ export const findCurrentRoute = (
             if(!subMenuPathArr.includes(path))  {
             const pathArray = path.split("/")
             const subPath = []
-            // xử lý trường hợp lấy subroute active /purchase-orders/123/procurements/345 
+            // xử lý trường hợp lấy subroute active /purchase-orders/123/procurements/345
             for (let i = 1; i < pathArray.length + 1; i += 2) {
               pathArray[i] && subPath.push(pathArray[i])
             }
@@ -469,7 +469,8 @@ export const replaceFormatString = (currency: number | string): string => {
 
 export const findAvatar = (VariantImage: Array<VariantImage>): string => {
   let avatar: string = "";
-  VariantImage.forEach((v) => {
+
+  VariantImage?.length > 0 && VariantImage.forEach((v) => {
     if (v.variant_avatar) {
       avatar = v.url;
     }
