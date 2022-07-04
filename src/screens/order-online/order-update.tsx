@@ -187,7 +187,8 @@ export default function Order(props: PropTypes) {
 
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
-
+console.log('promotion33', promotion)
+console.log('coupon', coupon)
 	const listStores = useFetchStores();
 
 	const onChangeInfoProduct = (
@@ -1071,7 +1072,10 @@ export default function Order(props: PropTypes) {
 						setTag(response.tags);
 					}
 					if (response?.discounts && response?.discounts[0]) {
-						setPromotion(response?.discounts[0])
+						setPromotion(response?.discounts[0]);
+						if(response.discounts[0].discount_code) {
+							setCoupon(response.discounts[0].discount_code)
+						}
 					}
 					setIsLoadForm(true);
 					if (response.export_bill) {
