@@ -877,7 +877,7 @@ function OrderList(props: PropTypes) {
         breadcrumb={pageTitle.breadcrumb}
         extra={
           <Row>
-            <Space>
+            <Space className="buttonLinks">
               {/* <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.IMPORT]} passThrough>
                 {(isPassed: boolean) => (
                   <Button
@@ -922,7 +922,7 @@ function OrderList(props: PropTypes) {
               ) : (
                 <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
                   {(isPassed: boolean) => (
-                    <a href={process.env.REACT_APP_BASE_POS || ""} target="_blank" rel="noreferrer">
+                    <a href={process.env.REACT_APP_BASE_POS || ""} target="_blank" rel="noreferrer" className="buttonLink">
                       <Button
                         type="primary"
                         className="ant-btn-primary"
