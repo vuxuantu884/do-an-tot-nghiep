@@ -34,6 +34,7 @@ export const ProductPermission = {
   update_cost: `${products}_update_cost`,
   read_import: `${products}_read_import`,
   update_import: `${products}_update_import`,
+  update_saleable: `${products}_update_saleable`,
   collections_create : `${products}_collections_create`,
   collections_update : `${products}_collections_update`,
   collections_delete : `${products}_collections_delete`,
