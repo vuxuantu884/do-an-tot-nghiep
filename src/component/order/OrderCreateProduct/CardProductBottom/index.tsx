@@ -31,7 +31,7 @@ type PropType = {
 	returnOrderInformation?: {
 		totalAmountReturn: number;
 	};
-	handleRemoveAllDiscount: () => void;
+	handleRemoveAllAutomaticDiscount: () => void;
 };
 
 function CardProductBottom(props: PropType) {
@@ -54,7 +54,7 @@ function CardProductBottom(props: PropType) {
 		calculateChangeMoney,
 		setCoupon,
 		setCouponInputText,
-		handleRemoveAllDiscount,
+		handleRemoveAllAutomaticDiscount,
 	} = props;
 
 	let discountRate = promotion?.rate || 0;
@@ -166,7 +166,7 @@ function CardProductBottom(props: PropType) {
 									closable
 									onClose={() => {
 										setPromotion && setPromotion(null)
-										handleRemoveAllDiscount();
+										handleRemoveAllAutomaticDiscount();
 										setCoupon && setCoupon("");
 										setCouponInputText && setCouponInputText("");
 									}}
