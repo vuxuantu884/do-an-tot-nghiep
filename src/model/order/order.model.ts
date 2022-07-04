@@ -328,3 +328,7 @@ export type CalculateVariantPointInOrderModel = {
   point_subtract: number;
   variant_id: number;
 }
+
+export interface OrderWithFulfillmentActiveModel extends OrderModel{
+  fulfillment_active?:FulFillmentResponse;
+}

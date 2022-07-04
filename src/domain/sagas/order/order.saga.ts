@@ -136,7 +136,7 @@ function* getListOrderCustomerSaga(action: YodyAction) {
 function* getShipmentsSaga(action: YodyAction) {
   let { query, setData, handleError } = action.payload;
   try {
-    let response: BaseResponse<Array<ShipmentModel>> = yield call(getShipmentApi, query);
+    let response: BaseResponse<PageResponse<ShipmentModel>> = yield call(getShipmentApi, query);
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
     } else {

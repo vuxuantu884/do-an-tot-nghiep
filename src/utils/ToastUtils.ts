@@ -40,9 +40,21 @@ export const showInfo = (msg: ReactNode) => {
 	cogoToast.info(msg, option)
 }
 
-  export const showModalError = (msg: ReactNode, title?: string) => {
+export const showModalSuccess = (msg: ReactNode, title?: string) => {
+	Modal.success({
+		title: title || 'Thông báo',
+		content: msg,
+	});
+};
+export const showModalError = (msg: ReactNode, title?: string) => {
 	Modal.error({
 		title: title || 'Thông báo lỗi',
+		content: msg,
+	});
+};
+export const showModalWarning = (msg: ReactNode, title?: string) => {
+	Modal.warning({
+		title: title || 'Cảnh báo',
 		content: msg,
 	});
 };

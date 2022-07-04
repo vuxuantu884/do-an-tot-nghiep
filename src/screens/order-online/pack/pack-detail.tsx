@@ -23,7 +23,7 @@ import './styles.scss';
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import PackDetailBottomBar from "./detail/pack-detail-bottom-bar";
-import { isFulfillmentActive } from "utils/OrderUtils";
+import { getFulfillmentActive } from "utils/OrderUtils";
 
 type PackParam = {
   id: string;
@@ -57,7 +57,7 @@ const PackDetail: React.FC = () => {
 
   const fetchProductData = useCallback((storeId:number, order : GoodsReceiptsOrder[])=>{
     let listVariant :OrderLineItemResponse[] =flattenArray(order.map((p)=>{
-      return isFulfillmentActive(p.fulfillments)?.items
+      return getFulfillmentActive(p.fulfillments)?.items
     }));
     
     let uniqueListVariant : OrderLineItemResponse[]=[];
@@ -145,7 +145,7 @@ const PackDetail: React.FC = () => {
 
             let _itemProduct: FulfillmentsItemModel[] = [];
             
-            let fulfillments = isFulfillmentActive(itemOrder.fulfillments);
+            let fulfillments = getFulfillmentActive(itemOrder.fulfillments);
             if (fulfillments) {
               total_quantity += fulfillments.total_quantity ? fulfillments.total_quantity : 0;
               total_price += fulfillments.total ? fulfillments.total : 0;

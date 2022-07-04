@@ -31,10 +31,10 @@ function PackList() {
   const orderPackContextData = useContext(OrderPackContext);
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
   const isFulFillmentPack = orderPackContextData?.isFulFillmentPack;
-  const packModel = orderPackContextData?.packModel;
-  const setPackModel = orderPackContextData?.setPackModel;
+  const singlePack = orderPackContextData?.singlePack;
+  const setSinglePack = orderPackContextData?.setSinglePack;
   const orderData: OrderResponseTable[] | undefined = useMemo(() => {
-    let order = orderPackContextData?.packModel?.order;
+    let order = orderPackContextData?.singlePack?.fulfillments;
     let result = order?.map((p, index) => ({ ...p, key: index }));
 
     return result
@@ -47,46 +47,28 @@ function PackList() {
   const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
   const removeOrderPacked = useCallback((code: string) => {
-    if (packModel && packModel.order) {
-      let order = [...packModel.order];
-      const index = order.findIndex(p => p.code === code)
-      console.log("order", order)
-      order.splice(index, 1)
+    if (singlePack && singlePack.fulfillments) {
+      let fulfillments = [...singlePack.fulfillments];
+      const index = fulfillments.findIndex(p => p.code === code)
+      console.log("order", fulfillments)
+      fulfillments.splice(index, 1)
       let packData: PackModel = {
         ...new PackModelDefaultValue(),
-        ...packModel,
-        order: [...order]
+        ...singlePack,
+        fulfillments: [...fulfillments]
       }
 
-      setPackModel(packData);
+      setSinglePack(packData);
       setPackInfo(packData);
     }
 
-  }, [packModel, setPackModel])
+  }, [singlePack, setSinglePack])
 
   useEffect(() => {
     if (!orderData || (orderData && orderData.length <= 0)) {
       setResultPaging(resultPagingDefault)
     }
     else {
-      // let total: number = orderData.length;
-      // let totalPage: number = Math.ceil(total / pagingParam.perPage);
-
-      // if (pagingParam.currentPage > total)
-      //   pagingParam.currentPage = totalPage;
-
-      // let start: number = (pagingParam.currentPage - 1) * pagingParam.perPage;
-      // let end: number = start + pagingParam.perPage;
-      // let orderDataCopy = orderData.slice(start, end);
-
-      // let result: ResultPaging = {
-      //   currentPage: pagingParam.currentPage,
-      //   lastPage: totalPage,
-      //   perPage: pagingParam.perPage,
-      //   total: total,
-      //   result: orderDataCopy
-      // }
-
       let result = flatDataPaging(orderData, pagingParam)
 
       setResultPaging(result);
@@ -194,7 +176,6 @@ function PackList() {
   ];
 
   const onSelectedChange = (selectedRow: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
-    console.log(changeRow)
     let isFulFillmentPackCopy = [...isFulFillmentPack];
 
     if (selected === true) {
@@ -216,7 +197,6 @@ function PackList() {
     }
 
     setIsFulFillmentPack([...isFulFillmentPackCopy]);
-    console.log("code", isFulFillmentPackCopy);
   };
 
   // console.log("isFulFillmentPack",isFulFillmentPack)

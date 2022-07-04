@@ -523,6 +523,10 @@ export interface PackFulFillmentResponse extends FulFillmentResponse{
   order_code:string;
   customer:string;
   customer_id:number;
+  shipment_pushing_note:string;
+  shipment_pushing_status:string;
+  shipment_delivery_service_note:string;
+  shipment_expected_received_date:string;
 }
 
 export interface OrderReturnResponse {

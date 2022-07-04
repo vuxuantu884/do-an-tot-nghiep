@@ -30,6 +30,8 @@ export interface Shipment {
   cod: number;
 	reference_status: string;
   tracking_code: string;
+  pushing_status:string;
+  delivery_service_note?:string;
 }
 export interface ShipmentModel {
   id: number;
@@ -66,6 +68,8 @@ export interface ShipmentModel {
 		id: number;
 		name: string;
 	}
+  delivery_service_note?:string;
+  expected_received_date?:string;
 }
 
 export interface ShipmentSearchQuery {

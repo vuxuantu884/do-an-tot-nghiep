@@ -1,3 +1,5 @@
+import { PackModel } from "model/pack/pack.model";
+
 const ACCESS_TOKEN = "access_token";
 const SETTING_APP = "setting_app";
 const PACKINFO_APP = "packinfo_app";
@@ -28,7 +30,7 @@ const getSettingApp = (): String | null => {
   return localStorage.getItem(SETTING_APP);
 };
 
-const setPackInfo = (appSeting: any) => {
+const setPackInfo = (appSeting: PackModel) => {
   let data: string = JSON.stringify(appSeting);
   localStorage.setItem(PACKINFO_APP, data);
 };

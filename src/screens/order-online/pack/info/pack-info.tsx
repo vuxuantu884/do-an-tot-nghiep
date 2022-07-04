@@ -21,8 +21,8 @@ import {
 } from "model/response/order/order.response";
 import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory } from "react-router-dom";
-import { formatCurrency } from "utils/AppUtils";
+import { Link } from "react-router-dom";
+import { formatCurrency, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import emptyProduct from "assets/icon/empty_products.svg";
 import { setPackInfo } from "utils/LocalStorageUtils";
@@ -36,6 +36,7 @@ import { VariantResponse } from "model/product/product.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { ArrowRightOutlined } from "@ant-design/icons";
+import { getShipmentApi } from "service/order/order.service";
 
 interface OrderLineItemResponseExt extends OrderLineItemResponse {
   pick: number;
@@ -46,7 +47,6 @@ interface OrderLineItemResponseExt extends OrderLineItemResponse {
 var barcode = "";
 
 const PackInfo: React.FC = () => {
-  const history = useHistory();
   const dispatch = useDispatch();
 
   //form
@@ -83,8 +83,8 @@ const PackInfo: React.FC = () => {
   //context
   const orderPackContextData = useContext(OrderPackContext);
 
-  const setPackModel = orderPackContextData?.setPackModel;
-  const packModel = orderPackContextData?.packModel;
+  const setSinglePack = orderPackContextData?.setSinglePack;
+  const singlePack = orderPackContextData?.singlePack;
   const listStoresDataCanAccess = orderPackContextData?.listStoresDataCanAccess;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
 
@@ -196,12 +196,12 @@ const PackInfo: React.FC = () => {
                 setDisableStoreId(true);
                 setDisableDeliveryProviderId(true);
                 setDisableOrder(true);
-                setPackModel({
+                setSinglePack({
                   ...new PackModelDefaultValue(),
-                  ...packModel,
+                  ...singlePack,
                   store_id: storeId
                 });
-                setPackInfo({ ...packModel, store_id: storeId });
+                setPackInfo({...new PackModelDefaultValue(), ...singlePack, store_id: storeId });
                 formRef.current?.setFieldsValue({
                   store_request: storeId
                 })
@@ -211,7 +211,6 @@ const PackInfo: React.FC = () => {
               else
                 showError("Đơn hàng không thuộc cửa hàng được phân bổ");
               orderRequestElement?.blur();
-
 
               handleProducrSearch(fMSuccess[0])
             } else {
@@ -226,7 +225,7 @@ const PackInfo: React.FC = () => {
         orderRequestElement?.select();
       }
     },
-    [formRef, dispatch, orderRequestElement, listStoresDataCanAccess, handleProducrSearch, setPackModel, packModel]
+    [formRef, dispatch, orderRequestElement, listStoresDataCanAccess, handleProducrSearch, setSinglePack, singlePack]
   );
 
   const onPressEnterProduct = useCallback(
@@ -265,36 +264,114 @@ const PackInfo: React.FC = () => {
     });
   };
 
+  const handleTrackingConfirm = useCallback((ffmCode: string) => {
+    const query: any = {
+      fulfillment_code: ffmCode
+    }
+    getShipmentApi(query).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        if (response.data?.items && response.data?.items.length > 0) {
+          // const shipment = response.data?.items[0]?.shipment;
+          // if (shipment?.pushing_status?.toLocaleUpperCase() === PUSHING_STATUS.COMPLETED.toLocaleUpperCase()) {
+            
+          // }
+
+          
+        }
+      } else {
+        handleFetchApiError(response, "Lấy thông tin shipment:", dispatch)
+      }
+    }).catch((e) => {
+      console.log(e)
+    }).finally(() => {
+      console.log("END")
+    })
+  },[dispatch]);
+
+  const handlePackedFulfillment=useCallback((itemProducts:OrderLineItemResponseExt[])=>{
+    if(!itemProducts || (itemProducts &&itemProducts.length <= 0)){
+      return;
+    }
+
+    if(!packFulFillmentResponse) return;
+
+    let inCompleteProduct = itemProducts.filter(
+      (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
+    );
+
+    if (inCompleteProduct === undefined || inCompleteProduct.length === 0) {
+      let request = {
+        id: packFulFillmentResponse.id,
+        code: packFulFillmentResponse.code,
+        items: packFulFillmentResponse.items,
+      };
+
+      let packData: PackModel = { ...new PackModelDefaultValue(), ...singlePack };
+
+      dispatch(
+        getFulfillmentsPack(request, (data: any) => {
+          if (data) {
+            btnClearPackElement?.click();
+            packData.fulfillments.unshift({...packFulFillmentResponse});
+            setSinglePack(packData);
+            setPackInfo(packData);
+            orderRequestElement?.focus();
+            showSuccess("Đóng gói đơn hàng thành công");
+
+            setTimeout(() => {
+              handleTrackingConfirm(request.code||"");
+            }, 3000)
+          }
+        })
+      );
+    }
+
+  },[btnClearPackElement, dispatch, orderRequestElement, packFulFillmentResponse, setSinglePack, singlePack, handleTrackingConfirm])
+
+  /**
+   * nhặt sản phẩm
+   * product_request: sản phẩm đang nhặt
+   * quality_request: số lượng nhặt
+   */
   const ProductPack = useCallback((product_request: string, quality_request: number) => {
-    let indexPack = itemProductList.findIndex(
+    let itemProductListCopy = [...itemProductList];
+
+    /**
+     * xác định sản phẩm cần nhặt
+     */
+    let indexPack = itemProductListCopy.findIndex(
       (p) =>
         p.sku === product_request.trim() || p.variant_barcode === product_request.trim() || fullTextSearch(product_request.trim(),p.reference_barcode||"")
     );
 
     if (indexPack !== -1) {
 
-      if ((Number(itemProductList[indexPack].pick) + quality_request) > (Number(itemProductList[indexPack].quantity))) {
+      if ((Number(itemProductListCopy[indexPack].pick) + quality_request) > (Number(itemProductListCopy[indexPack].quantity))) {
         showError("Số lượng nhặt không đúng");
         return
       } else {
-        itemProductList[indexPack].pick += Number(quality_request);
+        itemProductListCopy[indexPack].pick += Number(quality_request);
 
-        if (itemProductList[indexPack].pick === itemProductList[indexPack].quantity)
-          itemProductList[indexPack].color = "#27AE60";
+        if (itemProductListCopy[indexPack].pick === itemProductListCopy[indexPack].quantity)
+          itemProductListCopy[indexPack].color = "#27AE60";
 
-        setItemProductList([...itemProductList]);
-        if (Number(itemProductList[indexPack].quantity) === Number(itemProductList[indexPack].pick))
+        setItemProductList([...itemProductListCopy]);
+        if (Number(itemProductListCopy[indexPack].quantity) === Number(itemProductListCopy[indexPack].pick))
           formRef.current?.setFieldsValue({ product_request: "" });
+        
       }
+      formRef.current?.setFieldsValue({ quality_request: ""});
 
-      formRef.current?.setFieldsValue({ quality_request: "", inputProduct: "" });
+      /**
+       * nhặt đủ thì cho đóng gói luôn
+       */
+      handlePackedFulfillment(itemProductListCopy);
     } else {
       showError("Sản phẩm này không có trong đơn hàng");
     }
-  }, [formRef, itemProductList])
+  }, [formRef, handlePackedFulfillment, itemProductList])
 
   const FinishPack = useCallback(() => {
-    console.log("1")
     formRef.current?.validateFields();
     let value = formRef?.current?.getFieldsValue();
     if (value.quality_request && !RegUtil.ONLY_NUMBER.test(value.quality_request.trim())) {
@@ -312,52 +389,27 @@ const PackInfo: React.FC = () => {
   }, [formRef, ProductPack]);
 
   const onChangeStoreId = useCallback((value?: number) => {
-    setPackModel({ ...new PackModelDefaultValue(), ...packModel, store_id: value });
-    setPackInfo({ ...packModel, store_id: value });
-  }, [packModel, setPackModel]);
+    setSinglePack({ ...new PackModelDefaultValue(), ...singlePack, store_id: value });
+    setPackInfo({ ...new PackModelDefaultValue(),...singlePack, store_id: value });
+  }, [singlePack, setSinglePack]);
   const onChangeDeliveryServiceId = useCallback((value?: number) => {
-    setPackModel({ ...new PackModelDefaultValue(), ...packModel, delivery_service_provider_id: value });
-    setPackInfo({ ...packModel, delivery_service_provider_id: value });
+    setSinglePack({ ...new PackModelDefaultValue(), ...singlePack, delivery_service_provider_id: value });
+    setPackInfo({ ...new PackModelDefaultValue(), ...singlePack, delivery_service_provider_id: value });
     idDonHangRef?.current?.focus();
-  }, [idDonHangRef, packModel, setPackModel]);
+  }, [idDonHangRef, singlePack, setSinglePack]);
   ///function
 
   //useEffect
 
   useEffect(() => {
     formRef.current?.setFieldsValue({
-      // product_request: "",
-      // quality_request: "",
-      //order_request: "",
-      store_request: packModel?.store_id,
-      delivery_service_provider_id: packModel?.delivery_service_provider_id
+      store_request: singlePack?.store_id,
+      delivery_service_provider_id: singlePack?.delivery_service_provider_id
     });
-  }, [formRef, packModel]);
-
-  // useEffect(() => {
-  //   if (packFulFillmentResponse) {
-  //     // console.log("packFulFillmentResponse", packFulFillmentResponse);
-  //     let item: OrderLineItemResponseExt[] = [];
-  //     packFulFillmentResponse.items.forEach(function (i: OrderLineItemResponse) {
-
-  //       let indexDuplicate = item.findIndex(p => p.variant_id === i.variant_id);
-  //       if (indexDuplicate !== -1) {
-  //         let quantity = item[indexDuplicate].quantity + i.quantity;
-
-  //         //item.push({ ...i, quantity: quantity || 0, pick: 0, color: "#E24343" });
-  //         item[indexDuplicate].quantity = quantity;
-  //         // console.log("indexDuplicate", item[indexDuplicate]);
-  //       }
-  //       else
-  //         item.push({ ...i, pick: 0, color: "#E24343" });
-  //     });
-  //     setItemProductList(item);
-  //   }
-  // }, [packFulFillmentResponse]);
+  }, [formRef, singlePack]);
 
   useEffect(() => {
     if (packFulFillmentResponse) {
-      // console.log("packFulFillmentResponse", packFulFillmentResponse);
       let item: OrderLineItemResponseExt[] = [];
       packFulFillmentResponse.items.forEach(function (i: OrderLineItemResponse) {
         let reference_barcodes = variantResponse?.find(p => p.barcode === i.variant_barcode)?.reference_barcodes;
@@ -366,7 +418,7 @@ const PackInfo: React.FC = () => {
           let quantity = item[indexDuplicate].quantity + i.quantity;
 
           item[indexDuplicate].quantity = quantity;
-          item[indexDuplicate].reference_barcode = reference_barcodes;
+          //item[indexDuplicate].reference_barcode = reference_barcodes;
         }
         else
           item.push({ ...i, pick: 0, color: "#E24343", reference_barcode: reference_barcodes });
@@ -375,44 +427,41 @@ const PackInfo: React.FC = () => {
     }
   }, [packFulFillmentResponse, variantResponse]);
 
-  useEffect(() => {
-    if (
-      itemProductList &&
-      packFulFillmentResponse &&
-      itemProductList.length !== 0
-    ) {
-      let indexPack = itemProductList.filter(
-        (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
-      );
+  // useEffect(() => {
+  //   if (
+  //     itemProductList &&
+  //     packFulFillmentResponse &&
+  //     itemProductList.length !== 0
+  //   ) {
+  //     let indexPack = itemProductList.filter(
+  //       (p: OrderLineItemResponseExt) => Number(p.quantity) !== Number(p.pick)
+  //     );
 
-      // console.log("indexPack", indexPack)
+  //     if (indexPack === undefined || indexPack.length === 0) {
+  //       let request = {
+  //         id: packFulFillmentResponse.id,
+  //         code: packFulFillmentResponse.code,
+  //         items: packFulFillmentResponse.items,
+  //       };
 
-      if (indexPack === undefined || indexPack.length === 0) {
-        let request = {
-          id: packFulFillmentResponse.id,
-          code: packFulFillmentResponse.code,
-          items: packFulFillmentResponse.items,
-        };
+  //       let packData: PackModel = { ...new PackModelDefaultValue(), ...singlePack };
+  //       // console.log("PackModel", packData);
 
-        let packData: PackModel = { ...new PackModelDefaultValue(), ...packModel };
-        // console.log("PackModel", packData);
-
-        dispatch(
-          getFulfillmentsPack(request, (data: any) => {
-            if (data) {
-              btnClearPackElement?.click();
-              // let insertOrderData: PackFulFillmentResponse[]= insertArray([...packData?.order],0, {...packFulFillmentResponse})
-              packData.order.unshift({...packFulFillmentResponse});
-              setPackModel(packData);
-              setPackInfo(packData);
-              orderRequestElement?.focus();
-              showSuccess("Đóng gói đơn hàng thành công");
-            }
-          })
-        );
-      }
-    }
-  }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, packModel, setPackModel, history, orderRequestElement]);
+  //       dispatch(
+  //         getFulfillmentsPack(request, (data: any) => {
+  //           if (data) {
+  //             btnClearPackElement?.click();
+  //             packData.fulfillments.unshift({...packFulFillmentResponse});
+  //             setSinglePack(packData);
+  //             setPackInfo(packData);
+  //             orderRequestElement?.focus();
+  //             showSuccess("Đóng gói đơn hàng thành công");
+  //           }
+  //         })
+  //       );
+  //     }
+  //   }
+  // }, [dispatch, itemProductList, packFulFillmentResponse, btnClearPackElement, singlePack, setSinglePack, history, orderRequestElement]);
 
   useEffect(() => {
     if (disableOrder) {
@@ -544,12 +593,6 @@ const PackInfo: React.FC = () => {
           <Form.Item
             label="Cửa hàng"
             name="store_request"
-            // rules={[
-            //   {
-            //     required: true,
-            //     message: "Vui lòng chọn cửa hàng"
-            //   },
-            // ]}
             style={{ width: "42%", paddingRight: "97px" }}
           >
             <Select
@@ -578,12 +621,6 @@ const PackInfo: React.FC = () => {
               <Form.Item
                 label="Hãng vận chuyển:"
                 name="delivery_service_provider_id"
-                // rules={[
-                //   {
-                //     required: true,
-                //     message: "Vui lòng chọn hãng vận chuyển"
-                //   },
-                // ]}
                 style={{ width: "220px", margin: 0 }}
               >
                 <Select

@@ -29,11 +29,14 @@ import { getListOrderApi } from "service/order/order.service";
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { FulFillmentStatus } from "utils/Constants";
+import { getFulfillmentActive } from "utils/OrderUtils";
+import PackConfirmModal from "./model/packConfirmModal";
+import { OrderWithFulfillmentActiveModel } from "model/order/order.model";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const [packModel, setPackModel] = useState<PackModel | null>();
+  const [singlePack, setSinglePack] = useState<PackModel | null>();
 
   const [isFulFillmentPack, setIsFulFillmentPack] = useState<string[]>([]);
 
@@ -46,6 +49,9 @@ const PackSupportScreen: React.FC = () => {
     Array<GoodsReceiptsTypeResponse>
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
+  const [isVisiblePackedOrderModal, setIsVisiblePackedOrderModal] = useState<boolean>(false);
+  const [orderPushFalseDelivery, setOrderPushFalseDelivery] = useState<OrderWithFulfillmentActiveModel[]>([])
+
 
   const packSupportContextData = {
     listThirdPartyLogistics,
@@ -56,12 +62,12 @@ const PackSupportScreen: React.FC = () => {
     setListGoodsReceiptsType,
     listChannels,
     setListChannels,
-    packModel,
-    setPackModel,
+    singlePack,
+    setSinglePack,
     isFulFillmentPack,
     setIsFulFillmentPack,
     listStoresDataCanAccess,
-    setListStoresDataCanAccess
+    setListStoresDataCanAccess,
   };
 
   useEffect(() => {
@@ -107,22 +113,18 @@ const PackSupportScreen: React.FC = () => {
       dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
       let packData: PackModel = { ...new PackModelDefaultValue(), ...packInfoConvertJson };
-      // let storeId: number | null | undefined = packData.store_id ? 
-      //   listStoresDataCanAccess.findIndex((p) => p.id === packData.store_id) !== -1 
-      //   ? packData.store_id : null : null;
-      let queryCode = packData.order.map(p => p.order_code);
+      let queryCode = packData.fulfillments.map(p => p.order_code);
       let queryParam: any = { code: queryCode }
       getListOrderApi(queryParam).then((response) => {
         if (isFetchApiSuccessful(response)) {
-          let orderEnd = packData.order.filter((p) => 
+          let fulfillments = packData.fulfillments.filter(p =>
             response.data.items.some(
-              p1 => (p1.code === p.order_code && (!p1.goods_receipts ||(p1.goods_receipts &&p1.goods_receipts.length<=0) ))
-              &&
-              p1.fulfillments?.some(p2=>p2.code === p.code &&p2.status === FulFillmentStatus.PACKED)
+              p1 => p1.code === p.order_code && getFulfillmentActive(p1.fulfillments)?.status === FulFillmentStatus.PACKED
+                && (!p1.goods_receipts || (p1.goods_receipts && p1.goods_receipts?.length <= 0))
             )
-          );
-          setPackModel({ ...packData,store_id:packData.store_id ,order: orderEnd });
-          setPackInfo({ ...packData,store_id:packData.store_id, order: orderEnd });
+          )
+          setSinglePack({ ...packData, store_id: packData.store_id, fulfillments: fulfillments });
+          setPackInfo({ ...packData, store_id: packData.store_id, fulfillments: fulfillments });
         }
         else handleFetchApiError(response, "Danh sách fulfillment", dispatch)
       }).catch((err) => {
@@ -130,6 +132,8 @@ const PackSupportScreen: React.FC = () => {
       }).finally(() => { dispatch(hideLoading()); });
     }
   }, [dispatch]);
+
+  console.log("singlePack", singlePack)
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>
@@ -162,11 +166,19 @@ const PackSupportScreen: React.FC = () => {
 
           <Row gutter={24}>
             <Col xs={24}>
-              <AddReportHandOver />
+              <AddReportHandOver
+                setOrderPushFalseDelivery={setOrderPushFalseDelivery}
+                setIsVisiblePackedOrderModal={setIsVisiblePackedOrderModal}
+              />
             </Col>
           </Row>
         </StyledComponent>
-
+        <PackConfirmModal
+          isVisible={isVisiblePackedOrderModal}
+          setIsVisible={setIsVisiblePackedOrderModal}
+          orderPushFalseDelivery={orderPushFalseDelivery}
+          setOrderPushFalseDelivery={setOrderPushFalseDelivery}
+        />
       </ContentContainer>
     </OrderPackContext.Provider>
   );
