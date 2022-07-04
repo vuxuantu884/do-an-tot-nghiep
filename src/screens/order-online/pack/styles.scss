@@ -169,3 +169,36 @@
   width: 5px;
   height: 5px;
 }
+
+.packed-modal-confirm{
+  .ant-modal-header{
+    border-bottom: none;
+  }
+  .ant-modal-body {
+    padding: 24px 5px;
+    font-size: 14px;
+    line-height: 1.5715;
+    word-wrap: break-word;
+    .ant-table-tbody>tr>td, .ant-table-thead>tr>th, .ant-table tfoot>tr>td, .ant-table tfoot>tr>th {
+      position: relative;
+      padding: 5px 16px;
+      overflow-wrap: break-word;
+    }
+  }
+  .ant-modal-footer {
+    padding: 10px 16px;
+    text-align: right;
+    background: transparent;
+    border-top: 0px solid #f0f0f0;
+    border-radius: 0 0 2px 2px;
+  }
+}
+
+.ant-popover-inner{
+  .ant-popover-buttons{
+    .ant-btn{
+      height: 30px;
+      line-height: 15px;
+    }
+  }
+}

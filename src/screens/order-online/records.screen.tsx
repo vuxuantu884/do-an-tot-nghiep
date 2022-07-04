@@ -45,7 +45,7 @@ const PackSupportScreen: React.FC = () => {
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
 
-  const [packModel, setPackModel] =useState<PackModel>();
+  const [singlePack, setSinglePack] =useState<PackModel>();
   const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
 
   const packSupportContextData = {
@@ -59,8 +59,8 @@ const PackSupportScreen: React.FC = () => {
     setListChannels,
     setIsFulFillmentPack,
     isFulFillmentPack,
-    setPackModel,
-    packModel
+    setSinglePack,
+    singlePack
   };
 
   useEffect(() => {

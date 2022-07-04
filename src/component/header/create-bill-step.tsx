@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { isDeliveryOrderReturned, isFulfillmentActive } from "utils/OrderUtils";
+import { isDeliveryOrderReturned, getFulfillmentActive } from "utils/OrderUtils";
 // import { FulFillmentStatus } from "utils/Constants";
 import "./create-bill-step.scss";
 
@@ -20,7 +20,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
   const formatDate = DATE_FORMAT.fullDate;
   const [currentStep, setCurrentStep] = useState(0);
   const fulfillments = useMemo(() => {
-    return isFulfillmentActive(orderDetail?.fulfillments);
+    return getFulfillmentActive(orderDetail?.fulfillments);
   }, [orderDetail?.fulfillments])
 
   console.log("fulfillments",fulfillments)

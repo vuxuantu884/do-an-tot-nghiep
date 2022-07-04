@@ -2050,3 +2050,12 @@ export const flattenArray = (arr: any) => {
       .replace(new RegExp('\\' + decimalSeparator), '.')
   );
 }
+
+/*
+*Thêm item vào vị trí chỉ định
+*/
+export const insertCustomIndexArray = (arr: any, index: number, newItem: any) => [
+  ...arr.slice(0, index),
+  newItem,
+  ...arr.slice(index)
+]
