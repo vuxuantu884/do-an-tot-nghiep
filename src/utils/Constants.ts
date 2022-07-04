@@ -458,3 +458,8 @@ export const STORE_TYPE={
 export const PUSHING_STATUS={
   COMPLETED:"completed"
 }
+
+export const RECEIPT_TYPE ={
+  SHIPPING :1,
+  RETURNED:2,
+}

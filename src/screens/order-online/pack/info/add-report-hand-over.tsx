@@ -26,13 +26,14 @@ import { showError, showModalError, showSuccess, showWarning } from "utils/Toast
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
-import { FulFillmentStatus, PUSHING_STATUS, ShipmentMethod } from "utils/Constants";
+import { FulFillmentStatus, PUSHING_STATUS, RECEIPT_TYPE, ShipmentMethod } from "utils/Constants";
 import UrlConfig from "config/url.config";
 import { convertFromStringToDate, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { getListOrderApi } from "service/order/order.service";
 import { isFulfillmentPacked } from "../pack-utils";
-import { getFulfillmentActive } from "utils/OrderUtils";
+import { formatDateTimeOrderFilter, getFulfillmentActive } from "utils/OrderUtils";
 import { OrderWithFulfillmentActiveModel } from "model/order/order.model";
+import { DATE_FORMAT } from "utils/DateUtils";
 // import { useHistory } from "react-router-dom";
 
 type Props = {
@@ -54,6 +55,8 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   from_date: "",
   to_date: "",
 };
+
+const dateFormat = DATE_FORMAT.DD_MM_YY_HHmmss;
 
 const AddReportHandOver: React.FC<Props> = (props: Props) => {
   const { setOrderPushFalseDelivery, setIsVisiblePackedOrderModal } = props;
@@ -167,17 +170,24 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
     ]
   );
 
-  const validFulfillments = (orderMap: any, receiptTypeId?: number) => {
-    const orderCodes = orderMap.map((p: any) => p.code);
-    const fulfillmentCodes = orderMap.map((p: any) => p.fulfillment_active);
-    const orderPushDeliveryNotCompleted: OrderWithFulfillmentActiveModel[] = orderMap.filter((p: OrderWithFulfillmentActiveModel) => p.fulfillment_active?.shipment?.pushing_status && p.fulfillment_active?.shipment?.pushing_status !== PUSHING_STATUS.COMPLETED)
-    const toFindDuplicates = orderCodes.filter((item: any, index: number) => orderCodes.indexOf(item) !== index);
-    const fulfillmentIsNotPack = fulfillmentCodes.filter((item: any) => !isFulfillmentPacked(item));
 
-    if (toFindDuplicates && toFindDuplicates.length > 0) {
+  /**
+   * 
+   * @param orderMap kiểm tra tính hợp lệ trước khi lưu đơn hàng vào biên bản
+   * @param receiptTypeId 
+   * @returns true or false
+   */
+  const validateFulfillments = (orderMap: OrderWithFulfillmentActiveModel[], receiptTypeId?: number) => {
+    const orderCodes = orderMap.map((p) => p.code);
+    const fulfillmentCodes = orderMap.map((p) => p.fulfillment_active);
+    const orderPushDeliveryNotCompleted: OrderWithFulfillmentActiveModel[] = orderMap.filter((p: OrderWithFulfillmentActiveModel) => p.fulfillment_active?.shipment?.pushing_status && p.fulfillment_active?.shipment?.pushing_status !== PUSHING_STATUS.COMPLETED)
+    const findDuplicated:string[] = orderCodes.filter((item, index: number) => orderCodes.indexOf(item) !== index);
+    const fulfillmentIsNotPack = fulfillmentCodes.filter((item) => !isFulfillmentPacked(item));
+
+    if (findDuplicated && findDuplicated.length > 0) {
       showModalError(
         <React.Fragment>
-          {toFindDuplicates.map((p: any) => (
+          {findDuplicated.map((p) => (
             <div>Đơn hàng <b>{p}</b> đã có trong biên bản</div>
           ))}
         </React.Fragment>
@@ -186,11 +196,11 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
       return false;
     }
 
-    if (fulfillmentIsNotPack && fulfillmentIsNotPack.length > 0 && receiptTypeId === 1) {
+    if (fulfillmentIsNotPack && fulfillmentIsNotPack.length > 0 && receiptTypeId === RECEIPT_TYPE.SHIPPING) {
       showModalError(
         <React.Fragment>
-          {fulfillmentIsNotPack.map((p: any) => (
-            <div>Đơn giao <b>{p.code}</b> không ở trạng thái đã đóng gói</div>
+          {fulfillmentIsNotPack.map((p) => (
+            <div>Đơn giao <b>{p?.code}</b> không ở trạng thái đã đóng gói</div>
           ))}
         </React.Fragment>
       )
@@ -214,7 +224,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
       return;
     }
 
-    if (orderPackSuccess.length <= 0) {
+    if (orderPackSuccess.length === 0) {
       showWarning("Chưa có đơn giao đã đóng gói");
       return;
     }
@@ -231,7 +241,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
     let selectFulfillmentPackSuccess = orderPackSuccess?.filter((p) => isFulFillmentPack.some((single) => single === p.order_code));
     let notSelectOrderPackSuccess = orderPackSuccess?.filter((p) => !isFulFillmentPack.some((single) => single === p.order_code));
 
-    if (!selectFulfillmentPackSuccess || (selectFulfillmentPackSuccess && selectFulfillmentPackSuccess.length <= 0)) {
+    if (!selectFulfillmentPackSuccess || (selectFulfillmentPackSuccess && selectFulfillmentPackSuccess.length === 0)) {
       showWarning("chưa chọn đơn giao cần thêm vào biên bản");
       return;
     }
@@ -248,7 +258,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
           if (isFetchApiSuccessful(response)) {
             let orderData = response.data.items;
             if (orderData && orderData.length > 0) {
-              let orderMap: any = orderData.map(p => {
+              let orderMap: OrderWithFulfillmentActiveModel[] = orderData.map(p => {
                 return {
                   ...p,
                   fulfillment_active: getFulfillmentActive(p.fulfillments)
@@ -267,9 +277,13 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
            * đơn có sẵn trong biên bản
            */
           if (receiptsItem && receiptsItem.orders && receiptsItem.orders?.length > 0) {
-            const orderMap:any = receiptsItem.orders.map(p => {
+            const orderMap:OrderWithFulfillmentActiveModel[] = receiptsItem.orders.map(p => {
               return {
                 ...p,
+                total_weight: null,
+                payments:[],
+                channel_code:"",
+                total_quantity:0,
                 fulfillment_active: getFulfillmentActive(p.fulfillments)
               }
             })
@@ -278,7 +292,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
           }
         }).then(() => {
 
-          let isValid = validFulfillments(orderMapSingleFulfillment);
+          let isValid = validateFulfillments(orderMapSingleFulfillment);
 
           let param: any = {
             ...receiptsItem,
@@ -331,13 +345,16 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
 
-    let fromDate: Moment | undefined = convertFromStringToDate(moment(new Date().setHours(-72)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
-    let toDate: Moment | undefined = convertFromStringToDate(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
+    // let fromDate: Moment | undefined = convertFromStringToDate(moment(new Date().setHours(-72)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
+    // let toDate: Moment | undefined = convertFromStringToDate(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
+
+    let fromDate = moment().startOf("day").subtract(3, "days").format(dateFormat);
+    let toDate = moment().endOf("day").format(dateFormat);
 
     initQueryGoodsReceipts.limit = 1000;
     initQueryGoodsReceipts.page = 1;
-    initQueryGoodsReceipts.from_date = fromDate;
-    initQueryGoodsReceipts.to_date = toDate;
+    initQueryGoodsReceipts.from_date = formatDateTimeOrderFilter(fromDate, dateFormat);
+    initQueryGoodsReceipts.to_date =  formatDateTimeOrderFilter(toDate, dateFormat);
 
     dispatch(
       getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
