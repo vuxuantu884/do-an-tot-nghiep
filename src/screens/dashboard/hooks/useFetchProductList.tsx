@@ -27,9 +27,9 @@ function useFetchProductList() {
             response.result.data.filter(item => item && item[1] && (item[1].substr(0, 1).toUpperCase() !== 'Z')).forEach((item) => {
                 if (item) {
                     productList.push({
-                        label: item[0],
-                        totalSales: Number(item[2]),
-                        netQuantity: Number(item[3]),
+                        label: `${item[1]} - ${item[0]}`,
+                        totalSales: Number(item[3]),
+                        netQuantity: Number(item[4]),
                         onHand: '-',
                         variantSku: item[1]
                     })
