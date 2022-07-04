@@ -231,6 +231,7 @@ export interface VariantSearchQuery extends BaseQuery {
   supplier?: string
   suppliers?: string
   saleable?: boolean
+  active?: boolean
   store_id?: number,
   store_ids?: number | null,
   sort_column?: string,
