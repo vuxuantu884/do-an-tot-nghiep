@@ -41,6 +41,14 @@ function ActionHistory(props: PropType) {
       action: "system_update",
       displayName: "Hệ thống tự cập nhật",
     },
+    {
+      action: "add_order_goodsreceipt",
+      displayName: "Thêm vào biên bản bàn giao",
+    },
+    {
+      action: "delete_order_goodsreceipt",
+      displayName: "Xóa khỏi biên bản bàn giao",
+    },
   ];
   const { orderId, countChangeSubStatus, reload } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
