@@ -1,4 +1,4 @@
-import { Button, Card, Row, Space } from "antd";
+import { Button, Card, Modal, Radio, Row, Space } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -25,7 +25,9 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
 import {
+  POProgressResult,
   PurchaseOrder,
+  PurchaseOrderPrint,
   PurchaseOrderQuery
 } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
@@ -36,7 +38,7 @@ import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { exportFile, getFile } from "service/other/export.service";
-import { getPurchaseOrderConfigService } from "service/purchase-order/purchase-order.service";
+import { getPrintContent, getPurchaseOrderConfigService, updatePurchaseOrderStatusWaitingApproval } from "service/purchase-order/purchase-order.service";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus, ArrPoStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -53,6 +55,12 @@ import statusStored from 'assets/icon/status-stored-new.svg'
 import statusFinished from 'assets/icon/status-finished-new.svg'
 import statusCompleted from 'assets/icon/status-completed-new.svg'
 import statusCancelled from 'assets/icon/status-cancelled-new.svg'
+import { CloseCircleOutlined, PrinterOutlined } from "@ant-design/icons";
+import { callApiNative } from "utils/ApiUtils";
+import { useReactToPrint } from "react-to-print";
+import purify from "dompurify";
+import { PrintTypePo } from "./helper";
+import POProgressModal from "./POProgressModal";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"))
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"))
@@ -61,7 +69,18 @@ const ExportModal = lazy(() => import("screens/purchase-order/modal/export.modal
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
+    name: "Chờ duyệt",
+    icon: <img width={18} height={18} src={statusWaitingApproval} alt="" style={{ marginRight: 3, marginBottom: 2 }} />
+  },
+  {
+    id: 2,
+    name: "In đơn",
+    icon: <PrinterOutlined />
+  },
+  {
+    id: 3,
     name: "Xóa",
+    icon: <CloseCircleOutlined />,
   },
 ];
 const PurchaseOrderListScreen: React.FC = () => {
@@ -80,6 +99,12 @@ const PurchaseOrderListScreen: React.FC = () => {
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
   const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
+  const [showPrintConfirm, setShowPrintConfirm] = useState<boolean>(false)
+  const [printContent, setPrintContent] = useState<string>("");
+  const [poPrintType, setPOPrintType] = useState<string>(PrintTypePo.PURCHASE_ORDER_FGG)
+  const [showWaitingConfirm, setShowWaitingConfirm] = useState<boolean>(false)
+  const [showPoProgress, setShowPOProgress] = useState<boolean>(false)
+  const [dataProgress, setDataProgress] = useState<POProgressResult>()
 
   let initQuery: PurchaseOrderQuery = {};
 
@@ -96,6 +121,7 @@ const PurchaseOrderListScreen: React.FC = () => {
     },
     items: [],
   });
+  const printElementRef = useRef(null);
 
   const onExport = useCallback(() => {
     let queryParams = generateQuery(params);
@@ -140,25 +166,47 @@ const PurchaseOrderListScreen: React.FC = () => {
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile]);
   const onMenuClick = useCallback((index: number) => {
+    if (selected && selected.length === 0) {
+      showWarning("Bạn chưa chọn đơn đặt hàng nào")
+      return
+    }
     switch (index) {
       case 1:
+        setShowWaitingConfirm(true)
+        break;
+      case 2:
+        setShowPrintConfirm(true)
+        break;
+      case 3:
         setConfirmDelete(true);
         // onDelete();
         break;
     }
-  }, []);
+  }, [selected]);
 
   const [canDeletePO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.delete],
   });
+  const [canPrintPO] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.print],
+  });
+  const [canUpdatePO] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.update]
+  })
   const actions = useMemo(() => {
     return actionsDefault.filter((item) => {
-      if (item.id === 1) {
+      if (item.id === 3) {
         return canDeletePO;
+      }
+      if (item.id === 2) {
+        return canPrintPO
+      }
+      if (item.id === 1) {
+        return canUpdatePO
       }
       return false;
     });
-  }, [canDeletePO]);
+  }, [canDeletePO, canPrintPO, canUpdatePO]);
 
   const onUpdateCall = (result: PurchaseOrder | null) => {
     if (result !== null) {
@@ -605,12 +653,10 @@ const PurchaseOrderListScreen: React.FC = () => {
     );
   }, []);
 
-  const deleteCallback = useCallback(() => {
-    selected.splice(0, selected.length);
-    showSuccess("Xóa đơn đặt hàng thành công");
-    setTableLoading(true);
-    dispatch(PoSearchAction(params, setSearchResult));
-  }, [dispatch, params, setSearchResult, selected]);
+  const deleteCallback = useCallback((result: POProgressResult) => {
+    setShowPOProgress(true)
+    setDataProgress(result)
+  }, []);
 
   const onDelete = useCallback(() => {
     if (selected.length === 0) {
@@ -619,11 +665,6 @@ const PurchaseOrderListScreen: React.FC = () => {
     }
     const ids = selected.map(((item: PurchaseOrder) => item.id)).join(',')
     dispatch(PODeleteAction(ids, deleteCallback));
-    // if (selected.length === 1) {
-    //   let id = selected[0].id;
-    //   // dispatch(PODeleteAction(id, deleteCallback));
-    //   return;
-    // }
   }, [deleteCallback, dispatch, selected]);
 
   const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<PurchaseOrder>>) => {
@@ -639,9 +680,64 @@ const PurchaseOrderListScreen: React.FC = () => {
         dispatch(updateConfigPoAction(config));
       }else{
         dispatch(createConfigPoAction(config));
-      }
+    }
 
-  }, [dispatch,account?.code, lstConfig]);
+  }, [dispatch, account?.code, lstConfig]);
+
+  const handlePrint = useReactToPrint({
+    content: () => printElementRef.current,
+  });
+
+  const printContentCallback = useCallback(
+    (printContent: Array<PurchaseOrderPrint>) => {
+      const pageBreak = "<div class='pageBreak'></div>";
+      if (!printContent || printContent.length === 0) return;
+      const textResponse = printContent.map((single) => {
+        return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
+      });
+      let textResponseFormatted = textResponse.join(pageBreak);
+      //xóa thẻ p thừa
+      let result = textResponseFormatted.replaceAll("<p></p>", "");
+      setPrintContent(result);
+      handlePrint && handlePrint();
+    },
+    [handlePrint]
+  );
+
+  const actionPrint = useCallback(
+    async (ids: string, printType: string) => {
+      const res = await callApiNative(
+        { isShowLoading: true },
+        dispatch,
+        getPrintContent,
+        ids,
+        printType
+      );
+      if (res && res.data && res.data.message) {
+        showError(res.data.message);
+      } else {
+        printContentCallback(res);
+        handlePrint && handlePrint();
+      }
+    },
+    [dispatch, handlePrint, printContentCallback]
+  );
+
+  const onCloseProgressModal = () => {
+    setShowPOProgress(false)
+    setTableLoading(true);
+    dispatch(PoSearchAction(params, setSearchResult));
+  }
+
+  const onUpdatePOStatusWaitingApproval = async () => {
+    setShowWaitingConfirm(false)
+    const ids = selected.map((item: PurchaseOrder) => item.id).join(",")
+    const res = await callApiNative({ isShowError: true }, dispatch, updatePurchaseOrderStatusWaitingApproval, ids)
+    if (res) {
+      setDataProgress(res)
+      setShowPOProgress(true)
+    }
+  }
 
   return (
     <PurchaseOrderListContainer>
@@ -732,6 +828,59 @@ const PurchaseOrderListScreen: React.FC = () => {
           data={defaultColumns}
           isSetDefaultColumn
         />
+        <Modal
+          width={500}
+          centered
+          visible={showPrintConfirm}
+          onCancel={() => setShowPrintConfirm(false)}
+          onOk={() => {
+            setShowPrintConfirm(false);
+            const ids = selected.map((item: PurchaseOrder) => item.id).join(",")
+            actionPrint(ids, poPrintType)
+          }}
+          cancelText={`Hủy`}
+          okText={`Đồng ý`}
+        >
+          <Row align="top">
+            <PrinterOutlined
+              style={{
+                fontSize: 40,
+                background: "#2A2A86",
+                color: "white",
+                borderRadius: "50%",
+                padding: 10,
+                marginRight: 20,
+              }}
+            />
+            <Space direction="vertical" size="middle">
+              <strong className="margin-top-10">Bạn có muốn in {selected.length} đơn đặt hàng đã chọn ?</strong>
+              <Radio.Group onChange={(e) => setPOPrintType(e.target.value)} value={poPrintType}>
+                <Space direction="vertical">
+                  <Radio value={PrintTypePo.PURCHASE_ORDER_FGG}>In đơn đặt hàng FGG</Radio>
+                  <Radio value={PrintTypePo.PURCHASE_ORDER}>In đơn đặt hàng NCC</Radio>
+                </Space>
+              </Radio.Group>
+            </Space>
+          </Row>
+        </Modal>
+        <Modal
+          width={500}
+          centered
+          visible={showWaitingConfirm}
+          onCancel={() => setShowWaitingConfirm(false)}
+          onOk={onUpdatePOStatusWaitingApproval}
+          cancelText={`Hủy`}
+          okText={`Đồng ý`}
+        >
+          <Row align="top">
+            <strong className="margin-top-10">Bạn xác nhận chờ duyệt {selected.length} đơn đặt hàng đã chọn ?</strong>
+          </Row>
+        </Modal>
+        <POProgressModal
+          dataProcess={dataProgress}
+          visible={showPoProgress}
+          onOk={onCloseProgressModal}
+          onCancel={onCloseProgressModal} />
         <ModalDeleteConfirm
           onCancel={() => setConfirmDelete(false)}
           onOk={() => {
@@ -739,10 +888,19 @@ const PurchaseOrderListScreen: React.FC = () => {
             // dispatch(categoryDeleteAction(idDelete, onDeleteSuccess));
             onDelete();
           }}
-          title="Bạn chắc chắn xóa đơn đặt hàng ?"
+          title={`Bạn chắc chắn xóa ${selected.length} đơn đặt hàng ?`}
           subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
           visible={isConfirmDelete}
         />
+        <div style={{ display: "none" }}>
+          <div className="printContent" ref={printElementRef}>
+            <div
+              dangerouslySetInnerHTML={{
+                __html: purify.sanitize(printContent),
+              }}
+            />
+          </div>
+        </div>
       </ContentContainer>
     </PurchaseOrderListContainer>
   );
