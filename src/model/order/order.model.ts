@@ -120,7 +120,7 @@ export interface OrderModel extends BaseObject {
   channel_code: string;
   created_on?: string | null;
   total_quantity: number;
-  goods_receipts?: GoodsReceiptsResponse[];
+  goods_receipts?: GoodsReceiptsResponse[]|null;
   export_bill: boolean;
 }
 
