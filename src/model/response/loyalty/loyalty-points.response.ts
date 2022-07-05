@@ -8,6 +8,7 @@ export interface LoyaltyPoint {
   total_money_spend: number | null;
   total_subtract_lock_point: number | null;
   current_point: number | null;
+  level_change_time: string | null;
 }
 
 export interface LoyaltyCard {

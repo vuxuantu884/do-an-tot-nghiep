@@ -277,7 +277,11 @@ const CustomerDetail = () => {
       {
         name: "Ngày mua cuối",
         value: purchaseInfo?.last_order_time ? <span>{ConvertUtcToLocalDate(purchaseInfo?.last_order_time, DATE_FORMAT.DDMMYYY)}</span> : null
-      }
+      },
+      {
+        name: "Ngày lên hạng gần nhất",
+        value: loyaltyPoint?.level_change_time ? <span>{ConvertUtcToLocalDate(loyaltyPoint.level_change_time, DATE_FORMAT.DDMMYYY)}</span> : null
+      },
     ];
 
     setCustomerSpendDetail(_detail);
