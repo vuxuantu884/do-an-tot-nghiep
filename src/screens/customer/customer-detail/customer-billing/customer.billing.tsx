@@ -94,7 +94,13 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
       title: "Email",
       dataIndex: "email",
       visible: true,
-      width: "25%",
+      width: "15%",
+    },
+    {
+      title: "Đơn vị mua hàng",
+      dataIndex: "buyer",
+      visible: true,
+      width: "15%",
     },
     {
       title: "Mã số thuế",
@@ -251,6 +257,7 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
           //   // onChange: onPageChange,
           //   // onShowSizeChange: onPageChange,
           // }}
+          bordered={true}
           pagination={false}
           dataSource={customer ? customer.billing_addresses.reverse() : []}
           columns={billingColumnFinal()}
