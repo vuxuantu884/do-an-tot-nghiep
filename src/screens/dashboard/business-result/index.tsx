@@ -1,8 +1,9 @@
 import { Card, Col, Row, Skeleton } from 'antd';
 import { BUSINESS_RESULT_CART_NAME } from 'config/dashboard';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import TotalSaleByMonthChartArea from '../chart/total-sale-by-month-chart-area';
 import useFetchBRAverageOrder from '../hooks/useFetchAverageOrder';
+import useFetchConversionRate from '../hooks/useFetchConversionRate';
 import useFetchSuccessRate from '../hooks/useFetchSuccessRate';
 import useFetchTotalSaleCanceled from '../hooks/useFetchTotalSaleCanceled';
 import useFetchChartBusinessResult from '../hooks/useFetchTotalSaleChart';
@@ -16,6 +17,7 @@ function BusinessResult(props: Props) {
     const { isFetchingBusinessResultComplete } = useFetchBusinessResultComplete();
     const { isFetchingChartData } = useFetchChartBusinessResult();
     const { isFetchingAverageOrder } = useFetchBRAverageOrder();
+    const { isFetchingConversionRate } = useFetchConversionRate();
     const { isFetchingSuccessRate } = useFetchSuccessRate();
     const { isFetchingTotalSaleCanceled } = useFetchTotalSaleCanceled();
 
@@ -40,7 +42,7 @@ function BusinessResult(props: Props) {
                 <Col xs={24} md={16} lg={18}>
                     <Row className="horiz-grid">
                         <Col xs={24} lg={8} className="horiz-grid__item">
-                            <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.conversionRate} />
+                            <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.conversionRate} loading={isFetchingConversionRate} type="percent" />
                         </Col>
                         <Col xs={24} lg={8} className="horiz-grid__item">
                             <BusinessCard dataKey={BUSINESS_RESULT_CART_NAME.averageOrder} loading={isFetchingAverageOrder} />

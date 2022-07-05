@@ -1,4 +1,5 @@
 import { DASHBOARD_CONFIG } from "config/dashboard";
+import { STAFF_POSITION_LIST } from "config/dashboard/filter-config";
 import { PAGE_SIZE } from "config/dashboard/product-list-config";
 import { DashboardProductList, DashboardShowMyData } from "model/dashboard/dashboard.model";
 import { AnalyticDataQuery, AnalyticQueryMany, AnalyticSampleQuery, FIELD_FORMAT } from "model/report/analytics.model";
@@ -90,11 +91,11 @@ export const getDataManyQueryDashboard = async (dispatch: Dispatch<any>, showMyD
  */
 export const getDataOneQueryDashboard = async (dispatch: Dispatch<any>, showMyData: DashboardShowMyData, deparmentIdList: Array<string | number>, queries: AnalyticSampleQuery): Promise<AnalyticDataQuery> => {
   const { condition, isSeeMyData, myCode } = showMyData;
-  if (!deparmentIdList.length && queries.query.conditions) {
-    queries.query.conditions = queries.query.conditions.filter(item => item && item[0] !== 'pos_location_id')
+  if (queries.query.conditions) {
+    queries.query.conditions = queries.query.conditions.filter(item => item && item[0] !== 'pos_location_id' && !STAFF_POSITION_LIST.map(staffPosition => staffPosition.value).includes(item[0]))
   }
   
-  queries.query.conditions = (deparmentIdList.length || (condition && isSeeMyData && myCode)) ? [] : (queries.query.conditions || []);
+  queries.query.conditions = (queries.query.conditions || []);
   // Data từ bộ lọc bộ phận
   const locationCondition = deparmentIdList ? setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField) : [];
   // Data từ bộ lọc xem dữ liệu của tôi
