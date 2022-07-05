@@ -5,6 +5,8 @@ const SETTING_APP = "setting_app";
 const PACKINFO_APP = "packinfo_app";
 const YDPAGE_SOURCE = "ydpage_source";
 
+export const ACCOUNT_CODE_LOCAL_STORAGE = "accountCode";
+
 const setToken = (token: any) => {
   localStorage.setItem(ACCESS_TOKEN, token);
 };
