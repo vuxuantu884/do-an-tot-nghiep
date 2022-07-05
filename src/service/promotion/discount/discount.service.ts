@@ -85,3 +85,7 @@ export const applyDiscountService = (queryParams: DiscountRequestModel): Promise
 export const updatePriceRuleById = (body: any) : Promise<PriceRule> => {
   return BaseAxios.put(`${ApiConfig.PROMOTION}${END_POINT}/${body.id}`, body);
 }
+
+export const exportDiscountCode = (priceRuleId: any): Promise<any> => {
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/export`);
+};
