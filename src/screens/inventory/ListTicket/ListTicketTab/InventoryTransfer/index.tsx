@@ -1047,6 +1047,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           current: data.metadata.page,
           total: data.metadata.total,
           onChange: onPageChange,
+          onShowSizeChange: onPageChange,
         }}
       />
       <CustomTable

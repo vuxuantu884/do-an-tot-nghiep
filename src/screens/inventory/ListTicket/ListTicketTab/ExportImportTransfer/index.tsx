@@ -743,6 +743,7 @@ const ExportImportTab: React.FC<InventoryTransferTabProps> = (props: InventoryTr
           current: data.metadata.page,
           total: data.metadata.total,
           onChange: onPageChange,
+          onShowSizeChange: onPageChange,
         }}
       />
       <CustomTable

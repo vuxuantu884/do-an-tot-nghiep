@@ -5,7 +5,13 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { DepartmentType } from "domain/types/account.type";
 import { DepartmentResponse } from "model/account/department.model";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { departmentCreateApi, departmentDetailApi, departmentSearchApi, departmentUpdateApi } from "service/accounts/department.service";
+import {
+  departmentCreateApi,
+  departmentDetailApi,
+  departmentSearchApi,
+  departmentSearchPagingApi,
+  departmentUpdateApi,
+} from "service/accounts/department.service";
 import { showError } from "utils/ToastUtils";
 
 function* searchSaga(action: YodyAction) {
@@ -13,6 +19,29 @@ function* searchSaga(action: YodyAction) {
   try {
     let response: BaseResponse<Array<DepartmentResponse>> = yield call(
       departmentSearchApi,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        break;
+    }
+  } catch (e) {
+    onResult(false);
+  }
+}
+
+function* searchPagingSaga(action: YodyAction) {
+  let { onResult, query } = action.payload;
+  try {
+    let response: BaseResponse<Array<DepartmentResponse>> = yield call(
+      departmentSearchPagingApi,
+      query
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -100,6 +129,7 @@ function* updateSaga(action: YodyAction) {
 
 export function* departmentSaga() {
   yield takeLatest(DepartmentType.SEARCH_DEPARTMENT, searchSaga)
+  yield takeLatest(DepartmentType.SEARCH_DEPARTMENT_PAGING, searchPagingSaga)
   yield takeLatest(DepartmentType.DETAIL_DEPARTMENT, detailSaga)
   yield takeLatest(DepartmentType.CREATE_DEPARTMENT, createSaga)
   yield takeLatest(DepartmentType.UPDATE_DEPARTMENT, updateSaga)
