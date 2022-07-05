@@ -26,6 +26,7 @@ export interface CustomerBillingAddress extends BaseObject {
   zip_code: string;
   full_address: string;
   customer_id: number;
+  buyer?: string;
   tax_code: string;
   default: boolean;
   isDefault:boolean;
