@@ -1796,7 +1796,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       notFoundContent="Không tìm thấy kết quả"
                       style={{ width: "100%" }}
                       optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}>
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                      maxTagCount="responsive">
                       <CustomSelect.Option style={{ width: "100%" }} key="1" value="returned">
                         Có đổi trả hàng
                       </CustomSelect.Option>
