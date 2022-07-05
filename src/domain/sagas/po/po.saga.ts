@@ -203,8 +203,7 @@ function* poDeleteSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
-        deleteCallback(true);
+        deleteCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());

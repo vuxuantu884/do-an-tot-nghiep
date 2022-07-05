@@ -1,4 +1,4 @@
-import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
+import { POProgressResult, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import { POConfig, POLogHistory, POType } from "domain/types/purchase-order.type";
 import BaseAction from "base/base.action";
 import {
@@ -109,7 +109,7 @@ export const PoSearchAction = (
 
 export const PODeleteAction = (
   ids: string,
-  deleteCallback: (result: any | null) => void
+  deleteCallback: (result: POProgressResult) => void
 ) => {
   return BaseAction(POType.DELETE_PO_REQUEST, {
     ids,

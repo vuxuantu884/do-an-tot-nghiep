@@ -1,4 +1,4 @@
-import { POStampPrinting, ProcumentLogQuery, PurchaseOrderBySupplierQuery, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
+import { POProgressResult, POStampPrinting, ProcumentLogQuery, PurchaseOrderBySupplierQuery, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -65,7 +65,7 @@ export const returnPurchaseOrder = (
 
 
 export const getPrintContent = (
-  id: number,
+  id: number | string,
   printType: string
 ): Promise<Array<PurchaseOrderPrint>> => {
   return BaseAxios.get(
@@ -191,4 +191,10 @@ export const printPurchaseOrderReturnApi = (
   return BaseAxios.get(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/print-purchase-order-return?id=${id}&poId=${poId}`
   );
+};
+
+export const updatePurchaseOrderStatusWaitingApproval = (
+  ids: string
+): Promise<BaseResponse<POProgressResult>> => {
+  return BaseAxios.put(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/update-status/waiting-approval?ids=${ids}`);
 };
