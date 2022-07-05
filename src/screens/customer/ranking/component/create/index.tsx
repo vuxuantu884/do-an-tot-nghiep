@@ -37,6 +37,7 @@ const CreateCustomerRanking = () => {
       name: '',
       type: 'CASH',
       accumulated_from: 0,
+      money_maintain_in_year: 0,
       note: '',
       status: 'ACTIVE'
     }
@@ -48,7 +49,8 @@ const CreateCustomerRanking = () => {
       name: data.name,
       note: data.note,
       method: data.method,
-      accumulated_from: data.accumulated_from
+      accumulated_from: data.accumulated_from,
+      money_maintain_in_year: data.money_maintain_in_year,
     })
   }, [formRef])
 
@@ -61,11 +63,11 @@ const CreateCustomerRanking = () => {
     }
   }, [dispatch, formRef, params, updateForm])
 
-  const onCreateCallback = useCallback((data: LoyaltyRankResponse) => {
+  const onCreateUpdateCallback = useCallback((data: LoyaltyRankResponse) => {
     formRef.current?.resetFields();
-    showSuccess('Thành công')
+    showSuccess(`${params.id ? 'Cập nhật hạng khách hàng thành công' : 'Tạo mới hạng khách hàng thành công'}`);
     history.push(`${UrlConfig.CUSTOMER2}-rankings`)
-  }, [formRef, history])
+  }, [formRef, history, params.id])
 
   const onFinish = useCallback((values) => {
     if (!values.accumulated_from) {
@@ -73,12 +75,12 @@ const CreateCustomerRanking = () => {
       return;
     }
     if (params.id) {
-      dispatch(UpdateLoyaltyRank(params.id, values, (data: LoyaltyRankResponse) => showSuccess('Cập nhật thành công')))
+      dispatch(UpdateLoyaltyRank(params.id, values, onCreateUpdateCallback));
     } else {
-      dispatch(CreateLoyaltyRank(values, onCreateCallback))
+      dispatch(CreateLoyaltyRank(values, onCreateUpdateCallback));
     }
   },
-    [dispatch, onCreateCallback, params.id]
+    [dispatch, onCreateUpdateCallback, params.id]
   );
 
   return (
@@ -117,11 +119,11 @@ const CreateCustomerRanking = () => {
               }
             >
               <div className="general-info">
-                <Row>
-                  <Col span={11}>
-                    <div className="row-label">Tên hạng khách hàng <span className="text-error">*</span></div>
+                <Row gutter={24}>
+                  <Col span={12}>
                     <Item
                       name="name"
+                      label="Tên hạng khách hàng"
                       rules={[
                         { transform: (value) => value.trim() },
                         {
@@ -134,11 +136,16 @@ const CreateCustomerRanking = () => {
                       <Input placeholder="Nhập hạng khách hàng" disabled={params.id && !allowUpdateCustomerLevel}/>
                     </Item>
                   </Col>
-                  <Col span={2}></Col>
-                  <Col span={11}>
-                    <div className="row-label">Kiểu điều kiện <span className="text-error">*</span></div>
+                  <Col span={12}>
                     <Item
                       name="type"
+                      label="Kiểu điều kiện"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn kiểu điều kiện",
+                        },
+                      ]}
                     >
                       <Select disabled={params.id && !allowUpdateCustomerLevel}>
                         <Option value="CASH">Theo tiền tích lũy</Option>
@@ -147,26 +154,68 @@ const CreateCustomerRanking = () => {
                     </Item>
                   </Col>
                 </Row>
-                <Row>
-                  <Col span={11}>
-                    <div className="row-label">Giá trị nhỏ nhất <span className="text-error">*</span></div>
+                <Row gutter={24}>
+                  <Col span={12}>
                     <Item
                       name="accumulated_from"
+                      label="Giá trị nhỏ nhất"
                       rules={[
                         {
                           required: true,
-                          message: "Giá trị nhỏ nhất không được để trống",
+                          message: "Giá trị nhỏ nhất phải lớn hơn 0",
                         },
+                        () => ({
+                          validator(_, value) {
+                            if (typeof value === "number" && value <= 0) {
+                              return Promise.reject(
+                                new Error("Giá trị nhỏ nhất phải lớn hơn 0")
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        }),
                       ]}
                     >
                       <NumberInput
                         style={{width: '100%', textAlign: 'left'}}
                         placeholder="Nhập giá trị nhỏ nhất để lên hạng"
                         format={(a: string) => formatCurrency(a)}
-                        replace={(a: string) =>
-                          replaceFormatString(a)
-                        }
+                        replace={(a: string) => replaceFormatString(a)}
                         max={999999999999999}
+                        maxLength={20}
+                        disabled={params.id && !allowUpdateCustomerLevel}
+                      />
+                    </Item>
+                  </Col>
+
+                  <Col span={12}>
+                    <Item
+                      name="money_maintain_in_year"
+                      label="Tổng tích lũy cần duy trì trong năm"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Tổng tích lũy cần duy trì trong năm phải lớn hơn 0",
+                        },
+                        () => ({
+                          validator(_, value) {
+                            if (typeof value === "number" && value <= 0) {
+                              return Promise.reject(
+                                new Error("Tổng tích lũy cần duy trì trong năm phải lớn hơn 0")
+                              );
+                            }
+                            return Promise.resolve();
+                          },
+                        }),
+                      ]}
+                    >
+                      <NumberInput
+                        style={{width: '100%', textAlign: 'left'}}
+                        placeholder="Nhập giá trị"
+                        format={(a: string) => formatCurrency(a)}
+                        replace={(a: string) => replaceFormatString(a)}
+                        max={999999999999999}
+                        maxLength={20}
                         disabled={params.id && !allowUpdateCustomerLevel}
                       />
                     </Item>
@@ -241,7 +290,6 @@ const CreateCustomerRanking = () => {
                   className="save-btn"
                   onClick={() => {
                     formRef.current?.submit();
-                    history.goBack()
                   }}
                 >
                   Lưu hạng khách hàng
