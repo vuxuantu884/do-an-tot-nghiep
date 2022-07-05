@@ -12,7 +12,6 @@ import {
   Form,
   FormInstance,
   AutoComplete,
-  InputNumber,
   Tooltip,
   Spin,
 } from "antd";
@@ -58,6 +57,8 @@ import {HttpStatus} from "config/http-status.config";
 import {handleDelayActionWhenInsertTextInSearchInput, isNullOrUndefined} from "utils/AppUtils";
 import {EnumJobStatus} from "config/enum.config";
 import {getInfoAdjustmentByJobService} from "service/loyalty/loyalty.service";
+import NumberInput from "component/custom/number-input.custom";
+import {formatCurrency, replaceFormatString} from "utils/AppUtils";
 
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import excelIcon from "assets/icon/icon-excel.svg";
@@ -73,7 +74,7 @@ const POINT_ADD_REASON = [
 ];
 const POINT_SUBTRACT_REASON = ["Trừ điểm bù", "Khác"];
 
-const MONEY_ADD_REASON = ["Tặng tiền tích lũy", "Khác"];
+const MONEY_ADD_REASON = ["Tặng tiền tích lũy", "Tặng tiền duy trì hạng VIP", "Khác"];
 const MONEY_SUBTRACT_REASON = ["Trừ tiền tích lũy", "Khác"];
 
 const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
@@ -580,14 +581,26 @@ const CreatePointAdjustment = () => {
                                 required: true,
                                 message: "Vui lòng nhập giá trị",
                               },
+                              () => ({
+                                validator(_, value) {
+                                  if (typeof value === "number" && value <= 0) {
+                                    return Promise.reject("Giá trị phải lớn hơn 0");
+                                  } else if (typeof value === "number" && value > 1000000000) {
+                                    return Promise.reject("Giá trị tối đa là 1.000.000.000");
+                                  }
+                                  return Promise.resolve();
+                                },
+                              }),
                             ]}
                           >
-                            <InputNumber
-                              style={{ width: "100%" }}
-                              formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
+                            <NumberInput
+                              style={{ width: "100%", textAlign: "left" }}
+                              format={(a: string) => formatCurrency(a)}
+                              replace={(a: string) => replaceFormatString(a)}
                               placeholder="Nhập giá trị"
-                              min="0"
-                              max="1000000000"
+                              max={1000000000}
+                              maxLength={13}
+                              minLength={0}
                             />
                           </Item>
                         </div>

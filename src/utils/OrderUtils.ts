@@ -178,7 +178,7 @@ export const canCreateShipment = (fulfillments?: FulFillmentResponse[] | null) =
   return createShipment;
 }
 
-export const isFulfillmentActive = (
+export const getFulfillmentActive = (
   fulfillments?: FulFillmentResponse[] | null | any
 ) => {
   if (!fulfillments) return undefined; //không tìm thấy ffm
@@ -203,7 +203,7 @@ export const isDeliveryOrderReturned = (
   if (!fulfillments) return false; //không tìm thấy ffm
   let fulfillment: FulFillmentResponse | null | undefined = null;
   if (Array.isArray(fulfillments)) {
-    fulfillment = isFulfillmentActive(fulfillments);
+    fulfillment = getFulfillmentActive(fulfillments);
   }
   else {
     fulfillment = fulfillments;

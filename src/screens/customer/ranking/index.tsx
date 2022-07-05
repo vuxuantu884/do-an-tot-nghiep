@@ -129,14 +129,17 @@ const CustomerRanking = () => {
       title: "STT",
       visible: true,
       fixed: "left",
+      align: "center",
       render: (value: any, item: any, index: number) => <div>{(data.metadata.page - 1) * data.metadata.limit + index + 1}</div>,
-      width: '150px'
+      width: '60px'
     },
     {
       title: "Tên hạng khách hàng",
       dataIndex: "name",
       visible: true,
       fixed: "left",
+      align: "left",
+      width: '200px',
       render: (value, row, index) => {
         return (
           <Link to={`${UrlConfig.CUSTOMER2}-rankings/${row.id}/update`}>
@@ -146,22 +149,29 @@ const CustomerRanking = () => {
       },
     },
     {
+      title: "Tổng tích lũy cần duy trì trong năm",
+      visible: true,
+      align: 'right',
+      width: '250px',
+      render: (value: any) => <div>{formatCurrency(value.money_maintain_in_year)}</div>
+    },
+    {
       title: "Giá trị nhỏ nhất",
       visible: true,
       align: 'right',
+      width: '200px',
       render: (value: any) => <div>{formatCurrency(value.accumulated_from)}</div>
     },
     {
       title: "Trạng thái",
       visible: true,
-      fixed: "left",
       align: 'center',
+      width: '160px',
       render: (value: any) => <div className={`status status__${value.status}`}>{value.status === 'ACTIVE' ? 'Đang hoạt động' : 'Dừng hoạt động'}</div>
     },
     {
       title: "Ngày tạo",
       visible: true,
-      fixed: "left",
       align: 'center',
       width: '120px',
       render: (value: any) => <div>{moment(value.created_date).format(DATE_FORMAT.DDMMYYY)}</div>
@@ -175,7 +185,7 @@ const CustomerRanking = () => {
     {
       title: "",
       visible: true,
-      width: "72px",
+      width: "70px",
       render: (value: any, i: any) => RenderActionColumn(value, i)
     }
   ]
@@ -250,7 +260,9 @@ const CustomerRanking = () => {
           <Card>
             <div className="customer-ranking">
               <CustomTable
+                bordered={true}
                 isLoading={tableLoading}
+                scroll={{ x: 1200 }}
                 sticky={{ offsetScroll: 5 }}
                 pagination={{
                   pageSize: data.metadata.limit,

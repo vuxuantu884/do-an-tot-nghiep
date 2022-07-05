@@ -217,7 +217,10 @@ const RequestTicket: FC = () => {
       )
     ) {
       setDataTable((prev: any) => prev.concat([{ ...selectedItem, transfer_quantity: 1 }]));
-      dataTemp = dataTemp.concat([{ ...selectedItem, transfer_quantity: 1 }]);
+      dataTemp = [
+        ...[{ ...selectedItem, transfer_quantity: 1 }],
+        ...dataTemp,
+      ];
     } else {
       const indexItem = dataTemp.findIndex(e => e.sku === item.sku);
 

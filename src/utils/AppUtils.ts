@@ -92,7 +92,7 @@ export const findCurrentRoute = (
             if(!subMenuPathArr.includes(path))  {
             const pathArray = path.split("/")
             const subPath = []
-            // xử lý trường hợp lấy subroute active /purchase-orders/123/procurements/345 
+            // xử lý trường hợp lấy subroute active /purchase-orders/123/procurements/345
             for (let i = 1; i < pathArray.length + 1; i += 2) {
               pathArray[i] && subPath.push(pathArray[i])
             }
@@ -271,6 +271,7 @@ export const getArrDepartment = (
     code: i.code,
     address: i.address,
     manager: i.manager,
+    parent_name: i.parent_name,
     manager_code: i.manager_code,
     phone: i.phone,
     level: level,
@@ -469,7 +470,8 @@ export const replaceFormatString = (currency: number | string): string => {
 
 export const findAvatar = (VariantImage: Array<VariantImage>): string => {
   let avatar: string = "";
-  VariantImage.forEach((v) => {
+
+  VariantImage?.length > 0 && VariantImage.forEach((v) => {
     if (v.variant_avatar) {
       avatar = v.url;
     }
@@ -1117,7 +1119,7 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
   for (const singleReturn of OrderDetail.order_returns) {
      //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
      for (const singleReturnItem of singleReturn.items) {
-       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id && item.type === singleReturnItem.type);
+       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id && item.type === singleReturnItem.type && (item.order_line_item_id ? item.order_line_item_id === singleReturnItem.order_line_item_id : true));
 
        if(index > -1) {
          let duplicatedItem = {...orderReturnItems[index]};
@@ -1177,11 +1179,16 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
 	let newReturnItems = cloneDeep(_orderReturnItems);
 	// let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
+  console.log('_orderReturnItems', _orderReturnItems)
   for (const singleOrder of OrderDetailClone.items) {
 		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau, nếu có order_line_item_id thì check luôn)
-    let duplicatedItem = newReturnItems.find(single=>single.variant_id === singleOrder.variant_id && single.type === singleOrder.type && (single.order_line_item_id ? single.order_line_item_id === singleOrder.id : true));
+    let duplicatedItem = newReturnItems.find(single=>{
+      console.log('singleOrder', singleOrder)
+      return single.variant_id === singleOrder.variant_id && single.type === singleOrder.type && (single.order_line_item_id ? single.order_line_item_id === singleOrder.id : true)
+    });
+    console.log('duplicatedItem', duplicatedItem)
     if(duplicatedItem) {
-			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id&& single.type === duplicatedItem.type)
+			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id&& single.type === duplicatedItem.type && (duplicatedItem.order_line_item_id ? single.id === duplicatedItem.id : true))
 			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
 			if(quantityLeft ===0) {
 				newReturnItems.splice(index, 1);
@@ -1201,6 +1208,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
       result.push(singleOrder);
     }
   }
+  console.log('result111', result)
  return result;
 }
 
@@ -2050,3 +2058,12 @@ export const flattenArray = (arr: any) => {
       .replace(new RegExp('\\' + decimalSeparator), '.')
   );
 }
+
+/*
+*Thêm item vào vị trí chỉ định
+*/
+export const insertCustomIndexArray = (arr: any, index: number, newItem: any) => [
+  ...arr.slice(0, index),
+  newItem,
+  ...arr.slice(index)
+]

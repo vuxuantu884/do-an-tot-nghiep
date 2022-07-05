@@ -2,6 +2,7 @@ import {Card, Col, Row} from "antd";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER, SAPO_URL, SHOPIFY_URL } from "config/url.config";
 import {OrderResponse} from "model/response/order/order.response";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import {Link} from "react-router-dom";
@@ -148,6 +149,15 @@ function SidebarOrderDetailInformation(props: PropTypes) {
     )
   }
 
+  const renderElementReferenceHandover = (goods_receipts?:GoodsReceiptsResponse[]|null)=>{
+    return (
+      <React.Fragment>
+        {goods_receipts?.map(p=>(
+          <Link to={`${UrlConfig.DELIVERY_RECORDS}/${p.id}`} target="_blank" className="reference-good-receipt">{p.id} - {p.receipt_type_name}</Link>
+        ))}
+      </React.Fragment>
+    )
+  }
 
   return (
     <StyledComponent>
@@ -274,12 +284,15 @@ function SidebarOrderDetailInformation(props: PropTypes) {
             </span>
           </Col>
         </Row>
-        <Row gutter={5}>
-          <Col span={10}>Tham chiếu:</Col>
-          <Col span={14} style={{wordWrap: "break-word"}}>
-            {renderElementReference(OrderDetail)}
-          </Col>
-        </Row>
+        {OrderDetail?.reference_code && OrderDetail?.reference_code.length > 0 && (
+          <Row gutter={5}>
+            <Col span={10}>Tham chiếu:</Col>
+            <Col span={14} style={{ wordWrap: "break-word" }}>
+              {renderElementReference(OrderDetail)}
+            </Col>
+          </Row>
+        )}
+        
         {OrderDetail?.reason_name && (
           <Row gutter={5}>
             <Col span={10}>Lý do huỷ:</Col>
@@ -297,6 +310,14 @@ function SidebarOrderDetailInformation(props: PropTypes) {
               <span style={{fontWeight: 500, color: "rgb(226, 67, 67)"}} className="text-focus">
                 {renderReturnedOrder()}
               </span>
+            </Col>
+          </Row>
+        )}
+        {OrderDetail?.goods_receipts && OrderDetail?.goods_receipts.length > 0 && (
+          <Row gutter={5}>
+            <Col span={10} className="reference-good-receipt">Biên bản bàn giao:</Col>
+            <Col span={14} style={{ wordWrap: "break-word" }}>
+              {renderElementReferenceHandover(OrderDetail?.goods_receipts)}
             </Col>
           </Row>
         )}

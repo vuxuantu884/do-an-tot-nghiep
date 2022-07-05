@@ -4,7 +4,7 @@ import {
 } from "@ant-design/icons";
 import {
   Button, Card, Col, Form,
-  Input, message, Modal, Row, Select, Space
+  Input, message, Modal, Progress, Row, Select, Space
 } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
@@ -56,8 +56,10 @@ import {addPromotionCodeApi, getPromotionJobsApi} from "service/promotion/promo-
 import {EnumJobStatus} from "config/enum.config";
 import ProcessAddDiscountCodeModal from "screens/promotion/promo-code/components/ProcessAddDiscountCodeModal";
 
-import eyeIcon from "assets/icon/eye.svg";
 import DiscountUsageDetailModal from "./components/DiscountUsageDetailModal";
+import {exportDiscountCode} from "service/promotion/discount/discount.service";
+import eyeIcon from "assets/icon/eye.svg";
+import exportIcon from "assets/icon/export.svg";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -465,378 +467,501 @@ const ListCode = () => {
     getDiscountCodeData();
   }, [getDiscountCodeData]);
 
+  // handle export file
+  const [isVisibleExportProcessModal, setIsVisibleExportProcessModal] = useState(false);
+  const [exportCode, setExportCode] = useState<string | null>(null);
+  const [exportProcessPercent, setExportProcessPercent] = useState<number>(0);
+
+  const resetExportProcess = () => {
+    setExportProcessPercent(0);
+    setExportCode(null);
+  }
+
+  const handleExportFile = () => {
+    resetExportProcess();
+    dispatch(showLoading());
+    exportDiscountCode(priceRuleId)
+      .then((response) => {
+        if (response?.code) {
+          setIsVisibleExportProcessModal(true);
+          setExportCode(response.code);
+        } else {
+          showError(`${response.message ? response.message : "Có lỗi khi tạo tiến trình xuất file mã giảm giá"}`);
+        }
+      })
+      .catch((error) => {
+        if (error.response?.data?.errors?.length > 0) {
+          const errorMessage = error.response?.data?.errors[0];
+          showError(`${errorMessage ? errorMessage: "Có lỗi khi tạo tiến trình xuất file mã giảm giá"}`);
+        }
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
+  }
+
+  const onCancelProgressModal = useCallback(() => {
+    resetExportProcess();
+    setIsVisibleExportProcessModal(false);
+  }, []);
+
+  const onExportFile = useCallback(() => {
+    if (!exportCode) return;
+    
+    let getFilePromises: any = getPromotionJobsApi(exportCode);
+    Promise.all([getFilePromises]).then((responses) => {
+      responses.forEach((response: any) => {
+        if (isVisibleExportProcessModal && response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.status?.toUpperCase() === "FINISH") {
+            if (response.data.url) {
+              setExportCode(null);
+              setExportProcessPercent(100);
+              showSuccess("Xuất file dữ liệu mã giảm giá thành công!");
+              window.open(response.data.url);
+            }
+          } else {
+            if (response.data.total > 0) {
+              const percent = Math.floor(response.data.success / response.data.total * 100);
+              setExportProcessPercent(percent >= 100 ? 99 : percent);
+            }
+          }
+        }
+      });
+    });
+  }, [exportCode, isVisibleExportProcessModal]);
+
+  useEffect(() => {
+    if (exportProcessPercent === 100 || !exportCode) return;
+
+    onExportFile();
+
+    const getFileInterval = setInterval(onExportFile,3000);
+    return () => clearInterval(getFileInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [onExportFile, exportCode]);
+  // end handle export file
 
 
   return (
 
-        <ContentContainer
-          title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ''}`}
-          breadcrumb={[
-            {
-              name: "Khuyến mại",
-            },
-            {
-              name: "Đợt phát hành",
-              path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
-            },
-            {
-              name: `${promoValue?.code}`,
-              path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${promoValue?.id}`,
-            },
-            {
-              name: "Danh sách mã giảm giá",
-            },
-          ]}
-          extra={
-            <Row>
-              <Space>
-                {allowCreatePromoCode ? (
-                  <Button
-                    className="ant-btn-outline ant-btn-primary"
-                    size="large"
-                    icon={<PlusOutlined />}
-                    onClick={() => setShowModalAdd(true)}
-                  >
-                    Thêm mới mã giảm giá
-                  </Button>
-                ) : null}
-              </Space>
-            </Row>
-          }
-        >
-          <Card>
-            <div className="discount-code__search">
-              <CustomFilter onMenuClick={onMenuClick} menu={ACTIONS_PROMO_CODE} actionDisable={!allowUpdatePromoCode}>
-                <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
-                  <Item name="code" className="search">
-                    <Input
-                      prefix={<img src={search} alt="" />}
-                      placeholder="Tìm kiếm theo mã, tên chương trình"
-                      onBlur={(e) => { form.setFieldsValue({ code: e.target.value?.trim() }) }}
-                    />
-                  </Item>
-                  <Item name="state">
-                    <Select
-                      showArrow
-                      showSearch
-                      style={{ minWidth: "200px" }}
-                      optionFilterProp="children"
-                      placeholder="Chọn trạng thái"
-                      allowClear={true}
-                    >
-                      {statuses?.map((item) => (
-                        <Option key={item.code} value={item.code}>
-                          {item.value}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
-                  <Item>
-                    <Button type="primary" htmlType="submit">
-                      Lọc
-                    </Button>
-                  </Item>
-                  <Item>
-                    <Button icon={<FilterOutlined />} onClick={openFilter}>
-                      Thêm bộ lọc
-                    </Button>
-                  </Item>
-                </Form>
-              </CustomFilter>
+    <ContentContainer
+      title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ''}`}
+      breadcrumb={[
+        {
+          name: "Khuyến mại",
+        },
+        {
+          name: "Đợt phát hành",
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`,
+        },
+        {
+          name: `${promoValue?.code}`,
+          path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${promoValue?.id}`,
+        },
+        {
+          name: "Danh sách mã giảm giá",
+        },
+      ]}
+      extra={
+        <Row>
+          <Space>
+            <Button
+              disabled={isLoading}
+              size="large"
+              icon={
+                <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
+              }
+              onClick={handleExportFile}>
+              Xuất file
+            </Button>
 
-              <CustomTable
-                bordered
-                selectedRowKey={selectedRowKey}
-                onChangeRowKey={(rowKey) => {
-                  setSelectedRowKey(rowKey);
-                }}
-                isRowSelection
-                isLoading={isLoading}
-                // sticky={{offsetScroll: 5}}
-                pagination={{
-                  pageSize: promoCodeList.metadata.limit,
-                  total: promoCodeList.metadata.total,
-                  current: promoCodeList.metadata.page,
-                  showSizeChanger: true,
-                  onChange: onPageChange,
-                  onShowSizeChange: onPageChange,
-                }}
-                dataSource={promoCodeList.items}
-                columns={columns}
-                rowKey={(item: any) => item.id}
-
-              />
-            </div>
-          </Card>
-          <Modal
-            className="modal-show-add-discount"
-            onCancel={() => setShowModalAdd(false)}
-            width={600}
-            visible={showModalAdd}
-            title="Thêm mã giảm giá"
-            footer={[]}
-          >
-            <Row gutter={24}>
-              <Col
-                span="24"
-                style={{
-                  display: "flex",
-                  gap: 15,
-                }}
+            {allowCreatePromoCode ? (
+              <Button
+                className="ant-btn-outline ant-btn-primary"
+                size="large"
+                icon={<PlusOutlined />}
+                onClick={() => setShowModalAdd(true)}
               >
-                <div
-                  className="card-discount-code"
-                  onClick={() => {
-                    setShowModalAdd(false);
-                    setShowAddCodeManual(true);
-                  }}
+                Thêm mới mã giảm giá
+              </Button>
+            ) : null}
+          </Space>
+        </Row>
+      }
+    >
+      <Card>
+        <div className="discount-code__search">
+          <CustomFilter onMenuClick={onMenuClick} menu={ACTIONS_PROMO_CODE} actionDisable={!allowUpdatePromoCode}>
+            <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
+              <Item name="code" className="search">
+                <Input
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tìm kiếm theo mã, tên chương trình"
+                  onBlur={(e) => { form.setFieldsValue({ code: e.target.value?.trim() }) }}
+                />
+              </Item>
+              <Item name="state">
+                <Select
+                  showArrow
+                  showSearch
+                  style={{ minWidth: "200px" }}
+                  optionFilterProp="children"
+                  placeholder="Chọn trạng thái"
+                  allowClear={true}
                 >
-                  <img
-                    style={{
-                      background:
-                        "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
-                    }}
-                    src={VoucherIcon}
-                    alt=""
-                  />
-                  <p style={{ fontWeight: 500 }}>Thêm mã thủ công</p>
-                </div>
-                <div
-                  className="card-discount-code"
-                  onClick={() => {
-                    setShowModalAdd(false);
-                    setShowAddCodeRandom(true);
-                  }}
-                >
-                  <img
-                    style={{
-                      background:
-                        "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
-                    }}
-                    src={AddListCouponIcon}
-                    alt=""
-                  />
-                  <p style={{ fontWeight: 500 }}>Thêm mã ngẫu nhiên</p>
-                </div>
-                <div
-                  className="card-discount-code"
-                  onClick={() => {
-                    setShowModalAdd(false);
-                    setShowImportFile(true);
-                  }}
-                >
-                  <img
-                    style={{
-                      background:
-                        "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)",
-                    }}
-                    src={AddImportCouponIcon}
-                    alt=""
-                  />
-                  <p style={{ fontWeight: 500 }}>Nhập file Excel</p>
-                </div>
-              </Col>
-            </Row>
-          </Modal>
-          <CustomModal
-            type={"MANUAL"}
-            visible={showAddCodeManual}
-            okText="Thêm"
-            cancelText="Thoát"
-            title="Thêm mã thủ công"
-            onCancel={() => {
-              setShowAddCodeManual(false);
+                  {statuses?.map((item) => (
+                    <Option key={item.code} value={item.code}>
+                      {item.value}
+                    </Option>
+                  ))}
+                </Select>
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item>
+              <Item>
+                <Button icon={<FilterOutlined />} onClick={openFilter}>
+                  Thêm bộ lọc
+                </Button>
+              </Item>
+            </Form>
+          </CustomFilter>
+
+          <CustomTable
+            bordered
+            selectedRowKey={selectedRowKey}
+            onChangeRowKey={(rowKey) => {
+              setSelectedRowKey(rowKey);
             }}
-            onOk={(value, form) => {
-              handleAddManual(value, form);
+            isRowSelection
+            isLoading={isLoading}
+            // sticky={{offsetScroll: 5}}
+            pagination={{
+              pageSize: promoCodeList.metadata.limit,
+              total: promoCodeList.metadata.total,
+              current: promoCodeList.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
             }}
+            dataSource={promoCodeList.items}
+            columns={columns}
+            rowKey={(item: any) => item.id}
+
           />
-          <CustomModal
-            type={"RANDOM"}
-            visible={showAddCodeRandom}
-            okText="Thêm"
-            cancelText="Thoát"
-            title="Thêm mã ngẫu nhiên"
-            onCancel={() => {
-              setShowAddCodeRandom(false);
+        </div>
+      </Card>
+      <Modal
+        className="modal-show-add-discount"
+        onCancel={() => setShowModalAdd(false)}
+        width={600}
+        visible={showModalAdd}
+        title="Thêm mã giảm giá"
+        footer={[]}
+      >
+        <Row gutter={24}>
+          <Col
+            span="24"
+            style={{
+              display: "flex",
+              gap: 15,
             }}
-            onOk={(data) => {
-              handleAddRandom(data);
-              setShowAddCodeRandom(false);
-            }}
-          />
-          <Modal
-            onCancel={() => {
+          >
+            <div
+              className="card-discount-code"
+              onClick={() => {
+                setShowModalAdd(false);
+                setShowAddCodeManual(true);
+              }}
+            >
+              <img
+                style={{
+                  background:
+                    "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
+                }}
+                src={VoucherIcon}
+                alt=""
+              />
+              <p style={{ fontWeight: 500 }}>Thêm mã thủ công</p>
+            </div>
+            <div
+              className="card-discount-code"
+              onClick={() => {
+                setShowModalAdd(false);
+                setShowAddCodeRandom(true);
+              }}
+            >
+              <img
+                style={{
+                  background:
+                    "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
+                }}
+                src={AddListCouponIcon}
+                alt=""
+              />
+              <p style={{ fontWeight: 500 }}>Thêm mã ngẫu nhiên</p>
+            </div>
+            <div
+              className="card-discount-code"
+              onClick={() => {
+                setShowModalAdd(false);
+                setShowImportFile(true);
+              }}
+            >
+              <img
+                style={{
+                  background:
+                    "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)",
+                }}
+                src={AddImportCouponIcon}
+                alt=""
+              />
+              <p style={{ fontWeight: 500 }}>Nhập file Excel</p>
+            </div>
+          </Col>
+        </Row>
+      </Modal>
+      <CustomModal
+        type={"MANUAL"}
+        visible={showAddCodeManual}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã thủ công"
+        onCancel={() => {
+          setShowAddCodeManual(false);
+        }}
+        onOk={(value, form) => {
+          handleAddManual(value, form);
+        }}
+      />
+      <CustomModal
+        type={"RANDOM"}
+        visible={showAddCodeRandom}
+        okText="Thêm"
+        cancelText="Thoát"
+        title="Thêm mã ngẫu nhiên"
+        onCancel={() => {
+          setShowAddCodeRandom(false);
+        }}
+        onOk={(data) => {
+          handleAddRandom(data);
+          setShowAddCodeRandom(false);
+        }}
+      />
+      <Modal
+        onCancel={() => {
+          setUploadStatus(undefined);
+          setShowImportFile(false);
+        }}
+        width={650}
+        visible={showImportFile}
+        title="Nhập file khuyến mại"
+        footer={[
+          <Button
+            key="back"
+            onClick={() => {
               setUploadStatus(undefined);
               setShowImportFile(false);
             }}
-            width={650}
-            visible={showImportFile}
-            title="Nhập file khuyến mại"
-            footer={[
-              <Button
-                key="back"
-                onClick={() => {
-                  setUploadStatus(undefined);
-                  setShowImportFile(false);
-                }}
-              >
-                Huỷ
-              </Button>,
-
-              <Button
-                key="link"
-                type="primary"
-                onClick={() => {
-                  setUploadStatus(undefined);
-                  dispatch(getPriceRuleAction(id, onResult));
-                  setShowImportFile(false);
-                }}
-                disabled={uploadStatus === "error"}
-              >
-                Xong
-              </Button>,
-            ]}
           >
-            <div style={{ display: uploadStatus === undefined ? "" : "none" }}>
-              <Row gutter={12}>
-                <Col span={3}>Chú ý:</Col>
-                <Col span={19}>
-                  <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
-                  <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
-                  <p>
-                    - Tải file mẫu{" "}
-                    <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
-                  </p>
-                  <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
-                  <p>
-                    - Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến
-                    5 phút. Trong lúc hệ thống xử lý không F5 hoặc tắt cửa sổ trình duyệt.
-                  </p>
-                </Col>
-              </Row>
-              <Row gutter={24}>
-                <div className="dragger-wrapper">
-                  <Dragger
-                    accept=".xlsx"
-                    multiple={false}
-                    showUploadList={false}
-                    action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file2`}
-                    headers={{ Authorization: `Bearer ${token}` }}
-                    beforeUpload={(file) => {
-                      if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
-                        setUploadStatus("error");
-                        setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
-                        return false;
-                      }
-                      setShowImportFile(false);
+            Huỷ
+          </Button>,
+
+          <Button
+            key="link"
+            type="primary"
+            onClick={() => {
+              setUploadStatus(undefined);
+              dispatch(getPriceRuleAction(id, onResult));
+              setShowImportFile(false);
+            }}
+            disabled={uploadStatus === "error"}
+          >
+            Xong
+          </Button>,
+        ]}
+      >
+        <div style={{ display: uploadStatus === undefined ? "" : "none" }}>
+          <Row gutter={12}>
+            <Col span={3}>Chú ý:</Col>
+            <Col span={19}>
+              <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
+              <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
+              <p>
+                - Tải file mẫu{" "}
+                <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
+              </p>
+              <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
+              <p>
+                - Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến
+                5 phút. Trong lúc hệ thống xử lý không F5 hoặc tắt cửa sổ trình duyệt.
+              </p>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <div className="dragger-wrapper">
+              <Dragger
+                accept=".xlsx"
+                multiple={false}
+                showUploadList={false}
+                action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file2`}
+                headers={{ Authorization: `Bearer ${token}` }}
+                beforeUpload={(file) => {
+                  if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+                    setUploadStatus("error");
+                    setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
+                    return false;
+                  }
+                  setShowImportFile(false);
+                  setIsVisibleProcessModal(true);
+                  setUploadError([]);
+                  return true;
+                }}
+                onChange={(info) => {
+                  const { status } = info.file;
+                  if (status === "done") {
+                    setUploadStatus(undefined);
+                    if (info.file?.response?.code) {
                       setIsVisibleProcessModal(true);
-                      setUploadError([]);
-                      return true;
-                    }}
-                    onChange={(info) => {
-                      const { status } = info.file;
-                      if (status === "done") {
-                        setUploadStatus(undefined);
-                        if (info.file?.response?.code) {
-                          setIsVisibleProcessModal(true);
-                          resetProgress();
-                          setJobCreateCode(info.file.response.code);
-                          setIsProcessing(true);
-                        } else {
-                          setIsVisibleProcessModal(false);
-                          setUploadStatus("error");
-                          setUploadError("Có lỗi khi tạo tiến trình Thêm mới mã giảm giá.");
-                        }
-                      } else if (status === "error") {
-                        setIsVisibleProcessModal(false);
-                        message.error(`${info.file.name} file upload failed.`);
-                        setUploadStatus("error");
-                      }
-                    }}
-                  >
-                    <p className="ant-upload-drag-icon">
-                      <RiUpload2Line size={48} />
-                    </p>
-                    <p className="ant-upload-hint">
-                      Kéo file vào đây hoặc tải lên từ thiết bị
-                    </p>
-                  </Dragger>
-                </div>
-              </Row>
+                      resetProgress();
+                      setJobCreateCode(info.file.response.code);
+                      setIsProcessing(true);
+                    } else {
+                      setIsVisibleProcessModal(false);
+                      setUploadStatus("error");
+                      setUploadError("Có lỗi khi tạo tiến trình Thêm mới mã giảm giá.");
+                    }
+                  } else if (status === "error") {
+                    setIsVisibleProcessModal(false);
+                    message.error(`${info.file.name} file upload failed.`);
+                    setUploadStatus("error");
+                  }
+                }}
+              >
+                <p className="ant-upload-drag-icon">
+                  <RiUpload2Line size={48} />
+                </p>
+                <p className="ant-upload-hint">
+                  Kéo file vào đây hoặc tải lên từ thiết bị
+                </p>
+              </Dragger>
             </div>
-            <Row>
-              <div style={{ display: uploadStatus === "error" ? "" : "none" }}>
-                <Row justify={"center"}>
-                  {uploadStatus === "error" ? (
-                    <Col span={24}>
-                      <Row justify={"center"}>
-                        <Space size={"large"}>
-                          <VscError style={{ fontSize: "78px", color: "#E24343" }} />
-                          <h2 style={{ padding: "10px 30px" }}>
-                            <li>{uploadError || "Máy chủ đang bận"}</li>
-                          </h2>
-                        </Space>
-                      </Row>
-                    </Col>
-                  ) : (
-                    ""
-                  )}
-                </Row>
-              </div>
+          </Row>
+        </div>
+        <Row>
+          <div style={{ display: uploadStatus === "error" ? "" : "none" }}>
+            <Row justify={"center"}>
+              {uploadStatus === "error" ? (
+                <Col span={24}>
+                  <Row justify={"center"}>
+                    <Space size={"large"}>
+                      <VscError style={{ fontSize: "78px", color: "#E24343" }} />
+                      <h2 style={{ padding: "10px 30px" }}>
+                        <li>{uploadError || "Máy chủ đang bận"}</li>
+                      </h2>
+                    </Space>
+                  </Row>
+                </Col>
+              ) : (
+                ""
+              )}
             </Row>
-          </Modal>
-          <CustomModal
-            type={"EDIT"}
-            visible={showEditPopup}
-            okText="Thêm"
-            valueChange={editData?.code}
-            cancelText="Thoát"
-            title={`Sửa mã giảm giá ${editData?.code}`}
-            onCancel={() => {
-              setShowEditPopup(false);
-            }}
-            onOk={(data) => {
-              handleEdit(data?.code);
-              setShowEditPopup(false);
-            }}
-          />
-          <ModalDeleteConfirm
-            onCancel={() => setIsShowDeleteModal(false)}
-            onOk={() => {
-              setIsShowDeleteModal(false);
-              dispatch(showLoading());
-              dispatch(deletePromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
-            }}
-            okText="Đồng ý"
-            cancelText="Huỷ"
-            title="Xóa mã giảm giá"
-            subTitle="Bạn có chắc chắn xóa mã giảm giá, ..."
-            visible={isShowDeleteModal}
-          />
+          </div>
+        </Row>
+      </Modal>
+      <CustomModal
+        type={"EDIT"}
+        visible={showEditPopup}
+        okText="Thêm"
+        valueChange={editData?.code}
+        cancelText="Thoát"
+        title={`Sửa mã giảm giá ${editData?.code}`}
+        onCancel={() => {
+          setShowEditPopup(false);
+        }}
+        onOk={(data) => {
+          handleEdit(data?.code);
+          setShowEditPopup(false);
+        }}
+      />
+      <ModalDeleteConfirm
+        onCancel={() => setIsShowDeleteModal(false)}
+        onOk={() => {
+          setIsShowDeleteModal(false);
+          dispatch(showLoading());
+          dispatch(deletePromoCodeById(priceRuleId, deleteData.id, deleteCallBack));
+        }}
+        okText="Đồng ý"
+        cancelText="Huỷ"
+        title="Xóa mã giảm giá"
+        subTitle="Bạn có chắc chắn xóa mã giảm giá, ..."
+        visible={isShowDeleteModal}
+      />
 
-          {/* Process create new discount code */}
-          {isVisibleProcessModal &&
-            <ProcessAddDiscountCodeModal
-              visible={isVisibleProcessModal}
-              onOk={onOKProgressImportCustomer}
-              progressData={progressData}
-              progressPercent={processPercent}
-              isProcessing={isProcessing}
+      {/* Process create new discount code */}
+      {isVisibleProcessModal &&
+        <ProcessAddDiscountCodeModal
+          visible={isVisibleProcessModal}
+          onOk={onOKProgressImportCustomer}
+          progressData={progressData}
+          progressPercent={processPercent}
+          isProcessing={isProcessing}
+        />
+      }
+
+      {/* Progress export customer data */}
+      {isVisibleExportProcessModal &&
+        <Modal
+          onCancel={onCancelProgressModal}
+          visible={isVisibleExportProcessModal}
+          title="Xuất file"
+          centered
+          width={600}
+          maskClosable={false}
+          footer={[
+            <>
+              {exportProcessPercent < 100 ?
+                <Button key="cancel-process-modal" danger onClick={onCancelProgressModal}>
+                  Thoát
+                </Button>
+                :
+                <Button key="confirm-process-modal" type="primary" onClick={onCancelProgressModal}>
+                  Xác nhận
+                </Button>
+              }
+            </>
+          ]}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ marginBottom: 15 }}>
+              {exportProcessPercent < 100 ?
+                <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
+                :
+                <span style={{ color: "#27AE60" }}>Đã xuất file dữ liệu mã khuyến mại thành công!</span>
+              }
+            </div>
+            <Progress
+              type="circle"
+              strokeColor={{
+                "0%": "#108ee9",
+                "100%": "#87d068",
+              }}
+              percent={exportProcessPercent}
             />
-          }
+          </div>
+        </Modal>
+      }
 
-          {/* Process create new discount code */}
-          {isVisibleDiscountUsageDetailModal &&
-            <DiscountUsageDetailModal
-              visible={isVisibleDiscountUsageDetailModal}
-              discountUsageDetailList={discountUsageDetailList}
-              onCloseModal={onCloseDiscountUsageDetailModal}
-            />
-          }
-        </ContentContainer>
-
-
+      {/* Process create new discount code */}
+      {isVisibleDiscountUsageDetailModal &&
+        <DiscountUsageDetailModal
+          visible={isVisibleDiscountUsageDetailModal}
+          discountUsageDetailList={discountUsageDetailList}
+          onCloseModal={onCloseDiscountUsageDetailModal}
+        />
+      }
+    </ContentContainer>
   );
 };
 

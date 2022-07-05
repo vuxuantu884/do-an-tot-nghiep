@@ -120,7 +120,7 @@ export interface OrderModel extends BaseObject {
   channel_code: string;
   created_on?: string | null;
   total_quantity: number;
-  goods_receipts?: GoodsReceiptsResponse[];
+  goods_receipts?: GoodsReceiptsResponse[]|null;
   export_bill: boolean;
 }
 
@@ -327,4 +327,9 @@ export type CalculateVariantPointInOrderModel = {
   point_add: number;
   point_subtract: number;
   variant_id: number;
+  order_line_id: number;
+}
+
+export interface OrderWithFulfillmentActiveModel extends OrderModel{
+  fulfillment_active?:FulFillmentResponse;
 }

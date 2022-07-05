@@ -73,7 +73,7 @@ export const getListOrderCustomerApi = (
 
 export const getShipmentApi = (
   query: ShipmentSearchQuery
-): Promise<BaseResponse<ShipmentModel>> => {
+): Promise<BaseResponse<PageResponse<ShipmentModel>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/shipments?${queryString}`);
 };

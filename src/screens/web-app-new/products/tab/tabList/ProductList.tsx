@@ -318,7 +318,7 @@ const ProductList = (props: ProductListprops) => {
             title: "Ảnh",
             visible: true,
             align: "center",
-            width: "70px",
+            width: "100px",
             render: (item: any) => {
                 return (
                     <img
@@ -491,6 +491,17 @@ const ProductList = (props: ProductListprops) => {
                 );
             },
         },
+        {
+            title: "Log đồng bộ tồn",
+            key: "sync_stock_log",
+            align: "left",
+            width: "120px",
+            render: (value: any, item: any) => (
+                <div >
+                    <div>{item.sync_stock_log}</div>
+                </div>
+            ),
+        },
         ActionColumn(
             handleDeleteItem,
             syncSingleStock,
@@ -514,7 +525,7 @@ const ProductList = (props: ProductListprops) => {
                     onSelectedChange={handleSelectRowTable}
                     columns={columns}
                     dataSource={variantData.items}
-                    scroll={{ x: 1500 }}
+                    scroll={{ x: 2000 }}
                     sticky={{ offsetScroll: 10, offsetHeader: 55 }}
                     pagination={{
                         pageSize: variantData.metadata && variantData.metadata.limit,

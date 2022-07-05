@@ -1,5 +1,6 @@
 import {BaseObject} from "model/base/base.response";
 import {StoreResponse} from "model/core/store.model";
+import { GoodsReceiptsResponse } from "../pack/pack.response";
 
 export interface OrderResponse extends BaseObject {
   ecommerce_shop_id: null;
@@ -99,6 +100,7 @@ export interface OrderResponse extends BaseObject {
   export_bill: boolean;
   sub_reason_id?: number;
   bill: OrderBillResponseModel|null;
+  goods_receipts?:GoodsReceiptsResponse[]|null;
 }
 
 export interface OrderLineItemResponse {
@@ -523,6 +525,10 @@ export interface PackFulFillmentResponse extends FulFillmentResponse{
   order_code:string;
   customer:string;
   customer_id:number;
+  shipment_pushing_note:string;
+  shipment_pushing_status:string;
+  shipment_delivery_service_note:string;
+  shipment_expected_received_date:string;
 }
 
 export interface OrderReturnResponse {

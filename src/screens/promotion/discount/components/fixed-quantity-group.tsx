@@ -180,29 +180,6 @@ const FixedAndQuantityGroup = (props: Props) => {
     return [...productOptions, ...variantOptions];
   }, [dataSearchVariant]);
 
-  const formatDiscountCurrencyByFormValue = (
-    value: number | undefined,
-    form: FormInstance
-  ) => {
-    const isPercent =
-      form.getFieldValue([
-        "entitlements",
-        name,
-        "prerequisite_quantity_ranges",
-        0,
-        "value_type",
-      ]) === DiscountUnitType.PERCENTAGE.value;
-    if (isPercent) {
-      const floatIndex = value?.toString().indexOf(".") || -1;
-      if (floatIndex > 0) {
-        return `${value}`.slice(0, floatIndex + 3);
-      }
-      return `${value}`;
-    } else {
-      return formatCurrency(`${value}`.replaceAll(".", ""));
-    }
-  };
-
   /**
    *
    * @param index number index of product in page

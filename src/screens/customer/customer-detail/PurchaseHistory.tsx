@@ -39,7 +39,7 @@ import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreate
 import _ from "lodash";
 import {RootReducerType} from "../../../model/reducers/RootReducerType";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM} from "utils/Order.constants";
-import {getLink, getReturnMoneyStatusColor, isFulfillmentActive} from 'utils/OrderUtils';
+import {getLink, getReturnMoneyStatusColor, getFulfillmentActive} from 'utils/OrderUtils';
 import { showSuccess } from "utils/ToastUtils";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { OrderExtraModel, OrderModel } from "model/order/order.model";
@@ -543,7 +543,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
       return;
     }
     const trackingLogFulfillment = record?.trackingLog;
-    const fulfillment = isFulfillmentActive(record?.fulfillments);
+    const fulfillment = getFulfillmentActive(record?.fulfillments);
     const trackingCode = fulfillment?.shipment?.tracking_code;
     if (!trackingCode) {
       return " Không có mã vận đơn!";
@@ -581,7 +581,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     }
     if (typeAPi === type.trackingCode) {
       if (selectedOrder && selectedOrder.fulfillments) {
-        const fulfillment = isFulfillmentActive(selectedOrder.fulfillments);
+        const fulfillment = getFulfillmentActive(selectedOrder.fulfillments);
         if (!fulfillment?.code) {
           return;
         }
@@ -1086,7 +1086,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
             );
           }
 
-          const fulfillment = isFulfillmentActive(record.fulfillments);
+          const fulfillment = getFulfillmentActive(record.fulfillments);
           if (!fulfillment) {
             return "";
           }

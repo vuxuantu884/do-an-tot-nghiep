@@ -454,3 +454,12 @@ export const STORE_TYPE={
   DISTRIBUTION_CENTER:"distribution_center",//Kho phân phối
   STOCKPILE:"stockpile"//Kho dự trữ
 }
+
+export const PUSHING_STATUS={
+  COMPLETED:"completed"
+}
+
+export const RECEIPT_TYPE ={
+  SHIPPING :1,
+  RETURNED:2,
+}

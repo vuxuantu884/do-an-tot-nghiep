@@ -77,6 +77,8 @@ import PurchaseOrderProvider, {
 } from "./provider/purchase-order.provider";
 import POInfoPO from "./component/po-info-po";
 import ModalConfirm from "component/modal/ModalConfirm";
+import { PurchaseProcument } from "model/purchase-order/purchase-procument";
+import { PrintTypePo } from "./helper";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
 const ModalExport = lazy(() => import("./modal/ModalExport"));
@@ -93,12 +95,12 @@ const ActionMenuPrint = {
   NORMAL: 2, //mẫu in thông thường
 };
 
-const PrintTypePo = {
-  PURCHASE_ORDER: "purchase_order",
-  PURCHASE_ORDER_MA_7: "purchase_order_ma_7",
-  PURCHASE_ORDER_FGG: "purchase_order_fgg",
-  PURCHASE_ORDER_MA_7_FGG: "purchase_order_ma_7_fgg",
-};
+// const PrintTypePo = {
+//   PURCHASE_ORDER: "purchase_order",
+//   PURCHASE_ORDER_MA_7: "purchase_order_ma_7",
+//   PURCHASE_ORDER_FGG: "purchase_order_fgg",
+//   PURCHASE_ORDER_MA_7_FGG: "purchase_order_ma_7_fgg",
+// };
 type PurchaseOrderParam = {
   id: string;
 };
@@ -404,17 +406,17 @@ const PODetailScreen: React.FC = () => {
     dispatch(showLoading());
     switch (index) {
       case ActionMenuPrint.NORMAL:
-        if (isGridMode) {
-          actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7);
-          break;
-        }
+        // if (isGridMode) {
+        //   actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7);
+        //   break;
+        // }
         actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER);
         break;
       case ActionMenuPrint.FGG:
-        if (isGridMode) {
-          actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7_FGG);
-          break;
-        }
+        // if (isGridMode) {
+        //   actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_MA_7_FGG);
+        //   break;
+        // }
         actionPrint(idNumber, PrintTypePo.PURCHASE_ORDER_FGG);
         break;
     }
@@ -509,6 +511,15 @@ const PODetailScreen: React.FC = () => {
     if (!purchaseOrder) return [];
     const poStatus = purchaseOrder.status;
     if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO) {
+      menuActions.push({
+        id: ActionMenu.DELETE,
+        name: "Hủy",
+      });
+    }
+    const poProcurementsStatus: Array<string> = purchaseOrder?.procurements?.map((item: PurchaseProcument) => item.status).slice(1)
+    // lấy tất cả status của pr trừ pr đầu tiên (bù nhìn)
+    // cho phép hủy PO khi các phiếu PR đã hủy
+    if(poStatus && poStatus === POStatus.STORED && poProcurementsStatus.every((el) => el === ProcumentStatus.CANCELLED) && canCancelPO) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",

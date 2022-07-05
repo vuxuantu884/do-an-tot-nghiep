@@ -16,7 +16,7 @@ import { createRef, useCallback, useEffect, useLayoutEffect, useMemo, useState }
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { haveAccess } from "utils/AppUtils";
-import { isFulfillmentActive } from "utils/OrderUtils";
+import { getFulfillmentActive } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import AddOrderBottombar from "./add/add-order-bottombar";
 import AddOrderInReport from "./add/add-order-in-report";
@@ -226,7 +226,7 @@ const AddReportHandOver: React.FC<any> = () => {
 
       //let fulfillment: string[] = [];
 
-      let fulfillment = orderListResponse.map(p=>{return isFulfillmentActive(p.fulfillments)?.code;})
+      let fulfillment = orderListResponse.map(p=>{return getFulfillmentActive(p.fulfillments)?.code;})
 
       console.log("fulfillment",fulfillment)
 

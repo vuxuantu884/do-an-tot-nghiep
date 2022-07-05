@@ -30,11 +30,11 @@ import { GoodsReceiptsInfoOrderModel, VariantModel } from "model/pack/pack.model
 import { Link } from "react-router-dom";
 import { StyledComponent } from "./styles";
 import { showModalError, showSuccess, showWarning } from "utils/ToastUtils";
-import { formatCurrency } from "utils/AppUtils";
-import { insertArray, isFullfilmentPacked } from "./pack-utils";
+import { formatCurrency, insertCustomIndexArray } from "utils/AppUtils";
+import { isFulfillmentPacked } from "./pack-utils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
-import { isFulfillmentActive } from "utils/OrderUtils";
+import { getFulfillmentActive } from "utils/OrderUtils";
 
 const { Item } = Form;
 type PackParam = {
@@ -102,7 +102,7 @@ const PackUpdate: React.FC = () => {
         let ship_price = 0;
         let total_price = 0;
 
-        let fulfillments = isFulfillmentActive(itemOrder.fulfillments);
+        let fulfillments = getFulfillmentActive(itemOrder.fulfillments);
 
         ship_price = itemOrder?.shipping_fee_informed_to_customer || 0;
         total_price = (fulfillments && fulfillments.total) || 0;
@@ -232,11 +232,11 @@ const PackUpdate: React.FC = () => {
       if (packDetail && packDetail.orders && packDetail.orders.length > 0) {
         packDetail?.orders?.forEach((orderItem) => {
           let fulfillments = orderItem.fulfillments;
-          let fulfillment = isFulfillmentActive(fulfillments);
+          let fulfillment = getFulfillmentActive(fulfillments);
           /**
            * receipt_type_id === 1 => đơn chuyển đi
            */
-          if (!isFullfilmentPacked(fulfillment) && packDetail.receipt_type_id === 1) {
+          if (!isFulfillmentPacked(fulfillment) && packDetail.receipt_type_id === 1) {
             success = false;
             showModalError(`Không thể cập nhật biên bản, Đơn hàng ${orderItem?.code} không ở trạng thái đã đóng gói`);
           }
@@ -257,7 +257,7 @@ const PackUpdate: React.FC = () => {
         }
       }
 
-      codes = insertArray([...codes], 0, order_id);
+      codes = insertCustomIndexArray([...codes], 0, order_id);
 
       let id = packDetail?.id ? packDetail?.id : 0;
       let param: any = {
@@ -411,7 +411,7 @@ const PackUpdate: React.FC = () => {
         });
 
         if (codes.indexOf(barcode) === -1) {
-          codes = insertArray([...codes], 0, barcode);
+          codes = insertCustomIndexArray([...codes], 0, barcode);
           let id = packDetail?.id ? packDetail?.id : 0;
           let param: any = {
             ...packDetail,

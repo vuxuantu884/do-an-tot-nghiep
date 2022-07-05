@@ -1,7 +1,7 @@
 import { isUndefinedOrNull } from 'utils/AppUtils';
 import { takeLatest, call, put } from "@redux-saga/core/effects";
 import { AppType } from "domain/types/app.type";
-import { getSettingApp, getToken } from "utils/LocalStorageUtils";
+import { ACCOUNT_CODE_LOCAL_STORAGE, getSettingApp, getToken } from "utils/LocalStorageUtils";
 import { loadUserFromStorageSuccessAction, loadSettingAppResultAction, loadUserFromStorageFailAction} from 'domain/actions/app.action';
 import { getAccountDetail } from 'service/accounts/account.service';
 import BaseResponse from 'base/base.response';
@@ -24,6 +24,7 @@ function* loadUserFromStorageSaga(action: YodyAction) {
         case HttpStatus.SUCCESS:
           yield put(loadUserFromStorageSuccessAction(response.data));
           handleData?.(response.data);
+          localStorage.setItem(ACCOUNT_CODE_LOCAL_STORAGE, response?.data?.code);
           break;
         case HttpStatus.UNAUTHORIZED:
           yield put(loadUserFromStorageFailAction())

@@ -25,6 +25,7 @@ type FormValueType = {
   is_default: boolean;
   email: string;
   city_id: number;
+  buyer: string;
   tax_code: string;
   default: boolean;
 };
@@ -58,6 +59,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           is_default: formItem?.default,
           email: formItem?.email,
           city_id: formItem?.city_id,
+          buyer: formItem?.buyer,
           tax_code: formItem?.tax_code,
           default: formItem?.default,
         }
@@ -71,6 +73,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           is_default: false,
           email: "",
           city_id: null,
+          buyer: "",
           tax_code: "",
           default: null,
         };
@@ -185,6 +188,16 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                     style={{ width: "100%" }}
                     maxLength={255}
                   />
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row gutter={24}>
+              <Col span={24}>
+                <Form.Item
+                  label={<span className="fw-500">Đơn vị mua hàng:</span>}
+                  name="buyer"
+                >
+                  <Input maxLength={255} placeholder="Nhập đơn vị mua hàng" />
                 </Form.Item>
               </Col>
             </Row>

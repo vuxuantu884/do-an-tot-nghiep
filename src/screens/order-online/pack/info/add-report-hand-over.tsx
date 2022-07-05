@@ -22,16 +22,24 @@ import { setPackInfo } from "utils/LocalStorageUtils";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import moment, { Moment } from "moment";
-import { showError, showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showModalError, showSuccess, showWarning } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { PackFulFillmentResponse } from "model/response/order/order.response";
-import { FulFillmentStatus, ShipmentMethod } from "utils/Constants";
+import { FulFillmentStatus, PUSHING_STATUS, RECEIPT_TYPE, ShipmentMethod } from "utils/Constants";
 import UrlConfig from "config/url.config";
 import { convertFromStringToDate, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { getListOrderApi } from "service/order/order.service";
-import {  getFullfilmentPacked, getFullfilmentReturning } from "../pack-utils";
+import { isFulfillmentPacked } from "../pack-utils";
+import { formatDateTimeOrderFilter, getFulfillmentActive } from "utils/OrderUtils";
+import { OrderWithFulfillmentActiveModel } from "model/order/order.model";
+import { DATE_FORMAT } from "utils/DateUtils";
 // import { useHistory } from "react-router-dom";
+
+type Props = {
+  setOrderPushFalseDelivery: (data: OrderWithFulfillmentActiveModel[]) => void;
+  setIsVisiblePackedOrderModal: (value: boolean) => void;
+}
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 5,
@@ -48,7 +56,10 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   to_date: "",
 };
 
-const AddReportHandOver: React.FC = () => {
+const dateFormat = DATE_FORMAT.DD_MM_YY_HHmmss;
+
+const AddReportHandOver: React.FC<Props> = (props: Props) => {
+  const { setOrderPushFalseDelivery, setIsVisiblePackedOrderModal } = props;
   const dispatch = useDispatch();
   // const history= useHistory();
 
@@ -60,14 +71,15 @@ const AddReportHandOver: React.FC = () => {
     GoodsReceiptsResponse[]
   >([]);
   const [goodsReceipts, setGoodsReceipts] = useState<GoodsReceiptsResponse>();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   //Ref
   const goodsReceiptsRef = React.useRef<any>(null);
 
   //Context
   const orderPackContextData = useContext(OrderPackContext);
-  const setPackModel = orderPackContextData?.setPackModel;
-  const packModel = orderPackContextData?.packModel;
+  const setSinglePack = orderPackContextData?.setSinglePack;
+  const singlePack = orderPackContextData?.singlePack;
   const listStores = orderPackContextData.listStores;
   const listChannels = orderPackContextData.listChannels;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
@@ -76,8 +88,8 @@ const AddReportHandOver: React.FC = () => {
   const setIsFulFillmentPack = orderPackContextData?.setIsFulFillmentPack;
 
   const orderPackSuccess: PackFulFillmentResponse[] = useMemo(() => {
-    return !packModel ? [] : !packModel?.order ? [] : packModel.order;
-  }, [packModel])
+    return !singlePack ? [] : !singlePack?.fulfillments ? [] : singlePack.fulfillments;
+  }, [singlePack])
 
   const handleOk = () => {
     goodsReceiptsForm.submit();
@@ -133,8 +145,6 @@ const AddReportHandOver: React.FC = () => {
 
             initQueryGoodsReceipts.limit = 1000;
             initQueryGoodsReceipts.page = 1;
-            //initQueryGoodsReceipts.sort_type = "desc";
-            //initQueryGoodsReceipts.sort_column = "updated_date";
             initQueryGoodsReceipts.from_date = fromDate;
             initQueryGoodsReceipts.to_date = toDate;
 
@@ -160,159 +170,194 @@ const AddReportHandOver: React.FC = () => {
     ]
   );
 
+
+  /**
+   * 
+   * @param orderMap kiểm tra tính hợp lệ trước khi lưu đơn hàng vào biên bản
+   * @param receiptTypeId 
+   * @returns true or false
+   */
+  const validateFulfillments = (orderMap: OrderWithFulfillmentActiveModel[], receiptTypeId?: number) => {
+    const orderCodes = orderMap.map((p) => p.code);
+    const fulfillmentCodes = orderMap.map((p) => p.fulfillment_active);
+    const orderPushDeliveryNotCompleted: OrderWithFulfillmentActiveModel[] = orderMap.filter((p: OrderWithFulfillmentActiveModel) => p.fulfillment_active?.shipment?.pushing_status && p.fulfillment_active?.shipment?.pushing_status !== PUSHING_STATUS.COMPLETED)
+    const findDuplicated:string[] = orderCodes.filter((item, index: number) => orderCodes.indexOf(item) !== index);
+    const fulfillmentIsNotPack = fulfillmentCodes.filter((item) => !isFulfillmentPacked(item));
+
+    if (findDuplicated && findDuplicated.length > 0) {
+      showModalError(
+        <React.Fragment>
+          {findDuplicated.map((p) => (
+            <div>Đơn hàng <b>{p}</b> đã có trong biên bản</div>
+          ))}
+        </React.Fragment>
+      )
+
+      return false;
+    }
+
+    if (fulfillmentIsNotPack && fulfillmentIsNotPack.length > 0 && receiptTypeId === RECEIPT_TYPE.SHIPPING) {
+      showModalError(
+        <React.Fragment>
+          {fulfillmentIsNotPack.map((p) => (
+            <div>Đơn giao <b>{p?.code}</b> không ở trạng thái đã đóng gói</div>
+          ))}
+        </React.Fragment>
+      )
+
+      return false;
+    }
+
+    if(orderPushDeliveryNotCompleted && orderPushDeliveryNotCompleted.length>0){
+      setOrderPushFalseDelivery(orderPushDeliveryNotCompleted)
+      setIsVisiblePackedOrderModal(true);
+
+      return false;
+    }
+
+    return true;
+  }
+
   const handOrderAddGoodsReceipts = useCallback(() => {
     if (!goodsReceipts) {
       showWarning("Chưa chọn biên bản bàn giao");
       return;
     }
 
-    if (orderPackSuccess.length <= 0) {
-      showWarning("Chưa có đơn hàng đóng gói");
+    if (orderPackSuccess.length === 0) {
+      showWarning("Chưa có đơn giao đã đóng gói");
       return;
     }
 
-    console.log(goodsReceipts.orders)
     if (goodsReceipts.orders && goodsReceipts.orders.length > 0) {
       let indexShipping = goodsReceipts.orders?.findIndex(p => p.fulfillment_status === FulFillmentStatus.SHIPPING);
 
-      console.log("indexShipping", indexShipping)
       if (indexShipping !== -1) {
-        showError(`Không thể cập nhật biên bản, Đơn hàng ${goodsReceipts.orders[indexShipping].code} đã xuất kho`);
+        showModalError(`Không thể cập nhật biên bản, Đơn giao ${goodsReceipts.orders[indexShipping].code} đã xuất kho`);
         return;
       }
     }
 
-    let selectOrderPackSuccess = orderPackSuccess?.filter((p) => isFulFillmentPack.some((single) => single === p.order_code));
+    let selectFulfillmentPackSuccess = orderPackSuccess?.filter((p) => isFulFillmentPack.some((single) => single === p.order_code));
     let notSelectOrderPackSuccess = orderPackSuccess?.filter((p) => !isFulFillmentPack.some((single) => single === p.order_code));
 
-    if (!selectOrderPackSuccess || (selectOrderPackSuccess && selectOrderPackSuccess.length <= 0)) {
-      showWarning("chưa chọn đơn hàng cần thêm vào biên bản");
+    if (!selectFulfillmentPackSuccess || (selectFulfillmentPackSuccess && selectFulfillmentPackSuccess.length === 0)) {
+      showWarning("chưa chọn đơn giao cần thêm vào biên bản");
       return;
     }
 
     const handleGoodsReceipts = (receiptsItem: GoodsReceiptsResponse) => {
 
-      let codes: any[] = [];
-
       const saveFFMOrderNew = () => {
-        let queryCode = selectOrderPackSuccess ? selectOrderPackSuccess.map((p) => p.order_code) : [];
+        let queryCode = selectFulfillmentPackSuccess ? selectFulfillmentPackSuccess.map((p) => p.order_code) : [];
         let queryParam: any = { code: queryCode }
+        let orderMapSingleFulfillment: OrderWithFulfillmentActiveModel[] = [];
+        setIsLoading(true);
         getListOrderApi(queryParam).then(response => {
+          setIsLoading(false);
           if (isFetchApiSuccessful(response)) {
-            console.log("isFetchApiSuccessful 1", response)
             let orderData = response.data.items;
             if (orderData && orderData.length > 0) {
-              orderData.forEach((order) => {
-                if (order.fulfillments && order.fulfillments.length > 0) {
-                  if (receiptsItem.receipt_type_id === 1) {
-                    let fulfillments = getFullfilmentPacked(order.fulfillments);
-                    if (fulfillments.length > 0) {
-                      let indexFFM = fulfillments.length - 1;
-                      let FFMCode: string | null = fulfillments[indexFFM].code;
-                      FFMCode && codes.push(FFMCode);
-                    }
-                  }
-                  else if (receiptsItem.receipt_type_id === 2) {
-                    let fulfillments = getFullfilmentReturning(order.fulfillments);
-                    if (fulfillments.length > 0) {
-                      let indexFFM = fulfillments.length - 1;
-                      let FFMCode: string | null = fulfillments[indexFFM].code;
-                      FFMCode && codes.push(FFMCode);
-                    }
-                  }
+              let orderMap: OrderWithFulfillmentActiveModel[] = orderData.map(p => {
+                return {
+                  ...p,
+                  fulfillment_active: getFulfillmentActive(p.fulfillments)
                 }
-              })
+              });
 
+              orderMapSingleFulfillment = [...orderMap];
             }
           }
-          else handleFetchApiError(response, "Danh sách fulfillment", dispatch)
-        }).then(() => {
-          if (receiptsItem && receiptsItem.orders && receiptsItem.orders?.length > 0) {
-            receiptsItem?.orders?.forEach((order) => {
-              if (order.fulfillments && order.fulfillments.length > 0) {
-                if (receiptsItem.receipt_type_id === 1) {
-                  let fulfillments = getFullfilmentPacked(order.fulfillments);
-                  if (fulfillments.length > 0) {
-                    let indexFFM = fulfillments.length - 1;
-                    let FFMCode: string | null = fulfillments[indexFFM].code;
-                    FFMCode && codes.push(FFMCode);
-                  }
-                }
-                else if (receiptsItem.receipt_type_id === 2) {
-                  let fulfillments = getFullfilmentReturning(order.fulfillments);
-                  if (fulfillments.length > 0) {
-                    let indexFFM = fulfillments.length - 1;
-                    let FFMCode: string | null = fulfillments[indexFFM].code;
-                    FFMCode && codes.push(FFMCode);
-                  }
-                }
-              }
-            });
-
+          else {
+            handleFetchApiError(response, "Danh sách fulfillment", dispatch)
           }
-          console.log("isFetchApiSuccessful 2", codes)
         }).then(() => {
+          /**
+           * kiểm tra các đơn hợp lệ
+           * đơn có sẵn trong biên bản
+           */
+          if (receiptsItem && receiptsItem.orders && receiptsItem.orders?.length > 0) {
+            const orderMap:OrderWithFulfillmentActiveModel[] = receiptsItem.orders.map(p => {
+              return {
+                ...p,
+                total_weight: null,
+                payments:[],
+                channel_code:"",
+                total_quantity:0,
+                fulfillment_active: getFulfillmentActive(p.fulfillments)
+              }
+            })
+
+            orderMapSingleFulfillment = [...orderMapSingleFulfillment, ...orderMap];
+          }
+        }).then(() => {
+
+          let isValid = validateFulfillments(orderMapSingleFulfillment);
+
           let param: any = {
             ...receiptsItem,
-            codes: codes,
+            codes: orderMapSingleFulfillment.map(p=>p.fulfillment_active?.code||""),
           };
 
-          dispatch(
-            updateGoodsReceipts(
-              receiptsItem.id,
-              param,
-              (value: GoodsReceiptsResponse) => {
-                if (value) {
-                  setGoodsReceipts(value);
-                  console.log("GoodsReceiptsResponse", value)
-                  //removePackInfo();
+          console.log(param);
 
-                  let packData: PackModel = {
-                    ...new PackModelDefaultValue(),
-                    ...packModel,
-                    order: [...notSelectOrderPackSuccess]
+          if (isValid) {
+            /**
+             * lưu đơn hàng vào biên bản
+             */
+            dispatch(
+              updateGoodsReceipts(
+                receiptsItem.id,
+                param,
+                (value: GoodsReceiptsResponse) => {
+                  if (value) {
+                    setGoodsReceipts(value);
+
+                    let packData: PackModel = {
+                      ...new PackModelDefaultValue(),
+                      ...singlePack,
+                      fulfillments: [...notSelectOrderPackSuccess]
+                    }
+
+                    setSinglePack(packData);
+                    setPackInfo(packData);
+                    setIsFulFillmentPack([]);
+                    showSuccess("Thêm đơn hàng vào biên bản bàn giao thành công");
+                    let pathname = `${process.env.PUBLIC_URL}${UrlConfig.DELIVERY_RECORDS}/${value.id}`;
+                    window.open(pathname, "_blank");
                   }
-
-                  setPackModel(packData);
-                  setPackInfo(packData);
-                  setIsFulFillmentPack([]);
-                  showSuccess("Thêm đơn hàng vào biên bản bàn giao thành công");
-                  let pathname = `${process.env.PUBLIC_URL}${UrlConfig.DELIVERY_RECORDS}/${value.id}`;
-                  window.open(pathname, "_blank");
+                  else {
+                    showError("Thêm đơn hàng vào biên bản bàn giao thất bại");
+                  }
                 }
-                else {
-                  showError("Thêm đơn hàng vào biên bản bàn giao thất bại");
-                }
-              }
-            )
-          );
+              )
+            );
+          }
         })
       }
 
       saveFFMOrderNew();
     }
+    handleGoodsReceipts(goodsReceipts);
 
-    dispatch(getByIdGoodsReceipts(goodsReceipts.id, (receiptsItem) => {
-      handleGoodsReceipts(receiptsItem);
-    }));
-  }, [goodsReceipts, orderPackSuccess, dispatch, isFulFillmentPack, packModel, setPackModel, setIsFulFillmentPack]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [goodsReceipts, orderPackSuccess, isFulFillmentPack, dispatch, singlePack, setSinglePack, setIsFulFillmentPack]);
 
   useEffect(() => {
 
-    let fromDate: Moment | undefined = convertFromStringToDate(moment(new Date().setHours(-72)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
-    let toDate: Moment | undefined = convertFromStringToDate(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
+    // let fromDate: Moment | undefined = convertFromStringToDate(moment(new Date().setHours(-72)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
+    // let toDate: Moment | undefined = convertFromStringToDate(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
+
+    let fromDate = moment().startOf("day").subtract(3, "days").format(dateFormat);
+    let toDate = moment().endOf("day").format(dateFormat);
 
     initQueryGoodsReceipts.limit = 1000;
     initQueryGoodsReceipts.page = 1;
-    //initQueryGoodsReceipts.sort_type = "desc";
-    //initQueryGoodsReceipts.sort_column = "updated_date";
-    initQueryGoodsReceipts.from_date = fromDate;
-    initQueryGoodsReceipts.to_date = toDate;
+    initQueryGoodsReceipts.from_date = formatDateTimeOrderFilter(fromDate, dateFormat);
+    initQueryGoodsReceipts.to_date =  formatDateTimeOrderFilter(toDate, dateFormat);
 
     dispatch(
       getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
-        // let receiptsSucess = data.items.filter((p) => p.orders?.some((p1) => p1.fulfillment_status === FulFillmentStatus.PACKED))
-        // console.log("receiptsSucess", receiptsSucess)
         setListGoodsReceipts(data.items);
       })
     );
@@ -326,21 +371,23 @@ const AddReportHandOver: React.FC = () => {
       );
       if (indexGoods !== -1) {
         console.log("selectGoodsReceipts", listGoodsReceipts[indexGoods])
-        setGoodsReceipts(listGoodsReceipts[indexGoods])
-        //dispatch(getByIdGoodsReceipts(listGoodsReceipts[indexGoods].id,setGoodsReceipts));
+        dispatch(getByIdGoodsReceipts(listGoodsReceipts[indexGoods].id, (receiptsItem) => {
+          setGoodsReceipts(receiptsItem)
+        }));
+
       }
       else
         setGoodsReceipts(undefined);
     },
-    [listGoodsReceipts]
+    [dispatch, listGoodsReceipts]
   );
 
-  useEffect(()=>{
+  useEffect(() => {
     formRef.current?.setFieldsValue({
-      store_id: packModel?.store_id,
-      //delivery_service_id:packModel?.delivery_service_provider_id
+      store_id: singlePack?.store_id,
+      //delivery_service_id:singlePack?.delivery_service_provider_id
     })
-  },[formRef, packModel?.store_id])
+  }, [formRef, singlePack?.store_id])
 
   return (
     <Card
@@ -361,16 +408,6 @@ const AddReportHandOver: React.FC = () => {
               onChange={(value: number) => {
                 selectGoodsReceipts(value);
               }}
-              // filterOption={(input, option) => {
-              //   if (option) {
-              //     return (
-              //       option?.children
-              //         .toLowerCase()
-              //         .indexOf(input.toLowerCase()) >= 0
-              //     );
-              //   }
-              //   return false;
-              // }}
               value={goodsReceipts?.id}
               ref={goodsReceiptsRef}
             >
@@ -403,6 +440,7 @@ const AddReportHandOver: React.FC = () => {
             onClick={handOrderAddGoodsReceipts}
             className="pack-give-card-row-item"
             style={{ width: "75px" }}
+            loading={isLoading}
           >
             Lưu
           </Button>

@@ -216,3 +216,11 @@ export type ProductStampPrinting = {
   planQuantity: number;
   product_id: number
 }
+
+export type POProgressResult = {
+  total: number;
+  success: number;
+  processed: number;
+  errors: number;
+  message_errors: Array<string>
+}

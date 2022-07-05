@@ -3,7 +3,7 @@ import { PackFulFillmentResponse } from 'model/response/order/order.response';
 export interface PackModel{
   store_id?:number|null;
   delivery_service_provider_id?:number|null;
-  order:PackFulFillmentResponse[];
+  fulfillments:PackFulFillmentResponse[];
 }
 export interface PackSearchQuery {
   page: number;
@@ -143,5 +143,5 @@ export interface FulfillmentsItemModel{
 export class PackModelDefaultValue implements PackModel{
   store_id=null;
   delivery_service_id=null;
-  order=[];
+  fulfillments=[];
 }

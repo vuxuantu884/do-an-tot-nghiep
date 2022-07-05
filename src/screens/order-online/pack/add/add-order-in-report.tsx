@@ -12,7 +12,7 @@ import { AddReportHandOverContext } from "contexts/order-pack/add-report-hand-ov
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { formatCurrency } from "utils/AppUtils";
 import { dangerColor } from "utils/global-styles/variables";
-import { isFulfillmentActive } from "utils/OrderUtils";
+import { getFulfillmentActive } from "utils/OrderUtils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
 
@@ -102,7 +102,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
         //   return ffm.status === FulFillmentStatus.SHIPPING && ffm.return_status === FulFillmentStatus.RETURNING
         // });
 
-        let fulfillment = isFulfillmentActive(order.fulfillments);
+        let fulfillment = getFulfillmentActive(order.fulfillments);
         if (fulfillment) {
           let product: VariantModel[] = [];
           let ship_price = fulfillment?.shipment?.shipping_fee_informed_to_customer || 0;
