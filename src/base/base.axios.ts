@@ -1,5 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
-import { getToken } from "utils/LocalStorageUtils";
+import { ACCOUNT_CODE_LOCAL_STORAGE, getToken } from "utils/LocalStorageUtils";
 import { AppConfig } from "../config/app.config";
 import { showError } from "../utils/ToastUtils";
 import { HttpStatus } from "../config/http-status.config";
@@ -20,6 +20,11 @@ export function getAxiosBase(config: AxiosRequestConfig) {
       const token = getToken();
       if (token != null) {
         request.headers["Authorization"] = `Bearer ${token}`;
+      }
+      // thêm user code
+      const accountCode = localStorage.getItem(ACCOUNT_CODE_LOCAL_STORAGE);
+      if (accountCode) {
+        request.headers["user_code"] = accountCode;
       }
       return request;
     },
