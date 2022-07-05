@@ -1217,7 +1217,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                   </Col>
 
                   <Row className="status">
-                    <Progress percent={dataProcess && (dataProcess?.success / dataProcess?.total) * 100} />
+                    <Progress percent={dataProcess && parseFloat(((dataProcess?.success / dataProcess?.total) * 100).toFixed(2))} />
                   </Row>
                 </Row>
                 <Row className="import-info">
