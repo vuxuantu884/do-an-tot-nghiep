@@ -1,4 +1,5 @@
 import { BaseObject } from "model/base/base.response";
+import { BaseQuery } from "../base/base.query";
 
 export interface DepartmentResponse extends BaseObject {
   name: string,
@@ -9,6 +10,7 @@ export interface DepartmentResponse extends BaseObject {
   address: string,
   level: number,
   parent_id: number,
+  parent_name: string,
   department_id: number,
   parent: string,
   children: Array<DepartmentResponse>,
@@ -20,9 +22,16 @@ export interface DepartmentView extends BaseObject {
   manager_code: string,
   manager: string,
   phone: string,
+  parent_name: string,
   address: string,
   isHaveChild?: boolean,
   parent: DepartmentParent | null
+}
+
+export interface DepartmentFilterProps extends BaseQuery {
+  content: string | null,
+  status: string | null,
+  department_ids: string | null,
 }
 
 export interface DepartmentRequest {

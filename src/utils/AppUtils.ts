@@ -271,6 +271,7 @@ export const getArrDepartment = (
     code: i.code,
     address: i.address,
     manager: i.manager,
+    parent_name: i.parent_name,
     manager_code: i.manager_code,
     phone: i.phone,
     level: level,

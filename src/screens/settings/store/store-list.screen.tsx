@@ -372,9 +372,6 @@ const StoreListScreen: React.FC = () => {
         });
 
         setData(newData);
-        console.log('stores', data);
-        
-
         return data;
       });
     }

@@ -6,14 +6,17 @@ import { strForSearch } from "../../utils/StringUtils";
 interface Props extends TreeSelectProps<string> {
     name?: string;
     placeholder?: string;
+    treeCheckable?: boolean;
+    multiple?: boolean;
     listDepartment: Array<DepartmentResponse> | undefined;
     onChange?: (value: any) => void;
 }
 
 const TreeDepartment = (props: Props) => {
-    const { name, placeholder, listDepartment, onChange, ...restProps } = props;
+    const { name, placeholder, listDepartment, onChange, multiple = true, treeCheckable = true, ...restProps } = props;
 
     const propConvert = () => {
+        if (!treeCheckable) return;
         const restPropsExt: any = { ...restProps, }
         return {
             ...restProps,
@@ -60,8 +63,8 @@ const TreeDepartment = (props: Props) => {
             className="selector"
             allowClear
             showSearch
-            multiple
-            treeCheckable
+            multiple={multiple}
+            treeCheckable={treeCheckable}
             treeNodeFilterProp='title'
             tagRender={tagRender}
             maxTagCount="responsive"

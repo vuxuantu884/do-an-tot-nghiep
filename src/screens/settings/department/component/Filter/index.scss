@@ -1,0 +1,27 @@
+.custom-filter-department {
+  .form-search {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+  }
+
+  .filter {
+    margin-right: 18px;
+  }
+
+  .input-search {
+    width: calc(100% - 660px);
+  }
+
+  .page-filter {
+    padding: 0;
+  }
+
+  .ant-space, .page-filter-heading {
+    display: unset !important;
+  }
+
+  .ant-form-item {
+    margin-bottom: 0;
+  }
+}
