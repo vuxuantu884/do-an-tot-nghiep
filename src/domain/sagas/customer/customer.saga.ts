@@ -653,10 +653,10 @@ function* DeleteNote(action: YodyAction) {
 }
 
 function* importCustomerSaga(action: YodyAction) {
-  const { file, callback } = action.payload;
+  const { queryParams, callback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<any> = yield call(importCustomerService, file);
+    const response: BaseResponse<any> = yield call(importCustomerService, queryParams);
     if (response.code) {
       callback(response);
     } else {

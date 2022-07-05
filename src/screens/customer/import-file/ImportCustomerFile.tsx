@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from "react";
 import { useDispatch } from "react-redux";
-import { Button, Modal, Typography, Upload,} from "antd";
+import {Button, Modal, Radio, Space, Typography, Upload,} from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import {showSuccess, showWarning} from "utils/ToastUtils";
 import { importCustomerAction } from "domain/actions/customer/customer.action";
@@ -12,6 +12,7 @@ import {getProgressImportCustomerApi} from "service/customer/customer.service";
 import {EnumJobStatus} from "config/enum.config";
 import ProgressImportCustomerModal from "screens/customer/import-file/ProgressImportCustomerModal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
+import {ImportCustomerQuery} from "model/query/customer.query";
 
 type ImportCustomerFileType = {
   onCancel: () => void;
@@ -29,6 +30,7 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
 
   const [isVisibleImportModal, setIsVisibleImportModal] = useState(true);
   const [fileList, setFileList] = useState<Array<File>>([]);
+  const [insertIfBlank , setInsertIfBlank] = useState(false);
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
   const [importProgressPercent, setImportProgressPercent] = useState<number>(0);
   const [processCode, setProcessCode] = useState(null);
@@ -65,7 +67,11 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
   
   const onOkImportModal = () => {
     if (fileList?.length) {
-      dispatch(importCustomerAction(fileList[0], callbackImportCustomer));
+      const queryParams: ImportCustomerQuery = {
+        file: fileList[0],
+        insertIfBlank: insertIfBlank,
+      }
+      dispatch(importCustomerAction(queryParams, callbackImportCustomer));
     } else {
       showWarning("Vui lòng chọn file!")
     }
@@ -152,7 +158,6 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
     // );
   }
 
-
   const checkDisableOkButton = useCallback(() => {
     return !fileList.length;
   }, [fileList.length]);
@@ -186,6 +191,13 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
           >
             <Button icon={<UploadOutlined />}>Chọn file</Button>
           </Upload>
+
+          <Radio.Group defaultValue={insertIfBlank} style={{ marginTop: 20}} onChange={(e) => setInsertIfBlank(e.target.value)}>
+            <Space direction="vertical">
+              <Radio value={false}>Tạo thông tin KH mới + Cập nhật thông tin KH cũ: <b>Chỉ cập nhật thông tin những trường trống, những trường đã có thông tin thì giữ nguyên thông tin cũ của KH</b></Radio>
+              <Radio value={true} style={{ marginTop: 10}}>Tạo thông tin KH mới + Cập nhật thông tin KH cũ: <b>Cập nhật toàn bộ thông tin mới chèn lên thông tin cũ của KH</b></Radio>
+            </Space>
+          </Radio.Group>
         </div>
       </Modal>
 

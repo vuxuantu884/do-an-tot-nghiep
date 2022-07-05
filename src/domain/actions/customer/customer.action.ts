@@ -1,4 +1,4 @@
-import { CustomerSearchQuery, FpageCustomerSearchQuery } from 'model/query/customer.query';
+import {CustomerSearchQuery, FpageCustomerSearchQuery, ImportCustomerQuery} from 'model/query/customer.query';
 import BaseAction from 'base/base.action';
 import { CustomerType } from 'domain/types/customer.type';
 import { CustomerResponse } from 'model/response/customer/customer.response';
@@ -194,6 +194,6 @@ export const CustomerUpdateAction = (
   return BaseAction(CustomerType.UPDATE_CUSTOMER, { id, request, setResult });
 };
 
-export const importCustomerAction = (file: File, callback: (data: any) => void) => {
-  return BaseAction(CustomerType.IMPORT_CUSTOMER, {file, callback});
+export const importCustomerAction = (queryParams: ImportCustomerQuery, callback: (data: any) => void) => {
+  return BaseAction(CustomerType.IMPORT_CUSTOMER, {queryParams, callback});
 }
