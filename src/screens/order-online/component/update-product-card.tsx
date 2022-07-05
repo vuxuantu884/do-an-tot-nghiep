@@ -222,7 +222,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
             let orderDetailResult:OrderDetailWithCalculatePointVariantModel = {
               ...OrderDetail,
               items: OrderDetail.items.map(item => {
-                const foundItem = response.data.find(single => single.order_line_id === item.order_line_item_id) || response.data.find(single => single.variant_id === item.variant_id);
+                const foundItem = response.data.find(single => single.order_line_id === item.id) || response.data.find(single => single.variant_id === item.variant_id);
                 return {
                   ...item,
                   point_add: foundItem?.point_add,
