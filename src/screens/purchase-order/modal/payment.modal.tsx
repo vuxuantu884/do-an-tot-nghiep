@@ -197,14 +197,14 @@ const PaymentModal: React.FC<PaymentModalProps> = (
     const taxed = array[1];
     let percentage: string;
     if (taxed === "true" && number === 100) {
-      formPayment.setFieldsValue({ amount: remainPayment.toLocaleString() });
+      formPayment.setFieldsValue({ amount: Math.round(remainPayment).toLocaleString() });
       percentage = ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%"
     } else if (taxed === "false") {
-      const untaxedAmount = (poData.untaxed_amount * number) / 100
+      const untaxedAmount = Math.round((poData.untaxed_amount * number) / 100)
       formPayment.setFieldsValue({ amount: untaxedAmount.toLocaleString() });
       percentage = ((untaxedAmount / poData.total_payment) * 100).toFixed(2) + "%"
     } else {
-      const amount = (poData.total_payment * number) / 100
+      const amount = Math.round((poData.total_payment * number) / 100)
       percentage = ((amount / poData.total_payment) * 100).toFixed(2) + "%"
       formPayment.setFieldsValue({ amount: amount.toLocaleString() });
     }
@@ -343,7 +343,7 @@ const PaymentModal: React.FC<PaymentModalProps> = (
                     if (remainPayment && number >= remainPayment) {
                       const percentage = ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%"
                       setPercentPayment(percentage)
-                      formPayment.setFieldsValue({ amount: remainPayment.toLocaleString() });
+                      formPayment.setFieldsValue({ amount: Math.round(remainPayment).toLocaleString() });
                       return remainPayment
                     }
                     handleSearch(number);
