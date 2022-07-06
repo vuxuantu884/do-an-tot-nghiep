@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor, dangerColor, primaryColor, successColor, textBodyColor, yellowColor} from "utils/global-styles/variables";
+import {borderColor, dangerColor, primaryColor, successColor, textBodyColor, textMutedColor, yellowColor} from "utils/global-styles/variables";
 
 let nameQuantityWidth = 200;
 
@@ -485,6 +485,10 @@ export const StyledComponent = styled.div.attrs((props:any) => {
   }
   .previewImage {
     margin-right: 6px;
+  }
+  .originalPrice {
+    color: ${textMutedColor};
+    text-decoration: line-through ;
   }
 `;
 

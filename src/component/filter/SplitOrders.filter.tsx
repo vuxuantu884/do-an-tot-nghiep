@@ -31,6 +31,7 @@ import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelec
 import { POS } from "utils/Constants";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { formatCurrency, replaceFormat } from "utils/AppUtils";
 
 type SplitOrdersFilterProps = {
   params: OrderSearchQuery;
@@ -292,11 +293,11 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
       })
       if (!error) {
         setVisible(false);
-        if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
+        if (values.price_min && values.price_max ) {
           values = {
             ...values,
-            price_min: values?.price_max,
-            price_max: values?.price_min,
+            price_min: values?.price_min,
+            price_max: values?.price_max,
           }
         }
         onFilter && onFilter(values);
@@ -490,7 +491,7 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
     }
 
     if (initialValues.price_min || initialValues.price_max) {
-      let textPrice = (initialValues.price_min ? `${initialValues.price_min} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " 0 ") + " ~ " + (initialValues.price_max ? `${initialValues.price_max} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : " ?? ")
+      let textPrice = (initialValues.price_min ? `${formatCurrency(initialValues.price_min)} đ` : " 0 ") + " ~ " + (initialValues.price_max ? `${formatCurrency(initialValues.price_max)} đ`: " ?? ")
       list.push({
         key: 'price',
         name: 'Tổng tiền',
@@ -931,21 +932,31 @@ const SplitOrdersFilter: React.FC<SplitOrdersFilterProps> = (
                   <Item name="price_min" style={{ width: '45%', marginBottom: 0 }}>
                     <InputNumber
                       className="price_min"
-                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       placeholder="Từ"
-                      min="0"
-                      max="100000000"
+                      formatter={(value) => {
+                        return formatCurrency(value || 0)
+                      }}
+                      parser={(value:string|undefined) =>
+                        replaceFormat(value||"")
+                      }
+                      min={0}
+                      max={1000000000}
                     />
                   </Item>
 
-                  <div className="swap-right-icon"><SwapRightOutlined /></div>
+                <div className="swap-right-icon"><SwapRightOutlined /></div>
                   <Item name="price_max" style={{width: '45%', marginBottom: 0}}>
                     <InputNumber
                       className="site-input-right price_max"
-                      formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
                       placeholder="Đến"
-                      min="0"
-                      max="1000000000"
+                      formatter={(value) => {
+                        return formatCurrency(value || 0)
+                      }}
+                      parser={(value:string|undefined) =>
+                        replaceFormat(value||"")
+                      }
+                      min={0}
+                      max={1000000000}
                     />
                   </Item>
                 </div>
