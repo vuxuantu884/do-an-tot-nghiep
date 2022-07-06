@@ -13,6 +13,7 @@ import { EcommerceChannelId } from "screens/ecommerce/common/commonAction";
 import { isOrderFromPOS, sortFulfillments } from "utils/AppUtils";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
+import { isDeliveryOrderReturned } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -246,7 +247,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           disabled={
                             // stepsStatusValue === OrderStatus.CANCELLED ||
                             stepsStatusValue === FulFillmentStatus.SHIPPED ||
-                            stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed
+                            stepsStatusValue === FulFillmentStatus.SHIPPING || !isPassed ||
+                            isDeliveryOrderReturned(orderDetail?.fulfillments)
                           }
                         >
                           Huỷ đơn hàng
