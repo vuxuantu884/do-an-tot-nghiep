@@ -47,7 +47,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
+import { formatCurrency, handleDelayActionWhenInsertTextInSearchInput, replaceFormat, replaceFormatString } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
@@ -283,11 +283,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     let values = formRef.current?.getFieldsValue();
     if (values) {
       values.services = services;
-      if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
+      if (values.price_min && values.price_max ) {
         values = {
           ...values,
-          price_min: values?.price_max,
-          price_max: values?.price_min,
+          price_min: values?.price_min,
+          price_max: values?.price_max,
         };
       }
 
@@ -691,11 +691,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         setVisible(false);
         values.services = services;
         values.searched_product = keySearchVariant; // search sản phẩm, ko để trong form nên phải thêm trong values
-        if (values.price_min && values.price_max && values?.price_min > values?.price_max) {
+        if (values.price_min && values.price_max ) {
           values = {
             ...values,
-            price_min: values?.price_max,
-            price_max: values?.price_min,
+            price_min: values?.price_min,
+            price_max: values?.price_max,
 
           };
         }
@@ -1172,11 +1172,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.price_min || initialValues.price_max) {
       let textPrice =
         (initialValues.price_min
-          ? `${initialValues.price_min} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ? `${formatCurrency(initialValues.price_min)} đ`
           : " 0 ") +
         " ~ " +
         (initialValues.price_max
-          ? `${initialValues.price_max} đ`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+          ? `${formatCurrency(initialValues.price_max)} đ`
           : " ?? ");
       list.push({
         key: "price",
@@ -2112,10 +2112,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     <Item name="price_min" style={{ width: "45%", marginBottom: 0 }}>
                       <InputNumber
                         className="price_min"
-                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        formatter={(value) => {
+                          return formatCurrency(value || 0)
+                        }}
+                        parser={(value:string|undefined) =>
+                          replaceFormat(value||"")
+                        }
+                        min={0}
+                        max={1000000000}
                         placeholder="Từ"
-                        min="0"
-                        max="100000000"
                         style={{ width: "100%" }}
                       />
                     </Item>
@@ -2126,10 +2131,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     <Item name="price_max" style={{ width: "45%", marginBottom: 0 }}>
                       <InputNumber
                         className="site-input-right price_max"
-                        formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                        formatter={(value) => {
+                          return formatCurrency(value || 0)
+                        }}
+                        parser={(value:string|undefined) =>
+                          replaceFormat(value||"")
+                        }
                         placeholder="Đến"
-                        min="0"
-                        max="1000000000"
+                        min={0}
+                        max={1000000000}
                         style={{ width: "100%" }}
                       />
                     </Item>
