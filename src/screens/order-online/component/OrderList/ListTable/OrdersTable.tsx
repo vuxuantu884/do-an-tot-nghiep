@@ -824,11 +824,11 @@ function OrdersTable(props: PropTypes) {
         // dataIndex: "",
         render: (record: any) => (
           <React.Fragment>
-            <div>
+            <div className="originalPrice">
               <Tooltip title="Tổng tiền khi sản phẩm còn nguyên giá">
-                <strong>
+                <span>
                   {formatCurrency(getTotalAmountBeforeDiscount(record.items))}
-                </strong>
+                </span>
               </Tooltip>
             </div>
             <div>
