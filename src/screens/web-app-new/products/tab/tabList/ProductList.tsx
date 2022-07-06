@@ -333,12 +333,13 @@ const ProductList = (props: ProductListprops) => {
             title: "Sku/ itemID (Sàn)",
             visible: true,
             width: "150px",
+            align: "center",
             render: (item: any) => {
                 return (
                     <div>
-                        <div>{item.ecommerce_sku}</div>
-                        <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
-                        <div style={{ color: "#2a2a86" }}>({item.shop})</div>
+                        <div style={{ textAlign: "left" }}>{item.ecommerce_sku}</div>
+                        <div style={{ color: "#737373", textAlign: "left"  }}>{item.ecommerce_product_id}</div>
+                        <div style={{ color: "#2a2a86", textAlign: "left"  }}>({item.shop})</div>
                     </div>
                 );
             },
@@ -346,9 +347,10 @@ const ProductList = (props: ProductListprops) => {
         {
             title: "Sản phẩm (Sàn)",
             visible: true,
+            align: "center",
             width: "300px",
             render: (item: any) => {
-                return <div>{item.ecommerce_variant}</div>;
+                return <div style={{ textAlign: "left" }}>{item.ecommerce_variant}</div>;
             },
         },
         {
@@ -367,6 +369,8 @@ const ProductList = (props: ProductListprops) => {
         {
             title: "Sản phẩm (Unicorn)",
             visible: true,
+            align: "center",
+            width: "300px",
             render: (item: any) => {
                 return (
                     <>
@@ -377,7 +381,7 @@ const ProductList = (props: ProductListprops) => {
                                     to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}>
                                     {item.core_variant}
                                 </Link>
-                                <div>{item.core_sku}</div>
+                                <div style={{ textAlign: "left" }}>{item.core_sku}</div>
                             </StyledProductLink>
                         )}
                     </>
@@ -435,8 +439,8 @@ const ProductList = (props: ProductListprops) => {
             title: "Ngày ghép nối",
             dataIndex: "connected_date_from",
             key: "connected_date",
-            align: "left",
-            width: "10%",
+            align: "center",
+            width: "100px",
             render: (value: any, item: any) => (
                 <div style={{ textAlign: "center" }}>
                     <div>{convertDateTimeFormat(item.connected_date)}</div>
@@ -494,11 +498,11 @@ const ProductList = (props: ProductListprops) => {
         {
             title: "Log đồng bộ tồn",
             key: "sync_stock_log",
-            align: "left",
-            width: "120px",
+            align: "center",
+            width: "10%",
             render: (value: any, item: any) => (
                 <div >
-                    <div>{item.sync_stock_log}</div>
+                    <div style={{ textAlign: "left" }}>{item.sync_stock_log}</div>
                 </div>
             ),
         },

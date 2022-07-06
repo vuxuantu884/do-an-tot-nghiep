@@ -87,7 +87,7 @@ const ConnectedItemActionColumn = (handleDeleteItem: any, handleSyncStock?: any,
     title: "",
     visible: true,
     width: "70px",
-    className: "ecommerce-product-action-column",
+    className: "ecommerce-product-action-column text-center",
     render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index)
   };
 
