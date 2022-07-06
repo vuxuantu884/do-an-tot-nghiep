@@ -304,3 +304,16 @@ export const formatDateTimeOrderFilter = (date: Date | string | number | Moment 
 export const getTimeFormatOrderFilter = (values: string, dateFormat: string = '') => {
   return values ? moment(values).utc(false) : null
 };
+
+/**
+ * kiểm tra là đơn hvc đã hoàn
+ * @param fulfillment 
+ * @returns 
+ */
+export const isFulfillmentReturned = (fulfillment: FulFillmentResponse | any) => {
+  let isFulfillment = fulfillment?.status === FulFillmentStatus.CANCELLED
+      && fulfillment?.return_status === FulFillmentStatus.RETURNED
+      && fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING;
+      
+  return isFulfillment;
+}
