@@ -13,7 +13,7 @@ import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { StyledProductLink } from "../../styles";
 import ProductFilter from "./ProductFilter";
 import { StyledStatus } from "screens/web-app/common/commonStyle";
-import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { ConvertUtcToLocalDate, formatDateTimeFilter } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { WebAppProductQuery, WebAppRequestSyncStockQuery } from "model/query/web-app.query";
 import {
@@ -492,10 +492,21 @@ const ProductList = (props: ProductListprops) => {
             },
         },
         {
+            title: "ngày đồng bộ tồn",
+            key: "sync_stock_date",
+            align: "center",
+            width: "150px",
+            render: (value: any, item: any) => (
+                <div >
+                    <div>{ConvertUtcToLocalDate(item.sync_stock_date, "DD/MM/YYYY HH:mm:ss")}</div>
+                </div>
+            ),
+        },
+        {
             title: "Log đồng bộ tồn",
             key: "sync_stock_log",
             align: "left",
-            width: "120px",
+            width: "150px",
             render: (value: any, item: any) => (
                 <div >
                     <div>{item.sync_stock_log}</div>
