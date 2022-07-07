@@ -506,7 +506,7 @@ const ProductList = (props: ProductListprops) => {
             title: "Log đồng bộ tồn",
             key: "sync_stock_log",
             align: "left",
-            width: "150px",
+            width: "120px",
             render: (value: any, item: any) => (
                 <div >
                     <div>{item.sync_stock_log}</div>
