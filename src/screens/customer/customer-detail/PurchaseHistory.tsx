@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
-import {Button, Col, Form, Popover, Tooltip} from "antd";
+import {Button, Form, Popover, Tooltip} from "antd";
 import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
 import NumberFormat from "react-number-format";
 import {Link, useHistory, useLocation} from "react-router-dom";
@@ -1442,28 +1442,26 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
        form={formOrderHistoryFilter}
        layout="inline"
       >
-        <Col span={22} style={{ paddingBottom: "20px" }}>
-            <Form.Item name="variant_ids">
-              {rerenderSearchVariant && (
-                 <DebounceSelect
-                 mode="multiple"
-                 showArrow
-                 maxTagCount="responsive"
-                 placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm"
-                 allowClear
-                 fetchOptions={handleSearchVariantAndBarCode}
-                 optionsVariant={optionsVariant}
-                 onClear={handleClearSearchOrderCustomer}
-               />
-              )}
+        <div className={"filter-line"}>
+          <Form.Item name="variant_ids" className={"search-variant"}>
+            {rerenderSearchVariant && (
+               <DebounceSelect
+               mode="multiple"
+               showArrow
+               maxTagCount="responsive"
+               placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm"
+               allowClear
+               fetchOptions={handleSearchVariantAndBarCode}
+               optionsVariant={optionsVariant}
+               onClear={handleClearSearchOrderCustomer}
+             />
+            )}
           </Form.Item>
-        </Col>
 
-        <Col span={2}>
           <Button type="primary" htmlType="submit">
             Lọc
           </Button>
-        </Col>
+        </div>
       </Form>
       <CustomTable
         bordered
@@ -1479,6 +1477,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
+        isShowPaginationAtHeader
         dataSource={purchaseHistoryData.items}
         columns={columnsPurchaseHistory}
         rowKey={(item: any) => item.id}

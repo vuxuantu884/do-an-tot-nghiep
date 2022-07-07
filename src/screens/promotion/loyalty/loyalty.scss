@@ -94,6 +94,11 @@
             color: #E24343;
         }
     }
+    .loyalty-program-card {
+        .ant-card-body {
+            padding-top: 0;
+        }
+    }
     .loyalty-programs {
         .priority {
             border-radius: 100px;
