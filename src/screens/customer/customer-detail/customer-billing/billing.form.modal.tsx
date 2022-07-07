@@ -12,6 +12,7 @@ import {
 } from "domain/actions/content/content.action";
 import { RegUtil } from "utils/RegUtils";
 import CustomInput from "screens/customer/common/customInput";
+import {VietNamId} from "utils/Constants";
 
 const { Option } = Select;
 
@@ -53,7 +54,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           name: formItem?.name,
           phone: formItem?.phone,
           district_id: formItem.district_id,
-          country_id: formItem.country_id,
+          country_id: VietNamId,
           ward_id: formItem?.ward_id,
           full_address: formItem?.full_address,
           is_default: formItem?.default,
@@ -66,7 +67,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
       : {
           name: "",
           phone: "",
-          country_id: 233,
+          country_id: VietNamId,
           district_id: null,
           ward_id: null,
           full_address: "",
@@ -220,7 +221,7 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                 <Form.Item
                   label={<span className="fw-500">Quốc gia:</span>}
                   name="country_id"
-                  initialValue={233}
+                  initialValue={VietNamId}
                   rules={[
                     {
                       required: true,
