@@ -3,7 +3,7 @@ import {
   Button,
   Dropdown, Form,
   Input, Menu, Row, Select, Switch,
-  Tag
+  Tag, Tooltip
 } from "antd";
 import filterIcon from "assets/icon/filter.svg";
 import rightArrow from "assets/icon/right-arrow.svg";
@@ -2672,7 +2672,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               <div className="base-filter-row">
                 <Form.Item
                   name="store_of_first_order_offline_ids"
-                  label={<b>Cửa hàng mua đầu (offline)</b>}
+                  label={
+                    <Tooltip title={"Cửa hàng mua offline đầu của KH"}>
+                      <b>Cửa hàng mua đầu (offline)</b>
+                    </Tooltip>
+                  }
                   className="left-filter">
                   <TreeStore
                     name="store_of_first_order_offline_ids"
@@ -2684,7 +2688,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                 <Form.Item
                   name="store_of_last_order_offline_ids"
-                  label={<b>Cửa hàng mua cuối (offline)</b>}
+                  label={
+                    <Tooltip title={"Cửa hàng mua offline cuối của KH"}>
+                      <b>Cửa hàng mua cuối (offline)</b>
+                    </Tooltip>
+                  }
                   className="center-filter">
                   <TreeStore
                     name="store_of_last_order_offline_ids"
@@ -2739,7 +2747,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               <div className="base-filter-row">
                 <Form.Item
                   name="source_of_first_order_online_ids"
-                  label="Nguồn mua đầu (online)"
+                  label={
+                    <Tooltip title={"Nguồn mua online đầu của KH"}>
+                      <b>Nguồn mua đầu (online)</b>
+                    </Tooltip>
+                  }
                   className="left-filter">
                   <TreeSource
                     placeholder="Chọn cửa hàng"
@@ -2750,7 +2762,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                 <Form.Item
                   name="source_of_last_order_online_ids"
-                  label="Nguồn mua cuối (online)"
+                  label={
+                    <Tooltip title={"Nguồn mua online cuối của KH"}>
+                      <b>Nguồn mua cuối (online)</b>
+                    </Tooltip>
+                  }
                   className="center-filter">
                   <TreeSource
                     placeholder="Chọn cửa hàng"
@@ -2763,7 +2779,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   <div className="select-scope">
                     <Form.Item
                       name="first_order_type"
-                      label="Loại mua đầu"
+                      label={
+                        <Tooltip title={"Loại mua đầu: online hoặc offline"}>
+                          <b>Loại mua đầu</b>
+                        </Tooltip>
+                      }
                       className="select-item">
                       <Select
                         showSearch
@@ -2778,7 +2798,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
                     <Form.Item
                       name="last_order_type"
-                      label="Loại mua cuối"
+                      label={
+                        <Tooltip title={"Loại mua cuối: online hoặc offline"}>
+                          <b>Loại mua cuối</b>
+                        </Tooltip>
+                      }
                       className="select-item">
                       <Select
                         showSearch
