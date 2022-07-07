@@ -360,9 +360,9 @@ const ProductList = (props: ProductListprops) => {
             width: "120px",
             render: (item: any) => {
                 return (
-                    <span>
+                    <div style={{ textAlign: "right" }}>
                         {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
-                    </span>
+                    </div>
                 );
             },
         },
@@ -397,7 +397,7 @@ const ProductList = (props: ProductListprops) => {
                 return (
                     <>
                         {item.connect_status === "connected" && (
-                            <span>{formatCurrency(item.core_price)}</span>
+                            <div style={{textAlign:'right'}}>{formatCurrency(item.core_price)}</div>
                         )}
                     </>
                 );
@@ -502,7 +502,7 @@ const ProductList = (props: ProductListprops) => {
             width: "10%",
             render: (value: any, item: any) => (
                 <div >
-                    <div style={{ textAlign: "left" }}>{item.sync_stock_log}</div>
+                    <div>{item.sync_stock_log}</div>
                 </div>
             ),
         },
