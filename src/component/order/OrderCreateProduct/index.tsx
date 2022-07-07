@@ -280,6 +280,7 @@ function OrderCreateProduct(props: PropTypes) {
 	const lineItemDiscountInputTimeoutRef: MutableRefObject<any> = useRef();
 
 	const [isLineItemChanging, setIsLineItemChanging] = useState(false)
+	const [isFinishedCalculateItem, setIsFinishedCalculateItem] = useState(true)
 
 	const [storeArrayResponse, setStoreArrayResponse] =
 		useState<Array<StoreResponse> | null>([]);
@@ -542,6 +543,7 @@ function OrderCreateProduct(props: PropTypes) {
 		_items: OrderLineItemRequest[],
 		isShouldAutomaticDiscount = true
 	) => {
+		setIsFinishedCalculateItem(false)
 		// delay khi thay đổi số lượng
 		//nếu có chiết khấu tự động
 		if (isAutomaticDiscount) {
@@ -1070,7 +1072,7 @@ function OrderCreateProduct(props: PropTypes) {
 							type="text"
 							className="p-0 ant-btn-custom"
 							onClick={() => onDeleteItem(index)}
-							disabled={levelOrder > 3}
+							disabled={levelOrder > 3 || !isFinishedCalculateItem}
 						>
 							<img src={XCloseBtn} alt="" style={{ width: 22 }} />
 						</Button>
@@ -2032,7 +2034,8 @@ function OrderCreateProduct(props: PropTypes) {
 				transportService, form, setShippingFeeInformedToCustomer
 			);
 		}
-		setIsLineItemChanging(false)
+		setIsLineItemChanging(false);
+		setIsFinishedCalculateItem(true);
 	};
 
 	const storeIdLogin = useGetStoreIdFromLocalStorage()
