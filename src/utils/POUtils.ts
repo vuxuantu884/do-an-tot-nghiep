@@ -134,7 +134,7 @@ const POUtils = {
   },
   totalAmount: (formMain: FormInstance): number => {
     let total = 0;
-    const lineItems : Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     lineItems.forEach(
       (item) => (total = total + item.line_amount_after_line_discount)
     );
@@ -143,23 +143,23 @@ const POUtils = {
   updateLineItemByQuantity: (
     lineItem: PurchaseOrderLineItem,
     quantity: number
-  ) : PurchaseOrderLineItem =>{
+  ): PurchaseOrderLineItem => {
     let amount = quantity * lineItem.price;
-    let discount_amount = POUtils.caculateDiscountAmount(lineItem.price, lineItem.discount_rate,lineItem.discount_value) * quantity;
+    let discount_amount = POUtils.caculateDiscountAmount(lineItem.price, lineItem.discount_rate, lineItem.discount_value) * quantity;
     return {
       ...lineItem,
       quantity: quantity,
       amount: amount,
-      discount_amount : discount_amount,
+      discount_amount: discount_amount,
       line_amount_after_line_discount: amount - discount_amount,
     }
   },
   updateLineItemByPrice: (
     lineItem: PurchaseOrderLineItem,
     price: number
-  ) : PurchaseOrderLineItem => {
+  ): PurchaseOrderLineItem => {
     let amount = price * lineItem.quantity;
-    let discount_amount = POUtils.caculateDiscountAmount(price, lineItem.discount_rate,lineItem.discount_value) * lineItem.quantity;
+    let discount_amount = POUtils.caculateDiscountAmount(price, lineItem.discount_rate, lineItem.discount_value) * lineItem.quantity;
     return {
       ...lineItem,
       price: price,
@@ -213,12 +213,12 @@ const POUtils = {
   },
   getVatList: (formMain: FormInstance, isSupplement?: Boolean): Array<Vat> => {
     let result: Array<Vat> = [];
-    let lineItems : Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     let tradeDiscountRate = formMain.getFieldValue(POField.trade_discount_rate);
     let tradeDiscountValue = formMain.getFieldValue(POField.trade_discount_value);
     let total = POUtils.totalAmount(formMain);
     lineItems.forEach((item) => {
-      if (item.tax_rate > 0 && isSupplement ? item.type === POLineItemType.SUPPLEMENT :  item.type !== POLineItemType.SUPPLEMENT) {
+      if (item.tax_rate > 0 && isSupplement ? item.type === POLineItemType.SUPPLEMENT : item.type !== POLineItemType.SUPPLEMENT) {
         let index = result.findIndex(
           (vatItem) => vatItem.rate === item.tax_rate
         );
@@ -231,7 +231,8 @@ const POUtils = {
         let amountTax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2)
         );
         if (index === -1) {
-          result.push({rate: item.tax_rate,amount: amountTax,
+          result.push({
+            rate: item.tax_rate, amount: amountTax,
           });
         } else {
           result[index].amount = result[index].amount + amountTax;
@@ -240,7 +241,7 @@ const POUtils = {
     });
     return result;
   },
-  getTotalDiscount: (formMain: FormInstance,total:number): number => {
+  getTotalDiscount: (formMain: FormInstance, total: number): number => {
     let discountRate = formMain.getFieldValue(POField.trade_discount_rate);
     let discountValue = formMain.getFieldValue(POField.trade_discount_value);
     if (discountRate) {
@@ -264,9 +265,9 @@ const POUtils = {
     }
     return 0;
   },
-  getTotalAfterTax: (formMain : FormInstance) => {
+  getTotalAfterTax: (formMain: FormInstance) => {
     let total = formMain.getFieldValue(POField.untaxed_amount);
-    let sum = total - POUtils.getTotalDiscount(formMain,total);
+    let sum = total - POUtils.getTotalDiscount(formMain, total);
     let vats = POUtils.getVatList(formMain);
     vats.forEach((item) => {
       sum = sum + item.amount;
@@ -405,7 +406,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
 
     let price = 0;
     let lineItem: PurchaseOrderLineItem | undefined;
-    
+
     if (mode === "READ_UPDATE" && line_items && line_items.length > 0) {
       const variantSameColor = tempVariant.filter((variantItem: VariantResponse) => variantItem.color === variant.color);
       // get lineItem has variant_id in variantSameColor id
@@ -413,7 +414,7 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
       if (lineItem) {
         price = lineItem.price;
       }
-    } 
+    }
     if ((mode === "CREATE" && variant.variant_prices?.length > 0 && variant.variant_prices[0]?.import_price) || isEmpty(lineItem)) {
       price = variant.variant_prices[0].import_price || 0;
     }
@@ -438,13 +439,13 @@ export function initSchemaLineItem(product: ProductResponse, mode: "CREATE" | "R
    */
   const mappingColorAndSize = product.variants.map((variant: VariantResponse) => {
     const lineItemId = line_items?.find((lineItem) => lineItem.variant_id === variant.id)?.id;
-    let url:string = ''
+    let url: string = ''
     variant.variant_images?.forEach((item1) => {
-        if (item1.variant_avatar) {
-          url = item1.url;
-        }
-      });
-      const retailPrice = variant.variant_prices[0].retail_price;
+      if (item1.variant_avatar) {
+        url = item1.url;
+      }
+    });
+    const retailPrice = variant.variant_prices[0].retail_price;
     return {
       lineItemId: lineItemId,
       color: variant.color ?? variant.sku,
@@ -562,7 +563,7 @@ export const combineLineItemToSubmitData = (
 export const validateLineItemQuantity = (lineItems: PurchaseOrderLineItem[]) => {
   if (lineItems.every(item => item.quantity === 0)) {
     return false;
-  }else{
+  } else {
     return true;
   }
 }
@@ -581,15 +582,15 @@ export const setProcurementLineItemById =
        */
       const { unit, value } = quickInputQtyProcurementLineItem[index];
       variantIdList.forEach((variantId: number) => {
-      const mappingProcurementItem = procurement.procurement_items.find((item) => item.id === variantId);
-      if (mappingProcurementItem) {
-        if (unit === QUANTITY_PROCUREMENT_UNIT.PERCENT) {
-          mappingProcurementItem.quantity = Math.ceil(inputValue * value / 100);
-        } else {
-          mappingProcurementItem.quantity = inputValue;
+        const mappingProcurementItem = procurement.procurement_items.find((item) => item.id === variantId);
+        if (mappingProcurementItem) {
+          if (unit === QUANTITY_PROCUREMENT_UNIT.PERCENT) {
+            mappingProcurementItem.quantity = Math.ceil(inputValue * value / 100);
+          } else {
+            mappingProcurementItem.quantity = inputValue;
+          }
         }
-      }
-    })
+      })
     })
 
     //update lại giá trị vừa đc khởi tạo
@@ -603,9 +604,9 @@ export const fetchProductGridData = async (isGridMode: boolean,
   mode: "CREATE" | "READ_UPDATE",
   dispatch: Dispatch<any>,
   setPoLineItemGridSchema: (value: POLineItemGridSchema[]) => void,
-  setPoLineItemGridValue: (value: Map<string, POLineItemGridValue>[])=> void,
-  setTaxRate: (value: number)=>void
-  ) => {
+  setPoLineItemGridValue: (value: Map<string, POLineItemGridValue>[]) => void,
+  setTaxRate: (value: number) => void
+) => {
   if (isGridMode) {
     /**
      *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
@@ -614,7 +615,7 @@ export const fetchProductGridData = async (isGridMode: boolean,
     const product: ProductResponse = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
 
     if (product.variants) {
-      const variants = product.variants.filter(variant => variant.status !== "inactive");
+      const variants = product.variants.filter(variant => variant.status !== "inactive" && variant.type !== 1); //variant.type === 1 là sản phẩm lỗi
       product.variants = variants;
       /**
        * Tạo schema cho grid (bộ khung để tạo lên grid, dùng để check các ô input có hợp lệ hay không, nếu không thì disable)
@@ -648,7 +649,7 @@ export const fetchProductGridData = async (isGridMode: boolean,
 
 export const getUntaxedAmountByLineItemType = (lineItem: PurchaseOrderLineItem[], type: POLoadType) => {
   return Math.round(lineItem.reduce((prev: number, cur: PurchaseOrderLineItem) => {
-    const amount = prev + cur.quantity * cur.price ;
+    const amount = prev + cur.quantity * cur.price;
 
     if (type === POLoadType.SUPPLEMENT && cur.type === POLineItemType.SUPPLEMENT) {
       return amount;
@@ -676,7 +677,7 @@ export const getTotalAmountByLineItemType = (lineItem: PurchaseOrderLineItem[], 
     } else {
       return prev;
     }
-     
+
   }, 0));
 }
 
@@ -687,21 +688,21 @@ export const summaryContentByLineItemType = (form: FormInstance, poLineItemType?
   if (hasSupplement && [POStatus.FINALIZED, POStatus.STORED].includes(status) && poLineItemType !== POLineItemType.SUPPLEMENT) {
     return "Thành tiền (1)";
   } else {
-    return  "Tiền cần trả";
+    return "Tiền cần trả";
   }
 }
 
-export const checkCanEditDraft = (form : FormInstance, isEdit: boolean) => {
+export const checkCanEditDraft = (form: FormInstance, isEdit: boolean) => {
   const stt = form.getFieldValue(POField.status);
   return isEdit && (!stt || stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL);
 };
 
-export const isExpandsSupplement = (form : FormInstance, isEdit: boolean) => {
+export const isExpandsSupplement = (form: FormInstance, isEdit: boolean) => {
   const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(POField.line_items);
   return isEdit || lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT);
 }
 
-export const isShowSupplement = (form : FormInstance) => {
+export const isShowSupplement = (form: FormInstance) => {
   const stt = form.getFieldValue(POField.status);
   return [POStatus.FINALIZED, POStatus.STORED, POStatus.FINISHED, POStatus.COMPLETED].includes(stt);
 }
@@ -711,7 +712,7 @@ export const checkImportPriceLowByLineItem = (minPrice: number, lineItems: Purch
 }
 
 export const MIN_IMPORT_PRICE_WARNING = 1000;
-export const convertLineItemsToProcurementItems = (lineItems: Array<PurchaseOrderLineItem>, procurements:  Array<PurchaseProcument>) => {
+export const convertLineItemsToProcurementItems = (lineItems: Array<PurchaseOrderLineItem>, procurements: Array<PurchaseProcument>) => {
   const procurementItems: Array<PurchaseProcumentLineItem> = []
   const newProcurement: Array<PurchaseProcument> = []
   procurements.forEach((procurement: PurchaseProcument) => {
