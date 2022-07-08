@@ -24,10 +24,15 @@ export const StyledComponent = styled.div`
     }
   }
 
+  .custom-td,.orderNotes,.delivery-address {
+    text-align: left;
+  }
+
   .item-custom-td {
     height: 100%;
     display: flex;
     justify-content: space-between;
+    text-align: left;
     &:not(:last-child) {
       border-bottom: 1px solid ${borderColor};
     }

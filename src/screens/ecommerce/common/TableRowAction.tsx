@@ -21,7 +21,7 @@ const TableRowAction = (menuItems: any) => {
         <Button
           type="text"
           className="p-0 ant-btn-custom"
-          style={{width:"30px" , height:"30px"}}
+          style={{width:"40px" , height:"38px",marginLeft:"10px"}}
           icon={<img src={threeDot} alt=""></img>}
         />
       </Dropdown>
@@ -32,7 +32,7 @@ const TableRowAction = (menuItems: any) => {
     title: "",
     visible: true,
     width: "60px",
-    className: "threedot-button",
+    className: "threedot-button text-center",
     render: (rowData: any, item: any, index: number) =>
       RenderActionColumn(rowData, item, index),
   };
