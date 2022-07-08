@@ -74,7 +74,7 @@ function AccountCustomSearchSelect(props: PropTypes) {
         getAccounts(value),
       );
     },
-    [setDataToSelect, dispatch, initDataToSelect],
+    [isSearchAccountActive, setDataToSelect, dispatch, initDataToSelect],
   );
 
   const onClear = useCallback(() => {

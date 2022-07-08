@@ -48,7 +48,7 @@ import { RefundModel } from "model/order/return.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
+  BillingAddressRequestModel,
   ExchangeRequest,
   FulFillmentRequest,
   OrderDiscountRequest,
@@ -184,7 +184,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [tags, setTags] = useState<string>("");
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
+  const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
 
   const dispatch = useDispatch();
@@ -1328,7 +1328,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     setShippingAddress(_objShippingAddress);
   };
 
-  const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
+  const onChangeBillingAddress = (_objBillingAddress: BillingAddressRequestModel | null) => {
     setBillingAddress(_objBillingAddress);
   };
 
@@ -1637,7 +1637,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     loyaltyUsageRules={loyaltyUsageRules}
                     ShippingAddressChange={onChangeShippingAddress}
                     shippingAddress={shippingAddress}
-                    BillingAddressChange={onChangeBillingAddress}
+                    billingAddress={billingAddress}
+                    setBillingAddress={onChangeBillingAddress}
                     isVisibleCustomer={true}
                     modalAction={"edit"}
                     levelOrder={3}
@@ -1653,8 +1654,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
                     isAutoDefaultOrderSource={false}
                     customerChange={customerChange}
                     setCustomerChange={setCustomerChange}
-                    handleOrderBillRequest={()=>{}}
-                    initOrderBillRequest={undefined}
+                    // handleOrderBillRequest={()=>{}}
+                    // initOrderBillRequest={undefined}
                   />
                 )}
 
@@ -2114,16 +2115,16 @@ const ScreenReturnCreate = (props: PropTypes) => {
             : null;
         onChangeShippingAddress(shipping_addresses);
       } else onChangeShippingAddress(null);
-      if (customer.billing_addresses) {
-        let billing_addresses_index = customer.billing_addresses.findIndex(
-          (x) => x.default === true
-        );
-        onChangeBillingAddress(
-          billing_addresses_index !== -1
-            ? customer.billing_addresses[billing_addresses_index]
-            : null
-        );
-      } else onChangeBillingAddress(null);
+      // if (customer.billing_addresses) {
+      //   let billing_addresses_index = customer.billing_addresses.findIndex(
+      //     (x) => x.default === true
+      //   );
+      //   onChangeBillingAddress(
+      //     billing_addresses_index !== -1
+      //       ? customer.billing_addresses[billing_addresses_index]
+      //       : null
+      //   );
+      // } else onChangeBillingAddress(null);
     } else {
       setLoyaltyPoint(null);
       setCountFinishingUpdateCustomer((prev) => prev + 1);

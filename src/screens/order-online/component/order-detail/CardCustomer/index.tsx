@@ -22,7 +22,7 @@ import pointIcon from "assets/img/point.svg";
 import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
 import {
-  DistrictGetByCountryAction,
+  DistrictGetByCountryAction
 } from "domain/actions/content/content.action";
 import {
   CustomerGroups, CustomerSearchSo, DeleteShippingAddress, getCustomerDetailAction
@@ -32,10 +32,9 @@ import { modalActionType } from "model/modal/modal.model";
 import { CustomerSearchQuery } from "model/query/customer.query";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerShippingAddress } from "model/request/customer.request";
-import { OrderBillRequestFormModel, OrderRequest } from "model/request/order.request";
+import { BillingAddressRequestModel, OrderRequest } from "model/request/order.request";
 import { SourceSearchQuery } from "model/request/source.request";
 import {
-  BillingAddress,
   CustomerResponse,
   ShippingAddress
 } from "model/response/customer/customer.response";
@@ -62,7 +61,8 @@ import UpdateCustomer from "./UpdateCustomer";
 type CustomerCardProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
   ShippingAddressChange: (items: ShippingAddress|null) => void;
-  BillingAddressChange: (items: BillingAddress|null) => void;
+  billingAddress: BillingAddressRequestModel | null;
+  setBillingAddress: (items: BillingAddressRequestModel|null) => void;
   setVisibleCustomer?: (item: boolean) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
@@ -85,8 +85,8 @@ type CustomerCardProps = {
   setShippingFeeInformedToCustomer?:(value:number | null)=>void;
   customerChange: boolean;
   setCustomerChange: (value: boolean) => void;
-  handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
-  initOrderBillRequest: OrderBillRequestFormModel | undefined;
+  // handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
+  // initOrderBillRequest: OrderBillRequestFormModel | undefined;
 };
 
 //Add query for search Customer
@@ -131,8 +131,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     form,
     customerChange,
     setCustomerChange,
-    handleOrderBillRequest,
-    initOrderBillRequest,
+    billingAddress,
+    setBillingAddress,
+    // handleOrderBillRequest,
+    // initOrderBillRequest,
   } = props;
   //State
   // const [addressesForm] = Form.useForm();
@@ -243,13 +245,13 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   }
 
                   //set Billing Address
-                  if (data[0].billing_addresses) {
-                    data[0].billing_addresses.forEach((item, index2) => {
-                      if (item.default === true) {
-                        props.BillingAddressChange(item);
-                      }
-                    });
-                  }
+                  // if (data[0].billing_addresses) {
+                  //   data[0].billing_addresses.forEach((item, index2) => {
+                  //     if (item.default === true) {
+                  //       props.setBillingAddress(item);
+                  //     }
+                  //   });
+                  // }
                 } else {
                   showError("Không tìm thấy khách hàng từ hệ thống");
                 }
@@ -370,6 +372,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //Delete customer
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
+    setBillingAddress(null)
     dispatch(changeOrderCustomerAction(null));
     props.ShippingAddressChange(null);
     if(setVisibleCustomer)setVisibleCustomer(false);
@@ -804,7 +807,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 </span>
               </Space>
 
-              <Space className="customer-detail-birthday">
+              <Space className="customer-detail-birthday zz">
                 <span className="customer-detail-icon">
                   <img src={birthdayIcon} alt="" className="icon-customer-info" />
                 </span>
@@ -863,8 +866,10 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 setCustomerChange={setCustomerChange}
                 isPageOrderUpdate={OrderDetail ? true : false}
                 orderDetail={OrderDetail}
-                handleOrderBillRequest={handleOrderBillRequest}
-                initOrderBillRequest={initOrderBillRequest}
+                billingAddress={billingAddress}
+                setBillingAddress={setBillingAddress}
+                // handleOrderBillRequest={handleOrderBillRequest}
+                // initOrderBillRequest={initOrderBillRequest}
               />
             )}
           </div>

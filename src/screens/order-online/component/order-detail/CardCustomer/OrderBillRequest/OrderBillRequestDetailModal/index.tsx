@@ -17,37 +17,38 @@ function OrderBillRequestDetailModal(props: PropTypes) {
     handleCancel,
     orderDetail,
   } = props;
+  console.log('orderDetail', orderDetail)
 
-  const bill = orderDetail?.bill;
+  const billingAddress = orderDetail?.billing_address;
 
-  const information = [
+  const billExportInformation = [
     {
       title: "Tên đơn vị mua hàng",
-      value: bill?.company
+      value: billingAddress?.buyer
     },
     {
       title: "Mã số thuế",
-      value: bill?.tax
+      value: billingAddress?.tax_code
     },
     {
       title: "Địa chỉ xuất hóa đơn",
-      value: bill?.address
+      value: billingAddress?.full_address
     },
     {
       title: "Người đại diện theo pháp luật",
-      value: bill?.pic
+      value: billingAddress?.name
     },
     {
       title: "Email nhận hóa đơn điện tử",
-      value: bill?.email
+      value: billingAddress?.email
     },
     {
       title: "Ghi chú",
-      value: bill?.note
+      value: billingAddress?.note
     },
     {
       title: "Hợp đồng",
-      value: bill?.contract ? "Có hợp đồng" : "Không có hợp đồng"
+      value: billingAddress?.contract ? "Có hợp đồng" : "Không có hợp đồng"
     },
   ]
 
@@ -65,9 +66,9 @@ function OrderBillRequestDetailModal(props: PropTypes) {
       }
     >
       <StyledComponent>
-        {orderDetail?.bill?.id ? (
+        {billingAddress?.order_id ? (
           <React.Fragment>
-            {information.map((single, index) => {
+            {billExportInformation.map((single, index) => {
               return (
                 <Row gutter={30} key={index}>
                   <Col span={8}>

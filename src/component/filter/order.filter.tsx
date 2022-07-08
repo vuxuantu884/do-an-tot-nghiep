@@ -47,7 +47,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { formatCurrency, handleDelayActionWhenInsertTextInSearchInput, replaceFormat, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency, handleDelayActionWhenInsertTextInSearchInput, replaceFormat } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
