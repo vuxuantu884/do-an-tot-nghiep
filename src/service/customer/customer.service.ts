@@ -2,7 +2,7 @@ import { CustomerNote, CustomerRequest } from '../../model/request/customer.requ
 import {CustomerResponse, ExportCustomerResponse} from 'model/response/customer/customer.response';
 import { PageResponse } from 'model/base/base-metadata.response';
 import { generateQuery } from 'utils/AppUtils';
-import {CustomerSearchQuery, ExportCustomerRequest} from 'model/query/customer.query';
+import {CustomerSearchQuery, ExportCustomerRequest, ImportCustomerQuery} from 'model/query/customer.query';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -162,9 +162,10 @@ export const deleteBillingAddress = (id: number, customerId: number): Promise<Ba
   return BaseAxios.delete(url);
 };
 
-export const importCustomerService = (file: File) => {
+export const importCustomerService = (queryParams: ImportCustomerQuery) => {
   let formData = new FormData();
-  formData.append("file_upload", file);
+  formData.append("file_upload", queryParams.file);
+  formData.append("insertIfBlank ", queryParams.insertIfBlank?.toString());
   return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/import`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });
