@@ -108,7 +108,6 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
     .tabs-list {
       overflow: initial;
       .ant-tabs-nav {
-        margin-bottom: 20px;
         padding: 0;
       }
     }
@@ -132,6 +131,15 @@ export const nameQuantityWidth = 200;
 // const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledPurchaseHistory = styled.div`
+	.filter-line {
+		width: 100%;
+		display: flex;
+		align-items: center;
+		.search-variant {
+			flex-grow: 1;
+		}
+	}
+	
   th {
     text-align: center !important;
 		padding: 12px 5px !important;

@@ -438,6 +438,7 @@ const LoyaltyPage = () => {
                 }
               </div>
             }
+            className={"loyalty-program-card"}
           >
             <div className="loyalty-programs">
               <CustomTable
@@ -451,6 +452,7 @@ const LoyaltyPage = () => {
                   onChange: onPageChange,
                   onShowSizeChange: onPageChange,
                 }}
+                isShowPaginationAtHeader
                 dataSource={loyaltyPrograms.items}
                 columns={columns}
                 rowKey={(item: any) => item.id}

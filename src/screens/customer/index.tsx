@@ -598,6 +598,7 @@ const Customer = () => {
                     onChange: onPageChange,
                     onShowSizeChange: onPageChange,
                   }}
+                  isShowPaginationAtHeader
                   onSelectedChange={(selectedRows) => onSelectRow(selectedRows)}
                   dataSource={data.items}
                   columns={columnFinal}
