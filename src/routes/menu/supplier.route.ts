@@ -3,11 +3,12 @@ import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
+import { PurchaseOrderTabUrl } from "screens/purchase-order/helper";
 
 //PO
-const PurchaseOrderListScreen = React.lazy(
-    () => import("screens/purchase-order/purchase-order-list.screen")
-);
+const PurchaseOrderScreen = React.lazy(
+    () => import("screens/purchase-order/PurchaseOrderScreen/PurchaseOrderScreen")
+)
 const PurchaseOrderCreateScreen = React.lazy(
     () => import("screens/purchase-order/purchase-order-create.screen")
 );
@@ -47,7 +48,7 @@ const supplierRoutes: Array<RouteMenu> = [
         exact: true,
         title: "Đặt hàng",
         icon: "icon-dot",
-        component: PurchaseOrderListScreen,
+        component: PurchaseOrderScreen,
         key: "submenu22",
         isShow: true,
         header: null,
@@ -103,10 +104,21 @@ const supplierRoutes: Array<RouteMenu> = [
                 permissions: [PurchaseOrderPermission.print],
                 subMenu: [],
             },
+            {
+                path: `${PurchaseOrderTabUrl.RETURN}`,
+                exact: true,
+                title: "Quản lý đơn đặt hàng",
+                icon: "icon-dot",
+                component: PurchaseOrderScreen,
+                key: "submenu225",
+                isShow: true,
+                header: null,
+                permissions: [PurchaseOrderPermission.read],
+                subMenu: [],
+            },
         ],
     },
     {
-        // path: `${ProcurementTabUrl.TODAY}`,
         path: `${UrlConfig.PROCUREMENT}`,
         exact: true,
         title: "Nhập kho",

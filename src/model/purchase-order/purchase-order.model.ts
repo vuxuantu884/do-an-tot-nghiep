@@ -4,6 +4,7 @@ import { PurchaseAddress } from "./purchase-address.model";
 import {
   Vat,
   PurchaseOrderLineItem,
+  PurchaseOrderLineReturnItem,
 } from "./purchase-item.model";
 import { PurchaseProcument } from "./purchase-procument";
 import { PurchasePayments } from "./purchase-payment.model";
@@ -223,4 +224,22 @@ export type POProgressResult = {
   processed: number;
   errors: number;
   message_errors: Array<string>
+}
+
+export interface PurchaseOrderReturnQuery extends BaseQuery {}
+
+export interface PurchaseOrderReturn extends BaseObject {
+  expect_return_date: Date;
+  line_return_items: Array<PurchaseOrderLineReturnItem>;
+  payment_return_note?: string;
+  phone?: number; 
+  purchase_order: PurchaseOrder;
+  return_reason: string;
+  store_id: number;
+  store: string;
+  supplier?: string
+  supplier_code?: any;
+  supplier_id?: number;
+  total_refunds?: number;
+  untaxed_amount_refunds?: number
 }

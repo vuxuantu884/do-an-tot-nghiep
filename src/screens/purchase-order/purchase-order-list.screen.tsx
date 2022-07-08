@@ -1,9 +1,5 @@
-import { Button, Card, Modal, Radio, Row, Space } from "antd";
-import exportIcon from "assets/icon/export.svg";
-import AuthWrapper from "component/authorization/AuthWrapper";
-import ContentContainer from "component/container/content.container";
+import { Modal, Radio, Row, Space } from "antd";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
-import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { TagStatusType } from "component/tag/tag-status";
@@ -83,19 +79,24 @@ const actionsDefault: Array<MenuAction> = [
     icon: <CloseCircleOutlined />,
   },
 ];
-const PurchaseOrderListScreen: React.FC = () => {
+interface PurchaseOrderListScreenProps {
+  showExportModal: boolean
+  setShowExportModal: (param: boolean) => void;
+  setError: (param: boolean) => void;
+}
+
+const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (props: PurchaseOrderListScreenProps) => {
+  const {showExportModal, setShowExportModal, setError} = props
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
   const isFirstLoad = useRef(true);
   const [tableLoading, setTableLoading] = useState(true);
-  const [isError, setError] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [selected, setSelected] = useState<Array<PurchaseOrder>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
-  const [showExportModal, setShowExportModal] = useState(false);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const {account} = userReducer;
   const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
@@ -593,7 +594,7 @@ const PurchaseOrderListScreen: React.FC = () => {
     } else {
       setError(true);
     }
-  }, []);
+  }, [setError]);
 
   const getConfigColumnPo = useCallback(()=>{
     if (account && account.code) {
@@ -741,41 +742,7 @@ const PurchaseOrderListScreen: React.FC = () => {
 
   return (
     <PurchaseOrderListContainer>
-      <ContentContainer
-        isError={isError}
-        title="Quản lý đơn đặt hàng"
-        breadcrumb={[
-          {
-            name: "Kho hàng",
-          },
-          {
-            name: "Đặt hàng",
-            path: `${UrlConfig.PURCHASE_ORDERS}`,
-          },
-        ]}
-        extra={
-          <Row>
-            <Space>
-              <Button
-                hidden
-                className="light"
-                size="large"
-                icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                onClick={() => {
-                  setShowExportModal(true);
-                }}
-              >
-                Xuất file
-              </Button>
-              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
-                <ButtonCreate child="Thêm đơn đặt hàng" path={`${UrlConfig.PURCHASE_ORDERS}/create`} />
-              </AuthWrapper>
-            </Space>
-          </Row>
-        }
-      >
-        <Card>
-          <div className="purchase-order-list">
+          <div className="purchase-order-list margin-top-20">
             <PurchaseOrderFilter
               openSetting={() => setShowSettingColumn(true)}
               params={params}
@@ -807,7 +774,6 @@ const PurchaseOrderListScreen: React.FC = () => {
               rowKey={(item: PurchaseOrder) => item.id}
             />
           </div>
-        </Card>
         <ExportModal
           visible={showExportModal}
           onCancel={() => setShowExportModal(false)}
@@ -901,7 +867,6 @@ const PurchaseOrderListScreen: React.FC = () => {
             />
           </div>
         </div>
-      </ContentContainer>
     </PurchaseOrderListContainer>
   );
 };
