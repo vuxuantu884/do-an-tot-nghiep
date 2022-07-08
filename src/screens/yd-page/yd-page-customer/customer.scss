@@ -247,6 +247,12 @@
             height: 32px!important;
         }
 
+				.note-container button {
+					height: 32px!important;
+					display: flex;
+					align-items: center;
+				}
+
         .ant-select {
             &-selector {
                 height: 32px!important;
@@ -304,4 +310,10 @@
 	background-color: white !important;
 	border: 1px solid #d9d9d9 !important;
 	color: rgba(0,0,0,.85) !important;
+}
+
+.note-container {
+	.ant-form-item-control-input-content {
+		display: flex;
+	}
 }
