@@ -1,7 +1,11 @@
 import { Button, Checkbox, Col, Form, Input, Modal, Row } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { OrderBillRequestFormModel } from "model/request/order.request";
+import {
+  BillingAddressRequestModel,
+  OrderBillRequestFormModel,
+} from "model/request/order.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
@@ -19,9 +23,10 @@ type PropTypes = {
   handleClickDelete?: () => void;
   isPageOrderUpdate?: boolean;
   orderDetail: OrderResponse | null | undefined;
-  initOrderBillRequest: OrderBillRequestFormModel | undefined;
+  billingAddress: BillingAddressRequestModel | null;
   orderBillId: number | null;
   setOrderBillId: (value: number | null) => void;
+  customer?: CustomerResponse;
 };
 
 function OrderBillRequestModal(props: PropTypes) {
@@ -33,28 +38,37 @@ function OrderBillRequestModal(props: PropTypes) {
     isPageOrderUpdate = false,
     orderDetail,
     handleOk,
-    initOrderBillRequest,
     orderBillId,
     setOrderBillId,
+    billingAddress,
+    customer,
   } = props;
   const [form] = Form.useForm();
 
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
-  const initialFormValues:OrderBillRequestFormModel = useMemo(() => {
-    if(initOrderBillRequest) {
-      return initOrderBillRequest
+  const initialFormValues: OrderBillRequestFormModel = useMemo(() => {
+    if (billingAddress) {
+      return {
+        buyer: billingAddress.buyer,
+        tax_code: billingAddress.tax_code,
+        full_address: billingAddress.full_address,
+        name: billingAddress.name,
+        note: billingAddress.note,
+        email: billingAddress.email,
+        contract: billingAddress.contract,
+      };
     }
     return {
-      company: undefined,
-      tax: undefined,
-      address: undefined,
-      pic: undefined,
+      buyer: undefined,
+      tax_code: undefined,
+      full_address: undefined,
+      name: customer?.full_name || undefined,
       note: undefined,
-      email: undefined,
+      email: customer?.email || undefined,
       contract: false,
     };
-  }, [initOrderBillRequest]);
+  }, [billingAddress, customer]);
 
   const handleSubmit = () => {
     form.validateFields().then(() => {
@@ -63,12 +77,24 @@ function OrderBillRequestModal(props: PropTypes) {
     });
   };
 
+  /**
+   * arr: các trường hợp ko được update
+   * !orderBillId: sao chép đơn hàng
+   */
   const checkIfCanUpdateExportRequest = () => {
-    const arrOrderStatusCanUpdate = [OrderStatus.CANCELLED, OrderStatus.COMPLETED, OrderStatus.FINISHED]
-    return isPageOrderUpdate && (orderDetail?.status && !arrOrderStatusCanUpdate.includes(orderDetail?.status));
+    const arrOrderStatusCannotUpdate = [
+      OrderStatus.CANCELLED,
+      OrderStatus.COMPLETED,
+      OrderStatus.FINISHED,
+    ];
+    return (
+      (!orderBillId || isPageOrderUpdate) &&
+      orderDetail?.status &&
+      !arrOrderStatusCannotUpdate.includes(orderDetail?.status)
+    );
   };
-
-  const isDisableUpdateExportRequest = !checkIfCanUpdateExportRequest()
+  console.log("isPageOrderUpdate", isPageOrderUpdate);
+  const isDisableUpdateExportRequest = !checkIfCanUpdateExportRequest();
 
   const renderModalFooter = () => {
     return (
@@ -82,7 +108,7 @@ function OrderBillRequestModal(props: PropTypes) {
             danger
             onClick={() => {
               handleClickDelete && handleClickDelete();
-            }} 
+            }}
             className="cancelButton"
             disabled={!orderBillId}
           >
@@ -103,38 +129,57 @@ function OrderBillRequestModal(props: PropTypes) {
   };
 
   useEffect(() => {
-    if(orderDetail && isVisibleOrderBillRequestModal) {
+    if (orderDetail && isVisibleOrderBillRequestModal) {
       dispatch(showLoading());
-      getDetailOrderApi(orderDetail?.id).then(response => {
-        if (isFetchApiSuccessful(response)) {
-          console.log('response', response);
-          const {bill} = response.data;
-          if(bill) {
-            setOrderBillId(bill.id);
-            const initValueResult: OrderBillRequestFormModel = {
-              company: bill.company,
-              tax: bill.tax,
-              address: bill.address,
-              pic: bill.pic,
-              note: bill.note,
-              contract: bill.contract,
-              email: bill.email,
-            } 
-            form.setFieldsValue(initValueResult);
+      getDetailOrderApi(orderDetail?.id)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            console.log("response", response);
+            const { bill } = response.data;
+            if (bill) {
+              setOrderBillId(bill.id);
+              const initValueResult: OrderBillRequestFormModel = {
+                buyer: bill.buyer,
+                tax_code: bill.tax_code,
+                full_address: bill.full_address,
+                name: bill.name,
+                note: bill.note,
+                contract: bill.contract,
+                email: bill.email,
+              };
+              form.setFieldsValue(initValueResult);
+            } else {
+              form.setFieldsValue(initialFormValues);
+            }
           } else {
+            handleFetchApiError(
+              response,
+              "Chi tiết yêu cầu xuất hóa đơn",
+              dispatch,
+            );
             form.setFieldsValue(initialFormValues);
           }
-        } else {
-          handleFetchApiError(response, "Chi tiết yêu cầu xuất hóa đơn", dispatch);
-          form.setFieldsValue(initialFormValues);
-        }
-      }).finally(() => {
-        dispatch(hideLoading())
-      })
+        })
+        .finally(() => {
+          dispatch(hideLoading());
+        });
     } else {
       form.setFieldsValue(initialFormValues);
     }
-  }, [dispatch, form, initialFormValues, isVisibleOrderBillRequestModal, orderDetail, orderDetail?.id, setOrderBillId]);
+  }, [
+    dispatch,
+    form,
+    initialFormValues,
+    isVisibleOrderBillRequestModal,
+    orderDetail,
+    orderDetail?.id,
+    setOrderBillId,
+  ]);
+  console.log('customer111', customer)
+
+  useEffect(() => {
+    form.setFieldsValue(initialFormValues)
+  }, [customer, form, initialFormValues])
 
   return (
     <Modal
@@ -145,14 +190,10 @@ function OrderBillRequestModal(props: PropTypes) {
       footer={renderModalFooter()}
     >
       <StyledComponent>
-        <Form
-          form={form}
-          layout="vertical"
-          initialValues={initialFormValues}
-        >
+        <Form form={form} layout="vertical" initialValues={initialFormValues}>
           <div>
             <Form.Item
-              name="company"
+              name="buyer"
               label="Tên đơn vị mua hàng"
               rules={[
                 {
@@ -161,13 +202,16 @@ function OrderBillRequestModal(props: PropTypes) {
                 },
               ]}
             >
-              <Input placeholder="Nhập tên đơn vị mua hàng" disabled={isDisableUpdateExportRequest && !!orderBillId}/>
+              <Input
+                placeholder="Nhập tên đơn vị mua hàng"
+                disabled={isDisableUpdateExportRequest && !!orderBillId}
+              />
             </Form.Item>
           </div>
           <Row gutter={30}>
             <Col span={12}>
               <Form.Item
-                name="tax"
+                name="tax_code"
                 label="Mã số thuế"
                 rules={[
                   {
@@ -176,12 +220,15 @@ function OrderBillRequestModal(props: PropTypes) {
                   },
                 ]}
               >
-                <Input placeholder="Nhập mã số thuế" disabled={isDisableUpdateExportRequest && !!orderBillId} />
+                <Input
+                  placeholder="Nhập mã số thuế"
+                  disabled={isDisableUpdateExportRequest && !!orderBillId}
+                />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
-                name="pic"
+                name="name"
                 label="Người đại diện theo pháp luật"
                 rules={[
                   {
@@ -190,12 +237,15 @@ function OrderBillRequestModal(props: PropTypes) {
                   },
                 ]}
               >
-                <Input placeholder="Nhập người đại diện theo pháp luật" disabled={isDisableUpdateExportRequest && !!orderBillId} />
+                <Input
+                  placeholder="Nhập người đại diện theo pháp luật"
+                  disabled={isDisableUpdateExportRequest && !!orderBillId}
+                />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item
-            name="address"
+            name="full_address"
             label="Địa chỉ xuất hóa đơn"
             rules={[
               {
@@ -204,7 +254,10 @@ function OrderBillRequestModal(props: PropTypes) {
               },
             ]}
           >
-            <Input placeholder="Nhập địa chỉ xuất hóa đơn" disabled={isDisableUpdateExportRequest && !!orderBillId} />
+            <Input
+              placeholder="Nhập địa chỉ xuất hóa đơn"
+              disabled={isDisableUpdateExportRequest && !!orderBillId}
+            />
           </Form.Item>
 
           <Form.Item
@@ -221,18 +274,18 @@ function OrderBillRequestModal(props: PropTypes) {
               },
             ]}
           >
-            <Input placeholder="Nhập email nhận hóa đơn điện tử" disabled={isDisableUpdateExportRequest && !!orderBillId} />
+            <Input
+              placeholder="Nhập email nhận hóa đơn điện tử"
+              disabled={isDisableUpdateExportRequest && !!orderBillId}
+            />
           </Form.Item>
 
-          <Form.Item
-            name="contract"
-            valuePropName="checked"
-          >
+          <Form.Item name="contract" valuePropName="checked">
             <Checkbox disabled={isDisableUpdateExportRequest && !!orderBillId}>
               Có hợp đồng
             </Checkbox>
           </Form.Item>
-          
+
           <Form.Item
             name="note"
             label={
@@ -242,7 +295,11 @@ function OrderBillRequestModal(props: PropTypes) {
             }
             className="lastItem"
           >
-            <TextArea placeholder="Nhập ghi chú" rows={3} disabled={isDisableUpdateExportRequest && !!orderBillId} />
+            <TextArea
+              placeholder="Nhập ghi chú"
+              rows={3}
+              disabled={isDisableUpdateExportRequest && !!orderBillId}
+            />
           </Form.Item>
         </Form>
       </StyledComponent>

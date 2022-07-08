@@ -27,11 +27,10 @@ import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   CustomerUpdateAction, getCustomerDetailAction
 } from "domain/actions/customer/customer.action";
-import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { WardResponse } from "model/content/ward.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
-import { OrderBillRequestFormModel } from "model/request/order.request";
+import { BillingAddressRequestModel, OrderBillRequestFormModel } from "model/request/order.request";
 import {
   CustomerResponse,
   ShippingAddress
@@ -40,9 +39,9 @@ import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { deleteOrderBillDetailService } from "service/order/order.service";
-import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, handleFindArea, isFetchApiSuccessful, totalAmount } from "utils/AppUtils";
+import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
+import { textBodyColor } from "utils/global-styles/variables";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import CustomerShippingAddressOrder from "./customer-shipping";
@@ -71,8 +70,10 @@ type UpdateCustomerProps = {
   setCustomerChange: (value: boolean) => void;
   isPageOrderUpdate: boolean;
   orderDetail: OrderResponse | null | undefined;
-  handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
-  initOrderBillRequest: OrderBillRequestFormModel | undefined;
+  // handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
+  // initOrderBillRequest: OrderBillRequestFormModel | undefined;
+  billingAddress: BillingAddressRequestModel | null;
+  setBillingAddress: (items: BillingAddressRequestModel|null) => void;
 };
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
@@ -96,8 +97,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     setCustomerChange,
     isPageOrderUpdate,
     orderDetail,
-    handleOrderBillRequest,
-    initOrderBillRequest,
+    billingAddress,
+    setBillingAddress,
   } = props;
 
   const fullAddressRef = useRef()
@@ -123,7 +124,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [shippingWards, setShippingWards] = useState<Array<WardResponse>>([]);
 
-  const [orderBillId, setOrderBillId] = useState<number|null>(null)
+  const [orderBillId, setOrderBillId] = useState<number|null>(billingAddress?.order_id || null)
 
   const newAreas = useMemo(() => {
     return areas.map((area: any) => {
@@ -428,28 +429,35 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   console.log('orderBillId', orderBillId)
 
   const handleDeleteExportRequest = () => {
-    if(!orderBillId) {
-      return;
-    }
-    console.log('handleDeleteExportRequest');
+    setBillingAddress(null);
     setIsVisibleConfirmDeleteOrderBillRequestModal(false);
-    dispatch(showLoading())
-    deleteOrderBillDetailService(orderBillId).then(response => {
-      if(isFetchApiSuccessful(response)) {
-        showSuccess("Xóa thông tin xuất hóa đơn thành công!")
-        setOrderBillId(null)
-      } else {
-        handleFetchApiError(response, "Xóa thông tin xuất hóa đơn", dispatch)
-      }
-    }).finally(() => {
-      dispatch(hideLoading())
-    })
+    setOrderBillId(null)
+    // if(!orderBillId) {
+    //   return;
+    // }
+    // console.log('handleDeleteExportRequest');
+    // setIsVisibleConfirmDeleteOrderBillRequestModal(false);
+    // dispatch(showLoading())
+    // deleteOrderBillDetailService(orderBillId).then(response => {
+    //   if(isFetchApiSuccessful(response)) {
+    //     showSuccess("Xóa thông tin xuất hóa đơn thành công!")
+    //     setOrderBillId(null)
+    //   } else {
+    //     handleFetchApiError(response, "Xóa thông tin xuất hóa đơn", dispatch)
+    //   }
+    // }).finally(() => {
+    //   dispatch(hideLoading())
+    // })
   };
 
   const handleOkOrderBillRequest = (values:OrderBillRequestFormModel, orderBillId: number | null) => {
     console.log('values', values);
     setIsVisibleOrderBillRequestModal(false);
-    handleOrderBillRequest(values, orderBillId);
+    setBillingAddress({
+      ...billingAddress,
+      order_id: orderBillId,
+      ...values
+    });
     setOrderBillId(orderBillId);
   };
 
@@ -467,6 +475,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <OrderBillRequestButton 
             handleClickOrderBillRequestButton={() => setIsVisibleOrderBillRequestModal(true)} 
             orderDetail={orderDetail} 
+            color={textBodyColor}
           />
         </Col>
       </Row>
@@ -1078,9 +1087,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         handleClickDelete = {isPageOrderUpdate ? handleClickDeleteExportRequest : undefined}
         orderDetail = {orderDetail}
         handleOk={handleOkOrderBillRequest}
-        initOrderBillRequest={initOrderBillRequest}
+        billingAddress={billingAddress}
         orderBillId={orderBillId}
         setOrderBillId={setOrderBillId}
+        customer={customerItem}
       />
       {isPageOrderUpdate && (
         <DeleteOrderBillRequestConfirmModal

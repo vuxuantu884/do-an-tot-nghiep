@@ -14,6 +14,7 @@ import moment from "moment";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { POS } from "utils/Constants";
+import { dangerColor, textBodyColor } from "utils/global-styles/variables";
 import OrderBillRequestButton from "./order-detail/CardCustomer/OrderBillRequest/OrderBillRequestButton";
 import OrderBillRequestDetailModal from "./order-detail/CardCustomer/OrderBillRequest/OrderBillRequestDetailModal";
 //#endregion
@@ -147,7 +148,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               </span>
             </Space>
   
-            <Space className="customer-detail-birthday">
+            <Space className="customer-detail-birthday nn">
               <span className="customer-detail-icon">
                 <img src={birthdayIcon} alt="" />
               </span>
@@ -157,6 +158,18 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                   : "Không xác định"}
               </span>
             </Space>
+
+            {props.OrderDetail?.billing_address?.tax_code && !props.OrderDetail?.shipping_address && (
+              <Space className="customer-detail-birthday nn">
+                <OrderBillRequestButton 
+                  handleClickOrderBillRequestButton={() =>{
+                    setIsVisibleOrderBillRequestDetailModal(true)
+                  }} 
+                  orderDetail={props.OrderDetail} 
+                  color={textBodyColor}
+                />
+              </Space>
+            )}
           </Row>
           {props.OrderDetail?.shipping_address && (
             <>
@@ -164,7 +177,7 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
               <div>
                 <Row gutter={24} style={{paddingTop: "14px"}}>
                   <Col
-                    xs={props.OrderDetail?.bill?.id ? 16 : 24}
+                    xs={props.OrderDetail?.billing_address?.order_id ? 16 : 24}
                     className="font-weight-500 customer-info-left"
                   >
                     <div className="title-address 66">
@@ -183,11 +196,14 @@ const UpdateCustomerCard: React.FC<CustomerCardUpdateProps> = (
                       </span>
                     </div>
                   </Col>
-                  {props.OrderDetail?.bill?.id ? (
+                  {props.OrderDetail?.billing_address?.order_id ? (
                     <Col xs={8}>
                       <OrderBillRequestButton 
-                        handleClickOrderBillRequestButton={() => setIsVisibleOrderBillRequestDetailModal(true)} 
+                        handleClickOrderBillRequestButton={() =>{
+                          setIsVisibleOrderBillRequestDetailModal(true)
+                        }} 
                         orderDetail={props.OrderDetail} 
+                        color = {props.OrderDetail ? dangerColor : textBodyColor}
                       />
                     </Col>
                   ) :null}

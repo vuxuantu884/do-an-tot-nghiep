@@ -45,11 +45,8 @@ import { thirdPLModel } from "model/order/shipment.model";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-	BillingAddress,
-	FulFillmentRequest,
-	OrderBillRequestFormModel,
-	OrderBillRequestModel,
-	OrderDiscountRequest,
+	BillingAddressRequestModel,
+	FulFillmentRequest, OrderDiscountRequest,
 	OrderLineItemRequest,
 	OrderPaymentRequest,
 	OrderRequest,
@@ -73,7 +70,7 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { createOrderBillService, deleteOrderService, getStoreBankAccountNumbersService, updateOrderBillService } from "service/order/order.service";
+import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
 	copyTextToClipboard,
 	formatCurrency, getAccountCodeFromCodeAndName, getAmountPayment, getAmountPaymentRequest,
@@ -89,7 +86,7 @@ import {
 	PaymentMethodOption, POS, ShipmentMethodOption, TaxTreatment
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { checkIfFulfillmentCancelled, checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod, canCreateShipment } from "utils/OrderUtils";
+import { canCreateShipment, checkIfFulfillmentCancelled, checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
@@ -125,7 +122,7 @@ export default function Order(props: PropTypes) {
 
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
-	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
+	const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
 	const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
 	const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
 	const [orderAmount, setOrderAmount] = useState<number>(0);
@@ -177,7 +174,7 @@ export default function Order(props: PropTypes) {
 		}
 	};
 
-	const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
+	const onChangeBillingAddress = (_objBillingAddress: BillingAddressRequestModel | null) => {
 		setBillingAddress(_objBillingAddress);
 	};
 
@@ -647,6 +644,8 @@ console.log('coupon', coupon)
 		values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
 		values.channel_id = OrderDetail.channel_id;
 		values.company_id = DEFAULT_COMPANY.company_id;
+
+		values.export_bill = billingAddress?.tax_code ? true : false;
 		if (!values.customer_id) {
 			showError("Vui lòng chọn khách hàng và nhập địa chỉ giao hàng");
 			const element: any = document.getElementById("search_customer");
@@ -1089,6 +1088,12 @@ console.log('coupon', coupon)
 					} else {
 						dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
 					}
+					if(response.billing_address) {
+						setBillingAddress({
+							...response.billing_address,
+							order_id: response.id,
+						})
+					}
 				}
 			})
 		);
@@ -1214,39 +1219,39 @@ console.log('coupon', coupon)
 		return status;
 	};
 
-	const handleOrderBillRequest = (values:OrderBillRequestFormModel,  orderBillId: number | null) => {
-		if(OrderDetail?.id) {
-      let request: OrderBillRequestModel = {
-        ...values,
-        order_id: OrderDetail?.id,
-      }
-      dispatch(showLoading());
-      if(orderBillId) {
-        updateOrderBillService(orderBillId, request).then(response => {
-          console.log('response', response)
-          if (isFetchApiSuccessful(response)) {
-            showSuccess("Cập nhật yêu cầu xuất hóa đơn thành công!")
-          } else {
-            handleFetchApiError(response, "Cập nhật yêu cầu xuất hóa đơn", dispatch);
-          }
-        }).finally(() => {
-          dispatch(hideLoading())
-        })
+	// const handleOrderBillRequest = (values:OrderBillRequestFormModel,  orderBillId: number | null) => {
+	// 	if(OrderDetail?.id) {
+  //     let request: OrderBillRequestModel = {
+  //       ...values,
+  //       order_id: OrderDetail?.id,
+  //     }
+  //     dispatch(showLoading());
+  //     if(orderBillId) {
+  //       updateOrderBillService(orderBillId, request).then(response => {
+  //         console.log('response', response)
+  //         if (isFetchApiSuccessful(response)) {
+  //           showSuccess("Cập nhật yêu cầu xuất hóa đơn thành công!")
+  //         } else {
+  //           handleFetchApiError(response, "Cập nhật yêu cầu xuất hóa đơn", dispatch);
+  //         }
+  //       }).finally(() => {
+  //         dispatch(hideLoading())
+  //       })
 
-      } else {
-        createOrderBillService(request).then(response => {
-          console.log('response', response)
-          if (isFetchApiSuccessful(response)) {
-            showSuccess("Tạo yêu cầu xuất hóa đơn thành công!")
-          } else {
-            handleFetchApiError(response, "Tạo yêu cầu xuất hóa đơn", dispatch);
-          }
-        }).finally(() => {
-          dispatch(hideLoading())
-        })
-      }
-    }
-	};
+  //     } else {
+  //       createOrderBillService(request).then(response => {
+  //         console.log('response', response)
+  //         if (isFetchApiSuccessful(response)) {
+  //           showSuccess("Tạo yêu cầu xuất hóa đơn thành công!")
+  //         } else {
+  //           handleFetchApiError(response, "Tạo yêu cầu xuất hóa đơn", dispatch);
+  //         }
+  //       }).finally(() => {
+  //         dispatch(hideLoading())
+  //       })
+  //     }
+  //   }
+	// };
 
 	useEffect(() => {
 		formRef.current?.resetFields();
@@ -1401,7 +1406,8 @@ console.log('coupon', coupon)
 										ShippingAddressChange={(address) => {
 											setShippingAddress(address);
 										}}
-										BillingAddressChange={onChangeBillingAddress}
+										billingAddress={billingAddress}
+										setBillingAddress={onChangeBillingAddress}
 										levelOrder={levelOrder}
 										updateOrder={true}
 										isVisibleCustomer={isVisibleCustomer}
@@ -1418,8 +1424,8 @@ console.log('coupon', coupon)
 										setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										customerChange={customerChange}
 										setCustomerChange={setCustomerChange}
-										handleOrderBillRequest = {handleOrderBillRequest}
-										initOrderBillRequest={undefined}
+										// handleOrderBillRequest = {handleOrderBillRequest}
+										// initOrderBillRequest={undefined}
 									/>
 
 									<OrderCreateProduct

@@ -39,10 +39,8 @@ import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-	BillingAddress,
-	FulFillmentRequest,
-	OrderBillRequestFormModel,
-	OrderDiscountRequest,
+	BillingAddressRequestModel,
+	FulFillmentRequest, OrderDiscountRequest,
 	OrderLineItemRequest,
 	OrderPaymentRequest,
 	OrderRequest,
@@ -67,19 +65,14 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
-	getAmountPayment,
+	formatCurrency, getAmountPayment,
 	getAmountPaymentRequest,
 	getTotalAmount,
 	getTotalAmountAfterDiscount,
 	handleFetchApiError,
-	isFetchApiSuccessful,
-	reCalculatePaymentReturn,
-	scrollAndFocusToDomElement,
+	isFetchApiSuccessful, isOrderFromPOS, reCalculatePaymentReturn, replaceFormatString, scrollAndFocusToDomElement,
 	sortFulfillments,
-	totalAmount,
-	formatCurrency,
-	replaceFormatString,
-	isOrderFromPOS
+	totalAmount
 } from "utils/AppUtils";
 import {
 	ADMIN_ORDER,
@@ -103,9 +96,9 @@ export default function Order() {
 	const isUserCanCreateOrder = useRef(true);
 	const dispatch = useDispatch();
 	const history = useHistory();
-	const isExportBill = useSelector(
-		(state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
-	);
+	// const isExportBill = useSelector(
+	// 	(state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
+	// );
 	const isShouldSetDefaultStoreBankAccount = useSelector(
 		(state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount
 	)
@@ -119,7 +112,7 @@ export default function Order() {
 	const [customerChange, setCustomerChange] = useState(false);
 	const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
 	const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
-	const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
+	const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
 	const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
 	const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
 	const [orderAmount, setOrderAmount] = useState<number>(0);
@@ -128,6 +121,7 @@ export default function Order() {
 	const [shipmentMethod, setShipmentMethod] = useState<number>(
 		ShipmentMethodOption.DELIVER_LATER
 	);
+	console.log('billingAddress', billingAddress)
 	const [paymentMethod, setPaymentMethod] = useState<number>(
 		PaymentMethodOption.POSTPAYMENT
 	);
@@ -164,7 +158,7 @@ export default function Order() {
 	})
 	const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 
-	const [orderBillRequest, setOrderBillRequest] = useState<OrderBillRequestFormModel | undefined>(undefined);
+	// const [orderBillRequest, setOrderBillRequest] = useState<OrderBillRequestFormModel | undefined>(undefined);
 	
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 	// const [listOrderConfigs, setListOrderConfigs] =
@@ -198,10 +192,6 @@ export default function Order() {
 	};
 	const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
 		setShippingAddress(_objShippingAddress);
-	};
-
-	const onChangeBillingAddress = (_objBillingAddress: BillingAddress | null) => {
-		setBillingAddress(_objBillingAddress);
 	};
 
 	const ChangeShippingFeeCustomer = (value: number | null) => {
@@ -534,9 +524,9 @@ export default function Order() {
 		values.customer_district = customer?.district;
 		values.customer_city = customer?.city;
 		values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
-		values.export_bill = isExportBill;
+		values.export_bill = billingAddress?.tax_code ? true : false;
 		values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
-		values.bill = orderBillRequest;
+		// values.bill = orderBillRequest;
 
 		//Nếu là lưu nháp Fulfillment = [], payment = []
 		if (typeButton === OrderStatus.DRAFT) {
@@ -975,7 +965,12 @@ export default function Order() {
 							} else {
 								dispatch(setIsShouldSetDefaultStoreBankAccountAction(true))
 							}
-							setOrderBillRequest(response.bill || undefined);
+							if(response.billing_address) {
+								setBillingAddress({
+									...response.billing_address,
+									order_id: undefined,
+								})
+							}
 						}
 					})
 				);
@@ -1021,12 +1016,12 @@ export default function Order() {
 			}
 			else
 				onChangeShippingAddress(null)
-			if (customer.billing_addresses) {
-				let billing_addresses_index = customer.billing_addresses.findIndex(x => x.default === true);
-				onChangeBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
-			}
-			else
-				onChangeBillingAddress(null)
+			// if (customer.billing_addresses) {
+			// 	let billing_addresses_index = customer.billing_addresses.findIndex(x => x.default === true);
+			// 	setBillingAddress(billing_addresses_index !== -1 ? customer.billing_addresses[billing_addresses_index] : null);
+			// }
+			// else
+			// setBillingAddress(null)
 		} else {
 			setLoyaltyPoint(null);
 			setCountFinishingUpdateCustomer(prev => prev + 1);
@@ -1288,7 +1283,8 @@ export default function Order() {
 											loyaltyUsageRules={loyaltyUsageRules}
 											ShippingAddressChange={onChangeShippingAddress}
 											shippingAddress={shippingAddress}
-											BillingAddressChange={onChangeBillingAddress}
+											billingAddress={billingAddress}
+											setBillingAddress={setBillingAddress}
 											isVisibleCustomer={isVisibleCustomer}
 											setVisibleCustomer={setVisibleCustomer}
 											modalAction={modalAction}
@@ -1302,8 +1298,8 @@ export default function Order() {
 											setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 											customerChange={customerChange}
                     	setCustomerChange={setCustomerChange}
-                    	handleOrderBillRequest={setOrderBillRequest}
-											initOrderBillRequest = {orderBillRequest}
+                    	// handleOrderBillRequest={setOrderBillRequest}
+											// initOrderBillRequest = {orderBillRequest}
 										/>
 										<OrderCreateProduct
 											orderAmount={orderAmount}
