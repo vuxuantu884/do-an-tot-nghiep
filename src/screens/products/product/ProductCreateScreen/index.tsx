@@ -231,6 +231,8 @@ const ProductCreateScreen: React.FC = () => {
   const [sizeLoading, setSizeLoading] = useState(false);
   const [colorLoading, setColorLoading] = useState(false);
   const [defects, setDefects] = useState<Array<Defect>>([]);
+  const [careLabels, setCareLabels] = useState<any[]>([]);
+  const [careLabelsString, setCareLabelsString] = useState("");
   const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
     {
       items: [],
@@ -346,11 +348,12 @@ const ProductCreateScreen: React.FC = () => {
             color: null,
             size_id: null,
             size: null,
-            sku: `${code}- ${e.code}`,
+            sku: `${code}-${e.code}`,
             quantity: 0,
             variant_images: [],
             saleable: false,
-            defect_code: `${e.code}`
+            defect_code: `${e.code}`,
+            type: 1
           });
          }
 
@@ -367,11 +370,12 @@ const ProductCreateScreen: React.FC = () => {
               color: null,
               size_id: null,
               size: null,
-              sku: `${code}- ${e.code}`,
+              sku: `${code}-${e.code}`,
               quantity: 0,
               variant_images: [],
               saleable: false,
-              defect_code: `${e.code}`
+              defect_code: `${e.code}`,
+              type: 1
             });
           }
         }
@@ -407,13 +411,19 @@ const ProductCreateScreen: React.FC = () => {
 
   const onMaterialChange = useCallback((id: number) => {
     if (changeDescription && id) {
-      dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
+      dispatch(detailMaterialAction(id, (material) => {
+        handleChangeMaterial(material, form);
+        if (material && material.care_labels) {
+          setCareLabelsString(material.care_labels);
+        }else{
+          setCareLabelsString("");
+        }
+      }));
     }
-  },[dispatch,form, changeDescription]);
+  },[changeDescription, dispatch, form]);
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
-      console.log('sĩe select')
       let size:string = "";
       if (objSize && objSize?.children) {
         size = objSize?.children.split(" ")[0];
@@ -464,9 +474,6 @@ const ProductCreateScreen: React.FC = () => {
     });
     return arr;
   }, [variants]);
-
-  const [careLabels, setCareLabels] = useState<any[]>([]);
-  const [careLabelsString, setCareLabelsString] = useState("");
 
   useEffect(() => {
     const newSelected = careLabelsString ? careLabelsString.split(";") : [];
@@ -1002,7 +1009,9 @@ const ProductCreateScreen: React.FC = () => {
                       >
                         {listMaterial?.map((item) => (
                           <CustomSelect.Option key={item.id} value={item.id}>
-                            {item.name}
+                            <div>
+                              {item.symbol} - {item.name}
+                            </div>
                           </CustomSelect.Option>
                         ))}
                       </CustomSelect>
