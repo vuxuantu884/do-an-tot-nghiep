@@ -20,7 +20,7 @@ import {
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
-import React, { createRef, useCallback, useEffect, useState } from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import search from "assets/img/search.svg";
@@ -35,6 +35,7 @@ import { isFulfillmentPacked } from "./pack-utils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
 import { getFulfillmentActive } from "utils/OrderUtils";
+import ButtonWarningHandover from "./component/button-warning-handover";
 
 const { Item } = Form;
 type PackParam = {
@@ -84,6 +85,17 @@ const PackUpdate: React.FC = () => {
       disabled: false
     },
   ];
+
+  const stores = useMemo(() => {
+    let result: any = [];
+    const storeId = packDetail?.store_id;
+    if (storeId) {
+      result.push({
+        id: storeId
+      })
+    }
+    return result;
+  }, [packDetail?.store_id])
 
   useEffect(() => {
     if (PackId) {
@@ -543,7 +555,11 @@ const PackUpdate: React.FC = () => {
           </Row>
         </Card>
 
-        <Card title="Thông tin biên bản bàn giao" className="pack-info-update-card">
+        <Card title="Thông tin biên bản bàn giao" className="pack-info-update-card"
+          extra={
+            <ButtonWarningHandover stores={stores} isHiddenCreate={true} />
+          }
+        >
           <div className="order-filter">
             <div className="page-filter" style={{ padding: "0px 0px 20px 0px" }}>
               <div className="page-filter-heading">

@@ -525,15 +525,16 @@ const WebAppOrders: React.FC = () => {
             key: "order_id",
             visible: true,
             fixed: "left",
+            align: "center",
             className: "custom-shadow-td",
             width: 175,
             render: (data: any, item: OrderModel) => (
-                <div>
-                    <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong>{data.code}</strong></Link>
-                    <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
-                    <div><span style={{ color: "#666666" }}>Nguồn: </span><span>{data.source}</span></div>
-                    <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
-                    <div><span style={{ color: "#666666" }}>Gian hàng: </span><span>{data.ecommerce_shop_name}</span></div>
+                <div style={{ textAlign: "left" }}>
+                    <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong >{data.code}</strong></Link>
+                    <div >{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
+                    <div><span style={{ color: "#666666"}}>Nguồn: </span><span>{data.source}</span></div>
+                    <div><span style={{ color: "#666666"}}>Kho: </span><span>{data.store}</span></div>
+                    <div><span style={{ color: "#666666"}}>Gian hàng: </span><span>{data.ecommerce_shop_name}</span></div>
                     <div>({data.reference_code})</div>
                 </div>
             ),
@@ -542,6 +543,7 @@ const WebAppOrders: React.FC = () => {
             title: "Khách hàng",
             key: "customer",
             visible: true,
+            align: "center",
             width: 160,
             render: (record) =>
                 record.shipping_address ? (
@@ -577,6 +579,7 @@ const WebAppOrders: React.FC = () => {
             ),
             dataIndex: "items",
             key: "items.name11",
+            align: "center",
             className: "product-and-quantity",
             render: (items: any) => {
                 return (
@@ -680,6 +683,7 @@ const WebAppOrders: React.FC = () => {
         },
         {
             title: "Ghi chú",
+            align: "center",
             className: "notes",
             render: (value: string, record: OrderModel) => (
                 <div className="orderNotes">
@@ -712,7 +716,6 @@ const WebAppOrders: React.FC = () => {
             ),
             key: "note",
             visible: true,
-            align: "left",
             width: 150,
         },
         {
@@ -782,10 +785,11 @@ const WebAppOrders: React.FC = () => {
             title: "Địa chỉ giao hàng",
             key: "shipping_address",
             visible: true,
+            align: "center",
             width: 200,
             render: (item: any) => {
                 return (
-                    <div className="p-b-3">{item.shipping_address ? item.shipping_address.full_address : ""}</div>
+                    <div className="p-b-3 delivery-address">{item.shipping_address ? item.shipping_address.full_address : ""}</div>
                 )
             },
         },

@@ -12,7 +12,7 @@ import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { useDispatch, useSelector } from "react-redux";
 import {
   deleteAllGoodsReceipts,
-  getGoodsReceiptsSerch,
+  getGoodsReceiptsSearch,
   updateGoodsReceipts,
   // updateNoteGoodreceipt,
 } from "domain/actions/goods-receipts/goods-receipts.action";
@@ -75,6 +75,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const orderPackContextData = useContext(OrderPackContext);
   const listStores = orderPackContextData?.listStores;
+  const setDeliveryServices=orderPackContextData.setListThirdPartyLogistics;
+  const deliveryServices= orderPackContextData.listThirdPartyLogistics;
 
   let dataQuery: GoodsReceiptsSearchQuery = {
     ...initQueryGoodsReceipts,
@@ -172,7 +174,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   let delivery_services: Array<DeliveryServiceResponse> = [];
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
+  // const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
@@ -333,7 +335,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         if (data) {
           setTableLoading(true);
           dispatch(
-            getGoodsReceiptsSerch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
+            getGoodsReceiptsSearch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
               if (data) {
                 let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
                 /////
@@ -469,7 +471,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       {
         setTableLoading(true);
         dispatch(
-          getGoodsReceiptsSerch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
+          getGoodsReceiptsSearch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
             if(data){
               let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
             /////
@@ -751,7 +753,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       }
 
       dispatch(
-        getGoodsReceiptsSerch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
+        getGoodsReceiptsSearch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
           if (data) {
             let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
             /////

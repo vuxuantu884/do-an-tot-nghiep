@@ -278,6 +278,7 @@ const PointAdjustment = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
+            isShowPaginationAtHeader
             dataSource={pointAdjustmentData.items}
             columns={columns}
             rowKey={(item: any) => item.id}

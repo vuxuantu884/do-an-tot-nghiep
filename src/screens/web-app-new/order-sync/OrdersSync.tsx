@@ -343,9 +343,10 @@ const OrdersSync = () => {
       title: "Mã đơn trên Yody",
       key: "core_order_code",
       width: "10%",
+      align: "center",
       render: (item: any) => (
         <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
-          <b>{item.core_order_code}</b>
+          <b style={{ textAlign: "left" }}>{item.core_order_code}</b>
         </Link>
       ),
     },
@@ -354,9 +355,10 @@ const OrdersSync = () => {
       dataIndex: "ecommerce_order_code",
       key: "order_id",
       width: "10%",
+      align: "center",
       render: (item) => (
-        <div>
-          <span style={{ textAlign: "center" }}>{item}</span>
+        <div >
+          <span style={{ textAlign: "left" }}>{item}</span>
         </div>
       ),
     },
@@ -364,7 +366,7 @@ const OrdersSync = () => {
       title: "Gian hàng",
       dataIndex: "shop",
       key: "shop",
-      align: "left",
+      align: "center",
       width: "250px",
       render: (shop: string) => (
         <div className="shop-show-style" style={{ textAlign: "left", minWidth: "150px" }}>
@@ -378,7 +380,7 @@ const OrdersSync = () => {
       title: "Nguồn",
       dataIndex: "source_id",
       key: "source_id",
-      align: "left",
+      align: "center",
       width: "12%",
       render: (sourceId: any) => (
         <div className="shop-show-style" style={{ textAlign: "left", minWidth: "150px" }}>
@@ -496,6 +498,7 @@ const OrdersSync = () => {
             isRowSelection={allowProductsUpdateStock}
             isLoading={isLoading}
             showColumnSetting={true}
+            scroll={{ x: 1500 }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={
               isLoading

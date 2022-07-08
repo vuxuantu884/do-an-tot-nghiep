@@ -171,8 +171,9 @@ export interface CustomerRequest extends BaseObject {
   country_id: number | null;
   district_id: number | null;
   district:string|null;
-  ward_id: number | null;
-  ward:string|null;
+  ward_id?: number | null;
+  ward?:string|null;
+  city?:string|null;
   full_address: string | null;
   customer_type_id: number | null;
   customer_group_id: number | null;

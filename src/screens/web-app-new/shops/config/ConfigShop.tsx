@@ -519,6 +519,9 @@ const ConfigShop = (props: ConfigShopProps) => {
                                     <Select.Option value={"manual"}>
                                         <span>Đợi ghép nối</span>
                                     </Select.Option>
+                                    <Select.Option value={"auto"}>
+                                        <span>Tự động ghép nối</span>
+                                    </Select.Option>
                                 </Select>
                             </Form.Item>
                         </Col>

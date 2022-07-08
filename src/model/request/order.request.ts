@@ -39,7 +39,7 @@ export interface OrderRequest {
   items: Array<OrderLineItemRequest>;
   discounts: Array<OrderDiscountRequest> | null;
   shipping_address: ShippingAddress | null;
-  billing_address: BillingAddress | null;
+  billing_address: BillingAddressRequestModel | null;
   fulfillments: Array<FulFillmentRequest> | null;
   payments: Array<OrderPaymentRequest> | null;
   channel_id?: number | null;
@@ -120,21 +120,20 @@ export interface UpdateLineFulFillment {
   action?: string | null;
 }
 
-export interface BillingAddress {
-  default: boolean;
-  name: string;
-  email: string;
-  phone: string;
-  country_id: number;
-  country: string;
-  city_id: number;
-  city: string;
-  district_id: number;
-  district: string;
-  ward_id: number;
-  ward: string;
-  zip_code: string;
-  full_address: string;
+export interface BillingAddressRequestModel extends OrderBillRequestModel {
+  default?: boolean;
+  name?: string;
+  email?: string;
+  phone?: string;
+  country_id?: number;
+  country?: string;
+  city_id?: number;
+  city?: string;
+  district_id?: number;
+  district?: string;
+  ward_id?: number;
+  ward?: string;
+  zip_code?: string;
 }
 
 export interface ShippingAddress {
@@ -506,15 +505,15 @@ export interface OrderReturnCalculateRefundRequestModel {
 */
 
 export interface OrderBillRequestFormModel {
-  company: string | undefined;
-  tax: string | undefined;
-  address: string | undefined;
-  pic: string | undefined;
-  note: string | undefined;
-  email: string | undefined;
-  contract: boolean;
+  buyer?: string ;
+  tax_code?: string ;
+  name?: string ;
+  note?: string ;
+  email?: string ;
+  full_address?: string ;
+  contract?: boolean;
 }
 
 export interface OrderBillRequestModel extends  OrderBillRequestFormModel {
-  order_id: number;
+  order_id?: number | null;
 }

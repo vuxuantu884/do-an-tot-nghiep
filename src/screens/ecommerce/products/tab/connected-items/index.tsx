@@ -679,7 +679,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             )}
 
             {item.sync_stock_status === "error" && (
-              <Tooltip title="error">
+              <Tooltip title={item.error_msg_stock}>
                 <div className="red-status" style={{ width: 120 }}>
                   Thất bại
                 </div>

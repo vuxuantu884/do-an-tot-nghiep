@@ -14,7 +14,7 @@ import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import {
   createGoodsReceipts,
   getByIdGoodsReceipts,
-  getGoodsReceiptsSerch,
+  getGoodsReceiptsSearch,
   updateGoodsReceipts,
 } from "domain/actions/goods-receipts/goods-receipts.action";
 import { useDispatch } from "react-redux";
@@ -149,7 +149,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
             initQueryGoodsReceipts.to_date = toDate;
 
             dispatch(
-              getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
+              getGoodsReceiptsSearch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
                 setListGoodsReceipts(data.items);
                 let index = data.items.findIndex((p) => p.id === value.id);
                 if (index !== -1)
@@ -345,9 +345,6 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
 
-    // let fromDate: Moment | undefined = convertFromStringToDate(moment(new Date().setHours(-72)), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
-    // let toDate: Moment | undefined = convertFromStringToDate(new Date(), "yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
-
     let fromDate = moment().startOf("day").subtract(3, "days").format(dateFormat);
     let toDate = moment().endOf("day").format(dateFormat);
 
@@ -357,7 +354,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
     initQueryGoodsReceipts.to_date =  formatDateTimeOrderFilter(toDate, dateFormat);
 
     dispatch(
-      getGoodsReceiptsSerch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
+      getGoodsReceiptsSearch(initQueryGoodsReceipts, (data: PageResponse<GoodsReceiptsResponse>) => {
         setListGoodsReceipts(data.items);
       })
     );

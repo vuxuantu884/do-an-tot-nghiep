@@ -91,7 +91,6 @@ const POProductForm = ({
 
   const onSelectProduct = (value: any) => {
     setIsSelecttingProduct(true);
-
     dispatch(
       productGetDetail(value, (data: ProductResponse) => {
         if (data.status === 'inactive') {
@@ -101,7 +100,7 @@ const POProductForm = ({
         }
 
         if (data.variants) {
-          const variants = data.variants.filter(variant => variant.status !== "inactive");
+          const variants = data.variants.filter(variant => variant.status !== "inactive" && variant.type !== 1); //variant.type === 1 là sản phẩm lỗi
           data.variants = variants;
           const procurements = formMain.getFieldValue(POField.procurements);
           formMain.setFieldsValue({
@@ -128,6 +127,7 @@ const POProductForm = ({
            * Tạo schema cấu trúc bảng cho sp
            */
           const newpoLineItemGridChema = [];
+          console.log()
           newpoLineItemGridChema.push(initSchemaLineItem(data, "CREATE"));
           setPoLineItemGridChema(newpoLineItemGridChema);
 
@@ -397,12 +397,12 @@ const POProductForm = ({
       width: 80,
     }, {
       title: "Size",
+      align: "center",
       /**
        * Handle case nhiều mã 7
        * nếu có nhiều mã 7 nhưng số lượng màu trùng nhau thì chỉ hiển thị unique màu
        */
       children: sizeRenderTable.map((size: string) => {
-
         return {
           title: <div>
             <p>{size}</p>

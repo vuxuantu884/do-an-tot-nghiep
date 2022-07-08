@@ -475,6 +475,15 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 							onChange={(e: any) => setNote(e.target.value)}
 							value={note}
 						/>
+						<Button type="primary"
+							onClick={async (e: any) => {
+								await handleNote.get(e)
+								await handleNote.create(note)
+								setNote('')
+							}}
+						>
+							Thêm
+						</Button>
 					</Form.Item>
 
 					<div className="customer-note-wrapper">

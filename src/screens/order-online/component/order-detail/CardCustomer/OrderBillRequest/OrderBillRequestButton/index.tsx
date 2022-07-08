@@ -1,25 +1,26 @@
 import { OrderResponse } from "model/response/order/order.response";
-import { dangerColor, textBodyColor } from "utils/global-styles/variables";
+import { dangerColor } from "utils/global-styles/variables";
 import IconDocument from "./images/IconDocument";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
   handleClickOrderBillRequestButton: () => void;
   orderDetail: OrderResponse | null | undefined;
+  color: string;
 };
 
 function OrderBillRequestButton(props: PropTypes) {
-  const { handleClickOrderBillRequestButton, orderDetail } = props;
+  const { handleClickOrderBillRequestButton, orderDetail, color } = props;
 
   return (
     <StyledComponent>
-      <div className={`exportRequest ${orderDetail ? null : "isCreate"}`}>
+      <div className={`exportRequest ${color === dangerColor ? null : "isCreate"}`}>
         <span
           className="buttonExportRequest"
           onClick={() => handleClickOrderBillRequestButton()}
         >
           <span className="icon">
-            <IconDocument color={orderDetail ? dangerColor : textBodyColor }/>
+            <IconDocument color={color}/>
           </span>
           {orderDetail ? "Thông tin xuất hóa đơn" : "Yêu cầu xuất hóa đơn" }
         </span>

@@ -22,7 +22,7 @@ import {
 import { showError } from "utils/ToastUtils";
 import { YDpageCustomerRequest } from "model/request/customer.request";
 
-import {BillingAddress, ShippingAddress} from "model/request/order.request";
+import {BillingAddressRequestModel, ShippingAddress} from "model/request/order.request";
 import {DistrictGetByCountryAction} from "domain/actions/content/content.action";
 import {VietNamId} from "utils/Constants";
 import "screens/yd-page/index.scss";
@@ -69,7 +69,7 @@ function YDPageAdmin() {
 
   const [YDPageCustomerInfo, setYDPageCustomerInfo] = useState<YDPageCustomerResponse | null>();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
-  const [billingAddress, setBillingAddress] = useState<BillingAddress | null>(null);
+  const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
   const [customerPhone, setCustomerPhone] = useState<string | null>("");
   const [customerDefaultPhone, setCustomerDefaultPhone] = useState<string>("");
   const [customerPhones, setCustomerPhones] = useState<Array<string>>([]);

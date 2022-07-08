@@ -6,7 +6,7 @@ import {
 } from "@ant-design/icons";
 import { AutoComplete, Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Switch, Tag } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
-import { RefSelectProps } from "antd/lib/select";
+import Select, { RefSelectProps } from "antd/lib/select";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
@@ -47,7 +47,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { formatCurrency, handleDelayActionWhenInsertTextInSearchInput, replaceFormat, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency, handleDelayActionWhenInsertTextInSearchInput, replaceFormat } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
@@ -513,6 +513,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "affiliate":
           onFilter && onFilter({ ...params, affiliate: null });
           break;
+        case "in_goods_receipt":
+          onFilter && onFilter({ ...params, in_goods_receipt: undefined });
+          break;
         default:
           break;
       }
@@ -615,6 +618,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       returned_date_min: formatDateFilter(params.returned_date_min || undefined),
       returned_date_max: formatDateFilter(params.returned_date_max || undefined),
       discount_codes: textDiscount,
+      in_goods_receipt:params.in_goods_receipt?(Number)(params.in_goods_receipt):undefined
     };
   }, [params]);
 
@@ -722,6 +726,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         if (values.discount_codes) {
           discount_codes = values.discount_codes.split(",").map((p: string) => p?.trim());
         }
+
         onFilter && onFilter({ ...values, discount_codes: discount_codes });
         setRerender(false);
       }
@@ -1361,8 +1366,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       })
     }
 
+    if (initialValues?.in_goods_receipt === 0 || initialValues?.in_goods_receipt === 1) {
+      let textRecord = initialValues?.in_goods_receipt === 1 ? "Đã nằm trong biên bản" : initialValues?.in_goods_receipt===0? "Chưa nằm trong biên bản":"";
+      list.push({
+        key: "in_goods_receipt",
+        name: "Biên bản",
+        value: <React.Fragment>{textRecord}</React.Fragment>
+      })
+    }
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initialValues.discount_codes, initialValues.utm_source, initialValues.utm_medium, initialValues.utm_content, initialValues.utm_term, initialValues.utm_id, initialValues.utm_campaign, initialValues.affiliate, initChannelCodes, orderType, listStore, listSources, dateFormat, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initialValues.discount_codes, initialValues.utm_source, initialValues.utm_medium, initialValues.utm_content, initialValues.utm_term, initialValues.utm_id, initialValues.utm_campaign, initialValues.affiliate, initialValues?.in_goods_receipt, initChannelCodes, orderType, listStore, listSources, dateFormat, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -2197,6 +2210,20 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 <Col span={8} xxl={8}>
                   <Item name="discount_codes" label="Mã giảm giá">
                     <Input placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)" style={{ width: "100%" }} />
+                  </Item>
+                </Col>
+              </Row>
+              <Row style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
+                <Col span={8} xxl={8}>
+                  <Item name="in_goods_receipt" label="Biên bản:">
+                    <Select
+                      placeholder="Tìm kiếm đơn có hoặc chưa trong biên bản"
+                      style={{ width: "100%" }}
+                      allowClear
+                    >
+                      <Select.Option key={1} value={1}>Đã nằm trong biên bản</Select.Option>
+                      <Select.Option key={0} value={0}>Chưa nằm trong biên bản</Select.Option>
+                    </Select>
                   </Item>
                 </Col>
               </Row>

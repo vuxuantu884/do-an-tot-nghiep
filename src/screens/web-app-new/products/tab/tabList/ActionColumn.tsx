@@ -84,8 +84,8 @@ const ActionColumn = (handleDeleteItem: any, handleSyncStock?: any, handleDiscon
   const _actionColumn = {
     title: "",
     visible: true,
-    width: "5%",
-    className: "ecommerce-product-action-column",
+    width: "60px",
+    className: "ecommerce-product-action-column text-center",
     render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index)
   };
 

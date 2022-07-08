@@ -272,6 +272,7 @@ const CustomerRanking = () => {
                   onChange: onPageChange,
                   onShowSizeChange: onPageChange,
                 }}
+                isShowPaginationAtHeader
                 dataSource={data.items}
                 columns={pageColumns}
                 rowKey={(item: any) => item.id}

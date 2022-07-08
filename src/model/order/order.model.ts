@@ -1,5 +1,5 @@
 import { BaseObject } from "model/base/base.response";
-import { BillingAddress, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
+import { BillingAddressResponseModel, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { ORDER_TYPES } from "utils/Order.constants";
 
@@ -98,7 +98,7 @@ export interface OrderModel extends BaseObject {
   payments: Array<OrderPaymentResponse>;
   total_paid?: number | null;
   shipping_address: ShippingAddress | null;
-  billing_address: BillingAddress | null;
+  billing_address: BillingAddressResponseModel | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
@@ -189,6 +189,8 @@ export interface OrderSearchQuery {
   tracking_codes ?: Array<string> | [];
   searched_product?: string | null;
   discount_codes?:string[]|null;
+  //record
+  in_goods_receipt?:number|null;
   //webApp
   utm_source?:string|null;
   utm_medium?:string|null;

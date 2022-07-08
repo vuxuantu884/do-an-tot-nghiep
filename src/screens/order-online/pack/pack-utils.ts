@@ -1,7 +1,5 @@
 import { FulFillmentResponse } from "model/response/order/order.response";
 import { FulFillmentStatus } from "utils/Constants";
-import { getFulfillmentActive } from "utils/OrderUtils";
-import { showModalError } from "utils/ToastUtils";
 
 /*
 *lấy dữ liệu ffm đã đóng gói

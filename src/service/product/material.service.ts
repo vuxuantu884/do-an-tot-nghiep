@@ -2,7 +2,13 @@ import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MaterialResponse, MaterialCreateRequest, MaterialUpdateRequest, MaterialQuery } from "model/product/material.model";
+import {
+  MaterialResponse,
+  MaterialCreateRequest,
+  MaterialUpdateRequest,
+  MaterialQuery,
+  MaterialUpdateStatusAndNoteRequest,
+} from "model/product/material.model";
 import { generateQuery } from "utils/AppUtils";
 
 export const getMaterialApi = (query: MaterialQuery): Promise<BaseResponse<PageResponse<MaterialResponse>>> => {
@@ -29,4 +35,8 @@ export const detailMaterialApi = (materialId: number): Promise<BaseResponse<Mate
 
 export const updateMaterialApi = (materialId: number,request: MaterialUpdateRequest): Promise<BaseResponse<MaterialResponse>> => {
   return BaseAxios.put(`${ApiConfig.PRODUCT}/materials/${materialId}`, request);
+}
+
+export const updateMaterialStatusAndNoteApi = (materialId: number, request: MaterialUpdateStatusAndNoteRequest): Promise<BaseResponse<MaterialResponse>> => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/materials/${materialId}/update-other-info`, request);
 }

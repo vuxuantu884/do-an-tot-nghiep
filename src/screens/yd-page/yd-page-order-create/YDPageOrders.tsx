@@ -17,7 +17,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { InventoryResponse } from "model/inventory";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
-  BillingAddress,
+  BillingAddressRequestModel,
   FulFillmentRequest,
   OrderDiscountRequest,
   OrderLineItemRequest,
@@ -96,7 +96,7 @@ type OrdersCreatePermissionProps = {
   newCustomerInfo?: YDpageCustomerRequest;
   setCustomer: (items: CustomerResponse | null) => void;
   setShippingAddress: (items: ShippingAddress | null) => void;
-  setBillingAddress: (items: BillingAddress | null) => void;
+  setBillingAddress: (items: BillingAddressRequestModel | null) => void;
   setActiveTabKey: (items: string) => void;
   setVisibleCustomer: (item: boolean) => void;
   setIsClearOrderTab: (item: boolean) => void;
@@ -112,7 +112,7 @@ type OrdersCreatePermissionProps = {
   updateOrder?: boolean;
   isVisibleCustomer: boolean;
   shippingAddress: ShippingAddress | any;
-  billingAddress: BillingAddress | any;
+  billingAddress: BillingAddressRequestModel | any;
 };
 
 const ordersCreatePermission = [YDpagePermission.orders_create];

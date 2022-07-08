@@ -369,6 +369,7 @@ const SettingCustomerGroup: React.FC = () => {
                       onChange: onPageChange,
                       onShowSizeChange: onPageChange,
                     }}
+                    isShowPaginationAtHeader
                     dataSource={listCustomerGroup}
                     columns={columnFinal()}
                     rowKey={(item: VariantResponse) => item.id}

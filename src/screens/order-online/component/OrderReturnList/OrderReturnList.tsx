@@ -459,6 +459,29 @@ function OrderReturnList(props: PropTypes) {
     },
 
     {
+      title: "Hoàn điểm",
+      //dataIndex: "total_amount",
+      render: (record: any) => {
+        if(record?.point_refund) {
+          return (
+            <div className="pointRefund">
+              <img src={IconPaymentPoint} alt="" />
+              <span className="number">
+                {formatNumber(record.point_refund)}
+              </span>
+            </div>
+          )
+        } else {
+          return "-"
+        }
+      },
+      key: "refund_point",
+      visible: true,
+      align: "center",
+      width: 100,
+    },
+
+    {
       title: "Tổng tiền",
       width: 140,
       render: (record: any) => (

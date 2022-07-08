@@ -174,6 +174,7 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
           onChange: onChangePage,
           onShowSizeChange: onChangePage,
         }}
+        isShowPaginationAtHeader
         dataSource={activityLogData.items}
         columns={activityLogColumns}
         rowKey={(item: OrderModel) => item.id}

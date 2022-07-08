@@ -519,7 +519,7 @@ const PODetailScreen: React.FC = () => {
     const poProcurementsStatus: Array<string> = purchaseOrder?.procurements?.map((item: PurchaseProcument) => item.status).slice(1)
     // lấy tất cả status của pr trừ pr đầu tiên (bù nhìn)
     // cho phép hủy PO khi các phiếu PR đã hủy
-    if(poStatus && poStatus === POStatus.STORED && poProcurementsStatus.every((el) => el === ProcumentStatus.CANCELLED) && canCancelPO) {
+    if (poStatus && poStatus === POStatus.STORED && poProcurementsStatus.every((el) => el === ProcumentStatus.CANCELLED) && canCancelPO) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",
@@ -605,25 +605,32 @@ const PODetailScreen: React.FC = () => {
 
   const handleBeforeSave = () => {
     const status = purchaseOrder?.status;
-    // case: chưa duyệt => check tất cả sp có giá nhỏ hơn 1000đ trong line item 
-    if (status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) {
-      const lineItems = isGridMode ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate) : formMain.getFieldsValue()[POField.line_items];
-
-      if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
-        setShowWarningPriceModal(true)
-        return;
+    try {
+      // case: chưa duyệt => check tất cả sp có giá nhỏ hơn 1000đ trong line item 
+      if (status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) {
+        const lineItems: any[] = isGridMode ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate) : formMain.getFieldsValue()[POField.line_items];
+        if (!lineItems.every((item) => item.price)) {
+          setIsEditDetail(true)
+          throw new Error("Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công");
+        }
+        if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
+          setShowWarningPriceModal(true)
+          return;
+        }
+      } else if ([POStatus.FINALIZED, POStatus.STORED].includes(status) && purchaseOrder.receive_status !== ProcumentStatus.FINISHED) {
+        //case: đã duyệt - trước kết thúc nhập kho: chỉ check những sản phẩm bổ sung được thêm mới vào có giá nhỏ hơn 1000đ
+        const formLineItems: PurchaseOrderLineItem[] = formMain.getFieldValue([POField.line_items]);
+        const newSupplementItems = formLineItems.filter(item => item.type === POLineItemType.SUPPLEMENT && !item.id);
+        if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, newSupplementItems)) {
+          setShowWarningPriceModal(true)
+          return
+        }
       }
-    } else if ([POStatus.FINALIZED, POStatus.STORED].includes(status) && purchaseOrder.receive_status !== ProcumentStatus.FINISHED) {
-      //case: đã duyệt - trước kết thúc nhập kho: chỉ check những sản phẩm bổ sung được thêm mới vào có giá nhỏ hơn 1000đ
-      const formLineItems: PurchaseOrderLineItem[] = formMain.getFieldValue([POField.line_items]);
-      const newSupplementItems = formLineItems.filter(item => item.type === POLineItemType.SUPPLEMENT && !item.id);
-      if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, newSupplementItems)) {
-        setShowWarningPriceModal(true)
-        return
-      }
+      // trạng thái khác : không check giá
+      formMain.submit();
+    } catch (error: any) {
+      showError(error.message);
     }
-    // trạng thái khác : không check giá
-    formMain.submit();
   }
 
   const RightAction = () => {

@@ -30,7 +30,7 @@ export interface VariantPricesResponse {
   currency_code: string,
   currency_symbol: string,
   retail_price: number,
-  tax_percent:number,
+  tax_percent: number,
   [key: string]: any,
 }
 
@@ -171,6 +171,7 @@ export interface VariantResponse extends BaseObject {
   transferring?: number,
   shipping?: number,
   reference_barcodes?: string | null,
+  type?: number;
 }
 
 export interface VariantView extends BaseObject {
@@ -285,7 +286,7 @@ export interface VariantRequest {
   variant_images: Array<VariantImage>,
   inventory: 0,
   version?: number,
-  type?:  number
+  type?: number
 }
 
 export interface VariantUpdateRequest {

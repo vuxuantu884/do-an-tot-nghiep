@@ -159,7 +159,9 @@ export const StyledProductFilter = styled.div`
 
 
 export const StyledProductLink = styled.div`
+  text-align: left;
   a {
+    text-align: left;
     &:hover {
       text-decoration: underline;
     }

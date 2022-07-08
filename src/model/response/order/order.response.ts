@@ -67,7 +67,7 @@ export interface OrderResponse extends BaseObject {
   payments: Array<OrderPaymentResponse> | null;
   // total_paid?: number | null;
   shipping_address: ShippingAddress | null;
-  billing_address: BillingAddress | null;
+  billing_address: BillingAddressResponseModel | null;
   fulfillments: Array<FulFillmentResponse> | null | undefined;
   sub_status?: string;
   sub_status_id?: number | null;
@@ -180,7 +180,7 @@ export interface FulFillmentResponse {
   discount_amount: number | null;
   total_line_amount_after_line_discount: number;
   shipment: ShipmentResponse | null | undefined;
-  billing_address: BillingAddress | null;
+  billing_address: BillingAddressResponseModel | null;
   items: Array<OrderLineItemResponse>;
   payments: Array<OrderPaymentResponse>;
   created_date: string;
@@ -256,9 +256,9 @@ export interface OrderPaymentResponse extends BaseObject {
   bank_account_number: string;
 }
 
-export interface BillingAddress {
-  default: boolean;
-  name: string;
+export interface BillingAddressResponseModel {
+  default: boolean| undefined;
+  name: string | undefined;
   email: string;
   phone: string;
   country_id: number;
@@ -271,6 +271,13 @@ export interface BillingAddress {
   ward: string;
   zip_code: string;
   full_address: string;
+  contract: boolean;
+  buyer: string | undefined;
+  tax_code: string | undefined;
+  order_id: number| undefined;
+  tax: string | undefined;
+  address: string | undefined;
+  note: string | undefined;
 }
 
 export interface ShippingAddress {
@@ -542,13 +549,13 @@ export interface OrderDetailWithCalculatePointVariantModel extends OrderResponse
 }
 
 export interface OrderBillResponseModel extends BaseObject{
-  address: string;
-  company: string;
+  full_address: string;
+  buyer: string;
   contract: boolean;
   id: number;
   note: string;
   order_id: number;
-  pic: string;
-  tax: string;
+  name: string;
+  tax_code: string;
   email: string;
 }

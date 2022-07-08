@@ -1,0 +1,44 @@
+.care-label {
+  font-size: 28px;
+  margin: 0 4px;
+  line-height: 20px;
+}
+
+.title {
+  color: #666666;
+}
+
+.content {
+  color: #222222;
+  font-weight: 500;
+}
+
+.content-des {
+  color: #222222;
+}
+
+.material-img {
+  width: 53px !important;
+  height: 53px !important;
+}
+
+.images {
+  display: flex;
+  flex-wrap: wrap;
+  .ant-image-mask-info {
+    display: none !important;
+  }
+}
+
+.video-react-big-play-button {
+  display: none !important;
+}
+
+.videos {
+  display: flex;
+  flex-wrap: wrap;
+
+  .video {
+    margin-right: 5px;
+  }
+}

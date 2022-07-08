@@ -80,3 +80,8 @@ export interface ExportCustomerRequest {
   type: string;
   url?: string
 }
+
+export interface ImportCustomerQuery {
+  file: File;
+  insertIfBlank: boolean;
+}
