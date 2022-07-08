@@ -20,7 +20,7 @@ import {
   DistrictByCityAction,
   WardGetByDistrictAction
 } from "domain/actions/content/content.action";
-import { getListSourceRequest } from "domain/actions/product/source.action";
+import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import {
   AccountResponse,
 } from "model/account/account.model";
@@ -158,7 +158,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   );
 
   useEffect(() => {
-		dispatch(getListSourceRequest((response) => {
+		dispatch(getListAllSourceRequest((response) => {
 			setAllSources(response)
 		}));
   }, [dispatch]);
@@ -187,7 +187,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
   useEffect(() => {
 		getOrderSources().then((response) => {
-			const sortedSources =  response;
+			const sortedSources =  response
 			setInitListSource(sortedSources)
 			setListSource(sortedSources)
 		});
@@ -1855,6 +1855,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     }
   };
 
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSearchOrderSources = useCallback((value:string) => {
 		if(value.length > 1) {
 		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
@@ -2131,27 +2132,11 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   name="source_ids"
                   label={<b>Nguồn mua hàng</b>}
                   className="center-filter">
-                  <Select
-                    mode="multiple"
-                    maxTagCount="responsive"
-                    showSearch
-                    onSearch={handleSearchOrderSources}
-                    showArrow
-                    allowClear
+                   <TreeSource
                     placeholder="Chọn nguồn"
-                    getPopupContainer={(trigger: any) => trigger.parentElement}
-                    onFocus={onInputSelectFocus}
-                    onBlur={onInputSelectBlur}
-                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                    onPopupScroll={handleOnSelectPopupScroll}
-                    onMouseLeave={handleOnMouseLeaveSelect}
-                    optionFilterProp="children">
-                    {listSource?.map((item) => (
-                      <Option key={item.id} value={item.id?.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
+                    name="source_ids"
+                    listSource={listSource}
+                  />
                 </Form.Item>
 
                 <div className="right-filter">
