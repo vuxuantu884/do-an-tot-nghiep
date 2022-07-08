@@ -561,7 +561,7 @@ export const combineLineItemToSubmitData = (
 }
 
 export const validateLineItemQuantity = (lineItems: PurchaseOrderLineItem[]) => {
-  if (lineItems.every(item => item.quantity === 0)) {
+  if (lineItems?.every(item => item.quantity === 0)) {
     return false;
   } else {
     return true;
@@ -614,7 +614,7 @@ export const fetchProductGridData = async (isGridMode: boolean,
     const productId = poData.line_items[0].product_id // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
     const product: ProductResponse = await callApiNative({ isShowError: true }, dispatch, productDetailApi, productId);
 
-    if (product.variants) {
+    if (product?.variants) {
       const variants = product.variants.filter(variant => variant.status !== "inactive" && variant.type !== 1); //variant.type === 1 là sản phẩm lỗi
       product.variants = variants;
       /**
