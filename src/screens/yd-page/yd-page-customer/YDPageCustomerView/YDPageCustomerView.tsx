@@ -1,6 +1,6 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {Table, Card, Tooltip, Tag, Input, Button} from "antd";
+import {Table, Card, Tooltip, Tag, Input, Button, Form} from "antd";
 
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -216,22 +216,6 @@ const YDPageCustomerView = (props: any) => {
       dataIndex: "source",
       className: "order_source_desc",
     },
-    // {
-    //   title: "",
-    //   align: "center",
-    //   render: (value: any, row: any) => {
-    //     return (
-    //       <Tooltip placement="topLeft" title="Xem chi tiết">
-    //         <Link
-    //           target="_blank"
-    //           to={`${UrlConfig.ORDER}/${row.id}`}
-    //         >
-    //           <img src={urlCrimson} alt="link" />
-    //         </Link>
-    //       </Tooltip>
-    //     );
-    //   },
-    // },
   ];
 
   const handleEditCustomer = () => {
@@ -496,18 +480,38 @@ const YDPageCustomerView = (props: any) => {
           {/*Ghi chú*/}
           <div className="customer-note">
             <div><b>Ghi chú</b></div>
-            <Input
-              disabled={!allowUpdateCustomer}
-              maxLength={1000}
-              placeholder="Nhập ghi chú"
-              value={note}
-							onChange={(e: any) => setNote(e.target.value)}
-							onPressEnter={async (e: any) => {
-								await handleNote.get(e)
-								await handleNote.create(e.target.value)
-								setNote('')
-							}}
-            />
+						<Form.Item
+							name="note"
+							className="note-container"
+							rules={[
+								{
+									max: 1000,
+									message: 'Vui lòng không nhập quá 1000 kí tự'
+								},
+							]}
+						>
+							<Input
+              	disabled={!allowUpdateCustomer}
+								maxLength={1000}
+								placeholder="Nhập ghi chú"
+								value={note}
+								onChange={(e: any) => setNote(e.target.value)}
+								onPressEnter={async (e: any) => {
+									await handleNote.get(e)
+									await handleNote.create(e.target.value)
+									setNote('')
+								}}
+							/>
+							<Button type="primary"
+								onClick={async (e: any) => {
+									await handleNote.get(e)
+									await handleNote.create(note)
+									setNote('')
+								}}
+							>
+								Thêm
+							</Button>
+						</Form.Item>
 
 						{notes?.length > 0 ? notes.map((note: any, index: number) => (
 							<div className="customer-note-item" key={index}>
