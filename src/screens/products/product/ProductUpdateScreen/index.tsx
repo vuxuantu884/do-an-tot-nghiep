@@ -409,7 +409,14 @@ const ProductDetailScreen: React.FC = () => {
   );
   const onMaterialChange = useCallback((id: number) => {
     if (isChangeDescription&&id) {
-      dispatch(detailMaterialAction(id, (material) => handleChangeMaterial(material, form)));
+      dispatch(detailMaterialAction(id, (material) => {
+        handleChangeMaterial(material, form);
+        if (material && material.care_labels) {
+          setCareLabelsString(material.care_labels);
+        }else{
+          setCareLabelsString("");
+        }
+      }));
     }
   },[dispatch, form, isChangeDescription]);
 
@@ -1068,8 +1075,10 @@ const ProductDetailScreen: React.FC = () => {
                             >
                               {listMaterial?.map((item) => (
                                 <CustomSelect.Option key={item.id} value={item.id}>
-                                  {item.name}
-                                </CustomSelect.Option>
+                                <div>
+                                  {item.symbol} - {item.name}
+                                </div>
+                              </CustomSelect.Option>
                               ))}
                             </CustomSelect>
                           </Item>
@@ -1107,7 +1116,7 @@ const ProductDetailScreen: React.FC = () => {
                           </Item>
                         </Col>
                         <Col span={24} md={12} sm={24}>
-                          <Item label="Thông tin bảo quản">
+                          <Item name="care_labels" label="Thông tin bảo quản">
                             {careLabels.map((item: any) => (
                                 <Popover content={item.name}>
                                   <span className={`care-label ydl-${item.value}`}></span>
