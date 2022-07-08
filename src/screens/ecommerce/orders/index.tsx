@@ -21,7 +21,8 @@ import {
   batchShippingAction, changeEcommerceOrderStatus, downloadPrintForm,
   exitEcommerceJobsAction,
   exitProgressDownloadEcommerceAction,
-  getAddressByShopIdAction
+  getAddressByShopIdAction,
+  getShopEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
@@ -299,6 +300,30 @@ const EcommerceOrders: React.FC = () => {
 
   const [reasonId, setReasonId] = useState<number | undefined>(undefined);
   const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<number | undefined>(undefined);
+
+  const updateEcommerceShopList = useCallback((response) => {
+    const shopList: any[] = [];
+     if (response && response.length > 0) {
+      response.forEach((item: any) => {
+        shopList.push({
+          id: item.id,
+          name: item.name,
+          isSelected: false,
+          ecommerce: item.ecommerce,
+        });
+      });
+    }
+    setListShopIdEcommerce(response)
+  }, [])
+
+  useEffect(() => {
+    dispatch(
+      getShopEcommerceList(
+        { ecommerce_id: 4 },
+        updateEcommerceShopList
+      )
+    );
+  }, [dispatch, updateEcommerceShopList]);
 
   useEffect(() => {
     dispatch(
@@ -1576,8 +1601,7 @@ const EcommerceOrders: React.FC = () => {
       let order_list: any = [];
       selectedRowKeys.forEach(idSelected => {
         const orderMatched = data?.items.find(i => i.id === idSelected)
-        if (orderMatched) {
-
+        if (orderMatched && listShopIdEcommerce?.length > 0) {
           const shop_id = listShopIdEcommerce.filter((shop) => {
               const sliceShopId = shop.id.slice(0, -4);
               const sliceEcommerceShopId = orderMatched.ecommerce_shop_id.toString().slice(0, -4);
@@ -2120,7 +2144,6 @@ const EcommerceOrders: React.FC = () => {
                 setEcommerceShopListByAddress={setEcommerceShopListByAddress}
                 onClearFilter={() => onClearFilter()}
                 onShowColumnSetting={() => setShowSettingColumn(true)}
-                setListShopIdEcommerce={setListShopIdEcommerce}
               />
 
               <CustomTable
