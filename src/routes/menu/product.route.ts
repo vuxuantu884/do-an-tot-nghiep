@@ -16,14 +16,17 @@ const ProductCreateScreen = React.lazy(
 const ColorListScreen = React.lazy(
   () => import("screens/products/color/color-list.screen")
 );
-const UpdateMaterial = React.lazy(
-  () => import("screens/products/materials/material-update.screen")
+const MaterialDetail = React.lazy(
+  () => import("screens/products/materials/material-detail.screen")
 );
 const ListMaterial = React.lazy(
   () => import("screens/products/materials/materials-list.screen")
 );
 const AddMaterial = React.lazy(
   () => import("screens/products/materials/material-add.screen")
+);
+const UpdateMaterial = React.lazy(
+  () => import("screens/products/materials/material-update.screen")
 );
 const SizeListScreen = React.lazy(() => import("screens/products/size/size-list.screen"));
 const SizeCreateScreen = React.lazy(
@@ -351,6 +354,20 @@ const product: Array<RouteMenu> = [
           {
             path: `${UrlConfig.MATERIALS}/:id`,
             exact: true,
+            title: "Chi tiết chất liệu",
+            icon: "icon-dot",
+            component: MaterialDetail,
+            key: "submenu2322",
+            isShow: true,
+            header: null,
+            permissions: [
+              ProductPermission.materials_read,
+            ],
+            subMenu: [],
+          },
+          {
+            path: `${UrlConfig.MATERIALS}/:id/update`,
+            exact: true,
             title: "Sửa chất liệu",
             icon: "icon-dot",
             component: UpdateMaterial,
@@ -358,11 +375,10 @@ const product: Array<RouteMenu> = [
             isShow: true,
             header: null,
             permissions: [
-              ProductPermission.materials_read,
               ProductPermission.materials_update,
+              ProductPermission.materials_read,
             ],
             subMenu: [],
-            pathIgnore: ["create"],
           },
         ],
       },

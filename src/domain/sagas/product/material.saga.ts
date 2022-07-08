@@ -4,7 +4,7 @@ import {
   getMaterialApi,
   createMaterialApi,
   detailMaterialApi,
-  updateMaterialApi,
+  updateMaterialApi, updateMaterialStatusAndNoteApi,
 } from "service/product/material.service";
 import { call, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
@@ -195,6 +195,34 @@ function* materialUpdateSaga(action: YodyAction) {
   }
 }
 
+function* updateMaterialStatusAndNoteSaga(action: YodyAction) {
+  let { id, request, onUpdate } = action.payload;
+  try {
+
+    let response: BaseResponse<MaterialResponse> = yield call(
+      updateMaterialStatusAndNoteApi,
+      id,
+      request
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onUpdate(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        onUpdate(false);
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onUpdate(false);
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    onUpdate(false);
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* materialSaga() {
   yield takeLatest(MaterialType.GET_MATERIAL_REQUEST, materialGetSaga);
   yield takeLatest(
@@ -212,4 +240,5 @@ export function* materialSaga() {
   yield takeLatest(MaterialType.CREATE_MATERIAL_REQUEST, materialCreateSaga);
   yield takeLatest(MaterialType.DETAIL_MATERIAL_REQUEST, materialDetailSaga);
   yield takeLatest(MaterialType.UPDATE_MATERIAL_REQUEST, materialUpdateSaga);
+  yield takeLatest(MaterialType.UPDATE_MATERIAL_OTHER_REQUEST, updateMaterialStatusAndNoteSaga);
 }

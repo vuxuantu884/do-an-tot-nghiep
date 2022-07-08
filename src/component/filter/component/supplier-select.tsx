@@ -150,15 +150,17 @@ function SupplierSelect({
         maxTagCount={maxTagCount}
         defaultValue={defaultValue}
         notFoundContent="Không có dữ liệu"
-        filterOption={(input, option) =>
-          option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
-        }
+        filterOption={(input, option: any) => {
+          return option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0 || option?.key.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
+        }}
       >
-        {lstSupplier?.items?.map((supplier) => (
-          <Option key={supplier.id} value={supplier[key || "id"]}>
-           {supplier.name}
-          </Option>
-        ))}
+        {lstSupplier?.items?.map((supplier) => {
+          return (
+            <Option key={`${supplier.id}-${supplier.code}-${supplier.phone}-${supplier.contacts.map((i) => i.phone).join(',')}`} value={supplier[key || "id"]}>
+              {supplier.name}
+            </Option>
+          )
+        })}
       </CustomSelect>
     </Form.Item>
   );
