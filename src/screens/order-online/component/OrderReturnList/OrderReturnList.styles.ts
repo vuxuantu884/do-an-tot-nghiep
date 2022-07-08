@@ -1,6 +1,6 @@
 
 import styled from "styled-components";
-import { borderColor, primaryColor } from "utils/global-styles/variables";
+import { borderColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 let nameQuantityWidth = 200;
 export const StyledComponent = styled.div`
   .order-options {
@@ -204,5 +204,16 @@ export const StyledComponent = styled.div`
   }
   .mainColor {
     color: ${primaryColor};
+  }
+  .pointRefund {
+    img {
+      position: relative;
+      top: -1px;
+      margin-right: 5px;
+    }
+    .number {
+      font-weight: 500;
+      color: ${yellowColor};
+    }
   }
 `;
