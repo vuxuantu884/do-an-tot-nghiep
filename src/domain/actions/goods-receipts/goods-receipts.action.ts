@@ -13,7 +13,7 @@ export const createGoodsReceipts = (data: GoodsReceiptsRequest, setData: (data: 
     return BaseAction(GoodsReceiptsType.CREATE_GOODS_RECEIPTS, { data, setData });
 };
 
-export const getGoodsReceiptsSerch = (data: any, setData: (data: PageResponse<GoodsReceiptsResponse>) => void) => {
+export const getGoodsReceiptsSearch = (data: any, setData: (data: PageResponse<GoodsReceiptsResponse>) => void) => {
     return BaseAction(GoodsReceiptsType.SEARCH_GOODS_RECEIPTS, { data, setData });
 };
 

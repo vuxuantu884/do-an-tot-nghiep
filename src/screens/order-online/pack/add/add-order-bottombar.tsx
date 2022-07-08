@@ -4,7 +4,7 @@ import UrlConfig from "config/url.config";
 import {Link} from "react-router-dom";
 import {StyledComponent} from "../styles";
 
-const AddOrderBottombar: React.FC<any> = (props: any) => {
+const AddOrderBottomBar: React.FC<any> = (props: any) => {
   return (
     <StyledComponent>
       <div className="bottomBar">
@@ -38,4 +38,4 @@ const AddOrderBottombar: React.FC<any> = (props: any) => {
   );
 };
 
-export default AddOrderBottombar;
+export default AddOrderBottomBar;

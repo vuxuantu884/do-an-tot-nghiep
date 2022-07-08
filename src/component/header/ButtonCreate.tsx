@@ -8,12 +8,13 @@ type ButtonCreateProps = {
   child?: any;
   children?: ReactNode;
   size?:any;
+  hidden?: boolean;
 };
 
 const ButtonCreate: React.FC<ButtonCreateProps> = (
   props: ButtonCreateProps
 ) => {
-  const {children} = props;
+  const {children, hidden} = props;
   return (
     <Link to={props.path}>
       <Button
@@ -22,6 +23,7 @@ const ButtonCreate: React.FC<ButtonCreateProps> = (
         size={props.size||"large"}
         icon={<GoPlus style={{marginRight: "0.2em"}}/>}
         disabled={props.disabled}
+        hidden={hidden}
       >
         { props.child || children || 'Thêm mới' }
       </Button>
