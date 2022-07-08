@@ -15,6 +15,8 @@ import { dangerColor } from "utils/global-styles/variables";
 import { getFulfillmentActive } from "utils/OrderUtils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
+import ButtonWarningHandover from "../component/button-warning-handover";
+import { StoreResponse } from "model/core/store.model";
 
 type AddOrderInReportProps = {
   menu?: Array<MenuAction>;
@@ -24,6 +26,7 @@ type AddOrderInReportProps = {
   handleAddOrder: (code: string) => void;
   formSearchOrderRef: any;
   goodsReceiptForm: any;
+  stores: StoreResponse[];
 };
 const { Item } = Form;
 
@@ -38,7 +41,7 @@ const resultPagingDefault: ResultPaging = {
 const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   props: AddOrderInReportProps
 ) => {
-  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef,  goodsReceiptForm } = props;
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef,  goodsReceiptForm, stores } = props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
   const [packOrderProductList, setPackOrderProductList] =
@@ -276,7 +279,12 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           </div>
         </div>
       </React.Fragment>
-    } className="pack-card">
+      } 
+      className="pack-card"
+      extra={
+        <ButtonWarningHandover stores={stores} isHiddenCreate={true}/>
+      }
+    >
       <div className="order-filter yody-pack-row">
         <div className="page-filter">
           <div className="page-filter-heading">

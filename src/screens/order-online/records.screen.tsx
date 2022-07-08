@@ -3,7 +3,6 @@ import { Card, Row, Space } from "antd";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import {
-  // DeliveryServicesGetList,
   getChannels,
 } from "domain/actions/order/order.action";
 import { useEffect, useState } from "react";
@@ -25,6 +24,7 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import ButtonCreate from "component/header/ButtonCreate";
 import { PackModel } from "model/pack/pack.model";
 import './pack/styles.scss';
+import ButtonWarningHandover from "./pack/component/button-warning-handover";
 
 const PackSupportScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -45,8 +45,8 @@ const PackSupportScreen: React.FC = () => {
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
 
-  const [singlePack, setSinglePack] =useState<PackModel>();
-  const [isFulFillmentPack,setIsFulFillmentPack]=useState<string[]>([]);
+  const [singlePack, setSinglePack] = useState<PackModel>();
+  const [isFulFillmentPack, setIsFulFillmentPack] = useState<string[]>([]);
 
   const packSupportContextData = {
     listThirdPartyLogistics,
@@ -60,13 +60,14 @@ const PackSupportScreen: React.FC = () => {
     setIsFulFillmentPack,
     isFulFillmentPack,
     setSinglePack,
-    singlePack
+    singlePack,
   };
 
   useEffect(() => {
+    
     // dispatch(
     //   DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-    //     setListThirdPartyLogistics(response);
+    //     setListThirdPartyLogistics(response)
     //   })
     // );
 
@@ -96,9 +97,10 @@ const PackSupportScreen: React.FC = () => {
         ]}
         extra={
           <Row>
-            <Space size={12} style={{marginLeft: "10px"}}>
+            <Space size={12} style={{ marginLeft: "10px" }}>
+              <ButtonWarningHandover stores={listStores}/>
               <ButtonCreate
-                size="small" 
+                size="small"
                 path={`${UrlConfig.DELIVERY_RECORDS}/create`}
                 disabled={!allowCreateGoodsReceipt}
               />

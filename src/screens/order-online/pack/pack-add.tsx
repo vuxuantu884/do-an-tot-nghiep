@@ -18,7 +18,7 @@ import { useHistory } from "react-router-dom";
 import { haveAccess } from "utils/AppUtils";
 import { getFulfillmentActive } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import AddOrderBottombar from "./add/add-order-bottombar";
+import AddOrderBottomBar from "./add/add-order-bottombar";
 import AddOrderInReport from "./add/add-order-in-report";
 import { StyledComponent } from "./styles";
 
@@ -34,6 +34,7 @@ const AddReportHandOver: React.FC<any> = () => {
   const [isLoading, setIsLoading] = useState(false);
 
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  const [storeId, setStoreId] = useState<number>();
   const [orderListResponse, setOrderListResponse] = useState<OrderConcernGoodsReceiptsResponse[]>([]);
 
   const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
@@ -47,7 +48,7 @@ const AddReportHandOver: React.FC<any> = () => {
     setOrderListResponse,
   };
 
-  const dataCanAccess = useMemo(() => {
+  const storeAccessHandOver = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
@@ -65,6 +66,20 @@ const AddReportHandOver: React.FC<any> = () => {
     }
     return newData;
   }, [listStores, userReducer.account]);
+
+  const storeAccessOrderNotRecord= useMemo(()=>{
+    if(storeId)
+    {
+      const result= storeAccessHandOver.filter(p=>p.id===storeId);
+      return result;
+    }else{
+      return storeAccessHandOver;
+    }
+    
+  },[storeAccessHandOver, storeId])
+
+  console.log(storeId)
+  console.log(storeAccessOrderNotRecord)
 
   const actions: Array<MenuAction> = [
     {
@@ -308,6 +323,7 @@ const AddReportHandOver: React.FC<any> = () => {
                       placeholder="Chọn cửa hàng"
                       notFoundContent="Không tìm thấy kết quả"
                       onChange={(value?: number) => {
+                        setStoreId(value);
                       }}
                       filterOption={(input, option) => {
                         if (option) {
@@ -319,7 +335,7 @@ const AddReportHandOver: React.FC<any> = () => {
                       }}
                       disabled={orderListResponse && orderListResponse.length > 0 ? true : false}
                     >
-                      {dataCanAccess.map((item, index) => (
+                      {storeAccessHandOver.map((item, index) => (
                         <Select.Option key={index.toString()} value={item.id}>
                           {item.name}
                         </Select.Option>
@@ -346,6 +362,7 @@ const AddReportHandOver: React.FC<any> = () => {
                       placeholder="Chọn hãng vận chuyển"
                       notFoundContent="Không tìm thấy kết quả"
                       onChange={(value?: number) => {
+                        
                       }}
                       filterOption={(input, option) => {
                         if (option) {
@@ -457,11 +474,11 @@ const AddReportHandOver: React.FC<any> = () => {
             handleAddOrder={handleAddOrdersCode}
             formSearchOrderRef={formSearchOrderRef}
             goodsReceiptForm={goodsReceiptsForm}
+            stores={storeAccessOrderNotRecord}
           />
 
-          <AddOrderBottombar onOkPress={onOkPress} isLoading={isLoading} />
+          <AddOrderBottomBar onOkPress={onOkPress} isLoading={isLoading} />
         </StyledComponent>
-
 
       </ContentContainer>
     </AddReportHandOverContext.Provider>
