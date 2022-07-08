@@ -38,4 +38,7 @@ export interface BootstrapResponse {
   print_variable: Array<BaseBootstrapResponse>;
   stock_sync_status: Array<BaseBootstrapResponse>;
   connect_product_status: Array<BaseBootstrapResponse>;
+  fabric_size_unit: Array<BaseBootstrapResponse>;
+  weight_material_unit: Array<BaseBootstrapResponse>;
+  material_status: Array<BaseBootstrapResponse>;
 }

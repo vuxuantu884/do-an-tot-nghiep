@@ -924,12 +924,36 @@
   ],
   "currency": [
     {
-      "name": "Việt Nam Đồng",
-      "value": "VNĐ"
+      "name": "VND",
+      "value": "VND"
     },
     {
-      "name": "Thai Baht",
+      "name": "THB",
       "value": "THB"
+    },
+    {
+      "name": "USD",
+      "value": "USD"
+    },
+    {
+      "name": "EUR",
+      "value": "EUR"
+    },
+    {
+      "name": "RMB",
+      "value": "RMB"
+    },
+    {
+      "name": "TWD",
+      "value": "TWD"
+    },
+    {
+      "name": "THB",
+      "value": "THB"
+    },
+    {
+      "name": "HKD",
+      "value": "HKD"
     }
   ],
   "product_price_type": [
@@ -1343,6 +1367,44 @@
     {
       "name": "Phiếu giảm giá",
       "value": "coupon"
+    }
+  ],
+  "fabric_size_unit": [
+    {
+      "name": "inch",
+      "value": "inch"
+    },
+    {
+      "name": "cm",
+      "value": "cm"
+    },
+    {
+      "name": "m",
+      "value": "m"
+    }
+  ],
+  "weight_material_unit": [
+    {
+      "name": "g/m2",
+      "value": "g/m2"
+    },
+    {
+      "name": "gsm",
+      "value": "gsm"
+    },
+    {
+      "name": "g/y",
+      "value": "g/y"
+    }
+  ],
+  "material_status": [
+    {
+      "name": "Sử dụng",
+      "value": "active"
+    },
+    {
+      "name": "Ngừng sử dụng",
+      "value": "inactive"
     }
   ]
 }

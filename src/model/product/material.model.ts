@@ -1,3 +1,4 @@
+import { SupplierResponse } from 'model/core/supplier.model';
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 
@@ -19,6 +20,15 @@ export interface MaterialCreateRequest {
   advantages: string,
   defect: string,
   preserve: string,
+  status: string,
+  fabric_size_unit: string,
+  weight_unit: string,
+  price_unit: string,
+  application: string,
+  images: Array<string>,
+  videos: Array<string>,
+  care_labels: string,
+  symbol: string,
 }
 
 export interface MaterialUpdateRequest extends MaterialCreateRequest {
@@ -32,4 +42,19 @@ export interface MaterialResponse extends BaseObject {
   advantages: string,
   defect: string,
   preserve: string,
+  weight: string,
+  weight_unit: string,
+  fabric_size: number,
+  fabric_size_unit: string,
+  price: number,
+  price_unit: string,
+  application: string,
+  status: string,
+  symbol: string,
+  supplier_ids: Array<number>,
+  supplier: Array<SupplierResponse>,
+  care_labels: string,
+  images: Array<string>,
+  videos: Array<string>,
+  version: number
 }
