@@ -19,10 +19,10 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   batchShippingAction, changeEcommerceOrderStatus, downloadPrintForm,
+  ecommerceConfigGetAction,
   exitEcommerceJobsAction,
   exitProgressDownloadEcommerceAction,
   getAddressByShopIdAction,
-  getShopEcommerceList
 } from "domain/actions/ecommerce/ecommerce.actions";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
@@ -301,29 +301,12 @@ const EcommerceOrders: React.FC = () => {
   const [reasonId, setReasonId] = useState<number | undefined>(undefined);
   const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<number | undefined>(undefined);
 
-  const updateEcommerceShopList = useCallback((response) => {
-    const shopList: any[] = [];
-     if (response && response.length > 0) {
-      response.forEach((item: any) => {
-        shopList.push({
-          id: item.id,
-          name: item.name,
-          isSelected: false,
-          ecommerce: item.ecommerce,
-        });
-      });
-    }
-    setListShopIdEcommerce(response)
-  }, [])
 
   useEffect(() => {
-    dispatch(
-      getShopEcommerceList(
-        { ecommerce_id: 4 },
-        updateEcommerceShopList
-      )
-    );
-  }, [dispatch, updateEcommerceShopList]);
+    dispatch(ecommerceConfigGetAction((responseData) => {
+      setListShopIdEcommerce(responseData)
+    }));
+  }, [dispatch]);
 
   useEffect(() => {
     dispatch(
