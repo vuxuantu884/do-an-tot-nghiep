@@ -208,12 +208,19 @@ const POCreateScreen: React.FC = () => {
 
   const createPurchaseOrder = (status: string) => {
     setStatusAction(status);
-    const lineItems =isGridMode ?  combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate): formMain.getFieldsValue()[POField.line_items];
-    if(checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)){
-      setIsShowWarningPriceModal(true)
-    }else{
-      formMain.submit();
-    }   
+    try {
+      const lineItems: any[] = isGridMode ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate) : formMain.getFieldsValue()[POField.line_items];
+      if (!lineItems?.every((item) => item.price)) {
+        throw new Error("Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công");
+      }
+      if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
+        setIsShowWarningPriceModal(true)
+      } else {
+        formMain.submit();
+      }
+    } catch (error: any) {
+      showError(error.message);
+    }
   }
 
   useEffect(() => {
@@ -390,7 +397,7 @@ const POCreateScreen: React.FC = () => {
         subTitle="Bạn có chắc chắn muốn tạo đơn đặt hàng này?"
         visible={isShowWarningPriceModal}
         onCancel={() => setIsShowWarningPriceModal(false)}
-        onOk={() => {formMain.submit(); setIsShowWarningPriceModal(false)}}
+        onOk={() => { formMain.submit(); setIsShowWarningPriceModal(false) }}
       />
     </ContentContainer>
   );
