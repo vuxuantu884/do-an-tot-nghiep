@@ -66,7 +66,6 @@ type EcommerceOrderFilterProps = {
   setEcommerceShopListByAddress: (item: any) => void;
   onClearFilter?: () => void;
   onShowColumnSetting?: () => void;
-  setListShopIdEcommerce: (item: any) => void;
 };
 
 const { Item } = Form;
@@ -100,7 +99,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     onFilter,
     setEcommerceShopListByAddress,
     onShowColumnSetting,
-    setListShopIdEcommerce
 
   } = props;
 
@@ -421,7 +419,6 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
     
     setEcommerceShopList(shopList);
     setEcommerceShopListByAddress(shopList)
-    setListShopIdEcommerce(shopList)
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
