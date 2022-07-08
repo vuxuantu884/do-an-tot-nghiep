@@ -189,6 +189,8 @@ export interface OrderSearchQuery {
   tracking_codes ?: Array<string> | [];
   searched_product?: string | null;
   discount_codes?:string[]|null;
+  //record
+  in_goods_receipt?:number|null;
   //webApp
   utm_source?:string|null;
   utm_medium?:string|null;

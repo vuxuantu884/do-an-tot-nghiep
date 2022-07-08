@@ -170,7 +170,9 @@ function OrderList(props: PropTypes) {
       return new Promise<void>((resolve, reject) => {
         setTableLoading(true);
         setIsFilter(true);
-        dispatch(getListOrderAction(params, setSearchResult, () => {
+        const paramsCopy= {...params};
+        const inGoodsReceipt=(Number)(paramsCopy?.in_goods_receipt)===1?true:(Number)(paramsCopy?.in_goods_receipt)===0?false:undefined
+        dispatch(getListOrderAction({...params,in_goods_receipt:inGoodsReceipt}, setSearchResult, () => {
           setTableLoading(false);
           setIsFilter(false);
         }));
