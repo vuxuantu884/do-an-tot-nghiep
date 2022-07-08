@@ -56,7 +56,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
       setIsExporting(true);
       const exportParams = generateQuery(newParams);
 
-      const defaultHiddenFields = "total_finished_order,remain_amount_to_level_up,average_order_value,total_returned_order,total_refunded_amount,number_of_days_without_purchase,description";
+      const defaultHiddenFields = "remain_amount_to_level_up,average_order_value,number_of_days_without_purchase,description";
       let hiddenFields;
       if (exportColumnAll) {
         hiddenFields = defaultHiddenFields;
@@ -174,6 +174,9 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
     {name: "Đơn vị", value: "company", isSelected: false},
     {name: "Điểm hiện tại", value: "point", isSelected: false},
     {name: "Tiền tích lũy", value: "total_paid_amount", isSelected: false},
+    {name: "Số đơn trả", value: "total_returned_order", isSelected: false},
+    {name: "Tổng giá trị đơn trả", value: "total_refunded_amount", isSelected: false},
+    {name: "Tổng đơn hàng", value: "total_finished_order", isSelected: false},
     {name: "Ngày mua đầu", value: "first_order_time", isSelected: false},
     {name: "Ngày mua đầu (online)", value: "first_order_time_online", isSelected: false},
     {name: "Ngày mua đầu (offline)", value: "first_order_time_offline", isSelected: false},
