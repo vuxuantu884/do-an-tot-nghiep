@@ -1,15 +1,16 @@
-import { Button, Card, Form, Input } from "antd";
+import { Button, Card, Form, Input, Switch } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
-import { MaterialResponse, MaterialQuery } from "model/product/material.model";
+import { MaterialQuery, MaterialResponse } from "model/product/material.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { generateQuery } from "utils/AppUtils";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { useDispatch } from "react-redux";
 import {
   deleteManyMaterialAction,
   deleteOneMaterialAction,
   getMaterialAction,
+  updateMaterialOtherAction,
 } from "domain/actions/product/material.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
@@ -25,12 +26,17 @@ import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+import EditNote from "../../order-online/component/edit-note";
+import { primaryColor } from "utils/global-styles/variables";
+import { SupplierResponse } from "../../../model/core/supplier.model";
+import TextShowMore from "component/container/show-more/text-show-more";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
-    icon:<EditOutlined />
+    icon: <EditOutlined />,
   },
   {
     id: 2,
@@ -55,9 +61,25 @@ const ListMaterial: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+
+  const onUpdateNote = (note: string, items: MaterialResponse) => {
+    const newValue: any = {
+      description: note,
+      status: items.status,
+    };
+    dispatch(updateMaterialOtherAction(items.id, newValue, onUpdateStatus));
+  };
+
   const columns = [
     {
+      title: "STT",
+      width: 60,
+      render: (value: string, item: MaterialResponse, index: number) =>
+        (data.metadata.page - 1) * data.metadata.limit + index + 1,
+    },
+    {
       title: "Mã chất liệu",
+      width: 120,
       dataIndex: "code",
       key: "code",
       render: (value: string, item: MaterialResponse) => {
@@ -65,31 +87,119 @@ const ListMaterial: React.FC = () => {
       },
     },
     {
-      title: "Tên chất liệu",
+      title: <div className="text-center">Tên/Ký hiệu chất liệu</div>,
       dataIndex: "name",
       key: "name",
+      width: 150,
+      render: (value: string, item: MaterialResponse) => {
+        return (
+          <div className="text-center">
+            <TextShowMore maxLength={100}>{value}</TextShowMore> / <span style={{ color: '#666666' }}>{item.symbol}</span>
+          </div>
+        );
+      },
     },
     {
       title: "Thành phần",
       dataIndex: "component",
       key: "component",
+      width: 150,
+      render: (value: string) => {
+        return <TextShowMore maxLength={100}>{value}</TextShowMore>
+      }
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      width: 100,
+      render: (value: string, item: MaterialResponse) => {
+        return (
+          <div>
+            <Switch checked={value === "active"} onChange={(e) => changeStatus(e, item)} />
+          </div>
+        );
+      },
+    },
+    {
+      title: "Thông tin vải",
+      dataIndex: "fabric_size",
+      key: "fabric_size",
+      width: 150,
+      render: (value: string, item: MaterialResponse) => {
+        return (
+          <div>
+            <div>Khổ vải: <span className="font-weight-500">{formatCurrency(value)} {value ? item.fabric_size_unit : ''}</span></div>
+            <div>Trọng lượng: <span className="font-weight-500">{formatCurrency(item.weight)} {item.weight ? item.weight_unit : ''}</span></div>
+            <div>Giá: <span className="font-weight-500">{formatCurrency(item.price)} {item.price ? item.price_unit : ''}</span></div>
+          </div>
+        );
+      },
+    },
+    {
+      title: "Nhà cung cấp",
+      dataIndex: "suppliers",
+      key: "suppliers",
+      width: 150,
+      render: (value: Array<SupplierResponse>) => {
+        return <div>
+          {value?.length > 0 && value?.map((i: SupplierResponse) => {
+            return (
+              <div>
+                <Link to={`${UrlConfig.SUPPLIERS}/${i.id}`}>{i.name}</Link>
+              </div>
+            );
+          })}
+        </div>;
+      },
+    },
+    {
+      title: "Ứng dụng",
+      width: 200,
+      dataIndex: "application",
+      key: "application",
+      render: (value: string) => {
+        return <TextShowMore maxLength={100}>{value}</TextShowMore>
+      }
     },
     {
       title: "Người tạo",
+      width: 130,
       key: "created_name",
       render: (item: MaterialResponse) => {
         return item.created_name ?
-             <div>
-               <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
-             </div> :"---"
-       },
+          <div>
+            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_by} - {item.created_name}</Link>
+          </div> : "---";
+      },
+    },
+    {
+      title: "Ngày tạo",
+      width: 140,
+      dataIndex: "created_date",
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
     },
     {
       title: "Ghi chú",
+      width: 140,
       dataIndex: "description",
-      key: "description",
+      render: (value: string, item: MaterialResponse) => {
+        return (
+          <>
+            <EditNote
+              isHaveEditPermission={true}
+              note={value}
+              title=""
+              color={primaryColor}
+              onOk={(newNote) => {
+                onUpdateNote(newNote, item);
+              }}
+            />
+          </>
+        );
+      },
     },
   ];
+
   const onGetSuccess = useCallback(
     (data: PageResponse<MaterialResponse> | false) => {
       setLoading(false);
@@ -99,6 +209,7 @@ const ListMaterial: React.FC = () => {
     },
     []
   );
+
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     setSelected([...selected]);
@@ -134,10 +245,12 @@ const ListMaterial: React.FC = () => {
   }, []);
   const onFinish = useCallback(
     (values: MaterialQuery) => {
-      let newPrams = { ...params, ...values, 
-        info: values.info?.trim(),  
+      let newPrams = {
+        ...params, ...values,
+        info: values.info?.trim(),
         description: values.description?.trim(),
-        page: 1 };
+        page: 1,
+      };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.MATERIALS}?${queryParam}`);
@@ -146,11 +259,13 @@ const ListMaterial: React.FC = () => {
   );
   const onPageChange = useCallback(
     (page, size) => {
-      let newPrams = { ...params, 
-        info: params.info?.trim(),  
+      let newPrams = {
+        ...params,
+        info: params.info?.trim(),
         description: params.description?.trim(),
         page: page,
-        limit: size } as MaterialQuery; 
+        limit: size,
+      } as MaterialQuery;
 
       let queryParam = generateQuery(params);
 
@@ -200,21 +315,38 @@ const ListMaterial: React.FC = () => {
     setLoading(true);
     dispatch(getMaterialAction(params, onGetSuccess));
   }, [dispatch, onGetSuccess, params]);
-  console.log(menuFilter);
+
+  const onUpdateStatus = useCallback(
+    (material: MaterialResponse | false) => {
+      if (!!material) {
+        showSuccess("Cập nhật trạng thái thành công.");
+        setPrams({ ...params });
+      }
+    },
+    [params],
+  );
+
+  const changeStatus = (e: any, item: MaterialResponse) => {
+    const newValue: any = {
+      description: item.description,
+      status: e ? "active" : "inactive",
+    };
+    dispatch(updateMaterialOtherAction(item.id, newValue, onUpdateStatus));
+  };
+
   return (
     <ContentContainer
       title="Quản lý chất liệu"
       breadcrumb={[
         {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
           name: "Sản phẩm",
           path: `${UrlConfig.PRODUCT}`,
         },
         {
-          name: "Chất liệu",
+          name: "Thuộc tính",
+        },
+        {
+          name: "Danh sách chất liệu",
         },
       ]}
       extra={<AuthWrapper acceptPermissions={[ProductPermission.materials_create]}>
@@ -249,11 +381,12 @@ const ListMaterial: React.FC = () => {
                 <Button type="primary" htmlType="submit">
                   Lọc
                 </Button>
-              </Item> 
+              </Item>
             </Form>
           </CustomFilter>
         </div>
         <CustomTable
+          bordered
           isRowSelection
           isLoading={loading}
           pagination={{
@@ -267,9 +400,11 @@ const ListMaterial: React.FC = () => {
           dataSource={data.items}
           columns={columns}
           onSelectedChange={onSelect}
+          scroll={{ x: 1360 }}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           rowKey={(item: MaterialResponse) => item.id}
         />
-         <ModalDeleteConfirm
+        <ModalDeleteConfirm
           onCancel={() => setConfirmDelete(false)}
           onOk={() => {
             setConfirmDelete(false);

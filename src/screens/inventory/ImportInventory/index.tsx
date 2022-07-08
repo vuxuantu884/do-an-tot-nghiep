@@ -377,10 +377,10 @@ const UpdateTicket: FC = () => {
                 >
                   <List>
                     <List.Item>
-                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[0]} download="Import_Transfer">Excel 2003 (.xls)</a> </Typography.Text>
+                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[0]} download="Import_Transfer">Ấn để tải xuống (excel 2003)</a> </Typography.Text>
                     </List.Item>
                     <List.Item>
-                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[1]} download="Import_Transfer">Excel 2007 (.xlsx)</a> </Typography.Text>
+                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[1]} download="Import_Transfer">Ấn để tải xuống (excel 2007)</a> </Typography.Text>
                     </List.Item>
                   </List>
                 </Card>

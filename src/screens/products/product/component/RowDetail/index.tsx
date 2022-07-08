@@ -1,19 +1,23 @@
-import { ReactNode } from 'react';
-import {StyledComponent} from './style';
+import { StyledComponent } from "./style";
 
 type RowDetailProps = {
   title: string,
-  value: ReactNode,
+  value: any,
 }
 
 const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {
   return (
     <StyledComponent>
-    <div className="row-detail">
-      <div className="row-detail-left title text-truncate-1">{props.title}</div>
-      <div className="dot data">:</div>
-      <div className="row-detail-right data">{props.value}</div>
-    </div>
+      <div className="row-detail">
+        <div className="row-detail-left title text-truncate-1">{props.title}</div>
+        <div className="dot data">:</div>
+        <div
+          className="row-detail-right data"
+          dangerouslySetInnerHTML={{
+            __html: props.value,
+          }}
+        />
+      </div>
     </StyledComponent>
   )
 }

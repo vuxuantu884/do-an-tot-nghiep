@@ -40,3 +40,7 @@ export const detailMaterialAction = (id: number, setMaterial: (material: Materia
 export const updateMaterialAction = (id: number, request: MaterialUpdateRequest, onUpdate: (material: MaterialResponse|false) => void) => {
   return BaseAction(MaterialType.UPDATE_MATERIAL_REQUEST, {id, request, onUpdate});
 }
+
+export const updateMaterialOtherAction = (id: string | number, request: MaterialUpdateRequest, onUpdate: (material: MaterialResponse|false) => void) => {
+  return BaseAction(MaterialType.UPDATE_MATERIAL_OTHER_REQUEST, {id, request, onUpdate});
+}

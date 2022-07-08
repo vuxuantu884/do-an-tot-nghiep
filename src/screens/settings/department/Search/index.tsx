@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row } from "antd";
+import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import CustomTable from "component/table/CustomTable";
@@ -267,25 +267,6 @@ const DepartmentSearchScreen: React.FC = () => {
               sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
               columns={columns}
             />
-            <Row gutter={30} className="margin-top-20">
-              <Col span={7} />
-              <Col span={5}>
-                Cấp độ: <span className="high-level">1</span> <span className="high-level">2</span>
-              </Col>
-              <Col span={12}>
-                Style 2 cấp cao, quan trọng nhất
-              </Col>
-            </Row>
-            <Row gutter={30} className="mt-10">
-              <Col span={7} />
-              <Col span={5}>
-                Cấp độ: <span className="low-level">3</span> <span className="low-level">4</span>
-                <span className="low-level">5</span> <span className="low-level">6</span> <span className="low-level">...</span>
-              </Col>
-              <Col span={12}>
-                Các cấp còn lại
-              </Col>
-            </Row>
             <ModalSettingColumn
               visible={showSettingColumn}
               onCancel={() => setShowSettingColumn(false)}
