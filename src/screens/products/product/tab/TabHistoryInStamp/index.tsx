@@ -235,7 +235,7 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
           render: (value) => (value ? formatCurrencyForProduct(value) : "---"),
         },
         {
-          title: "Thơi gian in",
+          title: "Thời gian in",
           dataIndex: "created_date",
           visible: true,
           align: "right",
