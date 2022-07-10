@@ -280,6 +280,7 @@ const Products: React.FC = () => {
                 <TotalItemsEcommerce
                   isReloadPage={isReloadPage}
                   setIsReloadPage={setIsReloadPage}
+                  handleSyncStockJob={handleSyncStockJob}
                 />
               }
 
