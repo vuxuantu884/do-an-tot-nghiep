@@ -78,6 +78,7 @@ const EXPORT_PRODUCT_OPTION = {
 type TotalItemsEcommercePropsType = {
   isReloadPage: boolean;
   setIsReloadPage: (value: boolean) => void;
+  handleSyncStockJob : (x: number) => void;
 };
 
 const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
@@ -87,7 +88,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
   const dispatch = useDispatch();
   const { Option } = Select;
 
-  const { isReloadPage, setIsReloadPage } = props;
+  const { isReloadPage, setIsReloadPage, handleSyncStockJob } = props;
 
   const productsDownloadPermission = [
     EcommerceProductPermission.products_download
@@ -202,8 +203,7 @@ const TotalItemsEcommerce: React.FC<TotalItemsEcommercePropsType> = (
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
-          showSuccess("Đồng bộ tồn kho sản phẩm thành công");
-          window.location.reload();
+          handleSyncStockJob(result.process_id)
         }
       })
     );
