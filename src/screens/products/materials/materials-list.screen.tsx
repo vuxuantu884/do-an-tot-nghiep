@@ -1,11 +1,11 @@
-import { Button, Card, Form, Input, Switch } from "antd";
+import { Button, Card, Form, Input } from "antd";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import search from "assets/img/search.svg";
 import { MaterialQuery, MaterialResponse } from "model/product/material.model";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   deleteManyMaterialAction,
   deleteOneMaterialAction,
@@ -31,6 +31,7 @@ import { primaryColor } from "utils/global-styles/variables";
 import { SupplierResponse } from "../../../model/core/supplier.model";
 import TextShowMore from "component/container/show-more/text-show-more";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -61,6 +62,9 @@ const ListMaterial: React.FC = () => {
   });
   const [loading, setLoading] = useState<boolean>(true);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
+  const marterialStatusList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.material_status
+  );
 
   const onUpdateNote = (note: string, items: MaterialResponse) => {
     const newValue: any = {
@@ -87,14 +91,17 @@ const ListMaterial: React.FC = () => {
       },
     },
     {
-      title: <div className="text-center">Tên/Ký hiệu chất liệu</div>,
+      title: <div className="text-center">Chất liệu</div>,
       dataIndex: "name",
       key: "name",
       width: 150,
       render: (value: string, item: MaterialResponse) => {
         return (
           <div className="text-center">
-            <TextShowMore maxLength={100}>{value}</TextShowMore> / <span style={{ color: '#666666' }}>{item.symbol}</span>
+            <TextShowMore maxLength={100}>{value}</TextShowMore>
+            <div>
+              <span style={{ color: '#666666' }}>{item.symbol}</span>
+            </div>
           </div>
         );
       },
@@ -111,12 +118,19 @@ const ListMaterial: React.FC = () => {
     {
       title: "Trạng thái",
       dataIndex: "status",
-      width: 100,
+      width: 120,
       render: (value: string, item: MaterialResponse) => {
+        const marterial = marterialStatusList?.find((e:any) => e.value === value);
+        let statusName = "";
+        if (marterial) statusName = marterial.name;
         return (
-          <div>
-            <Switch checked={value === "active"} onChange={(e) => changeStatus(e, item)} />
-          </div>
+          <label
+            className={
+              value === "active" ? "text-success" : "text-error"
+            }
+          >
+            {statusName}
+          </label>
         );
       },
     },
@@ -326,14 +340,6 @@ const ListMaterial: React.FC = () => {
     [params],
   );
 
-  const changeStatus = (e: any, item: MaterialResponse) => {
-    const newValue: any = {
-      description: item.description,
-      status: e ? "active" : "inactive",
-    };
-    dispatch(updateMaterialOtherAction(item.id, newValue, onUpdateStatus));
-  };
-
   return (
     <ContentContainer
       title="Quản lý chất liệu"
@@ -410,7 +416,7 @@ const ListMaterial: React.FC = () => {
             setConfirmDelete(false);
             onDelete();
           }}
-          title="Bạn chắc chắn xóa màu sắc ?"
+          title="Bạn chắc chắn xóa chất liệu?"
           subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
           visible={isConfirmDelete}
         />

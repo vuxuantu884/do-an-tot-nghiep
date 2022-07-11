@@ -37,7 +37,7 @@ let initialRequest: MaterialCreateRequest = {
   status: "inactive",
   fabric_size_unit: "m",
   weight_unit: "g/m2",
-  price_unit: "VNĐ",
+  price_unit: "VND",
   videos: [],
   images: [],
   // videos: [
@@ -373,7 +373,7 @@ const AddMaterial: React.FC = () => {
                 label="Tên chất liệu:"
                 name="name"
               >
-                <Input maxLength={255} placeholder="Tên chất liệu" />
+                <Input placeholder="Tên chất liệu" />
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
@@ -413,8 +413,7 @@ const AddMaterial: React.FC = () => {
                   normalize={(value: string) => (value || "").toUpperCase()}
                 >
                 <Input 
-                  placeholder="Nhập ký hiệu" 
-                  maxLength={100}/>
+                  placeholder="Nhập ký hiệu"/>
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
@@ -446,7 +445,7 @@ const AddMaterial: React.FC = () => {
                 label="Thành phần:"
                 rules={[{ max: 250, message: "Thành phần không quá 250 kí tự" }]}
               >
-                <Input maxLength={250} placeholder="Nhập thành phần" />
+                <Input placeholder="Nhập thành phần" />
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
@@ -612,7 +611,6 @@ const AddMaterial: React.FC = () => {
               >
                 <Input.TextArea
                   autoSize={{ minRows: 3, maxRows: 5 }}
-                  maxLength={500}
                   placeholder="Nhập ứng dụng"
                 />
               </Form.Item>
@@ -704,7 +702,6 @@ const AddMaterial: React.FC = () => {
                 >
                   <Input.TextArea
                     autoSize={{ minRows: 3, maxRows: 5 }}
-                    maxLength={1000}
                     placeholder="Ghi chú"
                   />
                 </Form.Item>

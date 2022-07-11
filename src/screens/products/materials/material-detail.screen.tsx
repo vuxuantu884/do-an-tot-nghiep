@@ -21,6 +21,7 @@ import { EditOutlined } from "@ant-design/icons";
 import { showSuccess } from "utils/ToastUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { formatCurrency } from "../../../utils/AppUtils";
+import useAuthorization from "hook/useAuthorization";
 
 type MaterialPamram = {
   id: string;
@@ -47,6 +48,9 @@ const MaterialDetail: React.FC = () => {
   const [videoSelected, setVideoSelected] = useState<any>(null);
   const [visible, setVisible] = useState<boolean>(false);
   let videoRef: any = useRef();
+  const [canUpdateMaterials] = useAuthorization({
+    acceptPermissions: [ProductPermission.materials_update],
+  });
 
   useEffect(() => {
     if (!data) return;
@@ -290,8 +294,8 @@ const MaterialDetail: React.FC = () => {
                   <span className="content">Trạng thái:</span> {data.status === "active"
                   ? <span className="text-success">Sử dụng</span>
                   : <span className="text-error">Ngừng sử dụng</span>}
-                  <Switch size="small" style={{ float: "right", marginTop: 3 }} checked={data.status === "active"}
-                          onChange={updateStatus} />
+                  {canUpdateMaterials && <Switch size="small" style={{ float: "right", marginTop: 3 }} checked={data.status === "active"}
+                          onChange={updateStatus} />}
                 </div>
                 <Row gutter={24} className="margin-bottom-15">
                   <Col span={24} md={12} className="title">
@@ -344,13 +348,15 @@ const MaterialDetail: React.FC = () => {
 
                 <div className="font-weight-500">Hình ảnh</div>
                 <div className="images">
-                  {data?.images?.length > 0 && data.images.map((i) => {
-                    return (
-                      <div style={{ marginRight: 5 }}>
-                        <Image className="material-img" src={i} />
-                      </div>
-                    );
-                  })}
+                 <Image.PreviewGroup>
+                    {data?.images?.length > 0 && data.images.map((i) => {
+                      return (
+                        <div style={{ marginRight: 5 }}>
+                          <Image className="material-img" src={i} />
+                        </div>
+                      );
+                    })}
+                  </Image.PreviewGroup>
                 </div>
 
                 <div className="font-weight-500">Video</div>

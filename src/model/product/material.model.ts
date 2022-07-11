@@ -32,6 +32,7 @@ export interface MaterialCreateRequest {
 
 export interface MaterialUpdateRequest extends MaterialCreateRequest {
   version: number,
+  supplier_ids: Array<number>,
 }
 
 export interface MaterialUpdateStatusAndNoteRequest {
