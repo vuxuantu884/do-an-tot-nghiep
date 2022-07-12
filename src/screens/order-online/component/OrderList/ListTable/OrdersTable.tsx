@@ -12,8 +12,6 @@ import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
 import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import iconPrint from "assets/icon/Print.svg";
-// import { display } from "html2canvas/dist/types/css/property-descriptors/display";
-// import 'assets/css/_sale-order.scss';
 import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
 import search from "assets/img/search.svg";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
@@ -24,7 +22,7 @@ import {
   getTrackingLogFulfillmentAction, updateOrderPartial
 } from "domain/actions/order/order.action";
 import useSetTableColumns from "hook/table/useSetTableColumns";
-import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
 import { OrderExtraModel, OrderModel, OrderTypeModel } from "model/order/order.model";
@@ -105,13 +103,6 @@ type ICustomTableColumTypeExtra = (ICustomTableColumType<OrderModel> & {
   isHideInOffline?: boolean;
 })[]
 
-let itemResult:OrderModel[] = [];
-let metadataResult:BaseMetadata = {
-  limit: 0,
-  page: 0,
-  total: 0
-};
-
 function OrdersTable(props: PropTypes) {
   const {
     tableLoading,
@@ -148,10 +139,16 @@ function OrdersTable(props: PropTypes) {
 
   const [typeAPi, setTypeAPi] = useState("");
 
-  const [items, setItems] = useState(data.items);
-  const [metadata, setMetaData] = useState(data.metadata);
-  itemResult = data.items;
-  metadataResult = data.metadata;
+  const items = useMemo(() => {
+    return data.items ? data.items : []
+  }, [data]);
+  const metadata = useMemo(() => {
+    return data.metadata ? data.metadata : {
+      limit: 0,
+      page: 0,
+      total: 0
+    }
+  }, [data]);
 
   const paymentIcons = [
     {
@@ -207,21 +204,19 @@ function OrdersTable(props: PropTypes) {
 
   const onSuccessEditNote = useCallback(
     (note, customer_note, orderID) => {
-      console.log('itemResult', itemResult)
       showSuccess(`${orderID} Cập nhật ghi chú thành công`);
-      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
+      const dataItems = [...items]
+      const indexOrder = dataItems.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
-        itemResult[indexOrder].note = note;
-        itemResult[indexOrder].customer_note = customer_note;
+        dataItems[indexOrder].note = note;
+        dataItems[indexOrder].customer_note = customer_note;
       }
-      setItems(itemResult);
-      setMetaData(metadataResult);
       setData({
-        metadata: metadataResult,
-        items: itemResult,
+        ...data,
+        items: dataItems,
       })
     },
-    [setData]
+    [data, items, setData]
   );
 
   const editNote = useCallback(
@@ -442,10 +437,6 @@ function OrdersTable(props: PropTypes) {
   };
 
   const renderOrderTrackingLog = (record: OrderExtraModel) => {
-    // let html: ReactNode= "aaaaaaaaaa";
-    // if(!trackingLogFulfillment) {
-    //   return html;
-    // }
     if (!record?.fulfillments || !record.isShowTrackingLog) {
       return;
     }
@@ -479,7 +470,7 @@ function OrdersTable(props: PropTypes) {
 
   const changeSubStatusCallback = (value: string, response?: any) => {
     console.log('response', response)
-    const index = data.items?.findIndex(
+    const index = items?.findIndex(
       (single) => single.id === selectedOrder?.id
     );
     if (index > -1) {
@@ -719,9 +710,6 @@ function OrdersTable(props: PropTypes) {
                 } trigger="click">
                   <Button type="link" style={{ width: "25px", padding: "0px", paddingTop:2}} icon={<DownOutlined style={{fontSize:"12px"}}/>}></Button>
                 </Popover>
-                {/* <Button  type="link" onClick={()=>{
-                    onFilterPhoneCustomer(record.customer_phone_number)
-                  }}>{record.customer_phone_number}</Button> */}
               </div>
             )}
             <div className="name" style={{ color: "#2A2A86" }}>
@@ -734,8 +722,6 @@ function OrdersTable(props: PropTypes) {
               </Link>{" "}
 
             </div>
-            {/* <div className="p-b-3">{record.shipping_address.phone}</div>
-						<div className="p-b-3">{record.shipping_address.full_address}</div> */}
             <div className="textSmall">{renderShippingAddress(record)}</div>
             {record?.tags?.length && record?.tags?.length > 0 ? (
               <div className="customTags">
@@ -935,41 +921,12 @@ function OrdersTable(props: PropTypes) {
 
                           {sortedFulfillments[0]?.shipment?.tracking_code ? (
                             <div className="single trackingCode">
-                              {/* <div
-                                onClick={(e) => {
-                                  if (sortedFulfillments[0]?.shipment?.tracking_code) {
-                                    copyTextToClipboard(
-                                      e,
-                                      sortedFulfillments[0]?.shipment?.tracking_code
-                                    );
-                                    showSuccess("Đã copy mã vận đơn!")
-                                  }
-                                }}>
-                                {sortedFulfillments[0]?.shipment?.tracking_code}
-                              </div> */}
                               {renderTrackingCode(sortedFulfillments[0]?.shipment)}
                             </div>
                           ) : null}
 
                           {sortedFulfillments[0]?.code ? (
                             <div className="single">
-                              {/* <FileTextOutlined  color="red"
-                                      onClick={() => {
-                                        if(!sortedFulfillments[0]?.code) {
-                                          return;
-                                        }
-                                        setSelectedOrder(record)
-                                        dispatch(
-                                          getTrackingLogFulfillmentAction(
-                                            sortedFulfillments[0]?.code,
-                                            (data => {
-                                              setTrackingLogFulfillment(data)
-                                              setRerender((prev) => prev+1)
-                                            })
-                                          )
-                                        );
-                                      }}
-                                    /> */}
                               {true && (
                                 <Popover
                                   placement="left"
@@ -1167,8 +1124,6 @@ function OrdersTable(props: PropTypes) {
                   <div>
                     <strong>Xử lý đơn: </strong>
                   </div>
-
-                  {/* {record.sub_status ? record.sub_status : "-"} */}
                   {subStatuses ? (
                     <Select
                       style={{ width: "100%" }}
@@ -1195,10 +1150,6 @@ function OrdersTable(props: PropTypes) {
                           showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
                           return;
                         }
-                        // let isChange = isOrderFromSaleChannel(selectedOrder) ? true : getValidateChangeOrderSubStatus(record, value);
-                        // if (!isChange) {
-                        //   return;
-                        // }
                         setToSubStatusCode(value);
                       }}>
                       {subStatuses &&
@@ -1221,41 +1172,6 @@ function OrdersTable(props: PropTypes) {
                       </React.Fragment>
                     ):"-"}
                   </div>
-                  {/* {record.status === OrderStatus.DRAFT && (
-                    <div
-                      style={{
-                        color: "#737373",
-                      }}>
-                      {status?.name}
-                    </div>
-                  )}
-
-                  {record.status === OrderStatus.FINALIZED && (
-                    <div
-                      style={{
-                        color: "#FCAF17",
-                      }}>
-                      {status?.name}
-                    </div>
-                  )}
-
-                  {record.status === OrderStatus.FINISHED && (
-                    <div
-                      style={{
-                        color: successColor,
-                      }}>
-                      {status?.name}
-                    </div>
-                  )}
-
-                  {record.status === OrderStatus.CANCELLED && (
-                    <div
-                      style={{
-                        color: "#E24343",
-                      }}>
-                      {status?.name}
-                    </div>
-                  )} */}
                 </div>
               </div>
             </div>
@@ -1270,8 +1186,6 @@ function OrdersTable(props: PropTypes) {
         title: "Ghi chú",
         className: "notes",
         render: (value: string, record: OrderModel) => {
-          // const noteReturnPay=record.order_return_origin?.total;
-          // const noteReturnPayCustomer=record.total- (record.order_return_origin?.total?record.order_return_origin?.total:0);
           return (
             <div className="orderNotes">
               <div className="inner">
@@ -1287,41 +1201,20 @@ function OrdersTable(props: PropTypes) {
                       note: record.note,
                       customer_note: record.customer_note,
                     }}
-                  // isDisable={record.status === OrderStatus.FINISHED}
                   />
                 </div>
                 <div className="single">
                   <EditNote
-                  
-                    // note={`Đơn trả: ${noteReturnPay} ${noteReturnPayCustomer>0?` ,Khách trả lại :${noteReturnPayCustomer}`:` ,Trả lại khách: ${(noteReturnPayCustomer*-1)}`} ${record.note}`}
                     note={record.note}
                     title="Nội bộ: "
                     color={primaryColor}
                     onOk={(values) => {
-                      // editNote(newNote, "note", record.id, record);
                       editNote(values.note, values.customer_note, record.id, record);
                     }}
                     noteFormValue={{
                       note: record.note,
                       customer_note: record.customer_note,
                     }}
-                    // defaultNote={record.order_return_origin&&(
-                    //   <React.Fragment>
-                    //     {noteReturnPay && (
-                    //       <div className="textSmall">Đơn trả: {formatCurrency(noteReturnPay)}</div>
-                    //     )}
-                    //     {noteReturnPayCustomer&&(
-                    //       <div className="textSmall">
-                    //         {` ${noteReturnPayCustomer>0?`, Khách trả lại :${formatCurrency(noteReturnPayCustomer)}`
-                    //         :noteReturnPayCustomer<0?` Trả lại khách: ${formatCurrency(noteReturnPayCustomer*-1)}`
-                    //         :``}`}
-                    //      </div>
-                    //     )}
-                       
-                    //   </React.Fragment>
-                    //   )
-                    // }
-                  // isDisable={record.status === OrderStatus.FINISHED}
                   />
                 </div>
               </div>
@@ -1333,32 +1226,6 @@ function OrdersTable(props: PropTypes) {
         align: "left",
         width: 120,
       },
-      // {
-      //   title: orderType === ORDER_TYPES.online ? "NV bán hàng" : "Chuyên gia tư vấn",
-      //   render: (value, record: OrderModel) => (
-      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.assignee_code}`}>
-      //       {`${record.assignee_code} - ${record.assignee}`}
-      //     </Link>
-      //   ),
-      //   key: "assignee",
-      //   visible: orderType === ORDER_TYPES.online,
-      //   align: "center",
-      //   width: 80,
-      //   isHideInOffline: true,
-      // },
-      // {
-      //   title: orderType === ORDER_TYPES.online ? "NV tạo đơn" : "Thu ngân",
-      //   render: (value, record: OrderModel) => (
-      //     <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}>
-      //       {`${record.account_code} - ${record.account}`}
-      //     </Link>
-      //   ),
-      //   key: "account",
-      //   visible: orderType === ORDER_TYPES.online,
-      //   align: "center",
-      //   width: 80,
-      //   isHideInOffline: true,
-      // },
       {
         title: "Biên bản bàn giao",
         dataIndex: "goods_receipt_id",
@@ -1428,7 +1295,7 @@ function OrdersTable(props: PropTypes) {
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [data.items.length, deliveryServices, editNote, status_order]);
+  }, [items.length, deliveryServices, editNote, status_order]);
 
   const initColumns = useMemo(() => {
     if(orderType === ORDER_TYPES.online) {
@@ -1560,7 +1427,7 @@ function OrdersTable(props: PropTypes) {
 
   const getTotalQuantityPerPage = () => {
     let result = 0;
-    data.items.forEach((item) => {
+    items.forEach((item) => {
       let eachItemQuantity = 0;
       item.items.forEach((single) => {
         if (isNormalTypeVariantItem(single)) {
@@ -1574,7 +1441,7 @@ function OrdersTable(props: PropTypes) {
 
   const getTotalAmount = () => {
     let result = 0;
-    data.items.forEach((item) => {
+    items.forEach((item) => {
       result = result + item.total;
     });
     return result;
@@ -1590,7 +1457,7 @@ function OrdersTable(props: PropTypes) {
 
   const getTotalPayment = () => {
     let result = 0;
-    data.items.forEach((item) => {
+    items.forEach((item) => {
       let itemPayment = getPaymentItem(item);
       result = result + itemPayment;
     });
@@ -1604,18 +1471,13 @@ function OrdersTable(props: PropTypes) {
   // - Tạm thời bỏ hàng trả - doanh thu sau chiết khấu trừ tiêu điểm
   const getTotalRevenue = () => {
     let result = 0;
-    data.items.forEach((item) => {
-      // let returnAmount = 0;
+    items.forEach((item) => {
       let pointAmount = 0;
       item.payments.forEach((single) => {
-        // if(single.payment_method === PAYMENT_METHOD_ENUM.exchange.name) {
-        //   returnAmount = returnAmount + single.amount;
-        // }
         if(single.payment_method_code === PaymentMethodCode.POINT) {
           pointAmount = pointAmount + single.amount;
         }
       });
-      // result = result + (item.total - returnAmount - pointAmount)
       result = result + (item.total - pointAmount)
     });
     return result;
@@ -1623,7 +1485,7 @@ function OrdersTable(props: PropTypes) {
 
   const getTotalShippingFeeInformedToCustomer = () => {
     let result = 0;
-    data.items.forEach((item) => {
+    items.forEach((item) => {
       const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
       if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (item.shipping_fee_informed_to_customer || 0);
@@ -1634,7 +1496,7 @@ function OrdersTable(props: PropTypes) {
 
   const getTotalShippingPay3PL = () => {
     let result = 0;
-    data.items.forEach((item) => {
+    items.forEach((item) => {
       const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
       if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
@@ -1768,18 +1630,6 @@ function OrdersTable(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
 
-  useEffect(() => {
-    setData({
-      ...data,
-      items,
-    })
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [items, setData])
-
-  useEffect(() => {
-    setMetaData(data.metadata)
-  }, [data.metadata])
-
   if(!subStatuses || subStatuses.length === 0) {
     return <span>Đang tải dữ liệu ...</span>;
   }
@@ -1793,9 +1643,9 @@ function OrdersTable(props: PropTypes) {
         scroll={{ x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1) }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
-          pageSize: metadata?.limit,
-          total: metadata?.total,
-          current: metadata?.page,
+          pageSize: metadata.limit,
+          total: metadata.total,
+          current: metadata.page,
           showSizeChanger: true,
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
@@ -1805,7 +1655,7 @@ function OrdersTable(props: PropTypes) {
           onSelectedChange(selectedRows, selected, changeRow)
         }
         onShowColumnSetting={() => setShowSettingColumn(true)}
-        dataSource={data.items}
+        dataSource={items}
         columns={columnFinal}
         selectedRowKey={selectedRowKeys}
         rowKey={(item: OrderModel) => item.id}
