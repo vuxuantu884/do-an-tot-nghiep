@@ -33,6 +33,8 @@ export interface ReturnModel {
   updated_name: string;
   discounts: Array<any>;
   items: Array<OrderLineItemResponse>;
+  note: string;
+  customer_note: string;
 }
 
 export interface ReturnSearchQuery {

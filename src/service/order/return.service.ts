@@ -41,7 +41,7 @@ export const getOrderReasonService = (orderCodes: string[]): Promise<
 export const orderRefundService = (
   id: number,
   params: {
-    payments: OrderPaymentResponse[]|any[];
+    payments: OrderPaymentResponse[] | any[];
   }
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders/returns/${id}/refund`, params);
@@ -65,19 +65,19 @@ export const getOrderReturnLog = (
 export const getOrderReturnCalculateRefundService = (
   query: OrderReturnCalculateRefundRequestModel
 ): Promise<BaseResponse<ReturnCalculateRefundModel>> => {
-  const {customerId, orderId, ...restQuery} = query;
+  const { customerId, orderId, ...restQuery } = query;
   return BaseAxios.post(
     `${ApiConfig.LOYALTY}/loyalty-points/customer/${customerId}/order/${orderId}/calculate-refund`, restQuery
   );
 };
 
-export const deleteOrderReturnService=(ids:number[]):Promise<BaseResponse<any>>=>{
+export const deleteOrderReturnService = (ids: number[]): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ORDER}/orders/returns?ids=${ids}`;
   return BaseAxios.delete(link);
 }
 
-export const updateNoteOrderReturnService=(id:number, note:string|null, customerNote:string|null):Promise<BaseResponse<any>>=>{
-  let params={
+export const updateNoteOrderReturnService = (id: number | string, note: string | null, customerNote: string | null): Promise<BaseResponse<any>> => {
+  let params = {
     note: note,
     customer_note: customerNote
   }
@@ -85,7 +85,7 @@ export const updateNoteOrderReturnService=(id:number, note:string|null, customer
   return BaseAxios.put(link, params);
 }
 
-export const calculateMoneyRefundService=(orderId: number, params: CalculateMoneyRefundRequestModel):Promise<BaseResponse<CalculateMoneyRefundResponseModel>>=>{
+export const calculateMoneyRefundService = (orderId: number, params: CalculateMoneyRefundRequestModel): Promise<BaseResponse<CalculateMoneyRefundResponseModel>> => {
   const link = `${ApiConfig.ORDER}/orders/${orderId}/calculate-money-refund`;
   return BaseAxios.post(link, params);
 }

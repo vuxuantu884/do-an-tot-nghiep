@@ -216,4 +216,25 @@ export const StyledComponent = styled.div`
       color: ${yellowColor};
     }
   }
+  .orderNotes {
+		.inner {
+			height: 100%;
+		}
+		.single {
+			height: 50%;
+			display: flex;
+			padding: 10px 10px;
+			align-items: center;
+			&:not(:last-child) {
+				border-bottom: 1px solid ${borderColor};
+			}
+			.wrapper {
+				display: flex;
+			}
+			svg {
+				position: relative;
+				top: 3px;
+			}
+		}
+	}
 `;
