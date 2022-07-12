@@ -21,6 +21,7 @@ interface Props extends FormItemProps {
   key?: "code" | "id";
   defaultValue?: string | number | string[];
   maxTagCount?: number | "responsive";
+  supplier_ids?: Array<number>;
 }
 
 SupplierSelect.defaultProps = {
@@ -46,6 +47,7 @@ function SupplierSelect({
   querySupplier,
   defaultValue,
   maxTagCount,
+  supplier_ids,
   ...restFormProps
 }: Props): ReactElement {
   const dispatch = useDispatch();
@@ -112,6 +114,13 @@ function SupplierSelect({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    if (supplier_ids) {
+      getSupplierByCode(supplier_ids.toString()).then();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     let value = defaultValue;

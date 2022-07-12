@@ -309,17 +309,6 @@ const UpdateMaterial: React.FC = () => {
   };
 
   const onChangeFile = useCallback((info, type: string) => {
-    let check = true;
-    if (info.fileList) {
-      info.fileList.forEach((file: any) => {
-        if (!checkFile(file,type)) {
-            check= false;
-            return
-          };
-      });
-    }
-    if (!check) return;
-
     if (type ==="video") {
       setFileListVideo(info.fileList);
     }else{
@@ -363,6 +352,7 @@ const UpdateMaterial: React.FC = () => {
       }else{
         await callApiNative({isShowLoading: false},dispatch,uploadFileApi,files,"material-info").then(
           (data: false | Array<string>)=>{
+            debugger
             let index = fileList.findIndex((item) => item.uid === uuid);
             if (!!data) {
               if (index !== -1) {
@@ -438,7 +428,7 @@ const UpdateMaterial: React.FC = () => {
                 label="Tên chất liệu:"
                 name="name"
               >
-                <Input maxLength={255} placeholder="Tên chất liệu" />
+                <Input placeholder="Tên chất liệu" />
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
@@ -469,20 +459,19 @@ const UpdateMaterial: React.FC = () => {
                       message: "Vui lòng nhập ký hiệu",
                     },
                     {
-                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER_MATERIAL,
                       message: "Ký hiệu không đúng định dạng",
                     },
                   ]}
-                  name="symbol"
+                  name="fabric_code"
                   label="Ký hiệu:"
                   normalize={(value: string) => (value || "").toUpperCase()}
                 >
-                <Input placeholder="Nhập ký hiệu" maxLength={100} />
+                <Input placeholder="Nhập ký hiệu"/>
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
-              <Form.Item
-                  name="supplier_ids"
+               <SupplierSearchSelect
                   label="Nhà cung cấp:"
                   rules={[
                     {
@@ -490,16 +479,12 @@ const UpdateMaterial: React.FC = () => {
                       message: "Vui lòng chọn nhà cung cấp",
                     },
                   ]}
-                >
-               <SupplierSearchSelect
-                  noStyle
-                  label={false}
                   name="supplier_ids"
                   mode="multiple"
                   help={false}
                   maxTagCount="responsive"
+                  supplier_ids={oldData.supplier_ids}
                 />
-              </Form.Item>
             </Col>
           </Row>
           <Row gutter={50}>
@@ -507,9 +492,9 @@ const UpdateMaterial: React.FC = () => {
               <Form.Item
                 name="component"
                 label="Thành phần:"
-                rules={[{ max: 250, message: "Thành phần không quá 250 kí tự" }]}
+                rules={[{ max: 255, message: "Thành phần không quá 255 kí tự" }]}
               >
-                <Input maxLength={250} placeholder="Nhập thành phần" />
+                <Input placeholder="Nhập thành phần" />
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
@@ -675,7 +660,6 @@ const UpdateMaterial: React.FC = () => {
               >
                 <Input.TextArea
                   autoSize={{ minRows: 3, maxRows: 5 }}
-                  maxLength={500}
                   placeholder="Nhập ứng dụng"
                 />
               </Form.Item>
@@ -771,7 +755,6 @@ const UpdateMaterial: React.FC = () => {
                 >
                   <Input.TextArea
                     autoSize={{ minRows: 3, maxRows: 5 }}
-                    maxLength={1000}
                     placeholder="Ghi chú"
                   />
                 </Form.Item>
