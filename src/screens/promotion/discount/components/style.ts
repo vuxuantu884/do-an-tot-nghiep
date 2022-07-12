@@ -3,6 +3,7 @@ import styled from "styled-components";
 export const StyledComponent = styled.div`
   .discount-filter {
     .page-filter {
+			padding: 0;
       &-right {
         margin-left: 16px;
         width: 100%;
@@ -39,12 +40,12 @@ export const StyledComponent = styled.div`
   }
 
   .filter-tags {
+		margin-top: 20px;
     .ant-tag {
       margin-top: 0;
     }
     .tag {
       padding: 10px 20px;
-      margin-bottom: 10px;
       background: rgba(42, 42, 134, 0.05);
       border-radius: 50px;
       white-space: normal;

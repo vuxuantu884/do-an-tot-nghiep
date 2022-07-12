@@ -370,7 +370,7 @@ const PromotionDetailScreen: React.FC = () => {
                 </Row> */}
               </Card>
               <Card
-                className="card"
+                className="card product-card"
                 title={
                   <div style={{ alignItems: "center" }}>
                     <span className="title-card">
@@ -414,6 +414,7 @@ const PromotionDetailScreen: React.FC = () => {
                   },
                   showSizeChanger: true,
                 }}
+                  isShowPaginationAtHeader
                 />}
 
               </Card>

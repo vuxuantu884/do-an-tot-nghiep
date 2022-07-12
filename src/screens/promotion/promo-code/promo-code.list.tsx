@@ -646,6 +646,7 @@ const ListCode = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
+            isShowPaginationAtHeader
             dataSource={promoCodeList.items}
             columns={columns}
             rowKey={(item: any) => item.id}
