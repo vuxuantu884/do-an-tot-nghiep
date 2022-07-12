@@ -12,7 +12,7 @@ type PropType = {
 
 function SidebarOrderDetailExtraInformation(props: PropType) {
   const { OrderDetail, editNote } = props;
-  console.log("OrderDetail note",OrderDetail)
+  // console.log("OrderDetail note",OrderDetail)
   return (
     <StyledComponent>
       <Card title="THÔNG TIN BỔ SUNG">

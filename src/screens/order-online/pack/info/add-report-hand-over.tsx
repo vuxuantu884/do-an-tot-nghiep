@@ -299,7 +299,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
             codes: orderMapSingleFulfillment.map(p=>p.fulfillment_active?.code||""),
           };
 
-          console.log(param);
+          // console.log(param);
 
           if (isValid) {
             /**
@@ -367,7 +367,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
         (data: GoodsReceiptsResponse) => data.id === value
       );
       if (indexGoods !== -1) {
-        console.log("selectGoodsReceipts", listGoodsReceipts[indexGoods])
+        // console.log("selectGoodsReceipts", listGoodsReceipts[indexGoods])
         dispatch(getByIdGoodsReceipts(listGoodsReceipts[indexGoods].id, (receiptsItem) => {
           setGoodsReceipts(receiptsItem)
         }));

@@ -10,7 +10,7 @@ function useGetChannels() {
 
   useEffect(() => {
     getChannelApi().then((response) => {
-      console.log("response", response);
+      // console.log("response", response);
       if (isFetchApiSuccessful(response)) {
         setChannels(response.data);
       } else {

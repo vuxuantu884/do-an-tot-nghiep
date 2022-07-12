@@ -47,7 +47,7 @@ function EditOrderNote(props: PropTypes) {
 
   const onSubmit = () => {
     form.validateFields().then((values) => {
-      console.log("values", values);
+      // console.log("values", values);
       onOk(values);
     });
   };

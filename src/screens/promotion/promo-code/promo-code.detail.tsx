@@ -331,8 +331,29 @@ const PromotionDetailScreen: React.FC = () => {
       if (!element) return;
       (body.discount_codes as Array<any>).push({ code: element });
     });
+
+    resetProgress();
     dispatch(showLoading());
-    dispatch(addPromoCode(idNumber, body, addCallBack));
+    addPromotionCodeApi(idNumber, body)
+      .then((response) => {
+        setShowAddCodeManual(false);
+        if (response?.code) {
+          setIsVisibleProcessModal(true);
+          setJobCreateCode(response.code);
+          setIsProcessing(true);
+        } else {
+          showWarning("Có lỗi khi tạo tiến trình Thêm mới mã giảm giá");
+        }
+      })
+      .catch((error) => {
+        if (error.response?.data?.errors?.length > 0) {
+          const errorMessage = error.response?.data?.errors[0];
+          showError(`${errorMessage ? errorMessage: "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+        }
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
   }
 
   // handle jobs create new discount code

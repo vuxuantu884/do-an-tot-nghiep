@@ -1131,12 +1131,12 @@ export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
 
      }
   }
-  console.log('orderReturnItems', orderReturnItems)
+  // console.log('orderReturnItems', orderReturnItems)
   return orderReturnItems;
 };
 
 export const reCalculateOrderItem = (orderLineItems: OrderLineItemResponse[]) => {
-  console.log('orderLineItems', orderLineItems)
+  // console.log('orderLineItems', orderLineItems)
   return orderLineItems.map(item => {
     return {
       ...item,
@@ -1179,14 +1179,14 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
 	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
 	let newReturnItems = cloneDeep(_orderReturnItems);
 	// let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
-  console.log('_orderReturnItems', _orderReturnItems)
+  // console.log('_orderReturnItems', _orderReturnItems)
   for (const singleOrder of OrderDetailClone.items) {
 		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau, nếu có order_line_item_id thì check luôn)
     let duplicatedItem = newReturnItems.find(single=>{
-      console.log('singleOrder', singleOrder)
+      // console.log('singleOrder', singleOrder)
       return single.variant_id === singleOrder.variant_id && single.type === singleOrder.type && (single.order_line_item_id ? single.order_line_item_id === singleOrder.id : true)
     });
-    console.log('duplicatedItem', duplicatedItem)
+    // console.log('duplicatedItem', duplicatedItem)
     if(duplicatedItem) {
 			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id&& single.type === duplicatedItem.type && (duplicatedItem.order_line_item_id ? single.id === duplicatedItem.id : true))
 			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
@@ -1208,7 +1208,7 @@ export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
       result.push(singleOrder);
     }
   }
-  console.log('result111', result)
+  // console.log('result111', result)
  return result;
 }
 
@@ -1396,7 +1396,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 		return result
 	};
   const renderDiscountItem = (singleItem: any) => {
-    console.log('singleItem', singleItem)
+    // console.log('singleItem', singleItem)
     let discountAmount = 0;
     if(singleItem?.discount_items && singleItem?.discount_items.length > 0) {
       singleItem?.discount_items.forEach((discount:any) => {
@@ -1408,7 +1408,7 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 	let result = "";
 	if (data) {
 		let dataJson = JSON.parse(data);
-    console.log('dataJson', dataJson)
+    // console.log('dataJson', dataJson)
 		result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
@@ -1835,7 +1835,6 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
     case ORDER_SUB_STATUS.fourHour_delivery: {
       if (sortedFulfillments[0]?.shipment?.service !== SHIPPING_TYPE.DELIVERY_4H) {
         isChange = false;
-        console.log('333333333')
         showError("Chưa chọn giao hàng 4h!");
       } else {
         isChange = true;
@@ -1870,7 +1869,7 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | OrderR
     default:
       break;
   }
-  console.log('isChange', isChange)
+  // console.log('isChange', isChange)
   if (isChange) {
     isChange = handleIfOrderStatusOther(sub_status_code, sortedFulfillments);
   }
@@ -1908,14 +1907,14 @@ export const removeSpaceBeforeAndAfterWord = (text: string) => {
 export const replaceLast = (text: string, textShort: string) => {
   textShort = removeSpaceBeforeAndAfterWord((textShort));
   text = removeSpaceBeforeAndAfterWord((text));
-  console.log('textShort', textShort)
-  console.log('text', text)
+  // console.log('textShort', textShort)
+  // console.log('text', text)
   let index = (text).lastIndexOf((textShort));
-  console.log('index', index);
+  // console.log('index', index);
   let result = text
   if(index > -1) {
     let deleteText = text.substring(index, index + textShort.length);
-    console.log('deleteText', deleteText);
+    // console.log('deleteText', deleteText);
     result = text.replace(deleteText, "");
   }
   return result;
@@ -1944,9 +1943,9 @@ export const convertStringDistrict = (text: string) => {
 export const findWard = (district: string | null, newWards: any[],  newValue: string) => {
   let districtConvert = district ? convertStringDistrictWithoutLine(district).toLowerCase().replace("tỉnh ", "").normalize("NFD")
   : "";
-  console.log('districtConvert', districtConvert);
+  // console.log('districtConvert', districtConvert);
   let districtArr = districtConvert.split("-");
-  console.log('districtArr', districtArr);
+  // console.log('districtArr', districtArr);
   // if(cityName.length > 0) {
   //   convertStringDistrict(cityName).split(" ").forEach(character => {
   //     newValue = newValue.replace(character, "")
@@ -1954,10 +1953,10 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
 
   // }
   let valueResult = convertStringDistrict(newValue);
-  console.log('valueResult', valueResult)
+  // console.log('valueResult', valueResult)
   districtArr.forEach(district => {
-    console.log('district', district)
-    console.log('valueResult', valueResult)
+    // console.log('district', district)
+    // console.log('valueResult', valueResult)
     // valueResult = valueResult.replace(district.trim(), "");
     // valueResult = replaceLast(valueResult, convertStringDistrict(district));
     // phân cách bằng dấu cách, valueResult thêm dấu cách để chính xác
@@ -1966,27 +1965,27 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
       if(!single.trim()) {
         return
       }
-      console.log('single', single)
+      // console.log('single', single)
       // valueResult =" "+ valueResult+" ";
       // console.log('single', single)
       // valueResult = valueResult.replace(" " +single.trim() + " ", "");
       let splitArr = valueResult.split(" ");
       let duplicateIndex = splitArr.findIndex(aa => single.trim() === (aa.trim()));
-      console.log('duplicateIndex', duplicateIndex)
+      // console.log('duplicateIndex', duplicateIndex)
       if(duplicateIndex > - 1) {
         splitArr.splice(duplicateIndex, 1)
-        console.log('valueResult', valueResult)
+        // console.log('valueResult', valueResult)
         valueResult = splitArr.join(" ");
       }
     });
   })
   // tìm array có index lớn nhất
-  console.log('valueResult', valueResult)
+  // console.log('valueResult', valueResult)
   const findWard = newWards.filter((ward: any) => {
     const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ").filter(single => single);
-    console.log('valueResultArr', valueResultArr)
+    // console.log('valueResultArr', valueResultArr)
     const wardNameArr:any[] = convertStringDistrict(ward.name).split(" ").filter(x => x);
-    console.log('wardNameArr', wardNameArr)
+    // console.log('wardNameArr', wardNameArr)
     return !wardNameArr.some(single => !valueResultArr.includes(single))
   }).reverse()[0];
   return findWard;
@@ -2002,11 +2001,11 @@ export const handleFindArea = (value: string, newAreas: any) => {
       // test Thị xã Phú Mỹ, bà rịa vũng tàu
       // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
       const cityString = convertStringDistrict(area.city_name);
-      console.log('cityString', cityString)
-      console.log('districtString', districtString);
+      // console.log('cityString', cityString)
+      // console.log('districtString', districtString);
       return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
     });
-    console.log('findArea1111', findArea)
+    // console.log('findArea1111', findArea)
     let result = findArea.reverse()[0];
 
     return result

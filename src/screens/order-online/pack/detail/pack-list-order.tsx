@@ -364,7 +364,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     let codes: any[] = [];
     packDetail && packDetail.orders && packDetail.orders.forEach((p) => codes.push(p.code));
     let queryParams = generateQuery({ code: codes });
-    console.log("queryParams", queryParams)
+    // console.log("queryParams", queryParams)
     exportFile({
       conditions: queryParams,
       type: "EXPORT_ORDER"
@@ -489,7 +489,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
   const handleEventKeydown = useCallback((event: KeyboardEvent) => {
     if (event.target instanceof HTMLInputElement) {
       if (event.target.id === "search_term") {
-        console.log(event.key)
+        // console.log(event.key)
         if (event.key !== "Enter") {
           barcode = barcode + event.key;
 
@@ -603,7 +603,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               current: resultPaging.currentPage,
               showSizeChanger: true,
               onChange: (page, size) => {
-                console.log("size",size)
+                // console.log("size",size)
                 setPagingParam({ perPage: size || 10, currentPage: page })
               },
               onShowSizeChange: (page, size) => {

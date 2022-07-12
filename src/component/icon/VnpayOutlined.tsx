@@ -9,7 +9,7 @@ type VnPayProps = {
   style?: React.CSSProperties;
 };
 
-const VnpayOutline = (props: VnPayProps) => {
+const VnPayOutline = (props: VnPayProps) => {
   const svg = () => (
     <svg
       width="18"
@@ -19,8 +19,8 @@ const VnpayOutline = (props: VnPayProps) => {
       xmlns="http://www.w3.org/2000/svg"
     >
       <path
-        fill-rule="evenodd"
-        clip-rule="evenodd"
+        fillRule="evenodd"
+        clipRule="evenodd"
         d="M0 7H1.22205L2.24195 9.77311L3.113 7.47306C3.12954 7.38243 3.11484 7.35523 3.07809 7.27914C3.03214 7.18666 2.98069 7.09243 2.92924 7.0018H3.84072C3.78926 7.18851 3.70841 7.39332 3.64041 7.58543L2.46063 10.8171C2.13904 10.7555 1.78253 10.6358 1.50505 10.3857C1.29739 10.199 1.22205 9.98876 1.11914 9.73321L0.137826 7.2737C0.0992331 7.17217 0.0514554 7.08698 0 7ZM4.8698 8.29955V10.2806C4.8698 10.3603 4.89184 10.373 4.94516 10.4401L5.18222 10.7355H4.03551C4.09799 10.6394 4.16231 10.547 4.2303 10.4564C4.27808 10.3784 4.30013 10.3494 4.30013 10.2625V7.493L3.97671 7H5.16753L7.09338 9.34174V7.47306C7.09338 7.38243 7.07684 7.35523 7.02537 7.27914C6.9629 7.18666 6.89674 7.09243 6.82878 7.0018H7.97547L7.73841 7.29724C7.68509 7.36248 7.66855 7.37698 7.66855 7.45856V10.8297C7.2312 10.7736 6.82323 10.6757 6.46859 10.2389L4.8698 8.29955Z"
         fill={
           props.paymentData.some((p) => p.payment_method_code === props.method.code)
@@ -58,4 +58,4 @@ const VnpayOutline = (props: VnPayProps) => {
   return <Icon component={svg} style={props.style}></Icon>;
 };
 
-export default VnpayOutline;
+export default VnPayOutline;

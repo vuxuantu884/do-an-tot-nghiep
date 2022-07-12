@@ -16,7 +16,7 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import {
   getListReasonRequest,
-  getReturnsAction
+  getReturnsAction,
 } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
@@ -38,7 +38,7 @@ import { exportFile, getFile } from "service/other/export.service";
 import { copyTextToClipboard, formatCurrency, formatNumber, generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor } from "utils/global-styles/variables";
+import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import { ORDER_PAYMENT_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -48,7 +48,8 @@ import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import search from "assets/img/search.svg";
 import useAuthorization from "hook/useAuthorization";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { deleteOrderReturnService } from "service/order/return.service";
+import { deleteOrderReturnService, updateNoteOrderReturnService } from "service/order/return.service";
+import EditNote from "../EditOrderNote";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -85,35 +86,30 @@ function OrderReturnList(props: PropTypes) {
 
   const [isLoopInfoIfOrderHasMoreThanTwoProducts, setIsLoopInfoIfOrderHasMoreThanTwoProducts] = useState(false);
 
-  const [data, setData] = useState<PageResponse<ReturnModel>>({
-    metadata: {
+  const [dataItems, setDataItems] = useState<any[]>([]);
+
+  const [dataMetadata, setDataMetadata] = useState({
       limit: 30,
       page: 1,
       total: 0,
+    });
+  // columns table cần phải dùng useMemo, hàm useCallback bên trong colums ko cập nhật được state của component
+  // update columns table thành useMemo để fix, tạm thời dùng dataItemsClone
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  let dataItemsClone: any[] = [];
+  const setSearchResult = useCallback(
+    (result: PageResponse<ReturnModel> | false) => {
+      setTableLoading(false);
+      setIsFilter(false) 
+      if (!!result) {
+        setDataItems(result.items);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        dataItemsClone = result.items;
+        setDataMetadata(result.metadata);
+      }
     },
-    items: [],
-  });
-
-  // const renderShippingAddress = (orderDetail: ReturnModel) => {
-  //   let result = "";
-  //   let shippingAddress = orderDetail?.shipping_address;
-  //   if (!shippingAddress) {
-  //     return "";
-  //   }
-  //   const addressArr = [
-  //     shippingAddress.name,
-  //     shippingAddress.phone,
-  //     shippingAddress.full_address,
-  //     shippingAddress.ward,
-  //     shippingAddress.district,
-  //     shippingAddress.city,
-  //   ];
-  //   const addressArrResult = addressArr.filter((address) => address);
-  //   if (addressArrResult.length > 0) {
-  //     result = addressArrResult.join(" -- ");
-  //   }
-  //   return <React.Fragment>{result}</React.Fragment>;
-  // };
+    []
+  );
 
   const onFilterPhoneCustomer = useCallback((phone: string) => {
     let paramCopy = { ...params, search_term: phone, page: 1  };
@@ -397,26 +393,6 @@ function OrderReturnList(props: PropTypes) {
       align: "left",
       width: 350,
     },
-    // {
-    //   title: "Kho cửa hàng",
-    //   dataIndex: "store",
-    //   key: "store",
-    //   visible: true,
-    //   width: 140,
-    // },
-    // {
-    //   title: "Nguồn",
-    //   dataIndex: "source",
-    //   key: "source",
-    //   visible: true,
-    //   width: 100,
-    // },
-    // {orderType === ORDER_TYPES.offline ? null : (
-    //   <div className="textSmall single">
-    //     <Tooltip title="Nguồn">{i.source}</Tooltip>
-    //   </div>
-    // )}
-
     {
       title: "Hoàn tiền",
       //dataIndex: "total_amount",
@@ -494,33 +470,6 @@ function OrderReturnList(props: PropTypes) {
               style={{ fontWeight: 500, color: "#27ae60"}}
             />
           </Tooltip>
-
-          {record.point_refund  && record.money_refund ? (
-            <>
-              <br />
-              <Tooltip title="Hoàn điểm">
-                <span>
-                  <img src={IconPaymentPoint} alt="" />
-                  <NumberFormat
-                    value={formatNumber(record.point_refund)}
-                    className="foo"
-                    displayType={"text"}
-                    style={{ fontWeight: 500, color: "#fcaf17", paddingLeft: 5 }}
-                  />
-                </span>
-              </Tooltip>
-              {/* <br />
-              <Tooltip title="Thu người nhận">
-                <span style={{ fontWeight: 500 }}>
-                  <NumberFormat
-                    value={record.total}
-                    className="foo"
-                    displayType={"text"}
-                  />
-                </span>
-              </Tooltip> */}
-            </>
-          ) : null}
           {record.discounts.length > 0 ? (
             <Tooltip title="Khuyến mại đơn hàng">
               <div className="itemDiscount" style={{ color: dangerColor }}>
@@ -534,6 +483,29 @@ function OrderReturnList(props: PropTypes) {
       visible: true,
       align: "center",
     },
+    {
+      title: "Hoàn điểm",
+      width: 140,
+      render: (record: any) => (
+        <>
+          {record.point_refund ? (
+            <div>
+              <img src={IconPaymentPoint} alt="" />
+              <NumberFormat
+                value={formatNumber(record.point_refund)}
+                className="foo"
+                displayType={"text"}
+                style={{ fontWeight: 500, color: "#fcaf17", paddingLeft: 5 }}
+              />
+            </div>
+          ) : null}
+        </>
+      ),
+      key: "point_refund",
+      visible: true,
+      align: "center",
+    },
+    
     {
       title: "Trạng thái nhận hàng",
       dataIndex: "received",
@@ -576,7 +548,79 @@ function OrderReturnList(props: PropTypes) {
       width: 160,
       render:(value: any, record: ReturnModel, index: number)=><div>{record?.return_reason?.name}</div>
     },
+    {
+      title: "Ghi chú",
+      className: "notes",
+      render: (value: string, record: any) => {
+        return (
+          <div className="orderNotes">
+            <div className="inner">
+              <div className="single">
+                <EditNote
+                  note={record.customer_note}
+                  title="Khách hàng: "
+                  color={primaryColor}
+                  onOk={(values) => {
+                    editNote(record.id, values.note, values.customer_note);
+                  }}
+                  noteFormValue={{
+                    note: record.note,
+                    customer_note: record.customer_note,
+                  }}
+                />
+              </div>
+              <div className="single">
+                <EditNote
+                  note={record.note}
+                  title="Nội bộ: "
+                  color={primaryColor}
+                  onOk={(values) => {
+                    editNote(record.id, values.note, values.customer_note);
+                  }}
+                  noteFormValue={{
+                    note: record.note,
+                    customer_note: record.customer_note,
+                  }}
+                />
+              </div>
+            </div>
+          </div>
+        )
+      },
+      key: "note",
+      visible: true,
+      align: "center",
+      width: 120,
+    },
   ]);
+
+  const onSuccessEditNote = useCallback(
+    (orderReturnID, note, customer_note) => {
+      showSuccess(`${orderReturnID} Cập nhật ghi chú thành công`);
+      console.log('dataItems dataItems', dataItemsClone)
+      const newDataItems = [...dataItemsClone]
+      const indexOrder = newDataItems.findIndex((item: any) => item.id === orderReturnID);
+      if (indexOrder > -1) {
+        newDataItems[indexOrder].note = note;
+        newDataItems[indexOrder].customer_note = customer_note;
+      }
+      setDataItems(newDataItems)
+    },
+    [dataItemsClone]
+  );
+
+  const editNote = useCallback(
+    (orderReturnID, note, customer_note) => {
+      updateNoteOrderReturnService(orderReturnID, note, customer_note).then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          onSuccessEditNote(orderReturnID, note, customer_note)
+        } else {
+          handleFetchApiError(response, "Cập nhật ghi chú đơn trả", dispatch);
+        }
+      })
+    },
+    [dispatch, onSuccessEditNote]
+  );
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -619,7 +663,7 @@ function OrderReturnList(props: PropTypes) {
     let selectedRowCodesCopy = [...selectedRowCodes];
     let selectedRowCopy = [...selectedRow];
 
-    console.log("changeRow",changeRow)
+    // console.log("changeRow",changeRow)
 
     if (changeRow && changeRow.length > 0) {
       if (selected) {
@@ -839,8 +883,8 @@ function OrderReturnList(props: PropTypes) {
           "print-dialog": true,
         };
 
-        console.log(selectedRowCodes)
-        console.log(selectedRow)
+        // console.log(selectedRowCodes)
+        // console.log(selectedRow)
 
         const queryParam = generateQuery(params);
 
@@ -849,18 +893,7 @@ function OrderReturnList(props: PropTypes) {
         break; 
       default: break;
     }
-  }, [selectedRow, hanldeDeleteOrderReturn, selectedRowCodes]);
-
-  const setSearchResult = useCallback(
-    (result: PageResponse<ReturnModel> | false) => {
-      setTableLoading(false);
-      setIsFilter(false) 
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  }, [selectedRow, hanldeDeleteOrderReturn]);
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
@@ -960,9 +993,9 @@ function OrderReturnList(props: PropTypes) {
             scroll={{ x: 1600 * columnFinal.length/(columns.length ? columns.length : 1)}}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
-              pageSize: data.metadata.limit,
-              total: data.metadata.total,
-              current: data.metadata.page,
+              pageSize: dataMetadata.limit,
+              total: dataMetadata.total,
+              current: dataMetadata.page,
               showSizeChanger: true,
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
@@ -972,7 +1005,7 @@ function OrderReturnList(props: PropTypes) {
             }
             selectedRowKey={selectedRowCodes}
             onShowColumnSetting={() => setShowSettingColumn(true)}
-            dataSource={data.items}
+            dataSource={dataItems}
             columns={columnFinal}
             rowKey={(item: ReturnModel) => item.code_order_return}
             className="order-list"
@@ -998,7 +1031,7 @@ function OrderReturnList(props: PropTypes) {
             }}
             onOk={(optionExport) => onExport(optionExport)}
             type="returns"
-            total={data.metadata.total}
+            total={dataMetadata.total}
             exportProgress={exportProgress}
             statusExport={statusExport}
             selected={selectedRowCodes.length ? true : false}

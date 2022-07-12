@@ -39,7 +39,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
     isUpdateOrder,
   } = props;
 
-  console.log("fulfillment", fulfillment);
+  // console.log("fulfillment", fulfillment);
 
   const dateFormat = DATE_FORMAT.fullDate;
 

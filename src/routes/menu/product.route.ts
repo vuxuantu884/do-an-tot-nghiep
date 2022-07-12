@@ -391,7 +391,7 @@ const product: Array<RouteMenu> = [
     subTitle: "Cấu hình thuộc tính",
     icon: "icon-dot",
     component: Category,
-    key: "submenu24",
+    key: "submenu24_3",
     isShow: true,
     header: null,
     showMenuThird: true,

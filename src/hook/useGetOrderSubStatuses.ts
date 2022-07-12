@@ -17,7 +17,7 @@ function useGetOrderSubStatuses() {
       sort_column: "display_order",
     }
 		getOrderProcessingStatusService(params).then(response => {
-			console.log('response', response)
+			// console.log('response', response)
 			if (isFetchApiSuccessful(response)) {
 				setSubStatuses(response.data.items);
 			} else {

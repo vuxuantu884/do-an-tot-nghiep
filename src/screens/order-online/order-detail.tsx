@@ -153,7 +153,7 @@ const OrderDetail = (props: PropType) => {
   // đổi hàng
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
-  console.log('totalAmountReturnProducts', totalAmountReturnProducts)
+  // console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
   const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
@@ -594,7 +594,7 @@ const OrderDetail = (props: PropType) => {
     orderDetailCopy.sub_reason_id=data.sub_reason_id;
     orderDetailCopy.sub_reason_name=data.sub_reason_name;
 
-    console.log("orderDetailCopy",orderDetailCopy)
+    // console.log("orderDetailCopy",orderDetailCopy)
 
     onGetDetailSuccess(orderDetailCopy)
   },[OrderDetail,onGetDetailSuccess])
@@ -775,7 +775,7 @@ const OrderDetail = (props: PropType) => {
             let orderDetailCopy= {...OrderDetail};
             orderDetailCopy.note=note;
             orderDetailCopy.customer_note=customer_note;
-            console.log("orderDetailCopy",orderDetailCopy)
+            // console.log("orderDetailCopy",orderDetailCopy)
             setOrderDetail(orderDetailCopy);
             showSuccess("Cập nhật ghi chú thành công")
           }

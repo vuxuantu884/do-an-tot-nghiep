@@ -115,7 +115,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     className: "yody-pos-quantity text-center",
     width: "10%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      console.log('item', item)
+      // console.log('item', item)
       return <div className="yody-pos-qtt">{l.quantity}</div>;
     },
   };
@@ -174,7 +174,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
     width: "10%",
     className: "yody-table-point text-right 33",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
-      console.log('item', item)
+      // console.log('item', item)
       return (
         <div>
           {item?.point_add ? item.point_add : "-"}
@@ -218,7 +218,7 @@ const UpdateProductCard: React.FC<ProductCardUpdateProps> = (
       if(customerId) {
         calculateVariantPointInOrderService(customerId, orderId).then(response => {
           if(isFetchApiSuccessful(response)) {
-            console.log('response', response);
+            // console.log('response', response);
             let orderDetailResult:OrderDetailWithCalculatePointVariantModel = {
               ...OrderDetail,
               items: OrderDetail.items.map(item => {

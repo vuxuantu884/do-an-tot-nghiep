@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Modal, Row } from "antd";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
 import _ from "lodash";
-import { useCallback, useEffect, useLayoutEffect } from "react";
+import {useCallback, useEffect, useLayoutEffect, useState} from "react";
 import { useDispatch } from "react-redux";
 import { checkPromoCode } from "service/promotion/promo-code/promo-code.service";
 import { callApiNative } from "utils/ApiUtils";
@@ -24,6 +24,10 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
   const {type, title, visible, okText, cancelText, valueChange, onCancel, onOk} = props;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
+
+  const [isFormInvalid, setIsFormInvalid] = useState<boolean>(false);
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+
   useEffect(() => {
     form.setFieldsValue({code: valueChange});
   }, [valueChange, form]);
@@ -82,21 +86,27 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
   }
 
  async function checkCodeOnline(value: string, name: number) {
+   form.validateFields();
+   setIsSearching(true);
    const result = await callApiNative(
      { isShowError: false },
      dispatch,
      checkPromoCode,
      value
    );
+   setIsSearching(false);
    if (result) {
      form.setFields([
        { name: ["listCode", name], errors: ["Mã khuyến mãi đã tồn tại"] },
      ]);
+     setIsFormInvalid(true);
    } else {
      form.setFields([{ name: ["listCode", name], errors: [] }]);
+     setIsFormInvalid(false);
      console.log("object");
    }
  }
+
   return (
     <Modal
       onOk={onOkClick}
@@ -106,6 +116,10 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
       visible={visible}
       okText={okText ? okText : "Có"}
       cancelText={cancelText ? cancelText : "Không"}
+      okButtonProps={{
+        disabled: isFormInvalid,
+        loading: isSearching
+      }}
     >
       <Row gutter={24}>
         {type === "EDIT" && valueChange && (
@@ -199,7 +213,10 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                                   src={CloseIcon}
                                   style={{marginRight: 13}}
                                   alt=""
-                                  onClick={() => remove(name)}
+                                  onClick={() => {
+                                    form.validateFields();
+                                    remove(name);
+                                  }}
                                 />
                               }
                             />

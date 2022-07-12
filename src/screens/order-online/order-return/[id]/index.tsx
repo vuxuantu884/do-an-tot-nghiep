@@ -263,7 +263,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
               })
             }
           }
-          console.log('payments', payments);
+          // console.log('payments', payments);
           // return;
           if (!OrderDetail?.id) {
             return;
@@ -326,7 +326,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
     return totalAmountReturnToCustomer - totalAmountHasPaidToCustomerWithoutPointRefund;
   }, [totalAmountHasPaidToCustomerWithoutPointRefund, totalAmountReturnToCustomer]);
 
-  console.log('totalAmountReturnToCustomerLeft', totalAmountReturnToCustomerLeft)
+  // console.log('totalAmountReturnToCustomerLeft', totalAmountReturnToCustomerLeft)
 
   useEffect(() => {
     form.setFieldsValue({
@@ -441,7 +441,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
           let orderDetailCopy: any = { ...OrderDetail };
           orderDetailCopy.note = note;
           orderDetailCopy.customer_note = customerNote;
-          console.log("orderDetailCopy", orderDetailCopy)
+          // console.log("orderDetailCopy", orderDetailCopy)
           setOrderDetail({ ...orderDetailCopy });
           showSuccess("Cập nhật ghi chú thành công")
         } else {

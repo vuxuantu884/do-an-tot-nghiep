@@ -255,7 +255,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       })
     }
 
-    console.log("selectedRowKeysCopy",selectedRowKeysCopy)
+    // console.log("selectedRowKeysCopy",selectedRowKeysCopy)
     setSelectedRowKeys([...selectedRowKeysCopy]);
   };
 
@@ -324,7 +324,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               current: resultPaging.currentPage,
               showSizeChanger: true,
               onChange: (page, size) => {
-                console.log("size", size)
+                // console.log("size", size)
                 setPagingParam({ perPage: size || 10, currentPage: page })
               },
               onShowSizeChange: (page, size) => {

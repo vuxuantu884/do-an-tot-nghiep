@@ -161,7 +161,7 @@ function CardPayments(props: CardPaymentsProps) {
   };
 
   const createOrderContext = useContext(OrderCreateContext);
-  console.log('createOrderContext', createOrderContext)
+  // console.log('createOrderContext', createOrderContext)
   const totalOrderAmountAfterDiscountAddShippingFee =
     createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (props.amount ? props.amount : 0);
 

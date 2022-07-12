@@ -24,18 +24,18 @@
     margin: 0 0px;
   }
   .page-filter {
-    padding-top: 0;
+    padding: 0;
   }
   .saleorder-product-card-action > div {
     padding: 0 !important;
   }
   .filter-tags {
+    margin: 20px 0;
     .ant-tag {
       margin-top: 0;
     }
     .tag {
       padding: 10px 20px;
-      margin-bottom: 10px;
       background: rgba(42, 42, 134, 0.05);
       border-radius: 50px;
       white-space: normal;

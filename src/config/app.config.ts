@@ -29,3 +29,4 @@ export const AppConfig = {
   PO_EXPORT_URL: process.env.REACT_APP_PO_EXPORT_URL,
   PRODUCT_EXPORT_TEMPLATE: "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/template_export_product.xlsx"
 };
+export const hotlineNumber = "0888 464 258";

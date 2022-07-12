@@ -52,7 +52,6 @@ function UpdatePaymentCard(props: PropTypes) {
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>([]);
-console.log('paymentData', paymentData)
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const ShowPayment = () => {

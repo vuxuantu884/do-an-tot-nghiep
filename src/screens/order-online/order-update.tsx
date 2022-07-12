@@ -20,6 +20,7 @@ import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
+import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -184,8 +185,8 @@ export default function Order(props: PropTypes) {
 
 	const [coupon, setCoupon] = useState<string>("");
 	const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
-console.log('promotion33', promotion)
-console.log('coupon', coupon)
+// console.log('promotion33', promotion)
+// console.log('coupon', coupon)
 	const listStores = useFetchStores();
 
 	const onChangeInfoProduct = (
@@ -314,7 +315,7 @@ console.log('coupon', coupon)
 			total: null,
 			total_tax: "",
 			total_discount: null,
-			currency: "VNĐ",
+			currency: AppConfig.currency,
 			items: [],
 			discounts: [],
 			fulfillments: [],

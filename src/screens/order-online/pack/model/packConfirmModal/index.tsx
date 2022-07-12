@@ -41,8 +41,8 @@ const PackConfirmModal = (props: Props) => {
 
     const fulfillmentData = useMemo(() => singlePack?.fulfillments || [], [singlePack])
 
-    console.log("singlePack", singlePack)
-    console.log("orderPushFalseDelivery", orderPushFalseDelivery)
+    // console.log("singlePack", singlePack)
+    // console.log("orderPushFalseDelivery", orderPushFalseDelivery)
 
     const [data, setData] = useState<orderPushFalseDeliveryTable[]>([]);
 
