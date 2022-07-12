@@ -999,8 +999,8 @@ const ProductCreateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item name="material" hidden={true}></Item>
-                    <Item name="material_id" label="Chất liệu">
-                      <CustomSelect
+                    <Item name="material_id" className="po-form" label="Chất liệu">
+                      <Select
                         showSearch
                         optionFilterProp="children"
                         placeholder="Chọn chất liệu"
@@ -1008,13 +1008,11 @@ const ProductCreateScreen: React.FC = () => {
                         allowClear
                       >
                         {listMaterial?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id}>
-                            <div>
-                              {item.symbol} - {item.name}
-                            </div>
+                          <CustomSelect.Option className="po-form" key={item.id} value={item.id}>
+                              {item.name} <span className="icon-dot" /> {item.fabric_code}
                           </CustomSelect.Option>
                         ))}
-                      </CustomSelect>
+                      </Select>
 
                     </Item>
                   </Col>

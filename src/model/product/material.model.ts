@@ -27,11 +27,12 @@ export interface MaterialCreateRequest {
   images: Array<string>,
   videos: Array<string>,
   care_labels: string,
-  symbol: string,
+  fabric_code: string,
 }
 
 export interface MaterialUpdateRequest extends MaterialCreateRequest {
   version: number,
+  supplier_ids: Array<number>,
 }
 
 export interface MaterialUpdateStatusAndNoteRequest {
@@ -54,7 +55,7 @@ export interface MaterialResponse extends BaseObject {
   price_unit: string,
   application: string,
   status: string,
-  symbol: string,
+  fabric_code: string,
   supplier_ids: Array<number>,
   suppliers: Array<SupplierResponse>,
   care_labels: string,

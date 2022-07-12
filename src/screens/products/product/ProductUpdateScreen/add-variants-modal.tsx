@@ -3,6 +3,7 @@ import { Button, Col, Form, FormInstance, Input, Modal, ModalProps, Row, Select,
 import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import { AppConfig } from "config/app.config";
 import useFetchColors from "hook/useFetchColor";
 import useFetchSizes from "hook/useFetchSizes";
 import _ from "lodash";
@@ -317,7 +318,7 @@ function AddVariantsModal(props: Props) {
     useEffect(() => {
         form.setFieldsValue({
             [modalInputField]: {
-                currency_code: "VNĐ",
+                currency_code: AppConfig.currency,
                 weight_unit: "g",
                 length_unit: "cm",
                 color_id: [],
