@@ -148,11 +148,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     setRowProductHeight(element?.clientHeight && element?.clientHeight > rowHeight ? element?.clientHeight : rowHeight)
   }, [element])
 
-  useEffect(() => {
-    console.log('element?.clientHeight', element?.clientHeight)
-  }, [element?.clientHeight])
+  // useEffect(() => {
+  //   console.log('element?.clientHeight', element?.clientHeight)
+  // }, [element?.clientHeight])
   
-  console.log("columnsItem",columnsItem)
+  // console.log("columnsItem",columnsItem)
 
   return (
     <Modal

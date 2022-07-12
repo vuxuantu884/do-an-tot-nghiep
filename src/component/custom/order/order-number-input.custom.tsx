@@ -59,17 +59,17 @@ function OrderNumberInputCustom(props: PropTypes) {
       let newValue: string = e.target.value;
       let valueS = format ? (replace ? replace(newValue) : newValue) : newValue;
       if (valueS === "") {
-        console.log('a1')
-        console.log('valueS', valueS)
+        // console.log('a1')
+        // console.log('valueS', valueS)
         setData(valueS);
         onChange && onChange(null);
         return;
       }
       if (isFloat) {
         if (RegUtil.FLOATREG.test(valueS)) {
-          console.log('a2')
+          // console.log('a2')
           setData(valueS);
-          console.log('valueS', valueS)
+          // console.log('valueS', valueS)
           if(valueS[valueS.length - 1] !== '.') {
             onChange && onChange(parseFloat(valueS));
           }
@@ -77,9 +77,9 @@ function OrderNumberInputCustom(props: PropTypes) {
         }
       }
       if (RegUtil.NUMBERREG.test(valueS)) {
-        console.log('a3')
+        // console.log('a3')
         setData(valueS);
-        console.log('valueS', valueS)
+        // console.log('valueS', valueS)
         onChange && onChange(parseInt(valueS));
         return;
       }
@@ -99,15 +99,15 @@ function OrderNumberInputCustom(props: PropTypes) {
         // console.log('value', value)
         // console.log('data', data)
         if (props.min !== undefined && Number(data) < props.min && data!== undefined) {
-          console.log('min')
+          // console.log('min')
           onChange && onChange(props.min);
           setData(props.min.toString())
         } else if (props.max !== undefined && Number(data) > props.max && value!== undefined) {
-          console.log('max')
+          // console.log('max')
           onChange && onChange(props.max);
           setData(props.max.toString())
         } else {
-          console.log('khac')
+          // console.log('khac')
           onChange &&
             valueTemp && isChangeAfterBlur &&
             onChange(parseFloat(valueTemp.replace(/0*(\d+)/, "$1")));
@@ -122,7 +122,7 @@ function OrderNumberInputCustom(props: PropTypes) {
     [data, value, onBlur, props.min, props.max, props.default, onChange, isChangeAfterBlur]
   );
   useEffect(() => {
-    console.log('value', value)
+    // console.log('value', value)
     setData(value !== null && value !== undefined && value !== '' ? value.toString() : '3333');
   }, [value]);
 

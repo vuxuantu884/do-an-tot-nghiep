@@ -124,11 +124,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 .replace("xa ", ""),
               }
             });
-            console.log('newWards', newWards)
+            // console.log('newWards', newWards)
             let district = document.getElementsByClassName("inputDistrictCreateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
-            console.log('district', district)
+            // console.log('district', district)
             const foundWard = findWard(district, newWards, newValue);
-            console.log('foundWard', foundWard)
+            // console.log('foundWard', foundWard)
             formRef.current?.setFieldsValue({
               ward_id: foundWard ? foundWard.id : null,
             })
@@ -255,7 +255,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
 
   const checkAddress = useCallback((type, value) => {
     const findArea = handleFindArea(value, newAreas)
-    console.log('findArea', findArea)
+    // console.log('findArea', findArea)
     if (findArea) {
       switch (type) {
         case "full_address":

@@ -435,7 +435,7 @@ function OrderList(props: PropTypes) {
             }
             const isOrderShipping= selectedRow.filter((p)=>p.fulfillments?.some((p1)=>p1.status===FulFillmentStatus.SHIPPING));
             
-            console.log("isOrderShipping",isOrderShipping)
+            // console.log("isOrderShipping",isOrderShipping)
   
             if (isOrderShipping && isOrderShipping.length > 0) {
               Modal.error({
@@ -556,7 +556,6 @@ function OrderList(props: PropTypes) {
       }
 
       let queryParams = generateQuery(newParams);
-      console.log("queryParams",queryParams)
       exportFile({
         conditions: queryParams,
         type: isLoopInfoIfOrderHasMoreThanTwoProducts ? "EXPORT_ORDER_LOOP" : "EXPORT_ORDER",
@@ -783,7 +782,7 @@ function OrderList(props: PropTypes) {
     }
     
     newResult[i] = newStatusHtml;
-    console.log('newResult', newResult);
+    // console.log('newResult', newResult);
     let renderListHtml = renderResultBlock(newResult);
     let htmlResult = (
       <React.Fragment>
@@ -800,9 +799,9 @@ function OrderList(props: PropTypes) {
   };
 
   const handleConfirmOk = (status: string|undefined) => {
-    console.log('status', status)
+    // console.log('status', status)
     let i = 0;
-    console.log('selectedRow', selectedRow);
+    // console.log('selectedRow', selectedRow);
     if(!status) {
       return;
     }
@@ -995,7 +994,7 @@ function OrderList(props: PropTypes) {
           onOk={(data) => {
             setShowSettingColumn(false);
             setColumns(data);
-            console.log('data', data)
+            // console.log('data', data)
             onSaveConfigTableColumn(data );
           }}
           data={columns}

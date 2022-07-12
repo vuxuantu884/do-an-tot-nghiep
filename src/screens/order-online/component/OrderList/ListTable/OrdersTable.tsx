@@ -207,7 +207,7 @@ function OrdersTable(props: PropTypes) {
 
   const onSuccessEditNote = useCallback(
     (note, customer_note, orderID) => {
-      console.log('itemResult', itemResult)
+      // console.log('itemResult', itemResult)
       showSuccess(`${orderID} Cập nhật ghi chú thành công`);
       const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
@@ -478,7 +478,7 @@ function OrdersTable(props: PropTypes) {
   };
 
   const changeSubStatusCallback = (value: string, response?: any) => {
-    console.log('response', response)
+    // console.log('response', response)
     const index = data.items?.findIndex(
       (single) => single.id === selectedOrder?.id
     );
@@ -1459,7 +1459,7 @@ function OrdersTable(props: PropTypes) {
 
     inventoryGetApi(inventoryQuery).then((response) => {
       if (isFetchApiSuccessful(response)) {
-        console.log(response)
+        // console.log(response)
 
         setInventoryData(response.data);
 

@@ -173,7 +173,7 @@ const CustomerDuplicate: React.FC = () => {
 
   const onSelectedChange = useCallback((selectedRows: CustomerDuplicateModel[], selected?: boolean, changeRow?: CustomerDuplicateModel[]) => {
     let selectedRowCodesCopy = [...selectedRowCodes];
-    console.log("changeRow",changeRow)
+    // console.log("changeRow",changeRow)
 
     if (changeRow && changeRow.length > 0) {
       if (selected) {

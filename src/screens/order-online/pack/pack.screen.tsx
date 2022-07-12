@@ -133,7 +133,7 @@ const PackSupportScreen: React.FC = () => {
     }
   }, [dispatch]);
 
-  console.log("singlePack", singlePack)
+  // console.log("singlePack", singlePack)
 
   return (
     <OrderPackContext.Provider value={packSupportContextData}>

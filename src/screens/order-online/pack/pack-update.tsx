@@ -202,7 +202,7 @@ const PackUpdate: React.FC = () => {
           let receitpsId = packDetail?.id;
           let orderIds = [...selectedRowOrderId];
 
-          console.log(selectedRowOrderId);
+          // console.log(selectedRowOrderId);
           dispatch(
             deleteOrdergoodsReceips(orderIds, receitpsId, (success?: boolean) => {
               success && dispatch(getByIdGoodsReceipts(PackId, setPackDetail));
@@ -233,7 +233,7 @@ const PackUpdate: React.FC = () => {
       }
 
       let indexOrder = packDetail.orders?.findIndex((p) => p.code === order_id);
-      console.log("0", packDetail?.orders)
+      // console.log("0", packDetail?.orders)
       if (indexOrder !== -1) {
         showWarning("Đơn hàng đã tồn tại trong biên bản");
         return;
@@ -607,7 +607,7 @@ const PackUpdate: React.FC = () => {
               current: resultPaging.currentPage,
               showSizeChanger: true,
               onChange: (page, size) => {
-                console.log("size", size)
+                // console.log("size", size)
                 setPagingParam({ perPage: size || 10, currentPage: page })
               },
               onShowSizeChange: (page, size) => {

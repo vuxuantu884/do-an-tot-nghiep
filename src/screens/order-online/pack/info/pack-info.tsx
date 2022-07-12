@@ -159,7 +159,7 @@ const PackInfo: React.FC = () => {
   );
 
   const eventKeyboardFunction=useCallback((event:KeyboardEvent)=>{
-    console.log(event.key);
+    // console.log(event.key);
     if(['F3'].indexOf(event.key)!==-1)
     {
       event.preventDefault();

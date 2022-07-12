@@ -9,6 +9,7 @@ import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/Cre
 import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOrderSidebarOrderInformation";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
+import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
 import {
@@ -181,7 +182,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
-  console.log("totalAmountReturnProducts", totalAmountReturnProducts);
+  // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [tags, setTags] = useState<string>("");
   const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
@@ -221,7 +222,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
     0
   );
-  console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer)
+  // console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer)
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.PREPAYMENT);
   const [orderReturnReasonResponse, setOrderReturnReasonResponse] =
@@ -304,7 +305,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       total: null,
       total_tax: "",
       total_discount: null,
-      currency: "VNĐ",
+      currency: AppConfig.currency,
       items: [],
       discounts: [],
       fulfillments: [],
@@ -347,7 +348,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     returnPaymentMethodCode,
   ]);
 
-  console.log("initialFormValueWithReturn", initialFormValueWithReturn);
+  // console.log("initialFormValueWithReturn", initialFormValueWithReturn);
 
   const getTotalPrice = (listProducts: OrderLineItemRequest[]) => {
     let total = 0;
@@ -373,9 +374,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
     );
   }, [shippingFeeInformedToCustomer, totalAmountExchange]);
 
-  console.log("totalAmountExchangeFinal", totalAmountExchangeFinal);
-  console.log("totalAmountExchange", totalAmountExchange);
-  console.log("shippingFeeInformedToCustomer", shippingFeeInformedToCustomer);
+  // console.log("totalAmountExchangeFinal", totalAmountExchangeFinal);
+  // console.log("totalAmountExchange", totalAmountExchange);
+  // console.log("shippingFeeInformedToCustomer", shippingFeeInformedToCustomer);
 
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
@@ -388,7 +389,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     );
   }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
-  console.log("totalAmountOrder", totalAmountOrder);
+  // console.log("totalAmountOrder", totalAmountOrder);
 
   const totalAmountPayment = getAmountPayment(payments);
 
@@ -440,7 +441,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           }),
         };
       });
-      console.log('returnProduct', returnProduct)
+      // console.log('returnProduct', returnProduct)
       setListReturnProducts(returnProduct);
       setStoreId(_data.store_id);
       setBillingAddress(_data.billing_address);
@@ -521,7 +522,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         getPrintOrderReturnContentService(orderIds, printType)
           .then((response) => {
             if (isFetchApiSuccessful(response)) {
-              console.log("response", response);
+              // console.log("response", response);
               setPrintContent(response.data[0].html_content);
               if (handlePrint) {
                 handlePrint();
@@ -597,11 +598,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const isReturnAndNotShowMoneyRefund = !isExchange && checkIfNotShowMoneyRefund;
 
-  console.log("refund", refund);
+  // console.log("refund", refund);
 
   const getFormReturnMoneyValues = useCallback(() => {
     let formValues = form.getFieldsValue();
-    console.log("formValues", formValues);
+    // console.log("formValues", formValues);
 
     const formValuePayment = formValues?.returnMoneyField ? formValues?.returnMoneyField[0] : {};
     return formValuePayment;
@@ -636,7 +637,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   // giá trị trả thêm
   const addExtraPaymentAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
-      console.log('payments', payments)
+      // console.log('payments', payments)
       const newResult = result.concat([...payments]);
       return newResult
     },
@@ -814,10 +815,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const handleSubmitFormReturn = useCallback(() => {
     if (OrderDetail && listReturnProducts) {
       // tính toán lại discount
-      console.log('returnItems', returnItems)
+      // console.log('returnItems', returnItems)
       let discounts = handleRecalculateOriginDiscount(returnItems);
-      console.log('getTotalAmountAfterDiscount(returnItems)', getTotalAmountAfterDiscount(returnItems))
-      console.log('getTotalOrderDiscount(discounts)', getTotalOrderDiscount(discounts))
+      // console.log('getTotalAmountAfterDiscount(returnItems)', getTotalAmountAfterDiscount(returnItems))
+      // console.log('getTotalOrderDiscount(discounts)', getTotalOrderDiscount(discounts))
 
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
@@ -868,7 +869,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         money_refund: Math.round(refund.moneyRefund),
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
       };
-      console.log("orderDetailResult", orderDetailResult);
+      // console.log("orderDetailResult", orderDetailResult);
       // return;
       dispatch(showLoading());
       dispatch(
@@ -1500,7 +1501,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         order_return,
         order_exchange,
       };
-      console.log("valuesExchange", valuesExchange);
+      // console.log("valuesExchange", valuesExchange);
       // return;
       if (checkPointFocus(order_exchange)) {
         if (!order_exchange?.customer_id) {
@@ -1580,12 +1581,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
     isExchange,
     listStoreReturn,
   };
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
+  // console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   useEffect(() => {
     let initMoneyAmount =
       totalAmountCustomerNeedToPay < 0 ? Math.round(Math.abs(totalAmountCustomerNeedToPay)) : 0;
-    console.log('isReturnAndNotShowMoneyRefund', isReturnAndNotShowMoneyRefund)
+    // console.log('isReturnAndNotShowMoneyRefund', isReturnAndNotShowMoneyRefund)
     // console.log("initMoneyAmount111", initMoneyAmount);
     form.setFieldsValue({
       returnMoneyField: [
@@ -1602,7 +1603,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return <div>Đơn hàng chưa hoàn tất! Vui lòng kiểm tra lại</div>;
   };
 
-  console.log("orderReturnType", orderReturnType);
+  // console.log("orderReturnType", orderReturnType);
 
   const renderIfOrderFinished = () => {
     if (isReturnAll) {
@@ -1947,10 +1948,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
       const handleProductReturn = (keyCode: string, Code: string) => {
-        console.log("keyCode", keyCode);
+        // console.log("keyCode", keyCode);
         if (keyCode === "Enter") {
-          console.log("Code", Code);
-          console.log("listItemCanBeReturn", listItemCanBeReturn);
+          // console.log("Code", Code);
+          // console.log("listItemCanBeReturn", listItemCanBeReturn);
           setSearchVariantInputValue("");
           setListOrderProductsResult([]);
           if (listItemCanBeReturn && listReturnProducts && Code) {
@@ -1958,7 +1959,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
               return single.variant_barcode === Code;
             });
 
-            console.log("selectedVariant", selectedVariant);
+            // console.log("selectedVariant", selectedVariant);
 
             if (selectedVariant) {
               let selectedVariantWithMaxQuantity: ReturnProductModel = {
@@ -2010,7 +2011,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "search_product_return") {
           if (event.key !== "Enter") barcode = barcode + event.key;
-          console.log("barcode", barcode);
+          // console.log("barcode", barcode);
           handleDelayActionWhenInsertTextInSearchInput(
             productReturnAutoCompleteRef,
             () => handleProductReturn(event.key, barcode),
@@ -2177,7 +2178,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
   }, [customer?.id, isPaymentAlreadyChanged, listPaymentMethods, totalAmountCustomerNeedToPay]);
 
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
+  // console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   useEffect(() => {
     /**

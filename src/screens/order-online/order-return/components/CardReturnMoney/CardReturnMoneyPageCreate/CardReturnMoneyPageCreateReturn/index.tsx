@@ -29,7 +29,7 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
     canCreateMoneyRefund,
   } = props;
 
-  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+  // console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
 
   return (
     <Card className="margin-top-20" title={<span className="title-card">Thanh toán</span>}>

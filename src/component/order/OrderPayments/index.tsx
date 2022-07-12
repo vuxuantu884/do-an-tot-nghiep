@@ -155,7 +155,7 @@ function OrderPayments(props: PropType): JSX.Element {
     }
     handlePayment([...payments]);
   };
-  console.log('payments', payments)
+  // console.log('payments', payments)
   const handleInputMoney = (index: number, amount: number | null) => {
     if (!amount) {
       amount = 0
@@ -348,7 +348,7 @@ function OrderPayments(props: PropType): JSX.Element {
 
   }, [payments, handlePayment])
 
-  console.log(ListPaymentMethods)
+  // console.log(ListPaymentMethods)
   return (
     <StyledComponent>
       <Col xs={24} lg={24}>

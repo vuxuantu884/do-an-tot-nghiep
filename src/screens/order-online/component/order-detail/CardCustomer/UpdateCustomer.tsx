@@ -203,9 +203,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               }
             });
             let district = document.getElementsByClassName("inputDistrictUpdateCustomer")[0].textContent;
-            console.log('district', district)
+            // console.log('district', district)
             const foundWard = findWard(district, newWards, newValue);
-            console.log('foundWard', foundWard)
+            // console.log('foundWard', foundWard)
             formRefCustomer.current?.setFieldsValue({
               shipping_addresses_ward_id: foundWard ? foundWard.id : null,
             })
@@ -393,7 +393,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 
   const checkAddress = useCallback((type, value) => {
     const findArea = handleFindArea(value, newAreas)
-    console.log('findArea', findArea)
+    // console.log('findArea', findArea)
     if (findArea) {
       switch (type) {
         case "full_address":
@@ -421,12 +421,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   }, [formRefCustomer, getShippingWards, getWards, newAreas]);
 
   const handleClickDeleteExportRequest = () => {
-    console.log('handleClickDeleteExportRequest');
+    // console.log('handleClickDeleteExportRequest');
     setIsVisibleOrderBillRequestModal(false);
     setIsVisibleConfirmDeleteOrderBillRequestModal(true)
   };
 
-  console.log('orderBillId', orderBillId)
+  // console.log('orderBillId', orderBillId)
 
   const handleDeleteExportRequest = () => {
     setBillingAddress(null);

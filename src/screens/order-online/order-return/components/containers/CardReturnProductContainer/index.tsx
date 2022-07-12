@@ -263,7 +263,7 @@ function CardReturnProductContainer(props: PropTypes) {
       );
     })||[];
 
-    console.log(result)
+    // console.log(result)
 
     setListOrderProductsResult(result);
   };
@@ -414,7 +414,7 @@ function CardReturnProductContainer(props: PropTypes) {
           const { maxQuantityCanBeReturned, ...rest } = item;
           return rest;
         });
-        console.log('returnItems', returnItems)
+        // console.log('returnItems', returnItems)
         const returnOrderNow: OrderResponse[] = [
           {
             ...OrderDetail,
@@ -490,7 +490,7 @@ function CardReturnProductContainer(props: PropTypes) {
               }
             })
           }
-          console.log('params', params)
+          // console.log('params', params)
           dispatch(showLoading())
           calculateMoneyRefundService(orderId, params).then(response => {
             if (isFetchApiSuccessful(response)) {
@@ -501,7 +501,7 @@ function CardReturnProductContainer(props: PropTypes) {
             } else {
               handleFetchApiError(response, "Tính tiền hoàn lại", dispatch);
             }
-            console.log('response', response)
+            // console.log('response', response)
             
           }).finally(() => {
             dispatch(hideLoading())

@@ -93,7 +93,6 @@ function OrderBillRequestModal(props: PropTypes) {
       !arrOrderStatusCannotUpdate.includes(orderDetail?.status)
     );
   };
-  console.log("isPageOrderUpdate", isPageOrderUpdate);
   const isDisableUpdateExportRequest = !checkIfCanUpdateExportRequest();
 
   const renderModalFooter = () => {
@@ -134,7 +133,7 @@ function OrderBillRequestModal(props: PropTypes) {
       getDetailOrderApi(orderDetail?.id)
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
-            console.log("response", response);
+            // console.log("response", response);
             const { bill } = response.data;
             if (bill) {
               setOrderBillId(bill.id);
@@ -175,7 +174,7 @@ function OrderBillRequestModal(props: PropTypes) {
     orderDetail?.id,
     setOrderBillId,
   ]);
-  console.log('customer111', customer)
+  // console.log('customer111', customer)
 
   useEffect(() => {
     form.setFieldsValue(initialFormValues)

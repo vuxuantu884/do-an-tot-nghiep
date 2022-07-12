@@ -223,7 +223,7 @@ const ExportModal: React.FC<ExportModalProps> = (
               const newFieldsExport = e.target.checked ? fields.map(i => {
                 return i.value
               }) : [];
-              console.log('newFieldsExport', newFieldsExport);
+              // console.log('newFieldsExport', newFieldsExport);
               setFieldsExport(newFieldsExport);
               setIndeterminate(false);
               setSelectAll(e.target.checked);

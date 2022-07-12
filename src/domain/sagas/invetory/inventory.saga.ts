@@ -89,7 +89,7 @@ function* inventoryGetHistorySaga(action: YodyAction) {
 function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
   const { variant_id, store_id, setData } = action.payload;
   try {
-    console.log(variant_id)
+    // console.log(variant_id)
     const response: BaseResponse<PageResponse<Array<InventoryResponse>>> = yield call(
       inventoryGetDetailVariantIdsApi,
       variant_id,
@@ -117,7 +117,7 @@ function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
 function* inventoryGetDetailVariantIdsExtSaga(action: YodyAction) {
   const { variant_id, store_id, setData } = action.payload;
   try {
-    console.log(variant_id)
+    // console.log(variant_id)
     const response: BaseResponse<PageResponse<Array<InventoryResponse>>> = yield call(
       inventoryGetDetailVariantIdsExtApi,
       variant_id,

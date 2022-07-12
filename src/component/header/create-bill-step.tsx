@@ -23,7 +23,7 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     return getFulfillmentActive(orderDetail?.fulfillments);
   }, [orderDetail?.fulfillments])
 
-  console.log("fulfillments",fulfillments)
+  // console.log("fulfillments",fulfillments)
 
 	const renderStepFinalizedDescription = () => {
 		if(!orderDetail) {
@@ -147,8 +147,8 @@ const CreateBillStep: React.FC<StepStatusProps> = (props: StepStatusProps) => {
     </div>
   );
 
-  console.log("currentStep",props.status)
-  console.log("currentStep",currentStep)
+  // console.log("currentStep",props.status)
+  // console.log("currentStep",currentStep)
 
   return (
     <Steps

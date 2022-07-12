@@ -151,7 +151,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         case 3:
           if (!selectedRowKeys || selectedRowKeys.length === 0) break;
           let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) => selectedRowKeys.some((single: number) => single.toString() === p.id.toString()));
-          console.log('selectedOrder', selectedOrder);
+          // console.log('selectedOrder', selectedOrder);
 
           let canDelete = true;
           let idError = "";
@@ -328,7 +328,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     let request: any = {
       ids: id ? [id] : selectedRowKeys
     }
-    console.log('id', [id], selectedRowKeys);
+    // console.log('id', [id], selectedRowKeys);
 
     dispatch(
       deleteAllGoodsReceipts(request, (data: GoodsReceiptsResponse) => {
