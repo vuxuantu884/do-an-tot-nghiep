@@ -199,7 +199,7 @@ const MaterialDetail: React.FC = () => {
                       </Col>
                     </Row>
 
-                    <Row gutter={30} className="margin-bottom-15">
+                    <Row gutter={30}>
                       <Col className="title" span={8}>Giá:</Col>
                       <Col span={16}>
                         <div className="content">{formatCurrency(data.price)} {data.price ? data.price_unit : ''}</div>
@@ -241,7 +241,7 @@ const MaterialDetail: React.FC = () => {
                     </Row>
                   </Col>
                 </Row>
-                <Row gutter={50} className="margin-bottom-15 margin-top-40">
+                <Row gutter={50} className="margin-bottom-15 margin-top-20">
                   <Col span={24}>
                     <Row>
                       <Col className="title" span={4}>Ưu điểm:</Col>
@@ -290,13 +290,18 @@ const MaterialDetail: React.FC = () => {
             </Col>
             <Col span={24} md={8}>
               <Card title="Thông tin bổ sung" className="card">
-                <div className="mb-20">
-                  <span className="content">Trạng thái:</span> {data.status === "active"
-                  ? <span className="text-success">Sử dụng</span>
-                  : <span className="text-error">Ngừng sử dụng</span>}
-                  {canUpdateMaterials && <Switch size="small" style={{ float: "right", marginTop: 3 }} checked={data.status === "active"}
+              <Row gutter={24} className="margin-bottom-20">
+                  <Col span={24} md={12} className="title">
+                    <b>Trạng thái: </b>
+                    {data.status === "active"
+                    ? <span className="text-success">Sử dụng</span>
+                    : <span className="text-error">Ngừng sử dụng</span>}
+                  </Col>
+                  <Col span={24} md={12} className="content">
+                  {canUpdateMaterials && <Switch size="small" style={{ marginTop: 3 }} checked={data.status === "active"}
                           onChange={updateStatus} />}
-                </div>
+                  </Col>
+                </Row>
                 <Row gutter={24} className="margin-bottom-15">
                   <Col span={24} md={12} className="title">
                     Ghi chú:

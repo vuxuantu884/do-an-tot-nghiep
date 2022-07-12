@@ -76,25 +76,24 @@ const ListMaterial: React.FC = () => {
 
   const columns = [
     {
-      title: "STT",
-      width: 60,
-      render: (value: string, item: MaterialResponse, index: number) =>
-        (data.metadata.page - 1) * data.metadata.limit + index + 1,
-    },
-    {
       title: "Mã chất liệu",
-      width: 120,
+      width: 140,
       dataIndex: "code",
       key: "code",
       render: (value: string, item: MaterialResponse) => {
-        return <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>{value}</Link>;
+        return <div>
+          <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>{value}</Link>
+          <div>
+            {ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+          </div>
+        </div>;
       },
     },
     {
       title: <div className="text-center">Chất liệu</div>,
       dataIndex: "name",
       key: "name",
-      width: 150,
+      width: 160,
       render: (value: string, item: MaterialResponse) => {
         return (
           <div className="text-center">
