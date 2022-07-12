@@ -123,6 +123,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     initChannelCodes,
     channels,
   } = props;
+  console.log('props', props)
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
   const [visibleUTM, setVisibleUTM] = useState<boolean>(false);
@@ -1508,14 +1509,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       variant_ids: params.variant_ids,
       tracking_codes: params.tracking_codes,
       sub_status_code: params.sub_status_code,
+      search_product: params?.searched_product,
     });
-  }, [formSearchRef, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids]);
+  }, [formSearchRef, params?.searched_product, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids]);
+
+  useEffect(() => {
+    formRef.current?.setFieldsValue(initialValues)
+  }, [formRef, initialValues])
 
   useEffect(() => {
     if (params?.searched_product) {
       setKeySearchVariant(params?.searched_product);
+    } else {
+      setKeySearchVariant("");
     }
-  }, [params?.searched_product])
+  }, [params?.searched_product, props])
 
   useEffect(() => {
     if (accounts) {
