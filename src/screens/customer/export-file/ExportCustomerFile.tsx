@@ -26,7 +26,6 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   const [exportPageAll, setExportPageAll] = useState(true);
   const [isSelectAll, setIsSelectAll] = useState<boolean>(false);
   const [indeterminate, setIndeterminate] = useState(false);
-  const [exportColumnAll, setExportColumnAll] = useState(true);
   const [exportCodeList, setExportCodeList] = useState<Array<any>>([]);
   const [exportItemNumber, setExportItemNumber] = useState<number>(0);
   const [isExporting, setIsExporting] = useState(false);
@@ -34,10 +33,6 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   
   const onChangeExportPageOption = (e: any) => {
     setExportPageAll(e.target.value);
-  };
-
-  const onChangeExportColumnOption = (e: any) => {
-    setExportColumnAll(e.target.value);
   };
 
   const okExportModal = () => {
@@ -57,13 +52,8 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
       const exportParams = generateQuery(newParams);
 
       const defaultHiddenFields = "remain_amount_to_level_up,average_order_value,number_of_days_without_purchase,description";
-      let hiddenFields;
-      if (exportColumnAll) {
-        hiddenFields = defaultHiddenFields;
-      } else {
-        const notSelectColumnList = columnListOption.filter((item: any) => item.isSelected === false);
-        hiddenFields = defaultHiddenFields + "," + notSelectColumnList.map((column: any) => column.value)?.toString();
-      }
+      const notSelectColumnList = columnListOption.filter((item: any) => item.isSelected === false);
+      const hiddenFields = defaultHiddenFields + "," + notSelectColumnList.map((column: any) => column.value)?.toString();
 
       exportFile({
         conditions: exportParams,
@@ -262,7 +252,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           onCancel={handleCancelExportModal}
           onOk={onOkExportModal}
           okButtonProps={{
-            disabled: (!exportColumnAll && !columnSelectedList.length),
+            disabled: (!columnSelectedList.length),
             loading: isExporting
           }}
           maskClosable={false}>
@@ -283,25 +273,16 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
                 </Radio.Group>
               </div>
 
-              <div style={{ marginTop: 20 }}>
-                <div><strong>Chọn cột</strong></div>
-                <Radio.Group onChange={onChangeExportColumnOption} value={exportColumnAll} className="radio-group">
-                  <Space className="radio-option">
-                    <Radio value={true} key="all-column">Tất cả các cột</Radio>
-                    <Radio value={false} key="all-column">Tùy chọn cột</Radio>
-                  </Space>
-                </Radio.Group>
-              </div>
-
-              {!exportColumnAll &&
-                <Row style={{ marginTop: 20 }}>
+              <div style={{ marginTop: 20}}>
+                <div style={{ fontWeight: "bold" }}>Chọn cột</div>
+                <Row style={{ marginTop: 10 }}>
                   <Col key="all" span={24} style={{ marginBottom: 10 }}>
                     <Checkbox
                       checked={isSelectAll}
                       indeterminate={indeterminate}
                       onChange={(e) => onSelectAllColumn(e)}
                     >
-                      Chọn tất cả
+                      <span style={{ fontWeight: 500}}>Chọn tất cả</span>
                     </Checkbox>
                   </Col>
 
@@ -325,7 +306,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
                     </Col>
                   ))}
                 </Row>
-              }
+              </div>
             </div>
           </ExportCustomerModalStyled>
         </Modal>
