@@ -2221,7 +2221,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
               </Row>
-              <Row style={{ display: "flex", alignItems: "center", marginBottom: "24px" }} hidden>
+              <Row style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
                 <Col span={8} xxl={8}>
                   <Item name="in_goods_receipt" label="Biên bản:">
                     <Select
