@@ -24,6 +24,12 @@ export interface CustomerSearchQuery extends BaseQuery {
   month_of_birth_to?: number | undefined;
   year_of_birth_from?: number | undefined;
   year_of_birth_to?: number | undefined;
+  wedding_day_from?: number | undefined;
+  wedding_day_to?: number | undefined;
+  wedding_month_from?: number | undefined;
+  wedding_month_to?: number | undefined;
+  wedding_year_from?: number | undefined;
+  wedding_year_to?: number | undefined;
   age_from?: String | null;
   age_to?: String | null;
   city_ids?: Array<any> | [];

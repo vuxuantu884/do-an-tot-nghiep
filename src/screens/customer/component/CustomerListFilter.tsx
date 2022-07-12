@@ -874,6 +874,50 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
       });
     }
 
+    if (initialValues.wedding_day_from || initialValues.wedding_day_to) {
+      let textWeddingDay =
+        (initialValues.wedding_day_from
+          ? initialValues.wedding_day_from
+          : "") +
+        " - " +
+        (initialValues.wedding_day_to ? initialValues.wedding_day_to : "");
+      list.push({
+        key: "wedding_day",
+        name: "Ngày cưới",
+        value: textWeddingDay,
+      });
+    }
+
+    if (initialValues.wedding_month_from || initialValues.wedding_month_to) {
+      let weddingMonthFiltered =
+        (initialValues.wedding_month_from
+          ? initialValues.wedding_month_from
+          : "") +
+        " - " +
+        (initialValues.wedding_month_to
+          ? initialValues.wedding_month_to
+          : "");
+      list.push({
+        key: "wedding_month",
+        name: "Tháng cưới",
+        value: weddingMonthFiltered,
+      });
+    }
+
+    if (initialValues.wedding_year_from || initialValues.wedding_year_to) {
+      let weddingYearFiltered =
+        (initialValues.wedding_year_from
+          ? initialValues.wedding_year_from
+          : "") +
+        " - " +
+        (initialValues.wedding_year_to ? initialValues.wedding_year_to : "");
+      list.push({
+        key: "wedding_year",
+        name: "Năm cưới",
+        value: weddingYearFiltered,
+      });
+    }
+
     if (initialValues.channel_ids?.length) {
       let channelsFiltered = "";
       initialValues.channel_ids.forEach((channel_id: any) => {
@@ -1308,6 +1352,12 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     initialValues.month_of_birth_to,
     initialValues.year_of_birth_from,
     initialValues.year_of_birth_to,
+    initialValues.wedding_day_from,
+    initialValues.wedding_day_to,
+    initialValues.wedding_month_from,
+    initialValues.wedding_month_to,
+    initialValues.wedding_year_from,
+    initialValues.wedding_year_to,
     initialValues.channel_ids,
     initialValues.source_ids,
     initialValues.source_of_first_order_online_ids,
@@ -1424,6 +1474,42 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           formCustomerFilter?.setFieldsValue({
             year_of_birth_from: null,
             year_of_birth_to: null,
+          });
+          break;
+        case "wedding_day":
+          onFilter &&
+          onFilter({
+            ...params,
+            wedding_day_from: null,
+            wedding_day_to: null,
+          });
+          formCustomerFilter?.setFieldsValue({
+            wedding_day_from: null,
+            wedding_day_to: null,
+          });
+          break;
+        case "wedding_month":
+          onFilter &&
+          onFilter({
+            ...params,
+            wedding_month_from: null,
+            wedding_month_to: null,
+          });
+          formCustomerFilter?.setFieldsValue({
+            wedding_month_from: null,
+            wedding_month_to: null,
+          });
+          break;
+        case "wedding_year":
+          onFilter &&
+          onFilter({
+            ...params,
+            wedding_year_from: null,
+            wedding_year_to: null,
+          });
+          formCustomerFilter?.setFieldsValue({
+            wedding_year_from: null,
+            wedding_year_to: null,
           });
           break;
         case "channel_ids":
@@ -1698,11 +1784,88 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     return true;
   }, [formCustomerFilter]);
 
+  const validateWeddingDayFilter = useCallback(() => {
+    const values = formCustomerFilter.getFieldsValue();
+    if (
+      values.wedding_day_from > values.wedding_day_to &&
+      !values.wedding_month_from &&
+      !values.wedding_month_to &&
+      (values.wedding_year_from || values.wedding_year_to)
+    ) {
+      return false;
+    }
+
+    if (
+      values.wedding_day_from ||
+      values.wedding_day_to ||
+      values.wedding_month_from ||
+      values.wedding_month_to ||
+      values.wedding_year_from ||
+      values.wedding_year_to
+    ) {
+      const wedding_day_from = values.wedding_day_from
+        ? values.wedding_day_from
+        : values.wedding_day_to
+          ? START_DAY
+          : TODAY_VALUE;
+      const wedding_day_to = values.wedding_day_to
+        ? values.wedding_day_to
+        : values.wedding_day_from
+          ? END_DAY
+          : TODAY_VALUE;
+
+      const wedding_month_from = values.wedding_month_from
+        ? values.wedding_month_from
+        : values.wedding_month_to
+          ? START_MONTH
+          : THIS_MONTH_VALUE;
+      const wedding_month_to = values.wedding_month_to
+        ? values.wedding_month_to
+        : values.wedding_month_from
+          ? END_MONTH
+          : THIS_MONTH_VALUE;
+
+      const wedding_year_from = values.wedding_year_from
+        ? values.wedding_year_from
+        : values.wedding_year_to
+          ? START_YEAR
+          : THIS_YEAR;
+      const wedding_year_to = values.wedding_year_to
+        ? values.wedding_year_to
+        : THIS_YEAR;
+
+      const startDate = new Date(
+        wedding_month_from?.toString() +
+        "/" +
+        wedding_day_from?.toString() +
+        "/" +
+        wedding_year_from?.toString()
+      );
+      const endDate = new Date(
+        wedding_month_to?.toString() +
+        "/" +
+        wedding_day_to?.toString() +
+        "/" +
+        wedding_year_to?.toString()
+      );
+
+      return startDate <= endDate;
+    }
+    return true;
+  }, [formCustomerFilter]);
+
   const onFilterClick = useCallback(async () => {
     const isValidBirthday = validateBirthdayFilter();
     if (!isValidBirthday) {
       showError(
         "Trường ngày, tháng, năm sinh nhật bắt đầu lớn hơn kết thúc. Vui lòng kiểm tra lại!"
+      );
+      return;
+    }
+
+    if (!validateWeddingDayFilter()) {
+      showError(
+        "Trường ngày, tháng, năm ngày cưới bắt đầu lớn hơn kết thúc. Vui lòng kiểm tra lại!"
       );
       return;
     }
@@ -1722,7 +1885,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
     } else {
       showError("Trường dữ liệu nhập vào chưa đúng. Vui lòng kiểm tra lại!");
     }
-  }, [formCustomerFilter, validateBirthdayFilter]);
+  }, [formCustomerFilter, validateBirthdayFilter, validateWeddingDayFilter]);
 
   // clear advanced filter
   const onClearAdvancedFilter = useCallback(() => {
@@ -2051,21 +2214,29 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
               <div className="base-filter-row">
                 <Form.Item
-                  name="responsible_staff_codes"
-                  label="Nhân viên phụ trách"
+                  name="channel_ids"
+                  label={<b>Kênh mua hàng</b>}
                   className="left-filter">
-                  <AccountCustomSearchSelect
-                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
-                    dataToSelect={accountData}
-                    setDataToSelect={setAccountData}
-                    initDataToSelect={initPublicAccounts}
-                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                  <Select
+                    mode="multiple"
+                    maxTagCount="responsive"
+                    showSearch
+                    showArrow
+                    allowClear
+                    placeholder="Chọn kênh"
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
                     onFocus={onInputSelectFocus}
                     onBlur={onInputSelectBlur}
                     onDropdownVisibleChange={handleOnDropdownVisibleChange}
                     onPopupScroll={handleOnSelectPopupScroll}
                     onMouseLeave={handleOnMouseLeaveSelect}
-                  />
+                    optionFilterProp="children">
+                    {listChannel?.map((item) => (
+                      <Option key={item.id} value={item.id?.toString()}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
                 </Form.Item>
 
                 <Form.Item
@@ -2103,29 +2274,15 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
 
               <div className="base-filter-row">
                 <Form.Item
-                  name="channel_ids"
-                  label={<b>Kênh mua hàng</b>}
+                  name="store_ids"
+                  label={<b>Kho cửa hàng</b>}
                   className="left-filter">
-                  <Select
-                    mode="multiple"
-                    maxTagCount="responsive"
-                    showSearch
-                    showArrow
-                    allowClear
-                    placeholder="Chọn kênh"
+                  <TreeStore
+                    name="store_ids"
+                    placeholder="Chọn cửa hàng"
+                    listStore={listStore}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
-                    onFocus={onInputSelectFocus}
-                    onBlur={onInputSelectBlur}
-                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                    onPopupScroll={handleOnSelectPopupScroll}
-                    onMouseLeave={handleOnMouseLeaveSelect}
-                    optionFilterProp="children">
-                    {listChannel?.map((item) => (
-                      <Option key={item.id} value={item.id?.toString()}>
-                        {item.name}
-                      </Option>
-                    ))}
-                  </Select>
+                  />
                 </Form.Item>
 
                 <Form.Item
@@ -2182,19 +2339,172 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
               </div>
 
               <div className="base-filter-row">
-                <Form.Item
-                  name="store_ids"
-                  label={<b>Kho cửa hàng</b>}
-                  className="left-filter">
-                  <TreeStore
-                    name="store_ids"
-                    placeholder="Chọn cửa hàng"
-                    listStore={listStore}
-                    getPopupContainer={(trigger: any) => trigger.parentElement}
-                  />
-                </Form.Item>
+                <div className="left-filter">
+                  <div className="title">Ngày cưới</div>
+                  <div className="select-scope">
+                    <Form.Item name="wedding_day_from" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                        placeholder="Từ ngày">
+                        {INIT_FROM_DATE_LIST.map((item: any) => (
+                          <Option
+                            key={item.value}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item name="wedding_day_to" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                        placeholder="Đến ngày">
+                        {INIT_TO_DATE_LIST.map((item: any) => (
+                          <Option
+                            key={item.value}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                </div>
 
                 <div className="center-filter">
+                  <div className="title">Tháng cưới</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      name="wedding_month_from"
+                      className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Từ tháng"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                      >
+                        {INIT_FROM_MONTH_LIST.map((item: any) => (
+                          <Option
+                            key={item.value}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item name="wedding_month_to" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                        placeholder="Đến tháng">
+                        {INIT_TO_MONTH_LIST.map((item: any) => (
+                          <Option
+                            key={item.value}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                </div>
+
+                {/* Lọc theo năm sinh */}
+                <div className="right-filter">
+                  <div className="title">Năm cưới</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      name="wedding_year_from"
+                      className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Từ năm"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                        onSelect={onSelectFromYear}
+                        onClear={onClearFromYear}>
+                        {fromYearList.map((item: any) => (
+                          <Option
+                            key={item.key}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item name="wedding_year_to" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Đến năm"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                        onSelect={onSelectToYear}
+                        onClear={onClearToYear}>
+                        {toYearList.map((item: any) => (
+                          <Option
+                            key={item.key}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                </div>
+              </div>
+
+              <div className="base-filter-row">
+                <div className="left-filter">
                   <div className="title">Ngày sinh</div>
                   <div className="select-scope">
                     <Form.Item name="day_of_birth_from" className="select-item">
@@ -2233,6 +2543,60 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                         onMouseLeave={handleOnMouseLeaveSelect}
                         placeholder="Đến ngày">
                         {INIT_TO_DATE_LIST.map((item: any) => (
+                          <Option
+                            key={item.value}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </div>
+                </div>
+
+                <div className="center-filter">
+                  <div className="title">Tháng sinh</div>
+                  <div className="select-scope">
+                    <Form.Item
+                      name="month_of_birth_from"
+                      className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        placeholder="Từ tháng"
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                      >
+                        {INIT_FROM_MONTH_LIST.map((item: any) => (
+                          <Option
+                            key={item.value}
+                            value={item.value}
+                            disabled={item.disable}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+
+                    <img src={rightArrow} alt="" />
+
+                    <Form.Item name="month_of_birth_to" className="select-item">
+                      <Select
+                        showSearch
+                        allowClear
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                        placeholder="Đến tháng">
+                        {INIT_TO_MONTH_LIST.map((item: any) => (
                           <Option
                             key={item.value}
                             value={item.value}
@@ -2335,59 +2699,23 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
                   </Form.Item>
                 </div>
 
-                <div className="center-filter">
-                  <div className="title">Tháng sinh</div>
-                  <div className="select-scope">
-                    <Form.Item
-                      name="month_of_birth_from"
-                      className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
-                        placeholder="Từ tháng"
-                        getPopupContainer={(trigger: any) => trigger.parentElement}
-                        onFocus={onInputSelectFocus}
-                        onBlur={onInputSelectBlur}
-                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                        onPopupScroll={handleOnSelectPopupScroll}
-                        onMouseLeave={handleOnMouseLeaveSelect}
-                      >
-                        {INIT_FROM_MONTH_LIST.map((item: any) => (
-                          <Option
-                            key={item.value}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-
-                    <img src={rightArrow} alt="" />
-
-                    <Form.Item name="month_of_birth_to" className="select-item">
-                      <Select
-                        showSearch
-                        allowClear
-                        getPopupContainer={(trigger: any) => trigger.parentElement}
-                        onFocus={onInputSelectFocus}
-                        onBlur={onInputSelectBlur}
-                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                        onPopupScroll={handleOnSelectPopupScroll}
-                        onMouseLeave={handleOnMouseLeaveSelect}
-                        placeholder="Đến tháng">
-                        {INIT_TO_MONTH_LIST.map((item: any) => (
-                          <Option
-                            key={item.value}
-                            value={item.value}
-                            disabled={item.disable}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Form.Item>
-                  </div>
-                </div>
+                <Form.Item
+                  name="responsible_staff_codes"
+                  label="Nhân viên phụ trách"
+                  className="center-filter">
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={initPublicAccounts}
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
+                  />
+                </Form.Item>
 
                 {/* Lọc theo độ tuổi */}
                 <div className="right-filter">
