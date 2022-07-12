@@ -129,7 +129,6 @@ const ButtonWarningHandover: React.FC<ButtonCreateProps> = (
                         onClick={() => {
                             setIsVisible(true)
                         }}
-                        hidden
                     >
                         {renderTitleButtonCreate}
                     </Button>
