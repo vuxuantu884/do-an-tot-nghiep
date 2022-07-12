@@ -37,10 +37,10 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const urlGuide = "https://yody.vn/";
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const [listShops, setListShops] = useState<StoreResponse[]>([]);
+  const [shops, setShops] = useState<StoreResponse[]>([]);
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
-  const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceTransportType[]>([]);
   const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
@@ -52,12 +52,12 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
 
   const [deleteStore, setDeleteStore] = useState<DeliveryMappedStoreType | null>(null);
 
-  const [listShopIsSelected, setListShopIsSelected] = useState<DeliveryMappedStoreType[]>(
+  const [isSelectedShops, setIsSelectedShops] = useState<DeliveryMappedStoreType[]>(
     []
   );
 
-  const [listShopIsSelectedShow, setListShopIsSelectedShow] =
-    useState(listShopIsSelected);
+  const [selectedAndShowedShops, setSelectedAndShowedShops] =
+    useState(isSelectedShops);
 
   const initialFormValue = {
     token: "",
@@ -66,7 +66,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
 
   const searchShopIsSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { value } = e.target;
-    let cloneListShopIsSelected = [...listShopIsSelected];
+    let cloneListShopIsSelected = [...isSelectedShops];
     let result = cloneListShopIsSelected.filter((singleShop) => {
       return (
         fullTextSearch(value, singleShop.name) || 
@@ -74,13 +74,13 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         fullTextSearch(value, singleShop.store_id.toString())
       );
     });
-    setListShopIsSelectedShow(result);
+    setSelectedAndShowedShops(result);
   }
 
   const handleSubmit = () => {
     form.validateFields(["token"]).then(() => {
       const formComponentValue = form.getFieldsValue();
-      let transport_types = listServices.map((single) => {
+      let transport_types = deliveryServices.map((single) => {
         return {
           code: single.code,
           status: formComponentValue.transport_types.includes(single.code)
@@ -167,8 +167,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           setIsShowConfirmDeleteStoreId(false);
           dispatch(
             getDeliveryMappedStoresAction(thirdPartyLogistics.code, (response) => {
-              setListShopIsSelected(response);
-              setListShopIsSelectedShow(response);
+              setIsSelectedShops(response);
+              setSelectedAndShowedShops(response);
             })
           );
         })
@@ -196,7 +196,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     }
     form.validateFields(["token"]).then(() => {
       if (shopId && partnerShopId) {
-        const shopSelected = listShops.find((single) => {
+        const shopSelected = shops.find((single) => {
           return single.id === +shopId;
         });
         if (!shopSelected) {
@@ -215,8 +215,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           createDeliveryMappedStoreAction(external_service_code, params, () => {
             dispatch(
               getDeliveryMappedStoresAction(external_service_code, (response) => {
-                setListShopIsSelected(response);
-                setListShopIsSelectedShow(response);
+                setIsSelectedShops(response);
+                setSelectedAndShowedShops(response);
               })
             );
           })
@@ -228,7 +228,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   useEffect(() => {
     dispatch(
       StoreGetListAction((response) => {
-        setListShops(response);
+        setShops(response);
       })
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -247,8 +247,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
             dispatch(
               getDeliveryTransportTypesAction(result.code, (response) => {
                 if (response) {
-                  setListServices(response);
-                  const listActiveServices = response.map((single) => {
+                  setDeliveryServices(response);
+                  const activeDeliveryServices = response.map((single) => {
                     if (single.active) {
                       return single.code;
                     }
@@ -256,15 +256,15 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   });
                   form.setFieldsValue({
                     ...initialFormValue,
-                    transport_types: listActiveServices || [],
+                    transport_types: activeDeliveryServices || [],
                   });
                 }
               })
             );
             dispatch(
               getDeliveryMappedStoresAction(result.code, (response) => {
-                setListShopIsSelected(response);
-                setListShopIsSelectedShow(response);
+                setIsSelectedShops(response);
+                setSelectedAndShowedShops(response);
               })
             );
           }
@@ -309,9 +309,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                 label="Chọn dịch vụ đã kí hợp đồng với hãng vận chuyển:"
               >
                 <Checkbox.Group>
-                  {listServices &&
-                    listServices.length > 0 &&
-                    listServices.map((singleService) => {
+                  {deliveryServices &&
+                    deliveryServices.length > 0 &&
+                    deliveryServices.map((singleService) => {
                       return (
                         <div key={singleService.code}>
                           <Checkbox value={singleService.code}>
@@ -339,8 +339,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   }}
                   className="selectShopId"
                 >
-                  {listShops &&
-                    listShops.map((singleShop) => {
+                  {shops &&
+                    shops.map((singleShop) => {
                       return (
                         <Select.Option value={singleShop.id} key={singleShop.id}>
                           {`${singleShop.name} (ID - ${singleShop.id})`}
@@ -376,10 +376,10 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                     onChange={(e) => searchShopIsSelected(e)}
                   />
                 </div>
-                <div className="listShop">
-                  {listShopIsSelectedShow &&
-                    listShopIsSelectedShow.length > 0 &&
-                    listShopIsSelectedShow.map((single, index) => {
+                <div className="listShops">
+                  {selectedAndShowedShops &&
+                    selectedAndShowedShops.length > 0 &&
+                    selectedAndShowedShops.map((single, index) => {
                       return (
                         <div className="singleShop" key={index}>
                           <div className="singleShop__title">

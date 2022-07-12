@@ -26,7 +26,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const dispatch = useDispatch();
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
-  const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceTransportType[]>([]);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
   const [isConnected, setIsConnected] = useState(false);
@@ -39,7 +39,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const handleSubmit = () => {
     form.validateFields(["token"]).then(() => {
       const formComponentValue = form.getFieldsValue();
-      let transport_types = listServices.map((single) => {
+      let transport_types = deliveryServices.map((single) => {
         return {
           code: single.code,
           status: formComponentValue.transport_types.includes(single.code)
@@ -122,8 +122,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
             dispatch(
               getDeliveryTransportTypesAction(result.code, (response) => {
                 if (response) {
-                  setListServices(response);
-                  const listActiveServices = response.map((single) => {
+                  setDeliveryServices(response);
+                  const activeDeliveryServices = response.map((single) => {
                     if (single.active) {
                       return single.code;
                     }
@@ -131,7 +131,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   });
                   form.setFieldsValue({
                     ...initialFormValue,
-                    transport_types: listActiveServices || [],
+                    transport_types: activeDeliveryServices || [],
                   });
                 }
               })
@@ -178,9 +178,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
             label="Chọn dịch vụ đã kí hợp đồng với hãng vận chuyển:"
           >
             <Checkbox.Group>
-              {listServices &&
-                listServices.length > 0 &&
-                listServices.map((singleService) => {
+              {deliveryServices &&
+                deliveryServices.length > 0 &&
+                deliveryServices.map((singleService) => {
                   return (
                     <div key={singleService.code}>
                       <Checkbox value={singleService.code}>{singleService.name}</Checkbox>

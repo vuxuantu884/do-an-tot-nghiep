@@ -19,8 +19,8 @@ import { StyledComponent } from "./styles";
 
 type PropType = {};
 
-function SingleThirdPartyLogisticGHN(props: PropType) {
-  const external_service_code = "dhl";
+function SingleThirdPartyLogisticSnappy(props: PropType) {
+  const external_service_code = "ghtk";
   const urlGuide = "https://yody.vn/";
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -32,13 +32,12 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const [isConnected, setIsConnected] = useState(false);
 
   const initialFormValue = {
-    username: "",
-    password: "",
+    token: "",
     transport_types: [],
   };
 
   const handleSubmit = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       const formComponentValue = form.getFieldsValue();
       let transport_types = deliveryServices.map((single) => {
         return {
@@ -55,9 +54,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
-        token: "",
-        username: form.getFieldValue("username"),
-        password: form.getFieldValue("password"),
+        token: form.getFieldValue("token"),
+        username: "",
+        password: "",
         transport_types,
       };
       dispatch(updateDeliveryConfigurationAction(formValueFormatted, () => {}));
@@ -65,11 +64,10 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       const params: updateConfigReQuestModel = {
         external_service_code,
-        username: form.getFieldValue("username"),
-        password: form.getFieldValue("password"),
+        token: form.getFieldValue("token"),
         status: DELIVER_SERVICE_STATUS.active,
       };
       dispatch(
@@ -82,7 +80,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   };
 
   const handleCancelConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       setConfirmSubTitle(
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
@@ -99,8 +97,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
     }
     const params = {
       external_service_code,
-      username: form.getFieldValue("username"),
-      password: form.getFieldValue("password"),
+      token: form.getFieldValue("token"),
       status: DELIVER_SERVICE_STATUS.inactive,
     };
     dispatch(
@@ -165,32 +162,16 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
           style={{ width: "377px", maxWidth: "100%" }}
         >
           <Form.Item
-            name="username"
-            label="Client Id: "
+            name="token"
+            label="Token: "
             rules={[
               {
                 required: true,
-                message: "Vui lòng nhập Client Id!",
+                message: "Vui lòng nhập token!",
               },
             ]}
           >
-            <Input type="text" placeholder="Nhập Client Id" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="Password: "
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập Password!",
-              },
-            ]}
-          >
-            <Input
-              type="password"
-              placeholder="Nhập Password"
-              style={{ width: "100%" }}
-            />
+            <Input type="text" placeholder="Nhập token" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
             name="transport_types"
@@ -221,4 +202,4 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   );
 }
 
-export default SingleThirdPartyLogisticGHN;
+export default SingleThirdPartyLogisticSnappy;

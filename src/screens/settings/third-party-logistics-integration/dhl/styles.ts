@@ -36,7 +36,7 @@ export const StyledComponent = styled.div`
     .search {
       margin-bottom: 35px;
     }
-    .listShop {
+    .listShops {
       height: 120px;
       overflow: auto;
     }
