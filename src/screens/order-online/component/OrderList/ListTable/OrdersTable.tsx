@@ -609,6 +609,11 @@ function OrdersTable(props: PropTypes) {
                     </Link>
                   </div>
                   <div className="textSmall single mainColor">
+                    <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
+                      <strong>Người tạo: </strong>{i.account_code} - {i.account}
+                    </Link>
+                  </div>
+                  <div className="textSmall single mainColor">
                     {i.marketer_code ? (
                         <Link to={`${UrlConfig.ACCOUNTS}/${i.marketer_code}`}>
                           <strong>NV marketing: </strong>{i.marketer_code} - {i.marketer}
