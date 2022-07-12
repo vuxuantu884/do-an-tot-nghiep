@@ -24,7 +24,7 @@ import { createMaterialApi } from "service/product/material.service";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 
 let initialRequest: MaterialCreateRequest = {
-  symbol: "",
+  fabric_code: "",
   care_labels: "",
   application: "",
   code: "",
@@ -184,9 +184,9 @@ const AddMaterial: React.FC = () => {
         }
         break;
       case "img":
-        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+        const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png' || file.type === 'image/jpg';
         if (!isJpgOrPng) {
-          mess && showWarning('Vui lòng chọn đúng định dạng file JPG, PNG');
+          mess && showWarning('Vui lòng chọn đúng định dạng file JPG, PNG, JPEG');
           check = false;
           break;
         }
@@ -404,11 +404,11 @@ const AddMaterial: React.FC = () => {
                       message: "Vui lòng nhập ký hiệu",
                     },
                     {
-                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER_MATERIAL,
                       message: "Ký hiệu không đúng định dạng",
                     },
                   ]}
-                  name="symbol"
+                  name="fabric_code"
                   label="Ký hiệu:"
                   normalize={(value: string) => (value || "").toUpperCase()}
                 >
@@ -417,25 +417,17 @@ const AddMaterial: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
-              <Form.Item
-                  name="supplier_ids"
+               <SupplierSearchSelect                  
                   label="Nhà cung cấp:"
+                  name="supplier_ids"
+                  mode="multiple"
+                  maxTagCount="responsive"
                   rules={[
                     {
                       required: true,
                       message: "Vui lòng chọn nhà cung cấp",
-                    },
-                  ]}
-                >
-               <SupplierSearchSelect
-                  noStyle
-                  label={false}
-                  name="supplier_ids"
-                  mode="multiple"
-                  help={false}
-                  maxTagCount="responsive"
-                />
-              </Form.Item>
+                    }
+                  ]}                />
             </Col>
           </Row>
           <Row gutter={50}>
@@ -443,7 +435,7 @@ const AddMaterial: React.FC = () => {
               <Form.Item
                 name="component"
                 label="Thành phần:"
-                rules={[{ max: 250, message: "Thành phần không quá 250 kí tự" }]}
+                rules={[{ max: 255, message: "Thành phần không quá 255 kí tự" }]}
               >
                 <Input placeholder="Nhập thành phần" />
               </Form.Item>

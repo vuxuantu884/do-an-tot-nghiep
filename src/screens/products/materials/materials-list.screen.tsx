@@ -100,7 +100,7 @@ const ListMaterial: React.FC = () => {
           <div className="text-center">
             <TextShowMore maxLength={100}>{value}</TextShowMore>
             <div>
-              <span style={{ color: '#666666' }}>{item.symbol}</span>
+              <span style={{ color: '#666666' }}>{item.fabric_code}</span>
             </div>
           </div>
         );
@@ -366,7 +366,7 @@ const ListMaterial: React.FC = () => {
               <Item name="info" className="input-search">
                 <Input
                   prefix={<img src={search} alt="" />}
-                  placeholder="Tên/Mã/ID chất liệu"
+                  placeholder="Tên / Mã chất liệu"
                 />
               </Item>
               <Item name="component">

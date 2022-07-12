@@ -1076,7 +1076,7 @@ const ProductDetailScreen: React.FC = () => {
                               {listMaterial?.map((item) => (
                                 <CustomSelect.Option key={item.id} value={item.id}>
                                 <div className="po-form">
-                                  {item.name} <span className="icon-dot" /> {item.symbol}
+                                  {item.name} <span className="icon-dot" /> {item.fabric_code}
                                 </div>
                               </CustomSelect.Option>
                               ))}

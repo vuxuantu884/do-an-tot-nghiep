@@ -174,7 +174,7 @@ const MaterialDetail: React.FC = () => {
                     <Row gutter={30} className="margin-bottom-15">
                       <Col className="title" span={8}>Ký hiệu:</Col>
                       <Col span={16}>
-                        <div className="content">{data.symbol}</div>
+                        <div className="content">{data.fabric_code}</div>
                       </Col>
                     </Row>
 

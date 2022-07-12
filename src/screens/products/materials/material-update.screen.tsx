@@ -459,11 +459,11 @@ const UpdateMaterial: React.FC = () => {
                       message: "Vui lòng nhập ký hiệu",
                     },
                     {
-                      pattern: RegUtil.NO_SPECICAL_CHARACTER,
+                      pattern: RegUtil.NO_SPECICAL_CHARACTER_MATERIAL,
                       message: "Ký hiệu không đúng định dạng",
                     },
                   ]}
-                  name="symbol"
+                  name="fabric_code"
                   label="Ký hiệu:"
                   normalize={(value: string) => (value || "").toUpperCase()}
                 >
@@ -471,8 +471,7 @@ const UpdateMaterial: React.FC = () => {
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
-              <Form.Item
-                  name="supplier_ids"
+               <SupplierSearchSelect
                   label="Nhà cung cấp:"
                   rules={[
                     {
@@ -480,17 +479,12 @@ const UpdateMaterial: React.FC = () => {
                       message: "Vui lòng chọn nhà cung cấp",
                     },
                   ]}
-                >
-               <SupplierSearchSelect
-                  noStyle
-                  label={false}
                   name="supplier_ids"
                   mode="multiple"
                   help={false}
                   maxTagCount="responsive"
                   supplier_ids={oldData.supplier_ids}
                 />
-              </Form.Item>
             </Col>
           </Row>
           <Row gutter={50}>
@@ -498,7 +492,7 @@ const UpdateMaterial: React.FC = () => {
               <Form.Item
                 name="component"
                 label="Thành phần:"
-                rules={[{ max: 250, message: "Thành phần không quá 250 kí tự" }]}
+                rules={[{ max: 255, message: "Thành phần không quá 255 kí tự" }]}
               >
                 <Input placeholder="Nhập thành phần" />
               </Form.Item>
