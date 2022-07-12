@@ -663,7 +663,7 @@ function OrderReturnList(props: PropTypes) {
     let selectedRowCodesCopy = [...selectedRowCodes];
     let selectedRowCopy = [...selectedRow];
 
-    console.log("changeRow",changeRow)
+    // console.log("changeRow",changeRow)
 
     if (changeRow && changeRow.length > 0) {
       if (selected) {
@@ -883,8 +883,8 @@ function OrderReturnList(props: PropTypes) {
           "print-dialog": true,
         };
 
-        console.log(selectedRowCodes)
-        console.log(selectedRow)
+        // console.log(selectedRowCodes)
+        // console.log(selectedRow)
 
         const queryParam = generateQuery(params);
 
@@ -893,7 +893,7 @@ function OrderReturnList(props: PropTypes) {
         break; 
       default: break;
     }
-  }, [selectedRow, hanldeDeleteOrderReturn, selectedRowCodes]);
+  }, [selectedRow, hanldeDeleteOrderReturn]);
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),

@@ -123,7 +123,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     initChannelCodes,
     channels,
   } = props;
-  console.log('props', props)
+  // console.log('props', props)
   const [visible, setVisible] = useState(false);
   const [rerender, setRerender] = useState(false);
   const [visibleUTM, setVisibleUTM] = useState<boolean>(false);
@@ -721,7 +721,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         values.returning_date_max = formatDateTimeOrderFilter(values.returning_date_max || initialValues.returning_date_max, dateFormat);
         values.returned_date_min = formatDateTimeOrderFilter(values.returned_date_min || initialValues.returned_date_min, dateFormat);
         values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max || initialValues.returned_date_max, dateFormat);
-        console.log('values', values);
+        // console.log('values', values);
         // return;
         let discount_codes = [];
         if (values.discount_codes) {

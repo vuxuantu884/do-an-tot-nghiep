@@ -49,7 +49,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     OrderReturnReasonDetailModel[]
   >([]);
 
-  console.log("OrderDetailAllFulfillment",OrderDetailAllFulfillment)
+  // console.log("OrderDetailAllFulfillment",OrderDetailAllFulfillment)
   const subStatuses = useGetOrderSubStatuses();
 
   const changeSubStatusCode = (
@@ -148,9 +148,9 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     }
   }, [OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
 
-  console.log("subStatusCode",subStatusCode)
-  console.log("toSubStatusCode",toSubStatusCode)
-  console.log("subReasonsRequireWarehouseChange",subReasonsRequireWarehouseChange)
+  // console.log("subStatusCode",subStatusCode)
+  // console.log("toSubStatusCode",toSubStatusCode)
+  // console.log("subReasonsRequireWarehouseChange",subReasonsRequireWarehouseChange)
 
   return (
     <Card title="Xử lý đơn hàng">

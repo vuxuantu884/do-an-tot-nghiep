@@ -235,8 +235,8 @@ function OrderCreateProduct(props: PropTypes) {
 		isExchange
 	} = props;
 
-	console.log('items', items)
-	console.log('promotion', promotion)
+	// console.log('items', items)
+	// console.log('promotion', promotion)
 	const orderCustomer = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
 
 	const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
@@ -508,7 +508,7 @@ function OrderCreateProduct(props: PropTypes) {
 				}
 				_itemGifts = [..._itemGifts, ...items[i].gifts];
 			}
-			console.log('_itemGifts', _itemGifts);
+			// console.log('_itemGifts', _itemGifts);
 			_itemGifts.forEach(item => {
 				item.discount_items = item.discount_items.filter(single => single.amount && single.value)
 			})
@@ -2272,7 +2272,7 @@ function OrderCreateProduct(props: PropTypes) {
 			items?.length > 0
 		) {
 			handleApplyDiscount(items);
-			console.log("items items", items)
+			// console.log("items items", items)
 		} else isShouldUpdateDiscountRef.current = true;
 		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [countFinishingUpdateCustomer, storeId, orderSourceId, isShouldUpdateDiscountRef]);

@@ -78,8 +78,8 @@ const AddReportHandOver: React.FC<any> = () => {
     
   },[storeAccessHandOver, storeId])
 
-  console.log(storeId)
-  console.log(storeAccessOrderNotRecord)
+  // console.log(storeId)
+  // console.log(storeAccessOrderNotRecord)
 
   const actions: Array<MenuAction> = [
     {
@@ -96,7 +96,7 @@ const AddReportHandOver: React.FC<any> = () => {
         getOrderConcernGoodsReceipts(
           param,
           (data: OrderConcernGoodsReceiptsResponse[]) => {
-            console.log("data", data)
+            // console.log("data", data)
             let orderList = [...orderListResponse]
             if (data && data.length > 0) {
               if (data[0] && data[0].code && !orderListResponse.some(p=>p.code===data[0].code)) {
@@ -243,7 +243,7 @@ const AddReportHandOver: React.FC<any> = () => {
 
       let fulfillment = orderListResponse.map(p=>{return getFulfillmentActive(p.fulfillments)?.code;})
 
-      console.log("fulfillment",fulfillment)
+      // console.log("fulfillment",fulfillment)
 
       const valueReceipts = getValueReceipts(value);
       let param: any = {

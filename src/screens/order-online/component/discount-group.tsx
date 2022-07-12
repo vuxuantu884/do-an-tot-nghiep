@@ -32,7 +32,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 
   const ChangeValueDiscount = useCallback(
     (v) => {
-      console.log('v1111', v)
+      // console.log('v1111', v)
       if (!items) {
         return;
       }
@@ -80,7 +80,7 @@ const DiscountGroup: React.FC<DiscountGroupProps> = (
 			_item.discount_rate = getLineItemDiscountRate(_item);
 			_item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
       
-      console.log('_items', _items)
+      // console.log('_items', _items)
       props.handleCardItems(_items);
     },
     [items, props, selected]

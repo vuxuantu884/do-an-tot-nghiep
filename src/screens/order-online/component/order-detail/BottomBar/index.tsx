@@ -65,8 +65,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     (state: RootReducerType) => state.orderReducer.isLoadingDiscount
   );
 
-  console.log('stepsStatusValue', stepsStatusValue)
-
   const acceptPermissionsUpdate = useCallback(() => {
     switch (stepsStatusValue) {
       case 'packed':

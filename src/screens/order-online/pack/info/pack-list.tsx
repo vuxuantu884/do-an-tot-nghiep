@@ -50,7 +50,7 @@ function PackList() {
     if (singlePack && singlePack.fulfillments) {
       let fulfillments = [...singlePack.fulfillments];
       const index = fulfillments.findIndex(p => p.code === code)
-      console.log("order", fulfillments)
+      // console.log("order", fulfillments)
       fulfillments.splice(index, 1)
       let packData: PackModel = {
         ...new PackModelDefaultValue(),

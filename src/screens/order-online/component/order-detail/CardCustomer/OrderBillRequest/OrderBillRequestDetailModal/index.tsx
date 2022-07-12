@@ -17,7 +17,6 @@ function OrderBillRequestDetailModal(props: PropTypes) {
     handleCancel,
     orderDetail,
   } = props;
-  console.log('orderDetail', orderDetail)
 
   const billingAddress = orderDetail?.billing_address;
 

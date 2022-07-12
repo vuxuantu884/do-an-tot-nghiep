@@ -7,6 +7,7 @@ import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
 import CreateOrderSidebar from "component/order/Sidebar/CreateOrderSidebar";
+import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreDetailCustomAction } from "domain/actions/core/store.action";
@@ -121,7 +122,7 @@ export default function Order() {
 	const [shipmentMethod, setShipmentMethod] = useState<number>(
 		ShipmentMethodOption.DELIVER_LATER
 	);
-	console.log('billingAddress', billingAddress)
+	// console.log('billingAddress', billingAddress)
 	const [paymentMethod, setPaymentMethod] = useState<number>(
 		PaymentMethodOption.POSTPAYMENT
 	);
@@ -272,7 +273,7 @@ export default function Order() {
 			total: null,
 			total_tax: "",
 			total_discount: null,
-			currency: "VNĐ",
+			currency: AppConfig.currency,
 			items: [],
 			discounts: [],
 			fulfillments: [],
@@ -605,7 +606,7 @@ export default function Order() {
 						setCreating(false);
 					} else {
 						(async () => {
-							console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount)
+							// console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount)
 							// return;
 							try {
 								await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
@@ -644,7 +645,7 @@ export default function Order() {
 							let isPointFocus = checkPointFocus(values);
 							if (isPointFocus) {
 								(async () => {
-									console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount)
+									// console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount)
 									// return;
 									try {
 										await dispatch(orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
@@ -752,7 +753,7 @@ export default function Order() {
 
 	useEffect(() => {
 		if (customerParam) {
-			console.log("customerParam", customerParam)
+			// console.log("customerParam", customerParam)
 			dispatch(getCustomerDetailAction(+customerParam, setCustomer))
 		}
 	}, [customerParam, dispatch])
@@ -782,7 +783,7 @@ export default function Order() {
 							);
 						}
 						if (response) {
-							console.log('response', response)
+							// console.log('response', response)
 							const isFBOrder = response.channel_id === FACEBOOK.channel_id;
 							let getGiftResponse = (itemNormal:OrderLineItemResponse ) => {
 								return response.items.filter((item) => {
@@ -800,7 +801,7 @@ export default function Order() {
 										gifts: getGiftResponse(item),
 									};
 								});
-							console.log('responseItems', responseItems)
+							// console.log('responseItems', responseItems)
 							setItems(responseItems);
 							dispatch(changeOrderLineItemsAction(responseItems));
 

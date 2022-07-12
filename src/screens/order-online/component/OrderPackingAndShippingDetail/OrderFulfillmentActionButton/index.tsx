@@ -61,31 +61,31 @@ function OrderFulfillmentActionButton(props: PropTypes) {
     OrderDetailAllFulfillment?.fulfillments,
   );
 
-  const checkIfFulfillmentStatusIsCancel = () => {
-    return OrderDetailAllFulfillment?.fulfillments?.some(
-      (single) => single.status !== FulFillmentStatus.CANCELLED,
-    );
-  };
+  // const checkIfFulfillmentStatusIsCancel = () => {
+  //   return OrderDetailAllFulfillment?.fulfillments?.some(
+  //     (single) => single.status !== FulFillmentStatus.CANCELLED,
+  //   );
+  // };
 
-  const isShowButtonCancelFulfillment = () => {
-    if (checkIfFulfillmentStatusIsCancel()) {
-      return true;
-    }
-    // kiểm tra có phải là đơn đang hoàn
-    if (
-      sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING &&
-      sortedFulfillments[0]?.return_status !== FulFillmentStatus.RETURNING
-    ) {
-      return true;
-    }
-    return false;
-  };
+  // const isShowButtonCancelFulfillment = () => {
+  //   if (checkIfFulfillmentStatusIsCancel()) {
+  //     return true;
+  //   }
+  //   // kiểm tra có phải là đơn đang hoàn
+  //   if (
+  //     sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPING &&
+  //     sortedFulfillments[0]?.return_status !== FulFillmentStatus.RETURNING
+  //   ) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
 
-  console.log("isShowButtonCancelFulfillment", isShowButtonCancelFulfillment());
-  console.log(
-    "checkIfOrderFinished(OrderDetailAllFulfillment)",
-    checkIfOrderFinished(OrderDetailAllFulfillment),
-  );
+  // console.log("isShowButtonCancelFulfillment", isShowButtonCancelFulfillment());
+  // console.log(
+  //   "checkIfOrderFinished(OrderDetailAllFulfillment)",
+  //   checkIfOrderFinished(OrderDetailAllFulfillment),
+  // );
 
   const renderOrderReturnButtons = () => {
     return (
@@ -189,7 +189,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
   };
 
   const renderButtonStepAction = () => {
-    console.log('stepsStatusValue', stepsStatusValue)
+    // console.log('stepsStatusValue', stepsStatusValue)
     if (sortedFulfillments.length === 0 || checkIfFulfillmentCancelled(sortedFulfillments[0])) {
       return null;
     }

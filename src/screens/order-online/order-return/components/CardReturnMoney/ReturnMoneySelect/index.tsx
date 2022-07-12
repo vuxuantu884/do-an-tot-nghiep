@@ -35,11 +35,11 @@ function ReturnMoneySelect(props: PropTypes) {
     listPaymentMethods,
     handleReturnMoney,
     // setReturnPaymentMethodCode,
-    returnPaymentMethodCode,
+    // returnPaymentMethodCode,
     canCreateMoneyRefund,
   } = props;
 
-  console.log('returnPaymentMethodCode', returnPaymentMethodCode)
+  // console.log('returnPaymentMethodCode', returnPaymentMethodCode)
   if(!(listPaymentMethods.length > 0)) {
     return null;
   }
@@ -47,7 +47,7 @@ function ReturnMoneySelect(props: PropTypes) {
   let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
     return !exceptMethods.includes(single.code);
   });
-  console.log('listPaymentMethodsResult', listPaymentMethodsResult)
+  // console.log('listPaymentMethodsResult', listPaymentMethodsResult)
 
   // const [initialReturnAmount, setInitialReturnAmount] = useState(0)
 

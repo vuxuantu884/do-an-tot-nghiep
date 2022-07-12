@@ -469,7 +469,7 @@ function OrdersTable(props: PropTypes) {
   };
 
   const changeSubStatusCallback = (value: string, response?: any) => {
-    console.log('response', response)
+    // console.log('response', response)
     const index = items?.findIndex(
       (single) => single.id === selectedOrder?.id
     );
@@ -1326,7 +1326,7 @@ function OrdersTable(props: PropTypes) {
 
     inventoryGetApi(inventoryQuery).then((response) => {
       if (isFetchApiSuccessful(response)) {
-        console.log(response)
+        // console.log(response)
 
         setInventoryData(response.data);
 
