@@ -47,7 +47,12 @@ export const DiscountStyled = styled.div`
  .page-filter {   
   padding-top: 0;
  }
-
+	
+	.product-card {
+    .ant-card-body {
+      padding-top: 0;
+    }
+	}
 
 
 `;

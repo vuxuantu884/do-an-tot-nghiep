@@ -470,6 +470,7 @@ const PromotionCode = () => {
               onChange: onPageChange,
               onShowSizeChange: onPageChange,
             }}
+            isShowPaginationAtHeader
             dataSource={dataSource?.items}
             columns={columns}
             rowKey={(item: any) => item.id}

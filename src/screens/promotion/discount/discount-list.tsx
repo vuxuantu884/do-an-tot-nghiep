@@ -374,6 +374,7 @@ const DiscountPage = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+          isShowPaginationAtHeader
           dataSource={discounts?.items}
           columns={columns}
           rowKey={(item: any) => item.id}
