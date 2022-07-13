@@ -66,4 +66,19 @@ export const InventoryAdjustmentWrapper = styled.div`
       }
     }
   }
+
+  .btn-report {
+    height: 24px;
+    line-height: 24px;
+    color: #FCAF17;
+    padding: 0 5px;
+    font-size: 12px;
+    border: 1px solid #FCAF17 !important;
+    margin-right: 12px;
+    margin-top: 5px;
+  }
+
+  .icon-report {
+    margin-right: 8.64px;
+  }
 `;
