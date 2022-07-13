@@ -21,7 +21,6 @@ import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
 import {
-  addPromoCode,
   deletePromoCodeById,
   disableBulkPromoCode,
   enableBulkPromoCode,
@@ -330,18 +329,6 @@ const ListCode = () => {
         dispatch(hideLoading());
       });
   }
-
-  const onAddSuccess = useCallback(
-    (response) => {
-      dispatch(hideLoading());
-      if (response) {
-        showSuccess("Thêm thành công");
-        setShowAddCodeManual(false);
-        getDiscountCodeData();
-      }
-    },
-    [dispatch, getDiscountCodeData]
-  );
 
   // section DELETE bulk
   const deleteCallBack = useCallback(
