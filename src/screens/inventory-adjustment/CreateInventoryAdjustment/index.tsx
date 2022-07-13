@@ -617,8 +617,7 @@ const CreateInventoryAdjustment: FC = () => {
     },
     {
       title: "",
-      fixed: dataTable?.length !== 0 && "right",
-      width: 50,
+      width: 30,
       render: (value: string, row) => {
         return <>
           {

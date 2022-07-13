@@ -8,7 +8,6 @@ import { DepartmentResponse } from "model/account/department.model";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomSelect from "component/custom/select.custom";
 import TreeDepartment from "component/tree-node/tree-department";
-import { showError } from "utils/ToastUtils";
 import "./index.scss";
 
 const departmentStatus = [

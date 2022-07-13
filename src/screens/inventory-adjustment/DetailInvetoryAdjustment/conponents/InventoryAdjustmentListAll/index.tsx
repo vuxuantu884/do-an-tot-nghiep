@@ -146,6 +146,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "Ảnh",
+      align: "center",
       width: "60px",
       dataIndex: "variant_image",
       render: (value: string) => {
@@ -158,7 +159,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     },
     {
       title: "Sản phẩm",
-      width: "200px",
+      width: "120px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem) => (
@@ -184,7 +185,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tổng tồn</div>
-            <div>({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
+            <div className="number-text">({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
           </>
         );
       },
@@ -199,7 +200,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       title: () => {
         return (
           <>
-            <div>Đang giao</div>
+            <div className="number-text">Đang giao</div>
             <div>({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})</div>
           </>
         );
@@ -216,7 +217,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Đang chuyển đi</div>
-            <div>({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
+            <div className="number-text">({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
           </>
         );
       },
@@ -232,11 +233,11 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
+            <div className="number-text">({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
         );
       },
-      width: 135,
+      width: 80,
       align: "center",
       dataIndex: "on_hand",
       render: (value) => {
@@ -254,7 +255,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       },
       dataIndex: "real_on_hand",
       align: "center",
-      width: 120,
+      width: 80,
       render: (value) => {
         return value || 0;
       },
@@ -285,7 +286,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         );
       },
       align: "center",
-      width: 200,
+      width: 150,
       render: (value, item) => {
         if (!item.on_hand_adj && item.on_hand_adj === 0) {
           return null;
@@ -309,7 +310,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       </div>,
       dataIndex: "note",
       align: "left",
-      width: 225,
+      width: 80,
       render: (value, row: LineItemAdjustment, index: number) => {
         let note = `${index}#${value}`;
         let tooltip = null;
@@ -357,11 +358,10 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     },
     {
       title: "",
-      fixed: dataLinesItem?.items.length !== 0 && "right",
       width: 30,
       render: (value: string, row) => {
         return <>
-          {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && (
+          {data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
             <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
           )}
         </>
