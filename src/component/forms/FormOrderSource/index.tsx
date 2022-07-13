@@ -1,6 +1,7 @@
 import { Checkbox, Col, Form, Input, InputNumber, Row, TreeSelect } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { CustomModalFormModel } from "model/modal/modal.model";
+import { OrderSourceModel } from "model/response/order/order-source.response";
 import React, { useEffect, useState } from "react";
 import * as CONSTANTS from "utils/Constants";
 import { StyledComponent } from "./styles";
@@ -25,7 +26,7 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
     company: CONSTANTS.DEFAULT_COMPANY.company,
   };
 
-  const { modalAction, formItem, form, visible, moreFormArguments } = props;
+  const { modalAction, formItem, form, visible, moreFormArguments, setVisibleForm, onCreate, onEdit } = props;
 
   const { listDepartments } = moreFormArguments;
   const [isVisibleFieldDefault, setIsVisibleFieldDefault] = useState(false);
@@ -110,9 +111,19 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
     return null;
   };
 
+  const handleFormFinish = (value: OrderSourceModel) => {
+    setVisibleForm && setVisibleForm(false);
+    if (!isCreateForm) {
+      onEdit && onEdit(value)
+    } else {
+      onCreate && onCreate(value);
+    }
+  }
+
   return (
     <StyledComponent>
       <Form
+        onFinish={handleFormFinish}
         form={form}
         name="control-hooks"
         layout="vertical"
