@@ -70,13 +70,12 @@ import {
 import { RefSelectProps } from "antd/lib/select";
 import { callApiNative } from "utils/ApiUtils";
 import TextArea from "antd/es/input/TextArea";
-import { checkUserPermission } from "../../../utils/AuthUtil";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import { getAccountDetail } from "../../../service/accounts/account.service";
+import { checkUserPermission } from "utils/AuthUtil";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { searchVariantsApi } from "service/product/product.service";
 import ImportExcel from "./components/ImportExcel";
-import ActionButton, { MenuAction } from "../../../component/table/ActionButton";
-import useAuthorization from "../../../hook/useAuthorization";
+import ActionButton, { MenuAction } from "component/table/ActionButton";
+import useAuthorization from "hook/useAuthorization";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import * as XLSX from "xlsx";
 import moment from "moment";
@@ -122,7 +121,6 @@ const DetailTicket: FC = () => {
     [] as Array<VariantResponse>
   );
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [isHavePermissionQuickBalance, setIsHavePermissionQuickBalance] = useState<boolean>(false);
 
   const [form] = Form.useForm();
   const printElementRef = useRef(null);
@@ -192,20 +190,6 @@ const DetailTicket: FC = () => {
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
-
-        callApiNative({isShowLoading: false},dispatch,getAccountDetail).then((res) => {
-          if (res) {
-            if (res.account_stores.length === 0) {
-              setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase());
-            } else {
-              const fromStoreFiltered = res.account_stores.filter((i: any) => i.store_id === result.from_store_id);
-              setIsHavePermissionQuickBalance(res.user_name.toUpperCase() === result.created_name.toUpperCase() || fromStoreFiltered.length > 0);
-            }
-            return;
-          }
-
-          setIsHavePermissionQuickBalance(true);
-        });
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -261,7 +245,7 @@ const DetailTicket: FC = () => {
       icon: <CloseCircleOutlined />,
       color: "#E24343",
       disabled: !((data?.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-        && data?.shipment === null) || !allowCancel || !isHavePermissionQuickBalance
+        && data?.shipment === null) || !allowCancel
     },
     {
       id: 2,
@@ -1473,15 +1457,13 @@ const DetailTicket: FC = () => {
                             Kiểm kho theo sản phẩm
                           </Button>
                         </AuthWrapper>
-                        {isHavePermissionQuickBalance && (
-                          <AuthWrapper
-                            acceptPermissions={[InventoryTransferPermission.balance]}
-                          >
-                            <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
-                              Nhận lại tồn chênh lệch
-                            </Button>
-                          </AuthWrapper>
-                        )}
+                        <AuthWrapper
+                          acceptPermissions={[InventoryTransferPermission.balance]}
+                        >
+                          <Button type="primary" onClick={() => setIsBalanceTransfer(true)}>
+                            Nhận lại tồn chênh lệch
+                          </Button>
+                        </AuthWrapper>
                       </>
                     )
                   }
