@@ -1,5 +1,6 @@
 import { FormInstance } from "antd";
 import { FilterConfig } from "model/other";
+import { OrderSourceModel } from "model/response/order/order-source.response";
 
 export type modalActionType = "create" | "edit" | "delete" | "onlyedit";
 
@@ -9,7 +10,10 @@ export interface CustomModalFormModel {
   formItem: any;
   form: FormInstance<any>;
   moreFormArguments?: any;
-  lstConfigFilter? : Array<FilterConfig>
+  lstConfigFilter?: Array<FilterConfig>
+  onEdit?: (value: OrderSourceModel) => void;
+  onCreate?: (value: OrderSourceModel) => void;
+  setVisibleForm?: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 export interface CustomModalType {
