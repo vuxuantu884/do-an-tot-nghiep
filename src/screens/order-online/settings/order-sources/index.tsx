@@ -4,7 +4,6 @@ import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
-import CustomModal from "component/modal/CustomModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {MenuAction} from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
@@ -45,6 +44,7 @@ import {
 } from "service/order/order.service";
 import { DepartmentGetListAction } from "domain/actions/account/account.action";
 import TreeDepartment from "component/tree-node/tree-department";
+import SourceModal from "./SourceModal";
 
 type formValuesType = {
   name: string | undefined;
@@ -540,7 +540,7 @@ function OrderSources(props: PropTypes) {
             title="Xác nhận"
             subTitle={renderConfirmDeleteSubtitle()}
           />
-          <CustomModal
+          <SourceModal
             visible={isShowModalOrderSource}
             onCreate={(formValues: OrderSourceModel) =>
               handleFormOrderSource.create(formValues)
