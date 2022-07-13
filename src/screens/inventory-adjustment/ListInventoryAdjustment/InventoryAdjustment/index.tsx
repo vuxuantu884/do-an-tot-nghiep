@@ -1,47 +1,43 @@
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import {
+  getListInventoryAdjustmentAction,
   InventoryAdjustmentGetPrintContentAction,
-  inventoryGetSenderStoreAction, updateInventoryAdjustmentAction,
+  inventoryGetSenderStoreAction,
+  updateInventoryAdjustmentAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
-import React, {Fragment, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch} from "react-redux";
+import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 import InventoryAdjustmentFilters from "../components/InventoryAdjustmentFilter";
-import {
-  InventoryAdjustmentDetailItem,
-  InventoryAdjustmentSearchQuery,
-} from "model/inventoryadjustment";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {PageResponse} from "model/base/base-metadata.response";
-import {getQueryParams, useQuery} from "utils/useQuery";
+import { InventoryAdjustmentDetailItem, InventoryAdjustmentSearchQuery } from "model/inventoryadjustment";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { PageResponse } from "model/base/base-metadata.response";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import { Tag, Space, Card, Modal, Form, Input } from "antd";
-import {InventoryAdjustmentWrapper} from "./styles";
-import {
-  INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
-  STATUS_INVENTORY_ADJUSTMENT,
-} from "../constants";
-import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
-import {HttpStatus} from "config/http-status.config";
-import {Link} from "react-router-dom";
+import { Button, Card, Form, Input, Modal, Space, Tag } from "antd";
+import { InventoryAdjustmentWrapper } from "./styles";
+import { INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY, STATUS_INVENTORY_ADJUSTMENT } from "../constants";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { HttpStatus } from "config/http-status.config";
+import { Link, useHistory } from "react-router-dom";
 import UrlConfig from "config/url.config";
-import {formatCurrency, generateQuery} from "utils/AppUtils";
-import {useHistory} from "react-router-dom";
-import {AccountResponse} from "model/account/account.model";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
-import {getListInventoryAdjustmentAction} from "domain/actions/inventory/inventory-adjustment.action";
-import {StoreResponse} from "model/core/store.model";
-import {useReactToPrint} from "react-to-print";
+import { StoreResponse } from "model/core/store.model";
+import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
-import {STATUS_INVENTORY_ADJUSTMENT_CONSTANTS} from "screens/inventory-adjustment/constants";
+import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "screens/inventory-adjustment/constants";
 import CustomFilter from "component/table/custom.filter";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { exportFile, getFile} from "service/other/import.inventory.service";
-import {STATUS_IMPORT_EXPORT} from "screens/inventory-adjustment/DetailInvetoryAdjustment";
+import { exportFile, getFile } from "service/other/import.inventory.service";
+import { STATUS_IMPORT_EXPORT } from "screens/inventory-adjustment/DetailInvetoryAdjustment";
 import InventoryTransferExportModal from "screens/inventory-adjustment/DetailInvetoryAdjustment/conponents/ExportModal";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
 import { FormOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
+import InventoryReportIcon from "assets/icon/inventory-report.svg";
+import InventoryReportModal from "../components/InventoryReportModal";
 
 const ACTIONS_INDEX = {
   PRINT: 1,
@@ -86,6 +82,8 @@ const InventoryAdjustment: React.FC = () => {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [isModalVisibleNote, setIsModalVisibleNote] = useState(false);
   const [itemData, setItemData] = useState<InventoryAdjustmentDetailItem>();
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [inventoryIdSelected, setInventoryIdSelected] = useState<number | null>(null);
   const [formNote] = Form.useForm();
 
   const printElementRef = useRef(null);
@@ -169,14 +167,29 @@ const InventoryAdjustment: React.FC = () => {
         <>
           <Link
             to={`${UrlConfig.INVENTORY_ADJUSTMENTS}/${row.id}`}
-            style={{fontWeight: 500}}
+            style={{ fontWeight: 500 }}
           >
             {value}
           </Link>
           <br />
-          <span style={{fontSize: "12px"}}>
+          <span style={{ fontSize: "12px" }}>
             Ngày tạo: {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYYY)}
           </span>
+          <div>
+            {row.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED && (
+              <Button
+                size="small"
+                onClick={() => {
+                  setIsOpenModal(true);
+                  setInventoryIdSelected(row.id);
+                }}
+                className="btn-report"
+                icon={<img className="icon-report" src={InventoryReportIcon} alt="inventory-report-icon" />}
+              >
+                Xem báo cáo kiểm
+              </Button>
+            )}
+          </div>
         </>
       ),
     },
@@ -588,15 +601,23 @@ const InventoryAdjustment: React.FC = () => {
             statusExport={statusExport}
           />
         )}
-        <div style={{display: "none"}}>
+        <div style={{ display: "none" }}>
           <div className="printContent" ref={printElementRef}>
             <div
               dangerouslySetInnerHTML={{
                 __html: purify.sanitize(printContent),
               }}
-              />
+            />
           </div>
         </div>
+
+        {isOpenModal && (
+          <InventoryReportModal
+            inventoryId={inventoryIdSelected}
+            visible={isOpenModal}
+            onCancel={() => setIsOpenModal(false)}
+          />
+        )}
 
         {isModalVisibleNote && (
           <Modal

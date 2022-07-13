@@ -229,6 +229,17 @@ export const StyledWrapper = styled.div`
   .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th, .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
     padding: 6px !important;
   }
+
+  .btn-report {
+    height: 42px;
+    color: #FCAF17;
+    border: 1px solid #FCAF17 !important;
+    margin-right: 12px;
+  }
+
+  .icon-report {
+    margin-right: 8.64px;
+  }
   
   .ant-radio-button-wrapper {
     padding: 0 5px !important;

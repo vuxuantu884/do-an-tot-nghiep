@@ -88,6 +88,8 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { searchVariantsApi } from "service/product/product.service";
 import EditNote from "../../order-online/component/edit-note";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import InventoryReportIcon from "assets/icon/inventory-report.svg";
+import InventoryReportModal from "../ListInventoryAdjustment/components/InventoryReportModal";
 import { primaryColor } from "utils/global-styles/variables";
 import ScanIcon from "assets/icon/scan.svg";
 import CloseCircleIcon from "assets/icon/close-circle.svg";
@@ -132,6 +134,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const [isShowConfirmAdited, setIsShowConfirmAdited] = useState<boolean>(false);
   const [isShowConfirmAdj, seIsShowConfirmAdj] = useState<boolean>(false);
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
 
   const [isError, setError] = useState(false);
   const [isLoading, setLoading] = useState<boolean>(false);
@@ -1639,6 +1642,15 @@ const DetailInvetoryAdjustment: FC = () => {
                       </Button>
                     </AuthWrapper>
                   )}
+                  {data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
+                    <Button
+                      onClick={() => { setIsOpenModal(true)}}
+                      className="btn-report"
+                      icon={<img className="icon-report" src={InventoryReportIcon} alt="inventory-report-icon" />}
+                    >
+                      Xem báo cáo kiểm
+                    </Button>
+                  )}
                   {(data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status
                     && data.status !== STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
                     <AuthWrapper
@@ -1827,6 +1839,14 @@ const DetailInvetoryAdjustment: FC = () => {
               </Modal>
             )}
           </>
+        )}
+
+        {isOpenModal && (
+          <InventoryReportModal
+            inventoryId={idNumber}
+            visible={isOpenModal}
+            onCancel={() => setIsOpenModal(false)}
+          />
         )}
       </ContentContainer>
     </StyledWrapper>

@@ -141,6 +141,14 @@ const getVariantHasOnHandByStoreApi = (
   );
 };
 
+const getInventoryReportApi = (
+  id: number | null,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/report`
+  );
+};
+
 export {
   getListInventoryAdjustmentApi,
   getDetailInventorAdjustmentGetApi,
@@ -157,5 +165,6 @@ export {
   getTotalOnHand,
   updateReasonItemOnlineInventoryApi,
   updateOnHandItemOnlineInventoryApi,
-  cancelInventoryTicket
+  cancelInventoryTicket,
+  getInventoryReportApi
 };
