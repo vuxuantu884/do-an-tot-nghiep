@@ -143,6 +143,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     {
       title: "Ảnh",
       width: "60px",
+      align: "center",
       dataIndex: "variant_image",
       render: (value: string) => {
         return (
@@ -154,7 +155,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     },
     {
       title: "Sản phẩm",
-      width: "200px",
+      width: "120px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: VariantResponse) => (
@@ -232,7 +233,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 145,
+      width: 80,
       align: "center",
       dataIndex: "on_hand",
       render: (value) => {
@@ -250,7 +251,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       },
       dataIndex: "real_on_hand",
       align: "center",
-      width: 125,
+      width: 80,
       render: (value) => {
         return value || 0;
       },
@@ -281,7 +282,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
         );
       },
       align: "center",
-      width: 200,
+      width: 150,
       render: (value, item) => {
         if (!item.on_hand_adj && item.on_hand_adj === 0) {
           return null;
@@ -305,7 +306,7 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
       </div>,
       dataIndex: "note",
       align: "left",
-      width: 225,
+      width: 80,
       render: (value, row: LineItemAdjustment, index: number) => {
         let note = `${index}#${value}`;
         let tooltip = null;
@@ -353,11 +354,10 @@ const InventoryAdjustmentHistory: React.FC<propsInventoryAdjustment> = (
     },
     {
       title: "",
-      fixed: dataLinesItem?.items.length !== 0 && "right",
       width: 30,
       render: (value: string, row) => {
         return <>
-          {data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && (
+          {data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
             <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
           )}
         </>

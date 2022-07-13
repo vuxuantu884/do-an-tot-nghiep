@@ -2,18 +2,21 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState
 import { StyledWrapper } from "./styles";
 import exportIcon from "assets/icon/export.svg";
 import UrlConfig, { BASE_NAME_ROUTER, InventoryTabUrl } from "config/url.config";
-import { Button, Card, Col, Form, Input, Modal, Radio, Row, Space, Tabs, Tag, Tooltip, Upload } from "antd";
+import { Button, Col, Form, Input, Modal, Radio, Row, Space, Tabs, Tooltip, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import PlusOutline from "assets/icon/plus-outline.svg";
 import {
-  CodepenOutlined, DeleteOutlined,
+  CodepenOutlined,
+  DeleteOutlined,
   InfoCircleOutlined,
-  PaperClipOutlined, PieChartOutlined,
+  PaperClipOutlined,
+  PieChartOutlined,
   PrinterOutlined,
   ReloadOutlined,
   SearchOutlined,
-  UploadOutlined, UserSwitchOutlined,
+  UploadOutlined,
+  UserSwitchOutlined,
 } from "@ant-design/icons";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useHistory, useParams } from "react-router";
@@ -22,11 +25,8 @@ import {
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {
-  InventoryAdjustmentDetailItem,
-  LineItemAdjustment,
-} from "model/inventoryadjustment";
-import {Link} from "react-router-dom";
+import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
+import { Link } from "react-router-dom";
 import ContentContainer from "component/container/content.container";
 import InventoryAdjustmentTimeLine from "./conponents/InventoryAdjustmentTimeLine";
 import { VariantResponse } from "model/product/product.model";
@@ -62,32 +62,35 @@ import { formatCurrency, generateQuery } from "utils/AppUtils";
 import purify from "dompurify";
 import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
-import { StyledComponent } from "screens/products/product/component/RowDetail/style";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { StoreResponse } from "model/core/store.model";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import { UploadFile } from "antd/lib/upload/interface";
 import InventoryTransferImportModal from "./conponents/ImportModal";
-import { getFile, getFileV2, importFile,exportFileV2 } from "service/other/import.inventory.service";
+import { exportFileV2, getFile, getFileV2, importFile } from "service/other/import.inventory.service";
 import { ImportResponse } from "model/other/files/export-model";
 import NumberInput from "component/custom/number-input.custom";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import useAuthorization from "hook/useAuthorization";
-import TextArea from "antd/es/input/TextArea";
 import { AiOutlineClose } from "react-icons/ai";
 import CustomPagination from "component/table/CustomPagination";
 import { callApiNative } from "utils/ApiUtils";
 import {
-  addLineItem, cancelInventoryTicket,
+  addLineItem,
+  cancelInventoryTicket,
   deleteLineItem,
   getTotalOnHand,
-  updateOnHandItemOnlineInventoryApi, updateReasonItemOnlineInventoryApi,
+  updateOnHandItemOnlineInventoryApi,
+  updateReasonItemOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { searchVariantsApi } from "service/product/product.service";
 import EditNote from "../../order-online/component/edit-note";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { primaryColor } from "utils/global-styles/variables";
+import ScanIcon from "assets/icon/scan.svg";
+import CloseCircleIcon from "assets/icon/close-circle.svg";
 
 const { TabPane } = Tabs;
 
@@ -464,7 +467,7 @@ const DetailInvetoryAdjustment: FC = () => {
               ];
               form.setFieldsValue({list_attached_files: newFileCurrent});
 
-              updateAdjustment(true);
+              updateAdjustment(true, null);
             }
           } else {
             newFileListUpdate.splice(index, 1);
@@ -562,6 +565,7 @@ const DetailInvetoryAdjustment: FC = () => {
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
       title: "Ảnh",
+      align: "center",
       width: "60px",
       dataIndex: "variant_image",
       render: (value: string) => {
@@ -600,7 +604,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tổng tồn</div>
-            <div>({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
+            <div className="number-text">({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
           </>
         );
       },
@@ -616,7 +620,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Đang giao</div>
-            <div>({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})</div>
+            <div className="number-text">({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})</div>
           </>
         );
       },
@@ -632,7 +636,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Đang chuyển đi</div>
-            <div>({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
+            <div className="number-text">({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
           </>
         );
       },
@@ -648,7 +652,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Tồn trong kho</div>
-            <div>({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
+            <div className="number-text">({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
           </>
         );
       },
@@ -664,7 +668,7 @@ const DetailInvetoryAdjustment: FC = () => {
         return (
           <>
             <div>Số kiểm</div>
-            <div>({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
+            <div className="number-text">({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
       },
@@ -737,7 +741,7 @@ const DetailInvetoryAdjustment: FC = () => {
       </div>,
       dataIndex: "note",
       align: "left",
-      width: 165,
+      width: 80,
       render: (value, row: LineItemAdjustment, index: number) => {
         let note = `${index}#${value}`;
         let tooltip = null;
@@ -785,20 +789,18 @@ const DetailInvetoryAdjustment: FC = () => {
     },
     {
       title: "",
-      fixed: dataLinesItem?.items.length !== 0 && "right",
-      width: 30,
+      width: 20,
       render: (value: string, row) => {
         return <>
           {data?.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && (
             <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
           )}
-        </>
-      }
+        </>;
+      },
     },
     {
       title: "",
-      fixed: "right",
-      width: 50,
+      width: 20,
       render: (value: string, row) => {
         return <>
           {
@@ -833,44 +835,41 @@ const DetailInvetoryAdjustment: FC = () => {
           getLinesItemAdjustmentAction(
             idNumber,
             `page=${dataLinesItem.metadata.page}&limit=${dataLinesItem.metadata.limit}`,
-            onResultDataTable
-          )
+            onResultDataTable,
+          ),
         );
       }
     },
-    [form, dispatch, idNumber, dataLinesItem.metadata.page, dataLinesItem.metadata.limit, onResultDataTable]
+    [form, dispatch, idNumber, dataLinesItem.metadata.page, dataLinesItem.metadata.limit, onResultDataTable],
   );
 
-  const updateAdjustment = React.useMemo(() =>
-  _.debounce((isUpdateFile = false) => {
-    const dataUpdate = {...data,
-      note: form.getFieldValue('note'),
-      version: form.getFieldValue('version'),
+  const updateAdjustment = (isUpdateFile: boolean = false, newNote: string | null) => {
+    const dataUpdate = {
+      ...data,
+      note: newNote || data?.note,
+      version: form.getFieldValue("version"),
       line_items: dataLinesItem.items,
-      list_attached_files: form.getFieldValue('list_attached_files')} as InventoryAdjustmentDetailItem;
+      list_attached_files: form.getFieldValue('list_attached_files')
+    } as InventoryAdjustmentDetailItem;
 
     if (data && dataUpdate) {
-      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, (res)=>{
+      dispatch(updateInventoryAdjustmentAction(data.id, dataUpdate, () => {
         showSuccess("Cập nhật phiếu kiểm kho thành công");
         if (isUpdateFile) {
           setData({
             ...data,
-            list_attached_files: res.list_attached_files
+            list_attached_files: form.getFieldValue('list_attached_files'),
           });
+          return;
         }
+
+        setData({
+          ...data,
+          note: newNote || data.note,
+        });
       }));
     }
-  }, 500),
-  [dispatch, data, form, dataLinesItem]
-)
-
-const onChangeNote = useCallback(
-  (note: string) => {
-    if (note && note.length > 500) return;
-    updateAdjustment();
-  },
-  [updateAdjustment]
-)
+  }
 
   const updateAuditedBys = () => {
     const dataUpdate = form.getFieldsValue(true);
@@ -911,6 +910,7 @@ const onChangeNote = useCallback(
 
   const onEnterFilterVariant = useCallback(
     (code: string) => {
+      setKeySearch(code?.toLocaleLowerCase());
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
@@ -1185,7 +1185,7 @@ const onChangeNote = useCallback(
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps,
-  }, [idNumber, onResult, dispatch, isReRender]);
+  }, [idNumber, isReRender]);
 
 
   useEffect(()=>{
@@ -1225,7 +1225,6 @@ const onChangeNote = useCallback(
               showSuccess("Nhập số kiểm thành công.");
               const version = form.getFieldValue("version");
               form.setFieldsValue({ version: version + 1 });
-              setIsReRender(!isReRender);
             }
           }),
         );
@@ -1275,81 +1274,254 @@ const onChangeNote = useCallback(
       >
         {data && (
           <>
-          <Form form={form}>
-            <Row gutter={24}>
-              <Col span={18}>
-                <Card
-                  title="KHO HÀNG"
-                  bordered={false}
-                  extra={
-                    <Space size={20}>
-                      <span>
-                        <b>Loại kiểm:</b>
-                      </span>
-                      <span>
-                        {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(
-                          (e) => e.value === data.audit_type
-                        )?.name ?? ""}
-                      </span>
-                    </Space>
-                  }
-                >
-                  {formStoreData && (
-                    <Row className="pd16">
-                      <Col span={31}>
-                        <>
-                          <span>
-                            <b>{formStoreData?.name}:</b>
-                          </span>{" "}
-                          {formStoreData?.code} - {formStoreData?.hotline} -{" "}
-                          {ConvertFullAddress(formStoreData)}
-                        </>
-                      </Col>
-                    </Row>
-                  )}
-                </Card>
-                {
-                  //case trạng thái
-                  (data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
-                    data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) ? (
-                    <Card>
-                      <Tabs
-                        style={{overflow: "initial"}}
-                        activeKey={activeTab}
-                        onChange={(active) => setActiveTab(active)}
-                      >
-                        <TabPane tab={`Thừa/Thiếu (${formatCurrency(dataTab?.total_variant_deviant) ?? 0})`} key="1">
-                          <InventoryAdjustmentHistory
-                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
-                            data={data}
-                            setDataTab={(value: number) => setDataTab({
-                              ...dataTab,
-                              total_variant_deviant: value
-                            })}
-                            idNumber={idNumber}
+            <Form form={form}>
+              <Row gutter={30} className="mb-20 detail-info">
+                <Col span={24} md={5}>
+                  <div className="label label-green mb-20">
+                    <div>Quét được</div>
+                    <div style={{ color: "#FFFFFF" }}>
+                      {formatCurrency(objSummaryTableByAuditTotal.realOnHand)}/{formatCurrency(objSummaryTableByAuditTotal.onHand)}
+                    </div>
+                    <img src={ScanIcon} alt="scan" className="icon" />
+                  </div>
+
+                  <div className="label label-red">
+                    <div>Thừa/thiếu</div>
+                    <div>
+                      {(objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess) ? (
+                        0
+                      ) : (
+                        <span
+                          style={{ color: "#FFFFFF" }}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</span>
+                      )}
+                      {objSummaryTableByAuditTotal.totalExcess !== null && objSummaryTableByAuditTotal.totalMissing !== null ? (
+                        <Space>/</Space>
+                      ) : (
+                        ''
+                      )}
+                      {(objSummaryTableByAuditTotal.totalMissing === 0 || !objSummaryTableByAuditTotal.totalMissing) ? (
+                        0
+                      ) : (
+                        <span
+                          style={{ color: "#FFFFFF" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</span>
+                      )}
+                    </div>
+                    <img src={CloseCircleIcon} alt="close" className="icon" />
+                  </div>
+                </Col>
+                <Col span={24} md={7}>
+                  <Row className="margin-bottom-15">
+                    <Col span={10} className="title">
+                      Mã phiếu:
+                    </Col>
+                    <Col span={14} className="font-weight-500">
+                      {data.code}
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-bottom-15">
+                    <Col span={10} className="title">
+                      Loại kiểm:
+                    </Col>
+                    <Col span={14} className="font-weight-500">
+                      {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(
+                        (e) => e.value === data.audit_type,
+                      )?.name ?? ""}
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-bottom-15">
+                    <Col span={10} className="title">
+                      Người tạo:
+                    </Col>
+                    <Col span={14} className="font-weight-500">
+                      {`${data.created_by} - ${data?.created_name}`}
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-bottom-15">
+                    <Col span={10} className="title">
+                      Người kiểm:
+                    </Col>
+                    <Col span={14} className="font-weight-500">
+                      {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && isPermissionAudit ? (
+                        <Form.Item
+                          name="audited_bys"
+                          labelCol={{ span: 24, offset: 0 }}
+                          colon={false}
+                          rules={[{
+                            required: true,
+                            message: "Vui lòng chọn người kiểm",
+                          }]}
+                        >
+                          <AccountSearchPaging
+                            onSelect={updateAuditedBys}
+                            onDeselect={updateAuditedBys}
+                            mode="multiple"
+                            placeholder="Chọn người kiểm"
+                            style={{ width: "100%" }}
                           />
-                        </TabPane>
-                        <TabPane tab={`Tất cả (${dataLinesItem.metadata.total ?? 0})`} key="2">
-                          <InventoryAdjustmentListAll
-                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
-                            idNumber={idNumber}
-                            data={data}
-                          />
-                        </TabPane>
-                      </Tabs>
-                    </Card>
-                  ) : (
-                    <Card title="Thông tin sản phẩm" bordered={false}>
-                      <AuthWrapper
-                        acceptPermissions={[InventoryAdjustmentPermission.update]}
-                      >
-                        <Input.Group style={{ paddingTop: 16 }} className="display-flex">
-                          <CustomAutoComplete
-                            id="#product_search_variant"
-                            dropdownClassName="product"
-                            placeholder="Thêm sản phẩm vào phiếu kiểm"
-                            onSearch={onSearchProduct}
-                            dropdownMatchSelectWidth={456}
+                        </Form.Item>
+                      ) : (
+                        <div>
+                          {data.audited_bys?.map((item: string) => {
+                            return (
+                              <RenderItemAuditBy
+                                key={item?.toString()}
+                                user_name={item?.toString()}
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-bottom-15">
+                    <Col span={10} className="title">
+                      Trạng thái:
+                    </Col>
+                    <Col span={14} className="font-weight-500">
+                      <div className={classTag}>{textTag}</div>
+                    </Col>
+                  </Row>
+                </Col>
+
+                <Col span={24} md={12}>
+                  <Row className="margin-bottom-15">
+                    <Col span={5} className="title">
+                      Kho hàng:
+                    </Col>
+                    <Col span={19} className="font-weight-500">
+                      {formStoreData?.name}
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-bottom-15">
+                    <Col span={5} className="title">
+                      SĐT:
+                    </Col>
+                    <Col span={19} className="font-weight-500">
+                      {formStoreData?.hotline}
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-bottom-15">
+                    <Col span={5} className="title">
+                      Địa chỉ:
+                    </Col>
+                    <Col span={19} className="font-weight-500">
+                      {ConvertFullAddress(formStoreData)}
+                    </Col>
+                  </Row>
+
+                  <Row>
+                    <Col span={5} className="title">
+                      Đính kèm:
+                    </Col>
+                    <Col span={19} className="font-weight-500">
+                      {Array.isArray(data.list_attached_files) && data.list_attached_files.length > 0 && data.list_attached_files?.map((link: string, index: number) => {
+                        return (
+                          <a
+                            key={index}
+                            className="file-pin"
+                            target="_blank"
+                            rel="noreferrer"
+                            href={link}
+                          >
+                            <PaperClipOutlined /> {link}
+                          </a>
+                        );
+                      })}
+
+                      <Form.Item>
+                        {
+                          data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED &&
+                          <Upload
+                            beforeUpload={onBeforeUpload}
+                            multiple={true}
+                            fileList={fileListUpdate}
+                            onChange={onChangeFileUpdate}
+                            customRequest={onCustomUpdateRequest}
+                            showUploadList={false}
+                          >
+                            <Button icon={<UploadOutlined />}>Chọn file</Button>
+                          </Upload>
+                        }
+                      </Form.Item>
+                    </Col>
+                  </Row>
+
+                  <Row className="margin-bottom-15">
+                    <Col span={5} className="title">
+                      Ghi chú:
+                    </Col>
+                    <Col span={19} className="font-weight-500">
+                      <EditNote
+                        isHaveEditPermission={true}
+                        note={data.note}
+                        title=""
+                        color={primaryColor}
+                        onOk={(newNote) => {
+                          updateAdjustment(false, newNote);
+                        }}
+                      />
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+
+              <Form.Item noStyle hidden name="list_attached_files">
+                <Input />
+              </Form.Item>
+              <Form.Item noStyle hidden name="version">
+                <Input />
+              </Form.Item>
+
+              <Row gutter={24}>
+                <Col span={24}>
+                  {
+                    //case trạng thái
+                    (data.status === STATUS_INVENTORY_ADJUSTMENT.AUDITED.status ||
+                      data.status === STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status) ? (
+                      <div className="detail-info">
+                        <Tabs
+                          style={{ overflow: "initial" }}
+                          activeKey={activeTab}
+                          onChange={(active) => setActiveTab(active)}
+                        >
+                          <TabPane tab={`Thừa/Thiếu (${formatCurrency(dataTab?.total_variant_deviant) ?? 0})`} key="1">
+                            <InventoryAdjustmentHistory
+                              objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
+                              data={data}
+                              setDataTab={(value: number) => setDataTab({
+                                ...dataTab,
+                                total_variant_deviant: value,
+                              })}
+                              idNumber={idNumber}
+                            />
+                          </TabPane>
+                          <TabPane tab={`Tất cả (${dataLinesItem.metadata.total ?? 0})`} key="2">
+                            <InventoryAdjustmentListAll
+                              objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
+                              idNumber={idNumber}
+                              data={data}
+                            />
+                          </TabPane>
+                        </Tabs>
+                      </div>
+                    ) : (
+                      <div className="detail-info">
+                        <AuthWrapper
+                          acceptPermissions={[InventoryAdjustmentPermission.update]}
+                        >
+                          <Input.Group style={{ paddingTop: 16 }} className="display-flex">
+                            <CustomAutoComplete
+                              id="#product_search_variant"
+                              dropdownClassName="product"
+                              placeholder="Thêm sản phẩm vào phiếu kiểm"
+                              onSearch={onSearchProduct}
+                              dropdownMatchSelectWidth={456}
                             style={{ width: "100%" }}
                             showAdd={true}
                             isNotPermissionAudit={!isPermissionAudit}
@@ -1412,157 +1584,19 @@ const onChangeNote = useCallback(
                         dataSource={dataLinesItem.items}
                         rowKey={(item: LineItemAdjustment) => item.id}
                       />
-                      <CustomPagination
-                        pagination={{
-                          pageSize: dataLinesItem.metadata.limit,
-                          total: dataLinesItem.metadata.total,
-                          current: dataLinesItem.metadata.page,
-                          showSizeChanger: true,
-                          onChange: onPageChange,
-                          onShowSizeChange: onPageChange,
-                        }}
-                      />
-                    </Card>
-                  )
-                }
-              </Col>
-              <Col span={6}>
-                <Card
-                  title={"THÔNG TIN PHIẾU"}
-                  bordered={false}
-                  className={"inventory-info"}
-                  extra={<Tag className={classTag}>{textTag}</Tag>}
-                >
-                  <Col>
-                    <Row>
-                      <Col span={10}>
-                        <div className="label" style={{ float: 'left' }}>Mã phiếu</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
-                      </Col>
-                      <Col span={14}>
-                        <div className="data">{data.code}</div>
-                      </Col>
-                    </Row>
-                    <Row>
-                      <Col span={10}>
-                        <div className="label" style={{ float: 'left' }}>Người tạo</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
-                      </Col>
-                      <Col span={14}>
-                        <div className="data">{`${data.created_by} - ${data?.created_name}`}</div>
-                      </Col>
-                    </Row>
-                    <Row>
-                      {data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status && isPermissionAudit ? (
-                        <Form.Item
-                          name="audited_bys"
-                          label={<b>Người kiểm</b>}
-                          labelCol={{span: 24, offset: 0}}
-                          colon={false}
-                          rules={[{
-                            required: true,
-                            message: "Vui lòng chọn người kiểm",
-                          }]}
-                        >
-                          <AccountSearchPaging
-                            onSelect={updateAuditedBys}
-                            onDeselect={updateAuditedBys}
-                            mode="multiple"
-                            placeholder="Chọn người kiểm"
-                            style={{width: "100%"}}
-                          />
-                        </Form.Item>
-                      ) : (
-                        <Row style={{ width: '100%' }}>
-                          <Col span={10}>
-                            <div className="label" style={{ float: 'left' }}>Người kiểm</div><span style={{ float: 'right', marginRight: 20 }}>:</span>
-                          </Col>
-                          <Col span={14}>
-                            <div className="data">
-                              {
-                                <StyledComponent>
-                                  <Row className="audit_by" style={{ width: '100%' }}>
-                                    <Col span={24}>
-                                      {data.audited_bys?.map((item: string) => {
-                                        return (
-                                          <RenderItemAuditBy
-                                            key={item?.toString()}
-                                            user_name={item?.toString()}
-                                          />
-                                        );
-                                      })}
-                                    </Col>
-                                  </Row>
-                                </StyledComponent>
-                              }
-                            </div>
-                          </Col>
-                        </Row>
-                      )}
-                    </Row>
-                  </Col>
-                </Card>
-                <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
-                  <Row className="" gutter={5} style={{flexDirection: "column"}}>
-                    <Form.Item
-                      name={"note"}
-                      label={<b>Ghi chú nội bộ:</b>}
-                      colon={false}
-                      labelCol={{span: 24, offset: 0}}
-                      rules={[{max: 500, message: "Không được nhập quá 500 ký tự"}]}
-                    >
-                      <TextArea onChange={(e)=>{onChangeNote(e.target.value)}} placeholder="Nhập ghi chú nội bộ" autoSize={{minRows: 4, maxRows: 6}} />
-                    </Form.Item>
-                  </Row>
-                  <Row
-                    className="margin-top-10"
-                    gutter={5}
-                    style={{flexDirection: "column"}}
-                  >
-                    <Col span={24}>
-                      <span className="text-focus">
-                        {Array.isArray(data.list_attached_files) && data.list_attached_files.length > 0 && data.list_attached_files?.map((link: string, index: number) => {
-                          return (
-                            <a
-                              key={index}
-                              className="file-pin"
-                              target="_blank"
-                              rel="noreferrer"
-                              href={link}
-                            >
-                              <PaperClipOutlined /> {link}
-                            </a>
-                          );
-                        })}
-                      </span>
-                    </Col>
-
-                    <Form.Item
-                      labelCol={{span: 24, offset: 0}}
-                      label={<b>File đính kèm:</b>}
-                      colon={false}
-                    >
-                      {
-                       data.status !== STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED &&
-                          <Upload
-                          beforeUpload={onBeforeUpload}
-                          multiple={true}
-                          fileList={fileListUpdate}
-                          onChange={onChangeFileUpdate}
-                          customRequest={onCustomUpdateRequest}
-                          showUploadList={false}
-                        >
-                          <Button icon={<UploadOutlined />}>Chọn file</Button>
-                        </Upload>
-                      }
-                      </Form.Item>
-
-                    <Form.Item noStyle hidden name="list_attached_files">
-                      <Input />
-                    </Form.Item>
-                    <Form.Item noStyle hidden name="version">
-                      <Input />
-                    </Form.Item>
-                  </Row>
-                </Card>
+                        <CustomPagination
+                          pagination={{
+                            pageSize: dataLinesItem.metadata.limit,
+                            total: dataLinesItem.metadata.total,
+                            current: dataLinesItem.metadata.page,
+                            showSizeChanger: true,
+                            onChange: onPageChange,
+                            onShowSizeChange: onPageChange,
+                          }}
+                        />
+                      </div>
+                    )
+                  }
               </Col>
             </Row>
           </Form>
