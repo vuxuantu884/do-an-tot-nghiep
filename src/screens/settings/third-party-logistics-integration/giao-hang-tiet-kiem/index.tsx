@@ -12,16 +12,16 @@ import {
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
+import { DELIVER_SERVICE_STATUS, THIRD_PARTY_LOGISTICS_INTEGRATION } from "utils/Order.constants";
 import { showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import { StyledComponent } from "./styles";
 
-type PropType = {};
+type PropTypes = {};
 
-function SingleThirdPartyLogisticGHN(props: PropType) {
-  const external_service_code = "ghtk";
-  const urlGuide = "https://yody.vn/";
+function SingleThirdPartyLogisticGHN(props: PropTypes) {
+  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.ghtk.code;
+  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.ghtk.guideUrl;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [thirdPartyLogistics, setThirdPartyLogistics] =
@@ -151,7 +151,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         onSubmit={handleSubmit}
         onConnect={() => handleConnect3PL()}
         onCancelConnect={() => handleCancelConnect3PL()}
-        urlGuide={urlGuide}
+        guideUrl={guideUrl}
         isConnected={isConnected}
       >
         <Form
