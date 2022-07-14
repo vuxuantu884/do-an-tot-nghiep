@@ -282,6 +282,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   // lưu bộ lọc
   const onShowSaveFilter = useCallback(() => {
     let values = formRef.current?.getFieldsValue();
+    console.log('values', values)
     if (values) {
       values.services = services;
       if (values.price_min && values.price_max ) {
@@ -704,23 +705,23 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
           };
         }
-        values.issued_on_min = formatDateTimeOrderFilter(values.issued_on_min || initialValues.issued_on_min, dateFormat);
-        values.issued_on_max = formatDateTimeOrderFilter(values.issued_on_max || initialValues.issued_on_max, dateFormat);
-        values.finalized_on_min = formatDateTimeOrderFilter(values.finalized_on_min || initialValues.finalized_on_min, dateFormat);
-        values.finalized_on_max = formatDateTimeOrderFilter(values.finalized_on_max || initialValues.finalized_on_max, dateFormat);
-        values.cancelled_on_min = formatDateTimeOrderFilter(values.cancelled_on_min || initialValues.cancelled_on_min, dateFormat);
-        values.cancelled_on_max = formatDateTimeOrderFilter(values.cancelled_on_max || initialValues.cancelled_on_max, dateFormat);
-        values.completed_on_min = formatDateTimeOrderFilter(values.completed_on_min || initialValues.completed_on_min, dateFormat);
-        values.completed_on_max = formatDateTimeOrderFilter(values.completed_on_max || initialValues.completed_on_max, dateFormat);
-        values.exported_on_min = formatDateTimeOrderFilter(values.exported_on_min || initialValues.exported_on_min, dateFormat);
-        values.exported_on_max = formatDateTimeOrderFilter(values.exported_on_max || initialValues.exported_on_max, dateFormat);
-        values.expected_receive_on_min = formatDateTimeOrderFilter(values.expected_receive_on_min || initialValues.expected_receive_on_min, dateFormat);
-        values.expected_receive_on_max = formatDateTimeOrderFilter(values.expected_receive_on_max || initialValues.expected_receive_on_max, dateFormat);
-        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min || initialValues.returning_date_min, dateFormat);
-        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min || initialValues.returning_date_min, dateFormat);
-        values.returning_date_max = formatDateTimeOrderFilter(values.returning_date_max || initialValues.returning_date_max, dateFormat);
-        values.returned_date_min = formatDateTimeOrderFilter(values.returned_date_min || initialValues.returned_date_min, dateFormat);
-        values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max || initialValues.returned_date_max, dateFormat);
+        values.issued_on_min = formatDateTimeOrderFilter(values.issued_on_min, dateFormat);
+        values.issued_on_max = formatDateTimeOrderFilter(values.issued_on_max, dateFormat);
+        values.finalized_on_min = formatDateTimeOrderFilter(values.finalized_on_min, dateFormat);
+        values.finalized_on_max = formatDateTimeOrderFilter(values.finalized_on_max, dateFormat);
+        values.cancelled_on_min = formatDateTimeOrderFilter(values.cancelled_on_min, dateFormat);
+        values.cancelled_on_max = formatDateTimeOrderFilter(values.cancelled_on_max, dateFormat);
+        values.completed_on_min = formatDateTimeOrderFilter(values.completed_on_min, dateFormat);
+        values.completed_on_max = formatDateTimeOrderFilter(values.completed_on_max, dateFormat);
+        values.exported_on_min = formatDateTimeOrderFilter(values.exported_on_min, dateFormat);
+        values.exported_on_max = formatDateTimeOrderFilter(values.exported_on_max, dateFormat);
+        values.expected_receive_on_min = formatDateTimeOrderFilter(values.expected_receive_on_min, dateFormat);
+        values.expected_receive_on_max = formatDateTimeOrderFilter(values.expected_receive_on_max, dateFormat);
+        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min, dateFormat);
+        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min, dateFormat);
+        values.returning_date_max = formatDateTimeOrderFilter(values.returning_date_max, dateFormat);
+        values.returned_date_min = formatDateTimeOrderFilter(values.returned_date_min, dateFormat);
+        values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max, dateFormat);
         // console.log('values', values);
         // return;
         let discount_codes = [];
@@ -732,7 +733,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         setRerender(false);
       }
     },
-    [dateFormat, formRef, initialValues.cancelled_on_max, initialValues.cancelled_on_min, initialValues.completed_on_max, initialValues.completed_on_min, initialValues.expected_receive_on_max, initialValues.expected_receive_on_min, initialValues.exported_on_max, initialValues.exported_on_min, initialValues.finalized_on_max, initialValues.finalized_on_min, initialValues.issued_on_max, initialValues.issued_on_min, initialValues.returned_date_max, initialValues.returned_date_min, initialValues.returning_date_max, initialValues.returning_date_min, keySearchVariant, onFilter, services]
+    [dateFormat, formRef, keySearchVariant, onFilter, services]
   );
 
   let filters = useMemo(() => {
