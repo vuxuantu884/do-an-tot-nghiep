@@ -36,8 +36,7 @@ import {DiscountCode, DiscountUsageDetailResponse, PriceRule} from "model/promot
 import { DiscountSearchQuery } from "model/query/discount.query";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
-import { VscError } from "react-icons/all";
-import { RiUpload2Line } from "react-icons/ri";
+
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -60,6 +59,8 @@ import DiscountUsageDetailModal from "./components/DiscountUsageDetailModal";
 import {exportDiscountCode} from "service/promotion/discount/discount.service";
 import eyeIcon from "assets/icon/eye.svg";
 import exportIcon from "assets/icon/export.svg";
+import { VscError } from "react-icons/vsc";
+import { RiUpload2Line } from "react-icons/ri";
 
 const { Item } = Form;
 const { Option } = Select;

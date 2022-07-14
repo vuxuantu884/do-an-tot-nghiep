@@ -7,7 +7,6 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule } from "model/promotion/price-rules.model";
 import React, {Fragment, ReactNode, useCallback, useEffect, useMemo, useState} from "react";
-import { FiCheckCircle, RiDeleteBin2Fill } from "react-icons/all";
 import { useDispatch } from "react-redux";
 import {Link, useHistory, useLocation} from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
@@ -28,6 +27,8 @@ import { StoreResponse } from "model/core/store.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { generateQuery } from "../../../utils/AppUtils";
 import queryString from "query-string";
+import { FiCheckCircle } from "react-icons/fi";
+import { RiDeleteBin2Fill } from "react-icons/ri";
 
 const DiscountPage = () => {
 
