@@ -370,9 +370,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const totalAmountExchangeFinal = useMemo(() => {
     return (
-      totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0)
+      totalAmountExchange + (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) - (promotion?.amount || 0)
     );
-  }, [shippingFeeInformedToCustomer, totalAmountExchange]);
+  }, [promotion?.amount, shippingFeeInformedToCustomer, totalAmountExchange]);
 
   // console.log("totalAmountExchangeFinal", totalAmountExchangeFinal);
   // console.log("totalAmountExchange", totalAmountExchange);
@@ -385,9 +385,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return (
       orderAmount +
       (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-      (promotion?.value || 0)
+      (promotion?.amount || 0)
     );
-  }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
+  }, [orderAmount, promotion?.amount, shippingFeeInformedToCustomer]);
 
   // console.log("totalAmountOrder", totalAmountOrder);
 
