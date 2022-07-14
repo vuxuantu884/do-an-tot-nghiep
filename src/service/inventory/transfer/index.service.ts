@@ -14,7 +14,7 @@ import {
   Store,
   StoreStatus,
 } from "model/inventory/transfer";
-import * as queryString from "querystring";
+import * as queryString from "query-string";
 import { VariantResponse } from "../../../model/product/product.model";
 import { generateQuery } from "utils/AppUtils";
 import { PageResponse } from "model/base/base-metadata.response";
