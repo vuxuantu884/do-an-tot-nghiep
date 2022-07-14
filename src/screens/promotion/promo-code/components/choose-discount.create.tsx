@@ -1,7 +1,8 @@
 import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import React, { useLayoutEffect, useState } from "react";
-import { formatDiscountValue } from "utils/PromotionUtils";
+import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import NumberInput from "component/custom/number-input.custom";
 import "../promo-code.scss";
 interface Props {
   form: FormInstance;
@@ -43,12 +44,15 @@ const ChooseDiscount = (props: Props) => {
                 name="value"
                 noStyle
               >
-                <InputNumber
+                <NumberInput
                   style={{borderRadius: "0px", width: "calc(100% - 70px)" }}
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  placeholder="Nhập giá trị chiết khấu"
                   min={1}
                   max={typeUnit === "FIXED_AMOUNT" ? 999999999 : 100}
-                  step={typeUnit === "FIXED_AMOUNT" ? 1 : 0.01}
-                  formatter={(value) => formatDiscountValue(value, typeUnit !== "FIXED_AMOUNT")}
+                  maxLength={typeUnit === "FIXED_AMOUNT" ? 11 : 3}
+                  minLength={0}
                 />
               </Form.Item>
               <Form.Item name="value_type" noStyle>
