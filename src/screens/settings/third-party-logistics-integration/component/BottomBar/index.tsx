@@ -7,14 +7,14 @@ import IconConnect from "./images/iconConnect.svg";
 import IconCancelConnect from "./images/iconCancelConnect.svg";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   onSubmit: () => void;
   onConnect: () => void;
   onCancelConnect: () => void;
   isConnected: boolean;
 };
 
-function BottomBar(props: PropType) {
+function BottomBar(props: PropTypes) {
   const { onSubmit, onConnect, onCancelConnect, isConnected } = props;
 
   const renderButtonConnect = () => {

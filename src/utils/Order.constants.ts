@@ -227,3 +227,31 @@ export const FULFILLMENT_PUSHING_STATUS = {
   waiting: "waiting",
   completed: "completed",
 }
+
+export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
+  ghtk: {
+    name: "Giao hàng tiết kiệm",
+    code: "ghtk",
+    guideUrl: "",
+  },
+  vtp: {
+    name: "Viettel Post",
+    code: "vtp",
+    guideUrl: "",
+  },
+  ghn: {
+    name: "Giao hàng nhanh",
+    code: "ghn",
+    guideUrl: "",
+  },
+  dhl: {
+    name: "DHL",
+    code: "dhl",
+    guideUrl: "",
+  },
+  snappy: {
+    name: "Snappy",
+    code: "snappy",
+    guideUrl: "",
+  },
+}
