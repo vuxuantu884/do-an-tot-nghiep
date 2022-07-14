@@ -1580,20 +1580,24 @@ const EcommerceOrders: React.FC = () => {
   }, [dispatch, reloadPage]);
   
   const handlePrintEcommerceDeliveryNote = useCallback(() => {
+    let isOrderMatched = true;
     if (selectedRowKeys?.length > 0) {
       let order_list: any = [];
       selectedRowKeys.forEach(idSelected => {
         const orderMatched = data?.items.find(i => i.id === idSelected)
+        if (orderMatched && !orderMatched.ecommerce_shop_id) {
+          isOrderMatched = false;
+          showError("Bạn không thể in phiếu giao hàng sàn");
+          return;
+        }
         if (orderMatched && listShopIdEcommerce?.length > 0) {
           const shop_id = listShopIdEcommerce.filter((shop) => {
               const sliceShopId = shop.id.slice(0, -4);
               const sliceEcommerceShopId = orderMatched.ecommerce_shop_id.toString().slice(0, -4);
-
               return sliceShopId === sliceEcommerceShopId
           })
 
           const [ shopId ] = shop_id?.map((shop: any) => shop.id)
-
 
           const orderRequest = {
             "order_sn": orderMatched.reference_code,
@@ -1605,6 +1609,7 @@ const EcommerceOrders: React.FC = () => {
           order_list.push(orderRequest)
         }
       })
+      if (!isOrderMatched) return;
       resetCommonProcess();
       setIsPrintEcommerceDeliveryNote(true);
       dispatch(downloadPrintForm({order_list}, downloadEcommerceDeliveryNote))
