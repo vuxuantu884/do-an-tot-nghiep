@@ -327,17 +327,17 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           ...values,
           is_received: isReceived,
           payment_status: paymentStatus,
-          created_on_min: formatDateTimeOrderFilter(values.created_on_min || initialValues.created_on_min, dateFormat),
-          created_on_max: formatDateTimeOrderFilter(values.created_on_max || initialValues.created_on_max, dateFormat),
-          received_on_min: formatDateTimeOrderFilter(values.received_on_min || initialValues.received_on_min, dateFormat),
-          received_on_max: formatDateTimeOrderFilter(values.received_on_max || initialValues.received_on_max, dateFormat),
+          created_on_min: formatDateTimeOrderFilter(values.created_on_min, dateFormat),
+          created_on_max: formatDateTimeOrderFilter(values.created_on_max, dateFormat),
+          received_on_min: formatDateTimeOrderFilter(values.received_on_min, dateFormat),
+          received_on_max: formatDateTimeOrderFilter(values.received_on_max, dateFormat),
         }
         onFilter && onFilter(valuesForm);
         setRerender(false)
       }
 
     },
-    [formRef, isReceived, paymentStatus, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, dateFormat, onFilter]
+    [formRef, isReceived, paymentStatus, dateFormat, onFilter]
   );
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
