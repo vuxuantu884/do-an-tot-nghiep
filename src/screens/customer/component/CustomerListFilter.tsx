@@ -14,7 +14,7 @@ import FilterDateCustomerCustom from "component/filter/FilterDateCustomerCustom"
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { searchAccountPublicAction} from "domain/actions/account/account.action";
-import { departmentDetailAction } from "domain/actions/account/department.action";
+// import { departmentDetailAction } from "domain/actions/account/department.action";
 import {
   CityByCountryAction,
   DistrictByCityAction,
@@ -32,20 +32,20 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   StyledCustomerBaseFilter,
   StyledCustomerFilter
 } from "screens/customer/customerStyled";
-import { getSourcesWithParamsService } from "service/order/order.service";
+// import { getSourcesWithParamsService } from "service/order/order.service";
 import {
   formatCurrency,
   generateQuery,
-  handleDelayActionWhenInsertTextInSearchInput,
+  // handleDelayActionWhenInsertTextInSearchInput,
   isNullOrUndefined,
   replaceFormatString,
-  sortSources
+  // sortSources
 } from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
 import {
@@ -147,51 +147,50 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   const [lastOrderDateClick, setLastOrderDateClick] = useState("");
 
   //---Handle Source---\\
-  const sourceInputRef = useRef()
+  // const sourceInputRef = useRef()
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
-  const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
-  const [allSources, setAllSources] = useState<Array<SourceResponse>>([]);
-  const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
+  // const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
+  // const [allSources, setAllSources] = useState<Array<SourceResponse>>([]);
+  // const [departmentIds, setDepartmentIds] = useState<number[]|null>(null);
 
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  // const userReducer = useSelector(
+  //   (state: RootReducerType) => state.userReducer
+  // );
+
+  // useEffect(() => {
+	// 	dispatch(getListAllSourceRequest((response) => {
+	// 		setAllSources(response)
+	// 	}));
+  // }, [dispatch]);
+
+  // useEffect(() => {
+  //   let departmentId = userReducer.account?.account_jobs[0]?.department_id;
+  //   if (departmentId) {
+  //     let department: number[] = [];
+  //     department.push(departmentId);
+  //     dispatch(
+  //       departmentDetailAction(departmentId, (response) => {
+  //         if (response && response.parent_id) {
+  //           department.push(response.parent_id);
+  //           setDepartmentIds(department);
+  //         }
+  //       })
+  //     );
+  //   }
+  // }, [dispatch, userReducer.account?.account_jobs]);
+
+  // const getOrderSources = useCallback(async() => {
+	// 	let result:SourceResponse[];
+  //   result= await sortSources(allSources, departmentIds)
+	// 	return result
+	// }, [allSources, departmentIds]);
 
   useEffect(() => {
-		dispatch(getListAllSourceRequest((response) => {
-			setAllSources(response)
-		}));
+    dispatch(getListAllSourceRequest((response) => {
+      // setInitListSource(response);
+      setListSource(response);
+    }))
   }, [dispatch]);
-
-  useEffect(() => {
-    let departmentId = userReducer.account?.account_jobs[0]?.department_id;
-    if (departmentId) {
-      let department: number[] = [];
-      department.push(departmentId);
-      dispatch(
-        departmentDetailAction(departmentId, (response) => {
-          if (response && response.parent_id) {
-            department.push(response.parent_id);
-            setDepartmentIds(department);
-          }
-        })
-      );
-    }
-  }, [dispatch, userReducer.account?.account_jobs]);
-
-  const getOrderSources = useCallback(async() => {
-		let result:SourceResponse[];
-    result= await sortSources(allSources, departmentIds)
-		return result
-	}, [allSources, departmentIds]);
-
-  useEffect(() => {
-		getOrderSources().then((response) => {
-			const sortedSources =  response
-			setInitListSource(sortedSources)
-			setListSource(sortedSources)
-		});
-  }, [getOrderSources]);
 
   const updatePublicAccounts = (data: PageResponse<AccountResponse> | false) => {
     if (!data) {
@@ -2019,23 +2018,23 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   };
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleSearchOrderSources = useCallback((value:string) => {
-		if(value.length > 1) {
-		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
-			 let query = {
-					name: value,
-          active: true
-			 }
-			 getSourcesWithParamsService(query).then((response) => {
-				 setListSource(response.data.items)
-			 }).catch((error) => {
-				 console.log('getSourcesWithParamsService fail', error)
-			 })
-		 })
-		} else {
-			setListSource(initListSource)
-		}
-	}, [initListSource]);
+  // const handleSearchOrderSources = useCallback((value:string) => {
+	// 	if(value.length > 1) {
+	// 	 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
+	// 		 let query = {
+	// 				name: value,
+  //         active: true
+	// 		 }
+	// 		 getSourcesWithParamsService(query).then((response) => {
+	// 			 setListSource(response.data.items)
+	// 		 }).catch((error) => {
+	// 			 console.log('getSourcesWithParamsService fail', error)
+	// 		 })
+	// 	 })
+	// 	} else {
+	// 		setListSource(initListSource)
+	// 	}
+	// }, [initListSource]);
 
   // handle scroll customer filter page
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
