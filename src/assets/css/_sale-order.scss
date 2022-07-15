@@ -227,19 +227,21 @@
     }
     &-item {
       &-icon {
-        width: 24px !important;
-        height: 24px !important;
-        margin-left: 57px !important;
+        width: 16px !important;
+        height: 16px !important;
+        margin-left: 61px !important;
       }
       &-description {
         color: $placeholder-color !important;
       }
       &-wait {
         .ant-steps-item-tail {
-          top: 11px !important;
+          top: 6px !important;
           &::after {
+            height: 1px !important;
+            width: calc(100% - 10px) !important;
             background-color: #d9d9e4 !important;
-            margin-left: 10px !important;
+            margin-left: 5px !important;
           }
         }
         .ant-steps-icon-dot {
@@ -248,11 +250,13 @@
       }
       &-process {
         .ant-steps-item-tail {
-          top: 11px !important;
+          top: 6px !important;
           background-color: #2a2a86;
           &::after {
+            height: 1px !important;
+            width: calc(100% - 10px) !important;
             background-color: #2a2a86 !important;
-            margin-left: 10px !important;
+            margin-left: 5px !important;
           }
         }
         .ant-steps-icon-dot {
@@ -270,7 +274,7 @@
       }
       &-finish {
         .ant-steps-item-tail {
-          top: 11px !important;
+          top: 5px !important;
           &::after {
             background-color: #2a2a86 !important;
             margin-left: 10px !important;

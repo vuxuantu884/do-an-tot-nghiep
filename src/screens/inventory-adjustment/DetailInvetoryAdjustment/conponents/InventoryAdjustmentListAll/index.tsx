@@ -1,35 +1,29 @@
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {
-  InventoryAdjustmentDetailItem,
-  LineItemAdjustment,
-} from "model/inventoryadjustment";
-import { Col, Input, Radio, Row, Space, Table, Tooltip } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { InventoryAdjustmentDetailItem, LineItemAdjustment } from "model/inventoryadjustment";
+import { Form, Radio, Row, Space, Table, Tooltip } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
-import {PurchaseOrderLineItem} from "model/purchase-order/purchase-item.model";
-import {Link} from "react-router-dom";
+import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { Link } from "react-router-dom";
 import { InventoryTabUrl } from "config/url.config";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import {
   getLinesItemAdjustmentAction,
+  updateItemOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
-import {showSuccess} from "utils/ToastUtils";
-import {
-  STATUS_INVENTORY_ADJUSTMENT_CONSTANTS,
-} from "screens/inventory-adjustment/constants";
+import { showSuccess } from "utils/ToastUtils";
+import { STATUS_INVENTORY_ADJUSTMENT_CONSTANTS } from "screens/inventory-adjustment/constants";
 import {
   CodepenOutlined,
   InfoCircleOutlined,
   PieChartOutlined,
   ReloadOutlined,
-  SearchOutlined,
   UserSwitchOutlined,
 } from "@ant-design/icons";
-import {ICustomTableColumType} from "component/table/CustomTable";
+import { ICustomTableColumType } from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
 import { InventoryAdjustmentPermission } from "config/permissions/inventory-adjustment.permission";
 import CustomPagination from "component/table/CustomPagination";
 import { PageResponse } from "model/base/base-metadata.response";
-import _ from "lodash";
 import { formatCurrency } from "../../../../../utils/AppUtils";
 import EditNote from "screens/order-online/component/edit-note";
 import { callApiNative } from "utils/ApiUtils";
@@ -37,8 +31,10 @@ import {
   updateOnHandItemOnlineInventoryApi,
   updateReasonItemOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
+import _ from "lodash";
 import { searchVariantsApi } from "service/product/product.service";
 import { STATUS_INVENTORY_ADJUSTMENT } from "../../../ListInventoryAdjustment/constants";
+import NumberInput from "../../../../../component/custom/number-input.custom";
 
 const arrTypeNote = [
   {key: 1,value: "XNK sai quy trình"},
@@ -49,7 +45,14 @@ const arrTypeNote = [
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
   idNumber: number,
+  keySearch: string,
+  tab: string,
+  isPermissionAudit: boolean,
+  isRerenderTab: boolean,
+  tableLoading: boolean,
   objSummaryTableByAuditTotal: any,
+  setIsReRender: () => void,
+  setDataTab?: (value: any) => void,
 };
 
 export interface Summary {
@@ -72,10 +75,21 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   });
 
   const [loadingTable, setLoadingTable] = useState(false);
-  const [keySearch, setKeySearch] = useState<string>("");
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
 
-  const {data, idNumber, objSummaryTableByAuditTotal} = props;
+  const {
+    data,
+    idNumber,
+    objSummaryTableByAuditTotal,
+    isRerenderTab,
+    tableLoading,
+    keySearch,
+    isPermissionAudit,
+    tab,
+    setIsReRender,
+    setDataTab,
+  } = props;
 
   //phân quyền
   const [allowUpdate] = useAuthorization({
@@ -136,12 +150,81 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
 
       if (res) {
         showSuccess("Cập nhật tồn trong kho thành công");
-        getLinesItemAdjustment(dataLinesItem.metadata.page, dataLinesItem.metadata.limit, '');
+        getLinesItemAdjustment(dataLinesItem.metadata.page, dataLinesItem.metadata.limit, "");
       }
     } else {
       setLoadingTable(false);
     }
   };
+
+  const onRealQuantityChange = useCallback(
+    (quantity: number | any, row: LineItemAdjustment) => {
+      const dataTableClone: Array<LineItemAdjustment> = _.cloneDeep(dataLinesItem.items);
+
+      dataTableClone.forEach((item) => {
+        quantity = quantity ?? 0;
+
+        if (item.id === row.id) {
+          item.real_on_hand = quantity;
+          let totalDiff: number;
+          totalDiff = quantity - item.on_hand;
+          if (totalDiff === 0) {
+            item.on_hand_adj = null;
+            item.on_hand_adj_dis = null;
+          } else if (item.on_hand < quantity) {
+            item.on_hand_adj = totalDiff;
+            item.on_hand_adj_dis = `+${totalDiff}`;
+          } else if (item.on_hand > quantity) {
+            item.on_hand_adj = totalDiff;
+            item.on_hand_adj_dis = `${totalDiff}`;
+          }
+        }
+      });
+    },
+    [dataLinesItem.items],
+  );
+
+  const debounceChangeRealOnHand = useMemo(() =>
+      _.debounce((row: LineItemAdjustment, realOnHand: number) => {
+        if (row.real_on_hand === realOnHand && realOnHand !== 0) {
+          return;
+        }
+        onRealQuantityChange(realOnHand, row);
+        let value = realOnHand;
+        row.real_on_hand = realOnHand;
+        let totalDiff: number;
+        totalDiff = value - row.on_hand;
+        if (totalDiff === 0) {
+          row.on_hand_adj = null;
+          row.on_hand_adj_dis = null;
+        } else if (row.on_hand < value) {
+          row.on_hand_adj = totalDiff;
+          row.on_hand_adj_dis = `+${totalDiff}`;
+        } else if (row.on_hand > value) {
+          row.on_hand_adj = totalDiff;
+          row.on_hand_adj_dis = `${totalDiff}`;
+        }
+        if (!data || (!data.id)) {
+          return null;
+        }
+
+        setLoadingTable(true);
+
+        dispatch(
+          updateItemOnlineInventoryAction(data.id, row.id, row, (result: LineItemAdjustment) => {
+            setLoadingTable(false);
+            if (result) {
+              showSuccess("Nhập số kiểm thành công.");
+              setIsReRender();
+              const version = form.getFieldValue("version");
+              form.setFieldsValue({ version: version + 1 });
+            }
+          }),
+        );
+      }, 0),
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+    [data, dispatch, onRealQuantityChange, form, keySearch],
+  );
 
   const defaultColumns: Array<ICustomTableColumType<any>> = [
     {
@@ -200,8 +283,10 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       title: () => {
         return (
           <>
-            <div className="number-text">Đang giao</div>
-            <div>({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})</div>
+            <div>Đang giao</div>
+            <div
+              className="number-text">({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})
+            </div>
           </>
         );
       },
@@ -249,15 +334,27 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Số kiểm</div>
-            <div>({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
+            <div className="number-text">({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
           </>
         );
       },
       dataIndex: "real_on_hand",
       align: "center",
       width: 80,
-      render: (value) => {
-        return value || 0;
+      render: (value, row: LineItemAdjustment) => {
+        if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate) {
+          return (
+            <NumberInput
+              disabled={!isPermissionAudit}
+              min={0}
+              maxLength={12}
+              value={value}
+              onBlur={(e: any) => debounceChangeRealOnHand(row, e.target.value !== "" ? e.target.value : 0)}
+            />
+          );
+        } else {
+          return value ?? "";
+        }
       },
     },
     {
@@ -373,7 +470,8 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     (result: PageResponse<LineItemAdjustment> | false) => {
       setLoadingTable(false);
       if (result) {
-        setDataLinesItem({...result});
+        setDataLinesItem({ ...result });
+        setDataTab && setDataTab(result);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps,
@@ -382,15 +480,16 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
 
   const getLinesItemAdjustment = useCallback((page: number,size: number, keySearch: string|null)=>{
     setTimeout(() => {
+      setLoadingTable(true);
       dispatch(
         getLinesItemAdjustmentAction(
           idNumber,
-          `page=${page}&limit=${size}&type=total&condition=${keySearch?.toString()}`,
-          onResultDataTable
-        )
+          `page=${page}&limit=${size}&type=${tab === "1" ? "deviant" : "total"}&condition=${keySearch?.toString()}`,
+          onResultDataTable,
+        ),
       );
     }, 0);
-  },[idNumber, dispatch, onResultDataTable]);
+  }, [dispatch, idNumber, tab, onResultDataTable]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -399,70 +498,28 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     [keySearch, getLinesItemAdjustment]
   );
 
-  const onEnterFilterVariant = useCallback(
-    (code: string) => {
-      getLinesItemAdjustment(1,30,code);
-    },
-    [getLinesItemAdjustment]
-  );
-
-  const debounceSearchVariant = useMemo(()=>
-    _.debounce((code: string)=>{
-      onEnterFilterVariant(code);
-  }, 300),
-  [onEnterFilterVariant]
-  );
-
-  const onChangeKeySearch = useCallback((code: string)=>{
-    debounceSearchVariant(code);
-  },[debounceSearchVariant]);
-
   useEffect(() => {
-    getLinesItemAdjustment(dataLinesItem.metadata.page,dataLinesItem.metadata.limit, "");
+    getLinesItemAdjustment(dataLinesItem.metadata.page, dataLinesItem.metadata.limit, keySearch);
     // eslint-disable-next-line react-hooks/exhaustive-deps,
-  }, []);
+  }, [isRerenderTab, keySearch, tab]);
 
   return (
     <>
-      {/* Tìm kiếm */}
-      <Row style={{marginTop: 8, paddingLeft: 0}}>
-        <Col span={24}>
-          <Input.Group className="display-flex">
-            <Input
-              value={keySearch}
-              onChange={(e) => {
-                setKeySearch(e.target.value);
-                onChangeKeySearch(e.target.value);
-              }}
-              onKeyPress={(event) => {
-                if (event.key === "Enter") {
-                  event.preventDefault();
-                }
-              }}
-              style={{marginLeft: 8}}
-              placeholder="Tìm kiếm sản phẩm trong phiếu"
-              addonAfter={
-                <SearchOutlined
-                  onClick={() => {
-                  }}
-                  style={{color: "#2A2A86"}}
-                />
-              }
-            />
-          </Input.Group>
-        </Col>
-      </Row>
-
       {/* Danh sách */}
+      {data.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.INITIALIZING && (
+        <div className="text-center font-weight-500 margin-top-20">
+          Đang xử lý sản phẩm cần kiểm kho, vui lòng đợi giây lát...
+        </div>
+      )}
       <Table
-        loading={loadingTable}
+        loading={loadingTable || tableLoading}
         rowClassName="product-table-row"
-        style={{paddingTop: 16}}
+        style={{ paddingTop: 16 }}
         pagination={false}
         columns={defaultColumns}
         sticky
         scroll={{
-          x: 'max-content',
+          x: "max-content",
         }}
         dataSource={dataLinesItem.items}
       />
