@@ -1,7 +1,8 @@
-import { Divider, Form, FormInstance, InputNumber, Radio } from 'antd';
+import { Divider, Form, FormInstance, Radio } from 'antd';
 import React from 'react';
-import { DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE, PRICE_RULE_FIELDS } from 'screens/promotion/constants';
-import { formatDiscountValue } from 'utils/PromotionUtils';
+import { DiscountUnitType, PRICE_RULE_FIELDS } from 'screens/promotion/constants';
+import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import NumberInput from "component/custom/number-input.custom";
 
 interface Props {
   form: FormInstance;
@@ -26,9 +27,10 @@ const InputiscountOrderThreshold = (props: Props) => {
             setIsDiscountByPercentage(e.target.value === DiscountUnitType.PERCENTAGE.value);
             const ruleData = form.getFieldValue(PRICE_RULE_FIELDS.rule);
             ruleData.value = null;
+            form.validateFields();
           }}
         >
-          <Radio value={DiscountUnitType.FIXED_AMOUNT.value}>Chiết khấu đ</Radio>
+          <Radio value={DiscountUnitType.FIXED_AMOUNT.value}>Chiết khấu VND</Radio>
           <Radio value={DiscountUnitType.PERCENTAGE.value}>Chiết khấu %</Radio>
         </Radio.Group>
       </Form.Item>
@@ -48,7 +50,7 @@ const InputiscountOrderThreshold = (props: Props) => {
               ) {
                 if (value > 100) {
                   return Promise.reject(
-                    "Giá trị phải nhỏ hơn hoặc bằng 100",
+                    "Giá trị phải nhỏ hơn hoặc bằng 100%",
                   );
                 }
               }
@@ -57,13 +59,13 @@ const InputiscountOrderThreshold = (props: Props) => {
           }))
         ]}
       >
-        <InputNumber
-          max={isDiscountByPercentage ? 100 : MAX_FIXED_DISCOUNT_VALUE}
-          step={isDiscountByPercentage ? 0.01 : 1}
+        <NumberInput
+          style={{ width: "300px", textAlign: "left" }}
+          format={(a: string) => formatCurrency(a)}
+          replace={(a: string) => replaceFormatString(a)}
           placeholder="Nhập giá trị chiết khấu"
-          style={{ width: "300px" }}
-
-          formatter={(value) => formatDiscountValue(value, isDiscountByPercentage)}
+          maxLength={isDiscountByPercentage ? 3 : 11}
+          minLength={0}
         />
       </Form.Item>
     </div>
