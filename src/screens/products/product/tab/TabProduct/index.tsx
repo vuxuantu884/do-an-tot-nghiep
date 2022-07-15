@@ -6,7 +6,7 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
 import { AppConfig } from "config/app.config";
 import { ProductPermission } from "config/permissions/product.permission";
-import UrlConfig, { BASE_NAME_ROUTER, ProductTabUrl } from "config/url.config";
+import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
@@ -34,23 +34,20 @@ import React, {
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
-import { searchVariantsApi } from "service/product/product.service";
 import { formatCurrencyForProduct, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
-import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE, STATUS_IMPORT_EXPORT } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import ExportProduct from "../../component/ExportProduct";
 import ImageProduct from "../../component/image-product.component";
 import UploadImageModal, { VariantImageModel } from "../../component/upload-image.modal";
 import ProductFilter from "../../filter/ProductFilter";
 import { StyledComponent } from "../style";
-import * as XLSX from 'xlsx';
-import { VariantExportField, VariantExportMapping } from "model/product/product-mapping";
-import { callApiNative } from "utils/ApiUtils";
-import moment from "moment";
-import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
+import { HttpStatus } from "config/http-status.config";
 import useSetTableColumns from "hook/table/useSetTableColumns";
+import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -72,12 +69,7 @@ const initQuery: VariantSearchQuery = {
 
 let variantResponse: VariantResponse | null = null;
 
-let firstLoad = true;
-
 const TabProduct: React.FC<any> = (props) => {
-  const product_units = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
-  );
   const { vExportProduct, setVExportProduct } = props;
   const query = useQuery();
   const history = useHistory();
@@ -112,12 +104,13 @@ const TabProduct: React.FC<any> = (props) => {
   });
   const [rowKey, setRowKey] = useState<Array<any>>([]);
   const dispatch = useDispatch();
-  const [totalVariant,setTotalVariant] = useState<number>(0)
-  const [exportProgress, setExportProgress] = useState<number>(0);
-  const [loadingExport, setLoadingExport] = useState<boolean>(false);  
   const [canUpdatesaleable] = useAuthorization({
     acceptPermissions: [ProductPermission.update_saleable],
   });
+  const [loadingExport, setLoadingExport] = useState<boolean>(false);
+  const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
+  const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
+  const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
 
   const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
@@ -173,10 +166,6 @@ const TabProduct: React.FC<any> = (props) => {
   const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!!result) {
       setData(result);
-      if (firstLoad) {
-        setTotalVariant(result.metadata.total);
-      }
-      firstLoad = false;
     }
     setTableLoading(false);
   }, []);  
@@ -535,139 +524,110 @@ const TabProduct: React.FC<any> = (props) => {
     [setSelected]
   );
 
-  const convertItemExport = (item: VariantResponse) => {
-    return {
-      [`${VariantExportMapping[VariantExportField.product_code]}`]: item.product.code,
-      [`${VariantExportMapping[VariantExportField.product_name]}`]: item.product.name,
-      [`${VariantExportMapping[VariantExportField.barcode]}`]: item.barcode,
-      [`${VariantExportMapping[VariantExportField.sku]}`]: item.sku,
-      [`${VariantExportMapping[VariantExportField.name]}`]: item.name,
-      [`${VariantExportMapping[VariantExportField.unit]}`]: product_units ? product_units.find(e=>e.value === item.product.unit)?.name :null,
-      [`${VariantExportMapping[VariantExportField.images]}`]: item.variant_images?.map(e=>e.url).toString(),
-      [`${VariantExportMapping[VariantExportField.weight]}`]: item.weight,
-      [`${VariantExportMapping[VariantExportField.import_price]}`]: item.variant_prices[0].import_price ?? null,
-      [`${VariantExportMapping[VariantExportField.cost_price]}`]: item.variant_prices[0].cost_price ?? null,
-      [`${VariantExportMapping[VariantExportField.retail_price]}`]: item.variant_prices[0].retail_price ?? null,
-      [`${VariantExportMapping[VariantExportField.wholesale_price]}`]: item.variant_prices[0].wholesale_price ?? null,
-      [`${VariantExportMapping[VariantExportField.saleable]}`]: item.saleable ? "Hoạt động" : "Ngừng hoạt động",
-      [`${VariantExportMapping[VariantExportField.total_stock]}`]: item.total_stock,
-      [`${VariantExportMapping[VariantExportField.on_hand]}`]: item.on_hand,
-      [`${VariantExportMapping[VariantExportField.available]}`]: item.available,
-      [`${VariantExportMapping[VariantExportField.committed]}`]: item.committed,
-      [`${VariantExportMapping[VariantExportField.on_hold]}`]: item.on_hold,
-      [`${VariantExportMapping[VariantExportField.defect]}`]: item.defect,
-      [`${VariantExportMapping[VariantExportField.in_coming]}`]: item.in_coming,
-      [`${VariantExportMapping[VariantExportField.on_way]}`]: item.on_way,
-      [`${VariantExportMapping[VariantExportField.transferring]}`]: item.transferring,
-      [`${VariantExportMapping[VariantExportField.shipping]}`]: item.shipping,
-      //[`${VariantExportMapping[VariantExportField.category_code]}`]: null,
-      [`${VariantExportMapping[VariantExportField.category]}`]: item.product ? item.product.category : null,
-      [`${VariantExportMapping[VariantExportField.brand]}`]: item.product ? item.product.brand_name : null,
-      [`${VariantExportMapping[VariantExportField.supplier]}`]: item.supplier,
-      [`${VariantExportMapping[VariantExportField.length]}`]: item.length,
-      [`${VariantExportMapping[VariantExportField.width]}`]: item.width,
-      [`${VariantExportMapping[VariantExportField.height]}`]: item.height,
-      [`${VariantExportMapping[VariantExportField.link]}`]: `${document.location.origin}${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`,
-    };
-  }
-
-  const getVariantsByCondition = useCallback(async (type: string) => {
-    let res: any; 
-    let items: Array<VariantResponse> = [];
-    const limit = 50;
-    let times = 0;
+  const getConditions = useCallback((type: string) => {
+    let conditions = {};
     switch (type) {
-      case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, params);
-        if (res) {
-          items = res.items;
-        }
-        setExportProgress(100);
-        break;
       case TYPE_EXPORT.selected:
-        const ids = selected.map(e => e.id);
-        res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, { variant_ids: ids.toString() });
-        items = res.items;
+        let variant_ids = selected.map(e=>e.id).toString();
+
+        conditions = {variant_ids:variant_ids};
+          
+        break;
+      case TYPE_EXPORT.page:
+        conditions = {...params,
+          limit: params.limit ?? 30,
+          page: params.page ?? 1};
         break;
       case TYPE_EXPORT.all:
-        const roundAll = Math.round(data.metadata.total / limit);
-        times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
-        for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport"); 
-          if (output) output.innerHTML=items.length.toString();
-          
-          const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
-          if (res) {
-            items= items.concat(res.items);
-          }
-          
-          const percent = Math.round(Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100);
-          setExportProgress(percent);
-        }
-        break;
-      case TYPE_EXPORT.allin:
-        if (!totalVariant || totalVariant===0) {
-          break;
-        }
-        const roundAllin = Math.round(totalVariant / limit);
-        times = roundAllin < (totalVariant / limit) ? roundAllin + 1 : roundAllin;
-        for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport"); 
-          if (output) output.innerHTML=items.length.toString();
-          
-          const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {...params,page: index,limit:limit});
-          if (res) {
-            items= items.concat(res.items);
-          }
-
-          const percent = Math.round(Number.parseFloat((items.length/data.metadata.total).toFixed(2))*100);
-          setExportProgress(percent);
-        }
-        break;
-      default:
+        conditions = {...params
+          ,page:undefined
+          ,limit:undefined};
         break;
     }
-    return items;
-  },[dispatch,selected,params,data,totalVariant])  
+    return conditions;
+  },[params,selected]);
+
+  const resetExport= ()=>{
+    setVExportProduct(false);
+    setLoadingExport(false);
+    setExportProgressDetail(0);
+  }
 
   const actionExport = {
     Ok: async (typeExport: string) => {
       setLoadingExport(true);
-      let dataExport: any = [];
       if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
         showWarning("Bạn chưa chọn sản phẩm để xuất file");
         setVExportProduct(false);
         return;
       }
 
-      const res = await getVariantsByCondition(typeExport);
-      if (res && res.length === 0) {
-        showWarning("Không có sản phẩm nào đủ điều kiện");
-        return;
-      }
-      for (let i = 0; i < res.length; i++) {
-        const e = res[i];
-        const item = convertItemExport(e);
-        dataExport.push(item);
-      }
-
-      let worksheet = XLSX.utils.json_to_sheet(dataExport);
-      const workbook = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-      const today = moment(new Date(), 'YYYY/MM/DD');
-
-      const month = today.format('M');
-      const day   = today.format('D');
-      const year  = today.format('YYYY');
-      XLSX.writeFile(workbook, `products_${day}_${month}_${year}.xlsx`);
-      setVExportProduct(false);
-      setLoadingExport(false);
+      const conditions =  getConditions(typeExport);
+      const queryParam = generateQuery({...conditions});
+      exportFileV2({
+        conditions: queryParam,
+        type: "TYPE_EXPORT_PRODUCT_VARIANT",
+      })
+        .then((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            showSuccess("Đã gửi yêu cầu xuất file");
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            setListExportFileDetail([...listExportFileDetail, response.data.code]);
+          }
+        })
+        .catch(() => {
+          setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          resetExport();
+        });
     },
     Cancel: () => {
-      setVExportProduct(false);
-      setLoadingExport(false);
+      resetExport();
     },
   }
+
+  const checkExportFileDetail = useCallback(() => {
+    let getFilePromises = listExportFileDetail.map((code) => {
+      return getFileV2(code);
+    });
+    Promise.all(getFilePromises).then((responses) => {
+      responses.forEach((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          if (response.data.total || response.data.total !== 0) {
+            setExportProgressDetail(response.data.percent);
+          }
+          if (response.data && response.data.status === "FINISH") {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.JOB_FINISH);
+            const fileCode = response.data.code;
+            const newListExportFile = listExportFileDetail.filter((item) => {
+              return item !== fileCode;
+            });
+            var downLoad = document.createElement("a");
+            downLoad.href = response.data.url;
+            downLoad.download = "download";
+
+            downLoad.click();
+            setListExportFileDetail(newListExportFile);
+            resetExport();
+          }else if (response.data && response.data.status === "ERROR") {
+            setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
+            if (response.data.message) {
+              showError(response.data.message);
+            }
+          }
+        }
+      });
+    });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [listExportFileDetail]);
+
+  useEffect(() => {
+    if (listExportFileDetail.length === STATUS_IMPORT_EXPORT.NONE || statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH || statusExportDetail === STATUS_IMPORT_EXPORT.ERROR) return;
+    checkExportFileDetail();
+
+    const getFileInterval = setInterval(checkExportFileDetail, 3000);
+    return () => clearInterval(getFileInterval);
+  }, [listExportFileDetail, checkExportFileDetail, statusExportDetail]);
 
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountry));
@@ -750,7 +710,7 @@ const TabProduct: React.FC<any> = (props) => {
         onOk={actionExport.Ok}
         visible={vExportProduct}
         loading={loadingExport}
-        exportProgress={exportProgress}
+        exportProgress={exportProgressDetail}
       />
  
     </StyledComponent>
