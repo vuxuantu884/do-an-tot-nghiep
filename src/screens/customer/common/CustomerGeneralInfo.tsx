@@ -9,6 +9,7 @@ import {
   Space,
   Switch,
   AutoComplete,
+  Spin,
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
@@ -16,11 +17,12 @@ import "moment/locale/vi";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
 import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
 
-import { SearchOutlined } from "@ant-design/icons";
+import {LoadingOutlined} from "@ant-design/icons";
 import { GENDER_OPTIONS } from "utils/Constants";
 import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
 import {WardGetByDistrictAction} from "domain/actions/content/content.action";
 import {debounce} from "lodash";
+import search from "assets/img/search.svg";
 
 const { Option } = Select;
 
@@ -45,7 +47,7 @@ const CustomerGeneralInfo = (props: any) => {
   const autoCompleteRef = createRef<RefSelectProps>();
 
   const [keySearchCard, setKeySearchCard] = useState("");
-  const [isInputSearchCardFocus, setIsInputSearchCardFocus] = useState(false);
+  const [isSearchingCards, setIsSearchingCards] = useState(false);
 
   const [resultSearchVariant, setResultSearchVariant] = useState<any>(
     {
@@ -58,33 +60,38 @@ const CustomerGeneralInfo = (props: any) => {
     }
   );
 
-  const customerCardParams = {
-    statuses: ["ACTIVE"],
-    request: "",
-  }
-
-
   const onSelectCard = (cardSelected: any) => {
-    setIsInputSearchCardFocus(false);
+    setKeySearchCard(cardSelected);
     autoCompleteRef.current?.blur();
   };
 
   const updateLoyaltyCard = (result: any) => {
+    setIsSearchingCards(false);
     setResultSearchVariant(result);
   };
 
-  const onChangeCardSearch = (value: string) => {
+  const onChangeCardSearch = useCallback((value: string) => {
     setKeySearchCard(value);
-    if (value && Number(value) && value.length >= 3) {
-      customerCardParams.request = value;
-      dispatch(LoyaltyCardSearch(customerCardParams, updateLoyaltyCard));
+    if(value?.trim().length >= 3) {
+      setIsSearchingCards(true);
+      const query = {
+        statuses: ["ACTIVE"],
+        request: value.trim(),
+      }
+      dispatch(LoyaltyCardSearch(query, updateLoyaltyCard));
+    } else {
+      setIsSearchingCards(false);
     }
-  };
+  }, [dispatch]);
+
+  const handleOnChangeCardSearch = debounce((value: string) => {
+    onChangeCardSearch(value);
+  }, 800);
 
   const convertResultSearchCard = useMemo(() => {
     let options: any[] = [];
     resultSearchVariant.items.forEach(
-      (item: any, index: number) => {
+      (item: any) => {
         options.push({
           label: item.card_number,
           value: item.card_number,
@@ -93,22 +100,6 @@ const CustomerGeneralInfo = (props: any) => {
     );
     return options;
   }, [resultSearchVariant]);
-
-  const onInputSearchCardFocus = () => {
-    setIsInputSearchCardFocus(true);
-  };
-
-  const onInputSearchCardBlur = () => {
-    setIsInputSearchCardFocus(false);
-  };
-
-  const getNotFoundContent = () => {
-    let content = undefined;
-    if (Number(keySearchCard) && keySearchCard.length >= 3) {
-      content = "Không tìm thấy thẻ khách hàng";
-    }
-    return content;
-  };
 
   // handle input name
   const handleBlurInputName = (value: any) => {
@@ -266,26 +257,29 @@ const CustomerGeneralInfo = (props: any) => {
           >
             <AutoComplete
               disabled={isLoading}
-              notFoundContent={getNotFoundContent()}
+              notFoundContent={isSearchingCards ? <Spin size="small"/> : "Không tìm thấy thẻ khách hàng"}
               id="search_card"
               value={keySearchCard}
               ref={autoCompleteRef}
               onSelect={onSelectCard}
               dropdownClassName="search-layout dropdown-search-header"
               dropdownMatchSelectWidth={360}
-              onSearch={onChangeCardSearch}
+              onSearch={handleOnChangeCardSearch}
               options={convertResultSearchCard}
               maxLength={255}
-              open={isInputSearchCardFocus}
-              onFocus={onInputSearchCardFocus}
-              onBlur={onInputSearchCardBlur}
               dropdownRender={(menu) => <div style={{ padding: 10 }}>{menu}</div>}
             >
               <Input
                 maxLength={255}
                 placeholder="Nhập thẻ khách hàng"
-                prefix={<SearchOutlined style={{ color: "#ABB4BD" }} />}
                 allowClear
+                prefix={
+                  isSearchingCards ? (
+                    <LoadingOutlined style={{ color: "#2a2a86" }} />
+                  ) : (
+                    <img alt="" src={search} />
+                  )
+                }
               />
             </AutoComplete>
           </Form.Item>

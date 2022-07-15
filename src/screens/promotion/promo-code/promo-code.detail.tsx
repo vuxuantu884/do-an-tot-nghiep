@@ -22,7 +22,6 @@ import {
   bulkEnablePriceRulesAction, getPriceRuleAction, getVariantsAction
 } from "domain/actions/promotion/discount/discount.action";
 import {
-  addPromoCode,
   getListPromoCode
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
@@ -447,17 +446,6 @@ const PromotionDetailScreen: React.FC = () => {
         dispatch(hideLoading());
       });
   }
-
-  const addCallBack = useCallback(
-    (response) => {
-      dispatch(hideLoading());
-      if (response) {
-        showSuccess("Thêm thành công");
-        getDiscountCodeData();
-      }
-    },
-    [dispatch, getDiscountCodeData]
-  );
 
   /**
    * Clone KM

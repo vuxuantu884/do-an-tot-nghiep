@@ -188,6 +188,8 @@ const CustomerUpdate = (props: any) => {
         return _item;
       }),
       contacts: customer.contacts,
+      phone: values.phone?.trim(),
+      card_number: values.card_number?.trim(),
       identity_number: values.identity_number?.trim(),
     };
 
