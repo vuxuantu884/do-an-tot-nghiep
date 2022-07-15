@@ -114,13 +114,15 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     const supplier = data[index];
     const supplierAddress = transformSupplier(supplier);
     const condition = supplier.debt_time && supplier.debt_time_unit_name && supplier.debt_time + " " + supplier.debt_time_unit_name;
+    console.log(supplier.debt_time, supplier.debt_time_unit)
     formMain.setFieldsValue({
       supplier_id: value,
       supplier: data[index].name,
       billing_address: supplierAddress,
       supplier_address: supplierAddress,
       phone: supplier.phone,
-      [POField.payment_condition_name]: condition,
+      payment_condition_id: supplier.debt_time,
+      payment_condition_name: supplier.debt_time_unit,
     });
     setIsSelectSupplier(true);
   };

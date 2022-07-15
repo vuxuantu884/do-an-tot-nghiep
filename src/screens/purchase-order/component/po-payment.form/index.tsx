@@ -12,11 +12,13 @@ import {
   Input,
   Progress,
   Row,
+  Select,
   Space,
   Tag,
   Timeline
 } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
+import NumberInput from "component/custom/number-input.custom";
 import { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { PoPaymentUpdateAction } from "domain/actions/po/po-payment.action";
@@ -24,10 +26,12 @@ import { PoUpdateFinancialStatusAction } from "domain/actions/po/po.action";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
 import React, { lazy, useCallback, useEffect, useState } from "react";
 import { AiOutlinePlus } from "react-icons/ai";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 import { formatCurrency } from "utils/AppUtils";
 import {
   PoFinancialStatus,
@@ -39,6 +43,14 @@ import {
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
+
+enum enumConvertDate {
+  DAY = "day",
+  MONTH = "month",
+  YEAR = "year"
+}
+
+const { Option } = Select;
 
 const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
 const PaymentModal = lazy(() => import("screens/purchase-order/modal/payment.modal"))
@@ -71,7 +83,10 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     visible: false,
   });
 
-
+  const date_unit = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.date_unit
+  );
+  const isEditPaymentCondition = (poData.status === POStatus.DRAFT || poData.status === POStatus.WAITING_APPROVAL)
 
   const CancelPaymentModal = () => {
     setVisiblePaymentModal(false);
@@ -105,6 +120,20 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     },
     [props]
   );
+
+  const convertDate = (date: enumConvertDate) => {
+    switch (date) {
+      case enumConvertDate.DAY:
+        return "Ngày";
+      case enumConvertDate.MONTH:
+        return "Tháng";
+      case enumConvertDate.YEAR:
+        return "Năm";
+      default:
+        return "";
+
+    }
+  }
 
   const finishPayment = useCallback(() => {
     setConfirmPayment(true);
@@ -259,7 +288,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           <Input />
         </Form.Item>
         <div>
-          <Row gutter={24} className="margin-bottom-20 row-payment-info">
+          <Row gutter={24} className="margin-bottom-20 row-payment-info" >
             <Col xs={24} lg={8} className="closing-date">
               {isEditMode ? <Form.Item
                 name={POField.ap_closing_date}
@@ -272,7 +301,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                   format={DATE_FORMAT.DDMMYYY}
                   disabledDate={(current) => current >= moment().endOf("day") || current < moment().endOf("days").subtract(7, "days")}
                 />
-             
+
               </Form.Item>
                 :
                 <> <span className="text-field margin-right-10">
@@ -283,39 +312,72 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                 </>
               }
             </Col>
-            <Col xs={24} lg={8}>
-              <div className="shortInformation__column">
-                <span className="text-field margin-right-10">
-                  Điều khoản thanh toán:
-                </span>
-                <span>
-                  <strong className="po-payment-row-title">
-                    <Form.Item
-                      name={POField.payment_condition_id}
-                      noStyle
-                      hidden
-                    >
-                      <Input />
-                    </Form.Item>
-                    <Form.Item
-                      noStyle
-                      shouldUpdate={(prev, current) =>
-                        prev[POField.payment_condition_name] !==
-                        current[POField.payment_condition_name]
-                      }
-                    >
-                      {({ getFieldValue }) => {
-                        let payment_condition_name = getFieldValue(
-                          POField.payment_condition_name
-                        );
-                        return payment_condition_name;
-                      }}
-                    </Form.Item>
-                  </strong>
-                </span>
-              </div>
+            <Col xs={24} lg={isEditMode && isEditPaymentCondition ? 10 : 8}>
+
+              {
+                isEditMode && isEditPaymentCondition ?
+                  <StyledFormItem label="Điều khoản thanh toán:">
+                    <Input.Group className="ip-group" compact>
+                      <Form.Item name="payment_condition_id" noStyle>
+                        <NumberInput
+                          isFloat
+                          style={{ width: "70%" }}
+                          placeholder="Nhập thời gian công nợ"
+                        />
+                      </Form.Item>
+                      <Form.Item name="payment_condition_name" noStyle>
+                        <Select
+                          className="selector-group"
+                          defaultActiveFirstOption
+                          style={{ width: "30%" }}
+                        >
+                          {date_unit?.map((item) => (
+                            <Option key={item.value} value={item.value}>
+                              {item.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      </Form.Item>
+                    </Input.Group>
+                  </StyledFormItem>
+                  :
+                  <div className="shortInformation__column">
+                    <span className="text-field margin-right-10">
+                      Điều khoản thanh toán:
+                    </span>
+                    <span>
+                      <strong className="po-payment-row-title">
+                        <Form.Item
+                          name={POField.payment_condition_id}
+                          noStyle
+                          hidden
+                        >
+                          <Input />
+                        </Form.Item>
+                        <Form.Item
+                          noStyle
+                          shouldUpdate={(prev, current) =>
+                            (prev[POField.payment_condition_id] !==
+                              current[POField.payment_condition_id]) || (prev[POField.payment_condition_name] !==
+                                current[POField.payment_condition_name])
+                          }
+                        >
+                          {({ getFieldValue }) => {
+                            const payment_condition_name = (getFieldValue(
+                              POField.payment_condition_id
+                            ) || "") + " " +
+                              convertDate(getFieldValue(
+                                POField.payment_condition_name
+                              ));
+                            return payment_condition_name;
+                          }}
+                        </Form.Item>
+                      </strong>
+                    </span>
+                  </div>
+              }
             </Col>
-            <Col xs={24} lg={8}>
+            <Col xs={24} lg={isEditMode && isEditPaymentCondition ? 6 : 8}>
               <div className="shortInformation__column">
                 <span className="text-field margin-right-10">Diễn giải:</span>
                 <span>
@@ -653,5 +715,21 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     </StyledComponent>
   );
 };
+
+const StyledFormItem = styled(Form.Item)`
+flex-direction: row !important;
+ margin-bottom: 0px !important;
+align-items: center !important;
+.ant-col.ant-form-item-label {
+  padding: 0 !important;
+  margin-right: 12px;
+}
+.ant-input {
+  max-width: 100px;
+}
+.ant-select.selector-group.ant-select-single.ant-select-show-arrow {
+  width: 85px !important;
+}
+`
 
 export default POPaymentForm;
