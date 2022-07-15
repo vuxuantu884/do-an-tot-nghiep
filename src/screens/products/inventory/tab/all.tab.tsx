@@ -111,7 +111,7 @@ const AllTab: React.FC<any> = (props) => {
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
   const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
-  const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.DEFAULT);
+  const [statusExport, setStatusExport] = useState<number>(0);
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
   const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
   const [loading,setLoading]=useState<boolean>(false);
@@ -172,6 +172,7 @@ const AllTab: React.FC<any> = (props) => {
       setStoreIds(newPrams.store_ids);
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
+      
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     },
     [history, params, setConditionFilter, setStoreIds]
@@ -769,7 +770,7 @@ const AllTab: React.FC<any> = (props) => {
       case TYPE_EXPORT.page:
         conditions = {...params,
           limit: params.limit,
-          page: 1};
+          page: params.page ?? 1};
         break;
       case TYPE_EXPORT.all:
         conditions = {...params
@@ -789,7 +790,6 @@ const AllTab: React.FC<any> = (props) => {
         return;
       }
       const conditions =  getConditions(typeExport);
-      
       const queryParam = generateQuery({...conditions});
       exportFileV2({
         conditions: queryParam,
@@ -812,24 +812,23 @@ const AllTab: React.FC<any> = (props) => {
       setShowExportModal(false);
       setExportProgressDetail(0);
       setStatusExportDetail(0);
+      setExportProgress(0);
+      setStatusExport(0);
     },
-    OnExport: useCallback(()=>{
-      let remain = "total_stock";
-      if (params.remain) {
-        remain= params.remain;
-      }
-      
+    OnExport: useCallback((typeExport: string)=>{
       let objConditions = {
         store_ids: params.store_ids?.toString(),
-        remain: remain
+        remain: params.remain
       };
-      let conditions = "remain=total_stock";
-      if (params.store_ids) {
-        conditions = `store_ids=${objConditions.store_ids}&remain=${objConditions.remain}`;
-      }
+      
+      let conditions:any =  getConditions(typeExport);
+      conditions.store_ids = objConditions.store_ids;
+      conditions.remain = objConditions.remain;
+      
+      const queryParam = generateQuery({...conditions});
       
       exportFileV2({
-        conditions: conditions,
+        conditions: queryParam,
         type: "TYPE_EXPORT_INVENTORY",
       })
         .then((response) => {
@@ -843,7 +842,7 @@ const AllTab: React.FC<any> = (props) => {
           setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
-    },[listExportFile, params.remain, params.store_ids])
+    },[getConditions, listExportFile, params.remain, params.store_ids])
   }
 
   const checkExportFile = useCallback(() => {
@@ -1062,11 +1061,7 @@ const AllTab: React.FC<any> = (props) => {
        {showExportModal && (
          <InventoryExportModal
            visible={showExportModal}
-           onCancel={() => {
-             setShowExportModal(false);
-             setExportProgress(0);
-             setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
-           }}
+           onCancel={actionExport.Cancel}
            onOk={actionExport.OnExport}
            exportProgress={exportProgress}
            statusExport={statusExport}
