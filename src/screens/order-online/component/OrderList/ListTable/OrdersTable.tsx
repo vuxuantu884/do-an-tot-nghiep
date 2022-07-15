@@ -103,6 +103,8 @@ type ICustomTableColumTypeExtra = (ICustomTableColumType<OrderModel> & {
   isHideInOffline?: boolean;
 })[]
 
+let itemResult:OrderModel[] = [];
+
 function OrdersTable(props: PropTypes) {
   const {
     tableLoading,
@@ -142,6 +144,9 @@ function OrdersTable(props: PropTypes) {
   const items = useMemo(() => {
     return data.items ? data.items : []
   }, [data]);
+
+  itemResult = data.items;
+
   const metadata = useMemo(() => {
     return data.metadata ? data.metadata : {
       limit: 0,
@@ -205,18 +210,18 @@ function OrdersTable(props: PropTypes) {
   const onSuccessEditNote = useCallback(
     (note, customer_note, orderID) => {
       showSuccess(`${orderID} Cập nhật ghi chú thành công`);
-      const dataItems = [...items]
-      const indexOrder = dataItems.findIndex((item: any) => item.id === orderID);
+
+      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
       if (indexOrder > -1) {
-        dataItems[indexOrder].note = note;
-        dataItems[indexOrder].customer_note = customer_note;
+        itemResult[indexOrder].note = note;
+        itemResult[indexOrder].customer_note = customer_note;
       }
       setData({
         ...data,
-        items: dataItems,
+        items: itemResult,
       })
     },
-    [data, items, setData]
+    [data, setData]
   );
 
   const editNote = useCallback(
