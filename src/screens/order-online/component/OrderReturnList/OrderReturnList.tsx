@@ -590,7 +590,7 @@ function OrderReturnList(props: PropTypes) {
       key: "note",
       visible: true,
       align: "center",
-      width: 120,
+      width: 200,
     },
   ]);
 
