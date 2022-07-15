@@ -26,6 +26,7 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
     <Modal
       onCancel={onCancelClick}
       width={600}
+      confirmLoading={statusExportDetail === STATUS_IMPORT_EXPORT.DEFAULT}
       visible={visible}
       cancelText="Hủy"
       onOk={onOkClick}
@@ -45,7 +46,7 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
               <Form.Item name="record">
                 <Radio.Group>
                   <Space direction="vertical">
-                    <Radio value={TYPE_EXPORT.selected}>Các sản phẩm được chọn</Radio>
+                    <Radio value={TYPE_EXPORT.page}>Các sản phẩm trên trang này</Radio>
                     <Radio value={TYPE_EXPORT.all}>Tất cả tồn đủ điều kiện lọc</Radio>
                   </Space>
                 </Radio.Group>
