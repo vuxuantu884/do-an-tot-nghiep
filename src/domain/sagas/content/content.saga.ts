@@ -1,4 +1,9 @@
-import { getCityByCountryApi, getDistrictByCityApi, getGroupsApi } from './../../../service/content/content.service';
+import {
+  getCityByCountryApi,
+  getDistrictByCityApi,
+  getGroupsApi,
+  getRegionApi
+} from 'service/content/content.service';
 import { YodyAction } from "base/base.action";
 import { takeLatest, call } from "@redux-saga/core/effects";
 import BaseResponse from "base/base.response";
@@ -146,6 +151,30 @@ function* groupGetSaga(action: YodyAction) {
   }
 }
 
+function* GetRegionSaga(action: YodyAction) {
+  const { setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<CountryResponse>> = yield call(
+      getRegionApi
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        setData(false);
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        setData(false);
+        break;
+    }
+  } catch (error) {
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* contentSaga() {
   yield takeLatest(ContentType.GET_COUNTRY_REQUEST, countryGetSaga);
   yield takeEvery(ContentType.GET_DISTRICT_REQUEST, districtGetSaga);
@@ -153,4 +182,5 @@ export function* contentSaga() {
   yield takeEvery(ContentType.GET_WARD_REQUEST, wardGetSaga);
   yield takeEvery(ContentType.GET_CITY_BY_COUNTRY_REQUEST, cityByCountryGetSaga);
   yield takeEvery(ContentType.GET_DISTRICT_BY_CITY_REQUEST, districtByCityGetSaga);
+  yield takeEvery(ContentType.GET_REGION_REQUEST, GetRegionSaga);
 }
