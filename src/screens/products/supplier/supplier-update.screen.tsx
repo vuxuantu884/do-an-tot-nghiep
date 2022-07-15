@@ -83,7 +83,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
-  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse>>( {
+  const [groupProducts, setGroupProducts] = useState<PageResponse<CollectionResponse>>({
     metadata: {
       limit: 10,
       page: 1,
@@ -113,20 +113,20 @@ const UpdateSupplierScreen: React.FC = () => {
     [formRef]
   );
 
-  const onUpdateSuccess = (response: SupplierResponse|false) => {
-    if(response){
-    history.push(`${UrlConfig.SUPPLIERS}/${id}}`);
-    showSuccess("Sửa nhà cung cấp thành công");
+  const onUpdateSuccess = (response: SupplierResponse | false) => {
+    if (response) {
+      history.push(`${UrlConfig.SUPPLIERS}/${id}}`);
+      showSuccess("Sửa nhà cung cấp thành công");
     }
     setLoading(false);
   };
 
   const onFinish = (values: SupplierUpdateRequest) => {
-    const newValues = {...values, phone: values.phone || supplier?.phone || ''}
+    const newValues = { ...values, phone: values.phone || supplier?.phone || '' }
 
     setLoading(true);
-      dispatch(SupplierUpdateAction(idNumber, newValues, onUpdateSuccess));
-    };
+    dispatch(SupplierUpdateAction(idNumber, newValues, onUpdateSuccess));
+  };
   //End callback
   //Memo
   const statusValue = useMemo(() => {
@@ -169,7 +169,7 @@ const UpdateSupplierScreen: React.FC = () => {
     }
   };
 
-  const validatePhone = (_:any, value: any, callback: any): void => {
+  const validatePhone = (_: any, value: any, callback: any): void => {
     validatePhoneSupplier({
       value,
       callback,
@@ -202,7 +202,7 @@ const UpdateSupplierScreen: React.FC = () => {
       }
     }
     isFirstLoad.current = false;
-    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
+    dispatch(SupplierSearchAction({ limit: 200 }, (response: PageResponse<SupplierResponse>) => {
       if (response) {
         setListSupplier(response.items)
       } else {
@@ -354,7 +354,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       ]}
                       name="pic_code"
                     >
-                    <AccountSearchPaging placeholder="Chọn Merchandiser" />
+                      <AccountSearchPaging placeholder="Chọn Merchandiser" />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
@@ -443,12 +443,6 @@ const UpdateSupplierScreen: React.FC = () => {
                     <Item label="Thời gian công nợ">
                       <Input.Group className="ip-group" compact>
                         <Item name="debt_time" noStyle>
-                          {/* <Input
-                        placeholder="Nhập thời gian công nợ"
-                        style={{ width: "70%" }}
-                        className="ip-text-group"
-                        onFocus={(e) => e.target.select()}
-                      /> */}
                           <NumberInput
                             isFloat
                             style={{ width: "70%" }}
