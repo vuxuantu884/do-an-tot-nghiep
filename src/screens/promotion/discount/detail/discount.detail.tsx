@@ -522,6 +522,9 @@ const PromotionDetailScreen: React.FC = () => {
                   </AuthWrapper>
                 )
                 }
+
+                <Link to={`${idNumber}/replicate`}><Button>Nhân bản</Button> </Link>
+
                 {allowUpdatePromoCode && RenderActionButton()}
               </Space>
             }
