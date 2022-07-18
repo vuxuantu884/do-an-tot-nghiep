@@ -41,7 +41,8 @@ export interface GoodsReceiptsOrder extends OrderResponse{
     goods_receipt_id: number;
     id: number;
     total_quantity: number|null;
-    fullfilement_code: string;
+    fulfillment_code: string;
+    status_before_cancellation?:string;
 }
 export interface  GoodsReceiptsSearchResponse extends BaseObject{
     store_id:number;

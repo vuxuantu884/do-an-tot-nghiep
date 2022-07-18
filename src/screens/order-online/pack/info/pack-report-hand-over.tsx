@@ -16,8 +16,7 @@ import {
   updateGoodsReceipts,
   // updateNoteGoodreceipt,
 } from "domain/actions/goods-receipts/goods-receipts.action";
-import { GoodsReceiptsSearhModel } from "model/pack/pack.model";
-import { COLUMN_CONFIG_TYPE, FulFillmentStatus } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import { getQueryParams } from "utils/useQuery";
 import { useHistory } from "react-router";
 import { convertFromStringToDate, generateQuery, haveAccess } from "utils/AppUtils";
@@ -40,6 +39,10 @@ import useSetTableColumns from "hook/table/useSetTableColumns";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { ORDER_SUB_STATUS } from "utils/Order.constants";
+import { greenColor, yellowColor } from "utils/global-styles/variables";
+import { GoodsReceiptsSearchModel } from "model/pack/pack.model";
+import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
 
 const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
   limit: 30,
@@ -75,8 +78,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
   const orderPackContextData = useContext(OrderPackContext);
   const listStores = orderPackContextData?.listStores;
-  const setDeliveryServices=orderPackContextData.setListThirdPartyLogistics;
-  const deliveryServices= orderPackContextData.listThirdPartyLogistics;
+  const setDeliveryServices = orderPackContextData.setListThirdPartyLogistics;
+  const deliveryServices = orderPackContextData.listThirdPartyLogistics;
 
   let dataQuery: GoodsReceiptsSearchQuery = {
     ...initQueryGoodsReceipts,
@@ -125,7 +128,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
   ], [allowDeleteGoodsReceipt, selectedRowKeys.length]);
 
-  const [modalDeleteComfirm, setModalDeleteComfirm] = useState(false);
+  const [modalDeleteConfirm, setModalDeleteConfirms] = useState(false);
 
   const handlePrintPack = useCallback((id = undefined, type: string) => {
     let params = {
@@ -162,7 +165,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
             }
           });
           if (canDelete) {
-            setModalDeleteComfirm(true);
+            setModalDeleteConfirms(true);
           } else {
             showWarning(`Biên bản bàn giao ${idError}có đơn hàng cần giao`);
           }
@@ -227,80 +230,66 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   }, []);
 
   const setDataTable = (data: PageResponse<GoodsReceiptsResponse>) => {
-    let dataResult: Array<GoodsReceiptsSearhModel> = [];
+    let dataResult: Array<GoodsReceiptsSearchModel> = [];
 
     data.items.forEach((item: GoodsReceiptsResponse, index: number) => {
-      //let product_quantity = 0;
-      let order_quantity = item.orders?.length ? item.orders?.length : 0;
-      let order_send_quantity = 0;
-      let order_transport = 0;
-      let order_have_not_taken = 0;
-      let order_cancel = 0;
-      let order_moving_complete = 0;
-      let order_success = 0;
-      let order_complete = 0;
+      let order_quantity = item.orders?.length || 0; //SL đơn
+      let order_send_quantity = 0;//Số đơn gửi hvc 
+      let order_transport = 0;//Đơn đang chuyển
+      let order_success = 0;//đơn thành công
+      let order_returning = 0;//đơn đang hoàn
+      let order_returned = 0//đơn đã hoàn
+      let order_cancel = 0;//đơn hủy
 
       item.orders?.forEach(function (itemOrder) {
-        order_send_quantity =
-          order_send_quantity +
-          (itemOrder.fulfillments?.length ? itemOrder.fulfillments?.length : 0);
-        //product_quantity += itemOrder.total_quantity||0;
-        // itemOrder.fulfillments?.forEach(function (itemFulfillment) {
-        //   product_quantity =
-        //     product_quantity +
-        //     (itemFulfillment.total_quantity !== null
-        //       ? itemFulfillment.total_quantity
-        //       : 0);
+        if (itemOrder.fulfillment_status === FulfillmentStatus.PACKED
+          || itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING
+          || itemOrder.fulfillment_status === FulfillmentStatus.SHIPPED
+          || (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED && itemOrder.status_before_cancellation === FulfillmentStatus.SHIPPING)) {
+          order_send_quantity += 1;
+        }
+        if (itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING
+          || (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED && itemOrder.return_status===FulfillmentStatus.RETURNING && itemOrder.status_before_cancellation === FulfillmentStatus.SHIPPING)) {
+          order_transport += 1;
+        }
 
-        //   if (itemFulfillment.status === FulFillmentStatus.SHIPPING)
-        //     order_transport = order_transport + 1;
-
-        //   if (itemFulfillment.status === FulFillmentStatus.UNSHIPPED)
-        //     order_have_not_taken = order_have_not_taken + 1;
-        //   if (itemFulfillment.status === FulFillmentStatus.CANCELLED)
-        //     order_cancel = order_cancel + 1;
-        //   if (itemFulfillment.status === FulFillmentStatus.RETURNING)
-        //     order_moving_complete = order_moving_complete + 1;
-        //   if (itemFulfillment.status === FulFillmentStatus.SHIPPED)
-        //     order_success = order_success + 1;
-        //   if (itemFulfillment.status === FulFillmentStatus.RETURNED)
-        //     order_complete = order_complete + 1;
-        // });
-        if (itemOrder.fulfillment_status === FulFillmentStatus.SHIPPING)
-          order_transport = order_transport + 1;
-
-        if (itemOrder.fulfillment_status === FulFillmentStatus.UNSHIPPED)
-          order_have_not_taken = order_have_not_taken + 1;
-        if (itemOrder.fulfillment_status === FulFillmentStatus.CANCELLED)
-          order_cancel = order_cancel + 1;
-        if (itemOrder.fulfillment_status === FulFillmentStatus.RETURNING)
-          order_moving_complete = order_moving_complete + 1;
-        if (itemOrder.fulfillment_status === FulFillmentStatus.SHIPPED)
-          order_success = order_success + 1;
-        if (itemOrder.fulfillment_status === FulFillmentStatus.RETURNED)
-          order_complete = order_complete + 1;
+        if (itemOrder.fulfillment_status === FulfillmentStatus.SHIPPED) {
+          order_success += 1;
+        }
+        if (itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING
+          && itemOrder.return_status === FulfillmentStatus.RETURNING) {
+          order_returning += 1;
+        }
+        if (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED
+          && itemOrder.return_status === FulfillmentStatus.RETURNED) {
+          order_returned += 1;
+        }
+        if ((itemOrder.fulfillment_status === FulfillmentStatus.UNSHIPPED)
+        ||(itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED && itemOrder.status_before_cancellation !== FulfillmentStatus.SHIPPING)) {
+          order_cancel += 1;
+        }
       });
 
-      let _result: GoodsReceiptsSearhModel = {
+      let _result: GoodsReceiptsSearchModel = {
         ...item,
         key: index,
         id_handover_record: item.id,
         store_name: item.store_name,
         handover_record_type: item.receipt_type_name, //loại biên bản
         total_quantity: item.total_quantity ? item.total_quantity : 0, // sl sản phẩm
-        order_quantity: order_quantity, //SL đơn
-        order_send_quantity: order_quantity, //Số đơn gửi hvc
-        order_transport: order_transport, //Đơn đang chuyển
-        order_have_not_taken: order_have_not_taken, //Đơn chưa lấy
-        order_cancel: order_cancel, //đơn hủy
-        order_moving_complete: order_moving_complete, //đơn hoàn chuyển
-        order_success: order_success, //đơn thành công
-        order_complete: order_complete, //đơn hoàn
+        order_quantity: order_quantity,
+        order_send_quantity: order_send_quantity,
+        order_transport: order_transport,
+        order_returning: order_returning,
+        order_returned: order_returned,
+        order_cancel: order_cancel,
+        order_success: order_success,
         account_create: item.updated_by ? item.updated_by : "", //người tạo
         ecommerce_id: item.ecommerce_id,
         description: item.description,
         note: item.note,
-        goods_receipts: item
+        goods_receipts: item,
+        updated_date: item.updated_date
       };
       dataResult.push(_result);
 
@@ -324,7 +313,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     )
   }, [goodsReceipt, selectedRowKeys])
 
-  const hanldRemoveGoodsReceiptOk = useCallback((id = undefined) => {
+  const handleRemoveGoodsReceiptOk = useCallback((id = undefined) => {
     let request: any = {
       ids: id ? [id] : selectedRowKeys
     }
@@ -337,7 +326,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           dispatch(
             getGoodsReceiptsSearch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
               if (data) {
-                let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+                let dataResult: Array<GoodsReceiptsSearchModel> = setDataTable(data);
                 /////
                 setData({
                   metadata: {
@@ -361,7 +350,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
             })
           );
           setSelectedRowKeys([]);
-          setModalDeleteComfirm(false);
+          setModalDeleteConfirms(false);
           showSuccess(`Đã xóa biên bản bàn giao`);
         }
       })
@@ -435,7 +424,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                 }}
                 disabled={!isPassed}
                 onClick={() => {
-                  hanldRemoveGoodsReceiptOk(item.id_handover_record);
+                  handleRemoveGoodsReceiptOk(item.id_handover_record);
                 }}
               >
                 Xoá
@@ -447,34 +436,33 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     );
   };
 
-  const editNote= useCallback((id:number, newNote:string, record?:GoodsReceiptsSearhModel)=>{
-    if(!id) return;
-    if(newNote && newNote.length>255){
+  const editNote = useCallback((id: number, newNote: string, record?: GoodsReceiptsSearchModel) => {
+    if (!id) return;
+    if (newNote && newNote.length > 255) {
       showError("độ dài kí tự phải từ 0 đến 255");
       return;
     }
-    if(newNote.length<=0) return;
- 
-    if(!record?.goods_receipts){
+    if (newNote.length <= 0) return;
+
+    if (!record?.goods_receipts) {
       showError("Không tìm thấy biên bản bàn giao");
       return;
     }
 
-    let newRequest:any={
+    let newRequest: any = {
       ...record?.goods_receipts,
-      codes:[],
-      note:newNote,
+      codes: [],
+      note: newNote,
     }
 
-    dispatch(updateGoodsReceipts(id, newRequest, (data: GoodsReceiptsResponse)=>{
-      if(data)
-      {
+    dispatch(updateGoodsReceipts(id, newRequest, (data: GoodsReceiptsResponse) => {
+      if (data) {
         setTableLoading(true);
         dispatch(
-          getGoodsReceiptsSearch({...params, page:1}, (data: PageResponse<GoodsReceiptsResponse>) => {
-            if(data){
-              let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
-            /////
+          getGoodsReceiptsSearch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
+            if (data) {
+              let dataResult: Array<GoodsReceiptsSearchModel> = setDataTable(data);
+              /////
               setData({
                 metadata: {
                   limit: data.metadata.limit,
@@ -483,7 +471,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
                 },
                 items: dataResult,
               });
-            }else{
+            } else {
               setData({
                 metadata: {
                   limit: 30,
@@ -499,19 +487,19 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         showSuccess("Cập nhập ghi chú biên bản thành công");
       }
     }))
-  },[dispatch, params])
+  }, [dispatch, params])
 
   const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<GoodsReceiptsSearhModel>>
+    Array<ICustomTableColumType<GoodsReceiptsSearchModel>>
   >([
     {
       title: "ID",
-      // key: "id_handover_record",
       visible: true,
       align: "center",
       fixed: "left",
       width: "120px",
-      render: (l: any, item: any, index: number) => {
+      key: "ID",
+      render: (l: any, item: GoodsReceiptsSearchModel, index: number) => {
 
         const service_id = item.delivery_service_id;
         if (service_id === -1) {
@@ -520,7 +508,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
-              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
+              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.updated_date).format("DD/MM/YYYY HH:mm")}</div>
               <div className="shipment-details">
                 Tự vận chuyển
               </div>
@@ -533,7 +521,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
-              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.created_date).format("DD/MM/YYYY HH:ss")}</div>
+              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.updated_date).format("DD/MM/YYYY HH:mm")}</div>
               <div className="shipment-details">
                 {service &&
                   <img
@@ -563,7 +551,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       width: "160px",
-      render: (l: any, item: any, index: number) => {
+      render: (l: any, item: GoodsReceiptsSearchModel, index: number) => {
 
         return (
           <div>
@@ -590,6 +578,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       width: "80px",
+      render: (value) => <b style={{ color: yellowColor }}>{value}</b>
     },
 
     {
@@ -599,6 +588,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       width: "100px",
+      render: (value) => <b style={{ color: greenColor }}>{value}</b>
     },
 
     {
@@ -611,23 +601,30 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
 
     {
-      title: "Đơn chưa lấy",
-      dataIndex: "order_have_not_taken",
-      key: "order_have_not_taken",
+      title: "Đơn hủy",
+      dataIndex: "order_cancel",
+      key: "order_cancel",
       visible: true,
       align: "center",
       width: "80px",
     },
 
     {
-      title: "Đang chuyển hoàn",
-      dataIndex: "order_moving_complete",
-      key: "order_moving_complete",
+      title: "Đang hoàn",
+      dataIndex: "order_returning",
+      key: "order_returning",
       visible: true,
       align: "center",
-      width: "110px",
+      width: "80px",
     },
-
+    {
+      title: "Đã hoàn",
+      dataIndex: "order_returned",
+      key: "order_returned",
+      visible: true,
+      align: "center",
+      width: "80px",
+    },
     {
       title: "Đơn thành công",
       dataIndex: "order_success",
@@ -636,34 +633,24 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       align: "center",
       width: "110px",
     },
-
-    // {
-    //   title: "Đơn hoàn",
-    //   dataIndex: "order_complete",
-    //   key: "order_complete",
-    //   visible: true,
-    //   align: "center",
-    //   width: "80px",
-    // },
     {
       title: "Ghi chú",
       dataIndex: "note",
       visible: true,
       width: "160px",
       align: "left",
-      render: (value: string, record: GoodsReceiptsSearhModel) => {
+      key: "note",
+      render: (value: string, record: GoodsReceiptsSearchModel) => {
         return (
           <div className="orderNotes">
             <div className="inner">
               <div className="single">
                 <EditNote
                   note={record?.note}
-                  //title="Khách hàng: "
                   color={"#2a2a86"}
                   onOk={(newNote) => {
-                     editNote(record.id_handover_record, newNote, record);
+                    editNote(record.id_handover_record, newNote, record);
                   }}
-                // isDisable={record.status === OrderStatus.FINISHED}
                 />
               </div>
             </div>
@@ -681,20 +668,17 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     },
     {
       title: "",
-      key: "14",
+      key: "setting",
       visible: true,
       width: "80px",
       fixed: "right",
       className: "saleorder-product-card-action text-center",
-      render: (l: any, item: any, index: number) => {
+      render: (l: any, item: GoodsReceiptsSearchModel, index: number) => {
 
         return (
           <Dropdown
             overlayStyle={{ minWidth: "15rem" }}
             overlay={() => menu(item)}
-          // getPopupContainer={(trigger) => trigger}
-          // trigger={["click"]}
-          // placement="bottomRight"
           >
             <Button
               type="text"
@@ -755,7 +739,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       dispatch(
         getGoodsReceiptsSearch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
           if (data) {
-            let dataResult: Array<GoodsReceiptsSearhModel> = setDataTable(data);
+            let dataResult: Array<GoodsReceiptsSearchModel> = setDataTable(data);
             /////
             setData({
               metadata: {
@@ -812,7 +796,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           onShowColumnSetting={() => setShowSettingColumn(true)}
           dataSource={data.items}
           columns={columnFinal}
-          rowKey={(item: GoodsReceiptsSearhModel) => item.id_handover_record}
+          rowKey={(item: GoodsReceiptsSearchModel) => item.id_handover_record}
         />
       )}
 
@@ -831,11 +815,11 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       )}
 
       <ModalDeleteConfirm
-        onCancel={() => setModalDeleteComfirm(false)}
-        onOk={() => hanldRemoveGoodsReceiptOk()}
+        onCancel={() => setModalDeleteConfirms(false)}
+        onOk={() => handleRemoveGoodsReceiptOk()}
         title="Bạn chắc chắn xóa biên bản bàn giao?"
         subTitle={setLayoutDeleteAllGoodsReceipts}
-        visible={modalDeleteComfirm}
+        visible={modalDeleteConfirm}
       />
     </>
   );
