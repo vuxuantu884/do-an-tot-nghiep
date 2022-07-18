@@ -1,17 +1,17 @@
 import React from "react";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   logoUrl?: string;
   title?: string;
-  urlGuide: string;
+  guideUrl: string;
 };
 
-function SingleLogisticCardHeader(props: PropType) {
+function SingleLogisticCardHeader(props: PropTypes) {
   const {
     logoUrl,
     title,
-    //urlGuide
+    //guideUrl
   } = props;
   return (
     <StyledComponent>
@@ -23,7 +23,7 @@ function SingleLogisticCardHeader(props: PropType) {
           <h4 className="name">{title}</h4>
         </div>
         {/* <div className="cardHeader__right">
-          <a href={urlGuide} target="_blank" rel="noreferrer" className="link">
+          <a href={guideUrl} target="_blank" rel="noreferrer" className="link">
             Xem hướng dẫn kết nối
           </a>
         </div> */}

@@ -21,7 +21,6 @@ import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getPriceRuleAction } from "domain/actions/promotion/discount/discount.action";
 import {
-  addPromoCode,
   deletePromoCodeById,
   disableBulkPromoCode,
   enableBulkPromoCode,
@@ -36,8 +35,7 @@ import {DiscountCode, DiscountUsageDetailResponse, PriceRule} from "model/promot
 import { DiscountSearchQuery } from "model/query/discount.query";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
-import { VscError } from "react-icons/all";
-import { RiUpload2Line } from "react-icons/ri";
+
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -60,6 +58,8 @@ import DiscountUsageDetailModal from "./components/DiscountUsageDetailModal";
 import {exportDiscountCode} from "service/promotion/discount/discount.service";
 import eyeIcon from "assets/icon/eye.svg";
 import exportIcon from "assets/icon/export.svg";
+import { VscError } from "react-icons/vsc";
+import { RiUpload2Line } from "react-icons/ri";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -330,18 +330,6 @@ const ListCode = () => {
         dispatch(hideLoading());
       });
   }
-
-  const onAddSuccess = useCallback(
-    (response) => {
-      dispatch(hideLoading());
-      if (response) {
-        showSuccess("Thêm thành công");
-        setShowAddCodeManual(false);
-        getDiscountCodeData();
-      }
-    },
-    [dispatch, getDiscountCodeData]
-  );
 
   // section DELETE bulk
   const deleteCallBack = useCallback(

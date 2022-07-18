@@ -82,6 +82,7 @@ export const ORDER_SUB_STATUS = {
   change_depot: "change_depot",
   out_of_stock: "out_of_stock",
   coordinator_confirming: "coordinator_confirming",
+  confirm_returned: "confirm_returned"
 };
 
 export const SUB_STATUS_CANCEL_CODE = [
@@ -226,4 +227,32 @@ export const FULFILLMENT_PUSHING_STATUS = {
   failed: "failed",
   waiting: "waiting",
   completed: "completed",
+}
+
+export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
+  ghtk: {
+    name: "Giao hàng tiết kiệm",
+    code: "ghtk",
+    guideUrl: "",
+  },
+  vtp: {
+    name: "Viettel Post",
+    code: "vtp",
+    guideUrl: "",
+  },
+  ghn: {
+    name: "Giao hàng nhanh",
+    code: "ghn",
+    guideUrl: "",
+  },
+  dhl: {
+    name: "DHL",
+    code: "dhl",
+    guideUrl: "",
+  },
+  snappy: {
+    name: "Snappy",
+    code: "snappy",
+    guideUrl: "",
+  },
 }

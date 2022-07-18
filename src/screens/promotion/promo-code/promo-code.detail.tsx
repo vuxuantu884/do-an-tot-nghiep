@@ -22,13 +22,11 @@ import {
   bulkEnablePriceRulesAction, getPriceRuleAction, getVariantsAction
 } from "domain/actions/promotion/discount/discount.action";
 import {
-  addPromoCode,
   getListPromoCode
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useState } from "react";
-import { VscError } from "react-icons/all";
 import { RiUpload2Line } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
@@ -48,6 +46,7 @@ import {addPromotionCodeApi, getPromotionJobsApi} from "../../../service/promoti
 import {HttpStatus} from "../../../config/http-status.config";
 import {EnumJobStatus} from "../../../config/enum.config";
 import ProcessAddDiscountCodeModal from "screens/promotion/promo-code/components/ProcessAddDiscountCodeModal";
+import { VscError } from "react-icons/vsc";
 
 type detailMapping = {
   id: string;
@@ -447,17 +446,6 @@ const PromotionDetailScreen: React.FC = () => {
         dispatch(hideLoading());
       });
   }
-
-  const addCallBack = useCallback(
-    (response) => {
-      dispatch(hideLoading());
-      if (response) {
-        showSuccess("Thêm thành công");
-        getDiscountCodeData();
-      }
-    },
-    [dispatch, getDiscountCodeData]
-  );
 
   /**
    * Clone KM

@@ -1,12 +1,14 @@
-import { Form, Input, InputNumber } from "antd";
+import { Form, Input } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import TagStatus from "component/tag/tag-status";
 import UrlConfig from "config/url.config";
 import { DiscountConditionRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model";
 import { Rule } from "rc-field-form/lib/interface";
 import { Link } from "react-router-dom";
-import { formatCurrency } from "utils/AppUtils";
-import { formatDiscountValue, renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
+import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import {  renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
+import NumberInput from "component/custom/number-input.custom";
+import React from "react";
 const { Item } = Form;
 
 export const MAX_FIXED_DISCOUNT_VALUE = 999999999;
@@ -202,7 +204,15 @@ export const FIELD_SELECT_OPTIONS = [
     type:["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber style={{ width: '100%' }} placeholder="Giá trị đơn hàng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={MAX_FIXED_DISCOUNT_VALUE}/>
+        <NumberInput
+          style={{ width: '100%' }}
+          format={(a: string) => formatCurrency(a)}
+          replace={(a: string) => replaceFormatString(a)}
+          placeholder="Giá trị đơn hàng"
+          value={Number(defaultValue)}
+          maxLength={11}
+          minLength={0}
+        />
       </Item>
     ),
   },
@@ -212,7 +222,15 @@ export const FIELD_SELECT_OPTIONS = [
     type:["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <InputNumber style={{ width: '100%' }} placeholder="Số lượng" defaultValue={Number(defaultValue)} formatter={(value) => formatDiscountValue(Number(value), false)} min={0} max={MAX_FIXED_DISCOUNT_VALUE} />
+        <NumberInput
+          style={{ width: '100%' }}
+          format={(a: string) => formatCurrency(a)}
+          replace={(a: string) => replaceFormatString(a)}
+          placeholder="Số lượng"
+          value={Number(defaultValue)}
+          maxLength={11}
+          minLength={0}
+        />
       </Item>
     ),
   },

@@ -3,12 +3,12 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {
   DeliveryServicesGetList,
   getDeliveryTransportTypesAction,
-  updateDeliveryConfigurationAction
+  updateDeliveryConfigurationAction,
 } from "domain/actions/order/order.action";
 import { updateConfigReQuestModel } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   DeliveryServiceResponse,
-  DeliveryServiceTransportType
+  DeliveryServiceTransportType,
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -19,9 +19,9 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {};
 
-function SingleThirdPartyLogisticGHN(props: PropTypes) {
-  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.dhl.code;
-  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.dhl.guideUrl;
+function SingleThirdPartyLogisticSnappy(props: PropTypes) {
+  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.snappy.code;
+  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.snappy.guideUrl;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [thirdPartyLogistics, setThirdPartyLogistics] =
@@ -32,13 +32,12 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
   const [isConnected, setIsConnected] = useState(false);
 
   const initialFormValue = {
-    username: "",
-    password: "",
+    token: "",
     transport_types: [],
   };
 
   const handleSubmit = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       const formComponentValue = form.getFieldsValue();
       let transport_types = deliveryServices.map((single) => {
         return {
@@ -55,9 +54,9 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
         status: isConnected
           ? DELIVER_SERVICE_STATUS.active
           : DELIVER_SERVICE_STATUS.inactive,
-        token: "",
-        username: form.getFieldValue("username"),
-        password: form.getFieldValue("password"),
+        token: form.getFieldValue("token"),
+        username: "",
+        password: "",
         transport_types,
       };
       dispatch(updateDeliveryConfigurationAction(formValueFormatted, () => {}));
@@ -65,11 +64,10 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
   };
 
   const handleConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       const params: updateConfigReQuestModel = {
         external_service_code,
-        username: form.getFieldValue("username"),
-        password: form.getFieldValue("password"),
+        token: form.getFieldValue("token"),
         status: DELIVER_SERVICE_STATUS.active,
       };
       dispatch(
@@ -82,7 +80,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
   };
 
   const handleCancelConnect3PL = () => {
-    form.validateFields(["username", "password"]).then(() => {
+    form.validateFields(["token"]).then(() => {
       setConfirmSubTitle(
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
@@ -99,8 +97,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
     }
     const params = {
       external_service_code,
-      username: form.getFieldValue("username"),
-      password: form.getFieldValue("password"),
+      token: form.getFieldValue("token"),
       status: DELIVER_SERVICE_STATUS.inactive,
     };
     dispatch(
@@ -165,32 +162,16 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
           style={{ width: "377px", maxWidth: "100%" }}
         >
           <Form.Item
-            name="username"
-            label="Client Id: "
+            name="token"
+            label="Token: "
             rules={[
               {
                 required: true,
-                message: "Vui lòng nhập Client Id!",
+                message: "Vui lòng nhập token!",
               },
             ]}
           >
-            <Input type="text" placeholder="Nhập Client Id" style={{ width: "100%" }} />
-          </Form.Item>
-          <Form.Item
-            name="password"
-            label="Password: "
-            rules={[
-              {
-                required: true,
-                message: "Vui lòng nhập Password!",
-              },
-            ]}
-          >
-            <Input
-              type="password"
-              placeholder="Nhập Password"
-              style={{ width: "100%" }}
-            />
+            <Input type="text" placeholder="Nhập token" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
             name="transport_types"
@@ -221,4 +202,4 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
   );
 }
 
-export default SingleThirdPartyLogisticGHN;
+export default SingleThirdPartyLogisticSnappy;

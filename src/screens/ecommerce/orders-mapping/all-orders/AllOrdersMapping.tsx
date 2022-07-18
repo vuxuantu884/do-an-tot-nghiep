@@ -154,7 +154,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         title: "ID đơn (Sàn)",
         dataIndex: "ecommerce_order_code",
         key: "order_id",
-        width: "16%",
+        width: "200px",
         render: (item: any) => (
           <div>
             <span style={{ textAlign: "center" }}>{item}</span>
@@ -165,7 +165,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         title: "Trạng thái (Sàn)",
         dataIndex: "ecommerce_order_status",
         key: "ecommerce_order_status",
-        width: "12%",
+        width: "160px",
         render: (status_value: string, item: any) => (
           showEcommerceOrderStatus(status_value, item)
         ),
@@ -173,7 +173,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       {
         title: "ID đơn (Unicorn)",
         key: "core_order_code",
-        width: "12%",
+        width: "130px",
         render: (item: any) => (
           <Link to={`${UrlConfig.ORDER}/${item.core_order_code}`} target="_blank">
             <b>{item.core_order_code}</b>
@@ -185,7 +185,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         dataIndex: "core_sub_status_code",
         key: "core_sub_status_code",
         align: "center",
-        width: "15%",
+        width: "150px",
         render: (status_value: string) => {
           let status: any = subStatuses.find((status) => status.code === status_value);
           if (!status && status_value?.toLowerCase() === "cancelled") {
@@ -204,21 +204,12 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         dataIndex: "connected_status",
         key: "connected_status",
         align: "center",
-        width: "8%",
-        render: (value: any, item: any) => {
+        width: "90px",
+        render: (value: any) => {
           return (
             <div>
-              {value === "connected" && (
-                <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
-              )}
-
-              {
-                value !== "connected" && (
-                  <Tooltip title={item.error_description}>
-                    <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-                  </Tooltip>
-
-                )
+              {value === "connected" ? <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
+                : <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
               }
             </div>
           );
@@ -229,20 +220,12 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         dataIndex: "updated_status",
         key: "updated_status",
         align: "center",
-        width: "9%",
-        render: (value: any, item: any) => {
+        width: "90px",
+        render: (value: any) => {
           return (
             <div>
-              {value === "connected" && (
-                <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
-              )}
-
-              {
-                value !== "connected" && (
-                  <Tooltip title={item.error_description}>
-                    <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-                  </Tooltip>
-                )
+              {value === "connected" ? <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
+                : <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
               }
             </div>
           );
@@ -252,7 +235,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         title: "Gian hàng",
         key: "shop",
         align: "center",
-        width: "17%",
+        width: "200px",
         render: (value: any, item: any) => (
           <div className="shop-show-style" style={{ textAlign: "left", minWidth: "150px" }}>
             {getIconByEcommerceId(item.ecommerce_id) && (
@@ -274,13 +257,25 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         dataIndex: "ecommerce_created_date",
         key: "received_status",
         align: "center",
-        width: "11%",
+        width: "110px",
         render: (value: any, item: any) => (
           <div style={{ textAlign: "left" }}>
             <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
           </div>
 
         ),
+      },
+      {
+        title: "Lỗi đồng bộ",
+        dataIndex: "error_description",
+        key: "error_description",
+        align: "center",
+        width: "250px",
+        render: (value: any) => {
+          return (
+            <div style={{ textAlign: "left" }}>{value}</div>
+          );
+        },
       },
       TableRowAction(tableRowActionList),
     ];
@@ -389,6 +384,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
           isLoading={isLoading}
           showColumnSetting={true}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          scroll={{ x: 1500 }}
           pagination={
             isLoading
               ? false

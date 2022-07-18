@@ -1,12 +1,13 @@
 import { ArrowLeftOutlined } from "@ant-design/icons";
-import { Modal, Row, Progress, Button, Alert } from "antd";
-import { useEffect, useState } from "react";
+import { Modal, Row, Progress, Form, Radio, Space } from "antd";
+import { Fragment, useCallback, useState } from "react";
+import { TYPE_EXPORT } from "screens/products/constants";
 import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 
 type ExportModalProps = {
   visible: boolean;
   onCancel: () => void;
-  onOk: () => void;
+  onOk: (record: string) => void;
   exportProgress?: number;
   statusExport?: number;
 };   
@@ -16,16 +17,19 @@ const InventoryExportModal: React.FC<ExportModalProps> = (
 ) => {
   const { visible, onOk, onCancel, exportProgress, statusExport = 0 } = props;
   const [editFields, setEditFields] = useState(false);
+  const [form] = Form.useForm();
 
-  useEffect(()=>{
-    if (visible && statusExport ===1) {
-      onOk();
-    }
-  },[onOk, statusExport, visible]);
-  
+  const onOkClick = useCallback(() => {
+    onOk(form.getFieldValue("record"));
+  }, [onOk,form]);
+
   return (
     <Modal
       onCancel={onCancel}
+      onOk={onOkClick}
+      confirmLoading={statusExport === STATUS_IMPORT_EXPORT.DEFAULT}
+      cancelText="Hủy"
+      okText="Xuất file"
       visible={visible}
       centered
       title={[
@@ -34,19 +38,28 @@ const InventoryExportModal: React.FC<ExportModalProps> = (
           Xuất file
         </span>
       ]}
-      footer={[
-        <Button
-          key="cancel"
-          type="primary"
-          className="create-button-custom ant-btn-outline fixed-button"
-          onClick={onCancel}
-        >
-          Thoát
-        </Button>,
-        
-      ]}
       width={600}
     >
+      <Form
+        form={form}
+        initialValues={{
+          record: TYPE_EXPORT.page,
+        }} 
+        layout="vertical"
+      >
+      {statusExport === 0 && <Fragment>
+              <p><span className="title-address">Giới hạn kết quả xuất:</span></p>
+              <Form.Item name="record">
+                <Radio.Group>
+                  <Space direction="vertical">
+                    <Radio value={TYPE_EXPORT.page}>Các sản phẩm trên trang này</Radio>
+                    <Radio value={TYPE_EXPORT.all}>Tất cả tồn đủ điều kiện lọc</Radio>
+                  </Space>
+                </Radio.Group>
+              </Form.Item>
+                <p><span className="red">Trong file chỉ hiển thị những sản phẩm còn tồn.</span></p>
+              </Fragment>
+              }
       {
         statusExport === STATUS_IMPORT_EXPORT.DEFAULT && (
           <Row style={{ justifyContent: 'center'}}>
@@ -68,13 +81,7 @@ const InventoryExportModal: React.FC<ExportModalProps> = (
           percent={exportProgress}
         /></Row>
       </Row>)}
-      {
-        statusExport === 0 && (
-        <Row style={{ justifyContent: 'center'}}>
-         <Alert message="Bạn cần chọn ít nhất một cửa hàng" type="warning" />
-        </Row>
-        )
-      }
+     </Form>
     </Modal>
   );
 };

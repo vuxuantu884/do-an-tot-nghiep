@@ -1,8 +1,9 @@
+import { ReactNode } from "react";
 import { StyledComponent } from "./style";
 
 type RowDetailProps = {
   title: string,
-  value: any,
+  value: ReactNode,
 }
 
 const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {
@@ -11,12 +12,7 @@ const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {
       <div className="row-detail">
         <div className="row-detail-left title text-truncate-1">{props.title}</div>
         <div className="dot data">:</div>
-        <div
-          className="row-detail-right data"
-          dangerouslySetInnerHTML={{
-            __html: props.value,
-          }}
-        />
+        <div className="row-detail-right data">{props.value}</div>
       </div>
     </StyledComponent>
   )

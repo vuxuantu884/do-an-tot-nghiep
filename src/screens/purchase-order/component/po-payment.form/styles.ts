@@ -101,7 +101,7 @@ export const StyledComponent = styled.div`
     }
   }
   .row-payment-info{
-    align-items: baseline;
+    align-items: center;
   }
   .closing-date {
     

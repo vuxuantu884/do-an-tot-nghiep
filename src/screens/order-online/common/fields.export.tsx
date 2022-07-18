@@ -87,6 +87,7 @@ export const fields_order_online = [
   {value: "department", name: "Tên shop"},
   {value: "ecommerceShopName", name: "Tên gian hàng"},
   {value: "referenceCode", name: "Mã tham chiếu"},
+  {value: "packed_on", name: "Ngày đóng gói"},
 ];
 export const fields_shipment = [
   // {value: "stt", name: "ID"},

@@ -11,7 +11,7 @@ import IconEdit from "./images/edit.svg";
 import { StyledComponent } from "./styles";
 
 function ThirdPartyLogisticsIntegration() {
-  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
+  const [thirdPartyLogistics, setThirdPartyLogistics] = useState<
     DeliveryServiceResponse[]
   >([]);
   const dispatch = useDispatch();
@@ -19,7 +19,7 @@ function ThirdPartyLogisticsIntegration() {
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setListThirdPartyLogistics(response);
+        setThirdPartyLogistics(response);
       })
     );
   }, [dispatch]);
@@ -35,9 +35,9 @@ function ThirdPartyLogisticsIntegration() {
       >
         <Card>
           <Row>
-            {listThirdPartyLogistics &&
-              listThirdPartyLogistics.length > 0 &&
-              listThirdPartyLogistics.map((single) => {
+            {thirdPartyLogistics &&
+              thirdPartyLogistics.length > 0 &&
+              thirdPartyLogistics.map((single) => {
                 return (
                   <Col span={12} key={single.id}>
                     <div className="singleThirdParty">

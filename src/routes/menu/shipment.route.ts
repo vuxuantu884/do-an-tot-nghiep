@@ -29,6 +29,9 @@ const SingleThirdPartyLogisticsIntegrationScreen_DHL = React.lazy(
 const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem = React.lazy(
   () => import("screens/settings/third-party-logistics-integration/giao-hang-tiet-kiem")
 );
+const SingleThirdPartyLogisticsIntegrationScreen_Snappy = React.lazy(
+  () => import("screens/settings/third-party-logistics-integration/snappy")
+);
 
 const shipments: Array<RouteMenu> = [
   {
@@ -136,6 +139,18 @@ const shipments: Array<RouteMenu> = [
         icon: "icon-dot",
         component: SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem,
         key: "giao-hang-tiet-kiem",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        pathIgnore: ["create"],
+      },
+      {
+        path: `${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/snappy`,
+        exact: true,
+        title: "Snappy",
+        icon: "icon-dot",
+        component: SingleThirdPartyLogisticsIntegrationScreen_Snappy,
+        key: "snappy",
         isShow: true,
         header: null,
         subMenu: [],

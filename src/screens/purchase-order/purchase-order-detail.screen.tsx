@@ -257,6 +257,9 @@ const PODetailScreen: React.FC = () => {
         if (poLineItemGridValue.length === 0) {
           throw new Error("Vui lòng thêm sản phẩm");
         }
+        if (!value.payment_condition_id && value.payment_condition_name) {
+          throw new Error("Đơn vị thời gian công nợ không được để trống");
+        }
         const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(
           poLineItemGridValue,
           poLineItemGridChema,

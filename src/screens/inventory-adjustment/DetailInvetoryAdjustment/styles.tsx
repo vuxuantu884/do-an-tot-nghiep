@@ -202,7 +202,52 @@ export const StyledWrapper = styled.div`
       }
     }
   }
+  .detail-info {
+    background: #FFFFFF;
+    border-radius: 4px;
+    padding: 10px;
+    margin: 10px 0 !important;
+  }
+  .icon {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+  }
+  .label {
+    position: relative;
+    line-height: 20px;
+    border-radius: 4px;
+    color: #FFFFFF;
+    padding: 10px 18px;
+  }
+  .label-green {
+    background-color: #27AE60;
+  }
+  .label-red {
+    background-color: #E24343;
+  }
   .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th, .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
     padding: 6px !important;
+  }
+
+  .btn-report {
+    height: 42px;
+    color: #FCAF17;
+    border: 1px solid #FCAF17 !important;
+    margin-right: 12px;
+  }
+
+  .icon-report {
+    margin-right: 8.64px;
+  }
+  
+  .ant-radio-button-wrapper {
+    padding: 0 5px !important;
+  }
+  .custom-group-btn {
+    padding: 0 2px !important;
+  }
+  .number-text {
+    color: #5656A2;
   }
 `;

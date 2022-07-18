@@ -19,6 +19,7 @@ const detailDiscountPage = React.lazy(
 const DiscountUpdate = React.lazy(
   () => import("screens/promotion/discount/update/discount.update")
 );
+const DiscountReplicate = React.lazy(() => import("screens/promotion/discount/replicate/discount.replicate"));
 
 const promoCodeDetail = React.lazy(
   () => import("screens/promotion/promo-code/promo-code.detail")
@@ -141,6 +142,18 @@ const promotion: Array<RouteMenu> = [
         header: null,
         subMenu: [],
         permissions: [PromoPermistion.UPDATE],
+      },
+      {
+        path: `${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}/:id/replicate`,
+        exact: true,
+        title: "Nhân bản chương trình",
+        icon: "icon-dot",
+        component: DiscountReplicate,
+        key: "discount-replicate",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [],
       },
     ],
   },

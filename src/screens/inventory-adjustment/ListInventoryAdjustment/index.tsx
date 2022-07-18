@@ -1,4 +1,4 @@
-import {  Row, Space } from "antd";
+import { Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -8,10 +8,9 @@ import InventoryAdjustment from "./InventoryAdjustment";
 import { StylesWrapper } from "./styles";
 
 const ListInventoryAdjustments: React.FC = () => {
-
   return (
     <StylesWrapper>
-      <ContentContainer 
+      <ContentContainer
         title="Kiểm kho"
         breadcrumb={[
           {

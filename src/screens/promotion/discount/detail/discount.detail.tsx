@@ -1,4 +1,4 @@
-import { Button, Card, Col, Row, Space } from "antd";
+import {Button, Card, Col, Modal, Progress, Row, Space} from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import TextShowMore from "component/container/show-more/text-show-more";
@@ -23,16 +23,16 @@ import {
 import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
 import DiscountRuleInfo from "../components/discount-rule-info";
-import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants/index";
+import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants";
 import { DiscountStyled } from "../discount-style";
 import { PageResponse } from "model/base/base-metadata.response";
+import exportIcon from "assets/icon/export.svg";
+import {exportFile, getFile} from "service/other/export.service";
+import {HttpStatus} from "config/http-status.config";
+import {generateQuery} from "utils/AppUtils";
 
 const MAX_LOAD_VARIANT_LIST = 3;
 const RELOAD_VARIANT_LIST_TIME = 3000;
-export interface ProductParams {
-  id: string;
-  variantId: string;
-}
 
 type DetailMapping = {
   name: string;
@@ -248,6 +248,86 @@ const PromotionDetailScreen: React.FC = () => {
     setIsLoadingVariantList(isVariantNotLoadYet);
   }, [dataVariants, dataDiscount, dispatch, handleResponse, idNumber, getPriceRuleVariantData]);
 
+  // handle export file
+  const [exportCode, setExportCode] = useState<string | null>(null);
+
+  const handleExportVariant = () => {
+    const exportParams = generateQuery({
+      id: dataDiscount?.id,
+      entitled_method: dataDiscount?.entitled_method,
+      export_time: Date.now()
+    });
+
+    exportFile({
+      conditions: exportParams,
+      hidden_fields: "",
+      type: "TYPE_EXPORT_PROMOTION_VARIANT_LIST",
+    })
+      .then((response) => {
+        if (response.code === HttpStatus.SUCCESS) {
+          setIsVisibleProgressModal(true);
+          setExportCode(response.data.code);
+        } else {
+          showError(`${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+        }
+      })
+      .catch(() => {
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
+      });
+  };
+
+  // process export modal
+  const [isVisibleProgressModal, setIsVisibleProgressModal] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+
+  const resetProgress = () => {
+    setExportProgress(0);
+    setExportCode(null);
+  }
+
+  const onCancelProgressModal = useCallback(() => {
+    resetProgress();
+    setIsVisibleProgressModal(false);
+  }, []);
+
+  const checkExportFile = useCallback(() => {
+    if (!exportCode) return;
+
+    let getFilePromises = getFile(exportCode);
+    Promise.all([getFilePromises]).then((responses) => {
+      responses.forEach((response: any) => {
+        if (isVisibleProgressModal && response.code === HttpStatus.SUCCESS) {
+          if (response.data && response.data.status === "PROCESSING") {
+            const exportPercent = Number(response?.data?.percent);
+            setExportProgress(exportPercent < 100 ? exportPercent : 99);
+          } else if (response.data && response.data.status === "FINISH") {
+            if (response.data.url) {
+              setExportCode(null);
+              setExportProgress(100);
+              showSuccess("Xuất file danh sách sản phẩm khuyến mãi thành công!");
+              window.open(response.data.url);
+            }
+          } else if (response.data && response.data.status === "ERROR") {
+            onCancelProgressModal();
+            showError("Xuất file danh sách sản phẩm khuyến mãi thất bại!");
+          }
+        }
+      });
+    });
+  }, [exportCode, isVisibleProgressModal, onCancelProgressModal]);
+
+  useEffect(() => {
+    if (exportProgress === 100 || !exportCode) return;
+
+    checkExportFile();
+
+    const getFileInterval = setInterval(checkExportFile, 3000);
+    return () => clearInterval(getFileInterval);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [checkExportFile, exportCode]);
+  // end process export modal
+  // end handle export file
+
   return (
     <ContentContainer
       isError={error}
@@ -270,6 +350,16 @@ const PromotionDetailScreen: React.FC = () => {
           name: "Chi tiết chương trình",
         },
       ]}
+      extra={
+        <Button
+          size="large"
+          icon={
+            <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
+          }
+          onClick={handleExportVariant}>
+          Xuất file danh sách SP
+        </Button>
+      }
     >
       {dataDiscount && (
         <DiscountStyled>
@@ -432,12 +522,61 @@ const PromotionDetailScreen: React.FC = () => {
                   </AuthWrapper>
                 )
                 }
+
+                <Link to={`${idNumber}/replicate`}><Button>Nhân bản</Button> </Link>
+
                 {allowUpdatePromoCode && RenderActionButton()}
               </Space>
             }
           />
         </DiscountStyled>
       )}
+
+      {isVisibleProgressModal &&
+        <Modal
+          onCancel={onCancelProgressModal}
+          visible={isVisibleProgressModal}
+          title="Xuất file danh sách sản phẩm được áp dụng chiết khấu"
+          centered
+          width={600}
+          maskClosable={false}
+          footer={[
+            <div style={{ display: "flex", justifyContent: "space-between"}}>
+              <Button
+                key="cancel-process-modal"
+                danger onClick={onCancelProgressModal}
+              >
+                Thoát
+              </Button>
+              <Button
+                key="confirm-process-modal"
+                type="primary"
+                onClick={onCancelProgressModal}
+                loading={exportProgress < 100}
+              >
+                Xác nhận
+              </Button>
+            </div>
+          ]}>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ marginBottom: 15 }}>
+              {exportProgress < 100 ?
+                <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
+                :
+                <span style={{ color: "#27AE60" }}>Đã xuất file danh sách sản phẩm khuyến mãi thành công!</span>
+              }
+            </div>
+            <Progress
+              type="circle"
+              strokeColor={{
+                "0%": "#108ee9",
+                "100%": "#87d068",
+              }}
+              percent={exportProgress}
+            />
+          </div>
+        </Modal>
+      }
     </ContentContainer>
   );
 };

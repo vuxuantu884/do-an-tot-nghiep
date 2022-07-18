@@ -12,21 +12,21 @@ import {
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { DELIVER_SERVICE_STATUS } from "utils/Order.constants";
+import { DELIVER_SERVICE_STATUS, THIRD_PARTY_LOGISTICS_INTEGRATION } from "utils/Order.constants";
 import { showSuccess } from "utils/ToastUtils";
 import SingleThirdPartyLogisticLayout from "../component/SingleThirdPartyLogisticLayout";
 import { StyledComponent } from "./styles";
 
-type PropType = {};
+type PropTypes = {};
 
-function SingleThirdPartyLogisticGHN(props: PropType) {
-  const external_service_code = "ghtk";
-  const urlGuide = "https://yody.vn/";
+function SingleThirdPartyLogisticGHN(props: PropTypes) {
+  const external_service_code = THIRD_PARTY_LOGISTICS_INTEGRATION.ghtk.code;
+  const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.ghtk.guideUrl;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [thirdPartyLogistics, setThirdPartyLogistics] =
     useState<DeliveryServiceResponse | null>(null);
-  const [listServices, setListServices] = useState<DeliveryServiceTransportType[]>([]);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceTransportType[]>([]);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
   const [isConnected, setIsConnected] = useState(false);
@@ -39,7 +39,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
   const handleSubmit = () => {
     form.validateFields(["token"]).then(() => {
       const formComponentValue = form.getFieldsValue();
-      let transport_types = listServices.map((single) => {
+      let transport_types = deliveryServices.map((single) => {
         return {
           code: single.code,
           status: formComponentValue.transport_types.includes(single.code)
@@ -122,8 +122,8 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
             dispatch(
               getDeliveryTransportTypesAction(result.code, (response) => {
                 if (response) {
-                  setListServices(response);
-                  const listActiveServices = response.map((single) => {
+                  setDeliveryServices(response);
+                  const activeDeliveryServices = response.map((single) => {
                     if (single.active) {
                       return single.code;
                     }
@@ -131,7 +131,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
                   });
                   form.setFieldsValue({
                     ...initialFormValue,
-                    transport_types: listActiveServices || [],
+                    transport_types: activeDeliveryServices || [],
                   });
                 }
               })
@@ -151,7 +151,7 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
         onSubmit={handleSubmit}
         onConnect={() => handleConnect3PL()}
         onCancelConnect={() => handleCancelConnect3PL()}
-        urlGuide={urlGuide}
+        guideUrl={guideUrl}
         isConnected={isConnected}
       >
         <Form
@@ -178,9 +178,9 @@ function SingleThirdPartyLogisticGHN(props: PropType) {
             label="Chọn dịch vụ đã kí hợp đồng với hãng vận chuyển:"
           >
             <Checkbox.Group>
-              {listServices &&
-                listServices.length > 0 &&
-                listServices.map((singleService) => {
+              {deliveryServices &&
+                deliveryServices.length > 0 &&
+                deliveryServices.map((singleService) => {
                   return (
                     <div key={singleService.code}>
                       <Checkbox value={singleService.code}>{singleService.name}</Checkbox>

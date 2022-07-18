@@ -717,6 +717,11 @@ const AllOrdersMappingFilter: React.FC<AllOrdersMappingFilterProps> = (
                   core_order_code: e.target.value.trim(),
                 });
               }}
+              onPressEnter={(e: any) => {
+                formFilter?.setFieldsValue({
+                  core_order_code: e.target.value.trim(),
+                });
+              }}
             />
           </Item>
 
