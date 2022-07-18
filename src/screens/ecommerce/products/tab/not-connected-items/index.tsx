@@ -1269,6 +1269,16 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                   disabled={isLoading}
                   prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
                   placeholder="SKU, tên sản phẩm sàn"
+                  onBlur={(e) => {
+                    formAdvance?.setFieldsValue({
+                      sku_or_name_ecommerce: e.target.value.trim(),
+                    });
+                  }}
+                  onPressEnter={(e: any) => {
+                    formAdvance?.setFieldsValue({
+                      sku_or_name_ecommerce: e.target.value.trim(),
+                    });
+                  }}
                 />
               </Form.Item>
 
