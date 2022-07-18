@@ -57,7 +57,7 @@ export interface VariantModel{
   price?:number;
 }
 
-export interface GoodsReceiptsSearhModel{
+export interface GoodsReceiptsSearchModel{
   key:number;
   id_handover_record:number;
   store_name:string;
@@ -66,16 +66,18 @@ export interface GoodsReceiptsSearhModel{
   order_quantity:number;//SL đơn
   order_send_quantity:number;//Số đơn gửi hvc                                                                                                          
   order_transport:number;//Đơn đang chuyển
-  order_have_not_taken:number;//Đơn chưa lấy
+  order_returning:number;//đơn đang hoàn
+  order_returned:number; //đã hoàn
   order_cancel:number;//đơn hủy 
-  order_moving_complete:number;//đơn hoàn chuyển
   order_success:number;//đơn thành công
-  order_complete?:number;//đơn hoàn
   account_create:string;//người tạo
   description?:string; //ghi chú
   ecommerce_id?:number;
   note?:string;
   goods_receipts:GoodsReceiptsResponse
+  delivery_service_id?:number|null;
+  updated_date?:Date;
+  ecommerce_name?:string|null;
 }
 
 export interface GoodsReceiptsInfoOrderModel{

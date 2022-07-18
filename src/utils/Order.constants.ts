@@ -82,6 +82,7 @@ export const ORDER_SUB_STATUS = {
   change_depot: "change_depot",
   out_of_stock: "out_of_stock",
   coordinator_confirming: "coordinator_confirming",
+  confirm_returned: "confirm_returned"
 };
 
 export const SUB_STATUS_CANCEL_CODE = [
