@@ -667,7 +667,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   }, [initialValues]);
 
   const onFinish = useCallback(
-    (values) => {
+    () => {
       let error = false;
       formRef?.current
         ?.getFieldsError([
@@ -694,6 +694,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           }
         });
       if (!error) {
+        const baseFilterValue = formRef?.current?.getFieldsValue();
+        const filterValue = formSearchRef.current?.getFieldsValue();
+        // console.log("filterValue",filterValue)
+        // console.log("baseFilterValue",baseFilterValue)
+        let values:any = undefined;
+        if(baseFilterValue){
+          values = {...baseFilterValue, ...filterValue};
+        }else{
+          values = {...initialValues, ...filterValue};
+        }
         setVisible(false);
         values.services = services;
         values.searched_product = keySearchVariant; // search sản phẩm, ko để trong form nên phải thêm trong values
@@ -728,12 +738,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         if (values.discount_codes) {
           discount_codes = values.discount_codes.split(",").map((p: string) => p?.trim());
         }
-
         onFilter && onFilter({ ...values, discount_codes: discount_codes });
         setRerender(false);
       }
     },
-    [dateFormat, formRef, keySearchVariant, onFilter, services]
+    [dateFormat, formRef, formSearchRef, initialValues, keySearchVariant, onFilter, services]
   );
 
   let filters = useMemo(() => {
@@ -1506,13 +1515,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   useEffect(() => {
     formSearchRef.current?.setFieldsValue({
+      ...initialValues,
       search_term: params.search_term,
       variant_ids: params.variant_ids,
       tracking_codes: params.tracking_codes,
       sub_status_code: params.sub_status_code,
       search_product: params?.searched_product,
     });
-  }, [formSearchRef, params?.searched_product, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids]);
+  // bỏ formSearchRef
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [params?.searched_product, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids, initialValues]);
 
   useEffect(() => {
     formRef.current?.setFieldsValue(initialValues)

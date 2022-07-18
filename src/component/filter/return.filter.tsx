@@ -323,21 +323,25 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
       })
       if (!error) {
         setVisible(false);
+        const handleTime = (fieldName: keyof ReturnSearchQuery) => {
+          return values[fieldName] ? values[fieldName] : formRefValues ? formRefValues[fieldName] : params[fieldName]
+        };
+        const formRefValues = formRef.current?.getFieldsValue();
         const valuesForm = {
           ...values,
           is_received: isReceived,
           payment_status: paymentStatus,
-          created_on_min: formatDateTimeOrderFilter(values.created_on_min, dateFormat),
-          created_on_max: formatDateTimeOrderFilter(values.created_on_max, dateFormat),
-          received_on_min: formatDateTimeOrderFilter(values.received_on_min, dateFormat),
-          received_on_max: formatDateTimeOrderFilter(values.received_on_max, dateFormat),
+          created_on_min: formatDateTimeOrderFilter(handleTime("created_on_min"), dateFormat),
+          created_on_max: formatDateTimeOrderFilter(handleTime("created_on_max"), dateFormat),
+          received_on_min: formatDateTimeOrderFilter(handleTime("received_on_min"), dateFormat),
+          received_on_max: formatDateTimeOrderFilter(handleTime("received_on_max"), dateFormat),
         }
         onFilter && onFilter(valuesForm);
         setRerender(false)
       }
 
     },
-    [formRef, isReceived, paymentStatus, dateFormat, onFilter]
+    [formRef, isReceived, paymentStatus, dateFormat, onFilter, params]
   );
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
