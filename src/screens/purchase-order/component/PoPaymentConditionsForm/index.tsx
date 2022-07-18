@@ -163,7 +163,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
           }>
           <div>
             <StyledRow>
-              <Col span={6} style={{ paddingRight: "0px" }}>
+              <Col span={6} style={{ paddingRight: "0px", minWidth: "290px", }}>
                 <Form.Item label="Điều khoản thanh toán">
                   <Input.Group className="ip-group" compact>
                     <Form.Item name="payment_condition_id" noStyle>
@@ -335,7 +335,7 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
           ) : (
             <>
               <StyledRow>
-                <Col span={6} style={{ paddingRight: "0px" }}>
+                <Col span={6} style={{ paddingRight: "0px", minWidth: "290px" }}>
                   <Form.Item label="Điều khoản thanh toán">
                     <Input.Group className="ip-group" compact>
                       <Form.Item name="payment_condition_id" noStyle>
