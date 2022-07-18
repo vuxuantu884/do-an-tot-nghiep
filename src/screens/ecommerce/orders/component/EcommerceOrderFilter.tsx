@@ -1116,6 +1116,11 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
                       search_term: e.target.value.trim(),
                     });
                   }}
+                  onPressEnter={(e: any) => {
+                    form?.setFieldsValue({
+                      search_term: e.target.value.trim(),
+                    });
+                  }}
                 />
               </Item>
 
