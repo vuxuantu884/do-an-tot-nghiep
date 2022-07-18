@@ -76,10 +76,12 @@
             &::after {
               background-color: #2a2a86;
               margin-left: 0px !important;
+              height: 3px !important;
             }
           }
           .ant-steps-icon-dot {
             background-color: #2a2a86 !important;
+            top: 1px;
           }
           .ant-steps-item-title,
           .ant-steps-item-description {
