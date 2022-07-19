@@ -3,6 +3,16 @@ import styled from "styled-components";
 import { borderColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 let nameQuantityWidth = 200;
 export const StyledComponent = styled.div`
+  .actionButton {
+    &:not(:last-child) {
+      margin-bottom: 5px;
+    }
+    margin-left: -0.9px;
+  }
+  .orderSource {
+    margin-bottom: 9px;
+    margin-left: -1.7px;
+	}
   .order-options {
     border-bottom: 1px solid #5252;
     .ant-radio-group {
@@ -36,6 +46,7 @@ export const StyledComponent = styled.div`
   .order-list{
     .productNameQuantityPrice {
       width: ${nameQuantityWidth}px;
+      padding: 5px 0px !important;
     }
     // .productNameQuantityPriceHeader {
     //   > span {
@@ -120,6 +131,10 @@ export const StyledComponent = styled.div`
       }
     }
 
+    .text-left{
+      text-align: left;
+    }
+
     .item.custom-td {
       height: 100%;
       display: flex;
@@ -132,6 +147,9 @@ export const StyledComponent = styled.div`
         height: 100%;
         display: flex;
         align-items: center;
+        a{
+          font-weight: 500;
+        }
       }
       p {
         margin-bottom: 0;
@@ -193,11 +211,70 @@ export const StyledComponent = styled.div`
   .orderId {
     .noWrap {
       white-space: nowrap;
+      .order-id-title{
+        font-weight: 500;
+      }
     }
     .single {
       margin-top: 2px;
     }
+    .single-lg{
+      margin-top: 10px;
+    }
   }
+
+  .total-amount{
+    &-black{
+      font-weight: 600;
+      color: #222222;
+    }
+    .item-discount{
+      color:#E24343
+    }
+  }
+
+  .point-refund{
+    .item-point{
+      color:#FCAF17;
+      font-weight: 600;
+      padding-left: 5px;
+    }
+  }
+
+  .received{
+    &-success{
+      color: #27AE60;
+      font-weight: 600;
+    }
+    &-danger{
+      color: #E24343;
+      font-weight: 600;
+    }
+  }
+
+  .refund-amount{
+    &-success{
+      color: #27AE60;
+      font-weight: 600;
+    }
+    &-danger{
+      color: #E24343;
+      font-weight: 600;
+    }
+    &-warning{
+      color: #FCAF17;
+      font-weight: 600;
+    }
+  }
+
+  .code_order_return {
+      .noWrap {
+        white-space: nowrap;
+      }
+      .single {
+        margin-top: 2px;
+      }
+    }
   .textSmall {
     font-size: 0.86em;
     line-height: 1.25;
@@ -237,4 +314,8 @@ export const StyledComponent = styled.div`
 			}
 		}
 	}
+  .item-title{
+    color: #222222;
+    font-weight: 500;
+  }
 `;

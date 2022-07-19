@@ -1,4 +1,4 @@
-import { OrderLineItemResponse } from "model/response/order/order.response";
+import { OrderLineItemResponse, OrderPaymentResponse } from "model/response/order/order.response";
 
 export interface ReturnModel {
   assignee: string;
@@ -35,6 +35,10 @@ export interface ReturnModel {
   items: Array<OrderLineItemResponse>;
   note: string;
   customer_note: string;
+  payments?:OrderPaymentResponse[]|null;
+  channel?:string|null;
+  channel_id?:number|null;
+  
 }
 
 export interface ReturnSearchQuery {
