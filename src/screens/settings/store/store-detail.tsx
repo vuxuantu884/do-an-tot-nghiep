@@ -221,7 +221,7 @@ const StoreDetailScreen: React.FC = () => {
               <div style={{padding: 20}}>
                 <Row style={{marginTop: 10}} gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <RowDetail title="Phân cấp" value={data.rank_name} />
+                    <RowDetail title="Hạng cửa hàng" value={data.rank_name} />
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <RowDetail title="VM trực thuộc" value={data.vm} />
