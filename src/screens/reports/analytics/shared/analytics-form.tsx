@@ -145,7 +145,7 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
             setLoadingTable(false);
             console.log('get data report', response)
         }
-        if (Object.keys(where).length && Object.keys(where).includes(ReportProperty.PosLocationName)) {
+        if (Object.keys(where).length && Object.keys(where).includes(ReportProperty.PosLocationName) && where[ReportProperty.PosLocationName]) {
             const filterStores = where[ReportProperty.PosLocationName];
             const noPermissionStore = getNoPermissionStores(filterStores, myStores);
             setPermissionStores(() => [...noPermissionStore]);
