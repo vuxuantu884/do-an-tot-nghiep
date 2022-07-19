@@ -516,7 +516,7 @@ const StoreUpdateScreen: React.FC = () => {
                       ),
                       icon: <InfoCircleOutlined />,
                     }}
-                      label="Phân cấp"
+                      label="Hạng cửa hàng"
                       name="rank"
                     >
                       <Select>
