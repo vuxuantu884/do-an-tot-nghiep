@@ -329,13 +329,13 @@ const ProductDetailScreen: React.FC = () => {
             newData.variants[i].name = newName.trim() + ' - ' + newData.variants[i].color;
           }
           else if(newData.variants[i].color !== null && newData.variants[i].size !==null){
-            newData.variants[i].name = newName.trim() + ' - ' + newData.variants[i].color;
+            newData.variants[i].name = newName.trim() + ' - ' + newData.variants[i].color + ' - ' + newData.variants[i].size;
           }
         }
       }
     }
 
-    setData(newData);
+    setData({...newData,name: newName});
   }, [data]);
 
   const onChangePrice =() => {
