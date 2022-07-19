@@ -8,3 +8,4 @@ export const LAST_3_MONTHS = [
     moment().subtract(3, "month").startOf("month").format(DATE_FORMAT.YYYYMMDD),
     moment().subtract(1, "month").endOf("month").format(DATE_FORMAT.YYYYMMDD),
 ];
+export const YESTERDAY = moment().subtract(1, 'days').format(DATE_FORMAT.YYYYMMDD);

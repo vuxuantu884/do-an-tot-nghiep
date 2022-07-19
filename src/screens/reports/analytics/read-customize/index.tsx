@@ -208,7 +208,7 @@ function CreateAnalytics() {
 
                 const propertiesValue = getPropertiesValue(rows || [], response);
                 const whereValue = getConditionsFormServerToForm(conditions || []);
-                if (Object.keys(whereValue).length && Object.keys(whereValue).includes(ReportProperty.PosLocationName)) {
+                if (Object.keys(whereValue).length && Object.keys(whereValue).includes(ReportProperty.PosLocationName) && whereValue[ReportProperty.PosLocationName]) {
                     const filterStores = whereValue[ReportProperty.PosLocationName];
                     const noPermissionStore = getNoPermissionStores(filterStores, myStores);
                     setPermissionStores(() => [...noPermissionStore]);

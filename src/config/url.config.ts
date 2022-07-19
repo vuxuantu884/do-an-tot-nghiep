@@ -59,6 +59,7 @@ const UrlConfig = {
   ANALYTIC_CUSTOMER:`/analytics/customers`,
   WARRANTY:`/warranties`,
   INVENTORY_DEFECTS: `/inventory-defects`,
+  KEY_DRIVER_OFFLINE: `/key-driver-offline`,
   STOCK_IN_OUT_OTHERS: `/stock-in-out-others`,
 };
 
