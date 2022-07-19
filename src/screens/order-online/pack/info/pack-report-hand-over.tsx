@@ -39,7 +39,6 @@ import useSetTableColumns from "hook/table/useSetTableColumns";
 import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
-import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { greenColor, yellowColor } from "utils/global-styles/variables";
 import { GoodsReceiptsSearchModel } from "model/pack/pack.model";
 import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";

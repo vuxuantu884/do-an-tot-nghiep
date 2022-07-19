@@ -322,7 +322,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                         <NumberInput
                           isFloat
                           style={{ width: "70%" }}
-                          placeholder="Nhập thời gian công nợ"
+                          placeholder="Nhập điều khoản thanh toán"
                         />
                       </Form.Item>
                       <Form.Item name="payment_condition_name" noStyle>

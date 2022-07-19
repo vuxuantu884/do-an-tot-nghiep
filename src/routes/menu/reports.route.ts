@@ -21,6 +21,8 @@ const ReadTemplateAnalytics = React.lazy(
 const CustomerVisitors = React.lazy(
   () => import("screens/reports/analytics/shared/customer-visitors")
 );
+const KeyDriverOffline = React.lazy(() => import("screens/reports/key-driver-offline"));
+const KeyDriverOfflineStore = React.lazy(() => import("screens/reports/key-driver-offline/key-driver-offline-store"));
 
 const reports: Array<RouteMenu> = [
   {
@@ -153,6 +155,29 @@ const reports: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
+      },
+      {
+        path: `${UrlConfig.KEY_DRIVER_OFFLINE}`,
+        exact: true,
+        title: "Báo cáo Kết quả kinh doanh offline",
+        icon: "icon-dot",
+        component: KeyDriverOffline,
+        key: "menureport5",
+        isShow: true,
+        header: null,
+        subMenu: [
+          {
+            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/:asmName`,
+            exact: true,
+            title: "Báo cáo Kết quả kinh doanh offline các cửa hàng",
+            icon: "icon-dot",
+            component: KeyDriverOfflineStore,
+            key: "submenureport01",
+            isShow: true,
+            header: null,
+            subMenu: [],
+          },
+        ],
       },
     ],
   },

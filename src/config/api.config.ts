@@ -15,7 +15,12 @@ const ServiceNames = {
   WEBSITE_SERVICE: "website-service",
   LOGISTIC_GATEWAY_SERVICE: "logistic-gateway-service",
   INVENTORY_ADJUSTMENT_SERVICE: "inventory-adjustment-service",
-  PROMOTION_SERVICE: "promotion-service"
+  PROMOTION_SERVICE: "promotion-service",
+  KEY_DRIVER_SERVICE: 'key-drivers',
+  KD_OFFLINE_TOTAL_SALES_SERVICE: 'key-drivers/offline-total-sales/v2',
+  OFFLINE_TOTAL_SALES_LOYALTY_LEVEL_SERVICE: 'key-drivers/offline-total-sales-by-loyalty-level',
+  KD_CUSTOMER_VISITORS_SERVICE: 'customer-visitors/key-drivers/sum',
+  KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE: 'key-drivers/offline-uniform-online-total-sales',
 };
 
 const v1 = ``;
@@ -42,6 +47,11 @@ const ApiConfig = {
   CUSTOMER_VISITORS: `${v1}/customer-visitors`,
   WARRANTY: `${v1}/warranty-service`,
   DASHBOARD: `${v1}/dashboard-service`,
+  KEY_DRIVER: `${v1}/${ServiceNames.KEY_DRIVER_SERVICE}`,
+  KD_OFFLINE_TOTAL_SALES: `${v1}/${ServiceNames.KD_OFFLINE_TOTAL_SALES_SERVICE}`,
+  OFFLINE_TOTAL_SALES_LOYALTY_LEVEL: `${v1}/${ServiceNames.OFFLINE_TOTAL_SALES_LOYALTY_LEVEL_SERVICE}`,
+  KD_CUSTOMER_VISITORS: `${v1}/${ServiceNames.KD_CUSTOMER_VISITORS_SERVICE}`,
+  KD_OFFLINE_ONLINE_TOTAL_SALES: `${v1}/${ServiceNames.KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE}`,
 };
 
 export { ApiConfig };
