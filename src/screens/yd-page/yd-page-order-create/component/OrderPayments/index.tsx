@@ -68,7 +68,9 @@ function OrderPayments(props: PropType): JSX.Element {
   );
 
   const ListPaymentMethods = useMemo(() => {
-    return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
+    return listPaymentMethod.filter((item) => {
+      return (item.code !== PaymentMethodCode.CARD && item.code !== PaymentMethodCode.VN_PAY && item.code !== PaymentMethodCode.CASH);
+    })
   }, [listPaymentMethod]);
 
   const usageRate = useMemo(() => {
