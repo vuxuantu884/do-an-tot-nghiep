@@ -22,4 +22,7 @@ export const StyledComponent = styled.div`
 		margin-right: 5px;
 		cursor: pointer;
 	}
+	.noteText{
+		text-align: left;
+	}
 `;

@@ -1,5 +1,5 @@
-import { DeleteOutlined, DownOutlined, ExclamationCircleOutlined, ExportOutlined, EyeOutlined, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Card, Modal, Popover, Radio, Row, Space, Tooltip } from "antd";
+import { DeleteOutlined, ExclamationCircleOutlined, ExportOutlined } from "@ant-design/icons";
+import { Button, Card, Modal, Radio, Row, Space, Tooltip } from "antd";
 import exportIcon from "assets/icon/export.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -29,15 +29,15 @@ import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { OrderLineItemResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
-import { copyTextToClipboard, formatCurrency, formatNumber, generateQuery, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { COLUMN_CONFIG_TYPE } from "utils/Constants";
-import { DATE_FORMAT } from "utils/DateUtils";
+import { copyTextToClipboard, formatCurrency, formatNumber, generateQuery, getTotalQuantity, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import { COLUMN_CONFIG_TYPE, FACEBOOK, POS, SHOPEE } from "utils/Constants";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import { ORDER_PAYMENT_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -45,11 +45,14 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
 import { StyledComponent } from "./OrderReturnList.styles";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import search from "assets/img/search.svg";
+// import search from "assets/img/search.svg";
 import useAuthorization from "hook/useAuthorization";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { deleteOrderReturnService, updateNoteOrderReturnService } from "service/order/return.service";
 import EditNote from "../EditOrderNote";
+import IconShopee from "assets/icon/channel/shopee.svg";
+import IconStore from "assets/icon/channel/store.svg";
+import IconFacebook from "assets/icon/channel/facebook.svg";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -122,33 +125,33 @@ function OrderReturnList(props: PropTypes) {
     Array<ICustomTableColumType<ReturnModel>>
   >([
     {
-      title: "Mã đơn trả hàng",
+      title: "ID",
       dataIndex: "code_order_return",
       key: "code_order_return",
       visible: true,
       fixed: "left",
-      className: "orderId custom-shadow-td",
+      className: "code_order_return custom-shadow-td",
       width: 140,
       render: (value: string, i: ReturnModel) => {
         return (
           <React.Fragment>
-            <div className="noWrap" style={{display:"flex"}}>
-              <Link to={`${UrlConfig.ORDERS_RETURN}/${i.id}`} style={{ fontWeight: 500, width:"88%", overflow:"hidden", textOverflow:"ellipsis" }}>
+            <div className="noWrap">
+              <Link to={`${UrlConfig.ORDERS_RETURN}/${i.id}`} style={{ fontWeight: 500 }} title="Chi tiết đơn trả hàng">
                 {value}
               </Link>
-              <Tooltip title="Click để copy">
+              <span title="Click để copy">
                 <img
                   onClick={(e) => {
-                    copyTextToClipboard(e, i.code_order_return.toString())
-                    showSuccess("Đã copy mã đơn hàng!")
+                    copyTextToClipboard(e, value?.toString())
+                    showSuccess("Đã copy mã đơn trả hàng!")
                   }}
                   src={copyFileBtn}
                   alt=""
                   style={{ width: 18, cursor: "pointer" }}
                 />
-              </Tooltip>
+              </span>
             </div>
-            <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
+            <div className="textSmall" title="Ngày tạo đơn">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
             <div className="textSmall">
               <Tooltip title="Cửa hàng">
                 <Link to={`${UrlConfig.STORE}/${i?.store_id}`}>
@@ -161,167 +164,286 @@ function OrderReturnList(props: PropTypes) {
                 <Tooltip title="Nguồn">{i.source}</Tooltip>
               </div>
             )}
-            { orderType === ORDER_TYPES.offline ? (
-              <React.Fragment>
-                <div className="textSmall single mainColor">
-                  <Tooltip title="Chuyên gia tư vấn">
-                    <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
-                      <strong>CGTV: </strong>{i.assignee_code} - {i.assignee}
-                    </Link>
-                  </Tooltip>
-                </div>
-                <div className="textSmall single mainColor">
-                  <Tooltip title="Thu ngân">
-                    <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
-                      <strong>Thu ngân: </strong>{i.account_code} - {i.account}
-                    </Link>
-                  </Tooltip>
-                </div>
-              </React.Fragment>
-            ) :null}
-            { orderType === ORDER_TYPES.online && i.source && (
+
+            {orderType === ORDER_TYPES.offline ? (
               <div className="textSmall single mainColor">
-                <Tooltip title="Nhân viên bán hàng">
-                  <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
-                    <strong>NV bán hàng: </strong>{i.assignee_code} - {i.assignee}
+                <Tooltip title="Thu ngân">
+                  <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
+                    <strong className="item-title">Thu ngân: </strong>{i.account_code} - {i.account}
                   </Link>
                 </Tooltip>
               </div>
-            )}
-          </React.Fragment>
-        );
-      },
-      
-    },
-    {
-      title: "Mã đơn hàng",
-      render: (record: ReturnModel) => (
-        <Link target="_blank" to={`${UrlConfig.ORDER}/${record.order_id}`}>
-          {record.code_order}
-        </Link>
-      ),
-      key: "order_code",
-      visible: true,
-      width: 120,
-    },
-    {
-      title: "Khách hàng",
-      render: (record: ReturnModel) => (
-        <div className="customer custom-td">
-          {record.customer_phone_number && (
-            <div style={{ color: "#2A2A86" ,display:"flex" }}>
-              <div
-                style={{ padding: "0px", fontWeight: 500, cursor: "pointer", fontSize: "0.9em" }}
-                onClick={() => {
-                  onFilterPhoneCustomer(
-                    record.customer_phone_number ? record.customer_phone_number : ""
-                  );
-                }}
-                >
-                {record.customer_phone_number}
-                <Tooltip title="Click để copy">
-                  <img
-                    onClick={(e) => {
-                      copyTextToClipboard(e, (record?.customer_phone_number || "").toString())
-                      showSuccess("Đã copy số điện thoại!")
-                    }}
-                    src={copyFileBtn}
-                    alt=""
-                    style={{ width: 18, cursor: "pointer" }}
-                  />
-                </Tooltip>
-
-              </div>
-              <Popover placement="bottomLeft" content={
-                <div className="poppver-to-fast">
-                  <Button
-                    className="btn-to-fast"
-                    style={{padding: "0px", display:"block", height:"30px"}}
-                    type="link"
-                    icon={<img src={search} alt="" style={{paddingRight:"18px"}}/> }
-                    onClick={() =>
-                      onFilterPhoneCustomer(
-                        record.customer_phone_number ? record.customer_phone_number : ""
-                      )
-                    }
-                  >
-                    Lọc đơn của khách
-                  </Button>
-                  <Button className="btn-to-fast"
-                    style={{padding: "0px", display:"block", height:"30px"}}
-                    type="link"
-                     icon={<EyeOutlined style={{paddingRight:"10px"}} /> }
-                    onClick={()=>{
-                      let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
-                      window.open(pathname,"_blank");
-                    }}
-                  >
-                    Thông tin khách hàng
-                  </Button>
-                  <Button
-                   className="btn-to-fast"
-                   style={{padding: "0px", display:"block", height:"30px"}}
-                   type="link"
-                   icon={<PlusOutlined style={{paddingRight:"10px"}}/> }
-                   onClick={()=>{
-                     let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
-                     window.open(pathname,"_blank");
-                  }}
-                  >
-                    Tạo đơn cho khách
-                  </Button>
-                  <Button
-                    className="btn-to-fast"
-                    style={{padding: "0px", display:"block", height:"30px"}}
-                    type="link"
-                    icon={<PhoneOutlined style={{paddingRight:"10px"}}/>}
-                    onClick={()=>{
-                      window.location.href=`tel:${record.customer_phone_number}`;
-                    }}
-                  >
-                    Gọi điện cho khách
-                  </Button>
+            ) : null}
+            {orderType === ORDER_TYPES.online ? (
+              <React.Fragment>
+                <div className="textSmall single mainColor">
+                  <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
+                    <strong className="item-title">NV bán hàng: </strong>{i.assignee_code} - {i.assignee}
+                  </Link>
                 </div>
-              } trigger="click">
-                <Button type="link" style={{ width: "25px", padding: "0px", paddingTop:2}} icon={<DownOutlined style={{fontSize:"12px"}}/>}></Button>
-              </Popover>
+              </React.Fragment>
+            ) : null}
+            <div className="textSmall single">
+              <strong>Tổng SP: {getTotalQuantity(i.items)}</strong>
             </div>
-          )}
-          <div className="name" style={{ color: "#2A2A86" }}>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
-              className="primary">
-              {record.customer_name}
-            </Link>{" "}
-          </div>
-          {/* <div className="textSmall">{renderShippingAddress(record)}</div> */}
-        </div>
-      ),
-      key: "customer",
-      visible: true,
-      width: 140,
+          </React.Fragment>
+        )
+      }
     },
+
     {
-      title: "Người nhận",
-      render: (record: any) => (
-        <div className="customer">
-          <div className="name p-b-3" style={{ color: "#2A2A86" }}>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
-            >
-              {record.account_code} - {record.account}
-            </Link>
-          </div>
-          {/* <div className="p-b-3">{record.account_code}</div> */}
-          {/* <div className="p-b-3">{record.customer_email}</div> */}
-        </div>
-      ),
-      key: "receive_person",
+      title: "Thông tin",
+      dataIndex: "order_id",
+      key: "order_id",
       visible: true,
-      width: 160,
+      fixed: "left",
+      className: "orderId custom-shadow-td",
+      width: 140,
+      render: (value: string, record: ReturnModel) => {
+        return (
+          <React.Fragment>
+            <div className="noWrap">
+              <div className="order-id-title">ID đơn gốc:</div>
+              <Link to={`${UrlConfig.ORDER}/${record.order_id}`} style={{ fontWeight: 500 }} title="Chi tiết đơn trả hàng">
+                {record.code_order}
+              </Link>
+              <span title="Click để copy">
+                <img
+                  onClick={(e) => {
+                    copyTextToClipboard(e, value?.toString())
+                    showSuccess("Đã copy mã đơn hàng!")
+                  }}
+                  src={copyFileBtn}
+                  alt=""
+                  style={{ width: 18, cursor: "pointer" }}
+                />
+              </span>
+            </div>
+
+            <div className="noWrap single-lg">
+              <div className="order-id-title">Khách hàng:</div>
+              <Link to={`${UrlConfig.CUSTOMER}/${record.customer_id}`} style={{ fontWeight: 500 }} title="Chi tiết khách hàng">
+                {record.customer_phone_number}
+              </Link>
+              <span title="Click để copy">
+                <img
+                  onClick={(e) => {
+                    copyTextToClipboard(e, record.customer_phone_number?.toString())
+                    showSuccess("Đã copy số điện thoại!")
+                  }}
+                  src={copyFileBtn}
+                  alt=""
+                  style={{ width: 18, cursor: "pointer" }}
+                />
+              </span>
+            </div>
+            <div className="textSmall single" title="Tên khách hàng">{record?.customer_name}</div>
+
+          </React.Fragment>
+        )
+      }
     },
+    // {
+    //   title: "Mã đơn trả hàng",
+    //   dataIndex: "code_order_return",
+    //   key: "code_order_return",
+    //   visible: true,
+    //   fixed: "left",
+    //   className: "orderId custom-shadow-td",
+    //   width: 140,
+    //   render: (value: string, i: ReturnModel) => {
+    //     return (
+    //       <React.Fragment>
+    //         <div className="noWrap" style={{display:"flex"}}>
+    //           <Link to={`${UrlConfig.ORDERS_RETURN}/${i.id}`} style={{ fontWeight: 500, width:"88%", overflow:"hidden", textOverflow:"ellipsis" }}>
+    //             {value}
+    //           </Link>
+    //           <Tooltip title="Click để copy">
+    //             <img
+    //               onClick={(e) => {
+    //                 copyTextToClipboard(e, i.code_order_return.toString())
+    //                 showSuccess("Đã copy mã đơn hàng!")
+    //               }}
+    //               src={copyFileBtn}
+    //               alt=""
+    //               style={{ width: 18, cursor: "pointer" }}
+    //             />
+    //           </Tooltip>
+    //         </div>
+    //         <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
+    //         <div className="textSmall">
+    //           <Tooltip title="Cửa hàng">
+    //             <Link to={`${UrlConfig.STORE}/${i?.store_id}`}>
+    //               {i.store}
+    //             </Link>
+    //           </Tooltip>
+    //         </div>
+    //         {orderType === ORDER_TYPES.offline ? null : (
+    //           <div className="textSmall single">
+    //             <Tooltip title="Nguồn">{i.source}</Tooltip>
+    //           </div>
+    //         )}
+    //         { orderType === ORDER_TYPES.offline ? (
+    //           <React.Fragment>
+    //             <div className="textSmall single mainColor">
+    //               <Tooltip title="Chuyên gia tư vấn">
+    //                 <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
+    //                   <strong>CGTV: </strong>{i.assignee_code} - {i.assignee}
+    //                 </Link>
+    //               </Tooltip>
+    //             </div>
+    //             <div className="textSmall single mainColor">
+    //               <Tooltip title="Thu ngân">
+    //                 <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
+    //                   <strong>Thu ngân: </strong>{i.account_code} - {i.account}
+    //                 </Link>
+    //               </Tooltip>
+    //             </div>
+    //           </React.Fragment>
+    //         ) :null}
+    //         { orderType === ORDER_TYPES.online && i.source && (
+    //           <div className="textSmall single mainColor">
+    //             <Tooltip title="Nhân viên bán hàng">
+    //               <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
+    //                 <strong>NV bán hàng: </strong>{i.assignee_code} - {i.assignee}
+    //               </Link>
+    //             </Tooltip>
+    //           </div>
+    //         )}
+    //       </React.Fragment>
+    //     );
+    //   },
+      
+    // },
+    // {
+    //   title: "Mã đơn hàng",
+    //   render: (record: ReturnModel) => (
+    //     <Link target="_blank" to={`${UrlConfig.ORDER}/${record.order_id}`}>
+    //       {record.code_order}
+    //     </Link>
+    //   ),
+    //   key: "order_code",
+    //   visible: true,
+    //   width: 120,
+    // },
+    // {
+    //   title: "Khách hàng",
+    //   render: (record: ReturnModel) => (
+    //     <div className="customer custom-td">
+    //       {record.customer_phone_number && (
+    //         <div style={{ color: "#2A2A86" ,display:"flex" }}>
+    //           <div
+    //             style={{ padding: "0px", fontWeight: 500, cursor: "pointer", fontSize: "0.9em" }}
+    //             onClick={() => {
+    //               onFilterPhoneCustomer(
+    //                 record.customer_phone_number ? record.customer_phone_number : ""
+    //               );
+    //             }}
+    //             >
+    //             {record.customer_phone_number}
+    //             <Tooltip title="Click để copy">
+    //               <img
+    //                 onClick={(e) => {
+    //                   copyTextToClipboard(e, (record?.customer_phone_number || "").toString())
+    //                   showSuccess("Đã copy số điện thoại!")
+    //                 }}
+    //                 src={copyFileBtn}
+    //                 alt=""
+    //                 style={{ width: 18, cursor: "pointer" }}
+    //               />
+    //             </Tooltip>
+
+    //           </div>
+    //           <Popover placement="bottomLeft" content={
+    //             <div className="poppver-to-fast">
+    //               <Button
+    //                 className="btn-to-fast"
+    //                 style={{padding: "0px", display:"block", height:"30px"}}
+    //                 type="link"
+    //                 icon={<img src={search} alt="" style={{paddingRight:"18px"}}/> }
+    //                 onClick={() =>
+    //                   onFilterPhoneCustomer(
+    //                     record.customer_phone_number ? record.customer_phone_number : ""
+    //                   )
+    //                 }
+    //               >
+    //                 Lọc đơn của khách
+    //               </Button>
+    //               <Button className="btn-to-fast"
+    //                 style={{padding: "0px", display:"block", height:"30px"}}
+    //                 type="link"
+    //                  icon={<EyeOutlined style={{paddingRight:"10px"}} /> }
+    //                 onClick={()=>{
+    //                   let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
+    //                   window.open(pathname,"_blank");
+    //                 }}
+    //               >
+    //                 Thông tin khách hàng
+    //               </Button>
+    //               <Button
+    //                className="btn-to-fast"
+    //                style={{padding: "0px", display:"block", height:"30px"}}
+    //                type="link"
+    //                icon={<PlusOutlined style={{paddingRight:"10px"}}/> }
+    //                onClick={()=>{
+    //                  let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+    //                  window.open(pathname,"_blank");
+    //               }}
+    //               >
+    //                 Tạo đơn cho khách
+    //               </Button>
+    //               <Button
+    //                 className="btn-to-fast"
+    //                 style={{padding: "0px", display:"block", height:"30px"}}
+    //                 type="link"
+    //                 icon={<PhoneOutlined style={{paddingRight:"10px"}}/>}
+    //                 onClick={()=>{
+    //                   window.location.href=`tel:${record.customer_phone_number}`;
+    //                 }}
+    //               >
+    //                 Gọi điện cho khách
+    //               </Button>
+    //             </div>
+    //           } trigger="click">
+    //             <Button type="link" style={{ width: "25px", padding: "0px", paddingTop:2}} icon={<DownOutlined style={{fontSize:"12px"}}/>}></Button>
+    //           </Popover>
+    //         </div>
+    //       )}
+    //       <div className="name" style={{ color: "#2A2A86" }}>
+    //         <Link
+    //           target="_blank"
+    //           to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
+    //           className="primary">
+    //           {record.customer_name}
+    //         </Link>{" "}
+    //       </div>
+    //       {/* <div className="textSmall">{renderShippingAddress(record)}</div> */}
+    //     </div>
+    //   ),
+    //   key: "customer",
+    //   visible: true,
+    //   width: 140,
+    // },
+    // {
+    //   title: "Người nhận",
+    //   render: (record: any) => (
+    //     <div className="customer">
+    //       <div className="name p-b-3" style={{ color: "#2A2A86" }}>
+    //         <Link
+    //           target="_blank"
+    //           to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
+    //         >
+    //           {record.account_code} - {record.account}
+    //         </Link>
+    //       </div>
+    //       {/* <div className="p-b-3">{record.account_code}</div> */}
+    //       {/* <div className="p-b-3">{record.customer_email}</div> */}
+    //     </div>
+    //   ),
+    //   key: "receive_person",
+    //   visible: true,
+    //   width: 160,
+    // },
     {
       title: (
         <div className="productNameQuantityPriceHeader">
@@ -394,160 +516,145 @@ function OrderReturnList(props: PropTypes) {
       width: 350,
     },
     {
-      title: "Hoàn tiền",
-      //dataIndex: "total_amount",
-      render: (record: any) => {
-        if(!record?.payment_status) {
-          return null
-        }
-        // let processIcon = "";
-        let textResult = "";
-        switch (record.payment_status) {
-          // case "unpaid":
-          case ORDER_PAYMENT_STATUS.unpaid:
-            // processIcon = "icon-blank";
-            textResult = "Chưa hoàn tiền"
-            break;
-          // case "paid":
-          case ORDER_PAYMENT_STATUS.paid:
-            // processIcon = "icon-full";
-            textResult = "Đã hoàn tiền"
-            break;
-          // case "partial_paid":
-          case ORDER_PAYMENT_STATUS.partial_paid:
-            // processIcon = "icon-full";
-            textResult = "Hoàn tiền một phần"
-            break;
-          default:
-            break;
-        }
-        return (
-          <div className="text-center">
-            {/* <div className={processIcon} /> */}
-            {textResult}
-          </div>
-        );
-      },
-      key: "refund_amount",
-      visible: true,
-      align: "center",
-      width: 140,
-    },
-
-    {
-      title: "Hoàn điểm",
-      //dataIndex: "total_amount",
-      render: (record: any) => {
-        if(record?.point_refund) {
-          return (
-            <div className="pointRefund">
-              <img src={IconPaymentPoint} alt="" />
-              <span className="number">
-                {formatNumber(record.point_refund)}
-              </span>
-            </div>
-          )
-        } else {
-          return "-"
-        }
-      },
-      key: "refund_point",
-      visible: true,
-      align: "center",
-      width: 100,
-    },
-
-    {
       title: "Tổng tiền",
-      width: 140,
+      width: 120,
       render: (record: any) => (
         <>
           <Tooltip title="Hoàn tiền">
             <NumberFormat
               value={formatCurrency(record.total)}
-              className="foo"
+              className="total-amount-black"
               displayType={"text"}
-              style={{ fontWeight: 500, color: "#27ae60"}}
+              //style={{ fontWeight: 500, color: "#27ae60"}}
             />
           </Tooltip>
           {record.discounts.length > 0 ? (
             <Tooltip title="Khuyến mại đơn hàng">
-              <div className="itemDiscount" style={{ color: dangerColor }}>
+              <div className="item-discount">
                 <span> - {formatCurrency(record.discounts[0].value)}</span>
               </div>
             </Tooltip>
           ) : null}
         </>
       ),
+      className:"total-amount",
       key: "total_amount",
       visible: true,
       align: "center",
     },
     {
       title: "Hoàn điểm",
-      width: 140,
+      width: 120,
       render: (record: any) => (
         <>
-          {record.point_refund ? (
-            <div>
-              <img src={IconPaymentPoint} alt="" />
-              <NumberFormat
-                value={formatNumber(record.point_refund)}
-                className="foo"
-                displayType={"text"}
-                style={{ fontWeight: 500, color: "#fcaf17", paddingLeft: 5 }}
-              />
-            </div>
-          ) : null}
+          <div>
+            {
+              record.point_refund ?(
+                <img src={IconPaymentPoint} alt="" />
+              ):null
+            }
+            
+            <NumberFormat
+              value={formatNumber(record.point_refund||0)}
+              className="item-point"
+              displayType={"text"}
+            />
+          </div>
         </>
       ),
       key: "point_refund",
+      className:"point-refund",
       visible: true,
       align: "center",
     },
-    
     {
-      title: "Trạng thái nhận hàng",
+      title: "Nhận hàng",
       dataIndex: "received",
       key: "received",
-      render: (value: boolean) => {
-        let processIcon = null;
-        switch (value) {
-          case true:
-            processIcon = "icon-full";
-            break;
-          default:
-            processIcon = "icon-blank";
-            break;
-        }
-        return (
-          <div className="text-center">
-            <div className={processIcon} />
-          </div>
-        );
+      className: "received",
+      render: (value: boolean, record: ReturnModel) => {
+        return value ? (
+          <React.Fragment>
+            <div className="text-center received-success">Đã nhận hàng</div>
+            <div className="textSmall" title="Ngày tạo đơn">{moment(record.receive_date).format(DATE_FORMAT.fullDate)}</div>
+          </React.Fragment>
+        ) : (
+          <div className="text-center received-danger">Chưa nhận hàng</div>
+        )
       },
       visible: true,
       align: "center",
       width: 140,
     },
     {
-      title: "Ngày nhận hàng",
-      dataIndex: "receive_date",
-      render: (value: string) => <div>{value && moment(value).format(DATE_FORMAT.fullDate)}</div>,
-      key: "receive_date",
+      title: "Hoàn tiền",
+      //dataIndex: "total_amount",
+      render: (record: ReturnModel) => {
+        if(!record?.payment_status) {
+          return null
+        }
+
+        const payment_date =()=>{record?.payments?.map((p) => (
+          p?.created_date ? (
+            <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(p.created_date, DATE_FORMAT.fullDate)}</div>
+          ) : undefined
+        ))}
+
+        return record.payment_status === ORDER_PAYMENT_STATUS.unpaid ? (
+          <div className="text-center refund-amount-danger">Chưa hoàn tiền</div>
+        ) : record.payment_status === ORDER_PAYMENT_STATUS.paid ? (
+          <>
+            <div className="text-center refund-amount-success">Đã hoàn tiền</div>
+            {payment_date()}
+          </>
+        ) : record.payment_status === ORDER_PAYMENT_STATUS.partial_paid ? (
+          <>
+            <div className="text-center refund-amount-warning">Hoàn một phần</div>
+            {payment_date()}
+          </>
+        ) : null
+      },
+      className:"refund-amount",
+      key: "refund_amount",
       visible: true,
       align: "center",
-      width: 130,
+      width: 140,
     },
-    {
-      title: "Lý do trả",
-      dataIndex: "reason",
-      key: "reason",
-      visible: true,
-      align: "center",
-      width: 160,
-      render:(value: any, record: ReturnModel, index: number)=><div>{record?.return_reason?.name}</div>
-    },
+    
+    // {
+    //   title: "Trạng thái nhận hàng",
+    //   dataIndex: "received",
+    //   key: "received",
+    //   render: (value: boolean) => {
+    //     let processIcon = null;
+    //     switch (value) {
+    //       case true:
+    //         processIcon = "icon-full";
+    //         break;
+    //       default:
+    //         processIcon = "icon-blank";
+    //         break;
+    //     }
+    //     return (
+    //       <div className="text-center">
+    //         <div className={processIcon} />
+    //       </div>
+    //     );
+    //   },
+    //   visible: true,
+    //   align: "center",
+    //   width: 140,
+    // },
+    // {
+    //   title: "Ngày nhận hàng",
+    //   dataIndex: "receive_date",
+    //   render: (value: string) => <div>{value && moment(value).format(DATE_FORMAT.fullDate)}</div>,
+    //   key: "receive_date",
+    //   visible: true,
+    //   align: "center",
+    //   width: 130,
+    // },
+
     {
       title: "Ghi chú",
       className: "notes",
@@ -555,7 +662,7 @@ function OrderReturnList(props: PropTypes) {
         return (
           <div className="orderNotes">
             <div className="inner">
-              <div className="single">
+              <div className="single text-left">
                 <EditNote
                   note={record.customer_note}
                   title="Khách hàng: "
@@ -569,7 +676,7 @@ function OrderReturnList(props: PropTypes) {
                   }}
                 />
               </div>
-              <div className="single">
+              <div className="single text-left">
                 <EditNote
                   note={record.note}
                   title="Nội bộ: "
@@ -591,6 +698,15 @@ function OrderReturnList(props: PropTypes) {
       visible: true,
       align: "center",
       width: 200,
+    },
+    {
+      title: "Lý do trả",
+      dataIndex: "reason",
+      key: "reason",
+      visible: true,
+      align: "center",
+      width: 160,
+      render:(value: any, record: ReturnModel, index: number)=><div>{record?.return_reason?.name}</div>
     },
   ]);
 
@@ -914,6 +1030,59 @@ function OrderReturnList(props: PropTypes) {
     [onFilter, params]
   );
 
+  const renderOrderSource = (returnModel: ReturnModel) => {
+    let html = null;
+    if (returnModel.channel === POS.channel_code) {
+      html = (
+        <div className="orderSource actionButton">
+          <Tooltip title="Đơn hàng tại quầy">
+            <img src={IconStore} alt="" />
+          </Tooltip>
+        </div>
+      );
+    } else {
+      switch (returnModel.channel_id) {
+        case SHOPEE.channel_id:
+          html = (
+            <div className="orderSource actionButton">
+              <Tooltip title="Đơn hàng tại Shopee">
+                <img src={IconShopee} alt="" />
+              </Tooltip>
+            </div>
+          );
+          break;
+        case FACEBOOK.channel_id:
+          html = (
+            <div className="orderSource actionButton">
+              <Tooltip title="Đơn hàng từ Facebook">
+                <img src={IconFacebook} alt="" />
+              </Tooltip>
+            </div>
+          );
+          break;
+        default:
+          break;
+      }
+    }
+    return html;
+  };
+
+  const rowSelectionRenderCell = (
+    checked: boolean,
+    record: ReturnModel,
+    index: number,
+    originNode: ReactNode
+  ) =>{
+    return (
+      <React.Fragment>
+        <div className="actionButton">
+          {originNode}
+        </div>
+        {renderOrderSource(record)}
+      </React.Fragment>
+    )
+  }
+
   useEffect(() => {
     setTableLoading(true);
     dispatch(getReturnsAction(params, setSearchResult));
@@ -1009,6 +1178,7 @@ function OrderReturnList(props: PropTypes) {
             columns={columnFinal}
             rowKey={(item: ReturnModel) => item.code_order_return}
             className="order-list"
+            rowSelectionRenderCell={rowSelectionRenderCell}
           />
         </Card>
 
