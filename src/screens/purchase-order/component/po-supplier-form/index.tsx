@@ -21,6 +21,7 @@ import POSupplierAddress from "./POSupplierAddress";
 import { EmailWrap } from "./index.style";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
+import { enumConvertDate } from "model/purchase-order/purchase-order.model";
 
 const SupplierAddModal = lazy(
   () => import("screens/products/supplier/modal/supplier-add-modal.screen")
@@ -121,8 +122,8 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
       billing_address: supplierAddress,
       supplier_address: supplierAddress,
       phone: supplier.phone,
-      payment_condition_id: supplier.debt_time,
-      payment_condition_name: supplier.debt_time_unit,
+      payment_condition_id: supplier?.debt_time || 0,
+      payment_condition_name: supplier?.debt_time_unit || enumConvertDate.DAY, //mac dinh la day
     });
     setIsSelectSupplier(true);
   };
