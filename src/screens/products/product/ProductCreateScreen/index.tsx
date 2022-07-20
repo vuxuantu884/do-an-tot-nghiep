@@ -338,8 +338,10 @@ const ProductCreateScreen: React.FC = () => {
             variant_images: [],
           });
 
-         for (let i = 0; i < ArrDefects.length; i++) {
-           const e = ArrDefects[i];
+        const arrDefectSpecial = ArrDefects.filter(e=>e.isSpecial===1);
+
+         for (let i = 0; i < arrDefectSpecial.length; i++) {
+           const e = arrDefectSpecial[i];
 
            newVariants.push({
             name: `${name} - ${e.name}`,
@@ -357,7 +359,7 @@ const ProductCreateScreen: React.FC = () => {
           });
          }
 
-         setDefects([...ArrDefects]);
+         setDefects([...arrDefectSpecial]);
         }
 
         for (let i = 0; i < defects.length; i++) {
@@ -555,14 +557,12 @@ const ProductCreateScreen: React.FC = () => {
       if (values.saleable) {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
-      setLoadingSaveButton(true);
-
       let request = Products.convertProductViewToRequest({
         ...values,
         description: form.getFieldValue("description"),
         care_labels: careLabelsString,
       }, variantsHasProductAvatar, status);
-
+      
       dispatch(productCreateAction(request, createCallback));
     },
     [createCallback, dispatch, careLabelsString, status, variants, form]
