@@ -88,3 +88,19 @@ export const ImportFileDiscountStyled = styled.div`
   }
 }
 `
+
+export const DiscountDetailListStyled = styled.div`
+	.input-search-product {
+    display: flex;
+		.label-search-product {
+			font-weight: 500;
+			white-space: nowrap;
+			margin-right: 10px;
+		}
+	}
+	
+  .ant-input-search .ant-input-group .ant-input-affix-wrapper {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+`
