@@ -25,7 +25,6 @@ const Customer = React.lazy(() => import ("screens/customer"));
 const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
 const WebAppOrdersSync = React.lazy(() => import ("screens/web-app/orders-sync/WebAppOrdersSync"));
 const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
-const ReportOrdersOnline = React.lazy(() => import ("screens/reports/report-orders-online"));
 const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
 
 const menu: Array<RouteMenu> = [
@@ -134,7 +133,7 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Báo cáo",
     icon: 'icon-report',
-    component: ReportOrdersOnline,
+    component: null,
     key: "9",
     isShow: true,
     header: null,
