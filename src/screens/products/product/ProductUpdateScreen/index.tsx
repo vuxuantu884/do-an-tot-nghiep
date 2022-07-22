@@ -478,8 +478,6 @@ const ProductDetailScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: ProductRequest) => {
       setLoadingButton(true);
-      console.log('values',values);
-      
       values.variants?.forEach((e:VariantRequest)=>{
         if (e.saleable) e.status = "active"; //CO-3415
       });
@@ -872,15 +870,6 @@ const ProductDetailScreen: React.FC = () => {
             <Item noStyle name="product_type" hidden>
               <Input />
             </Item>
-            <Item noStyle name="component" hidden>
-              <Input />
-            </Item>
-            <Item noStyle name="advantages" hidden>
-              <Input />
-            </Item>
-            <Item noStyle name="defect" hidden>
-              <Input />
-            </Item>
             <Item noStyle name="status" hidden>
               <Input />
             </Item>
@@ -1076,20 +1065,22 @@ const ProductDetailScreen: React.FC = () => {
                       <Row gutter={50}>
                         <Col span={24} md={12} sm={24}>
                           <Item name="material" hidden={true}></Item>
-                          <Item name="material_id" className="po-form" label="Chất liệu">
-                            <Select
+                          <Item name="material_id" label="Chất liệu">
+                            <CustomSelect
                               showSearch
+                              allowClear
                               optionFilterProp="children"
                               placeholder="Chọn chất liệu"
                               onChange={onMaterialChange}
-                              allowClear
-                              >
-                                {listMaterial?.map((item) => (
-                                  <CustomSelect.Option className="po-form" key={item.id} value={item.id}>
-                                    {item.name} <span className="icon-dot" /> {item.fabric_code}
-                                  </CustomSelect.Option>
-                                ))}
-                            </Select>
+                            >
+                              {listMaterial?.map((item) => (
+                                <CustomSelect.Option key={item.id} value={item.id}>
+                                <div className="po-form">
+                                  {item.name} <span className="icon-dot" /> {item.fabric_code}
+                                </div>
+                              </CustomSelect.Option>
+                              ))}
+                            </CustomSelect>
                           </Item>
                         </Col>
                         <Col span={24} md={12} sm={24}>

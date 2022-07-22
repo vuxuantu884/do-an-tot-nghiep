@@ -64,10 +64,7 @@ export interface ProductResponse extends BaseObject {
   variants: Array<VariantResponse>
   on_hand: number,
   collections: Array<CollectionResponse>,
-  product_collections: Array<string>,
-  component: string | null,
-  advantages: string | null,
-  defect: string |null
+  product_collections: Array<string>
 }
 
 export interface ProductWrapperResponse extends BaseObject {
@@ -339,10 +336,7 @@ export interface ProductRequest {
   material: string | null,
   collections: Array<string>,
   product_collections?: Array<string>,
-  type?: number,
-  component: string | null,
-  advantages: string | null,
-  defect: string | null
+  type?: number
 }
 
 export interface BarcodePrintTemEditNoteRequest {
@@ -402,10 +396,7 @@ export interface ProductRequestView {
   supplier_id: number | null,
   material: string | null,
   collections: Array<CollectionResponse>,
-  product_collections: Array<string>,
-  component: string | null,
-  advantages: string | null,
-  defect: string |null
+  product_collections: Array<string>
 }
 
 export interface ProductUpdateView {

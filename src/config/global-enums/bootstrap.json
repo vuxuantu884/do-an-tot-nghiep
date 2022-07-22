@@ -205,7 +205,7 @@
       "value": "{po_total_quantities}"
     },
     {
-      "preview_value": "VND",
+      "preview_value": "VNĐ",
       "name": "Đơn giá nhập",
       "value": "{po_unit_price}"
     },

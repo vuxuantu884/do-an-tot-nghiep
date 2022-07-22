@@ -2,7 +2,7 @@ import BaseAxios from 'base/base.axios';
 import BaseResponse from 'base/base.response';
 import {ApiConfig} from 'config/api.config';
 import { DistrictResponse } from 'model/content/district.model';
-import {CountryResponse, RegionResponse} from 'model/content/country.model';
+import { CountryResponse } from 'model/content/country.model';
 import { WardResponse } from 'model/content/ward.model';
 import { GroupResponse } from 'model/content/group.model';
 
@@ -35,10 +35,5 @@ export const getWardApi = (districtId: number): Promise<BaseResponse<Array<WardR
 
 export const getGroupsApi = (): Promise<BaseResponse<Array<GroupResponse>>> => {
   let url = `${ApiConfig.CONTENT}/groups` 
-  return BaseAxios.get(url);
-}
-
-export const getRegionApi = (): Promise<BaseResponse<Array<RegionResponse>>> => {
-  const url = `${ApiConfig.CUSTOMER}/region-phone-config`
   return BaseAxios.get(url);
 }

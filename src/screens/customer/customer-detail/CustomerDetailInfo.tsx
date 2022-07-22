@@ -1,11 +1,10 @@
-import React, {useCallback} from "react";
+import React from "react";
 import { Link, useParams } from "react-router-dom";
 import { Card, Tag } from "antd";
 
 import useAuthorization from "hook/useAuthorization";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import {RegionResponse} from "model/content/country.model";
 import { CustomerListPermission } from "config/permissions/customer.permission";
 
 import arrowLeft from "assets/icon/arrow-left.svg";
@@ -23,7 +22,6 @@ const updateCustomerPermission = [CustomerListPermission.customers_update];
 type CustomerDetailInfoProps = {
   customer: CustomerResponse | undefined;
   loyaltyCard: any;
-  regionList: Array<RegionResponse>;
 };
 
 type CustomerParams = {
@@ -35,14 +33,13 @@ type detailMapping = {
   value: string | null;
   position: string;
   key: string;
-  region_flag?: string | null;
   isWebsite?: boolean;
 };
 
 const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
   props: CustomerDetailInfoProps
 ) => {
-  const { customer, loyaltyCard, regionList } = props;
+  const { customer, loyaltyCard } = props;
 
   const [allowUpdateCustomer] = useAuthorization({
     acceptPermissions: updateCustomerPermission,
@@ -51,11 +48,6 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
 
   const params = useParams<CustomerParams>();
   const [isShowMore, setIsShowMore] = React.useState<boolean>(false);
-
-  const getRegionFlag = useCallback((regionCode: string | null) => {
-    const _region = regionList.find(region => region.region_code?.toString() === regionCode?.toString());
-    return _region?.flag_image || null;
-  }, [regionList]);
 
   const customerDetail: Array<detailMapping> | undefined = React.useMemo(() => {
     if (customer) {
@@ -75,9 +67,8 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         {
           name: "Số điện thoại",
           value: customer.phone,
-          region_flag: getRegionFlag(customer.region_code),
           position: "left",
-          key: "phone",
+          key: "3",
         },
         {
           name: "Nhóm khách hàng",
@@ -110,7 +101,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
       ];
       return details;
     }
-  }, [customer, getRegionFlag]);
+  }, [customer]);
 
   const customerDetailCollapse: Array<detailMapping> | undefined = React.useMemo(() => {
     if (customer) {
@@ -201,7 +192,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
   }, [customer, loyaltyCard]);
 
   const onClickWebsite = React.useCallback((value: any) => {
-    let link: string;
+    let link = "";
     if (value.includes("https://")) {
       link = `${value}`;
     } else {
@@ -243,12 +234,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
                     <span style={{ fontWeight: 600 }}>:</span>
                   </div>
 
-                  <span className="content">
-                    {detail.value ? detail.value : "---"}
-                    {detail.key === "phone" && detail.region_flag &&
-                      <img src={detail.region_flag} alt="flag_image" style={{ height: "22px", marginLeft: "10px"}}/>
-                    }
-                  </span>
+                  <span className="content">{detail.value ? detail.value : "---"}</span>
                 </div>
               ))}
         </div>

@@ -113,21 +113,18 @@ const SupplierBasicInfo = ({
     });
   };
 
-  const onChangeInput = (value: string, propName: string): string => {
+  const onChangeInput = (value: string, name: string): string => {
     const fields = form.getFieldsValue()
-    let { contacts,name } = fields;
-    
-    if (propName === FormFields.name) {
-      contacts[0][FormFields.name] = value.toUpperCase();
-      name = value.toUpperCase();
+    const { contacts } = fields
+    if (name === FormFields.name) {
+      contacts[0][FormFields.name] = value
       // Object.assign(contacts[0], { [FormFields.name]: value })
-    } else if (propName === FormFields.phone) {
+    } else if (name === FormFields.phone) {
       // Object.assign(contacts[0], { [FormFields.phone]: value })
       contacts[0][FormFields.phone] = value
     }
     form.setFieldsValue({
-      contacts,
-      name
+      contacts
     })
     return value
   }

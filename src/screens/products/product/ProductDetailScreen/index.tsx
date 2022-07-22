@@ -1,4 +1,4 @@
-import { Loading3QuartersOutlined, MinusCircleOutlined, PlusCircleOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import { Loading3QuartersOutlined } from "@ant-design/icons";
 import { Button, Card, Col, Image, Modal, Popover, Row, Spin, Switch, Tabs, Tag } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
@@ -35,7 +35,6 @@ import TabProductHistory from "../tab/TabProductHistory";
 import TabProductInventory from "../tab/TabProductInventory";
 import { StyledComponent } from "./styles";
 import useAuthorization from "hook/useAuthorization";
-import './/index.scss'
 
 export interface ProductParams {
   id: string;
@@ -47,7 +46,6 @@ enum TabName {
   INVENTORY = '#inventoryTab'
 }
 const ProductDetailScreen: React.FC = () => {
-  const { TabPane } = Tabs;
   const history = useHistory();
   const dispatch = useDispatch();
   const location = useLocation();
@@ -542,12 +540,12 @@ const tab= document.getElementById("tab");
                       <Col span={24} md={24}>
                         {data.description ? ( 
                         <div style={{position: "relative"}}>
-                           <div 
-                             dangerouslySetInnerHTML={{
-                               __html: data.description,
-                             }} 
-                             className="data-content"
-                           > 
+                            <div 
+                            dangerouslySetInnerHTML={{
+                              __html: data.description,
+                            }} 
+                            className="data-content"
+                          > 
                            </div> 
                              <div className="devvn_readmore_taxonomy_flatsome devvn_readmore_taxonomy_flatsome_show" style={{display: "block"}}>
                              <Button className="button-show-more" onClick={()=>{setVisibleDes(true)}}>Xem thêm</Button>
@@ -773,6 +771,7 @@ const tab= document.getElementById("tab");
             <Modal
               className="modal-des"
               title="Mô tả sản phẩm"
+              centered
               visible={visibleDes}
               width="95%"
               onCancel={()=>{setVisibleDes(false)}}
@@ -782,50 +781,12 @@ const tab= document.getElementById("tab");
                 </Button>
               </>}
             >
-              <div className="des-content">
-              <Tabs defaultActiveKey="1">
-                <TabPane
-                  tab={
-                    <span>
-                      <UnorderedListOutlined />
-                      Thành phần
-                    </span>
-                  }
-                  key="1"
-                >
-                  {data?.component}
-                </TabPane>
-                <TabPane
-                  tab={
-                    <span>
-                      <PlusCircleOutlined />
-                      Ưu điểm
-                    </span>
-                  }
-                  key="2"
-                >
-                  {data.advantages && <div 
-                    dangerouslySetInnerHTML={{
-                      __html: data.advantages,
-                    }} 
-                    className="data-content" ></div>}
-                </TabPane>
-                <TabPane
-                  tab={
-                    <span>
-                      <MinusCircleOutlined />
-                      Khuyến cáo
-                    </span>
-                  }
-                  key="3"
-                >
-                  {data.defect && <div 
-                    dangerouslySetInnerHTML={{
-                      __html: data.defect,
-                    }} 
-                    className="data-content" ></div>}
-                </TabPane>
-              </Tabs>
+            <div style={{overflow: "auto"}}>
+              <div 
+                dangerouslySetInnerHTML={{
+                  __html: data.description,
+                }} 
+                className="data-content" ></div>
               </div>
             </Modal>
           </React.Fragment>
