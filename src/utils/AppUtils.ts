@@ -611,6 +611,9 @@ export const Products = {
       material_id: pr.material_id,
       material: pr.material,
       collections: pr.product_collections,
+      component: pr.component,
+      advantages: pr.advantages,
+      defect: pr.defect,
     };
     return productRequest;
   },

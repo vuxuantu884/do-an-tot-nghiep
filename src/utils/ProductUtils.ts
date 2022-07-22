@@ -8,23 +8,26 @@ export const handleChangeMaterial = (material: MaterialResponse | false, form: F
     let description = form.getFieldValue("description");
 
     const formatDescription = `<p>
-      <strong style="color: rgb(34, 34, 34)">Thông tin bảo quản: </strong>
-      <span style="background-color: transparent"
-        >${material.preserve}</span
-      >
+    <span style="color: rgb(34, 34, 34)">Thành phần: </span>
+      <strong style="background-color: transparent">${material.component}</strong>
     </p>
-    <p><br /></p>
     <p>
-      <strong style="color: rgb(34, 34, 34)">Ưu điểm: </strong
-      ><span style="background-color: transparent">${material.advantages}</span>
+      <span style="color: rgb(34, 34, 34)">Ưu điểm: </span>
+      <strong style="background-color: transparent">${material.advantages}</strong>
     </p>
-    <p><br /></p>
     <p>
-      <strong style="color: rgb(34, 34, 34)">Ghi chú: </strong>${material.description}
+      <span style="color: rgb(34, 34, 34)">Khuyến cáo: </span>
+      <strong style="background-color: transparent">${material.defect}</strong>
     </p>
+    <p><br/></p>
     `;
-    description += formatDescription;
-    form.setFieldsValue({ description: description, material: material.name });
+    description = formatDescription;
+    form.setFieldsValue({ description: description, 
+      material: material.name,
+      component: material.component,
+      advantages: material.advantages,
+      defect: material.defect,
+    });
   }
 };
 
