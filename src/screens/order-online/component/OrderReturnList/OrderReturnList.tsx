@@ -1179,6 +1179,7 @@ function OrderReturnList(props: PropTypes) {
             rowKey={(item: ReturnModel) => item.code_order_return}
             className="order-list"
             rowSelectionRenderCell={rowSelectionRenderCell}
+            isShowPaginationAtHeader
           />
         </Card>
 

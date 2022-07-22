@@ -44,6 +44,8 @@ import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/Or
 import BaseFilter from "./base.filter";
 import './order.filter.scss';
 import UserCustomFilterTag from "./UserCustomFilterTag";
+import SearchProductComponent from "component/search-product";
+import { VariantResponse } from "model/product/product.model";
 
 type ReturnFilterProps = {
   params: ReturnSearchQuery;
@@ -62,6 +64,7 @@ type ReturnFilterProps = {
 };
 
 const { Item } = Form;
+var initialValueExchange={};
 
 const ReturnFilter: React.FC<ReturnFilterProps> = (
   props: ReturnFilterProps
@@ -94,6 +97,8 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
+
+  const [keySearchVariant, setKeySearchVariant] = useState("");
 
   const onFilterClick = useCallback(() => {
     formRef.current?.submit();
@@ -153,6 +158,10 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           break;
         case "account_codes":
           onFilter && onFilter({ ...params, account_codes: [] });
+          break;
+        case "searched_product":
+          onFilter && onFilter({ ...params, searched_product: null });
+          setKeySearchVariant("");
           break;
 
         default: break
@@ -335,13 +344,14 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
           created_on_max: formatDateTimeOrderFilter(handleTime("created_on_max"), dateFormat),
           received_on_min: formatDateTimeOrderFilter(handleTime("received_on_min"), dateFormat),
           received_on_max: formatDateTimeOrderFilter(handleTime("received_on_max"), dateFormat),
+          searched_product:keySearchVariant
         }
         onFilter && onFilter(valuesForm);
         setRerender(false)
       }
 
     },
-    [formRef, isReceived, paymentStatus, dateFormat, onFilter, params]
+    [formRef, isReceived, paymentStatus, dateFormat, keySearchVariant, onFilter, params]
   );
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
@@ -544,9 +554,16 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
         value: text,
       })
     }
+    if(initialValues?.searched_product && initialValues?.searched_product.length>0){
+      list.push({
+        key: 'searched_product',
+        name: 'Mã sản phẩm',
+        value:initialValues?.searched_product
+      })
+    }
 
     return list
-  }, [initialValues.store_ids, initialValues.reason_ids, initialValues.is_received, initialValues.payment_status, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.source_ids, initialValues.channel_codes, initialValues.assignee_codes.length, initialValues.marketer_codes.length, initialValues.account_codes.length, listStore, reasons, dateFormat, listSource, listChannel, assigneeFound, accountFound]);
+  }, [initialValues.store_ids, initialValues.reason_ids, initialValues.is_received, initialValues.payment_status, initialValues.created_on_min, initialValues.created_on_max, initialValues.received_on_min, initialValues.received_on_max, initialValues.source_ids, initialValues.channel_codes, initialValues.assignee_codes.length, initialValues.marketer_codes.length, initialValues.account_codes.length, initialValues?.searched_product, listStore, reasons, dateFormat, listSource, listChannel, assigneeFound, accountFound]);
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
       return 1400
@@ -582,6 +599,12 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     handleClearFilterConfig();
   };
 
+  const handleSelectProduct=useCallback((v?:VariantResponse)=>{
+    if(v){
+      onFilter && onFilter({ ...initialValueExchange, searched_product: v.sku });
+    }
+  },[onFilter])
+
   useLayoutEffect(() => {
     window.addEventListener('resize', () => setVisible(false))
   }, []);
@@ -607,12 +630,17 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
     }
   }, [dispatch, initialValues.source_ids, setListSource]);
 
+  useEffect(()=>{
+    initialValueExchange=params;
+    setKeySearchVariant(params.searched_product||"");
+  },[params])
+
   return (
     <div>
       <div className="order-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
           <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-            <Item name="search_term" className="input-search" style={{ width: "68%" }}>
+            <Item name="search_term" className="input-search" style={{ width: "calc(100% - 615px)" }}>
               <Input
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo mã đơn trả hàng, tên, sđt khách hàng"
@@ -621,6 +649,16 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (
                     search_term: e.target.value.trim()
                   })
                 }}
+              />
+            </Item>
+
+            <Item className="input-search" style={{ width: "300px" }}>
+              <SearchProductComponent
+                keySearch={keySearchVariant}
+                setKeySearch={setKeySearchVariant}
+                onSelect={handleSelectProduct}
+                // ref={autoCompleteRef}
+                id="search_product"
               />
             </Item>
 
