@@ -28,6 +28,7 @@ const initQuery: ReturnSearchQuery = {
   channel_codes: [],
   assignee_codes: [],
   marketer_codes: [],
+  searched_product:null,
 };
 type PropTypes = {
   location: any;
