@@ -1,7 +1,7 @@
 import { Row, Col, Card, Tabs, Tooltip } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 import { modalActionType } from "model/modal/modal.model";
-import React, { useCallback, useEffect } from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import { useDispatch } from "react-redux";
 import { useParams, useHistory } from "react-router-dom";
 import NumberFormat from "react-number-format";
@@ -35,7 +35,9 @@ import useAuthorization from "hook/useAuthorization";
 
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import { StyledCustomerDetail } from "screens/customer/customer-detail/customerDetailStyled";
-import {ODERS_PERMISSIONS} from "../../../config/permissions/order.permission";
+import {ODERS_PERMISSIONS} from "config/permissions/order.permission";
+import {RegionResponse} from "model/content/country.model";
+import {GetRegionAction} from "domain/actions/content/content.action";
 
 
 const { TabPane } = Tabs;
@@ -100,6 +102,18 @@ const CustomerDetail = () => {
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
+
+  // get region list
+  const [regionList, setRegionList] = useState<Array<RegionResponse>>([]);
+
+  useEffect(() => {
+    dispatch(GetRegionAction((response) => {
+      if (response) {
+        setRegionList(response)
+      }
+    }));
+  }, [dispatch]);
+  // end get region list
 
   const updateLoyaltyCard = useCallback((result) => {
     if (result && result.items && result.items.length) {
@@ -440,6 +454,7 @@ const CustomerDetail = () => {
                 <CustomerDetailInfo
                   customer={customer}
                   loyaltyCard={loyaltyCard}
+                  regionList={regionList}
                 />
 
                 <Card
