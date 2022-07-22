@@ -442,10 +442,24 @@ export const WEIGHT_UNIT = {
   }
 };
 export const ArrDefects = [
-  {code: 'L10',name:'Lỗi 10%',value:10},
-  {code: 'L20',name:'Lỗi 20%',value:20},
-  {code: 'L30',name:'Lỗi 30%',value:30},
-  {code: 'L50',name:'Lỗi 50%',value:50},
+  {code: 'L10',name:'Lỗi 10%',value:10,isSpecial:1},
+  {code: 'L20',name:'Lỗi 20%',value:20,isSpecial:1},
+  {code: 'L30',name:'Lỗi 30%',value:30,isSpecial:1},
+  {code: 'L50',name:'Lỗi 50%',value:50,isSpecial:1},
+  {code: 'L15',name:'Lỗi 15%',value:15,isSpecial:0},
+  {code: 'L25',name:'Lỗi 25%',value:25,isSpecial:0},
+  {code: 'L35',name:'Lỗi 35%',value:35,isSpecial:0},
+  {code: 'L40',name:'Lỗi 40%',value:40,isSpecial:0},
+  {code: 'L45',name:'Lỗi 45%',value:45,isSpecial:0},
+  {code: 'L55',name:'Lỗi 55%',value:55,isSpecial:0},
+  {code: 'L60',name:'Lỗi 60%',value:60,isSpecial:0},
+  {code: 'L65',name:'Lỗi 65%',value:65,isSpecial:0},
+  {code: 'L70',name:'Lỗi 70%',value:70,isSpecial:0},
+  {code: 'L75',name:'Lỗi 75%',value:75,isSpecial:0},
+  {code: 'L80',name:'Lỗi 80%',value:80,isSpecial:0},
+  {code: 'L85',name:'Lỗi 85%',value:85,isSpecial:0},
+  {code: 'L90',name:'Lỗi 90%',value:90,isSpecial:0},
+  {code: 'L95',name:'Lỗi 95%',value:95,isSpecial:0}
 ]
 
 export const STORE_TYPE={

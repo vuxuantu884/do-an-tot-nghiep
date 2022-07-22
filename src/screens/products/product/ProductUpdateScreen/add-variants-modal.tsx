@@ -16,6 +16,7 @@ import { BiTrash } from "react-icons/bi";
 import { useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
 import { formatCurrencyForProduct, replaceFormatString } from "utils/AppUtils";
+import { ArrDefects } from "utils/Constants";
 import { ProductParams } from "../ProductDetailScreen";
 
 const { Item } = Form
@@ -235,7 +236,12 @@ function AddVariantsModal(props: Props) {
                     }
                 });
             }
-
+            newVariants.forEach((e:any) => {
+                e.type = 0;
+                if (ArrDefects.find(p=>e.sku.indexOf(p.code) !== -1)){
+                  e.type= 1;
+                }
+            });
             /**
              * Add new variants to temp list
              * make list unique by sku
