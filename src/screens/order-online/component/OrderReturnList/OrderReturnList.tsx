@@ -26,7 +26,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderTypeModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
-import { OrderLineItemResponse } from "model/response/order/order.response";
+import { OrderLineItemResponse, OrderPaymentResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -594,11 +594,35 @@ function OrderReturnList(props: PropTypes) {
           return null
         }
 
-        const payment_date =()=>{record?.payments?.map((p) => (
-          p?.created_date ? (
-            <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(p.created_date, DATE_FORMAT.fullDate)}</div>
-          ) : undefined
-        ))}
+        
+        const payment_date =()=>{
+          if(!record?.payments){
+            return null;
+          }
+          if(record?.payments.length===0){
+            return null;
+          }
+
+          let payments= record.payments.sort((a, b)=>{
+            if(moment(a.created_date)>moment(b.created_date)){
+              return -1
+            }
+            return 0
+          });
+          
+          return (
+            <React.Fragment>
+              {
+                // record.payments?.map((p) => (
+                //   p?.created_date ? (
+                //     <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(p.created_date, DATE_FORMAT.fullDate)}</div>
+                //   ) : "ok"
+                // ))
+                <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(payments[0].created_date, DATE_FORMAT.fullDate)}</div>
+              }
+            </React.Fragment>
+          )
+        }
 
         return record.payment_status === ORDER_PAYMENT_STATUS.unpaid ? (
           <div className="text-center refund-amount-danger">Chưa hoàn tiền</div>
