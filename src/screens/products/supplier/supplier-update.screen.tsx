@@ -39,6 +39,7 @@ import { getCollectionRequestAction } from "../../../domain/actions/product/coll
 import { CollectionQuery, CollectionResponse } from "../../../model/product/collection.model";
 import { validatePhoneSupplier } from "../../../utils/supplier";
 import SelectSearchPaging from "../../../component/custom/select-search/select-search-paging";
+import { InfoCircleOutlined } from "@ant-design/icons";
 
 const { Item } = Form;
 const { Option } = Select;
@@ -326,6 +327,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       ]}
                       name="name"
                       label="Tên nhà cung cấp"
+                      normalize={(value) => (value || "").toUpperCase()}
                     >
                       <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
                     </Item>
@@ -345,16 +347,19 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={12}>
                     <Form.Item
-                      label="Merchandiser"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn Merchandiser",
-                        },
-                      ]}
-                      name="pic_code"
-                    >
-                      <AccountSearchPaging placeholder="Chọn Merchandiser" />
+                        label="SĐT nhà cung cấp"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng nhập SĐT nhà cung cấp",
+                          },
+                          {
+                            validator: validatePhone
+                          }
+                        ]}
+                        name="phone"
+                      >
+                      <Input placeholder="Nhập SĐT nhà cung cấp" maxLength={255} />
                     </Form.Item>
                   </Col>
                   <Col span={12}>
@@ -379,20 +384,17 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={12}>
                     <Form.Item
-                      label="Số điện thoại"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập số điện thoại",
-                        },
-                        {
-                          validator: validatePhone
-                        }
-                      ]}
-                      name="phone"
-                    >
-                      <Input placeholder="Nhập tên nhà cung cấp" maxLength={255} />
-                    </Form.Item>
+                        label="Merchandiser"
+                        rules={[
+                          {
+                            required: true,
+                            message: "Vui lòng chọn Merchandiser",
+                          },
+                        ]}
+                        name="pic_code"
+                      >
+                        <AccountSearchPaging placeholder="Chọn Merchandiser" />
+                      </Form.Item>
                   </Col>
                   {/*TODO: Waiting response api*/}
                   <Col span={12}>

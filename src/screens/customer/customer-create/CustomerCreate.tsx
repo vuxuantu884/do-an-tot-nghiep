@@ -54,6 +54,7 @@ const CustomerCreate = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
+  const [regionCode, setRegionCode] = React.useState<string>("84");
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
       if (!data) {
@@ -150,6 +151,7 @@ const CustomerCreate = (props: any) => {
       ward: wardSelected ? wardSelected.name : null,
       responsible_staff: staffSelected ? staffSelected.full_name : null,
       phone: values.phone?.trim(),
+      region_code: regionCode,
       card_number: values.card_number?.trim(),
       identity_number: values.identity_number?.trim(),
       contacts: [
@@ -203,6 +205,8 @@ const CustomerCreate = (props: any) => {
             setWards={setWards}
             handleChangeArea={handleChangeArea}
             AccountChangeSearch={AccountChangeSearch}
+            regionCode={regionCode}
+            setRegionCode={setRegionCode}
           />
 
           <CustomerContactInfo

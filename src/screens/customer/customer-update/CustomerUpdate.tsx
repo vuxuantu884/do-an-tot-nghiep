@@ -57,6 +57,7 @@ const CustomerUpdate = (props: any) => {
   const [districtId, setDistrictId] = React.useState<any>(null);
   const [accounts, setAccounts] = React.useState<Array<AccountResponse>>([]);
   const [status, setStatus] = React.useState<string>("active");
+  const [regionCode, setRegionCode] = React.useState<string | null>(null);
 
   const setDataAccounts = React.useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -134,6 +135,7 @@ const CustomerUpdate = (props: any) => {
           ? moment(customer.wedding_date)
           : null,
       });
+      setRegionCode(customer.region_code);
       setStatus(customer.status);
     }
   }, [customer, customerForm, countryId]);
@@ -189,6 +191,7 @@ const CustomerUpdate = (props: any) => {
       }),
       contacts: customer.contacts,
       phone: values.phone?.trim(),
+      region_code: regionCode,
       card_number: values.card_number?.trim(),
       identity_number: values.identity_number?.trim(),
     };
@@ -232,6 +235,8 @@ const CustomerUpdate = (props: any) => {
             handleChangeArea={handleChangeArea}
             isEdit={true}
             AccountChangeSearch={AccountChangeSearch}
+            regionCode={regionCode}
+            setRegionCode={setRegionCode}
           />
 
           <div className="customer-info-footer">

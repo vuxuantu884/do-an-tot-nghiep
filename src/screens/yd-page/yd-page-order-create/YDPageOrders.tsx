@@ -86,6 +86,7 @@ import { Link } from "react-router-dom";
 import useFetchStores from "hook/useFetchStores";
 import {dangerColor, yellowColor} from "utils/global-styles/variables";
 import NumberFormat from "react-number-format";
+import {AppConfig} from "config/app.config";
 
 let typeButton = "";
 
@@ -273,7 +274,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
       total: null,
       total_tax: "",
       total_discount: null,
-      currency: "VNĐ",
+      currency: AppConfig.currency,
       items: [],
       discounts: [],
       fulfillments: [],

@@ -24,7 +24,7 @@ import { PurchaseOrderPermission } from "config/permissions/purchase-order.permi
 import { PoPaymentUpdateAction } from "domain/actions/po/po-payment.action";
 import { PoUpdateFinancialStatusAction } from "domain/actions/po/po.action";
 import { POField } from "model/purchase-order/po-field";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { enumConvertDate, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
@@ -43,12 +43,6 @@ import {
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
-
-enum enumConvertDate {
-  DAY = "day",
-  MONTH = "month",
-  YEAR = "year"
-}
 
 const { Option } = Select;
 
