@@ -4,7 +4,7 @@ import Item from "antd/lib/list/Item";
 import NumberInput from "component/custom/number-input.custom";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
-import { enumConvertDate, PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useState, lazy } from "react";
@@ -19,7 +19,11 @@ import { POPaymentConditionsFormStyled } from "./styles";
 const { Option } = Select;
 const POCreatePaymentModal = lazy(() => import("../../modal/POCreatePayment"));
 
-
+enum enumConvertDate {
+  DAY = "day",
+  MONTH = "month",
+  YEAR = "year",
+}
 
 type POPaymentConditionsFormProps = {
   listPayment: Array<PoPaymentConditions>;

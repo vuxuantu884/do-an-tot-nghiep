@@ -38,6 +38,7 @@ export interface ReturnModel {
   payments?:OrderPaymentResponse[]|null;
   channel?:string|null;
   channel_id?:number|null;
+  
 }
 
 export interface ReturnSearchQuery {
@@ -65,8 +66,6 @@ export interface ReturnSearchQuery {
   source_ids: [];
   channel_codes: [];
   marketer_codes: [];
-  coordinator_codes?:[];
-  searched_product?:string|null;
 }
 
 export interface ReasonReturn{

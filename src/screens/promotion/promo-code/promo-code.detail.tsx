@@ -245,7 +245,7 @@ const PromotionDetailScreen: React.FC = () => {
 
   const renderDiscountInfo = (value: any, type: any) => {
     if (type === "PERCENTAGE") return `Giảm ${value}%`;
-    else return `Giảm ${formatCurrency(value)} ${AppConfig.currency}`;
+    else return `Giảm ${formatCurrency(value)} VNĐ`;
   };
 
   useEffect(() => {

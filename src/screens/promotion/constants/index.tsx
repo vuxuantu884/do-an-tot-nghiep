@@ -556,19 +556,6 @@ export const statuses = [
   },
 ];
 
-export const USAGE_STATUS = [
-  {
-    name: "Còn lượt sử dụng",
-    value: "available",
-    // value: "AVAILABLE",
-  },
-  {
-    name: "Đã sử dụng hết",
-    value: "unavailable",
-    // value: "UNAVAILABLE",
-  },
-];
-
 export const ACTIONS_PROMO: Array<MenuAction> = [
   { id: 1, name: "Kích hoạt" },
   { id: 2, name: "Tạm ngừng" },

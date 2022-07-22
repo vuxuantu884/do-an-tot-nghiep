@@ -5,7 +5,7 @@ import _ from "lodash";
 import {ProductResponse, VariantResponse} from "model/product/product.model";
 import {
   EntilementFormModel,
-  // IgnoreVariant,
+  IgnoreVariant,
   PriceRuleMethod,
   ProductEntitlements,
   VariantEntitlementsFileImport,
@@ -48,16 +48,15 @@ export const insertProduct = (
   importItem: VariantEntitlementsFileImport,
   currentProductIdList: Array<number>,
   currentVariantIdList: Array<number>,
-  // ignoreVariantList: Array<IgnoreVariant>
+  ignoreVariantList: Array<IgnoreVariant>
 ) => {
-  /** Đã xử lý loại bỏ các sản phẩm không phù hợp (Lỗi) ở BE */
-  // if (isVariant && currentProductIdList.includes(importItem.product_id)) {
-  //   ignoreVariantList?.push({
-  //     ignoreVariantId: importItem.variant_id,
-  //     ignoreVariantSku: importItem.sku,
-  //   });
-  //   return;
-  // }
+  if (isVariant && currentProductIdList.includes(importItem.product_id)) {
+    ignoreVariantList?.push({
+      ignoreVariantId: importItem.variant_id,
+      ignoreVariantSku: importItem.sku,
+    });
+    return;
+  }
 
   //Tìm variant sắp thêm xem đã có trong form chưa, có thì xoá đi
   if (isVariant && currentVariantIdList.includes(importItem.variant_id)) {
@@ -223,7 +222,7 @@ export const shareDiscountImportedProduct = (
     }
   });
 
-  // const ignoreVariantList: Array<IgnoreVariant> = [];
+  const ignoreVariantList: Array<IgnoreVariant> = [];
 
   // load lần 1 để import hết các sp cha
   newProductList.forEach((importItem) => {
@@ -238,7 +237,7 @@ export const shareDiscountImportedProduct = (
         importItem,
         currentProductIdList,
         currentVariantIdList,
-        // ignoreVariantList
+        ignoreVariantList
       );
     }
   });
@@ -256,7 +255,7 @@ export const shareDiscountImportedProduct = (
         importItem,
         currentProductIdList,
         currentVariantIdList,
-        // ignoreVariantList
+        ignoreVariantList
       );
     }
   });
@@ -265,12 +264,11 @@ export const shareDiscountImportedProduct = (
       element.selectedProducts && element.selectedProducts?.length > 0
   );
 
-  /** Đã xử lý loại bỏ các sản phẩm không phù hợp (Lỗi) ở BE */
-  // if (ignoreVariantList.length > 0) {
-  //   showError(
-  //     `Có ${ignoreVariantList.length} sản phẩm đã tồn mã cha trong danh sách khuyến mãi`
-  //   );
-  // }
+  if (ignoreVariantList.length > 0) {
+    showError(
+      `Có ${ignoreVariantList.length} sản phẩm đã tồn mã cha trong danh sách khuyến mãi`
+    );
+  }
 
   form.setFieldsValue({entitlements: cleanEntilementList});
 };

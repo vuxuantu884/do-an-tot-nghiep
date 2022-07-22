@@ -43,7 +43,7 @@ import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import { AppConfig } from "../../../config/app.config";
 import { getToken } from "../../../utils/LocalStorageUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import {ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE, USAGE_STATUS} from "../constants";
+import { ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE } from "../constants";
 import ActionColumn from "./actions/promo.action.column";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
@@ -609,31 +609,13 @@ const ListCode = () => {
                   onBlur={(e) => { form.setFieldsValue({ code: e.target.value?.trim() }) }}
                 />
               </Item>
-
-              <Item name="use_status">
-                <Select
-                  showArrow
-                  showSearch
-                  allowClear
-                  style={{ minWidth: "200px" }}
-                  optionFilterProp="children"
-                  placeholder="Chọn trạng thái sử dụng"
-                >
-                  {USAGE_STATUS?.map((item) => (
-                    <Option key={item.value} value={item.value}>
-                      {item.name}
-                    </Option>
-                  ))}
-                </Select>
-              </Item>
-
               <Item name="state">
                 <Select
                   showArrow
                   showSearch
                   style={{ minWidth: "200px" }}
                   optionFilterProp="children"
-                  placeholder="Chọn trạng thái áp dụng"
+                  placeholder="Chọn trạng thái"
                   allowClear={true}
                 >
                   {statuses?.map((item) => (
@@ -648,8 +630,7 @@ const ListCode = () => {
                   Lọc
                 </Button>
               </Item>
-              {/*Tạm ẩn thêm bộ lọc*/}
-              <Item hidden={true}>
+              <Item>
                 <Button icon={<FilterOutlined />} onClick={openFilter}>
                   Thêm bộ lọc
                 </Button>

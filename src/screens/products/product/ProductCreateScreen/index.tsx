@@ -132,9 +132,6 @@ const initialRequest: ProductRequestView = {
   material_id: null,
   supplier_id: null,
   material: null,
-  component: null,
-  advantages: null,
-  defect: null,
 };
 
 const ProductCreateScreen: React.FC = () => { 
@@ -796,16 +793,7 @@ const ProductCreateScreen: React.FC = () => {
       layout="vertical"
     >
       <Item noStyle name="product_type" hidden>
-      <Input />
-      <Item noStyle name="component" hidden>
         <Input />
-      </Item>
-      <Item noStyle name="advantages" hidden>
-        <Input />
-      </Item>
-      <Item noStyle name="defect" hidden>
-        <Input />
-      </Item>
       </Item>
       <StyledComponent>
         <ContentContainer

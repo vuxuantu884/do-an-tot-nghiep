@@ -1,4 +1,4 @@
-import {CountryResponse, RegionResponse} from 'model/content/country.model';
+import { CountryResponse } from 'model/content/country.model';
 import BaseAction from "base/base.action"
 import { ContentType } from "domain/types/content.type";
 import { DistrictResponse } from 'model/content/district.model';
@@ -28,8 +28,4 @@ export const DistrictByCityAction = (cityId: number, setData: (data: Array<Distr
 
 export const CityByCountryAction = (countryId: number, setData: (data: Array<any>) => void) => {
   return BaseAction(ContentType.GET_CITY_BY_COUNTRY_REQUEST, {countryId, setData})
-}
-
-export const GetRegionAction = (setData: (data: Array<RegionResponse>) => void) => {
-  return BaseAction(ContentType.GET_REGION_REQUEST, {setData});
 }
