@@ -65,6 +65,7 @@ export interface ReturnSearchQuery {
   source_ids: [];
   channel_codes: [];
   marketer_codes: [];
+  coordinator_codes?:[];
   searched_product?:string|null;
 }
 
