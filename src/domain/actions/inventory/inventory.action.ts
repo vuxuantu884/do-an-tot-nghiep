@@ -11,6 +11,7 @@ import {
   InventoryVariantListQuery,
 } from "model/inventory";
 import { FilterConfig, FilterConfigRequest } from "model/other";
+import LoadingType from "../../types/loading.type";
 
 const inventoryGetListAction = (
   query: InventoryQuery,
@@ -101,6 +102,10 @@ const deleteConfigInventoryAction = (
   });
 };
 
+const changeIsContinueCreateImport = (payload: any) => {
+  return BaseAction(InventoryType.CHANGE_IS_CONTINUE_CREATE_IMPORT, payload);
+}
+
 export {
   inventoryGetListAction,
   inventoryGetDetailAction,
@@ -111,5 +116,6 @@ export {
   getConfigInventoryAction,
   createConfigInventoryAction,
   updateConfigInventoryAction,
-  deleteConfigInventoryAction
+  deleteConfigInventoryAction,
+  changeIsContinueCreateImport
 };
