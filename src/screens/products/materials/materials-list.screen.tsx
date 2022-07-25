@@ -76,7 +76,7 @@ const ListMaterial: React.FC = () => {
 
   const columns = [
     {
-      title: "Mã chất liệu",
+      title: "ID chất liệu",
       width: 140,
       dataIndex: "code",
       key: "code",
@@ -143,7 +143,7 @@ const ListMaterial: React.FC = () => {
           <div>
             <div>Khổ vải: <span className="font-weight-500">{formatCurrency(value)} {value ? item.fabric_size_unit : ''}</span></div>
             <div>Trọng lượng: <span className="font-weight-500">{formatCurrency(item.weight)} {item.weight ? item.weight_unit : ''}</span></div>
-            <div>Giá: <span className="font-weight-500">{formatCurrency(item.price)} {item.price ? item.price_unit : ''}</span></div>
+            <div>Giá: <span className="font-weight-500">{formatCurrency(item.price)} {item.price ? item.price_unit : ''}{item.price_measure_unit ? `/${item.price_measure_unit}` : ''}</span></div>
           </div>
         );
       },

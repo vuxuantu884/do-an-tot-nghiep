@@ -38,6 +38,7 @@ let initialRequest: MaterialCreateRequest = {
   fabric_size_unit: "m",
   weight_unit: "g/m2",
   price_unit: "VND",
+  price_measure_unit: "m",
   videos: [],
   images: [],
   // videos: [
@@ -71,6 +72,9 @@ const AddMaterial: React.FC = () => {
   const priceUnit = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.currency
   );  
+  const priceMeasureUnit = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.price_measure_unit
+  );
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
   const [fileListVideo, setFileListVideo] = useState<Array<UploadFile>>([]);
   
@@ -384,7 +388,7 @@ const AddMaterial: React.FC = () => {
                   },
                 ]}
                 name="code"
-                label="Mã chất liệu:"
+                label="ID chất liệu:"
               >
                 <Input disabled placeholder="Tự động sinh" />
               </Form.Item>
@@ -394,26 +398,26 @@ const AddMaterial: React.FC = () => {
             <Col span={24} lg={12} md={12} sm={24}>
               <Form.Item
                   tooltip={{
-                    title: "Ký hiệu chỉ bao gồm ký tự in hoa hoặc số viết liền không dấu, không bao gồm ký tự đặc biệt",
+                    title: "Mã chỉ bao gồm ký tự in hoa hoặc số viết liền không dấu, không bao gồm ký tự đặc biệt",
                     icon: <InfoCircleOutlined />,
                   }}
                   rules={[
                     {
                       required: true,
                       whitespace: true,
-                      message: "Vui lòng nhập ký hiệu",
+                      message: "Vui lòng nhập mã chất liệu",
                     },
                     {
                       pattern: RegUtil.NO_SPECICAL_CHARACTER_MATERIAL,
-                      message: "Ký hiệu không đúng định dạng",
+                      message: "Mã chất liệu không đúng định dạng",
                     },
                   ]}
                   name="fabric_code"
-                  label="Ký hiệu:"
+                  label="Mã chất liệu:"
                   normalize={(value: string) => (value || "").toUpperCase()}
                 >
                 <Input 
-                  placeholder="Nhập ký hiệu"/>
+                  placeholder="Nhập mã chất liệu"/>
               </Form.Item>
             </Col>
             <Col span={24} lg={12} md={12} sm={24}>
@@ -478,8 +482,8 @@ const AddMaterial: React.FC = () => {
                 </Form.Item>
              </Col>
           </Row>
-          <Row gutter={50}>
-            <Col span={24} md={8} sm={8} lg={8}>
+          <Row gutter={20}>
+            <Col span={24} md={7} sm={7} lg={7}>
                <Form.Item
                  label="Khổ vải:"
                >
@@ -517,7 +521,7 @@ const AddMaterial: React.FC = () => {
                  </Input.Group>
                </Form.Item>
             </Col>
-            <Col span={24} md={8} sm={8} lg={8}>
+            <Col span={24} md={7} sm={7} lg={7}>
             <Form.Item
                  label="Trọng lượng:"
                >
@@ -555,8 +559,8 @@ const AddMaterial: React.FC = () => {
                  </Input.Group>
                </Form.Item>         
             </Col>
-            <Col span={24} md={8} sm={8} lg={8}>
-            <Form.Item
+            <Col span={24} md={10} sm={10} lg={10}>
+              <Form.Item
                  label="Giá:"
                >
                  <Input.Group compact>
@@ -572,15 +576,30 @@ const AddMaterial: React.FC = () => {
                        maxLength={15}
                        isFloat
                        placeholder="Giá"
-                       style={{ width: "calc(100% - 100px)" }}
+                       style={{ width: "calc(100% - 170px)" }}
                      />
                    </Form.Item>
                    <Form.Item name="price_unit" noStyle>
                      <Select
                        placeholder="Giá"
-                       style={{ width: "100px" }}
+                       style={{ width: "100px", backgroundColor: "#f4f4f7 !important" }}
                      >
                        {priceUnit?.map((item) => (
+                         <Select.Option
+                           key={item.value}
+                           value={item.value}
+                         >
+                           {item.name}
+                         </Select.Option>
+                       ))}
+                     </Select>
+                   </Form.Item>
+                   <Form.Item name="price_measure_unit" noStyle>
+                     <Select
+                       placeholder="Đơn vị đo lường giá"
+                       style={{ width: 70 }}
+                     >
+                       {priceMeasureUnit?.map((item) => (
                          <Select.Option
                            key={item.value}
                            value={item.value}

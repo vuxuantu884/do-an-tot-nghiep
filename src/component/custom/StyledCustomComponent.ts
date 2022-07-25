@@ -40,3 +40,10 @@ export const StyledHashTag = styled.div`
   }
 `;
 
+export const RegionListDropdownStyled = styled.div`
+	.region-item {
+    .country-name, .region-code {
+			display: none;
+		}
+	}
+`;

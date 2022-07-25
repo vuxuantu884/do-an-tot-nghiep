@@ -41,4 +41,5 @@ export interface BootstrapResponse {
   fabric_size_unit: Array<BaseBootstrapResponse>;
   weight_material_unit: Array<BaseBootstrapResponse>;
   material_status: Array<BaseBootstrapResponse>;
+  price_measure_unit: Array<BaseBootstrapResponse>;
 }

@@ -415,7 +415,7 @@ label {
     border-radius: 0 0 $border-radius $border-radius;
 }
 
-@media screen and(max-width: 576px) {
+@media screen and (max-width: 576px) {
     .ant-layout-sider-collapsed {
         width: 0 !important;
         min-width: 0 !important;

@@ -165,14 +165,14 @@ const MaterialDetail: React.FC = () => {
                 <Row gutter={50} className="mb-10">
                   <Col span={24} md={12}>
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Mã chất liệu:</Col>
+                      <Col className="title" span={8}>ID chất liệu:</Col>
                       <Col span={16}>
                         <div className="content">{data.code}</div>
                       </Col>
                     </Row>
 
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Ký hiệu:</Col>
+                      <Col className="title" span={8}>Mã chất liệu:</Col>
                       <Col span={16}>
                         <div className="content">{data.fabric_code}</div>
                       </Col>
@@ -202,7 +202,7 @@ const MaterialDetail: React.FC = () => {
                     <Row gutter={30}>
                       <Col className="title" span={8}>Giá:</Col>
                       <Col span={16}>
-                        <div className="content">{formatCurrency(data.price)} {data.price ? data.price_unit : ''}</div>
+                        <div className="content">{formatCurrency(data.price)} {data.price ? data.price_unit : ''}{data.price_measure_unit ? `/${data.price_measure_unit}` : ''}</div>
                       </Col>
                     </Row>
                   </Col>

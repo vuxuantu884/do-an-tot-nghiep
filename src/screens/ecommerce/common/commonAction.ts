@@ -48,7 +48,7 @@ export const ECOMMERCE_LIST = [
     icon: tikiIcon,
     key: "tiki",
     ecommerce_id: 3,
-    channel_id: 16
+    channel_id: 17
   },
 
   {

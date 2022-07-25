@@ -1147,7 +1147,7 @@ const EcommerceOrders: React.FC = () => {
         width: 200,
         render: (item: any) => {
           return (
-            <div className="p-b-3">{item.shipping_address.full_address}</div>
+            <div className="p-b-3">{item?.shipping_address?.full_address}</div>
           )
         },
       },

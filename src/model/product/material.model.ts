@@ -28,6 +28,7 @@ export interface MaterialCreateRequest {
   videos: Array<string>,
   care_labels: string,
   fabric_code: string,
+  price_measure_unit: string
 }
 
 export interface MaterialUpdateRequest extends MaterialCreateRequest {
@@ -61,5 +62,6 @@ export interface MaterialResponse extends BaseObject {
   care_labels: string,
   images: Array<string>,
   videos: Array<string>,
-  version: number
+  version: number,
+  price_measure_unit: string
 }

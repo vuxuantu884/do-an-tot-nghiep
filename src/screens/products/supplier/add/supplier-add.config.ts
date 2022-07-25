@@ -48,6 +48,7 @@ export const FormConfigs: FormFieldType = {
               message: "Vui lòng nhập tên nhà cung cấp",
             },
           ],
+          onChange: (e)=>{e.target.value.toUpperCase()}
         },
         {
           name: FormFields.scorecard,
@@ -59,16 +60,14 @@ export const FormConfigs: FormFieldType = {
       ],
       [
         {
-          name: FormFields.pic_code,
-          label: "Merchandiser",
-          placeholder: "Chọn merchandiser",
+          name: FormFields.phone,
+          label: "SĐT nhà cung cấp",
+          placeholder: "Nhập SĐT nhà cung cấp",
           type: "text",
-          componentType: ComponentType.SelectPaging,
+          componentType: ComponentType.Input,
           rules: [
-            {
-              required: true,
-              message: "Vui lòng chọn Merchandiser",
-            },
+            { required: true, message: "Vui lòng nhập SĐT nhà cung cấp" },
+            { validator: undefined },
           ],
         },
         {
@@ -91,14 +90,16 @@ export const FormConfigs: FormFieldType = {
       ],
       [
         {
-          name: FormFields.phone,
-          label: "Số điện thoại",
-          placeholder: "Nhập số điện thoại",
+          name: FormFields.pic_code,
+          label: "Merchandiser",
+          placeholder: "Chọn merchandiser",
           type: "text",
-          componentType: ComponentType.Input,
+          componentType: ComponentType.SelectPaging,
           rules: [
-            { required: true, message: "Vui lòng nhập số điện thoại" },
-            { validator: undefined },
+            {
+              required: true,
+              message: "Vui lòng chọn Merchandiser",
+            },
           ],
         },
         {
