@@ -1,10 +1,11 @@
 import { START_OF_MONTH, TODAY, YESTERDAY } from "config/dashboard";
+import { KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKDCustomerVisitors } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { calculateTargetMonth, nonAccentVietnamese } from "utils/KeyDriverOfflineUtils";
+import { calculateTargetMonth, findKeyDriver, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { ASM_LIST } from "../constant/key-driver-offline-template-data";
 import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider";
@@ -19,19 +20,16 @@ function useFetchCustomerVisitors() {
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, asmData: any, columnKey: string) => {
-        const asmName = nonAccentVietnamese(asmData['department_lv2']);
-        if (data.key === 'visitors' && asmName) {
-          data[`${asmName}_${columnKey}`] = asmData.value;
-          if (columnKey === 'accumulatedMonth') {
-            data[`${asmName}_targetMonth`] = calculateTargetMonth(data[`${asmName}_accumulatedMonth`]);
-          }
-        } else {
-          if (data.children?.length) {
-            data.children.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(item, asmData, columnKey);
-            });
-          }
+      let visitors: any = [];
+      findKeyDriver(data, KeyDriverField.Visitors, visitors);
+      visitors = visitors[0];
+      const asmName = nonAccentVietnameseKD(asmData['department_lv2']);
+      if (asmName) {
+        visitors[`${asmName}_${columnKey}`] = asmData.value;
+        if (columnKey === 'accumulatedMonth') {
+          visitors[`${asmName}_targetMonth`] = calculateTargetMonth(visitors[`${asmName}_accumulatedMonth`]);
         }
+      }
     },
     []
   );
@@ -52,37 +50,39 @@ function useFetchCustomerVisitors() {
   const refetchCustomerVisitors = useCallback(() => {
     const fetchCustomerVisitors = async () => {
       setIsFetchingCustomerVisitors(true);      
-      const resDay = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
+      const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
         from: TODAY,
         to: TODAY,
         posLocationNames: [],
         departmentLv2s: [],
       });
+      const monthApi = (moment().date() > 1) ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
+        from: START_OF_MONTH,
+        to: YESTERDAY,
+        posLocationNames: [],
+        departmentLv2s: [],
+      }) : Promise.resolve(0);
 
-      if (!resDay) {
-        showErrorReport("Lỗi khi lấy dữ liệu thực đạt Khách vào cửa hàng");
-        setIsFetchingCustomerVisitors(false);
-        return;
-      }
-      const companyDayData = calculateCompanyKeyDriver(resDay);
-
-      setData((prev: any) => {
-        let dataPrev: any = prev[0];
-        [companyDayData, ...resDay].forEach((item: any) => {
-          findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
-        });
-        return [dataPrev];
-      });
-
-      if (moment().date() > 1) {
-        const resMonth = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
-          from: START_OF_MONTH,
-          to: YESTERDAY,
-          posLocationNames: [],
-          departmentLv2s: [],
-        });
+      await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
+        if (!resDay) {
+          showErrorReport("Lỗi khi lấy dữ liệu thực đạt Khách vào cửa hàng");
+          setIsFetchingCustomerVisitors(false);
+          return;
+        }
+        const companyDayData = calculateCompanyKeyDriver(resDay);
+  
         if (!resMonth) {
-          showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Khách vào cửa hàng");
+          if (resMonth !== 0) {
+            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Khách vào cửa hàng");
+          }
+          setData((prev: any) => {
+            let dataPrev: any = prev[0];
+            [companyDayData, ...resDay].forEach((item: any) => {
+              findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
+            });
+            prev[0] = dataPrev;
+            return [...prev];
+          });
           setIsFetchingCustomerVisitors(false);
           return;
         }
@@ -90,12 +90,16 @@ function useFetchCustomerVisitors() {
   
         setData((prev: any) => {
           let dataPrev: any = prev[0];
+          [companyDayData, ...resDay].forEach((item: any) => {
+            findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
+          });
           [companyMonthData, ...resMonth].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, 'accumulatedMonth');
           });
-          return [dataPrev];
+          prev[0] = dataPrev;
+          return [...prev];
         });
-      }
+      });
 
       setIsFetchingCustomerVisitors(false);
     };

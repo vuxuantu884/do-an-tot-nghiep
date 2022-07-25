@@ -21,6 +21,7 @@ const ServiceNames = {
   OFFLINE_TOTAL_SALES_LOYALTY_LEVEL_SERVICE: 'key-drivers/offline-total-sales-by-loyalty-level',
   KD_CUSTOMER_VISITORS_SERVICE: 'customer-visitors/key-drivers/sum',
   KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE: 'key-drivers/offline-uniform-online-total-sales',
+  CUSTOMER_COUNTERS_SERVICE: 'customer-counters'
 };
 
 const v1 = ``;
@@ -52,6 +53,7 @@ const ApiConfig = {
   OFFLINE_TOTAL_SALES_LOYALTY_LEVEL: `${v1}/${ServiceNames.OFFLINE_TOTAL_SALES_LOYALTY_LEVEL_SERVICE}`,
   KD_CUSTOMER_VISITORS: `${v1}/${ServiceNames.KD_CUSTOMER_VISITORS_SERVICE}`,
   KD_OFFLINE_ONLINE_TOTAL_SALES: `${v1}/${ServiceNames.KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE}`,
+  CUSTOMER_COUNTERS: `${v1}/${ServiceNames.CUSTOMER_COUNTERS_SERVICE}`,
 };
 
 export { ApiConfig };

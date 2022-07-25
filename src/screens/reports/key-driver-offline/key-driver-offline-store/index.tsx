@@ -1,12 +1,12 @@
 import { CheckSquareOutlined } from "@ant-design/icons";
-import { Button, Card, InputNumber, Table, Tooltip } from "antd";
+import { Button, Card, InputNumber, Spin, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
-import { KeyDriverTarget } from "model/report";
+import { KeyDriverField, KeyDriverTarget } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -15,7 +15,7 @@ import { updateKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { calculateKDAverageCustomerSpent, calculateKDAverageOrderValue, calculateKDConvertionRate, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import StoresSelect from "../components/stores-select";
 import useFetchStoresCustomerVisitors from "../hooks/useFetchStoresCustomerVisitors";
@@ -196,7 +196,7 @@ function KeyDriverOfflineStore() {
           dataIndex: `${departmentKey}_accumulatedMonth`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text ? (record.key === KeyDriverField.ConvertionRate && formatCurrency(text) ? `${text}%` : formatCurrency(text)) : "-";
           },
         },
         {
@@ -216,7 +216,7 @@ function KeyDriverOfflineStore() {
           dataIndex: `${departmentKey}_targetMonth`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text ? (record.key === KeyDriverField.ConvertionRate && formatCurrency(text) ? `${text}%` : formatCurrency(text)) : "-";
           },
         },
         {
@@ -226,7 +226,7 @@ function KeyDriverOfflineStore() {
           dataIndex: `${departmentKey}_day`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text ? (record.key === KeyDriverField.ConvertionRate && formatCurrency(text) ? `${text}%` : formatCurrency(text)) : "-";
             // return <CellInput value={text} record={record} type={departmentKey} time="day" />;
           },
         },
@@ -237,7 +237,7 @@ function KeyDriverOfflineStore() {
           dataIndex: `${departmentKey}_actualDay`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text ? (record.key === KeyDriverField.ConvertionRate && formatCurrency(text) ? `${text}%` : formatCurrency(text)) : "-";
           },
         },
         {
@@ -257,10 +257,8 @@ function KeyDriverOfflineStore() {
 
   const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
-      keyDriver[`${department}_rateMonth`] = (
-        (keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) *
-        100
-      ).toFixed(1);
+      keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`] ?
+        (+(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100).toFixed(1) : '';
     }
   };
 
@@ -274,7 +272,7 @@ function KeyDriverOfflineStore() {
             ? Math.round(
                 (keyDriver[`${department}_month`] -
                   (keyDriver[`${department}_accumulatedMonth`] || 0)) /
-                  (dayInMonth - dayNumber)
+                  (dayInMonth - dayNumber) + (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0)
               )
             : Math.round(keyDriver[`${department}_month`] / dayInMonth);
       }
@@ -283,16 +281,14 @@ function KeyDriverOfflineStore() {
 
   const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
-      keyDriver[`${department}_rateDay`] = (
-        (keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) *
-        100
-      ).toFixed(1);
+      keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`] ?
+        (+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(1) : '';
     }
   };
 
   const calculateMonthRate = useCallback((keyDriver: any) => {
     selectedStores.forEach(asm => {
-      const asmKey = nonAccentVietnamese(asm);
+      const asmKey = nonAccentVietnameseKD(asm);
       calculateDepartmentMonthRate(keyDriver, asmKey);
     });
     if (keyDriver.children?.length) {
@@ -304,7 +300,7 @@ function KeyDriverOfflineStore() {
 
   const calculateDayRate = useCallback((keyDriver: any) => {
     selectedStores.forEach(asm => {
-      const asmKey = nonAccentVietnamese(asm);
+      const asmKey = nonAccentVietnameseKD(asm);
       calculateDepartmentDayRate(keyDriver, asmKey);
     });
     if (keyDriver.children?.length) {
@@ -316,7 +312,7 @@ function KeyDriverOfflineStore() {
 
   const calculateDayTarget = useCallback((keyDriver: any) => {
     selectedStores.forEach(asm => {
-      const asmKey = nonAccentVietnamese(asm);
+      const asmKey = nonAccentVietnameseKD(asm);
       calculateDepartmentDayTarget(keyDriver, asmKey);
     });
     if (keyDriver.children?.length) {
@@ -329,7 +325,7 @@ function KeyDriverOfflineStore() {
   useEffect(() => {
     const temp = [...baseColumns];
     selectedStores.forEach(asm => {
-      temp.push(setObjectiveColumns(nonAccentVietnamese(asm), asm.toUpperCase()));
+      temp.push(setObjectiveColumns(nonAccentVietnameseKD(asm), asm.toUpperCase()));
     });
     setFinalColumns(temp);
   }, [selectedStores, setObjectiveColumns]);
@@ -339,13 +335,19 @@ function KeyDriverOfflineStore() {
       isFetchingStoresKDOfflineTotalSales === false &&
       isFetchingStoresKeyDriverTarget === false &&
       isFetchingStoresOfflineTotalSalesLoyalty === false &&
-      isFetchingStoresCustomerVisitors === false && 
+      isFetchingStoresCustomerVisitors === false &&
       isFetchingStoresOfflineOnlineTotalSales === false
     ) {
       setLoadingPage(true);
       setData((prev: any) => {
         const totalSaleValue = prev[0];
         calculateDayTarget(totalSaleValue);
+        selectedStores.forEach((asm) => {
+          const asmKey = nonAccentVietnameseKD(asm);
+          calculateKDAverageCustomerSpent(totalSaleValue, asmKey);
+          calculateKDConvertionRate(totalSaleValue, asmKey);
+          calculateKDAverageOrderValue(totalSaleValue, asmKey);
+        });
         calculateMonthRate(totalSaleValue);
         calculateDayRate(totalSaleValue);
         return [totalSaleValue];
@@ -364,6 +366,7 @@ function KeyDriverOfflineStore() {
     isFetchingStoresOfflineTotalSalesLoyalty,
     isFetchingStoresOfflineOnlineTotalSales,
     setData,
+    selectedStores,
   ]);
 
   const day = moment().format(DATE_FORMAT.DDMMYY_HHmm);
@@ -380,10 +383,10 @@ function KeyDriverOfflineStore() {
           </div>
         </Card>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
-          { selectedStores.length > 0 && loadingPage === false && (
+          { selectedStores.length > 0 && loadingPage === false ? (
             <Table
               loading={loadingPage}
-              scroll={{ x: "max-content" }}
+              scroll={{ x: "max-content", y: 450 }}
               bordered
               pagination={false}
               onRow={(record: any) => {
@@ -399,7 +402,7 @@ function KeyDriverOfflineStore() {
               columns={finalColumns}
               dataSource={data}
             />
-          )}
+          ) : <Spin />}
         </Card>
       </KeyDriverOfflineStyle>
     </ContentContainer>
