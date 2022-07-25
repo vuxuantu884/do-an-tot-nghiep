@@ -1,12 +1,12 @@
 import { CheckSquareOutlined } from "@ant-design/icons";
-import { Button, Card, InputNumber, Table, Tooltip } from "antd";
+import { Button, Card, InputNumber, Spin, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
-import { KeyDriverTarget } from "model/report";
+import { KeyDriverField, KeyDriverTarget } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -16,7 +16,12 @@ import { updateKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { nonAccentVietnamese } from "utils/KeyDriverOfflineUtils";
+import {
+  calculateKDAverageCustomerSpent,
+  calculateKDAverageOrderValue,
+  calculateKDConvertionRate,
+  nonAccentVietnameseKD
+} from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ASM_LIST } from "./constant/key-driver-offline-template-data";
 import useFetchCustomerVisitors from "./hooks/useFetchCustomerVisitors";
@@ -24,6 +29,7 @@ import useFetchKDOfflineTotalSales from "./hooks/useFetchKDOfflineTotalSales";
 import useFetchKeyDriverTarget from "./hooks/useFetchKeyDriverTarget";
 import useFetchOfflineOnlineTotalSales from "./hooks/useFetchOfflineOnlineTotalSales";
 import useFetchOfflineTotalSalesLoyalty from "./hooks/useFetchOfflineTotalSalesLoyalty";
+import useFetchProductTotalSales from "./hooks/useFetchProductTotalSales";
 import { KeyDriverOfflineStyle } from "./index.style";
 import KeyDriverOfflineProvider, {
   KeyDriverOfflineContext
@@ -69,7 +75,7 @@ function CellInput(props: RowRender) {
   const { setTargetMonth } = useContext(KeyDriverOfflineContext);
   const { onChange, record, value, type } = props;
   const { key } = record;
-
+  
   return (
     <InputNumber
       className="input-number"
@@ -119,15 +125,17 @@ function KeyDriverOffline() {
   const { isFetchingOfflineTotalSalesLoyalty } = useFetchOfflineTotalSalesLoyalty();
   const { isFetchingCustomerVisitors } = useFetchCustomerVisitors();
   const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
+  const { isFetchingProductTotalSales } = useFetchProductTotalSales();
   const { data, targetMonth, setData } = useContext(KeyDriverOfflineContext);
   const dispatch = useDispatch();
 
   const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
-      keyDriver[`${department}_rateMonth`] = (
-        (keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) *
-        100
-      ).toFixed(1);
+      keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
+        ? (
+            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100
+          ).toFixed(1)
+        : "";
     }
   };
 
@@ -135,13 +143,17 @@ function KeyDriverOffline() {
     if (keyDriver[`${department}_month`]) {
       const dayNumber = moment().date() - 1;
       const dayInMonth = moment().daysInMonth();
-      if (!['average_order_value', 'average_customer_spent'].includes(keyDriver['key'])) {
+      if (
+        ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
+          keyDriver["key"]
+        )
+      ) {
         keyDriver[`${department}_day`] =
           keyDriver[`${department}_month`] - (keyDriver[`${department}_accumulatedMonth`] || 0) > 0
             ? Math.round(
                 (keyDriver[`${department}_month`] -
                   (keyDriver[`${department}_accumulatedMonth`] || 0)) /
-                  (dayInMonth - dayNumber)
+                  (dayInMonth - dayNumber) + (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0)
               )
             : Math.round(keyDriver[`${department}_month`] / dayInMonth);
       }
@@ -150,16 +162,15 @@ function KeyDriverOffline() {
 
   const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
-      keyDriver[`${department}_rateDay`] = (
-        (keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) *
-        100
-      ).toFixed(1);
+      keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
+        ? (+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(1)
+        : "";
     }
   };
 
   const calculateMonthRate = useCallback((keyDriver: any) => {
-    ["COMPANY", ...ASM_LIST].forEach(asm => {
-      const asmKey = nonAccentVietnamese(asm);
+    ["COMPANY", ...ASM_LIST].forEach((asm) => {
+      const asmKey = nonAccentVietnameseKD(asm);
       calculateDepartmentMonthRate(keyDriver, asmKey);
     });
     if (keyDriver.children?.length) {
@@ -170,8 +181,8 @@ function KeyDriverOffline() {
   }, []);
 
   const calculateDayRate = useCallback((keyDriver: any) => {
-    ["COMPANY", ...ASM_LIST].forEach(asm => {
-      const asmKey = nonAccentVietnamese(asm);
+    ["COMPANY", ...ASM_LIST].forEach((asm) => {
+      const asmKey = nonAccentVietnameseKD(asm);
       calculateDepartmentDayRate(keyDriver, asmKey);
     });
     if (keyDriver.children?.length) {
@@ -182,8 +193,8 @@ function KeyDriverOffline() {
   }, []);
 
   const calculateDayTarget = useCallback((keyDriver: any) => {
-    ["COMPANY", ...ASM_LIST].forEach(asm => {
-      const asmKey = nonAccentVietnamese(asm);
+    ["COMPANY", ...ASM_LIST].forEach((asm) => {
+      const asmKey = nonAccentVietnameseKD(asm);
       calculateDepartmentDayTarget(keyDriver, asmKey);
     });
     if (keyDriver.children?.length) {
@@ -198,30 +209,41 @@ function KeyDriverOffline() {
     if (
       isFetchingKDOfflineTotalSales === false &&
       isFetchingKeyDriverTarget === false &&
-      isFetchingOfflineTotalSalesLoyalty === false && 
-      isFetchingCustomerVisitors === false && 
-      isFetchingOfflineOnlineTotalSales === false
+      isFetchingOfflineTotalSalesLoyalty === false &&
+      isFetchingCustomerVisitors === false &&
+      isFetchingOfflineOnlineTotalSales === false &&
+      isFetchingProductTotalSales === false
     ) {
-      setData((prev: any) => {
-        const totalSaleValue = prev[0];
-        calculateDayTarget(totalSaleValue);
-        calculateMonthRate(totalSaleValue);
-        calculateDayRate(totalSaleValue);
-        return [totalSaleValue];
+      setData((prev: any[]) => {
+        prev.forEach((item: any, index) => {
+          calculateDayTarget(item);
+          if (index === 0) {
+            ["COMPANY", ...ASM_LIST].forEach((asm) => {
+              const asmKey = nonAccentVietnameseKD(asm);
+              calculateKDAverageCustomerSpent(item, asmKey);
+              calculateKDConvertionRate(item, asmKey);
+              calculateKDAverageOrderValue(item, asmKey);
+            });
+          }
+          calculateMonthRate(item);
+          calculateDayRate(item);
+        })
+        return [...prev];
       });
       setTimeout(() => {
         setLoadingPage(false);
-      }, 0);
+      }, 1000);
     }
   }, [
     calculateDayRate,
     calculateDayTarget,
     calculateMonthRate,
+    isFetchingCustomerVisitors,
     isFetchingKDOfflineTotalSales,
     isFetchingKeyDriverTarget,
-    isFetchingOfflineTotalSalesLoyalty,
-    isFetchingCustomerVisitors,
     isFetchingOfflineOnlineTotalSales,
+    isFetchingOfflineTotalSalesLoyalty,
+    isFetchingProductTotalSales,
     setData,
   ]);
 
@@ -257,7 +279,15 @@ function KeyDriverOffline() {
     className: string = "department-name--secondary"
   ): ColumnGroupType<any> | ColumnType<any> => {
     return {
-      title: department.toLowerCase().includes('tổng công ty') ? department : <Link className={classnames("department-name", className)} to={`${UrlConfig.KEY_DRIVER_OFFLINE}/${nonAccentVietnamese(department).toLowerCase()}`}>{department}</Link>,
+      title: department.toLowerCase().includes("tổng công ty") ? (
+        department
+      ) : (
+        <Link
+          className={classnames("department-name", className)}
+          to={`${UrlConfig.KEY_DRIVER_OFFLINE}/${nonAccentVietnameseKD(department).toLowerCase()}`}>
+          {department}
+        </Link>
+      ),
       className: classnames("", className),
       onHeaderCell: (data: any) => {
         return {
@@ -300,7 +330,11 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_accumulatedMonth`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text
+              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? `${text}%`
+                : formatCurrency(text)
+              : "-";
           },
         },
         {
@@ -320,7 +354,11 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_targetMonth`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text
+              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? `${text}%`
+                : formatCurrency(text)
+              : "-";
           },
         },
         {
@@ -330,7 +368,11 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_day`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text
+              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? `${text}%`
+                : formatCurrency(text)
+              : "-";
             // return <CellInput value={text} record={record} type={departmentKey} time="day" />;
           },
         },
@@ -341,7 +383,11 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_actualDay`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? formatCurrency(text) : "-";
+            return text
+              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? `${text}%`
+                : formatCurrency(text)
+              : "-";
           },
         },
         {
@@ -361,8 +407,8 @@ function KeyDriverOffline() {
   useEffectOnce(() => {
     const temp = [...baseColumns];
     temp.push(setObjectiveColumns("COMPANY", "TỔNG CÔNG TY (OFFLINE)", "department-name--primary"));
-    ASM_LIST.forEach(asm => {
-      temp.push(setObjectiveColumns(nonAccentVietnamese(asm), asm.toUpperCase()));
+    ASM_LIST.forEach((asm) => {
+      temp.push(setObjectiveColumns(nonAccentVietnameseKD(asm), asm.toUpperCase()));
     });
     setFinalColumns(temp);
   });
@@ -375,10 +421,10 @@ function KeyDriverOffline() {
       breadcrumb={[{ name: "Báo cáo" }, { name: "Báo cáo kết quả kinh doanh Offline" }]}>
       <KeyDriverOfflineStyle>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
-          {loadingPage === false && (
+          {loadingPage === false ? (
             <Table
-              loading={isFetchingKDOfflineTotalSales && isFetchingKeyDriverTarget}
-              scroll={{ x: "max-content" }}
+              loading={loadingPage}
+              scroll={{ x: "max-content", y: 500 }}
               bordered
               pagination={false}
               onRow={(record: any) => {
@@ -394,7 +440,7 @@ function KeyDriverOffline() {
               columns={finalColumns}
               dataSource={data}
             />
-          )}
+          ) : <Spin />}
         </Card>
       </KeyDriverOfflineStyle>
     </ContentContainer>

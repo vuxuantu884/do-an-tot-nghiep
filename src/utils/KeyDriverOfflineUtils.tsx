@@ -1,3 +1,4 @@
+import { KeyDriverField } from "model/report";
 import {
   AnalyticDataQuery,
   AnalyticQueryMany,
@@ -57,37 +58,73 @@ export const calculateTargetMonth = (accumulatedMonthData: number) => {
   return 0;
 };
 
-const findKeyDriver = (keyDriverData: any, key: string, result: any) => {
+export const findKeyDriver = (keyDriverData: any, key: string, result: any[]) => {
   if (keyDriverData.key === key) {
-    result = keyDriverData;
-    console.log('item', result);
-    return keyDriverData;
-  }
-  if (result) {
+    result.push(keyDriverData);
     return result;
   }
-  if (keyDriverData.children?.length && !result) {
-    const a = JSON.parse(JSON.stringify(keyDriverData.children));
-    a.forEach((item: any) => {
+  if (keyDriverData.children?.length) {
+    keyDriverData.children.forEach((item: any) => {
       findKeyDriver(item, key, result);
     });
   }
 }
 
 export const calculateKDAverageCustomerSpent = (keyDriverData: any, department: string) => {
-  const offlineTotalSales = findKeyDriver(keyDriverData, 'offline_total_sales', undefined);
-  const customersCount = findKeyDriver(keyDriverData, 'customers_count', undefined);
-  const averageCustomerSpent = findKeyDriver(keyDriverData, 'average_customer_spent', undefined);
-  averageCustomerSpent[`${department}_accumulatedMonth`] = offlineTotalSales[`${department}_accumulatedMonth`] / customersCount[`${department}_accumulatedMonth`];
-  averageCustomerSpent[`${department}_month`] = offlineTotalSales[`${department}_month`] / customersCount[`${department}_month`];
-  averageCustomerSpent[`${department}_day`] = offlineTotalSales[`${department}_day`] / customersCount[`${department}_day`];
-  averageCustomerSpent[`${department}_actualDay`] = offlineTotalSales[`${department}_actualDay`] / customersCount[`${department}_actualDay`];
-  console.log('averageCustomerSpent', averageCustomerSpent);
-  console.log('keyDriverData', keyDriverData);
-  
+  let offlineTotalSales: any = [];
+  findKeyDriver(keyDriverData, 'offline_total_sales', offlineTotalSales);
+  let customersCount: any = [];
+  findKeyDriver(keyDriverData, 'customers_count', customersCount);
+  let averageCustomerSpent: any = [];
+  findKeyDriver(keyDriverData, 'average_customer_spent', averageCustomerSpent);
+  offlineTotalSales = offlineTotalSales[0];
+  customersCount = customersCount[0];
+  averageCustomerSpent = averageCustomerSpent[0];
+  averageCustomerSpent[`${department}_day`] = customersCount[`${department}_day`] ? offlineTotalSales[`${department}_day`] / customersCount[`${department}_day`] : '';
+  averageCustomerSpent[`${department}_targetMonth`] = customersCount[`${department}_targetMonth`] ? offlineTotalSales[`${department}_targetMonth`] / customersCount[`${department}_targetMonth`] : '';
+  averageCustomerSpent[`${department}_accumulatedMonth`] = customersCount[`${department}_accumulatedMonth`] ? offlineTotalSales[`${department}_accumulatedMonth`] / customersCount[`${department}_accumulatedMonth`] : '';
+  averageCustomerSpent[`${department}_actualDay`] = customersCount[`${department}_actualDay`] ? offlineTotalSales[`${department}_actualDay`] / customersCount[`${department}_actualDay`] : '';
 }
 
-export const nonAccentVietnamese = (str: string) => {
+export const calculateKDConvertionRate = (keyDriverData: any, department: string) => {
+  let convertionRate: any = [];
+  findKeyDriver(keyDriverData, KeyDriverField.ConvertionRate, convertionRate);
+  let customersCount: any = [];
+  findKeyDriver(keyDriverData, KeyDriverField.CustomersCount, customersCount);
+  let visitors: any = [];
+  findKeyDriver(keyDriverData, KeyDriverField.Visitors, visitors);
+  convertionRate = convertionRate[0];
+  customersCount = customersCount[0];
+  visitors = visitors[0];
+  convertionRate[`${department}_day`] = visitors[`${department}_day`] ? +(customersCount[`${department}_day`] / visitors[`${department}_day`] * 100).toFixed(1) : '';
+  convertionRate[`${department}_targetMonth`] = visitors[`${department}_targetMonth`] ? +(customersCount[`${department}_targetMonth`] / visitors[`${department}_targetMonth`] * 100).toFixed(1) : '';
+  convertionRate[`${department}_accumulatedMonth`] = visitors[`${department}_accumulatedMonth`] ? +(customersCount[`${department}_accumulatedMonth`] / visitors[`${department}_accumulatedMonth`] * 100).toFixed(1) : '';
+  convertionRate[`${department}_actualDay`] = visitors[`${department}_actualDay`] ? +(customersCount[`${department}_actualDay`] / visitors[`${department}_actualDay`] * 100).toFixed(1) : '';
+}
+
+export const calculateKDAverageOrderValue = (keyDriverData: any, department: string) => {
+  let offlineTotalSales: any = [];
+  findKeyDriver(keyDriverData, KeyDriverField.OfflineTotalSales, offlineTotalSales);
+  let averageOrderValue: any = [];
+  findKeyDriver(keyDriverData, KeyDriverField.AverageOrderValue, averageOrderValue);
+  offlineTotalSales = offlineTotalSales[0];
+  averageOrderValue = averageOrderValue[0];
+  const dayNumber = moment().date() - 1;
+  const dayInMonth = moment().daysInMonth();
+  const averageOrderValueDayTarget =  offlineTotalSales[`${department}_day`] / ((Math.round(offlineTotalSales[`${department}_month`] / averageOrderValue[`${department}_month`]) - Math.round(offlineTotalSales[`${department}_accumulatedMonth`] / averageOrderValue[`${department}_accumulatedMonth`])) / (dayInMonth - dayNumber));
+  averageOrderValue[`${department}_day`] = averageOrderValueDayTarget >= 0 ? averageOrderValueDayTarget : averageOrderValue[`${department}_accumulatedMonth`];
+  if (!averageOrderValue[`${department}_accumulatedMonth`]) {
+    averageOrderValue[`${department}_targetMonth`] = '';
+  } else {
+    const orders = Math.round(offlineTotalSales[`${department}_accumulatedMonth`] / averageOrderValue[`${department}_accumulatedMonth`]);
+    if (!orders) {
+      averageOrderValue[`${department}_targetMonth`] = '';
+    }
+    averageOrderValue[`${department}_targetMonth`] = offlineTotalSales[`${department}_targetMonth`] / calculateTargetMonth(orders);
+  }
+}
+
+export const nonAccentVietnameseKD = (str: string) => {
   str = str.toLowerCase();
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
   str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
@@ -102,5 +139,5 @@ export const nonAccentVietnamese = (str: string) => {
   return str
     .toUpperCase()
     .replaceAll(/\s/g, "")
-    .replace(/[^a-zA-Z ]/g, "");
+    .replace(/[^a-zA-Z0-9 ]/g, "");
 }

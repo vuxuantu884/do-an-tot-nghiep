@@ -1,10 +1,11 @@
 import { START_OF_MONTH, TODAY, YESTERDAY } from "config/dashboard";
+import { KeyDriverField } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKDOfflineOnlineTotalSales } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { calculateTargetMonth, nonAccentVietnamese } from "utils/KeyDriverOfflineUtils";
+import { calculateTargetMonth, findKeyDriver, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { ASM_LIST } from "../constant/key-driver-offline-template-data";
 import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider";
@@ -19,21 +20,16 @@ function useFetchOfflineOnlineTotalSales() {
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, asmData: any, columnKey: string) => {
-      Object.keys(asmData).forEach((keyDriver) => {
-        const asmName = nonAccentVietnamese(asmData['department_lv2']);
-        if (data.key === keyDriver && asmName) {
-          data[`${asmName}_${columnKey}`] = asmData[keyDriver];
-          if (columnKey === 'accumulatedMonth') {
-            data[`${asmName}_targetMonth`] = calculateTargetMonth(data[`${asmName}_accumulatedMonth`]);
-          }
-        } else {
-          if (data.children?.length) {
-            data.children.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(item, asmData, columnKey);
-            });
-          }
+      let uniformOnlineTotalSales: any = [];
+      findKeyDriver(data, KeyDriverField.UniformOnlineTotalSales, uniformOnlineTotalSales);
+      uniformOnlineTotalSales = uniformOnlineTotalSales[0];
+      const asmName = nonAccentVietnameseKD(asmData['department_lv2']);
+      if (asmName) {
+        uniformOnlineTotalSales[`${asmName}_${columnKey}`] = asmData[KeyDriverField.UniformOnlineTotalSales];
+        if (columnKey === 'accumulatedMonth') {
+          uniformOnlineTotalSales[`${asmName}_targetMonth`] = calculateTargetMonth(uniformOnlineTotalSales[`${asmName}_accumulatedMonth`]);
         }
-      });
+      }
     },
     []
   );
@@ -53,38 +49,40 @@ function useFetchOfflineOnlineTotalSales() {
 
   const refetchOfflineOnlineTotalSales = useCallback(() => {
     const fetchOfflineOnlineTotalSales = async () => {
-      setIsFetchingOfflineOnlineTotalSales(true);      
-      const resDay = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineOnlineTotalSales, {
+      setIsFetchingOfflineOnlineTotalSales(true);
+      const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineOnlineTotalSales, {
         from: TODAY,
         to: TODAY,
         posLocationNames: [],
         departmentLv2s: [],
       });
+      const monthApi = (moment().date() > 1) ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineOnlineTotalSales, {
+        from: START_OF_MONTH,
+        to: YESTERDAY,
+        posLocationNames: [],
+        departmentLv2s: [],
+      }) : Promise.resolve(0);
 
-      if (!resDay) {
-        showErrorReport("Lỗi khi lấy dữ liệu thực đạt Tổng khách mua");
-        setIsFetchingOfflineOnlineTotalSales(false);
-        return;
-      }
-      const companyDayData = calculateCompanyKeyDriver(resDay);
-
-      setData((prev: any) => {
-        let dataPrev: any = prev[0];
-        [companyDayData, ...resDay].forEach((item: any) => {
-          findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
-        });
-        return [dataPrev];
-      });
-
-      if (moment().date() > 1) {
-        const resMonth = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineOnlineTotalSales, {
-          from: START_OF_MONTH,
-          to: YESTERDAY,
-          posLocationNames: [],
-          departmentLv2s: [],
-        });
+      await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
+        if (!resDay) {
+          showErrorReport("Lỗi khi lấy dữ liệu thực đạt Tổng khách mua");
+          setIsFetchingOfflineOnlineTotalSales(false);
+          return;
+        }
+        const companyDayData = calculateCompanyKeyDriver(resDay);
+  
         if (!resMonth) {
-          showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Tổng khách mua");
+          if (resMonth !== 0) {
+            showErrorReport("Lỗi khi lấy dữ liệu TT luỹ kế Tổng khách mua");
+          }
+          setData((prev: any) => {
+            let dataPrev: any = prev[0];
+            [companyDayData, ...resDay].forEach((item: any) => {
+              findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
+            });
+            prev[0] = dataPrev;
+            return [...prev];
+          });
           setIsFetchingOfflineOnlineTotalSales(false);
           return;
         }
@@ -92,13 +90,16 @@ function useFetchOfflineOnlineTotalSales() {
   
         setData((prev: any) => {
           let dataPrev: any = prev[0];
+          [companyDayData, ...resDay].forEach((item: any) => {
+            findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
+          });
           [companyMonthData, ...resMonth].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, 'accumulatedMonth');
           });
-          return [dataPrev];
+          prev[0] = dataPrev;
+          return [...prev];
         });
-      }
-
+      });
       setIsFetchingOfflineOnlineTotalSales(false);
     };
     fetchOfflineOnlineTotalSales();

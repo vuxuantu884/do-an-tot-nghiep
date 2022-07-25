@@ -3,7 +3,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { nonAccentVietnamese } from "utils/KeyDriverOfflineUtils";
+import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
@@ -53,7 +53,7 @@ function useFetchStoresKeyDriverTarget() {
         res.forEach((item: any) => {
           const { department, data: keyDriversTarget } = item;
           [...selectedStores].forEach(asm => {
-            const asmKey = nonAccentVietnamese(asm);
+            const asmKey = nonAccentVietnameseKD(asm);
             if (department === asmKey) {
               findKeyDriverAndUpdateValue(dataPrev, keyDriversTarget, asmKey, "month");
             }

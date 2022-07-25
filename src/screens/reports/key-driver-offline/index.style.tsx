@@ -38,8 +38,7 @@ export const KeyDriverOfflineStyle = styled.div` .ant-table-thead>tr>th {
 }
 
 .ant-table-cell {
-    /* height: 56px; */
-    padding: 0;
+    padding: 8px 4px;
 }
 
 .input-cell {
@@ -62,8 +61,6 @@ export const KeyDriverOfflineStyle = styled.div` .ant-table-thead>tr>th {
 }
 
 .ant-table-content>table>tbody>tr>td {
-    /* padding-right:  4px;
-    padding-left:  4px; */
     padding: 8px 4px;
 }
 

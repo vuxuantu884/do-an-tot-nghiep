@@ -1,6 +1,6 @@
 export interface KeyDriverImportFileParams {
   headRow: number;
-  type: ImportFileType;
+  type: EntityName;
 }
 
 export interface ColumnInfo {
@@ -48,11 +48,6 @@ export interface KDOfflineTotalSalesParams {
   departmentLv2s: string[];
 }
 
-export enum ImportFileType {
-  SMS = "sms",
-  CALL = "call",
-}
-
 export enum KeyDriverField {
   TotalSales = 'total_sales',
   OfflineTotalSales = 'offline_total_sales',
@@ -71,7 +66,8 @@ export enum KeyDriverField {
   FacebookTotalSales = 'facebook_total_sales',
   ZaloSotalSales = 'zalo_total_sales',
   UniformTotalSales = 'uniform_total_sales',
-  UniformOnlineTotalSales = 'uniform_online_total_sales'
+  UniformOnlineTotalSales = 'uniform_online_total_sales',
+  ProductTotalSales = 'product_total_sales',
 }
 
 export const ASM_LIST = [
@@ -79,3 +75,73 @@ export const ASM_LIST = [
   'ASM Nguyễn Văn Ánh',
   'ASM Đỗ Quang Hiếu'
 ]
+
+export enum CustomerPhoneSMSCountersFilter {
+  StoreIds = "storeIds",
+  Month = "month",
+  Year = "year",
+  LoyaltyLevel = 'loyaltyLevel',
+  EntityName = 'entityName',
+  DataSource = 'dataSource',
+};
+
+export enum EntityName {
+  SMS = "sms",
+  CALL = "phone_calls",
+}
+
+export enum LoyaltyLevel {
+  VipS = "VIP S", 
+  VipG = "VIP G",
+  VipR = "VIP R", 
+  VipD = "VIP D",
+  CanVip = "Cận VIP",
+  SieuVip = "SIÊU VIP",
+  Birthday = "BIRTHDAY",
+  Customer = "CUSTOMER",
+  Shopper = "SHOPPER",
+  New = "NEW",
+  Others = "OTHERS"
+}
+
+export enum DataSource {
+  MyData = "MyData",
+  StoreData = "StoreData",
+}
+
+export const entityNames = [
+  {
+    name: 'Cuộc gọi',
+    value: EntityName.CALL
+  },
+  {
+    name: 'SMS',
+    value: EntityName.SMS
+  }
+];
+
+export const dataSources = [
+  {
+    name: 'Dữ liệu của tôi',
+    value: DataSource.MyData
+  },
+  {
+    name: 'Dữ liệu toàn cửa hàng',
+    value: DataSource.StoreData
+  }
+];
+
+export interface CustomerPhoneSMSCountersParams {
+  month: number;
+  year: number;
+  storeIds?: number[];
+  entityName: EntityName;
+  loyaltyLevel?: LoyaltyLevel;
+  reportedBy?: string;
+  mergeLoyaltyLevel?: boolean;
+}
+
+export enum KDGroup {
+  TotalSales = '_TotalSales',
+  SKU3 = '_SKU3',
+}

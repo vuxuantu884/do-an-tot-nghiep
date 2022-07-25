@@ -5,5 +5,6 @@ export enum CustomerVisitorsFilter {
 };
 
 export enum LocalStorageKey {
-    CustomerVisitorsStore = "customerVisitorsStore"
+    CustomerVisitorsStore = "customerVisitorsStore",
+    CustomerPhoneSMSCountersStore = "customerPhoneSMSCountersStore"
 }

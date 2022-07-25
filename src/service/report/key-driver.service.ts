@@ -1,7 +1,8 @@
+import { AxiosRequestConfig } from "axios";
 import BaseAxiosApi from "base/base.axios.api";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { KDOfflineTotalSalesParams, KeyDriverImportFileParams, KeyDriverParams, UpdateKeyDriverParams } from "model/report";
+import { CustomerPhoneSMSCountersParams, KDOfflineTotalSalesParams, KeyDriverImportFileParams, KeyDriverParams, UpdateKeyDriverParams } from "model/report";
 
 export const importFileApi = (
   file: File | undefined,
@@ -53,6 +54,35 @@ export const getKDOfflineOnlineTotalSales = (
   params: KDOfflineTotalSalesParams
 ): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.get(`${ApiConfig.KD_OFFLINE_ONLINE_TOTAL_SALES}`, { params });
+};
+
+export const getCustomerPhoneSMSCounters = (
+  params: CustomerPhoneSMSCountersParams,
+  config?: AxiosRequestConfig
+): Promise<BaseResponse<any>> => {
+  const { month, year, storeIds, entityName, loyaltyLevel, reportedBy, mergeLoyaltyLevel } = params;
+  let endpoint = `${ApiConfig.CUSTOMER_COUNTERS}?month.equals=${month}&year.equals=${year}&entityName.equals=${entityName}`;
+  if (storeIds?.length) {
+    storeIds.forEach((id, index) => {
+      endpoint += `&storeId.in[${index}]=${id}`;
+    })
+  }
+  if (reportedBy) {
+    endpoint += `&reportedBy.equals=${reportedBy}`;
+  }
+  if (loyaltyLevel) {
+    endpoint += `&loyaltyLevel.equals=${loyaltyLevel}`;
+  }
+  if (mergeLoyaltyLevel !== undefined) {
+    endpoint += `&mergeLoyaltyLevel.equals=${mergeLoyaltyLevel}`;
+  }
+  return BaseAxiosApi.get(endpoint, { ...config });
+};
+
+export const updateCustomerPhoneSMSCounters = (
+  params: any
+): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.post(`${ApiConfig.CUSTOMER_COUNTERS}`, params);
 };
 
 
