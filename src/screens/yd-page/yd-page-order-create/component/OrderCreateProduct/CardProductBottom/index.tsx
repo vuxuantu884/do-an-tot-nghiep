@@ -2,7 +2,7 @@ import { CheckCircleOutlined, CloseCircleOutlined, InfoCircleOutlined } from "@a
 import { Col, Divider, Row, Tag, Tooltip, Typography } from "antd";
 import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
-import { formatCurrency, handleDisplayCoupon } from "utils/AppUtils";
+import {formatCurrency, formatPercentage, handleDisplayCoupon} from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -31,7 +31,7 @@ type PropType = {
 	returnOrderInformation?: {
 		totalAmountReturn: number;
 	};
-	handleRemoveAllDiscount: () => void;
+	handleRemoveAllAutomaticDiscount: () => void;
 };
 
 function CardProductBottom(props: PropType) {
@@ -54,7 +54,7 @@ function CardProductBottom(props: PropType) {
 		calculateChangeMoney,
 		setCoupon,
 		setCouponInputText,
-		handleRemoveAllDiscount,
+		handleRemoveAllAutomaticDiscount,
 	} = props;
 
 	let discountRate = promotion?.rate || 0;
@@ -111,7 +111,7 @@ function CardProductBottom(props: PropType) {
 										calculateChangeMoney(items, null);
 									}}
 								>
-									{discountRate ? Math.round(discountRate * 100) / 100 : 0}%{" "}
+									{discountRate ? formatPercentage(discountRate) : 0}%{" "}
 								</Tag>
 							)}
             </div>
@@ -157,7 +157,7 @@ function CardProductBottom(props: PropType) {
 									closable
 									onClose={() => {
 										setPromotion && setPromotion(null)
-										handleRemoveAllDiscount();
+										handleRemoveAllAutomaticDiscount();
 										setCoupon && setCoupon("");
 										setCouponInputText && setCouponInputText("");
 									}}
