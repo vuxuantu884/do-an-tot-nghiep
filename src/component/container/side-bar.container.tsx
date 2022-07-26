@@ -1,11 +1,11 @@
 import { Layout, Menu } from "antd";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, { useMemo } from "react";
+import React from "react";
 import { Scrollbars } from "react-custom-scrollbars";
 import { useSelector } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useRouteMatch } from "react-router-dom";
 import menu from "routes/menu";
-import { findCurrentRoute } from "utils/AppUtils";
+import { getPath } from "utils/AppUtils";
 import { checkUserPermission } from "utils/AuthUtil";
 
 type SidebarContainerProps = {
@@ -16,23 +16,19 @@ const { Sider } = Layout;
 const SidebarContainer: React.FC<SidebarContainerProps> = (
   props: SidebarContainerProps,
 ) => {
-  const { path, collapsed } = props;
+  const { collapsed } = props;
   const currentRoles: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer?.permissions,
   );
 
+  const { path: matchPatch } = useRouteMatch();
+
   const checkPermission = (permission: string[] | undefined) => {
     return permission ? checkUserPermission(permission, currentRoles) : true;
   };
-  let currentRoute = useMemo(() => findCurrentRoute(menu, path), [path]);
-  let defaultSelectedKeys: Array<string> = [];
-  if (currentRoute.current != null) {
-    defaultSelectedKeys = [...defaultSelectedKeys, ...currentRoute.current];
-  }
-  let defaultOpenKeys: Array<string> = [];
-  if (currentRoute.subMenu != null) {
-    defaultOpenKeys = [...defaultOpenKeys, ...currentRoute.subMenu];
-  }
+
+  const routeMatched = getPath(menu, matchPatch);
+
   return (
     <Sider
       collapsed={collapsed}
@@ -42,8 +38,8 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
     >
       <Scrollbars autoHide>
         <Menu
-          defaultOpenKeys={collapsed ? [] : defaultOpenKeys}
-          defaultSelectedKeys={defaultSelectedKeys}
+          defaultOpenKeys={collapsed ? [] : routeMatched}
+          defaultSelectedKeys={routeMatched}
           mode="inline"
           style={{ borderRight: "none" }}
         >
@@ -71,7 +67,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                     fontSize: 6,
                                     marginRight: 0,
                                     marginLeft: 10,
-                                    verticalAlign: 'middle'
+                                    verticalAlign: "middle",
                                   }}
                                 />
                               }
@@ -87,13 +83,18 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                         fontSize: 6,
                                         marginRight: 0,
                                         marginLeft: 38,
-                                        verticalAlign: 'middle'
+                                        verticalAlign: "middle",
                                       }}
                                     />
                                   }
                                   key={item2.key}
                                 >
-                                  <Link title={item2.subTitle || item2.title} to={item2.path}>{item2.title}</Link>
+                                  <Link
+                                    title={item2.subTitle || item2.title}
+                                    to={item2.path}
+                                  >
+                                    {item2.title}
+                                  </Link>
                                 </Menu.Item>
                               ))}
                             </Menu.SubMenu>
@@ -111,27 +112,28 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                   fontSize: 6,
                                   marginRight: 0,
                                   marginLeft: 10,
-                                  verticalAlign: 'middle'
+                                  verticalAlign: "middle",
                                 }}
                               />
                             }
                             key={item.key}
                           >
-                            {
-                              !item.fullUrl ? (
-                                <Link
-                                  to={item.path}
-                                  title={item.subTitle || item.title}
-                                >
-                                  {item.title}
-                                </Link>
-                              ) : (
-                                <a href={item.fullUrl} target="_blank" rel="noreferrer">
-                                  {item.title}
-                                </a>
-
-                              )
-                            }
+                            {!item.fullUrl ? (
+                              <Link
+                                to={item.path}
+                                title={item.subTitle || item.title}
+                              >
+                                {item.title}
+                              </Link>
+                            ) : (
+                              <a
+                                href={item.fullUrl}
+                                target="_blank"
+                                rel="noreferrer"
+                              >
+                                {item.title}
+                              </a>
+                            )}
                             {/* {item.subTitle ? (
                           <Tooltip
                             title={item.subTitle}
@@ -168,9 +170,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                   key={route.key}
                 >
                   {route.isShow ? (
-                    <Link to={route.path}>
-                      {route.title}
-                    </Link>
+                    <Link to={route.path}>{route.title}</Link>
                   ) : (
                     route.title
                   )}

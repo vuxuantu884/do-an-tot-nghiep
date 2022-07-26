@@ -4,7 +4,6 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-
 // const ReportOrdersOnline = React.lazy(() => import("screens/reports/report-orders-online"));
 // const ReportOrdersOffline = React.lazy(() => import("screens/reports/report-orders-offline"));
 // const ReportTrackingItems = React.lazy(() => import("screens/reports/report-tracking-items"));
@@ -13,17 +12,28 @@ import React from "react";
 // );
 const Analytics = React.lazy(() => import("screens/reports/analytics/index"));
 const ReadCustomizeAnalytics = React.lazy(
-  () => import("screens/reports/analytics/read-customize/index")
+  () => import("screens/reports/analytics/read-customize/index"),
 );
 const ReadTemplateAnalytics = React.lazy(
-  () => import("screens/reports/analytics/read-template/index")
+  () => import("screens/reports/analytics/read-template/index"),
 );
 const CustomerVisitors = React.lazy(
-  () => import("screens/reports/analytics/shared/customer-visitors")
+  () => import("screens/reports/analytics/shared/customer-visitors"),
 );
-const KeyDriverOffline = React.lazy(() => import("screens/reports/key-driver-offline"));
-const KeyDriverOfflineStore = React.lazy(() => import("screens/reports/key-driver-offline/key-driver-offline-store"));
-const CustomerPhoneSMSCounters = React.lazy(() => import("screens/reports/key-driver-offline/customer-phone-sms-counters"));
+const KeyDriverOffline = React.lazy(
+  () => import("screens/reports/key-driver-offline"),
+);
+const KeyDriverOfflineStore = React.lazy(
+  () => import("screens/reports/key-driver-offline/key-driver-offline-store"),
+);
+const CustomerPhoneSMSCounters = React.lazy(
+  () =>
+    import("screens/reports/key-driver-offline/customer-phone-sms-counters"),
+);
+
+const KeyDriverOnline = React.lazy(
+  () => import("screens/reports/key-driver-online"),
+);
 
 const reports: Array<RouteMenu> = [
   {
@@ -190,6 +200,29 @@ const reports: Array<RouteMenu> = [
             subMenu: [],
           },
         ],
+      },
+    ],
+  },
+  {
+    path: `${UrlConfig.KEY_DRIVER_ONLINE}`,
+    exact: true,
+    title: "Báo cáo Kết quả kinh doanh online",
+    icon: "icon-dot",
+    component: KeyDriverOnline,
+    key: "menureport6",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.KEY_DRIVER_ONLINE}/:templateCode`,
+        exact: true,
+        title: "Báo cáo Kết quả kinh doanh online",
+        icon: "icon-dot",
+        component: KeyDriverOnline,
+        key: "menureport61",
+        isShow: true,
+        header: null,
+        subMenu: [],
       },
     ],
   },

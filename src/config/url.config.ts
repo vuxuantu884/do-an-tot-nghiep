@@ -61,6 +61,7 @@ const UrlConfig = {
   INVENTORY_DEFECTS: `/inventory-defects`,
   KEY_DRIVER_OFFLINE: `/key-driver-offline`,
   STOCK_IN_OUT_OTHERS: `/stock-in-out-others`,
+  KEY_DRIVER_ONLINE: '/key-driver-online'
 };
 
 export const ProductTabUrl = {
