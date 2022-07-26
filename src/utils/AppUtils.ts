@@ -611,6 +611,9 @@ export const Products = {
       material_id: pr.material_id,
       material: pr.material,
       collections: pr.product_collections,
+      component: pr.component,
+      advantages: pr.advantages,
+      defect: pr.defect,
     };
     return productRequest;
   },
@@ -1766,13 +1769,13 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   transportService: string | null | undefined,
   form: FormInstance<any>,
   setShippingFeeInformedToCustomer?: (value: number) => void,
-  isApplyALl = true,
+  isApplyAll = true,
 ) => {
-  if (!transportService && !isApplyALl) {
+  if (!transportService && !isApplyAll) {
     return;
   }
 
-  if (!isApplyALl) {
+  if (!isApplyAll) {
     if (
       !shippingServiceConfig ||
       !customerShippingAddressCityId ||
@@ -1833,7 +1836,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   // filter thời gian, active
   const filteredShippingServiceConfig = shippingServiceConfig.filter(
     (single) => {
-      if (isApplyALl) {
+      if (isApplyAll) {
         return (
           checkIfIsInTimePeriod(single.start_date, single.end_date) &&
           single.status === ORDER_SETTINGS_STATUS.active
@@ -1858,7 +1861,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
       const checkedShippingFeeConfig =
         singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
           (single) => {
-            if (isApplyALl) {
+            if (isApplyAll) {
               return checkIfPrice(
                 orderPrice,
                 single.from_price,

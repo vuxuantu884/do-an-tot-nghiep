@@ -14,7 +14,7 @@ import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   creatInventoryTransferAction,
   creatInventoryTransferRequestAction,
@@ -89,6 +89,7 @@ const UpdateTicket: FC = () => {
   });
 
   const location = useLocation();
+  const isContinueCreateImport = useSelector((state: any) => state.inventoryReducer.isContinueCreateImport);
   const stateImport: any = location.state;
   const query = useQuery();
   const queryParam: any = getQueryParams(query);
@@ -176,10 +177,16 @@ const UpdateTicket: FC = () => {
     if (CopyId) {
       dispatch(getCopyDetailInventoryTransferAction(CopyId, onResult));
     } else if (stateImport) {
-
       if (stateImport) {
         if (stateImport.isFastCreate) {
-          onFinish(stateImport.data);
+          if (isContinueCreateImport) {
+            onFinish(stateImport.data);
+            return;
+          }
+
+          form.setFieldsValue(stateImport.data);
+          setInitDataForm(stateImport.data);
+          setDataTable(stateImport.data.line_items);
           return;
         }
 

@@ -5,6 +5,7 @@ import loadingReducer from "./loading.reducer";
 import userReducer from "./user.reducer";
 import permissionReducer from './permisson.reducer'
 import orderReducer from "./order.reducer";
+import inventoryReducer from "./inventory.reducre";
 const rootReducer = combineReducers({
   userReducer: userReducer,
   loadingReducer: loadingReducer,
@@ -12,6 +13,7 @@ const rootReducer = combineReducers({
   appSettingReducer: appSettingReducer,
   permissionReducer: permissionReducer,
   orderReducer: orderReducer,
+  inventoryReducer: inventoryReducer,
 });
 
 export default rootReducer;

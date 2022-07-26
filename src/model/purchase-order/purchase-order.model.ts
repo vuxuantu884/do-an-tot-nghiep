@@ -60,9 +60,9 @@ export interface PurchaseOrder extends BaseObject {
   merchandiser_code: string;
   merchandiser: string;
   qc: string;
-  qc_code:string;
-  designer?:string;
-  designer_code?:string;
+  qc_code: string;
+  designer?: string;
+  designer_code?: string;
   is_grid_mode: boolean;
   reference?: string;
   waiting_approval_date?: string;
@@ -112,7 +112,7 @@ export interface ProcumentLogQuery extends BaseQuery {
 /**
  * Mapping size và màu sắc cho việc validate, hiển thị line-item
  */
- export interface POPairSizeColor {
+export interface POPairSizeColor {
   lineItemId?: number;
   size: string;
   color: string;
@@ -127,6 +127,13 @@ export interface ProcumentLogQuery extends BaseQuery {
   variant_image?: string;
   retailPrice: number;
 }
+
+export enum enumConvertDate {
+  DAY = "day",
+  MONTH = "month",
+  YEAR = "year",
+} 
+
 export interface POLineItemColor {
   color_code: string;
   color: string;
@@ -200,7 +207,7 @@ export interface POStampPrintingVariant {
 export interface POStampPrinting {
   type_name: string;
   order_code: string;
-  order_id:number;
+  order_id: number;
   supplier_id: number;
   supplier: string;
   note: string;
@@ -226,13 +233,13 @@ export type POProgressResult = {
   message_errors: Array<string>
 }
 
-export interface PurchaseOrderReturnQuery extends BaseQuery {}
+export interface PurchaseOrderReturnQuery extends BaseQuery { }
 
 export interface PurchaseOrderReturn extends BaseObject {
   expect_return_date: Date;
   line_return_items: Array<PurchaseOrderLineReturnItem>;
   payment_return_note?: string;
-  phone?: number; 
+  phone?: number;
   purchase_order: PurchaseOrder;
   return_reason: string;
   store_id: number;

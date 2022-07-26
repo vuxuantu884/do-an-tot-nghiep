@@ -16,6 +16,7 @@ import { RegUtil } from "utils/RegUtils";
 import "moment/locale/vi";
 import { LoyaltyCardSearch } from "domain/actions/loyalty/card/loyalty-card.action";
 import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
+import InputGlobalPhoneNumber from "component/custom/InputGlobalPhoneNumber";
 
 import {LoadingOutlined} from "@ant-design/icons";
 import { GENDER_OPTIONS } from "utils/Constants";
@@ -41,6 +42,8 @@ const CustomerGeneralInfo = (props: any) => {
     isEdit,
     AccountChangeSearch,
     isLoading,
+    regionCode,
+    setRegionCode,
   } = props;
 
   const dispatch = useDispatch();
@@ -301,13 +304,15 @@ const CustomerGeneralInfo = (props: any) => {
             ]}
             className="left-item"
           >
-            <InputPhoneNumber
+            <InputGlobalPhoneNumber
               disabled={isLoading}
               style={{ borderRadius: 5, width: "100%" }}
               minLength={9}
               maxLength={15}
               placeholder="Nhập số điện thoại"
               defaultValue={customer?.phone}
+              regionCode={regionCode}
+              setRegionCode={setRegionCode}
             />
           </Form.Item>
 

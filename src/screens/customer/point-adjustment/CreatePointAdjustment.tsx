@@ -14,6 +14,7 @@ import {
   AutoComplete,
   Tooltip,
   Spin,
+  Modal,
 } from "antd";
 
 import CustomTable, {
@@ -98,7 +99,11 @@ const CreatePointAdjustment = () => {
   const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [fieldName, setFieldName] = useState<string>("");
-
+  
+  const [pointAdjustmentId, setPointAdjustmentId] = useState<number | null>(null);
+  const [isVisibleErrorModal, setIsVisibleErrorModal] = useState<boolean>(false);
+  const [errorData, setErrorData] = useState<Array<any>>([]);
+  
   const initFormValues = {
     type: type,
     reason: "Khác",
@@ -244,14 +249,26 @@ const CreatePointAdjustment = () => {
     }
   };
 
+  const goToPointAdjustmentDetail = useCallback(() => {
+    history.push(`${UrlConfig.CUSTOMER2}-adjustments/${pointAdjustmentId}`);
+  }, [history, pointAdjustmentId]);
+
   const onUpdateEnd = useCallback(
     (data: any) => {
       formRef.current?.resetFields();
       setSelectedCustomers([]);
-      showSuccess("Tạo mới phiếu điều chỉnh thành công");
-      history.replace(`${UrlConfig.CUSTOMER2}-adjustments/${data?.id}`)
+      setPointAdjustmentId(data?.id);
+      if (data?.total_error > 0) {
+        const errorList = data.errors_msg?.split("\n")
+        const errorListValid = errorList?.filter((item: any) => item !== "");
+        setErrorData(errorListValid);
+        setIsVisibleErrorModal(true);
+      } else {
+        showSuccess("Tạo mới phiếu điều chỉnh thành công");
+        goToPointAdjustmentDetail();
+      }
     },
-    [formRef, history]
+    [formRef, goToPointAdjustmentDetail]
   );
 
   const onChangeName = (e: any) => {
@@ -743,6 +760,38 @@ const CreatePointAdjustment = () => {
             importProgressPercent={importProgressPercent}
             isDownloading={isDownloading}
           />
+
+        {/*Error create adjustment*/}
+        <Modal
+          width="600px"
+          centered
+          visible={isVisibleErrorModal}
+          title="Thêm mới phiếu điều chỉnh"
+          maskClosable={false}
+          onCancel={goToPointAdjustmentDetail}
+          footer={
+            <Button type="primary" onClick={goToPointAdjustmentDetail}>
+              Xác nhận
+            </Button>
+          }
+        >
+          <div>
+            <div style={{ fontWeight: "bold" }}>Chi tiết lỗi:</div>
+            <div style={{ maxHeight: 300, overflowY: "scroll" }}>
+              <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
+                <ul style={{ color: "#E24343" }}>
+                  {errorData?.map((error, index) => (
+                    <li key={index} style={{ marginBottom: "5px"}}>
+                      <span style={{fontWeight: 500}}>{error.split(":")[0]}</span>
+                      <span>:</span>
+                      <span>{error.split(":")[1]}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </Modal>
       </ContentContainer>
     </StyledCreatePointAdjustment>
   );

@@ -314,6 +314,23 @@ function OrderPayments(props: PropType): JSX.Element {
     }
 
   }, [payments, handlePayment])
+  
+  const checkDisablePaymentMethodButton = useCallback((method) => {
+    return (levelOrder > 2 || (method.code?.toLowerCase() === PaymentMethodCode.MOMO && totalAmountOrder <= 0));
+  }, [levelOrder, totalAmountOrder]);
+
+  //Xóa bỏ momo payment method nếu số tiền Khách cần phải trả nhỏ hơn hoặc bằng 0
+  useEffect(() => {
+    if (totalAmountOrder <= 0) {
+      const momoPaymentIndex = payments.findIndex(item => item.payment_method_code?.toLowerCase() === PaymentMethodCode.MOMO);
+      if (momoPaymentIndex !== -1) {
+        payments.splice(momoPaymentIndex, 1);
+      }
+      handlePayment([...payments]);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [totalAmountOrder])
+  
 
   return (
     <StyledComponent>
@@ -364,7 +381,8 @@ function OrderPayments(props: PropType): JSX.Element {
                   onClick={() => {
                     handlePickPaymentMethod(method.id);
                   }}
-                  disabled={levelOrder > 2}>
+                  disabled={checkDisablePaymentMethodButton(method)}
+                >
                   {method.name}
                 </Button>
               </Col>
