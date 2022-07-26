@@ -1114,7 +1114,24 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                   updateInventoryTransferAction(itemData.id, data, (result) => {
                     setItemData(undefined);
                     if (result) showSuccess(`Cập nhật ${itemData?.code} thành công`);
-                    dispatch(getListInventoryTransferAction(params, setSearchResult));
+                    let status: string[] = [];
+                    switch (activeTab) {
+                      case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
+                        status = ['transferring', 'confirmed'];
+                        break;
+                      case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
+                        status = ['transferring'];
+                        break;
+                      default: break;
+                    }
+
+                    let newParams = {
+                      ...params,
+                      ...getQueryParams(query),
+                      status: params.status.length > 0 ? params.status : status,
+                    };
+
+                    dispatch(getListInventoryTransferAction(newParams, setSearchResult));
                   })
                 );
               }
