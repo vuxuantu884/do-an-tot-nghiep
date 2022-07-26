@@ -1,4 +1,3 @@
-
 export enum SUBMIT_MODE {
   GET_DATA = "GET_DATA",
   SAVE_QUERY = "SAVE_QUERY",
@@ -19,39 +18,39 @@ export enum ORDER_TYPE {
 }
 
 export enum TIME {
-  YEAR = 'year',
-  MONTH = 'month',
-  DAY = 'day',
-  HOUR = 'hour',
-  YearNoChange = 'yearNoChange'
+  YEAR = "year",
+  MONTH = "month",
+  DAY = "day",
+  HOUR = "hour",
+  YearNoChange = "yearNoChange",
 }
 
 export enum FIELD_FORMAT {
   StringFormat = "string",
   Price = "price",
   NumberFormat = "number",
-  Timestamp = "timestamp"
+  Timestamp = "timestamp",
 }
 
 export enum AnalyticCube {
-  Sales = 'sales',
-  Payments = 'payments',
-  Costs = 'costs',
-  All = 'all',
-  OfflineSales = 'offline_sales',
-  Customers = 'customers'
+  Sales = "sales",
+  Payments = "payments",
+  Costs = "costs",
+  All = "all",
+  OfflineSales = "offline_sales",
+  Customers = "customers",
 }
 
 export enum AnalyticGroupUrl {
-  Sales = 'sales-online',
-  Customers = 'customers',
-  Costs = 'finance',
-  OfflineSales = 'sales-offline',
+  Sales = "sales-online",
+  Customers = "customers",
+  Costs = "finance",
+  OfflineSales = "sales-offline",
 }
 
 export enum ColumnType {
   Measure = "measure",
-  Property = "property"
+  Property = "property",
 }
 
 export enum TimeAtOptionValue {
@@ -67,15 +66,15 @@ export enum ChartTypeValue {
 }
 
 export enum FormFilterCustomReport {
-  OnlyMyReport = 'onlyMyReport',
-  NameReport = 'nameReport',
+  OnlyMyReport = "onlyMyReport",
+  NameReport = "nameReport",
 }
 
 export enum ReportProperty {
-  PosLocationName = 'pos_location_name'
+  PosLocationName = "pos_location_name",
 }
 
-export declare type QueryMode = "table" | "chart"
+export declare type QueryMode = "table" | "chart";
 export declare type ArrayString = Array<string>;
 export declare type ArrayAny = Array<any>;
 export declare type AnalyticConditions = Array<ArrayString>;
@@ -94,6 +93,8 @@ export interface AnalyticQuery {
   from?: string;
   to?: string;
   order_by?: Array<ArrayString>;
+  limit_count?: number;
+  time_series?: boolean;
 }
 
 export interface AnalyticProperties {
@@ -188,7 +189,7 @@ export interface AnalyticTemplateGroup {
     cube: AnalyticCube;
     name: string;
     group: AnalyticCube;
-  }[]
+  }[];
 }
 
 export interface AnalyticSampleQuery {
@@ -198,5 +199,29 @@ export interface AnalyticSampleQuery {
 
 // '0': noPermission, '1': permission, '': default
 export interface PermissionViewReport {
-  isPermission: '0' | '1' | '';
+  isPermission: "0" | "1" | "";
+}
+
+export interface KeyDriverOnlineDataSourceType {
+  key: string;
+  title: string;
+  method?: string;
+  hideInput?: boolean;
+  [key: string]: any; // giá trị hiển thị
+  children: KeyDriverOnlineDataSourceType[];
+}
+
+export interface MonthlyCounterParams {
+  entity_name: string;
+  entity_key: string;
+  year: number;
+  month: number;
+  department_lv1: string;
+  department_lv2?: string;
+  department_lv3?: string;
+  account_code?: string;
+  account_name?: string;
+  account_role?: string;
+  total?: number;
+  [key: string]: any;
 }

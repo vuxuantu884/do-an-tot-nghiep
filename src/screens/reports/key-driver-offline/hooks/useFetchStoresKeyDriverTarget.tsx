@@ -59,7 +59,8 @@ function useFetchStoresKeyDriverTarget() {
             }
           });
         });
-        return [dataPrev];
+        prev[0] = dataPrev;
+        return [...prev];
       });
       
       setIsFetchingStoresKeyDriverTarget(false);

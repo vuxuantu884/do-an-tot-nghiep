@@ -5,7 +5,10 @@ import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import _, { cloneDeep, sortBy } from "lodash";
 import { AccountStoreResponse } from "model/account/account.model";
-import { DepartmentResponse, DepartmentView } from "model/account/department.model";
+import {
+  DepartmentResponse,
+  DepartmentView,
+} from "model/account/department.model";
 import { BaseMetadata } from "model/base/base-metadata.response";
 import { CityView, DistrictResponse } from "model/content/district.model";
 import { LineItem } from "model/inventory/transfer";
@@ -24,13 +27,13 @@ import {
   VariantRequestView,
   VariantResponse,
   VariantUpdateRequest,
-  VariantUpdateView
+  VariantUpdateView,
 } from "model/product/product.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
 import {
   OrderDiscountRequest,
   OrderLineItemRequest,
-  OrderPaymentRequest
+  OrderPaymentRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
@@ -39,7 +42,7 @@ import {
   // DeliveryServiceResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
-  OrderResponse
+  OrderResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
@@ -47,7 +50,19 @@ import { ShippingServiceConfigDetailResponseModel } from "model/response/setting
 import moment, { Moment } from "moment";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { BaseFilterTag } from "../model/base/base-filter-tag";
-import { ArrDefects, LAZADA, OrderStatus, PaymentMethodCode, POS, PRODUCT_TYPE, SENDO, ShipmentMethod, SHIPPING_TYPE, SHOPEE, TIKI } from "./Constants";
+import {
+  ArrDefects,
+  LAZADA,
+  OrderStatus,
+  PaymentMethodCode,
+  POS,
+  PRODUCT_TYPE,
+  SENDO,
+  ShipmentMethod,
+  SHIPPING_TYPE,
+  SHOPEE,
+  TIKI,
+} from "./Constants";
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
@@ -62,62 +77,18 @@ export const isUndefinedOrNull = (variable: any) => {
   return true;
 };
 
-export const findCurrentRoute = (
-  routes: Array<RouteMenu> = [],
-  path: string = ""
-) => {
-  let current: Array<string> = [];
-  let subMenu: Array<string> = [];
-
-  routes.forEach((route) => {
-    if (route.subMenu.length > 0) {
-      route.subMenu.forEach((item) => {
-        if (item.subMenu.length > 0 && item.showMenuThird) {
-          item.subMenu.forEach((item1) => {
-            if (path === item1.path || item?.activeLink?.includes(path)) {
-              current.push(item1.key);
-              subMenu.push(route.key);
-              subMenu.push(item.key);
-            }
-          });
-        }
-        if (path === item.path || item?.activeLink?.includes(path)) {
-          current.push(item.key);
-          subMenu.push(route.key);
-        } else {
-          // admin/orders/597827 thì active cả danh sách đơn hàng
-          if(path !== item.path && path.includes(item.path) && path.replace("/", "").includes("/")) {
-            // loại trừ đường dẫn bị trùng
-            const subMenuPathArr = route.subMenu.map(single => single.path);
-            if(!subMenuPathArr.includes(path))  {
-            const pathArray = path.split("/")
-            const subPath = []
-            // xử lý trường hợp lấy subroute active /purchase-orders/123/procurements/345
-            for (let i = 1; i < pathArray.length + 1; i += 2) {
-              pathArray[i] && subPath.push(pathArray[i])
-            }
-              if(subPath.length === 1){
-                current.push(item.key);
-                subMenu.push(route.key);
-              }
-              if(subPath.length > 1 && item.path.replace("/", "") === subPath[subPath.length - 1]){
-                current.push(item.key);
-                subMenu.push(route.key);
-              }
-            }
-          }
-        }
-      });
+export const getPath = (object: any, search: string): any => {
+  if (object?.path === search) return [object.key];
+  else if (object.subMenu || Array.isArray(object)) {
+    let subMenu = Array.isArray(object) ? object : object.subMenu;
+    for (let child of subMenu) {
+      let result = getPath(child, search);
+      if (result) {
+        if (object.path) result.unshift(object.key);
+        return result;
+      }
     }
-    if (path === route.path) {
-      current.push(route.key);
-    }
-  });
-  let obj = {
-    current: current,
-    subMenu: subMenu,
-  };
-  return obj;
+  }
 };
 
 const checkPath = (p1: string, p2: string, pathIgnore?: Array<string>) => {
@@ -154,7 +125,7 @@ export const formatSuffixPoint = (point: number | string): string => {
 
 export const getListBreadcumb = (
   routes: Array<RouteMenu> = [],
-  path: string = ""
+  path: string = "",
 ) => {
   let result: Array<RouteMenu> = [];
   if (path === "" || path === "/") {
@@ -211,7 +182,7 @@ export const convertDepartment = (data: Array<DepartmentResponse>) => {
 export const getArrCategory = (
   i: CategoryResponse,
   level: number,
-  parent: CategoryResponse | null
+  parent: CategoryResponse | null,
 ) => {
   let arr: Array<CategoryView> = [];
   let parentTemp = null;
@@ -249,7 +220,7 @@ export const getArrCategory = (
 export const getArrDepartment = (
   i: DepartmentResponse,
   level: number,
-  parent: DepartmentResponse | null
+  parent: DepartmentResponse | null,
 ) => {
   let arr: Array<DepartmentView> = [];
   let parentTemp = null;
@@ -277,7 +248,7 @@ export const getArrDepartment = (
     level: level,
     parent: parentTemp,
     name: i.name,
-    isHaveChild: i.children.length > 0
+    isHaveChild: i.children.length > 0,
   });
   if (i.children.length > 0) {
     i.children.forEach((i1) => {
@@ -305,11 +276,14 @@ export const convertSizeResponeToDetail = (size: SizeResponse) => {
   return sizeConvert;
 };
 
-export const formatCurrency = (currency: number | string | boolean, sep: string = "."): string => {
+export const formatCurrency = (
+  currency: number | string | boolean,
+  sep: string = ".",
+): string => {
   try {
-    if(typeof currency ==="number") {
+    if (typeof currency === "number") {
       currency = Math.round(currency);
-    } else if(typeof currency ==="string") {
+    } else if (typeof currency === "string") {
       currency = Math.round(Number(currency));
     }
     let format = currency.toLocaleString();
@@ -328,12 +302,14 @@ export const formatNumber = (value: number | string | boolean): string => {
   }
 };
 
-export const formatPercentage = (percentage: number | string | boolean,): string => {
+export const formatPercentage = (
+  percentage: number | string | boolean,
+): string => {
   try {
-    if(typeof percentage ==="number") {
-      percentage = (Math.round(percentage*100))/100;
-    } else if(typeof percentage ==="string") {
-      percentage = (Math.round(Number(percentage)*100))/100;
+    if (typeof percentage === "number") {
+      percentage = Math.round(percentage * 100) / 100;
+    } else if (typeof percentage === "string") {
+      percentage = Math.round(Number(percentage) * 100) / 100;
     }
     let format = percentage.toLocaleString();
     return format;
@@ -342,13 +318,17 @@ export const formatPercentage = (percentage: number | string | boolean,): string
   }
 };
 
-export const formatCurrencyForProduct = (currency: number | string | boolean, sep: string = "."): string => {
+export const formatCurrencyForProduct = (
+  currency: number | string | boolean,
+  sep: string = ".",
+): string => {
   try {
-    if (currency === null || currency === undefined || currency === '') return '';
+    if (currency === null || currency === undefined || currency === "")
+      return "";
 
-    if(typeof currency ==="number") {
+    if (typeof currency === "number") {
       currency = Math.round(currency);
-    } else if(typeof currency ==="string") {
+    } else if (typeof currency === "string") {
       currency = Math.round(Number(currency));
     }
     let format = currency.toString();
@@ -421,7 +401,7 @@ export const convertDistrict = (data: Array<DistrictResponse>) => {
 
 export const findPriceInVariant = (
   variantPrices: Array<VariantPricesResponse>,
-  currency_code: string
+  currency_code: string,
 ): number => {
   let price: number = 0;
   variantPrices.forEach((v) => {
@@ -434,7 +414,7 @@ export const findPriceInVariant = (
 
 export const findTaxInVariant = (
   variantPrices: Array<VariantPricesResponse>,
-  currency_code: string
+  currency_code: string,
 ): number => {
   let tax: number | null = 0;
   variantPrices.forEach((v) => {
@@ -447,7 +427,7 @@ export const findTaxInVariant = (
 
 export const findPrice = (
   variantPrices: Array<VariantPricesResponse>,
-  currency_code: string
+  currency_code: string,
 ): string => {
   let price: string = "0";
   variantPrices.forEach((v) => {
@@ -471,18 +451,23 @@ export const replaceFormatString = (currency: number | string): string => {
 export const findAvatar = (VariantImage: Array<VariantImage>): string => {
   let avatar: string = "";
 
-  VariantImage?.length > 0 && VariantImage.forEach((v) => {
-    if (v.variant_avatar) {
-      avatar = v.url;
-    }
-  });
+  VariantImage?.length > 0 &&
+    VariantImage.forEach((v) => {
+      if (v.variant_avatar) {
+        avatar = v.url;
+      }
+    });
   return avatar;
 };
 
-export const findVariantAvatar = (variantImageArr: Array<VariantImage>): string => {
+export const findVariantAvatar = (
+  variantImageArr: Array<VariantImage>,
+): string => {
   let result = "";
-  const defaultVariantImage = variantImageArr.find(single => single.variant_avatar && single.url);
-  if(defaultVariantImage) {
+  const defaultVariantImage = variantImageArr.find(
+    (single) => single.variant_avatar && single.url,
+  );
+  if (defaultVariantImage) {
     result = defaultVariantImage.url;
   }
   return result;
@@ -490,11 +475,11 @@ export const findVariantAvatar = (variantImageArr: Array<VariantImage>): string 
 
 export const haveAccess = (
   storeId: number,
-  accountStores: Array<AccountStoreResponse>
+  accountStores: Array<AccountStoreResponse>,
 ): boolean => {
   let isHave = false;
   let accountStoreFilter = accountStores.filter(
-    (store: AccountStoreResponse) => store.store_id === storeId
+    (store: AccountStoreResponse) => store.store_id === storeId,
   );
   if (accountStoreFilter.length > 0) {
     return (isHave = true);
@@ -510,7 +495,7 @@ export const ListUtil = {
 
 export const Products = {
   convertVariantPriceViewToRequest: (
-    priceView: Array<VariantPriceViewRequest>
+    priceView: Array<VariantPriceViewRequest>,
   ) => {
     let variant_prices: Array<VariantPriceRequest> = [];
     priceView.forEach((item) => {
@@ -529,7 +514,7 @@ export const Products = {
   convertProductViewToRequest: (
     pr: ProductRequestView,
     arrVariants: Array<VariantRequestView>,
-    status: string
+    status: string,
   ) => {
     let variants: Array<VariantRequest> = [];
     let variant_prices: Array<VariantPriceRequest> = [];
@@ -549,23 +534,35 @@ export const Products = {
     arrVariants.forEach((item) => {
       item.type = 0;
       let vp = _.cloneDeep(variant_prices);
-      if(ArrDefects.find(e=>item.sku.indexOf(e.code) !==-1)){
+      if (ArrDefects.find((e) => item.sku.indexOf(e.code) !== -1)) {
         item.type = 1;
       }
       if (item.defect_code) {
         item.type = 1;
-        vp.forEach((itemPrice)=>{
-          const valueDefect = ArrDefects.find((e:any)=>e.code === item.defect_code)?.value;
-          if(!valueDefect) return;
-          if(itemPrice.retail_price !== null)
-            itemPrice.retail_price = parseFloat(((itemPrice.retail_price*(100-(valueDefect))/100)).toFixed(2));
-          if(itemPrice.cost_price !== null)
-            itemPrice.cost_price = parseFloat(((itemPrice.cost_price*(100-(valueDefect))/100)).toFixed(2));
-          if(itemPrice.import_price !== null)
-            itemPrice.import_price = parseFloat(((itemPrice.import_price*(100-(valueDefect))/100)).toFixed(2));
-          if(itemPrice.wholesale_price !== null)
-            itemPrice.wholesale_price = parseFloat(((itemPrice.wholesale_price*(100-(valueDefect))/100)).toFixed(2));
-        })
+        vp.forEach((itemPrice) => {
+          const valueDefect = ArrDefects.find(
+            (e: any) => e.code === item.defect_code,
+          )?.value;
+          if (!valueDefect) return;
+          if (itemPrice.retail_price !== null)
+            itemPrice.retail_price = parseFloat(
+              ((itemPrice.retail_price * (100 - valueDefect)) / 100).toFixed(2),
+            );
+          if (itemPrice.cost_price !== null)
+            itemPrice.cost_price = parseFloat(
+              ((itemPrice.cost_price * (100 - valueDefect)) / 100).toFixed(2),
+            );
+          if (itemPrice.import_price !== null)
+            itemPrice.import_price = parseFloat(
+              ((itemPrice.import_price * (100 - valueDefect)) / 100).toFixed(2),
+            );
+          if (itemPrice.wholesale_price !== null)
+            itemPrice.wholesale_price = parseFloat(
+              ((itemPrice.wholesale_price * (100 - valueDefect)) / 100).toFixed(
+                2,
+              ),
+            );
+        });
       }
 
       variants.push({
@@ -631,7 +628,7 @@ export const Products = {
   },
   findPrice: (
     prices: Array<VariantPricesResponse>,
-    currency: string
+    currency: string,
   ): VariantPricesResponse | null => {
     let price: VariantPricesResponse | null = null;
     prices.forEach((priceResponse) => {
@@ -667,9 +664,7 @@ export const Products = {
         product_type: variant.product.product_type,
         goods: variant.product.goods,
         category_id: variant.product.category_id,
-        collections: variant.product.collections.map(
-          (i) => i.code
-        ),
+        collections: variant.product.collections.map((i) => i.code),
         tags:
           variant.product.tags !== null ? variant.product.tags.split(";") : [],
         product_unit: variant.product.unit,
@@ -741,11 +736,13 @@ export const Products = {
 };
 
 export const isNormalTypeVariantItem = (lineItem: OrderLineItemResponse) => {
-  const type = [PRODUCT_TYPE.normal, PRODUCT_TYPE.combo]
+  const type = [PRODUCT_TYPE.normal, PRODUCT_TYPE.combo];
   return type.includes(lineItem.type);
 };
 
-export const getAmountPayment = (items: Array<OrderPaymentResponse|OrderPaymentRequest> | null) => {
+export const getAmountPayment = (
+  items: Array<OrderPaymentResponse | OrderPaymentRequest> | null,
+) => {
   let value = 0;
   if (items !== null) {
     if (items.length > 0) {
@@ -756,7 +753,7 @@ export const getAmountPayment = (items: Array<OrderPaymentResponse|OrderPaymentR
 };
 
 export const getAmountPaymentRequest = (
-  items: Array<OrderPaymentRequest> | null
+  items: Array<OrderPaymentRequest> | null,
 ) => {
   let value = 0;
   if (items !== null) {
@@ -778,19 +775,19 @@ export const getTotalAmount = (items: Array<OrderLineItemRequest>) => {
 };
 
 export const getLineItemDiscountValue = (lineItem: OrderLineItemRequest) => {
-	let total = 0;
+  let total = 0;
   lineItem.discount_items.forEach((a) => (total = total + a.value));
   return total;
 };
 
 export const getLineItemDiscountAmount = (lineItem: OrderLineItemRequest) => {
-	let total = 0;
+  let total = 0;
   lineItem.discount_items.forEach((a) => (total = total + a.amount));
   return total;
 };
 
 export const getLineItemDiscountRate = (lineItem: OrderLineItemRequest) => {
-  return lineItem.discount_value * 100 / lineItem.price ;
+  return (lineItem.discount_value * 100) / lineItem.price;
 };
 
 export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
@@ -800,14 +797,16 @@ export const getTotalDiscount = (items: Array<OrderLineItemRequest>) => {
 };
 
 export const getTotalAmountAfterDiscount = (
-  items: Array<OrderLineItemRequest>
+  items: Array<OrderLineItemRequest>,
 ) => {
   let total = 0;
   items.forEach((a) => (total = total + a.line_amount_after_line_discount));
   return total;
 };
 
-export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>) => {
+export const getOrderTotalPaymentAmount = (
+  payments: Array<OrderPaymentResponse>,
+) => {
   let total = 0;
   payments.forEach((a) => {
     total = total + a.amount;
@@ -815,7 +814,9 @@ export const getOrderTotalPaymentAmount = (payments: Array<OrderPaymentResponse>
   return total;
 };
 
-export const getOrderTotalPaymentAmountReturn = (payments: Array<OrderPaymentResponse>) => {
+export const getOrderTotalPaymentAmountReturn = (
+  payments: Array<OrderPaymentResponse>,
+) => {
   let total = 0;
   payments.forEach((a) => {
     total = total + a.paid_amount;
@@ -823,17 +824,19 @@ export const getOrderTotalPaymentAmountReturn = (payments: Array<OrderPaymentRes
   return total;
 };
 
-export const getLineAmountAfterLineDiscount = (lineItem: OrderLineItemRequest) => {
-	return lineItem.amount - lineItem.discount_amount;
+export const getLineAmountAfterLineDiscount = (
+  lineItem: OrderLineItemRequest,
+) => {
+  return lineItem.amount - lineItem.discount_amount;
 };
 
 export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
   let total = 0;
   items.forEach((a) => {
-		if(isNormalTypeVariantItem(a)) {
-			total = total + a.quantity
-		}
-	});
+    if (isNormalTypeVariantItem(a)) {
+      total = total + a.quantity;
+    }
+  });
   return total;
 };
 
@@ -847,9 +850,7 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
       }
     }
   }
-  if (
-    items?.total <= value
-  ) {
+  if (items?.total <= value) {
     return 1; //đã thanh toán
   } else {
     if (value === 0) {
@@ -869,9 +870,7 @@ export const checkPaymentStatus = (payments: any, orderAmount: number) => {
       }
     }
   }
-  if (
-    value >= orderAmount
-  ) {
+  if (value >= orderAmount) {
     return 1; //đã thanh toán
   } else {
     if (value === 0) {
@@ -984,7 +983,8 @@ export const SumWeightLineItems = (items?: Array<LineItem>) => {
     for (let i = 0; i < items.length; i++) {
       switch (items[i].weight_unit) {
         case "g":
-          totalWeight = totalWeight + items[i].weight * items[i].transfer_quantity;
+          totalWeight =
+            totalWeight + items[i].weight * items[i].transfer_quantity;
           break;
         case "kg":
           totalWeight =
@@ -1005,7 +1005,8 @@ export const SumWeightInventory = (items?: Array<LineItem>) => {
     for (let i = 0; i < items.length; i++) {
       switch (items[i].weight_unit) {
         case "g":
-          totalWeight = totalWeight + items[i].weight * items[i].transfer_quantity;
+          totalWeight =
+            totalWeight + items[i].weight * items[i].transfer_quantity;
           break;
         case "kg":
           totalWeight =
@@ -1043,7 +1044,7 @@ export const SumWeightResponse = (items?: Array<OrderLineItemResponse>) => {
 
 export const InfoServiceDeliveryDetail = (
   items: Array<any> | null,
-  delivery_id: number | null
+  delivery_id: number | null,
 ) => {
   if (items) {
     for (let i = 0; i < items.length; i++) {
@@ -1103,243 +1104,311 @@ export const getServiceName = (item: OrderResponse) => {
   }
 };
 
-export const scrollAndFocusToDomElement = (element?: HTMLElement|null) => {
+export const scrollAndFocusToDomElement = (element?: HTMLElement | null) => {
   if (!element) {
     return;
   }
   element.focus();
   const y = element.getBoundingClientRect()?.top + window.pageYOffset + -250;
-  window.scrollTo({top: y, behavior: "smooth"});
+  window.scrollTo({ top: y, behavior: "smooth" });
 };
 
 // lấy danh sách sản phẩm đã đổi
 export const getListReturnedOrders = (OrderDetail: OrderResponse | null) => {
-  if(!OrderDetail) {
+  if (!OrderDetail) {
     return [];
   }
-  if(!OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
-    return []
+  if (!OrderDetail?.order_returns || OrderDetail?.order_returns?.length === 0) {
+    return [];
   }
-  let orderReturnItems:OrderLineItemResponse[] = [];
+  let orderReturnItems: OrderLineItemResponse[] = [];
 
   for (const singleReturn of OrderDetail.order_returns) {
-     //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
-     for (const singleReturnItem of singleReturn.items) {
-       let index = orderReturnItems.findIndex((item) => item.variant_id === singleReturnItem.variant_id && item.type === singleReturnItem.type && (item.order_line_item_id ? item.order_line_item_id === singleReturnItem.order_line_item_id : true));
+    //xử lý trường hợp 1 sản phẩm có số lượng nhiều đổi trả nhiều lần
+    for (const singleReturnItem of singleReturn.items) {
+      let index = orderReturnItems.findIndex(
+        (item) =>
+          item.variant_id === singleReturnItem.variant_id &&
+          item.type === singleReturnItem.type &&
+          (item.order_line_item_id
+            ? item.order_line_item_id === singleReturnItem.order_line_item_id
+            : true),
+      );
 
-       if(index > -1) {
-         let duplicatedItem = {...orderReturnItems[index]};
-        duplicatedItem.quantity = duplicatedItem.quantity + singleReturnItem.quantity;
+      if (index > -1) {
+        let duplicatedItem = { ...orderReturnItems[index] };
+        duplicatedItem.quantity =
+          duplicatedItem.quantity + singleReturnItem.quantity;
         orderReturnItems[index] = duplicatedItem;
-       } else {
-         orderReturnItems.push(singleReturnItem);
-       }
-
-     }
+      } else {
+        orderReturnItems.push(singleReturnItem);
+      }
+    }
   }
   // console.log('orderReturnItems', orderReturnItems)
   return orderReturnItems;
 };
 
-export const reCalculateOrderItem = (orderLineItems: OrderLineItemResponse[]) => {
+export const reCalculateOrderItem = (
+  orderLineItems: OrderLineItemResponse[],
+) => {
   // console.log('orderLineItems', orderLineItems)
-  return orderLineItems.map(item => {
+  return orderLineItems.map((item) => {
     return {
       ...item,
-      discount_items: item.discount_items.map(discount => {
+      discount_items: item.discount_items.map((discount) => {
         return {
           ...discount,
-          value: item.quantity ? (discount.amount / item.quantity) : discount.value,
-        }
-      })
-    }
-  })
+          value: item.quantity
+            ? discount.amount / item.quantity
+            : discount.value,
+        };
+      }),
+    };
+  });
 };
 
 /**
-* tính lại discount và quantity theo quantity mới
-*/
-export const reCalculateDiscountReturnByOrigin = (itemResult: OrderLineItemResponse, itemOrigin: OrderLineItemResponse, quantity: number) => {
-  if(!quantity) {
+ * tính lại discount và quantity theo quantity mới
+ */
+export const reCalculateDiscountReturnByOrigin = (
+  itemResult: OrderLineItemResponse,
+  itemOrigin: OrderLineItemResponse,
+  quantity: number,
+) => {
+  if (!quantity) {
     return;
   }
   itemResult.quantity = quantity;
-  itemResult.discount_items = itemOrigin.discount_items.map(single => {
+  itemResult.discount_items = itemOrigin.discount_items.map((single) => {
     return {
       ...single,
-      amount: itemOrigin?.quantity ? (single.amount / itemOrigin?.quantity * quantity) : single.amount,
-    }
-  })
-  itemResult.discount_amount = itemOrigin?.quantity ? (itemOrigin.discount_amount / itemOrigin?.quantity * quantity) : itemOrigin.discount_amount
+      amount: itemOrigin?.quantity
+        ? (single.amount / itemOrigin?.quantity) * quantity
+        : single.amount,
+    };
+  });
+  itemResult.discount_amount = itemOrigin?.quantity
+    ? (itemOrigin.discount_amount / itemOrigin?.quantity) * quantity
+    : itemOrigin.discount_amount;
 };
 
 // lấy danh sách còn có thể đổi trả
 export const getListItemsCanReturn = (OrderDetail: OrderResponse | null) => {
-  if(!OrderDetail) {
+  if (!OrderDetail) {
     return [];
   }
-  const OrderDetailClone = cloneDeep(OrderDetail)
-  let result:OrderLineItemResponse[] = [];
-	let listReturned = getListReturnedOrders(OrderDetailClone)
-  let orderReturnItems = [...listReturned]
-	let _orderReturnItems = orderReturnItems.filter((single)=>single.quantity > 0);
-	let newReturnItems = cloneDeep(_orderReturnItems);
-	// let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
+  const OrderDetailClone = cloneDeep(OrderDetail);
+  let result: OrderLineItemResponse[] = [];
+  let listReturned = getListReturnedOrders(OrderDetailClone);
+  let orderReturnItems = [...listReturned];
+  let _orderReturnItems = orderReturnItems.filter(
+    (single) => single.quantity > 0,
+  );
+  let newReturnItems = cloneDeep(_orderReturnItems);
+  // let normalItems = _.cloneDeep(OrderDetail.items).filter(item=>item.type !==Type.SERVICE);
   // console.log('_orderReturnItems', _orderReturnItems)
   for (const singleOrder of OrderDetailClone.items) {
-		// trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau, nếu có order_line_item_id thì check luôn)
-    let duplicatedItem = newReturnItems.find(single=>{
+    // trường hợp line item trùng nhau, trùng loại (trường hợp sp và quà tặng trùng nhau, nếu có order_line_item_id thì check luôn)
+    let duplicatedItem = newReturnItems.find((single) => {
       // console.log('singleOrder', singleOrder)
-      return single.variant_id === singleOrder.variant_id && single.type === singleOrder.type && (single.order_line_item_id ? single.order_line_item_id === singleOrder.id : true)
+      return (
+        single.variant_id === singleOrder.variant_id &&
+        single.type === singleOrder.type &&
+        (single.order_line_item_id
+          ? single.order_line_item_id === singleOrder.id
+          : true)
+      );
     });
     // console.log('duplicatedItem', duplicatedItem)
-    if(duplicatedItem) {
-			let index = newReturnItems.findIndex(single=>single.variant_id === duplicatedItem?.variant_id&& single.type === duplicatedItem.type && (duplicatedItem.order_line_item_id ? single.id === duplicatedItem.id : true))
-			const quantityLeft = newReturnItems[index].quantity - singleOrder.quantity;
-			if(quantityLeft ===0) {
-				newReturnItems.splice(index, 1);
-			} else if(quantityLeft > 0) {
-				newReturnItems[index].quantity = quantityLeft;
-				const clone = cloneDeep(duplicatedItem);
-        reCalculateDiscountReturnByOrigin(clone, duplicatedItem, quantityLeft)
-				clone.id = singleOrder.id;
-				// result.push(clone)
-			} else {
+    if (duplicatedItem) {
+      let index = newReturnItems.findIndex(
+        (single) =>
+          single.variant_id === duplicatedItem?.variant_id &&
+          single.type === duplicatedItem.type &&
+          (duplicatedItem.order_line_item_id
+            ? single.id === duplicatedItem.id
+            : true),
+      );
+      const quantityLeft =
+        newReturnItems[index].quantity - singleOrder.quantity;
+      if (quantityLeft === 0) {
+        newReturnItems.splice(index, 1);
+      } else if (quantityLeft > 0) {
+        newReturnItems[index].quantity = quantityLeft;
+        const clone = cloneDeep(duplicatedItem);
+        reCalculateDiscountReturnByOrigin(clone, duplicatedItem, quantityLeft);
+        clone.id = singleOrder.id;
+        // result.push(clone)
+      } else {
         const quantityLeft = singleOrder.quantity - duplicatedItem.quantity;
-        reCalculateDiscountReturnByOrigin(singleOrder, duplicatedItem, quantityLeft)
-				newReturnItems.splice(index, 1);
-				result.push(singleOrder);
-			}
+        reCalculateDiscountReturnByOrigin(
+          singleOrder,
+          duplicatedItem,
+          quantityLeft,
+        );
+        newReturnItems.splice(index, 1);
+        result.push(singleOrder);
+      }
     } else {
       result.push(singleOrder);
     }
   }
   // console.log('result111', result)
- return result;
-}
+  return result;
+};
 
 // kiểm tra xem đã trả hết hàng chưa
-export const checkIfOrderHasReturnedAll = (OrderDetail: OrderResponse | null) => {
-  if(!OrderDetail) {
+export const checkIfOrderHasReturnedAll = (
+  OrderDetail: OrderResponse | null,
+) => {
+  if (!OrderDetail) {
     return false;
   }
   let result = false;
-	let itemsCanReturn = getListItemsCanReturn(OrderDetail)
-  if(itemsCanReturn.length===0) {
+  let itemsCanReturn = getListItemsCanReturn(OrderDetail);
+  if (itemsCanReturn.length === 0) {
     result = true;
   }
   return result;
-}
+};
 
-export const handleDisplayCoupon = (coupon: string, numberCouponCharactersShowedBeforeAndAfter: number = 2) => {
-  if(coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
-    const firstCharacters = coupon.substring(0,numberCouponCharactersShowedBeforeAndAfter);
-    const lastCharacters = coupon.substring(coupon.length - numberCouponCharactersShowedBeforeAndAfter,coupon.length);
+export const handleDisplayCoupon = (
+  coupon: string,
+  numberCouponCharactersShowedBeforeAndAfter: number = 2,
+) => {
+  if (coupon.length > numberCouponCharactersShowedBeforeAndAfter) {
+    const firstCharacters = coupon.substring(
+      0,
+      numberCouponCharactersShowedBeforeAndAfter,
+    );
+    const lastCharacters = coupon.substring(
+      coupon.length - numberCouponCharactersShowedBeforeAndAfter,
+      coupon.length,
+    );
     return `${firstCharacters}***${lastCharacters}`;
   } else {
     return `${coupon}***${coupon}`;
   }
 };
 
-export const getAccountCodeFromCodeAndName = (text: string | null | undefined) => {
-	const splitString = "-"
-	let result = null;
-	if(text) {
-		result = text.split(splitString)[0].trim();
-	}
-	return result;
+export const getAccountCodeFromCodeAndName = (
+  text: string | null | undefined,
+) => {
+  const splitString = "-";
+  let result = null;
+  if (text) {
+    result = text.split(splitString)[0].trim();
+  }
+  return result;
 };
 
-export const handleDelayActionWhenInsertTextInSearchInput = (inputRef: React.MutableRefObject<any>, func: (...arg: any) => void|any, delayTime: number = 500) => {
-	if (inputRef.current) {
-		clearTimeout(inputRef.current);
-	}
-	inputRef.current = setTimeout(() => {
-		func();
-	}, delayTime);
+export const handleDelayActionWhenInsertTextInSearchInput = (
+  inputRef: React.MutableRefObject<any>,
+  func: (...arg: any) => void | any,
+  delayTime: number = 500,
+) => {
+  if (inputRef.current) {
+    clearTimeout(inputRef.current);
+  }
+  inputRef.current = setTimeout(() => {
+    func();
+  }, delayTime);
 };
 
-export const getProductDiscountPerProduct = (product: OrderLineItemResponse) => {
-	let discountPerProduct = 0;
-	product.discount_items.forEach((single) => {
-		discountPerProduct += single.value;
-	});
-	return discountPerProduct;
+export const getProductDiscountPerProduct = (
+  product: OrderLineItemResponse,
+) => {
+  let discountPerProduct = 0;
+  product.discount_items.forEach((single) => {
+    discountPerProduct += single.value;
+  });
+  return discountPerProduct;
 };
 
-export const getProductDiscountPerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
-	let discountPerOrder = 0;
+export const getProductDiscountPerOrder = (
+  OrderDetail: OrderResponse | null | undefined,
+  product: OrderLineItemResponse,
+) => {
+  let discountPerOrder = 0;
   let totalDiscountAmountPerOrder = 0;
-  if(OrderDetail?.total_line_amount_after_line_discount) {
+  if (OrderDetail?.total_line_amount_after_line_discount) {
     OrderDetail?.discounts?.forEach((singleOrderDiscount) => {
       if (singleOrderDiscount?.amount) {
-        totalDiscountAmountPerOrder = totalDiscountAmountPerOrder + (singleOrderDiscount?.amount);
+        totalDiscountAmountPerOrder =
+          totalDiscountAmountPerOrder + singleOrderDiscount?.amount;
       }
     });
-    product.discount_value = getLineItemDiscountValue(product)
+    product.discount_value = getLineItemDiscountValue(product);
     discountPerOrder =
-      (totalDiscountAmountPerOrder/OrderDetail?.total_line_amount_after_line_discount * (product.price - product.discount_value))
+      (totalDiscountAmountPerOrder /
+        OrderDetail?.total_line_amount_after_line_discount) *
+      (product.price - product.discount_value);
   }
-	return discountPerOrder;
-}
+  return discountPerOrder;
+};
 
 /**
-* tính toán tiền trả lại khách khi đổi trả
-*/
-export const getReturnPricePerOrder =  (OrderDetail: OrderResponse | null | undefined , product: OrderLineItemResponse) => {
+ * tính toán tiền trả lại khách khi đổi trả
+ */
+export const getReturnPricePerOrder = (
+  OrderDetail: OrderResponse | null | undefined,
+  product: OrderLineItemResponse,
+) => {
   const discountPerProduct = getProductDiscountPerProduct(product);
   const discountPerOrder = getProductDiscountPerOrder(OrderDetail, product);
-	return Math.round(product.price - discountPerProduct - discountPerOrder);
-}
+  return Math.round(product.price - discountPerProduct - discountPerOrder);
+};
 
-export const getTotalOrderDiscount =  (discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null) => {
-  if(!discounts) {
+export const getTotalOrderDiscount = (
+  discounts: OrderDiscountRequest[] | OrderDiscountResponse[] | null,
+) => {
+  if (!discounts) {
     return 0;
   }
-	let totalDiscount = 0;
-	discounts.forEach((singleOrderDiscount) => {
-		if (singleOrderDiscount?.amount) {
-			totalDiscount = totalDiscount + singleOrderDiscount.amount;
-		}
-	});
-	return totalDiscount;
-}
-
+  let totalDiscount = 0;
+  discounts.forEach((singleOrderDiscount) => {
+    if (singleOrderDiscount?.amount) {
+      totalDiscount = totalDiscount + singleOrderDiscount.amount;
+    }
+  });
+  return totalDiscount;
+};
 
 export const totalAmount = (items: Array<OrderLineItemRequest>) => {
-		if (!items) {
-			return 0;
-		}
-		let _items = [...items];
-		let _amount = 0;
+  if (!items) {
+    return 0;
+  }
+  let _items = [...items];
+  let _amount = 0;
 
-		_items.forEach((i) => {
-			let total_discount_items = 0;
-			let discountRate = 0;
-			i.amount = i.price * i.quantity;
-			i.discount_items.forEach((d) => {
-        if(d.amount > (i.price * i.quantity)) {
-          d.amount = i.price * i.quantity;
-          d.value = i.price;
-        }
-				total_discount_items = total_discount_items + d.amount;
-        d.rate = d.amount / i.amount * 100;
-        discountRate = discountRate + (d.amount / i.amount * 100)
-			});
-      i.discount_rate = discountRate
-			let amountItem = (i.price * i.quantity) - total_discount_items;
-			_amount += amountItem;
-			i.line_amount_after_line_discount = amountItem;
-			if (i.amount !== null) {
-				let totalDiscount = 0;
-				i.discount_items.forEach((a) => {
-					totalDiscount = totalDiscount + a.amount;
-				});
-				i.discount_amount = totalDiscount;
-			}
-		});
-		return _amount;
-}
+  _items.forEach((i) => {
+    let total_discount_items = 0;
+    let discountRate = 0;
+    i.amount = i.price * i.quantity;
+    i.discount_items.forEach((d) => {
+      if (d.amount > i.price * i.quantity) {
+        d.amount = i.price * i.quantity;
+        d.value = i.price;
+      }
+      total_discount_items = total_discount_items + d.amount;
+      d.rate = (d.amount / i.amount) * 100;
+      discountRate = discountRate + (d.amount / i.amount) * 100;
+    });
+    i.discount_rate = discountRate;
+    let amountItem = i.price * i.quantity - total_discount_items;
+    _amount += amountItem;
+    i.line_amount_after_line_discount = amountItem;
+    if (i.amount !== null) {
+      let totalDiscount = 0;
+      i.discount_items.forEach((a) => {
+        totalDiscount = totalDiscount + a.amount;
+      });
+      i.discount_amount = totalDiscount;
+    }
+  });
+  return _amount;
+};
 
 export const isNullOrUndefined = (value: any) => {
   return value === null || value === undefined;
@@ -1347,89 +1416,102 @@ export const isNullOrUndefined = (value: any) => {
 
 export const convertItemToArray = (item: any) => {
   return Array.isArray(item) ? item : [item];
-}
+};
 
-export const convertActionLogDetailToText = (data?: string, dateFormat: string = "HH:mm DD/MM/YYYY") => {
+export const convertActionLogDetailToText = (
+  data?: string,
+  dateFormat: string = "HH:mm DD/MM/YYYY",
+) => {
   const renderAddress = (dataJson: any) => {
     let result = "-";
     let textFullAddress = "";
     let textWard = "";
     let textDistrict = "";
     let textCity = "";
-    if(dataJson.shipping_address?.full_address) {
+    if (dataJson.shipping_address?.full_address) {
       textFullAddress = dataJson.shipping_address?.full_address;
     }
-    if(dataJson.shipping_address?.ward) {
+    if (dataJson.shipping_address?.ward) {
       textWard = `${dataJson.shipping_address?.ward},`;
     }
-    if(dataJson.shipping_address?.district) {
+    if (dataJson.shipping_address?.district) {
       textDistrict = `${dataJson.shipping_address?.district},`;
     }
-    if(dataJson.shipping_address?.city) {
+    if (dataJson.shipping_address?.city) {
       textCity = `${dataJson.shipping_address?.city},`;
     }
-    if(dataJson.shipping_address?.full_address || dataJson.shipping_address?.ward || dataJson.shipping_address?.district || dataJson.shipping_address?.city) {
-      result = `${textFullAddress} ${textWard} ${textDistrict} ${textCity}`
+    if (
+      dataJson.shipping_address?.full_address ||
+      dataJson.shipping_address?.ward ||
+      dataJson.shipping_address?.district ||
+      dataJson.shipping_address?.city
+    ) {
+      result = `${textFullAddress} ${textWard} ${textDistrict} ${textCity}`;
     }
     return result;
   };
-	const renderShipmentMethod = (dataJson: any) => {
-		let result = "-";
-    if(dataJson.fulfillments) {
-      const sortedFulfillments = dataJson?.fulfillments?.sort((a:FulFillmentResponse, b:FulFillmentResponse) =>
-        moment(b?.updated_date).diff(moment(a?.updated_date))
+  const renderShipmentMethod = (dataJson: any) => {
+    let result = "-";
+    if (dataJson.fulfillments) {
+      const sortedFulfillments = dataJson?.fulfillments?.sort(
+        (a: FulFillmentResponse, b: FulFillmentResponse) =>
+          moment(b?.updated_date).diff(moment(a?.updated_date)),
       );
       switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
         case ShipmentMethod.EMPLOYEE:
-          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment?.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
+          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment?.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`;
           break;
         case ShipmentMethod.EXTERNAL_SERVICE:
-          result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}`
+          result = `Hãng vận chuyển - ${sortedFulfillments[0]?.shipment?.delivery_service_provider_name}`;
           break;
         case ShipmentMethod.EXTERNAL_SHIPPER:
-          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`
+          result = `Tự giao hàng - ${sortedFulfillments[0]?.shipment.shipper_code} - ${sortedFulfillments[0]?.shipment.shipper_name}`;
           break;
         case ShipmentMethod.PICK_AT_STORE:
-          result = "Nhận tại cửa hàng"
+          result = "Nhận tại cửa hàng";
           break;
         case ShipmentMethod.SHOPEE:
-          result = "Shopee"
+          result = "Shopee";
           break;
         default:
           break;
       }
     }
-		return result
-	};
+    return result;
+  };
   const renderDiscountItem = (singleItem: any) => {
     // console.log('singleItem', singleItem)
     let discountAmount = 0;
-    if(singleItem?.discount_items && singleItem?.discount_items.length > 0) {
-      singleItem?.discount_items.forEach((discount:any) => {
-        discountAmount = discountAmount + discount.amount
+    if (singleItem?.discount_items && singleItem?.discount_items.length > 0) {
+      singleItem?.discount_items.forEach((discount: any) => {
+        discountAmount = discountAmount + discount.amount;
       });
     }
     return formatCurrency(discountAmount);
   };
-	let result = "";
-	if (data) {
-		let dataJson = JSON.parse(data);
+  let result = "";
+  if (data) {
+    let dataJson = JSON.parse(data);
     // console.log('dataJson', dataJson)
-		result = `
+    result = `
 		<span style="color:red">Thông tin đơn hàng: </span><br/> 
 		- Nhân viên: ${dataJson?.created_name || "-"}<br/>
 		- Trạng thái : ${dataJson?.status_after || "-"}<br/>
 		- Nguồn : ${dataJson?.source || "-"}<br/>
 		- Cửa hàng : ${dataJson?.store || "-"}<br/>
 		- Địa chỉ cửa hàng : ${dataJson?.store_full_address}<br/>
-		- Thời gian: ${dataJson?.updated_date ? moment(dataJson?.updated_date).format(dateFormat) : "-"}<br/>
+		- Thời gian: ${
+      dataJson?.updated_date
+        ? moment(dataJson?.updated_date).format(dateFormat)
+        : "-"
+    }<br/>
 		- Ghi chú nội bộ: ${dataJson?.note || "-"} <br/>
 		- Ghi chú của khách: ${dataJson?.customer_note || "-"} <br/>
 		<br/>
 		<span style="color:red">Sản phẩm: </span><br/> 
 		${dataJson?.items
-			.map((singleItem: any, index: any) => {
-				return `
+      .map((singleItem: any, index: any) => {
+        return `
 		- Sản phẩm ${index + 1}: ${singleItem?.variant} <br/>
 			+ Đơn giá: ${formatCurrency(singleItem?.price)} <br/>
 			+ Số lượng: ${singleItem?.quantity} <br/>
@@ -1437,67 +1519,86 @@ export const convertActionLogDetailToText = (data?: string, dateFormat: string =
 			+ Chiết khấu sản phẩm: ${renderDiscountItem(singleItem)} <br/>
 			+ Thành tiền: ${formatCurrency(singleItem?.amount)} <br/>
 			`;
-			})
-			.join("<br/>")}
+      })
+      .join("<br/>")}
 		<br/>
 		<span style="color:red">Phiếu đóng gói: </span><br/> 
 		- Địa chỉ giao hàng: ${renderAddress(dataJson)} <br/>
 		- Địa chỉ nhận hóa đơn: ${renderAddress(dataJson)} <br/>
 		- Phương thức giao hàng: ${renderShipmentMethod(dataJson)} <br/>
-		- Trạng thái: ${dataJson?.fulfillments ? dataJson?.fulfillments[0]?.status : "-"} <br/>
+		- Trạng thái: ${
+      dataJson?.fulfillments ? dataJson?.fulfillments[0]?.status : "-"
+    } <br/>
 		<br/>
 		<span style="color:red">Thanh toán: </span><br/>  
 		${
-			(!(dataJson?.payments?.length > 0))
-				? `- Chưa thanh toán`
-				: dataJson?.payments && dataJson?.payments
-						.map((singlePayment: any, index: number) => {
-							return `
-							- ${singlePayment?.payment_method}: ${formatCurrency(singlePayment?.paid_amount)} 
+      !(dataJson?.payments?.length > 0)
+        ? `- Chưa thanh toán`
+        : dataJson?.payments &&
+          dataJson?.payments
+            .map((singlePayment: any, index: number) => {
+              return `
+							- ${singlePayment?.payment_method}: ${formatCurrency(
+                singlePayment?.paid_amount,
+              )} 
 						`;
-						})
-						.join("<br/>")
-		}
+            })
+            .join("<br/>")
+    }
 		`;
-	}
-	return result;
+  }
+  return result;
 };
 
-export const reCalculatePaymentReturn = (payments: OrderPaymentRequest[], totalAmountCustomerNeedToPay: number, listPaymentMethod: PaymentMethodResponse[]) => {
+export const reCalculatePaymentReturn = (
+  payments: OrderPaymentRequest[],
+  totalAmountCustomerNeedToPay: number,
+  listPaymentMethod: PaymentMethodResponse[],
+) => {
   if (totalAmountCustomerNeedToPay < 0) {
     let returnAmount = Math.abs(totalAmountCustomerNeedToPay);
     let _payments = cloneDeep(payments);
-    let paymentCashIndex = _payments.findIndex(payment => payment.payment_method_code === PaymentMethodCode.CASH);
+    let paymentCashIndex = _payments.findIndex(
+      (payment) => payment.payment_method_code === PaymentMethodCode.CASH,
+    );
     if (paymentCashIndex > -1) {
-      _payments[paymentCashIndex].paid_amount = payments[paymentCashIndex].amount;
-      _payments[paymentCashIndex].amount = payments[paymentCashIndex].paid_amount - returnAmount;
+      _payments[paymentCashIndex].paid_amount =
+        payments[paymentCashIndex].amount;
+      _payments[paymentCashIndex].amount =
+        payments[paymentCashIndex].paid_amount - returnAmount;
       _payments[paymentCashIndex].return_amount = returnAmount;
     } else {
       let newPaymentCash: OrderPaymentRequest | undefined = undefined;
       newPaymentCash = {
         code: PaymentMethodCode.CASH,
         payment_method_code: PaymentMethodCode.CASH,
-        payment_method_id: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.id || 0,
+        payment_method_id:
+          listPaymentMethod.find(
+            (single) => single.code === PaymentMethodCode.CASH,
+          )?.id || 0,
         amount: -returnAmount,
         paid_amount: 0,
         return_amount: returnAmount,
         status: "",
-        payment_method: listPaymentMethod.find(single => single.code === PaymentMethodCode.CASH)?.name || "",
-        reference: '',
-        source: '',
+        payment_method:
+          listPaymentMethod.find(
+            (single) => single.code === PaymentMethodCode.CASH,
+          )?.name || "",
+        reference: "",
+        source: "",
         customer_id: 1,
-        note: '',
-        type: '',
+        note: "",
+        type: "",
       };
-      _payments.push(newPaymentCash)
+      _payments.push(newPaymentCash);
     }
     return _payments;
   }
   return payments;
 };
 
-export const isFetchApiSuccessful = (response:BaseResponse<any>) => {
-	if(response){
+export const isFetchApiSuccessful = (response: BaseResponse<any>) => {
+  if (response) {
     switch (response?.code) {
       case HttpStatus.SUCCESS:
         return true;
@@ -1508,58 +1609,71 @@ export const isFetchApiSuccessful = (response:BaseResponse<any>) => {
   return false;
 };
 
-export function handleFetchApiError(response: BaseResponse<any>, textApiInformation: string, dispatch: any) {
-  if(response){
+export function handleFetchApiError(
+  response: BaseResponse<any>,
+  textApiInformation: string,
+  dispatch: any,
+) {
+  if (response) {
     switch (response.code) {
       case HttpStatus.UNAUTHORIZED:
         dispatch(unauthorizedAction());
         break;
       default:
-        if(response?.message) {
+        if (response?.message) {
           showError(`${textApiInformation}: ${response?.message}`);
         }
-        if(response?.errors && response?.errors.length > 0) {
-          response?.errors?.forEach((e:any) => showError(e));
+        if (response?.errors && response?.errors.length > 0) {
+          response?.errors?.forEach((e: any) => showError(e));
         }
         break;
     }
   }
 }
 
-export async function sortSources(orderSources: SourceResponse[], departmentIds: number[] | null) {
-	let result = orderSources;
-	let departmentSources:SourceResponse[] = [];
-	if(departmentIds && departmentIds.length > 0) {
+export async function sortSources(
+  orderSources: SourceResponse[],
+  departmentIds: number[] | null,
+) {
+  let result = orderSources;
+  let departmentSources: SourceResponse[] = [];
+  if (departmentIds && departmentIds.length > 0) {
     const query = {
       department_ids: departmentIds,
       active: true,
-    }
+    };
     try {
       let response = await getSourcesWithParamsService(query);
-      if(response.data.items) {
+      if (response.data.items) {
         for (const item of response.data.items) {
-          let index = departmentSources.findIndex(single => single.id ===item.id);
-          if(index === -1) {
-            departmentSources.push(item)
+          let index = departmentSources.findIndex(
+            (single) => single.id === item.id,
+          );
+          if (index === -1) {
+            departmentSources.push(item);
           }
         }
       }
-
     } catch (error) {
-      console.log('error', error)
+      console.log("error", error);
     }
-	}
-	if(departmentSources.length > 0) {
-		result = [...departmentSources]
-	}
-	return result;
+  }
+  if (departmentSources.length > 0) {
+    result = [...departmentSources];
+  }
+  return result;
 }
 
-export const isOrderFromPOS = (OrderDetail: OrderModel|OrderResponse | null|undefined) => {
-	if(OrderDetail?.channel_id === POS.channel_id || OrderDetail?.source_code === POS.source_code) {
-		return true;
-	}
-	return false;
+export const isOrderFromPOS = (
+  OrderDetail: OrderModel | OrderResponse | null | undefined,
+) => {
+  if (
+    OrderDetail?.channel_id === POS.channel_id ||
+    OrderDetail?.source_code === POS.source_code
+  ) {
+    return true;
+  }
+  return false;
 };
 
 /**
@@ -1568,31 +1682,36 @@ export const isOrderFromPOS = (OrderDetail: OrderModel|OrderResponse | null|unde
  * length: số kí tự muốn hiển thị
  * lastLength: số kí tự cuối muốn hiện thị
  */
-export const splitEllipsis=(value:string,length:number,lastLength:number):string=>{
+export const splitEllipsis = (
+  value: string,
+  length: number,
+  lastLength: number,
+): string => {
+  if (value.length <= length) return value;
+  let strLength = value.length - (value.length - length + 7); // tổng số kí tự cần lấy
 
-  if(value.length<=length)
-    return value;
-  let strLength=value.length-(value.length-length+7);// tổng số kí tự cần lấy
-
-  let strFirst = value.substring(0,strLength - lastLength);//lấy kí tự đầu
-  let strLast=value.substring(value.length-lastLength,value.length);//lấy kí tự cuối
+  let strFirst = value.substring(0, strLength - lastLength); //lấy kí tự đầu
+  let strLast = value.substring(value.length - lastLength, value.length); //lấy kí tự cuối
 
   return `${strFirst} [...] ${strLast}`;
 };
 
-
 export const trimText = (text?: string) => {
-  if(!text) return
-  return text.replace(/(\s)+/g, '')
-}
+  if (!text) return;
+  return text.replace(/(\s)+/g, "");
+};
 
-export const sortFulfillments = (fulfillments: FulFillmentResponse[] | null | undefined) => {
-  if(!fulfillments) {
-    return []
+export const sortFulfillments = (
+  fulfillments: FulFillmentResponse[] | null | undefined,
+) => {
+  if (!fulfillments) {
+    return [];
   }
   // lấy ffm có shipment, ko phải ffm ẩn rồi so sánh
-  return fulfillments.filter(single =>single.shipment).sort((a, b) =>(b.id - a.id));
-}
+  return fulfillments
+    .filter((single) => single.shipment)
+    .sort((a, b) => b.id - a.id);
+};
 
 export const goToTopPage = () => {
   window.scrollTo(0, 0);
@@ -1600,7 +1719,7 @@ export const goToTopPage = () => {
 
 export const formatFieldTag = (
   params: { [key: string]: any },
-  fieldMapping?: any
+  fieldMapping?: any,
 ): BaseFilterTag[] => {
   const transformParams = transformParamsToArray(params);
   let formatted: BaseFilterTag[] = [];
@@ -1608,41 +1727,41 @@ export const formatFieldTag = (
   transformParams.forEach((item: any, i: number) => {
     for (let keyItem in item) {
       Object.keys(params).forEach((key: any, index) => {
-        if(keyItem === "page" || keyItem === "limit") return
+        if (keyItem === "page" || keyItem === "limit") return;
         if (keyItem === key) {
           formatted.push({
             id: i,
             keyId: key,
             keyName: fieldMapping && fieldMapping[key],
             valueId: item[key],
-            valueName: null
+            valueName: null,
           });
         }
       });
     }
   });
-  return sortBy(formatted, 'keyName');
+  return sortBy(formatted, "keyName");
 };
 
 export const transformParamsToArray = (params: { [key: string]: any }) => {
-  let newParams: any = []
+  let newParams: any = [];
   Object.keys(params).forEach((key: any, index) => {
-    if(params[key] && !_.isEmpty(params[key])) {
-      newParams.push({[key]: params && params[key]})
+    if (params[key] && !_.isEmpty(params[key])) {
+      newParams.push({ [key]: params && params[key] });
     }
-  })
-  return newParams
-}
+  });
+  return newParams;
+};
 
 export const transformParamsToObject = (arrays: BaseFilterTag[]) => {
-  return arrays.reduce(function(result: any, item: BaseFilterTag) {
+  return arrays.reduce(function (result: any, item: BaseFilterTag) {
     result[item.keyId] = item.valueId;
     return result;
   }, {});
-}
+};
 /**
-   * check cấu hình đơn hàng để tính phí ship báo khách
-   */
+ * check cấu hình đơn hàng để tính phí ship báo khách
+ */
 export const handleCalculateShippingFeeApplyOrderSetting = (
   customerShippingAddressCityId: number | null | undefined = -999,
   orderPrice: number = 0,
@@ -1652,19 +1771,21 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   setShippingFeeInformedToCustomer?: (value: number) => void,
   isApplyAll = true,
 ) => {
-
-  if(!transportService && !isApplyAll) {
+  if (!transportService && !isApplyAll) {
     return;
   }
 
-  if(!isApplyAll) {
-    if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice=== undefined) {
-      form?.setFieldsValue({shipping_fee_informed_to_customer: 0});
+  if (!isApplyAll) {
+    if (
+      !shippingServiceConfig ||
+      !customerShippingAddressCityId ||
+      orderPrice === undefined
+    ) {
+      form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
       setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
-      showSuccess("Cập nhật phí ship báo khách thành công!")
+      showSuccess("Cập nhật phí ship báo khách thành công!");
       return;
     }
-
   }
   //check thời gian
   const checkIfIsInTimePeriod = (startDate: any, endDate: any) => {
@@ -1677,10 +1798,10 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   // check dịch vụ
   const checkIfListServicesContainSingle = (
     listServices: any[],
-    singleService: string | null | undefined
+    singleService: string | null | undefined,
   ) => {
-    if(!singleService) {
-      return false
+    if (!singleService) {
+      return false;
     }
     let result = false;
     let checkCondition = listServices.some((single) => {
@@ -1695,7 +1816,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   // check tỉnh giao hàng ( config -1 là tất cả tỉnh thành)
   const checkIfSameCity = (
     configShippingAddressCityId: number,
-    customerShippingAddressCityId: number
+    customerShippingAddressCityId: number,
   ) => {
     if (configShippingAddressCityId === -1) {
       return true;
@@ -1704,43 +1825,57 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   };
 
   // check giá
-  const checkIfPrice = (orderPrice: number, fromPrice: number, toPrice: number) => {
+  const checkIfPrice = (
+    orderPrice: number,
+    fromPrice: number,
+    toPrice: number,
+  ) => {
     return fromPrice <= orderPrice && orderPrice <= toPrice;
   };
 
   // filter thời gian, active
-  const filteredShippingServiceConfig = shippingServiceConfig.filter((single) => {
-    if(isApplyAll) {
-      return checkIfIsInTimePeriod(single.start_date, single.end_date) &&
-      single.status === ORDER_SETTINGS_STATUS.active
-    }
-    return (
-      checkIfIsInTimePeriod(single.start_date, single.end_date) &&
-      single.status === ORDER_SETTINGS_STATUS.active &&
-      single.transport_types &&
-      checkIfListServicesContainSingle(
-        single.transport_types,
-        transportService
-      )
-    );
-  });
+  const filteredShippingServiceConfig = shippingServiceConfig.filter(
+    (single) => {
+      if (isApplyAll) {
+        return (
+          checkIfIsInTimePeriod(single.start_date, single.end_date) &&
+          single.status === ORDER_SETTINGS_STATUS.active
+        );
+      }
+      return (
+        checkIfIsInTimePeriod(single.start_date, single.end_date) &&
+        single.status === ORDER_SETTINGS_STATUS.active &&
+        single.transport_types &&
+        checkIfListServicesContainSingle(
+          single.transport_types,
+          transportService,
+        )
+      );
+    },
+  );
 
   // filter city
   let listCheckedShippingFeeConfig = [];
   if (filteredShippingServiceConfig) {
     for (const singleOnTimeShippingServiceConfig of filteredShippingServiceConfig) {
       const checkedShippingFeeConfig =
-        singleOnTimeShippingServiceConfig.shipping_fee_configs.filter((single) => {
-          if(isApplyAll) {
+        singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
+          (single) => {
+            if (isApplyAll) {
+              return checkIfPrice(
+                orderPrice,
+                single.from_price,
+                single.to_price,
+              );
+            }
             return (
-              checkIfPrice(orderPrice, single.from_price, single.to_price)
+              checkIfSameCity(
+                single.city_id,
+                customerShippingAddressCityId || -999,
+              ) && checkIfPrice(orderPrice, single.from_price, single.to_price)
             );
-          }
-          return (
-            checkIfSameCity(single.city_id, customerShippingAddressCityId || -999) &&
-            checkIfPrice(orderPrice, single.from_price, single.to_price)
-          );
-        });
+          },
+        );
       listCheckedShippingFeeConfig.push(checkedShippingFeeConfig);
     }
   }
@@ -1748,9 +1883,8 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   // console.log('listCheckedShippingFeeConfig', listCheckedShippingFeeConfig)
 
   const listCheckedShippingFeeConfigFlatten = flattenArray(
-    listCheckedShippingFeeConfig
+    listCheckedShippingFeeConfig,
   );
-
 
   // lấy số nhỏ nhất
   if (
@@ -1763,9 +1897,10 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
         result = single.transport_fee;
       }
     });
-    form?.setFieldsValue({shipping_fee_informed_to_customer: result});
-    setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(result);
-    showSuccess("Cập nhật phí ship báo khách thành công!")
+    form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
+    setShippingFeeInformedToCustomer &&
+      setShippingFeeInformedToCustomer(result);
+    showSuccess("Cập nhật phí ship báo khách thành công!");
   }
 };
 
@@ -1773,22 +1908,36 @@ export const getCustomerShippingAddress = (customer: CustomerResponse) => {
   return customer.shipping_addresses.find((item) => item.default);
 };
 
-export const isOrderFinishedOrCancel = (orderDetail: OrderResponse | null | undefined) => {
-  return  orderDetail?.status === OrderStatus.FINISHED ||
-   orderDetail?.status === OrderStatus.COMPLETED ||
-   orderDetail?.status === OrderStatus.CANCELLED
+export const isOrderFinishedOrCancel = (
+  orderDetail: OrderResponse | null | undefined,
+) => {
+  return (
+    orderDetail?.status === OrderStatus.FINISHED ||
+    orderDetail?.status === OrderStatus.COMPLETED ||
+    orderDetail?.status === OrderStatus.CANCELLED
+  );
 };
 
-export const copyTextToClipboard = (e: any, data: string | null | undefined) => {
+export const copyTextToClipboard = (
+  e: any,
+  data: string | null | undefined,
+) => {
   e.stopPropagation();
   navigator.clipboard?.writeText(data ? data : "").then(() => {});
 };
 
-export const isOrderFromSaleChannel = (orderDetail: OrderResponse | OrderModel | null | undefined) => {
-  if(!orderDetail || !orderDetail?.channel_id) {
+export const isOrderFromSaleChannel = (
+  orderDetail: OrderResponse | OrderModel | null | undefined,
+) => {
+  if (!orderDetail || !orderDetail?.channel_id) {
     return false;
   }
-  const SALE_CHANNEL_SOURCE = [SHOPEE.channel_id, TIKI.channel_id, LAZADA.channel_id, SENDO.channel_id];
+  const SALE_CHANNEL_SOURCE = [
+    SHOPEE.channel_id,
+    TIKI.channel_id,
+    LAZADA.channel_id,
+    SENDO.channel_id,
+  ];
   return SALE_CHANNEL_SOURCE.includes(orderDetail?.channel_id);
 };
 
@@ -1811,13 +1960,17 @@ const handleIfOrderStatusPickAtStore = (sub_status_code: string) => {
   // changeSubStatusCode(sub_status_code);
 };
 
-const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: FulFillmentResponse[]) => {
+const handleIfOrderStatusOther = (
+  sub_status_code: string,
+  sortedFulfillments: FulFillmentResponse[],
+) => {
   let isChange = true;
   switch (sub_status_code) {
     case ORDER_SUB_STATUS.awaiting_saler_confirmation: {
       if (
         !sortedFulfillments[0]?.shipment ||
-        (sortedFulfillments[0]?.status && checkIfFulfillmentCancelled(sortedFulfillments[0]))
+        (sortedFulfillments[0]?.status &&
+          checkIfFulfillmentCancelled(sortedFulfillments[0]))
       ) {
         isChange = true;
       } else {
@@ -1828,7 +1981,8 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
     }
     case ORDER_SUB_STATUS.coordinator_confirmed: {
       if (
-        (sortedFulfillments[0]?.status && checkIfFulfillmentCancelled(sortedFulfillments[0])) ||
+        (sortedFulfillments[0]?.status &&
+          checkIfFulfillmentCancelled(sortedFulfillments[0])) ||
         !sortedFulfillments[0]?.shipment
       ) {
         isChange = false;
@@ -1839,7 +1993,9 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
       break;
     }
     case ORDER_SUB_STATUS.fourHour_delivery: {
-      if (sortedFulfillments[0]?.shipment?.service !== SHIPPING_TYPE.DELIVERY_4H) {
+      if (
+        sortedFulfillments[0]?.shipment?.service !== SHIPPING_TYPE.DELIVERY_4H
+      ) {
         isChange = false;
         showError("Chưa chọn giao hàng 4h!");
       } else {
@@ -1853,15 +2009,22 @@ const handleIfOrderStatusOther = (sub_status_code: string, sortedFulfillments: F
   return isChange;
 };
 
-export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | OrderResponse |null, sub_status_code: string) => {
-  if(isOrderFromSaleChannel(orderDetail)) {
+export const getValidateChangeOrderSubStatus = (
+  orderDetail: OrderModel | OrderResponse | null,
+  sub_status_code: string,
+) => {
+  if (isOrderFromSaleChannel(orderDetail)) {
     return true;
   }
-  if(!orderDetail) {
+  if (!orderDetail) {
     return false;
   }
   let isChange = true;
-  const sortedFulfillments = orderDetail?.fulfillments ? sortFulfillments(orderDetail?.fulfillments).filter((single) => single.status && !checkIfFulfillmentCancelled(single)) : [];
+  const sortedFulfillments = orderDetail?.fulfillments
+    ? sortFulfillments(orderDetail?.fulfillments).filter(
+        (single) => single.status && !checkIfFulfillmentCancelled(single),
+      )
+    : [];
   switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
     // giao hàng hvc, tự giao hàng
     case ShipmentMethod.EXTERNAL_SERVICE:
@@ -1879,11 +2042,11 @@ export const getValidateChangeOrderSubStatus = (orderDetail: OrderModel | OrderR
   if (isChange) {
     isChange = handleIfOrderStatusOther(sub_status_code, sortedFulfillments);
   }
-  return isChange
+  return isChange;
 };
 
-export const convertFromStringToDate = (pDate: any, fomat:string) => {
-  let date: Moment|null = null;
+export const convertFromStringToDate = (pDate: any, fomat: string) => {
+  let date: Moment | null = null;
 
   if (pDate) {
     if (!moment(pDate).isValid()) {
@@ -1898,27 +2061,29 @@ export const convertFromStringToDate = (pDate: any, fomat:string) => {
       dd = (parseInt(dd) + 1).toString();
 
       date = moment(new Date(yyyy, mm, dd)).utc(true);
-    }
-    else
-      date = moment(pDate, 'DD-MM-YYYY').utc(true);
+    } else date = moment(pDate, "DD-MM-YYYY").utc(true);
   }
 
   return date;
-}
+};
 
 export const removeSpaceBeforeAndAfterWord = (text: string) => {
-  return text.split(" ").map(single => single.trim()).filter(single => single).join(" ")
+  return text
+    .split(" ")
+    .map((single) => single.trim())
+    .filter((single) => single)
+    .join(" ");
 };
 
 export const replaceLast = (text: string, textShort: string) => {
-  textShort = removeSpaceBeforeAndAfterWord((textShort));
-  text = removeSpaceBeforeAndAfterWord((text));
+  textShort = removeSpaceBeforeAndAfterWord(textShort);
+  text = removeSpaceBeforeAndAfterWord(text);
   // console.log('textShort', textShort)
   // console.log('text', text)
-  let index = (text).lastIndexOf((textShort));
+  let index = text.lastIndexOf(textShort);
   // console.log('index', index);
-  let result = text
-  if(index > -1) {
+  let result = text;
+  if (index > -1) {
     let deleteText = text.substring(index, index + textShort.length);
     // console.log('deleteText', deleteText);
     result = text.replace(deleteText, "");
@@ -1927,28 +2092,48 @@ export const replaceLast = (text: string, textShort: string) => {
 };
 
 export const convertStringDistrictWithoutLine = (text: string) => {
-  return text.toLowerCase().replace("tỉnh", "").replaceAll("đường", "").replaceAll("thị xã", "").replaceAll("xã", "").replaceAll("phường", "").replace("quận", "").replaceAll(".", "").replaceAll("-", " ").replaceAll(",", " ").normalize("NFD")
-  .replace(/[\u0300-\u036f]/g, "")
-  .replace(/đ/g, "d")
-  .replace(/Đ/g, "D")
-  .replace("huyen", "")
-  .replace("thanh pho", "")
-  .replace("thi tran", "")
-  .replace("thi xa", "")
-  .replace("tp", "")
-  .replace("p.", "")
-  .replace("hcm", "ho chi minh")
-  .replace("hn", "ha noi")
+  return text
+    .toLowerCase()
+    .replace("tỉnh", "")
+    .replaceAll("đường", "")
+    .replaceAll("thị xã", "")
+    .replaceAll("xã", "")
+    .replaceAll("phường", "")
+    .replace("quận", "")
+    .replaceAll(".", "")
+    .replaceAll("-", " ")
+    .replaceAll(",", " ")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/đ/g, "d")
+    .replace(/Đ/g, "D")
+    .replace("huyen", "")
+    .replace("thanh pho", "")
+    .replace("thi tran", "")
+    .replace("thi xa", "")
+    .replace("tp", "")
+    .replace("p.", "")
+    .replace("hcm", "ho chi minh")
+    .replace("hn", "ha noi");
 };
-
 
 export const convertStringDistrict = (text: string) => {
-  return convertStringDistrictWithoutLine(text).replaceAll("-", " ").replace(/\s\s+/g, ' ')
+  return convertStringDistrictWithoutLine(text)
+    .replaceAll("-", " ")
+    .replace(/\s\s+/g, " ");
 };
 
-export const findWard = (district: string | null, newWards: any[],  newValue: string) => {
-  let districtConvert = district ? convertStringDistrictWithoutLine(district).toLowerCase().replace("tỉnh ", "").normalize("NFD")
-  : "";
+export const findWard = (
+  district: string | null,
+  newWards: any[],
+  newValue: string,
+) => {
+  let districtConvert = district
+    ? convertStringDistrictWithoutLine(district)
+        .toLowerCase()
+        .replace("tỉnh ", "")
+        .normalize("NFD")
+    : "";
   // console.log('districtConvert', districtConvert);
   let districtArr = districtConvert.split("-");
   // console.log('districtArr', districtArr);
@@ -1960,64 +2145,82 @@ export const findWard = (district: string | null, newWards: any[],  newValue: st
   // }
   let valueResult = convertStringDistrict(newValue);
   // console.log('valueResult', valueResult)
-  districtArr.forEach(district => {
+  districtArr.forEach((district) => {
     // console.log('district', district)
     // console.log('valueResult', valueResult)
     // valueResult = valueResult.replace(district.trim(), "");
     // valueResult = replaceLast(valueResult, convertStringDistrict(district));
     // phân cách bằng dấu cách, valueResult thêm dấu cách để chính xác
-    convertStringDistrict(district).split(" ").forEach((single) => {
-      // nếu có dấu cách thì bỏ qua
-      if(!single.trim()) {
-        return
-      }
-      // console.log('single', single)
-      // valueResult =" "+ valueResult+" ";
-      // console.log('single', single)
-      // valueResult = valueResult.replace(" " +single.trim() + " ", "");
-      let splitArr = valueResult.split(" ");
-      let duplicateIndex = splitArr.findIndex(aa => single.trim() === (aa.trim()));
-      // console.log('duplicateIndex', duplicateIndex)
-      if(duplicateIndex > - 1) {
-        splitArr.splice(duplicateIndex, 1)
-        // console.log('valueResult', valueResult)
-        valueResult = splitArr.join(" ");
-      }
-    });
-  })
+    convertStringDistrict(district)
+      .split(" ")
+      .forEach((single) => {
+        // nếu có dấu cách thì bỏ qua
+        if (!single.trim()) {
+          return;
+        }
+        // console.log('single', single)
+        // valueResult =" "+ valueResult+" ";
+        // console.log('single', single)
+        // valueResult = valueResult.replace(" " +single.trim() + " ", "");
+        let splitArr = valueResult.split(" ");
+        let duplicateIndex = splitArr.findIndex(
+          (aa) => single.trim() === aa.trim(),
+        );
+        // console.log('duplicateIndex', duplicateIndex)
+        if (duplicateIndex > -1) {
+          splitArr.splice(duplicateIndex, 1);
+          // console.log('valueResult', valueResult)
+          valueResult = splitArr.join(" ");
+        }
+      });
+  });
   // tìm array có index lớn nhất
   // console.log('valueResult', valueResult)
-  const findWard = newWards.filter((ward: any) => {
-    const valueResultArr:any[] = convertStringDistrict(valueResult).split(" ").filter(single => single);
-    // console.log('valueResultArr', valueResultArr)
-    const wardNameArr:any[] = convertStringDistrict(ward.name).split(" ").filter(x => x);
-    // console.log('wardNameArr', wardNameArr)
-    return !wardNameArr.some(single => !valueResultArr.includes(single))
-  }).reverse()[0];
+  const findWard = newWards
+    .filter((ward: any) => {
+      const valueResultArr: any[] = convertStringDistrict(valueResult)
+        .split(" ")
+        .filter((single) => single);
+      // console.log('valueResultArr', valueResultArr)
+      const wardNameArr: any[] = convertStringDistrict(ward.name)
+        .split(" ")
+        .filter((x) => x);
+      // console.log('wardNameArr', wardNameArr)
+      return !wardNameArr.some((single) => !valueResultArr.includes(single));
+    })
+    .reverse()[0];
   return findWard;
 };
 
 export const handleFindArea = (value: string, newAreas: any) => {
-  const newValue = convertStringDistrict(value)
-    // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
-    const findArea = newAreas.filter((area: any) => {
-      // replace quận trong list danh sách tỉnh huyện có sẵn
-      const districtString = convertStringDistrict(area.name).replace("dao ", "");
-       // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao:
-      // test Thị xã Phú Mỹ, bà rịa vũng tàu
-      // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
-      const cityString = convertStringDistrict(area.city_name);
-      // console.log('cityString', cityString)
-      // console.log('districtString', districtString);
-      return newValue.indexOf(cityString) > -1 && (newValue.indexOf(districtString) > -1 && newValue.replace(cityString, "").indexOf(districtString) > -1)
-    });
-    // console.log('findArea1111', findArea)
-    let result = findArea.reverse()[0];
+  const newValue = convertStringDistrict(value);
+  // khi tìm xong tỉnh thì xóa ký tự đó để tìm huyện
+  const findArea = newAreas.filter((area: any) => {
+    // replace quận trong list danh sách tỉnh huyện có sẵn
+    const districtString = convertStringDistrict(area.name).replace("dao ", "");
+    // tp thì xóa dấu cách thừa, tỉnh thì ko-chưa biết sao:
+    // test Thị xã Phú Mỹ, bà rịa vũng tàu
+    // test khu một thị trấn lam Sơn huyện thọ Xuân tỉnh thanh hoá
+    const cityString = convertStringDistrict(area.city_name);
+    // console.log('cityString', cityString)
+    // console.log('districtString', districtString);
+    return (
+      newValue.indexOf(cityString) > -1 &&
+      newValue.indexOf(districtString) > -1 &&
+      newValue.replace(cityString, "").indexOf(districtString) > -1
+    );
+  });
+  // console.log('findArea1111', findArea)
+  let result = findArea.reverse()[0];
 
-    return result
+  return result;
 };
 
-export const changeMetaDataAfterDelete = (metadata: BaseMetadata, setMetaData: (value: BaseMetadata) => void, removedCount: number) => {
+export const changeMetaDataAfterDelete = (
+  metadata: BaseMetadata,
+  setMetaData: (value: BaseMetadata) => void,
+  removedCount: number,
+) => {
   setMetaData({
     ...metadata,
     total: metadata.total - removedCount,
@@ -2032,19 +2235,25 @@ export const formatCurrencyInputValue = (a: string) => {
   return a;
 };
 
-export const checkIfOrderCanBeReturned = (orderDetail: OrderResponse | OrderModel) => {
-  return orderDetail.status === OrderStatus.FINISHED || orderDetail.status === OrderStatus.COMPLETED;
+export const checkIfOrderCanBeReturned = (
+  orderDetail: OrderResponse | OrderModel,
+) => {
+  return (
+    orderDetail.status === OrderStatus.FINISHED ||
+    orderDetail.status === OrderStatus.COMPLETED
+  );
 };
 
 export const removeMultiWhitespaceAndTrimText = (value: string) => {
-  return value.trim().replace(/\s\s+/g, ' ');
-}
+  return value.trim().replace(/\s\s+/g, " ");
+};
 
-  //https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+//https://stackoverflow.com/questions/10865025/merge-flatten-an-array-of-arrays
+// sao không dùng lodash nhỉ
 export const flattenArray = (arr: any) => {
   return arr.reduce(function (flat: any, toFlatten: any) {
     return flat.concat(
-      Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten
+      Array.isArray(toFlatten) ? flattenArray(toFlatten) : toFlatten,
     );
   }, []);
 };
@@ -2054,21 +2263,26 @@ export const flattenArray = (arr: any) => {
  * @param {string} stringNumber - the localized number
  * @param {string} locale - [optional] the locale that the number is represented in. Omit this parameter to use the current locale.
  */
- export function parseLocaleNumber(stringNumber: string, locale?: string) {
-  const thousandSeparator = Intl.NumberFormat(locale).format(11111).replace(/\p{Number}/gu, '');
-  const decimalSeparator = Intl.NumberFormat(locale).format(1.1).replace(/\p{Number}/gu, '');
+export function parseLocaleNumber(stringNumber: string, locale?: string) {
+  const thousandSeparator = Intl.NumberFormat(locale)
+    .format(11111)
+    .replace(/\p{Number}/gu, "");
+  const decimalSeparator = Intl.NumberFormat(locale)
+    .format(1.1)
+    .replace(/\p{Number}/gu, "");
 
-  return parseFloat(stringNumber
-      .replace(new RegExp('\\' + thousandSeparator, 'g'), '')
-      .replace(new RegExp('\\' + decimalSeparator), '.')
+  return parseFloat(
+    stringNumber
+      .replace(new RegExp("\\" + thousandSeparator, "g"), "")
+      .replace(new RegExp("\\" + decimalSeparator), "."),
   );
 }
 
 /*
-*Thêm item vào vị trí chỉ định
-*/
-export const insertCustomIndexArray = (arr: any, index: number, newItem: any) => [
-  ...arr.slice(0, index),
-  newItem,
-  ...arr.slice(index)
-]
+ *Thêm item vào vị trí chỉ định
+ */
+export const insertCustomIndexArray = (
+  arr: any,
+  index: number,
+  newItem: any,
+) => [...arr.slice(0, index), newItem, ...arr.slice(index)];
