@@ -22,7 +22,7 @@ import {
 } from "domain/actions/settings/order-settings.action";
 import { DeliverPartnerResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import { OrderLineItemRequest } from "model/request/order.request";
+import {OrderLineItemRequest, OrderPaymentRequest} from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { StoreCustomResponse } from "model/response/order/order.response";
 import {
@@ -33,7 +33,7 @@ import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getShippingAddressDefault, SumWeight} from "utils/AppUtils";
-import { ShipmentMethodOption } from "utils/Constants";
+import {PaymentMethodCode, ShipmentMethodOption} from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -48,6 +48,7 @@ type ShipmentButtonType = {
 
 type PropType = {
   shipmentMethod: number;
+  payments: OrderPaymentRequest[];
   orderPrice?: number;
   storeDetail: StoreCustomResponse | undefined;
   customer: CustomerResponse | null;
@@ -106,6 +107,7 @@ function OrderCreateShipment(props: PropType) {
     items,
     orderPrice,
     shipmentMethod,
+    payments,
     levelOrder = 0,
     totalAmountCustomerNeedToPay = 0,
     form,
@@ -152,25 +154,44 @@ function OrderCreateShipment(props: PropType) {
   const shipmentButton: Array<ShipmentButtonType> = [
     {
       name: "Hãng VC",
-      value: 1,
+      value: ShipmentMethodOption.DELIVER_PARTNER,
       icon: IconDelivery,
     },
     {
       name: "Tự giao hàng",
-      value: 2,
+      value: ShipmentMethodOption.SELF_DELIVER,
       icon: IconSelfDelivery,
     },
     {
       name: "Nhận tại CH",
-      value: 3,
+      value: ShipmentMethodOption.PICK_AT_STORE,
       icon: IconShoppingBag,
     },
     {
       name: "GH sau",
-      value: 4,
+      value: ShipmentMethodOption.DELIVER_LATER,
       icon: IconWallClock,
     },
   ];
+
+  /** Nếu chọn phương thức thanh toán MOMO thì disable các hình thức vận chuyển khác
+   * => Mặc định chọn Giao hàng sau
+   * */
+  const checkIfDisableSelectShipment = () => {
+    return (payments?.some(payment => {
+      return (payment.payment_method_code === PaymentMethodCode.MOMO && payment.paid_amount > 0);
+    }))
+  };
+
+  useEffect(() => {
+    const momoPayment = payments.find(payment => payment.payment_method_code === PaymentMethodCode.MOMO);
+    if (momoPayment && momoPayment.paid_amount > 0) {
+      ShipMethodOnChange(ShipmentMethodOption.DELIVER_LATER);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [payments]);
+  /** ----- */
+
 
   const renderShipmentTabHeader = () => {
     return (
@@ -181,6 +202,7 @@ function OrderCreateShipment(props: PropType) {
               <div
                 className="saleorder_shipment_button 2"
                 key={button.value}
+                style={checkIfDisableSelectShipment() ? { pointerEvents: "none" } : undefined}
                 onClick={() => levelOrder < 4 && ShipMethodOnChange(button.value)}>
                 <span>{button.name}</span>
               </div>
