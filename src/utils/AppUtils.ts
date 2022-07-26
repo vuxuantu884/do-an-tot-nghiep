@@ -1650,7 +1650,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   transportService: string | null | undefined,
   form: FormInstance<any>,
   setShippingFeeInformedToCustomer?: (value: number) => void,
-  isApplyAll = false,
+  isApplyAll = true,
 ) => {
 
   if(!transportService && !isApplyAll) {
