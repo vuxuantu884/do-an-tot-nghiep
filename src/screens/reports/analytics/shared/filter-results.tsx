@@ -29,7 +29,7 @@ type Props = {
 function FilterResults({ properties, form }: Props) {
   const [visible, setVisible] = useState(false);
   const dispatch = useDispatch();
-  const { cubeRef, metadata, activeFilters, setActiveFilters } = useContext(AnalyticsContext)
+  const { metadata, activeFilters, setActiveFilters, dataQuery } = useContext(AnalyticsContext)
   const [listFetchOptions, setListFetchOptions] = useState<any[]>([]);
   const [loadingInputs, setLoadingInputs] = useState<number[]>([]);
   const [additionalOptions, setAdditionalOptions] = useState<any>();
@@ -48,10 +48,10 @@ function FilterResults({ properties, form }: Props) {
 
     const timeRange = transformDateRangeToString(form.getFieldValue(ReportifyFormFields.timeRange))
 
-    if (metadata && !_.isEmpty(timeRange) && cubeRef.current) {
+    if (metadata && !_.isEmpty(timeRange) && dataQuery?.query.cube) {
       let firstAggregate = Object.keys(metadata.aggregates)[0]
 
-      const query = `SHOW ${firstAggregate} BY ${propertyField} FROM ${cubeRef.current} ` +
+      const query = `SHOW ${firstAggregate} BY ${propertyField} FROM ${dataQuery.query.cube} ` +
         (!fieldsTypeNumber.includes(propertyField) ? `WHERE ${propertyField} ${keySearch ? " == '~" + keySearch + "'" : " != '' "} ` : '') +
         `SINCE ${timeRange?.from} UNTIL ${timeRange?.to} ORDER BY ${propertyField} ASC`;
       const response: AnalyticDataQuery = await callApiNative({ isShowError: true }, dispatch, executeAnalyticsQueryService, { q: query });

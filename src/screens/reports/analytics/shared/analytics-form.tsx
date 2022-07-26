@@ -48,7 +48,7 @@ export const ReportifyFormFields = {
 const MAX_CHART_COLUMNS = 2 // SỐ LƯỢNG CỘT ĐƯỢC PHÉP HIỂN THỊ TRONG CHART
 
 function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
-    const { cubeRef, metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery, setRowsInQuery, permissionStores, setPermissionStores } = useContext(AnalyticsContext)
+    const { metadata, dataQuery, setDataQuery, chartDataQuery, chartColumnSelected, setChartColumnSelected, activeFilters, setActiveFilters, rowsInQuery, setRowsInQuery, permissionStores, setPermissionStores } = useContext(AnalyticsContext)
     const [loadingTable, setLoadingTable] = useState<boolean>(false);
     const [chartType, setChartType] = useState<ChartTypeValue>(ChartTypeValue.VerticalColumn);
 
@@ -387,11 +387,11 @@ function AnalyticsForm({ form, handleRQuery, mode, chartInfo }: Props) {
                 name="report-form-base">
                 <Card bodyStyle={{ paddingBottom: 8, paddingTop: 8 }} className="report-filter-wrapper">
                     <div className="group-report-type">
-                        {cubeRef && [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(cubeRef.current as AnalyticCube) && (
+                        {dataQuery?.query.cube && [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(dataQuery?.query.cube as AnalyticCube) && (
                             <Form.Item
                                 label="Ghi nhận theo"
                                 name={ReportifyFormFields.timeAtOption}
-                                hidden={AnalyticCube.OfflineSales === cubeRef.current}
+                                hidden={AnalyticCube.OfflineSales === dataQuery?.query.cube}
                                 labelCol={{ span: 24 }}
                                 help={false}
                                 className="input-width report-filter-item">

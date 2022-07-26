@@ -35,7 +35,7 @@ function CreateAnalytics() {
     let { id } = useParams<{ id: string }>();
 
     const [reportInfo, setReportInfo] = React.useState<AnalyticCustomize>({} as AnalyticCustomize);
-    const { cubeRef, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport, setLoadingChart, permissionViewReport, setPermissionViewReport, setPermissionStores } = useContext(AnalyticsContext)
+    const { setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setRowsInQuery, setActiveFilters, setChartColumnSelected, isMyReport, setIsMyReport, setLoadingChart, permissionViewReport, setPermissionViewReport, setPermissionStores } = useContext(AnalyticsContext)
     const [mode, setMode] = React.useState<SUBMIT_MODE>(SUBMIT_MODE.GET_DATA);
     const [isLoadingExport, setIsLoadingExport] = React.useState<boolean>(false);
     const [isModalEditNameVisible, setIsModalEditNameVisible] = React.useState<boolean>(false)
@@ -102,7 +102,7 @@ function CreateAnalytics() {
                     const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch,
                         saveAnalyticsCustomService, {
                         query: rQuery,
-                        group: cubeRef.current,
+                        group: params.cube,
                         name,
                         chart_query: chartQuery,
                         options: timeOptionAt
@@ -118,7 +118,7 @@ function CreateAnalytics() {
         }
 
         setMode(SUBMIT_MODE.GET_DATA);
-    }, [mode, dispatch, reportInfo, cubeRef, chartColumnSelected, history, id, form, formEditInfo, formCloneReport]);
+    }, [mode, dispatch, reportInfo, chartColumnSelected, history, id, form, formEditInfo, formCloneReport]);
 
     const handleSaveReport = () => {
         setMode(SUBMIT_MODE.SAVE_QUERY);
@@ -199,11 +199,10 @@ function CreateAnalytics() {
 
             formCloneReport.setFieldsValue({ name: `${report.name} nhân bản` })
 
-            cubeRef.current = report.group;
             const fullParams = [AnalyticCube.OfflineSales, AnalyticCube.Sales, AnalyticCube.Costs].includes(report.group as AnalyticCube) ? { q: report.query, options: report.options } : { q: report.query };
             const response = await callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, executeAnalyticsQueryService, fullParams);
             if (response) {
-                const { columns, rows, conditions, from, to, order_by: orderBy } = response.query;
+                const { columns, rows, conditions, from, to, order_by: orderBy, cube } = response.query;
                 const timeGroup = checkArrayHasAnyValue(rows || [], TIME_GROUP_BY.map(item => item.value));
 
                 const propertiesValue = getPropertiesValue(rows || [], response);
@@ -223,7 +222,7 @@ function CreateAnalytics() {
                     [ReportifyFormFields.column]: columns.map((item: any) => item.field),
                     [ReportifyFormFields.properties]: propertiesValue,
                     [ReportifyFormFields.timeRange]: [moment(from), moment(to)],
-                    [ReportifyFormFields.reportType]: cubeRef.current,
+                    [ReportifyFormFields.reportType]: cube,
                     [ReportifyFormFields.timeGroupBy]: timeGroup,
                     [ReportifyFormFields.where]: whereValue,
                     [ReportifyFormFields.orderBy]: orderBy,
@@ -271,7 +270,7 @@ function CreateAnalytics() {
                 })
             }
         }
-    }, [dispatch, id, allPermissions, setPermissionViewReport, username, formEditInfo, formCloneReport, cubeRef, setDataQuery, setIsMyReport, myStores, form, setMetadata, setPermissionStores, setRowsInQuery, setActiveFilters, setChartColumnSelected])
+    }, [dispatch, id, allPermissions, setPermissionViewReport, username, formEditInfo, formCloneReport, setDataQuery, setIsMyReport, myStores, form, setMetadata, setPermissionStores, setRowsInQuery, setActiveFilters, setChartColumnSelected])
 
     useEffect(() => {
 
@@ -336,7 +335,7 @@ function CreateAnalytics() {
                 breadcrumb={[
                     {
                         name: "Danh sách báo cáo tuỳ chỉnh",
-                        path: setReportsCustomizeUrl(cubeRef.current as AnalyticCube),
+                        path: setReportsCustomizeUrl(dataQuery?.query.cube as AnalyticCube),
                     },
                     {
                         name: reportInfo?.name || "Báo cáo tuỳ chỉnh",

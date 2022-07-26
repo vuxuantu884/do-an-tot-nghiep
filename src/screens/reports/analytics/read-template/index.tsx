@@ -42,15 +42,13 @@ function UpdateAnalytics() {
 
 
 
-    const { cubeRef, metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, setActiveFilters, setRowsInQuery, setLoadingChart } = useContext(AnalyticsContext)
+    const { metadata, setMetadata, setDataQuery, dataQuery, chartColumnSelected, setChartDataQuery, setChartColumnSelected, setActiveFilters, setRowsInQuery, setLoadingChart } = useContext(AnalyticsContext)
 
     const CURRENT_REPORT_TEMPLATE: AnalyticTemplateData = useMemo(() => {
         return REPORT_TEMPLATES.find((item) => item.id === templateId) || {} as AnalyticTemplateData;
     }, [templateId])
 
     const currentAnnotation: AnnotationData | undefined = AnnotationDataList.find((item) => item.cubes.includes(CURRENT_REPORT_TEMPLATE.cube as AnalyticCube));
-
-    cubeRef.current = CURRENT_REPORT_TEMPLATE.cube;
 
     const handleExportReport = () => {
         setIsLoadingExport(true);
