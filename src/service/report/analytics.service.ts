@@ -6,7 +6,13 @@ import { ApiConfig } from "config/api.config";
 import { AppConfig } from "config/app.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-import { AnalyticCustomize, AnalyticQueryMany, AnalyticTemplateParams } from "model/report/analytics.model";
+import {
+  AnalyticCustomize,
+  AnalyticQuery,
+  AnalyticQueryMany,
+  AnalyticTemplateParams,
+  MonthlyCounterParams,
+} from "model/report/analytics.model";
 import qs from "query-string";
 import { generateQuery } from "utils/AppUtils";
 import { removeSpacesAndEnterCharacters } from "utils/ReportUtils";
@@ -16,61 +22,72 @@ export const NO_SERVER_ERROR = "Báo cáo không có trên môi trường UAT";
 
 export const executeAnalyticsQueryService = (
   params: AnalyticTemplateParams,
-  config?: AxiosRequestConfig
-): Promise<BaseResponse<any>> => {
+  config?: AxiosRequestConfig,
+): Promise<BaseResponse<AnalyticQuery>> => {
   if (isUat) {
     return Promise.reject(new Error(NO_SERVER_ERROR));
   }
   params.q = removeSpacesAndEnterCharacters(params.q);
-  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/query`, { params, ...config });
+  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/query`, {
+    params,
+    ...config,
+  });
 };
 
 export const executeManyAnalyticsQueryService = (
   params: AnalyticQueryMany,
-  config?: AxiosRequestConfig
+  config?: AxiosRequestConfig,
 ): Promise<BaseResponse<any>> => {
   if (isUat) {
     return Promise.reject(new Error(NO_SERVER_ERROR));
   }
   const { q } = params;
   if (Array.isArray(q) && q.length > 0) {
-    q.forEach(item => {
+    q.forEach((item) => {
       item = removeSpacesAndEnterCharacters(item);
     });
   }
-  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/queries`, { params, ...config });
+  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/queries`, {
+    params,
+    ...config,
+  });
 };
 
 export const getCustomerVisitors = (
-  params: { month: number, year: number, storeIds?: number[] },
-  config?: AxiosRequestConfig
+  params: { month: number; year: number; storeIds?: number[] },
+  config?: AxiosRequestConfig,
 ): Promise<BaseResponse<any>> => {
   const { month, year, storeIds } = params;
   if (storeIds?.length) {
     let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`;
     storeIds.forEach((id, index) => {
       endpoint += `&storeId.in[${index}]=${id}`;
-    })
+    });
     return BaseAxiosApi.get(endpoint, { ...config });
   } else {
-    return BaseAxiosApi.get(`${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`, { ...config });
+    return BaseAxiosApi.get(
+      `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`,
+      { ...config },
+    );
   }
 };
 
 export const updateCustomerVisitors = (
-  params: any
+  params: any,
 ): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.post(`${ApiConfig.CUSTOMER_VISITORS}`, params);
 };
 
 export const getAnalyticsMetadataService = (
-  params: AnalyticTemplateParams
+  params: AnalyticTemplateParams,
 ): Promise<BaseResponse<any>> => {
   params.q = removeSpacesAndEnterCharacters(params.q);
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/metadata`, { params });
 };
 
-export const getAnalyticsCustomByIdService = (id: number): Promise<BaseResponse<any>> => {
+export const getAnalyticsCustomByIdService = (
+  id: number,
+): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/${id}`);
 };
 
@@ -86,28 +103,41 @@ export const getAnalyticsCustomByService = (params?: {
 };
 
 export const saveAnalyticsCustomService = (
-  params: AnalyticCustomize
+  params: AnalyticCustomize,
 ): Promise<BaseResponse<any>> => {
   params.query = removeSpacesAndEnterCharacters(params.query);
-  params.chart_query = params.chart_query ? removeSpacesAndEnterCharacters(params.chart_query) : undefined;
+  params.chart_query = params.chart_query
+    ? removeSpacesAndEnterCharacters(params.chart_query)
+    : undefined;
   return BaseAxiosApi.post(`${ApiConfig.ANALYTICS}`, params);
 };
 
 export const updateAnalyticsCustomService = (
   id: number,
-  params: Partial<AnalyticCustomize>
+  params: Partial<AnalyticCustomize>,
 ): Promise<BaseResponse<any>> => {
-  params.query = params.query ? removeSpacesAndEnterCharacters(params.query) : undefined;
+  params.query = params.query
+    ? removeSpacesAndEnterCharacters(params.query)
+    : undefined;
   return BaseAxiosApi.put(`${ApiConfig.ANALYTICS}/${id}`, params);
 };
 
-export const deleteAnalyticsCustomService = (id: number): Promise<BaseResponse<any>> => {
+export const deleteAnalyticsCustomService = (
+  id: number,
+): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.delete(`${ApiConfig.ANALYTICS}/${id}`);
 };
 
-export const searchVariantsSimpleService = (
-  query: { skus?: string, store_ids?: string | null }
-): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
-  const queryString = generateQuery(query);  
+export const searchVariantsSimpleService = (query: {
+  skus?: string;
+  store_ids?: string | null;
+}): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
+  const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/simple?${queryString}`);
+};
+
+export const onlineCounterService = (
+  params: MonthlyCounterParams,
+): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.post(`/monthly-counters`, params);
 };

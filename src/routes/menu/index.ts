@@ -1,38 +1,46 @@
-import UrlConfig from 'config/url.config';
+import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
-import React from 'react';
-import bill from './bill.route';
+import React from "react";
+import bill from "./bill.route";
 import customers from "./customer.route";
 import ecommerce from "./ecommerce.route";
 import { inventory } from "./inventory.route";
-import product from './product.route';
-import promotion from './promotion.route';
+import product from "./product.route";
+import promotion from "./promotion.route";
 // import { AdminPermission } from 'config/permissions/admin.permission';
-import setting from './setting.route';
+import setting from "./setting.route";
 import shipments from "./shipment.route";
 import reports from "./reports.route";
-import { ODERS_PERMISSIONS } from 'config/permissions/order.permission';
-import offlineOrdersRoute from './offline-orders.route';
+import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import offlineOrdersRoute from "./offline-orders.route";
 import webAppRoute from "./web-app.route";
-import warrantyRoute from './warranty.route';
-import supplierRoutes from './supplier.route';
+import warrantyRoute from "./warranty.route";
+import supplierRoutes from "./supplier.route";
 
-const Dashboard = React.lazy(() => import ("screens/dashboard"));
-const Product = React.lazy(() => import ("screens/products/product/ProductSearchScreen"));
-const OrderOnline = React.lazy(() => import ("screens/order-online/order.screen"));
-const PosOrders = React.lazy(() => import ("screens/order-online/orders/offline-orders.screen"));
-const Customer = React.lazy(() => import ("screens/customer"));
-const EcommerceConfig = React.lazy(() => import ("screens/ecommerce/config"));
-const WebAppOrdersSync = React.lazy(() => import ("screens/web-app/orders-sync/WebAppOrdersSync"));
-const ListTicket = React.lazy(() => import ("screens/inventory/ListTicket"));
-const YDpage = React.lazy(() => import ("screens/YDpage/YDpage"));
+const Dashboard = React.lazy(() => import("screens/dashboard"));
+const Product = React.lazy(
+  () => import("screens/products/product/ProductSearchScreen"),
+);
+const OrderOnline = React.lazy(
+  () => import("screens/order-online/order.screen"),
+);
+const PosOrders = React.lazy(
+  () => import("screens/order-online/orders/offline-orders.screen"),
+);
+const Customer = React.lazy(() => import("screens/customer"));
+const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
+const WebAppOrdersSync = React.lazy(
+  () => import("screens/web-app/orders-sync/WebAppOrdersSync"),
+);
+const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
+const YDpage = React.lazy(() => import("screens/YDpage/YDpage"));
 
 const menu: Array<RouteMenu> = [
   {
     path: UrlConfig.HOME,
     exact: true,
     title: "Tổng quan",
-    icon: 'icon-dashboard',
+    icon: "icon-dashboard",
     component: Dashboard,
     key: "1",
     isShow: true,
@@ -43,19 +51,18 @@ const menu: Array<RouteMenu> = [
     path: "/products",
     exact: true,
     title: "Sản phẩm",
-    icon: 'icon-product',
+    icon: "icon-product",
     component: Product,
     key: "2",
     isShow: true,
     header: null,
     subMenu: product,
-
   },
   {
     path: "/inventory-transfers",
     exact: true,
     title: "Kho hàng",
-    icon: 'icon-inventory',
+    icon: "icon-inventory",
     component: ListTicket,
     key: "3",
     isShow: true,
@@ -66,7 +73,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.SUPPLIERS,
     exact: true,
     title: "Nhà cung cấp",
-    icon: 'icon-supplier',
+    icon: "icon-supplier",
     component: null,
     key: UrlConfig.SUPPLIERS,
     isShow: true,
@@ -77,7 +84,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.ORDER,
     exact: true,
     title: "Đơn hàng online",
-    icon: 'icon-order',
+    icon: "icon-order",
     component: OrderOnline,
     key: "5",
     isShow: true,
@@ -88,7 +95,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.OFFLINE_ORDERS,
     exact: true,
     title: "Bán lẻ offline",
-    icon: 'icon-offline-order',
+    icon: "icon-offline-order",
     component: PosOrders,
     key: "ban-le",
     isShow: true,
@@ -99,7 +106,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.SHIPMENTS,
     exact: true,
     title: "Vận chuyển",
-    icon: 'icon-transport',
+    icon: "icon-transport",
     component: null,
     key: "19",
     isShow: true,
@@ -110,7 +117,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.CUSTOMER,
     exact: true,
     title: "Khách hàng",
-    icon: 'icon-customer',
+    icon: "icon-customer",
     component: Customer,
     key: "6",
     isShow: true,
@@ -121,7 +128,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.PROMOTION,
     exact: true,
     title: "Khuyến mại",
-    icon: 'icon-promotion',
+    icon: "icon-promotion",
     component: null,
     key: "7",
     isShow: true,
@@ -132,7 +139,7 @@ const menu: Array<RouteMenu> = [
     path: "/reports",
     exact: true,
     title: "Báo cáo",
-    icon: 'icon-report',
+    icon: "icon-report",
     component: null,
     key: "9",
     isShow: true,
@@ -143,7 +150,7 @@ const menu: Array<RouteMenu> = [
     path: "/pos",
     exact: true,
     title: "Bán tại quầy",
-    icon: 'icon-sale',
+    icon: "icon-sale",
     component: null,
     key: "4",
     isShow: false,
@@ -155,7 +162,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.YDPAGE,
     exact: true,
     title: "Kênh social",
-    icon: 'icon-YDpage',
+    icon: "icon-YDpage",
     component: YDpage,
     key: "YDpage",
     isShow: true,
@@ -166,7 +173,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.ECOMMERCE,
     exact: true,
     title: "Sàn TMĐT",
-    icon: 'icon-ecommerce',
+    icon: "icon-ecommerce",
     component: EcommerceConfig,
     key: "8",
     isShow: true,
@@ -177,7 +184,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.WEB_APP,
     exact: true,
     title: "Web/App",
-    icon: 'icon-web-app',
+    icon: "icon-web-app",
     component: WebAppOrdersSync,
     key: "web_app",
     isShow: true,
@@ -188,7 +195,7 @@ const menu: Array<RouteMenu> = [
     path: UrlConfig.WARRANTY,
     exact: true,
     title: "Bảo hành",
-    icon: 'icon-warranty',
+    icon: "icon-warranty",
     component: null,
     key: "warranty",
     isShow: true,
@@ -199,13 +206,13 @@ const menu: Array<RouteMenu> = [
     path: "/setting",
     exact: true,
     title: "Cài đặt",
-    icon: 'icon-setting',
+    icon: "icon-setting",
     component: null,
     key: "10",
     isShow: true,
     header: null,
     subMenu: setting,
   },
-]
+];
 
-export default menu; 
+export default menu;
