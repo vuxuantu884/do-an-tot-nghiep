@@ -196,7 +196,15 @@ export const PRODUCT_TOTAL_SALES_DAY_QUERY: AnalyticSampleQuery = {
     ],
     rows: ["variant_sku3_group", "pos_location_department_lv2"],
     cube: AnalyticCube.Costs,
-    conditions: [["pos_location_department_lv2", "IN", "" , "'ASM Đỗ Quang Hiếu','ASM Dương Sơn Tùng','ASM Nguyễn Văn Ánh'", ""]],
+    conditions: [
+      [
+        "pos_location_department_lv2",
+        "IN",
+        "",
+        "'ASM Đỗ Quang Hiếu','ASM Dương Sơn Tùng','ASM Nguyễn Văn Ánh'",
+        "",
+      ],
+    ],
     from: TODAY,
     to: TODAY,
   },
@@ -212,9 +220,85 @@ export const PRODUCT_TOTAL_SALES_MONTH_QUERY: AnalyticSampleQuery = {
     ],
     rows: ["variant_sku3_group", "pos_location_department_lv2"],
     cube: AnalyticCube.Costs,
-    conditions: [["pos_location_department_lv2", "IN", "" , "'ASM Đỗ Quang Hiếu','ASM Dương Sơn Tùng','ASM Nguyễn Văn Ánh'", ""]],
+    conditions: [
+      [
+        "pos_location_department_lv2",
+        "IN",
+        "",
+        "'ASM Đỗ Quang Hiếu','ASM Dương Sơn Tùng','ASM Nguyễn Văn Ánh'",
+        "",
+      ],
+    ],
     from: START_OF_MONTH,
     to: YESTERDAY,
   },
   options: `time:"completed_at"`,
+};
+
+export const STORES_PRODUCT_TOTAL_SALES_DAY_QUERY = (
+  asmName: string,
+  stores: string[],
+) => {
+  console.log("dsadsa", ...stores.map((store) => `'${store}'`));
+
+  return {
+    query: {
+      columns: [
+        {
+          field: "total_sales",
+        },
+      ],
+      rows: ["variant_sku3_group", "pos_location_name"],
+      cube: AnalyticCube.Costs,
+      conditions: [
+        ["pos_location_department_lv2", "IN", "", `'${asmName}'`, ""],
+        ["variant_sku3_group", "!==", ""],
+        [
+          "pos_location_name",
+          "IN",
+          "",
+          ...stores.map((store, index) => {
+            return index === stores.length - 1 ? `'${store}'` : `'${store}',`;
+          }),
+          "",
+        ],
+      ],
+      from: TODAY,
+      to: TODAY,
+    },
+    options: `time:"completed_at"`,
+  };
+};
+
+export const STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY = (
+  asmName: string,
+  stores: string[],
+) => {
+  return {
+    query: {
+      columns: [
+        {
+          field: "total_sales",
+        },
+      ],
+      rows: ["variant_sku3_group", "pos_location_name"],
+      cube: AnalyticCube.Costs,
+      conditions: [
+        ["pos_location_department_lv2", "IN", "", `'${asmName}'`, ""],
+        ["variant_sku3_group", "!==", ""],
+        [
+          "pos_location_name",
+          "IN",
+          "",
+          ...stores.map((store, index) => {
+            return index === stores.length - 1 ? `'${store}'` : `'${store}',`;
+          }),
+          "",
+        ],
+      ],
+      from: START_OF_MONTH,
+      to: YESTERDAY,
+    },
+    options: `time:"completed_at"`,
+  };
 };

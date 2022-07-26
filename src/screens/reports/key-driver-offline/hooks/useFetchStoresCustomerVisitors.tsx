@@ -5,32 +5,41 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKDCustomerVisitors } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { calculateTargetMonth, findKeyDriver, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import {
+  calculateTargetMonth,
+  findKeyDriver,
+  nonAccentVietnameseKD,
+} from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
 function useFetchStoresCustomerVisitors() {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm } = useContext(KDOfflineStoresContext);
+  const { setData, selectedStores, selectedAsm } = useContext(
+    KDOfflineStoresContext,
+  );
 
-  const [isFetchingStoresCustomerVisitors, setIsFetchingStoresCustomerVisitors] = useState<
-    boolean | undefined
-  >();
+  const [
+    isFetchingStoresCustomerVisitors,
+    setIsFetchingStoresCustomerVisitors,
+  ] = useState<boolean | undefined>();
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, asmData: any, columnKey: string) => {
       let visitors: any = [];
       findKeyDriver(data, KeyDriverField.Visitors, visitors);
       visitors = visitors[0];
-      const asmName = nonAccentVietnameseKD(asmData['pos_location_name']);
+      const asmName = nonAccentVietnameseKD(asmData["pos_location_name"]);
       if (asmName) {
         visitors[`${asmName}_${columnKey}`] = asmData.value;
-        if (columnKey === 'accumulatedMonth') {
-          visitors[`${asmName}_targetMonth`] = calculateTargetMonth(visitors[`${asmName}_accumulatedMonth`]);
+        if (columnKey === "accumulatedMonth") {
+          visitors[`${asmName}_targetMonth`] = calculateTargetMonth(
+            visitors[`${asmName}_accumulatedMonth`],
+          );
         }
       }
     },
-    []
+    [],
   );
 
   const refetchStoresCustomerVisitors = useCallback(() => {
@@ -39,19 +48,32 @@ function useFetchStoresCustomerVisitors() {
         return;
       }
       setIsFetchingStoresCustomerVisitors(true);
-      const dayApi = callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
-        from: TODAY,
-        to: TODAY,
-        posLocationNames: selectedStores,
-        departmentLv2s: selectedAsm,
-      });
+      const dayApi = callApiNative(
+        { notifyAction: "SHOW_ALL" },
+        dispatch,
+        getKDCustomerVisitors,
+        {
+          from: TODAY,
+          to: TODAY,
+          posLocationNames: selectedStores,
+          departmentLv2s: selectedAsm,
+        },
+      );
 
-      const monthApi = (moment().date() > 1) ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDCustomerVisitors, {
-        from: START_OF_MONTH,
-        to: YESTERDAY,
-        posLocationNames: selectedStores,
-        departmentLv2s: selectedAsm,
-      }) : Promise.resolve(0);
+      const monthApi =
+        moment().date() > 1
+          ? callApiNative(
+              { notifyAction: "SHOW_ALL" },
+              dispatch,
+              getKDCustomerVisitors,
+              {
+                from: START_OF_MONTH,
+                to: YESTERDAY,
+                posLocationNames: selectedStores,
+                departmentLv2s: selectedAsm,
+              },
+            )
+          : Promise.resolve(0);
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
         if (!resDay) {
@@ -66,9 +88,10 @@ function useFetchStoresCustomerVisitors() {
           setData((prev: any) => {
             let dataPrev: any = prev[0];
             resDay.forEach((item: any) => {
-              findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
+              findKeyDriverAndUpdateValue(prev[0], item, "actualDay");
             });
-            return [dataPrev];
+            prev[0] = dataPrev;
+            return [...prev];
           });
           setIsFetchingStoresCustomerVisitors(false);
           return;
@@ -77,18 +100,25 @@ function useFetchStoresCustomerVisitors() {
         setData((prev: any) => {
           let dataPrev: any = prev[0];
           resDay.forEach((item: any) => {
-            findKeyDriverAndUpdateValue(dataPrev, item, 'actualDay');
+            findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
           });
           resMonth.forEach((item: any) => {
-            findKeyDriverAndUpdateValue(dataPrev, item, 'accumulatedMonth');
+            findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
           });
-          return [dataPrev];
+          prev[0] = dataPrev;
+          return [...prev];
         });
       });
       setIsFetchingStoresCustomerVisitors(false);
     };
     fetchStoresCustomerVisitors();
-  }, [dispatch, findKeyDriverAndUpdateValue, selectedAsm, selectedStores, setData]);
+  }, [
+    dispatch,
+    findKeyDriverAndUpdateValue,
+    selectedAsm,
+    selectedStores,
+    setData,
+  ]);
 
   useEffect(() => {
     refetchStoresCustomerVisitors();
