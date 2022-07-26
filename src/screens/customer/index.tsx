@@ -22,7 +22,7 @@ import {
 } from "domain/actions/customer/customer.action";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { StoreResponse } from "model/core/store.model";
-import { StoreGetListAction } from "domain/actions/core/store.action";
+import { getListAllStoresSimpleAction } from "domain/actions/core/store.action";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
@@ -451,7 +451,7 @@ const Customer = () => {
 
   React.useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
-    dispatch(StoreGetListAction(setStore));
+    dispatch(getListAllStoresSimpleAction(setStore));
     dispatch(CustomerGroups(setGroups));
     dispatch(CustomerTypes(setTypes));
     dispatch(getListChannelRequest(setListChannel));

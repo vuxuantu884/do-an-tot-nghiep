@@ -4,6 +4,7 @@ import { StoreResponse } from "model/core/store.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { fullTextSearch } from "utils/StringUtils";
 import { SourceResponse } from "../../../../../model/response/order/source.response";
+import { TreeStoreStyle } from "../history-filter.style";
 interface Props extends TreeSelectProps<any> {
   form?: FormInstance;
   name: string;
@@ -111,7 +112,8 @@ const TreeStore = (props: Props) => {
   }, [listStore]);
 
   return (
-    <TreeSelect
+    <TreeStoreStyle>
+      <TreeSelect
       showArrow
       placeholder={placeholder}
       treeDefaultExpandAll
@@ -185,7 +187,14 @@ const TreeStore = (props: Props) => {
                   <TreeSelect.TreeNode
                     key={storeItem[1][0].code}
                     value={storeItem[1][0].id}
-                    title={storeItem[1][0].name}
+                    title=
+                    {
+                      <span 
+                       className={storeItem.status === "inactive" ? 'store-closed' : ''}
+                      >
+                        {storeItem[1][0].name}
+                      </span>
+                    }
                   />
                 ) : (
                   <TreeSelect.TreeNode
@@ -209,9 +218,15 @@ const TreeStore = (props: Props) => {
         );
       })}
       {noDepartmentStores?.map((storeItem: StoreResponse) => (
-        <TreeSelect.TreeNode key={storeItem.code} value={storeItem.id} title={storeItem.name} />
+        <TreeSelect.TreeNode 
+          key={storeItem.code} 
+          value={storeItem.id} 
+          title={storeItem.name}
+          className={storeItem.status === "inactive" ? 'store-closed' : ''}
+        />
       ))}
-    </TreeSelect>
+      </TreeSelect>
+    </TreeStoreStyle>
   );
 };
 TreeStore.defaultProps = {
