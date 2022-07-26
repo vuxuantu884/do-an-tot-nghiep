@@ -73,6 +73,7 @@ function KeyDriverOnline() {
   const query = new URLSearchParams(useLocation().search);
   const department = query.get("department");
   const shop = query.get("shop");
+  const targetDay = query.get("day");
 
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
@@ -228,7 +229,11 @@ function KeyDriverOnline() {
                   onFocus={handleFocusInput}
                   onPressEnter={(e: any) => {
                     const value = parseLocaleNumber(e.target.value);
-                    const day = moment().date();
+                    let newTargetDay = Number(targetDay);
+                    const day =
+                      newTargetDay && newTargetDay > 0 && newTargetDay <= 31
+                        ? newTargetDay
+                        : moment().date();
                     saveMonthTargetKeyDriver(
                       { [`day_${day}`]: value },
                       record,
