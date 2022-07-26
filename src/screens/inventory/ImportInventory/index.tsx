@@ -41,6 +41,7 @@ import MyStoreSelect from "component/custom/select-search/my-store-select";
 import { strForSearch } from "utils/StringUtils";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import { ImportResponse } from "../../../model/other/files/export-model";
+import { InventoryType } from "../../../domain/types/inventory.type";
 
 const { Option } = Select;
 const { Text } = Typography;
@@ -453,6 +454,12 @@ const UpdateTicket: FC = () => {
                 disabled={!!dataUploadError || data?.status !== 'FINISH'}
                 type="primary"
                 onClick={() => {
+                  dispatch({
+                    type: InventoryType.CHANGE_IS_CONTINUE_CREATE_IMPORT,
+                    payload: {
+                      isContinueCreateImport: true
+                    }
+                  });
                   history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
                     data: data.data,
                     isFastCreate: true

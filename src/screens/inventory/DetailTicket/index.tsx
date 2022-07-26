@@ -79,6 +79,7 @@ import useAuthorization from "hook/useAuthorization";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import * as XLSX from "xlsx";
 import moment from "moment";
+import { InventoryType } from "../../../domain/types/inventory.type";
 
 export interface InventoryParams {
   id: string;
@@ -1058,6 +1059,18 @@ const DetailTicket: FC = () => {
 
     setIsVisibleModalReceiveWarning(true)
   }
+
+  useEffect(() => {
+    window.addEventListener('popstate', () => {
+      dispatch({
+        type: InventoryType.CHANGE_IS_CONTINUE_CREATE_IMPORT,
+        payload: {
+          isContinueCreateImport: false
+        }
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <StyledWrapper>
