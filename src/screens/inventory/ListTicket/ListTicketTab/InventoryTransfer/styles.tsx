@@ -3,19 +3,28 @@ import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
 
 export const BG_COLOR_TAG = {
   TRANSFERRING: {
-    color: '#FCAF17'
+    color: '#FCAF17',
+    background: '#FFFAF0',
   },
   CONFIRM: {
-    color: '#666666'
+    color: '#666666',
+    background: '#fffff',
+  },
+  REQUESTED: {
+    color: '#666666',
+    background: '#fffff',
   },
   PENDING: {
-    color: '#FCAF17'
+    color: '#FCAF17',
+    background: '#FFFAF0',
   },
   RECEIVED: {
-    color: '#27AE60'
+    color: '#27AE60',
+    background: '#F0FCF5'
   },
   CANCELED: {
-    color: '#E24343'
+    color: '#E24343',
+    background: 'rgba(226, 67, 67, 0.1)'
   },
 }
 

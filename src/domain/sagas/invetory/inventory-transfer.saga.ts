@@ -34,13 +34,14 @@ import {
   exportShipmentInventoryTransfer,
   exportMultipleInventoryTransfer,
   cancelMultipleInventoryTransfer,
-  createInventoryTransferRequest, acceptInventoryTransfer,
+  createInventoryTransferRequest, acceptInventoryTransfer, selfTransportMultipleInventoryTransfer,
 } from "service/inventory/transfer/index.service";
 import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
 import { VariantStore } from "model/inventory/variant";
 import { VariantResponse } from "model/product/product.model";
 import { FeesResponse } from "model/response/order/order.response";
+import { callApiSaga } from "utils/ApiUtils";
 
 function* inventoryGetListSaga(action: YodyAction) {
   let { queryParams, onResult } = action.payload;
@@ -582,6 +583,12 @@ function* exportMultipleTransferSaga(action: YodyAction) {
   }
 }
 
+function* selfTransportMultipleTransferSaga(action: YodyAction) {
+  let { data, onResult } = action.payload;
+
+  yield callApiSaga({ isShowError: true }, onResult, selfTransportMultipleInventoryTransfer, data);
+}
+
 function* cancelMultipleTransferSaga(action: YodyAction) {
   let { data, onResult } = action.payload;
 
@@ -638,6 +645,7 @@ export function* inventoryTransferSaga() {
   yield takeLatest(InventoryType.ACCEPT_INVENTORY, acceptInventoryTransferSaga);
   yield takeLatest(InventoryType.EXPORT_INVENTORY, exportShipmentInventoryTransferSaga);
   yield takeLatest(InventoryType.EXPORT_MULTIPLE_INVENTORY, exportMultipleTransferSaga);
+  yield takeLatest(InventoryType.SELF_TRANSPORT_MULTIPLE_INVENTORY, selfTransportMultipleTransferSaga);
   yield takeLatest(InventoryType.CANCEL_MULTIPLE_TICKET_TRANSFER, cancelMultipleTransferSaga);
   yield takeLatest(InventoryType.CREATE_INVENTORY_TRANSFER_SHIPMENT, createInventoryTransferShipmentSaga);
   yield takeLatest(InventoryType.ADJUSTMENT_INVENTORY, adjustmentInventorySaga);

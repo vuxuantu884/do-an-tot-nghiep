@@ -1,13 +1,4 @@
-import {
-  Button,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-  Tag,
-} from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 
 import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
@@ -47,17 +38,25 @@ const ACTIONS_STATUS_ARRAY = [
     name: 'Huỷ phiếu chuyển kho',
   },
   {
-    value: 'CONFIRM_EXCEPTION',
-    name: 'Nhập lại tồn chênh lệch',
+    value: "CONFIRM_EXCEPTION",
+    name: "Nhập lại tồn chênh lệch",
   },
   {
-    value: 'EXPORT_SHIPMENT',
-    name: 'Xuất hàng khỏi kho',
+    value: "EXPORT_SHIPMENT",
+    name: "Xuất hàng khỏi kho",
   },
   {
-    value: 'RECEIVE',
-    name: 'Nhận hàng',
-  }
+    value: "RECEIVE",
+    name: "Nhận hàng",
+  },
+  {
+    value: "CREATE_SHIPMENT",
+    name: "Tạo đơn vận chuyển",
+  },
+  {
+    value: "DELETE_SHIPMENT",
+    name: "Hủy đơn vận chuyển",
+  },
 ];
 
 type InventoryFilterProps = {
