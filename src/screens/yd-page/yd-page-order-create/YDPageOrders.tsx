@@ -217,13 +217,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
-    _promotion?: OrderDiscountRequest | null
+    _promotion?: OrderDiscountRequest | null,
   ) => {
     setItems(_items);
     let amount = totalAmount(_items);
     setOrderAmount(amount);
     if (_promotion !== undefined) {
       setPromotion(_promotion);
+    } else {
+      setPromotion(null)
     }
   };
 
@@ -859,6 +861,9 @@ export default function Order(props: OrdersCreatePermissionProps) {
               }
               if (response?.discounts && response?.discounts[0]) {
                 setPromotion(response?.discounts[0]);
+                if(response.discounts[0].discount_code) {
+                  setCoupon(response.discounts[0].discount_code)
+                }
               }
               let newDatingShip = initialForm.dating_ship;
               let newShipperCode = initialForm.shipper_code;
