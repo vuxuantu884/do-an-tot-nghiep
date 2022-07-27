@@ -30,6 +30,7 @@ let initialRequest: ColorCreateRequest = {
   name: "",
   hex_code: null,
   image_id: null,
+  status: "active",
 };
 const { Option } = Select;
 const ColorCreateScreen: React.FC = () => {
@@ -53,7 +54,7 @@ const ColorCreateScreen: React.FC = () => {
       }
       setLoadingSaveButton(false);
     },
-    [history]
+    [history],
   );
 
   const onFinish = useCallback(
@@ -61,8 +62,8 @@ const ColorCreateScreen: React.FC = () => {
       setLoadingSaveButton(true);
       dispatch(colorCreateAction(values, createCallback));
     },
-    [dispatch, createCallback]
-  ); 
+    [dispatch, createCallback],
+  );
 
   useEffect(() => {
     dispatch(getColorAction({ is_main_color: 1 }, setSelector));
@@ -108,6 +109,7 @@ const ColorCreateScreen: React.FC = () => {
               md={24}
               lg={4}
             >
+              <Form.Item name="status" hidden></Form.Item>
               <Form.Item name="image_id" noStyle>
                 <ColorUpload />
               </Form.Item>
@@ -179,15 +181,19 @@ const ColorCreateScreen: React.FC = () => {
               </Row>
             </Col>
           </Row>
-        </Card> 
+        </Card>
         <BottomBarContainer
           back={"Quay lại danh sách"}
           rightComponent={
-             <Button loading={loadingSaveButton} htmlType="submit" type="primary">
-               Tạo màu sắc
-             </Button>
+            <Button
+              loading={loadingSaveButton}
+              htmlType="submit"
+              type="primary"
+            >
+              Tạo màu sắc
+            </Button>
           }
-        /> 
+        />
       </Form>
     </ContentContainer>
   );

@@ -7,11 +7,18 @@ import {
   Input,
   Row,
   Select,
+  Switch,
 } from "antd";
 import { ColorResponse, ColorUpdateRequest } from "model/product/color.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import React, { createRef, useCallback, useEffect, useState } from "react";
-import { useDispatch } from "react-redux";
+import React, {
+  createRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import {
   colorDetailAction,
@@ -28,6 +35,7 @@ import { CompareObject } from "utils/CompareObject";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { showSuccess } from "utils/ToastUtils";
 import { RegUtil } from "utils/RegUtils";
+import { RootReducerType } from "model/reducers/RootReducerType";
 
 const { Option } = Select;
 type ColorParams = {
@@ -52,19 +60,22 @@ const ColorUpdateScreen: React.FC = () => {
   const formRef = createRef<FormInstance>();
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
-  }); 
+  });
+  const productStatusList = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_status,
+  );
 
   const onSuccess = useCallback(() => {
     history.push(UrlConfig.COLORS);
-    showSuccess('Sửa màu sắc thành công');
+    showSuccess("Sửa màu sắc thành công");
   }, [history]);
 
   const onFinish = useCallback(
     (values: ColorUpdateRequest) => {
       dispatch(colorUpdateAction(idNumber, values, onSuccess));
     },
-    [dispatch, idNumber, onSuccess]
-  ); 
+    [dispatch, idNumber, onSuccess],
+  );
 
   const getColorCallback = useCallback((result: ColorResponse | false) => {
     // setLoadingData(false);
@@ -76,22 +87,21 @@ const ColorUpdateScreen: React.FC = () => {
     }
   }, []);
 
-  const backAction = ()=>{ 
-    if (!CompareObject(formRef.current?.getFieldsValue(),color)) {
+  const backAction = () => {
+    if (!CompareObject(formRef.current?.getFieldsValue(), color)) {
       setModalConfirm({
         visible: true,
         onCancel: () => {
-          setModalConfirm({visible: false});
+          setModalConfirm({ visible: false });
         },
-        onOk: () => { 
-          setModalConfirm({visible: false});
+        onOk: () => {
+          setModalConfirm({ visible: false });
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
-        subTitle:
-          "Sau khi quay lại thay đổi sẽ không được lưu.",
-      }); 
-    }else{
+        subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
+      });
+    } else {
       history.goBack();
     }
   };
@@ -104,6 +114,28 @@ const ColorUpdateScreen: React.FC = () => {
     }
     return () => {};
   }, [dispatch, getColorCallback, id]);
+
+  const statusValue = useMemo(() => {
+    if (!productStatusList) {
+      return "";
+    }
+    let index = productStatusList?.findIndex(
+      (item) => item.value === color?.status,
+    );
+    if (index !== -1) {
+      return productStatusList?.[index].name;
+    }
+    return "";
+  }, [productStatusList, color?.status]);
+
+  const onChangeStatus = useCallback(
+    (checked: boolean) => {
+      let status = checked ? "active" : "inactive";
+      formRef.current?.setFieldsValue({ status: status });
+      if (color) setColor({ ...color, status: status });
+    },
+    [color, formRef],
+  );
 
   return (
     <ContentContainer
@@ -191,6 +223,25 @@ const ColorUpdateScreen: React.FC = () => {
                       </Select>
                     </Form.Item>
                   </Col>
+                  <Col span={24} lg={8} md={12} sm={24}>
+                    <Form.Item name="status" label="Trạng thái">
+                      <Switch
+                        className="ant-switch-success"
+                        onChange={onChangeStatus}
+                        checked={color?.status === "active"}
+                      />
+                      <span
+                        style={{ paddingLeft: 8 }}
+                        className={
+                          color?.status === "active"
+                            ? "text-success"
+                            : "text-error"
+                        }
+                      >
+                        {statusValue}
+                      </span>
+                    </Form.Item>
+                  </Col>
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
@@ -207,33 +258,37 @@ const ColorUpdateScreen: React.FC = () => {
                     </Form.Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Form.Item name="hex_code" 
-                    label="Mã hex"
-                    rules={[
-                      {
-                        pattern: RegUtil.HEX_COLOR,
-                        message:
-                          "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
-                      },
-                    ]}>
+                    <Form.Item
+                      name="hex_code"
+                      label="Mã hex"
+                      rules={[
+                        {
+                          pattern: RegUtil.HEX_COLOR,
+                          message:
+                            "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
+                        },
+                      ]}
+                    >
                       <Input placeholder="Nhập mã hex" />
                     </Form.Item>
                   </Col>
                 </Row>
               </Col>
             </Row>
-          </Card> 
+          </Card>
           <BottomBarContainer
             back={"Quay lại danh sách"}
             backAction={backAction}
             rightComponent={
-              <AuthWrapper acceptPermissions={[ProductPermission.colors_update]}>
+              <AuthWrapper
+                acceptPermissions={[ProductPermission.colors_update]}
+              >
                 <Button htmlType="submit" type="primary">
                   Lưu lại
                 </Button>
-            </AuthWrapper>
+              </AuthWrapper>
             }
-          />    
+          />
         </Form>
       )}
       <ModalConfirm {...modalConfirm} />
