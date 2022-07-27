@@ -1,25 +1,34 @@
 import { CheckCircleOutlined, LoadingOutlined, PlusOutlined } from "@ant-design/icons";
-import { Button, Col, Divider, Form, FormInstance, message, Modal, Row, Space } from "antd";
+import {AutoComplete, Button, Col, Divider, Form, FormInstance, Input, message, Modal, Row, Space, Spin} from "antd";
 import Dragger from "antd/es/upload/Dragger";
 import { FormListFieldData, FormListOperation } from "antd/lib/form/FormList";
 import { PROMOTION_CDN } from "config/cdn/promotion.cdn";
 import { HttpStatus } from "config/http-status.config";
 import _ from "lodash";
-import { VariantResponse } from "model/product/product.model";
+import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
 import { EntilementFormModel, PriceRuleMethod, ProductEntitlements, VariantEntitlementsFileImport } from "model/promotion/price-rules.model";
-import React, { useContext, useRef, useState } from "react";
+import React, {createRef, useCallback, useContext, useEffect, useMemo, useRef, useState} from "react";
+import {useDispatch} from "react-redux";
 import { RiUpload2Line } from "react-icons/ri";
 import { VscError } from "react-icons/vsc";
 import { parseSelectVariantToTableData, shareDiscountImportedProduct } from "utils/PromotionUtils";
-import { showSuccess, showWarning } from "utils/ToastUtils";
+import {showError, showSuccess, showWarning} from "utils/ToastUtils";
 import importIcon from "../../../../assets/icon/import.svg";
 import { AppConfig } from "../../../../config/app.config";
 import { getToken } from "../../../../utils/LocalStorageUtils";
 import PickManyProductModal from "../../../purchase-order/modal/pick-many-product.modal";
 import { DiscountUnitType, newEntitlements } from "../../constants";
-import { ImportFileDiscountStyled } from "../discount-style";
+import {DiscountDetailListStyled, ImportFileDiscountStyled} from "../discount-style";
 import { DiscountContext } from "./discount-provider";
 import FixedAndQuantityGroup from "./fixed-quantity-group";
+import {
+  getPriceRuleVariantPaggingAction
+} from "domain/actions/promotion/discount/discount.action";
+import {PageResponse} from "model/base/base-metadata.response";
+import {RefSelectProps} from "antd/lib/select";
+import {searchVariantsOrderRequestAction} from "domain/actions/product/products.action";
+import {handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
+import search from "assets/img/search.svg";
 
 type UploadStatus = "error" | "success" | "done" | "uploading" | "removed" | undefined;
 enum EnumUploadStatus {
@@ -29,14 +38,22 @@ enum EnumUploadStatus {
   uploading = "uploading",
   removed = "removed",
 }
+const initQueryVariant: VariantSearchQuery = {
+  // limit: 10,
+  page: 1,
+  saleable: true,
+};
+
 interface Props {
   form: FormInstance;
-
+  idNumber?:number;
+  originalEntitlements?:any;
 }
 
 const GroupDiscountList = (props: Props) => {
   const token = getToken() || "";
-  const { form, } = props;
+  const { form, idNumber, originalEntitlements } = props;
+  const dispatch = useDispatch();
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [entitlementsImported, setEntitlementsImported] = useState<
     Array<VariantEntitlementsFileImport>
@@ -148,6 +165,197 @@ const GroupDiscountList = (props: Props) => {
 
   }
 
+  const getPriceRuleVariantDataCallback = useCallback((response) => {
+    if (response) {
+      const _entitlementList = response.items?.map((item: any) => {
+        return {
+          ...item.entitlement,
+          selectedProducts: [item]
+        };
+      })
+      form.setFieldsValue({ entitlements: _entitlementList });
+    }
+  },[form]);
+  
+  const getPriceRuleVariantData = useCallback((value) => {
+    if (value) {
+      const params = {
+        variant_sku: value,
+        page: 1,
+        limit: 30
+      }
+      if (idNumber) {
+        dispatch(getPriceRuleVariantPaggingAction(idNumber, params, getPriceRuleVariantDataCallback));
+      }
+    } else {
+      form.setFieldsValue({ entitlements: originalEntitlements });
+    }
+  },[
+    form,
+    dispatch,
+    idNumber,
+    getPriceRuleVariantDataCallback,
+    originalEntitlements
+  ]);
+
+  /** handle search product */
+  const [keySearchVariant, setKeySearchVariant] = useState("");
+  const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
+    metadata: {
+      limit: 0,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
+  const [isSearchingProducts, setIsSearchingProducts] = useState(false);
+
+  const autoCompleteRef = createRef<RefSelectProps>();
+
+  const handleSearchProduct = useCallback((value: string) => {
+    if (value.trim()) {
+      (async () => {
+        try {
+          await dispatch(
+            searchVariantsOrderRequestAction(initQueryVariant, (data) => {
+              setResultSearchVariant(data);
+              setIsSearchingProducts(false);
+              if (data.items.length === 0) {
+                showError("Không tìm thấy sản phẩm!")
+              }
+            }, () => {
+              setIsSearchingProducts(false);
+            })
+          );
+        } catch {
+          setIsSearchingProducts(false);
+        }
+      })();
+    } else {
+      setIsSearchingProducts(false);
+    }
+  }, [dispatch]);
+
+  const onChangeProductSearch = useCallback(
+    async (value: string) => {
+      initQueryVariant.info = value;
+      if (value.length >= 3) {
+        setIsSearchingProducts(true);
+        setResultSearchVariant({
+          ...resultSearchVariant,
+          items: []
+        })
+        handleSearchProduct(value);
+      } else {
+        setIsSearchingProducts(false);
+      }
+    },
+    [handleSearchProduct, resultSearchVariant]
+  );
+
+  const handleOnSearchProduct = useCallback((value: string) => {
+    setKeySearchVariant(value);
+    handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () =>
+      onChangeProductSearch(value)
+    );
+  }, [autoCompleteRef, onChangeProductSearch]);
+
+  const renderVariantLabelOption = (item: any) => {
+    return (
+      <div style={{ padding: "5px 10px" }}>
+        <div style={{ whiteSpace: "normal", lineHeight: "18px"}}>{item.name}</div>
+        <div style={{ color: '#95a1ac' }}>{item.sku}</div>
+      </div>
+    );
+  };
+
+  const renderVariantOptions = useMemo(() => {
+    let variantOptions: any[] = [];
+    let productOptions: any[] = [];
+    let productDataSearch: any[] = [];
+
+    resultSearchVariant.items.forEach((item: VariantResponse) => {
+      if (item.product) {
+        productDataSearch.push(item.product);
+      }
+      variantOptions.push({
+        label: renderVariantLabelOption(item),
+        value: item.name ? item.name.toString() : "",
+        sku: item.sku,
+      });
+    });
+
+    _.unionBy(productDataSearch, "id").forEach((item: any) => {
+      item.sku = item.code;
+      item.name = item.name + " (Sản phẩm cha)";
+      productOptions.push({
+        label: renderVariantLabelOption(item),
+        value: item.name ? item.name.toString() : "",
+        sku: item.sku,
+      });
+    });
+
+    return [...productOptions, ...variantOptions];
+  }, [resultSearchVariant]);
+
+  const onSearchVariantSelect = useCallback(
+    (v, variant) => {
+      setKeySearchVariant(variant.value);
+      autoCompleteRef.current?.blur();
+      getPriceRuleVariantData(variant.sku);
+    },
+    [autoCompleteRef, getPriceRuleVariantData]
+  );
+
+  const onClearVariantSelect = useCallback(
+    () => {
+      getPriceRuleVariantData("");
+    },
+    [getPriceRuleVariantData]
+  );
+  /** end handle search product */
+
+  /** handle scroll page */
+  const [isDropdownVisible, setIsDropdownVisible] = useState(false);
+
+  const setPageScroll = (overflowType: string) => {
+    let rootSelector: any = document.getElementById("root");
+    if (rootSelector) {
+      rootSelector.style.overflow = overflowType;
+    }
+  };
+
+  // nếu scroll trong dropdown thì ẩn scroll bên ngoài trang
+  const handleOnSelectPopupScroll = () => {
+    if (isDropdownVisible) {
+      setPageScroll("hidden");
+    }
+  };
+
+  const handleOnMouseLeaveSelect = () => {
+    setPageScroll("scroll");
+  };
+
+  const handleOnDropdownVisibleChange = (open: boolean) => {
+    setIsDropdownVisible(open);
+  };
+
+  const onInputSelectFocus = () => {
+    setIsDropdownVisible(true);
+  };
+
+  const onInputSelectBlur = () => {
+    setIsDropdownVisible(false);
+  };
+
+  useEffect(() => {
+    if (!isDropdownVisible) {
+      setPageScroll("scroll");
+    }
+  }, [isDropdownVisible]);
+  /** end handle scroll page */
+  
+  
   return (
     <Col span={24}>
       <Form.List name="entitlements">
@@ -175,11 +383,49 @@ const GroupDiscountList = (props: Props) => {
           };
 
           return (
-            <>
+            <DiscountDetailListStyled>
               <Row>
-                <Col span={8}>
-                </Col>
                 <Col span={16}>
+                  {idNumber &&
+                    <div className={"input-search-product"}>
+                      <span className={"label-search-product"}>Tìm kiếm sản phẩm trong chương trình chiết khấu</span>
+                      <AutoComplete
+                        notFoundContent={isSearchingProducts ? <Spin size="small"/> : "Không tìm thấy sản phẩm"}
+                        id="search_variant"
+                        ref={autoCompleteRef}
+                        value={keySearchVariant}
+                        onSelect={onSearchVariantSelect}
+                        allowClear
+                        onClear={onClearVariantSelect}
+                        dropdownClassName="search-layout dropdown-search-header"
+                        dropdownMatchSelectWidth={360}
+                        style={{ width: "100%" }}
+                        onSearch={handleOnSearchProduct}
+                        options={renderVariantOptions}
+                        maxLength={255}
+                        getPopupContainer={(trigger: any) => trigger.parentElement}
+                        onFocus={onInputSelectFocus}
+                        onBlur={onInputSelectBlur}
+                        onPopupScroll={handleOnSelectPopupScroll}
+                        onMouseLeave={handleOnMouseLeaveSelect}
+                        onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                      >
+                        <Input
+                          placeholder="Tìm kiếm sản phẩm"
+                          prefix={
+                            isSearchingProducts ? (
+                              <LoadingOutlined style={{ color: "#2a2a86" }} />
+                            ) : (
+                              <img alt="" src={search} style={{ cursor: "default" }}/>
+                            )
+                          }
+                        />
+                      </AutoComplete>
+                    </div>
+                  }
+                </Col>
+
+                <Col span={8}>
                   <Row justify="end">
                     <Space size={16}>
                       <Form.Item>
@@ -215,7 +461,7 @@ const GroupDiscountList = (props: Props) => {
                   />
                 );
               })}
-            </>
+            </DiscountDetailListStyled>
           );
         }}
       </Form.List>

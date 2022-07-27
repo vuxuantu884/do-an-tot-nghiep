@@ -14,6 +14,7 @@ import GeneralConditionForm from "../../shared/general-condition.form";
 import DiscountUpdateForm from "../components/discount-form";
 import DiscountProvider, { DiscountContext } from "../components/discount-provider";
 import { DiscountStyled } from "../discount-style";
+import _ from "lodash";
 const DiscountUpdate = () => {
 
     const dispatch = useDispatch();
@@ -34,6 +35,8 @@ const DiscountUpdate = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const discountUpdateContext = useContext(DiscountContext);
     const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
+
+    const [originalEntitlements, setOriginalEntitlements] = useState<Array<any>>([]);
 
     const parseDataToForm = useCallback(
         (result: PriceRule) => {
@@ -116,6 +119,11 @@ const DiscountUpdate = () => {
     };
 
     const handleSubmit = (values: any) => {
+        let _originalEntitlements = _.cloneDeep(originalEntitlements);
+        for (let i = 0; i < values.entitlements?.length; i++) {
+            _originalEntitlements = _originalEntitlements.filter(item => item.id !== values.entitlements[i].id);
+        }
+        values.entitlements = values.entitlements.concat(_originalEntitlements);
         try {
             setIsSubmitting(true)
             const body = transformData(values);
@@ -169,7 +177,7 @@ const DiscountUpdate = () => {
                 item.selectedProducts = mergeVariantsData(item.entitled_variant_ids, item.entitled_product_ids) || [];
 
             })
-
+            setOriginalEntitlements(entilelementValue);
             form.setFieldsValue({ entitlements: entilelementValue });
         }
 
@@ -215,7 +223,8 @@ const DiscountUpdate = () => {
                         <DiscountUpdateForm
                             unlimitedUsageProps={isUnlimitQuantity}
                             form={form}
-
+                            idNumber={idNumber}
+                            originalEntitlements={originalEntitlements}
                         />
                     </Col>
                     <Col span={6}>
@@ -232,9 +241,11 @@ const DiscountUpdate = () => {
                 <BottomBarContainer
                     back="Quay lại danh sách chiết khấu"
                     backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.DISCOUNT}`)}
-                    rightComponent={<Button type="primary" htmlType="submit" loading={isSubmitting}>
-                        Lưu
-                    </Button>}
+                    rightComponent={
+                        <Button type="primary" loading={isSubmitting} onClick={() => form.submit()}>
+                            Lưu
+                        </Button>
+                    }
                 />
             </Form>
             </DiscountStyled>

@@ -10,11 +10,15 @@ const { Option } = Select;
 interface Props {
     form: FormInstance;
     unlimitedUsageProps: boolean;
+    idNumber?: number;
+    originalEntitlements?: any;
 }
 
 function DiscountUpdateForm({
     form,
     unlimitedUsageProps,
+    idNumber,
+    originalEntitlements,
 }: Props): ReactElement {
     const discountUpdateContext = useContext(DiscountContext);
 
@@ -146,7 +150,7 @@ function DiscountUpdateForm({
                     {discountMethod === PriceRuleMethod.ORDER_THRESHOLD ? (
                         <DiscountTypeOrderThreshold form={form} />
                     ) : (
-                        <GroupDiscountList form={form} />
+                        <GroupDiscountList form={form} idNumber={idNumber} originalEntitlements={originalEntitlements} />
                     )}
                 </Row>
             </Card>
