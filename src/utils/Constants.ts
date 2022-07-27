@@ -1,7 +1,7 @@
-
 export const VietNamId = 233;
 export const VietNamName = "Việt Nam";
-export const ConAcceptImport= 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+export const ConAcceptImport =
+  "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
 // export const PO_FORM_TEMPORARY = 'po-form-temporary';
 
 export const optionAllCities = {
@@ -18,8 +18,8 @@ export const PaymentMethodCode = {
   COD: "cod",
   EXCHANGE: "exchange",
   POINT_REFUND: "point_refund",
-  MOMO:"momo",
-  VN_PAY:"vn_pay"
+  MOMO: "momo",
+  VN_PAY: "vn_pay",
 };
 
 export const OrderStatus = {
@@ -32,14 +32,14 @@ export const OrderStatus = {
 };
 
 export const ArrPoStatus = [
-  {key: "draft", value: "Nháp"},
-  {key: "waiting_approval", value: "Chờ duyệt"},
-  {key: "finalized", value: "Đã duyệt"},
-  {key: "stored", value: "Nhập kho"},
-  {key: "completed", value: "Hoàn thành"},
-  {key: "finished", value: "Đã kết thúc"},
-  {key: "cancelled", value: "Đã hủy"}
-]
+  { key: "draft", value: "Nháp" },
+  { key: "waiting_approval", value: "Chờ duyệt" },
+  { key: "finalized", value: "Đã duyệt" },
+  { key: "stored", value: "Nhập kho" },
+  { key: "completed", value: "Hoàn thành" },
+  { key: "finished", value: "Đã kết thúc" },
+  { key: "cancelled", value: "Đã hủy" },
+];
 
 export const TaxTreatment = {
   INCLUSIVE: "inclusive",
@@ -67,7 +67,7 @@ export const FulFillmentStatus = {
   CANCELLED: "cancelled",
   RETURNING: "returning",
   RETURNED: "returned",
-  UNRETURNED:"unreturned"
+  UNRETURNED: "unreturned",
 };
 
 export const FulFillmentReturnStatus = {
@@ -185,8 +185,8 @@ export const PO_RETURN_HISTORY = [
   {
     code: "waiting_approval",
     title: "Chờ duyệt",
-  }
-]
+  },
+];
 
 export const ProcumentStatus = {
   DRAFT: "draft",
@@ -260,83 +260,89 @@ export const PROMO_TYPE = {
 };
 
 export const COD = {
-  code: "cod"
+  code: "cod",
 };
 
 export const ADMIN_ORDER = {
-	channel_id: 13,
+  channel_id: 13,
   channel_code: "admin",
-  channel_name: "ADMIN"
+  channel_name: "ADMIN",
 };
 
 export const POS = {
-	channel_id: 1,
+  channel_id: 1,
   channel_code: "POS",
   source: "POS",
-	source_id: 1,
+  source_id: 1,
   source_code: "POS",
   source_name: "POS",
 };
 
 export const SHOPEE = {
-	channel_id: 3,
-  channel_code: "SHOPEE"
+  channel_id: 3,
+  channel_code: "SHOPEE",
 };
 
 export const YODY_WEB = {
   channel_id: 4,
-  channel_code : "web"
-}
+  channel_code: "web",
+};
 
 export const YODY_APP = {
   channel_id: 5,
-  channel_code : "APP"
-}
+  channel_code: "APP",
+};
 
-export const YODY_LANDING_PAGE={
-  channel_id:6,
-  channel_code:"LANDING_PAGE"
-}
+export const YODY_LANDING_PAGE = {
+  channel_id: 6,
+  channel_code: "LANDING_PAGE",
+};
 
 export const TIKI = {
-	channel_id: 17,
-  channel_code: "TIKI"
+  channel_id: 17,
+  channel_code: "TIKI",
 };
 
 export const LAZADA = {
-	channel_id: 15,
-  channel_code: "LAZADA"
+  channel_id: 15,
+  channel_code: "LAZADA",
 };
 
 export const SENDO = {
-	channel_id: 16,
-  channel_code: "SENDO"
+  channel_id: 16,
+  channel_code: "SENDO",
 };
 
 export const FACEBOOK = {
-	channel_id: 2,
-  channel_code: "FB"
+  channel_id: 2,
+  channel_code: "FB",
 };
 
-export const ECOMMERCE_CHANNEL_CODES = [TIKI.channel_code, LAZADA.channel_code, SENDO.channel_code, SHOPEE.channel_code]
+export const ECOMMERCE_CHANNEL_CODES = [
+  TIKI.channel_code,
+  LAZADA.channel_code,
+  SENDO.channel_code,
+  SHOPEE.channel_code,
+];
 
 export const SHIPPING_REQUIREMENT = {
-  default: "open_try"
+  default: "open_try",
 };
 
 export const FILTER_CONFIG_TYPE = {
   FILTER_PO: "filter_po",
-  FILTER_INVENTORY:  "filter_inventory",
+  FILTER_INVENTORY: "filter_inventory",
   orderOnline: "filter_order_online",
   orderOffline: "filter_order_offline",
   orderReturnOnline: "filter_order_return_online",
   orderReturnOffline: "filter_order_return_offline",
-  FILTER_STOCK_IN_OUT: "filter_stock_in_out"
+  FILTER_STOCK_IN_OUT: "filter_stock_in_out",
+  FILTER_LIST_CUSTOMER: "filter_list_customer",
 };
 
 export const COLUMN_CONFIG_TYPE = {
   COLUMN_INVENTORY: "column_inventory",
-  COLUMN_PO:  "column_po",
+  COLUMN_PO: "column_po",
   orderOnline: "column_order_online",
   orderOffline: "column_order_offline",
   orderReturnOnline: "column_order_return_online",
@@ -352,8 +358,8 @@ export const COLUMN_CONFIG_TYPE = {
 };
 
 export const ACCOUNT_ROLE_ID = {
-	admin: 1,
-}
+  admin: 1,
+};
 
 export const GENDER_OPTIONS = [
   {
@@ -376,52 +382,52 @@ export const ECOMMERCE_JOB_TYPE = {
   ORDER: "order",
   IMPORT: "import",
   EXPORT: "export",
-  SYNC_VARIANT: "sync-variant"
-}
+  SYNC_VARIANT: "sync-variant",
+};
 
 export const LABEL_JOB_TYPE = [
   {
     label: "stock",
-    display: "Đồng bộ tồn"
+    display: "Đồng bộ tồn",
   },
   {
     label: "variant",
-    display: "Tải sản phẩm"
+    display: "Tải sản phẩm",
   },
   {
     label: "order",
-    display: "Tải đơn hàng"
+    display: "Tải đơn hàng",
   },
   {
     label: "import",
-    display: "Đồng bộ sản phẩm"
+    display: "Đồng bộ sản phẩm",
   },
   {
     label: "export",
-    display: "Xuất sản phẩm"
+    display: "Xuất sản phẩm",
   },
   {
     label: "sync-variant",
-    display: "Đồng bộ sản phẩm"
+    display: "Đồng bộ sản phẩm",
   },
-]
+];
 
 export const getJobType = (type: String) => {
-  return LABEL_JOB_TYPE.find(item => item.label === type)
-}
+  return LABEL_JOB_TYPE.find((item) => item.label === type);
+};
 
 export const PRODUCT_TYPE = {
   normal: "normal",
   combo: "combo",
   gift: "gift",
   service: "service",
-}
+};
 
 export const DELIVERY_SERVICE_PROVIDER_CODE = {
   ghtk: "ghtk",
   ghn: "ghn",
-  vtp: "vtp"
-}
+  vtp: "vtp",
+};
 
 export const STATUS_IMPORT_EXPORT = {
   NONE: 0,
@@ -433,47 +439,47 @@ export const STATUS_IMPORT_EXPORT = {
 
 export const WEIGHT_UNIT = {
   gram: {
-    "name": "Gram",
-    "value": "g"
+    name: "Gram",
+    value: "g",
   },
   kilogram: {
-    "name": "Kilogram",
-    "value": "kg"
-  }
+    name: "Kilogram",
+    value: "kg",
+  },
 };
 export const ArrDefects = [
-  {code: 'L10',name:'Lỗi 10%',value:10,isSpecial:1},
-  {code: 'L20',name:'Lỗi 20%',value:20,isSpecial:1},
-  {code: 'L30',name:'Lỗi 30%',value:30,isSpecial:1},
-  {code: 'L50',name:'Lỗi 50%',value:50,isSpecial:1},
-  {code: 'L15',name:'Lỗi 15%',value:15,isSpecial:0},
-  {code: 'L25',name:'Lỗi 25%',value:25,isSpecial:0},
-  {code: 'L35',name:'Lỗi 35%',value:35,isSpecial:0},
-  {code: 'L40',name:'Lỗi 40%',value:40,isSpecial:0},
-  {code: 'L45',name:'Lỗi 45%',value:45,isSpecial:0},
-  {code: 'L55',name:'Lỗi 55%',value:55,isSpecial:0},
-  {code: 'L60',name:'Lỗi 60%',value:60,isSpecial:0},
-  {code: 'L65',name:'Lỗi 65%',value:65,isSpecial:0},
-  {code: 'L70',name:'Lỗi 70%',value:70,isSpecial:0},
-  {code: 'L75',name:'Lỗi 75%',value:75,isSpecial:0},
-  {code: 'L80',name:'Lỗi 80%',value:80,isSpecial:0},
-  {code: 'L85',name:'Lỗi 85%',value:85,isSpecial:0},
-  {code: 'L90',name:'Lỗi 90%',value:90,isSpecial:0},
-  {code: 'L95',name:'Lỗi 95%',value:95,isSpecial:0}
-]
+  { code: "L10", name: "Lỗi 10%", value: 10, isSpecial: 1 },
+  { code: "L20", name: "Lỗi 20%", value: 20, isSpecial: 1 },
+  { code: "L30", name: "Lỗi 30%", value: 30, isSpecial: 1 },
+  { code: "L50", name: "Lỗi 50%", value: 50, isSpecial: 1 },
+  { code: "L15", name: "Lỗi 15%", value: 15, isSpecial: 0 },
+  { code: "L25", name: "Lỗi 25%", value: 25, isSpecial: 0 },
+  { code: "L35", name: "Lỗi 35%", value: 35, isSpecial: 0 },
+  { code: "L40", name: "Lỗi 40%", value: 40, isSpecial: 0 },
+  { code: "L45", name: "Lỗi 45%", value: 45, isSpecial: 0 },
+  { code: "L55", name: "Lỗi 55%", value: 55, isSpecial: 0 },
+  { code: "L60", name: "Lỗi 60%", value: 60, isSpecial: 0 },
+  { code: "L65", name: "Lỗi 65%", value: 65, isSpecial: 0 },
+  { code: "L70", name: "Lỗi 70%", value: 70, isSpecial: 0 },
+  { code: "L75", name: "Lỗi 75%", value: 75, isSpecial: 0 },
+  { code: "L80", name: "Lỗi 80%", value: 80, isSpecial: 0 },
+  { code: "L85", name: "Lỗi 85%", value: 85, isSpecial: 0 },
+  { code: "L90", name: "Lỗi 90%", value: 90, isSpecial: 0 },
+  { code: "L95", name: "Lỗi 95%", value: 95, isSpecial: 0 },
+];
 
-export const STORE_TYPE={
-  STORE:"store", //Cửa hàng & kho
-  WARE_HOUSE:"ware_house",//Kho online
-  DISTRIBUTION_CENTER:"distribution_center",//Kho phân phối
-  STOCKPILE:"stockpile"//Kho dự trữ
-}
+export const STORE_TYPE = {
+  STORE: "store", //Cửa hàng & kho
+  WARE_HOUSE: "ware_house", //Kho online
+  DISTRIBUTION_CENTER: "distribution_center", //Kho phân phối
+  STOCKPILE: "stockpile", //Kho dự trữ
+};
 
-export const PUSHING_STATUS={
-  COMPLETED:"completed"
-}
+export const PUSHING_STATUS = {
+  COMPLETED: "completed",
+};
 
-export const RECEIPT_TYPE ={
-  SHIPPING :1,
-  RETURNED:2,
-}
+export const RECEIPT_TYPE = {
+  SHIPPING: 1,
+  RETURNED: 2,
+};
