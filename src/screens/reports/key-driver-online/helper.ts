@@ -1,10 +1,10 @@
-import { uniq, uniqBy } from "lodash";
+import { uniqBy } from "lodash";
+import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import {
   AnalyticDataQuery,
   AnalyticResult,
   ArrayAny,
   KeyDriverOnlineDataSourceType,
-  MonthlyCounterParams,
 } from "model/report";
 import moment from "moment";
 import { Dispatch } from "redux";
@@ -222,13 +222,13 @@ export const convertDataToFlatTableKeyDriver = (
     });
 
     const otherValue = {} as any;
-    attributeOrdered.forEach((key) => {
-      otherValue[key] = row[attributeOrdered.indexOf(key)];
+    attributeOrdered.forEach((attr) => {
+      otherValue[nonAccentVietnamese(department) + "_" + attr] =
+        row[attributeOrdered.indexOf(attr)];
     });
 
     if (currentKeyDriver !== keyDriver) {
       keyDriver = currentKeyDriver;
-      // console.log("otherValue", otherValue);
       data.push({
         key: keyDriver,
         title: row[keyDriverTitleIndex],
@@ -273,19 +273,32 @@ export const getAllDepartmentByAnalyticResult = (
 export async function saveMonthTargetKeyDriver(
   value: { [key: string]: number },
   row: KeyDriverOnlineDataSourceType,
+  columnDrillingLevel: number,
+  columnKey: string,
   dispatch: Dispatch<any>,
 ) {
+  const departmentLevel: any = {
+    department_lv1: "",
+    department_lv2: "",
+    department_lv3: "",
+  };
+
+  if (columnDrillingLevel > 0) {
+    for (let i = 1; i <= columnDrillingLevel; i++) {
+      departmentLevel[`department_lv${i}`] =
+        row[`${columnKey}_department_lv${i}`] || "";
+    }
+  }
+
   const params = {
     entity_name: "monthly_target",
     entity_key: row.key,
     year: moment().year(),
     month: moment().month() + 1,
-    department_lv1: row.department_lv1,
-    department_lv2: row.department_lv2,
-    department_lv3: row.department_lv3,
-    account_code: row.account_code || "",
-    account_name: row.account_name || "",
-    account_role: row.account_role || "",
+    account_code: row[`${columnKey}_account_code`] || "",
+    account_name: row[`${columnKey}_account_name`] || "",
+    account_role: row[`${columnKey}_account_role`] || "",
+    ...departmentLevel,
     ...value,
   };
 
@@ -303,5 +316,45 @@ export async function saveMonthTargetKeyDriver(
 }
 
 export const handleFocusInput = (e: any) => {
-  e.target.select();
+  setTimeout(() => {
+    e.target.select();
+  }, 0);
+  return false;
+};
+
+export const handleMoveFocusInput = (
+  row: number,
+  column: number,
+  prefix: string,
+  key: KeyboardKey | string,
+) => {
+  let nextRow = row;
+  let nextColumn = column;
+  switch (key) {
+    case KeyboardKey.ArrowDown:
+      nextRow += 1;
+      break;
+    case KeyboardKey.ArrowUp:
+      nextRow -= 1;
+      break;
+    case KeyboardKey.ArrowLeft:
+      nextColumn -= 1;
+      break;
+    case KeyboardKey.ArrowRight:
+      nextColumn += 1;
+      break;
+    default:
+      break;
+  }
+  const nextColumnId = getInputTargetId(nextRow, nextColumn, prefix);
+  const nextColumnElement = document.getElementById(nextColumnId);
+  nextColumnElement?.focus();
+};
+
+export const getInputTargetId = (
+  row: number,
+  column: number,
+  prefix: string,
+) => {
+  return `${prefix}_row_${row}_column_${column}`;
 };
