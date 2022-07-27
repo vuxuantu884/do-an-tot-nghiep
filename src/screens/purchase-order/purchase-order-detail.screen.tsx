@@ -47,6 +47,8 @@ import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import {
   checkCanEditDraft,
+  checkCanEditPrice,
+  checkChangePriceLineItem,
   checkImportPriceLowByLineItem,
   combineLineItemToSubmitData,
   fetchProductGridData,
@@ -156,7 +158,13 @@ const PODetailScreen: React.FC = () => {
   // const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
   const [activePanel, setActivePanel] = useState<string | string[]>();
   const [isShowWarningPriceModal, setShowWarningPriceModal] = useState<boolean>(false);
-  const [canCancelPO] = useAuthorization({ acceptPermissions: [PurchaseOrderPermission.cancel] });
+  const [showConfirmChangePrice, setShowConfirmChangePrice] = useState<boolean>(false);
+  const [canCancelPO] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.cancel],
+  });
+  const [canUpdateImportPrice] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.update_import_price],
+  });
   const statusAction = useRef<string>("");
 
   const {
@@ -301,7 +309,6 @@ const PODetailScreen: React.FC = () => {
         ? ConvertDateToUtc(value.ap_closing_date)
         : null;
       const dataClone: any = { ...purchaseOrder, ...value, status: statusAction.current };
-      console.log(dataClone);
       dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
     } catch (error: any) {
       showError(error.message);
@@ -647,6 +654,25 @@ const PODetailScreen: React.FC = () => {
           return;
         }
       }
+      if (status === POStatus.FINALIZED) {
+        const lineItems: any[] = isGridMode
+          ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
+          : formMain.getFieldsValue()[POField.line_items];
+        if (!lineItems.every((item) => item.price)) {
+          setIsEditDetail(true);
+          throw new Error(
+            "Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công",
+          );
+        }
+        if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
+          setShowWarningPriceModal(true);
+          return;
+        }
+        if (checkChangePriceLineItem(purchaseOrder.line_items, lineItems)) {
+          setShowConfirmChangePrice(true);
+          return;
+        }
+      }
       // trạng thái khác : không check giá
       formMain.submit();
     } catch (error: any) {
@@ -962,12 +988,14 @@ const PODetailScreen: React.FC = () => {
                 <POProductFormNew
                   formMain={formMain}
                   isEditMode={checkCanEditDraft(formMain, isEditDetail)}
+                  isEditPrice={checkCanEditPrice(formMain, isEditDetail, canUpdateImportPrice)}
                 />
               ) : (
                 <POProductFormOld
                   isEdit={isEditDetail}
                   formMain={formMain}
                   poLineItemType={POLineItemType.NORMAL}
+                  isEditPrice={checkCanEditPrice(formMain, isEditDetail, canUpdateImportPrice)}
                 />
               )}
             </PoProductContainer>
@@ -1061,6 +1089,15 @@ const PODetailScreen: React.FC = () => {
         onOk={() => {
           formMain.submit();
           setShowWarningPriceModal(false);
+        }}
+      />
+      <ModalConfirm
+        title="Bạn có chắc chắn thay đổi giá nhập không?"
+        visible={showConfirmChangePrice}
+        onCancel={() => setShowConfirmChangePrice(false)}
+        onOk={() => {
+          formMain.submit();
+          setShowConfirmChangePrice(false);
         }}
       />
     </ContentContainer>
