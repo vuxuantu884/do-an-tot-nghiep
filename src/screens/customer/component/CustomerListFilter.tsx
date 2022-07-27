@@ -285,19 +285,25 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
   //---End Handle Source---\\
 
   const initialValues = useMemo(() => {
-    const cityIds = formCustomerFilter.getFieldValue("city_ids");
-    const districtIds = formCustomerFilter.getFieldValue("district_ids");
-    const wardIds = formCustomerFilter.getFieldValue("ward_ids");
+    // const cityIds = formCustomerFilter.getFieldValue("city_ids");
+    // const districtIds = formCustomerFilter.getFieldValue("district_ids");
+    // const wardIds = formCustomerFilter.getFieldValue("ward_ids");
 
     return {
       ...params,
-      city_ids: cityIds,
-      district_ids: districtIds,
-      ward_ids: wardIds,
+      // city_ids: cityIds,
+      // district_ids: districtIds,
+      // ward_ids: wardIds,
 
-      // city_ids: Array.isArray(params.city_ids) ? params.city_ids : [params.city_ids],
-      // district_ids: Array.isArray(params.district_ids) ? params.district_ids : [params.district_ids],
-      // ward_ids: Array.isArray(params.ward_ids) ? params.ward_ids : [params.ward_ids],
+      city_ids: Array.isArray(params.city_ids)
+        ? params.city_ids
+        : [params.city_ids],
+      district_ids: Array.isArray(params.district_ids)
+        ? params.district_ids
+        : [params.district_ids],
+      ward_ids: Array.isArray(params.ward_ids)
+        ? params.ward_ids
+        : [params.ward_ids],
 
       customer_group_ids: Array.isArray(params.customer_group_ids)
         ? params.customer_group_ids
@@ -345,7 +351,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (
           )
         : [Number(params.store_of_last_order_offline_ids)],
     };
-  }, [formCustomerFilter, params]);
+  }, [params]);
 
   // handle select sale staff (responsible_staff_codes) by filter param
   const updateAccountData = (data: PageResponse<AccountResponse> | false) => {
