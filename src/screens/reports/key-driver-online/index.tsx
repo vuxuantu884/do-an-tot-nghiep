@@ -1,8 +1,9 @@
-import { Card, InputNumber, Table, Tooltip } from "antd";
+import { Card, InputNumber, InputNumberProps, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
+import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { KeyDriverOnlineDataSourceType } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
@@ -10,6 +11,7 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation, useParams } from "react-router-dom";
 import { formatCurrency, parseLocaleNumber } from "utils/AppUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import {
@@ -20,9 +22,11 @@ import {
   DRILLING_LEVEL,
   fetchQuery,
   getAllDepartmentByAnalyticResult,
+  getInputTargetId,
   getTemplateQueryLevel2and3,
   getTemplateQueryLevel3and4,
   handleFocusInput,
+  handleMoveFocusInput,
   LEVEL_1_2_TEMPLATE_QUERY,
   saveMonthTargetKeyDriver,
 } from "./helper";
@@ -54,6 +58,21 @@ const baseColumns: any = [
 ];
 
 const SHOP_LEVEL = 3;
+const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
+const inputTargetDefaultProps: InputNumberProps<any> = {
+  className: "input-number",
+  formatter: (value?: number) => formatCurrency(value || 0),
+  parser: (value?: string) => {
+    let parseValue = 0;
+    if (value) {
+      parseValue = parseLocaleNumber(value);
+    }
+    return parseValue;
+  },
+  onFocus: handleFocusInput,
+  keyboard: false,
+};
+
 function VerifyCell(props: VerifyCellProps) {
   const { row, children, value } = props;
   if (row.key.endsWith(".L")) {
@@ -84,6 +103,8 @@ function KeyDriverOnline() {
     (
       departmentKey: string,
       department: string,
+      columnIndex: number,
+      columnDrillingLevel: number,
       className: string = "department-name--secondary",
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
@@ -110,16 +131,6 @@ function KeyDriverOnline() {
               return (
                 <div>
                   <span>MỤC TIÊU THÁNG</span>
-                  {/* <Button
-                    ghost
-                    size={"small"}
-                    title="Cập nhật mục tiêu tháng"
-                    onClick={() => {
-                      updateTargetMonth(departmentKey);
-                    }}
-                  >
-                    <CheckSquareOutlined />
-                  </Button> */}
                 </div>
               );
             },
@@ -134,25 +145,40 @@ function KeyDriverOnline() {
             ) => {
               return (
                 <InputNumber
-                  className="input-number"
-                  formatter={(value?: number) => formatCurrency(value || 0)}
-                  parser={(value?: string) => {
-                    let parseValue = 0;
-                    if (value) {
-                      parseValue = parseLocaleNumber(value);
-                    }
-                    return parseValue;
-                  }}
+                  id={getInputTargetId(
+                    index,
+                    columnIndex * 2,
+                    PREFIX_CELL_TABLE,
+                  )}
                   defaultValue={text}
-                  onFocus={handleFocusInput}
                   onPressEnter={(e: any) => {
                     const value = parseLocaleNumber(e.target.value);
                     saveMonthTargetKeyDriver(
                       { total: value },
                       record,
+                      columnDrillingLevel,
+                      departmentKey,
                       dispatch,
                     );
+                    handleMoveFocusInput(
+                      index,
+                      columnIndex * 2,
+                      PREFIX_CELL_TABLE,
+                      KeyboardKey.ArrowDown,
+                    );
                   }}
+                  onKeyDown={(e) => {
+                    const event = e;
+                    if (event.shiftKey) {
+                      handleMoveFocusInput(
+                        index,
+                        columnIndex * 2,
+                        PREFIX_CELL_TABLE,
+                        event.key,
+                      );
+                    }
+                  }}
+                  {...inputTargetDefaultProps}
                 />
               );
             },
@@ -216,17 +242,12 @@ function KeyDriverOnline() {
             ) => {
               return (
                 <InputNumber
-                  className="input-number"
-                  formatter={(value?: number) => formatCurrency(value || 0)}
-                  parser={(value?: string) => {
-                    let parseValue = 0;
-                    if (value) {
-                      parseValue = parseLocaleNumber(value);
-                    }
-                    return parseValue;
-                  }}
+                  id={getInputTargetId(
+                    index,
+                    columnIndex * 2 + 1,
+                    PREFIX_CELL_TABLE,
+                  )}
                   defaultValue={text}
-                  onFocus={handleFocusInput}
                   onPressEnter={(e: any) => {
                     const value = parseLocaleNumber(e.target.value);
                     let newTargetDay = Number(targetDay);
@@ -234,12 +255,32 @@ function KeyDriverOnline() {
                       newTargetDay && newTargetDay > 0 && newTargetDay <= 31
                         ? newTargetDay
                         : moment().date();
+                    handleMoveFocusInput(
+                      index,
+                      columnIndex * 2 + 1,
+                      PREFIX_CELL_TABLE,
+                      KeyboardKey.ArrowDown,
+                    );
                     saveMonthTargetKeyDriver(
                       { [`day_${day}`]: value },
                       record,
+                      columnDrillingLevel,
+                      departmentKey,
                       dispatch,
                     );
                   }}
+                  onKeyDown={(e) => {
+                    const event = e;
+                    if (event.shiftKey) {
+                      handleMoveFocusInput(
+                        index,
+                        columnIndex * 2 + 1,
+                        PREFIX_CELL_TABLE,
+                        event.key,
+                      );
+                    }
+                  }}
+                  {...inputTargetDefaultProps}
                 />
               );
             },
@@ -279,7 +320,7 @@ function KeyDriverOnline() {
         ],
       };
     },
-    [dispatch],
+    [dispatch, targetDay],
   );
 
   const initTable = useCallback(
@@ -367,6 +408,8 @@ function KeyDriverOnline() {
           setObjectiveColumns(
             nonAccentVietnamese(name),
             name.toUpperCase(),
+            index,
+            drillingLevel,
             index === 0 ? "department-name--primary" : undefined,
             link,
           ),
@@ -402,6 +445,10 @@ function KeyDriverOnline() {
             <Table
               className="disable-table-style" // để tạm background màu trắng vì chưa group data
               scroll={{ x: "max-content" }}
+              sticky={{
+                offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+                offsetScroll: 5,
+              }}
               bordered
               pagination={false}
               onRow={(record: any) => {
