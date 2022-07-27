@@ -868,6 +868,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         // thêm money refund
         money_refund: Math.round(refund.moneyRefund),
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id,
+        currency: AppConfig.currency,
       };
       // console.log("orderDetailResult", orderDetailResult);
       // return;
@@ -1279,7 +1280,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
       values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
       values.total_discount = promotion?.amount || 0;
       values.assignee_code = OrderDetail ? OrderDetail.assignee_code : null;
-      values.currency = OrderDetail ? OrderDetail.currency : null;
+      // values.currency = OrderDetail ? OrderDetail.currency : null;
+      values.currency = AppConfig.currency;
       values.account_code = OrderDetail ? OrderDetail.account_code : null;
       values.source_id =
         OrderDetail?.source?.toLocaleLowerCase() === POS.source.toLocaleLowerCase()
@@ -1463,6 +1465,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         channel_id: getChannelIdReturn(OrderDetail),
         // thêm money refund
         money_refund: Math.round(refund.moneyRefund),
+        currency: AppConfig.currency,
 
         // channel_id: orderReturnType === RETURN_TYPE_VALUES.offline ? POS.channel_id : ADMIN_ORDER.channel_id
       };
