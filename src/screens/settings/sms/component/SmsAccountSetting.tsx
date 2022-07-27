@@ -6,6 +6,8 @@ import {formatCurrency, replaceFormatString} from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
 import {updateSmsConfigAction} from "domain/actions/settings/sms-settings.action";
 import {showSuccess} from "utils/ToastUtils";
+import {SMS_CONFIG_PERMISSIONS} from "config/permissions/sms-config.permission";
+import useAuthorization from "hook/useAuthorization";
 
 
 const SMS_TYPE = [
@@ -29,11 +31,18 @@ const STATUS_TYPE = [
 	},
 ];
 
+const updateSmsPermission = [SMS_CONFIG_PERMISSIONS.UPDATE];
+
 const SmsAccountSetting: React.FC<any> = (props: any) => {
 	const {smsConfigData} = props;
 
 	const dispatch = useDispatch();
 	const [form] = Form.useForm();
+
+	const [allowUpdateSms] = useAuthorization({
+		acceptPermissions: updateSmsPermission,
+		not: false,
+	});
 
 	const [isUnicode, setIsUnicode] = useState<boolean>(true);
 
@@ -89,6 +98,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								showSearch
 								placeholder="Chọn cổng SMS"
 								allowClear
+								disabled={!allowUpdateSms}
 							>
 								{SMS_TYPE.map((sms: any) => (
 									<Select.Option key={sms.key} value={sms.value}>
@@ -108,6 +118,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								maxLength={255}
 								type="text"
 								placeholder="Nhập Brand name"
+								disabled={!allowUpdateSms}
 							/>
 						</Form.Item>
 					</div>
@@ -125,6 +136,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								placeholder="---"
 								style={{textAlign: 'left'}}
 								maxLength={15}
+								disabled={!allowUpdateSms}
 							/>
 						</Form.Item>
 
@@ -140,6 +152,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								placeholder="---"
 								style={{textAlign: 'left'}}
 								maxLength={15}
+								disabled={!allowUpdateSms}
 							/>
 						</Form.Item>
 					</div>
@@ -155,6 +168,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								showSearch
 								placeholder="Chọn trạng thái"
 								allowClear
+								disabled={!allowUpdateSms}
 							>
 								{STATUS_TYPE.map((status: any) => (
 									<Select.Option key={status.key} value={status.value}>
@@ -174,6 +188,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								onChange={(checked) => {
 									setIsUnicode(checked);
 								}}
+								disabled={!allowUpdateSms}
 							/>
 						</Form.Item>
 					</div>
@@ -189,6 +204,7 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								maxLength={255}
 								type="text"
 								placeholder="Nhập API Key"
+								disabled={!allowUpdateSms}
 							/>
 						</Form.Item>
 
@@ -202,15 +218,18 @@ const SmsAccountSetting: React.FC<any> = (props: any) => {
 								maxLength={255}
 								type="text"
 								placeholder="Nhập Secret Key"
+								disabled={!allowUpdateSms}
 							/>
 						</Form.Item>
 					</div>
 
-					<div>
-						<Button type="primary" htmlType="submit">
-							Lưu lại
-						</Button>
-					</div>
+					{allowUpdateSms &&
+						<div>
+							<Button type="primary" htmlType="submit">
+								Lưu lại
+							</Button>
+						</div>
+					}
 				</Form>
 			</Card>
 

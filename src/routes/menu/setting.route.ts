@@ -7,6 +7,7 @@ import {
 } from "config/permissions/account.permisssion";
 import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import {SMS_CONFIG_PERMISSIONS} from "config/permissions/sms-config.permission";
 
 const AccountMeScreen = React.lazy(
   () => import("screens/settings/account/account.me.screen")
@@ -545,6 +546,7 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.SMS_SETTINGS,
     isShow: true,
     header: null,
+    permissions:[SMS_CONFIG_PERMISSIONS.READ],
     subMenu:[
       {
         path: `${UrlConfig.SMS_SETTINGS}/order-retail`,
@@ -555,6 +557,7 @@ const setting: Array<RouteMenu> = [
         key: "sms-order-retail",
         isShow: true,
         header: null,
+        permissions: [SMS_CONFIG_PERMISSIONS.READ],
         subMenu: [],
       },
       {
@@ -566,6 +569,7 @@ const setting: Array<RouteMenu> = [
         key: "sms-website-order",
         isShow: true,
         header: null,
+        permissions: [SMS_CONFIG_PERMISSIONS.READ],
         subMenu: [],
       },
     ]
