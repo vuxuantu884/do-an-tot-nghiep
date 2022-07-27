@@ -1488,6 +1488,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                     <Card>
                       <OrderCreateShipment
                         shipmentMethod={shipmentMethod}
+                        payments={payments}
                         orderPrice={orderAmount}
                         storeDetail={storeDetail}
                         customer={customer}
