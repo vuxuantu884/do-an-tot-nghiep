@@ -489,7 +489,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
     setPaymentMethod(PaymentMethodOption.COD);
     setOrderAmount(0);
     setCheckSplitLine(false);
-    setThirdPL(thirdPL.delivery_transport_type = "");
+    setThirdPL({
+      delivery_service_provider_code: "",
+      delivery_service_provider_id: null,
+      insurance_fee: null,
+      delivery_service_provider_name: "",
+      delivery_transport_type: "",
+      service: "",
+      shipping_fee_paid_to_three_pls: null,
+    });
     setShippingFeeInformedToCustomer(null);
   }
 
