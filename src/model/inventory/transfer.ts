@@ -177,6 +177,7 @@ export type ShipmentItem = {
   delivery_service_code: string,
   delivery_service_name: string,
   delivery_service_logo: string,
+  delivery_service_type: string,
   order_code: string,
   fulfillment_code: string,
   store_id: number,
@@ -185,6 +186,7 @@ export type ShipmentItem = {
   transport_type: string,
   tracking_logs: TrackingLogs[],
   transport_type_name: string,
+  shipping_fee_paid_to_three_pls: number,
   cod: number,
   insurance: string,
   weight: number,
@@ -243,6 +245,7 @@ export interface InventoryTransferDetailItem {
   store_receive: Store;
   line_items: Array<LineItem>;
   shipment: ShipmentItem;
+  shipments: ShipmentItem[];
   exception_items: [];
 }
 
@@ -308,23 +311,13 @@ export interface InventoryTransferLog {
 }
 
 export interface InventoryTransferShipmentRequest {
-  delivery_service_id: number | null,
-  delivery_service_code: string | null,
-  delivery_service_name: string | null,
-  delivery_service_logo: string | null,
-  order_code: string | null,
-  fulfillment_code: string | null,
-  store_id: number | null,
-  transport_type: string | null,
-  transport_type_name: string | null,
-  cod: number | null,
-  weight: number | null,
-  weight_unit: string | null,
-  total_fee: number | null,
-  note_to_shipper: string | null,
-  shipping_requirement: string | null,
-  who_paid: string | null,
-  expected_delivery_time: string | null,
+  delivery_service_provider_id: number | null,
+  delivery_service_provider_code: string | null,
+  delivery_service_provider_name: string | null,
+  delivery_transport_type: string | null,
+  delivery_service_provider_type: string | null,
+  shipping_fee_paid_to_three_pls: number | null,
+  expected_received_date: string | null,
   office_time:boolean | null,
 }
 

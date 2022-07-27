@@ -2,10 +2,12 @@ import BaseResponse from "../../../base/base.response";
 import BaseAxios from "../../../base/base.axios";
 import { ApiConfig } from "../../../config/api.config";
 import {
-  DataExport, DataMultipleCancel,
+  DataExport,
+  DataMultipleCancel,
   DeleteTicketRequest,
   FileParam,
-  InventoryTransferDetailItem, InventoryTransferImportExportSearchQuery,
+  InventoryTransferDetailItem,
+  InventoryTransferImportExportSearchQuery,
   InventoryTransferLog,
   InventoryTransferLogSearchQuery,
   InventoryTransferSearchQuery,
@@ -163,37 +165,43 @@ const TransferService = {
     return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/receive/${id}`, data);
   },
 
-    //cancel shipment
-    cancelShipmentInventoryTransfer: (
-      transferId: number
-    ): Promise<BaseResponse<string>> => {
-      return BaseAxios.delete(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment`);
-    },
+  //cancel shipment
+  cancelShipmentInventoryTransfer: (
+    transferId: number
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.delete(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/shipment`);
+  },
 
-    //export shipment
-    exportShipmentInventoryTransfer: (
-      transferId: number
-    ): Promise<BaseResponse<string>> => {
-      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/export`);
-    },
+  //export shipment
+  exportShipmentInventoryTransfer: (
+    transferId: number
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/export`);
+  },
 
-    acceptInventoryTransfer: (
-      transferId: number
-    ): Promise<BaseResponse<string>> => {
-      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/accept-request`);
-    },
+  acceptInventoryTransfer: (
+    transferId: number,
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/${transferId}/accept-request`);
+  },
 
-    exportMultipleInventoryTransfer: (
-      data: DataExport
-    ): Promise<BaseResponse<string>> => {
-      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-export`, data);
-    },
+  exportMultipleInventoryTransfer: (
+    data: DataExport,
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-export`, data);
+  },
 
-    cancelMultipleInventoryTransfer: (
-      data: DataMultipleCancel
-    ): Promise<BaseResponse<string>> => {
-      return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-cancel`, data);
-    }
+  selfTransportMultipleInventoryTransfer: (
+    data: any,
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/bulk/self-transport`, data);
+  },
+
+  cancelMultipleInventoryTransfer: (
+    data: DataMultipleCancel,
+  ): Promise<BaseResponse<string>> => {
+    return BaseAxios.put(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/multiple-cancel`, data);
+  },
 };
 
 
@@ -210,7 +218,8 @@ export const {
   exportShipmentInventoryTransfer,
   acceptInventoryTransfer,
   exportMultipleInventoryTransfer,
+  selfTransportMultipleInventoryTransfer,
   cancelMultipleInventoryTransfer,
-  adjustmentInventory
+  adjustmentInventory,
 } =
   TransferService;

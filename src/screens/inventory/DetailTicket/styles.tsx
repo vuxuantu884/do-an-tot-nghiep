@@ -169,7 +169,7 @@ export const StyledWrapper = styled.div`
     align-items: center;
 
     &-logo {
-      width: 200px;
+      width: 110px;
       margin-right: 20px;
 
       img {
@@ -180,7 +180,6 @@ export const StyledWrapper = styled.div`
     &-detail {
       & > span {
         color: #2A2A86;
-        font-size: 18px;
         margin-left: 5px;
         width: 20px;
       }
@@ -188,10 +187,8 @@ export const StyledWrapper = styled.div`
   }
 
   .timeline-collapse {
-    margin-top: 30px;
     border: unset;
     width: 100%;
-    min-height: 100px;
     background-color: #fff;
 
     .ant-collapse-content {
@@ -208,11 +205,11 @@ export const StyledWrapper = styled.div`
       }
     }
 
-    .ant-timeline-item-last > .ant-timeline-item-content {
+    .ant-timeline-item-content {
       min-height: unset;
-      top: -3px;
+      top: -7px;
 
-      & > span {
+      & > span, span {
         padding: 0 10px;
       }
     }
@@ -238,5 +235,78 @@ export const StyledWrapper = styled.div`
     display: flex;
     justify-content: right;
     margin-top: 10px;
+  }
+  
+  .display-flex {
+    display: flex;
+  }
+  
+  .align-item-center {
+    align-items: center;
+  }
+  
+  .ant-collapse-header {
+    display: flex;
+    align-items: center;
+  }
+
+  .ant-collapse>.ant-collapse-item {
+    border-bottom: none;
+  }
+
+  .ant-collapse, .ant-collapse>.ant-collapse-item>.ant-collapse-header {
+    border: none;
+    background-color: #FFFFFF;
+  }
+
+  .ant-collapse-content {
+    border: none;
+  }
+  
+  .text-danger {
+    color: #ff0000;
+  }
+
+  .text-normal {
+    color: #2a2a86;
+  }
+
+  .ant-collapse-content>.ant-collapse-content-box {
+    padding: 0 16px;
+  }
+
+  .ant-steps-dot .ant-steps-item-tail:after, .ant-steps-dot.ant-steps-small .ant-steps-item-tail:after {
+    height: 1px !important;
+  }
+  
+  .step {
+    .ant-steps-icon-dot {
+      height: 50%;
+      width: 50%;
+    }
+
+    .ant-steps-item-finish .ant-steps-item-tail {
+      top: 3px !important;
+      width: 110%;
+      left: -10px;
+    }
+    
+    .ant-steps-item-title {
+      color: #222222 !important;
+      font-size: 14px;
+    }
+    
+    .ant-steps-item-description {
+      font-size: 14px;
+    }
+
+    .ant-steps-item-finish .ant-steps-item-tail::after {
+      background-color: #E5E5E5 !important;
+    }
+  }
+  .ant-collapse>.ant-collapse-item>.ant-collapse-header .ant-collapse-arrow {
+    color: #2a2a86;
+    font-size: 14px;
+    font-weight: 500;
   }
 `;
