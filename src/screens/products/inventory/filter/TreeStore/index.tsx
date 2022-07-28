@@ -192,7 +192,7 @@ const TreeStore = (props: Props) => {
                       <span 
                        className={storeItem.status === "inactive" ? 'store-closed' : ''}
                       >
-                        {storeItem[1][0].name}
+                        {storeItem.status === "inactive" ?`${storeItem[1][0].name} (CH đã đóng cửa)` : storeItem[1][0].name}
                       </span>
                     }
                   />
@@ -221,7 +221,7 @@ const TreeStore = (props: Props) => {
         <TreeSelect.TreeNode 
           key={storeItem.code} 
           value={storeItem.id} 
-          title={storeItem.name}
+          title={storeItem.status === "inactive" ? `${storeItem.name} (CH đã đóng cửa)` : storeItem.name}
           className={storeItem.status === "inactive" ? 'store-closed' : ''}
         />
       ))}
