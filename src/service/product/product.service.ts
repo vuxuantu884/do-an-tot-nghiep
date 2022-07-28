@@ -1,3 +1,4 @@
+import { VariantSku3Response } from './../../model/product/product.model';
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -166,4 +167,11 @@ export const getFile = (
   code: string
 ): Promise<BaseResponse<JobResponse>> => {
   return BaseAxios.get(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs/${code}`);
+};
+
+export const searchVariantSku3Api = (
+  query: ProductWrapperSearchQuery
+): Promise<BaseResponse<PageResponse<VariantSku3Response>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PRODUCT}/products/search/three-code?${queryString}`);
 };
