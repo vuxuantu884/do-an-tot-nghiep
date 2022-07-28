@@ -136,6 +136,7 @@ const DetailTicket: FC = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isLoadingBtn, setLoadingBtn] = useState<boolean>(false);
   const [isLoadingBtnSave, setIsLoadingBtnSave] = useState<boolean>(false);
+  const [isLoadingDeleteBtn, setIsLoadingDeleteBtn] = useState<boolean>(false);
   const [isVisibleModalReceiveWarning, setIsVisibleModalReceiveWarning] = useState<boolean>(false);
   const [isVisibleModalWarning, setIsVisibleModalWarning] =
     useState<boolean>(false);
@@ -277,8 +278,7 @@ const DetailTicket: FC = () => {
       name: "Hủy phiếu",
       icon: <CloseCircleOutlined />,
       color: "#E24343",
-      disabled: !((data?.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status || data?.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
-        && data?.shipment === null) || !allowCancel
+      disabled: !allowCancel
     },
     {
       id: 2,
@@ -894,9 +894,8 @@ const DetailTicket: FC = () => {
   ];
 
   const deleteTicketResult = useCallback(result => {
-    setLoadingBtn(false);
+    setIsLoadingDeleteBtn(false);
     if (!result) {
-      setError(true);
       return;
     } else {
       setIsDeleteTicket(false);
@@ -906,7 +905,7 @@ const DetailTicket: FC = () => {
   }, [])
 
   const onDeleteTicket = (value: string | undefined) => {
-    setLoadingBtn(true);
+    setIsLoadingDeleteBtn(true);
     dispatch(
       deleteInventoryTransferAction(
         idNumber,
@@ -1327,7 +1326,7 @@ const DetailTicket: FC = () => {
                       data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && !data.shipment &&
                       <AuthWrapper
                         acceptPermissions={[ShipmentInventoryTransferPermission.create]}
-                        acceptStoreIds={[data.from_store_id]}
+                        acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
                       >
                         <Button
                           className={"choses-shipper-button"}
@@ -1484,7 +1483,7 @@ const DetailTicket: FC = () => {
                         <div className="inventory-transfer-action">
                           <AuthWrapper
                             acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
-                            acceptStoreIds={[data.from_store_id]}
+                            acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
                           >
                             <Button
                               type="default"
@@ -1819,7 +1818,7 @@ const DetailTicket: FC = () => {
             visible={isDeleteTicket}
             icon={WarningRedIcon}
             textStore={data?.from_store_name}
-            loading={isLoadingBtn}
+            loading={isLoadingDeleteBtn}
             okText="Đồng ý"
             cancelText="Thoát"
             title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${data?.code}`}
