@@ -201,6 +201,8 @@ export interface OrderSearchQuery {
   utm_campaign?:string|null;
   affiliate?:string|null;
   //
+  is_expired_payment?:boolean | string | null;
+  expired_at?:number | null;
 }
 
 export interface OrderSearchQueryModel {
