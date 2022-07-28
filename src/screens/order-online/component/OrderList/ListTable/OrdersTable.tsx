@@ -18,21 +18,27 @@ import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
 import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import iconPrint from "assets/icon/Print.svg";
-import iconDeliveryProgress from "assets/icon/delivery/tientrinhgiaohang.svg";
+// import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
 import search from "assets/img/search.svg";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
-import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import CustomTable, {
+  ICustomTableColumType,
+} from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import {
-  getTrackingLogFulfillmentAction,
-  updateOrderPartial,
-} from "domain/actions/order/order.action";
+import { updateOrderPartial } from "domain/actions/order/order.action";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inventory";
-import { OrderExtraModel, OrderModel, OrderTypeModel } from "model/order/order.model";
+import {
+  AllInventoryProductInStore,
+  InventoryVariantListQuery,
+} from "model/inventory";
+import {
+  OrderExtraModel,
+  OrderModel,
+  OrderTypeModel,
+} from "model/order/order.model";
 import { FilterConfig } from "model/other";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest } from "model/request/order.request";
@@ -41,9 +47,16 @@ import {
   DeliveryServiceResponse,
   OrderLineItemResponse,
   ShipmentResponse,
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
-import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import React, {
+  ReactNode,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { inventoryGetApi } from "service/inventory";
@@ -75,7 +88,11 @@ import {
   SHOPEE,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
+import {
+  dangerColor,
+  primaryColor,
+  yellowColor,
+} from "utils/global-styles/variables";
 import {
   ORDER_PAYMENT_STATUS,
   ORDER_SUB_STATUS,
@@ -91,7 +108,6 @@ import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../EditOrderNote";
-import TrackingLog from "../../TrackingLog";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
@@ -100,6 +116,7 @@ import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import InventoryTable from "./InventoryTable";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
+import DeliveryProgress from "component/order/DeliveryProgress";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -111,7 +128,11 @@ type PropTypes = {
   setColumns: (columns: ICustomTableColumType<OrderModel>[]) => void;
   setData: (data: PageResponse<OrderModel>) => void;
   onPageChange: (page: any, size: any) => void;
-  onSelectedChange: (selectedRows: any[], selected?: boolean, changeRow?: any[]) => void;
+  onSelectedChange: (
+    selectedRows: any[],
+    selected?: boolean,
+    changeRow?: any[],
+  ) => void;
   setShowSettingColumn: (value: boolean) => void;
   onFilterPhoneCustomer: (value: string) => void;
   orderType: OrderTypeModel;
@@ -126,6 +147,14 @@ type ICustomTableColumTypeExtra = (ICustomTableColumType<OrderModel> & {
 })[];
 
 let itemResult: OrderModel[] = [];
+let dataResult: PageResponse<OrderModel> = {
+  metadata: {
+    limit: 30,
+    page: 1,
+    total: 0,
+  },
+  items: [],
+};
 
 function OrdersTable(props: PropTypes) {
   const {
@@ -148,26 +177,29 @@ function OrdersTable(props: PropTypes) {
 
   const dispatch = useDispatch();
   const status_order = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.order_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.order_status,
   );
 
-  const type = {
-    trackingCode: "trackingCode",
-    subStatus: "subStatus",
-    setSubStatus: "setSubStatus",
-  };
+  // const type = {
+  //   trackingCode: "trackingCode",
+  //   subStatus: "subStatus",
+  //   setSubStatus: "setSubStatus",
+  // };
 
-  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(
+    undefined,
+  );
 
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
 
-  const [typeAPi, setTypeAPi] = useState("");
+  // const [typeAPi, setTypeAPi] = useState("");
 
   const items = useMemo(() => {
     return data.items ? data.items : [];
   }, [data]);
 
   itemResult = data.items;
+  dataResult = data;
 
   const metadata = useMemo(() => {
     return data.metadata
@@ -235,7 +267,9 @@ function OrdersTable(props: PropTypes) {
     (note, customer_note, orderID) => {
       showSuccess(`${orderID} Cập nhật ghi chú thành công`);
 
-      const indexOrder = itemResult.findIndex((item: any) => item.id === orderID);
+      const indexOrder = itemResult.findIndex(
+        (item: any) => item.id === orderID,
+      );
       if (indexOrder > -1) {
         itemResult[indexOrder].note = note;
         itemResult[indexOrder].customer_note = customer_note;
@@ -245,7 +279,7 @@ function OrdersTable(props: PropTypes) {
         items: itemResult,
       });
     },
-    [data, setData]
+    [data, setData],
   );
 
   const editNote = useCallback(
@@ -255,10 +289,12 @@ function OrdersTable(props: PropTypes) {
         customer_note,
       };
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(note, customer_note, orderID))
+        updateOrderPartial(params, orderID, () =>
+          onSuccessEditNote(note, customer_note, orderID),
+        ),
       );
     },
-    [dispatch, onSuccessEditNote]
+    [dispatch, onSuccessEditNote],
   );
 
   const renderOrderSource = (orderDetail: OrderModel) => {
@@ -313,7 +349,7 @@ function OrdersTable(props: PropTypes) {
         </React.Fragment>
       );
     },
-    [orderType]
+    [orderType],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -335,12 +371,17 @@ function OrdersTable(props: PropTypes) {
       return (
         <div
           className={`singlePayment ${
-            payment.payment_method_code === PaymentMethodCode.POINT ? "ydPoint" : null
+            payment.payment_method_code === PaymentMethodCode.POINT
+              ? "ydPoint"
+              : null
           }`}
-          key={payment.id}>
+          key={payment.id}
+        >
           <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
             <img src={selectedPayment?.icon} alt="" />
-            <span className="amount">{formatCurrency(payment.paid_amount)}</span>
+            <span className="amount">
+              {formatCurrency(payment.paid_amount)}
+            </span>
           </Tooltip>
         </div>
       );
@@ -351,7 +392,10 @@ function OrdersTable(props: PropTypes) {
   const renderOrderReturn = useCallback((orderDetail: OrderModel) => {
     let returnAmount = 0;
     orderDetail.payments.forEach((payment) => {
-      if (payment.return_amount > 0 && payment.status === ORDER_PAYMENT_STATUS.paid) {
+      if (
+        payment.return_amount > 0 &&
+        payment.status === ORDER_PAYMENT_STATUS.paid
+      ) {
         returnAmount = returnAmount + payment.return_amount;
       }
     });
@@ -377,7 +421,7 @@ function OrdersTable(props: PropTypes) {
         </React.Fragment>
       );
     },
-    [renderOrderPaymentMethods, renderOrderReturn, renderOrderTotalPayment]
+    [renderOrderPaymentMethods, renderOrderReturn, renderOrderTotalPayment],
   );
 
   const renderShippingAddress = (orderDetail: OrderModel) => {
@@ -445,7 +489,8 @@ function OrdersTable(props: PropTypes) {
             copyTextToClipboard(e, html);
             showSuccess("Đã copy mã vận đơn!");
           }
-        }}>
+        }}
+      >
         {linkText ? (
           <a href={linkText} target="_blank" title={linkText} rel="noreferrer">
             {html}
@@ -468,26 +513,39 @@ function OrdersTable(props: PropTypes) {
     );
   };
 
-  const renderOrderTrackingLog = (record: OrderExtraModel) => {
-    if (!record?.fulfillments || !record.isShowTrackingLog) {
-      return;
+  // const renderOrderTrackingLog = (record: OrderExtraModel) => {
+  //   if (!record?.fulfillments || !record.isShowTrackingLog) {
+  //     return;
+  //   }
+  //   const trackingLogFulfillment = record?.trackingLog;
+  //   const sortedFulfillments = sortFulfillments(record?.fulfillments);
+  //   const trackingCode = sortedFulfillments[0]?.shipment?.tracking_code;
+  //   if (!trackingCode) {
+  //     return " Không có mã vận đơn!";
+  //   }
+  //   if (!trackingLogFulfillment) {
+  //     return " Không có log tiến trình đơn hàng!";
+  //   }
+  //   let html = null;
+  //   if (trackingLogFulfillment) {
+  //     html = (
+  //       <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
+  //     );
+  //   }
+  //   return html;
+  // };
+
+  const setTrackingOrderData = (
+    orderId: number,
+    _data: TrackingLogFulfillmentResponse[] | null,
+  ) => {
+    const index = itemResult?.findIndex((single) => single.id === orderId);
+    if (index > -1) {
+      let result: dataExtra = { ...dataResult };
+      result.items[index].trackingLog = _data;
+      result.items[index].isShowTrackingLog = true;
+      setData(result);
     }
-    const trackingLogFulfillment = record?.trackingLog;
-    const sortedFulfillments = sortFulfillments(record?.fulfillments);
-    const trackingCode = sortedFulfillments[0]?.shipment?.tracking_code;
-    if (!trackingCode) {
-      return " Không có mã vận đơn!";
-    }
-    if (!trackingLogFulfillment) {
-      return " Không có log tiến trình đơn hàng!";
-    }
-    let html = null;
-    if (trackingLogFulfillment) {
-      html = (
-        <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
-      );
-    }
-    return html;
   };
 
   const renderTypeIfOrderReturn = (order: OrderModel) => {
@@ -508,7 +566,7 @@ function OrdersTable(props: PropTypes) {
       // selected = value;
       dataResult.items[index].sub_status_code = value;
       dataResult.items[index].sub_status = subStatuses?.find(
-        (single) => single.code === value
+        (single) => single.code === value,
       )?.sub_status;
       dataResult.items[index].coordinator = response?.coordinator;
       dataResult.items[index].coordinator_code = response?.coordinator_code;
@@ -517,25 +575,37 @@ function OrdersTable(props: PropTypes) {
     }
   };
 
-  const checkIfOrderCannotChangeToWarehouseChange = (orderDetail: OrderExtraModel) => {
+  const checkIfOrderCannotChangeToWarehouseChange = (
+    orderDetail: OrderExtraModel,
+  ) => {
     const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
       return !orderDetail.fulfillments?.some((single) => {
         return single.shipment && !checkIfFulfillmentCancelled(single);
       });
     };
     const checkIfOrderIsNew = (orderDetail: OrderExtraModel) => {
-      return orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation;
+      return (
+        orderDetail.sub_status_code ===
+        ORDER_SUB_STATUS.awaiting_coordinator_confirmation
+      );
     };
     const checkIfOrderIsConfirm = (orderDetail: OrderExtraModel) => {
-      return orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming;
+      return (
+        orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming
+      );
     };
     const checkIfOrderIsAwaitSaleConfirm = (orderDetail: OrderExtraModel) => {
-      return orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation;
+      return (
+        orderDetail.sub_status_code ===
+        ORDER_SUB_STATUS.awaiting_saler_confirmation
+      );
     };
     return (
       (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) ||
-      (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) ||
-      (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
+      (checkIfOrderIsConfirm(orderDetail) &&
+        checkIfOrderHasNoFFM(orderDetail)) ||
+      (checkIfOrderIsAwaitSaleConfirm(orderDetail) &&
+        checkIfOrderHasNoFFM(orderDetail))
     );
   };
 
@@ -544,7 +614,9 @@ function OrdersTable(props: PropTypes) {
     getVariantApi(variantId.toString())
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
-          const defaultVariantImageUrl = findVariantAvatar(response.data.variant_images);
+          const defaultVariantImageUrl = findVariantAvatar(
+            response.data.variant_images,
+          );
           if (defaultVariantImageUrl) {
             setVariantPreviewUrl(defaultVariantImageUrl);
             setIsVisiblePreviewProduct(true);
@@ -583,7 +655,8 @@ function OrdersTable(props: PropTypes) {
                 <Link
                   to={`${UrlConfig.ORDER}/${i.id}`}
                   style={{ fontWeight: 500 }}
-                  title="Chi tiết đơn">
+                  title="Chi tiết đơn"
+                >
                   {value}
                 </Link>
                 <span title="Click để copy">
@@ -614,7 +687,10 @@ function OrdersTable(props: PropTypes) {
               {orderType === ORDER_TYPES.offline ? (
                 <React.Fragment>
                   <div className="textSmall single mainColor">
-                    <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`} title="Chuyên gia tư vấn">
+                    <Link
+                      to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}
+                      title="Chuyên gia tư vấn"
+                    >
                       <strong>CGTV: </strong>
                       {i.assignee_code} - {i.assignee}
                     </Link>
@@ -674,17 +750,28 @@ function OrdersTable(props: PropTypes) {
             {record.customer_phone_number && (
               <div style={{ color: "#2A2A86", display: "flex" }}>
                 <div
-                  style={{ padding: "0px", fontWeight: 500, cursor: "pointer", fontSize: "0.9em" }}
+                  style={{
+                    padding: "0px",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    fontSize: "0.9em",
+                  }}
                   onClick={() => {
                     onFilterPhoneCustomer(
-                      record.customer_phone_number ? record.customer_phone_number : ""
+                      record.customer_phone_number
+                        ? record.customer_phone_number
+                        : "",
                     );
-                  }}>
+                  }}
+                >
                   {record.customer_phone_number}
                   <span title="Click để copy">
                     <img
                       onClick={(e) => {
-                        copyTextToClipboard(e, (record?.customer_phone_number || "").toString());
+                        copyTextToClipboard(
+                          e,
+                          (record?.customer_phone_number || "").toString(),
+                        );
                         showSuccess("Đã copy số điện thoại!");
                       }}
                       src={copyFileBtn}
@@ -699,55 +786,87 @@ function OrdersTable(props: PropTypes) {
                     <div className="poppver-to-fast">
                       <Button
                         className="btn-to-fast"
-                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        style={{
+                          padding: "0px",
+                          display: "block",
+                          height: "30px",
+                        }}
                         type="link"
-                        icon={<img src={search} alt="" style={{ paddingRight: "18px" }} />}
+                        icon={
+                          <img
+                            src={search}
+                            alt=""
+                            style={{ paddingRight: "18px" }}
+                          />
+                        }
                         onClick={() =>
                           onFilterPhoneCustomer(
-                            record.customer_phone_number ? record.customer_phone_number : ""
+                            record.customer_phone_number
+                              ? record.customer_phone_number
+                              : "",
                           )
-                        }>
+                        }
+                      >
                         Lọc đơn của khách
                       </Button>
                       <Button
                         className="btn-to-fast"
-                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        style={{
+                          padding: "0px",
+                          display: "block",
+                          height: "30px",
+                        }}
                         type="link"
                         icon={<EyeOutlined style={{ paddingRight: "10px" }} />}
                         onClick={() => {
                           let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
                           window.open(pathname, "_blank");
-                        }}>
+                        }}
+                      >
                         Thông tin khách hàng
                       </Button>
                       <Button
                         className="btn-to-fast"
-                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        style={{
+                          padding: "0px",
+                          display: "block",
+                          height: "30px",
+                        }}
                         type="link"
                         icon={<PlusOutlined style={{ paddingRight: "10px" }} />}
                         onClick={() => {
                           let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
                           window.open(pathname, "_blank");
-                        }}>
+                        }}
+                      >
                         Tạo đơn cho khách
                       </Button>
                       <Button
                         className="btn-to-fast"
-                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        style={{
+                          padding: "0px",
+                          display: "block",
+                          height: "30px",
+                        }}
                         type="link"
-                        icon={<PhoneOutlined style={{ paddingRight: "10px" }} />}
+                        icon={
+                          <PhoneOutlined style={{ paddingRight: "10px" }} />
+                        }
                         onClick={() => {
                           window.location.href = `tel:${record.customer_phone_number}`;
-                        }}>
+                        }}
+                      >
                         Gọi điện cho khách
                       </Button>
                     </div>
                   }
-                  trigger="click">
+                  trigger="click"
+                >
                   <Button
                     type="link"
                     style={{ width: "25px", padding: "0px", paddingTop: 2 }}
-                    icon={<DownOutlined style={{ fontSize: "12px" }} />}></Button>
+                    icon={<DownOutlined style={{ fontSize: "12px" }} />}
+                  ></Button>
                 </Popover>
               </div>
             )}
@@ -756,7 +875,8 @@ function OrdersTable(props: PropTypes) {
                 target="_blank"
                 to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
                 title="Chi tiết khách hàng"
-                className="primary">
+                className="primary"
+              >
                 {record.customer}
               </Link>{" "}
             </div>
@@ -800,41 +920,63 @@ function OrdersTable(props: PropTypes) {
                     <div className="product productNameWidth 2">
                       <div className="inner">
                         <PictureOutlined
-                          onClick={() => handleShowVariantImage(item.variant_id)}
+                          onClick={() =>
+                            handleShowVariantImage(item.variant_id)
+                          }
                           className="previewImage"
                           title="Click để hiển thị ảnh sản phẩm"
                         />
                         <Link
-                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
+                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                        >
                           {item.sku}
                         </Link>
                         <br />
-                        <div className="productNameText textSmall" title={item.variant}>
+                        <div
+                          className="productNameText textSmall"
+                          title={item.variant}
+                        >
                           {item.variant}
                         </div>
                       </div>
                     </div>
-                    <div className="quantity quantityWidth">{formatNumber(item.quantity)}</div>
+                    <div className="quantity quantityWidth">
+                      {formatNumber(item.quantity)}
+                    </div>
                     <div className="price priceWidth">
                       <div>
                         <Tooltip title="Giá sản phẩm">
                           <span>{formatCurrency(item.price)}</span>
                         </Tooltip>
 
-                        {item?.discount_items && item.discount_items[0]?.value ? (
+                        {item?.discount_items &&
+                        item.discount_items[0]?.value ? (
                           <React.Fragment>
                             <Tooltip title="Khuyến mại sản phẩm (đ)">
-                              <div className="itemDiscount" style={{ color: dangerColor }}>
-                                <span> - {formatCurrency(item.discount_items[0].value)}</span>
-                              </div>
-                            </Tooltip>
-                            <Tooltip title="Khuyến mại sản phẩm (%)">
-                              <div className="itemDiscount" style={{ color: dangerColor }}>
+                              <div
+                                className="itemDiscount"
+                                style={{ color: dangerColor }}
+                              >
                                 <span>
                                   {" "}
                                   -{" "}
-                                  {Math.round((item.discount_items[0].value / item.price) * 10000) /
-                                    100}
+                                  {formatCurrency(item.discount_items[0].value)}
+                                </span>
+                              </div>
+                            </Tooltip>
+                            <Tooltip title="Khuyến mại sản phẩm (%)">
+                              <div
+                                className="itemDiscount"
+                                style={{ color: dangerColor }}
+                              >
+                                <span>
+                                  {" "}
+                                  -{" "}
+                                  {Math.round(
+                                    (item.discount_items[0].value /
+                                      item.price) *
+                                      10000,
+                                  ) / 100}
                                   %
                                 </span>
                               </div>
@@ -860,7 +1002,9 @@ function OrdersTable(props: PropTypes) {
           <React.Fragment>
             <div className="originalPrice">
               <Tooltip title="Tổng tiền khi sản phẩm còn nguyên giá">
-                <span>{formatCurrency(getTotalAmountBeforeDiscount(record.items))}</span>
+                <span>
+                  {formatCurrency(getTotalAmountBeforeDiscount(record.items))}
+                </span>
               </Tooltip>
             </div>
             <div>
@@ -923,16 +1067,25 @@ function OrdersTable(props: PropTypes) {
           }
           if (sortedFulfillments) {
             if (sortedFulfillments[0]?.shipment) {
-              switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
+              switch (
+                sortedFulfillments[0]?.shipment?.delivery_service_provider_type
+              ) {
                 case ShipmentMethod.EXTERNAL_SERVICE:
-                  const thirdPLId = sortedFulfillments[0]?.shipment?.delivery_service_provider_id;
-                  const service = deliveryServices.find((service) => service.id === thirdPLId);
+                  const thirdPLId =
+                    sortedFulfillments[0]?.shipment
+                      ?.delivery_service_provider_id;
+                  const service = deliveryServices.find(
+                    (service) => service.id === thirdPLId,
+                  );
                   return (
                     <React.Fragment>
                       {service && (
                         <React.Fragment>
                           <div className="single">
-                            <img src={service.logo ? service.logo : ""} alt="" />
+                            <img
+                              src={service.logo ? service.logo : ""}
+                              alt=""
+                            />
                           </div>
                           <Tooltip title="Tổng khối lượng">
                             <div className="single">
@@ -942,49 +1095,49 @@ function OrdersTable(props: PropTypes) {
                           </Tooltip>
                           <Tooltip title="Phí ship báo khách">
                             <div className="single">
-                              <img src={iconShippingFeeInformedToCustomer} alt="" />
+                              <img
+                                src={iconShippingFeeInformedToCustomer}
+                                alt=""
+                              />
                               <span>
-                                {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                                {formatCurrency(
+                                  record.shipping_fee_informed_to_customer || 0,
+                                )}
                               </span>
                             </div>
                           </Tooltip>
 
                           <Tooltip title="Phí vận chuyển">
                             <div className="single">
-                              <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
+                              <img
+                                src={iconShippingFeePay3PL}
+                                alt=""
+                                className="iconShipping"
+                              />
                               {formatCurrency(
-                                sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
+                                sortedFulfillments[0]?.shipment
+                                  ?.shipping_fee_paid_to_three_pls || 0,
                               )}
                             </div>
                           </Tooltip>
 
                           {sortedFulfillments[0]?.shipment?.tracking_code ? (
                             <div className="single trackingCode">
-                              {renderTrackingCode(sortedFulfillments[0]?.shipment)}
+                              {renderTrackingCode(
+                                sortedFulfillments[0]?.shipment,
+                              )}
                             </div>
                           ) : null}
 
                           {sortedFulfillments[0]?.code ? (
                             <div className="single">
                               {true && (
-                                <Popover
-                                  placement="left"
-                                  content={renderOrderTrackingLog(record)}
-                                  // visible={isVisiblePopup}
-                                  trigger="click">
-                                  <Tooltip title="Tiến trình giao hàng">
-                                    <img
-                                      src={iconDeliveryProgress}
-                                      alt=""
-                                      className="trackingCodeImg"
-                                      onClick={() => {
-                                        setTypeAPi(type.trackingCode);
-                                        setSelectedOrder(record);
-                                      }}
-                                      style={{ width: "18px" }}
-                                    />
-                                  </Tooltip>
-                                </Popover>
+                                <DeliveryProgress
+                                  fulfillments={record.fulfillments || []}
+                                  setTrackingOrderData={(data) => {
+                                    setTrackingOrderData(record.id, data);
+                                  }}
+                                />
                               )}
                             </div>
                           ) : null}
@@ -997,7 +1150,8 @@ function OrdersTable(props: PropTypes) {
                   return (
                     <React.Fragment>
                       <div className="single">
-                        {sortedFulfillments[0]?.shipment?.service === "4h_delivery"
+                        {sortedFulfillments[0]?.shipment?.service ===
+                        "4h_delivery"
                           ? "Đơn giao 4H"
                           : "Đơn giao thường"}
                         {" - "}
@@ -1016,7 +1170,9 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                            {formatCurrency(
+                              record.shipping_fee_informed_to_customer || 0,
+                            )}
                           </span>
                         </div>
                       </Tooltip>
@@ -1025,7 +1181,8 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment
+                              ?.shipping_fee_paid_to_three_pls || 0,
                           )}
                         </div>
                       </Tooltip>
@@ -1036,7 +1193,9 @@ function OrdersTable(props: PropTypes) {
                     <React.Fragment>
                       <div className="single">
                         <strong className="textSmall">Nhận tại {" - "}</strong>
-                        <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>{record.store}</Link>
+                        <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
+                          {record.store}
+                        </Link>
                       </div>
                       <Tooltip title="Tổng khối lượng">
                         <div className="single">
@@ -1048,7 +1207,9 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                            {formatCurrency(
+                              record.shipping_fee_informed_to_customer || 0,
+                            )}
                           </span>
                         </div>
                       </Tooltip>
@@ -1057,7 +1218,8 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment
+                              ?.shipping_fee_paid_to_three_pls || 0,
                           )}
                         </div>
                       </Tooltip>
@@ -1077,7 +1239,9 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                            {formatCurrency(
+                              record.shipping_fee_informed_to_customer || 0,
+                            )}
                           </span>
                         </div>
                       </Tooltip>
@@ -1086,7 +1250,8 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment
+                              ?.shipping_fee_paid_to_three_pls || 0,
                           )}
                         </div>
                       </Tooltip>
@@ -1105,7 +1270,9 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                            {formatCurrency(
+                              record.shipping_fee_informed_to_customer || 0,
+                            )}
                           </span>
                         </div>
                       </Tooltip>
@@ -1114,7 +1281,8 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeePay3PL} alt="" />
                           {formatCurrency(
-                            sortedFulfillments[0]?.shipment.shipping_fee_paid_to_three_pls || 0
+                            sortedFulfillments[0]?.shipment
+                              .shipping_fee_paid_to_three_pls || 0,
                           )}
                         </div>
                       </Tooltip>
@@ -1144,7 +1312,9 @@ function OrdersTable(props: PropTypes) {
           if (!recordStatuses) {
             recordStatuses = [];
           }
-          let selected = record.sub_status_code ? record.sub_status_code : "finished";
+          let selected = record.sub_status_code
+            ? record.sub_status_code
+            : "finished";
           if (!recordStatuses.some((single) => single.code === selected)) {
             recordStatuses.push({
               name: record.sub_status,
@@ -1170,12 +1340,14 @@ function OrdersTable(props: PropTypes) {
                       placeholder="Chọn trạng thái xử lý đơn"
                       optionFilterProp="children"
                       filterOption={(input, option) =>
-                        option?.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
+                        option?.children
+                          .toLowerCase()
+                          .indexOf(input.toLowerCase()) >= 0
                       }
                       notFoundContent="Không tìm thấy trạng thái xử lý đơn"
                       value={record.sub_status_code}
                       onClick={() => {
-                        setTypeAPi(type.subStatus);
+                        // setTypeAPi(type.subStatus);
                         setSelectedOrder(record);
                       }}
                       className={className}
@@ -1191,14 +1363,18 @@ function OrdersTable(props: PropTypes) {
                           return;
                         }
                         if (
-                          selected !== ORDER_SUB_STATUS.require_warehouse_change &&
+                          selected !==
+                            ORDER_SUB_STATUS.require_warehouse_change &&
                           value === ORDER_SUB_STATUS.require_warehouse_change
                         ) {
-                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!");
+                          showError(
+                            "Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!",
+                          );
                           return;
                         }
                         setToSubStatusCode(value);
-                      }}>
+                      }}
+                    >
                       {subStatuses &&
                         subStatuses.map((single: any, index: number) => {
                           return (
@@ -1219,7 +1395,8 @@ function OrdersTable(props: PropTypes) {
                       <React.Fragment>
                         <Link
                           to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}
-                          style={{ fontWeight: 500 }}>
+                          style={{ fontWeight: 500 }}
+                        >
                           {record.coordinator_code} - {record.coordinator}
                         </Link>
                       </React.Fragment>
@@ -1250,7 +1427,12 @@ function OrdersTable(props: PropTypes) {
                     title="Khách hàng: "
                     color={primaryColor}
                     onOk={(values) => {
-                      editNote(values.note, values.customer_note, record.id, record);
+                      editNote(
+                        values.note,
+                        values.customer_note,
+                        record.id,
+                        record,
+                      );
                     }}
                     noteFormValue={{
                       note: record.note,
@@ -1264,7 +1446,12 @@ function OrdersTable(props: PropTypes) {
                     title="Nội bộ: "
                     color={primaryColor}
                     onOk={(values) => {
-                      editNote(values.note, values.customer_note, record.id, record);
+                      editNote(
+                        values.note,
+                        values.customer_note,
+                        record.id,
+                        record,
+                      );
                     }}
                     noteFormValue={{
                       note: record.note,
@@ -1293,7 +1480,9 @@ function OrdersTable(props: PropTypes) {
             result = arr.map((single, index) => {
               return (
                 <React.Fragment key={index}>
-                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>{single.id}</Link>
+                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>
+                    {single.id}
+                  </Link>
                   {arr && index < arr.length - 1 && ", "}
                 </React.Fragment>
               );
@@ -1332,7 +1521,10 @@ function OrdersTable(props: PropTypes) {
           }
           if (record?.linked_order_code) {
             return (
-              <Link to={`${UrlConfig.ORDER}/${record.linked_order_code}`} target="_blank">
+              <Link
+                to={`${UrlConfig.ORDER}/${record.linked_order_code}`}
+                target="_blank"
+              >
                 {record?.linked_order_code}
               </Link>
             );
@@ -1355,19 +1547,26 @@ function OrdersTable(props: PropTypes) {
       return initColumnsDefault.filter((single) => !single.isHideInOffline);
     }
   }, [initColumnsDefault, orderType]);
-  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
+  const columnFinal = useMemo(
+    () => columns.filter((item) => item.visible === true),
+    [columns],
+  );
 
-  const [inventoryData, setInventoryData] = useState<AllInventoryProductInStore[]>([]);
+  const [inventoryData, setInventoryData] = useState<
+    AllInventoryProductInStore[]
+  >([]);
   const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
 
   const onSearchInventory = useCallback(
     (value: string) => {
       let _item: StoreResponse[] | any = listStore?.filter(
-        (x) => fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()) === true
+        (x) =>
+          fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()) ===
+          true,
       );
       setStoreInventory(_item);
     },
-    [listStore]
+    [listStore],
   );
 
   const handleInventoryData = useCallback(
@@ -1393,7 +1592,7 @@ function OrdersTable(props: PropTypes) {
           console.log(e);
         });
     },
-    [dispatch, listStore]
+    [dispatch, listStore],
   );
 
   const renderActionButton = (record: OrderModel) => {
@@ -1404,22 +1603,26 @@ function OrdersTable(props: PropTypes) {
             <ButtonCreateOrderReturn orderDetail={record} />
           </div>
         ) : null}
-        {record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED ? (
+        {record.status === OrderStatus.FINISHED ||
+        record.status === OrderStatus.COMPLETED ? (
           <div className="actionButton">
             <Link
               to={`${UrlConfig.ORDER}/print-preview?action=print&ids=${record.id}&print-type=order&print-dialog=true`}
               title="In hóa đơn"
-              target="_blank">
+              target="_blank"
+            >
               <img alt="" src={iconPrint} className="iconReturn" />
             </Link>
           </div>
         ) : null}
-        {record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED ? (
+        {record.status === OrderStatus.FINISHED ||
+        record.status === OrderStatus.COMPLETED ? (
           <div className="actionButton">
             <Link
               to={`${UrlConfig.WARRANTY}/create?orderID=${record.id}`}
               title="Tạo bảo hành"
-              target="_blank">
+              target="_blank"
+            >
               <img
                 alt=""
                 src={iconWarranty}
@@ -1437,7 +1640,7 @@ function OrdersTable(props: PropTypes) {
     checked: boolean,
     record: OrderModel,
     index: number,
-    originNode: ReactNode
+    originNode: ReactNode,
   ) => {
     console.log("checked", checked);
     return (
@@ -1449,8 +1652,16 @@ function OrdersTable(props: PropTypes) {
             placement="right"
             overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
             title={
-              <Row justify="space-between" align="middle" style={{ width: "100%" }}>
-                <Input.Search placeholder="Tìm kiếm kho" allowClear onSearch={onSearchInventory} />
+              <Row
+                justify="space-between"
+                align="middle"
+                style={{ width: "100%" }}
+              >
+                <Input.Search
+                  placeholder="Tìm kiếm kho"
+                  allowClear
+                  onSearch={onSearchInventory}
+                />
               </Row>
             }
             content={
@@ -1463,14 +1674,17 @@ function OrdersTable(props: PropTypes) {
             }
             trigger="click"
             onVisibleChange={(visible) => {
-              visible === true && handleInventoryData(record.items.map((p) => p.variant_id));
-            }}>
+              visible === true &&
+                handleInventoryData(record.items.map((p) => p.variant_id));
+            }}
+          >
             <Button
               type="link"
               className="checkInventoryButton"
               icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
               style={{ padding: 0 }}
-              title="Kiểm tra tồn kho"></Button>
+              title="Kiểm tra tồn kho"
+            ></Button>
           </Popover>
         </div>
         {renderActionButton(record)}
@@ -1544,7 +1758,9 @@ function OrdersTable(props: PropTypes) {
   const getTotalShippingFeeInformedToCustomer = () => {
     let result = 0;
     items.forEach((item) => {
-      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
+      const sortedFulfillments = item?.fulfillments
+        ? sortFulfillments(item.fulfillments)
+        : [];
       if (
         sortedFulfillments[0]?.status &&
         sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
@@ -1558,12 +1774,17 @@ function OrdersTable(props: PropTypes) {
   const getTotalShippingPay3PL = () => {
     let result = 0;
     items.forEach((item) => {
-      const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
+      const sortedFulfillments = item?.fulfillments
+        ? sortFulfillments(item.fulfillments)
+        : [];
       if (
         sortedFulfillments[0]?.status &&
         sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
       ) {
-        result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
+        result =
+          result +
+          (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls ||
+            0);
       }
     });
     return result;
@@ -1581,7 +1802,9 @@ function OrdersTable(props: PropTypes) {
                   <p className="text-field">TỔNG SỐ LƯỢNG SẢN PHẨM:</p>
                 </Col>
                 <Col span={14}>
-                  <b className="text-field">{formatCurrency(getTotalQuantityPerPage())}</b>
+                  <b className="text-field">
+                    {formatCurrency(getTotalQuantityPerPage())}
+                  </b>
                 </Col>
               </Row>
             </Col>
@@ -1591,7 +1814,9 @@ function OrdersTable(props: PropTypes) {
                   <p className="text-field">TỔNG TIỀN ĐƠN HÀNG:</p>
                 </Col>
                 <Col span={14}>
-                  <b className="text-field">{formatCurrency(getTotalAmount())}</b>
+                  <b className="text-field">
+                    {formatCurrency(getTotalAmount())}
+                  </b>
                 </Col>
               </Row>
             </Col>
@@ -1602,7 +1827,9 @@ function OrdersTable(props: PropTypes) {
                 </Col>
                 <Col span={14}>
                   <div>
-                    <b className="text-field">{formatCurrency(getTotalPayment())}</b>
+                    <b className="text-field">
+                      {formatCurrency(getTotalPayment())}
+                    </b>
                   </div>
                 </Col>
               </Row>
@@ -1610,11 +1837,15 @@ function OrdersTable(props: PropTypes) {
             <Col md={12}>
               <Row gutter={30}>
                 <Col span={10}>
-                  <p className="text-field">TỔNG DOANH THU SAU CHIẾT KHẤU TRỪ TIÊU ĐIỂM:</p>
+                  <p className="text-field">
+                    TỔNG DOANH THU SAU CHIẾT KHẤU TRỪ TIÊU ĐIỂM:
+                  </p>
                 </Col>
                 <Col span={14}>
                   <div>
-                    <b className="text-field">{formatCurrency(getTotalRevenue())}</b>
+                    <b className="text-field">
+                      {formatCurrency(getTotalRevenue())}
+                    </b>
                   </div>
                 </Col>
               </Row>
@@ -1633,7 +1864,9 @@ function OrdersTable(props: PropTypes) {
                           alt=""
                           className="iconShippingFeeInformedToCustomer"
                         />
-                        {formatCurrency(getTotalShippingFeeInformedToCustomer())}
+                        {formatCurrency(
+                          getTotalShippingFeeInformedToCustomer(),
+                        )}
                       </Tooltip>
                     </b>
                   </div>
@@ -1660,7 +1893,12 @@ function OrdersTable(props: PropTypes) {
     orderType === ORDER_TYPES.offline
       ? COLUMN_CONFIG_TYPE.orderOffline
       : COLUMN_CONFIG_TYPE.orderOnline;
-  useSetTableColumns(columnConfigType, tableColumnConfigs, initColumns, setColumns);
+  useSetTableColumns(
+    columnConfigType,
+    tableColumnConfigs,
+    initColumns,
+    setColumns,
+  );
 
   useEffect(() => {
     if (columns.length === 0) {
@@ -1672,30 +1910,29 @@ function OrdersTable(props: PropTypes) {
     if (!data?.items) {
       return;
     }
-    if (typeAPi === type.trackingCode) {
-      if (selectedOrder && selectedOrder.fulfillments) {
-        const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments);
-        if (!sortedFulfillments[0]?.code) {
-          return;
-        }
-        dispatch(
-          getTrackingLogFulfillmentAction(sortedFulfillments[0]?.code, (response) => {
-            // setIsVisiblePopup(true)
-            const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
-            if (index > -1) {
-              let dataResult: dataExtra = { ...data };
-              dataResult.items[index].trackingLog = response;
-              dataResult.items[index].isShowTrackingLog = true;
-              setData(dataResult);
-            }
-          })
-        );
-      }
-    } else if (typeAPi === type.setSubStatus) {
-    }
+    // if (typeAPi === type.trackingCode) {
+    //   if (selectedOrder && selectedOrder.fulfillments) {
+    //     const sortedFulfillments = sortFulfillments(selectedOrder.fulfillments);
+    //     if (!sortedFulfillments[0]?.code) {
+    //       return;
+    //     }
+    //     dispatch(
+    //       getTrackingLogFulfillmentAction(sortedFulfillments[0]?.code, (response) => {
+    //         // setIsVisiblePopup(true)
+    //         const index = data.items?.findIndex((single) => single.id === selectedOrder.id);
+    //         if (index > -1) {
+    //           let dataResult: dataExtra = { ...data };
+    //           dataResult.items[index].trackingLog = response;
+    //           dataResult.items[index].isShowTrackingLog = true;
+    //           setData(dataResult);
+    //         }
+    //       })
+    //     );
+    //   }
+    // } else if (typeAPi === type.setSubStatus) {
+    // }
     //xóa data
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
+  }, [data?.items]);
 
   if (!subStatuses || subStatuses.length === 0) {
     return <span>Đang tải dữ liệu ...</span>;
@@ -1707,7 +1944,10 @@ function OrdersTable(props: PropTypes) {
         isRowSelection
         isLoading={tableLoading}
         showColumnSetting={true}
-        scroll={{ x: (2200 * columnFinal.length) / (columns.length ? columns.length : 1) }}
+        scroll={{
+          x:
+            (2200 * columnFinal.length) / (columns.length ? columns.length : 1),
+        }}
         sticky={{ offsetScroll: 10, offsetHeader: 55 }}
         pagination={{
           pageSize: metadata.limit,
@@ -1718,9 +1958,11 @@ function OrdersTable(props: PropTypes) {
           onShowSizeChange: onPageChange,
         }}
         rowSelectionRenderCell={rowSelectionRenderCell}
-        onSelectedChange={(selectedRows: any[], selected?: boolean, changeRow?: any[]) =>
-          onSelectedChange(selectedRows, selected, changeRow)
-        }
+        onSelectedChange={(
+          selectedRows: any[],
+          selected?: boolean,
+          changeRow?: any[],
+        ) => onSelectedChange(selectedRows, selected, changeRow)}
         onShowColumnSetting={() => setShowSettingColumn(true)}
         dataSource={items}
         columns={columnFinal}

@@ -336,3 +336,22 @@ export type CalculateVariantPointInOrderModel = {
 export interface OrderWithFulfillmentActiveModel extends OrderModel{
   fulfillment_active?:FulFillmentResponse;
 }
+
+export interface OrderHistorySearch {
+  search_product?:string|null;
+  search_term?:string|null;
+  store_ids?:number|number[]|null;
+  source_ids?:number|null;
+  customer_ids?:number|null;
+  is_online?:boolean|null;
+  order_status?:string|null;
+  sub_status_code?:string|null;
+  payment_status?:string|null;
+  account_codes?:string|null;
+  assignee_codes?:string|null;
+  note?:string|null;
+  sort_type?:string|null;
+  sort_column?:string|null;
+  page?:number;
+  limit?:number;
+}

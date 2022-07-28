@@ -131,6 +131,19 @@ export const nameQuantityWidth = 200;
 // const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledPurchaseHistory = styled.div`
+  .customer-order-history-filter{
+    margin-top: 10px;
+    &-form{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .ant-form-inline .ant-form-item {
+      flex: none;
+      flex-wrap: nowrap;
+      margin: 0px;
+    }
+  }
 	.filter-line {
 		width: 100%;
 		display: flex;
@@ -353,7 +366,7 @@ export const StyledPurchaseHistory = styled.div`
   }
 
   .ant-select {
-    margin-top: 5px;
+    /* margin-top: 5px; */
     &.coordinator_confirmed {
       .ant-select-selector {
         color: #fff;
