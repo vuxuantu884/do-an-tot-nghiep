@@ -37,6 +37,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  CustomerOrderHistoryResponse,
   FulFillmentResponse,
   OrderDiscountResponse,
   // DeliveryServiceResponse,
@@ -1675,7 +1676,12 @@ export async function sortSources(
 }
 
 export const isOrderFromPOS = (
-  OrderDetail: OrderModel | OrderResponse | null | undefined,
+  OrderDetail:
+    | OrderModel
+    | OrderResponse
+    | CustomerOrderHistoryResponse
+    | null
+    | undefined,
 ) => {
   if (
     OrderDetail?.channel_id === POS.channel_id ||
@@ -2246,7 +2252,7 @@ export const formatCurrencyInputValue = (a: string) => {
 };
 
 export const checkIfOrderCanBeReturned = (
-  orderDetail: OrderResponse | OrderModel,
+  orderDetail: OrderResponse | OrderModel | CustomerOrderHistoryResponse,
 ) => {
   return (
     orderDetail.status === OrderStatus.FINISHED ||

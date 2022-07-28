@@ -8,7 +8,7 @@ import { searchVariantsOrderRequestAction } from "domain/actions/product/product
 import { useDispatch } from "react-redux";
 import { showError } from "utils/ToastUtils";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
-import SearchedVariant from "component/order/SearchedVariant";
+import SearchedVariant from "component/search-product/SearchedVariant";
 
 type Props = {
     keySearch: string;
@@ -38,14 +38,12 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
             return;
         }
 
-        console.log(result[index].sku)
         setKeySearch(result[index].sku);
         setResultSearchVariant([{ ...result[index] }])
         if (onSelect) {
             onSelect({ ...result[index] });
         }
-        autoCompleteRef.current?.blur();
-    }, [autoCompleteRef, resultSearchVariant, setKeySearch, onSelect])
+    }, [resultSearchVariant, setKeySearch, onSelect])
 
     const handleSearchProductData = useCallback((value: string) => {
         let initQueryVariant: any = {
@@ -73,6 +71,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
             setIsSearchingProducts(true);
         } else {
             setIsSearchingProducts(false);
+            setResultSearchVariant([])
         }
         handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => {
             barCode = "";
@@ -80,13 +79,13 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
                 handleSearchProductData(value)
             } else {
                 const txtSearchProductElement: any =
-                    document.getElementById("search_product");
-                setKeySearch("");
+                    document.getElementById(`${id}`);
                 txtSearchProductElement?.select();
+                setKeySearch("");
             }
 
         }, 500)
-    }, [setKeySearch, autoCompleteRef, handleSearchProductData])
+    }, [setKeySearch, autoCompleteRef, handleSearchProductData, id])
 
     const convertResultSearchVariant = useMemo(() => {
         let options: any[] = [];
@@ -113,13 +112,16 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
                 else {
                     onSelect && onSelect(data.items[0]);
                     setKeySearch(data.items[0].sku);
-                    setResultSearchVariant([])
+                    setResultSearchVariant([]);
+                    const txtSearchProductElement: any =
+                        document.getElementById(`${id}`);
+                    txtSearchProductElement?.select();
                 }
                 setIsSearchingProducts(false);
             }, () => {
                 setIsSearchingProducts(false);
             }))
-    }, [dispatch, onSelect, setKeySearch, storeId])
+    }, [dispatch, onSelect, setKeySearch, storeId, id])
 
     const eventKeydownProduct = useCallback(
         (event: any) => {
@@ -130,7 +132,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
             if (event.key === "Enter") {
                 isBarcode = true;
                 //console.log("4 success",event.key,isBarcode,barCode);
-                setKeySearch("");
+                // setKeySearch("");
 
                 if (barCode !== "" && event) {
                     let barCodeCopy = barCode;
@@ -152,6 +154,12 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
         [handleSearchProductData, setKeySearch]
     );
 
+    const handleBlur = useCallback(() => {
+        if (keySearch.length === 0) {
+            setResultSearchVariant([])
+        }
+    }, [keySearch])
+
     return (
         <React.Fragment>
             <AutoComplete
@@ -160,10 +168,11 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
                 }
                 value={keySearch}
                 id={id}
-                dropdownMatchSelectWidth={500}
+                dropdownMatchSelectWidth={530}
                 onSelect={onSearchVariantSelect}
                 onSearch={handleSearchProduct}
                 onKeyDown={eventKeydownProduct}
+                onBlur={handleBlur}
                 options={convertResultSearchVariant}
                 maxLength={255}
                 defaultActiveFirstOption
@@ -173,7 +182,6 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
             >
                 <Input
                     size="middle"
-                    // className="yody-search"
                     placeholder="Tìm sản phẩm"
                     prefix={
                         isSearchingProducts ? (

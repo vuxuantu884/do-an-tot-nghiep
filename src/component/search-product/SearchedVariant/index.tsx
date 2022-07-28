@@ -4,37 +4,31 @@ import { AppConfig } from "config/app.config";
 import { VariantResponse } from "model/product/product.model";
 import React from "react";
 import { findPrice, findVariantAvatar } from "utils/AppUtils";
+import { StyledComponent } from "./style";
 
 type PropTypes = {
-  item: VariantResponse;
+	item: VariantResponse;
 };
 function SearchedVariant(props: PropTypes): JSX.Element {
 
-	console.log('props', props)
+	const { item } = props;
 
-  const {item} = props;
-
-  let avatar = findVariantAvatar(item.variant_images);
-		return (
-			<Row>
+	let avatar = findVariantAvatar(item.variant_images);
+	return (
+		<StyledComponent>
+			<Row className="selected-searched-variant">
 				<Col
 					span={4}
-					style={{
-						alignItems: "center",
-						justifyContent: "center",
-						display: "flex",
-						padding: "4px 6px",
-					}}
+					className="variant-img"
 				>
 					<img
 						src={avatar === "" ? imgDefault : avatar}
 						alt="anh"
 						placeholder={imgDefault}
-						style={{ width: "50%", borderRadius: 5 }}
 					/>
 				</Col>
 				<Col span={14}>
-					<div style={{ padding: "5px 0" }}>
+					<div className="variant-info">
 						<span
 							className="searchDropdown__productTitle"
 							style={{ color: "#37394D" }}
@@ -42,7 +36,7 @@ function SearchedVariant(props: PropTypes): JSX.Element {
 						>
 							{item.name}
 						</span>
-						<div style={{ color: "#95A1AC" }}>{item.sku}</div>
+						<div className="variant-info-color-sku">{item.sku}</div>
 					</div>
 				</Col>
 				<Col span={6}>
@@ -77,7 +71,8 @@ function SearchedVariant(props: PropTypes): JSX.Element {
 					</div>
 				</Col>
 			</Row>
-		);
+		</StyledComponent>
+	);
 }
 
 export default SearchedVariant;

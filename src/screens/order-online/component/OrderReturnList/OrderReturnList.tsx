@@ -26,7 +26,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import { OrderTypeModel } from "model/order/order.model";
 import { ReturnModel, ReturnSearchQuery } from "model/order/return.model";
-import { OrderLineItemResponse, OrderPaymentResponse } from "model/response/order/order.response";
+import { OrderLineItemResponse } from "model/response/order/order.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -113,13 +113,6 @@ function OrderReturnList(props: PropTypes) {
     },
     []
   );
-
-  const onFilterPhoneCustomer = useCallback((phone: string) => {
-    let paramCopy = { ...params, search_term: phone, page: 1  };
-    setPrams(paramCopy);
-    let queryParam = generateQuery(paramCopy);
-    history.push(`${location.pathname}?${queryParam}`);
-  }, [history, location.pathname, params]);
 
   const [columns, setColumns] = useState<
     Array<ICustomTableColumType<ReturnModel>>
