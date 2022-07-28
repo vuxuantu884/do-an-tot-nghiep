@@ -442,7 +442,8 @@ export const onSelectVariantOfDiscount = (
   if (selectedItem && isVariant) {
     itemParseFromSelectToTable = {
       ...selectedItem,
-      cost: 0,
+      cost: selectedItem.variant_prices[0]?.cost_price,
+      retail_price: selectedItem.variant_prices[0]?.retail_price,
       open_quantity: selectedItem.on_hand,
       variant_title: selectedItem.name,
       product_id: selectedItem.product_id, // id của sp cha
