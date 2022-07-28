@@ -85,6 +85,13 @@ export const globalCssLayoutOutsideComponent = css`
         line-height: 34px;
       }
     }
+    .button-option-3 {
+      display: flex;
+      justify-content: space-between;
+      .ant-btn {
+        width: 100%;
+      }
+    }
     .active {
       color: #ffffff;
       border-color: rgba(42, 42, 134, 0.1);
