@@ -62,14 +62,6 @@ const ACTIONS_STATUS = {
   RECEIVE : {
     value: 'RECEIVE',
     name: 'Nhận hàng',
-  },
-  CREATE_SHIPMENT : {
-    value: 'CREATE_SHIPMENT',
-    name: 'Tạo đơn vận chuyển',
-  },
-  DELETE_SHIPMENT : {
-    value: 'DELETE_SHIPMENT',
-    name: 'Hủy đơn vận chuyển',
   }
 }
 const initQuery: InventoryTransferLogSearchQuery = {
@@ -227,12 +219,6 @@ const HistoryInventoryTransferTab: React.FC<HistoryInventoryTransferTabProps> = 
             break;
           case ACTIONS_STATUS.RECEIVE.value:
             displayName = ACTIONS_STATUS.RECEIVE.name;
-            break;
-          case ACTIONS_STATUS.CREATE_SHIPMENT.value:
-            displayName = ACTIONS_STATUS.CREATE_SHIPMENT.name;
-            break;
-          case ACTIONS_STATUS.DELETE_SHIPMENT.value:
-            displayName = ACTIONS_STATUS.DELETE_SHIPMENT.name;
             break;
         }
         return `${displayName}`;

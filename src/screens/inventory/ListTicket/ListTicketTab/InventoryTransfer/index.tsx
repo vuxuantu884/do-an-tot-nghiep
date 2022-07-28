@@ -1,7 +1,7 @@
 import {MenuAction} from "component/table/ActionButton";
 import {
   actionCancelTicketByIds,
-  actionExportInventoryByIds, actionSelfTransferInventoryByIds,
+  actionExportInventoryByIds,
   getListInventoryTransferAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
@@ -73,7 +73,6 @@ import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
 import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 import CustomPagination from "../../../../../component/table/CustomPagination";
-import InventoryShipment from "../../../common/ChosesShipment";
 const { TextArea } = Input;
 const { Text } = Typography;
 
@@ -86,7 +85,6 @@ const ACTIONS_INDEX = {
   PRINT_TICKET: 5,
   MAKE_COPY: 7,
   EXPORT: 8,
-  SELF_TRANSFER: 10,
   CANCEL: 9,
 };
 
@@ -140,7 +138,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
 
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
-  const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
   const [isStatusModalVisible, setIsStatusModalVisible] = useState<boolean>(false);
   const [itemData, setItemData] = useState<InventoryTransferDetailItem>();
   const printElementRef = useRef(null);
@@ -211,11 +208,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       name: "Tạo bản sao",
       icon: <CopyOutlined />,
       disabled: !allowClone,
-    },
-    {
-      id: ACTIONS_INDEX.SELF_TRANSFER,
-      name: "Tự vận chuyển",
-      icon: <ExportOutlined />,
     },
     {
       id: ACTIONS_INDEX.EXPORT,
@@ -729,24 +721,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     }
   };
 
-  const dataSelfTransferCallback = (data: any) => {
-    setTableLoading(false);
-    if (data.code === HttpStatus.SUCCESS) {
-      showSuccess(`Tự vận chuyển nhanh thành công`);
-      setParams({
-        ...params
-      });
-      setSelectedRowKeys([]);
-      setIsVisibleInventoryShipment(false);
-      return;
-    }
-
-    if (data.code === HttpStatus.BAD_REQUEST) {
-      setIsStatusModalVisible(true);
-      setDataUploadError(data.errors);
-    }
-  };
-
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const exportMultiple = async () => {
     setTableLoading(true);
@@ -762,30 +736,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       actionExportInventoryByIds(
         data,
         dataExportCallback
-      )
-    );
-  };
-
-  const openModalChooseShipment = () => {
-    setIsVisibleInventoryShipment(true);
-  };
-
-  const selfTransferMultiple = async (item: any) => {
-    setTableLoading(true);
-    const dataSelected = selectedRowData.map((i) => {
-      return {
-        id: i.id,
-        code: i.code,
-      }
-    });
-    const data: any = {
-      transfers: dataSelected,
-      ...item,
-    };
-    dispatch(
-      actionSelfTransferInventoryByIds(
-        data,
-        dataSelfTransferCallback
       )
     );
   };
@@ -820,9 +770,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           break;
         case ACTIONS_INDEX.EXPORT:
           exportMultiple().then();
-          break;
-        case ACTIONS_INDEX.SELF_TRANSFER:
-          openModalChooseShipment();
           break;
         case ACTIONS_INDEX.CANCEL:
           cancelTicket();
@@ -1238,19 +1185,6 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         exportProgress={exportProgress}
         statusExport={statusExport}
       />
-
-      {
-        isVisibleInventoryShipment &&
-        <InventoryShipment
-          visible={isVisibleInventoryShipment}
-          onCancel={() => setIsVisibleInventoryShipment(false)}
-          onOk={item => {
-            if (item) {
-              selfTransferMultiple(item).then();
-            }
-          }}
-        />
-      }
 
       {isStatusModalVisible && (
         <Modal

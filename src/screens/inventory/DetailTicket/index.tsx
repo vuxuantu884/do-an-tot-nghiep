@@ -1,21 +1,7 @@
 import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import {
-  AutoComplete,
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Collapse,
-  Form,
-  Input,
-  Row,
-  Space,
-  Steps,
-  Table,
-  Timeline,
-} from "antd";
+import { AutoComplete, Button, Card, Checkbox, Col, Form, Input, Row, Space, Table, Tag } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -25,14 +11,12 @@ import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import {
   CloseCircleOutlined,
   CopyOutlined,
-  DoubleRightOutlined,
   EditOutlined,
   ExportOutlined,
   ImportOutlined,
   PaperClipOutlined,
   PrinterOutlined,
 } from "@ant-design/icons";
-import copy from "copy-to-clipboard";
 import { ColumnsType } from "antd/lib/table/interface";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import RowDetail from "screens/products/product/component/RowDetail";
@@ -50,11 +34,11 @@ import {
   receivedInventoryTransferAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryTransferDetailItem, LineItem, ShipmentItem, Store } from "model/inventory/transfer";
+import { InventoryTransferDetailItem, LineItem, Store } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { ConvertFullAddress } from "utils/ConvertAddress";
 import DeleteTicketModal from "../common/DeleteTicketPopup";
-import InventoryShipment, { deliveryService } from "../common/ChosesShipment";
+import InventoryShipment from "../common/ChosesShipment";
 import {
   findAvatar,
   formatCurrency,
@@ -95,7 +79,6 @@ import useAuthorization from "hook/useAuthorization";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import * as XLSX from "xlsx";
 import moment from "moment";
-import TagStatus from "../../../component/tag/tag-status";
 import { InventoryType } from "../../../domain/types/inventory.type";
 
 export interface InventoryParams {
@@ -106,25 +89,12 @@ let barCode = "";
 
 let version = 0;
 
-const ShipmentStatus = {
-  CONFIRMED: "confirmed",
-  TRANSFERRING: "transferring",
-  RECEIVED: "received",
-  CANCELED: "canceled",
-};
-
-const serviceLabel: any = {
-  employee: "Nhân viên",
-  external_service: "Dịch vụ bên ngoài",
-  external_shipper: "Shipper bên ngoài",
-};
-
 const DetailTicket: FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
-  const myStores: any = useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
+  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
   const [data, setData] = useState<InventoryTransferDetailItem | null>(null);
-  const [dataShipment, setDataShipment] = useState<ShipmentItem | undefined>();
+  // const [dataShipment, setDataShipment] = useState<ShipmentItem | undefined>();
   const [isDeleteTicket, setIsDeleteTicket] = useState<boolean>(false);
   const [isVisibleInventoryShipment, setIsVisibleInventoryShipment] = useState<boolean>(false);
   const [isBalanceTransfer, setIsBalanceTransfer] = useState<boolean>(false);
@@ -154,7 +124,6 @@ const DetailTicket: FC = () => {
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
 
   const [form] = Form.useForm();
-  const { Panel } = Collapse;
   const printElementRef = useRef(null);
 
   const currentPermissions: string[] = useSelector(
@@ -211,14 +180,13 @@ const DetailTicket: FC = () => {
             return {
               ...item,
               status: result.status,
-              to_store_id: result.to_store_id,
-            };
-          });
+              to_store_id: result.to_store_id
+            }
+          })
         }
         setDataTable(newDataTable);
 
         setData(result);
-        setDataShipment(result.shipment);
         version = result.version;
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
@@ -293,21 +261,33 @@ const DetailTicket: FC = () => {
     },
   ];
 
-  const renderStatusTag = (status: string) => {
-    switch (status) {
-      case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
-        return <TagStatus type="secondary" children={STATUS_INVENTORY_TRANSFER.REQUESTED.name} />
-      case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
-        return <TagStatus type="warning" children={STATUS_INVENTORY_TRANSFER.TRANSFERRING.name} />
-      case STATUS_INVENTORY_TRANSFER.PENDING.status:
-        return <TagStatus type="warning" children={STATUS_INVENTORY_TRANSFER.PENDING.name} />
-      case STATUS_INVENTORY_TRANSFER.RECEIVED.status:
-        return <TagStatus type="success" children={STATUS_INVENTORY_TRANSFER.RECEIVED.name} />
-      case STATUS_INVENTORY_TRANSFER.CANCELED.status:
-        return <TagStatus type="danger" children={STATUS_INVENTORY_TRANSFER.CANCELED.name} />
-      default:
-        return <TagStatus type="secondary" children={STATUS_INVENTORY_TRANSFER.CONFIRM.name} />
-    }
+  let textTag: string;
+  let classTag: string;
+  switch (data?.status) {
+    case STATUS_INVENTORY_TRANSFER.REQUESTED.status:
+      textTag = STATUS_INVENTORY_TRANSFER.REQUESTED.name;
+      classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+      break;
+    case STATUS_INVENTORY_TRANSFER.TRANSFERRING.status:
+      textTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.name;
+      classTag = STATUS_INVENTORY_TRANSFER.TRANSFERRING.status;
+      break;
+    case STATUS_INVENTORY_TRANSFER.PENDING.status:
+      textTag = STATUS_INVENTORY_TRANSFER.PENDING.name;
+      classTag = STATUS_INVENTORY_TRANSFER.PENDING.status;
+      break;
+    case STATUS_INVENTORY_TRANSFER.RECEIVED.status:
+      textTag = STATUS_INVENTORY_TRANSFER.RECEIVED.name;
+      classTag = STATUS_INVENTORY_TRANSFER.RECEIVED.status;
+      break;
+    case STATUS_INVENTORY_TRANSFER.CANCELED.status:
+      textTag = STATUS_INVENTORY_TRANSFER.CANCELED.name;
+      classTag = STATUS_INVENTORY_TRANSFER.CANCELED.status;
+      break;
+    default:
+      textTag = STATUS_INVENTORY_TRANSFER.CONFIRM.name;
+      classTag = STATUS_INVENTORY_TRANSFER.CONFIRM.status;
+      break;
   }
 
   const renderResult = useMemo(() => {
@@ -932,7 +912,7 @@ const DetailTicket: FC = () => {
 
   const onReload = useCallback(()=>{
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
-  },[dispatch, idNumber, onResult])
+  },[dispatch,idNumber,onResult])
 
   const changeReceiveAllProducts = (e: any) => {
     setIsReceiveAllProducts(e.target.checked);
@@ -1160,72 +1140,72 @@ const DetailTicket: FC = () => {
                     </Col>
                   </Row>
                 </Card>
-                {
-                  (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
-                    data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status ||
-                    data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && (
-                    <Card
-                      title="DANH SÁCH SẢN PHẨM"
-                      bordered={false}
-                      extra={renderStatusTag(data?.status)}
-                      className={"inventory-transfer-table"}
-                    >
-                      <Table
-                        rowClassName="product-table-row"
-                        tableLayout="fixed"
-                        scroll={{ x: "max-content" }}
-                        pagination={false}
-                        columns={columns}
-                        dataSource={data.line_items}
-                        summary={() => (
-                          <Table.Summary>
-                            <Table.Summary.Row>
-                              <Table.Summary.Cell align={"right"} index={2} colSpan={3}>
-                                <b>Tổng số lượng:</b>
-                              </Table.Summary.Cell>
-                              <Table.Summary.Cell align={"center"} index={3}>
-                                <b>{data.total_quantity}</b>
-                              </Table.Summary.Cell>
-                              <Table.Summary.Cell index={4}>
-                              </Table.Summary.Cell>
-                            </Table.Summary.Row>
-                          </Table.Summary>
-                        )}
-                      />
-                    </Card>
-                  )
-                }
+
+                    {
+                     (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status ||
+                     data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status ||
+                      data.status === STATUS_INVENTORY_TRANSFER.CANCELED.status) && (
+                        <Card
+                          title="DANH SÁCH SẢN PHẨM"
+                          bordered={false}
+                          extra={<Tag className={classTag}>{textTag}</Tag>}
+                          className={"inventory-transfer-table"}
+                        >
+                          <Table
+                            rowClassName="product-table-row"
+                            tableLayout="fixed"
+                            scroll={{ x: "max-content" }}
+                            pagination={false}
+                            columns={columns}
+                            dataSource={data.line_items}
+                            summary={() => (
+                              <Table.Summary>
+                                <Table.Summary.Row>
+                                  <Table.Summary.Cell align={"right"} index={2} colSpan={3}>
+                                    <b>Tổng số lượng:</b>
+                                  </Table.Summary.Cell>
+                                  <Table.Summary.Cell align={"center"} index={3}>
+                                    <b>{data.total_quantity}</b>
+                                  </Table.Summary.Cell>
+                                  <Table.Summary.Cell index={4}>
+                                  </Table.Summary.Cell>
+                                </Table.Summary.Row>
+                              </Table.Summary>
+                            )}
+                          />
+                        </Card>
+                      )
+                    }
                 {
                   (data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
                     || data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
                     || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && (
-                    <Card
-                      title="Danh sách sản phẩm"
-                      bordered={false}
-                      extra={<>
-                        {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
-                          <>
-                            <Checkbox className="checkbox" checked={isReceiveAllProducts}
-                                      onChange={changeReceiveAllProducts}>
-                              Nhận tất cả sản phẩm
-                            </Checkbox>
-                          </>
-                        )}
-                        {renderStatusTag(data.status)}
-                      </>}
-                      className={"inventory-transfer-table"}
-                    >
-                      <div>
-                        {
-                          data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
-                            <Input.Group className="display-flex">
-                              <AutoComplete
-                                notFoundContent={
-                                  keySearch.length >= 3
-                                    ? "Không tìm thấy sản phẩm"
-                                    : undefined
-                                }
-                                value={keySearch}
+                  <Card
+                    title="Danh sách sản phẩm"
+                    bordered={false}
+                    extra={<>
+                      { data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                        <>
+                          <Checkbox className="checkbox" checked={isReceiveAllProducts} onChange={changeReceiveAllProducts}>
+                            Nhận tất cả sản phẩm
+                          </Checkbox>
+                        </>
+                      )}
+                      <Tag className={classTag}>{textTag}</Tag>
+                    </>}
+                    className={"inventory-transfer-table"}
+                  >
+                    <div>
+                      {
+                        data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
+                        <Input.Group className="display-flex">
+                          <AutoComplete
+                            notFoundContent={
+                              keySearch.length >= 3
+                                ? "Không tìm thấy sản phẩm"
+                                : undefined
+                            }
+                            value={keySearch}
                             ref={productAutoCompleteRef}
                             onSelect={onSelect}
                             style={{ width: "100%" }}
@@ -1313,190 +1293,11 @@ const DetailTicket: FC = () => {
                             </AuthWrapper>
 
                           </div>
-                         )
+                       )
                       }
                     </div>
                   </Card>
                   )
-                }
-                {
-                  data.status !== STATUS_INVENTORY_TRANSFER.CANCELED.status &&
-                  <Card
-                    title={"CHUYỂN HÀNG"}
-                    extra={
-                      data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && !data.shipment &&
-                      <AuthWrapper
-                        acceptPermissions={[ShipmentInventoryTransferPermission.create]}
-                        acceptStoreIds={[data.from_store_id]}
-                      >
-                        <Button
-                          className={"choses-shipper-button"}
-                          onClick={() => setIsVisibleInventoryShipment(true)}
-                        >
-                          Chọn hãng vận chuyển
-                        </Button>
-                      </AuthWrapper>
-                    }
-                  >
-                    {
-                      ((data.status === STATUS_INVENTORY_TRANSFER.PENDING.status
-                        || data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status
-                        || data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status
-                        || data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && data.shipments.length > 0) &&
-                      <>
-                        {data.shipments.map((shipment: any) => {
-                          return (
-                            <div>
-                              <Collapse
-                                expandIcon={({ isActive }) => <DoubleRightOutlined rotate={isActive ? 90 : 0} />}
-                              >
-                                <Panel key={1} header={
-                                  <div className="display-flex align-item-center">
-                                    <div
-                                      className={shipment.status === ShipmentStatus.CANCELED ? "text-danger" : "text-normal"}
-                                      style={{ fontSize: 16, fontWeight: 500 }}
-                                    >
-                                      {shipment.fulfillment_code}
-                                    </div>
-                                    <div className="shipment-detail margin-right-20 margin-left-10">
-                                      <CopyOutlined
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          showSuccess("Đã copy");
-                                          copy(shipment.fulfillment_code);
-                                        }}
-                                      />
-                                    </div>
-                                    <div>
-                                      {renderStatusTag(shipment.status)}
-                                    </div>
-                                  </div>
-                                }>
-                                  <Row style={{ padding: '0 23px' }}>
-                                    <Col span={14}>
-                                      <Row className="mb-10">
-                                        <Col span={10} lg={6}>Đối tác giao hàng:</Col>
-                                        <Col span={14} lg={18}>
-                                          {shipment.delivery_service_id && shipment.delivery_service_id !== '' ? (
-                                            <div className="shipment-logo"><img
-                                              src={(deliveryService as any)[shipment.delivery_service_code ?? "yody"].logo}
-                                              alt=""
-                                            /></div>
-                                          ) : (
-                                            <div className="font-weight-500">{shipment.shipper_code} -  {shipment.shipper_name} - {shipment.shipper_phone}</div>
-                                          )}
-                                        </Col>
-                                      </Row>
-                                      <Row className="mb-10">
-                                        <Col span={10} lg={6}>Phí ship trả HVC:</Col>
-                                        <Col span={14} lg={18} className="font-weight-500">
-                                          {formatCurrency(shipment.shipping_fee_paid_to_three_pls)}
-                                        </Col>
-                                      </Row>
-                                      {shipment.delivery_service_type === 'external_shipper' && (
-                                        <Row className="mb-10">
-                                          <Col span={10} lg={6}>Ghi chú:</Col>
-                                          <Col span={14} lg={18} className="font-weight-500">
-                                            {shipment.note_to_shipper}
-                                          </Col>
-                                        </Row>
-                                      )}
-                                    </Col>
-                                    <Col span={10}>
-                                      <Row className="mb-10">
-                                        <Col span={8} lg={6}>Dịch vụ:</Col>
-                                        <Col span={16} lg={18} className="font-weight-500">
-                                          {serviceLabel[shipment.delivery_service_type]}
-                                        </Col>
-                                      </Row>
-
-                                      {shipment.status !== ShipmentStatus.CANCELED && (
-                                        <Row className="mb-10">
-                                          <Col span={8} lg={6}>Ngày tạo:</Col>
-                                          <Col span={16} lg={18} className="font-weight-500">
-                                            {ConvertUtcToLocalDate(shipment.created_date)}
-                                          </Col>
-                                        </Row>
-                                      )}
-                                    </Col>
-                                  </Row>
-
-                                  {shipment.status !== "canceled" && shipment.delivery_service_id ? (
-                                    <Collapse defaultActiveKey={[2]}>
-                                      <Panel key={2} header={<div className="display-flex align-item-center">
-                                        <div>Mã vận đơn: <span className="font-weight-500" style={{ fontSize: 16, color: '#2a2a86' }}>{shipment.tracking_code}</span></div>
-                                        <div className="shipment-detail margin-right-30">
-                                          <CopyOutlined
-                                            style={{ color: "#71767B" }}
-                                            onClick={(e) => {
-                                              e.stopPropagation();
-                                              showSuccess("Đã copy");
-                                              copy(shipment.tracking_code);
-                                            }}
-                                          />
-                                        </div>
-                                      </div>}>
-                                        <div className="timeline-collapse">
-                                          <Timeline>
-                                            {
-                                              dataShipment?.tracking_logs?.map((item: any) => {
-                                                return (
-                                                  <Timeline.Item>
-                                                    <span><b>{item.shipping_message}</b></span>
-                                                    &#8226;
-                                                    <span>{ConvertUtcToLocalDate(
-                                                      item.updated_date,
-                                                      "DD/MM/YYYY HH:mm",
-                                                    )}</span>
-                                                  </Timeline.Item>
-                                                );
-                                              })
-                                            }
-                                          </Timeline>
-                                        </div>
-                                      </Panel>
-                                    </Collapse>
-                                  ) : (
-                                    <div className="mt-10 margin-left-15 step">
-                                      <Row>
-                                        <Col span={6}>
-                                          <Steps progressDot current={2}>
-                                            <Steps.Step title="Ngày tạo" description={ConvertUtcToLocalDate(
-                                              shipment.created_date,
-                                            )} />
-                                            <Steps.Step title="Ngày hủy giao" description={ConvertUtcToLocalDate(
-                                              shipment.canceled_date,
-                                            )} />
-                                          </Steps>
-                                        </Col>
-                                      </Row>
-                                    </div>
-                                  )}
-                                </Panel>
-                              </Collapse>
-                            </div>
-                          );
-                        })}
-                      </>
-                    }
-                    {
-                      ((data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status && data.shipment) && (
-                        <div className="inventory-transfer-action">
-                          <AuthWrapper
-                            acceptPermissions={[ShipmentInventoryTransferPermission.delete]}
-                            acceptStoreIds={[data.from_store_id]}
-                          >
-                            <Button
-                              type="default"
-                              onClick={() => setIsVisibleModalWarning(true)}
-                            >
-                              Hủy giao hàng
-                            </Button>
-                          </AuthWrapper>
-                        </div>
-                      ))
-                    }
-                  </Card>
                 }
               </Col>
               <Col span={6}>
@@ -1504,7 +1305,7 @@ const DetailTicket: FC = () => {
                   title={"THÔNG TIN PHIẾU"}
                   bordered={false}
                   className={"inventory-info"}
-                  extra={renderStatusTag(data.status)}
+                  extra={<Tag className={classTag}>{textTag}</Tag>}
                 >
                   <Col>
                     <div className="row-detail">
@@ -1680,7 +1481,7 @@ const DetailTicket: FC = () => {
                     )
                   }
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && !data.shipment &&
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) &&
                     <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.update]}
                       acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
@@ -1697,7 +1498,7 @@ const DetailTicket: FC = () => {
                     </AuthWrapper>
                   }
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status) && !data.shipment &&
+                    (data.status === STATUS_INVENTORY_TRANSFER.REQUESTED.status) &&
                     <AuthWrapper
                       acceptPermissions={[InventoryTransferPermission.update]}
                     >
@@ -1735,7 +1536,7 @@ const DetailTicket: FC = () => {
                     ))
                   }
                   {
-                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && data.shipment && (
+                    (data.status === STATUS_INVENTORY_TRANSFER.CONFIRM.status) && (
                       <AuthWrapper
                         acceptPermissions={[ShipmentInventoryTransferPermission.export]}
                         acceptStoreIds={myStores.length > 0 ? [data.from_store_id] : []}
@@ -1746,8 +1547,8 @@ const DetailTicket: FC = () => {
                           loading={isLoadingBtn}
                           onClick={() => {
                             setLoadingBtn(true);
-                            if (data) dispatch(exportInventoryAction(data?.id, data.shipment.id,
-                              onReload,
+                            if(data) dispatch(exportInventoryAction(data?.id,
+                              onReload
                             ));
                           }}
                         >
