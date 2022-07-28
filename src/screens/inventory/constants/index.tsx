@@ -24,10 +24,6 @@ export const STATUS_INVENTORY_TRANSFER = {
     status: "canceled",
     name: "Đã huỷ"
   },
-  SELF_TRANSPORT : {
-    status: "self_transport",
-    name: "Tự vận chuyển"
-  },
 }
 
 export const STATUS_INVENTORY_TRANSFER_ARRAY = [
