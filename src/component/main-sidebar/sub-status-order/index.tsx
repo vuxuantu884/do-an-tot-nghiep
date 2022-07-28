@@ -3,16 +3,24 @@ import CustomSelect from "component/custom/select.custom";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import { setSubStatusAction } from "domain/actions/order/order.action";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-import { OrderResponse, OrderReturnReasonDetailModel } from "model/response/order/order.response";
+import {
+  OrderResponse,
+  OrderReturnReasonDetailModel,
+} from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
-import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel } from "utils/AppUtils";
+import {
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isOrderFinishedOrCancel,
+} from "utils/AppUtils";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
+import { checkIfOrderHasNotFinishPaymentMomo } from "utils/OrderUtils";
 import { showError, showWarning } from "utils/ToastUtils";
 
 type PropTypes = {
-  setOrderDetail?:(data: OrderResponse | null)=>void;
+  setOrderDetail?: (data: OrderResponse | null) => void;
   subStatusCode?: string | undefined;
   status?: string | null;
   orderId?: number;
@@ -34,20 +42,24 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     isDisableUpdate = false,
   } = props;
   const dispatch = useDispatch();
-  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
-  const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(
+    undefined,
+  );
+  const [valueSubStatusCode, setValueSubStatusCode] = useState<
+    string | undefined
+  >(undefined);
 
   const [isShowReason, setIsShowReason] = useState(false);
 
-  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<
-    number | undefined
-  >(undefined);
+  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] =
+    useState<number | undefined>(undefined);
 
   const [reasonId, setReasonId] = useState<number | undefined>(undefined);
 
-  const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
-    OrderReturnReasonDetailModel[]
-  >([]);
+  const [
+    subReasonsRequireWarehouseChange,
+    setSubReasonsRequireWarehouseChange,
+  ] = useState<OrderReturnReasonDetailModel[]>([]);
 
   // console.log("OrderDetailAllFulfillment",OrderDetailAllFulfillment)
   const subStatuses = useGetOrderSubStatuses();
@@ -55,28 +67,27 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
   const changeSubStatusCode = (
     sub_status_code: string,
     reasonId?: number,
-    subReason?: number
+    subReason?: number,
   ) => {
     if (orderId) {
       dispatch(
         setSubStatusAction(
           orderId,
           sub_status_code,
-          (data:OrderResponse) => {
+          (data: OrderResponse) => {
             setValueSubStatusCode(sub_status_code);
             handleUpdateSubStatus();
             setOrderDetail && setOrderDetail(data);
             // setReload(true);
             // setIsShowReason(false);
-            if(data.sub_reason_id)
+            if (data.sub_reason_id)
               setSubReasonRequireWarehouseChange(data.sub_reason_id);
-            else
-              setSubReasonRequireWarehouseChange(undefined);
+            else setSubReasonRequireWarehouseChange(undefined);
           },
           undefined,
           reasonId,
-          subReason
-        )
+          subReason,
+        ),
       );
     }
   };
@@ -90,7 +101,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
       element?.focus();
     }, 500);
     setValueSubStatusCode(sub_status_code);
-    setSubReasonRequireWarehouseChange(undefined)
+    setSubReasonRequireWarehouseChange(undefined);
     return;
   };
 
@@ -101,8 +112,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     if (sub_status_code === ORDER_SUB_STATUS.require_warehouse_change) {
       handleIfRequireWareHouseChange(sub_status_code);
     } else {
-      if(subStatusCode===sub_status_code)
-      {
+      if (subStatusCode === sub_status_code) {
         setValueSubStatusCode(subStatusCode);
         setIsShowReason(false);
         return;
@@ -113,11 +123,15 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
 
   const changeSubStatusCallback = (value: string) => {
     setValueSubStatusCode(value);
-    setReload(true)
+    setReload(true);
   };
 
   const checkIfIsDisableUpdateSubStatus = () => {
-    return isOrderFinishedOrCancel(OrderDetailAllFulfillment) || isDisableUpdate
+    return (
+      isOrderFinishedOrCancel(OrderDetailAllFulfillment) ||
+      isDisableUpdate ||
+      checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment)
+    );
   };
 
   useEffect(() => {
@@ -141,9 +155,10 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
   useEffect(() => {
     if (subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
       setIsShowReason(true);
-      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id);
-    }
-    else{
+      setSubReasonRequireWarehouseChange(
+        OrderDetailAllFulfillment?.sub_reason_id,
+      );
+    } else {
       setIsShowReason(false);
     }
   }, [OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
@@ -163,8 +178,9 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
         notFoundContent="Không tìm thấy trạng thái phụ"
         value={valueSubStatusCode}
         disabled={checkIfIsDisableUpdateSubStatus()}
-        listHeight= {300}
-        key={Math.random()}>
+        listHeight={300}
+        key={Math.random()}
+      >
         {subStatuses &&
           subStatuses.map((single) => {
             return (
@@ -183,7 +199,8 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
                 <span>Chọn lý do đổi kho hàng chi tiết </span>
                 <span className="text-error">*</span>
               </div>
-            }>
+            }
+          >
             <Select
               id="requireWarehouseChangeId"
               showSearch
@@ -200,11 +217,19 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
                   return;
                 }
                 //setSubReasonRequireWarehouseChange(value);
-                changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change, reasonId, value);
+                changeSubStatusCode(
+                  ORDER_SUB_STATUS.require_warehouse_change,
+                  reasonId,
+                  value,
+                );
               }}
-              disabled={isOrderFinishedOrCancel(OrderDetailAllFulfillment) || checkIfIsDisableUpdateSubStatus()}
+              disabled={
+                isOrderFinishedOrCancel(OrderDetailAllFulfillment) ||
+                checkIfIsDisableUpdateSubStatus()
+              }
               value={subReasonRequireWarehouseChange}
-              notFoundContent="Không tìm thấy lý do đổi kho hàng">
+              notFoundContent="Không tìm thấy lý do đổi kho hàng"
+            >
               {subReasonsRequireWarehouseChange &&
                 subReasonsRequireWarehouseChange.map((single) => {
                   return (

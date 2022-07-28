@@ -1,4 +1,10 @@
-import { DownOutlined, EyeOutlined, PhoneOutlined, PictureOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  DownOutlined,
+  EyeOutlined,
+  PhoneOutlined,
+  PictureOutlined,
+  PlusOutlined,
+} from "@ant-design/icons";
 import { Button, Col, Image, Input, Popover, Row, Select, Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
@@ -12,14 +18,15 @@ import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
 import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import iconPrint from "assets/icon/Print.svg";
-import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
+import iconDeliveryProgress from "assets/icon/delivery/tientrinhgiaohang.svg";
 import search from "assets/img/search.svg";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
-  getTrackingLogFulfillmentAction, updateOrderPartial
+  getTrackingLogFulfillmentAction,
+  updateOrderPartial,
 } from "domain/actions/order/order.action";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -32,7 +39,8 @@ import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import {
   DeliveryServiceResponse,
-  OrderLineItemResponse, ShipmentResponse
+  OrderLineItemResponse,
+  ShipmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -45,31 +53,45 @@ import {
   copyTextToClipboard,
   findVariantAvatar,
   formatCurrency,
-  formatNumber, getOrderTotalPaymentAmount,
-  getTotalQuantity, handleFetchApiError,
+  formatNumber,
+  getOrderTotalPaymentAmount,
+  getTotalQuantity,
+  handleFetchApiError,
   isFetchApiSuccessful,
   isNormalTypeVariantItem,
-  isOrderFromPOS, sortFulfillments
+  isOrderFromPOS,
+  sortFulfillments,
 } from "utils/AppUtils";
 import {
-  COD, COLUMN_CONFIG_TYPE, FACEBOOK,
+  COD,
+  COLUMN_CONFIG_TYPE,
+  FACEBOOK,
   FulFillmentStatus,
   OrderStatus,
   PaymentMethodCode,
   POS,
   PRODUCT_TYPE,
   ShipmentMethod,
-  SHOPEE
+  SHOPEE,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
-import { ORDER_SUB_STATUS, ORDER_TYPES, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
-import { checkIfFulfillmentCancelled, getLink } from "utils/OrderUtils";
+import {
+  ORDER_PAYMENT_STATUS,
+  ORDER_SUB_STATUS,
+  ORDER_TYPES,
+  PAYMENT_METHOD_ENUM,
+} from "utils/Order.constants";
+import {
+  checkIfFulfillmentCancelled,
+  checkIfOrderHasNotFinishedPaymentMomo,
+  getLink,
+} from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
 import EditNote from "../../EditOrderNote";
-import TrackingLog from "../../TrackingLog/TrackingLog";
+import TrackingLog from "../../TrackingLog";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
@@ -101,9 +123,9 @@ type dataExtra = PageResponse<OrderExtraModel>;
 
 type ICustomTableColumTypeExtra = (ICustomTableColumType<OrderModel> & {
   isHideInOffline?: boolean;
-})[]
+})[];
 
-let itemResult:OrderModel[] = [];
+let itemResult: OrderModel[] = [];
 
 function OrdersTable(props: PropTypes) {
   const {
@@ -142,17 +164,19 @@ function OrdersTable(props: PropTypes) {
   const [typeAPi, setTypeAPi] = useState("");
 
   const items = useMemo(() => {
-    return data.items ? data.items : []
+    return data.items ? data.items : [];
   }, [data]);
 
   itemResult = data.items;
 
   const metadata = useMemo(() => {
-    return data.metadata ? data.metadata : {
-      limit: 0,
-      page: 0,
-      total: 0
-    }
+    return data.metadata
+      ? data.metadata
+      : {
+          limit: 0,
+          page: 0,
+          total: 0,
+        };
   }, [data]);
 
   const paymentIcons = [
@@ -194,18 +218,18 @@ function OrdersTable(props: PropTypes) {
     {
       payment_method_code: PaymentMethodCode.MOMO,
       icon: IconPaymentMOMO,
-      Tooltip:"MOMO"
+      Tooltip: "MOMO",
     },
     {
       payment_method_code: PaymentMethodCode.VN_PAY,
       icon: IconPaymentVNPay,
-      Tooltip:"VNPay"
-    }
+      Tooltip: "VNPay",
+    },
   ];
 
   // ảnh hiển thị
-  const [isVisiblePreviewProduct, setIsVisiblePreviewProduct] = useState(false)
-  const [variantPreviewUrl, setVariantPreviewUrl] = useState("")
+  const [isVisiblePreviewProduct, setIsVisiblePreviewProduct] = useState(false);
+  const [variantPreviewUrl, setVariantPreviewUrl] = useState("");
 
   const onSuccessEditNote = useCallback(
     (note, customer_note, orderID) => {
@@ -219,7 +243,7 @@ function OrdersTable(props: PropTypes) {
       setData({
         ...data,
         items: itemResult,
-      })
+      });
     },
     [data, setData]
   );
@@ -228,7 +252,7 @@ function OrdersTable(props: PropTypes) {
     (note, customer_note, orderID, record: OrderModel) => {
       let params: any = {
         note,
-        customer_note
+        customer_note,
       };
       dispatch(
         updateOrderPartial(params, orderID, () => onSuccessEditNote(note, customer_note, orderID))
@@ -289,59 +313,59 @@ function OrdersTable(props: PropTypes) {
         </React.Fragment>
       );
     },
-    [orderType],
-  )
+    [orderType]
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const renderOrderPaymentMethods = (orderDetail: OrderModel) => {
-    
     let html = null;
     html = orderDetail.payments.map((payment) => {
-      let selectedPayment = paymentIcons.find(
-        (single) => {
-          if(single.payment_method_code === PaymentMethodCode.COD) {
-            return single.payment_method_code === payment.payment_method_code
-          } else if(!single.payment_method_code ){
-            return payment.payment_method=== PAYMENT_METHOD_ENUM.exchange.name
-          } else {
-            return single.payment_method_code === payment.payment_method_code
-          }
+      let selectedPayment = paymentIcons.find((single) => {
+        if (single.payment_method_code === PaymentMethodCode.COD) {
+          return single.payment_method_code === payment.payment_method_code;
+        } else if (!single.payment_method_code) {
+          return payment.payment_method === PAYMENT_METHOD_ENUM.exchange.name;
+        } else {
+          return single.payment_method_code === payment.payment_method_code;
         }
-      );
-      
+      });
+      if (payment.status !== ORDER_PAYMENT_STATUS.paid) {
+        return null;
+      }
       return (
-        <div className={`singlePayment ${payment.payment_method_code === PaymentMethodCode.POINT ? 'ydPoint' : null}`} key={payment.id}>
+        <div
+          className={`singlePayment ${
+            payment.payment_method_code === PaymentMethodCode.POINT ? "ydPoint" : null
+          }`}
+          key={payment.id}>
           <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
-              <img src={selectedPayment?.icon} alt="" />
-              <span className="amount">{formatCurrency(payment.paid_amount)}</span>
-            </Tooltip>
+            <img src={selectedPayment?.icon} alt="" />
+            <span className="amount">{formatCurrency(payment.paid_amount)}</span>
+          </Tooltip>
         </div>
       );
     });
     return html;
   };
 
-  const renderOrderReturn = useCallback(
-    (orderDetail: OrderModel) => {
-      let returnAmount = 0
-      orderDetail.payments.forEach(payment => {
-        if(payment.return_amount > 0) {
-          returnAmount = returnAmount + payment.return_amount
-        }
-      })
-      if(returnAmount > 0) {
-        return (
-          <Tooltip title={"Tiền hoàn lại"} className="singlePayment">
-            <span className="amount" style={{color: yellowColor}}>
-              {formatCurrency(returnAmount)}
-            </span>
-          </Tooltip>
-        );
+  const renderOrderReturn = useCallback((orderDetail: OrderModel) => {
+    let returnAmount = 0;
+    orderDetail.payments.forEach((payment) => {
+      if (payment.return_amount > 0 && payment.status === ORDER_PAYMENT_STATUS.paid) {
+        returnAmount = returnAmount + payment.return_amount;
       }
-      return null
-    },
-    []
-  );
+    });
+    if (returnAmount > 0) {
+      return (
+        <Tooltip title={"Tiền hoàn lại"} className="singlePayment">
+          <span className="amount" style={{ color: yellowColor }}>
+            {formatCurrency(returnAmount)}
+          </span>
+        </Tooltip>
+      );
+    }
+    return null;
+  }, []);
 
   const renderOrderPayments = useCallback(
     (orderDetail: OrderModel) => {
@@ -383,19 +407,18 @@ function OrdersTable(props: PropTypes) {
       const tagsArr = record?.tags.split(",");
       if (tagsArr.length > 0) {
         html = tagsArr.map((tag, index) => {
-          if(tag) {
+          if (tag) {
             return (
               <div key={index}>
                 <span className="textSmall">{tag}</span>
               </div>
-
-            )
+            );
           }
-          return null
-        })
+          return null;
+        });
       }
     }
-    return html
+    return html;
   };
 
   const renderTrackingCode = (shipment: ShipmentResponse) => {
@@ -412,7 +435,9 @@ function OrdersTable(props: PropTypes) {
     } else {
       html = trackingCode;
     }
-    const linkText = shipment?.delivery_service_provider_code ? getLink(shipment.delivery_service_provider_code, trackingCode) : ""
+    const linkText = shipment?.delivery_service_provider_code
+      ? getLink(shipment.delivery_service_provider_code, trackingCode)
+      : "";
     return (
       <span
         onClick={(e) => {
@@ -425,12 +450,14 @@ function OrdersTable(props: PropTypes) {
           <a href={linkText} target="_blank" title={linkText} rel="noreferrer">
             {html}
           </a>
-        ) : html }
+        ) : (
+          html
+        )}
         <Tooltip title="Click để copy mã vận đơn">
           <img
             onClick={(e) => {
-              copyTextToClipboard(e, html)
-              showSuccess("Đã copy mã vận đơn!")
+              copyTextToClipboard(e, html);
+              showSuccess("Đã copy mã vận đơn!");
             }}
             src={copyFileBtn}
             alt=""
@@ -464,20 +491,18 @@ function OrdersTable(props: PropTypes) {
   };
 
   const renderTypeIfOrderReturn = (order: OrderModel) => {
-    if(order?.order_return_origin?.code) {
+    if (order?.order_return_origin?.code) {
       return (
         <div title="Đơn có đổi trả" className="isReturn">
           <strong>[D]</strong>
         </div>
-      )
+      );
     }
   };
 
   const changeSubStatusCallback = (value: string, response?: any) => {
     // console.log('response', response)
-    const index = items?.findIndex(
-      (single) => single.id === selectedOrder?.id
-    );
+    const index = items?.findIndex((single) => single.id === selectedOrder?.id);
     if (index > -1) {
       let dataResult: dataExtra = { ...data };
       // selected = value;
@@ -494,54 +519,52 @@ function OrdersTable(props: PropTypes) {
 
   const checkIfOrderCannotChangeToWarehouseChange = (orderDetail: OrderExtraModel) => {
     const checkIfOrderHasNoFFM = (orderDetail: OrderExtraModel) => {
-      return (
-        !orderDetail.fulfillments?.some(single => {
-          return single.shipment && !checkIfFulfillmentCancelled(single)
-        }
-      ))
-    }
+      return !orderDetail.fulfillments?.some((single) => {
+        return single.shipment && !checkIfFulfillmentCancelled(single);
+      });
+    };
     const checkIfOrderIsNew = (orderDetail: OrderExtraModel) => {
-      return (
-        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation
-      )
-    }
+      return orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_coordinator_confirmation;
+    };
     const checkIfOrderIsConfirm = (orderDetail: OrderExtraModel) => {
-      return (
-        orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming
-      )
-    }
-    const checkIfOrderIsAwaitSaleConfirm= (orderDetail: OrderExtraModel) => {
-      return (
-        orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation
-      )
-    }
-    return  (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) || (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
+      return orderDetail.sub_status_code === ORDER_SUB_STATUS.coordinator_confirming;
+    };
+    const checkIfOrderIsAwaitSaleConfirm = (orderDetail: OrderExtraModel) => {
+      return orderDetail.sub_status_code === ORDER_SUB_STATUS.awaiting_saler_confirmation;
+    };
+    return (
+      (checkIfOrderIsNew(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) ||
+      (checkIfOrderIsConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail)) ||
+      (checkIfOrderIsAwaitSaleConfirm(orderDetail) && checkIfOrderHasNoFFM(orderDetail))
+    );
   };
 
   const handleShowVariantImage = (variantId: number) => {
-    dispatch(showLoading())
-    getVariantApi(variantId.toString()).then(response => {
-      if (isFetchApiSuccessful(response)) {
-        const defaultVariantImageUrl = findVariantAvatar(response.data.variant_images);
-        if(defaultVariantImageUrl) {
-          setVariantPreviewUrl(defaultVariantImageUrl)
-          setIsVisiblePreviewProduct(true);
+    dispatch(showLoading());
+    getVariantApi(variantId.toString())
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          const defaultVariantImageUrl = findVariantAvatar(response.data.variant_images);
+          if (defaultVariantImageUrl) {
+            setVariantPreviewUrl(defaultVariantImageUrl);
+            setIsVisiblePreviewProduct(true);
+          } else {
+            showWarning("Không tìm thấy ảnh sản phẩm");
+          }
         } else {
-          showWarning("Không tìm thấy ảnh sản phẩm")
+          handleFetchApiError(response, "Tìm ảnh sản phẩm", dispatch);
         }
-      } else {
-        handleFetchApiError(response, "Tìm ảnh sản phẩm", dispatch)
-      }
-    }).finally(() => {
-      dispatch(hideLoading())
-    })
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
   };
 
   const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
     let total = 0;
     items.forEach((a) => {
       if (a.product_type === PRODUCT_TYPE.normal || PRODUCT_TYPE.combo) {
-        total = total + (a.quantity * a.price);
+        total = total + a.quantity * a.price;
       }
     });
     return total;
@@ -557,14 +580,17 @@ function OrdersTable(props: PropTypes) {
           return (
             <React.Fragment>
               <div className="noWrap">
-                <Link to={`${UrlConfig.ORDER}/${i.id}`} style={{ fontWeight: 500 }} title="Chi tiết đơn">
+                <Link
+                  to={`${UrlConfig.ORDER}/${i.id}`}
+                  style={{ fontWeight: 500 }}
+                  title="Chi tiết đơn">
                   {value}
                 </Link>
                 <span title="Click để copy">
                   <img
                     onClick={(e) => {
-                      copyTextToClipboard(e, i.code.toString())
-                      showSuccess("Đã copy mã đơn hàng!")
+                      copyTextToClipboard(e, i.code.toString());
+                      showSuccess("Đã copy mã đơn hàng!");
                     }}
                     src={copyFileBtn}
                     alt=""
@@ -572,7 +598,9 @@ function OrdersTable(props: PropTypes) {
                   />
                 </span>
               </div>
-              <div className="textSmall" title="Ngày tạo đơn">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
+              <div className="textSmall" title="Ngày tạo đơn">
+                {moment(i.created_date).format(DATE_FORMAT.fullDate)}
+              </div>
               <div className="textSmall">
                 <Link to={`${UrlConfig.STORE}/${i?.store_id}`} title="Cửa hàng">
                   {i.store}
@@ -583,37 +611,42 @@ function OrdersTable(props: PropTypes) {
                   {i.source}
                 </div>
               )}
-              { orderType === ORDER_TYPES.offline ? (
+              {orderType === ORDER_TYPES.offline ? (
                 <React.Fragment>
                   <div className="textSmall single mainColor">
                     <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`} title="Chuyên gia tư vấn">
-                      <strong>CGTV: </strong>{i.assignee_code} - {i.assignee}
+                      <strong>CGTV: </strong>
+                      {i.assignee_code} - {i.assignee}
                     </Link>
                   </div>
                   <div className="textSmall single mainColor">
                     <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
-                      <strong>Thu ngân: </strong>{i.account_code} - {i.account}
+                      <strong>Thu ngân: </strong>
+                      {i.account_code} - {i.account}
                     </Link>
                   </div>
                 </React.Fragment>
-              ) :null}
-              { orderType === ORDER_TYPES.online && i.source && (
+              ) : null}
+              {orderType === ORDER_TYPES.online && i.source && (
                 <React.Fragment>
                   <div className="textSmall single mainColor">
                     <Link to={`${UrlConfig.ACCOUNTS}/${i.assignee_code}`}>
-                      <strong>NV bán hàng: </strong>{i.assignee_code} - {i.assignee}
+                      <strong>NV bán hàng: </strong>
+                      {i.assignee_code} - {i.assignee}
                     </Link>
                   </div>
                   <div className="textSmall single mainColor">
                     <Link to={`${UrlConfig.ACCOUNTS}/${i.account_code}`}>
-                      <strong>Người tạo: </strong>{i.account_code} - {i.account}
+                      <strong>Người tạo: </strong>
+                      {i.account_code} - {i.account}
                     </Link>
                   </div>
                   <div className="textSmall single mainColor">
                     {i.marketer_code ? (
-                        <Link to={`${UrlConfig.ACCOUNTS}/${i.marketer_code}`}>
-                          <strong>NV marketing: </strong>{i.marketer_code} - {i.marketer}
-                        </Link>
+                      <Link to={`${UrlConfig.ACCOUNTS}/${i.marketer_code}`}>
+                        <strong>NV marketing: </strong>
+                        {i.marketer_code} - {i.marketer}
+                      </Link>
                     ) : (
                       <React.Fragment>
                         <strong>NV marketing: </strong>-
@@ -639,81 +672,82 @@ function OrdersTable(props: PropTypes) {
         render: (record: OrderModel) => (
           <div className="customer custom-td">
             {record.customer_phone_number && (
-              <div style={{ color: "#2A2A86" ,display:"flex" }}>
+              <div style={{ color: "#2A2A86", display: "flex" }}>
                 <div
                   style={{ padding: "0px", fontWeight: 500, cursor: "pointer", fontSize: "0.9em" }}
                   onClick={() => {
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : ""
                     );
-                  }
-                  }>
+                  }}>
                   {record.customer_phone_number}
                   <span title="Click để copy">
                     <img
                       onClick={(e) => {
-                        copyTextToClipboard(e, (record?.customer_phone_number || "").toString())
-                        showSuccess("Đã copy số điện thoại!")
+                        copyTextToClipboard(e, (record?.customer_phone_number || "").toString());
+                        showSuccess("Đã copy số điện thoại!");
                       }}
                       src={copyFileBtn}
                       alt=""
                       style={{ width: 18, cursor: "pointer" }}
                     />
                   </span>
-
                 </div>
-                <Popover placement="bottomLeft" content={
-                  <div className="poppver-to-fast">
-                    <Button
-                      className="btn-to-fast"
-                      style={{padding: "0px", display:"block", height:"30px"}}
-                      type="link"
-                      icon={<img src={search} alt="" style={{paddingRight:"18px"}}/> }
-                      onClick={() =>
-                        onFilterPhoneCustomer(
-                          record.customer_phone_number ? record.customer_phone_number : ""
-                        )
-                      }
-                    >
-                      Lọc đơn của khách
-                    </Button>
-                    <Button className="btn-to-fast"
-                      style={{padding: "0px", display:"block", height:"30px"}}
-                      type="link"
-                       icon={<EyeOutlined style={{paddingRight:"10px"}} /> }
-                      onClick={()=>{
-                        let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
-                        window.open(pathname,"_blank");
-                      }}
-                    >
-                      Thông tin khách hàng
-                    </Button>
-                    <Button
-                     className="btn-to-fast"
-                     style={{padding: "0px", display:"block", height:"30px"}}
-                     type="link"
-                     icon={<PlusOutlined style={{paddingRight:"10px"}}/> }
-                     onClick={()=>{
-                       let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
-                       window.open(pathname,"_blank");
-                    }}
-                    >
-                      Tạo đơn cho khách
-                    </Button>
-                    <Button
-                      className="btn-to-fast"
-                      style={{padding: "0px", display:"block", height:"30px"}}
-                      type="link"
-                      icon={<PhoneOutlined style={{paddingRight:"10px"}}/>}
-                      onClick={()=>{
-                        window.location.href=`tel:${record.customer_phone_number}`;
-                      }}
-                    >
-                      Gọi điện cho khách
-                    </Button>
-                  </div>
-                } trigger="click">
-                  <Button type="link" style={{ width: "25px", padding: "0px", paddingTop:2}} icon={<DownOutlined style={{fontSize:"12px"}}/>}></Button>
+                <Popover
+                  placement="bottomLeft"
+                  content={
+                    <div className="poppver-to-fast">
+                      <Button
+                        className="btn-to-fast"
+                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        type="link"
+                        icon={<img src={search} alt="" style={{ paddingRight: "18px" }} />}
+                        onClick={() =>
+                          onFilterPhoneCustomer(
+                            record.customer_phone_number ? record.customer_phone_number : ""
+                          )
+                        }>
+                        Lọc đơn của khách
+                      </Button>
+                      <Button
+                        className="btn-to-fast"
+                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        type="link"
+                        icon={<EyeOutlined style={{ paddingRight: "10px" }} />}
+                        onClick={() => {
+                          let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
+                          window.open(pathname, "_blank");
+                        }}>
+                        Thông tin khách hàng
+                      </Button>
+                      <Button
+                        className="btn-to-fast"
+                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        type="link"
+                        icon={<PlusOutlined style={{ paddingRight: "10px" }} />}
+                        onClick={() => {
+                          let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+                          window.open(pathname, "_blank");
+                        }}>
+                        Tạo đơn cho khách
+                      </Button>
+                      <Button
+                        className="btn-to-fast"
+                        style={{ padding: "0px", display: "block", height: "30px" }}
+                        type="link"
+                        icon={<PhoneOutlined style={{ paddingRight: "10px" }} />}
+                        onClick={() => {
+                          window.location.href = `tel:${record.customer_phone_number}`;
+                        }}>
+                        Gọi điện cho khách
+                      </Button>
+                    </div>
+                  }
+                  trigger="click">
+                  <Button
+                    type="link"
+                    style={{ width: "25px", padding: "0px", paddingTop: 2 }}
+                    icon={<DownOutlined style={{ fontSize: "12px" }} />}></Button>
                 </Popover>
               </div>
             )}
@@ -725,13 +759,10 @@ function OrdersTable(props: PropTypes) {
                 className="primary">
                 {record.customer}
               </Link>{" "}
-
             </div>
             <div className="textSmall">{renderShippingAddress(record)}</div>
             {record?.tags?.length && record?.tags?.length > 0 ? (
-              <div className="customTags">
-                {renderTag(record)}
-              </div>
+              <div className="customTags">{renderTag(record)}</div>
             ) : null}
           </div>
         ),
@@ -755,7 +786,6 @@ function OrdersTable(props: PropTypes) {
             <span className="price priceWidth">
               <span>Giá </span>
             </span>
-
           </div>
         ),
         dataIndex: "items",
@@ -769,7 +799,11 @@ function OrdersTable(props: PropTypes) {
                   <div className="item custom-td" key={i}>
                     <div className="product productNameWidth 2">
                       <div className="inner">
-                        <PictureOutlined onClick={() =>handleShowVariantImage(item.variant_id)} className="previewImage" title="Click để hiển thị ảnh sản phẩm"/>
+                        <PictureOutlined
+                          onClick={() => handleShowVariantImage(item.variant_id)}
+                          className="previewImage"
+                          title="Click để hiển thị ảnh sản phẩm"
+                        />
                         <Link
                           to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
                           {item.sku}
@@ -780,9 +814,7 @@ function OrdersTable(props: PropTypes) {
                         </div>
                       </div>
                     </div>
-                    <div className="quantity quantityWidth">
-                      {formatNumber(item.quantity)}
-                    </div>
+                    <div className="quantity quantityWidth">{formatNumber(item.quantity)}</div>
                     <div className="price priceWidth">
                       <div>
                         <Tooltip title="Giá sản phẩm">
@@ -798,7 +830,13 @@ function OrdersTable(props: PropTypes) {
                             </Tooltip>
                             <Tooltip title="Khuyến mại sản phẩm (%)">
                               <div className="itemDiscount" style={{ color: dangerColor }}>
-                                <span> - {Math.round(item.discount_items[0].value/item.price *10000)/100}%</span>
+                                <span>
+                                  {" "}
+                                  -{" "}
+                                  {Math.round((item.discount_items[0].value / item.price) * 10000) /
+                                    100}
+                                  %
+                                </span>
                               </div>
                             </Tooltip>
                           </React.Fragment>
@@ -822,16 +860,12 @@ function OrdersTable(props: PropTypes) {
           <React.Fragment>
             <div className="originalPrice">
               <Tooltip title="Tổng tiền khi sản phẩm còn nguyên giá">
-                <span>
-                  {formatCurrency(getTotalAmountBeforeDiscount(record.items))}
-                </span>
+                <span>{formatCurrency(getTotalAmountBeforeDiscount(record.items))}</span>
               </Tooltip>
             </div>
             <div>
               <Tooltip title="Tổng tiền">
-                <strong>
-                  {formatCurrency(record.total)}
-                </strong>
+                <strong>{formatCurrency(record.total)}</strong>
               </Tooltip>
             </div>
             {record.total_discount ? (
@@ -945,9 +979,9 @@ function OrdersTable(props: PropTypes) {
                                       className="trackingCodeImg"
                                       onClick={() => {
                                         setTypeAPi(type.trackingCode);
-                                        setSelectedOrder(record); 
+                                        setSelectedOrder(record);
                                       }}
-                                      style={{width:"18px"}}
+                                      style={{ width: "18px" }}
                                     />
                                   </Tooltip>
                                 </Popover>
@@ -1001,12 +1035,8 @@ function OrdersTable(props: PropTypes) {
                   return (
                     <React.Fragment>
                       <div className="single">
-                        <strong className="textSmall">
-                          Nhận tại {" - "}
-                        </strong>
-                        <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
-                          {record.store}
-                        </Link>
+                        <strong className="textSmall">Nhận tại {" - "}</strong>
+                        <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>{record.store}</Link>
                       </div>
                       <Tooltip title="Tổng khối lượng">
                         <div className="single">
@@ -1047,7 +1077,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                          {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1075,7 +1105,7 @@ function OrdersTable(props: PropTypes) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                          {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
+                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
@@ -1121,7 +1151,12 @@ function OrdersTable(props: PropTypes) {
               code: record.sub_status_code,
             });
           }
-          let className = record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery ? "fourHour_delivery" : record.sub_status_code ? record.sub_status_code : "";
+          let className =
+            record.sub_status_code === ORDER_SUB_STATUS.fourHour_delivery
+              ? "fourHour_delivery"
+              : record.sub_status_code
+              ? record.sub_status_code
+              : "";
           return (
             <div className="orderStatus">
               <div className="inner">
@@ -1144,15 +1179,22 @@ function OrdersTable(props: PropTypes) {
                         setSelectedOrder(record);
                       }}
                       className={className}
-                      dropdownStyle={{minWidth: 200}}
-                      listHeight= {300}
+                      dropdownStyle={{ minWidth: 200 }}
+                      listHeight={300}
+                      disabled={checkIfOrderHasNotFinishedPaymentMomo(record)}
                       onChange={(value) => {
-                        if (value === ORDER_SUB_STATUS.require_warehouse_change && checkIfOrderCannotChangeToWarehouseChange(record)) {
-                          showError("Bạn không thể đổi sang trạng thái khác!")
+                        if (
+                          value === ORDER_SUB_STATUS.require_warehouse_change &&
+                          checkIfOrderCannotChangeToWarehouseChange(record)
+                        ) {
+                          showError("Bạn không thể đổi sang trạng thái khác!");
                           return;
                         }
-                        if (selected !== ORDER_SUB_STATUS.require_warehouse_change && value === ORDER_SUB_STATUS.require_warehouse_change) {
-                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!")
+                        if (
+                          selected !== ORDER_SUB_STATUS.require_warehouse_change &&
+                          value === ORDER_SUB_STATUS.require_warehouse_change
+                        ) {
+                          showError("Vui lòng vào chi tiết đơn chọn lý do đổi kho hàng!");
                           return;
                         }
                         setToSubStatusCode(value);
@@ -1166,16 +1208,24 @@ function OrdersTable(props: PropTypes) {
                           );
                         })}
                     </Select>
-                  ) : "-"}
+                  ) : (
+                    "-"
+                  )}
                 </div>
                 <div className="single">
                   <div className="coordinator-item">
                     <strong>NV điều phối: </strong>
-                    {record.coordinator?(
+                    {record.coordinator ? (
                       <React.Fragment>
-                        <Link to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`} style={{ fontWeight: 500 }}>{record.coordinator_code} - {record.coordinator}</Link>
+                        <Link
+                          to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}
+                          style={{ fontWeight: 500 }}>
+                          {record.coordinator_code} - {record.coordinator}
+                        </Link>
                       </React.Fragment>
-                    ):"-"}
+                    ) : (
+                      "-"
+                    )}
                   </div>
                 </div>
               </div>
@@ -1224,7 +1274,7 @@ function OrdersTable(props: PropTypes) {
                 </div>
               </div>
             </div>
-          )
+          );
         },
         key: "note",
         visible: true,
@@ -1237,22 +1287,18 @@ function OrdersTable(props: PropTypes) {
         key: "goods_receipt_id",
         align: "center",
         render: (value, record: OrderModel) => {
-          let result: ReactNode = (
-            <span>-</span>
-          );
+          let result: ReactNode = <span>-</span>;
           let arr = record.goods_receipts;
-          if(arr && arr.length > 0) {
+          if (arr && arr.length > 0) {
             result = arr.map((single, index) => {
               return (
                 <React.Fragment key={index}>
-                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>
-                    {single.id}
-                  </Link>
-                  {arr &&index < arr.length -1 && ", "}
+                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>{single.id}</Link>
+                  {arr && index < arr.length - 1 && ", "}
                 </React.Fragment>
-              )
-            })
-          } 
+              );
+            });
+          }
           return result;
         },
         visible: false,
@@ -1303,46 +1349,52 @@ function OrdersTable(props: PropTypes) {
   }, [items.length, deliveryServices, editNote, status_order]);
 
   const initColumns = useMemo(() => {
-    if(orderType === ORDER_TYPES.online) {
+    if (orderType === ORDER_TYPES.online) {
       return initColumnsDefault;
     } else {
-      return initColumnsDefault.filter((single) => !single.isHideInOffline)
+      return initColumnsDefault.filter((single) => !single.isHideInOffline);
     }
-  }, [initColumnsDefault, orderType])
+  }, [initColumnsDefault, orderType]);
   const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const [inventoryData, setInventoryData] = useState<AllInventoryProductInStore[]>([]);
   const [storeInventory, setStoreInventory] = useState<StoreResponse[]>([]);
 
-  const onSearchInventory = useCallback((value: string) => {
-    let _item: StoreResponse[] | any = listStore?.filter(x => fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()) === true);
-    setStoreInventory(_item);
-  }, [listStore]);
+  const onSearchInventory = useCallback(
+    (value: string) => {
+      let _item: StoreResponse[] | any = listStore?.filter(
+        (x) => fullTextSearch(value.toLowerCase().trim(), x.name.toLowerCase()) === true
+      );
+      setStoreInventory(_item);
+    },
+    [listStore]
+  );
 
-  const handleInventoryData = useCallback((
-    variantIds: number[],
-  ) => {
-    if (listStore) setStoreInventory([...listStore]);
-    let inventoryQuery: InventoryVariantListQuery = {
-      is_detail: true,
-      variant_ids: variantIds,
-      store_ids: listStore?.map((p) => p.id)
-    }
+  const handleInventoryData = useCallback(
+    (variantIds: number[]) => {
+      if (listStore) setStoreInventory([...listStore]);
+      let inventoryQuery: InventoryVariantListQuery = {
+        is_detail: true,
+        variant_ids: variantIds,
+        store_ids: listStore?.map((p) => p.id),
+      };
 
-    inventoryGetApi(inventoryQuery).then((response) => {
-      if (isFetchApiSuccessful(response)) {
-        // console.log(response)
+      inventoryGetApi(inventoryQuery)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            // console.log(response)
 
-        setInventoryData(response.data);
-
-      } else {
-        handleFetchApiError(response, "Danh sách tồn kho", dispatch)
-      }
-    })
-      .catch((e) => {
-        console.log(e)
-      })
-  }, [dispatch, listStore]);
+            setInventoryData(response.data);
+          } else {
+            handleFetchApiError(response, "Danh sách tồn kho", dispatch);
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        });
+    },
+    [dispatch, listStore]
+  );
 
   const renderActionButton = (record: OrderModel) => {
     return (
@@ -1352,25 +1404,28 @@ function OrdersTable(props: PropTypes) {
             <ButtonCreateOrderReturn orderDetail={record} />
           </div>
         ) : null}
-        {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
+        {record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED ? (
           <div className="actionButton">
             <Link
               to={`${UrlConfig.ORDER}/print-preview?action=print&ids=${record.id}&print-type=order&print-dialog=true`}
               title="In hóa đơn"
-              target = "_blank"
-            >
-              <img alt="" src={iconPrint} className="iconReturn"/>
+              target="_blank">
+              <img alt="" src={iconPrint} className="iconReturn" />
             </Link>
           </div>
         ) : null}
-        {(record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED) ? (
+        {record.status === OrderStatus.FINISHED || record.status === OrderStatus.COMPLETED ? (
           <div className="actionButton">
             <Link
               to={`${UrlConfig.WARRANTY}/create?orderID=${record.id}`}
               title="Tạo bảo hành"
-              target = "_blank"
-            >
-              <img alt="" src={iconWarranty} className="iconReturn" style={{ filter: 'brightness(0.5)' }}/>
+              target="_blank">
+              <img
+                alt=""
+                src={iconWarranty}
+                className="iconReturn"
+                style={{ filter: "brightness(0.5)" }}
+              />
             </Link>
           </div>
         ) : null}
@@ -1384,40 +1439,38 @@ function OrdersTable(props: PropTypes) {
     index: number,
     originNode: ReactNode
   ) => {
+    console.log("checked", checked);
     return (
       <React.Fragment>
-        <div className="actionButton">
-          {originNode}
-        </div>
+        <div className="actionButton">{originNode}</div>
         {renderOrderSource(record)}
         <div className="actionButton">
           <Popover
             placement="right"
             overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
             title={
-              <Row
-                justify="space-between"
-                align="middle"
-                style={{ width: "100%" }}
-              >
-                <Input.Search
-                  placeholder="Tìm kiếm kho"
-                  allowClear
-                  onSearch={onSearchInventory}
-                />
+              <Row justify="space-between" align="middle" style={{ width: "100%" }}>
+                <Input.Search placeholder="Tìm kiếm kho" allowClear onSearch={onSearchInventory} />
               </Row>
             }
-            content={<InventoryTable
-              inventoryData={inventoryData}
-              storeId={record.store_id || 0}
-              items={record.items}
-              listStore={storeInventory}
-            />
+            content={
+              <InventoryTable
+                inventoryData={inventoryData}
+                storeId={record.store_id || 0}
+                items={record.items}
+                listStore={storeInventory}
+              />
             }
             trigger="click"
-            onVisibleChange={(visible) => { visible === true && (handleInventoryData(record.items.map((p) => p.variant_id))) }}
-          >
-            <Button type="link" className="checkInventoryButton" icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />} style={{ padding: 0 }} title="Kiểm tra tồn kho"></Button>
+            onVisibleChange={(visible) => {
+              visible === true && handleInventoryData(record.items.map((p) => p.variant_id));
+            }}>
+            <Button
+              type="link"
+              className="checkInventoryButton"
+              icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
+              style={{ padding: 0 }}
+              title="Kiểm tra tồn kho"></Button>
           </Popover>
         </div>
         {renderActionButton(record)}
@@ -1479,11 +1532,11 @@ function OrdersTable(props: PropTypes) {
     items.forEach((item) => {
       let pointAmount = 0;
       item.payments.forEach((single) => {
-        if(single.payment_method_code === PaymentMethodCode.POINT) {
+        if (single.payment_method_code === PaymentMethodCode.POINT) {
           pointAmount = pointAmount + single.amount;
         }
       });
-      result = result + (item.total - pointAmount)
+      result = result + (item.total - pointAmount);
     });
     return result;
   };
@@ -1492,7 +1545,10 @@ function OrdersTable(props: PropTypes) {
     let result = 0;
     items.forEach((item) => {
       const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
-      if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
+      if (
+        sortedFulfillments[0]?.status &&
+        sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
+      ) {
         result = result + (item.shipping_fee_informed_to_customer || 0);
       }
     });
@@ -1503,7 +1559,10 @@ function OrdersTable(props: PropTypes) {
     let result = 0;
     items.forEach((item) => {
       const sortedFulfillments = item?.fulfillments ? sortFulfillments(item.fulfillments) : [];
-      if (sortedFulfillments[0]?.status && sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED) {
+      if (
+        sortedFulfillments[0]?.status &&
+        sortedFulfillments[0]?.status !== FulFillmentStatus.CANCELLED
+      ) {
         result = result + (sortedFulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || 0);
       }
     });
@@ -1597,8 +1656,11 @@ function OrdersTable(props: PropTypes) {
   };
 
   //cột của bảng
-  const columnConfigType = orderType === ORDER_TYPES.offline ? COLUMN_CONFIG_TYPE.orderOffline : COLUMN_CONFIG_TYPE.orderOnline
-  useSetTableColumns(columnConfigType, tableColumnConfigs, initColumns, setColumns)
+  const columnConfigType =
+    orderType === ORDER_TYPES.offline
+      ? COLUMN_CONFIG_TYPE.orderOffline
+      : COLUMN_CONFIG_TYPE.orderOnline;
+  useSetTableColumns(columnConfigType, tableColumnConfigs, initColumns, setColumns);
 
   useEffect(() => {
     if (columns.length === 0) {
@@ -1635,7 +1697,7 @@ function OrdersTable(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedOrder, setData, type.subStatus, type.trackingCode, typeAPi]);
 
-  if(!subStatuses || subStatuses.length === 0) {
+  if (!subStatuses || subStatuses.length === 0) {
     return <span>Đang tải dữ liệu ...</span>;
   }
 
@@ -1667,7 +1729,7 @@ function OrdersTable(props: PropTypes) {
         className="order-list"
         footer={() => renderFooter()}
         isShowPaginationAtHeader
-        rowSelectionWidth = {30}
+        rowSelectionWidth={30}
       />
       <SubStatusChange
         orderId={selectedOrder?.id}
@@ -1678,15 +1740,15 @@ function OrdersTable(props: PropTypes) {
       {/* hiển thị image ảnh sản phẩm */}
       <Image
         width={200}
-        style={{ display: 'none' }}
+        style={{ display: "none" }}
         src={variantPreviewUrl}
         preview={{
           visible: isVisiblePreviewProduct,
           src: variantPreviewUrl,
-          onVisibleChange: value => {
+          onVisibleChange: (value) => {
             setIsVisiblePreviewProduct(value);
-            if(!value) {
-              setVariantPreviewUrl("")
+            if (!value) {
+              setVariantPreviewUrl("");
             }
           },
         }}

@@ -81,6 +81,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { useReactToPrint } from "react-to-print";
 import CustomerCard from "screens/order-online/component/order-detail/CardCustomer";
+import useHandleMomoCreateShipment from "screens/order-online/hooks/useHandleMomoCreateShipment";
 import {
   getPrintOrderReturnContentService,
   getStoreBankAccountNumbersService
@@ -1794,6 +1795,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                       shippingServiceConfig={shippingServiceConfig}
                       orderConfig={orderConfig}
                       isOrderReturnFromPOS={isOrderFromPOS(OrderDetail)}
+                      payments={payments}
                     />
                   </Card>
                 )}
@@ -2028,6 +2030,8 @@ const ScreenReturnCreate = (props: PropTypes) => {
     [listItemCanBeReturn, listReturnProducts]
   );
 
+  useHandleMomoCreateShipment(setShipmentMethod, payments);
+
   useEffect(() => {
     if (storeId != null) {
       dispatch(
@@ -2152,11 +2156,17 @@ const ScreenReturnCreate = (props: PropTypes) => {
       PaymentMethodGetList((response) => {
         // let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         // update: ko bỏ quẹt thẻ nữa
-        let result = response.filter((single) => single.code);
+        // update bỏ momo và vn pay khi đổi trả offline
+        let result = response.filter((single) => {
+          if(orderReturnType === RETURN_TYPE_VALUES.offline) {
+            return single.code && single.code !== PaymentMethodCode.MOMO && single.code !== PaymentMethodCode.VN_PAY 
+          }
+          return single.code
+        });
         setListPaymentMethods(result);
       })
     );
-  }, [customer?.id, dispatch]);
+  }, [customer?.id, dispatch, orderReturnType]);
 
   useEffect(() => {
     let cash = listPaymentMethods.find((single) => single.code === PaymentMethodCode.CASH);

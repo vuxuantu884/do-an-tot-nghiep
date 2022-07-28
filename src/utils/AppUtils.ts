@@ -66,7 +66,7 @@ import {
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
-import { checkIfFulfillmentCancelled } from "./OrderUtils";
+import { checkIfExpiredOrCancelledPayment, checkIfFinishedPayment, checkIfFulfillmentCancelled } from "./OrderUtils";
 import { RegUtil } from "./RegUtils";
 import { showError, showSuccess } from "./ToastUtils";
 
@@ -744,10 +744,12 @@ export const getAmountPayment = (
   items: Array<OrderPaymentResponse | OrderPaymentRequest> | null,
 ) => {
   let value = 0;
-  if (items !== null) {
-    if (items.length > 0) {
-      items.forEach((a) => (value = value + a.paid_amount));
-    }
+  if (items && items.length > 0) {
+    items.forEach((a) => {
+      if(!checkIfExpiredOrCancelledPayment(a)) {
+        value = value + a.paid_amount
+      }
+    });
   }
   return value;
 };
@@ -756,10 +758,10 @@ export const getAmountPaymentRequest = (
   items: Array<OrderPaymentRequest> | null,
 ) => {
   let value = 0;
-  if (items !== null) {
-    if (items.length > 0) {
-      items.forEach((a) => (value = value + a.paid_amount));
-    }
+  if (items && items.length > 0) {
+    items.forEach((a) => {
+      value = value + a.paid_amount;
+    });
   }
   return value;
 };
@@ -809,7 +811,9 @@ export const getOrderTotalPaymentAmount = (
 ) => {
   let total = 0;
   payments.forEach((a) => {
-    total = total + a.amount;
+    if(checkIfFinishedPayment(a)) {
+      total = total + a.amount;
+    }
   });
   return total;
 };
@@ -819,7 +823,9 @@ export const getOrderTotalPaymentAmountReturn = (
 ) => {
   let total = 0;
   payments.forEach((a) => {
-    total = total + a.paid_amount;
+    if(checkIfFinishedPayment(a)) {
+      total = total + a.paid_amount;
+    }
   });
   return total;
 };
@@ -843,12 +849,12 @@ export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
 export const checkPaymentStatusToShow = (items: OrderResponse) => {
   //tính tổng đã thanh toán
   let value = 0;
-  if (items !== null) {
-    if (items.payments !== null) {
-      if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = value + a.paid_amount));
+  if (items && items?.payments && items.payments.length) {
+    items.payments.forEach((a) => {
+      if(checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount
       }
-    }
+    });
   }
   if (items?.total <= value) {
     return 1; //đã thanh toán
@@ -863,12 +869,12 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
 
 export const checkPaymentStatus = (payments: any, orderAmount: number) => {
   let value = 0;
-  if (payments !== null) {
-    if (payments !== null) {
-      if (payments.length > 0) {
-        payments.forEach((a: any) => (value = value + a.paid_amount));
+  if (payments && payments.length > 0) {
+    payments.forEach((a: any) => {
+      if(checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount
       }
-    }
+    });
   }
   if (value >= orderAmount) {
     return 1; //đã thanh toán
@@ -902,12 +908,12 @@ export const SumCOD = (items: OrderResponse) => {
 export const checkPaymentAll = (items: OrderResponse) => {
   //tính tổng đã thanh toán
   let value = 0;
-  if (items !== null) {
-    if (items.payments !== null) {
-      if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = value + a.paid_amount));
+  if (items?.payments && items.payments.length > 0) {
+    items.payments.forEach((a) => {
+      if(checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount
       }
-    }
+    });
   }
 
   //tổng cod

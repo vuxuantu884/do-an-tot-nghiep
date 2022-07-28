@@ -1,5 +1,5 @@
 import { BaseObject } from "model/base/base.response";
-import { BillingAddressResponseModel, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
+import { BillingAddressResponseModel, FulFillmentResponse, OrderBillResponseModel, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { ORDER_TYPES } from "utils/Order.constants";
 
@@ -122,6 +122,7 @@ export interface OrderModel extends BaseObject {
   total_quantity: number;
   goods_receipts?: GoodsReceiptsResponse[]|null;
   export_bill: boolean;
+  bill: OrderBillResponseModel|null;
 }
 
 export interface OrderSearchQuery {

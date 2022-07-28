@@ -12,13 +12,16 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import { ExternalShipperGetListAction, searchAccountPublicAction } from "domain/actions/account/account.action";
+import {
+  ExternalShipperGetListAction,
+  searchAccountPublicAction,
+} from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   DeliveryServicesGetList,
   getListOrderAction,
-  PaymentMethodGetList
+  PaymentMethodGetList,
 } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
@@ -28,15 +31,17 @@ import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
-import { ChangeOrderStatusHtmlModel, OrderModel, OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
+import {
+  ChangeOrderStatusHtmlModel,
+  OrderModel,
+  OrderSearchQuery,
+  OrderTypeModel,
+} from "model/order/order.model";
 import {
   OrderProcessingStatusModel,
-  OrderProcessingStatusResponseModel
+  OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-import {
-  DeliveryServiceResponse,
-  OrderResponse
-} from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
@@ -47,12 +52,22 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
 import ExportModal from "screens/order-online/modal/export.modal";
-import { changeOrderStatusToPickedService, deleteOrderService, setSubStatusService } from "service/order/order.service";
+import {
+  changeOrderStatusToPickedService,
+  deleteOrderService,
+  setSubStatusService,
+} from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
-import { generateQuery, goToTopPage, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
+import {
+  generateQuery,
+  goToTopPage,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+} from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, FulFillmentStatus } from "utils/Constants";
 import { dangerColor, successColor } from "utils/global-styles/variables";
 import { ORDER_EXPORT_TYPE, ORDER_TYPES } from "utils/Order.constants";
+import { checkIfOrderHasNotFinishedPaymentMomo } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import OrdersTable from "./ListTable/OrdersTable";
@@ -74,10 +89,10 @@ type PropTypes = {
   channels?: ChannelResponse[];
 };
 
-let isLoadingSetSubStatus = false
+let isLoadingSetSubStatus = false;
 
 function OrderList(props: PropTypes) {
-  let newResult: ChangeOrderStatusHtmlModel[] = []
+  let newResult: ChangeOrderStatusHtmlModel[] = [];
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const EXPORT_IDs = {
     allOrders: 1,
@@ -94,23 +109,30 @@ function OrderList(props: PropTypes) {
     deleteOrder: 7,
   };
 
-
   const history = useHistory();
   const dispatch = useDispatch();
-  const [allowOrderDelete]= useAuthorization({
-    acceptPermissions:[ODERS_PERMISSIONS.DELETE_ORDER],
-    not:false
-  })
+  const [allowOrderDelete] = useAuthorization({
+    acceptPermissions: [ODERS_PERMISSIONS.DELETE_ORDER],
+    not: false,
+  });
 
-
-  const { location, initQuery, pageTitle, isHideTab = false, orderType, initChannelCodes, channels } = props;
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const {
+    location,
+    initQuery,
+    pageTitle,
+    isHideTab = false,
+    orderType,
+    initChannelCodes,
+    channels,
+  } = props;
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   // cột column
-  const columnConfigType = orderType === ORDER_TYPES.offline ? COLUMN_CONFIG_TYPE.orderOffline : COLUMN_CONFIG_TYPE.orderOnline
-  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(columnConfigType)
+  const columnConfigType =
+    orderType === ORDER_TYPES.offline
+      ? COLUMN_CONFIG_TYPE.orderOffline
+      : COLUMN_CONFIG_TYPE.orderOnline;
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(columnConfigType);
 
   const [tableLoading, setTableLoading] = useState(true);
   const [isFilter, setIsFilter] = useState(false);
@@ -129,21 +151,20 @@ function OrderList(props: PropTypes) {
     OrderProcessingStatusModel[]
   >([]);
 
-  const [listPaymentMethod, setListPaymentMethod] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
+  const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
-  const [deliveryServices, setDeliveryServices] = useState<
-    Array<DeliveryServiceResponse>
-  >([]);
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
   const subStatuses = useGetOrderSubStatuses();
 
-  const [isLoopInfoIfOrderHasMoreThanTwoProducts, setIsLoopInfoIfOrderHasMoreThanTwoProducts] = useState(false);
+  const [isLoopInfoIfOrderHasMoreThanTwoProducts, setIsLoopInfoIfOrderHasMoreThanTwoProducts] =
+    useState(false);
 
   const type = useMemo(() => {
-    return orderType === ORDER_TYPES.online ? ORDER_EXPORT_TYPE.orders_online : ORDER_EXPORT_TYPE.orders_offline
-  }, [orderType])
+    return orderType === ORDER_TYPES.online
+      ? ORDER_EXPORT_TYPE.orders_online
+      : ORDER_EXPORT_TYPE.orders_offline;
+  }, [orderType]);
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {
@@ -170,12 +191,23 @@ function OrderList(props: PropTypes) {
       return new Promise<void>((resolve, reject) => {
         setTableLoading(true);
         setIsFilter(true);
-        const paramsCopy= {...params};
-        const inGoodsReceipt=(Number)(paramsCopy?.in_goods_receipt)===1?true:(Number)(paramsCopy?.in_goods_receipt)===0?false:undefined
-        dispatch(getListOrderAction({...params,in_goods_receipt:inGoodsReceipt}, setSearchResult, () => {
-          setTableLoading(false);
-          setIsFilter(false);
-        }));
+        const paramsCopy = { ...params };
+        const inGoodsReceipt =
+          Number(paramsCopy?.in_goods_receipt) === 1
+            ? true
+            : Number(paramsCopy?.in_goods_receipt) === 0
+            ? false
+            : undefined;
+        dispatch(
+          getListOrderAction(
+            { ...params, in_goods_receipt: inGoodsReceipt },
+            setSearchResult,
+            () => {
+              setTableLoading(false);
+              setIsFilter(false);
+            }
+          )
+        );
         resolve();
       });
     },
@@ -196,97 +228,110 @@ function OrderList(props: PropTypes) {
   const [columns, setColumns] = useState<Array<ICustomTableColumType<OrderModel>>>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
   const [selectedRowCodes, setSelectedRowCodes] = useState<string[]>([]);
-  const [selectedRow, setSelectedRow] = useState<OrderResponse[]>([]);
+  const [selectedRows, setSelectedRows] = useState<OrderResponse[]>([]);
 
-  const [changeOrderStatusHtml, setChangeOrderStatusHtml] = useState<JSX.Element>()
+  const [changeOrderStatusHtml, setChangeOrderStatusHtml] = useState<JSX.Element>();
 
-  const actions: Array<MenuAction> = useMemo(() => [
-    {
-      id: ACTION_ID.printShipment,
-      name: "In phiếu giao hàng",
-      icon: <PrinterOutlined />,
-      disabled: selectedRow.length ? false : true,
+  const actions: Array<MenuAction> = useMemo(
+    () => [
+      {
+        id: ACTION_ID.printShipment,
+        name: "In phiếu giao hàng",
+        icon: <PrinterOutlined />,
+        disabled: selectedRows.length ? false : true,
+      },
+      {
+        id: ACTION_ID.printStockExport,
+        name: "In phiếu xuất kho",
+        icon: <PrinterOutlined />,
+        disabled: selectedRows.length ? false : true,
+      },
+      {
+        id: ACTION_ID.printOrder,
+        name: "In hoá đơn",
+        icon: <PrinterOutlined />,
+        disabled: selectedRows.length ? false : true,
+      },
+      {
+        id: ACTION_ID.changeOrderStatus,
+        name: "Chuyển trạng thái đơn hàng",
+        icon: <PrinterOutlined />,
+        disabled: selectedRows.length ? false : true,
+      },
+      {
+        id: ACTION_ID.deleteOrder,
+        name: "Xóa đơn hàng",
+        icon: <DeleteOutlined />,
+        color: "#e24343",
+        disabled: selectedRows.length ? false : true,
+        hidden: !allowOrderDelete,
+      },
+    ],
+    [
+      ACTION_ID.changeOrderStatus,
+      ACTION_ID.deleteOrder,
+      ACTION_ID.printOrder,
+      ACTION_ID.printShipment,
+      ACTION_ID.printStockExport,
+      allowOrderDelete,
+      selectedRows.length,
+    ]
+  );
+
+  const onSelectedChange = useCallback(
+    (_: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
+      console.log("selectedRows", selectedRows);
+      let selectedRowsCopy: OrderResponse[] = [...selectedRows];
+      let selectedRowKeysCopy: number[] = [...selectedRowKeys];
+      let selectedRowCodesCopy: string[] = [...selectedRowCodes];
+
+      if (selected === true) {
+        changeRow?.forEach((row, index) => {
+          let indexItem = selectedRows.findIndex((p) => p.id === row.id);
+          if (indexItem === -1) {
+            selectedRowsCopy.push(row);
+            selectedRowKeysCopy.push(row.id);
+            selectedRowCodesCopy.push(row.code);
+          }
+        });
+      } else {
+        selectedRows.forEach((row, index) => {
+          let indexItem = changeRow?.findIndex((p) => p.id === row.id);
+          if (indexItem !== -1) {
+            let i = selectedRowsCopy.findIndex((p) => p.id === row.id);
+            selectedRowsCopy.splice(i, 1);
+          }
+        });
+
+        selectedRowKeys.forEach((row, index) => {
+          let indexItemKey = changeRow?.findIndex((p) => p.id === row);
+          if (indexItemKey !== -1) {
+            let i = selectedRowKeysCopy.findIndex((p) => p === row);
+            selectedRowKeysCopy.splice(i, 1);
+          }
+        });
+
+        selectedRowCodes.forEach((row, index) => {
+          let indexItemCode = changeRow?.findIndex((p) => p.code === row);
+          if (indexItemCode !== -1) {
+            let i = selectedRowCodesCopy.findIndex((p) => p === row);
+            selectedRowCodesCopy.splice(i, 1);
+          }
+        });
+      }
+
+      setSelectedRows(selectedRowsCopy);
+      setSelectedRowKeys(selectedRowKeysCopy);
+      setSelectedRowCodes(selectedRowCodesCopy);
     },
-    {
-      id: ACTION_ID.printStockExport,
-      name: "In phiếu xuất kho",
-      icon: <PrinterOutlined />,
-      disabled: selectedRow.length ? false : true,
-    },
-    {
-      id: ACTION_ID.printOrder,
-      name: "In hoá đơn",
-      icon: <PrinterOutlined />,
-      disabled: selectedRow.length ? false : true,
-    },
-    {
-      id: ACTION_ID.changeOrderStatus,
-      name: "Chuyển trạng thái đơn hàng",
-      icon: <PrinterOutlined />,
-      disabled: selectedRow.length ? false : true,
-    },
-    {
-      id: ACTION_ID.deleteOrder,
-      name: "Xóa đơn hàng",
-      icon: <DeleteOutlined />,
-      color: "#e24343",
-      disabled: selectedRow.length ? false : true,
-      hidden:!allowOrderDelete,
-    }
-  ], [ACTION_ID.changeOrderStatus, ACTION_ID.deleteOrder, ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, allowOrderDelete, selectedRow.length]);
+    [selectedRowCodes, selectedRowKeys]
+  );
 
-  const onSelectedChange = useCallback((selectedRows: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
-    let selectedRowCopy: OrderResponse[] = [...selectedRow];
-    let selectedRowKeysCopy: number[] = [...selectedRowKeys];
-    let selectedRowCodesCopy: string[] = [...selectedRowCodes];
-
-    if (selected === true) {
-      changeRow?.forEach((row, index) => {
-        let indexItem = selectedRow.findIndex((p) => p.id === row.id)
-        if (indexItem === -1) {
-          selectedRowCopy.push(row);
-          selectedRowKeysCopy.push(row.id);
-          selectedRowCodesCopy.push(row.code);
-        }
-      })
-    }
-    else {
-      selectedRow.forEach((row, index) => {
-        let indexItem = changeRow?.findIndex((p) => p.id === row.id);
-        if (indexItem !== -1) {
-          let i = selectedRowCopy.findIndex((p) => p.id === row.id);
-          selectedRowCopy.splice(i, 1);
-        }
-      })
-
-      selectedRowKeys.forEach((row, index) => {
-        let indexItemKey = changeRow?.findIndex((p) => p.id === row);
-        if (indexItemKey !== -1) {
-          let i = selectedRowKeysCopy.findIndex((p) => p === row);
-          selectedRowKeysCopy.splice(i, 1);
-        }
-      })
-
-      selectedRowCodes.forEach((row, index) => {
-        let indexItemCode = changeRow?.findIndex((p) => p.code === row);
-        if (indexItemCode !== -1) {
-          let i = selectedRowCodesCopy.findIndex((p) => p === row);
-          selectedRowCodesCopy.splice(i, 1);
-        }
-      })
-    }
-
-    setSelectedRow(selectedRowCopy);
-    setSelectedRowKeys(selectedRowKeysCopy);
-    setSelectedRowCodes(selectedRowCodesCopy);
-
-  }, [selectedRow, selectedRowCodes, selectedRowKeys]);
-
-  const onClearSelected=()=>{
-    setSelectedRow([]);
+  const onClearSelected = () => {
+    setSelectedRows([]);
     setSelectedRowKeys([]);
     setSelectedRowCodes([]);
-  }
+  };
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -294,7 +339,7 @@ function OrderList(props: PropTypes) {
       params.limit = size;
       let queryParam = generateQuery(params);
       history.push(`${location.pathname}?${queryParam}`);
-      goToTopPage()
+      goToTopPage();
     },
     [history, location.pathname, params]
   );
@@ -308,7 +353,7 @@ function OrderList(props: PropTypes) {
       } else {
         history.push(`${location.pathname}?${queryParam}`);
       }
-      setSelectedRow([]);
+      setSelectedRows([]);
       setSelectedRowKeys([]);
       setSelectedRowCodes([]);
       onClearSelected();
@@ -321,15 +366,19 @@ function OrderList(props: PropTypes) {
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, initQuery, location.pathname]);
 
-  const onFilterPhoneCustomer = useCallback((phone: string) => {
-    let paramCopy = { ...params, search_term: phone, page: 1  };
-    setPrams(paramCopy);
-    const orderLink=orderType===ORDER_TYPES.offline?UrlConfig.OFFLINE_ORDERS:UrlConfig.ORDER;
-    const queryParam = generateQuery(paramCopy);
-    let pathname = `${process.env.PUBLIC_URL}${orderLink}?${queryParam}`;
-    //history.push(`${location.pathname}?${queryParam}`);
-    window.open(pathname,"_blank")
-  }, [orderType, params]);
+  const onFilterPhoneCustomer = useCallback(
+    (phone: string) => {
+      let paramCopy = { ...params, search_term: phone, page: 1 };
+      setPrams(paramCopy);
+      const orderLink =
+        orderType === ORDER_TYPES.offline ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER;
+      const queryParam = generateQuery(paramCopy);
+      let pathname = `${process.env.PUBLIC_URL}${orderLink}?${queryParam}`;
+      //history.push(`${location.pathname}?${queryParam}`);
+      window.open(pathname, "_blank");
+    },
+    [orderType, params]
+  );
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -343,7 +392,7 @@ function OrderList(props: PropTypes) {
       switch (index) {
         case ACTION_ID.printShipment:
           let ids: number[] = [];
-          selectedRow.forEach((row) =>
+          selectedRows.forEach((row) =>
             row.fulfillments?.forEach((single) => {
               ids.push(single.id);
             })
@@ -354,7 +403,7 @@ function OrderList(props: PropTypes) {
               if (isFetchApiSuccessful(response)) {
                 window.location.reload();
               } else {
-                handleFetchApiError(response, "In phiếu giao hàng", dispatch)
+                handleFetchApiError(response, "In phiếu giao hàng", dispatch);
               }
             })
             .catch((error) => {
@@ -366,48 +415,48 @@ function OrderList(props: PropTypes) {
           const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
           window.open(printPreviewUrl);
           break;
-        case ACTION_ID.printStockExport:
-          {
-            // dispatch(showLoading());
-            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
-            let ids: number[] = [];
-            selectedRow.forEach((row) =>
-              row.fulfillments?.forEach((single) => {
-                ids.push(single.id);
-              })
-            );
-            window.open(printPreviewUrlExport);
-            // không chuyển trạng thái nữa
-            // changeMultiOrderStatus(ids, "shipping").then(response => {
-            //   if(isFetchApiSuccessful(response)) {
-            //   } else {
-            //     handleFetchApiError(response, "Chuyển trạng thái nhiều đơn hàng", dispatch)
-            //   }
-            // }).finally(()=>{
-            //   dispatch(hideLoading());
-            // })
-            break;
-          }
+        case ACTION_ID.printStockExport: {
+          // dispatch(showLoading());
+          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          let ids: number[] = [];
+          selectedRows.forEach((row) =>
+            row.fulfillments?.forEach((single) => {
+              ids.push(single.id);
+            })
+          );
+          window.open(printPreviewUrlExport);
+          // không chuyển trạng thái nữa
+          // changeMultiOrderStatus(ids, "shipping").then(response => {
+          //   if(isFetchApiSuccessful(response)) {
+          //   } else {
+          //     handleFetchApiError(response, "Chuyển trạng thái nhiều đơn hàng", dispatch)
+          //   }
+          // }).finally(()=>{
+          //   dispatch(hideLoading());
+          // })
+          break;
+        }
 
         case ACTION_ID.printOrder:
-
-          const printBill = selectedRow.filter((order: any) => order.status === 'finished').map((order: any) => order.id);
+          const printBill = selectedRows
+            .filter((order: any) => order.status === "finished")
+            .map((order: any) => order.id);
           let queryParamOrder = generateQuery({
             action: "print",
             ids: printBill,
             "print-type": "order",
             "print-dialog": true,
           });
-          if(selectedRow.length === 1 && selectedRow[0]?.order_return_origin?.id) {
+          if (selectedRows.length === 1 && selectedRows[0]?.order_return_origin?.id) {
             queryParamOrder = generateQuery({
               action: "print",
-              ids: [selectedRow[0]?.order_return_origin?.id],
+              ids: [selectedRows[0]?.order_return_origin?.id],
               "print-type": "order_exchange",
               "print-dialog": true,
             });
           }
           Modal.confirm({
-            title: 'In hoá đơn',
+            title: "In hoá đơn",
             icon: <ExclamationCircleOutlined />,
             content: `Có ${printBill.length} đơn hàng kết thúc. Hệ thống sẽ chỉ in đơn kết thúc. Bạn có muốn tiếp tục?`,
             okText: "Tiếp tục",
@@ -418,106 +467,119 @@ function OrderList(props: PropTypes) {
                 window.open(printPreviewOrderUrl);
               }
             },
-            onCancel() {
-            },
+            onCancel() {},
           });
           break;
         case ACTION_ID.changeOrderStatus:
-          setIsShowChangeOrderStatusModal(true)
+          setIsShowChangeOrderStatusModal(true);
           break;
-         /**
-        * xóa đơn
-        */
-          case ACTION_ID.deleteOrder:
-            if (selectedRow && selectedRow && selectedRow.length <= 0) {
-              showError("Vui lòng chọn đơn hàng cần xóa");
-              break;
-            }
-            const isOrderShipping= selectedRow.filter((p)=>p.fulfillments?.some((p1)=>p1.status===FulFillmentStatus.SHIPPING));
-            
-            // console.log("isOrderShipping",isOrderShipping)
-  
-            if (isOrderShipping && isOrderShipping.length > 0) {
-              Modal.error({
-                title: "Không thể xoá đơn hàng",
-                content: (
-                  <div
-                    style={{
-                      display: "flex",
-                      lineHeight: "5px",
-                      overflow: "hidden",
-                      whiteSpace: "nowrap",
-                      paddingTop: "7px",
-                    }}
-                  >
-                   ({isOrderShipping.length}) đơn đang chuyển:
-                    <div style={{ marginLeft: 10, fontWeight: 500 }}>
-                      {isOrderShipping.map((value) => (
-                        <p>{value?.code}</p>
-                      ))}
-                    </div>
-                  </div>
-                ),
-                okType:'danger'
-              });
-              return;
-            }
-  
-            const deleteOrderComfirm = () => {
-              onClearSelected();
-              let ids = selectedRow.map((p) => p.id);
-              dispatch(showLoading());
-              deleteOrderService(ids)
-                .then((response) => {
-                  if (isFetchApiSuccessful(response)) {
-                    showSuccess("Xóa đơn hàng thành công");
-            
-                    let paramCopy: any = { ...params, page: 1 };
-                    setPrams(paramCopy);
-                    let queryParam = generateQuery(paramCopy);
-                    history.push(`${location.pathname}?${queryParam}`);
-                  } else {
-                    handleFetchApiError(response, "Xóa đơn hàng", dispatch);
-                  }
-                })
-                .catch((error) => {
-                  console.log("error", error);
-                })
-                .finally(() => {
-                  dispatch(hideLoading());
-                });
-            };
-  
-            Modal.confirm({
-              title: "Xác nhận xóa",
-              icon: <ExclamationCircleOutlined />,
+        /**
+         * xóa đơn
+         */
+        case ACTION_ID.deleteOrder:
+          if (selectedRows && selectedRows && selectedRows.length <= 0) {
+            showError("Vui lòng chọn đơn hàng cần xóa");
+            break;
+          }
+          const isOrderShipping = selectedRows.filter((p) =>
+            p.fulfillments?.some((p1) => p1.status === FulFillmentStatus.SHIPPING)
+          );
+
+          // console.log("isOrderShipping",isOrderShipping)
+
+          if (isOrderShipping && isOrderShipping.length > 0) {
+            Modal.error({
+              title: "Không thể xoá đơn hàng",
               content: (
-                <React.Fragment>
-                  <div className="yody-modal-confirm-list-code">
-                    Bạn có chắc chắn xóa ({selectedRow.length}):
-                    <div className="yody-modal-confirm-item-code">
-                      {selectedRow.map((value) => (
-                        <p>{value?.code}</p>
-                      ))}
-                    </div>
+                <div
+                  style={{
+                    display: "flex",
+                    lineHeight: "5px",
+                    overflow: "hidden",
+                    whiteSpace: "nowrap",
+                    paddingTop: "7px",
+                  }}>
+                  ({isOrderShipping.length}) đơn đang chuyển:
+                  <div style={{ marginLeft: 10, fontWeight: 500 }}>
+                    {isOrderShipping.map((value) => (
+                      <p>{value?.code}</p>
+                    ))}
                   </div>
-                  <p style={{textAlign:"justify", color:"#ff4d4f" }}>
-                  Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá đơn ở trạng thái Thành công
-                  </p>
-                </React.Fragment>
+                </div>
               ),
-              okText: "Xóa",
-              cancelText: "Hủy",
               okType: "danger",
-              onOk: deleteOrderComfirm,
             });
-            
-          break;  
+            return;
+          }
+
+          const deleteOrderComfirm = () => {
+            onClearSelected();
+            let ids = selectedRows.map((p) => p.id);
+            dispatch(showLoading());
+            deleteOrderService(ids)
+              .then((response) => {
+                if (isFetchApiSuccessful(response)) {
+                  showSuccess("Xóa đơn hàng thành công");
+
+                  let paramCopy: any = { ...params, page: 1 };
+                  setPrams(paramCopy);
+                  let queryParam = generateQuery(paramCopy);
+                  history.push(`${location.pathname}?${queryParam}`);
+                } else {
+                  handleFetchApiError(response, "Xóa đơn hàng", dispatch);
+                }
+              })
+              .catch((error) => {
+                console.log("error", error);
+              })
+              .finally(() => {
+                dispatch(hideLoading());
+              });
+          };
+
+          Modal.confirm({
+            title: "Xác nhận xóa",
+            icon: <ExclamationCircleOutlined />,
+            content: (
+              <React.Fragment>
+                <div className="yody-modal-confirm-list-code">
+                  Bạn có chắc chắn xóa ({selectedRows.length}):
+                  <div className="yody-modal-confirm-item-code">
+                    {selectedRows.map((value) => (
+                      <p>{value?.code}</p>
+                    ))}
+                  </div>
+                </div>
+                <p style={{ textAlign: "justify", color: "#ff4d4f" }}>
+                  Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá luôn cả đơn
+                  trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá đơn ở trạng thái Thành
+                  công
+                </p>
+              </React.Fragment>
+            ),
+            okText: "Xóa",
+            cancelText: "Hủy",
+            okType: "danger",
+            onOk: deleteOrderComfirm,
+          });
+
+          break;
         default:
           break;
       }
     },
-    [ACTION_ID.changeOrderStatus, ACTION_ID.deleteOrder, ACTION_ID.printOrder, ACTION_ID.printShipment, ACTION_ID.printStockExport, dispatch, history, location.pathname, selectedRow, selectedRowKeys]
+    [
+      ACTION_ID.changeOrderStatus,
+      ACTION_ID.deleteOrder,
+      ACTION_ID.printOrder,
+      ACTION_ID.printShipment,
+      ACTION_ID.printStockExport,
+      dispatch,
+      history,
+      location.pathname,
+      selectedRows,
+      selectedRowKeys,
+    ]
   );
 
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
@@ -544,7 +606,7 @@ function OrderList(props: PropTypes) {
         case EXPORT_IDs.selectedOrders:
           newParams = {
             code: selectedRowCodes,
-            is_online: orderType === ORDER_TYPES.online
+            is_online: orderType === ORDER_TYPES.online,
           };
           break;
         case EXPORT_IDs.ordersFound:
@@ -574,17 +636,28 @@ function OrderList(props: PropTypes) {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, isLoopInfoIfOrderHasMoreThanTwoProducts, EXPORT_IDs.allOrders, EXPORT_IDs.ordersOnThisPage, EXPORT_IDs.selectedOrders, EXPORT_IDs.ordersFound, selectedRowCodes, orderType, listExportFile]
+    [
+      params,
+      isLoopInfoIfOrderHasMoreThanTwoProducts,
+      EXPORT_IDs.allOrders,
+      EXPORT_IDs.ordersOnThisPage,
+      EXPORT_IDs.selectedOrders,
+      EXPORT_IDs.ordersFound,
+      selectedRowCodes,
+      orderType,
+      listExportFile,
+    ]
   );
   const checkExportFile = useCallback(() => {
-
     let getFilePromises = listExportFile.map((code) => {
       return getFile(code);
     });
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(Math.round(response.data.num_of_record / response.data.total * 10000) / 100);
+          setExportProgress(
+            Math.round((response.data.num_of_record / response.data.total) * 10000) / 100
+          );
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -608,13 +681,21 @@ function OrderList(props: PropTypes) {
 
   const renderResultBlock = (newResult: any[]) => {
     let html = null;
-    html=newResult.map(single => {
-      return(
-        <li key={single.id} style={{marginBottom: 10}}>
-          Đơn hàng<strong> {single.id}</strong>: <strong>{single.isSuccess ? <span style={{color: successColor}}>Thành công</span> : <span style={{color: dangerColor}}>Thất bại</span>}</strong>. {single.text}
+    html = newResult.map((single) => {
+      return (
+        <li key={single.id} style={{ marginBottom: 10 }}>
+          Đơn hàng<strong> {single.id}</strong>:{" "}
+          <strong>
+            {single.isSuccess ? (
+              <span style={{ color: successColor }}>Thành công</span>
+            ) : (
+              <span style={{ color: dangerColor }}>Thất bại</span>
+            )}
+          </strong>
+          . {single.text}
         </li>
-      )
-    })
+      );
+    });
     return html;
   };
 
@@ -695,21 +776,21 @@ function OrderList(props: PropTypes) {
   //     // Chờ thu gom
   //     case ORDER_SUB_STATUS.awaiting_shipper:
   //       isCanChange = true;
-  //       break;  
+  //       break;
   //     // Thành công
   //     case ORDER_SUB_STATUS.shipped:
   //       isCanChange = true;
-  //       break; 
+  //       break;
   //     // Đang hoàn
   //     case ORDER_SUB_STATUS.returning:
   //       if(toStatus === ORDER_SUB_STATUS.returned) {
   //         isCanChange = true;
-  //       } 
-  //       break;  
+  //       }
+  //       break;
   //     // Đã hoàn
   //     case ORDER_SUB_STATUS.returned:
   //       isCanChange = true;
-  //       break; 
+  //       break;
   //     default:
   //       break;
   //   }
@@ -719,93 +800,102 @@ function OrderList(props: PropTypes) {
   //   }
   // }
 
-  const changeStatus = (id: number, toStatus: string, reason_id = 0, sub_reason_id = 0, ) => {
+  const changeStatus = (id: number, toStatus: string, reason_id = 0, sub_reason_id = 0) => {
     return new Promise((resolve, reject) => {
       isLoadingSetSubStatus = true;
-      dispatch(showLoading())
-      setSubStatusService(id, toStatus, reason_id, sub_reason_id).then(response => {
-        isLoadingSetSubStatus = false;
-        dispatch(hideLoading())
-        resolve(response);
-      }).catch(error => {
-        isLoadingSetSubStatus = false;
-        dispatch(hideLoading())
-        reject()
-      })
-    })
+      dispatch(showLoading());
+      setSubStatusService(id, toStatus, reason_id, sub_reason_id)
+        .then((response) => {
+          isLoadingSetSubStatus = false;
+          dispatch(hideLoading());
+          resolve(response);
+        })
+        .catch((error) => {
+          isLoadingSetSubStatus = false;
+          dispatch(hideLoading());
+          reject();
+        });
+    });
   };
 
   const changeOrderStatusInTable = (currentOrder: OrderResponse, toStatus: string) => {
     const index = data.items?.findIndex((single) => single.id === currentOrder.id);
-      if (index > -1) {
-        let dataResult = { ...data };
-        dataResult.items[index].sub_status_code = toStatus
-        dataResult.items[index].sub_status = listOrderProcessingStatus.find(single => single.code === toStatus)?.sub_status
-        setData(dataResult);
-      }
+    if (index > -1) {
+      let dataResult = { ...data };
+      dataResult.items[index].sub_status_code = toStatus;
+      dataResult.items[index].sub_status = listOrderProcessingStatus.find(
+        (single) => single.code === toStatus
+      )?.sub_status;
+      setData(dataResult);
+    }
   };
 
   const handleChangeSingleOrderStatus = async (i: number, toStatus: string) => {
-    let selectedRowLength = selectedRow.length;
-    if(i >=selectedRowLength) {
+    let selectedRowLength = selectedRows.length;
+    if (i >= selectedRowLength) {
       return;
     }
-    let currentOrder =selectedRow[i];
-    
+    let currentOrder = selectedRows[i];
+
     // let {isCanChange, textResult} = handleIfIsChange(currentOrder, toStatus);
 
     // Không validate nữa
     let isCanChange = true;
     let textResult = "";
 
-    if(isCanChange) {
+    if (isCanChange) {
       // setIsLoadingSetSubStatus(true);
       isLoadingSetSubStatus = true;
-      let response:any = await changeStatus(currentOrder.id, toStatus);
-      if(isFetchApiSuccessful(response)) {
-        isCanChange = true;
-        textResult = "Chuyển trạng thái thành công";
-        changeOrderStatusInTable(selectedRow[i], toStatus);
-      } else {
+      if (checkIfOrderHasNotFinishedPaymentMomo(currentOrder)) {
         isCanChange = false;
-        textResult = "Có lỗi khi cập nhật trạng thái"
-        handleFetchApiError(response, "Cập nhật trạng thái", dispatch)
+        textResult = "Không thể điều phối đơn hàng khi chờ khách thanh toán qua ví điện tử";
+      } else {
+        let response: any = await changeStatus(currentOrder.id, toStatus);
+        if (isFetchApiSuccessful(response)) {
+          isCanChange = true;
+          textResult = "Chuyển trạng thái thành công";
+          changeOrderStatusInTable(selectedRows[i], toStatus);
+        } else {
+          isCanChange = false;
+          textResult = "Có lỗi khi cập nhật trạng thái";
+          handleFetchApiError(response, "Cập nhật trạng thái", dispatch);
+        }
       }
-      // setIsLoadingSetSubStatus(false)
       isLoadingSetSubStatus = false;
+      // setIsLoadingSetSubStatus(false)
     }
-    
-    const newStatusHtml:ChangeOrderStatusHtmlModel = {
+
+    const newStatusHtml: ChangeOrderStatusHtmlModel = {
       id: currentOrder.id,
       isSuccess: isCanChange,
       text: textResult,
-    }
-    
+    };
+
     newResult[i] = newStatusHtml;
     // console.log('newResult', newResult);
     let renderListHtml = renderResultBlock(newResult);
     let htmlResult = (
       <React.Fragment>
-        <div style={{marginBottom: 10}}>Đã xử lý: {i+1} / {selectedRow.length}</div>
-        <ul>
-          {renderListHtml}
-        </ul>
+        <div style={{ marginBottom: 10 }}>
+          Đã xử lý: {i + 1} / {selectedRows.length}
+        </div>
+        <ul>{renderListHtml}</ul>
         {isLoadingSetSubStatus ? "Loading ..." : null}
       </React.Fragment>
-    )
-    setChangeOrderStatusHtml(htmlResult)
-    let m=i+1;
-    handleChangeSingleOrderStatus(m, toStatus)
+    );
+    setChangeOrderStatusHtml(htmlResult);
+    let m = i + 1;
+    handleChangeSingleOrderStatus(m, toStatus);
   };
 
-  const handleConfirmOk = (status: string|undefined) => {
+  const handleConfirmOk = (status: string | undefined) => {
     // console.log('status', status)
     let i = 0;
     // console.log('selectedRow', selectedRow);
-    if(!status) {
+    if (!status) {
       return;
     }
-    setChangeOrderStatusHtml(undefined)
+    setChangeOrderStatusHtml(undefined);
     handleChangeSingleOrderStatus(i, status);
   };
 
@@ -826,11 +916,13 @@ function OrderList(props: PropTypes) {
 
   useEffect(() => {
     dispatch(searchAccountPublicAction({ limit: 30 }, setDataAccounts));
-    dispatch(ExternalShipperGetListAction((response) => {
-      if (response) {
-        setShippers(response)
-      }
-    }));
+    dispatch(
+      ExternalShipperGetListAction((response) => {
+        if (response) {
+          setShippers(response);
+        }
+      })
+    );
     dispatch(getListAllSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
@@ -843,23 +935,19 @@ function OrderList(props: PropTypes) {
         setListPaymentMethod(data);
       })
     );
-    const params=  {
+    const params = {
       sort_type: "asc",
       sort_column: "display_order",
-    }
+    };
     dispatch(
-      actionFetchListOrderProcessingStatus(
-        params,
-        (data: OrderProcessingStatusResponseModel) => {
-          setListOrderProcessingStatus(data.items);
-          setInitListOrderProcessingStatus(data.items);
-        }
-      )
+      actionFetchListOrderProcessingStatus(params, (data: OrderProcessingStatusResponseModel) => {
+        setListOrderProcessingStatus(data.items);
+        setInitListOrderProcessingStatus(data.items);
+      })
     );
   }, [dispatch]);
 
   useEffect(() => {
-
     let dataQuery: OrderSearchQuery = {
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
@@ -867,7 +955,7 @@ function OrderList(props: PropTypes) {
 
     setPrams(dataQuery);
     handleFetchData(dataQuery);
-    setChangeOrderStatusHtml(undefined)
+    setChangeOrderStatusHtml(undefined);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, handleFetchData, setSearchResult, location.search]);
 
@@ -904,8 +992,7 @@ function OrderList(props: PropTypes) {
                     onClick={() => {
                       setShowExportModal(true);
                     }}
-                    disabled={!isPassed}
-                  >
+                    disabled={!isPassed}>
                     Xuất file
                   </Button>
                 )}
@@ -923,14 +1010,17 @@ function OrderList(props: PropTypes) {
               ) : (
                 <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
                   {(isPassed: boolean) => (
-                    <a href={process.env.REACT_APP_BASE_POS || ""} target="_blank" rel="noreferrer" className="buttonLink">
+                    <a
+                      href={process.env.REACT_APP_BASE_POS || ""}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="buttonLink">
                       <Button
                         type="primary"
                         className="ant-btn-primary"
                         size={"large"}
-                        icon={<GoPlus style={{marginRight: "0.2em"}}/>}
-                        disabled={!isPassed}
-                      >
+                        icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                        disabled={!isPassed}>
                         Thêm mới đơn hàng
                       </Button>
                     </a>
@@ -939,12 +1029,15 @@ function OrderList(props: PropTypes) {
               )}
             </Space>
           </Row>
-        }
-      >
+        }>
         <Card>
           <OrdersFilter
             onMenuClick={onMenuClick}
-            actions={orderType === ORDER_TYPES.offline ? actions.filter(single => single.id !== ACTION_ID.changeOrderStatus) : actions}
+            actions={
+              orderType === ORDER_TYPES.offline
+                ? actions.filter((single) => single.id !== ACTION_ID.changeOrderStatus)
+                : actions
+            }
             onFilter={onFilter}
             isLoading={isFilter}
             params={params}
@@ -984,8 +1077,9 @@ function OrderList(props: PropTypes) {
               tableColumnConfigs={tableColumnConfigs}
               subStatuses={subStatuses}
             />
-          ) : "Đang tải dữ liệu..."
-          }
+          ) : (
+            "Đang tải dữ liệu..."
+          )}
         </Card>
 
         <ModalSettingColumn
@@ -995,7 +1089,7 @@ function OrderList(props: PropTypes) {
             setShowSettingColumn(false);
             setColumns(data);
             // console.log('data', data)
-            onSaveConfigTableColumn(data );
+            onSaveConfigTableColumn(data);
           }}
           data={columns}
         />
@@ -1021,12 +1115,12 @@ function OrderList(props: PropTypes) {
         <ChangeOrderStatusModal
           visible={isShowChangeOrderStatusModal}
           onCancelChangeStatusModal={() => {
-            setIsShowChangeOrderStatusModal(false)
-            setChangeOrderStatusHtml(undefined)
+            setIsShowChangeOrderStatusModal(false);
+            setChangeOrderStatusHtml(undefined);
           }}
           listOrderProcessingStatus={listOrderProcessingStatus}
-          handleConfirmOk = {handleConfirmOk}
-          changeOrderStatusHtml = {changeOrderStatusHtml}
+          handleConfirmOk={handleConfirmOk}
+          changeOrderStatusHtml={changeOrderStatusHtml}
         />
       </ContentContainer>
     </StyledComponent>

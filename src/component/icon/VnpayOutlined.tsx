@@ -6,18 +6,11 @@ import { iconHelper } from "./helper";
 type VnPayProps = {
   paymentData: OrderPaymentRequest[];
   method: PaymentMethodResponse;
-  style?: React.CSSProperties;
 };
 
 const VnPayOutline = (props: VnPayProps) => {
   const svg = () => (
-    <svg
-      width="18"
-      height="18"
-      viewBox="0 0 18 18"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path
         fillRule="evenodd"
         clipRule="evenodd"
@@ -55,7 +48,16 @@ const VnPayOutline = (props: VnPayProps) => {
     </svg>
   );
 
-  return <Icon component={svg} style={props.style}></Icon>;
+  return (
+    <Icon
+      component={svg}
+      style={{
+        fontSize: 18,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+      }}></Icon>
+  );
 };
 
 export default VnPayOutline;

@@ -2,6 +2,7 @@ import { Button, Card, Col, FormInstance, Row } from "antd";
 import WarningIcon from "assets/icon/ydWarningIcon.svg";
 import OrderCreatePayments from "component/order/OrderCreatePayments";
 import OrderPayments from "component/order/OrderPayments";
+import UrlConfig from "config/url.config";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { UpdatePaymentAction } from "domain/actions/order/order.action";
 import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
@@ -10,6 +11,7 @@ import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
 import { getAmountPayment, reCalculatePaymentReturn } from "utils/AppUtils";
 import { OrderStatus, PaymentMethodOption } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
@@ -35,6 +37,7 @@ type PropTypes = {
   // setTotalPaid: (value: number) => void;
   reload?: () => void;
   disabledActions?: (type: string) => void;
+  createPaymentCallback?: () => void;
 };
 
 function UpdatePaymentCard(props: PropTypes) {
@@ -47,12 +50,15 @@ function UpdatePaymentCard(props: PropTypes) {
     paymentMethod,
     shipmentMethod,
     isDisablePostPayment,
+    createPaymentCallback,
   } = props;
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>([]);
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
+
+  const history = useHistory();
 
   const ShowPayment = () => {
     props.setVisibleUpdatePayment(true);
@@ -65,9 +71,12 @@ function UpdatePaymentCard(props: PropTypes) {
       // window.location.reload();
       setVisibleConfirmPayment(false);
       setPaymentData([]);
+      props.setVisibleUpdatePayment(false);
       props.reload && props.reload();
+      history.push(`${UrlConfig.ORDER}/${props.orderDetail.id}`);
+      createPaymentCallback && createPaymentCallback();
     },
-    [props]
+    [createPaymentCallback, history, props]
   );
 
   const onError = (error: boolean) => {
@@ -79,9 +88,7 @@ function UpdatePaymentCard(props: PropTypes) {
 
   const ShowConfirmPayment = () => {
     if (props.orderDetail.status === OrderStatus.FINALIZED) {
-      setTextValue(
-        "Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?"
-      );
+      setTextValue("Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?");
     } else {
       if (props.orderDetail.status === OrderStatus.DRAFT) {
         setTextValue(
@@ -128,11 +135,15 @@ function UpdatePaymentCard(props: PropTypes) {
         fulfillments: fulfillment,
       };
       let totalAmountCustomerNeedToPay = amount - getAmountPayment(request.payments);
-      
+
       let valuesCalculateReturnAmount = {
         ...request,
-        payments: reCalculatePaymentReturn(request.payments, totalAmountCustomerNeedToPay, listPaymentMethods).filter((payment) => (payment.amount !== 0 || payment.paid_amount !== 0))
-      }
+        payments: reCalculatePaymentReturn(
+          request.payments,
+          totalAmountCustomerNeedToPay,
+          listPaymentMethods
+        ).filter((payment) => payment.amount !== 0 || payment.paid_amount !== 0),
+      };
       try {
         await dispatch(
           UpdatePaymentAction(valuesCalculateReturnAmount, props.order_id, onUpdateSuccess, onError)
@@ -152,10 +163,10 @@ function UpdatePaymentCard(props: PropTypes) {
     setShowPaymentPartialPayment && setShowPaymentPartialPayment(false);
   };
 
-	const renderFullPaymentMethod = () => {
-		return (
+  const renderFullPaymentMethod = () => {
+    return (
       <div className="create-order-payment 222">
-				<OrderCreatePayments
+        <OrderCreatePayments
           setPaymentMethod={setPaymentMethod}
           payments={paymentData}
           setPayments={setPaymentData}
@@ -165,63 +176,62 @@ function UpdatePaymentCard(props: PropTypes) {
           loyaltyRate={loyaltyRate}
           listPaymentMethod={listPaymentMethods}
           isDisablePostPayment={isDisablePostPayment}
+          orderDetail={props.orderDetail}
         />
-				{renderButtons()}
+        {renderButtons()}
       </div>
-    ); 
-	};
+    );
+  };
 
-	const renderButtons = () => {
-		let html = null;
-		if(paymentMethod === PaymentMethodOption.PREPAYMENT) {
-			html = (
-				<Row gutter={24} style={{marginTop: "20px"}}>
-					<Col xs={24} lg={24}>
-						<div>
-							<Button
-								type="primary"
-								className="ant-btn-outline fixed-button text-right"
-								style={{float: "right", padding: "0 25px"}}
-								htmlType="submit"
-								onClick={ShowConfirmPayment}
-								loading={createPayment}
-							>
-								Tạo thanh toán
-							</Button>
-							<Button
-								type="default"
-								className={`ant-btn-outline fixed-button text-right ${
-									createPayment ? "disabled-cancel" : ""
-								}`}
-								style={{
-									float: "right",
-									marginRight: "10px",
-									padding: "0 25px",
-								}}
-								onClick={cancelPayment}
-								disabled={createPayment}
-							>
-								Hủy
-							</Button>
-						</div>
-					</Col>
-				</Row>
-			)
-		}
-		return html;
-	};
+  const renderButtons = () => {
+    let html = null;
+    if (paymentMethod === PaymentMethodOption.PREPAYMENT) {
+      html = (
+        <Row gutter={24} style={{ marginTop: "20px" }}>
+          <Col xs={24} lg={24}>
+            <div>
+              <Button
+                type="primary"
+                className="ant-btn-outline fixed-button text-right 66"
+                style={{ float: "right", padding: "0 25px", marginRight: 0 }}
+                onClick={ShowConfirmPayment}
+                loading={createPayment}>
+                Tạo thanh toán
+              </Button>
+              <Button
+                type="default"
+                className={`ant-btn-outline fixed-button text-right ${
+                  createPayment ? "disabled-cancel" : ""
+                }`}
+                style={{
+                  float: "right",
+                  marginRight: "10px",
+                  padding: "0 25px",
+                }}
+                onClick={cancelPayment}
+                disabled={createPayment}>
+                Hủy
+              </Button>
+            </div>
+          </Col>
+        </Row>
+      );
+    }
+    return html;
+  };
 
   const renderOnlyPaymentMethod = () => {
     return (
-      <div className="create-order-payment 222">
-				<OrderPayments
-					payments={paymentData}
-					setPayments={setPaymentData}
-					totalAmountOrder={amount}
-					loyaltyRate={loyaltyRate}
-					listPaymentMethod={listPaymentMethods}
-				/>
-				{renderButtons()}
+      <div className="create-order-payment 221">
+        <OrderPayments
+          payments={paymentData}
+          setPayments={setPaymentData}
+          totalAmountOrder={amount}
+          loyaltyRate={loyaltyRate}
+          listPaymentMethod={listPaymentMethods}
+          orderDetail={props.orderDetail}
+        />
+        {renderButtons()}
       </div>
     );
   };
@@ -260,26 +270,23 @@ function UpdatePaymentCard(props: PropTypes) {
         <Card
           className="margin-top-20 orders-update-payment"
           title={
-            <div className="d-flex" style={{marginTop: "5px", border: "none"}}>
+            <div className="d-flex" style={{ marginTop: "5px", border: "none" }}>
               <span className="title-card">THANH TOÁN</span>
             </div>
-          }
-        >
+          }>
           {props.isVisibleUpdatePayment === true && renderFullPaymentMethod()}
 
           {props.isVisibleUpdatePayment === false && (
             <div>
               <label
                 className="text-left"
-                style={{marginTop: "20px", lineHeight: "40px"}}
-              ></label>
+                style={{ marginTop: "20px", lineHeight: "40px" }}></label>
               <Button
                 type="primary"
-                className="ant-btn-outline fixed-button text-right"
-                style={{float: "right", padding: "0 25px"}}
+                className="ant-btn-outline fixed-button text-right 3"
+                style={{ float: "right", padding: "0 25px" }}
                 onClick={ShowPayment}
-                disabled={props.disabled}
-              >
+                disabled={props.disabled}>
                 Thanh toán
               </Button>
             </div>

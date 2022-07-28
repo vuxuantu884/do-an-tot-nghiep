@@ -48,7 +48,7 @@ import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import { getReturnMoneyStatusText } from "utils/OrderUtils";
 import 'assets/css/order-status.scss'
-import TrackingLog from "screens/order-online/component/TrackingLog/TrackingLog";
+import TrackingLog from "screens/order-online/component/TrackingLog";
 
 import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
 import IconPaymentQRCode from "assets/icon/payment/qr.svg";

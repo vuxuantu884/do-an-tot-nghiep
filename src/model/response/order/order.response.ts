@@ -254,6 +254,10 @@ export interface OrderPaymentResponse extends BaseObject {
   bank_account_holder: string;
   bank_account_id: number;
   bank_account_number: string;
+  pay_url: string | null;
+  short_link: string | null;
+  expired_at: Date | null;
+  ref_transaction_code: string | null;
 }
 
 export interface BillingAddressResponseModel {

@@ -107,6 +107,7 @@ export const ORDER_PAYMENT_STATUS = {
   paid: "paid", // đã trả
   unpaid: "unpaid", // chưa trả
   partial_paid: "partial_paid", // thanh toán một phần
+  cancelled: "cancelled", // hủy
 }
 
 export const ORDER_EXPORT_TYPE = {

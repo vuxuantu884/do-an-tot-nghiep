@@ -317,3 +317,63 @@ export const isFulfillmentReturned = (fulfillment: FulFillmentResponse | any) =>
       
   return isFulfillment;
 }
+
+export const checkIfMomoPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
+  return payment.payment_method_code === PaymentMethodCode.MOMO
+};
+
+export const checkIfPointPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
+  return payment.payment_method_code === PaymentMethodCode.POINT
+};
+
+export const checkIfBankPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
+  return payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER
+};
+
+export const checkIfFinishedPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
+  return payment.status === ORDER_PAYMENT_STATUS.paid
+};
+
+export const checkIfOrderHasNotFinishPaymentMomo = (orderDetail: OrderResponse | null | undefined) => {
+  if(!orderDetail?.payments || orderDetail.payments.length === 0) {
+    return false;
+  }
+  return orderDetail?.payments.some(payment => checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && !checkIfExpiredOrCancelledPayment(payment))
+};
+
+export const checkIfExpiredPayment = (payment: OrderPaymentResponse|OrderPaymentRequest) => {
+  if(!payment.expired_at) {
+    return false
+  }
+  return moment(payment.expired_at).isBefore(moment())
+};
+
+export const checkIfNotFinishedAndExpiredPaymentMomo = (payment: OrderPaymentResponse) => {
+  return checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && checkIfExpiredPayment(payment)
+};
+
+export const checkIfNotFinishedAndNotExpiredPaymentMomo = (payment: OrderPaymentResponse) => {
+  return checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && !checkIfExpiredPayment(payment)
+};
+
+export const checkIfOrderHasNotFinishedAndExpiredPaymentMomo = (orderDetail: OrderResponse | null | undefined) => {
+  if(!orderDetail?.payments || orderDetail.payments.length === 0) {
+    return false;
+  }
+  return orderDetail?.payments.some(payment =>checkIfNotFinishedAndExpiredPaymentMomo(payment))
+};
+
+export const checkIfOrderHasNotFinishedPaymentMomo = (orderDetail: OrderResponse | null | undefined) => {
+  if(!orderDetail?.payments || orderDetail.payments.length === 0) {
+    return false;
+  }
+  return orderDetail?.payments.some(payment =>checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && !checkIfExpiredOrCancelledPayment(payment))
+};
+
+export const checkIfCancelledPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
+  return payment.status === ORDER_PAYMENT_STATUS.cancelled
+};
+
+export const checkIfExpiredOrCancelledPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
+  return checkIfCancelledPayment(payment) || (checkIfExpiredPayment(payment) && !checkIfFinishedPayment(payment))
+};
