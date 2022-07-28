@@ -14,6 +14,8 @@ import {
   getSmsConfigAction,
 } from "domain/actions/settings/sms-settings.action";
 import {showSuccess} from "utils/ToastUtils";
+import {SMS_CONFIG_PERMISSIONS} from "config/permissions/sms-config.permission";
+import useAuthorization from "hook/useAuthorization";
 import {StyledSmsConfigMessage} from "screens/settings/sms/styles";
 
 const KEY_WORD_LIST = [
@@ -51,10 +53,17 @@ const KEY_WORD_LIST = [
 
 const { SHOW_PARENT } = TreeSelect;
 
+const updateSmsPermission = [SMS_CONFIG_PERMISSIONS.UPDATE];
+
 const SmsOrderRetail: React.FC = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
+
+  const [allowUpdateSms] = useAuthorization({
+    acceptPermissions: updateSmsPermission,
+    not: false,
+  });
 
   const [messageStatus, setMessageStatus] = useState<boolean>(true);
   const [storeList, setStoreList] = useState<any>([]);
@@ -92,18 +101,18 @@ const SmsOrderRetail: React.FC = () => {
 
   const handleSmsConfigData = useCallback((data: any) => {
     if (data) {
-      const messages = JSON.parse(data?.messages);
+      const messages = JSON.parse(data.messages);
       setMessageStatus(data.retail_offline_msg_status === "ACTIVE");
 
-      const unsentStoreList = data.unsent_sms_store_ids.split(",");
+      const unsentStoreList = data.unsent_sms_store_ids?.split(",");
       let sentStoreList = publicStoreIdList;
-      for (let i = 0 ; i < unsentStoreList.length; i++) {
+      for (let i = 0 ; i < unsentStoreList?.length; i++) {
         sentStoreList = sentStoreList.filter((id: any) => id.toString() !== unsentStoreList[i].toString());
       }
 
       const initFormValue = {
         sent_sms_store_ids: sentStoreList,
-        retail_offline_message: messages.retail_offline_message,
+        retail_offline_message: messages?.retail_offline_message,
         retail_offline_msg_status: data.retail_offline_msg_status,
       };
       setInitValue(initFormValue);
@@ -222,6 +231,7 @@ const SmsOrderRetail: React.FC = () => {
                     setMessageStatus(checked);
                   }}
                   className={"switch-button"}
+                  disabled={!allowUpdateSms}
                 />
                 {messageStatus ? <span>Hoạt động</span> : <span>Không hoạt động</span>}
               </Form.Item>
@@ -232,6 +242,7 @@ const SmsOrderRetail: React.FC = () => {
               >
                 <TreeSelect
                   maxTagCount="responsive"
+                  disabled={!allowUpdateSms}
                   showSearch
                   showArrow
                   allowClear
@@ -257,6 +268,7 @@ const SmsOrderRetail: React.FC = () => {
                   allowClear
                   placeholder="Nhập nội dung sms"
                   autoSize={{ minRows: 10, maxRows: 10 }}
+                  disabled={!allowUpdateSms}
                 />
               </Form.Item>
             </Card>
@@ -264,7 +276,7 @@ const SmsOrderRetail: React.FC = () => {
             <BottomBarContainer
               back="Quay lại"
               backAction={backAction}
-              rightComponent={
+              rightComponent={allowUpdateSms &&
                 <Space>
                   <Button style={{ marginRight: 15 }} onClick={onCancel}>
                     {"Hủy"}
@@ -283,7 +295,13 @@ const SmsOrderRetail: React.FC = () => {
               return (
                 <div className="key-word-item" key={keyWord.value}>
                   <div><strong>{keyWord.value}</strong> : <span style={{color: "#75757B"}}>{keyWord.name}</span></div>
-                  <Button className="insert-button" onClick={() => handleInsertKeyword(keyWord.value)}>Chèn</Button>
+                  <Button
+                    className="insert-button"
+                    onClick={() => handleInsertKeyword(keyWord.value)}
+                    disabled={!allowUpdateSms}
+                  >
+                    Chèn
+                  </Button>
                 </div>
               );
             })}
