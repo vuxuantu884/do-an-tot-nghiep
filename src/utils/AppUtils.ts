@@ -66,7 +66,11 @@ import {
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
-import { checkIfExpiredOrCancelledPayment, checkIfFinishedPayment, checkIfFulfillmentCancelled } from "./OrderUtils";
+import {
+  checkIfExpiredOrCancelledPayment,
+  checkIfFinishedPayment,
+  checkIfFulfillmentCancelled,
+} from "./OrderUtils";
 import { RegUtil } from "./RegUtils";
 import { showError, showSuccess } from "./ToastUtils";
 
@@ -746,8 +750,8 @@ export const getAmountPayment = (
   let value = 0;
   if (items && items.length > 0) {
     items.forEach((a) => {
-      if(!checkIfExpiredOrCancelledPayment(a)) {
-        value = value + a.paid_amount
+      if (!checkIfExpiredOrCancelledPayment(a)) {
+        value = value + a.paid_amount;
       }
     });
   }
@@ -811,7 +815,7 @@ export const getOrderTotalPaymentAmount = (
 ) => {
   let total = 0;
   payments.forEach((a) => {
-    if(checkIfFinishedPayment(a)) {
+    if (checkIfFinishedPayment(a)) {
       total = total + a.amount;
     }
   });
@@ -823,7 +827,7 @@ export const getOrderTotalPaymentAmountReturn = (
 ) => {
   let total = 0;
   payments.forEach((a) => {
-    if(checkIfFinishedPayment(a)) {
+    if (checkIfFinishedPayment(a)) {
       total = total + a.paid_amount;
     }
   });
@@ -851,8 +855,8 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
   let value = 0;
   if (items && items?.payments && items.payments.length) {
     items.payments.forEach((a) => {
-      if(checkIfFinishedPayment(a)) {
-        value = value + a.paid_amount
+      if (checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount;
       }
     });
   }
@@ -871,8 +875,8 @@ export const checkPaymentStatus = (payments: any, orderAmount: number) => {
   let value = 0;
   if (payments && payments.length > 0) {
     payments.forEach((a: any) => {
-      if(checkIfFinishedPayment(a)) {
-        value = value + a.paid_amount
+      if (checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount;
       }
     });
   }
@@ -910,8 +914,8 @@ export const checkPaymentAll = (items: OrderResponse) => {
   let value = 0;
   if (items?.payments && items.payments.length > 0) {
     items.payments.forEach((a) => {
-      if(checkIfFinishedPayment(a)) {
-        value = value + a.paid_amount
+      if (checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount;
       }
     });
   }
@@ -2292,3 +2296,10 @@ export const insertCustomIndexArray = (
   index: number,
   newItem: any,
 ) => [...arr.slice(0, index), newItem, ...arr.slice(index)];
+
+export function toTitleCase(str: string) {
+  return str
+    .split(" ")
+    .map((item) => _.capitalize(item))
+    .join(" ");
+}
