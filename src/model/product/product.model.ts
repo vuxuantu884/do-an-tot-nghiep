@@ -241,7 +241,8 @@ export interface VariantSearchQuery extends BaseQuery {
   sort_column?: string,
   sort_type?: string,
   variant_ids?: string,
-  remain?: string
+  remain?: string,
+  collections?: string
 }
 export interface ProductWrapperSearchQuery extends BaseQuery {
   info?: string,
@@ -256,7 +257,8 @@ export interface ProductWrapperSearchQuery extends BaseQuery {
   status?: string,
   goods?: string,
   product_ids?: Array<number>,
-  collections?: string
+  collections?: string,
+  codes?: string
 }
 
 export interface VariantPriceRequest {
@@ -506,4 +508,9 @@ export interface CareLabelItem {
   name: string,
   active: boolean,
   type?: number
+}
+
+
+export interface VariantSku3Response {
+  code: string,
 }

@@ -1,4 +1,4 @@
-import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
+import { CloseOutlined, FilterOutlined, InfoCircleOutlined, StarOutlined } from "@ant-design/icons";
 import { Button, Col, Form, Input, InputNumber, Row, Tag } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
@@ -15,7 +15,6 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { createConfigInventoryAction, deleteConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -30,7 +29,6 @@ import {
 import { modalActionType } from "model/modal/modal.model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
-import { CollectionResponse } from "model/product/collection.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -43,6 +41,19 @@ import TreeStore from "./TreeStore";
 import { generateQuery} from "utils/AppUtils";
 import {useHistory} from "react-router-dom";
 import { InventoryTabUrl } from "config/url.config";
+import CollectionSearchPaging from "component/custom/select-search/collection-select-paging";
+import HashTag from "component/custom/hashtag";
+import { CollectionResponse } from "model/product/collection.model";
+import { getCollectionRequestAction } from "domain/actions/product/collection.action";
+import ProductSearchPaging from "component/custom/select-search/product-select-paging";
+import { ProductResponse, VariantSku3Response } from "model/product/product.model";
+import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";
+import VariantSku3SearchPaging from "component/custom/select-search/variant-select-paging";
+import { searchVariantSku3Api } from "service/product/product.service";
+import { callApiNative } from "utils/ApiUtils";
+import { SizeResponse } from "model/product/size.model";
+import { sizeSearchAction } from "domain/actions/product/size.action";
+import SizeSearchSelect from "component/custom/select-search/size-search";
 
 export interface InventoryFilterProps {
   params: any;
@@ -100,18 +111,15 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const [showModalSaveFilter, setShowModalSaveFilter] = useState(false);
   const dispatch = useDispatch();
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
-  const [lstCollection, setLstCollection] = useState<Array<CollectionResponse>>([]);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [tagAcitve, setTagActive] = useState<number|null>();
   const [configId, setConfigId] = useState<number>();
+  const [lstCollection, setLstCollection] = useState<Array<CollectionResponse>>([]);
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
     setListCategory(temp);
   }, []);
 
-  const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
-    setLstCollection(data.items);
-  }, []);
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>(
     {
@@ -119,8 +127,29 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       metadata: { limit: 20, page: 1, total: 0 }
     }
   );
+  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+  const [products, setProducts] = useState<PageResponse<ProductResponse>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
+  const [variants, setVariants] = useState<PageResponse<VariantSku3Response>>(
+    {
+      items: [],
+      metadata: { limit: 20, page: 1, total: 0 }
+    }
+  );
   const history = useHistory();
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
+  const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
+    setLstCollection(data.items);
+  }, []);
 
   const setDataAccounts = useCallback(
     (data: PageResponse<AccountResponse> | false) => {
@@ -139,6 +168,60 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     []
   );
 
+  const setDataSizes = useCallback(
+    (data: PageResponse<SizeResponse>) => {
+      if (!data) {
+        return false;
+      }
+      setSizes((sizes) => {
+        return {
+          ...sizes,
+          items: [
+            ...sizes.items,
+            ...data.items
+          ],
+          metadata: data.metadata,
+        }
+      });
+    },
+    []
+  );
+
+  const setDataProducts = useCallback(
+    (data: PageResponse<ProductResponse>|false) => {
+      if (!data) {
+        return false;
+      }
+      setProducts((products) => {
+        return {
+          ...products,
+          items: [
+            ...products.items,
+            ...data.items
+          ],
+          metadata: data.metadata,
+        }
+      });
+    },
+    []
+  );
+
+  const setDataVariants = useCallback((data: PageResponse<VariantSku3Response>|false) => {
+    if (!data) {
+      return false;
+    }
+    setVariants((variants) => {
+      return {
+        ...variants,
+        items: [
+          ...variants.items,
+          ...data.items
+        ],
+        metadata: data.metadata,
+      }
+    });
+  },[])
+
   const getAccounts = useCallback((code: string, page: number) => {
     dispatch(
       searchAccountPublicAction(
@@ -148,15 +231,57 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     );
   }, [dispatch, setDataAccounts]);
 
+  const getCollections = useCallback((code: string, page: number) => {
+    dispatch(
+      getCollectionRequestAction(
+        { codes: code, page: page },
+        setDataCollection
+      )
+    );
+  }, [dispatch, setDataCollection]);
+
+  const getSizes = useCallback((ids: string, page: number) => {
+    dispatch(
+      sizeSearchAction(
+        { ids: ids, page: page},
+        (res)=>{
+          setDataSizes(res);
+        }
+      )
+    );
+  }, [dispatch, setDataSizes]);
+
+  const getProducts = useCallback((codes: string, page: number) => {
+    dispatch(
+      searchProductWrapperRequestAction(
+        { codes: codes, page: page},
+        (res)=>{
+          setDataProducts(res);
+        }
+      )
+    );
+  }, [dispatch, setDataProducts]);
+
+  const getVariantSku3 = useCallback(async (codes: string, page: number) => {
+    await callApiNative({isShowLoading: false},dispatch,searchVariantSku3Api,{ codes: codes, page: page}).then((res)=>{
+      setDataVariants(res);
+    });
+  }, [dispatch, setDataVariants]);
+
   useEffect(() => {
     const {
       designer_codes,
       merchandiser_codes,
-      store_ids
+      store_ids,
+      collections,
+      sizes,
+      products,
+      variants
     } = params;
 
     const filter = {
       ...params,
+      sizes: sizes ? Array.isArray(sizes) ? sizes.map((i: string) => Number(i)) : [Number(sizes)] : [],
       store_ids: store_ids ? Array.isArray(store_ids) ? store_ids.map((i: string) => Number(i)) : [Number(store_ids)] : [],
     };
 
@@ -174,16 +299,26 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       getAccounts(codes, 1)
     }
 
+    if (sizes && sizes !== '') getSizes(sizes, 1);
+    if (products && products !== '') getProducts(products, 1);
+    if (variants && variants !== '') getVariantSku3(variants, 1);
+
+    if (collections) {
+      getCollections(collections, 1)
+    }
+
     formAdvanceFilter.setFieldsValue(filter);
     formBaseFilter.setFieldsValue(filter);
     setAdvanceFilters(filter);
 
     if (!designer_codes || designer_codes.length === 0) formAdvanceFilter.resetFields(['designer_codes']);
     if (!merchandiser_codes || merchandiser_codes.length === 0) formAdvanceFilter.resetFields(['merchandiser_codes']);
+    if (!collections || collections.length === 0) formAdvanceFilter.resetFields(['collections']);
+    if (!sizes || sizes.length === 0) formAdvanceFilter.resetFields(['sizes']);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
-  const FilterList = useCallback(({ filters, resetField, listCategory, lstCollection, listCountry, listStore, accounts }: any) => {
+  const FilterList = useCallback(({ filters, resetField, listCategory, listCountry, listStore, accounts,sizes,lstCollection}: any) => {
     let filtersKeys = Object.keys(filters);
     let renderTxt: any = null;
 
@@ -219,7 +354,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${madeinTag}`;
                 break
-              case AvdAllFilter.collection_codes:
+              case AvdAllFilter.collections:
                 let collectionTag = "";
                 newValues.forEach((item: string) => {
                   const colection = lstCollection?.find((e: any) => e.code === item);
@@ -255,6 +390,24 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
               break
+            case AvdAllFilter.sizes:
+                let sizesTag = "";
+                newValues.forEach((item: number) => {
+                  const size = sizes.items?.find((e: any) => e.id === Number(item));
+                  
+                  sizesTag = size ? sizesTag + size.code + "; " : sizesTag
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${sizesTag}`;
+              break
+            case AvdAllFilter.variant_sku7:
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
+              break
+            case AvdAllFilter.variant_sku3:
+              renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
+            break
+            case AvdAllFilter.tags:
+              renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
+            break
             case AvdAllFilter.from_price:
                 renderTxt = `Giá bán từ: ${formatCurrencyForProduct(filters.from_price)}`;
               break
@@ -484,10 +637,12 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   useEffect(() => {
     setAdvanceFilters({ ...params });
     dispatch(getCategoryRequestAction({}, setDataCategory));
-    dispatch(getCollectionRequestAction({}, setDataCollection));
+    if (params.collections) {
+      dispatch(getCollectionRequestAction({}, setDataCollection));
+    }
     dispatch(CountryGetAllAction(setListCountry));
     getConfigInventory();
-  }, [params, dispatch,getConfigInventory, setDataCategory, setDataCollection]);
+  }, [params, dispatch, getConfigInventory, setDataCategory, setDataCollection]);
 
   return (
       <div className="inventory-filter">
@@ -554,9 +709,12 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
           filters={advanceFilters}
           resetField={resetField}
           listCategory={listCategory}
-          lstCollection={lstCollection}
           listCountry={listCountry}
           listStore={listStore}
+          sizes={sizes}
+          variants={variants}
+          products={products}
+          lstCollection={lstCollection}
         />
         <BaseFilter
           onClearFilter={onResetFilter}
@@ -652,7 +810,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 </Col>
               </Row>
               <Row gutter={25}>
-              <Col span={8}>
+                <Col span={8}>
                   <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
                     <CustomSelect
                       showSearch
@@ -694,10 +852,10 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                 </Col>
                 <Col span={8}>
                   <Item label="Giá bán">
-                      <Input.Group compact>
+                      <Input.Group compact style={{height: 38}}>
                         <Item hidden={true} name="variant_prices">
                         </Item>
-                        <Item name="from_price" style={{ width: '45%', textAlign: 'center' }}>
+                        <Item name="from_price" style={{ width: '45%', textAlign: 'center',marginBottom: 0 }}>
                           <InputNumber
                             className="price_min"
                             placeholder="Từ"
@@ -709,7 +867,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                         <div
                           className="site-input-split"
                         >~</div>
-                        <Item name="to_price" style={{ width: '45%', textAlign: 'center' }}>
+                        <Item name="to_price" style={{ width: '45%', textAlign: 'center',marginBottom: 0 }}>
                           <InputNumber
                             className="site-input-right price_max"
                             placeholder="Đến"
@@ -721,6 +879,54 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                       </Input.Group>
                     </Item>
                 </Col>
+              </Row>
+              <Row gutter={25}>
+                <Col span={8}>
+                  <Item name={AvdInventoryFilter.collections} label="Nhóm hàng">
+                    <CollectionSearchPaging
+                        mode="multiple"
+                        placeholder="Chọn chọn nhóm hàng"
+                    />
+                  </Item>
+                </Col>
+                <Col span={8}>
+                  <Item
+                      name={AvdInventoryFilter.sizes}
+                      label="Kích thước"
+                    >
+                      <SizeSearchSelect
+                        mode="multiple"
+                      />
+                  </Item>
+                </Col>
+                <Col span={8}>
+                  <Item
+                      tooltip={{
+                        title: "Tìm kiếm sản phẩm theo tags",
+                        icon: <InfoCircleOutlined />,
+                      }}
+                      name="tags"
+                      label="Từ khóa"
+                    >
+                      <HashTag />
+                  </Item>
+                </Col>
+              </Row>
+              <Row gutter={25}>
+                <Col span={8}>
+                  <Item name={AvdInventoryFilter.variant_sku3} label="Mã 3">
+                    <VariantSku3SearchPaging
+                        mode="multiple"
+                    />
+                  </Item>
+                </Col>   
+                <Col span={8}>
+                  <Item name={AvdInventoryFilter.variant_sku7} label="Mã 7">
+                    <ProductSearchPaging
+                        mode="multiple"
+                    />
+                  </Item>
+                </Col>      
               </Row>
           </Form>
         </BaseFilter>

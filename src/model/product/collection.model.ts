@@ -5,6 +5,7 @@ export interface CollectionQuery extends BaseQuery{
   condition?: string, 
   created_name?: string, 
   goods?: string,
+  codes?: string | undefined
 }
 
 export interface CollectionCreateRequest {

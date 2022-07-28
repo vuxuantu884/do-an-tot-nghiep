@@ -104,7 +104,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   };
 
   useEffectOnce(() => {
-    dispatch(getCollectionRequestAction({ ...params, limit: collections.metadata.limit }, onGetSuccess));
+    dispatch(getCollectionRequestAction({ ...params, limit: collections.metadata.limit,codes: undefined}, onGetSuccess));
   })
 
   const onSearchCollections = (values: any) => {
