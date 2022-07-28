@@ -194,6 +194,9 @@ function OrdersTable(props: PropTypes) {
 
   // const [typeAPi, setTypeAPi] = useState("");
 
+  const [countForceRerenderTable, setCountForceRerenderTable] =
+    useState<number>(0);
+
   const items = useMemo(() => {
     return data.items ? data.items : [];
   }, [data]);
@@ -572,6 +575,7 @@ function OrdersTable(props: PropTypes) {
       dataResult.items[index].coordinator_code = response?.coordinator_code;
       dataResult.items[index] = response;
       setData(dataResult);
+      setCountForceRerenderTable(countForceRerenderTable + 1);
     }
   };
 
@@ -1972,6 +1976,7 @@ function OrdersTable(props: PropTypes) {
         footer={() => renderFooter()}
         isShowPaginationAtHeader
         rowSelectionWidth={30}
+        key={countForceRerenderTable}
       />
       <SubStatusChange
         orderId={selectedOrder?.id}
