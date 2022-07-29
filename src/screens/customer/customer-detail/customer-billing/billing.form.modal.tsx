@@ -12,7 +12,7 @@ import {
 } from "domain/actions/content/content.action";
 import { RegUtil } from "utils/RegUtils";
 import CustomInput from "screens/customer/common/customInput";
-import {VietNamId} from "utils/Constants";
+import { VietNamId } from "utils/Constants";
 
 const { Option } = Select;
 
@@ -32,7 +32,7 @@ type FormValueType = {
 };
 
 const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
-  props: CustomModalFormModel
+  props: CustomModalFormModel,
 ) => {
   const dispatch = useDispatch();
   const { modalAction, formItem, form, visible } = props;
@@ -79,7 +79,6 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
           default: null,
         };
 
-
   // const LIST_STATUS = bootstrapReducer.data?.order_main_status;
   const handleChangeArea = (districtId: string) => {
     if (districtId) {
@@ -120,14 +119,10 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
   }, [form, formItem, visible]);
 
   return (
-      <Form
-        form={form}
-        layout="vertical"
-        initialValues={initialFormValue}
-      >
-        <Row gutter={20}>
-          <Col span={24}>
-            {/* <Form.Item
+    <Form form={form} layout="vertical" initialValues={initialFormValue}>
+      <Row gutter={20}>
+        <Col span={24}>
+          {/* <Form.Item
               name="name"
               label={<b>Họ tên người nhận:</b>}
               rules={[
@@ -140,174 +135,167 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                 maxLength={255}
               />
             </Form.Item> */}
-             <CustomInput
-                name="name"
-                label={<span className="fw-500">Họ tên người nhận:</span>}
-                form={form}
-                message="Vui lòng nhập họ tên người nhận"
-                placeholder="Nhập họ tên người nhận"
-                isRequired={true}
-                maxLength={255}
-              />
-            <Row gutter={24}>
-              <Col span={12}>
-                <Form.Item
-                  name="phone"
-                  label={<span className="fw-500">Số điện thoại:</span>}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng nhập số điện thoại",
-                    },
-                    {
-                      pattern: RegUtil.PHONE,
-                      message: "Số điện thoại chưa đúng định dạng",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Nhập số điện thoại"
-                    style={{ width: "100%" }}
-                    minLength={9}
-                    maxLength={15}
-                  />
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  name="email"
-                  label={<span className="fw-500">Email:</span>}
-                  rules={[
-                    {
-                      pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
-                      message: "Vui lòng nhập đúng định dạng email",
-                    },
-                  ]}
-                >
-                  <Input
-                    placeholder="Nhập email"
-                    style={{ width: "100%" }}
-                    maxLength={255}
-                  />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={24}>
-              <Col span={24}>
-                <Form.Item
-                  label={<span className="fw-500">Đơn vị mua hàng:</span>}
-                  name="buyer"
-                >
-                  <Input maxLength={255} placeholder="Nhập đơn vị mua hàng" />
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={24}>
-              <Col span={12}>
+          <CustomInput
+            name="name"
+            label={<span className="fw-500">Họ tên người nhận:</span>}
+            form={form}
+            message="Vui lòng nhập họ tên người nhận"
+            placeholder="Nhập họ tên người nhận"
+            isRequired={true}
+            maxLength={255}
+          />
+          <Row gutter={24}>
+            <Col span={12}>
               <Form.Item
-                    label={<span className="fw-500">Mã số thuế:</span>}
-                    name="tax_code"
-                    rules={[
-                      {
-                        pattern: RegUtil.NUMBERREG,
-                        message: "Mã số thuế chỉ được phép nhập số",
-                      },
-                    ]}
-                  >
-                    <Input maxLength={255} placeholder="Mã số thuế" />
-                  </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item
-                  label={<span className="fw-500">Quốc gia:</span>}
-                  name="country_id"
-                  initialValue={VietNamId}
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn quốc gia",
-                    },
-                  ]}
+                name="phone"
+                label={<span className="fw-500">Số điện thoại:</span>}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng nhập số điện thoại",
+                  },
+                  {
+                    pattern: RegUtil.PHONE,
+                    message: "Số điện thoại chưa đúng định dạng",
+                  },
+                ]}
+              >
+                <Input
+                  placeholder="Nhập số điện thoại"
+                  style={{ width: "100%" }}
+                  minLength={9}
+                  maxLength={15}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="email"
+                label={<span className="fw-500">Email:</span>}
+                rules={[
+                  {
+                    pattern: RegUtil.EMAIL_NO_SPECIAL_CHAR,
+                    message: "Vui lòng nhập đúng định dạng email",
+                  },
+                ]}
+              >
+                <Input placeholder="Nhập email" style={{ width: "100%" }} maxLength={255} />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={24}>
+              <Form.Item label={<span className="fw-500">Đơn vị mua hàng:</span>} name="buyer">
+                <Input maxLength={255} placeholder="Nhập đơn vị mua hàng" />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="fw-500">Mã số thuế:</span>}
+                name="tax_code"
+                rules={[
+                  {
+                    pattern: RegUtil.NUMBERREG,
+                    message: "Mã số thuế chỉ được phép nhập số",
+                  },
+                ]}
+              >
+                <Input maxLength={255} placeholder="Mã số thuế" />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="fw-500">Quốc gia:</span>}
+                name="country_id"
+                initialValue={VietNamId}
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn quốc gia",
+                  },
+                ]}
+              >
+                <Select
+                  placeholder="Quốc gia"
+                  disabled
+                  // onChange={handleChangeCountry}
+                  showSearch
+                  allowClear
+                  optionFilterProp="children"
                 >
-                  <Select
-                    placeholder="Quốc gia"
-                    disabled
-                    // onChange={handleChangeCountry}
-                    showSearch
-                    allowClear
-                    optionFilterProp="children"
-                  >
-                    {countries.map((country: any) => (
-                      <Option key={country.id} value={country.id}>
-                        {country.name + ` - ${country.code}`}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-            <Row gutter={24}>
-              <Col span={12}>
-                <Form.Item
-                  label={<span className="fw-500">Khu vực:</span>}
-                  name="district_id"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn khu vực",
-                    },
-                  ]}
+                  {countries.map((country: any) => (
+                    <Option key={country.id} value={country.id}>
+                      {country.name + ` - ${country.code}`}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={24}>
+            <Col span={12}>
+              <Form.Item
+                label={<span className="fw-500">Khu vực:</span>}
+                name="district_id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn khu vực",
+                  },
+                ]}
+              >
+                <Select
+                  showSearch
+                  placeholder="Chọn khu vực"
+                  onChange={handleChangeArea}
+                  allowClear
+                  optionFilterProp="children"
                 >
-                  <Select
-                    showSearch
-                    placeholder="Chọn khu vực"
-                    onChange={handleChangeArea}
-                    allowClear
-                    optionFilterProp="children"
-                  >
-                    {areas.map((area: any) => (
-                      <Option key={area.id} value={area.id}>
-                        {area.city_name + ` - ${area.name}`}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-              <Col span={12}>
-                <Form.Item label={<span className="fw-500">Thành phố:</span>} name="city_id" hidden>
-                  <Input
-                    placeholder="Nhập địa chỉ chi tiết"
-                    style={{ width: "100%" }}
-                    maxLength={255}
-                  />
-                </Form.Item>
-                <Form.Item
-                  label={<span className="fw-500">Phường/xã:</span>}
-                  name="ward_id"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn phường/xã",
-                    },
-                  ]}
+                  {areas.map((area: any) => (
+                    <Option key={area.id} value={area.id}>
+                      {area.city_name + ` - ${area.name}`}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label={<span className="fw-500">Thành phố:</span>} name="city_id" hidden>
+                <Input
+                  placeholder="Nhập địa chỉ chi tiết"
+                  style={{ width: "100%" }}
+                  maxLength={255}
+                />
+              </Form.Item>
+              <Form.Item
+                label={<span className="fw-500">Phường/xã:</span>}
+                name="ward_id"
+                rules={[
+                  {
+                    required: true,
+                    message: "Vui lòng chọn phường/xã",
+                  },
+                ]}
+              >
+                <Select
+                  showSearch
+                  allowClear
+                  optionFilterProp="children"
+                  placeholder="Chọn phường/xã"
+                  // onChange={handleChangeWard}
                 >
-                  <Select
-                    showSearch
-                    allowClear
-                    optionFilterProp="children"
-                    placeholder="Chọn phường/xã"
-                    // onChange={handleChangeWard}
-                  >
-                    {wards.map((ward: any) => (
-                      <Option key={ward.id} value={ward.id}>
-                        {ward.name}
-                      </Option>
-                    ))}
-                  </Select>
-                </Form.Item>
-              </Col>
-            </Row>
-            {/* <Form.Item
+                  {wards.map((ward: any) => (
+                    <Option key={ward.id} value={ward.id}>
+                      {ward.name}
+                    </Option>
+                  ))}
+                </Select>
+              </Form.Item>
+            </Col>
+          </Row>
+          {/* <Form.Item
               name="full_address"
               label={<b>Địa chỉ chi tiết:</b>}
               rules={[
@@ -323,19 +311,19 @@ const FormCustomerBillingAddress: React.FC<CustomModalFormModel> = (
                 maxLength={255}
               />
             </Form.Item> */}
-            <CustomInput
-                name="full_address"
-                label={<span className="fw-500">Địa chỉ chi tiết:</span>}
-                form={form}
-                message="Vui lòng nhập địa chỉ chi tiết"
-                placeholder="Nhập địa chỉ chi tiết"
-                isRequired={true}
-                maxLength={255}
-              />
-            <Form.Item name="default" hidden></Form.Item>
-          </Col>
-        </Row>
-      </Form>
+          <CustomInput
+            name="full_address"
+            label={<span className="fw-500">Địa chỉ chi tiết:</span>}
+            form={form}
+            message="Vui lòng nhập địa chỉ chi tiết"
+            placeholder="Nhập địa chỉ chi tiết"
+            isRequired={true}
+            maxLength={255}
+          />
+          <Form.Item name="default" hidden></Form.Item>
+        </Col>
+      </Row>
+    </Form>
   );
 };
 

@@ -1,20 +1,16 @@
-import {Card, Checkbox, Collapse, Form} from "antd";
-import {FormInstance} from "antd/es/form/Form";
-import {CheckboxChangeEvent} from "antd/lib/checkbox";
-import {ADMIN_MODULE} from "config/permissions/admin.permission";
+import { Card, Checkbox, Collapse, Form } from "antd";
+import { FormInstance } from "antd/es/form/Form";
+import { CheckboxChangeEvent } from "antd/lib/checkbox";
+import { ADMIN_MODULE } from "config/permissions/admin.permission";
 import _ from "lodash";
-import {ModuleAuthorize} from "model/auth/module.model";
-import {PermissionsAuthorize} from "model/auth/permission.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {Fragment, useCallback, useMemo} from "react";
-import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
-import {
-  handleCheckedModule,
-  handleIndeterminateModule,
-  onChangeModule,
-} from "utils/AuthUtil";
-import {RoleStyled} from "./index.style";
-const {Panel} = Collapse;
+import { ModuleAuthorize } from "model/auth/module.model";
+import { PermissionsAuthorize } from "model/auth/permission.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { Fragment, useCallback, useMemo } from "react";
+import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
+import { handleCheckedModule, handleIndeterminateModule, onChangeModule } from "utils/AuthUtil";
+import { RoleStyled } from "./index.style";
+const { Panel } = Collapse;
 
 interface AuthorizeDetailCardProps {
   activePanel: string | string[];
@@ -29,7 +25,7 @@ interface AuthorizeDetailCardProps {
   onChangeCheckboxPermission?: (
     e: CheckboxChangeEvent,
     module: ModuleAuthorize,
-    permission: PermissionsAuthorize
+    permission: PermissionsAuthorize,
   ) => void;
   isShowTitle?: boolean;
   disabled?: boolean;
@@ -62,7 +58,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
       setIndeterminateModules,
       moduleData,
       activePanel,
-      setActivePanel
+      setActivePanel,
     );
     onChangeCheckboxModule && onChangeCheckboxModule(e, module);
   };
@@ -70,15 +66,10 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
   const handleChangeCheckboxPermission = (
     e: CheckboxChangeEvent,
     module: ModuleAuthorize,
-    permission: PermissionsAuthorize
+    permission: PermissionsAuthorize,
   ) => {
     handleCheckedModule(module, form, checkedModules, setCheckedModules);
-    handleIndeterminateModule(
-      module,
-      form,
-      indeterminateModules,
-      setIndeterminateModules
-    );
+    handleIndeterminateModule(module, form, indeterminateModules, setIndeterminateModules);
     onChangeCheckboxPermission && onChangeCheckboxPermission(e, module, permission);
   };
 
@@ -151,9 +142,7 @@ export const AuthorizeDetailCard = (props: AuthorizeDetailCardProps) => {
                         <Form.Item name={value.id} key={value.id} valuePropName="checked">
                           <Checkbox
                             className="panel-content-item"
-                            onChange={(e) =>
-                              handleChangeCheckboxPermission(e, module, value)
-                            }
+                            onChange={(e) => handleChangeCheckboxPermission(e, module, value)}
                             disabled={disabled}
                           >
                             {_.capitalize(value.name)}

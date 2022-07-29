@@ -75,7 +75,8 @@ function WarrantyProductStatusCreate(props: PropTypes) {
           {
             name: "Thêm mới trạng thái bảo hành",
           },
-        ]}>
+        ]}
+      >
         <StyledComponent>
           <Card title="Thông tin chi tiết">
             <WarrantyProductStatusForm initialFormValues={initialFormValues} form={form} />

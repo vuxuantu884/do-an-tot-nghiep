@@ -5,32 +5,30 @@ import { withRouter } from "react-router-dom";
 import { ORDER_TYPES } from "utils/Order.constants";
 import OrderList from "./component/OrderList/OrderList";
 
-
 type PropTypes = {
   location: any;
 };
 function OrdersScreen(props: PropTypes) {
-
   const { location } = props;
 
   const pageTitle = {
     title: "Danh sách đơn tách",
     breadcrumb: [
       {
-				name: "Tổng quan",
-				path: UrlConfig.HOME,
-			},
-			{
-				name: "Danh sách đơn tách",
-			},
-    ]
-  } 
+        name: "Tổng quan",
+        path: UrlConfig.HOME,
+      },
+      {
+        name: "Danh sách đơn tách",
+      },
+    ],
+  };
 
   const initQuery: OrderSearchQuery = {
     page: 1,
     limit: 30,
     is_online: null,
-		is_split: true,
+    is_split: true,
     sort_type: null,
     sort_column: null,
     code: null,
@@ -76,13 +74,19 @@ function OrdersScreen(props: PropTypes) {
     tags: [],
     reference_code: null,
     search_term: "",
-		services: [],
+    services: [],
     channel_codes: [],
-    created_by:[]
+    created_by: [],
   };
 
   return (
-    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} isHideTab orderType={ORDER_TYPES.online} />
+    <OrderList
+      initQuery={initQuery}
+      location={location}
+      pageTitle={pageTitle}
+      isHideTab
+      orderType={ORDER_TYPES.online}
+    />
   );
-};
+}
 export default withRouter(OrdersScreen);

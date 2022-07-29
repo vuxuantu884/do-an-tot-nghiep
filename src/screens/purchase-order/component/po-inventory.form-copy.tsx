@@ -34,11 +34,8 @@ export type POInventoryFormProps = {
   isEditDetail?: boolean;
 };
 
-const POInventoryFormCopy: React.FC<POInventoryFormProps> = (
-  props: POInventoryFormProps,
-) => {
-  const { idNumber, onAddProcumentSuccess, poData, formMain, isEditDetail } =
-    props;
+const POInventoryFormCopy: React.FC<POInventoryFormProps> = (props: POInventoryFormProps) => {
+  const { idNumber, onAddProcumentSuccess, poData, formMain, isEditDetail } = props;
   //page context
   const { purchaseOrder } = useContext(PurchaseOrderCreateContext);
   const defaultTabs = useMemo(() => {
@@ -46,8 +43,7 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (
       purchaseOrder?.procurements,
       ProcurementLineItemField.expect_receipt_date,
     );
-    const procurementsAll: Array<PurchaseProcument[]> =
-      Object.values(procurementsFilter);
+    const procurementsAll: Array<PurchaseProcument[]> = Object.values(procurementsFilter);
     const dateSelected = procurementsAll
       .map((procurement) => {
         return {
@@ -64,9 +60,7 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (
         {
           name: "Kế hoạch nhận hàng",
           key: "1",
-          component: (
-            <PoWareHouse formMain={formMain} isEditDetail={!!isEditDetail} />
-          ),
+          component: <PoWareHouse formMain={formMain} isEditDetail={!!isEditDetail} />,
         },
         {
           name: "Phiếu nhập kho",
@@ -90,9 +84,7 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (
         {
           name: "Kế hoạch nhận hàng",
           key: "1",
-          component: (
-            <PoWareHouse formMain={formMain} isEditDetail={!!isEditDetail} />
-          ),
+          component: <PoWareHouse formMain={formMain} isEditDetail={!!isEditDetail} />,
         },
         {
           name: "Phiếu nhập kho",
@@ -105,9 +97,7 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (
       {
         name: "Kế hoạch nhận hàng",
         key: "1",
-        component: (
-          <PoWareHouse formMain={formMain} isEditDetail={!!isEditDetail} />
-        ),
+        component: <PoWareHouse formMain={formMain} isEditDetail={!!isEditDetail} />,
       },
     ];
   }, [idNumber, isEditDetail, formMain, purchaseOrder]);
@@ -146,10 +136,8 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (
             <Form.Item
               noStyle
               shouldUpdate={(prev, current) =>
-                prev[POField.planned_quantity] !==
-                  current[POField.planned_quantity] &&
-                prev[POField.receipt_quantity] !==
-                  current[POField.receipt_quantity]
+                prev[POField.planned_quantity] !== current[POField.planned_quantity] &&
+                prev[POField.receipt_quantity] !== current[POField.receipt_quantity]
               }
             >
               {({ getFieldValue }) => {
@@ -158,9 +146,7 @@ const POInventoryFormCopy: React.FC<POInventoryFormProps> = (
                 return (
                   <POProgressViewInVenTory
                     remainTitle={
-                      receipt_quantity - planned_quantity > 0
-                        ? "SL NHẬP DƯ"
-                        : "SL CÒN LẠI"
+                      receipt_quantity - planned_quantity > 0 ? "SL NHẬP DƯ" : "SL CÒN LẠI"
                     }
                     receivedTitle={"ĐÃ NHẬN"}
                     received={receipt_quantity}

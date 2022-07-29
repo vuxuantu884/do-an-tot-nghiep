@@ -1,7 +1,7 @@
 /**
  * @deprecated : component này cần refactor
  */
-import {Button, Card, Col, message, Modal, Row, Space} from "antd";
+import { Button, Card, Col, message, Modal, Row, Space } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import DiscountIcon from "assets/icon/discount.svg";
 import UserIcon from "assets/icon/user-icon.svg";
@@ -19,11 +19,11 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   addPriceRules,
   bulkDisablePriceRulesAction,
-  bulkEnablePriceRulesAction, getPriceRuleAction, getVariantsAction
+  bulkEnablePriceRulesAction,
+  getPriceRuleAction,
+  getVariantsAction,
 } from "domain/actions/promotion/discount/discount.action";
-import {
-  getListPromoCode
-} from "domain/actions/promotion/promo-code/promo-code.action";
+import { getListPromoCode } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule, PriceRuleMethod } from "model/promotion/price-rules.model";
 import React, { useCallback, useEffect, useState } from "react";
@@ -31,20 +31,23 @@ import { RiUpload2Line } from "react-icons/ri";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { Link } from "react-router-dom";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import CustomTable from "../../../component/table/CustomTable";
 import { AppConfig } from "../../../config/app.config";
-import {formatCurrency, isNullOrUndefined} from "utils/AppUtils";
+import { formatCurrency, isNullOrUndefined } from "utils/AppUtils";
 import { getToken } from "../../../utils/LocalStorageUtils";
 import { columnDiscountByRule } from "../constants";
 import DiscountRuleInfo from "../discount/components/discount-rule-info";
 import GeneralConditionDetail from "../shared/general-condition.detail";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
-import {addPromotionCodeApi, getPromotionJobsApi} from "../../../service/promotion/promo-code/promo-code.service";
-import {HttpStatus} from "../../../config/http-status.config";
-import {EnumJobStatus} from "../../../config/enum.config";
+import {
+  addPromotionCodeApi,
+  getPromotionJobsApi,
+} from "../../../service/promotion/promo-code/promo-code.service";
+import { HttpStatus } from "../../../config/http-status.config";
+import { EnumJobStatus } from "../../../config/enum.config";
 import ProcessAddDiscountCodeModal from "screens/promotion/promo-code/components/ProcessAddDiscountCodeModal";
 import { VscError } from "react-icons/vsc";
 
@@ -161,7 +164,6 @@ const PromotionDetailScreen: React.FC = () => {
     ...getQueryParams(query),
   });
 
-
   const getDiscountCodeData = useCallback(() => {
     dispatch(getListPromoCode(idNumber, dataQuery, checkIsHasPromo));
   }, [checkIsHasPromo, dataQuery, dispatch, idNumber]);
@@ -197,8 +199,7 @@ const PromotionDetailScreen: React.FC = () => {
         entitlement.entitled_variant_ids.forEach((vId: any) => {
           result.push({
             id: vId,
-            minimum:
-              entitlement.prerequisite_quantity_ranges[0]["greater_than_or_equal_to"],
+            minimum: entitlement.prerequisite_quantity_ranges[0]["greater_than_or_equal_to"],
           });
         });
       });
@@ -217,7 +218,7 @@ const PromotionDetailScreen: React.FC = () => {
         return s;
       });
     },
-    [dataVariants]
+    [dataVariants],
   );
 
   useEffect(() => {
@@ -237,7 +238,6 @@ const PromotionDetailScreen: React.FC = () => {
     dispatch(hideLoading());
     dispatch(getPriceRuleAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
-
 
   const onEdit = useCallback(() => {
     history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${idNumber}/update`);
@@ -308,7 +308,7 @@ const PromotionDetailScreen: React.FC = () => {
           name: "Thông tin khuyến mãi",
           value: renderDiscountInfo(
             data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value,
-            data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
+            data.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type,
           ),
           position: "right",
           key: "7",
@@ -347,7 +347,7 @@ const PromotionDetailScreen: React.FC = () => {
       .catch((error) => {
         if (error.response?.data?.errors?.length > 0) {
           const errorMessage = error.response?.data?.errors[0];
-          showError(`${errorMessage ? errorMessage: "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+          showError(`${errorMessage ? errorMessage : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
         }
       })
       .finally(() => {
@@ -365,7 +365,7 @@ const PromotionDetailScreen: React.FC = () => {
   const resetProgress = () => {
     setProcessPercent(0);
     setJobCreateCode("");
-  }
+  };
 
   const getPromotionJobs = useCallback(() => {
     if (!jobCreateCode) return;
@@ -374,7 +374,11 @@ const PromotionDetailScreen: React.FC = () => {
     Promise.all([promotionJobsPromises]).then((responses) => {
       responses.forEach((response) => {
         const processData = response?.data;
-        if (response.code === HttpStatus.SUCCESS && processData && !isNullOrUndefined(processData.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          processData &&
+          !isNullOrUndefined(processData.total)
+        ) {
           setProgressData(processData);
           if (processData.status?.toUpperCase() === EnumJobStatus.finish) {
             setProcessPercent(100);
@@ -384,7 +388,8 @@ const PromotionDetailScreen: React.FC = () => {
             if (processData.processed >= processData.total) {
               setProcessPercent(99);
             } else {
-              const percent = Math.round((processData.processed / processData.total) * 100 * 100) / 100;
+              const percent =
+                Math.round((processData.processed / processData.total) * 100 * 100) / 100;
               setProcessPercent(percent);
             }
           }
@@ -398,7 +403,7 @@ const PromotionDetailScreen: React.FC = () => {
 
     getPromotionJobs();
 
-    const getFileInterval = setInterval(getPromotionJobs,3000);
+    const getFileInterval = setInterval(getPromotionJobs, 3000);
     return () => clearInterval(getFileInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getPromotionJobs, jobCreateCode]);
@@ -408,7 +413,7 @@ const PromotionDetailScreen: React.FC = () => {
     setIsVisibleProcessModal(false);
     setUploadStatus(undefined);
     getDiscountCodeData();
-  }
+  };
   // end handle jobs create new discount code
 
   const handleAddRandom = (value: any) => {
@@ -439,13 +444,13 @@ const PromotionDetailScreen: React.FC = () => {
       .catch((error) => {
         if (error.response?.data?.errors?.length > 0) {
           const errorMessage = error.response?.data?.errors[0];
-          showError(`${errorMessage ? errorMessage: "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+          showError(`${errorMessage ? errorMessage : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
         }
       })
       .finally(() => {
         dispatch(hideLoading());
       });
-  }
+  };
 
   /**
    * Clone KM
@@ -456,18 +461,26 @@ const PromotionDetailScreen: React.FC = () => {
      */
     setLoadingClone(true);
     const match = /.+\(([0-9]+)\)$/.exec(`${data?.title}`);
-    const clonedTitle = match ? `${data?.title?.substring(0, data?.title?.length - match[1].length - 3)} (${parseInt(match[1], 10) + 1})` : `${data?.title?.trimRight()} (2)`;
-    dispatch(addPriceRules({ ...data, discount_codes: [], title: clonedTitle } as PriceRule, (response) => {
-      if (response) {
-        showSuccess("Nhân bản thành công");
-        history.push(response.id + "");
-      }else{
-        showError("Nhân bản thất bại");
-      }
-      setLoadingClone(false);
-    }
-    ));
-  }
+    const clonedTitle = match
+      ? `${data?.title?.substring(0, data?.title?.length - match[1].length - 3)} (${
+          parseInt(match[1], 10) + 1
+        })`
+      : `${data?.title?.trimRight()} (2)`;
+    dispatch(
+      addPriceRules(
+        { ...data, discount_codes: [], title: clonedTitle } as PriceRule,
+        (response) => {
+          if (response) {
+            showSuccess("Nhân bản thành công");
+            history.push(response.id + "");
+          } else {
+            showError("Nhân bản thất bại");
+          }
+          setLoadingClone(false);
+        },
+      ),
+    );
+  };
   const renderStatus = (data: PriceRule) => {
     const status = promoStatuses.find((status) => status.code === data.state);
     return <span style={status?.style}>{status?.value}</span>;
@@ -659,7 +672,6 @@ const PromotionDetailScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <hr />
-
               </Card>
               <Card
                 className="card"
@@ -672,9 +684,7 @@ const PromotionDetailScreen: React.FC = () => {
                 {checkPromoCode && (
                   <Row gutter={30}>
                     <Col span={24}>
-                      <Link
-                        to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}
-                      >
+                      <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/codes/${idNumber}`}>
                         Xem danh sách mã giảm giá của đợt phát hành
                       </Link>
                     </Col>
@@ -705,16 +715,15 @@ const PromotionDetailScreen: React.FC = () => {
                       >
                         <img
                           style={{
-                            background:
-                              "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
+                            background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
                           }}
                           src={VoucherIcon}
                           alt=""
                         />
                         <p style={{ fontWeight: 500 }}>Thêm mã thủ công</p>
                         <p>
-                          Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp
-                          dụng 1 mã nhiều lần
+                          Sử dụng khi bạn chỉ phát hành số lượng ít mã giảm giá hoặc áp dụng 1 mã
+                          nhiều lần
                         </p>
                       </div>
                       <div
@@ -723,22 +732,18 @@ const PromotionDetailScreen: React.FC = () => {
                       >
                         <img
                           style={{
-                            background:
-                              "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
+                            background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
                           }}
                           src={AddListCouponIcon}
                           alt=""
                         />
                         <p style={{ fontWeight: 500 }}>Thêm mã ngẫu nhiên</p>
                         <p>
-                          Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và
-                          phát cho mỗi khách hàng 1 mã
+                          Sử dụng khi bạn muốn tạo ra danh sách mã giảm giá ngẫu nhiên và phát cho
+                          mỗi khách hàng 1 mã
                         </p>
                       </div>
-                      <div
-                        className="card-discount-code"
-                        onClick={() => setShowImportFile(true)}
-                      >
+                      <div className="card-discount-code" onClick={() => setShowImportFile(true)}>
                         <img
                           style={{
                             background:
@@ -748,19 +753,14 @@ const PromotionDetailScreen: React.FC = () => {
                           alt=""
                         />
                         <p style={{ fontWeight: 500 }}>Nhập file Excel</p>
-                        <p>
-                          Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần
-                          mềm
-                        </p>
+                        <p>Sử dụng khi bạn có sẵn danh sách mã giảm giá để nhập lên phần mềm</p>
                         <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}>Tải file mẫu</a>
                       </div>
                     </Col>
                   </Row>
                 )}
               </Card>
-              <Card
-                title={"Điều kiện mua hàng"}
-              >
+              <Card title={"Điều kiện mua hàng"}>
                 <Space size={"large"} direction={"vertical"} style={{ width: "100%" }}>
                   {/* <Row>
                     <Col span={12}>
@@ -785,7 +785,7 @@ const PromotionDetailScreen: React.FC = () => {
                   ) : (
                     ""
                   )} */}
-                  {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD &&
+                  {data.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
                     <>
                       <DiscountRuleInfo dataDiscount={data} />
                       <CustomTable
@@ -794,7 +794,8 @@ const PromotionDetailScreen: React.FC = () => {
                         pagination={false}
                         rowKey="id"
                       />
-                    </>}
+                    </>
+                  )}
                 </Space>
               </Card>
             </Col>
@@ -806,8 +807,14 @@ const PromotionDetailScreen: React.FC = () => {
         back="Quay lại danh sách đợt phát hành"
         rightComponent={
           <Space>
-            <Button onClick={handleClone} loading={loadingClone}>Nhân bản</Button>
-            {data?.state !== 'CANCELLED' && <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}><Button onClick={onEdit}>Sửa</Button></AuthWrapper>}
+            <Button onClick={handleClone} loading={loadingClone}>
+              Nhân bản
+            </Button>
+            {data?.state !== "CANCELLED" && (
+              <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+                <Button onClick={onEdit}>Sửa</Button>
+              </AuthWrapper>
+            )}
             {allowCancelPromoCode ? renderActionButton() : null}
           </Space>
         }
@@ -874,8 +881,7 @@ const PromotionDetailScreen: React.FC = () => {
       >
         <div
           style={{
-            display:
-              uploadStatus === undefined || uploadStatus === "removed" ? "" : "none",
+            display: uploadStatus === undefined || uploadStatus === "removed" ? "" : "none",
           }}
         >
           <Row gutter={12}>
@@ -884,13 +890,12 @@ const PromotionDetailScreen: React.FC = () => {
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
               <p>
-                - Tải file mẫu{" "}
-                <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
+                - Tải file mẫu <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
               </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
               <p>
-                - Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5
-                phút. Trong lúc hệ thống xử lý không F5 hoặc tắt cửa sổ trình duyệt.
+                - Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong
+                lúc hệ thống xử lý không F5 hoặc tắt cửa sổ trình duyệt.
               </p>
             </Col>
           </Row>
@@ -901,7 +906,10 @@ const PromotionDetailScreen: React.FC = () => {
                 multiple={false}
                 showUploadList={false}
                 beforeUpload={(file) => {
-                  if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+                  if (
+                    file.type !==
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  ) {
                     setUploadStatus("error");
                     setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
                     return false;
@@ -937,9 +945,7 @@ const PromotionDetailScreen: React.FC = () => {
                 <p className="ant-upload-drag-icon">
                   <RiUpload2Line size={48} />
                 </p>
-                <p className="ant-upload-hint">
-                  Kéo file vào đây hoặc tải lên từ thiết bị
-                </p>
+                <p className="ant-upload-hint">Kéo file vào đây hoặc tải lên từ thiết bị</p>
               </Dragger>
             </div>
           </Row>
@@ -967,7 +973,7 @@ const PromotionDetailScreen: React.FC = () => {
       </Modal>
 
       {/* Process create new discount code */}
-      {isVisibleProcessModal &&
+      {isVisibleProcessModal && (
         <ProcessAddDiscountCodeModal
           visible={isVisibleProcessModal}
           onOk={onOKProgressImportCustomer}
@@ -975,7 +981,7 @@ const PromotionDetailScreen: React.FC = () => {
           progressPercent={processPercent}
           isProcessing={isProcessing}
         />
-      }
+      )}
     </ContentContainer>
   );
 };

@@ -102,11 +102,10 @@ function ActionHistoryModal(props: PropType) {
     if (actionId) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
-          let detailToTextBefore = convertActionLogDetailToText(
-            response.before?.data, dateFormat
-          );
+          let detailToTextBefore = convertActionLogDetailToText(response.before?.data, dateFormat);
           let detailToTextCurrent = convertActionLogDetailToText(
-            response.current?.data, dateFormat
+            response.current?.data,
+            dateFormat,
           );
           setSingleLogDetail([
             {
@@ -146,7 +145,7 @@ function ActionHistoryModal(props: PropType) {
               current: response.current?.device || "",
             },
           ]);
-        })
+        }),
       );
     }
   }, [actionId, dispatch]);
@@ -159,7 +158,7 @@ function ActionHistoryModal(props: PropType) {
       onCancel={handleCancel}
       width="1200px"
       centered
-      bodyStyle={{maxHeight: screenHeight*0.6, overflow: "auto"}}
+      bodyStyle={{ maxHeight: screenHeight * 0.6, overflow: "auto" }}
     >
       <StyledComponent>
         <div className="sectionButton">

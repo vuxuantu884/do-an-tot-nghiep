@@ -16,12 +16,10 @@ import IconSelfDelivery from "assets/icon/self_shipping.svg";
 import IconWallClock from "assets/icon/wall_clock.svg";
 import { ExternalShipperGetListAction } from "domain/actions/account/account.action";
 import { getFeesAction } from "domain/actions/order/order.action";
-import {
-  actionGetOrderConfig,
-} from "domain/actions/settings/order-settings.action";
+import { actionGetOrderConfig } from "domain/actions/settings/order-settings.action";
 import { DeliverPartnerResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import {OrderLineItemRequest, OrderPaymentRequest} from "model/request/order.request";
+import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { StoreCustomResponse } from "model/response/order/order.response";
 import {
@@ -29,16 +27,20 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {getShippingAddressDefault, handleCalculateShippingFeeApplyOrderSetting, SumWeight} from "utils/AppUtils";
-import {PaymentMethodCode, ShipmentMethodOption} from "utils/Constants";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  getShippingAddressDefault,
+  handleCalculateShippingFeeApplyOrderSetting,
+  SumWeight,
+} from "utils/AppUtils";
+import { PaymentMethodCode, ShipmentMethodOption } from "utils/Constants";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
-import {RootReducerType} from "../../../../../model/reducers/RootReducerType";
-import {showSuccess} from "../../../../../utils/ToastUtils";
+import { RootReducerType } from "../../../../../model/reducers/RootReducerType";
+import { showSuccess } from "../../../../../utils/ToastUtils";
 
 // shipment button action
 type ShipmentButtonType = {
@@ -61,7 +63,7 @@ type PropType = {
   thirdPL?: thirdPLModel;
   shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
   isShowButtonCreateShipment?: boolean;
-	shippingFeeInformedToCustomer: number | null;
+  shippingFeeInformedToCustomer: number | null;
   onSelectShipment: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   setThirdPL: (thirdPl: thirdPLModel) => void;
@@ -117,7 +119,7 @@ function OrderCreateShipment(props: PropType) {
     thirdPL,
     isShowButtonCreateShipment = false,
     shippingServiceConfig,
-		shippingFeeInformedToCustomer,
+    shippingFeeInformedToCustomer,
     setThirdPL,
     onSelectShipment,
     setShippingFeeInformedToCustomer,
@@ -126,25 +128,28 @@ function OrderCreateShipment(props: PropType) {
   } = props;
   const dateFormat = "DD/MM/YYYY";
 
-  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
+  const transportService = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
+  );
 
   const shippingAddress = useMemo(() => {
     const address = customer?.shipping_addresses?.find((item) => {
       return item.default;
-    })
-    if(address) {
-      return address
+    });
+    if (address) {
+      return address;
     } else {
-      return null
+      return null;
     }
-  }, [customer?.shipping_addresses])
+  }, [customer?.shipping_addresses]);
 
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
-  const [listExternalShippers, setListExternalShippers] = useState<Array<DeliverPartnerResponse> | null>(null);
+  const [listExternalShippers, setListExternalShippers] =
+    useState<Array<DeliverPartnerResponse> | null>(null);
 
   const [isExistMomoPayment, setIsExistMomoPayment] = useState<boolean>(false);
 
@@ -152,33 +157,41 @@ function OrderCreateShipment(props: PropType) {
     dispatch(ExternalShipperGetListAction(setListExternalShippers));
   }, [dispatch]);
 
-  const ShipMethodOnChange = useCallback((value: number) => {
-    /** Nếu trước đó chọn PICK_AT_STORE(phí ship = 0) => thay đổi phương thức giao hàng thì apply phí ship theo cấu hình */
-    if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-      handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
-        transportService, form, setShippingFeeInformedToCustomer
-      );
-    }
+  const ShipMethodOnChange = useCallback(
+    (value: number) => {
+      /** Nếu trước đó chọn PICK_AT_STORE(phí ship = 0) => thay đổi phương thức giao hàng thì apply phí ship theo cấu hình */
+      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
+        handleCalculateShippingFeeApplyOrderSetting(
+          shippingAddress?.city_id,
+          orderPrice,
+          shippingServiceConfig,
+          transportService,
+          form,
+          setShippingFeeInformedToCustomer,
+        );
+      }
 
-    onSelectShipment(value);
-    // setShippingFeeInformedToCustomer(0);
-    if (value === ShipmentMethodOption.PICK_AT_STORE) {
-      setShippingFeeInformedToCustomer(0);
-      showSuccess("Phí ship đã được thay đổi!");
-    }
-    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
-      setThirdPL({
-        delivery_service_provider_code: "",
-        delivery_service_provider_id: null,
-        insurance_fee: null,
-        delivery_service_provider_name: "",
-        delivery_transport_type: "",
-        service: "",
-        shipping_fee_paid_to_three_pls: null,
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [shipmentMethod, shippingServiceConfig]);
+      onSelectShipment(value);
+      // setShippingFeeInformedToCustomer(0);
+      if (value === ShipmentMethodOption.PICK_AT_STORE) {
+        setShippingFeeInformedToCustomer(0);
+        showSuccess("Phí ship đã được thay đổi!");
+      }
+      if (value === ShipmentMethodOption.DELIVER_PARTNER) {
+        setThirdPL({
+          delivery_service_provider_code: "",
+          delivery_service_provider_id: null,
+          insurance_fee: null,
+          delivery_service_provider_name: "",
+          delivery_transport_type: "",
+          service: "",
+          shipping_fee_paid_to_three_pls: null,
+        });
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [shipmentMethod, shippingServiceConfig],
+  );
 
   const shipmentButton: Array<ShipmentButtonType> = [
     {
@@ -207,19 +220,21 @@ function OrderCreateShipment(props: PropType) {
    * => Mặc định chọn Giao hàng sau
    * */
   const checkIfDisableSelectShipment = () => {
-    return (payments?.some(payment => {
-      return (payment.payment_method_code === PaymentMethodCode.MOMO && payment.paid_amount > 0);
-    }))
+    return payments?.some((payment) => {
+      return payment.payment_method_code === PaymentMethodCode.MOMO && payment.paid_amount > 0;
+    });
   };
 
   const resetShipment = useCallback(() => {
     ShipMethodOnChange(ShipmentMethodOption.DELIVER_LATER);
-    form.resetFields(['dating_ship', 'office_time'])
+    form.resetFields(["dating_ship", "office_time"]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ShipMethodOnChange, form]);
 
   useEffect(() => {
-    const momoPayment = payments?.find(payment => payment.payment_method_code === PaymentMethodCode.MOMO);
+    const momoPayment = payments?.find(
+      (payment) => payment.payment_method_code === PaymentMethodCode.MOMO,
+    );
     if (momoPayment && momoPayment.paid_amount > 0) {
       resetShipment();
       setIsExistMomoPayment(true);
@@ -228,7 +243,6 @@ function OrderCreateShipment(props: PropType) {
     }
   }, [payments, resetShipment]);
   /** ----- */
-
 
   const renderShipmentTabHeader = () => {
     return (
@@ -241,7 +255,7 @@ function OrderCreateShipment(props: PropType) {
                 key={button.value}
                 style={checkIfDisableSelectShipment() ? { pointerEvents: "none" } : undefined}
                 onClick={() => {
-                  levelOrder < 4 && ShipMethodOnChange(button.value)
+                  levelOrder < 4 && ShipMethodOnChange(button.value);
                   // if (items?.length && items?.length > 0 && button.value === 2) {
                   //   handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
                   //     undefined, form, setShippingFeeInformedToCustomer
@@ -258,7 +272,8 @@ function OrderCreateShipment(props: PropType) {
                     ? "saleorder_shipment_button border"
                     : "saleorder_shipment_button active"
                 }
-                key={button.value}>
+                key={button.value}
+              >
                 <span>{button.name}</span>
               </div>
             )}
@@ -278,7 +293,8 @@ function OrderCreateShipment(props: PropType) {
             style={{ float: "right" }}
             onClick={() => {
               handleCreateShipment && handleCreateShipment();
-            }}>
+            }}
+          >
             Tạo đơn giao hàng
           </Button>
           <Button
@@ -286,7 +302,8 @@ function OrderCreateShipment(props: PropType) {
             onClick={() => {
               handleCancelCreateShipment && handleCancelCreateShipment();
             }}
-            style={{ float: "right" }}>
+            style={{ float: "right" }}
+          >
             Hủy
           </Button>
         </div>
@@ -367,17 +384,17 @@ function OrderCreateShipment(props: PropType) {
     dispatch(
       actionGetOrderConfig((response) => {
         setOrderConfig(response);
-      })
+      }),
     );
   }, [dispatch]);
 
   return (
     <StyledComponent>
-      {!isExistMomoPayment &&
+      {!isExistMomoPayment && (
         <div className="padding-12 orders-shipment">
           <span className="saleorder_shipment_method-heading">THÔNG TIN VẬN CHUYỂN</span>
-          <Row gutter={24} style={{padding: "6px 0"}}>
-            <Col span={11} style={{padding: "0 5px 0 10px"}}>
+          <Row gutter={24} style={{ padding: "6px 0" }}>
+            <Col span={11} style={{ padding: "0 5px 0 10px" }}>
               <Form.Item name="dating_ship">
                 <DatePicker
                   format={dateFormat}
@@ -390,10 +407,10 @@ function OrderCreateShipment(props: PropType) {
               </Form.Item>
             </Col>
 
-            <Col span={11} style={{padding: "0 10px 0 5px"}}>
+            <Col span={11} style={{ padding: "0 10px 0 5px" }}>
               <Form.Item>
                 <InputNumber
-                  style={{textAlign: "left", width: "100%"}}
+                  style={{ textAlign: "left", width: "100%" }}
                   formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
                   placeholder="Phí ship báo khách"
                   min={0}
@@ -405,7 +422,7 @@ function OrderCreateShipment(props: PropType) {
                       setShippingFeeInformedToCustomer(0);
                     }
                   }}
-                  value={shippingFeeInformedToCustomer || ''}
+                  value={shippingFeeInformedToCustomer || ""}
                 />
               </Form.Item>
             </Col>
@@ -425,7 +442,8 @@ function OrderCreateShipment(props: PropType) {
                 shipmentMethod === ShipmentMethodOption.DELIVER_LATER
                   ? { border: "none" }
                   : { borderBottom: "1px solid #E5E5E5" }
-              }>
+              }
+            >
               <Space size={10} align="start">
                 {renderShipmentTabHeader()}
               </Space>
@@ -435,7 +453,8 @@ function OrderCreateShipment(props: PropType) {
             className="saleorder_shipment_method_content"
             style={
               shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ? { marginTop: 10 } : undefined
-            }>
+            }
+          >
             {/*--- Chuyển hãng vận chuyển ----*/}
             {shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && (
               <ShipmentMethodDeliverPartner
@@ -478,8 +497,8 @@ function OrderCreateShipment(props: PropType) {
             )}
           </div>
         </div>
-      }
-    </StyledComponent >
+      )}
+    </StyledComponent>
   );
 }
 

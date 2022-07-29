@@ -35,7 +35,7 @@ const NopermissionStyle = styled.div`
 `;
 
 function NoPermission() {
-    const history = useHistory();
+  const history = useHistory();
   return (
     <NopermissionStyle>
       <Card className="container-card">
@@ -45,10 +45,17 @@ function NoPermission() {
           <span className="guidline">
             Bạn không có quyền truy cập tính năng này.
             <br />
-           <a href="tel:0888464258" title="HOTLINE PHÒNG IT: 0888464258">Vui lòng liên hệ bộ phận hỗ trợ!</a>
+            <a href="tel:0888464258" title="HOTLINE PHÒNG IT: 0888464258">
+              Vui lòng liên hệ bộ phận hỗ trợ!
+            </a>
           </span>
 
-          <Button type="primary" icon={<AiOutlineRollback />} className="back-btn" onClick={()=>history.goBack()}>
+          <Button
+            type="primary"
+            icon={<AiOutlineRollback />}
+            className="back-btn"
+            onClick={() => history.goBack()}
+          >
             &nbsp; Quay lại
           </Button>
         </div>

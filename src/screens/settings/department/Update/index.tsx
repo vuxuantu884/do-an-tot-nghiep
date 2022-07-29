@@ -2,30 +2,30 @@ import { Button, Card, Col, Form, Input, Row, Select, Space, TreeSelect } from "
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import AccountSearchSelect from "component/custom/select-search/account-select";
-import ModalConfirm, {ModalConfirmProps} from "component/modal/ModalConfirm";
-import {DepartmentsPermissions} from "config/permissions/account.permisssion";
+import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
+import { DepartmentsPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import {
   departmentDetailAction,
   departmentUpdateAction,
   searchDepartmentAction,
 } from "domain/actions/account/department.action";
 import useAuthorization from "hook/useAuthorization";
-import {AccountResponse, AccountSearchQuery} from "model/account/account.model";
-import {DepartmentRequest, DepartmentResponse} from "model/account/department.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useHistory} from "react-router";
-import {useParams} from "react-router-dom";
+import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
+import { DepartmentRequest, DepartmentResponse } from "model/account/department.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router";
+import { useParams } from "react-router-dom";
 import { RegUtil } from "utils/RegUtils";
 
 interface DepartmentParam {
   id: string;
 }
 const DepartmentUpdateScreen: React.FC = () => {
-  const {id} = useParams<DepartmentParam>();
+  const { id } = useParams<DepartmentParam>();
   const idNumber = parseInt(id);
   const history = useHistory();
   const dispatch = useDispatch();
@@ -59,14 +59,14 @@ const DepartmentUpdateScreen: React.FC = () => {
   const searchAccount = useCallback(
     (query: AccountSearchQuery, paging: boolean) => {
       dispatch(
-        AccountSearchAction({...query, limit: 20}, (result) => {
+        AccountSearchAction({ ...query, limit: 20 }, (result) => {
           if (result) {
             setAccounts(result);
           }
-        })
+        }),
       );
     },
-    [dispatch]
+    [dispatch],
   );
 
   const onFinish = useCallback(
@@ -79,10 +79,10 @@ const DepartmentUpdateScreen: React.FC = () => {
           if (result) {
             history.push(`${UrlConfig.DEPARTMENT}/${idNumber}`);
           }
-        })
+        }),
       );
     },
-    [dispatch, history, idNumber]
+    [dispatch, history, idNumber],
   );
 
   const backAction = () => {
@@ -90,10 +90,10 @@ const DepartmentUpdateScreen: React.FC = () => {
       setModalConfirm({
         visible: true,
         onCancel: () => {
-          setModalConfirm({visible: false});
+          setModalConfirm({ visible: false });
         },
         onOk: () => {
-          setModalConfirm({visible: false});
+          setModalConfirm({ visible: false });
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
@@ -113,7 +113,7 @@ const DepartmentUpdateScreen: React.FC = () => {
           form.setFieldsValue(result);
           setDataOrigin(form.getFieldsValue());
         }
-      })
+      }),
     );
   }, [form, dispatch, searchAccount]);
   useEffect(() => {
@@ -126,7 +126,7 @@ const DepartmentUpdateScreen: React.FC = () => {
         } else {
           setError(true);
         }
-      })
+      }),
     );
   }, [dispatch, idNumber]);
   return (
@@ -225,9 +225,10 @@ const DepartmentUpdateScreen: React.FC = () => {
                   rules={[
                     {
                       pattern: RegUtil.PHONE,
-                      message: "Số điện thoại không đúng định dạng"
-                    }
-                  ]}>
+                      message: "Số điện thoại không đúng định dạng",
+                    },
+                  ]}
+                >
                   <Input placeholder="Nhập số điện thoại" />
                 </Form.Item>
               </Col>
@@ -239,17 +240,10 @@ const DepartmentUpdateScreen: React.FC = () => {
             </Row>
             <Row gutter={50}>
               <Col span={8}>
-                <Form.Item
-                  name="level"
-                  label="Cấp độ"
-                >
+                <Form.Item name="level" label="Cấp độ">
                   <Select placeholder="Chọn cấp độ">
                     {levels.map((item) => {
-                      return (
-                        <Select.Option value={item}>
-                          {item}
-                        </Select.Option>
-                      )
+                      return <Select.Option value={item}>{item}</Select.Option>;
                     })}
                   </Select>
                 </Form.Item>

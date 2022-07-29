@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {borderColor, primaryColor} from "utils/global-styles/variables";
+import { borderColor, primaryColor } from "utils/global-styles/variables";
 export const nameQuantityWidth = 300;
 const quantityWidth = 50;
 const priceWidth = 85;
@@ -24,7 +24,9 @@ export const StyledComponent = styled.div`
     }
   }
 
-  .custom-td,.orderNotes,.delivery-address {
+  .custom-td,
+  .orderNotes,
+  .delivery-address {
     text-align: left;
   }
 
@@ -159,7 +161,7 @@ export const StyledOrderFilter = styled.div`
     width: 200px;
     margin-right: 10px;
   }
-  
+
   .setting-button {
     display: flex;
     justify-content: center;
@@ -290,8 +292,7 @@ export const StyledUpdateConnectionModal = styled.div`
 `;
 
 export const StyledLogisticConfirmModal = styled.div`
-  .ant-modal-content{
-    
+  .ant-modal-content {
   }
 `;
 export const OrderBaseFilterStyle = styled.div`

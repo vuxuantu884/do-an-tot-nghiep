@@ -1,13 +1,13 @@
-import { Button, Card, Tabs } from 'antd';
-import ContentContainer from 'component/container/content.container';
-import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
-import UrlConfig from 'config/url.config';
-import useAuthorization from 'hook/useAuthorization';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import LoyaltyCards from 'screens/customer/loyalty-card/card-list/CardList';
-import LoyaltyCardRelease from 'screens/customer/loyalty-card/release';
-import { StyledCustomerCard } from 'screens/customer/loyalty-card/StyledCustomerCard';
+import { Button, Card, Tabs } from "antd";
+import ContentContainer from "component/container/content.container";
+import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+import UrlConfig from "config/url.config";
+import useAuthorization from "hook/useAuthorization";
+import { useState } from "react";
+import { Link } from "react-router-dom";
+import LoyaltyCards from "screens/customer/loyalty-card/card-list/CardList";
+import LoyaltyCardRelease from "screens/customer/loyalty-card/release";
+import { StyledCustomerCard } from "screens/customer/loyalty-card/StyledCustomerCard";
 
 import mathPlusIcon from "assets/icon/math-plus.svg";
 
@@ -21,7 +21,7 @@ const LoyaltyCardPage = () => {
     not: false,
   });
 
-  const [activeTab, setActiveTab] = useState<string>('1');
+  const [activeTab, setActiveTab] = useState<string>("1");
 
   return (
     <StyledCustomerCard>
@@ -29,7 +29,7 @@ const LoyaltyCardPage = () => {
         title="Thẻ khách hàng"
         extra={
           <>
-            {allowCreateCardRelease && activeTab === '1' &&
+            {allowCreateCardRelease && activeTab === "1" && (
               <Link to={`${UrlConfig.CUSTOMER_CARDS}/upload`}>
                 <Button
                   className="ant-btn-outline ant-btn-primary"
@@ -39,7 +39,7 @@ const LoyaltyCardPage = () => {
                   Thêm mới đợt phát hành
                 </Button>
               </Link>
-            }
+            )}
           </>
         }
       >
@@ -55,7 +55,7 @@ const LoyaltyCardPage = () => {
         </Card>
       </ContentContainer>
     </StyledCustomerCard>
-  )
-}
+  );
+};
 
-export default LoyaltyCardPage
+export default LoyaltyCardPage;

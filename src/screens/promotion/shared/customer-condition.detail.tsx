@@ -6,7 +6,7 @@ import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CustomerSelectionOption, PriceRule, Gender } from "model/promotion/price-rules.model";
 import { CustomerGroupModel } from "model/response/customer/customer-group.response";
-import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response"; 
+import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
 import React, { ReactElement, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { getDateFormDuration } from "utils/PromotionUtils";
@@ -25,17 +25,12 @@ export default function CustomerConditionDetail(props: PriceRule): ReactElement 
 
   const dispatch = useDispatch();
   const [groups, setGroups] = React.useState<Map<number, CustomerGroupModel>>();
-  const [rankingList, setRankingList] =
-    React.useState<Map<number, LoyaltyRankResponse>>();
+  const [rankingList, setRankingList] = React.useState<Map<number, LoyaltyRankResponse>>();
   const [accountList, setAccountList] = React.useState<Map<string, AccountResponse>>();
-
 
   const getCustomerGroupName = () => {
     const temps: string[] = [];
-    if (
-      !prerequisite_customer_group_ids ||
-      prerequisite_customer_group_ids.length === 0
-    ) {
+    if (!prerequisite_customer_group_ids || prerequisite_customer_group_ids.length === 0) {
       return "--";
     } else {
       prerequisite_customer_group_ids?.forEach((id: number) => {
@@ -85,17 +80,17 @@ export default function CustomerConditionDetail(props: PriceRule): ReactElement 
       info:
         prerequisite_genders && prerequisite_genders?.length > 0
           ? prerequisite_genders
-            ?.map((item: string) => {
-              if (item.toLocaleLowerCase() === Gender.MALE.toLocaleLowerCase()) {
-                return "Nam";
-              }
-              if (item.toLocaleLowerCase() === Gender.FEMALE.toLocaleLowerCase()) {
-                return "Nữ";
-              } else {
-                return "Khác";
-              }
-            })
-            .join(", ")
+              ?.map((item: string) => {
+                if (item.toLocaleLowerCase() === Gender.MALE.toLocaleLowerCase()) {
+                  return "Nam";
+                }
+                if (item.toLocaleLowerCase() === Gender.FEMALE.toLocaleLowerCase()) {
+                  return "Nữ";
+                } else {
+                  return "Khác";
+                }
+              })
+              .join(", ")
           : "--",
     },
     {
@@ -139,7 +134,7 @@ export default function CustomerConditionDetail(props: PriceRule): ReactElement 
           temps.set(item.id, item);
         });
         setGroups(temps);
-      })
+      }),
     );
     dispatch(
       LoyaltyRankSearch({}, (result: PageResponse<LoyaltyRankResponse>) => {
@@ -148,7 +143,7 @@ export default function CustomerConditionDetail(props: PriceRule): ReactElement 
           temps.set(item.id, item);
         });
         setRankingList(temps);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -164,17 +159,15 @@ export default function CustomerConditionDetail(props: PriceRule): ReactElement 
             });
             setAccountList(temps);
           }
-        }
-      )
+        },
+      ),
     );
   }, [dispatch, prerequisite_assignee_codes]);
 
   return (
     <CustomerContitionDetailStyle>
       <Card className="card" title="Khách hàng áp dụng">
-        {customer_selection === CustomerSelectionOption.ALL && (
-          <span>Tất cả khách hàng</span>
-        )}
+        {customer_selection === CustomerSelectionOption.ALL && <span>Tất cả khách hàng</span>}
         {customer_selection === CustomerSelectionOption.PREREQUISITE && (
           <div className="customer-condition">
             {customerDatas.map((data) => (

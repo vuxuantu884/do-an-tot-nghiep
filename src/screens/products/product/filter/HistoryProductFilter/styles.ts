@@ -17,12 +17,12 @@ export const StyledComponent = styled.div`
                 flex: 4;
               }
               .date {
-                flex: 1
+                flex: 1;
               }
             }
           }
         }
-      } 
+      }
     }
   }
 `;

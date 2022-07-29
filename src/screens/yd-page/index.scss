@@ -146,7 +146,6 @@
         height: 100%;
       }
     }
-
   }
 
   .padding-lef-right {
@@ -281,8 +280,6 @@
       padding: 0 5px 0 0;
     }
   }
-
-
 
   .ant-layout-content {
     padding: 0;
@@ -460,16 +457,16 @@
     border-color: #2a2a86;
   }
 
-	.update-shipping {
-		.ant-form-item {
-			.ant-form-item-label {
-				display: none;
-			}
-			.ant-form-item-control {
-				flex: 1 !important;
-			}
-		}
-	}
+  .update-shipping {
+    .ant-form-item {
+      .ant-form-item-label {
+        display: none;
+      }
+      .ant-form-item-control {
+        flex: 1 !important;
+      }
+    }
+  }
 }
 
 .yd-page-customer-relationship {
@@ -618,8 +615,8 @@
 }
 
 @media screen and (max-width: 500px) {
-	body.ant-scrolling-effect {
-		width: 100% !important;
+  body.ant-scrolling-effect {
+    width: 100% !important;
     overflow: unset !important;
-	}
+  }
 }

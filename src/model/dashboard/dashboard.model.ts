@@ -1,5 +1,5 @@
 import { AnalyticSampleQuery } from "model/report/analytics.model";
- 
+
 export interface Warehouse {
   name: string;
   id: number;

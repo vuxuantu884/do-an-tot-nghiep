@@ -19,8 +19,7 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  
-`
+`;
 
 export const StyledBaseFilter = styled.div`
   .select-connection-date {
@@ -39,15 +38,13 @@ export const StyledBaseFilter = styled.div`
         background-color: #f5f5f5;
       }
       .ant-btn:hover {
-        border-color: #2A2A86;
+        border-color: #2a2a86;
       }
       .active-btn {
-        color: #FFFFFF;
+        color: #ffffff;
         border-color: rgba(42, 42, 134, 0.1);
-        background-color: #2A2A86;
+        background-color: #2a2a86;
       }
     }
-
   }
 `;
-

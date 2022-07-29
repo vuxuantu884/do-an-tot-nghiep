@@ -5,13 +5,9 @@ import {
   ManOutlined,
   PhoneOutlined,
   TeamOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
-import {
-  Button, Col, DatePicker, Form, FormInstance, Input,
-  Row,
-  Select
-} from "antd";
+import { Button, Col, DatePicker, Form, FormInstance, Input, Row, Select } from "antd";
 // import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
   // CreateShippingAddress,
@@ -23,19 +19,24 @@ import {
 import {
   CustomerContactClass,
   CustomerModel,
-  CustomerShippingAddress, CustomerShippingAddressClass,
-  YDpageCustomerRequest
+  CustomerShippingAddress,
+  CustomerShippingAddressClass,
+  YDpageCustomerRequest,
 } from "model/request/customer.request";
-import {BillingAddress, CustomerResponse} from "model/response/customer/customer.response";
-import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
+import { BillingAddress, CustomerResponse } from "model/response/customer/customer.response";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import {StyledComponent} from "./styles";
-import {VietNamId} from "utils/Constants";
+import { StyledComponent } from "./styles";
+import { VietNamId } from "utils/Constants";
 import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
-import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
-import {WardGetByDistrictAction} from "domain/actions/content/content.action";
+import {
+  findWard,
+  handleDelayActionWhenInsertTextInSearchInput,
+  handleFindArea,
+} from "utils/AppUtils";
+import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 
 type CreateCustomerProps = {
   newCustomerInfo?: YDpageCustomerRequest;
@@ -80,14 +81,20 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   // );
 
   var pattern = new RegExp(RegUtil.PHONE);
-  const initialFormValueCustomer = pattern.test(keySearchCustomer) ? {
-        ...customerForm.getFieldsValue(), ...new CustomerModel(),
-    phone: keySearchCustomer,
-  } : {...customerForm.getFieldsValue(), ...new CustomerModel()};
+  const initialFormValueCustomer = pattern.test(keySearchCustomer)
+    ? {
+        ...customerForm.getFieldsValue(),
+        ...new CustomerModel(),
+        phone: keySearchCustomer,
+      }
+    : { ...customerForm.getFieldsValue(), ...new CustomerModel() };
 
   useEffect(() => {
     if (newCustomerInfo && (newCustomerInfo.full_name || newCustomerInfo.phone)) {
-      const formValue = {...customerForm.getFieldsValue(), ...newCustomerInfo};
+      const formValue = {
+        ...customerForm.getFieldsValue(),
+        ...newCustomerInfo,
+      };
       customerForm.setFieldsValue(formValue);
     }
   }, [customerForm, newCustomerInfo]);
@@ -117,19 +124,21 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   };
 
   // handle autofill address
-  const fullAddressRef = useRef()
+  const fullAddressRef = useRef();
   const newAreas = useMemo(() => {
     return areaList.map((area: any) => {
       return {
         ...area,
-        city_name_normalize: area.city_name.normalize("NFD")
+        city_name_normalize: area.city_name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
           .toLowerCase()
           .replace("tinh ", "")
           .replace("tp. ", ""),
-        district_name_normalize: area.name.normalize("NFD")
+        district_name_normalize: area.name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
@@ -138,55 +147,64 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           .replace("huyen ", "")
           // .replace("thanh pho ", "")
           .replace("thi xa ", ""),
-      }
-    })
+      };
+    });
   }, [areaList]);
 
   const getWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, (data) => {
-          const value = formRef.current?.getFieldValue("full_address");
-          if (value) {
-            const newValue = value.toLowerCase();
+        dispatch(
+          WardGetByDistrictAction(value, (data) => {
+            const value = formRef.current?.getFieldValue("full_address");
+            if (value) {
+              const newValue = value.toLowerCase();
 
-            const newWards = data.map((ward: any) => {
-              return {
-                ...ward,
-                ward_name_normalize: ward.name.normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .replace(/đ/g, "d")
-                  .replace(/Đ/g, "D")
-                  .toLowerCase()
-                  .replace("phuong ", "")
-                  .replace("xa ", ""),
-              }
-            });
-            let district = document.getElementsByClassName("YDpageInputDistrictCreateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
-            const foundWard = findWard(district, newWards, newValue);
-            formRef.current?.setFieldsValue({
-              ward_id: foundWard ? foundWard.id : null,
-            })
-          }
-          setWards(data);
-        }));
+              const newWards = data.map((ward: any) => {
+                return {
+                  ...ward,
+                  ward_name_normalize: ward.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .toLowerCase()
+                    .replace("phuong ", "")
+                    .replace("xa ", ""),
+                };
+              });
+              let district =
+                document
+                  .getElementsByClassName("YDpageInputDistrictCreateCustomer")[0]
+                  .textContent?.replace("Vui lòng chọn khu vực", "") || "";
+              const foundWard = findWard(district, newWards, newValue);
+              formRef.current?.setFieldsValue({
+                ward_id: foundWard ? foundWard.id : null,
+              });
+            }
+            setWards(data);
+          }),
+        );
       }
     },
-    [dispatch, formRef, setWards]
+    [dispatch, formRef, setWards],
   );
-  
-  const checkAddress = useCallback((value) => {
-    const findArea = handleFindArea(value, newAreas);
-    if (findArea) {
-      if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
-        formRef.current?.setFieldsValue({
-          district_id: findArea.id,
-          ward_id: null
-        })
-        getWards(findArea.id);
+
+  const checkAddress = useCallback(
+    (value) => {
+      const findArea = handleFindArea(value, newAreas);
+      if (findArea) {
+        if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+          formRef.current?.setFieldsValue({
+            district_id: findArea.id,
+            ward_id: null,
+          });
+          getWards(findArea.id);
+        }
       }
-    }
-  }, [formRef, getWards, newAreas]);
+    },
+    [formRef, getWards, newAreas],
+  );
   // end handle autofill address
 
   const createCustomerCallback = useCallback(
@@ -194,24 +212,23 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       if (result && result.id) {
         showSuccess("Thêm mới khách hàng thành công");
         // setVisibleBtnUpdate(false);
-        
+
         // get customer detail
         dispatch(
-          getCustomerDetailAction(
-            result.id,
-            (customerDetail: CustomerResponse) => {
-              // update customer
-              handleChangeCustomer(customerDetail);
+          getCustomerDetailAction(result.id, (customerDetail: CustomerResponse) => {
+            // update customer
+            handleChangeCustomer(customerDetail);
 
-              // update customer shipping address
-              const shippingAddress = customerDetail.shipping_addresses.find((item: any) => item.default) || null;
-              setShippingAddress(shippingAddress);
+            // update customer shipping address
+            const shippingAddress =
+              customerDetail.shipping_addresses.find((item: any) => item.default) || null;
+            setShippingAddress(shippingAddress);
 
-              // update customer billing address
-              const billingAddress = customerDetail.billing_addresses.find(item => item.default) || null;
-              setBillingAddress(billingAddress);
-            }
-          )
+            // update customer billing address
+            const billingAddress =
+              customerDetail.billing_addresses.find((item) => item.default) || null;
+            setBillingAddress(billingAddress);
+          }),
         );
 
         // Mặc định: isVisibleShipping === true
@@ -298,13 +315,15 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         // }
       }
     },
-    [dispatch, handleChangeCustomer, setShippingAddress, setBillingAddress]
+    [dispatch, handleChangeCustomer, setShippingAddress, setBillingAddress],
   );
 
   const handleSubmit = useCallback(
     (values: any) => {
-      const area = areaList.find((area: any) => area.id.toString() === values.district_id.toString());
-      const area_ward = wards.find((ward:any) => ward.id.toString() === values.ward_id.toString());
+      const area = areaList.find(
+        (area: any) => area.id.toString() === values.district_id.toString(),
+      );
+      const area_ward = wards.find((ward: any) => ward.id.toString() === values.ward_id.toString());
 
       values.full_name = values.full_name?.trim();
 
@@ -319,11 +338,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           city_id: area ? area.city_id : null,
           city: area?.city_name,
           district_id: values.district_id,
-          district:area?.name,
+          district: area?.name,
           ward_id: values.ward_id,
           ward: area_ward?.name || "",
           full_address: values.full_address,
-        }
+        },
       ];
 
       const customerParams = {
@@ -340,9 +359,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         gender: values.gender,
         birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
         customer_group_id: values.customer_group_id,
-        wedding_date: values.wedding_date
-          ? new Date(values.wedding_date).toUTCString()
-          : null,
+        wedding_date: values.wedding_date ? new Date(values.wedding_date).toUTCString() : null,
         status: "active",
         country_id: VietNamId,
         contacts: [
@@ -358,13 +375,10 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       };
 
       dispatch(
-        CustomerCreateAction(
-          { ...new CustomerModel(), ...customerParams },
-          createCustomerCallback
-        )
+        CustomerCreateAction({ ...new CustomerModel(), ...customerParams }, createCustomerCallback),
       );
     },
-    [areaList, wards, dispatch, createCustomerCallback]
+    [areaList, wards, dispatch, createCustomerCallback],
   );
 
   const onOkPress = useCallback(() => {
@@ -389,15 +403,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       showError("Vui lòng nhập địa chỉ giao hàng");
     }
 
-    if (
-      !value.phone
-      &&
-      !value.ward_id
-      &&
-      !value.district_id
-      &&
-      !value.full_address
-    ) {
+    if (!value.phone && !value.ward_id && !value.district_id && !value.full_address) {
       showError("Vui lòng điền đầy đủ thông tin");
     }
 
@@ -444,7 +450,6 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
   }, [isDropdownVisible]);
   // end handle scroll page
 
-
   return (
     <StyledComponent>
       <Form
@@ -456,9 +461,17 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         initialValues={initialFormValueCustomer}
         className="update-customer-ydpage"
       >
-        <div style={{ marginBottom: 12, fontWeight: "bold", textTransform: "uppercase" }}>Tạo mới khách hàng</div>
-        <Row gutter={12} >
-          <Col span={12} >
+        <div
+          style={{
+            marginBottom: 12,
+            fontWeight: "bold",
+            textTransform: "uppercase",
+          }}
+        >
+          Tạo mới khách hàng
+        </div>
+        <Row gutter={12}>
+          <Col span={12}>
             <Form.Item
               rules={[
                 {
@@ -518,40 +531,40 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             </Form.Item>
           </Col>
           <Col span={12}>
-                <Form.Item
-                  name="customer_group_id"
-                  // label="Nhóm"
-                >
-                  <Select
-                    showSearch
-                    allowClear
-                    optionFilterProp="children"
-                    getPopupContainer={(trigger: any) => trigger.parentElement}
-                    onFocus={onInputSelectFocus}
-                    onBlur={onInputSelectBlur}
-                    onPopupScroll={handleOnSelectPopupScroll}
-                    onMouseLeave={handleOnMouseLeaveSelect}
-                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                    placeholder={
-                      <React.Fragment>
-                        <TeamOutlined style={{ color: "#71767B" }} />
-                        <span> Nhóm khách hàng</span>
-                      </React.Fragment>
-                    }
-                    className="select-with-search"
-                    onChange={() => {
-                      // setVisibleBtnUpdate(true);
-                    }}
-                  >
-                    {customerGroups &&
-                      customerGroups.map((group: any) => (
-                        <Select.Option key={group.id} value={group.id}>
-                          {group.name}
-                        </Select.Option>
-                      ))}
-                  </Select>
-                </Form.Item>
-              </Col>
+            <Form.Item
+              name="customer_group_id"
+              // label="Nhóm"
+            >
+              <Select
+                showSearch
+                allowClear
+                optionFilterProp="children"
+                getPopupContainer={(trigger: any) => trigger.parentElement}
+                onFocus={onInputSelectFocus}
+                onBlur={onInputSelectBlur}
+                onPopupScroll={handleOnSelectPopupScroll}
+                onMouseLeave={handleOnMouseLeaveSelect}
+                onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                placeholder={
+                  <React.Fragment>
+                    <TeamOutlined style={{ color: "#71767B" }} />
+                    <span> Nhóm khách hàng</span>
+                  </React.Fragment>
+                }
+                className="select-with-search"
+                onChange={() => {
+                  // setVisibleBtnUpdate(true);
+                }}
+              >
+                {customerGroups &&
+                  customerGroups.map((group: any) => (
+                    <Select.Option key={group.id} value={group.id}>
+                      {group.name}
+                    </Select.Option>
+                  ))}
+              </Select>
+            </Form.Item>
+          </Col>
           <Col span={24}>
             <Form.Item
               name="district_id"
@@ -640,95 +653,95 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             </Form.Item>
           </Col>
           <Col span={24}>
-            <Form.Item 
+            <Form.Item
               name="full_address"
-              rules= {[
+              rules={[
                 {
                   required: true,
-                  message: "Vui lòng nhập địa chỉ giao hàng"
-                }
+                  message: "Vui lòng nhập địa chỉ giao hàng",
+                },
               ]}
             >
               <Input
                 placeholder="Địa chỉ"
                 allowClear
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
-                  checkAddress(e.target.value)
-                },500)}
+                onChange={(e) =>
+                  handleDelayActionWhenInsertTextInSearchInput(
+                    fullAddressRef,
+                    () => {
+                      checkAddress(e.target.value);
+                    },
+                    500,
+                  )
+                }
               />
             </Form.Item>
           </Col>
         </Row>
-				<Row gutter={24}>
-					<Col span={12}>
-						<Form.Item
-							name="gender"
-							//label="Giới tính"
-						>
-							<Select
-								showSearch
-								allowClear
-								optionFilterProp="children"
+        <Row gutter={24}>
+          <Col span={12}>
+            <Form.Item
+              name="gender"
+              //label="Giới tính"
+            >
+              <Select
+                showSearch
+                allowClear
+                optionFilterProp="children"
                 getPopupContainer={(trigger: any) => trigger.parentElement}
-								placeholder={
-									<React.Fragment>
-										<ManOutlined style={{ color: "#71767B" }} />
-										<span> Giới tính</span>
-									</React.Fragment>
-								}
-								className="select-with-search"
-								onChange={() => {
-									// setVisibleBtnUpdate(true);
-								}}
-							>
-								<Select.Option key={1} value={"male"}>
-									Nam
-								</Select.Option>
-								<Select.Option key={2} value={"female"}>
-									Nữ
-								</Select.Option>
-								<Select.Option key={3} value={"other"}>
-									Không xác định
-								</Select.Option>
-							</Select>
-						</Form.Item>
-					</Col>
-					<Col span={12}>
-						<Form.Item
-							name="birthday"
-							// label="Ngày sinh"
-							rules={[
-								{
-									validator: async (_, birthday) => {
-										if (birthday && birthday > new Date()) {
-											return Promise.reject(
-												new Error(
-													"Ngày sinh không được lớn hơn ngày hiện tại"
-												)
-											);
-										}
-									},
-								},
-							]}
-						>
-							<DatePicker
-								style={{ width: "100%" }}
-								placeholder="Chọn ngày sinh"
-								format={"DD/MM/YYYY"}
+                placeholder={
+                  <React.Fragment>
+                    <ManOutlined style={{ color: "#71767B" }} />
+                    <span> Giới tính</span>
+                  </React.Fragment>
+                }
+                className="select-with-search"
+                onChange={() => {
+                  // setVisibleBtnUpdate(true);
+                }}
+              >
+                <Select.Option key={1} value={"male"}>
+                  Nam
+                </Select.Option>
+                <Select.Option key={2} value={"female"}>
+                  Nữ
+                </Select.Option>
+                <Select.Option key={3} value={"other"}>
+                  Không xác định
+                </Select.Option>
+              </Select>
+            </Form.Item>
+          </Col>
+          <Col span={12}>
+            <Form.Item
+              name="birthday"
+              // label="Ngày sinh"
+              rules={[
+                {
+                  validator: async (_, birthday) => {
+                    if (birthday && birthday > new Date()) {
+                      return Promise.reject(
+                        new Error("Ngày sinh không được lớn hơn ngày hiện tại"),
+                      );
+                    }
+                  },
+                },
+              ]}
+            >
+              <DatePicker
+                style={{ width: "100%" }}
+                placeholder="Chọn ngày sinh"
+                format={"DD/MM/YYYY"}
                 getPopupContainer={(trigger: any) => trigger.parentElement}
-								suffixIcon={
-									<CalendarOutlined
-										style={{ color: "#71767B", float: "left" }}
-									/>
-								}
-								onChange={() => {
-									// setVisibleBtnUpdate(true);
-								}}
-							/>
-						</Form.Item>
-					</Col>
-				</Row>
+                suffixIcon={<CalendarOutlined style={{ color: "#71767B", float: "left" }} />}
+                onChange={() => {
+                  // setVisibleBtnUpdate(true);
+                }}
+              />
+            </Form.Item>
+          </Col>
+        </Row>
       </Form>
 
       {/*Mặc định địa chỉ khách hàng là địa chỉ giao hàng: isVisibleShipping === true => hidden*/}
@@ -753,32 +766,43 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           {/*default: isVisibleShipping = true*/}
 
           {/*{isVisibleShipping && (*/}
-            <Col md={24} style={{ float: "right", marginTop: "10px", width: "100%" }}>
-              {/*{isVisibleBtnUpdate && (*/}
-                <>
-                  <Button
-                    type="primary"
-                    style={{ padding: "0 15px", fontWeight: 400, float: "right", height: "24px" }}
-                    className="create-button-custom ant-btn-outline fixed-button"
-                    onClick={() => {
-                      onOkPress();
-                    }}
-                  >
-                    Thêm mới
-                  </Button>
+          <Col md={24} style={{ float: "right", marginTop: "10px", width: "100%" }}>
+            {/*{isVisibleBtnUpdate && (*/}
+            <>
+              <Button
+                type="primary"
+                style={{
+                  padding: "0 15px",
+                  fontWeight: 400,
+                  float: "right",
+                  height: "24px",
+                }}
+                className="create-button-custom ant-btn-outline fixed-button"
+                onClick={() => {
+                  onOkPress();
+                }}
+              >
+                Thêm mới
+              </Button>
 
-                  <Button
-                    style={{ float: "right", height: "24px", display: "flex", alignItems: "center", justifyContent: "center" }}
-                    type="default"
-                    onClick={() => {
-                      CustomerDeleteInfo();
-                    }}
-                    >
-                    Hủy
-                  </Button>
-                </>
-              {/*)}*/}
-            </Col>
+              <Button
+                style={{
+                  float: "right",
+                  height: "24px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+                type="default"
+                onClick={() => {
+                  CustomerDeleteInfo();
+                }}
+              >
+                Hủy
+              </Button>
+            </>
+            {/*)}*/}
+          </Col>
           {/*)}*/}
         </Row>
 

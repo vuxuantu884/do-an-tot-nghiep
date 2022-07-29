@@ -1,4 +1,4 @@
-import { POType } from 'domain/types/purchase-order.type';
+import { POType } from "domain/types/purchase-order.type";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -21,7 +21,7 @@ function* getPOActionLogsSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PurchaseOrderActionLogResponse[]> = yield call(
       getPOActionLogService,
-      id
+      id,
     );
 
     switch (response.code) {
@@ -37,7 +37,7 @@ function* getPOActionLogsSaga(action: YodyAction) {
     }
   } catch (error) {
     console.log("error", error);
-		showError("Có lỗi khi lấy danh sách bản ghi đơn nhập hàng! Vui lòng thử lại sau!");
+    showError("Có lỗi khi lấy danh sách bản ghi đơn nhập hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }
@@ -49,7 +49,7 @@ function* getPOActionLogDetailsSaga(action: YodyAction) {
   try {
     let response: BaseResponse<ActionLogDetailResponse> = yield call(
       getPOActionLogDetailService,
-      id
+      id,
     );
 
     switch (response.code) {
@@ -64,7 +64,7 @@ function* getPOActionLogDetailsSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-		showError("Có lỗi khi lấy thông tin chi tiết bản ghi đơn nhập hàng! Vui lòng thử lại sau!");
+    showError("Có lỗi khi lấy thông tin chi tiết bản ghi đơn nhập hàng! Vui lòng thử lại sau!");
   } finally {
     yield put(hideLoading());
   }

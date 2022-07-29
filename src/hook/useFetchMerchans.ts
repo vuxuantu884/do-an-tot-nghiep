@@ -35,7 +35,7 @@ export const useFetchMerchans = () => {
         { isShowError: true },
         dispatch,
         searchAccountPublicApi,
-        { ...merchans.metadata, ...query }
+        { ...merchans.metadata, ...query },
       );
       setMerchans(response);
     } catch (err) {
@@ -46,5 +46,11 @@ export const useFetchMerchans = () => {
     }
   };
 
-  return { isLoadingMerchans: isLoading, merchans, setMerchans, fetchMerchans, errors };
+  return {
+    isLoadingMerchans: isLoading,
+    merchans,
+    setMerchans,
+    fetchMerchans,
+    errors,
+  };
 };

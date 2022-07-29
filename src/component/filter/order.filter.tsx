@@ -4,18 +4,7 @@ import {
   SettingOutlined,
   SwapRightOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  InputNumber,
-  Radio,
-  Row,
-  Switch,
-  Tag,
-} from "antd";
+import { Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Switch, Tag } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import Select from "antd/lib/select";
 import search from "assets/img/search.svg";
@@ -34,17 +23,11 @@ import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
 import { isEqual } from "lodash";
-import {
-  AccountResponse,
-  DeliverPartnerResponse,
-} from "model/account/account.model";
+import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -66,10 +49,7 @@ import { formatCurrency, replaceFormat } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
-import {
-  formatDateTimeOrderFilter,
-  getTimeFormatOrderFilterTag,
-} from "utils/OrderUtils";
+import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
 import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
@@ -154,25 +134,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const dispatch = useDispatch();
 
-  const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<
-    string[]
-  >([]);
+  const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([]);
 
   const [services, setServices] = useState<any[]>([]);
   const [isExpiresPayment, setIsExpiresPayment] = useState<boolean>();
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer,
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
   const status = bootstrapReducer.data?.order_main_status.filter(
     (single) => single.value !== "splitted",
   );
 
   useEffect(() => {
-    setSelectedSubStatusCodes(
-      initSubStatus?.map((single) => single.code) || [],
-    );
+    setSelectedSubStatusCodes(initSubStatus?.map((single) => single.code) || []);
   }, [initSubStatus]);
 
   const [keySearchVariant, setKeySearchVariant] = useState("");
@@ -295,16 +269,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   // const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
-  const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>(
-    [],
-  );
+  const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>([]);
   const [accountFound, setAccountFound] = useState<Array<AccountResponse>>([]);
-  const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>(
-    [],
-  );
-  const [coordinatorFound, setCoordinatorFound] = useState<
-    Array<AccountResponse>
-  >([]);
+  const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>([]);
+  const [coordinatorFound, setCoordinatorFound] = useState<Array<AccountResponse>>([]);
 
   const [isShowModalSaveFilter, setIsShowModalSaveFilter] = useState(false);
 
@@ -331,9 +299,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       ? FILTER_CONFIG_TYPE.orderOffline
       : FILTER_CONFIG_TYPE.orderOnline;
 
-  const onHandleFilterTagSuccessCallback = (
-    res: BaseResponse<FilterConfig>,
-  ) => {
+  const onHandleFilterTagSuccessCallback = (res: BaseResponse<FilterConfig>) => {
     setTagActive(res.data.id);
   };
 
@@ -425,8 +391,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           break;
         case "issued":
           setIssuedClick("");
-          onFilter &&
-            onFilter({ ...params, issued_on_min: null, issued_on_max: null });
+          onFilter && onFilter({ ...params, issued_on_min: null, issued_on_max: null });
           break;
         case "finalized":
           setFinalizedClick("");
@@ -664,9 +629,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       marketing_campaign: Array.isArray(params.marketing_campaign)
         ? params.marketing_campaign
         : [params.marketing_campaign],
-      variant_ids: Array.isArray(params.variant_ids)
-        ? params.variant_ids
-        : [params.variant_ids],
+      variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
@@ -685,11 +648,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       delivery_types: Array.isArray(params.delivery_types)
         ? params.delivery_types
         : [params.delivery_types],
-      services: Array.isArray(params.services)
-        ? params.services
-        : [params.services],
-      is_expired_payment:
-        params.is_expired_payment === "true" ? true : undefined,
+      services: Array.isArray(params.services) ? params.services : [params.services],
+      is_expired_payment: params.is_expired_payment === "true" ? true : undefined,
 
       issued_on_min: formatDateFilter(params.issued_on_min || undefined),
       issued_on_max: formatDateFilter(params.issued_on_max || undefined),
@@ -701,28 +661,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       completed_on_max: formatDateFilter(params.completed_on_max || undefined),
       exported_on_min: formatDateFilter(params.exported_on_min || undefined),
       exported_on_max: formatDateFilter(params.exported_on_max || undefined),
-      expected_receive_on_min: formatDateFilter(
-        params.expected_receive_on_min || undefined,
-      ),
-      expected_receive_on_max: formatDateFilter(
-        params.expected_receive_on_max || undefined,
-      ),
-      returning_date_min: formatDateFilter(
-        params.returning_date_min || undefined,
-      ),
-      returning_date_max: formatDateFilter(
-        params.returning_date_max || undefined,
-      ),
-      returned_date_min: formatDateFilter(
-        params.returned_date_min || undefined,
-      ),
-      returned_date_max: formatDateFilter(
-        params.returned_date_max || undefined,
-      ),
+      expected_receive_on_min: formatDateFilter(params.expected_receive_on_min || undefined),
+      expected_receive_on_max: formatDateFilter(params.expected_receive_on_max || undefined),
+      returning_date_min: formatDateFilter(params.returning_date_min || undefined),
+      returning_date_max: formatDateFilter(params.returning_date_max || undefined),
+      returned_date_min: formatDateFilter(params.returned_date_min || undefined),
+      returned_date_max: formatDateFilter(params.returned_date_max || undefined),
       discount_codes: textDiscount,
-      in_goods_receipt: params.in_goods_receipt
-        ? Number(params.in_goods_receipt)
-        : undefined,
+      in_goods_receipt: params.in_goods_receipt ? Number(params.in_goods_receipt) : undefined,
     };
   }, [params]);
 
@@ -815,46 +761,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           price_max: values?.price_max,
         };
       }
-      values.issued_on_min = formatDateTimeOrderFilter(
-        values.issued_on_min,
-        dateFormat,
-      );
-      values.issued_on_max = formatDateTimeOrderFilter(
-        values.issued_on_max,
-        dateFormat,
-      );
-      values.finalized_on_min = formatDateTimeOrderFilter(
-        values.finalized_on_min,
-        dateFormat,
-      );
-      values.finalized_on_max = formatDateTimeOrderFilter(
-        values.finalized_on_max,
-        dateFormat,
-      );
-      values.cancelled_on_min = formatDateTimeOrderFilter(
-        values.cancelled_on_min,
-        dateFormat,
-      );
-      values.cancelled_on_max = formatDateTimeOrderFilter(
-        values.cancelled_on_max,
-        dateFormat,
-      );
-      values.completed_on_min = formatDateTimeOrderFilter(
-        values.completed_on_min,
-        dateFormat,
-      );
-      values.completed_on_max = formatDateTimeOrderFilter(
-        values.completed_on_max,
-        dateFormat,
-      );
-      values.exported_on_min = formatDateTimeOrderFilter(
-        values.exported_on_min,
-        dateFormat,
-      );
-      values.exported_on_max = formatDateTimeOrderFilter(
-        values.exported_on_max,
-        dateFormat,
-      );
+      values.issued_on_min = formatDateTimeOrderFilter(values.issued_on_min, dateFormat);
+      values.issued_on_max = formatDateTimeOrderFilter(values.issued_on_max, dateFormat);
+      values.finalized_on_min = formatDateTimeOrderFilter(values.finalized_on_min, dateFormat);
+      values.finalized_on_max = formatDateTimeOrderFilter(values.finalized_on_max, dateFormat);
+      values.cancelled_on_min = formatDateTimeOrderFilter(values.cancelled_on_min, dateFormat);
+      values.cancelled_on_max = formatDateTimeOrderFilter(values.cancelled_on_max, dateFormat);
+      values.completed_on_min = formatDateTimeOrderFilter(values.completed_on_min, dateFormat);
+      values.completed_on_max = formatDateTimeOrderFilter(values.completed_on_max, dateFormat);
+      values.exported_on_min = formatDateTimeOrderFilter(values.exported_on_min, dateFormat);
+      values.exported_on_max = formatDateTimeOrderFilter(values.exported_on_max, dateFormat);
       values.expected_receive_on_min = formatDateTimeOrderFilter(
         values.expected_receive_on_min,
         dateFormat,
@@ -863,35 +779,17 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         values.expected_receive_on_max,
         dateFormat,
       );
-      values.returning_date_min = formatDateTimeOrderFilter(
-        values.returning_date_min,
-        dateFormat,
-      );
-      values.returning_date_min = formatDateTimeOrderFilter(
-        values.returning_date_min,
-        dateFormat,
-      );
-      values.returning_date_max = formatDateTimeOrderFilter(
-        values.returning_date_max,
-        dateFormat,
-      );
-      values.returned_date_min = formatDateTimeOrderFilter(
-        values.returned_date_min,
-        dateFormat,
-      );
-      values.returned_date_max = formatDateTimeOrderFilter(
-        values.returned_date_max,
-        dateFormat,
-      );
-      values.expired_at =
-        values.expired_at === 0 ? undefined : values.expired_at;
+      values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min, dateFormat);
+      values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min, dateFormat);
+      values.returning_date_max = formatDateTimeOrderFilter(values.returning_date_max, dateFormat);
+      values.returned_date_min = formatDateTimeOrderFilter(values.returned_date_min, dateFormat);
+      values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max, dateFormat);
+      values.expired_at = values.expired_at === 0 ? undefined : values.expired_at;
       // console.log('values', values);
       // return;
       let discount_codes = [];
       if (values.discount_codes) {
-        discount_codes = values.discount_codes
-          .split(",")
-          .map((p: string) => p?.trim());
+        discount_codes = values.discount_codes.split(",").map((p: string) => p?.trim());
       }
       onFilter &&
         onFilter({
@@ -987,22 +885,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       }
       let mappedArrayResult = _mappedArray;
       let countHidden = 0;
-      if (
-        _mappedArray &&
-        _isShortenText &&
-        _mappedArray.length > numberTagShorten
-      ) {
+      if (_mappedArray && _isShortenText && _mappedArray.length > numberTagShorten) {
         mappedArrayResult = _mappedArray.slice(0, numberTagShorten);
         countHidden = _mappedArray.length - numberTagShorten;
       }
       if (type === "assignee_codes") {
         result = mappedArrayResult.map((single, index) => {
           return (
-            <Link
-              to={`${UrlConfig.ACCOUNTS}/${single.code}`}
-              target="_blank"
-              key={single.code}
-            >
+            <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
               {single.code} - {single.full_name}
               {renderSplitCharacter(index, mappedArrayResult)}
             </Link>
@@ -1011,11 +901,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       } else if (type === "account_codes") {
         result = mappedArrayResult.map((single, index) => {
           return (
-            <Link
-              to={`${UrlConfig.ACCOUNTS}/${single.code}`}
-              target="_blank"
-              key={single.code}
-            >
+            <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
               {single.code} - {single.full_name}
               {renderSplitCharacter(index, mappedArrayResult)}
             </Link>
@@ -1025,11 +911,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         result = mappedArrayResult.map((single, index) => {
           if (objectLink && endPoint && single[objectLink]) {
             return (
-              <Link
-                to={`${endPoint}/${single[objectLink]}`}
-                target="_blank"
-                key={single[keyValue]}
-              >
+              <Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
                 {single[keyValue]}
                 {renderSplitCharacter(index, mappedArrayResult)}
               </Link>
@@ -1049,25 +931,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       return (
         <React.Fragment>
           {result}
-          {renderEndOfFilter(
-            type,
-            _isShortenText,
-            isCanShortenText,
-            countHidden,
-          )}
+          {renderEndOfFilter(type, _isShortenText, isCanShortenText, countHidden)}
         </React.Fragment>
       );
     };
 
     let list: ListFilterTagTypes[] = [];
-    if (
-      filterTagFormatted?.store_ids?.data &&
-      filterTagFormatted.store_ids?.data?.length
-    ) {
+    if (filterTagFormatted?.store_ids?.data && filterTagFormatted.store_ids?.data?.length) {
       let mappedStores = listStore?.filter((store) =>
-        filterTagFormatted.store_ids.data?.some(
-          (single: number) => single === store.id,
-        ),
+        filterTagFormatted.store_ids.data?.some((single: number) => single === store.id),
       );
       let text = getFilterString(
         mappedStores,
@@ -1084,14 +956,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         value: text,
       });
     }
-    if (
-      filterTagFormatted?.source_ids?.data &&
-      filterTagFormatted.source_ids?.data?.length
-    ) {
+    if (filterTagFormatted?.source_ids?.data && filterTagFormatted.source_ids?.data?.length) {
       let mappedSources = listSources?.filter((source) =>
-        filterTagFormatted.source_ids.data?.some(
-          (single: number) => single === source.id,
-        ),
+        filterTagFormatted.source_ids.data?.some((single: number) => single === source.id),
       );
       let text = getFilterString(
         mappedSources,
@@ -1128,17 +995,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
       let textOrderFinalizedDate =
         (initialValues.finalized_on_min
-          ? getTimeFormatOrderFilterTag(
-              initialValues.finalized_on_min,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.finalized_on_min, dateFormat)
           : "??") +
         " ~ " +
         (initialValues.finalized_on_max
-          ? getTimeFormatOrderFilterTag(
-              initialValues.finalized_on_max,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.finalized_on_max, dateFormat)
           : "??");
       list.push({
         key: "finalized",
@@ -1149,17 +1010,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
       let textOrderCompleteDate =
         (initialValues.completed_on_min
-          ? getTimeFormatOrderFilterTag(
-              initialValues.completed_on_min,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.completed_on_min, dateFormat)
           : "??") +
         " ~ " +
         (initialValues.completed_on_max
-          ? getTimeFormatOrderFilterTag(
-              initialValues.completed_on_max,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.completed_on_max, dateFormat)
           : "??");
       list.push({
         key: "completed",
@@ -1170,17 +1025,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
       let textOrderCancelDate =
         (initialValues.cancelled_on_min
-          ? getTimeFormatOrderFilterTag(
-              initialValues.cancelled_on_min,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_min, dateFormat)
           : "??") +
         " ~ " +
         (initialValues.cancelled_on_max
-          ? getTimeFormatOrderFilterTag(
-              initialValues.cancelled_on_max,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_max, dateFormat)
           : "??");
       list.push({
         key: "cancelled",
@@ -1189,23 +1038,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (
-      initialValues.expected_receive_on_min ||
-      initialValues.expected_receive_on_max
-    ) {
+    if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
       let textExpectReceiveDate =
         (initialValues.expected_receive_on_min
-          ? getTimeFormatOrderFilterTag(
-              initialValues.expected_receive_on_min,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.expected_receive_on_min, dateFormat)
           : "??") +
         " ~ " +
         (initialValues.expected_receive_on_max
-          ? getTimeFormatOrderFilterTag(
-              initialValues.expected_receive_on_max,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.expected_receive_on_max, dateFormat)
           : "??");
       list.push({
         key: "expected",
@@ -1217,17 +1057,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.returning_date_min || initialValues.returning_date_max) {
       let textExpectReceiveDate =
         (initialValues.returning_date_min
-          ? getTimeFormatOrderFilterTag(
-              initialValues.returning_date_min,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.returning_date_min, dateFormat)
           : "??") +
         " ~ " +
         (initialValues.returning_date_max
-          ? getTimeFormatOrderFilterTag(
-              initialValues.returning_date_max,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.returning_date_max, dateFormat)
           : "??");
       list.push({
         key: "returning",
@@ -1239,17 +1073,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.returned_date_min || initialValues.returned_date_max) {
       let textExpectReceiveDate =
         (initialValues.returned_date_min
-          ? getTimeFormatOrderFilterTag(
-              initialValues.returned_date_min,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.returned_date_min, dateFormat)
           : "??") +
         " ~ " +
         (initialValues.returned_date_max
-          ? getTimeFormatOrderFilterTag(
-              initialValues.returned_date_max,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.returned_date_max, dateFormat)
           : "??");
       list.push({
         key: "returned",
@@ -1260,17 +1088,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.exported_on_min || initialValues.exported_on_max) {
       let textExportedOnDate =
         (initialValues.exported_on_min
-          ? getTimeFormatOrderFilterTag(
-              initialValues.exported_on_min,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.exported_on_min, dateFormat)
           : "??") +
         " ~ " +
         (initialValues.exported_on_max
-          ? getTimeFormatOrderFilterTag(
-              initialValues.exported_on_max,
-              dateFormat,
-            )
+          ? getTimeFormatOrderFilterTag(initialValues.exported_on_max, dateFormat)
           : "??");
       list.push({
         key: "exported_on",
@@ -1280,9 +1102,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.order_status.length) {
       let orderStatuses = status?.filter((status) =>
-        initialValues.order_status?.some(
-          (item) => item === status.value.toString(),
-        ),
+        initialValues.order_status?.some((item) => item === status.value.toString()),
       );
       let text = getFilterString(
         orderStatuses,
@@ -1312,16 +1132,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         },
       ];
       let mappedReturnStatus = option?.filter((status) =>
-        initialValues.return_status?.some(
-          (item) => item === status.value.toString(),
-        ),
+        initialValues.return_status?.some((item) => item === status.value.toString()),
       );
-      let text = getFilterString(
-        mappedReturnStatus,
-        "label",
-        undefined,
-        undefined,
-      );
+      let text = getFilterString(mappedReturnStatus, "label", undefined, undefined);
 
       list.push({
         key: "return_status",
@@ -1332,9 +1145,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.sub_status_code.length) {
       let mappedSubStatuses = subStatus?.filter((status) =>
-        initialValues.sub_status_code?.some(
-          (item) => item === status.code.toString(),
-        ),
+        initialValues.sub_status_code?.some((item) => item === status.code.toString()),
       );
       let text = getFilterString(
         mappedSubStatuses,
@@ -1353,16 +1164,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.fulfillment_status.length) {
       let mappedFulfillmentStatus = fulfillmentStatus?.filter((status) =>
-        initialValues.fulfillment_status?.some(
-          (item) => item === status.value.toString(),
-        ),
+        initialValues.fulfillment_status?.some((item) => item === status.value.toString()),
       );
-      let text = getFilterString(
-        mappedFulfillmentStatus,
-        "name",
-        undefined,
-        undefined,
-      );
+      let text = getFilterString(mappedFulfillmentStatus, "name", undefined, undefined);
       list.push({
         key: "fulfillment_status",
         name: "Trạng thái giao hàng",
@@ -1372,16 +1176,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.payment_status.length) {
       let mappedPaymentStatuses = paymentStatus?.filter((status) =>
-        initialValues.payment_status?.some(
-          (item) => item === status.value.toString(),
-        ),
+        initialValues.payment_status?.some((item) => item === status.value.toString()),
       );
-      let text = getFilterString(
-        mappedPaymentStatuses,
-        "name",
-        undefined,
-        undefined,
-      );
+      let text = getFilterString(mappedPaymentStatuses, "name", undefined, undefined);
       list.push({
         key: "payment_status",
         name: "Trạng thái thanh toán",
@@ -1418,9 +1215,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.services.length > 0) {
       let text = "";
       for (let i = 0; i < services.length; i++) {
-        let selected = serviceListVariables.find(
-          (single) => single.value === services[i],
-        );
+        let selected = serviceListVariables.find((single) => single.value === services[i]);
         if (i < services.length - 1) {
           text = text + selected?.title + splitCharacter;
         } else {
@@ -1487,13 +1282,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.price_min || initialValues.price_max) {
       let textPrice =
-        (initialValues.price_min
-          ? `${formatCurrency(initialValues.price_min)} đ`
-          : " 0 ") +
+        (initialValues.price_min ? `${formatCurrency(initialValues.price_min)} đ` : " 0 ") +
         " ~ " +
-        (initialValues.price_max
-          ? `${formatCurrency(initialValues.price_max)} đ`
-          : " ?? ");
+        (initialValues.price_max ? `${formatCurrency(initialValues.price_max)} đ` : " ?? ");
       list.push({
         key: "price",
         name: "Tổng tiền",
@@ -1503,16 +1294,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.payment_method_ids.length) {
       let mappedPaymentMethods = listPaymentMethod?.filter((paymentMethod) =>
-        initialValues.payment_method_ids?.some(
-          (item) => item === paymentMethod.id.toString(),
-        ),
+        initialValues.payment_method_ids?.some((item) => item === paymentMethod.id.toString()),
       );
-      let text = getFilterString(
-        mappedPaymentMethods,
-        "name",
-        undefined,
-        undefined,
-      );
+      let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
       list.push({
         key: "payment_method",
         name: "Phương thức thanh toán",
@@ -1521,16 +1305,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.delivery_types.length) {
       let mappedDeliverTypes = serviceType?.filter((deliverType) =>
-        initialValues.delivery_types?.some(
-          (item) => item === deliverType.value.toString(),
-        ),
+        initialValues.delivery_types?.some((item) => item === deliverType.value.toString()),
       );
-      let text = getFilterString(
-        mappedDeliverTypes,
-        "name",
-        undefined,
-        undefined,
-      );
+      let text = getFilterString(mappedDeliverTypes, "name", undefined, undefined);
       list.push({
         key: "delivery_types",
         name: "Hình thức vận chuyển",
@@ -1538,18 +1315,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
     if (initialValues.delivery_provider_ids.length) {
-      let mappedDeliverProviderIds = deliveryService?.filter(
-        (deliveryServiceSingle) =>
-          initialValues.delivery_provider_ids?.some(
-            (item) => item === deliveryServiceSingle.id.toString(),
-          ),
+      let mappedDeliverProviderIds = deliveryService?.filter((deliveryServiceSingle) =>
+        initialValues.delivery_provider_ids?.some(
+          (item) => item === deliveryServiceSingle.id.toString(),
+        ),
       );
-      let text = getFilterString(
-        mappedDeliverProviderIds,
-        "name",
-        undefined,
-        undefined,
-      );
+      let text = getFilterString(mappedDeliverProviderIds, "name", undefined, undefined);
       list.push({
         key: "delivery_provider_ids",
         name: "Đơn vị vận chuyển",
@@ -1558,16 +1329,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.shipper_codes.length) {
       let mappedShippers = shippers?.filter((account) =>
-        initialValues.shipper_codes?.some(
-          (single) => single === account.code.toString(),
-        ),
+        initialValues.shipper_codes?.some((single) => single === account.code.toString()),
       );
-      let text = getFilterString(
-        mappedShippers,
-        "name",
-        UrlConfig.ACCOUNTS,
-        "code",
-      );
+      let text = getFilterString(mappedShippers, "name", UrlConfig.ACCOUNTS, "code");
       list.push({
         key: "shipper_codes",
         name: "Đối tác giao hàng",
@@ -1577,15 +1341,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (
       initialValues.channel_codes.length &&
-      !isEqual(
-        initialValues.channel_codes,
-        initChannelCodes || orderType !== ORDER_TYPES.online,
-      )
+      !isEqual(initialValues.channel_codes, initChannelCodes || orderType !== ORDER_TYPES.online)
     ) {
       let mappedChannels = listChannel?.filter((channel) =>
-        initialValues.channel_codes?.some(
-          (single) => single === channel.code.toString(),
-        ),
+        initialValues.channel_codes?.some((single) => single === channel.code.toString()),
       );
       let text = getFilterString(mappedChannels, "name", undefined, undefined);
       list.push({
@@ -1630,8 +1389,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       let textStatus = "";
       for (let i = 0; i < initialValues.marketing_campaign.length; i++) {
         if (i < initialValues.marketing_campaign.length - 1) {
-          textStatus =
-            textStatus + initialValues.marketing_campaign[i] + splitCharacter;
+          textStatus = textStatus + initialValues.marketing_campaign[i] + splitCharacter;
         } else {
           textStatus = textStatus + initialValues.marketing_campaign[i];
         }
@@ -1651,10 +1409,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (
-      initialValues.discount_codes &&
-      initialValues.discount_codes.length > 0
-    ) {
+    if (initialValues.discount_codes && initialValues.discount_codes.length > 0) {
       list.push({
         key: "discount_codes",
         name: "Mã giảm giá",
@@ -1716,10 +1471,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (
-      initialValues?.in_goods_receipt === 0 ||
-      initialValues?.in_goods_receipt === 1
-    ) {
+    if (initialValues?.in_goods_receipt === 0 || initialValues?.in_goods_receipt === 1) {
       let textRecord =
         initialValues?.in_goods_receipt === 1
           ? "Đã nằm trong biên bản"
@@ -1741,10 +1493,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (
-      initialValues?.is_expired_payment &&
-      initialValues?.is_expired_payment === true
-    ) {
+    if (initialValues?.is_expired_payment && initialValues?.is_expired_payment === true) {
       list.push({
         key: "is_expired_payment",
         name: "thanh toán ví điện tử",
@@ -1850,9 +1599,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           }
           break;
         case serviceVariables.deliverStandard:
-          const index2 = cloneServices.indexOf(
-            serviceVariables.deliverStandard,
-          );
+          const index2 = cloneServices.indexOf(serviceVariables.deliverStandard);
           if (index2 > -1) {
             cloneServices.splice(index2, 1);
           } else {
@@ -1909,10 +1656,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (!isHideTab) {
       return (
         <div className="order-options">
-          <Radio.Group
-            onChange={(e) => onChangeOrderOptions(e)}
-            value={initialValues.is_online}
-          >
+          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
             <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
             <Radio.Button value="true">Đơn hàng online</Radio.Button>
             <Radio.Button value="false">Đơn hàng offline</Radio.Button>
@@ -2025,8 +1769,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   const handleSelectProduct = useCallback(
     (v?: VariantResponse) => {
       if (v) {
-        onFilter &&
-          onFilter({ ...initialValueExchange, searched_product: v.sku });
+        onFilter && onFilter({ ...initialValueExchange, searched_product: v.sku });
       }
     },
     [onFilter],
@@ -2084,17 +1827,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                           }
                         }}
                         getCurrentValue={() => {
-                          return formSearchRef.current?.getFieldValue(
-                            "sub_status_code",
-                          );
+                          return formSearchRef.current?.getFieldValue("sub_status_code");
                         }}
                         allValues={subStatus}
                       >
                         {subStatus?.map((item: any) => (
-                          <CustomSelect.Option
-                            key={item.id}
-                            value={item.code.toString()}
-                          >
+                          <CustomSelect.Option key={item.id} value={item.code.toString()}>
                             {item.sub_status}
                           </CustomSelect.Option>
                         ))}
@@ -2134,10 +1872,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
               <Button icon={<FilterOutlined />} onClick={openFilter}>
                 Thêm bộ lọc
               </Button>
-              <Button
-                icon={<SettingOutlined />}
-                onClick={onShowColumnSetting}
-              />
+              <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} />
             </div>
           </Form>
         </CustomFilter>
@@ -2153,12 +1888,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           width={widthScreen()}
         >
           {rerender && (
-            <Form
-              onFinish={onFinish}
-              ref={formRef}
-              initialValues={initialValues}
-              layout="vertical"
-            >
+            <Form onFinish={onFinish} ref={formRef} initialValues={initialValues} layout="vertical">
               {filterConfigs && filterConfigs.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                   {filterConfigs?.map((e, index) => {
@@ -2252,18 +1982,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       getPopupContainer={(trigger) => trigger.parentNode}
                       maxTagCount="responsive"
                     >
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key="1"
-                        value="returned"
-                      >
+                      <CustomSelect.Option style={{ width: "100%" }} key="1" value="returned">
                         Có đổi trả hàng
                       </CustomSelect.Option>
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key="2"
-                        value="unreturned"
-                      >
+                      <CustomSelect.Option style={{ width: "100%" }} key="2" value="unreturned">
                         Không đổi trả hàng
                       </CustomSelect.Option>
                     </CustomSelect>
@@ -2286,10 +2008,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Col>
                 )}
                 <Col span={8} xxl={8}>
-                  <Item
-                    name="payment_method_ids"
-                    label="Phương thức thanh toán"
-                  >
+                  <Item name="payment_method_ids" label="Phương thức thanh toán">
                     <CustomSelect
                       mode="multiple"
                       optionFilterProp="children"
@@ -2404,10 +2123,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       >
                         {/* <Option value="">Hình thức vận chuyển</Option> */}
                         {serviceType?.map((item) => (
-                          <CustomSelect.Option
-                            key={item.value}
-                            value={item.value}
-                          >
+                          <CustomSelect.Option key={item.value} value={item.value}>
                             {item.name}
                           </CustomSelect.Option>
                         ))}
@@ -2512,10 +2228,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 )}
                 {orderType === ORDER_TYPES.online && (
                   <Col span={8} xxl={8}>
-                    <Item
-                      name="fulfillment_status"
-                      label="Trạng thái giao hàng"
-                    >
+                    <Item name="fulfillment_status" label="Trạng thái giao hàng">
                       <CustomSelect
                         mode="multiple"
                         showSearch
@@ -2543,10 +2256,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                 )}
                 {orderType === ORDER_TYPES.online && (
                   <Col span={8} xxl={8}>
-                    <Item
-                      name="delivery_provider_ids"
-                      label="Đơn vị vận chuyển"
-                    >
+                    <Item name="delivery_provider_ids" label="Đơn vị vận chuyển">
                       <CustomSelect
                         mode="multiple"
                         showSearch
@@ -2560,10 +2270,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         maxTagCount="responsive"
                       >
                         {deliveryService?.map((item) => (
-                          <CustomSelect.Option
-                            key={item.id}
-                            value={item.id.toString()}
-                          >
+                          <CustomSelect.Option key={item.id} value={item.id.toString()}>
                             {item.name}
                           </CustomSelect.Option>
                         ))}
@@ -2601,10 +2308,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       >
                         {shippers &&
                           shippers.map((shipper) => (
-                            <CustomSelect.Option
-                              key={shipper.code}
-                              value={shipper.code}
-                            >
+                            <CustomSelect.Option key={shipper.code} value={shipper.code}>
                               {shipper.code} - {shipper.name}
                             </CustomSelect.Option>
                           ))}
@@ -2621,22 +2325,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   <div className="ant-form-item-label">
                     <label>Tổng tiền</label>
                   </div>
-                  <div
-                    className="date-range"
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
-                    <Item
-                      name="price_min"
-                      style={{ width: "45%", marginBottom: 0 }}
-                    >
+                  <div className="date-range" style={{ display: "flex", alignItems: "center" }}>
+                    <Item name="price_min" style={{ width: "45%", marginBottom: 0 }}>
                       <InputNumber
                         className="price_min"
                         formatter={(value) => {
                           return formatCurrency(value || 0);
                         }}
-                        parser={(value: string | undefined) =>
-                          replaceFormat(value || "")
-                        }
+                        parser={(value: string | undefined) => replaceFormat(value || "")}
                         min={0}
                         max={1000000000}
                         placeholder="Từ"
@@ -2644,24 +2340,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       />
                     </Item>
 
-                    <div
-                      className="swap-right-icon"
-                      style={{ width: "10%", textAlign: "center" }}
-                    >
+                    <div className="swap-right-icon" style={{ width: "10%", textAlign: "center" }}>
                       <SwapRightOutlined />
                     </div>
-                    <Item
-                      name="price_max"
-                      style={{ width: "45%", marginBottom: 0 }}
-                    >
+                    <Item name="price_max" style={{ width: "45%", marginBottom: 0 }}>
                       <InputNumber
                         className="site-input-right price_max"
                         formatter={(value) => {
                           return formatCurrency(value || 0);
                         }}
-                        parser={(value: string | undefined) =>
-                          replaceFormat(value || "")
-                        }
+                        parser={(value: string | undefined) => replaceFormat(value || "")}
                         placeholder="Đến"
                         min={0}
                         max={1000000000}
@@ -2678,11 +2366,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                           <Button
                             key={single.value}
                             onClick={() => handleSelectServices(single.value)}
-                            className={
-                              services.includes(single.value)
-                                ? "active"
-                                : "deactive"
-                            }
+                            className={services.includes(single.value) ? "active" : "deactive"}
                           >
                             {single.title}
                           </Button>
@@ -2708,10 +2392,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       >
                         {listChannel &&
                           listChannel.map((channel) => (
-                            <CustomSelect.Option
-                              key={channel.code}
-                              value={channel.code}
-                            >
+                            <CustomSelect.Option key={channel.code} value={channel.code}>
                               {channel.code} - {channel.name}
                             </CustomSelect.Option>
                           ))}
@@ -2743,10 +2424,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Item>
                 </Col>
                 <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
-                  <Item
-                    name="expired_at"
-                    label="Số phút chưa thanh toán ví điện tử:"
-                  >
+                  <Item name="expired_at" label="Số phút chưa thanh toán ví điện tử:">
                     <InputNumber
                       placeholder="Nhập số phút chưa thanh toán"
                       style={{ width: "100%" }}
@@ -2762,9 +2440,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     <div className="button-option-3">
                       <Button
                         onClick={() => handleExpiresPayment()}
-                        className={
-                          isExpiresPayment === true ? "active" : "deactive"
-                        }
+                        className={isExpiresPayment === true ? "active" : "deactive"}
                       >
                         Hết hạn thanh toán
                       </Button>
@@ -2804,67 +2480,44 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       }}
                       checked={visibleUTM}
                     />
-                    <span style={{ paddingLeft: "10px", fontWeight: 500 }}>
-                      Đơn hàng Web/App
-                    </span>
+                    <span style={{ paddingLeft: "10px", fontWeight: 500 }}>Đơn hàng Web/App</span>
                   </Row>
                   {visibleUTM && (
                     <React.Fragment>
                       <Row gutter={20}>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_Source" name="utm_source">
-                            <Input
-                              placeholder="..."
-                              style={{ width: "100%" }}
-                            />
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_Medium" name="utm_medium">
-                            <Input
-                              placeholder="..."
-                              style={{ width: "100%" }}
-                            />
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_content" name="utm_content">
-                            <Input
-                              placeholder="..."
-                              style={{ width: "100%" }}
-                            />
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_term" name="utm_term">
-                            <Input
-                              placeholder="..."
-                              style={{ width: "100%" }}
-                            />
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_id" name="utm_id">
-                            <Input
-                              placeholder="..."
-                              style={{ width: "100%" }}
-                            />
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_campagin" name="utm_campaign">
-                            <Input
-                              placeholder="..."
-                              style={{ width: "100%" }}
-                            />
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="Affiate code" name="affiliate">
-                            <Input
-                              placeholder="..."
-                              style={{ width: "100%" }}
-                            />
+                            <Input placeholder="..." style={{ width: "100%" }} />
                           </Item>
                         </Col>
                       </Row>
@@ -2894,10 +2547,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
             <span>
               Bạn có chắc muốn xóa bộ lọc{" "}
               <strong>
-                "
-                {filterConfigs.find((single) => single.id === configId)?.name ||
-                  null}
-                "
+                "{filterConfigs.find((single) => single.id === configId)?.name || null}"
               </strong>
             </span>
           }
@@ -2907,12 +2557,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         <div className="order-filter-tags">
           {filters.map((filter, index) => {
             return (
-              <Tag
-                key={index}
-                className="tag"
-                closable
-                onClose={(e) => onCloseTag(e, filter)}
-              >
+              <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
                 <span className="tagLabel 3">{filter.name}:</span>
                 {renderFilterTag(filter)}
               </Tag>

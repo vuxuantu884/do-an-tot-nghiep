@@ -18,7 +18,7 @@ function ActionPurchaseOrderHistory(props: PropType) {
 
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [actionId, setActionId] = useState<number>();
-  const [procumentCode, setProcumentCode] = useState('');
+  const [procumentCode, setProcumentCode] = useState("");
 
   const showModal = (actionId: number, prCode: string) => {
     setIsModalVisible(true);
@@ -72,10 +72,7 @@ function ActionPurchaseOrderHistory(props: PropType) {
           actionLog.length > 0 &&
           actionLog.map((singleActionHistory, index) => {
             return (
-              <div
-                className="singleActionHistory"
-                key={index}
-              >
+              <div className="singleActionHistory" key={index}>
                 <Row gutter={15}>
                   <Col span={10}>
                     <div>
@@ -88,24 +85,20 @@ function ActionPurchaseOrderHistory(props: PropType) {
                           >
                             {singleActionHistory?.updated_by}
                           </Link>
-                          <h4>
-                            {singleActionHistory?.updated_name}
-                          </h4>
+                          <h4>{singleActionHistory?.updated_name}</h4>
                         </div>
                       )}
                       {singleActionHistory?.updated_date && (
                         <div className="singleActionHistory__date">
-                          {moment(singleActionHistory?.updated_date).format(
-                            "HH:mm DD/MM/YYYY"
-                          )}
+                          {moment(singleActionHistory?.updated_date).format("HH:mm DD/MM/YYYY")}
                         </div>
                       )}
                     </div>
                   </Col>
                   <Col span={14}>
-                    <div className="singleActionHistory__status" >
+                    <div className="singleActionHistory__status">
                       {singleActionHistory?.action && (
-                        <h4 
+                        <h4
                           className="singleActionHistory__mainStatus"
                           onClick={() => {
                             showModal(singleActionHistory.id, singleActionHistory.procurement_code);
@@ -117,7 +110,7 @@ function ActionPurchaseOrderHistory(props: PropType) {
                       <div className="singleActionHistory__subStatus">
                         {renderSingleSubStatus(
                           singleActionHistory?.status_before,
-                          singleActionHistory?.status_after
+                          singleActionHistory?.status_after,
                         )}
                       </div>
                     </div>

@@ -2,20 +2,20 @@ import { KeyDriverField } from "model/report";
 import {
   AnalyticDataQuery,
   AnalyticQueryMany,
-  AnalyticSampleQuery
+  AnalyticSampleQuery,
 } from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "redux";
 import {
   executeAnalyticsQueryService,
-  executeManyAnalyticsQueryService
+  executeManyAnalyticsQueryService,
 } from "service/report/analytics.service";
 import { callApiNative } from "./ApiUtils";
 import { generateRQuery } from "./ReportUtils";
 
 export const getDataManyQueryKeyDriverOffline = async (
   dispatch: Dispatch<any>,
-  queries: AnalyticSampleQuery[]
+  queries: AnalyticSampleQuery[],
 ): Promise<AnalyticDataQuery[]> => {
   const params: AnalyticQueryMany = { q: [], options: [] };
 
@@ -29,21 +29,21 @@ export const getDataManyQueryKeyDriverOffline = async (
     { notifyAction: "HIDE_ALL" },
     dispatch,
     executeManyAnalyticsQueryService,
-    params
+    params,
   );
   return data;
 };
 
 export const getDataOneQueryKeyDriverOffline = async (
   dispatch: Dispatch<any>,
-  queries: AnalyticSampleQuery
+  queries: AnalyticSampleQuery,
 ): Promise<AnalyticDataQuery> => {
   const q = generateRQuery(queries.query);
   const data: AnalyticDataQuery = await callApiNative(
     { notifyAction: "HIDE_ALL" },
     dispatch,
     executeAnalyticsQueryService,
-    { q, options: queries.options }
+    { q, options: queries.options },
   );
 
   return data;
@@ -53,7 +53,7 @@ export const calculateTargetMonth = (accumulatedMonthData: number) => {
   if (moment().date() - 1) {
     const dayNumber = moment().date() - 1;
     const dayInMonth = moment().daysInMonth();
-    return Math.round(accumulatedMonthData * dayInMonth / dayNumber);
+    return Math.round((accumulatedMonthData * dayInMonth) / dayNumber);
   }
   return 0;
 };
@@ -68,23 +68,34 @@ export const findKeyDriver = (keyDriverData: any, key: string, result: any[]) =>
       findKeyDriver(item, key, result);
     });
   }
-}
+};
 
 export const calculateKDAverageCustomerSpent = (keyDriverData: any, department: string) => {
   let offlineTotalSales: any = [];
-  findKeyDriver(keyDriverData, 'offline_total_sales', offlineTotalSales);
+  findKeyDriver(keyDriverData, "offline_total_sales", offlineTotalSales);
   let customersCount: any = [];
-  findKeyDriver(keyDriverData, 'customers_count', customersCount);
+  findKeyDriver(keyDriverData, "customers_count", customersCount);
   let averageCustomerSpent: any = [];
-  findKeyDriver(keyDriverData, 'average_customer_spent', averageCustomerSpent);
+  findKeyDriver(keyDriverData, "average_customer_spent", averageCustomerSpent);
   offlineTotalSales = offlineTotalSales[0];
   customersCount = customersCount[0];
   averageCustomerSpent = averageCustomerSpent[0];
-  averageCustomerSpent[`${department}_day`] = customersCount[`${department}_day`] ? offlineTotalSales[`${department}_day`] / customersCount[`${department}_day`] : '';
-  averageCustomerSpent[`${department}_targetMonth`] = customersCount[`${department}_targetMonth`] ? offlineTotalSales[`${department}_targetMonth`] / customersCount[`${department}_targetMonth`] : '';
-  averageCustomerSpent[`${department}_accumulatedMonth`] = customersCount[`${department}_accumulatedMonth`] ? offlineTotalSales[`${department}_accumulatedMonth`] / customersCount[`${department}_accumulatedMonth`] : '';
-  averageCustomerSpent[`${department}_actualDay`] = customersCount[`${department}_actualDay`] ? offlineTotalSales[`${department}_actualDay`] / customersCount[`${department}_actualDay`] : '';
-}
+  averageCustomerSpent[`${department}_day`] = customersCount[`${department}_day`]
+    ? offlineTotalSales[`${department}_day`] / customersCount[`${department}_day`]
+    : "";
+  averageCustomerSpent[`${department}_targetMonth`] = customersCount[`${department}_targetMonth`]
+    ? offlineTotalSales[`${department}_targetMonth`] / customersCount[`${department}_targetMonth`]
+    : "";
+  averageCustomerSpent[`${department}_accumulatedMonth`] = customersCount[
+    `${department}_accumulatedMonth`
+  ]
+    ? offlineTotalSales[`${department}_accumulatedMonth`] /
+      customersCount[`${department}_accumulatedMonth`]
+    : "";
+  averageCustomerSpent[`${department}_actualDay`] = customersCount[`${department}_actualDay`]
+    ? offlineTotalSales[`${department}_actualDay`] / customersCount[`${department}_actualDay`]
+    : "";
+};
 
 export const calculateKDConvertionRate = (keyDriverData: any, department: string) => {
   let convertionRate: any = [];
@@ -96,11 +107,29 @@ export const calculateKDConvertionRate = (keyDriverData: any, department: string
   convertionRate = convertionRate[0];
   customersCount = customersCount[0];
   visitors = visitors[0];
-  convertionRate[`${department}_day`] = visitors[`${department}_day`] ? +(customersCount[`${department}_day`] / visitors[`${department}_day`] * 100).toFixed(1) : '';
-  convertionRate[`${department}_targetMonth`] = visitors[`${department}_targetMonth`] ? +(customersCount[`${department}_targetMonth`] / visitors[`${department}_targetMonth`] * 100).toFixed(1) : '';
-  convertionRate[`${department}_accumulatedMonth`] = visitors[`${department}_accumulatedMonth`] ? +(customersCount[`${department}_accumulatedMonth`] / visitors[`${department}_accumulatedMonth`] * 100).toFixed(1) : '';
-  convertionRate[`${department}_actualDay`] = visitors[`${department}_actualDay`] ? +(customersCount[`${department}_actualDay`] / visitors[`${department}_actualDay`] * 100).toFixed(1) : '';
-}
+  convertionRate[`${department}_day`] = visitors[`${department}_day`]
+    ? +((customersCount[`${department}_day`] / visitors[`${department}_day`]) * 100).toFixed(1)
+    : "";
+  convertionRate[`${department}_targetMonth`] = visitors[`${department}_targetMonth`]
+    ? +(
+        (customersCount[`${department}_targetMonth`] / visitors[`${department}_targetMonth`]) *
+        100
+      ).toFixed(1)
+    : "";
+  convertionRate[`${department}_accumulatedMonth`] = visitors[`${department}_accumulatedMonth`]
+    ? +(
+        (customersCount[`${department}_accumulatedMonth`] /
+          visitors[`${department}_accumulatedMonth`]) *
+        100
+      ).toFixed(1)
+    : "";
+  convertionRate[`${department}_actualDay`] = visitors[`${department}_actualDay`]
+    ? +(
+        (customersCount[`${department}_actualDay`] / visitors[`${department}_actualDay`]) *
+        100
+      ).toFixed(1)
+    : "";
+};
 
 export const calculateKDAverageOrderValue = (keyDriverData: any, department: string) => {
   let offlineTotalSales: any = [];
@@ -111,18 +140,34 @@ export const calculateKDAverageOrderValue = (keyDriverData: any, department: str
   averageOrderValue = averageOrderValue[0];
   const dayNumber = moment().date() - 1;
   const dayInMonth = moment().daysInMonth();
-  const averageOrderValueDayTarget =  offlineTotalSales[`${department}_day`] / ((Math.round(offlineTotalSales[`${department}_month`] / averageOrderValue[`${department}_month`]) - Math.round(offlineTotalSales[`${department}_accumulatedMonth`] / averageOrderValue[`${department}_accumulatedMonth`])) / (dayInMonth - dayNumber));
-  averageOrderValue[`${department}_day`] = averageOrderValueDayTarget >= 0 ? averageOrderValueDayTarget : averageOrderValue[`${department}_accumulatedMonth`];
+  const averageOrderValueDayTarget =
+    offlineTotalSales[`${department}_day`] /
+    ((Math.round(
+      offlineTotalSales[`${department}_month`] / averageOrderValue[`${department}_month`],
+    ) -
+      Math.round(
+        offlineTotalSales[`${department}_accumulatedMonth`] /
+          averageOrderValue[`${department}_accumulatedMonth`],
+      )) /
+      (dayInMonth - dayNumber));
+  averageOrderValue[`${department}_day`] =
+    averageOrderValueDayTarget >= 0
+      ? averageOrderValueDayTarget
+      : averageOrderValue[`${department}_accumulatedMonth`];
   if (!averageOrderValue[`${department}_accumulatedMonth`]) {
-    averageOrderValue[`${department}_targetMonth`] = '';
+    averageOrderValue[`${department}_targetMonth`] = "";
   } else {
-    const orders = Math.round(offlineTotalSales[`${department}_accumulatedMonth`] / averageOrderValue[`${department}_accumulatedMonth`]);
+    const orders = Math.round(
+      offlineTotalSales[`${department}_accumulatedMonth`] /
+        averageOrderValue[`${department}_accumulatedMonth`],
+    );
     if (!orders) {
-      averageOrderValue[`${department}_targetMonth`] = '';
+      averageOrderValue[`${department}_targetMonth`] = "";
     }
-    averageOrderValue[`${department}_targetMonth`] = offlineTotalSales[`${department}_targetMonth`] / calculateTargetMonth(orders);
+    averageOrderValue[`${department}_targetMonth`] =
+      offlineTotalSales[`${department}_targetMonth`] / calculateTargetMonth(orders);
   }
-}
+};
 
 export const nonAccentVietnameseKD = (str: string) => {
   str = str.toLowerCase();
@@ -140,4 +185,4 @@ export const nonAccentVietnameseKD = (str: string) => {
     .toUpperCase()
     .replaceAll(/\s/g, "")
     .replace(/[^a-zA-Z0-9 ]/g, "");
-}
+};

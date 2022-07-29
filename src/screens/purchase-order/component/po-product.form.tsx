@@ -6,10 +6,11 @@ import {
   Empty,
   Form,
   FormInstance,
-  Input, Row,
+  Input,
+  Row,
   Table,
   TablePaginationConfig,
-  Tooltip
+  Tooltip,
 } from "antd";
 import emptyProduct from "assets/icon/empty_products.svg";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -27,17 +28,22 @@ import {
   POLineItemType,
   POLoadType,
   PurchaseOrderLineItem,
-  Vat
+  Vat,
 } from "model/purchase-order/purchase-item.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import useKeyboardJs from 'react-use/lib/useKeyboardJs';
+import useKeyboardJs from "react-use/lib/useKeyboardJs";
 import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
 import { POStatus, ProcumentStatus } from "utils/Constants";
-import { getTotalAmountByLineItemType, getUntaxedAmountByLineItemType, POUtils, summaryContentByLineItemType } from "utils/POUtils";
+import {
+  getTotalAmountByLineItemType,
+  getUntaxedAmountByLineItemType,
+  POUtils,
+  summaryContentByLineItemType,
+} from "utils/POUtils";
 import { showError } from "utils/ToastUtils";
 import BaseButton from "../../../component/base/BaseButton";
 import { IconAddMultiple } from "../../../component/icon/IconAddMultiple";
@@ -56,7 +62,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [resultSearch, setResultSearch] = useState<Array<VariantResponse>>([]);
-  const [isPressed] = useKeyboardJs('f3');
+  const [isPressed] = useKeyboardJs("f3");
   const [isSortSku, setIsSortSku] = useState(false);
 
   const renderResult = useMemo(() => {
@@ -69,20 +75,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     });
     return options;
   }, [resultSearch]);
-  const onResultSearch = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      setLoadingSearch(false);
-      if (!result) {
-        setResultSearch([]);
-      } else {
-        setResultSearch(result.items);
-      }
-    },
-    []
-  );
+  const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
+    setLoadingSearch(false);
+    if (!result) {
+      setResultSearch([]);
+    } else {
+      setResultSearch(result.items);
+    }
+  }, []);
   const handleSelectProduct = (variantId: string) => {
     const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
-    if (poLineItemType === POLineItemType.SUPPLEMENT && lineItems.find(item => item.variant_id === +variantId && item.id)) {
+    if (
+      poLineItemType === POLineItemType.SUPPLEMENT &&
+      lineItems.find((item) => item.variant_id === +variantId && item.id)
+    ) {
       showError("Sản phẩm bổ sung đã tồn tại trong đơn hàng");
       return;
     }
@@ -90,34 +96,35 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     const index = resultSearch.findIndex((item) => item.id.toString() === variantId);
     if (index !== -1) {
       let variants: Array<VariantResponse> = [resultSearch[index]];
-      let newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(variants, position, poLineItemType)];
+      let newItems: Array<PurchaseOrderLineItem> = [
+        ...POUtils.convertVariantToLineitem(variants, position, poLineItemType),
+      ];
       position = position + newItems.length;
       let newLineItems = POUtils.addProduct(lineItems, newItems, false);
       formMain.setFieldsValue({
-        line_items: newLineItems
+        line_items: newLineItems,
       });
 
       const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
+        POField.procurements,
       );
       const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
         newLineItems,
-        poLineItemType
+        poLineItemType,
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
-  }
+  };
   const handleDeleteLineItem = (index: number) => {
     let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     const lineItem = lineItems[index];
     lineItems.splice(index, 1);
     formMain.setFieldsValue({
-      line_items: [...lineItems]
+      line_items: [...lineItems],
     });
-
 
     let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
     if (oldLineItems) {
@@ -125,26 +132,22 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       if (indexOld !== -1) {
         oldLineItems.splice(indexOld, 1);
         formMain.setFieldsValue({
-          line_items_old: [...oldLineItems]
+          line_items_old: [...oldLineItems],
         });
       }
     }
-    let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-      POField.procurements
-    );
+    let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(POField.procurements);
     let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
       currentProcument,
       lineItems,
-      poLineItemType
+      poLineItemType,
     );
     formMain.setFieldsValue({
       procurements: newProcument,
     });
-  }
+  };
   const handleChangePriceLineItem = (price: number, item: PurchaseOrderLineItem) => {
-    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items
-    );
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     const indexOfItem = lineItems.findIndex((a) => a.sku === item.sku);
 
     if (lineItems[indexOfItem]) {
@@ -152,66 +155,67 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       updateOldLineItem(lineItems[indexOfItem]);
       formMain.setFieldsValue({
         line_items: [...lineItems],
-      })
+      });
 
       const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
+        POField.procurements,
       );
       const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
         lineItems,
-        poLineItemType
+        poLineItemType,
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
-  }
+  };
   const handleChangeAllPriceLineItem = (price: number) => {
-
-    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items
-    );
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     if (lineItems.length > 0) {
       lineItems.forEach((lineItem: PurchaseOrderLineItem, index: number) => {
         if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.id) {
           return;
-        } else if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.type === POLineItemType.SUPPLEMENT && !lineItem.id) {
+        } else if (
+          poLineItemType === POLineItemType.SUPPLEMENT &&
+          lineItem.type === POLineItemType.SUPPLEMENT &&
+          !lineItem.id
+        ) {
           const newItem = POUtils.updateLineItemByPrice(lineItem, price);
           updateOldLineItem(newItem);
           lineItems[index] = newItem;
-          return
-        } else if (poLineItemType !== POLineItemType.SUPPLEMENT && lineItem.type !== POLineItemType.SUPPLEMENT) {
+          return;
+        } else if (
+          poLineItemType !== POLineItemType.SUPPLEMENT &&
+          lineItem.type !== POLineItemType.SUPPLEMENT
+        ) {
           const newItem = POUtils.updateLineItemByPrice(lineItem, price);
           updateOldLineItem(newItem);
           lineItems[index] = newItem;
-          return
+          return;
         }
       });
 
       formMain.setFieldsValue({
-        line_items: [...lineItems]
-      })
+        line_items: [...lineItems],
+      });
 
       const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
+        POField.procurements,
       );
       const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
         lineItems,
-        poLineItemType
+        poLineItemType,
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
-
     }
-  }
+  };
 
   const handleChangeQuantityLineItem = (quantity: number, item: PurchaseOrderLineItem) => {
-    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items
-    );
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     const indexOfItem = lineItems.findIndex((a) => a.sku === item.sku);
 
     if (lineItems[indexOfItem]) {
@@ -219,97 +223,93 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       updateOldLineItem(lineItems[indexOfItem]);
       formMain.setFieldsValue({
         line_items: [...lineItems],
-      })
+      });
       const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
+        POField.procurements,
       );
       const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
         lineItems,
-        poLineItemType
+        poLineItemType,
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
-  }
+  };
 
   const handleChangeTax = (taxRate: number, item: PurchaseOrderLineItem) => {
-    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items
-    );
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     const indexOfItem = lineItems.findIndex((a) => a.sku === item.sku);
     if (lineItems[indexOfItem]) {
       lineItems[indexOfItem] = POUtils.updateLineItemByVat(lineItems[indexOfItem], taxRate);
       updateOldLineItem(lineItems[indexOfItem]);
       formMain.setFieldsValue({
         line_items: [...lineItems],
-      })
+      });
 
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
-      );
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(POField.procurements);
       let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
         lineItems,
-        poLineItemType
+        poLineItemType,
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
-  }
+  };
 
   const handleChangeAllTax = (taxRate: number) => {
-    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items
-    );
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     if (lineItems.length > 0) {
-
       lineItems.forEach((lineItem) => {
         if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.id) {
           return;
-        } else if (poLineItemType === POLineItemType.SUPPLEMENT && lineItem.type === POLineItemType.SUPPLEMENT && !lineItem.id) {
+        } else if (
+          poLineItemType === POLineItemType.SUPPLEMENT &&
+          lineItem.type === POLineItemType.SUPPLEMENT &&
+          !lineItem.id
+        ) {
           const newItem = POUtils.updateLineItemByVat(lineItem, taxRate);
           updateOldLineItem(newItem);
           return;
-        } else if (poLineItemType !== POLineItemType.SUPPLEMENT && lineItem.type !== POLineItemType.SUPPLEMENT) {
+        } else if (
+          poLineItemType !== POLineItemType.SUPPLEMENT &&
+          lineItem.type !== POLineItemType.SUPPLEMENT
+        ) {
           const newItem = POUtils.updateLineItemByVat(lineItem, taxRate);
           updateOldLineItem(newItem);
           return;
         }
-      })
+      });
 
       formMain.setFieldsValue({
         line_items: [...lineItems],
-      })
-      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-        POField.procurements
-      );
+      });
+      let currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(POField.procurements);
       let newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
         currentProcument,
         lineItems,
-        poLineItemType
+        poLineItemType,
       );
       formMain.setFieldsValue({
         procurements: newProcument,
       });
     }
-  }
+  };
   const updateOldLineItem = (lineItem: PurchaseOrderLineItem) => {
-    let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items_old
-    );
+    let oldLineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items_old);
     if (oldLineItems && oldLineItems.length > 0) {
       const index = oldLineItems.findIndex((a) => a.sku === lineItem.sku);
       if (index !== -1) {
         oldLineItems[index] = lineItem;
         formMain.setFieldsValue({
           line_items_old: oldLineItems,
-        })
+        });
       }
     }
-  }
+  };
   const handlePickManyProduct = (items: Array<VariantResponse>) => {
     let numberOfExistItem = 0;
     const variantsSelected = [...items];
@@ -317,62 +317,61 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     if (poLineItemType === POLineItemType.SUPPLEMENT) {
       items.forEach((item) => {
         if (lineItems.find((line) => line.variant_id === item.id && line.id)) {
-          variantsSelected.splice(variantsSelected.findIndex((a) => a.id === item.id), 1);
+          variantsSelected.splice(
+            variantsSelected.findIndex((a) => a.id === item.id),
+            1,
+          );
           numberOfExistItem++;
         }
-
-      })
-      numberOfExistItem && showError(`${numberOfExistItem} Sản phẩm bổ sung đã tồn tại trong đơn hàng`)
+      });
+      numberOfExistItem &&
+        showError(`${numberOfExistItem} Sản phẩm bổ sung đã tồn tại trong đơn hàng`);
     }
 
     setVisibleManyProduct(false);
-    const newItems: Array<PurchaseOrderLineItem> = [...POUtils.convertVariantToLineitem(variantsSelected, position, poLineItemType)];
+    const newItems: Array<PurchaseOrderLineItem> = [
+      ...POUtils.convertVariantToLineitem(variantsSelected, position, poLineItemType),
+    ];
     position = position + newItems.length;
     let newLineItems = POUtils.addProduct(lineItems, newItems, false);
     if (isSortSku) {
       newLineItems = handleSortLineItems(newLineItems);
     }
     formMain.setFieldsValue({
-      line_items: newLineItems
+      line_items: newLineItems,
     });
 
     const oldLineItems = formMain.getFieldValue(POField.line_items_old);
     if (oldLineItems) {
       const newOldLineItems = POUtils.addProduct(oldLineItems, newItems, false);
       formMain.setFieldsValue({
-        line_items_old: newOldLineItems
-      })
+        line_items_old: newOldLineItems,
+      });
     }
 
-    const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
-      POField.procurements
-    );
+    const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(POField.procurements);
     const newProcument: Array<PurchaseProcument> = POUtils.getNewProcument(
       currentProcument,
       newLineItems,
-      poLineItemType
+      poLineItemType,
     );
     formMain.setFieldsValue({
       procurements: newProcument,
     });
-  }
+  };
   const onNoteChange = useCallback(
     (value: string, index: number) => {
-      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-        POField.line_items
-      );
+      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
       data[index].note = value;
       formMain.setFieldsValue({
         line_items: [...data],
       });
     },
-    [formMain]
+    [formMain],
   );
   const onToggleNote = useCallback(
     (id: string, value: boolean, index: number) => {
-      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-        POField.line_items
-      );
+      let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
       data[index].showNote = value;
       formMain.setFieldsValue({
         line_items: [...data],
@@ -384,7 +383,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         }, 100);
       }
     },
-    [formMain]
+    [formMain],
   );
   const onSearch = useCallback(
     (value: string) => {
@@ -398,79 +397,77 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
               page: 1,
               info: value.trim(),
             },
-            onResultSearch
-          )
+            onResultSearch,
+          ),
         );
       } else {
         setResultSearch([]);
       }
     },
-    [dispatch, onResultSearch]
+    [dispatch, onResultSearch],
   );
   const onSearchProduct = () => {
     let element: any = document.getElementById("#product_search");
     element?.focus();
     const y = element?.getBoundingClientRect()?.top + window.pageYOffset - 250;
     window.scrollTo({ top: y, behavior: "smooth" });
-  }
+  };
   const sizeIndex = [
     {
       size: "XS",
-      index: 1
+      index: 1,
     },
     {
       size: "S",
-      index: 2
+      index: 2,
     },
     {
       size: "M",
-      index: 3
+      index: 3,
     },
     {
       size: "L",
-      index: 4
+      index: 4,
     },
     {
       size: "XL",
-      index: 5
+      index: 5,
     },
     {
       size: "2XL",
-      index: 6
+      index: 6,
     },
     {
       size: "3XL",
-      index: 7
+      index: 7,
     },
     {
       size: "4XL",
-      index: 8
-    }
-  ]
+      index: 8,
+    },
+  ];
   const handleSortLineItems = (items: Array<any>) => {
-    if (items.length === 0)
-      return items;
+    if (items.length === 0) return items;
     let result: Array<any> = [];
     let newItems = items.map((item: any) => {
       let sku = item.sku;
       if (sku) {
-        let arrSku = sku.split('-');
+        let arrSku = sku.split("-");
         item.sku_sku = arrSku[0] ? arrSku[0] : "";
         item.sku_color = arrSku[1] ? arrSku[1] : "";
         item.sku_size = arrSku[2] ? arrSku[2] : "";
-      }
-      else {
+      } else {
         item.sku_sku = "";
         item.sku_color = "";
         item.sku_size = "";
       }
       return item;
-    })
-    newItems.sort((a, b) => (a.sku_sku > b.sku_sku) ? 1 : -1);
+    });
+    newItems.sort((a, b) => (a.sku_sku > b.sku_sku ? 1 : -1));
     let itemsAfter = groupByProperty(newItems, "sku_sku");
     for (let i = 0; i < itemsAfter.length; i++) {
       let subItem: Array<any> = itemsAfter[i];
-      subItem.sort((a, b) => (a.sku_color > b.sku_color) ? 1 : -1)
+      subItem.sort((a, b) => (a.sku_color > b.sku_color ? 1 : -1));
       let subItemAfter = groupByProperty(subItem, "sku_color");
       let itemsSortSize = [];
       for (let k = 0; k < subItemAfter.length; k++) {
@@ -485,50 +482,57 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             for (let h = 0; h < itemsAfter[i][j][k].length; h++) {
               result.push(itemsAfter[i][j][k][h]);
             }
-          }
-          else {
+          } else {
             result.push(itemsAfter[i][j][k]);
           }
         }
       }
     }
     return result;
-  }
+  };
   const groupByProperty = (collection: Array<any>, property: string) => {
-    let val, index, values = [], result = [];
+    let val,
+      index,
+      values = [],
+      result = [];
     for (let i = 0; i < collection.length; i++) {
       val = collection[i][property];
       index = values.indexOf(val);
-      if (index > -1)
-        result[index].push(collection[i]);
+      if (index > -1) result[index].push(collection[i]);
       else {
         values.push(val);
         result.push([collection[i]]);
       }
     }
     return result;
-  }
+  };
   const sortBySize = (collection: Array<any>) => {
     for (let i = 0; i < collection.length; i++) {
       for (let j = i + 1; j < collection.length; j++) {
-        if (isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))) {
-          let sku_size1 = collection[i].sku_size ? collection[i].sku_size.split('/')[0] : "";
-          let sku_size2 = collection[j].sku_size ? collection[j].sku_size.split('/')[0] : "";
-          let size1 = sizeIndex.find(item => item.size === sku_size1);
-          let size2 = sizeIndex.find(item => item.size === sku_size2);
+        if (
+          isNaN(parseFloat(collection[i].sku_size)) &&
+          isNaN(parseFloat(collection[j].sku_size))
+        ) {
+          let sku_size1 = collection[i].sku_size ? collection[i].sku_size.split("/")[0] : "";
+          let sku_size2 = collection[j].sku_size ? collection[j].sku_size.split("/")[0] : "";
+          let size1 = sizeIndex.find((item) => item.size === sku_size1);
+          let size2 = sizeIndex.find((item) => item.size === sku_size2);
           if (size1 !== undefined && size2 !== undefined) {
             if (size2.index < size1.index) {
               [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
             }
-          }
-          else if (size2 === undefined) {
+          } else if (size2 === undefined) {
             [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
           }
-        }
-        else if (!isNaN(parseFloat(collection[i].sku_size)) && isNaN(parseFloat(collection[j].sku_size))) {
+        } else if (
+          !isNaN(parseFloat(collection[i].sku_size)) &&
+          isNaN(parseFloat(collection[j].sku_size))
+        ) {
           [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
-        }
-        else if (!isNaN(parseFloat(collection[i].sku_size)) && !isNaN(parseFloat(collection[j].sku_size))) {
+        } else if (
+          !isNaN(parseFloat(collection[i].sku_size)) &&
+          !isNaN(parseFloat(collection[j].sku_size))
+        ) {
           if (parseFloat(collection[i].sku_size) > parseFloat(collection[j].sku_size)) {
             [collection[i], collection[j]] = swapItem(collection[i], collection[j]);
           }
@@ -536,13 +540,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       }
     }
     return collection;
-  }
+  };
   const swapItem = (a: any, b: any) => {
     let temp = a;
     a = { ...b };
     b = { ...temp };
-    return [a, b]
-  }
+    return [a, b];
+  };
 
   const isEditFormByType = () => {
     if (!isEdit) {
@@ -553,7 +557,11 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       return true;
     }
     const receive_status = formMain.getFieldValue(POField.receive_status);
-    if (poLineItemType === POLineItemType.SUPPLEMENT && [POStatus.FINALIZED, POStatus.STORED].includes(stt) && receive_status !== ProcumentStatus.FINISHED) {
+    if (
+      poLineItemType === POLineItemType.SUPPLEMENT &&
+      [POStatus.FINALIZED, POStatus.STORED].includes(stt) &&
+      receive_status !== ProcumentStatus.FINISHED
+    ) {
       return true;
     } else {
       return false;
@@ -562,20 +570,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
 
   useEffect(() => {
     if (isPressed) {
-      onSearchProduct()
+      onSearchProduct();
     }
     return () => {
       setResultSearch([]);
-    }
-  }, [isPressed])
+    };
+  }, [isPressed]);
 
   return (
     <React.Fragment>
       <div>
-        <Form.Item
-          noStyle
-          shouldUpdate={(prev, current) => prev.status !== current.status}
-        >
+        <Form.Item noStyle shouldUpdate={(prev, current) => prev.status !== current.status}>
           {() => {
             return (
               isEditFormByType() && (
@@ -594,10 +599,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     options={renderResult}
                     ref={productSearchRef}
                     onClickAddNew={() => {
-                      window.open(
-                        `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                        "_blank"
-                      );
+                      window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
                     }}
                   />
                   <BaseButton
@@ -620,7 +622,11 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
         >
           {({ getFieldValue }) => {
             const lineItems: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items) || [];
-            const items = lineItems.filter((item: PurchaseOrderLineItem) => poLineItemType === POLineItemType.SUPPLEMENT ? item.type === POLineItemType.SUPPLEMENT : item.type !== POLineItemType.SUPPLEMENT);
+            const items = lineItems.filter((item: PurchaseOrderLineItem) =>
+              poLineItemType === POLineItemType.SUPPLEMENT
+                ? item.type === POLineItemType.SUPPLEMENT
+                : item.type !== POLineItemType.SUPPLEMENT,
+            );
 
             return isEditFormByType() ? (
               <Table
@@ -648,18 +654,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 onChange={(pagination: TablePaginationConfig, filters: any, sorter: any) => {
                   if (sorter) {
                     if (sorter.order == null) {
-                      setIsSortSku(false)
+                      setIsSortSku(false);
                       let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-                        POField.line_items_old
+                        POField.line_items_old,
                       );
                       formMain.setFieldsValue({
                         line_items: [...data],
                       });
-                    }
-                    else {
-                      setIsSortSku(true)
+                    } else {
+                      setIsSortSku(true);
                       let data: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-                        POField.line_items
+                        POField.line_items,
                       );
                       formMain.setFieldsValue({
                         line_items_old: [...data],
@@ -686,10 +691,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     dataIndex: "variant_image",
                     render: (value) => (
                       <div className="product-item-image">
-                        <img
-                          src={value === null ? imgDefIcon : value}
-                          alt=""
-                        />
+                        <img src={value === null ? imgDefIcon : value} alt="" />
                       </div>
                     ),
                   },
@@ -699,11 +701,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     sorter: true,
                     className: "ant-col-info",
                     dataIndex: "variant",
-                    render: (
-                      value: string,
-                      item: PurchaseOrderLineItem,
-                      index: number
-                    ) => {
+                    render: (value: string, item: PurchaseOrderLineItem, index: number) => {
                       return (
                         <div>
                           <div>
@@ -717,21 +715,15 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               </Link>
                             </div>
                             <div className="product-item-name text-truncate-1">
-                              <div className="product-item-name-detail">
-                                {value}
-                              </div>
+                              <div className="product-item-name-detail">{value}</div>
                               {!item.showNote && (
                                 <Button
                                   onClick={() => {
-                                    onToggleNote(
-                                      `note_${item.temp_id}`,
-                                      true,
-                                      index
-                                    );
+                                    onToggleNote(`note_${item.temp_id}`, true, index);
                                   }}
                                   className={classNames(
                                     "product-item-name-note",
-                                    item.note === "" && "product-item-note"
+                                    item.note === "" && "product-item-note",
                                   )}
                                   type="link"
                                 >
@@ -745,20 +737,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               id={`note_${item.temp_id}`}
                               onBlur={(e) => {
                                 if (e.target.value === "") {
-                                  onToggleNote(
-                                    `note_${item.temp_id}`,
-                                    false,
-                                    index
-                                  );
+                                  onToggleNote(`note_${item.temp_id}`, false, index);
                                 }
                               }}
                               addonBefore={<EditOutlined />}
                               placeholder="Nhập ghi chú"
                               value={item.note}
                               className="product-item-note-input"
-                              onChange={(e) =>
-                                onNoteChange(e.target.value, index)
-                              }
+                              onChange={(e) => onNoteChange(e.target.value, index)}
                             />
                           )}
                         </div>
@@ -777,9 +763,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         }}
                       >
                         SL
-                        <div
-                          style={{ color: "#2A2A86", fontWeight: "normal" }}
-                        >
+                        <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
                           ({formatCurrency(POUtils.totalQuantity(items), ".")})
                         </div>
                       </div>
@@ -788,17 +772,19 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     dataIndex: "quantity",
                     render: (value, item: PurchaseOrderLineItem, index) => {
                       const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
-                      return <NumberInput
-                        isFloat={false}
-                        value={value}
-                        min={0}
-                        default={1}
-                        maxLength={6}
-                        onChange={(quantity) => {
-                          handleChangeQuantityLineItem(quantity || 0, item);
-                        }}
-                        disabled={disabled}
-                      />
+                      return (
+                        <NumberInput
+                          isFloat={false}
+                          value={value}
+                          min={0}
+                          default={1}
+                          maxLength={6}
+                          onChange={(quantity) => {
+                            handleChangeQuantityLineItem(quantity || 0, item);
+                          }}
+                          disabled={disabled}
+                        />
+                      );
                     },
                   },
                   {
@@ -825,17 +811,17 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         <NumberInput
                           style={{ width: "80%" }}
                           min={0}
-                          format={(a: string) => formatCurrency(a ? a : 0, '')}
+                          format={(a: string) => formatCurrency(a ? a : 0, "")}
                           replace={(value?: string) => {
-                            let parseValue = 0
+                            let parseValue = 0;
                             if (value) {
                               parseValue = parseLocaleNumber(value);
                             }
                             return parseValue + "";
                           }}
                           onPressEnter={(e) => {
-                            const value = parseLocaleNumber(e.target.value)
-                            handleChangeAllPriceLineItem(value)
+                            const value = parseLocaleNumber(e.target.value);
+                            handleChangeAllPriceLineItem(value);
                           }}
                         />
                       </div>
@@ -949,12 +935,14 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     width: 40,
                     render: (value: string, item, index: number) => {
                       const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
-                      return <Button
-                        onClick={() => handleDeleteLineItem(index)}
-                        className="product-item-delete"
-                        icon={<AiOutlineClose />}
-                        disabled={disabled}
-                      />
+                      return (
+                        <Button
+                          onClick={() => handleDeleteLineItem(index)}
+                          className="product-item-delete"
+                          icon={<AiOutlineClose />}
+                          disabled={disabled}
+                        />
+                      );
                     },
                   },
                 ]}
@@ -966,9 +954,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
             ) : (
               <Table
                 className="product-table"
-                rowKey={(record: PurchaseOrderLineItem) =>
-                  record.sku
-                }
+                rowKey={(record: PurchaseOrderLineItem) => record.sku}
                 rowClassName="product-table-row"
                 dataSource={items}
                 tableLayout="fixed"
@@ -989,11 +975,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     dataIndex: "variant_image",
                     render: (value) => (
                       <div className="product-item-image">
-                        <img
-                          src={value === null ? imgDefIcon : value}
-                          alt=""
-                          className=""
-                        />
+                        <img src={value === null ? imgDefIcon : value} alt="" className="" />
                       </div>
                     ),
                   },
@@ -1003,11 +985,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     width: 250,
                     fixed: "left",
                     dataIndex: "variant",
-                    render: (
-                      value: string,
-                      item: PurchaseOrderLineItem,
-                      index: number
-                    ) => {
+                    render: (value: string, item: PurchaseOrderLineItem, index: number) => {
                       return (
                         <div>
                           <div>
@@ -1020,14 +998,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               </Link>
                             </div>
                             <div className="product-item-name text-truncate-1">
-                              <div className="product-item-name-detail">
-                                {value}
-                              </div>
+                              <div className="product-item-name-detail">{value}</div>
                             </div>
                             <div className="product-item-name text-truncate-1">
-                              <div className="product-item-name-detail">
-                                {item.note}
-                              </div>
+                              <div className="product-item-name-detail">{item.note}</div>
                             </div>
                           </div>
                         </div>
@@ -1051,9 +1025,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         }}
                       >
                         SL
-                        <div
-                          style={{ color: "#2A2A86", fontWeight: "normal" }}
-                        >
+                        <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
                           ({formatCurrency(POUtils.totalQuantity(items), ".")})
                         </div>
                       </div>
@@ -1097,12 +1069,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                         >
                           {formatCurrency(
                             Math.round(
-                              POUtils.caculatePrice(
-                                value,
-                                item.discount_rate,
-                                item.discount_value
-                              )
-                            )
+                              POUtils.caculatePrice(value, item.discount_rate, item.discount_value),
+                            ),
                           )}
                         </div>
                       );
@@ -1185,35 +1153,49 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
           <Col span={12} />
           <Col span={12}>
             <Form.Item
-              shouldUpdate={(prevValues, curValues) => prevValues[POField.line_items] !== curValues[POField.line_items]}
+              shouldUpdate={(prevValues, curValues) =>
+                prevValues[POField.line_items] !== curValues[POField.line_items]
+              }
               noStyle
             >
               {({ getFieldValue }) => {
                 const line_items = getFieldValue(POField.line_items);
-                const untaxedAmountSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.SUPPLEMENT);
-                const untaxedAmountNotSupplement = getUntaxedAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);
-                const totalNotSupplement = getTotalAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);
+                const untaxedAmountSupplement = getUntaxedAmountByLineItemType(
+                  line_items,
+                  POLoadType.SUPPLEMENT,
+                );
+                const untaxedAmountNotSupplement = getUntaxedAmountByLineItemType(
+                  line_items,
+                  POLoadType.NOT_SUPPLEMENT,
+                );
+                const totalNotSupplement = getTotalAmountByLineItemType(
+                  line_items,
+                  POLoadType.NOT_SUPPLEMENT,
+                );
 
                 return (
                   <div>
-                    {poLineItemType === POLineItemType.SUPPLEMENT && <div className="po-payment-row">
-                      <div>(1):</div>
-                      <div className="po-payment-row-sub">
-                        {totalNotSupplement === 0
-                          ? "-"
-                          : formatCurrency(Math.round(totalNotSupplement || 0))}
+                    {poLineItemType === POLineItemType.SUPPLEMENT && (
+                      <div className="po-payment-row">
+                        <div>(1):</div>
+                        <div className="po-payment-row-sub">
+                          {totalNotSupplement === 0
+                            ? "-"
+                            : formatCurrency(Math.round(totalNotSupplement || 0))}
+                        </div>
                       </div>
-                    </div>}
+                    )}
 
-                    {poLineItemType === POLineItemType.NORMAL ? <div className="po-payment-row">
-                      <div>Tổng tiền:</div>
-                      <div className="po-payment-row-result">
-                        {untaxedAmountNotSupplement === 0
-                          ? "-"
-                          : formatCurrency(Math.round(untaxedAmountNotSupplement || 0))}
+                    {poLineItemType === POLineItemType.NORMAL ? (
+                      <div className="po-payment-row">
+                        <div>Tổng tiền:</div>
+                        <div className="po-payment-row-result">
+                          {untaxedAmountNotSupplement === 0
+                            ? "-"
+                            : formatCurrency(Math.round(untaxedAmountNotSupplement || 0))}
+                        </div>
                       </div>
-                    </div>
-                      :
+                    ) : (
                       <div className="po-payment-row">
                         <div>Tiền bổ sung:</div>
                         <div className="po-payment-row-result">
@@ -1221,48 +1203,66 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                             ? "-"
                             : formatCurrency(Math.round(untaxedAmountSupplement || 0))}
                         </div>
-                      </div>}
+                      </div>
+                    )}
                   </div>
                 );
               }}
             </Form.Item>
             <Form.Item
-              shouldUpdate={(prevValues, curValues) => prevValues[POField.line_items] !== curValues[POField.line_items]}
+              shouldUpdate={(prevValues, curValues) =>
+                prevValues[POField.line_items] !== curValues[POField.line_items]
+              }
               noStyle
             >
               {() => {
-                const taxLines: Vat[] = POUtils.getVatList(formMain, poLineItemType === POLineItemType.SUPPLEMENT);
-                return taxLines.filter((tax: Vat) => tax.rate !== 0).map((item: Vat, index: number) => (
-                  <div className="po-payment-row" key={index}>
-                    <div>VAT<span className="po-payment-row-error">{`(${item.rate}%)`}:</span></div>
-                    <div className="po-payment-row-result">
-                      {formatCurrency(Math.round(item.amount))}
+                const taxLines: Vat[] = POUtils.getVatList(
+                  formMain,
+                  poLineItemType === POLineItemType.SUPPLEMENT,
+                );
+                return taxLines
+                  .filter((tax: Vat) => tax.rate !== 0)
+                  .map((item: Vat, index: number) => (
+                    <div className="po-payment-row" key={index}>
+                      <div>
+                        VAT
+                        <span className="po-payment-row-error">{`(${item.rate}%)`}:</span>
+                      </div>
+                      <div className="po-payment-row-result">
+                        {formatCurrency(Math.round(item.amount))}
+                      </div>
                     </div>
-                  </div>
-                ));
+                  ));
               }}
             </Form.Item>
             <Divider style={{ marginTop: 5, marginBottom: 10 }} />
             <Form.Item
-              shouldUpdate={(prevValues, curValues) => prevValues[POField.line_items] !== curValues[POField.line_items]}
+              shouldUpdate={(prevValues, curValues) =>
+                prevValues[POField.line_items] !== curValues[POField.line_items]
+              }
               noStyle
             >
               {() => {
                 const line_items = formMain.getFieldValue(POField.line_items);
-                const totalNotSupplement = getTotalAmountByLineItemType(line_items, POLoadType.NOT_SUPPLEMENT);
+                const totalNotSupplement = getTotalAmountByLineItemType(
+                  line_items,
+                  POLoadType.NOT_SUPPLEMENT,
+                );
                 const total = getTotalAmountByLineItemType(line_items, POLoadType.ALL);
                 return (
                   <div className="po-payment-row">
                     <strong className="po-payment-row-title">
                       {summaryContentByLineItemType(formMain, poLineItemType)}
                     </strong>
-                    {poLineItemType === POLineItemType.NORMAL ? <strong className="po-payment-row-success">
-                      {formatCurrency(Math.round(totalNotSupplement || 0))}
-                    </strong>
-                      :
+                    {poLineItemType === POLineItemType.NORMAL ? (
+                      <strong className="po-payment-row-success">
+                        {formatCurrency(Math.round(totalNotSupplement || 0))}
+                      </strong>
+                    ) : (
                       <strong className="po-payment-row-success">
                         {formatCurrency(Math.round(total || 0))}
-                      </strong>}
+                      </strong>
+                    )}
                   </div>
                 );
               }}

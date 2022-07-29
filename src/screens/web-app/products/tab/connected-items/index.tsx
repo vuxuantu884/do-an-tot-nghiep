@@ -1,8 +1,4 @@
-import {
-  DownOutlined,
-  SearchOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+import { DownOutlined, SearchOutlined, SettingOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -25,12 +21,10 @@ import filterIcon from "assets/icon/filter.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import BaseResponse from "base/base.response";
 import BaseFilter from "component/filter/base.filter";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { HttpStatus } from "config/http-status.config";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
-import UrlConfig, {WebAppProductTabUrl} from "config/url.config";
+import UrlConfig, { WebAppProductTabUrl } from "config/url.config";
 import {
   deleteWebAppProductAction,
   disconnectWebAppProductAction,
@@ -51,10 +45,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { StyledStatus } from "screens/web-app/common/commonStyle";
-import {
-  StyledProductFilter,
-  StyledProductLink,
-} from "screens/web-app/products/styles";
+import { StyledProductFilter, StyledProductLink } from "screens/web-app/products/styles";
 import ConnectedItemActionColumn from "screens/web-app/products/tab/connected-items/ConnectedItemActionColumn";
 import { StyledComponent } from "screens/web-app/products/tab/connected-items/styles";
 import { StyledBaseFilter } from "screens/web-app/products/tab/total-items-ecommerce/styles";
@@ -67,27 +58,22 @@ import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 
-
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
-const productsUpdateStockPermission = [
-  EcommerceProductPermission.products_update_stock,
-];
-const productsDisconnectPermission = [
-  EcommerceProductPermission.products_disconnect,
-];
+const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
+const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
 type ConnectedItemsProps = {
   handleSyncStockJob: (x: number) => void;
   isReloadPage: boolean;
-}
+};
 
 const EXPORT_PRODUCT_OPTION = {
   SELECTED: "selected",
   FILTERED: "filtered",
-}
+};
 
 const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
-  const {isReloadPage, handleSyncStockJob} = props;
+  const { isReloadPage, handleSyncStockJob } = props;
   const history = useHistory();
   const location = useLocation();
   const [formAdvance] = Form.useForm();
@@ -109,8 +95,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     not: false,
   });
 
-  const isShowAction =
-    allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
+  const isShowAction = allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -152,14 +137,14 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       connected_date_from: null,
       connected_date_to: null,
     }),
-    []
+    [],
   );
 
   const [query, setQuery] = useState<WebAppProductQuery>(initialFormValues);
 
-  const queryParamsParsed: { [key: string]: string | (string | null)[] | null; } = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: {
+    [key: string]: string | (string | null)[] | null;
+  } = queryString.parse(location.search);
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
@@ -173,7 +158,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       setIsLoading(true);
       dispatch(getWebAppProductAction(queryRequest, updateVariantData));
     },
-    [dispatch, updateVariantData]
+    [dispatch, updateVariantData],
   );
 
   useEffect(() => {
@@ -199,9 +184,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     dispatch(
       syncWebAppStockProductAction(requestSyncStock, (result) => {
         if (result) {
-          handleSyncStockJob(result.process_id)
+          handleSyncStockJob(result.process_id);
         }
-      })
+      }),
     );
   };
 
@@ -247,9 +232,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     dispatch(
       syncWebAppStockProductAction(requestSyncStock, (result) => {
         if (result) {
-          handleSyncStockJob(result.process_id)
+          handleSyncStockJob(result.process_id);
         }
-      })
+      }),
     );
   };
 
@@ -288,7 +273,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             showSuccess("Xóa sản phẩm thành công");
             reloadPage();
           }
-        })
+        }),
       );
     }
   };
@@ -328,7 +313,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             showSuccess("Ngắt kết nối sản phẩm thành công");
             history.replace(WebAppProductTabUrl.NOT_CONNECTED);
           }
-        })
+        }),
       );
     }
   };
@@ -337,7 +322,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   const resetExportProductProcess = () => {
     setExportProcessId(null);
     setExportProcessPercent(0);
-  }
+  };
 
   const handleExportExcelProduct = () => {
     const itemSelected: any[] = [];
@@ -348,17 +333,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     }
 
     setIdsItemSelected(itemSelected);
-    setIsShowExportExcelModal(true)
-  }
+    setIsShowExportExcelModal(true);
+  };
 
   const cancelExportExcelProductModal = () => {
     setIsShowExportExcelModal(false);
     setExportProductType("");
-  }
+  };
 
   const onCancelProgressModal = () => {
     setIsVisibleExitProcessModal(true);
-  }
+  };
 
   const okExportExcelProduct = () => {
     const RequestExportExcel: WebAppRequestExportExcelQuery = {
@@ -366,10 +351,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       category_id: null,
       core_variant_id: null,
       variant_ids: exportProductType === EXPORT_PRODUCT_OPTION.SELECTED ? idsItemSelected : [],
-    }
+    };
 
     if (exportProductType === EXPORT_PRODUCT_OPTION.FILTERED) {
-      const queryParam = {...query};
+      const queryParam = { ...query };
       delete queryParam.page;
       delete queryParam.limit;
       const generateQueryParam = generateQuery(queryParam);
@@ -383,7 +368,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     webAppExportFileProduct(RequestExportExcel)
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProcessId(response.data.process_id)
+          setExportProcessId(response.data.process_id);
           setIsVisibleProgressModal(true);
           cancelExportExcelProductModal();
         }
@@ -393,39 +378,42 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       });
 
     setExportProcessPercent(0);
-  }
+  };
 
   const checkExportFile = useCallback(() => {
     let getProgressPromises: Promise<BaseResponse<any>> = webAppGetFileProduct(exportProcessId);
 
-    Promise.all([getProgressPromises]).then((responses) => {
-      responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          if (response.data && response.data.finish) {
-            if (response.data.api_error) {
-              setExportProcessPercent(0);
-              showError(`${response.data.api_error}`);
+    Promise.all([getProgressPromises])
+      .then((responses) => {
+        responses.forEach((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            if (response.data && response.data.finish) {
+              if (response.data.api_error) {
+                setExportProcessPercent(0);
+                showError(`${response.data.api_error}`);
+              } else {
+                if (response.data.url) {
+                  setExportProcessPercent(100);
+                  showSuccess("Xuất file dữ liệu sản phẩm thành công!");
+                  window.open(response.data.url);
+                }
+              }
+              setExportProcessId(null);
+              setIsVisibleProgressModal(false);
             } else {
-              if (response.data.url) {
-                setExportProcessPercent(100);
-                showSuccess("Xuất file dữ liệu sản phẩm thành công!");
-                window.open(response.data.url);
+              if (response.data.total > 0) {
+                const percent = Math.floor(
+                  (response.data.total_success / response.data.total) * 100,
+                );
+                setExportProcessPercent(percent >= 100 ? 99 : percent);
               }
             }
-            setExportProcessId(null);
-            setIsVisibleProgressModal(false);
-          } else {
-            if (response.data.total > 0) {
-              const percent = Math.floor(response.data.total_success / response.data.total * 100);
-              setExportProcessPercent(percent >= 100 ? 99 : percent);
-            }
           }
-        }
+        });
+      })
+      .catch(() => {
+        showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
-    })
-    .catch(() => {
-      showError("Có lỗi xảy ra, vui lòng thử lại sau");
-    });
   }, [exportProcessId]);
 
   useEffect(() => {
@@ -448,7 +436,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
   const onCancelExitProcessModal = () => {
     setIsVisibleExitProcessModal(false);
-  }
+  };
 
   const onOkExitProcessModal = () => {
     resetExportProductProcess();
@@ -460,7 +448,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           if (responseData) {
             showSuccess(responseData);
           }
-        })
+        }),
       );
     }
   };
@@ -478,13 +466,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       align: "center",
       width: "70px",
       render: (item: any) => {
-        return (
-          <img
-            src={item.ecommerce_image_url}
-            style={{height: "40px"}}
-            alt=""
-          />
-        );
+        return <img src={item.ecommerce_image_url} style={{ height: "40px" }} alt="" />;
       },
     },
     {
@@ -515,11 +497,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       align: "center",
       width: "100px",
       render: (item: any) => {
-        return (
-          <span>
-            {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
-          </span>
-        );
+        return <span>{item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}</span>;
       },
     },
     {
@@ -530,7 +508,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <StyledProductLink>
             <Link
               target="_blank"
-              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}>
+              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
+            >
               {item.core_variant}
             </Link>
             <div>{item.core_sku}</div>
@@ -578,10 +557,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         return (
           <div>
             <span>Đồng bộ tồn</span>
-            <Tooltip
-              overlay="Kết quả đồng bộ tồn kho lần gần nhất"
-              placement="top"
-              color="blue">
+            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" color="blue">
               <img src={warningCircleIcon} style={{ marginLeft: 5 }} alt="" />
             </Tooltip>
           </div>
@@ -619,11 +595,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       },
     },
 
-    ConnectedItemActionColumn(
-      handleDeleteItem,
-      handleSyncStock,
-      handleDisconnectItem
-    ),
+    ConnectedItemActionColumn(handleDeleteItem, handleSyncStock, handleDisconnectItem),
   ]);
 
   const onSearch = (value: WebAppProductQuery) => {
@@ -639,48 +611,64 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   useEffect(() => {
     let dataQuery: WebAppProductQuery = {
       ...initialFormValues,
-      ...getQueryParamsFromQueryString(queryParamsParsed)
+      ...getQueryParamsFromQueryString(queryParamsParsed),
     };
-    setFilterValueByQueryParam(dataQuery)
+    setFilterValueByQueryParam(dataQuery);
     setQuery(dataQuery);
     getProductUpdated(dataQuery);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, location.search])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, location.search]);
 
-  const setFilterValueByQueryParam = (dataquery: WebAppProductQuery)=> {
+  const setFilterValueByQueryParam = (dataquery: WebAppProductQuery) => {
     formAdvance.setFieldsValue(dataquery);
     const connected_date_from = dataquery.connected_date_from;
     const connected_date_to = dataquery.connected_date_to;
     if (connected_date_from === null) {
-      setConnectionStartDate(null)
+      setConnectionStartDate(null);
     } else {
       setConnectionStartDate(ConvertDateToUtc(connected_date_from));
     }
-    
+
     if (connected_date_to === null) {
-      setConnectionEndDate(null)
+      setConnectionEndDate(null);
     } else {
       setConnectionEndDate(ConvertDateToUtc(connected_date_to));
     }
 
-    if (connected_date_from !== null && connected_date_to!== null) {
+    if (connected_date_from !== null && connected_date_to !== null) {
       const startDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
       const endDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
-      const startDateValueYesterday = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
-      const endDateValueYesterday = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
-      const startDateValueThisWeek = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").add(7, "h")));
+      const startDateValueYesterday = ConvertUtcToDate(
+        ConvertDateToUtc(moment().subtract(1, "days")),
+      );
+      const endDateValueYesterday = ConvertUtcToDate(
+        ConvertDateToUtc(moment().subtract(1, "days")),
+      );
+      const startDateValueThisWeek = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("week").add(7, "h")),
+      );
       const endDateValueThisWeek = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week")));
-      const startDateValueLastWeek = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, "h")));
-      const endDateValueLastWeek = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks")));
-      const startDateValueThisMonth = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").add(7, "h")));
+      const startDateValueLastWeek = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, "h")),
+      );
+      const endDateValueLastWeek = ConvertUtcToDate(
+        ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks")),
+      );
+      const startDateValueThisMonth = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("month").add(7, "h")),
+      );
       const endDateValueThisMonth = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month")));
-      const startDateValueLastMonth = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, "h")));
-      const endDateValueLastMonth = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month").subtract(1, "months")));
+      const startDateValueLastMonth = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, "h")),
+      );
+      const endDateValueLastMonth = ConvertUtcToDate(
+        ConvertDateToUtc(moment().endOf("month").subtract(1, "months")),
+      );
 
       const date_from = ConvertUtcToDate(connected_date_from);
-      const date_to = ConvertUtcToDate(connected_date_to)
+      const date_to = ConvertUtcToDate(connected_date_to);
 
-      if (date_from === startDateValueToDay && date_to === endDateValueToDay){
+      if (date_from === startDateValueToDay && date_to === endDateValueToDay) {
         setDateButtonSelected("today");
       } else if (date_from === startDateValueYesterday && date_to === endDateValueYesterday) {
         setDateButtonSelected("yesterday");
@@ -693,41 +681,32 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       } else if (date_from === startDateValueLastMonth && date_to === endDateValueLastMonth) {
         setDateButtonSelected("lastmonth");
       }
-
     } else {
       setDateButtonSelected("");
     }
-  }
+  };
 
-  const ConvertUtcToDate = (
-    date?: Date | string | number | null,
-    format?: string
-  ) => {
+  const ConvertUtcToDate = (date?: Date | string | number | null, format?: string) => {
     if (date != null) {
       let localDate = moment.utc(date).toDate();
-      let dateFormat = moment(localDate).format(
-        format ? format : "DD/MM/YYYY"
-      );
+      let dateFormat = moment(localDate).format(format ? format : "DD/MM/YYYY");
       return dateFormat;
     }
     return "";
   };
 
-
   const onPageChange = React.useCallback(
     (page, limit) => {
       const newPrams = { ...query, page: page, limit: limit };
       const queryParam = generateQuery(newPrams);
-      setQuery(newPrams)
+      setQuery(newPrams);
       window.scrollTo(0, 0);
       history.push(`${location.pathname}?${queryParam}`);
     },
-    [query, history, location.pathname]
+    [query, history, location.pathname],
   );
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
   const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
 
@@ -774,9 +753,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     <Menu>
       {allowProductsUpdateStock && (
         <Menu.Item key="1" onClick={handleSyncStockItemsSelected}>
-          <span>
-            Đồng bộ tồn kho lên sàn
-          </span>
+          <span>Đồng bộ tồn kho lên sàn</span>
         </Menu.Item>
       )}
 
@@ -797,18 +774,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         onClick={handleExportExcelProduct}
         disabled={!variantData.metadata || !variantData.metadata.total}
       >
-        <span>
-          Xuất excel
-        </span>
+        <span>Xuất excel</span>
       </Menu.Item>
     </Menu>
   );
 
   const [connectionStartDate, setConnectionStartDate] = useState(
-    initialFormValues.connected_date_from || null
+    initialFormValues.connected_date_from || null,
   );
   const [connectionEndDate, setConnectionEndDate] = useState(
-    initialFormValues.connected_date_to || null
+    initialFormValues.connected_date_to || null,
   );
 
   const [dateButtonSelected, setDateButtonSelected] = useState("");
@@ -828,32 +803,24 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = ConvertDateToUtc(
-            moment().startOf("week").add(7, "h")
-          );
+          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, "h"));
           endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
           startDateValue = ConvertDateToUtc(
-            moment().startOf("week").subtract(1, "weeks").add(7, "h")
+            moment().startOf("week").subtract(1, "weeks").add(7, "h"),
           );
-          endDateValue = ConvertDateToUtc(
-            moment().endOf("week").subtract(1, "weeks")
-          );
+          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
           break;
         case "thismonth":
-          startDateValue = ConvertDateToUtc(
-            moment().startOf("month").add(7, "h")
-          );
+          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, "h"));
           endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
           startDateValue = ConvertDateToUtc(
-            moment().startOf("month").subtract(1, "months").add(7, "h")
+            moment().startOf("month").subtract(1, "months").add(7, "h"),
           );
-          endDateValue = ConvertDateToUtc(
-            moment().endOf("month").subtract(1, "months")
-          );
+          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
           break;
         default:
           break;
@@ -869,7 +836,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         setConnectionEndDate(endDateValue);
       }
     },
-    [dateButtonSelected]
+    [dateButtonSelected],
   );
 
   const onChangeRangeDate = useCallback((dates) => {
@@ -895,7 +862,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       list.push({
         key: "sku_or_name_ecommerce",
         name: "Sku, tên sản phẩm (Sapo)",
-        value: initialValues.sku_or_name_ecommerce
+        value: initialValues.sku_or_name_ecommerce,
       });
     }
 
@@ -903,7 +870,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       list.push({
         key: "sku_or_name_core",
         name: "Sku, tên sản phẩm (Unicorn)",
-        value: initialValues.sku_or_name_core
+        value: initialValues.sku_or_name_core,
       });
     }
 
@@ -914,16 +881,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           value_update_stock_status = "Thành công";
           break;
         case "in_progress":
-          value_update_stock_status = "Đang xử lý"
+          value_update_stock_status = "Đang xử lý";
           break;
         case "error":
-          value_update_stock_status = "Thất bại"
+          value_update_stock_status = "Thất bại";
           break;
       }
       list.push({
         key: "update_stock_status",
         name: "Trạng thái đồng bộ tồn kho",
-        value: value_update_stock_status
+        value: value_update_stock_status,
       });
     }
 
@@ -949,24 +916,24 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     initialValues.sku_or_name_core,
     initialValues.update_stock_status,
     initialValues.connected_date_from,
-    initialValues.connected_date_to
+    initialValues.connected_date_to,
   ]);
 
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      let dataQuery :any
+      let dataQuery: any;
       switch (tag.key) {
         case "created_date":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{connected_date_from: null, connected_date_to: null}
+            ...{ connected_date_from: null, connected_date_to: null },
           };
           break;
         default:
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{[tag.key]: null}
+            ...{ [tag.key]: null },
           };
           break;
       }
@@ -975,7 +942,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       history.push(`${location.pathname}?${queryParam}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [history, location.search]
+    [history, location.search],
   );
 
   return (
@@ -983,16 +950,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form
-              form={formAdvance}
-              onFinish={onSearch}
-              initialValues={initialFormValues}>
+            <Form form={formAdvance} onFinish={onSearch} initialValues={initialFormValues}>
               {isShowAction && (
                 <div className="action-dropdown">
-                  <Dropdown
-                    overlay={actionList}
-                    trigger={["click"]}
-                    disabled={isLoading}>
+                  <Dropdown overlay={actionList} trigger={["click"]} disabled={isLoading}>
                     <Button className="action-button">
                       <div style={{ marginRight: 10 }}>Thao tác</div>
                       <DownOutlined />
@@ -1032,11 +993,19 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
             {/*tags filter*/}
             <div className="order-filter-tags">
-              {filters && filters.map((filter: any, index:any) => {
-                return (
-                  <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
-                )
-              })}
+              {filters &&
+                filters.map((filter: any, index: any) => {
+                  return (
+                    <Tag
+                      key={index}
+                      className="tag"
+                      closable
+                      onClose={(e) => onCloseTag(e, filter)}
+                    >
+                      {filter.name}: {filter.value}
+                    </Tag>
+                  );
+                })}
             </div>
           </div>
         </StyledProductFilter>
@@ -1067,20 +1036,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleFilter}
-        width={400}>
+        width={400}
+      >
         <StyledBaseFilter>
           <Form
             form={formAdvance}
             onFinish={onSearch}
             initialValues={initialFormValues}
-            layout="vertical">
-            <Form.Item
-              name="update_stock_status"
-              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}>
-              <Select
-                showSearch
-                placeholder="Chọn trạng thái đồng bộ tồn kho"
-                allowClear>
+            layout="vertical"
+          >
+            <Form.Item name="update_stock_status" label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}>
+              <Select showSearch placeholder="Chọn trạng thái đồng bộ tồn kho" allowClear>
                 {STOCK_STATUS &&
                   STOCK_STATUS.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -1095,25 +1061,22 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("yesterday")}
-                    className={
-                      dateButtonSelected === "yesterday" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "yesterday" ? "active-btn" : ""}
+                  >
                     Hôm qua
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("today")}
-                    className={
-                      dateButtonSelected === "today" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "today" ? "active-btn" : ""}
+                  >
                     Hôm nay
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("thisweek")}
-                    className={
-                      dateButtonSelected === "thisweek" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "thisweek" ? "active-btn" : ""}
+                  >
                     Tuần này
                   </Button>
                 </div>
@@ -1121,25 +1084,22 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("lastweek")}
-                    className={
-                      dateButtonSelected === "lastweek" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "lastweek" ? "active-btn" : ""}
+                  >
                     Tuần trước
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("thismonth")}
-                    className={
-                      dateButtonSelected === "thismonth" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "thismonth" ? "active-btn" : ""}
+                  >
                     Tháng này
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("lastmonth")}
-                    className={
-                      dateButtonSelected === "lastmonth" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "lastmonth" ? "active-btn" : ""}
+                  >
                     Tháng trước
                   </Button>
                 </div>
@@ -1156,13 +1116,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                     connectionStartDate
                       ? moment(new Date(connectionStartDate), "DD-MM-YYYY")
                       : null,
-                    connectionEndDate
-                      ? moment(new Date(connectionEndDate), "DD-MM-YYYY")
-                      : null,
+                    connectionEndDate ? moment(new Date(connectionEndDate), "DD-MM-YYYY") : null,
                   ]}
-                  onChange={(date) =>
-                    onChangeRangeDate(date)
-                  }
+                  onChange={(date) => onChangeRangeDate(date)}
                 />
               </div>
             </Form.Item>
@@ -1170,37 +1126,39 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         </StyledBaseFilter>
       </BaseFilter>
 
-      {isShowModalDisconnect &&
+      {isShowModalDisconnect && (
         <Modal
           width="600px"
           visible={isShowModalDisconnect}
           okText="Đồng ý"
           cancelText="Hủy"
           onCancel={cancelDisconnectModal}
-          onOk={okDisconnectModal}>
+          onOk={okDisconnectModal}
+        >
           <div>
             <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
             <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
           </div>
         </Modal>
-      }
+      )}
 
-      {isShowDeleteItemModal &&
+      {isShowDeleteItemModal && (
         <Modal
           width="600px"
           visible={isShowDeleteItemModal}
           okText="Đồng ý"
           cancelText="Hủy"
           onCancel={cancelDeleteItemModal}
-          onOk={okDeleteItemModal}>
+          onOk={okDeleteItemModal}
+        >
           <div>
             <img src={circleDeleteIcon} style={{ marginRight: 20 }} alt="" />
             <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
           </div>
         </Modal>
-      }
+      )}
 
-      {isShowSyncStockModal &&
+      {isShowSyncStockModal && (
         <SyncProductModal
           width="600px"
           visible={isShowSyncStockModal}
@@ -1210,10 +1168,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           onCancel={() => cancelSyncStockModal()}
           onOk={(item, shop_ids) => okSyncStockModal(item, shop_ids)}
         />
-      }
+      )}
 
       {/*Export product modal*/}
-      {isShowExportExcelModal &&
+      {isShowExportExcelModal && (
         <Modal
           width="600px"
           visible={isShowExportExcelModal}
@@ -1226,10 +1184,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         >
           <Radio.Group onChange={onChangeExportProductOption} value={exportProductType}>
             <Space direction="vertical">
-              <Radio
-                value={EXPORT_PRODUCT_OPTION.SELECTED}
-                disabled={selectedRow.length <= 0}
-              >
+              <Radio value={EXPORT_PRODUCT_OPTION.SELECTED} disabled={selectedRow.length <= 0}>
                 Tải sản phẩm đã chọn
               </Radio>
               <Radio value={EXPORT_PRODUCT_OPTION.FILTERED}>
@@ -1238,10 +1193,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             </Space>
           </Radio.Group>
         </Modal>
-      }
+      )}
 
       {/*Process export product modal*/}
-      {isVisibleProgressModal &&
+      {isVisibleProgressModal && (
         <Modal
           onCancel={onCancelProgressModal}
           visible={isVisibleProgressModal}
@@ -1252,11 +1207,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             <Button key="cancel" danger onClick={onCancelProgressModal}>
               Thoát
             </Button>,
-          ]}>
+          ]}
+        >
           <div style={{ textAlign: "center" }}>
-            <div style={{ marginBottom: 15 }}>
-              Đang tạo file, vui lòng đợi trong giây lát
-            </div>
+            <div style={{ marginBottom: 15 }}>Đang tạo file, vui lòng đợi trong giây lát</div>
             <Progress
               type="circle"
               strokeColor={{
@@ -1267,10 +1221,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             />
           </div>
         </Modal>
-      }
+      )}
 
       {/*Exit export product process modal*/}
-      {isVisibleExitProcessModal &&
+      {isVisibleExitProcessModal && (
         <Modal
           width="600px"
           centered
@@ -1284,13 +1238,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src={DeleteIcon} alt="" />
             <div style={{ marginLeft: 15 }}>
-              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải sản phẩm không?</strong>
-              <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.</div>
+              <strong style={{ fontSize: 16 }}>
+                Bạn có chắc chắn muốn hủy tải sản phẩm không?
+              </strong>
+              <div style={{ fontSize: 14 }}>
+                Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.
+              </div>
             </div>
           </div>
         </Modal>
-      }
-
+      )}
     </StyledComponent>
   );
 };

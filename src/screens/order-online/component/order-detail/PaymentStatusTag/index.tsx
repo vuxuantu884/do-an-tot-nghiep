@@ -10,8 +10,8 @@ type PropTypes = {
 
 function PaymentStatusTag(props: PropTypes) {
   const { orderDetail } = props;
-  
-  if(!orderDetail?.payment_status) {
+
+  if (!orderDetail?.payment_status) {
     return null;
   }
 

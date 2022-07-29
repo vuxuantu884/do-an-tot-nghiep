@@ -4,7 +4,7 @@ import { BaseObject } from "model/base/base.response";
 export interface CustomerGroupModel extends BaseObject {
   name: string;
   note: string;
-  status:string;
+  status: string;
 }
 
 export interface CustomerGroupResponseModel {

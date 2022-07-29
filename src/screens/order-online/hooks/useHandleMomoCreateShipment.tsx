@@ -8,7 +8,7 @@ import { checkIfExpiredOrCancelledPayment, checkIfMomoPayment } from "utils/Orde
  */
 function useHandleMomoCreateShipment(
   setShipmentMethod: (value: number) => void,
-  payments: OrderPaymentRequest[] | OrderPaymentRequest[]
+  payments: OrderPaymentRequest[] | OrderPaymentRequest[],
 ) {
   useEffect(() => {
     const checkIfPaymentsHaveMomo = () => {

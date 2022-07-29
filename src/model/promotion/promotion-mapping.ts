@@ -1,10 +1,10 @@
 const SearchVariantField = {
-  created_date: 'created_date',
-  status: 'status',
-  applied_shop: 'applied_shop',
-  applied_source: 'applied_source',
-  customer_category: 'customer_category',
-  discount_method: 'discount_method'
+  created_date: "created_date",
+  status: "status",
+  applied_shop: "applied_shop",
+  applied_source: "applied_source",
+  customer_category: "customer_category",
+  discount_method: "discount_method",
 };
 
 const SearchVariantMapping = {
@@ -16,4 +16,4 @@ const SearchVariantMapping = {
   [SearchVariantField.discount_method]: "Phương thức chiết khấu",
 };
 
-export {SearchVariantMapping, SearchVariantField};
+export { SearchVariantMapping, SearchVariantField };

@@ -9,11 +9,7 @@ import React, { useCallback } from "react";
 import { CheckShipmentType, formatCurrency, isOrderFromPOS } from "utils/AppUtils";
 import { ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import {
-  dangerColor,
-  successColor,
-  yellowColor,
-} from "utils/global-styles/variables";
+import { dangerColor, successColor, yellowColor } from "utils/global-styles/variables";
 import { FULFILLMENT_PUSHING_STATUS } from "utils/Order.constants";
 import {
   calculateSumWeightResponse,
@@ -31,13 +27,7 @@ type PropTypes = {
 };
 
 function OrderFulfillmentDetail(props: PropTypes) {
-  const {
-    orderDetail,
-    fulfillment,
-    deliveryServices,
-    requirementNameView,
-    isUpdateOrder,
-  } = props;
+  const { orderDetail, fulfillment, deliveryServices, requirementNameView, isUpdateOrder } = props;
 
   // console.log("fulfillment", fulfillment);
 
@@ -45,9 +35,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
 
   const getImageDeliveryService = useCallback(
     (service_code: string | undefined | null) => {
-      const service = deliveryServices.find(
-        (item) => item.code === service_code,
-      );
+      const service = deliveryServices.find((item) => item.code === service_code);
       return service?.logo;
     },
     [deliveryServices],
@@ -62,9 +50,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
       case ShipmentMethod.SHOPEE:
         return (
           <img
-            src={getImageDeliveryService(
-              fulfillment.shipment.delivery_service_provider_code,
-            )}
+            src={getImageDeliveryService(fulfillment.shipment.delivery_service_provider_code)}
             alt="Logo HVC"
             className="imageDeliveryService"
           />
@@ -72,8 +58,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
       case ShipmentMethod.EXTERNAL_SHIPPER:
         return (
           <span>
-            {fulfillment.shipment.shipper_code} -{" "}
-            {fulfillment.shipment.shipper_name}
+            {fulfillment.shipment.shipper_code} - {fulfillment.shipment.shipper_name}
           </span>
         );
       case ShipmentMethod.EMPLOYEE:
@@ -87,10 +72,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
     if (isUpdateOrder) {
       return null;
     }
-    if (
-      fulfillment.shipment?.delivery_service_provider_type ===
-      ShipmentMethod.EXTERNAL_SERVICE
-    ) {
+    if (fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE) {
       let color = "";
       switch (fulfillment.shipment.pushing_status) {
         case FULFILLMENT_PUSHING_STATUS.failed:
@@ -136,7 +118,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
             </b>
           </Col>
         </Row>
-        
+
         <Row gutter={24} style={{ paddingTop: "15px" }}>
           <Col md={12}>
             <Row>
@@ -157,7 +139,6 @@ function OrderFulfillmentDetail(props: PropTypes) {
               <Col span={14}>
                 <b className="text-field">{orderDetail?.store_phone_number}</b>
               </Col>
-
             </Row>
           </Col>
 
@@ -169,7 +150,6 @@ function OrderFulfillmentDetail(props: PropTypes) {
               <Col span={14}>
                 <b className="text-field">{orderDetail?.store_full_address}</b>
               </Col>
-
             </Row>
           </Col>
         </Row>
@@ -236,9 +216,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
             </Col>
             <Col span={14}>
               <b className="text-field">
-                {formatCurrency(
-                  orderDetail?.shipping_fee_informed_to_customer || 0,
-                )}
+                {formatCurrency(orderDetail?.shipping_fee_informed_to_customer || 0)}
               </b>
             </Col>
           </Row>
@@ -253,9 +231,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
                 className="text-field"
                 style={{
                   color:
-                    fulfillment.shipment?.service === SHIPPING_TYPE.DELIVERY_4H
-                      ? "#E24343"
-                      : "",
+                    fulfillment.shipment?.service === SHIPPING_TYPE.DELIVERY_4H ? "#E24343" : "",
                 }}
               >
                 {fulfillment.shipment?.service === SHIPPING_TYPE.DELIVERY_4H
@@ -266,8 +242,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
           </Row>
         </Col>
         {renderPushingStatus(fulfillment)}
-        {CheckShipmentType(orderDetail!) ===
-          ShipmentMethod.EXTERNAL_SERVICE && (
+        {CheckShipmentType(orderDetail!) === ShipmentMethod.EXTERNAL_SERVICE && (
           <Col md={12}>
             <Row gutter={30}>
               <Col span={10}>
@@ -289,19 +264,13 @@ function OrderFulfillmentDetail(props: PropTypes) {
           <Row gutter={30}>
             <Col span={10}>
               <p className="text-field">
-                {!checkIfFulfillmentCancelled(fulfillment)
-                  ? "Ngày tạo"
-                  : "Ngày hủy"}
-                :
+                {!checkIfFulfillmentCancelled(fulfillment) ? "Ngày tạo" : "Ngày hủy"}:
               </p>
             </Col>
             <Col span={14}>
               <b className="text-field">
                 {!checkIfFulfillmentCancelled(fulfillment)
-                  ? ConvertUtcToLocalDate(
-                      fulfillment.shipment?.created_date,
-                      dateFormat,
-                    )
+                  ? ConvertUtcToLocalDate(fulfillment.shipment?.created_date, dateFormat)
                   : ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat)}
               </b>
             </Col>
@@ -317,9 +286,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
               <Col span={14}>
                 <b className="text-field">
                   {fulfillment?.reason_name}
-                  {fulfillment?.sub_reason_name && (
-                    <span> - {fulfillment?.sub_reason_name}</span>
-                  )}
+                  {fulfillment?.sub_reason_name && <span> - {fulfillment?.sub_reason_name}</span>}
                 </b>
               </Col>
             </Row>

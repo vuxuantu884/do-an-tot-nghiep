@@ -15,9 +15,9 @@ type ReportHandOverModalProps = {
   goodsReceiptsForm: any;
 };
 const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
-  props: ReportHandOverModalProps
+  props: ReportHandOverModalProps,
 ) => {
-  const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit} = props;
+  const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit } = props;
 
   const orderPackContextData = useContext(OrderPackContext);
 
@@ -30,8 +30,13 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
   const deliveryServiceProvider = useMemo(() => {
     let dataAccess: DeliveryServiceResponse[] = [];
     listThirdPartyLogistics.forEach((item, index) => {
-      if (dataAccess.findIndex((p) => p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim())!== -1)===-1)
-        dataAccess.push({ ...item })
+      if (
+        dataAccess.findIndex(
+          (p) =>
+            p.name.toLocaleLowerCase().trim().indexOf(item.name.toLocaleLowerCase().trim()) !== -1,
+        ) === -1
+      )
+        dataAccess.push({ ...item });
     });
     return dataAccess;
   }, [listThirdPartyLogistics]);
@@ -64,13 +69,9 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn cửa hàng"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                  }}
-                  filterOption={(input, option) =>
-                    fullTextSearch(input, option?.children)
-                  }
+                  onChange={(value?: number) => {}}
+                  filterOption={(input, option) => fullTextSearch(input, option?.children)}
                 >
-                 
                   {listStoresDataCanAccess?.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
@@ -99,13 +100,10 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn hãng vận chuyển"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                  }}
-                  filterOption={(input, option) =>
-                    fullTextSearch(input, option?.children)
-                  }
+                  onChange={(value?: number) => {}}
+                  filterOption={(input, option) => fullTextSearch(input, option?.children)}
                 >
-                   <Select.Option key={-1} value={-1}>
+                  <Select.Option key={-1} value={-1}>
                     Tự giao hàng
                   </Select.Option>
                   {deliveryServiceProvider.map((item, index) => (
@@ -137,15 +135,10 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn loại biên bản"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                  }}
+                  onChange={(value?: number) => {}}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
@@ -179,15 +172,10 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn kiểu biên bản"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                  }}
+                  onChange={(value?: number) => {}}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
@@ -209,12 +197,12 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
               <Form.Item
                 label="Mô tả:"
                 name="description"
-              // rules={[
-              //   {
-              //     required: true,
-              //     message: "Vui lòng nhập mô tả",
-              //   },
-              // ]}
+                // rules={[
+                //   {
+                //     required: true,
+                //     message: "Vui lòng nhập mô tả",
+                //   },
+                // ]}
               >
                 <TextArea
                   rows={4}

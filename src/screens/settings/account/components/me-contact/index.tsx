@@ -1,29 +1,29 @@
-import {Col, Form, Input, Row, Select} from "antd";
-import {DistrictGetByCountryAction} from "domain/actions/content/content.action";
-import {CityView, DistrictResponse} from "model/content/district.model";
-import {CustomModalFormModel} from "model/modal/modal.model";
-import {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {convertDistrict} from "utils/AppUtils";
-import {RegUtil} from "utils/RegUtils";
-const {Option, OptGroup} = Select;
+import { Col, Form, Input, Row, Select } from "antd";
+import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import { CityView, DistrictResponse } from "model/content/district.model";
+import { CustomModalFormModel } from "model/modal/modal.model";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { convertDistrict } from "utils/AppUtils";
+import { RegUtil } from "utils/RegUtils";
+const { Option, OptGroup } = Select;
 
 type FormValuesType = {
-  phone: string,
-  district: string| null| undefined,
-  country: string| null| undefined,
-  country_id: number| null| undefined,
-  city: string| null| undefined,
-  city_id: number| null| undefined,
-  district_id: number | null | undefined,
-  address: string | null | undefined,
+  phone: string;
+  district: string | null | undefined;
+  country: string | null | undefined;
+  country_id: number | null | undefined;
+  city: string | null | undefined;
+  city_id: number | null | undefined;
+  district_id: number | null | undefined;
+  address: string | null | undefined;
   version: number | null;
 };
 
 const defaultCountry = 233;
 
 const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
-  const {formItem, form} = props;
+  const { formItem, form } = props;
 
   const initialFormValues: FormValuesType = {
     phone: formItem?.phone,
@@ -34,8 +34,8 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
     district: formItem?.district,
     district_id: formItem?.district_id,
     address: formItem?.address,
-    version: formItem?.version
-  }
+    version: formItem?.version,
+  };
 
   const dispatch = useDispatch();
   const [cityViews, setCityView] = useState<Array<CityView>>([]);
@@ -47,7 +47,11 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
 
   const onSelectDistrict = useCallback(
     (value: number) => {
-      let cityId = -1, district="", city=null, country=null, countryId=-1;
+      let cityId = -1,
+        district = "",
+        city = null,
+        country = null,
+        countryId = -1;
       cityViews.forEach((item) => {
         item.districts.forEach((item1) => {
           if (item1.id === value) {
@@ -66,7 +70,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
         });
       }
     },
-    [cityViews, form]
+    [cityViews, form],
   );
 
   useEffect(() => {
@@ -76,12 +80,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
   }, [form, formItem, setDataDistrict, dispatch]);
 
   return (
-    <Form
-      form={form}
-      name="control-hooks"
-      layout="vertical"
-      initialValues={initialFormValues}
-    >
+    <Form form={form} name="control-hooks" layout="vertical" initialValues={initialFormValues}>
       <Row gutter={30}>
         <Col span={24}>
           <Form.Item hidden noStyle label="Account" name="version">
@@ -91,7 +90,7 @@ const MeContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) 
             name="phone"
             label="Số điện thoại"
             rules={[
-              {required: true, message: "Vui lòng nhập số điện thoại."},
+              { required: true, message: "Vui lòng nhập số điện thoại." },
               {
                 pattern: RegUtil.PHONE,
                 message: "Số điện thoại không đúng định dạng",

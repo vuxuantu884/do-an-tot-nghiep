@@ -1,12 +1,4 @@
-import {
-  Button,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Tag,
-} from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag } from "antd";
 
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
@@ -16,10 +8,7 @@ import { FilterOutlined } from "@ant-design/icons";
 import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
-import {
-  InventoryTransferImportExportSearchQuery,
-  Store,
-} from "model/inventory/transfer";
+import { InventoryTransferImportExportSearchQuery, Store } from "model/inventory/transfer";
 import { BaseFilterWrapper, InventoryExportFiltersWrapper } from "./styles";
 import "assets/css/custom-filter.scss";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
@@ -34,14 +23,14 @@ import CustomSelect from "../../../../../../component/custom/select.custom";
 import { STATUS_INVENTORY_TRANSFER_ARRAY } from "../../../../constants";
 
 type InventoryExportFiltersProps = {
-  accountStores?: Array<AccountStoreResponse>,
+  accountStores?: Array<AccountStoreResponse>;
   params: InventoryTransferImportExportSearchQuery;
   isLoading?: Boolean;
   accounts: Array<AccountResponse> | undefined;
   onMenuClick?: (index: number) => void;
-  onFilter?: (values: OrderSearchQuery| Object) => void;
+  onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
-  onClearFilter?: () => void
+  onClearFilter?: () => void;
   stores?: Array<Store>;
   activeTab?: string;
 };
@@ -49,17 +38,9 @@ type InventoryExportFiltersProps = {
 const { Item } = Form;
 
 const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
-  props: InventoryExportFiltersProps
+  props: InventoryExportFiltersProps,
 ) => {
-  const {
-    params,
-    isLoading,
-    onClearFilter,
-    onFilter,
-    accounts,
-    activeTab,
-    accountStores,
-  } = props;
+  const { params, isLoading, onClearFilter, onFilter, accounts, activeTab, accountStores } = props;
   const [formAdv] = Form.useForm();
   const formRef = createRef<FormInstance>();
   const formSearchRef = createRef<FormInstance>();
@@ -86,18 +67,26 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   };
   const initialValues = useMemo(() => {
     return filterFromParams;
-  }, [filterFromParams])
+  }, [filterFromParams]);
 
   useEffect(() => {
-    if (activeTab === '') return;
+    if (activeTab === "") return;
 
     formSearchRef.current?.setFieldsValue({
       ...params,
-      from_store_id: params.from_store_id && (Array.isArray(params.from_store_id) && params.from_store_id.length > 0) ? params.from_store_id.map((i) => Number(i)) : [],
-      to_store_id: params.to_store_id && (Array.isArray(params.to_store_id) && params.to_store_id.length > 0) ? params.to_store_id.map((i) => Number(i)) : []
+      from_store_id:
+        params.from_store_id &&
+        Array.isArray(params.from_store_id) &&
+        params.from_store_id.length > 0
+          ? params.from_store_id.map((i) => Number(i))
+          : [],
+      to_store_id:
+        params.to_store_id && Array.isArray(params.to_store_id) && params.to_store_id.length > 0
+          ? params.to_store_id.map((i) => Number(i))
+          : [],
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [activeTab, accountStores])
+  }, [activeTab, accountStores]);
 
   useEffect(() => {
     formAdv.setFieldsValue(filterFromParams);
@@ -105,11 +94,11 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
 
   const [visible, setVisible] = useState(false);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
-  const [dateClick, setDateClick] = useState('');
+  const [dateClick, setDateClick] = useState("");
 
   const loadingFilter = useMemo(() => {
-    return !!isLoading
-  }, [isLoading])
+    return !!isLoading;
+  }, [isLoading]);
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -117,31 +106,55 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     const valuesForm = {
       ...values,
       condition: values.condition ? values.condition.trim() : null,
-      from_created_date: formAdv.getFieldValue('from_created_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('from_created_date'), 'DD/MM/YYYY HH:mm')?.format()
+      from_created_date: formAdv.getFieldValue("from_created_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("from_created_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-      to_created_date: formAdv.getFieldValue('to_created_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('to_created_date'), 'DD/MM/YYYY HH:mm')?.format()
+      to_created_date: formAdv.getFieldValue("to_created_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("to_created_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-      from_transfer_date: formAdv.getFieldValue('from_transfer_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('from_transfer_date'), 'DD/MM/YYYY HH:mm')?.format()
+      from_transfer_date: formAdv.getFieldValue("from_transfer_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("from_transfer_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-      to_transfer_date: formAdv.getFieldValue('to_transfer_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('to_transfer_date'), 'DD/MM/YYYY HH:mm')?.format()
+      to_transfer_date: formAdv.getFieldValue("to_transfer_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("to_transfer_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-      from_receive_date: formAdv.getFieldValue('from_receive_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('from_receive_date'), 'DD/MM/YYYY HH:mm')?.format()
+      from_receive_date: formAdv.getFieldValue("from_receive_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("from_receive_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-      to_receive_date: formAdv.getFieldValue('to_receive_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('to_receive_date'), 'DD/MM/YYYY HH:mm')?.format()
+      to_receive_date: formAdv.getFieldValue("to_receive_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("to_receive_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-      from_cancel_date: formAdv.getFieldValue('from_cancel_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('from_cancel_date'), 'DD/MM/YYYY HH:mm')?.format()
+      from_cancel_date: formAdv.getFieldValue("from_cancel_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("from_cancel_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-      to_cancel_date: formAdv.getFieldValue('to_cancel_date')
-        ? formatDateTimeFilter(formAdv.getFieldValue('to_cancel_date'), 'DD/MM/YYYY HH:mm')?.format()
+      to_cancel_date: formAdv.getFieldValue("to_cancel_date")
+        ? formatDateTimeFilter(
+            formAdv.getFieldValue("to_cancel_date"),
+            "DD/MM/YYYY HH:mm",
+          )?.format()
         : null,
-    }
+    };
     onFilter && onFilter(valuesForm);
   }, [formAdv, onFilter]);
 
@@ -152,7 +165,7 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
       condition: "",
       from_store_id: [],
       to_store_id: [],
-    })
+    });
 
     setVisible(false);
   }, [formSearchRef, onClearFilter]);
@@ -167,45 +180,66 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
   const onCloseTag = useCallback(
     (e, tag) => {
       e.preventDefault();
-      switch(tag.key) {
-        case 'status':
-          onFilter && onFilter({...params, status: []});
+      switch (tag.key) {
+        case "status":
+          onFilter && onFilter({ ...params, status: [] });
           break;
-        case 'note':
-          onFilter && onFilter({...params, note: null});
+        case "note":
+          onFilter && onFilter({ ...params, note: null });
           break;
-        case 'created_by':
-          onFilter && onFilter({...params, created_by: []});
+        case "created_by":
+          onFilter && onFilter({ ...params, created_by: [] });
           break;
-        case 'transfer_by':
-          onFilter && onFilter({...params, transfer_by: []});
+        case "transfer_by":
+          onFilter && onFilter({ ...params, transfer_by: [] });
           break;
-        case 'received_by':
-          onFilter && onFilter({...params, received_by: []});
+        case "received_by":
+          onFilter && onFilter({ ...params, received_by: [] });
           break;
-        case 'cancel_by':
-          onFilter && onFilter({...params, cancel_by: []});
+        case "cancel_by":
+          onFilter && onFilter({ ...params, cancel_by: [] });
           break;
-        case 'created_date':
-          onFilter && onFilter({...params, from_created_date: null, to_created_date: null});
-          formAdv.resetFields(['from_created_date', 'to_created_date'])
+        case "created_date":
+          onFilter &&
+            onFilter({
+              ...params,
+              from_created_date: null,
+              to_created_date: null,
+            });
+          formAdv.resetFields(["from_created_date", "to_created_date"]);
           break;
-        case 'transfer_date':
-          onFilter && onFilter({...params, from_transfer_date: null, to_transfer_date: null});
-          formAdv.resetFields(['from_transfer_date', 'to_transfer_date'])
+        case "transfer_date":
+          onFilter &&
+            onFilter({
+              ...params,
+              from_transfer_date: null,
+              to_transfer_date: null,
+            });
+          formAdv.resetFields(["from_transfer_date", "to_transfer_date"]);
           break;
-        case 'receive_date':
-          onFilter && onFilter({...params, from_receive_date: null, to_receive_date: null});
-          formAdv.resetFields(['from_receive_date', 'to_receive_date'])
+        case "receive_date":
+          onFilter &&
+            onFilter({
+              ...params,
+              from_receive_date: null,
+              to_receive_date: null,
+            });
+          formAdv.resetFields(["from_receive_date", "to_receive_date"]);
           break;
-        case 'cancel_date':
-          onFilter && onFilter({...params, from_cancel_date: null, to_cancel_date: null});
-          formAdv.resetFields(['from_cancel_date', 'to_cancel_date'])
+        case "cancel_date":
+          onFilter &&
+            onFilter({
+              ...params,
+              from_cancel_date: null,
+              to_cancel_date: null,
+            });
+          formAdv.resetFields(["from_cancel_date", "to_cancel_date"]);
           break;
-        default: break
+        default:
+          break;
       }
     },
-    [formAdv, onFilter, params]
+    [formAdv, onFilter, params],
   );
 
   const onFinish = useCallback(
@@ -213,183 +247,231 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
       const valuesForm = {
         ...values,
         condition: values.condition ? values.condition.trim() : null,
-      }
+      };
       onFilter && onFilter(valuesForm);
     },
-    [onFilter]
+    [onFilter],
   );
 
   let filters = useMemo(() => {
-    let list = []
+    let list = [];
     if (initialValues.status.length && initialValues.status[0]) {
-      let textStatus = ""
+      let textStatus = "";
       if (initialValues.status.length > 1) {
         initialValues.status.forEach((statusValue) => {
-          const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(status => status.value === statusValue)
-          textStatus = status ? textStatus + status.name + "; " : textStatus
-        })
+          const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(
+            (status) => status.value === statusValue,
+          );
+          textStatus = status ? textStatus + status.name + "; " : textStatus;
+        });
       } else if (initialValues.status.length === 1) {
-
         initialValues.status.forEach((statusValue) => {
-          const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(status => status.value === statusValue)
-          textStatus = status ? textStatus + status.name : textStatus
-        })
-
+          const status = STATUS_INVENTORY_TRANSFER_ARRAY?.find(
+            (status) => status.value === statusValue,
+          );
+          textStatus = status ? textStatus + status.name : textStatus;
+        });
       }
 
       list.push({
-        key: 'status',
-        name: 'Trạng thái',
-        value: textStatus
-      })
+        key: "status",
+        name: "Trạng thái",
+        value: textStatus,
+      });
     }
-    if (initialValues.note && initialValues.note !== '') {
+    if (initialValues.note && initialValues.note !== "") {
       list.push({
-        key: 'note',
-        name: 'Ghi chú',
-        value: initialValues.note
+        key: "note",
+        name: "Ghi chú",
+        value: initialValues.note,
       });
     }
     if (initialValues.created_by.length && initialValues.created_by[0]) {
-      let textAccount = ""
+      let textAccount = "";
       if (initialValues.created_by.length > 1) {
         initialValues.created_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-        })
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
+            : textAccount;
+        });
       } else if (initialValues.created_by.length === 1) {
-
         initialValues.created_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
-        })
-
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code
+            : textAccount;
+        });
       }
 
       list.push({
-        key: 'created_by',
-        name: 'Người tạo',
-        value: textAccount
-      })
+        key: "created_by",
+        name: "Người tạo",
+        value: textAccount,
+      });
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
-      let textCreatedDate = (initialValues.from_created_date ? moment(initialValues.from_created_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_created_date ? moment(initialValues.to_created_date).format('DD-MM-YYYY HH:mm') : '??')
+      let textCreatedDate =
+        (initialValues.from_created_date
+          ? moment(initialValues.from_created_date).format("DD-MM-YYYY HH:mm")
+          : "??") +
+        " ~ " +
+        (initialValues.to_created_date
+          ? moment(initialValues.to_created_date).format("DD-MM-YYYY HH:mm")
+          : "??");
       list.push({
-        key: 'created_date',
-        name: 'Ngày tạo',
-        value: textCreatedDate
-      })
+        key: "created_date",
+        name: "Ngày tạo",
+        value: textCreatedDate,
+      });
     }
     if (initialValues.transfer_by.length && initialValues.transfer_by[0]) {
-      let textAccount = ""
+      let textAccount = "";
       if (initialValues.transfer_by.length > 1) {
         initialValues.transfer_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-        })
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
+            : textAccount;
+        });
       } else if (initialValues.transfer_by.length === 1) {
-
         initialValues.transfer_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
-        })
-
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code
+            : textAccount;
+        });
       }
 
       list.push({
-        key: 'transfer_by',
-        name: 'Người chuyển',
-        value: textAccount
-      })
+        key: "transfer_by",
+        name: "Người chuyển",
+        value: textAccount,
+      });
     }
     if (initialValues.from_transfer_date || initialValues.to_transfer_date) {
-      let textTransferDate = (initialValues.from_transfer_date ? moment(initialValues.from_transfer_date).format('DD-MM-YYYY HH:mm'): '??') + " ~ " + (initialValues.to_transfer_date ? moment(initialValues.to_transfer_date).format('DD-MM-YYYY HH:mm') : '??')
+      let textTransferDate =
+        (initialValues.from_transfer_date
+          ? moment(initialValues.from_transfer_date).format("DD-MM-YYYY HH:mm")
+          : "??") +
+        " ~ " +
+        (initialValues.to_transfer_date
+          ? moment(initialValues.to_transfer_date).format("DD-MM-YYYY HH:mm")
+          : "??");
       list.push({
-        key: 'transfer_date',
-        name: 'Ngày chuyển',
-        value: textTransferDate
-      })
+        key: "transfer_date",
+        name: "Ngày chuyển",
+        value: textTransferDate,
+      });
     }
     if (initialValues.received_by.length && initialValues.received_by[0]) {
-      let textAccount = ""
+      let textAccount = "";
       if (initialValues.received_by.length > 1) {
         initialValues.received_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-        })
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
+            : textAccount;
+        });
       } else if (initialValues.received_by.length === 1) {
-
         initialValues.received_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
-        })
-
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code
+            : textAccount;
+        });
       }
 
       list.push({
-        key: 'received_by',
-        name: 'Người nhận',
-        value: textAccount
-      })
+        key: "received_by",
+        name: "Người nhận",
+        value: textAccount,
+      });
     }
     if (initialValues.from_receive_date || initialValues.to_receive_date) {
-      let textReceiveDate = (initialValues.from_receive_date ? moment(initialValues.from_receive_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_receive_date ? moment(initialValues.to_receive_date).format('DD-MM-YYYY HH:mm') : '??')
+      let textReceiveDate =
+        (initialValues.from_receive_date
+          ? moment(initialValues.from_receive_date).format("DD-MM-YYYY HH:mm")
+          : "??") +
+        " ~ " +
+        (initialValues.to_receive_date
+          ? moment(initialValues.to_receive_date).format("DD-MM-YYYY HH:mm")
+          : "??");
       list.push({
-        key: 'receive_date',
-        name: 'Ngày nhận',
-        value: textReceiveDate
-      })
+        key: "receive_date",
+        name: "Ngày nhận",
+        value: textReceiveDate,
+      });
     }
     if (initialValues.cancel_by.length && initialValues.cancel_by[0]) {
-      let textAccount = ""
+      let textAccount = "";
       if (initialValues.cancel_by.length > 1) {
         initialValues.cancel_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-        })
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
+            : textAccount;
+        });
       } else if (initialValues.cancel_by.length === 1) {
-
         initialValues.cancel_by.forEach((i) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
-        })
-
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code
+            : textAccount;
+        });
       }
 
       list.push({
-        key: 'cancel_by',
-        name: 'Người hủy',
-        value: textAccount
-      })
+        key: "cancel_by",
+        name: "Người hủy",
+        value: textAccount,
+      });
     }
     if (initialValues.from_cancel_date || initialValues.to_cancel_date) {
-      let textCancelDate = (initialValues.from_cancel_date ? moment(initialValues.from_cancel_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_cancel_date ? moment(initialValues.to_cancel_date).format('DD-MM-YYYY HH:mm') : '??')
+      let textCancelDate =
+        (initialValues.from_cancel_date
+          ? moment(initialValues.from_cancel_date).format("DD-MM-YYYY HH:mm")
+          : "??") +
+        " ~ " +
+        (initialValues.to_cancel_date
+          ? moment(initialValues.to_cancel_date).format("DD-MM-YYYY HH:mm")
+          : "??");
       list.push({
-        key: 'cancel_date',
-        name: 'Ngày hủy',
-        value: textCancelDate
-      })
+        key: "cancel_date",
+        name: "Ngày hủy",
+        value: textCancelDate,
+      });
     }
 
     if (initialValues.from_pending_date || initialValues.to_pending_date) {
-      let textPendingDate = (initialValues.from_pending_date ? moment(initialValues.from_pending_date).format('DD-MM-YYYY HH:mm') : '??') + " ~ " + (initialValues.to_pending_date ? moment(initialValues.to_pending_date).format('DD-MM-YYYY HH:mm') : '??')
+      let textPendingDate =
+        (initialValues.from_pending_date
+          ? moment(initialValues.from_pending_date).format("DD-MM-YYYY HH:mm")
+          : "??") +
+        " ~ " +
+        (initialValues.to_pending_date
+          ? moment(initialValues.to_pending_date).format("DD-MM-YYYY HH:mm")
+          : "??");
       list.push({
-        key: 'pending_date',
-        name: 'Ngày chờ xử lý',
-        value: textPendingDate
-      })
+        key: "pending_date",
+        name: "Ngày chờ xử lý",
+        value: textPendingDate,
+      });
     }
 
-    return list
+    return list;
   }, [initialValues, accounts]);
 
   useEffect(() => {
     const getStores = async () => {
-      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, { status: "active", simple: true })
+      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
+        status: "active",
+        simple: true,
+      });
       if (res) {
-        setListStore(res)
+        setListStore(res);
       }
-    }
+    };
     getStores().then();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -398,48 +480,44 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
     <InventoryExportFiltersWrapper>
       <div className="custom-filter-export">
         <CustomFilter>
-          <Form onFinish={onFinish} ref={formSearchRef} initialValues={initialValues} layout="inline">
-            <Item
-              name="from_store_id"
-              className="select-item"
-              style={{width: '170px'}}
-            >
-              <TreeStore
-                name="from_store_id"
-                placeholder="Kho gửi"
-                listStore={listStore}
-              />
+          <Form
+            onFinish={onFinish}
+            ref={formSearchRef}
+            initialValues={initialValues}
+            layout="inline"
+          >
+            <Item name="from_store_id" className="select-item" style={{ width: "170px" }}>
+              <TreeStore name="from_store_id" placeholder="Kho gửi" listStore={listStore} />
             </Item>
-            <Item
-              name="to_store_id"
-              className="select-item"
-              style={{width: '170px'}}
-            >
-              <TreeStore
-                name="to_store_id"
-                placeholder="Kho nhận"
-                listStore={listStore}
-              />
-            </Item >
-            <Item style={{ width: 'calc(100% - 650px)' }} name="condition" className="input-search">
+            <Item name="to_store_id" className="select-item" style={{ width: "170px" }}>
+              <TreeStore name="to_store_id" placeholder="Kho nhận" listStore={listStore} />
+            </Item>
+            <Item style={{ width: "calc(100% - 650px)" }} name="condition" className="input-search">
               <Input
                 className="input-search"
                 prefix={<img src={search} alt="" />}
                 placeholder="Mã phiếu chuyển, mã sản phẩm, tên sản phẩm"
                 onBlur={(e) => {
                   formSearchRef?.current?.setFieldsValue({
-                    condition: e.target.value.trim()
-                  })
+                    condition: e.target.value.trim(),
+                  });
                 }}
               />
             </Item>
             <Item>
-              <Button style={{width: '80px'}} type="primary" loading={loadingFilter} htmlType="submit">
+              <Button
+                style={{ width: "80px" }}
+                type="primary"
+                loading={loadingFilter}
+                htmlType="submit"
+              >
                 Lọc
               </Button>
             </Item>
             <Item>
-              <Button style={{width: '150px'}} icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button style={{ width: "150px" }} icon={<FilterOutlined />} onClick={openFilter}>
+                Thêm bộ lọc
+              </Button>
             </Item>
           </Form>
         </CustomFilter>
@@ -452,144 +530,149 @@ const InventoryExportFilters: React.FC<InventoryExportFiltersProps> = (
         className="order-filter-drawer"
         width={800}
       >
-        {visible && <Form
-          ref={formRef}
-          form={formAdv}
-          layout="vertical"
-          initialValues={initialValues}
-        >
-          <BaseFilterWrapper>
-            <Row gutter={12} style={{marginTop: '10px'}}>
-              <Col span={12}>
-                <Item label="Trạng thái" name="status" style={{ margin: "10px 0px" }}>
-                  <CustomSelect
-                    maxTagCount="responsive"
-                    mode="multiple"
-                    style={{ width: '100%'}}
-                    showArrow
-                    placeholder="Chọn trạng thái"
-                    notFoundContent="Không tìm thấy kết quả"
-                    optionFilterProp="children"
-                    getPopupContainer={trigger => trigger.parentNode}
-                  >
-                    {STATUS_INVENTORY_TRANSFER_ARRAY.map((item, index) => (
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.value}
-                      >
-                        {item.name}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                </Item>
-              </Col>
-              <Col span={12} />
-            </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Item label="Người tạo" name="created_by">
-                  <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
-                </Item>
-              </Col>
-              <Col span={12}>
-                <div className="label-date">Ngày tạo</div>
-                <CustomFilterDatePicker
-                  fieldNameFrom="from_created_date"
-                  fieldNameTo="to_created_date"
-                  activeButton={dateClick}
-                  setActiveButton={setDateClick}
-                  formRef={formRef}
-                  format="DD/MM/YYYY HH:mm"
-                  showTime
-                />
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Item label="Người chuyển" name="transfer_by">
-                  <AccountSearchPaging placeholder="Chọn người chuyển" mode="multiple"/>
-                </Item>
-              </Col>
-              <Col span={12}>
-                <div className="label-date">Ngày chuyển</div>
-                <CustomFilterDatePicker
-                  fieldNameFrom="from_transfer_date"
-                  fieldNameTo="to_transfer_date"
-                  activeButton={dateClick}
-                  setActiveButton={setDateClick}
-                  formRef={formRef}
-                  format="DD/MM/YYYY HH:mm"
-                  showTime
-                />
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Item label="Người nhận" name="received_by">
-                  <AccountSearchPaging placeholder="Chọn người nhận" mode="multiple"/>
-                </Item>
-              </Col>
-              <Col span={12}>
-                <div className="label-date">Ngày nhận</div>
-                <CustomFilterDatePicker
-                  fieldNameFrom="from_receive_date"
-                  fieldNameTo="to_receive_date"
-                  activeButton={dateClick}
-                  setActiveButton={setDateClick}
-                  formRef={formRef}
-                  format="DD/MM/YYYY HH:mm"
-                  showTime
-                />
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Item label="Người hủy" name="cancel_by">
-                  <AccountSearchPaging placeholder="Chọn người hủy" mode="multiple"/>
-                </Item>
-              </Col>
-              <Col span={12}>
-                <div className="label-date">Ngày Hủy</div>
-                <CustomFilterDatePicker
-                  fieldNameFrom="from_cancel_date"
-                  fieldNameTo="to_cancel_date"
-                  activeButton={dateClick}
-                  setActiveButton={setDateClick}
-                  formRef={formRef}
-                  format="DD/MM/YYYY HH:mm"
-                  showTime
-                />
-              </Col>
-            </Row>
-            <Row gutter={12}>
-              <Col span={12}>
-                <Item name="note" label="Ghi chú">
-                  <Input className="w-100" placeholder="Nhập ghi chú để tìm kiếm" />
-                </Item>
-              </Col>
-              <Col span={12}>
-                <div className="label-date">Ngày chờ xử lý</div>
-                <CustomFilterDatePicker
-                  fieldNameFrom="from_pending_date"
-                  fieldNameTo="to_pending_date"
-                  activeButton={dateClick}
-                  setActiveButton={setDateClick}
-                  formRef={formRef}
-                  format="DD/MM/YYYY HH:mm"
-                  showTime
-                />
-              </Col>
-            </Row>
-          </BaseFilterWrapper>
-        </Form>}
+        {visible && (
+          <Form ref={formRef} form={formAdv} layout="vertical" initialValues={initialValues}>
+            <BaseFilterWrapper>
+              <Row gutter={12} style={{ marginTop: "10px" }}>
+                <Col span={12}>
+                  <Item label="Trạng thái" name="status" style={{ margin: "10px 0px" }}>
+                    <CustomSelect
+                      maxTagCount="responsive"
+                      mode="multiple"
+                      style={{ width: "100%" }}
+                      showArrow
+                      placeholder="Chọn trạng thái"
+                      notFoundContent="Không tìm thấy kết quả"
+                      optionFilterProp="children"
+                      getPopupContainer={(trigger) => trigger.parentNode}
+                    >
+                      {STATUS_INVENTORY_TRANSFER_ARRAY.map((item, index) => (
+                        <CustomSelect.Option
+                          style={{ width: "100%" }}
+                          key={index.toString()}
+                          value={item.value}
+                        >
+                          {item.name}
+                        </CustomSelect.Option>
+                      ))}
+                    </CustomSelect>
+                  </Item>
+                </Col>
+                <Col span={12} />
+              </Row>
+              <Row gutter={12}>
+                <Col span={12}>
+                  <Item label="Người tạo" name="created_by">
+                    <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple" />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <div className="label-date">Ngày tạo</div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="from_created_date"
+                    fieldNameTo="to_created_date"
+                    activeButton={dateClick}
+                    setActiveButton={setDateClick}
+                    formRef={formRef}
+                    format="DD/MM/YYYY HH:mm"
+                    showTime
+                  />
+                </Col>
+              </Row>
+              <Row gutter={12}>
+                <Col span={12}>
+                  <Item label="Người chuyển" name="transfer_by">
+                    <AccountSearchPaging placeholder="Chọn người chuyển" mode="multiple" />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <div className="label-date">Ngày chuyển</div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="from_transfer_date"
+                    fieldNameTo="to_transfer_date"
+                    activeButton={dateClick}
+                    setActiveButton={setDateClick}
+                    formRef={formRef}
+                    format="DD/MM/YYYY HH:mm"
+                    showTime
+                  />
+                </Col>
+              </Row>
+              <Row gutter={12}>
+                <Col span={12}>
+                  <Item label="Người nhận" name="received_by">
+                    <AccountSearchPaging placeholder="Chọn người nhận" mode="multiple" />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <div className="label-date">Ngày nhận</div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="from_receive_date"
+                    fieldNameTo="to_receive_date"
+                    activeButton={dateClick}
+                    setActiveButton={setDateClick}
+                    formRef={formRef}
+                    format="DD/MM/YYYY HH:mm"
+                    showTime
+                  />
+                </Col>
+              </Row>
+              <Row gutter={12}>
+                <Col span={12}>
+                  <Item label="Người hủy" name="cancel_by">
+                    <AccountSearchPaging placeholder="Chọn người hủy" mode="multiple" />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <div className="label-date">Ngày Hủy</div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="from_cancel_date"
+                    fieldNameTo="to_cancel_date"
+                    activeButton={dateClick}
+                    setActiveButton={setDateClick}
+                    formRef={formRef}
+                    format="DD/MM/YYYY HH:mm"
+                    showTime
+                  />
+                </Col>
+              </Row>
+              <Row gutter={12}>
+                <Col span={12}>
+                  <Item name="note" label="Ghi chú">
+                    <Input className="w-100" placeholder="Nhập ghi chú để tìm kiếm" />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <div className="label-date">Ngày chờ xử lý</div>
+                  <CustomFilterDatePicker
+                    fieldNameFrom="from_pending_date"
+                    fieldNameTo="to_pending_date"
+                    activeButton={dateClick}
+                    setActiveButton={setDateClick}
+                    formRef={formRef}
+                    format="DD/MM/YYYY HH:mm"
+                    showTime
+                  />
+                </Col>
+              </Row>
+            </BaseFilterWrapper>
+          </Form>
+        )}
       </BaseFilter>
       <div className="order-filter-tags">
-        {filters && filters.map((filter: any, index) => {
-          return (
-            <Tag key={index} className="tag mb-20" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
-          )
-        })}
+        {filters &&
+          filters.map((filter: any, index) => {
+            return (
+              <Tag
+                key={index}
+                className="tag mb-20"
+                closable
+                onClose={(e) => onCloseTag(e, filter)}
+              >
+                {filter.name}: {filter.value}
+              </Tag>
+            );
+          })}
       </div>
     </InventoryExportFiltersWrapper>
   );

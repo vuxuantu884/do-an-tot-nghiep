@@ -27,8 +27,7 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
       <Form
         form={form}
         onFinish={(value) => {
-          props.onChange &&
-            props.onChange(value.price, value.type, value.discount);
+          props.onChange && props.onChange(value.price, value.type, value.discount);
         }}
         layout="vertical"
       >
@@ -47,19 +46,15 @@ const PriceModal: React.FC<PriceModalProps> = (props: PriceModalProps) => {
           />
         </Form.Item>
         <Form.Item label="Chiết khấu">
-          <Input.Group
-            className="product-item-discount"
-            style={{ width: "100%" }}
-            compact
-          >
+          <Input.Group className="product-item-discount" style={{ width: "100%" }} compact>
             <Form.Item noStyle name="type">
               <Select
                 style={{ width: "35%" }}
                 className="product-item-discount-select"
                 onChange={(value: string) => {
                   setType(value);
-                  form.setFieldsValue({discount: 0})}
-                }
+                  form.setFieldsValue({ discount: 0 });
+                }}
                 onBlur={() => form.submit()}
               >
                 <Select.Option value={DiscountType.percent}>%</Select.Option>

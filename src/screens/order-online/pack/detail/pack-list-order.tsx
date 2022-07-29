@@ -13,10 +13,7 @@ import { useDispatch } from "react-redux";
 import { updateOrderPartial } from "domain/actions/order/order.action";
 import { formatCurrency, handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import { fullTextSearch } from "utils/StringUtils";
-import {
-  FileExcelOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 import { exportFile, getFile } from "service/other/export.service";
 import { generateQuery } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -69,7 +66,7 @@ const actions: Array<MenuAction> = [
     id: 6,
     name: "In phiếu xuất kho",
     icon: <PrinterOutlined />,
-  }
+  },
 ];
 
 // const typePrint = {
@@ -82,8 +79,8 @@ const resultPagingDefault: ResultPaging = {
   lastPage: 1,
   perPage: 30,
   total: 0,
-  result: []
-}
+  result: [],
+};
 
 var barcode: string = "";
 
@@ -110,53 +107,49 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: resultPagingDefault.currentPage,
-    perPage: resultPagingDefault.perPage
+    perPage: resultPagingDefault.perPage,
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
   const handleSearchOrder = useCallback(
     (query?: string) => {
-
       if (!query || query.length <= 0) {
-        setDataPackOrderList([...packOrderList])
+        setDataPackOrderList([...packOrderList]);
       } else {
         let newData: GoodsReceiptsOrderListModel[] = packOrderList.filter(function (el) {
           // return el.order_code.toLowerCase().indexOf(query.toLowerCase()) !== -1
-          return fullTextSearch(query, el.order_code)
-            || (el.ffm_code && fullTextSearch(query, el.ffm_code))
-            || (el.tracking_code && fullTextSearch(query, el.tracking_code));
-        })
+          return (
+            fullTextSearch(query, el.order_code) ||
+            (el.ffm_code && fullTextSearch(query, el.ffm_code)) ||
+            (el.tracking_code && fullTextSearch(query, el.tracking_code))
+          );
+        });
         setDataPackOrderList(newData);
       }
-
     },
     [packOrderList],
-  )
+  );
 
-  const handleSearch = useCallback(
-    () => {
-      let query: string = formSearchOrderRef.current?.getFieldValue("search_term");
+  const handleSearch = useCallback(() => {
+    let query: string = formSearchOrderRef.current?.getFieldValue("search_term");
 
-      handleSearchOrder(query)
-    },
-    [formSearchOrderRef, handleSearchOrder],
-  )
+    handleSearchOrder(query);
+  }, [formSearchOrderRef, handleSearchOrder]);
 
   const onSuccessEditNote = useCallback(
     (newNote, noteType, orderID) => {
-      const dataPackOrderListCopy = [...dataPackOrderList]
+      const dataPackOrderListCopy = [...dataPackOrderList];
       const indexOrder = dataPackOrderListCopy.findIndex((item) => item.order_id === orderID);
       if (indexOrder !== -1) {
         if (noteType === "note") {
           dataPackOrderListCopy[indexOrder].note = newNote;
-        }
-        else if (noteType === "customer_note") {
-          dataPackOrderListCopy[indexOrder].customer_note = newNote
+        } else if (noteType === "customer_note") {
+          dataPackOrderListCopy[indexOrder].customer_note = newNote;
         }
       }
       setDataPackOrderList([...dataPackOrderListCopy]);
     },
-    [dataPackOrderList]
+    [dataPackOrderList],
   );
 
   const editNote = useCallback(
@@ -173,15 +166,14 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID,))
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID)),
       );
     },
-    [dispatch, onSuccessEditNote]
+    [dispatch, onSuccessEditNote],
   );
 
   useEffect(() => {
-    if (packOrderList)
-      setDataPackOrderList([...packOrderList]);
+    if (packOrderList) setDataPackOrderList([...packOrderList]);
   }, [packOrderList]);
 
   const column: Array<ICustomTableColumType<GoodsReceiptsOrderListModel>> = [
@@ -206,7 +198,11 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
       render: (value: string) => {
         return (
           <React.Fragment>
-            <Link target="_blank" to={`${UrlConfig.ORDER}/${value}`} style={{ whiteSpace: "nowrap" }}>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ORDER}/${value}`}
+              style={{ whiteSpace: "nowrap" }}
+            >
               {value}
             </Link>
           </React.Fragment>
@@ -336,7 +332,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                 onOk={(newNote) => {
                   editNote(newNote, "note", record.order_id);
                 }}
-              // isDisable={record.status === OrderStatus.FINISHED}
+                // isDisable={record.status === OrderStatus.FINISHED}
               />
             </div>
           </div>
@@ -367,7 +363,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     // console.log("queryParams", queryParams)
     exportFile({
       conditions: queryParams,
-      type: "EXPORT_ORDER"
+      type: "EXPORT_ORDER",
       //hidden_fields: hiddenFieldsExport,
     })
       .then((response) => {
@@ -396,7 +392,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     };
     const queryParam = generateQuery(params);
     return queryParam;
-  }
+  };
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -415,41 +411,37 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           handleExportExcelOrderPack();
           break;
         case 4:
-          if (packDetail)
-            history.push(`${UrlConfig.DELIVERY_RECORDS}/${packDetail.id}/update`);
+          if (packDetail) history.push(`${UrlConfig.DELIVERY_RECORDS}/${packDetail.id}/update`);
           break;
-        case 5:
-          {
-            if (selectedRowKeys.length <= 0) {
-              showError("Vui lòng chọn đơn hàng cần xử lí");
-              break;
-            }
-
-            const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
-            window.open(printPreviewUrl);
+        case 5: {
+          if (selectedRowKeys.length <= 0) {
+            showError("Vui lòng chọn đơn hàng cần xử lí");
             break;
           }
-        case 6:
-          {
-            if (selectedRowKeys.length <= 0) {
-              showError("Vui lòng chọn đơn hàng cần xử lí");
-              break;
-            }
 
-            const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
-            window.open(printPreviewUrlExport);
+          const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewUrl);
+          break;
+        }
+        case 6: {
+          if (selectedRowKeys.length <= 0) {
+            showError("Vui lòng chọn đơn hàng cần xử lí");
             break;
           }
+
+          const printPreviewUrlExport = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+          window.open(printPreviewUrlExport);
+          break;
+        }
 
         default:
           break;
       }
     },
-    [packDetail, selectedRowOrderId, handleExportExcelOrderPack, history, selectedRowKeys]
+    [packDetail, selectedRowOrderId, handleExportExcelOrderPack, history, selectedRowKeys],
   );
 
   const checkExportFile = useCallback(() => {
-
     let getFilePromises = listExportFile.map((code) => {
       return getFile(code);
     });
@@ -486,41 +478,47 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
 
-  const handleEventKeydown = useCallback((event: KeyboardEvent) => {
-    if (event.target instanceof HTMLInputElement) {
-      if (event.target.id === "search_term") {
-        // console.log(event.key)
-        if (event.key !== "Enter") {
-          barcode = barcode + event.key;
+  const handleEventKeydown = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLInputElement) {
+        if (event.target.id === "search_term") {
+          // console.log(event.key)
+          if (event.key !== "Enter") {
+            barcode = barcode + event.key;
 
-          handleDelayActionWhenInsertTextInSearchInput(
-            searchTermRef,
-            () => {
-              barcode = "";
-            },
-            300
-          );
-        } else if (barcode !== "") {
-          const searchTermElement: any = document.getElementById("search_term");
-          searchTermElement?.select();
+            handleDelayActionWhenInsertTextInSearchInput(
+              searchTermRef,
+              () => {
+                barcode = "";
+              },
+              300,
+            );
+          } else if (barcode !== "") {
+            const searchTermElement: any = document.getElementById("search_term");
+            searchTermElement?.select();
+          }
         }
       }
-    }
-  }, [searchTermRef])
+    },
+    [searchTermRef],
+  );
 
-  const onSelectedChange = (selectedRow: GoodsReceiptsOrderListModel[], selected?: boolean, changeRow?: any[]) => {
+  const onSelectedChange = (
+    selectedRow: GoodsReceiptsOrderListModel[],
+    selected?: boolean,
+    changeRow?: any[],
+  ) => {
     let selectedRowKeysCopy: number[] = [...selectedRowKeys];
     let selectedRowOrderIdCopy: number[] = [...selectedRowOrderId];
     if (selected === true) {
       changeRow?.forEach((data, index) => {
-        let indexItem = selectedRowKeys.findIndex((p) => p === data.key)
+        let indexItem = selectedRowKeys.findIndex((p) => p === data.key);
         if (indexItem === -1) {
           selectedRowKeysCopy.push(data.key);
           selectedRowOrderIdCopy.push(data.order_id);
         }
-      })
-    }
-    else {
+      });
+    } else {
       selectedRowKeys.forEach((data, index) => {
         let indexItem = changeRow?.findIndex((p) => p.key === data);
 
@@ -529,7 +527,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
           selectedRowKeysCopy.splice(i, 1);
           selectedRowOrderIdCopy.splice(i, 1);
         }
-      })
+      });
     }
 
     setSelectedRowOrderId([...selectedRowOrderIdCopy]);
@@ -545,14 +543,12 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
 
   useEffect(() => {
     if (!dataPackOrderList || (dataPackOrderList && dataPackOrderList.length <= 0)) {
-      setResultPaging(resultPagingDefault)
-    }
-    else {
-      let result = flatDataPaging(dataPackOrderList, pagingParam)
+      setResultPaging(resultPagingDefault);
+    } else {
+      let result = flatDataPaging(dataPackOrderList, pagingParam);
       setResultPaging(result);
     }
-
-  }, [dataPackOrderList, pagingParam])
+  }, [dataPackOrderList, pagingParam]);
 
   return (
     <React.Fragment>
@@ -564,9 +560,15 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                 <div className="page-filter-left">
                   <ActionButton menu={actions} onMenuClick={onMenuClick} />
                 </div>
-                <Form layout="inline" ref={formSearchOrderRef}
+                <Form
+                  layout="inline"
+                  ref={formSearchOrderRef}
                   className="page-filter-right"
-                  style={{ width: "40%", flexWrap: "nowrap", justifyContent: " flex-end" }}
+                  style={{
+                    width: "40%",
+                    flexWrap: "nowrap",
+                    justifyContent: " flex-end",
+                  }}
                 >
                   <Item name="search_term" style={{ width: "100%", marginRight: "10px" }}>
                     <Input
@@ -582,10 +584,7 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
                   </Item>
 
                   <Item style={{ width: "62px", marginRight: 0 }}>
-                    <Button
-                      type="primary"
-                      onClick={handleSearch}
-                    >
+                    <Button type="primary" onClick={handleSearch}>
                       Lọc
                     </Button>
                   </Item>
@@ -604,13 +603,15 @@ const PackListOrder: React.FC<PackListOrderProps> = (props: PackListOrderProps) 
               showSizeChanger: true,
               onChange: (page, size) => {
                 // console.log("size",size)
-                setPagingParam({ perPage: size || 10, currentPage: page })
+                setPagingParam({ perPage: size || 10, currentPage: page });
               },
               onShowSizeChange: (page, size) => {
-                setPagingParam({ perPage: size || 10, currentPage: page })
+                setPagingParam({ perPage: size || 10, currentPage: page });
               },
             }}
-            onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+            onSelectedChange={(selectedRows, selected, changeRow) =>
+              onSelectedChange(selectedRows, selected, changeRow)
+            }
             selectedRowKey={selectedRowKeys}
             dataSource={resultPaging.result}
             columns={column}

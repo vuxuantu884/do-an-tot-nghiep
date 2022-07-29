@@ -5,7 +5,7 @@
   margin-bottom: 0;
   .ant-table-expanded-row {
     & > .ant-table-cell {
-      background-color: #EFEFFC;
+      background-color: #efeffc;
     }
   }
   .ant-table-sticky-holder {
@@ -160,7 +160,7 @@
       cursor: pointer;
     }
   }
-  .tr-hover{
+  .tr-hover {
     tr {
       cursor: pointer;
       &:hover {
@@ -169,7 +169,7 @@
     }
   }
   .data-hover {
-    color: #5656A2;
+    color: #5656a2;
     cursor: pointer;
     &:hover {
       color: #2a2a86;

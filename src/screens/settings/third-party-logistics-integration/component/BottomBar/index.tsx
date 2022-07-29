@@ -48,10 +48,7 @@ function BottomBar(props: PropTypes) {
     <StyledComponent>
       <div className="bottomBar">
         <div className="bottomBar__left">
-          <Link
-            to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`}
-            className="back"
-          >
+          <Link to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}`} className="back">
             <img src={IconBack} alt="" style={{ marginRight: 10 }} />
             Quay lại danh sách
           </Link>

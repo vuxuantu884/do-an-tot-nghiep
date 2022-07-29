@@ -7,15 +7,12 @@ const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
 const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
-
 const ConnectedItemActionColumn = (
-  handleDeleteItem: any, 
-  handleSyncStock?: any, 
-  handleDisconnectItem?: any, 
-  handleShowLogInventory?: any
-  ) => {
-
-
+  handleDeleteItem: any,
+  handleSyncStock?: any,
+  handleDisconnectItem?: any,
+  handleShowLogInventory?: any,
+) => {
   const RenderActionColumn = (l: any, item: any, index: number) => {
     const [allowProductsDelete] = useAuthorization({
       acceptPermissions: productsDeletePermission,
@@ -32,47 +29,46 @@ const ConnectedItemActionColumn = (
       not: false,
     });
 
-
-    const isShowAction = (item.connect_status === "connected" 
-     && (allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect)) 
-     || (item.connect_status === "waiting" && allowProductsDelete)
+    const isShowAction =
+      (item.connect_status === "connected" &&
+        (allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect)) ||
+      (item.connect_status === "waiting" && allowProductsDelete);
 
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
         {
           <>
-            {allowProductsUpdateStock && item.connect_status === "connected" &&
+            {allowProductsUpdateStock && item.connect_status === "connected" && (
               <Menu.Item key="1">
                 <Button type="text" onClick={() => handleSyncStock(item)}>
                   Đồng bộ tồn kho lên sàn
                 </Button>
               </Menu.Item>
-            }
+            )}
 
-            {allowProductsDelete &&
+            {allowProductsDelete && (
               <Menu.Item key="2">
                 <Button type="text" onClick={() => handleDeleteItem(item)}>
                   Xóa sản phẩm lấy về
                 </Button>
               </Menu.Item>
-            }
+            )}
 
-
-            {allowProductsDisconnect && item.connect_status === "connected" &&
+            {allowProductsDisconnect && item.connect_status === "connected" && (
               <Menu.Item key="3">
                 <Button type="text" onClick={() => handleDisconnectItem(item)}>
                   Hủy liên kết
                 </Button>
               </Menu.Item>
-            }
+            )}
 
-            {item.connect_status === "connected" &&
-                <Menu.Item key="4">
-                  <Button type="text" onClick={() => handleShowLogInventory(item)}>
-                    Lịch sử đồng bộ tồn
-                  </Button>
-                </Menu.Item>
-            }
+            {item.connect_status === "connected" && (
+              <Menu.Item key="4">
+                <Button type="text" onClick={() => handleShowLogInventory(item)}>
+                  Lịch sử đồng bộ tồn
+                </Button>
+              </Menu.Item>
+            )}
           </>
         }
       </Menu>
@@ -80,29 +76,25 @@ const ConnectedItemActionColumn = (
 
     return (
       <>
-        {isShowAction &&
-          <Dropdown
-            overlay={menu}
-            trigger={["click"]}
-            placement="bottomRight"
-          >
+        {isShowAction && (
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
             <Button
               type="text"
               className="p-0 ant-btn-custom"
-              icon={<img src={threeDot} alt=""/>}
+              icon={<img src={threeDot} alt="" />}
             />
           </Dropdown>
-        }
+        )}
       </>
     );
-  }
+  };
 
   const _actionColumn = {
     title: "",
     visible: true,
     width: "45px",
     className: "ecommerce-product-action-column",
-    render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index)
+    render: (l: any, item: any, index: number) => RenderActionColumn(l, item, index),
   };
 
   return _actionColumn;

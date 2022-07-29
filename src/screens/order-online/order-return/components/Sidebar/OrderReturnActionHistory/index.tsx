@@ -71,7 +71,7 @@ function OrderReturnActionHistory(props: PropType) {
       dispatch(
         actionGetOrderReturnLog(+orderId, (response: OrderActionLogResponse[]) => {
           setActionLog(response);
-        })
+        }),
       );
     }
   }, [dispatch, orderId, countChangeSubStatus]);
@@ -101,9 +101,7 @@ function OrderReturnActionHistory(props: PropType) {
                         )}
                         {singleActionHistory?.updated_date && (
                           <div className="singleActionHistory__date">
-                            {moment(singleActionHistory?.updated_date).format(
-                              "HH:mm DD/MM/YYYY"
-                            )}
+                            {moment(singleActionHistory?.updated_date).format("HH:mm DD/MM/YYYY")}
                           </div>
                         )}
                       </div>
@@ -118,7 +116,7 @@ function OrderReturnActionHistory(props: PropType) {
                         <div className="singleActionHistory__subStatus">
                           {renderSingleSubStatus(
                             singleActionHistory?.status_before,
-                            singleActionHistory?.status_after
+                            singleActionHistory?.status_after,
                           )}
                         </div>
                       </div>

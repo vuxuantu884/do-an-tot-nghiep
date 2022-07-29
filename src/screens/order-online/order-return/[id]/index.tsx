@@ -1,6 +1,6 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import { Col, Form, Modal, Row } from "antd";
-import 'assets/css/_modal-confirm.scss';
+import "assets/css/_modal-confirm.scss";
 import ContentContainer from "component/container/content.container";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
@@ -8,12 +8,10 @@ import UrlConfig from "config/url.config";
 import { OrderReturnSingleContext } from "contexts/order-return/order-return-single-context";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import {
-  getLoyaltyPoint,
-  getLoyaltyUsage
-} from "domain/actions/loyalty/loyalty.action";
-import {
-  actionGetOrderReturnDetails, actionSetIsReceivedOrderReturn
+  actionGetOrderReturnDetails,
+  actionSetIsReceivedOrderReturn,
 } from "domain/actions/order/order-return.action";
 import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
@@ -26,13 +24,18 @@ import {
   OrderPaymentResponse,
   OrderResponse,
   OrderReturnModel,
-  ReturnProductModel
+  ReturnProductModel,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { deleteOrderReturnService, getOrderReturnService, orderRefundService, updateNoteOrderReturnService } from "service/order/return.service";
+import {
+  deleteOrderReturnService,
+  getOrderReturnService,
+  orderRefundService,
+  updateNoteOrderReturnService,
+} from "service/order/return.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
@@ -62,18 +65,11 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const [isError, setError] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
-  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(
-    null
-  );
-  const [listPaymentMethods, setListPaymentMethods] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
+  const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
+  const [listPaymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
 
-  const [isReceivedReturnProducts, setIsReceivedReturnProducts] =
-    useState(false);
-  const [listReturnProducts, setListReturnProducts] = useState<
-    ReturnProductModel[]
-  >([]);
+  const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
+  const [listReturnProducts, setListReturnProducts] = useState<ReturnProductModel[]>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentResponse>>([]);
 
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
@@ -81,87 +77,94 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const [refund, setRefund] = useState({
     point: 0,
     money: 0,
-  })
+  });
 
-  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH);
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRules] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+  const [loyaltyUsageRules, setLoyaltyUsageRules] = useState<Array<LoyaltyUsageResponse>>([]);
 
   const currentStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
 
   const [allowDeleteOrderReturn] = useAuthorization({
     acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
-    not: false
-  })
+    not: false,
+  });
 
   const [allowReceiveReturn] = useAuthorization({
     acceptPermissions: [ODERS_PERMISSIONS.RECEIVE_RETURN],
     not: false,
-    acceptStoreIds:[OrderDetail?.store_id||0]
+    acceptStoreIds: [OrderDetail?.store_id || 0],
   });
 
-  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(
+    isReceivedReturnProducts,
+    OrderDetail,
+  );
 
   const renderModalNotificationReturn = (content: string) => {
     Modal.error({
       title: "Không thể nhận hàng",
       content: content,
-      okType: 'danger'
+      okType: "danger",
     });
-  }
+  };
 
   const handleReceivedReturnProducts = useCallback(() => {
-    if(!OrderDetail?.id || !currentStores) {
+    if (!OrderDetail?.id || !currentStores) {
       return;
     }
 
-    const storeIds = currentStores.map(p => p.store_id);
+    const storeIds = currentStores.map((p) => p.store_id);
     if (storeIds.indexOf(OrderDetail.store_id || 0) === -1) {
       renderModalNotificationReturn("Tài khoản không thuộc cửa hàng được phân bổ");
       return;
     }
 
     if (!allowReceiveReturn) {
-      renderModalNotificationReturn("Tài khoản không có quyền nhận hàng vui lòng liên hệ IT để được cấp");
+      renderModalNotificationReturn(
+        "Tài khoản không có quyền nhận hàng vui lòng liên hệ IT để được cấp",
+      );
       return;
     }
 
     dispatch(
       actionSetIsReceivedOrderReturn(OrderDetail.id, () => {
         dispatch(
-          actionGetOrderReturnDetails(
-            OrderDetail.id,
-            (data: OrderReturnModel) => {
-              if (!data) {
-                setError(true);
-              } else {
-                let _data = { ...data };
-                setIsReceivedReturnProducts(true);
-                setOrderDetail(_data);
-                if(_data.payments) {
-                  setPayments(_data.payments);
-                }
-                if (_data?.payment_status) {
-                  setReturnPaymentStatus(_data?.payment_status);
-                }
-                setRefund({
-                  money: _data.money_refund || 0,
-                  point: _data.point_refund || 0,
-                })
+          actionGetOrderReturnDetails(OrderDetail.id, (data: OrderReturnModel) => {
+            if (!data) {
+              setError(true);
+            } else {
+              let _data = { ...data };
+              setIsReceivedReturnProducts(true);
+              setOrderDetail(_data);
+              if (_data.payments) {
+                setPayments(_data.payments);
               }
-              setCountChangeSubStatus(countChangeSubStatus + 1);
+              if (_data?.payment_status) {
+                setReturnPaymentStatus(_data?.payment_status);
+              }
+              setRefund({
+                money: _data.money_refund || 0,
+                point: _data.point_refund || 0,
+              });
             }
-          )
+            setCountChangeSubStatus(countChangeSubStatus + 1);
+          }),
         );
-      })
+      }),
     );
-  },[OrderDetail?.id, OrderDetail?.store_id, allowReceiveReturn, countChangeSubStatus, currentStores, dispatch])
+  }, [
+    OrderDetail?.id,
+    OrderDetail?.store_id,
+    allowReceiveReturn,
+    countChangeSubStatus,
+    currentStores,
+    dispatch,
+  ]);
 
   const handleDeleteOrderReturn = useCallback(() => {
     if (!OrderDetail) {
@@ -175,10 +178,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           history.push(
-            `${OrderDetail.channel === POS.channel_code
-              ? UrlConfig.OFFLINE_ORDERS
-              : UrlConfig.ORDER
-            }${UrlConfig.ORDERS_RETURN}`
+            `${
+              OrderDetail.channel === POS.channel_code ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER
+            }${UrlConfig.ORDERS_RETURN}`,
           );
         } else {
           handleFetchApiError(response, "Xóa đơn trả hàng", dispatch);
@@ -219,10 +221,14 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const initialFormValue = useMemo(() => {
     return {
       returnMoneyField: [
-        { returnMoneyMethod: PaymentMethodCode.CASH, returnMoneyNote: undefined, returnMoneyAmount: 0 },
+        {
+          returnMoneyMethod: PaymentMethodCode.CASH,
+          returnMoneyNote: undefined,
+          returnMoneyAmount: 0,
+        },
       ],
-    }
-  }, [])
+    };
+  }, []);
 
   const handleReturnMoney = () => {
     form.validateFields().then(() => {
@@ -240,15 +246,21 @@ const ScreenReturnDetail = (props: PropTypes) => {
               name: returnMoneyMethod.name,
               note: formValuePayment.returnMoneyNote || "",
               amount: Math.round(formValuePayment?.returnMoneyAmount || 0),
-              paid_amount:
-                Math.round(formValuePayment?.returnMoneyAmount || 0),
+              paid_amount: Math.round(formValuePayment?.returnMoneyAmount || 0),
               return_amount: 0,
               customer_id: OrderDetail?.customer_id,
               payment_method_code: returnMoneyMethod.code,
             },
           ];
-          if (refund.money > 0 && refund.point > 0 && OrderDetail?.payment_status === ORDER_PAYMENT_STATUS.unpaid) {
-            const pointPaymentMethod = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.POINT);
+          if (
+            refund.money > 0 &&
+            refund.point > 0 &&
+            OrderDetail?.payment_status === ORDER_PAYMENT_STATUS.unpaid
+          ) {
+            const pointPaymentMethod = findPaymentMethodByCode(
+              listPaymentMethods,
+              PaymentMethodCode.POINT,
+            );
             if (pointPaymentMethod) {
               payments.push({
                 payment_method_id: pointPaymentMethod.id,
@@ -260,7 +272,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 return_amount: 0,
                 customer_id: OrderDetail?.customer_id,
                 payment_method_code: pointPaymentMethod.code,
-              })
+              });
             }
           }
           // console.log('payments', payments);
@@ -269,39 +281,41 @@ const ScreenReturnDetail = (props: PropTypes) => {
             return;
           }
           dispatch(showLoading());
-          orderRefundService(OrderDetail?.id, { payments }).then(response => {
-            if(isFetchApiSuccessful(response)) {
-              getOrderReturnService(OrderDetail?.id).then(data => {
-                if(isFetchApiSuccessful(data)) {
-                  if (!data) {
-                    setError(true);
-                  } else {
-                    let dataResult = data.data;
-                    setOrderDetail(dataResult);
-                    if (dataResult.payments) {
-                      setPayments(dataResult.payments);
-                    }
-                    if (dataResult?.payment_status) {
-                      setReturnPaymentStatus(dataResult?.payment_status);
-                    }
-                    if (dataResult.payment_status !== ORDER_PAYMENT_STATUS.paid) {
-                      setIsShowPaymentMethod(true)
+          orderRefundService(OrderDetail?.id, { payments }).then((response) => {
+            if (isFetchApiSuccessful(response)) {
+              getOrderReturnService(OrderDetail?.id)
+                .then((data) => {
+                  if (isFetchApiSuccessful(data)) {
+                    if (!data) {
+                      setError(true);
                     } else {
-                      setIsShowPaymentMethod(false)
+                      let dataResult = data.data;
+                      setOrderDetail(dataResult);
+                      if (dataResult.payments) {
+                        setPayments(dataResult.payments);
+                      }
+                      if (dataResult?.payment_status) {
+                        setReturnPaymentStatus(dataResult?.payment_status);
+                      }
+                      if (dataResult.payment_status !== ORDER_PAYMENT_STATUS.paid) {
+                        setIsShowPaymentMethod(true);
+                      } else {
+                        setIsShowPaymentMethod(false);
+                      }
+                      setCountChangeSubStatus(countChangeSubStatus + 1);
                     }
-                    setCountChangeSubStatus(countChangeSubStatus + 1);
+                  } else {
+                    handleFetchApiError(data, "Chi tiết đơn trả hàng", dispatch);
                   }
-                } else {
-                  handleFetchApiError(data, "Chi tiết đơn trả hàng", dispatch)
-                }
-              }).finally(() => {
-                dispatch(hideLoading())
-              })
+                })
+                .finally(() => {
+                  dispatch(hideLoading());
+                });
             } else {
-              handleFetchApiError(response, "Tạo hoàn tiền", dispatch)
-              dispatch(hideLoading())
+              handleFetchApiError(response, "Tạo hoàn tiền", dispatch);
+              dispatch(hideLoading());
             }
-          })
+          });
         }
       }
     });
@@ -309,18 +323,21 @@ const ScreenReturnDetail = (props: PropTypes) => {
 
   // tổng tiền trừ điểm
   const totalAmountReturnToCustomer = useMemo(() => {
-    return Math.round((OrderDetail?.money_amount || 0));
+    return Math.round(OrderDetail?.money_amount || 0);
   }, [OrderDetail?.money_amount]);
 
   const totalAmountHasPaidToCustomerWithoutPointRefund = useMemo(() => {
     let result = 0;
-    OrderDetail?.payments?.forEach(single => {
-      if (single.status === ORDER_PAYMENT_STATUS.paid && single.payment_method_code !== PaymentMethodCode.POINT_REFUND) {
+    OrderDetail?.payments?.forEach((single) => {
+      if (
+        single.status === ORDER_PAYMENT_STATUS.paid &&
+        single.payment_method_code !== PaymentMethodCode.POINT_REFUND
+      ) {
         result = result + single.paid_amount;
       }
-    })
+    });
     return result;
-  }, [OrderDetail?.payments])
+  }, [OrderDetail?.payments]);
 
   const totalAmountReturnToCustomerLeft = useMemo(() => {
     return totalAmountReturnToCustomer - totalAmountHasPaidToCustomerWithoutPointRefund;
@@ -337,8 +354,13 @@ const ScreenReturnDetail = (props: PropTypes) => {
           returnMoneyAmount: totalAmountReturnToCustomerLeft,
         },
       ],
-    })
-  }, [form, initialFormValue.returnMoneyField, returnPaymentMethodCode, totalAmountReturnToCustomerLeft])
+    });
+  }, [
+    form,
+    initialFormValue.returnMoneyField,
+    returnPaymentMethodCode,
+    totalAmountReturnToCustomerLeft,
+  ]);
 
   /**
    * theme context data
@@ -421,21 +443,17 @@ const ScreenReturnDetail = (props: PropTypes) => {
   //   [calculateRefund, dispatch],
   // )
 
-  const calculateRefund = useCallback(
-    (OrderDetail: OrderResponse | null) => {
-      if (OrderDetail?.point_refund) {
-        setRefund({
-          money: OrderDetail.money_amount || 0,
-          point: OrderDetail?.point_refund,
-        })
-      }
-    },
-    [],
-  )
+  const calculateRefund = useCallback((OrderDetail: OrderResponse | null) => {
+    if (OrderDetail?.point_refund) {
+      setRefund({
+        money: OrderDetail.money_amount || 0,
+        point: OrderDetail?.point_refund,
+      });
+    }
+  }, []);
 
   const editNote = useCallback(
     (note, customerNote, orderID) => {
-
       updateNoteOrderReturnService(orderID, note, customerNote).then((response) => {
         if (isFetchApiSuccessful(response)) {
           let orderDetailCopy: any = { ...OrderDetail };
@@ -443,13 +461,13 @@ const ScreenReturnDetail = (props: PropTypes) => {
           orderDetailCopy.customer_note = customerNote;
           // console.log("orderDetailCopy", orderDetailCopy)
           setOrderDetail({ ...orderDetailCopy });
-          showSuccess("Cập nhật ghi chú thành công")
+          showSuccess("Cập nhật ghi chú thành công");
         } else {
           handleFetchApiError(response, "Cập nhật ghi chú đơn trả", dispatch);
         }
-      })
+      });
     },
-    [OrderDetail, dispatch]
+    [OrderDetail, dispatch],
   );
 
   useEffect(() => {
@@ -459,9 +477,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
         //   (single) => single.code !== PaymentMethodCode.CARD
         // );
         // update: ko bỏ quẹt thẻ nữa
-        let result = response.filter(
-          (single) => single.code
-        );
+        let result = response.filter((single) => single.code);
         setListPaymentMethods(result);
         if (id) {
           dispatch(
@@ -475,17 +491,16 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   (f) =>
                     f.status !== FulFillmentStatus.CANCELLED &&
                     f.status !== FulFillmentStatus.RETURNED &&
-                    f.status !== FulFillmentStatus.RETURNING
+                    f.status !== FulFillmentStatus.RETURNING,
                 );
                 setOrderDetail(_data);
                 if (_data.items) {
-                  let returnProductFormatted: ReturnProductModel[] =
-                    _data.items.map((single) => {
-                      return {
-                        ...single,
-                        maxQuantityCanBeReturned: single.quantity,
-                      };
-                    });
+                  let returnProductFormatted: ReturnProductModel[] = _data.items.map((single) => {
+                    return {
+                      ...single,
+                      maxQuantityCanBeReturned: single.quantity,
+                    };
+                  });
                   setListReturnProducts(returnProductFormatted);
                 }
 
@@ -500,19 +515,19 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 if (_data?.payment_status) {
                   setReturnPaymentStatus(_data.payment_status);
                   if (_data.payment_status !== ORDER_PAYMENT_STATUS.paid) {
-                    setIsShowPaymentMethod(true)
+                    setIsShowPaymentMethod(true);
                   } else {
-                    setIsShowPaymentMethod(false)
+                    setIsShowPaymentMethod(false);
                   }
                 }
-                setLoadingData(false)
+                setLoadingData(false);
               }
-            })
+            }),
           );
         } else {
           setError(true);
         }
-      })
+      }),
     );
   }, [calculateRefund, dispatch, id]);
 
@@ -539,29 +554,33 @@ const ScreenReturnDetail = (props: PropTypes) => {
       <ContentContainer
         isLoading={loadingData}
         isError={isError}
-        title= {
-          OrderDetail?.code
-          ? `Chi tiết đơn trả hàng ${OrderDetail?.code}`
-          : "Đang tải dữ liệu..."
+        title={
+          OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu..."
         }
-        breadcrumb={OrderDetail ? [
-          {
-            name: `Danh sách đơn trả hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-            path: isOrderFromPOS(OrderDetail) ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}` : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
-          },
-          {
-            name: OrderDetail?.code ? `Chi tiết đơn trả hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
-          },
-        ]: undefined}
+        breadcrumb={
+          OrderDetail
+            ? [
+                {
+                  name: `Danh sách đơn trả hàng ${
+                    isOrderFromPOS(OrderDetail) ? "offline" : "online"
+                  }`,
+                  path: isOrderFromPOS(OrderDetail)
+                    ? `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`
+                    : `${UrlConfig.ORDER}${UrlConfig.ORDERS_RETURN}`,
+                },
+                {
+                  name: OrderDetail?.code
+                    ? `Chi tiết đơn trả hàng ${OrderDetail?.code}`
+                    : "Đang tải dữ liệu...",
+                },
+              ]
+            : undefined
+        }
       >
         <div className="orders">
           <Row gutter={24} style={{ marginBottom: "70px" }}>
             <Col md={18}>
-              <Form
-                layout="vertical"
-                initialValues={initialFormValue}
-                form={form}
-              >
+              <Form layout="vertical" initialValues={initialFormValue} form={form}>
                 <UpdateCustomerCard
                   OrderDetail={OrderDetail}
                   customerDetail={customerDetail}

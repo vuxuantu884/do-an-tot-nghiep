@@ -1,6 +1,6 @@
-import { Button, Card, Form, Space } from "antd"
+import { Button, Card, Form, Space } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import ContentContainer from "component/container/content.container"
+import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -36,31 +36,36 @@ type UploadStatus = "ERROR" | "SUCCESS" | "DONE" | "PROCESSING" | "REMOVED" | un
 const ProcurementCreateScreen: React.FC = () => {
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
   const [isResetModalWarning, setIsResetModalWarning] = useState<boolean>(false);
-  const [dataResult, setDataResult] = useState<ProcurementCreate>()
-  const [listPO, setListPO] = useState<Array<PurchaseOrder>>([])
+  const [dataResult, setDataResult] = useState<ProcurementCreate>();
+  const [listPO, setListPO] = useState<Array<PurchaseOrder>>([]);
   const [linkFileImport, setLinkFileImport] = useState<string>();
   const [statusImport, setStatusImport] = useState<number>(CON_STATUS_IMPORT.DEFAULT);
   const [jobImportStatus, setJobImportStatus] = useState<EnumJobStatus>();
   const [uploadStatus, setUploadStatus] = useState<UploadStatus>(undefined);
   const [lstJob, setLstJob] = useState<Array<string>>([]);
-  const [errorMessage, setErrorMessage] = useState<string>('')
-  const [showModal, setShowModal] = useState<boolean>(false)
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
-  const history = useHistory()
-  const dispatch = useDispatch()
+  const history = useHistory();
+  const dispatch = useDispatch();
 
-  const [formMain] = Form.useForm()
+  const [formMain] = Form.useForm();
 
-  const getPOItems = useCallback(async (purchaseOrderIDS: string) => {
-    const ids = purchaseOrderIDS.split(',').join('&ids=')
-    const listPoRes = await callApiNative({ isShowError: true }, dispatch, listPurchaseOrderApi, { ids })
-    if (listPoRes) {
-      setListPO(listPoRes)
-    } else {
-      setUploadStatus(EnumJobStatus.error);
-      setErrorMessage('Không tìm thấy đơn nào')
-    }
-  }, [dispatch, setListPO])
+  const getPOItems = useCallback(
+    async (purchaseOrderIDS: string) => {
+      const ids = purchaseOrderIDS.split(",").join("&ids=");
+      const listPoRes = await callApiNative({ isShowError: true }, dispatch, listPurchaseOrderApi, {
+        ids,
+      });
+      if (listPoRes) {
+        setListPO(listPoRes);
+      } else {
+        setUploadStatus(EnumJobStatus.error);
+        setErrorMessage("Không tìm thấy đơn nào");
+      }
+    },
+    [dispatch, setListPO],
+  );
 
   const checkImportFile = useCallback(() => {
     let getFilePromises = lstJob.map((code) => {
@@ -70,22 +75,21 @@ const ProcurementCreateScreen: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-
           if (response.data && response.data.status === EnumJobStatus.finish) {
             if (response.data.message[0].po_ids) {
-              getPOItems(response.data.message[0].po_ids)
-              setDataResult(response.data)
+              getPOItems(response.data.message[0].po_ids);
+              setDataResult(response.data);
               setUploadStatus(EnumJobStatus.success);
             } else {
               setUploadStatus(EnumJobStatus.error);
-              setErrorMessage('Không tìm thấy đơn nào')
+              setErrorMessage("Không tìm thấy đơn nào");
             }
             if (response.data.error > 0) {
               var downLoad = document.createElement("a");
               downLoad.href = response.data.url;
               downLoad.download = "download";
-              downLoad.click()
-              setErrorMessage('Sản phẩm lỗi được hiển thị trong file tải về')
+              downLoad.click();
+              setErrorMessage("Sản phẩm lỗi được hiển thị trong file tải về");
             }
             setJobImportStatus(EnumJobStatus.finish);
             setStatusImport(CON_STATUS_IMPORT.JOB_FINISH);
@@ -95,7 +99,7 @@ const ProcurementCreateScreen: React.FC = () => {
             });
 
             setLstJob(newListExportFile);
-            return
+            return;
           } else if (response.data && response.data.status === EnumJobStatus.error) {
             setJobImportStatus(EnumJobStatus.error);
             setUploadStatus(EnumJobStatus.error);
@@ -105,7 +109,7 @@ const ProcurementCreateScreen: React.FC = () => {
               return item !== fileCode;
             });
             setLstJob(newListExportFile);
-            return
+            return;
           }
           setJobImportStatus(EnumJobStatus.processing);
         }
@@ -113,35 +117,38 @@ const ProcurementCreateScreen: React.FC = () => {
     });
   }, [getPOItems, lstJob, setDataResult, setJobImportStatus, setStatusImport]);
 
-  const onResultImport = useCallback((res) => {
-    if (res) {
-      const { status, code } = res;
-      if (status === EnumImportStatus.processing) {
-        setLstJob([code]);
-        checkImportFile();
+  const onResultImport = useCallback(
+    (res) => {
+      if (res) {
+        const { status, code } = res;
+        if (status === EnumImportStatus.processing) {
+          setLstJob([code]);
+          checkImportFile();
+        }
       }
-    }
-  }, [checkImportFile]);
+    },
+    [checkImportFile],
+  );
 
   //Đọc file excel chi tiết sản phẩm để map với DDH đã đặt
   const onFinish = () => {
     if (linkFileImport && linkFileImport.length > 0) {
-      setShowModal(true)
+      setShowModal(true);
       setUploadStatus(EnumImportStatus.processing);
       setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
-      const supplier_id = formMain.getFieldValue([ProcurementField.supplier_id])
-      const store_id = formMain.getFieldValue([ProcurementField.store_id])
-      const note = formMain.getFieldValue([ProcurementField.note])
+      const supplier_id = formMain.getFieldValue([ProcurementField.supplier_id]);
+      const store_id = formMain.getFieldValue([ProcurementField.store_id]);
+      const note = formMain.getFieldValue([ProcurementField.note]);
       const params: ImportProcument = {
         url: linkFileImport,
         conditions: `${supplier_id},${store_id}`,
         type: "IMPORT_PROCUREMENT_CREATE",
-        note: note
-      }
+        note: note,
+      };
       setJobImportStatus(EnumJobStatus.processing);
-      dispatch(importProcumentAction(params, onResultImport))
+      dispatch(importProcumentAction(params, onResultImport));
     }
-  }
+  };
 
   useEffect(() => {
     if (lstJob.length === 0 || jobImportStatus !== EnumJobStatus.processing) return;
@@ -150,20 +157,19 @@ const ProcurementCreateScreen: React.FC = () => {
     return () => clearInterval(getFileInterval);
   }, [lstJob, checkImportFile, jobImportStatus]);
 
-
   const onReset = useCallback(() => {
-    formMain.resetFields()
-    setListPO([])
-    setDataResult(undefined)
-    setLinkFileImport('')
-    setStatusImport(CON_STATUS_IMPORT.DEFAULT)
-    setJobImportStatus(undefined)
-    setUploadStatus(undefined)
-    setLstJob([])
-    setErrorMessage('')
-    setIsResetModalWarning(false)
-    setFileList([])
-  },[formMain])
+    formMain.resetFields();
+    setListPO([]);
+    setDataResult(undefined);
+    setLinkFileImport("");
+    setStatusImport(CON_STATUS_IMPORT.DEFAULT);
+    setJobImportStatus(undefined);
+    setUploadStatus(undefined);
+    setLstJob([]);
+    setErrorMessage("");
+    setIsResetModalWarning(false);
+    setFileList([]);
+  }, [formMain]);
 
   return (
     <ContentContainer
@@ -197,10 +203,11 @@ const ProcurementCreateScreen: React.FC = () => {
           />
           {!isEmpty(dataResult) && <ProcurementScanResult dataResult={dataResult} />}
         </Card>
-        {!isEmpty(listPO) && <Card>
-          <ProcurementResult formMain={formMain} listPO={listPO} />
-        </Card>}
-
+        {!isEmpty(listPO) && (
+          <Card>
+            <ProcurementResult formMain={formMain} listPO={listPO} />
+          </Card>
+        )}
       </Form>
       {isVisibleModalWarning && (
         <ModalConfirm
@@ -232,11 +239,11 @@ const ProcurementCreateScreen: React.FC = () => {
         leftComponent={
           <div
             onClick={() => {
-              let supplier_id = formMain.getFieldsValue([ProcurementField.supplier_id])
-              let store_id = formMain.getFieldsValue([ProcurementField.store_id])
-              let file = formMain.getFieldsValue([ProcurementField.file])
+              let supplier_id = formMain.getFieldsValue([ProcurementField.supplier_id]);
+              let store_id = formMain.getFieldsValue([ProcurementField.store_id]);
+              let file = formMain.getFieldsValue([ProcurementField.file]);
               if (supplier_id !== undefined || store_id !== undefined || file !== undefined) {
-                setIsVisibleModalWarning(true)
+                setIsVisibleModalWarning(true);
               }
             }}
             style={{ cursor: "pointer" }}
@@ -249,22 +256,18 @@ const ProcurementCreateScreen: React.FC = () => {
           <Space>
             <Button
               className="light"
-              onClick={() => {!isEmpty(listPO) ? onReset() : setIsResetModalWarning(true)} }
+              onClick={() => {
+                !isEmpty(listPO) ? onReset() : setIsResetModalWarning(true);
+              }}
             >
               Tạo mới
             </Button>
             {!isEmpty(listPO) ? (
-              <Button
-                type="primary"
-                onClick={() => history.push(`${UrlConfig.PROCUREMENT}`)}
-              >
+              <Button type="primary" onClick={() => history.push(`${UrlConfig.PROCUREMENT}`)}>
                 Xem danh sách phiếu
               </Button>
             ) : (
-              <Button
-                type="primary"
-                onClick={() => formMain.submit()}
-              >
+              <Button type="primary" onClick={() => formMain.submit()}>
                 Xác nhận nhập
               </Button>
             )}
@@ -272,7 +275,7 @@ const ProcurementCreateScreen: React.FC = () => {
         }
       />
     </ContentContainer>
-  )
-}
+  );
+};
 
-export default ProcurementCreateScreen
+export default ProcurementCreateScreen;

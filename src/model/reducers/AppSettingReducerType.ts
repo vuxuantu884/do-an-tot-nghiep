@@ -1,3 +1,3 @@
 export interface AppSettingReducerType {
-  collapse?: boolean
+  collapse?: boolean;
 }

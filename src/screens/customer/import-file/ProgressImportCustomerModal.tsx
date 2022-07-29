@@ -6,7 +6,6 @@ import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal } from "screens/ecommerce/common/commonStyle";
 import { StyledModalFooter } from "screens/ecommerce/common/commonStyle";
 
-
 type ProgressImportCustomerModalType = {
   visible: boolean;
   isDownloading: boolean;
@@ -16,9 +15,8 @@ type ProgressImportCustomerModalType = {
   progressPercent: number;
 };
 
-
 const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
-  props: ProgressImportCustomerModalType
+  props: ProgressImportCustomerModalType,
 ) => {
   const { visible, isDownloading, onOk, onCancel, progressData, progressPercent } = props;
 
@@ -26,9 +24,9 @@ const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
 
   useEffect(() => {
     if (progressData?.message) {
-    const errorList = progressData?.message.slice(0).split("\n");
-    const checkErrorList = errorList.filter((item: any) => item !== "")
-    setErrorData(checkErrorList);
+      const errorList = progressData?.message.slice(0).split("\n");
+      const checkErrorList = errorList.filter((item: any) => item !== "");
+      setErrorData(checkErrorList);
     }
   }, [progressData?.message]);
 
@@ -39,7 +37,6 @@ const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
   const cancelProgressImportCustomerModal = () => {
     onCancel && onCancel();
   };
-
 
   return (
     <Modal
@@ -54,18 +51,15 @@ const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
       maskClosable={false}
       footer={
         <StyledModalFooter>
-          {isDownloading ?
+          {isDownloading ? (
             <Button danger onClick={cancelProgressImportCustomerModal}>
               Hủy
             </Button>
-            : <div/>
-          }
+          ) : (
+            <div />
+          )}
 
-          <Button
-            type="primary"
-            onClick={okProgressImportCustomerModal}
-            loading={isDownloading}
-            >
+          <Button type="primary" onClick={okProgressImportCustomerModal} loading={isDownloading}>
             Xác nhận
           </Button>
         </StyledModalFooter>
@@ -77,56 +71,60 @@ const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
             <div>
               <div>Tổng cộng</div>
               <div className="total-count">
-                {isNullOrUndefined(progressData?.total) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
-            
+
             <div>
               <div>Đã xử lý</div>
-              <div style={{fontWeight: "bold"}}>
-                {isNullOrUndefined(progressData?.processed) ?
-                  "--" :
+              <div style={{ fontWeight: "bold" }}>
+                {isNullOrUndefined(progressData?.processed) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.processed}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
-            
+
             <div>
               <div>Thành công</div>
               <div className="total-updated">
-                {isNullOrUndefined(progressData?.success) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.success) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.success}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
-            
+
             <div>
               <div>Lỗi</div>
               <div className="total-error">
-                {isNullOrUndefined(progressData?.error) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.error) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.error}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
           </div>
@@ -139,24 +137,26 @@ const ProgressImportCustomerModal: React.FC<ProgressImportCustomerModalType> = (
           />
         </div>
 
-        {errorData.length ?
-            <div className="error-orders">
-              <div className="title">Chi tiết lỗi:</div>
-              <div className="error_message">
-                <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
-                  <ul style={{ color: "#E24343" }}>
-                    {errorData.map((error, index) => (
-                        <li key={index} style={{ marginBottom: "5px"}}>
-                          <span style={{fontWeight: 500}}>{error.split(":")[0]}</span>
-                          <span>:</span>
-                          <span>{error.split(":")[1]}</span>
-                        </li>
-                    ))}
-                  </ul>
-                </div>
+        {errorData.length ? (
+          <div className="error-orders">
+            <div className="title">Chi tiết lỗi:</div>
+            <div className="error_message">
+              <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
+                <ul style={{ color: "#E24343" }}>
+                  {errorData.map((error, index) => (
+                    <li key={index} style={{ marginBottom: "5px" }}>
+                      <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
+                      <span>:</span>
+                      <span>{error.split(":")[1]}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-            : <div/>}
+          </div>
+        ) : (
+          <div />
+        )}
       </StyledProgressDownloadModal>
     </Modal>
   );

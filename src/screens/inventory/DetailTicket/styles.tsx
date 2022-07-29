@@ -36,11 +36,11 @@ export const StyledWrapper = styled.div`
     margin-top: 20px;
 
     .border-red {
-      border-color: #FF0000 !important;
+      border-color: #ff0000 !important;
     }
 
     .border-violet {
-      border-color: #EE82EEFF !important;
+      border-color: #ee82eeff !important;
     }
 
     .border-orange {
@@ -58,7 +58,7 @@ export const StyledWrapper = styled.div`
     .ant-card-body {
       padding: 10px 20px;
     }
-    
+
     .ant-row {
       margin-bottom: 0 !important;
     }
@@ -107,7 +107,7 @@ export const StyledWrapper = styled.div`
         gap: 20px !important;
 
         a {
-          color: #2A2A86;
+          color: #2a2a86;
         }
 
         a > span {
@@ -138,11 +138,13 @@ export const StyledWrapper = styled.div`
     }
   }
 
-  .ant-table-summary > tr > td, .ant-table-summary > tr > th {
+  .ant-table-summary > tr > td,
+  .ant-table-summary > tr > th {
     border-bottom: none;
   }
 
-  .inventory-transfer-table, .inventory-info {
+  .inventory-transfer-table,
+  .inventory-info {
     .status {
       padding: 2px 8px;
       border-radius: 20px;
@@ -179,7 +181,7 @@ export const StyledWrapper = styled.div`
 
     &-detail {
       & > span {
-        color: #2A2A86;
+        color: #2a2a86;
         font-size: 18px;
         margin-left: 5px;
         width: 20px;
@@ -222,18 +224,19 @@ export const StyledWrapper = styled.div`
       border: none;
     }
   }
-  .ant-table-thead > tr > th, .ant-table-tbody >tr>td {
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
     padding: 5px 0 !important;
   }
   .checkbox {
     margin-right: 20px;
   }
-  
+
   .ant-btn {
     display: flex;
     align-items: center;
   }
-  
+
   .button-save {
     display: flex;
     justify-content: right;

@@ -8,7 +8,7 @@ import {
   createFilterConfigService,
   deleteFilterConfigService,
   getFilterConfigService,
-  updateFilterConfigService
+  updateFilterConfigService,
 } from "service/core/config.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -17,9 +17,9 @@ function useHandleFilterConfigs(
   filterType: string,
   formRef: React.RefObject<FormInstance<any>>,
   filterParams?: {
-    [key: string]: any
+    [key: string]: any;
   },
-  setTagActive?: (value: number | null ) => void,
+  setTagActive?: (value: number | null) => void,
   onSuccessCallback?: (res: BaseResponse<FilterConfig>) => void,
 ) {
   const [filterConfigs, setFilterConfigs] = useState<Array<FilterConfig>>([]);
@@ -34,13 +34,13 @@ function useHandleFilterConfigs(
         if (isFetchApiSuccessful(response)) {
           showSuccess(`Tạo mới bộ lọc thành công`);
           onSuccessCallback && onSuccessCallback(response);
-          setCountForceFetch(countForceFetch + 1)
+          setCountForceFetch(countForceFetch + 1);
         } else {
           handleFetchApiError(response, "Tạo mới bộ lọc", dispatch);
         }
       });
     },
-    [countForceFetch, dispatch, onSuccessCallback]
+    [countForceFetch, dispatch, onSuccessCallback],
   );
 
   const handleUpdateFilter = useCallback(
@@ -49,39 +49,42 @@ function useHandleFilterConfigs(
         if (isFetchApiSuccessful(response)) {
           showSuccess(`Lưu bộ lọc thành công`);
           onSuccessCallback && onSuccessCallback(response);
-          setCountForceFetch(countForceFetch + 1)
+          setCountForceFetch(countForceFetch + 1);
         } else {
           handleFetchApiError(response, "Lưu bộ lọc", dispatch);
         }
       });
     },
-    [countForceFetch, dispatch, onSuccessCallback]
+    [countForceFetch, dispatch, onSuccessCallback],
   );
 
   const handleDeleteFilter = useCallback(
     (configId: number | undefined) => {
-      if(configId) {
+      if (configId) {
         deleteFilterConfigService(configId).then((response) => {
           if (isFetchApiSuccessful(response)) {
             showSuccess(`Xóa bộ lọc thành công`);
-            setCountForceFetch(countForceFetch + 1)
+            setCountForceFetch(countForceFetch + 1);
           } else {
             handleFetchApiError(response, "Xóa bộ lọc", dispatch);
           }
         });
-
       }
     },
-    [countForceFetch, dispatch]
+    [countForceFetch, dispatch],
   );
 
   const onSaveFilter = useCallback(
     (request: FilterConfigRequest) => {
       if (request) {
-        let json_content = JSON.stringify(filterParams, function (k, v) {
-          return v === undefined ? null : v;
-        }, 1);
-        console.log('json_content', json_content)
+        let json_content = JSON.stringify(
+          filterParams,
+          function (k, v) {
+            return v === undefined ? null : v;
+          },
+          1,
+        );
+        console.log("json_content", json_content);
         request.type = filterType;
         request.json_content = json_content;
 
@@ -96,22 +99,25 @@ function useHandleFilterConfigs(
         }
       }
     },
-    [filterParams, filterType, filterConfigs, handleUpdateFilter, handleCreateFilter]
+    [filterParams, filterType, filterConfigs, handleUpdateFilter, handleCreateFilter],
   );
 
-  const onSelectFilterConfig = useCallback((id: number)=>{
-    setTagActive && setTagActive(id);
-    const filterConfig = filterConfigs.find(e=>e.id === id);
-    if (filterConfig) {
-      let json_content = JSON.parse(filterConfig.json_content);
+  const onSelectFilterConfig = useCallback(
+    (id: number) => {
+      setTagActive && setTagActive(id);
+      const filterConfig = filterConfigs.find((e) => e.id === id);
+      if (filterConfig) {
+        let json_content = JSON.parse(filterConfig.json_content);
 
-      Object.keys(json_content).forEach(function(key, index) {
-        if (json_content[key] == null) json_content[key] = undefined;
-      }, json_content);
-      formRef.current?.setFieldsValue(json_content);
-      formRef.current?.submit();
-    }
-  },[filterConfigs, formRef, setTagActive]);
+        Object.keys(json_content).forEach(function (key, index) {
+          if (json_content[key] == null) json_content[key] = undefined;
+        }, json_content);
+        formRef.current?.setFieldsValue(json_content);
+        formRef.current?.submit();
+      }
+    },
+    [filterConfigs, formRef, setTagActive],
+  );
 
   useEffect(() => {
     let account = userReducer.account;

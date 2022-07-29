@@ -17,8 +17,7 @@ export interface ExportResponse extends BaseObject {
   percent?: number;
 }
 
-
-export interface ExportProductResponse extends BaseObject{
+export interface ExportProductResponse extends BaseObject {
   api_error: string;
   download_type: string;
   errors_msg: string;
@@ -36,8 +35,8 @@ export interface ImportRequest {
   url?: string;
   conditions?: string;
   type: string;
-  store_ids?: string,
-  remain?: string
+  store_ids?: string;
+  remain?: string;
 }
 
 export interface ImportResponse extends BaseObject {

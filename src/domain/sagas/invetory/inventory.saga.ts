@@ -1,4 +1,4 @@
-import { InventoryResponse } from './../../../model/inventory/index';
+import { InventoryResponse } from "./../../../model/inventory/index";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
@@ -7,16 +7,27 @@ import { InventoryConfigType, InventoryType } from "domain/types/inventory.type"
 import { PageResponse } from "model/base/base-metadata.response";
 import { AllInventoryResponse, HistoryInventoryResponse } from "model/inventory";
 import { call, put, takeLatest } from "redux-saga/effects";
-import { createInventoryConfigService, deleteInventoryConfigService, getInventoryByVariantsApi, getInventoryConfigService, inventoryGetApi, inventoryGetDetailApi, inventoryGetDetailVariantIdsApi, inventoryGetDetailVariantIdsExtApi, inventoryGetHistoryApi, updateInventoryConfigService } from "service/inventory";
+import {
+  createInventoryConfigService,
+  deleteInventoryConfigService,
+  getInventoryByVariantsApi,
+  getInventoryConfigService,
+  inventoryGetApi,
+  inventoryGetDetailApi,
+  inventoryGetDetailVariantIdsApi,
+  inventoryGetDetailVariantIdsExtApi,
+  inventoryGetHistoryApi,
+  updateInventoryConfigService,
+} from "service/inventory";
 import { showError } from "utils/ToastUtils";
-import { FilterConfig } from 'model/other';
+import { FilterConfig } from "model/other";
 
 function* inventoryGetSaga(action: YodyAction) {
   let { query, onResult } = action.payload;
   try {
     const response: BaseResponse<PageResponse<AllInventoryResponse>> = yield call(
       inventoryGetApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -41,7 +52,7 @@ function* inventoryGetDetailSaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<AllInventoryResponse>> = yield call(
       inventoryGetDetailApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -66,7 +77,7 @@ function* inventoryGetHistorySaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<HistoryInventoryResponse>> = yield call(
       inventoryGetHistoryApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -93,7 +104,7 @@ function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
     const response: BaseResponse<PageResponse<Array<InventoryResponse>>> = yield call(
       inventoryGetDetailVariantIdsApi,
       variant_id,
-      store_id
+      store_id,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -113,7 +124,6 @@ function* inventoryGetDetailVariantIdsSaga(action: YodyAction) {
   }
 }
 
-
 function* inventoryGetDetailVariantIdsExtSaga(action: YodyAction) {
   const { variant_id, store_id, setData } = action.payload;
   try {
@@ -121,7 +131,7 @@ function* inventoryGetDetailVariantIdsExtSaga(action: YodyAction) {
     const response: BaseResponse<PageResponse<Array<InventoryResponse>>> = yield call(
       inventoryGetDetailVariantIdsExtApi,
       variant_id,
-      store_id
+      store_id,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -142,12 +152,12 @@ function* inventoryGetDetailVariantIdsExtSaga(action: YodyAction) {
 }
 
 function* inventoryByVariantsSaga(action: YodyAction) {
-  const {query, onResult} = action.payload;
+  const { query, onResult } = action.payload;
   try {
     console.log(query);
     const response: BaseResponse<Array<InventoryResponse>> = yield call(
       getInventoryByVariantsApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -169,12 +179,9 @@ function* inventoryByVariantsSaga(action: YodyAction) {
 }
 
 function* getConfigInventorySaga(action: YodyAction) {
-  const {code, onResult } = action.payload;
+  const { code, onResult } = action.payload;
   try {
-    let response: BaseResponse<Array<FilterConfig>> = yield call(
-      getInventoryConfigService,
-      code
-    );
+    let response: BaseResponse<Array<FilterConfig>> = yield call(getInventoryConfigService, code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response);
@@ -195,16 +202,13 @@ function* getConfigInventorySaga(action: YodyAction) {
 function* createConfigInventorySaga(action: YodyAction) {
   const { request, onResult } = action.payload;
   try {
-    let response: BaseResponse<FilterConfig> = yield call(
-      createInventoryConfigService,
-      request
-    );
+    let response: BaseResponse<FilterConfig> = yield call(createInventoryConfigService, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult && onResult(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
-        onResult &&  onResult(false);
+        onResult && onResult(false);
         yield put(unauthorizedAction());
         break;
       default:
@@ -221,10 +225,7 @@ function* createConfigInventorySaga(action: YodyAction) {
 function* updateConfigInventorySaga(action: YodyAction) {
   const { request, onResult } = action.payload;
   try {
-    let response: BaseResponse<FilterConfig> = yield call(
-      updateInventoryConfigService,
-      request
-    );
+    let response: BaseResponse<FilterConfig> = yield call(updateInventoryConfigService, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult && onResult(response.data);
@@ -247,10 +248,7 @@ function* updateConfigInventorySaga(action: YodyAction) {
 function* deleteConfigInventorySaga(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<FilterConfig> = yield call(
-      deleteInventoryConfigService,
-      id
-    );
+    let response: BaseResponse<FilterConfig> = yield call(deleteInventoryConfigService, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);

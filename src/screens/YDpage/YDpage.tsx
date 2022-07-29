@@ -75,7 +75,7 @@ const YDpage: React.FC = () => {
 
   useEffect(() => {
     const iframe: HTMLIFrameElement | null = document.querySelector(
-      '[name="ydpage-callback-iframe"]'
+      '[name="ydpage-callback-iframe"]',
     );
     iframe?.addEventListener("load", function () {
       const url = new URL(window.location.href);
@@ -146,7 +146,8 @@ const YDpage: React.FC = () => {
           className="ydpage-iframe"
           title="ydpage"
           src={getYdPageUrl()}
-          style={{ width: "100%", height: "100%" }}></iframe>
+          style={{ width: "100%", height: "100%" }}
+        ></iframe>
       )}
       {source === allSource.FACEBOOK && fbCode && !isLogining && (
         <iframe
@@ -154,7 +155,8 @@ const YDpage: React.FC = () => {
           className="ydpage-iframe"
           title="ydpage"
           src={`${YDPAGE_URL}auth/facebook/callback?code=${fbCode}`}
-          style={{ width: "100%", height: "100%" }}></iframe>
+          style={{ width: "100%", height: "100%" }}
+        ></iframe>
       )}
     </StyledYDpage>
   );

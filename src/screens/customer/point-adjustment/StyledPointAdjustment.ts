@@ -4,7 +4,7 @@ export const StyledPointAdjustment = styled.div`
   .page-header {
     height: auto;
   }
-  
+
   .ant-form-item {
     margin-bottom: 20px;
   }
@@ -21,7 +21,7 @@ export const StyledPointAdjustment = styled.div`
       width: 15%;
       margin-right: 10px;
     }
-  
+
     .form-adjustment-arrow-icon {
       height: 38px;
       line-height: 38px;
@@ -33,7 +33,7 @@ export const StyledPointAdjustment = styled.div`
     margin-right: 10px;
     min-width: 50px;
     flex-grow: 1;
-    width:10%
+    width: 10%;
   }
 
   .select-reason {
@@ -52,7 +52,6 @@ export const StyledPointAdjustment = styled.div`
     margin-right: 10px;
     min-width: 13%;
     width: 13%;
-    
   }
 
   .select-scope {
@@ -64,7 +63,6 @@ export const StyledPointAdjustment = styled.div`
       width: 40%;
     }
   }
-
 
   .filter-tags {
     .ant-tag {
@@ -82,7 +80,6 @@ export const StyledPointAdjustment = styled.div`
   .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th {
     text-align: center;
   }
-
 `;
 
 export const StyledPointAdjustmentDetail = styled.div`
@@ -91,7 +88,7 @@ export const StyledPointAdjustmentDetail = styled.div`
   }
 `;
 
-export const StyledCreatePointAdjustment= styled.div`
+export const StyledCreatePointAdjustment = styled.div`
   .create-point-adjustments {
     .ant-form-item {
       margin: 0 0 20px;
@@ -101,7 +98,7 @@ export const StyledCreatePointAdjustment= styled.div`
         font-weight: 500;
         margin-bottom: 8px;
       }
-      
+
       &-content {
         &-info-customer {
           display: flex;
@@ -113,12 +110,12 @@ export const StyledCreatePointAdjustment= styled.div`
         flex-grow: 1;
         margin-right: 20px;
       }
-			
-			.customer-adjustment-file-name {
-				display: flex;
-				align-items: center;
-				padding-left: 20px;
-			}
+
+      .customer-adjustment-file-name {
+        display: flex;
+        align-items: center;
+        padding-left: 20px;
+      }
     }
 
     .footer-controller {
@@ -168,5 +165,4 @@ export const StyledCreatePointAdjustment= styled.div`
       }
     }
   }
-
 `;

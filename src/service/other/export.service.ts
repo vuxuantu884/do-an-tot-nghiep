@@ -1,40 +1,40 @@
 import { RequestExportExcelQuery } from "model/query/ecommerce.query";
-import { ExportRequest, ExportResponse, ExportProductResponse} from "model/other/files/export-model";
+import {
+  ExportRequest,
+  ExportResponse,
+  ExportProductResponse,
+} from "model/other/files/export-model";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 
-export const exportFile = (
-  params: ExportRequest
-): Promise<BaseResponse<ExportResponse>> => {
+export const exportFile = (params: ExportRequest): Promise<BaseResponse<ExportResponse>> => {
   return BaseAxios.post(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs`, params);
 };
-export const getFile = (
-  code: string
-): Promise<BaseResponse<ExportResponse>> => {
+export const getFile = (code: string): Promise<BaseResponse<ExportResponse>> => {
   return BaseAxios.get(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs/${code}`);
 };
 
 export const exportFileProduct = (
-  params: RequestExportExcelQuery
+  params: RequestExportExcelQuery,
 ): Promise<BaseResponse<ExportProductResponse>> => {
   return BaseAxios.post(`${ApiConfig.ECOMMERCE}/import-export/variants-export`, params);
 };
 
 export const getFileProduct = (
-  process_id: number
+  process_id: number,
 ): Promise<BaseResponse<ExportProductResponse>> => {
   return BaseAxios.get(`${ApiConfig.ECOMMERCE}${ApiConfig.IMPORT_EXPORT}/${process_id}`);
 };
 
 export const webAppExportFileProduct = (
-  params: RequestExportExcelQuery
+  params: RequestExportExcelQuery,
 ): Promise<BaseResponse<ExportProductResponse>> => {
   return BaseAxios.post(`${ApiConfig.WEB_APP}/import-export/variants-export`, params);
 };
 
 export const webAppGetFileProduct = (
-  process_id: number
+  process_id: number,
 ): Promise<BaseResponse<ExportProductResponse>> => {
   return BaseAxios.get(`${ApiConfig.WEB_APP}${ApiConfig.IMPORT_EXPORT}/${process_id}`);
 };

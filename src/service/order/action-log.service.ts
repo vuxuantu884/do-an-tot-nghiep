@@ -7,13 +7,13 @@ import {
 } from "model/response/order/action-log.response";
 
 export const getOrderActionLogsService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<OrderActionLogResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/${id}/log`);
 };
 
 export const getActionLogDetailService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<ActionLogDetailResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/log/${id}`);
 };

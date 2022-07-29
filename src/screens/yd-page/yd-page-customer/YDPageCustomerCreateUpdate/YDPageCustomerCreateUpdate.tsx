@@ -1,22 +1,19 @@
 /* eslint-disable jsx-a11y/anchor-is-valid */
-import React, {createRef, useEffect, useMemo, useState} from "react";
-import {Form, Button, Card, Tag, Input, Select, DatePicker, Divider, FormInstance} from "antd";
+import React, { createRef, useEffect, useMemo, useState } from "react";
+import { Form, Button, Card, Tag, Input, Select, DatePicker, Divider, FormInstance } from "antd";
 
-import {
-  CreateCustomer,
-  UpdateCustomer,
-} from "domain/actions/customer/customer.action";
+import { CreateCustomer, UpdateCustomer } from "domain/actions/customer/customer.action";
 import { useDispatch } from "react-redux";
-import {showSuccess, showError} from "utils/ToastUtils";
+import { showSuccess, showError } from "utils/ToastUtils";
 import "screens/yd-page/yd-page-customer/customer.scss";
 import moment from "moment";
 import YDpageCustomerAreaInfo from "screens/yd-page/component/YDpageCustomerAreaInfo";
 import phonePlus from "assets/icon/phone-plus.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
-import {RegUtil} from "utils/RegUtils";
+import { RegUtil } from "utils/RegUtils";
 import AddPhoneModal from "../AddPhoneModal";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import {GENDER_OPTIONS} from "utils/Constants";
+import { GENDER_OPTIONS } from "utils/Constants";
 import { CustomerModel } from "model/request/customer.request";
 
 const YDPageCustomerCreateUpdate = (props: any) => {
@@ -36,25 +33,25 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
-		setCustomerDefaultPhone
+    setCustomerDefaultPhone,
   } = props;
 
   const [form] = Form.useForm();
-	const formRef = createRef<FormInstance>();
+  const formRef = createRef<FormInstance>();
   const dispatch = useDispatch();
 
   const [status] = useState<string>("active");
 
   // // Update new customer info
   const updateNewCustomerInfo = (fieldName: string, value: any) => {
-    const tempNewCustomerInfo = {...newCustomerInfo};
+    const tempNewCustomerInfo = { ...newCustomerInfo };
     tempNewCustomerInfo[fieldName] = value;
     setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
 
-	const isEditCustomer = useMemo(() => {
-		return !!customer;
-	}, [customer]);
+  const isEditCustomer = useMemo(() => {
+    return !!customer;
+  }, [customer]);
 
   useEffect(() => {
     if (customer) {
@@ -67,7 +64,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
         city_id: customer.city_id,
         district_id: customer.district_id,
         ward_id: customer.ward_id,
-        full_address: customer.full_address
+        full_address: customer.full_address,
       };
       form.setFieldsValue(formValue);
     } else {
@@ -80,7 +77,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
         city_id: null,
         district_id: null,
         ward_id: null,
-        full_address: null
+        full_address: null,
       };
       form.setFieldsValue(formValue);
     }
@@ -88,7 +85,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 
   useEffect(() => {
     if (!customer) {
-      const tempNewCustomerInfo = {...newCustomerInfo};
+      const tempNewCustomerInfo = { ...newCustomerInfo };
       tempNewCustomerInfo.full_name = customerFbName;
       tempNewCustomerInfo.phone = customerPhone;
       setNewCustomerInfo(tempNewCustomerInfo);
@@ -98,15 +95,14 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 
   const handleBlurName = (value: any) => {
     updateNewCustomerInfo("full_name", value.trim());
-    form.setFieldsValue({ "full_name": value.trim() });
+    form.setFieldsValue({ full_name: value.trim() });
   };
 
   // update customer phone
   const [visiblePhoneModal, setVisiblePhoneModal] = React.useState<boolean>(false);
   const [visibleDeletePhoneModal, setVisibleDeletePhoneModal] = useState<boolean>(false);
 
-  const [doDeletePhone, setDoDeletePhone] = React.useState<() => void>(() => () => { });
-
+  const [doDeletePhone, setDoDeletePhone] = React.useState<() => void>(() => () => {});
 
   const showPhoneModal = () => {
     setVisiblePhoneModal(true);
@@ -129,13 +125,13 @@ const YDPageCustomerCreateUpdate = (props: any) => {
       updateNewCustomerInfo("phone", phone);
       form.setFieldsValue({ phone: phone });
       getCustomerWhenPhoneChange(phone);
-			setCustomerDefaultPhone(phone)
+      setCustomerDefaultPhone(phone);
     }
   };
   // end update customer phone
 
   // handle select customer
-  const onSelectCustomer = (value: string,) => {
+  const onSelectCustomer = (value: string) => {
     updateNewCustomerInfo("customer_group_id", value);
   };
 
@@ -151,7 +147,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
 
   const isDisableForm = () => {
     return (customer && !allowUpdateCustomer) || (!customer && !allowCreateCustomer);
-  }
+  };
 
   // handle submit
   const setResultUpdate = React.useCallback(
@@ -161,17 +157,16 @@ const YDPageCustomerCreateUpdate = (props: any) => {
         getCustomerWhenPhoneChange(result.phone);
       }
     },
-    [getCustomerWhenPhoneChange]
+    [getCustomerWhenPhoneChange],
   );
   const setResultCreate = React.useCallback(
     (result) => {
       if (result) {
         showSuccess("Tạo khách hàng thành công");
         getCustomerWhenPhoneChange(result.phone);
-
       }
     },
-    [getCustomerWhenPhoneChange]
+    [getCustomerWhenPhoneChange],
   );
   const handleSubmitOption = (values: any) => {
     if (customer) {
@@ -204,81 +199,91 @@ const YDPageCustomerCreateUpdate = (props: any) => {
     const fieldValue = form.getFieldsValue(true);
     if (!fieldValue.full_name) {
       showError("Vui lòng nhập tên khách hàng");
-      return ;
+      return;
     }
     if (!fieldValue.phone) {
       showError("Vui lòng nhập số điện thoại khách hàng");
-      return ;
+      return;
     }
     form.submit();
-  }
+  };
   // end handle submit
 
-	// handle note
-	const [notes, setNotes] = React.useState<any>([]);
-	const [note, setNote] = React.useState<string>('');
-	window.addEventListener('message', async (e) => {
-		const { data } = e;
-		const { service, res } = data;
+  // handle note
+  const [notes, setNotes] = React.useState<any>([]);
+  const [note, setNote] = React.useState<string>("");
+  window.addEventListener(
+    "message",
+    async (e) => {
+      const { data } = e;
+      const { service, res } = data;
 
-		if (service === 'notes') {
-			setNotes(res);
-		}
-	}, false);
+      if (service === "notes") {
+        setNotes(res);
+      }
+    },
+    false,
+  );
 
-	const handleNote = {
-		get: (e: any) => {
-			e.preventDefault()
-			window.parent.postMessage({
-				service: 'notes',
-				action: 'list',
-				params: {}
-			}, '*');
-		},
-		create: (noteContent: any) => {
-			if (noteContent) {
-				window.parent.postMessage({
-					service: 'notes',
-					action: 'add',
-					params: {
-						content: noteContent
-					}
-				}, '*');
-				form.setFieldsValue({ note: "" });
-				showSuccess("Thêm mới ghi chú thành công");
-			}
-		},
-		delete: (note: any) => {
-			if (note) {
-				window.parent.postMessage({
-					service: 'notes',
-					action: 'remove',
-					params: {
-						noteId: note.id
-					}
-				}, '*');
-				showSuccess("Xóa ghi chú thành công");
-			}
-		},
-	}
-	// end handle note
+  const handleNote = {
+    get: (e: any) => {
+      e.preventDefault();
+      window.parent.postMessage(
+        {
+          service: "notes",
+          action: "list",
+          params: {},
+        },
+        "*",
+      );
+    },
+    create: (noteContent: any) => {
+      if (noteContent) {
+        window.parent.postMessage(
+          {
+            service: "notes",
+            action: "add",
+            params: {
+              content: noteContent,
+            },
+          },
+          "*",
+        );
+        form.setFieldsValue({ note: "" });
+        showSuccess("Thêm mới ghi chú thành công");
+      }
+    },
+    delete: (note: any) => {
+      if (note) {
+        window.parent.postMessage(
+          {
+            service: "notes",
+            action: "remove",
+            params: {
+              noteId: note.id,
+            },
+          },
+          "*",
+        );
+        showSuccess("Xóa ghi chú thành công");
+      }
+    },
+  };
+  // end handle note
 
   return (
     <div className="yd-page-customer-create-update">
       <Form
         form={form}
-				ref={formRef}
+        ref={formRef}
         name="customer_add"
         onFinish={handleSubmitOption}
         layout="vertical"
-        style={{width: "100% !important" }}
+        style={{ width: "100% !important" }}
       >
         <Card>
           {/*Customer name*/}
-          <Form.Item
-            name="full_name"
-            rules={[{ required: true, message: "Nhập tên khách hàng"}]}
-          >
+          <Form.Item name="full_name" rules={[{ required: true, message: "Nhập tên khách hàng" }]}>
             <Input
               maxLength={255}
               placeholder="Nhập tên khách hàng"
@@ -302,11 +307,12 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                   pattern: RegUtil.PHONE,
                   message: "Số điện thoại chưa đúng định dạng",
                 },
-              ]}>
+              ]}
+            >
               <Input
-                disabled={true}   // Nhập số điện thoại ở thêm mới số điện thoại
+                disabled={true} // Nhập số điện thoại ở thêm mới số điện thoại
                 placeholder="Nhập số điện thoại"
-								className="phone-disabled"
+                className="phone-disabled"
               />
             </Form.Item>
 
@@ -325,12 +331,13 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                 customerPhones.map((phone: any, index: any) => (
                   <Tag
                     key={index}
-                    style={{ 
-											cursor: "pointer",
-											borderColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
-											backgroundColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
-										}}
-                    onClick={() => onSelectPhone(phone)}>
+                    style={{
+                      cursor: "pointer",
+                      borderColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+                      backgroundColor: customerPhone === phone ? "#dcdcff" : "#f4f4f7",
+                    }}
+                    onClick={() => onSelectPhone(phone)}
+                  >
                     {phone}
                     <img
                       alt="delete"
@@ -338,7 +345,7 @@ const YDPageCustomerCreateUpdate = (props: any) => {
                         e.stopPropagation();
                         showConfirmDeletePhone(phone);
                       }}
-                      style={{width: 16, marginBottom: 2}}
+                      style={{ width: 16, marginBottom: 2 }}
                       src={XCloseBtn}
                     />
                   </Tag>
@@ -346,165 +353,163 @@ const YDPageCustomerCreateUpdate = (props: any) => {
             </div>
           )}
 
-					{isEditCustomer &&
-						<>
-							<YDpageCustomerAreaInfo
-								form={form}
-								formRef={formRef}
-								areaList={areaList}
-								customer={customer}
-								isDisable={isDisableForm()}
-								newCustomerInfo={newCustomerInfo}
-								setNewCustomerInfo={setNewCustomerInfo}
-								updateNewCustomerInfo={(fieldName: string, value: any) => updateNewCustomerInfo(fieldName, value)}
-							/>
+          {isEditCustomer && (
+            <>
+              <YDpageCustomerAreaInfo
+                form={form}
+                formRef={formRef}
+                areaList={areaList}
+                customer={customer}
+                isDisable={isDisableForm()}
+                newCustomerInfo={newCustomerInfo}
+                setNewCustomerInfo={setNewCustomerInfo}
+                updateNewCustomerInfo={(fieldName: string, value: any) =>
+                  updateNewCustomerInfo(fieldName, value)
+                }
+              />
 
-							{/*customer card, group*/}
-							<div className="item-row">
-								<Form.Item
-									name="card_number"
-									className="left-item"
-								>
-									<Input
-										placeholder="Mã thẻ KH"
-										allowClear
-										onBlur={(e) => {
-											form?.setFieldsValue({ card_number: e.target.value.trim() });
-											updateNewCustomerInfo("card_number", e.target.value.trim());
-										}}
-									/>
-								</Form.Item>
+              {/*customer card, group*/}
+              <div className="item-row">
+                <Form.Item name="card_number" className="left-item">
+                  <Input
+                    placeholder="Mã thẻ KH"
+                    allowClear
+                    onBlur={(e) => {
+                      form?.setFieldsValue({
+                        card_number: e.target.value.trim(),
+                      });
+                      updateNewCustomerInfo("card_number", e.target.value.trim());
+                    }}
+                  />
+                </Form.Item>
 
-								<Form.Item
-									name="customer_group_id"
-									className="right-item"
-								>
-									<Select
-										showSearch
-										allowClear
-										optionFilterProp="children"
+                <Form.Item name="customer_group_id" className="right-item">
+                  <Select
+                    showSearch
+                    allowClear
+                    optionFilterProp="children"
                     getPopupContainer={(trigger: any) => trigger.parentElement}
-										onChange={onSelectCustomer}
-										placeholder={
-											<React.Fragment>
-												<span> Nhóm khách hàng</span>
-											</React.Fragment>
-										}
-										className="select-with-search"
-									>
-										{customerGroups &&
-											customerGroups.map((group: any) => (
-												<Select.Option key={group.id} value={group.id}>
-													{group.name}
-												</Select.Option>
-											))}
-									</Select>
-								</Form.Item>
-							</div>
+                    onChange={onSelectCustomer}
+                    placeholder={
+                      <React.Fragment>
+                        <span> Nhóm khách hàng</span>
+                      </React.Fragment>
+                    }
+                    className="select-with-search"
+                  >
+                    {customerGroups &&
+                      customerGroups.map((group: any) => (
+                        <Select.Option key={group.id} value={group.id}>
+                          {group.name}
+                        </Select.Option>
+                      ))}
+                  </Select>
+                </Form.Item>
+              </div>
 
-							{/*gender, phone*/}
-							<div className="item-row">
-								<Form.Item
-									name="gender"
-									className="left-item"
-								>
-									<Select
-										onChange={onSelectGender}
-										placeholder="Giới tính"
+              {/*gender, phone*/}
+              <div className="item-row">
+                <Form.Item name="gender" className="left-item">
+                  <Select
+                    onChange={onSelectGender}
+                    placeholder="Giới tính"
                     getPopupContainer={(trigger: any) => trigger.parentElement}
-										allowClear
-									>
-										{GENDER_OPTIONS.map((gender: any) => (
-											<Select.Option key={gender.value} value={gender.value}>
-												{gender.label}
-											</Select.Option>
-										))}
-									</Select>
-								</Form.Item>
+                    allowClear
+                  >
+                    {GENDER_OPTIONS.map((gender: any) => (
+                      <Select.Option key={gender.value} value={gender.value}>
+                        {gender.label}
+                      </Select.Option>
+                    ))}
+                  </Select>
+                </Form.Item>
 
-
-								<Form.Item
-									name="birthday"
-									className="right-item"
-								>
-									<DatePicker
-										style={{ width: "100%" }}
-										placeholder="Ngày sinh"
-										format={"DD/MM/YYYY"}
+                <Form.Item name="birthday" className="right-item">
+                  <DatePicker
+                    style={{ width: "100%" }}
+                    placeholder="Ngày sinh"
+                    format={"DD/MM/YYYY"}
                     getPopupContainer={(trigger: any) => trigger.parentElement}
-										onChange={onChangeBirthDay}
-									/>
-								</Form.Item>
-							</div>
+                    onChange={onChangeBirthDay}
+                  />
+                </Form.Item>
+              </div>
 
-							{/*submit button*/}
-							<div style={{ display: "flex", justifyContent: "flex-end" }}>
-								<Button
-									type="primary"
-									style={{ height:"32px" }}
-									onClick={handleSubmitCreateUpdate}
-								>
-									Lưu
-								</Button>
-							</div>
-						</>
-					}
+              {/*submit button*/}
+              <div style={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button
+                  type="primary"
+                  style={{ height: "32px" }}
+                  onClick={handleSubmitCreateUpdate}
+                >
+                  Lưu
+                </Button>
+              </div>
+            </>
+          )}
 
-          <Divider style={{margin: "8px 0"}} />
+          <Divider style={{ margin: "8px 0" }} />
 
           {/*Ghi chú*/}
-          <div><b>Ghi chú</b></div>
-					<Form.Item
-						name="note"
-						className="note-container"
-						rules={[
-							{
-								max: 1000,
-								message: 'Vui lòng không nhập quá 1000 kí tự'
-							},
-						]}
-					>
-						<Input
-							maxLength={1000}
-							placeholder="Nhập ghi chú"
-							onPressEnter={async (e: any) => {
-								await handleNote.get(e)
-								await handleNote.create(e.target.value)
-								setNote('')
-							}}
-							onChange={(e: any) => setNote(e.target.value)}
-							value={note}
-						/>
-						<Button type="primary"
-							onClick={async (e: any) => {
-								await handleNote.get(e)
-								await handleNote.create(note)
-								setNote('')
-							}}
-						>
-							Thêm
-						</Button>
-					</Form.Item>
+          <div>
+            <b>Ghi chú</b>
+          </div>
+          <Form.Item
+            name="note"
+            className="note-container"
+            rules={[
+              {
+                max: 1000,
+                message: "Vui lòng không nhập quá 1000 kí tự",
+              },
+            ]}
+          >
+            <Input
+              maxLength={1000}
+              placeholder="Nhập ghi chú"
+              onPressEnter={async (e: any) => {
+                await handleNote.get(e);
+                await handleNote.create(e.target.value);
+                setNote("");
+              }}
+              onChange={(e: any) => setNote(e.target.value)}
+              value={note}
+            />
+            <Button
+              type="primary"
+              onClick={async (e: any) => {
+                await handleNote.get(e);
+                await handleNote.create(note);
+                setNote("");
+              }}
+            >
+              Thêm
+            </Button>
+          </Form.Item>
 
-					<div className="customer-note-wrapper">
-						{notes?.length > 0 ? notes.map((note: any, index: number) => (
-								<div className="customer-note-item" key={index}>
-									<span key={note.id}>{note.content}</span>
-									<img
-										alt="delete"
-										className="customer-note-btn-delete"
-										onClick={() => handleNote.delete(note)}
-										src={XCloseBtn}
-									/>
-								</div>
-							)) : (
-								<div style={{textAlign: "right"}}>
-									<a href="#" onClick={(e) => handleNote.get(e)}>Xem ghi chú</a>
-								</div>
-							)}
-					</div>
-				</Card>
-			</Form>
+          <div className="customer-note-wrapper">
+            {notes?.length > 0 ? (
+              notes.map((note: any, index: number) => (
+                <div className="customer-note-item" key={index}>
+                  <span key={note.id}>{note.content}</span>
+                  <img
+                    alt="delete"
+                    className="customer-note-btn-delete"
+                    onClick={() => handleNote.delete(note)}
+                    src={XCloseBtn}
+                  />
+                </div>
+              ))
+            ) : (
+              <div style={{ textAlign: "right" }}>
+                <a href="#" onClick={(e) => handleNote.get(e)}>
+                  Xem ghi chú
+                </a>
+              </div>
+            )}
+          </div>
+        </Card>
+      </Form>
 
       <AddPhoneModal
         visible={visiblePhoneModal}
@@ -525,9 +530,8 @@ const YDPageCustomerCreateUpdate = (props: any) => {
         title="Thông báo"
         subTitle="Bạn có chắc chắn muốn xóa số điện thoại này"
       />
-
     </div>
-  )
-}
+  );
+};
 
 export default YDPageCustomerCreateUpdate;

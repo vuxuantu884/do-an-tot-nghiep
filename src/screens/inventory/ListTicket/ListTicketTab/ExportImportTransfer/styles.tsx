@@ -3,21 +3,21 @@ import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
 
 export const BG_COLOR_TAG = {
   TRANSFERRING: {
-    color: '#FCAF17'
+    color: "#FCAF17",
   },
   CONFIRM: {
-    color: '#666666'
+    color: "#666666",
   },
   PENDING: {
-    color: '#FCAF17'
+    color: "#FCAF17",
   },
   RECEIVED: {
-    color: '#27AE60'
+    color: "#27AE60",
   },
   CANCELED: {
-    color: '#E24343'
+    color: "#E24343",
   },
-}
+};
 
 export const ExportImportTransferTabWrapper = styled.div`
   padding: 0px 0 20px 0;
@@ -92,7 +92,7 @@ export const ExportImportTransferTabWrapper = styled.div`
     &-icon {
       margin-left: 10px;
       display: none;
-      color: #5656A1;
+      color: #5656a1;
       cursor: pointer;
     }
     &:hover {
@@ -101,32 +101,32 @@ export const ExportImportTransferTabWrapper = styled.div`
       }
     }
   }
-  
+
   .total-quantity {
-    color: #2A2A86;
+    color: #2a2a86;
     font-weight: 500;
   }
-  
+
   .text-bold {
     font-weight: bold;
   }
-  
+
   .ml-20 {
     margin-left: 30px;
   }
-  
+
   .mr-5 {
     margin-right: 5px;
   }
-  
+
   .custom-name {
     font-size: 12px;
     margin-top: 0;
     color: #666666;
   }
-  
+
   .custom-title {
-    color: #2A2A86;
+    color: #2a2a86;
     font-weight: 500;
   }
   .mr-5 {

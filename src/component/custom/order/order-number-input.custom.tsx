@@ -4,13 +4,13 @@ import { CSSProperties, useCallback } from "react";
 import { RegUtil } from "utils/RegUtils";
 
 interface PropTypes {
-  id?: string
+  id?: string;
   value?: number | string;
   isFloat?: boolean;
   onChange?: (v: number | null) => void;
   onBlur?: (e: any) => void;
   onKeyPress?: (event: any) => void;
-  onPressEnter?: (event:any) => void;
+  onPressEnter?: (event: any) => void;
   style?: CSSProperties;
   placeholder?: string;
   format?: (a: string) => string;
@@ -26,7 +26,7 @@ interface PropTypes {
   autoFocus?: boolean;
   onFocus?: (e: any) => void;
   disabled?: boolean;
-  step?:number;
+  step?: number;
   isChangeAfterBlur?: boolean; // khi blur thì gọi lại hàm onChange
 }
 
@@ -53,7 +53,7 @@ function OrderNumberInputCustom(props: PropTypes) {
     step,
     isChangeAfterBlur = true,
   } = props;
-  const [data, setData] = useState<string>('');
+  const [data, setData] = useState<string>("");
   const onChangeText = useCallback(
     (e) => {
       let newValue: string = e.target.value;
@@ -70,7 +70,7 @@ function OrderNumberInputCustom(props: PropTypes) {
           // console.log('a2')
           setData(valueS);
           // console.log('valueS', valueS)
-          if(valueS[valueS.length - 1] !== '.') {
+          if (valueS[valueS.length - 1] !== ".") {
             onChange && onChange(parseFloat(valueS));
           }
           return;
@@ -84,7 +84,7 @@ function OrderNumberInputCustom(props: PropTypes) {
         return;
       }
     },
-    [format, isFloat, onChange, replace]
+    [format, isFloat, onChange, replace],
   );
   const onBlurEvent = useCallback(
     (e) => {
@@ -98,32 +98,33 @@ function OrderNumberInputCustom(props: PropTypes) {
         // console.log('props.max', props.max)
         // console.log('value', value)
         // console.log('data', data)
-        if (props.min !== undefined && Number(data) < props.min && data!== undefined) {
+        if (props.min !== undefined && Number(data) < props.min && data !== undefined) {
           // console.log('min')
           onChange && onChange(props.min);
-          setData(props.min.toString())
-        } else if (props.max !== undefined && Number(data) > props.max && value!== undefined) {
+          setData(props.min.toString());
+        } else if (props.max !== undefined && Number(data) > props.max && value !== undefined) {
           // console.log('max')
           onChange && onChange(props.max);
-          setData(props.max.toString())
+          setData(props.max.toString());
         } else {
           // console.log('khac')
           onChange &&
-            valueTemp && isChangeAfterBlur &&
+            valueTemp &&
+            isChangeAfterBlur &&
             onChange(parseFloat(valueTemp.replace(/0*(\d+)/, "$1")));
         }
       } else {
-        if (props.default !== undefined ) {
+        if (props.default !== undefined) {
           onChange && onChange(props.default);
         }
       }
       onBlur && onBlur(e);
     },
-    [data, value, onBlur, props.min, props.max, props.default, onChange, isChangeAfterBlur]
+    [data, value, onBlur, props.min, props.max, props.default, onChange, isChangeAfterBlur],
   );
   useEffect(() => {
     // console.log('value', value)
-    setData(value !== null && value !== undefined && value !== '' ? value.toString() : '3333');
+    setData(value !== null && value !== undefined && value !== "" ? value.toString() : "3333");
   }, [value]);
 
   // console.log('data', data)
@@ -134,7 +135,7 @@ function OrderNumberInputCustom(props: PropTypes) {
       className={className}
       placeholder={placeholder}
       value={format ? format(data) : data}
-      style={{textAlign: 'right', ...style}}
+      style={{ textAlign: "right", ...style }}
       onBlur={onBlurEvent}
       onKeyPress={onKeyPress}
       onChange={onChangeText}
@@ -152,6 +153,6 @@ function OrderNumberInputCustom(props: PropTypes) {
       step={step}
     />
   );
-};
+}
 
 export default OrderNumberInputCustom;

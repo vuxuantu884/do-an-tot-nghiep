@@ -1,7 +1,7 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useHistory} from "react-router-dom";
-import {Button, Card, Form, Space, Switch} from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { Button, Card, Form, Space, Switch } from "antd";
 import TextArea from "antd/es/input/TextArea";
 
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -11,23 +11,23 @@ import {
   configSmsMessageAction,
   getSmsConfigAction,
 } from "domain/actions/settings/sms-settings.action";
-import {showSuccess} from "utils/ToastUtils";
-import {SMS_CONFIG_PERMISSIONS} from "config/permissions/sms-config.permission";
+import { showSuccess } from "utils/ToastUtils";
+import { SMS_CONFIG_PERMISSIONS } from "config/permissions/sms-config.permission";
 import useAuthorization from "hook/useAuthorization";
-import {StyledSmsConfigMessage} from "screens/settings/sms/styles";
+import { StyledSmsConfigMessage } from "screens/settings/sms/styles";
 
 const KEY_WORD_LIST = [
   {
     name: "Tên khách hàng",
     key: "customer_name",
-    value: "{customer_name}"
+    value: "{customer_name}",
   },
   {
     name: "Số điện thoại khách hàng",
     key: "customer_phone",
-    value: "{customer_phone}"
+    value: "{customer_phone}",
   },
-]
+];
 
 const updateSmsPermission = [SMS_CONFIG_PERMISSIONS.UPDATE];
 
@@ -44,19 +44,22 @@ const SmsWebsiteOrder: React.FC = () => {
   const [messageStatus, setMessageStatus] = useState<boolean>(true);
   const [initValue, setInitValue] = useState<any>();
 
-  const handleSmsConfigData = useCallback((data: any) => {
-    if (data) {
-      const messages = JSON.parse(data.messages);
-      setMessageStatus(data.website_msg_status === "ACTIVE");
+  const handleSmsConfigData = useCallback(
+    (data: any) => {
+      if (data) {
+        const messages = JSON.parse(data.messages);
+        setMessageStatus(data.website_msg_status === "ACTIVE");
 
-      const initFormValue = {
-        website_message: messages?.website_message,
-        website_msg_status: data.website_msg_status,
-      };
-      setInitValue(initFormValue);
-      form.setFieldsValue(initFormValue);
-    }
-  }, [form]);
+        const initFormValue = {
+          website_message: messages?.website_message,
+          website_msg_status: data.website_msg_status,
+        };
+        setInitValue(initFormValue);
+        form.setFieldsValue(initFormValue);
+      }
+    },
+    [form],
+  );
 
   useEffect(() => {
     dispatch(getSmsConfigAction(handleSmsConfigData));
@@ -69,21 +72,26 @@ const SmsWebsiteOrder: React.FC = () => {
     let cursorPosition = textArea?.selectionStart;
     addTextAtCursorPosition(textArea, cursorPosition, text, fieldName);
     updateCursorPosition(cursorPosition, text, textArea);
-  }
+  };
 
-  const addTextAtCursorPosition = (textArea: any, cursorPosition: any, text: any, fieldName: any) => {
-    let front = (textArea.value).substring(0, cursorPosition);
-    let back = (textArea.value).substring(cursorPosition, textArea.value.length);
+  const addTextAtCursorPosition = (
+    textArea: any,
+    cursorPosition: any,
+    text: any,
+    fieldName: any,
+  ) => {
+    let front = textArea.value.substring(0, cursorPosition);
+    let back = textArea.value.substring(cursorPosition, textArea.value.length);
     textArea.value = front + text + back;
-    form.setFieldsValue({[fieldName]: textArea.value});
-  }
+    form.setFieldsValue({ [fieldName]: textArea.value });
+  };
 
   const updateCursorPosition = (cursorPosition: any, text: any, textArea: any) => {
     cursorPosition = cursorPosition + text.length;
     textArea.selectionStart = cursorPosition;
     textArea.selectionEnd = cursorPosition;
     textArea.focus();
-  }
+  };
 
   const handleInsertKeyword = (text: string) => {
     addTextAtCaret("website_message_id", text, "website_message");
@@ -93,17 +101,18 @@ const SmsWebsiteOrder: React.FC = () => {
   // handle submit form
   const handleSubmitForm = (value: any) => {
     const requestParams = {
-      messages:
-        {
-          website_message: value.website_message.trim()
-        },
-      website_msg_status: messageStatus ? "ACTIVE" : "INACTIVE"
-    }
+      messages: {
+        website_message: value.website_message.trim(),
+      },
+      website_msg_status: messageStatus ? "ACTIVE" : "INACTIVE",
+    };
 
-    dispatch(configSmsMessageAction(requestParams, () => {
-      backAction();
-      showSuccess("Cấu hình SMS Phát sinh hóa đơn trên Website thành công!");
-    }));
+    dispatch(
+      configSmsMessageAction(requestParams, () => {
+        backAction();
+        showSuccess("Cấu hình SMS Phát sinh hóa đơn trên Website thành công!");
+      }),
+    );
   };
 
   const onCancel = () => {
@@ -114,7 +123,6 @@ const SmsWebsiteOrder: React.FC = () => {
   const backAction = () => {
     history.push(UrlConfig.SMS_SETTINGS);
   };
-
 
   return (
     <ContentContainer
@@ -162,9 +170,7 @@ const SmsWebsiteOrder: React.FC = () => {
                 {messageStatus ? <span>Hoạt động</span> : <span>Không hoạt động</span>}
               </Form.Item>
 
-              <Form.Item
-                name={"website_message"}
-                label={<b>Nội dung</b>}>
+              <Form.Item name={"website_message"} label={<b>Nội dung</b>}>
                 <TextArea
                   id={"website_message_id"}
                   allowClear
@@ -178,16 +184,18 @@ const SmsWebsiteOrder: React.FC = () => {
             <BottomBarContainer
               back="Quay lại"
               backAction={backAction}
-              rightComponent={allowUpdateSms &&
-                <Space>
-                  <Button style={{ marginRight: 15 }} onClick={onCancel}>
-                    {"Hủy"}
-                  </Button>
+              rightComponent={
+                allowUpdateSms && (
+                  <Space>
+                    <Button style={{ marginRight: 15 }} onClick={onCancel}>
+                      {"Hủy"}
+                    </Button>
 
-                  <Button  htmlType="submit" type="primary">
-                    {"Lưu lại"}
-                  </Button>
-                </Space>
+                    <Button htmlType="submit" type="primary">
+                      {"Lưu lại"}
+                    </Button>
+                  </Space>
+                )
               }
             />
           </Form>
@@ -196,7 +204,10 @@ const SmsWebsiteOrder: React.FC = () => {
             {KEY_WORD_LIST?.map((keyWord) => {
               return (
                 <div className="key-word-item" key={keyWord.value}>
-                  <div><strong>{keyWord.value}</strong> : <span style={{color: "#75757B"}}>{keyWord.name}</span></div>
+                  <div>
+                    <strong>{keyWord.value}</strong> :{" "}
+                    <span style={{ color: "#75757B" }}>{keyWord.name}</span>
+                  </div>
                   <Button
                     className="insert-button"
                     onClick={() => handleInsertKeyword(keyWord.value)}
@@ -208,7 +219,6 @@ const SmsWebsiteOrder: React.FC = () => {
               );
             })}
           </Card>
-
         </div>
       </StyledSmsConfigMessage>
     </ContentContainer>

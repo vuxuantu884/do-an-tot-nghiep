@@ -12,7 +12,7 @@ import {
   Row,
   Space,
   Tag,
-  Typography
+  Typography,
 } from "antd";
 import imageDefault from "assets/icon/img-default.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
@@ -21,11 +21,12 @@ import callIcon from "assets/img/call.svg";
 import pointIcon from "assets/img/point.svg";
 import CustomSelect from "component/custom/select.custom";
 import UrlConfig from "config/url.config";
+import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
 import {
-  DistrictGetByCountryAction
-} from "domain/actions/content/content.action";
-import {
-  CustomerGroups, CustomerSearchSo, DeleteShippingAddress, getCustomerDetailAction
+  CustomerGroups,
+  CustomerSearchSo,
+  DeleteShippingAddress,
+  getCustomerDetailAction,
 } from "domain/actions/customer/customer.action";
 import { changeOrderCustomerAction } from "domain/actions/order/order.action";
 import { modalActionType } from "model/modal/modal.model";
@@ -34,10 +35,7 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerShippingAddress } from "model/request/customer.request";
 import { BillingAddressRequestModel, OrderRequest } from "model/request/order.request";
 import { SourceSearchQuery } from "model/request/source.request";
-import {
-  CustomerResponse,
-  ShippingAddress
-} from "model/response/customer/customer.response";
+import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { OrderResponse } from "model/response/order/order.response";
@@ -51,7 +49,14 @@ import AddAddressModal from "screens/order-online/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
 import { departmentDetailApi } from "service/accounts/department.service";
 import { getSourcesWithParamsService } from "service/order/order.service";
-import { handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFetchApiError, isFetchApiSuccessful, sortSources, totalAmount } from "utils/AppUtils";
+import {
+  handleCalculateShippingFeeApplyOrderSetting,
+  handleDelayActionWhenInsertTextInSearchInput,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  sortSources,
+  totalAmount,
+} from "utils/AppUtils";
 import * as CONSTANTS from "utils/Constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import CreateCustomer from "./CreateCustomer";
@@ -60,9 +65,9 @@ import UpdateCustomer from "./UpdateCustomer";
 
 type CustomerCardProps = {
   handleCustomer: (items: CustomerResponse | null) => void;
-  ShippingAddressChange: (items: ShippingAddress|null) => void;
+  ShippingAddressChange: (items: ShippingAddress | null) => void;
   billingAddress: BillingAddressRequestModel | null;
-  setBillingAddress: (items: BillingAddressRequestModel|null) => void;
+  setBillingAddress: (items: BillingAddressRequestModel | null) => void;
   setVisibleCustomer?: (item: boolean) => void;
   customer: CustomerResponse | null;
   loyaltyPoint: LoyaltyPoint | null;
@@ -76,13 +81,13 @@ type CustomerCardProps = {
   modalAction: modalActionType;
   setOrderSourceId?: (value: number) => void;
   OrderDetail?: OrderResponse | null;
-  shippingAddressesSecondPhone?:string;
-  setShippingAddressesSecondPhone?:(value:string)=>void;
+  shippingAddressesSecondPhone?: string;
+  setShippingAddressesSecondPhone?: (value: string) => void;
   initialForm?: OrderRequest;
   initDefaultOrderSourceId?: number | null;
   isAutoDefaultOrderSource?: boolean;
   form: FormInstance<any>;
-  setShippingFeeInformedToCustomer?:(value:number | null)=>void;
+  setShippingFeeInformedToCustomer?: (value: number | null) => void;
   customerChange: boolean;
   setCustomerChange: (value: boolean) => void;
   // handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
@@ -140,11 +145,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   // const [addressesForm] = Form.useForm();
   // const shippingWarRef: any = useRef(null);
 
-  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+  const orderLineItems = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems,
+  );
 
-  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+  const shippingServiceConfig = useSelector(
+    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
+  );
 
-  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
+  const transportService = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
+  );
 
   const dispatch = useDispatch();
   // const history = useHistory();
@@ -159,21 +170,17 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const [areas, setAreas] = React.useState<Array<any>>([]);
   const [groups, setGroups] = React.useState<Array<any>>([]);
 
-  const [modalActionShipping, setModalActionShipping] =
-    useState<modalActionType>("create");
+  const [modalActionShipping, setModalActionShipping] = useState<modalActionType>("create");
 
   const [listSource, setListSource] = useState<Array<SourceResponse>>([]);
   const [initListSource, setInitListSource] = useState<Array<SourceResponse>>([]);
 
-	const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [singleShippingAddress, setSingleShippingAddress] =
     useState<CustomerShippingAddress | null>(null);
 
-  const [isVisibleShippingModal, setIsVisibleShippingModal] =
-    React.useState<boolean>(false);
+  const [isVisibleShippingModal, setIsVisibleShippingModal] = React.useState<boolean>(false);
 
   let customerBirthday = moment(customer?.birthday).format("DD/MM/YYYY");
   const autoCompleteRef = useRef<any>(null);
@@ -181,7 +188,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
   const [typingTimer, setTypingTimer] = useState(0);
 
-	const sourceInputRef = useRef()
+  const sourceInputRef = useRef();
   //#region Modal
   const CancelConfirmAddress = useCallback(() => {
     setVisibleAddress(false);
@@ -192,12 +199,12 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   }, []);
 
   const OkConfirmCustomerCreate = () => {
-    if(setModalAction)setModalAction("create");
-    if(setVisibleCustomer)setVisibleCustomer(true);
+    if (setModalAction) setModalAction("create");
+    if (setVisibleCustomer) setVisibleCustomer(true);
   };
   const OkConfirmCustomerEdit = () => {
-    if(setModalAction)setModalAction("edit");
-    if(setVisibleCustomer)setVisibleCustomer(true);
+    if (setModalAction) setModalAction("edit");
+    if (setVisibleCustomer) setVisibleCustomer(true);
   };
 
   const ShowAddressModalAdd = () => {
@@ -256,14 +263,14 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                   showError("Không tìm thấy khách hàng từ hệ thống");
                 }
                 setKeySearchCustomer("");
-              })
+              }),
             );
           }
         }
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, autoCompleteElement, customer]
+    [dispatch, autoCompleteElement, customer],
   );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -275,7 +282,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     }
     switch (event.key) {
       case "F4":
-        findCustomerInput?.focus()
+        findCustomerInput?.focus();
         break;
       default:
         break;
@@ -300,26 +307,27 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   const CustomerChangeSearch = useCallback(
     (value) => {
       setKeySearchCustomer(value);
-			if(value.length >=3) {
-				setSearchCustomer(true);
-			} else {
-				setSearchCustomer(false);
-			}
+      if (value.length >= 3) {
+        setSearchCustomer(true);
+      } else {
+        setSearchCustomer(false);
+      }
       initQueryCustomer.request = value.trim();
       const handleSearch = () => {
-				
-        dispatch(CustomerSearchSo(initQueryCustomer, (response) => {
-					setResultSearch(response);
-					// if(response.length === 0) {
-					// 	showError("Không tìm thấy khách hàng!")
-					// }
-				}));
+        dispatch(
+          CustomerSearchSo(initQueryCustomer, (response) => {
+            setResultSearch(response);
+            // if(response.length === 0) {
+            // 	showError("Không tìm thấy khách hàng!")
+            // }
+          }),
+        );
         setSearchCustomer(false);
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRef, () => handleSearch());
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, typingTimer, setTypingTimer]
+    [dispatch, typingTimer, setTypingTimer],
   );
 
   //Render result search
@@ -327,12 +335,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     return (
       <div className="row-search w-100">
         <div className="rs-left w-100" style={{ lineHeight: "35px" }}>
-          <img
-            src={imageDefault}
-            alt="anh"
-            placeholder={imageDefault}
-            className="logo-customer"
-          />
+          <img src={imageDefault} alt="anh" placeholder={imageDefault} className="logo-customer" />
           <div className="rs-info w-100">
             <span style={{ display: "flex" }}>
               {item.full_name}{" "}
@@ -361,10 +364,9 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           value: item.id ? item.id.toString() : "",
         });
       });
-
     }
     return options;
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, resultSearch]);
 
   const orderAmount = totalAmount(orderLineItems);
@@ -372,184 +374,190 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
   //Delete customer
   const CustomerDeleteInfo = () => {
     handleCustomer(null);
-    setBillingAddress(null)
+    setBillingAddress(null);
     dispatch(changeOrderCustomerAction(null));
     props.ShippingAddressChange(null);
-    if(setVisibleCustomer)setVisibleCustomer(false);
-    handleCalculateShippingFeeApplyOrderSetting(null, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
+    if (setVisibleCustomer) setVisibleCustomer(false);
+    handleCalculateShippingFeeApplyOrderSetting(
+      null,
+      orderAmount,
+      shippingServiceConfig,
+      transportService,
+      form,
+      setShippingFeeInformedToCustomer,
+    );
     setKeySearchCustomer("");
-    if(setShippingAddressesSecondPhone)
-      setShippingAddressesSecondPhone("");
+    if (setShippingAddressesSecondPhone) setShippingAddressesSecondPhone("");
     // history.push(`${UrlConfig.ORDER}/create`);
   };
 
   //#end region
 
-	const handleSearchOrderSources = useCallback((value:string) => {
-		if(value.length > 1) {
-		 handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
-			 let query = {
-					name: value,
-          active: true,
-			 }
-			 getSourcesWithParamsService(query).then((response) => {
-				 setListSource(response.data.items)
-			 }).catch((error) => {
-				 console.log('error', error)
-			 })
-		 })
-		} else {
-			setListSource(initListSource)
-		}
-	}, [initListSource]);
+  const handleSearchOrderSources = useCallback(
+    (value: string) => {
+      if (value.length > 1) {
+        handleDelayActionWhenInsertTextInSearchInput(sourceInputRef, () => {
+          let query = {
+            name: value,
+            active: true,
+          };
+          getSourcesWithParamsService(query)
+            .then((response) => {
+              setListSource(response.data.items);
+            })
+            .catch((error) => {
+              console.log("error", error);
+            });
+        });
+      } else {
+        setListSource(initListSource);
+      }
+    },
+    [initListSource],
+  );
 
   const SearchCustomerSelect = useCallback(
     (value, o) => {
       let index: number = -1;
       index = resultSearch.findIndex(
         (customerResponse: CustomerResponse) =>
-          customerResponse.id && customerResponse.id.toString() === value
+          customerResponse.id && customerResponse.id.toString() === value,
       );
       if (index !== -1) {
-        
         dispatch(
-          getCustomerDetailAction(
-            resultSearch[index].id,
-            (data: CustomerResponse | null) => {
-              if (data) {
-                OkConfirmCustomerEdit();
-                handleCustomer(data);
-                dispatch(changeOrderCustomerAction(data));
-              }
+          getCustomerDetailAction(resultSearch[index].id, (data: CustomerResponse | null) => {
+            if (data) {
+              OkConfirmCustomerEdit();
+              handleCustomer(data);
+              dispatch(changeOrderCustomerAction(data));
             }
-          )
+          }),
         );
 
         if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur)
           autoCompleteRef.current?.blur();
         setKeySearchCustomer("");
-        if( setShippingAddressesSecondPhone)setShippingAddressesSecondPhone("");
-       
+        if (setShippingAddressesSecondPhone) setShippingAddressesSecondPhone("");
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [autoCompleteRef, dispatch, resultSearch, customer]
+    [autoCompleteRef, dispatch, resultSearch, customer],
   );
-	useEffect(() => {
+  useEffect(() => {
     const getDepartmentIds = async () => {
       let departmentId = userReducer.account?.account_jobs[0]?.department_id;
-      let departmentIds:number[] = [];
-      if(departmentId) {
-        departmentIds.push(departmentId)
+      let departmentIds: number[] = [];
+      if (departmentId) {
+        departmentIds.push(departmentId);
         departmentDetailApi(departmentId).then((response) => {
-          if(isFetchApiSuccessful(response)) {
+          if (isFetchApiSuccessful(response)) {
             departmentIds.push(response.data.parent_id);
           } else {
-            handleFetchApiError(response, "Chi tiết phòng ban", dispatch)
+            handleFetchApiError(response, "Chi tiết phòng ban", dispatch);
           }
-        })
+        });
       }
       return departmentIds;
     };
-    const getOrderSources = async(departmentIds:number[]) => {
-      let result:SourceResponse[]  = [];
+    const getOrderSources = async (departmentIds: number[]) => {
+      let result: SourceResponse[] = [];
       await getSourcesWithParamsService({
-        limit: 30
-      }).then(async response => {
-        if(isFetchApiSuccessful(response)) {
-          result= await sortSources(response.data.items, departmentIds)
-          return result
+        limit: 30,
+      }).then(async (response) => {
+        if (isFetchApiSuccessful(response)) {
+          result = await sortSources(response.data.items, departmentIds);
+          return result;
         } else {
-          handleFetchApiError(response, "Nguồn đơn hàng", dispatch)
+          handleFetchApiError(response, "Nguồn đơn hàng", dispatch);
         }
-      })
-      return result
-    }
+      });
+      return result;
+    };
     const checkIfInitOrderSourceIncludesOrderDetailSource = (sources: SourceResponse[]) => {
-      if(OrderDetail?.source_id === CONSTANTS.POS.source_id) {
+      if (OrderDetail?.source_id === CONSTANTS.POS.source_id) {
         return false;
       }
-      const init = initialForm?.source_id || OrderDetail?.source_id
-      if(sources.some(single => single.id === init)) {
+      const init = initialForm?.source_id || OrderDetail?.source_id;
+      if (sources.some((single) => single.id === init)) {
         return true;
       }
       return false;
     };
     const getOrderSourceByDepartmentId = async (departmentIds: number[]) => {
       let result: SourceResponse[] = [];
-      if(departmentIds.length > 0) {
+      if (departmentIds.length > 0) {
         await getOrderSources(departmentIds).then(async (response) => {
           result = response;
         });
       }
-      let sortedSources =  result;
+      let sortedSources = result;
       let id = OrderDetail?.source_id || initialForm?.source_id;
-      if(id && props.updateOrder ) {
-        let sortedSourcesResult = sortedSources.filter(x =>x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase());
-        if(!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
-          const query:SourceSearchQuery = {
+      if (id && props.updateOrder) {
+        let sortedSourcesResult = sortedSources.filter(
+          (x) => x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase(),
+        );
+        if (!checkIfInitOrderSourceIncludesOrderDetailSource(sortedSources)) {
+          const query: SourceSearchQuery = {
             ids: [id],
             // active: true, // mở
-          }
+          };
           await getSourcesWithParamsService(query).then((responseSource) => {
-            if(isFetchApiSuccessful(responseSource)) {
+            if (isFetchApiSuccessful(responseSource)) {
               let items = responseSource.data.items;
-              sortedSources = [...sortedSourcesResult, ...items]
-              return sortedSources
+              sortedSources = [...sortedSourcesResult, ...items];
+              return sortedSources;
             } else {
-              handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch)
+              handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch);
             }
-          })
-
+          });
         }
         result = [...sortedSources];
         return result;
       } else {
         result = sortedSources.filter((x) => {
-          return (
-            x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase() && x.active
-          )
+          return x.name.toLowerCase() !== CONSTANTS.POS.source_code.toLowerCase() && x.active;
         });
         return result;
       }
     };
     const setDefaultOrderSource = async (sources: SourceResponse[]) => {
-      let checkIfHasDefault = sources.find(source => source.default);
-      if(checkIfHasDefault) {
-        if(form && initialForm && !initialForm.source_id) {
+      let checkIfHasDefault = sources.find((source) => source.default);
+      if (checkIfHasDefault) {
+        if (form && initialForm && !initialForm.source_id) {
           /**
-            * tạm thời chưa dùng
-            */
+           * tạm thời chưa dùng
+           */
           // if(!initDefaultOrderSourceId) {
           //   form.setFieldsValue({
           //     source_id: checkIfHasDefault.id
           //   })
-
           // }
         }
         return sources;
       } else {
         let result = sources;
-        const params:SourceSearchQuery = {
+        const params: SourceSearchQuery = {
           page: 1,
           limit: 100,
-          active: true
-        }
+          active: true,
+        };
         await getSourcesWithParamsService(params).then((response) => {
-          if(isFetchApiSuccessful(response)) {
-            const defaultOrderSource = response.data.items.find(single => single.default && single.name.toLowerCase() !== CONSTANTS.POS.source_code)
-            if(defaultOrderSource) {
+          if (isFetchApiSuccessful(response)) {
+            const defaultOrderSource = response.data.items.find(
+              (single) => single.default && single.name.toLowerCase() !== CONSTANTS.POS.source_code,
+            );
+            if (defaultOrderSource) {
               result.push(defaultOrderSource);
               /**
-                * tạm thời chưa dùng
-                */
+               * tạm thời chưa dùng
+               */
               // if(isAutoDefaultOrderSource) {
               //   if(initialForm && !initialForm.source_id) {
               //     if(!initDefaultOrderSourceId) {
               //       form?.setFieldsValue({
               //         source_id: defaultOrderSource.id
               //       })
-    
+
               //     } else {
               //       form?.setFieldsValue({
               //         source_id: initDefaultOrderSourceId
@@ -559,46 +567,49 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
               // }
             }
           } else {
-            handleFetchApiError(response, "Nguồn đơn hàng", dispatch)
+            handleFetchApiError(response, "Nguồn đơn hàng", dispatch);
           }
         });
-        return result;    
-
+        return result;
       }
     };
-    const fetchData = async() => {
+    const fetchData = async () => {
       let result: SourceResponse[] = [];
-      let departmentIds= await getDepartmentIds();
+      let departmentIds = await getDepartmentIds();
       result = await getOrderSourceByDepartmentId(departmentIds);
       result = await setDefaultOrderSource(result);
       setInitListSource(result);
       setListSource(result);
     };
-    fetchData()
+    fetchData();
     // bỏ initial form
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [OrderDetail?.source_id, dispatch, form, initDefaultOrderSourceId, isAutoDefaultOrderSource, props.updateOrder, userReducer.account?.account_jobs]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    OrderDetail?.source_id,
+    dispatch,
+    form,
+    initDefaultOrderSourceId,
+    isAutoDefaultOrderSource,
+    props.updateOrder,
+    userReducer.account?.account_jobs,
+  ]);
 
   useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
 
-
   useEffect(() => {
     dispatch(CustomerGroups(setGroups));
   }, [dispatch]);
 
-	useEffect(() => {
-		
-	}, [dispatch, userReducer.account?.account_jobs])
-
+  useEffect(() => {}, [dispatch, userReducer.account?.account_jobs]);
 
   const handleChangeCustomer = (customers: any) => {
     if (customers) {
       OkConfirmCustomerEdit();
       handleCustomer(customers);
       dispatch(changeOrderCustomerAction(customers));
-      setCustomerChange(false)
+      setCustomerChange(false);
     }
   };
 
@@ -606,110 +617,103 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     if (singleShippingAddress) {
       if (customer)
         dispatch(
-          DeleteShippingAddress(
-            singleShippingAddress.id,
-            customer.id,
-            (data: ShippingAddress) => {
-              dispatch(
-                getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
-                  handleChangeCustomer(datas);
-                })
-              );
-              data
-                ? showSuccess("Xóa địa chỉ thành công")
-                : showError("Xóa địa chỉ thất bại");
-            }
-          )
+          DeleteShippingAddress(singleShippingAddress.id, customer.id, (data: ShippingAddress) => {
+            dispatch(
+              getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
+                handleChangeCustomer(datas);
+              }),
+            );
+            data ? showSuccess("Xóa địa chỉ thành công") : showError("Xóa địa chỉ thất bại");
+          }),
         );
     }
   };
 
   const renderSelectOrderSource = () => {
-		return(
+    return (
       <div>
-      <span
-        style={{
-          float: "left",
-          lineHeight: "40px",
-          marginRight: "10px",
-        }}
-      >
-        Nguồn <span className="text-error">*</span>
-      </span>
-      <Form.Item
-        name="source_id"
-        style={{ margin: "0px" }}
-        rules={[
-          {
-            required: true,
-            message: "Vui lòng chọn nguồn đơn hàng",
-          },
-        ]}
-      >
-        <CustomSelect
-          style={{ width: 300, borderRadius: "6px" }}
-          showArrow
-          allowClear
-          showSearch
-          onSearch={handleSearchOrderSources}
-          placeholder="Nguồn đơn hàng"
-          notFoundContent="Không tìm thấy kết quả"
-          filterOption={(input, option) => {
-            if (option) {
-              return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
-            }
-            return false;
+        <span
+          style={{
+            float: "left",
+            lineHeight: "40px",
+            marginRight: "10px",
           }}
-          onChange={(value) => {
-            setOrderSourceId && setOrderSourceId(value);
-          }}
-          disabled={isDisableSelectSource && false} // mở update
         >
-          {listSource.map((item, index) => (
-            <CustomSelect.Option
-              style={{ width: "100%" }}
-              key={index.toString()}
-              value={item.id}
-            >
-              {item.name}
-            </CustomSelect.Option>
-          ))}
-        </CustomSelect>
-      </Form.Item>
-    </div>
-		)
-	};
-
-  const renderInfoOrderSource=()=>{
-    return(
-      <div className="d-flex align-items-center form-group-with-search">
-          <span
-            style={{
-              float: "left",
-              lineHeight: "40px",
+          Nguồn <span className="text-error">*</span>
+        </span>
+        <Form.Item
+          name="source_id"
+          style={{ margin: "0px" }}
+          rules={[
+            {
+              required: true,
+              message: "Vui lòng chọn nguồn đơn hàng",
+            },
+          ]}
+        >
+          <CustomSelect
+            style={{ width: 300, borderRadius: "6px" }}
+            showArrow
+            allowClear
+            showSearch
+            onSearch={handleSearchOrderSources}
+            placeholder="Nguồn đơn hàng"
+            notFoundContent="Không tìm thấy kết quả"
+            filterOption={(input, option) => {
+              if (option) {
+                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+              }
+              return false;
             }}
+            onChange={(value) => {
+              setOrderSourceId && setOrderSourceId(value);
+            }}
+            disabled={isDisableSelectSource && false} // mở update
           >
-            <span style={{ marginRight: "10px" }}>Nguồn:</span>
-            <span className="text-error">
-              <span style={{ color: "red" }}>{props.OrderDetail?.source}</span>
-            </span>
+            {listSource.map((item, index) => (
+              <CustomSelect.Option style={{ width: "100%" }} key={index.toString()} value={item.id}>
+                {item.name}
+              </CustomSelect.Option>
+            ))}
+          </CustomSelect>
+        </Form.Item>
+      </div>
+    );
+  };
+
+  const renderInfoOrderSource = () => {
+    return (
+      <div className="d-flex align-items-center form-group-with-search">
+        <span
+          style={{
+            float: "left",
+            lineHeight: "40px",
+          }}
+        >
+          <span style={{ marginRight: "10px" }}>Nguồn:</span>
+          <span className="text-error">
+            <span style={{ color: "red" }}>{props.OrderDetail?.source}</span>
           </span>
-        </div>
-    )
-  }
+        </span>
+      </div>
+    );
+  };
 
   const rankName = loyaltyUsageRules.find(
     (x) =>
-      x.rank_id ===
-      (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id)
+      x.rank_id === (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id),
   )?.rank_name;
 
   return (
     <Card
       title="THÔNG TIN KHÁCH HÀNG"
-      extra={ OrderDetail? ((OrderDetail.source?.toLocaleLowerCase()===CONSTANTS.POS.source.toLocaleLowerCase() || props.updateOrder)
-        ?renderSelectOrderSource():renderInfoOrderSource()) 
-        : renderSelectOrderSource()
+      extra={
+        OrderDetail
+          ? OrderDetail.source?.toLocaleLowerCase() === CONSTANTS.POS.source.toLocaleLowerCase() ||
+            props.updateOrder
+            ? renderSelectOrderSource()
+            : renderInfoOrderSource()
+          : renderSelectOrderSource()
       }
     >
       {customer === null && isVisibleCustomer !== true && (
@@ -783,8 +787,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 <a
                   className="customer-detail-text text-body primary"
                   style={{ color: "#5656A2" }}
-                  href={`tel:${customer?.phone === undefined ? "0987654321" : customer?.phone
-                    }`}
+                  href={`tel:${customer?.phone === undefined ? "0987654321" : customer?.phone}`}
                 >
                   {" "}
                   {customer?.phone === undefined ? "0987654321" : customer?.phone}
@@ -818,14 +821,11 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
 
               {levelOrder < 3 && (
                 <Space className="customer-detail-action">
-                  <CloseOutlined
-                    onClick={CustomerDeleteInfo}
-                    style={{ marginRight: "5px" }}
-                  />
+                  <CloseOutlined onClick={CustomerDeleteInfo} style={{ marginRight: "5px" }} />
                 </Space>
               )}
             </Row>
-            <Divider  style={{ padding: 0, marginBottom: 0 }} />
+            <Divider style={{ padding: 0, marginBottom: 0 }} />
           </div>
         )}
       </div>

@@ -38,26 +38,22 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const [shops, setShops] = useState<StoreResponse[]>([]);
-  const [thirdPartyLogistics, setThirdPartyLogistics] =
-    useState<DeliveryServiceResponse | null>(null);
+  const [thirdPartyLogistics, setThirdPartyLogistics] = useState<DeliveryServiceResponse | null>(
+    null,
+  );
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceTransportType[]>([]);
   const [isShowConfirmDeleteStoreId, setIsShowConfirmDeleteStoreId] = useState(false);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
-  const [inputStoreIdValue, setInputStoreIdValue] = useState<string | undefined>(
-    undefined
-  );
+  const [inputStoreIdValue, setInputStoreIdValue] = useState<string | undefined>(undefined);
   const [inputShopIdValue, setInputShopIdValue] = useState<string | undefined>(undefined);
   const [isConnected, setIsConnected] = useState(false);
 
   const [deleteStore, setDeleteStore] = useState<DeliveryMappedStoreType | null>(null);
 
-  const [isSelectedShops, setIsSelectedShops] = useState<DeliveryMappedStoreType[]>(
-    []
-  );
+  const [isSelectedShops, setIsSelectedShops] = useState<DeliveryMappedStoreType[]>([]);
 
-  const [selectedAndShowedShops, setSelectedAndShowedShops] =
-    useState(isSelectedShops);
+  const [selectedAndShowedShops, setSelectedAndShowedShops] = useState(isSelectedShops);
 
   const initialFormValue = {
     username: "",
@@ -70,13 +66,13 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
     let cloneListShopIsSelected = [...isSelectedShops];
     let result = cloneListShopIsSelected.filter((singleShop) => {
       return (
-        fullTextSearch(value, singleShop.name) || 
-        fullTextSearch(value, singleShop.partner_shop_id.toString()) || 
+        fullTextSearch(value, singleShop.name) ||
+        fullTextSearch(value, singleShop.partner_shop_id.toString()) ||
         fullTextSearch(value, singleShop.store_id.toString())
       );
     });
     setSelectedAndShowedShops(result);
-  }
+  };
 
   const handleSubmit = () => {
     form.validateFields(["token"]).then(() => {
@@ -93,9 +89,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
       });
       const formValueFormatted = {
         external_service_code,
-        status: isConnected
-          ? DELIVER_SERVICE_STATUS.active
-          : DELIVER_SERVICE_STATUS.inactive,
+        status: isConnected ? DELIVER_SERVICE_STATUS.active : DELIVER_SERVICE_STATUS.inactive,
         token: form.getFieldValue("token"),
         username: "",
         password: "",
@@ -109,14 +103,14 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
     form.validateFields(["token"]).then(() => {
       const params: updateConfigReQuestModel = {
         external_service_code,
-        token: form.getFieldValue("token"), 
+        token: form.getFieldValue("token"),
         status: DELIVER_SERVICE_STATUS.active,
       };
       dispatch(
         updateDeliveryConfigurationAction(params, () => {
           setIsConnected(true);
           showSuccess("Kết nối thành công!");
-        })
+        }),
       );
     });
   };
@@ -127,7 +121,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
           <strong>{thirdPartyLogistics?.name}</strong>" ?
-        </React.Fragment>
+        </React.Fragment>,
       );
       setIsShowConfirmDisconnect(true);
     });
@@ -148,7 +142,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
       updateDeliveryConfigurationAction(params, () => {
         setIsConnected(false);
         showSuccess("Hủy kết nối thành công!");
-      })
+      }),
     );
     setIsShowConfirmDisconnect(false);
   };
@@ -172,26 +166,21 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
             getDeliveryMappedStoresAction(thirdPartyLogistics.code, (response) => {
               setIsSelectedShops(response);
               setSelectedAndShowedShops(response);
-            })
+            }),
           );
-        })
+        }),
       );
     }
   };
 
-  const createMappedStore = (
-    shopId: string | undefined,
-    partnerShopId: string | undefined
-  ) => {
+  const createMappedStore = (shopId: string | undefined, partnerShopId: string | undefined) => {
     if (!shopId) {
       showError("Vui lòng chọn cửa hàng!");
       return;
     }
     if (!partnerShopId) {
       showError("Vui lòng điền Shop ID!");
-      const inputElement = document.getElementsByClassName(
-        "inputStoreId"
-      )[0] as HTMLInputElement;
+      const inputElement = document.getElementsByClassName("inputStoreId")[0] as HTMLInputElement;
       if (inputElement) {
         inputElement.focus();
       }
@@ -220,9 +209,9 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
               getDeliveryMappedStoresAction(external_service_code, (response) => {
                 setIsSelectedShops(response);
                 setSelectedAndShowedShops(response);
-              })
+              }),
             );
-          })
+          }),
         );
       }
     });
@@ -232,7 +221,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
     dispatch(
       StoreGetListAction((response) => {
         setShops(response);
-      })
+      }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
@@ -262,17 +251,17 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
                     transport_types: activeDeliveryServices || [],
                   });
                 }
-              })
+              }),
             );
             dispatch(
               getDeliveryMappedStoresAction(result.code, (response) => {
                 setIsSelectedShops(response);
                 setSelectedAndShowedShops(response);
-              })
+              }),
             );
           }
         }
-      })
+      }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
@@ -301,11 +290,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
                   },
                 ]}
               >
-                <Input
-                  type="text"
-                  placeholder="Nhập token API"
-                  style={{ width: "100%" }}
-                />
+                <Input type="text" placeholder="Nhập token API" style={{ width: "100%" }} />
               </Form.Item>
               <Form.Item
                 name="transport_types"
@@ -317,9 +302,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
                     deliveryServices.map((singleService) => {
                       return (
                         <div key={singleService.code}>
-                          <Checkbox value={singleService.code}>
-                            {singleService.name}
-                          </Checkbox>
+                          <Checkbox value={singleService.code}>{singleService.name}</Checkbox>
                         </div>
                       );
                     })}
@@ -386,10 +369,10 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
                       return (
                         <div className="singleShop" key={index}>
                           <div className="singleShop__title">
-                          <span className="singleShop__name">{single.name} (ID-{single.store_id})</span>:{" "}
-                            <span className="singleShop__code">
-                              {single.partner_shop_id}
+                            <span className="singleShop__name">
+                              {single.name} (ID-{single.store_id})
                             </span>
+                            : <span className="singleShop__code">{single.partner_shop_id}</span>
                           </div>
                           <div className="singleShop__action">
                             <div
@@ -402,21 +385,24 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
                                       <React.Fragment>
                                         Bạn có chắc chắn muốn xóa mapping cửa hàng "
                                         <strong>{single.name}</strong>" ?
-                                      </React.Fragment>
+                                      </React.Fragment>,
                                     );
                                     setDeleteStore(single);
                                     setIsShowConfirmDeleteStoreId(true);
                                   })
                                   .catch((error) => {
                                     const element: any = document.getElementById(
-                                      error.errorFields[0].name.join("")
+                                      error.errorFields[0].name.join(""),
                                     );
                                     element?.focus();
                                     const offsetY =
                                       element?.getBoundingClientRect()?.top +
                                       window.pageYOffset +
                                       -200;
-                                    window.scrollTo({ top: offsetY, behavior: "smooth" });
+                                    window.scrollTo({
+                                      top: offsetY,
+                                      behavior: "smooth",
+                                    });
                                   });
                               }}
                             >

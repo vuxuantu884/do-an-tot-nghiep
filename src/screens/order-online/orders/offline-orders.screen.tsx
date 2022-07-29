@@ -4,12 +4,10 @@ import { withRouter } from "react-router-dom";
 import { ORDER_TYPES } from "utils/Order.constants";
 import OrderList from "../component/OrderList/OrderList";
 
-
 type PropTypes = {
   location: any;
 };
 function PosOrders(props: PropTypes) {
-
   const { location } = props;
 
   const pageTitle = {
@@ -21,8 +19,8 @@ function PosOrders(props: PropTypes) {
       {
         name: "Danh sách đơn hàng offline",
       },
-    ]
-  } 
+    ],
+  };
 
   const initQuery: OrderSearchQuery = {
     page: 1,
@@ -78,13 +76,18 @@ function PosOrders(props: PropTypes) {
     marketing_campaign: [],
     reference_code: null,
     search_term: "",
-		services: [],
+    services: [],
     channel_codes: [],
-    discount_codes:[],
+    discount_codes: [],
   };
 
   return (
-    <OrderList initQuery={initQuery} location={location} pageTitle={pageTitle} orderType={ORDER_TYPES.offline} />
+    <OrderList
+      initQuery={initQuery}
+      location={location}
+      pageTitle={pageTitle}
+      orderType={ORDER_TYPES.offline}
+    />
   );
-};
+}
 export default withRouter(PosOrders);

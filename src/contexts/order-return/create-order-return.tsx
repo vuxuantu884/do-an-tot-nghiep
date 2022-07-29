@@ -11,8 +11,8 @@ import { createContext } from "react";
 type CreateOrderReturnContextType = {
   orderDetail: OrderResponse | null;
   return: {
-    listItemCanBeReturn:  OrderLineItemResponse[];
-    listOrderProductsResult:  OrderLineItemResponse[];
+    listItemCanBeReturn: OrderLineItemResponse[];
+    listOrderProductsResult: OrderLineItemResponse[];
     listReturnProducts: ReturnProductModel[];
     setListReturnProducts: (listReturnProducts: ReturnProductModel[]) => void;
     setTotalAmountReturnProducts: (value: number) => void;
@@ -21,13 +21,12 @@ type CreateOrderReturnContextType = {
     totalAmountReturnProducts: number;
     totalAmountExchange: number;
     totalAmountCustomerNeedToPay: number;
-    setStoreReturn:(item:StoreResponse|null)=>void;
-    storeReturn:StoreResponse|null;
-		listExchangeProducts: OrderLineItemRequest[];
+    setStoreReturn: (item: StoreResponse | null) => void;
+    storeReturn: StoreResponse | null;
+    listExchangeProducts: OrderLineItemRequest[];
   };
   isExchange: boolean;
-  listStoreReturn:StoreResponse[];
+  listStoreReturn: StoreResponse[];
 };
 // tạo context
-export const CreateOrderReturnContext =
-  createContext<CreateOrderReturnContextType | null>(null);
+export const CreateOrderReturnContext = createContext<CreateOrderReturnContextType | null>(null);

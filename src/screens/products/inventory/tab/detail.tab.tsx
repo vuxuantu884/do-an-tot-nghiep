@@ -1,19 +1,19 @@
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import UrlConfig, {InventoryTabUrl} from "config/url.config";
-import {inventoryGetDetailAction} from "domain/actions/inventory/inventory.action";
+import UrlConfig, { InventoryTabUrl } from "config/url.config";
+import { inventoryGetDetailAction } from "domain/actions/inventory/inventory.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
-import {PageResponse} from "model/base/base-metadata.response";
-import {InventoryQuery, InventoryResponse} from "model/inventory";
-import {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch} from "react-redux";
-import {Link, useHistory} from "react-router-dom";
-import {generateQuery} from "utils/AppUtils";
-import {OFFSET_HEADER_TABLE} from "utils/Constants";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {getQueryParams, useQuery} from "utils/useQuery";
+import { PageResponse } from "model/base/base-metadata.response";
+import { InventoryQuery, InventoryResponse } from "model/inventory";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_TABLE } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import InventoryFilter from "../filter/inventory.filter";
-import {TabProps} from "./tab.props";
+import { TabProps } from "./tab.props";
 
 const DetailTab: React.FC<TabProps> = (props: TabProps) => {
   const history = useHistory();
@@ -47,40 +47,36 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({...params});
+      setPrams({ ...params });
 
       history.replace(`${InventoryTabUrl.DETAIL}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
   const onFilter = useCallback(
     (values: InventoryQuery) => {
-      const newQuery: InventoryQuery = {...values, condition: values.condition?.trim()};
-      const newPrams = {...params, ...newQuery, page: 1};
+      const newQuery: InventoryQuery = {
+        ...values,
+        condition: values.condition?.trim(),
+      };
+      const newPrams = { ...params, ...newQuery, page: 1 };
       setPrams(newPrams);
       const queryParam = generateQuery(newPrams);
       history.replace(`${InventoryTabUrl.DETAIL}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const [columns, setColumn] = useState<Array<ICustomTableColumType<InventoryResponse>>>(
-    []
-  );
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<InventoryResponse>>>([]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
   const onSelect = useCallback((selectedRow: Array<InventoryResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
-  const ActionComponent = useChangeHeaderToAction(
-    "Sản phẩm",
-    selected.length > 0,
-    () => {},
-    []
-  );
+  const ActionComponent = useChangeHeaderToAction("Sản phẩm", selected.length > 0, () => {}, []);
 
   const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = [
     {
@@ -91,9 +87,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       fixed: "left",
       render: (value, record, index) => (
         <div>
-          <Link
-            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
-          >
+          <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>
             {value}
           </Link>
           <div>{record.name}</div>
@@ -165,7 +159,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
       title: "Kho hàng",
       visible: true,
       dataIndex: "store",
-    }, 
+    },
     {
       align: "center",
       title: "Ngày cập nhật",
@@ -175,10 +169,7 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
     },
   ];
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   useEffect(() => {
     setColumn(defaultColumns);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -205,8 +196,8 @@ const DetailTab: React.FC<TabProps> = (props: TabProps) => {
         isRowSelection
         dataSource={data.items}
         columns={columnFinal}
-        scroll={{x: 2500}}
-        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        scroll={{ x: 2500 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

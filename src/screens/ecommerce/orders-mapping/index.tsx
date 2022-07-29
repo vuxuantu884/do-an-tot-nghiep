@@ -11,29 +11,30 @@ import { EcommerceOrderPermission } from "config/permissions/ecommerce.permissio
 import useAuthorization from "hook/useAuthorization";
 import { DownloadOutlined } from "@ant-design/icons";
 import { HttpStatus } from "config/http-status.config";
-import {exitProgressDownloadEcommerceAction, syncStockEcommerceProduct} from "domain/actions/ecommerce/ecommerce.actions";
+import {
+  exitProgressDownloadEcommerceAction,
+  syncStockEcommerceProduct,
+} from "domain/actions/ecommerce/ecommerce.actions";
 import BaseResponse from "base/base.response";
 import { getProgressDownloadEcommerceApi } from "service/ecommerce/ecommerce.service";
 
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import { isNullOrUndefined } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
-
 
 const { TabPane } = Tabs;
 
 const ORDER_TABS = {
   all_orders: {
     title: "Tất cả đơn hàng",
-    key: "all-orders"
+    key: "all-orders",
   },
-}
+};
 
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
-
 
 const OrdersMapping: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("all-orders");
@@ -53,13 +54,14 @@ const OrdersMapping: React.FC = () => {
       case "#all-orders":
         setActiveTab(ORDER_TABS.all_orders.key);
         break;
-      default: break;
+      default:
+        break;
     }
   }, [history.location.hash]);
 
   const handleOnchangeTab = (active: any) => {
     history.replace(`${history.location.pathname}#${active}`);
-  }
+  };
 
   // handle get order
   const openGetOrderModal = () => {
@@ -93,39 +95,39 @@ const OrdersMapping: React.FC = () => {
   // handle progress download orders
   const [isVisibleConflictModal, setIsVisibleConflictModal] = useState<boolean>(false);
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
-  const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] = useState<boolean>(false);
+  const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] =
+    useState<boolean>(false);
   const [processId, setProcessId] = useState(null);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
-  
 
   const resetProgress = () => {
     setProcessId(null);
     setProgressPercent(0);
     setProgressData(null);
-  }
+  };
 
   const closeConflictDownloadModal = () => {
     setIsVisibleConflictModal(false);
-  }
+  };
 
   // handle progress download orders modal
   const onCancelProgressDownloadOrder = () => {
     setIsVisibleExitDownloadOrdersModal(true);
-  }
+  };
 
   const onOKProgressDownloadOrder = () => {
     resetProgress();
     reloadPage();
     setIsVisibleProgressModal(false);
-  }
+  };
   // end
 
   // handle exit download orders modal
   const onCancelExitDownloadOrdersModal = () => {
     setIsVisibleExitDownloadOrdersModal(false);
-  }
+  };
 
   const onOkExitDownloadOrdersModal = () => {
     resetProgress();
@@ -136,33 +138,42 @@ const OrdersMapping: React.FC = () => {
           setIsVisibleExitDownloadOrdersModal(false);
           onOKProgressDownloadOrder();
         }
-      })
+      }),
     );
-  }
+  };
   // end
 
   const getProgress = useCallback(() => {
-    let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
+    let getProgressPromises: Promise<BaseResponse<any>> =
+      getProgressDownloadEcommerceApi(processId);
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data &&  !isNullOrUndefined(response.data.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(response.data.total)
+        ) {
           const processData = response.data;
           setProgressData(processData);
-          const progressCount = processData.total_created + processData.total_updated + processData.total_success + processData.total_error;
+          const progressCount =
+            processData.total_created +
+            processData.total_updated +
+            processData.total_success +
+            processData.total_error;
           if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
-            if (!processData.api_error){
+            if (!processData.api_error) {
               showSuccess("Tải đơn hàng thành công!");
-            }else {
+            } else {
               resetProgress();
               setIsVisibleProgressModal(false);
               showError(processData.api_error);
             }
           } else {
-            const percent = Math.floor(progressCount / processData.total * 100);
+            const percent = Math.floor((progressCount / processData.total) * 100);
             setProgressPercent(percent);
           }
         }
@@ -176,17 +187,17 @@ const OrdersMapping: React.FC = () => {
     }
 
     getProgress();
-    
+
     const getFileInterval = setInterval(getProgress, 3000);
     return () => clearInterval(getFileInterval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProgress,]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProgress]);
   // end progress download orders
 
   const [rowDataFilter, setRowDataFilter] = useState([]);
 
   const handleDownloadSelectedOrders = useCallback(() => {
-    console.log(rowDataFilter)
+    console.log(rowDataFilter);
     const requestSyncStockOrder: any[] = [];
     rowDataFilter.forEach((item: any) => {
       requestSyncStockOrder.push({
@@ -202,23 +213,23 @@ const OrdersMapping: React.FC = () => {
 
     if (rowDataFilter && rowDataFilter.length > 0) {
       dispatch(
-          syncStockEcommerceProduct(rowDataFilterObj, (data) => {
-            if (data) {
-              if (typeof data === "string") {
-                setIsVisibleConflictModal(true);
-              } else {
-                setProcessId(data.process_id);
-                setIsVisibleProgressModal(true);
-                setIsDownloading(true);
-              }
+        syncStockEcommerceProduct(rowDataFilterObj, (data) => {
+          if (data) {
+            if (typeof data === "string") {
+              setIsVisibleConflictModal(true);
+            } else {
+              setProcessId(data.process_id);
+              setIsVisibleProgressModal(true);
+              setIsDownloading(true);
             }
-          })
+          }
+        }),
       );
     }
-  }, [dispatch, rowDataFilter])
+  }, [dispatch, rowDataFilter]);
 
   const handleSingleDownloadOrder = (rowData: any) => {
-    console.log(rowData)
+    console.log(rowData);
     const requestSyncStockOrder = {
       order_list: [
         {
@@ -230,20 +241,20 @@ const OrdersMapping: React.FC = () => {
     };
 
     dispatch(
-        syncStockEcommerceProduct(requestSyncStockOrder, (data) => {
-          if (data) {
-            if (typeof data === "string") {
-              setIsVisibleConflictModal(true);
-            } else {
-              setProcessId(data.process_id);
-              setIsVisibleProgressModal(true);
-              setIsDownloading(true);
-            }
+      syncStockEcommerceProduct(requestSyncStockOrder, (data) => {
+        if (data) {
+          if (typeof data === "string") {
+            setIsVisibleConflictModal(true);
+          } else {
+            setProcessId(data.process_id);
+            setIsVisibleProgressModal(true);
+            setIsDownloading(true);
           }
-        })
+        }
+      }),
     );
-  }
-  
+  };
+
   return (
     <OrdersMappingStyled>
       <ContentContainer
@@ -259,7 +270,7 @@ const OrdersMapping: React.FC = () => {
         ]}
         extra={
           <>
-            {allowOrdersDownload &&
+            {allowOrdersDownload && (
               <Button
                 onClick={openGetOrderModal}
                 className="ant-btn-outline ant-btn-primary"
@@ -268,22 +279,27 @@ const OrdersMapping: React.FC = () => {
               >
                 Tải đơn hàng về
               </Button>
-            }
+            )}
           </>
         }
       >
-        <Tabs activeKey={activeTab} onChange={(active) => { handleOnchangeTab(active) }}>
+        <Tabs
+          activeKey={activeTab}
+          onChange={(active) => {
+            handleOnchangeTab(active);
+          }}
+        >
           <TabPane tab={ORDER_TABS.all_orders.title} key={ORDER_TABS.all_orders.key} />
         </Tabs>
 
-        {activeTab === ORDER_TABS.all_orders.key &&
+        {activeTab === ORDER_TABS.all_orders.key && (
           <AllOrdersMapping
-              isReloadPage={isReloadPage}
-              setRowDataFilter={setRowDataFilter}
-              handleDownloadSelectedOrders={handleDownloadSelectedOrders}
-              handleSingleDownloadOrder={handleSingleDownloadOrder}
+            isReloadPage={isReloadPage}
+            setRowDataFilter={setRowDataFilter}
+            handleDownloadSelectedOrders={handleDownloadSelectedOrders}
+            handleSingleDownloadOrder={handleSingleDownloadOrder}
           />
-        }
+        )}
 
         {isShowGetOrderModal && (
           <GetOrderDataModal
@@ -293,7 +309,7 @@ const OrdersMapping: React.FC = () => {
           />
         )}
 
-        {isVisibleProgressModal &&
+        {isVisibleProgressModal && (
           <ProgressDownloadOrdersModal
             visible={isVisibleProgressModal}
             onCancel={onCancelProgressDownloadOrder}
@@ -302,24 +318,23 @@ const OrdersMapping: React.FC = () => {
             progressPercent={progressPercent}
             isDownloading={isDownloading}
           />
-        }
+        )}
 
-        {isVisibleConflictModal &&
+        {isVisibleConflictModal && (
           <ConflictDownloadModal
             visible={isVisibleConflictModal}
             onCancel={closeConflictDownloadModal}
             onOk={closeConflictDownloadModal}
           />
-        }
+        )}
 
-        {isVisibleExitDownloadOrdersModal &&
+        {isVisibleExitDownloadOrdersModal && (
           <ExitDownloadOrdersModal
             visible={isVisibleExitDownloadOrdersModal}
             onCancel={onCancelExitDownloadOrdersModal}
             onOk={onOkExitDownloadOrdersModal}
           />
-        }
-
+        )}
       </ContentContainer>
     </OrdersMappingStyled>
   );

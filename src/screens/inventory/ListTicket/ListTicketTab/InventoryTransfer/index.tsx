@@ -1,12 +1,12 @@
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import {
   actionCancelTicketByIds,
   actionExportInventoryByIds,
   getListInventoryTransferAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch} from "react-redux";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
 
 import InventoryFilters from "../../Components/FIlter/InventoryListFilter";
 import {
@@ -19,55 +19,54 @@ import {
 import CustomTable from "component/table/CustomTable";
 import purify from "dompurify";
 
-import {PageResponse} from "model/base/base-metadata.response";
-import {VariantResponse} from "model/product/product.model";
-import {getQueryParams, useQuery} from "utils/useQuery";
+import { PageResponse } from "model/base/base-metadata.response";
+import { VariantResponse } from "model/product/product.model";
+import { getQueryParams, useQuery } from "utils/useQuery";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { Input, Modal, Form, Button, Row, Typography } from "antd";
-import {InventoryTransferTabWrapper} from "./styles";
-import {STATUS_INVENTORY_TRANSFER,STATUS_INVENTORY_TRANSFER_ARRAY} from "../../../constants";
+import { InventoryTransferTabWrapper } from "./styles";
+import { STATUS_INVENTORY_TRANSFER, STATUS_INVENTORY_TRANSFER_ARRAY } from "../../../constants";
 
-import confirmedIcon from 'assets/icon/cho_chuyen.svg';
-import transferringIcon from 'assets/icon/dang_chuyen.svg';
-import pendingIcon from 'assets/icon/cho_xu_ly.svg';
-import receivedIcon from 'assets/icon/da_nhan.svg';
-import canceledIcon from 'assets/icon/da_huy.svg';
+import confirmedIcon from "assets/icon/cho_chuyen.svg";
+import transferringIcon from "assets/icon/dang_chuyen.svg";
+import pendingIcon from "assets/icon/cho_xu_ly.svg";
+import receivedIcon from "assets/icon/da_nhan.svg";
+import canceledIcon from "assets/icon/da_huy.svg";
 
-import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import {
   BarsOutlined,
   CopyOutlined,
   FormOutlined,
   PaperClipOutlined,
   PrinterOutlined,
-  ExportOutlined, CloseCircleOutlined,
+  ExportOutlined,
+  CloseCircleOutlined,
 } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
 
-import {formatCurrency, generateQuery} from "utils/AppUtils";
-import {useHistory} from "react-router-dom";
+import { formatCurrency, generateQuery } from "utils/AppUtils";
+import { useHistory } from "react-router-dom";
 import { AccountResponse, AccountStoreResponse } from "model/account/account.model";
 
-import {showSuccess, showWarning} from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import DeleteTicketModal from "screens/inventory/common/DeleteTicketPopup";
-import {useReactToPrint} from "react-to-print";
+import { useReactToPrint } from "react-to-print";
 
-import {PrinterInventoryTransferResponseModel} from "model/response/printer.response";
-import {actionFetchPrintFormByInventoryTransferIds} from "domain/actions/printer/printer.action";
-import {InventoryTransferPermission} from "config/permissions/inventory-transfer.permission";
+import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
+import { actionFetchPrintFormByInventoryTransferIds } from "domain/actions/printer/printer.action";
+import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 import useAuthorization from "hook/useAuthorization";
 import { callApiNative } from "utils/ApiUtils";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import TransferExport from "../../Components/TransferExport";
 import { TYPE_EXPORT } from "screens/products/constants";
-import {
-  getListInventoryTransferApi,
-} from "service/inventory/transfer/index.service";
+import { getListInventoryTransferApi } from "service/inventory/transfer/index.service";
 import moment from "moment";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import { ImportStatusWrapper } from "../../../ImportInventory/styles";
 import { HttpStatus } from "config/http-status.config";
@@ -114,19 +113,31 @@ const initQuery: InventoryTransferSearchQuery = {
 };
 
 type InventoryTransferTabProps = {
-  accountStores?: Array<AccountStoreResponse>,
-  stores?: Array<Store>,
-  accounts?: Array<AccountResponse>,
-  setAccounts?: (e: any) => any,
-  activeTab?: string,
-  vExportTransfer: boolean,
-  vExportDetailTransfer: boolean,
-  setVExportTransfer: React.Dispatch<React.SetStateAction<boolean>>,
-  setVExportDetailTransfer: React.Dispatch<React.SetStateAction<boolean>>
+  accountStores?: Array<AccountStoreResponse>;
+  stores?: Array<Store>;
+  accounts?: Array<AccountResponse>;
+  setAccounts?: (e: any) => any;
+  activeTab?: string;
+  vExportTransfer: boolean;
+  vExportDetailTransfer: boolean;
+  setVExportTransfer: React.Dispatch<React.SetStateAction<boolean>>;
+  setVExportDetailTransfer: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: InventoryTransferTabProps) => {
-  const { accountStores, stores, accounts, setAccounts,vExportTransfer,setVExportTransfer,vExportDetailTransfer,setVExportDetailTransfer, activeTab } = props;
+const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
+  props: InventoryTransferTabProps,
+) => {
+  const {
+    accountStores,
+    stores,
+    accounts,
+    setAccounts,
+    vExportTransfer,
+    setVExportTransfer,
+    vExportDetailTransfer,
+    setVExportDetailTransfer,
+    activeTab,
+  } = props;
   const history = useHistory();
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const query = useQuery();
@@ -164,7 +175,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       setPrintContent(result);
       handlePrint && handlePrint();
     },
-    [handlePrint]
+    [handlePrint],
   );
 
   //phân quyền
@@ -251,9 +262,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       render: (value: string, row: InventoryTransferDetailItem) => (
         <div>
           <Link to={`${UrlConfig.INVENTORY_TRANSFERS}/${row.id}`}>{value}</Link>
-          <div>
-            {ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}
-          </div>
+          <div>{ConvertUtcToLocalDate(row.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
         </div>
       ),
     },
@@ -314,9 +323,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
             img = confirmedIcon;
             break;
         }
-        return <div className="status">
-          <div className={classTag}><img className="mr-5" src={img} alt="" /><span>{textTag}</span></div>
-        </div>;
+        return (
+          <div className="status">
+            <div className={classTag}>
+              <img className="mr-5" src={img} alt="" />
+              <span>{textTag}</span>
+            </div>
+          </div>
+        );
       },
       width: 150,
     },
@@ -333,7 +347,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       visible: true,
       align: "right",
       render: (value: number) => {
-        return formatCurrency(value,".");
+        return formatCurrency(value, ".");
       },
       width: "100px",
     },
@@ -350,7 +364,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       visible: true,
       align: "right",
       render: (value: number) => {
-        return formatCurrency(value,".");
+        return formatCurrency(value, ".");
       },
       width: "100px",
     },
@@ -359,7 +373,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         return (
           <>
             <div>SL Nhận</div>
-            <div className="t-primary">({formatCurrency(0, '.')})</div>
+            <div className="t-primary">({formatCurrency(0, ".")})</div>
           </>
         );
       },
@@ -368,7 +382,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       align: "center",
       width: 100,
       render: (value: number) => {
-        return formatCurrency(value,".");
+        return formatCurrency(value, ".");
       },
     },
     {
@@ -378,7 +392,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       align: "center",
       width: 150,
       render: (value: number) => {
-        return formatCurrency(value,".");
+        return formatCurrency(value, ".");
       },
     },
     {
@@ -389,14 +403,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       width: "220px",
       render: (item: string, row: InventoryTransferDetailItem) => {
         return (
-          <div className={item ? 'note': ''}>
+          <div className={item ? "note" : ""}>
             {item}
             <FormOutlined
               onClick={() => {
                 setItemData(row);
                 setIsModalVisibleNote(true);
               }}
-              className={item ? 'note-icon' : ''}
+              className={item ? "note-icon" : ""}
             />
           </div>
         );
@@ -408,7 +422,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       visible: true,
       align: "center",
       width: "110px",
-      render: (value: string) => <div>{ConvertUtcToLocalDate(value,DATE_FORMAT.DDMMYY_HHmm)}</div>,
+      render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
     },
     {
       title: "Ngày nhận",
@@ -458,9 +472,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
             <div>
               <b>{item.created_by ?? ""}</b>
             </div>
-            <div>
-              {item.created_name ?? ""}
-            </div>
+            <div>{item.created_name ?? ""}</div>
           </>
         );
       },
@@ -486,23 +498,23 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
     setActions(newActions);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedRowKeys])
+  }, [selectedRowKeys]);
 
   const onDeleteTicket = async (value: string | undefined) => {
     setLoadingBtn(true);
     const ids = selectedRowKeys.map((i) => {
       return {
         id: i,
-      }
-    })
+      };
+    });
     dispatch(
       actionCancelTicketByIds(
         {
-          note: value ? value : '',
-          transfers: ids
+          note: value ? value : "",
+          transfers: ids,
         },
-        dataCancelCallback
-      )
+        dataCancelCallback,
+      ),
     );
   };
 
@@ -510,17 +522,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     (page, size) => {
       params.page = page;
       params.limit = size;
-      setParams({...params});
-      let queryParam = generateQuery({...params});
+      setParams({ ...params });
+      let queryParam = generateQuery({ ...params });
       history.push(`${history.location.pathname}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<Array<InventoryTransferDetailItem>> | false) => {
@@ -540,7 +549,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           const newColumns = [...columns];
 
           for (let i = 0; i < newColumns.length; i++) {
-            if (newColumns[i].dataIndex === 'total_quantity') {
+            if (newColumns[i].dataIndex === "total_quantity") {
               newColumns[i] = {
                 // eslint-disable-next-line no-loop-func
                 title: () => {
@@ -555,19 +564,19 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                 visible: true,
                 align: "right",
                 render: (value: number) => {
-                  return formatCurrency(value,".");
+                  return formatCurrency(value, ".");
                 },
                 width: 120,
               };
             }
-            if (newColumns[i].dataIndex === 'total_received_quantity') {
+            if (newColumns[i].dataIndex === "total_received_quantity") {
               newColumns[i] = {
                 // eslint-disable-next-line no-loop-func
                 title: () => {
                   return (
                     <>
                       <div>SL Nhận</div>
-                      <div className="t-primary">{formatCurrency(totalReceivedQuantity, '.')}</div>
+                      <div className="t-primary">{formatCurrency(totalReceivedQuantity, ".")}</div>
                     </>
                   );
                 },
@@ -575,19 +584,19 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                 visible: true,
                 align: "right",
                 render: (value: number) => {
-                  return formatCurrency(value,".");
+                  return formatCurrency(value, ".");
                 },
                 width: 100,
               };
             }
-            if (newColumns[i].dataIndex === 'total_variant') {
+            if (newColumns[i].dataIndex === "total_variant") {
               newColumns[i] = {
                 // eslint-disable-next-line no-loop-func
                 title: () => {
                   return (
                     <>
                       <div>SP</div>
-                      <div className="t-primary">{formatCurrency(totalProduct, '.')}</div>
+                      <div className="t-primary">{formatCurrency(totalProduct, ".")}</div>
                     </>
                   );
                 },
@@ -595,7 +604,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                 visible: true,
                 align: "right",
                 render: (value: number) => {
-                  return formatCurrency(value,".");
+                  return formatCurrency(value, ".");
                 },
                 width: 120,
               };
@@ -615,7 +624,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [columns, defaultColumns]
+    [columns, defaultColumns],
   );
 
   const getAccounts = async (codes: string) => {
@@ -624,41 +633,41 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       dispatch,
       searchAccountPublicApi,
       {
-        codes
-      }
+        codes,
+      },
     );
 
     setAccounts && setAccounts(initSelectedResponse.items);
-  }
+  };
 
   const onFilter = useCallback(
     (values) => {
-      let newParams = {...params, ...values, page: 1};
+      let newParams = { ...params, ...values, page: 1 };
       setParams(newParams);
       let queryParam = generateQuery(newParams);
       setTableLoading(true);
       history.push(`${history.location.pathname}?${queryParam}`);
-      let codes = '';
+      let codes = "";
 
       if (newParams.created_by) {
-        codes = newParams.created_by
+        codes = newParams.created_by;
       }
       if (newParams.updated_by) {
-        codes = codes + ',' + newParams.updated_by
+        codes = codes + "," + newParams.updated_by;
       }
       if (newParams.received_by) {
-        codes = codes + ',' + newParams.received_by
+        codes = codes + "," + newParams.received_by;
       }
       if (newParams.transfer_by) {
-        codes = codes + ',' + newParams.transfer_by
+        codes = codes + "," + newParams.transfer_by;
       }
       if (newParams.cancel_by) {
-        codes = codes + ',' + newParams.cancel_by
+        codes = codes + "," + newParams.cancel_by;
       }
       getAccounts(codes).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [history, params]
+    [history, params],
   );
 
   const printTicketAction = useCallback(
@@ -673,11 +682,11 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         actionFetchPrintFormByInventoryTransferIds(
           selectedRowKeys,
           printType,
-          printContentCallback
-        )
+          printContentCallback,
+        ),
       );
     },
-    [dispatch, printContentCallback, selectedRowKeys]
+    [dispatch, printContentCallback, selectedRowKeys],
   );
 
   const dataCancelCallback = (data: any) => {
@@ -688,7 +697,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       setIsDeleteTicket(false);
       showSuccess(`Hủy phiếu chuyển thành công`);
       setParams({
-        ...params
+        ...params,
       });
       return;
     }
@@ -697,7 +706,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       setIsDeleteTicket(false);
       setIsStatusModalVisible(true);
       setParams({
-        ...params
+        ...params,
       });
       setSelectedRowKeys([]);
       setDataUploadError(data.errors);
@@ -709,7 +718,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     if (data.code === HttpStatus.SUCCESS) {
       showSuccess(`Xuất kho thành công`);
       setParams({
-        ...params
+        ...params,
       });
       setSelectedRowKeys([]);
       return;
@@ -726,18 +735,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
     setTableLoading(true);
     const ids = selectedRowKeys.map((i) => {
       return {
-        id: i
-      }
+        id: i,
+      };
     });
     const data: DataExport = {
-      transfers: ids
+      transfers: ids,
     };
-    dispatch(
-      actionExportInventoryByIds(
-        data,
-        dataExportCallback
-      )
-    );
+    dispatch(actionExportInventoryByIds(data, dataExportCallback));
   };
 
   const cancelTicket = () => {
@@ -765,7 +769,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         //   break;
         case ACTIONS_INDEX.MAKE_COPY:
           history.push(
-            `${UrlConfig.INVENTORY_TRANSFERS}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`
+            `${UrlConfig.INVENTORY_TRANSFERS}/${selectedRowKeys}/update?cloneId=${selectedRowKeys}`,
           );
           break;
         case ACTIONS_INDEX.EXPORT:
@@ -778,7 +782,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           break;
       }
     },
-    [exportMultiple, history, printTicketAction, selectedRowKeys]
+    [exportMultiple, history, printTicketAction, selectedRowKeys],
   );
 
   const onClearFilter = useCallback(() => {
@@ -794,25 +798,40 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
   }, []);
 
   const convertItemExport = (item: InventoryTransferDetailItem) => {
-
     return {
       [TransferExportField.code]: item.code,
       [TransferExportField.from_store_name]: item.from_store_name,
       [TransferExportField.to_store_name]: item.to_store_name,
-      [TransferExportField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===item.status)?.name,
+      [TransferExportField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(
+        (e) => e.value === item.status,
+      )?.name,
       [TransferExportField.total_variant]: item.total_variant,
       [TransferExportField.total_quantity]: item.total_quantity === 0 ? null : item.total_quantity,
       [TransferExportField.total_amount]: item.total_amount,
-      [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYY_HHmm),
+      [TransferExportField.created_date]: ConvertUtcToLocalDate(
+        item.created_date,
+        DATE_FORMAT.DDMMYY_HHmm,
+      ),
       [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
-      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(item.transfer_date,DATE_FORMAT.DDMMYY_HHmm),
-      [TransferExportField.receive_date]: ConvertUtcToLocalDate(item.receive_date,DATE_FORMAT.DDMMYY_HHmm),
-      [TransferExportField.receive_by]: item.receive_date ? `${item.updated_by} - ${item.updated_name}`: null,
+      [TransferExportField.transfer_date]: ConvertUtcToLocalDate(
+        item.transfer_date,
+        DATE_FORMAT.DDMMYY_HHmm,
+      ),
+      [TransferExportField.receive_date]: ConvertUtcToLocalDate(
+        item.receive_date,
+        DATE_FORMAT.DDMMYY_HHmm,
+      ),
+      [TransferExportField.receive_by]: item.receive_date
+        ? `${item.updated_by} - ${item.updated_name}`
+        : null,
       [TransferExportField.note]: item.note,
     };
-  }
+  };
 
-  const convertTransferDetailExport = (transfer:InventoryTransferDetailItem,arrItem: Array<LineItem>) => {
+  const convertTransferDetailExport = (
+    transfer: InventoryTransferDetailItem,
+    arrItem: Array<LineItem>,
+  ) => {
     let arr = [];
     for (let i = 0; i < arrItem.length; i++) {
       const item = arrItem[i];
@@ -821,87 +840,126 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         [TransferExportLineItemField.code]: transfer.code,
         [TransferExportLineItemField.from_store]: `${transfer.from_store_name}`,
         [TransferExportLineItemField.to_store]: `${transfer.to_store_name}`,
-        [TransferExportLineItemField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(e=>e.value===transfer.status)?.name,
+        [TransferExportLineItemField.status]: STATUS_INVENTORY_TRANSFER_ARRAY.find(
+          (e) => e.value === transfer.status,
+        )?.name,
         [TransferExportLineItemField.sku]: item.sku,
         [TransferExportLineItemField.variant_name]: item.variant_name,
         [TransferExportLineItemField.barcode]: item.barcode,
         [TransferExportLineItemField.price]: item.price,
         [TransferExportLineItemField.transfer_quantity]: item.transfer_quantity,
-        [TransferExportLineItemField.total_amount]: (item.transfer_quantity ?? 0) * (item.price ?? 0),
-        [TransferExportLineItemField.real_quantity]: item.real_quantity === 0 ? null :item.real_quantity,
-        [TransferExportField.created_date]: ConvertUtcToLocalDate(item.created_date,DATE_FORMAT.DDMMYY_HHmm),
+        [TransferExportLineItemField.total_amount]:
+          (item.transfer_quantity ?? 0) * (item.price ?? 0),
+        [TransferExportLineItemField.real_quantity]:
+          item.real_quantity === 0 ? null : item.real_quantity,
+        [TransferExportField.created_date]: ConvertUtcToLocalDate(
+          item.created_date,
+          DATE_FORMAT.DDMMYY_HHmm,
+        ),
         [TransferExportField.created_name]: `${item.created_by} - ${item.created_name}`,
-        [TransferExportField.transfer_date]: ConvertUtcToLocalDate(transfer.transfer_date,DATE_FORMAT.DDMMYY_HHmm),
-        [TransferExportField.receive_date]: ConvertUtcToLocalDate(transfer.receive_date,DATE_FORMAT.DDMMYY_HHmm),
-        [TransferExportField.receive_by]: transfer.receive_date ? `${item.updated_by} - ${item.updated_name}`: null,
+        [TransferExportField.transfer_date]: ConvertUtcToLocalDate(
+          transfer.transfer_date,
+          DATE_FORMAT.DDMMYY_HHmm,
+        ),
+        [TransferExportField.receive_date]: ConvertUtcToLocalDate(
+          transfer.receive_date,
+          DATE_FORMAT.DDMMYY_HHmm,
+        ),
+        [TransferExportField.receive_by]: transfer.receive_date
+          ? `${item.updated_by} - ${item.updated_name}`
+          : null,
         [TransferExportField.note]: transfer.note,
       });
     }
     return arr;
-  }
+  };
 
-  const getItemsByCondition = useCallback(async (type: string) => {
-    let res: any;
-    let items: Array<InventoryTransferDetailItem> = [];
-    const limit = 50;
-    let times = 0;
+  const getItemsByCondition = useCallback(
+    async (type: string) => {
+      let res: any;
+      let items: Array<InventoryTransferDetailItem> = [];
+      const limit = 50;
+      let times = 0;
 
-    setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-    switch (type) {
-      case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params, simple: false,limit: params.limit ?? 50});
-        if (res) {
-          items= items.concat(res.items);
-        }
-        break;
-      case TYPE_EXPORT.selected:
-        res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params, simple: false,limit: params.limit ?? 50});
-        if (res) {
-          for (let index = 0; index < selectedRowData.length; index++) {
-            const transfer = res.items.find((e:InventoryTransferDetailItem)=>e.code === selectedRowData[index].code);
-            if (transfer) {
-              items.push(transfer);
+      setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+      switch (type) {
+        case TYPE_EXPORT.page:
+          res = await callApiNative(
+            { isShowLoading: false },
+            dispatch,
+            getListInventoryTransferApi,
+            { ...params, simple: false, limit: params.limit ?? 50 },
+          );
+          if (res) {
+            items = items.concat(res.items);
+          }
+          break;
+        case TYPE_EXPORT.selected:
+          res = await callApiNative(
+            { isShowLoading: false },
+            dispatch,
+            getListInventoryTransferApi,
+            { ...params, simple: false, limit: params.limit ?? 50 },
+          );
+          if (res) {
+            for (let index = 0; index < selectedRowData.length; index++) {
+              const transfer = res.items.find(
+                (e: InventoryTransferDetailItem) => e.code === selectedRowData[index].code,
+              );
+              if (transfer) {
+                items.push(transfer);
+              }
             }
           }
-        }
-        break;
-      case TYPE_EXPORT.all:
-        const roundAll = Math.round(data.metadata.total / limit);
-        times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
-
-        for (let index = 1; index <= times; index++) {
-          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,simple: false,page: index,limit:limit});
-          if (res) {
-            items= items.concat(res.items);
-          }
-          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
-          setExportProgress(percent);
-        }
-
-        break;
-      case TYPE_EXPORT.allin:
-        if (!totalItems || totalItems===0) {
           break;
-        }
-        const roundAllin = Math.round(totalItems / limit);
-        times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
+        case TYPE_EXPORT.all:
+          const roundAll = Math.round(data.metadata.total / limit);
+          times = roundAll < data.metadata.total / limit ? roundAll + 1 : roundAll;
 
-        for (let index = 1; index <= times; index++) {
-
-          const res = await callApiNative({ isShowLoading: false }, dispatch, getListInventoryTransferApi, {...params,simple: false,page: index,limit:limit});
-          if (res) {
-            items= items.concat(res.items);
+          for (let index = 1; index <= times; index++) {
+            const res = await callApiNative(
+              { isShowLoading: false },
+              dispatch,
+              getListInventoryTransferApi,
+              { ...params, simple: false, page: index, limit: limit },
+            );
+            if (res) {
+              items = items.concat(res.items);
+            }
+            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+            setExportProgress(percent);
           }
-          const percent = Math.round(Number.parseFloat((index/times).toFixed(2))*100);
-          setExportProgress(percent);
-        }
-        break;
-      default:
-        break;
-    }
-    setExportProgress(100);
-    return items;
-  },[dispatch,selectedRowData,params,data,totalItems])
+
+          break;
+        case TYPE_EXPORT.allin:
+          if (!totalItems || totalItems === 0) {
+            break;
+          }
+          const roundAllin = Math.round(totalItems / limit);
+          times = roundAllin < totalItems / limit ? roundAllin + 1 : roundAllin;
+
+          for (let index = 1; index <= times; index++) {
+            const res = await callApiNative(
+              { isShowLoading: false },
+              dispatch,
+              getListInventoryTransferApi,
+              { ...params, simple: false, page: index, limit: limit },
+            );
+            if (res) {
+              items = items.concat(res.items);
+            }
+            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+            setExportProgress(percent);
+          }
+          break;
+        default:
+          break;
+      }
+      setExportProgress(100);
+      return items;
+    },
+    [dispatch, selectedRowData, params, data, totalItems],
+  );
 
   const actionExport = {
     Ok: async (typeExport: string) => {
@@ -931,12 +989,12 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           if (workbook.Sheets[`${res[i].code}`]) {
             continue;
           }
-          item=item.concat(convertTransferDetailExport(res[i],res[i].line_items));
+          item = item.concat(convertTransferDetailExport(res[i], res[i].line_items));
         }
         const ws = XLSX.utils.json_to_sheet(item);
 
-        XLSX.utils.book_append_sheet(workbook, ws, 'data');
-      }else{
+        XLSX.utils.book_append_sheet(workbook, ws, "data");
+      } else {
         for (let i = 0; i < res.length; i++) {
           const e = res[i];
           const item = convertItemExport(e);
@@ -948,11 +1006,14 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       }
 
       setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
-      const today = moment(new Date(), 'YYYY/MM/DD');
-      const month = today.format('M');
-      const day   = today.format('D');
-      const year  = today.format('YYYY');
-      XLSX.writeFile(workbook, `${vExportDetailTransfer ? 'transfer_detail':'transfer'}_${day}_${month}_${year}.xlsx`);
+      const today = moment(new Date(), "YYYY/MM/DD");
+      const month = today.format("M");
+      const day = today.format("D");
+      const year = today.format("YYYY");
+      XLSX.writeFile(
+        workbook,
+        `${vExportDetailTransfer ? "transfer_detail" : "transfer"}_${day}_${month}_${year}.xlsx`,
+      );
       setVExportTransfer(false);
       setVExportDetailTransfer(false);
       setExportProgress(0);
@@ -964,21 +1025,22 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       setExportProgress(0);
       setStatusExport(0);
     },
-  }
+  };
 
   useEffect(() => {
     setTableLoading(true);
-    if (activeTab === '') return;
+    if (activeTab === "") return;
 
     let status: string[] = [];
     switch (activeTab) {
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-        status = ['transferring', 'confirmed'];
+        status = ["transferring", "confirmed"];
         break;
       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
-        status = ['transferring'];
+        status = ["transferring"];
         break;
-      default: break;
+      default:
+        break;
     }
 
     let newParams = {
@@ -990,23 +1052,33 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
       return;
     }
 
-    let accountStoreSelected = accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
+    let accountStoreSelected =
+      accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
 
     switch (activeTab) {
       // case InventoryTransferTabUrl.LIST:
       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
         newParams = {
           ...newParams,
-          from_store_id: params.from_store_id ? (Array.isArray(params.from_store_id) && params.from_store_id.length) > 0 ? params.from_store_id : accountStoreSelected : accountStoreSelected || null
+          from_store_id: params.from_store_id
+            ? (Array.isArray(params.from_store_id) && params.from_store_id.length) > 0
+              ? params.from_store_id
+              : accountStoreSelected
+            : accountStoreSelected || null,
         };
         break;
       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
         newParams = {
           ...newParams,
-          to_store_id: params.to_store_id ? (Array.isArray(params.to_store_id) && params.to_store_id.length) > 0 ? params.to_store_id : accountStoreSelected : accountStoreSelected || null
+          to_store_id: params.to_store_id
+            ? (Array.isArray(params.to_store_id) && params.to_store_id.length) > 0
+              ? params.to_store_id
+              : accountStoreSelected
+            : accountStoreSelected || null,
         };
         break;
-      default: break;
+      default:
+        break;
     }
 
     let queryParam = generateQuery(newParams);
@@ -1018,7 +1090,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
 
   return (
     <InventoryTransferTabWrapper>
-      <div style={{display: "none"}}>
+      <div style={{ display: "none" }}>
         <div className="printContent" ref={printElementRef}>
           <div
             dangerouslySetInnerHTML={{
@@ -1055,8 +1127,8 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
         isRowSelection
         selectedRowKey={selectedRowKeys}
         isLoading={tableLoading}
-        scroll={{x: 1000}}
-        sticky={{offsetScroll: 5, offsetHeader: 55}}
+        scroll={{ x: 1000 }}
+        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
         pagination={false}
         onSelectedChange={(selectedRows) => onSelectedChange(selectedRows)}
         onShowColumnSetting={() => setShowSettingColumn(true)}
@@ -1117,12 +1189,13 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                     let status: string[] = [];
                     switch (activeTab) {
                       case InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER:
-                        status = ['transferring', 'confirmed'];
+                        status = ["transferring", "confirmed"];
                         break;
                       case InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE:
-                        status = ['transferring'];
+                        status = ["transferring"];
                         break;
-                      default: break;
+                      default:
+                        break;
                     }
 
                     let newParams = {
@@ -1132,7 +1205,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
                     };
 
                     dispatch(getListInventoryTransferAction(newParams, setSearchResult));
-                  })
+                  }),
                 );
               }
             }}
@@ -1145,7 +1218,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
               <TextArea
                 maxLength={250}
                 onChange={(e) => {
-                  formNote.setFieldsValue({note: e.target.value});
+                  formNote.setFieldsValue({ note: e.target.value });
                 }}
                 defaultValue={itemData?.note}
                 rows={4}
@@ -1166,7 +1239,9 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           textStore={selectedRowData[0]?.from_store_name}
           okText="Đồng ý"
           cancelText="Thoát"
-          title={`Bạn chắc chắn Hủy những phiếu chuyển hàng: ${selectedRowData.map((i) => i.code).join(', ')}`}
+          title={`Bạn chắc chắn Hủy những phiếu chuyển hàng: ${selectedRowData
+            .map((i) => i.code)
+            .join(", ")}`}
         />
       )}
       <ModalSettingColumn
@@ -1191,25 +1266,42 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (props: Invent
           title="Thao tác"
           visible={isStatusModalVisible}
           centered
-          onCancel={() => {setIsStatusModalVisible(false)}}
+          onCancel={() => {
+            setIsStatusModalVisible(false);
+          }}
           footer={[
-            <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
+            <Button
+              key="back"
+              onClick={() => {
+                setIsStatusModalVisible(false);
+              }}
+            >
               Huỷ
             </Button>,
           ]}
         >
           <ImportStatusWrapper>
             <Row className="import-info" style={{ marginTop: 0 }}>
-              <div className="title"><b>Chi tiết: </b></div>
+              <div className="title">
+                <b>Chi tiết: </b>
+              </div>
               <div className="content">
                 <ul>
-                  {
-                    dataUploadError ? dataUploadError.map( item => {
-                      return <li><span className="danger">&#8226;</span><Text type="danger">{item}</Text></li>
-                    }) : (
-                      <li><span className="success">&#8226;</span><Text type="success">Thành công</Text></li>
-                    )
-                  }
+                  {dataUploadError ? (
+                    dataUploadError.map((item) => {
+                      return (
+                        <li>
+                          <span className="danger">&#8226;</span>
+                          <Text type="danger">{item}</Text>
+                        </li>
+                      );
+                    })
+                  ) : (
+                    <li>
+                      <span className="success">&#8226;</span>
+                      <Text type="success">Thành công</Text>
+                    </li>
+                  )}
                 </ul>
               </div>
             </Row>

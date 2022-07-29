@@ -5,7 +5,7 @@ type PlaceholderComponentProps = {
   text?: string;
 };
 const PlaceholderComponent: React.FC<PlaceholderComponentProps> = (
-  props: PlaceholderComponentProps
+  props: PlaceholderComponentProps,
 ) => {
   return (
     <Row align="middle" className="empty-placeholder">

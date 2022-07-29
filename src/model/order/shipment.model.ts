@@ -12,26 +12,26 @@ export interface Shipment {
   id: number;
   sender_address: object;
   shipping_address?: {
-    channel: string|null;
-    city: string|null;
-    country: string|null;
-    district: string|null;
-    email: string|null;
-    full_address: string|null;
-    id: number|null;
-    name: string|null;
-    phone: string|null;
-    ward: string|null;
-    zip_code: string|null;
+    channel: string | null;
+    city: string | null;
+    country: string | null;
+    district: string | null;
+    email: string | null;
+    full_address: string | null;
+    id: number | null;
+    name: string | null;
+    phone: string | null;
+    ward: string | null;
+    zip_code: string | null;
   };
   shipping_fee_paid_to_three_pls: number;
   service: string;
   reason_ids: string;
   cod: number;
-	reference_status: string;
+  reference_status: string;
   tracking_code: string;
-  pushing_status:string;
-  delivery_service_note?:string;
+  pushing_status: string;
+  delivery_service_note?: string;
 }
 export interface ShipmentModel {
   id: number;
@@ -64,12 +64,12 @@ export interface ShipmentModel {
   discount_amount: string | null;
   total_line_amount_after_line_discount: string | null;
   finished_order_on: string | null;
-	reason?: {
-		id: number;
-		name: string;
-	}
-  delivery_service_note?:string;
-  expected_received_date?:string;
+  reason?: {
+    id: number;
+    name: string;
+  };
+  delivery_service_note?: string;
+  expected_received_date?: string;
 }
 
 export interface ShipmentSearchQuery {

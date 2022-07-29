@@ -11,7 +11,7 @@ function useFetchWarrantyReasons(
   initQuery: GetWarrantyReasonsParamModel,
   location: any,
   countForceFetchData: number,
-  setQuery: (data: GetWarrantyReasonsParamModel) => void
+  setQuery: (data: GetWarrantyReasonsParamModel) => void,
 ) {
   const [warrantyReasons, setWarrantyReasons] = useState<Array<WarrantyReasonModel>>([]);
   const [metadata, setMetaData] = useState({

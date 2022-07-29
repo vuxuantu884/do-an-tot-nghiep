@@ -21,11 +21,7 @@ type POInventoryViewProps = {
   id?: number;
   code?: string;
   onSuccess: () => void;
-  confirmDraft: (
-    item: PurchaseProcument,
-    isEdit: boolean,
-    procumentCode: string,
-  ) => void;
+  confirmDraft: (item: PurchaseProcument, isEdit: boolean, procumentCode: string) => void;
   confirmInventory: (item: PurchaseProcument, isEdit: boolean) => void;
   tabs: Array<any>;
   activeTab: number;
@@ -35,9 +31,7 @@ type POInventoryViewProps = {
   receiveStatus?: string;
 };
 
-const POInventoryView: React.FC<POInventoryViewProps> = (
-  props: POInventoryViewProps,
-) => {
+const POInventoryView: React.FC<POInventoryViewProps> = (props: POInventoryViewProps) => {
   const {
     confirmDraft,
     confirmInventory,
@@ -51,9 +45,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
     isEditDetail,
     receiveStatus,
   } = props;
-  const [procumentView, setProcumentView] = useState<
-    Array<PurchaseProcurementViewDraft>
-  >([]);
+  const [procumentView, setProcumentView] = useState<Array<PurchaseProcurementViewDraft>>([]);
   const getComponent = useCallback(
     (id: number) => {
       switch (id) {
@@ -71,14 +63,9 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
   );
 
   const getExpectReceiptDate = () => {
-    const procument_items: Array<PurchaseProcument> = form.getFieldValue(
-      POField.procurements,
-    );
+    const procument_items: Array<PurchaseProcument> = form.getFieldValue(POField.procurements);
     if (procument_items?.length > 0 && procument_items[0]) {
-      return ConvertUtcToLocalDate(
-        procument_items[0].expect_receipt_date,
-        DATE_FORMAT.DDMMYYY,
-      );
+      return ConvertUtcToLocalDate(procument_items[0].expect_receipt_date, DATE_FORMAT.DDMMYYY);
     } else {
       return "-";
     }
@@ -95,8 +82,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
       <Form.Item
         noStyle
         shouldUpdate={(prev, current) =>
-          prev[POField.planned_quantity] !==
-            current[POField.planned_quantity] &&
+          prev[POField.planned_quantity] !== current[POField.planned_quantity] &&
           prev[POField.receipt_quantity] !== current[POField.receipt_quantity]
         }
       >
@@ -105,11 +91,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
           return (
             <POProgressView
-              remainTitle={
-                receipt_quantity - planned_quantity > 0
-                  ? "SL NHẬP DƯ"
-                  : "SL CÒN LẠI"
-              }
+              remainTitle={receipt_quantity - planned_quantity > 0 ? "SL NHẬP DƯ" : "SL CÒN LẠI"}
               receivedTitle={"ĐÃ NHẬN"}
               received={receipt_quantity}
               total={planned_quantity}
@@ -118,18 +100,12 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         }}
       </Form.Item>
       <Row align="middle">
-        <div
-          className="po-inven-view"
-          style={{ borderBottom: "1px solid #2A2A86" }}
-        >
+        <div className="po-inven-view" style={{ borderBottom: "1px solid #2A2A86" }}>
           <Col span={16}>
             <Space size={15}>
               {tabs.map((item) => (
                 <div
-                  className={classNames(
-                    "po-inven-view-tab",
-                    activeTab === item.id && "active",
-                  )}
+                  className={classNames("po-inven-view-tab", activeTab === item.id && "active")}
                   key={item.id}
                 >
                   <div
@@ -147,17 +123,9 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           </Col>
           <Col style={{ marginLeft: "auto" }} span={5}>
             <div>
-              {isEditDetail &&
-              receiveStatus &&
-              receiveStatus !== ProcumentStatus.FINISHED ? (
+              {isEditDetail && receiveStatus && receiveStatus !== ProcumentStatus.FINISHED ? (
                 <>
-                  <Form.Item
-                    name={[
-                      POField.procurements,
-                      0,
-                      POField.expect_receipt_date,
-                    ]}
-                  >
+                  <Form.Item name={[POField.procurements, 0, POField.expect_receipt_date]}>
                     <CustomDatePicker
                       value={
                         procumentView.length > 0 && procumentView[0]
@@ -180,13 +148,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         </div>
       </Row>
       {tabs.map((item) => (
-        <div
-          className={classNames(
-            "tab-content",
-            activeTab === item.id && "active",
-          )}
-          key={item.id}
-        >
+        <div className={classNames("tab-content", activeTab === item.id && "active")} key={item.id}>
           {getComponent(item.id)}
         </div>
       ))}

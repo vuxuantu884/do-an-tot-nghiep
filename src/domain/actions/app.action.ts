@@ -30,12 +30,15 @@ export const loadUserFromStorageFailAction = () => {
   return BaseAction(AppType.LOAD_USER_FROM_STORAGE_FAIL, null);
 };
 
-export const fetchApiErrorAction = (response:BaseResponse<any>|PageResponse<any>, textApiInformation: string) => {
+export const fetchApiErrorAction = (
+  response: BaseResponse<any> | PageResponse<any>,
+  textApiInformation: string,
+) => {
   return {
     type: OtherType.FETCH_API_ERROR,
     payload: {
       response,
       textApiInformation,
     },
-  }
+  };
 };

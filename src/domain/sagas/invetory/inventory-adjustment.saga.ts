@@ -1,11 +1,11 @@
-import {YodyAction} from "base/base.action";
+import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import {HttpStatus} from "config/http-status.config";
-import {unauthorizedAction} from "domain/actions/auth/auth.action";
-import {InventoryType} from "domain/types/inventory.type";
-import {PageResponse} from "model/base/base-metadata.response";
-import {call, put, takeLatest} from "redux-saga/effects";
-import {showError} from "utils/ToastUtils";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { InventoryType } from "domain/types/inventory.type";
+import { PageResponse } from "model/base/base-metadata.response";
+import { call, put, takeLatest } from "redux-saga/effects";
+import { showError } from "utils/ToastUtils";
 import {
   adjustInventoryApi,
   createInventorAdjustmentGetApi,
@@ -16,18 +16,19 @@ import {
   getVariantHasOnHandByStoreApi,
   updateInventorAdjustmentApi,
   updateItemOnlineInventoryApi,
-  updateOnlineInventoryApi, updateReasonItemOnlineInventoryApi,
+  updateOnlineInventoryApi,
+  updateReasonItemOnlineInventoryApi,
 } from "service/inventory/adjustment/index.service";
-import {InventoryAdjustmentDetailItem} from "model/inventoryadjustment";
+import { InventoryAdjustmentDetailItem } from "model/inventoryadjustment";
 import { callApiSaga } from "utils/ApiUtils";
 
 function* getListInventoryAdjustmentSaga(action: YodyAction) {
-  let {queryParams, onResult} = action.payload;
+  let { queryParams, onResult } = action.payload;
 
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       getListInventoryAdjustmentApi,
-      queryParams
+      queryParams,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -48,11 +49,11 @@ function* getListInventoryAdjustmentSaga(action: YodyAction) {
 }
 
 function* getDetailInventorAdjustmentGetSaga(action: YodyAction) {
-  const {id, onResult} = action.payload;
+  const { id, onResult } = action.payload;
   try {
     let response: BaseResponse<InventoryAdjustmentDetailItem> = yield call(
       getDetailInventorAdjustmentGetApi,
-      id
+      id,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -74,13 +75,10 @@ function* getDetailInventorAdjustmentGetSaga(action: YodyAction) {
 }
 
 function* createInventoryAdjustmentSaga(action: YodyAction) {
-  let {data, onResult} = action.payload;
+  let { data, onResult } = action.payload;
 
   try {
-    const response: BaseResponse<Array<[]>> = yield call(
-      createInventorAdjustmentGetApi,
-      data
-    );
+    const response: BaseResponse<Array<[]>> = yield call(createInventorAdjustmentGetApi, data);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -100,14 +98,14 @@ function* createInventoryAdjustmentSaga(action: YodyAction) {
 }
 
 function* updateItemOnlineInventorySaga(action: YodyAction) {
-  let {id, lineId, data, onResult} = action.payload;
+  let { id, lineId, data, onResult } = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       updateItemOnlineInventoryApi,
       id,
       lineId,
-      data
+      data,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -128,14 +126,14 @@ function* updateItemOnlineInventorySaga(action: YodyAction) {
 }
 
 function* updateReasonItemOnlineInventorySaga(action: YodyAction) {
-  let {id, lineId, data, onResult} = action.payload;
+  let { id, lineId, data, onResult } = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(
       updateReasonItemOnlineInventoryApi,
       id,
       lineId,
-      data
+      data,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -155,10 +153,8 @@ function* updateReasonItemOnlineInventorySaga(action: YodyAction) {
   }
 }
 
-
-
 function* updateOnlineInventorySaga(action: YodyAction) {
-  let {id, onResult} = action.payload;
+  let { id, onResult } = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(updateOnlineInventoryApi, id);
@@ -181,7 +177,7 @@ function* updateOnlineInventorySaga(action: YodyAction) {
 }
 
 function* adjustInventorySaga(action: YodyAction) {
-  let {id, onResult} = action.payload;
+  let { id, onResult } = action.payload;
 
   try {
     const response: BaseResponse<Array<[]>> = yield call(adjustInventoryApi, id);
@@ -204,13 +200,10 @@ function* adjustInventorySaga(action: YodyAction) {
 }
 
 function* printAdjustInventorySaga(action: YodyAction) {
-  let {queryPrint, onResult} = action.payload;
+  let { queryPrint, onResult } = action.payload;
 
   try {
-    const response: BaseResponse<Array<[]>> = yield call(
-      getPrintTicketIdsService,
-      queryPrint
-    );
+    const response: BaseResponse<Array<[]>> = yield call(getPrintTicketIdsService, queryPrint);
     onResult(response);
   } catch (error) {
     onResult(false);
@@ -219,13 +212,13 @@ function* printAdjustInventorySaga(action: YodyAction) {
 }
 
 function* getLinesItemAdjustmentSaga(action: YodyAction) {
-  let {id, queryString, onResult} = action.payload;
+  let { id, queryString, onResult } = action.payload;
 
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       getLinesItemAdjustmentApi,
       id,
-      queryString
+      queryString,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -246,14 +239,10 @@ function* getLinesItemAdjustmentSaga(action: YodyAction) {
 }
 
 function* updateInventoryAdjustmentSaga(action: YodyAction) {
-  let {data,id, onResult} = action.payload;
+  let { data, id, onResult } = action.payload;
 
   try {
-    const response: BaseResponse<Array<[]>> = yield call(
-      updateInventorAdjustmentApi,
-      id,
-      data
-    );
+    const response: BaseResponse<Array<[]>> = yield call(updateInventorAdjustmentApi, id, data);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -272,32 +261,22 @@ function* updateInventoryAdjustmentSaga(action: YodyAction) {
   }
 }
 
-
 function* getVariantHasOnHandByStoreSaga(action: YodyAction) {
-  let {query, onResult} = action.payload;
-  yield callApiSaga({notifyAction:"SHOW_ALL"},onResult, getVariantHasOnHandByStoreApi,query);
+  let { query, onResult } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, onResult, getVariantHasOnHandByStoreApi, query);
 }
 
 export function* inventoryAdjustmentSaga() {
-  yield takeLatest(
-    InventoryType.GET_LIST_INVENTORY_ADJUSTMENT,
-    getListInventoryAdjustmentSaga
-  );
+  yield takeLatest(InventoryType.GET_LIST_INVENTORY_ADJUSTMENT, getListInventoryAdjustmentSaga);
   yield takeLatest(
     InventoryType.GET_DETAIL_INVENTORY_ADJUSTMENT,
-    getDetailInventorAdjustmentGetSaga
+    getDetailInventorAdjustmentGetSaga,
   );
-  yield takeLatest(
-    InventoryType.CREATE_INVENTORY_ADJUSTMENT,
-    createInventoryAdjustmentSaga
-  );
-  yield takeLatest(
-    InventoryType.UPDATE_ITEM_ONLINE_INVENTORY,
-    updateItemOnlineInventorySaga
-  );
+  yield takeLatest(InventoryType.CREATE_INVENTORY_ADJUSTMENT, createInventoryAdjustmentSaga);
+  yield takeLatest(InventoryType.UPDATE_ITEM_ONLINE_INVENTORY, updateItemOnlineInventorySaga);
   yield takeLatest(
     InventoryType.UPDATE_REASON_ITEM_ONLINE_INVENTORY,
-    updateReasonItemOnlineInventorySaga
+    updateReasonItemOnlineInventorySaga,
   );
   yield takeLatest(InventoryType.UPDATE_ONLINE_INVENTORY, updateOnlineInventorySaga);
   yield takeLatest(InventoryType.UPDATE_ADJUSTMENT_INVENTORY, adjustInventorySaga);

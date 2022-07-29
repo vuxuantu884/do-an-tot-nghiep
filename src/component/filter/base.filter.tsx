@@ -17,7 +17,19 @@ type BaseFilterProps = DrawerProps & {
 };
 
 const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
-  const { allowSave, width, className, children, onFilter, onClearFilter, onCancel, onSaveFilter, confirmButtonTitle, deleteButtonTitle, footerStyle } = props;
+  const {
+    allowSave,
+    width,
+    className,
+    children,
+    onFilter,
+    onClearFilter,
+    onCancel,
+    onSaveFilter,
+    confirmButtonTitle,
+    deleteButtonTitle,
+    footerStyle,
+  } = props;
   return (
     <Drawer
       placement="right"
@@ -30,15 +42,14 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
       footer={
         <Row style={footerStyle} justify="end">
           <Space size="middle">
-            <Button style={{ color: '#E24343' }} icon={<DeleteOutlined />} onClick={onClearFilter}>
+            <Button style={{ color: "#E24343" }} icon={<DeleteOutlined />} onClick={onClearFilter}>
               {deleteButtonTitle || "Xóa bộ lọc"}
             </Button>
-            {
-              allowSave &&
+            {allowSave && (
               <Button icon={<StarOutlined />} onClick={onSaveFilter}>
                 Lưu bộ lọc
               </Button>
-            }
+            )}
             <Button onClick={onFilter} type="primary">
               {confirmButtonTitle || "Áp dụng bộ lọc"}
             </Button>
@@ -46,11 +57,7 @@ const BaseFilter: React.FC<BaseFilterProps> = (props: BaseFilterProps) => {
         </Row>
       }
     >
-      <Scrollbars
-        className="body-container"
-        autoHide
-        style={{ height: "100%" }}
-      >
+      <Scrollbars className="body-container" autoHide style={{ height: "100%" }}>
         <div className="body-container-form">{children}</div>
       </Scrollbars>
     </Drawer>

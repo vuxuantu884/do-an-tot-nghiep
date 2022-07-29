@@ -1,11 +1,5 @@
-import {
-  FilterOutlined,
-  PlusOutlined
-} from "@ant-design/icons";
-import {
-  Button, Card, Col, Form,
-  Input, message, Modal, Progress, Row, Select, Space
-} from "antd";
+import { FilterOutlined, PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Col, Form, Input, message, Modal, Progress, Row, Select, Space } from "antd";
 import Dragger from "antd/lib/upload/Dragger";
 import AddImportCouponIcon from "assets/img/add_import_coupon_code.svg";
 import AddListCouponIcon from "assets/img/add_list_coupon_code.svg";
@@ -27,11 +21,15 @@ import {
   getDiscountUsageDetailAction,
   getListPromoCode,
   publishedBulkPromoCode,
-  updatePromoCodeById
+  updatePromoCodeById,
 } from "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
-import {DiscountCode, DiscountUsageDetailResponse, PriceRule} from "model/promotion/price-rules.model";
+import {
+  DiscountCode,
+  DiscountUsageDetailResponse,
+  PriceRule,
+} from "model/promotion/price-rules.model";
 import { DiscountSearchQuery } from "model/query/discount.query";
 import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useState } from "react";
@@ -39,23 +37,26 @@ import React, { ReactNode, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {showError, showSuccess, showWarning} from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { AppConfig } from "../../../config/app.config";
 import { getToken } from "../../../utils/LocalStorageUtils";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
-import {ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE, USAGE_STATUS} from "../constants";
+import { ACTIONS_PROMO_CODE, statuses, STATUS_PROMO_CODE, USAGE_STATUS } from "../constants";
 import ActionColumn from "./actions/promo.action.column";
 import CustomModal from "./components/CustomModal";
 import "./promo-code.scss";
-import {generateQuery, isNullOrUndefined} from "../../../utils/AppUtils";
+import { generateQuery, isNullOrUndefined } from "../../../utils/AppUtils";
 import { useHistory } from "react-router-dom";
-import {HttpStatus} from "config/http-status.config";
-import {addPromotionCodeApi, getPromotionJobsApi} from "service/promotion/promo-code/promo-code.service";
-import {EnumJobStatus} from "config/enum.config";
+import { HttpStatus } from "config/http-status.config";
+import {
+  addPromotionCodeApi,
+  getPromotionJobsApi,
+} from "service/promotion/promo-code/promo-code.service";
+import { EnumJobStatus } from "config/enum.config";
 import ProcessAddDiscountCodeModal from "screens/promotion/promo-code/components/ProcessAddDiscountCodeModal";
 
 import DiscountUsageDetailModal from "./components/DiscountUsageDetailModal";
-import {exportDiscountCode} from "service/promotion/discount/discount.service";
+import { exportDiscountCode } from "service/promotion/discount/discount.service";
 import eyeIcon from "assets/icon/eye.svg";
 import exportIcon from "assets/icon/export.svg";
 import { VscError } from "react-icons/vsc";
@@ -73,7 +74,7 @@ const ListCode = () => {
   const [form] = Form.useForm();
   let dataQuery: any = {
     code: "",
-    limit : 30,
+    limit: 30,
     page: 1,
     ...getQueryParams(query),
   };
@@ -111,8 +112,7 @@ const ListCode = () => {
 
   // section handle call api GET DETAIL
   const onResult = useCallback((result: PriceRule) => {
-    if (result)
-      setPromoValue(result);
+    if (result) setPromoValue(result);
   }, []);
 
   const onPageChange = useCallback(
@@ -122,7 +122,7 @@ const ListCode = () => {
       let queryParam = generateQuery(newParams);
       history.push(`${UrlConfig.PROMOTION}/issues/codes/${id}?${queryParam}`);
     },
-    [history, id, params]
+    [history, id, params],
   );
 
   const onFilter = useCallback(
@@ -152,7 +152,7 @@ const ListCode = () => {
       delete newParams["query"];
       setParams(newParams);
     },
-    [params]
+    [params],
   );
 
   // section EDIT by Id
@@ -192,7 +192,7 @@ const ListCode = () => {
         getDiscountCodeData();
       }
     },
-    [dispatch, getDiscountCodeData]
+    [dispatch, getDiscountCodeData],
   );
 
   // section DELETE by Id
@@ -229,7 +229,7 @@ const ListCode = () => {
       .catch((error) => {
         if (error.response?.data?.errors?.length > 0) {
           const errorMessage = error.response?.data?.errors[0];
-          showError(`${errorMessage ? errorMessage: "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+          showError(`${errorMessage ? errorMessage : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
         }
       })
       .finally(() => {
@@ -249,7 +249,7 @@ const ListCode = () => {
     setProcessPercent(0);
     setJobCreateCode("");
     setProgressData(null);
-  }
+  };
 
   const getPromotionJobs = useCallback(() => {
     if (!jobCreateCode) return;
@@ -258,7 +258,11 @@ const ListCode = () => {
     Promise.all([promotionJobsPromises]).then((responses) => {
       responses.forEach((response) => {
         const processData = response?.data;
-        if (response.code === HttpStatus.SUCCESS && processData && !isNullOrUndefined(processData.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          processData &&
+          !isNullOrUndefined(processData.total)
+        ) {
           setProgressData(processData);
           if (processData.status?.toUpperCase() === EnumJobStatus.finish) {
             setProcessPercent(100);
@@ -268,7 +272,8 @@ const ListCode = () => {
             if (processData.processed >= processData.total) {
               setProcessPercent(99);
             } else {
-              const percent = Math.round((processData.processed / processData.total) * 100 * 100) / 100;
+              const percent =
+                Math.round((processData.processed / processData.total) * 100 * 100) / 100;
               setProcessPercent(percent);
             }
           }
@@ -282,17 +287,17 @@ const ListCode = () => {
 
     getPromotionJobs();
 
-    const getFileInterval = setInterval(getPromotionJobs,3000);
+    const getFileInterval = setInterval(getPromotionJobs, 3000);
     return () => clearInterval(getFileInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getPromotionJobs, jobCreateCode]);
-  
+
   const onOKProgressImportCustomer = () => {
     resetProgress();
     setIsVisibleProcessModal(false);
     setUploadStatus(undefined);
     getDiscountCodeData();
-  }
+  };
   // end handle jobs create new discount code
 
   const handleAddRandom = (value: any) => {
@@ -323,13 +328,13 @@ const ListCode = () => {
       .catch((error) => {
         if (error.response?.data?.errors?.length > 0) {
           const errorMessage = error.response?.data?.errors[0];
-          showError(`${errorMessage ? errorMessage: "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+          showError(`${errorMessage ? errorMessage : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
         }
       })
       .finally(() => {
         dispatch(hideLoading());
       });
-  }
+  };
 
   // section DELETE bulk
   const deleteCallBack = useCallback(
@@ -340,33 +345,39 @@ const ListCode = () => {
         getDiscountCodeData();
       }
     },
-    [dispatch, getDiscountCodeData]
+    [dispatch, getDiscountCodeData],
   );
 
   // section Ngưng áp dụng
-  const handleStatus = useCallback((item: any) => {
-    const body = {
-      ids: [item.id],
-    };
-    dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
-  }, [deleteCallBack, dispatch, priceRuleId]);
+  const handleStatus = useCallback(
+    (item: any) => {
+      const body = {
+        ids: [item.id],
+      };
+      dispatch(disableBulkPromoCode(priceRuleId, body, deleteCallBack));
+    },
+    [deleteCallBack, dispatch, priceRuleId],
+  );
 
   // handle detail modal
   const [isVisibleDiscountUsageDetailModal, setIsVisibleDiscountUsageDetailModal] = useState(false);
-  const [discountUsageDetailList, setDiscountUsageDetailList] = useState<Array<DiscountUsageDetailResponse>>([]);
+  const [discountUsageDetailList, setDiscountUsageDetailList] = useState<
+    Array<DiscountUsageDetailResponse>
+  >([]);
 
   const onCloseDiscountUsageDetailModal = () => {
     setIsVisibleDiscountUsageDetailModal(false);
-
-  }
+  };
   const openDiscountCodeDetailModal = (data: any) => {
-    dispatch(getDiscountUsageDetailAction(data.code, (response) => {
-      if (!!response) {
-        setDiscountUsageDetailList(response);
-        setIsVisibleDiscountUsageDetailModal(true);
-      }
-    }));
-  }
+    dispatch(
+      getDiscountUsageDetailAction(data.code, (response) => {
+        if (!!response) {
+          setDiscountUsageDetailList(response);
+          setIsVisibleDiscountUsageDetailModal(true);
+        }
+      }),
+    );
+  };
   // end handle detail modal
 
   const columns: Array<ICustomTableColumType<any>> = [
@@ -386,16 +397,26 @@ const ListCode = () => {
       render: (value: number, data: any) => {
         return (
           <>
-            {value > 0 ?
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: "center"}}>
-                <div >{value}</div>
-                <Button onClick={() => openDiscountCodeDetailModal(data)} style={{ border: '1px solid #2A2A86'}}>
+            {value > 0 ? (
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                }}
+              >
+                <div>{value}</div>
+                <Button
+                  onClick={() => openDiscountCodeDetailModal(data)}
+                  style={{ border: "1px solid #2A2A86" }}
+                >
                   <img src={eyeIcon} style={{ marginRight: 10 }} alt="" />
-                  <span style={{ color: '#2A2A86'}}>Chi tiết</span>
+                  <span style={{ color: "#2A2A86" }}>Chi tiết</span>
                 </Button>
               </div>
-              : <div>{value}</div>
-            }
+            ) : (
+              <div>{value}</div>
+            )}
           </>
         );
       },
@@ -416,7 +437,7 @@ const ListCode = () => {
       width: "12%",
       render: (disabled: boolean) => {
         const StatusTag: ReactNode = STATUS_PROMO_CODE.find(
-          (e: any) => e.disabled === disabled
+          (e: any) => e.disabled === disabled,
         ).Component;
         return StatusTag;
       },
@@ -428,9 +449,8 @@ const ListCode = () => {
       align: "center",
       width: "15%",
       dataIndex: "created_date",
-      render: (created_date: string) => (
-        created_date ? moment(created_date).format(DATE_FORMAT.DDMMYYY) : ""
-      ),
+      render: (created_date: string) =>
+        created_date ? moment(created_date).format(DATE_FORMAT.DDMMYYY) : "",
     },
     ActionColumn(handleUpdate, handleDelete, handleStatus),
   ];
@@ -457,10 +477,8 @@ const ListCode = () => {
           break;
       }
     },
-    [dispatch, deleteCallBack, priceRuleId, selectedRowKey]
+    [dispatch, deleteCallBack, priceRuleId, selectedRowKey],
   );
-
-
 
   const openFilter = useCallback(() => {
     // setVisible(true);
@@ -469,7 +487,6 @@ const ListCode = () => {
   useEffect(() => {
     dispatch(getPriceRuleAction(id, onResult));
   }, [dispatch, id, onResult]);
-
 
   // Call API get list
   useEffect(() => {
@@ -484,7 +501,7 @@ const ListCode = () => {
   const resetExportProcess = () => {
     setExportProcessPercent(0);
     setExportCode(null);
-  }
+  };
 
   const handleExportFile = () => {
     resetExportProcess();
@@ -495,19 +512,27 @@ const ListCode = () => {
           setIsVisibleExportProcessModal(true);
           setExportCode(response.code);
         } else {
-          showError(`${response.message ? response.message : "Có lỗi khi tạo tiến trình xuất file mã giảm giá"}`);
+          showError(
+            `${
+              response.message
+                ? response.message
+                : "Có lỗi khi tạo tiến trình xuất file mã giảm giá"
+            }`,
+          );
         }
       })
       .catch((error) => {
         if (error.response?.data?.errors?.length > 0) {
           const errorMessage = error.response?.data?.errors[0];
-          showError(`${errorMessage ? errorMessage: "Có lỗi khi tạo tiến trình xuất file mã giảm giá"}`);
+          showError(
+            `${errorMessage ? errorMessage : "Có lỗi khi tạo tiến trình xuất file mã giảm giá"}`,
+          );
         }
       })
       .finally(() => {
         dispatch(hideLoading());
       });
-  }
+  };
 
   const onCancelProgressModal = useCallback(() => {
     resetExportProcess();
@@ -516,7 +541,7 @@ const ListCode = () => {
 
   const onExportFile = useCallback(() => {
     if (!exportCode) return;
-    
+
     let getFilePromises: any = getPromotionJobsApi(exportCode);
     Promise.all([getFilePromises]).then((responses) => {
       responses.forEach((response: any) => {
@@ -530,7 +555,7 @@ const ListCode = () => {
             }
           } else {
             if (response.data.total > 0) {
-              const percent = Math.floor(response.data.success / response.data.total * 100);
+              const percent = Math.floor((response.data.success / response.data.total) * 100);
               setExportProcessPercent(percent >= 100 ? 99 : percent);
             }
           }
@@ -544,17 +569,15 @@ const ListCode = () => {
 
     onExportFile();
 
-    const getFileInterval = setInterval(onExportFile,3000);
+    const getFileInterval = setInterval(onExportFile, 3000);
     return () => clearInterval(getFileInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onExportFile, exportCode]);
   // end handle export file
 
-
   return (
-
     <ContentContainer
-      title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ''}`}
+      title={`Mã giảm giá của đợt phát hành ${promoValue?.code ?? ""}`}
       breadcrumb={[
         {
           name: "Khuyến mại",
@@ -577,10 +600,9 @@ const ListCode = () => {
             <Button
               disabled={isLoading}
               size="large"
-              icon={
-                <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
-              }
-              onClick={handleExportFile}>
+              icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+              onClick={handleExportFile}
+            >
               Xuất file
             </Button>
 
@@ -600,13 +622,19 @@ const ListCode = () => {
     >
       <Card>
         <div className="discount-code__search">
-          <CustomFilter onMenuClick={onMenuClick} menu={ACTIONS_PROMO_CODE} actionDisable={!allowUpdatePromoCode}>
+          <CustomFilter
+            onMenuClick={onMenuClick}
+            menu={ACTIONS_PROMO_CODE}
+            actionDisable={!allowUpdatePromoCode}
+          >
             <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
               <Item name="code" className="search">
                 <Input
                   prefix={<img src={search} alt="" />}
                   placeholder="Tìm kiếm theo mã, tên chương trình"
-                  onBlur={(e) => { form.setFieldsValue({ code: e.target.value?.trim() }) }}
+                  onBlur={(e) => {
+                    form.setFieldsValue({ code: e.target.value?.trim() });
+                  }}
                 />
               </Item>
 
@@ -678,7 +706,6 @@ const ListCode = () => {
             dataSource={promoCodeList.items}
             columns={columns}
             rowKey={(item: any) => item.id}
-
           />
         </div>
       </Card>
@@ -707,8 +734,7 @@ const ListCode = () => {
             >
               <img
                 style={{
-                  background:
-                    "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
+                  background: "linear-gradient(65.71deg, #0088FF 28.29%, #33A0FF 97.55%)",
                 }}
                 src={VoucherIcon}
                 alt=""
@@ -724,8 +750,7 @@ const ListCode = () => {
             >
               <img
                 style={{
-                  background:
-                    "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
+                  background: "linear-gradient(62.06deg, #0FD186 25.88%, #3FDA9E 100%)",
                 }}
                 src={AddListCouponIcon}
                 alt=""
@@ -741,8 +766,7 @@ const ListCode = () => {
             >
               <img
                 style={{
-                  background:
-                    "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)",
+                  background: "linear-gradient(66.01deg, #FFAE06 37.34%, #FFBE38 101.09%)",
                 }}
                 src={AddImportCouponIcon}
                 alt=""
@@ -819,13 +843,12 @@ const ListCode = () => {
               <p>- Kiểm tra đúng loại phương thức khuyến mại khi xuất nhập file</p>
               <p>- Chuyển đổi file dưới dạng .XSLX trước khi tải dữ liệu</p>
               <p>
-                - Tải file mẫu{" "}
-                <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
+                - Tải file mẫu <a href={PROMOTION_CDN.DISCOUNT_CODES_TEMPLATE_URL}> tại đây </a>{" "}
               </p>
               <p>- File nhập có dụng lượng tối đa là 2MB và 2000 bản ghi</p>
               <p>
-                - Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến
-                5 phút. Trong lúc hệ thống xử lý không F5 hoặc tắt cửa sổ trình duyệt.
+                - Với file có nhiều bản ghi, hệ thống cần mất thời gian xử lý từ 3 đến 5 phút. Trong
+                lúc hệ thống xử lý không F5 hoặc tắt cửa sổ trình duyệt.
               </p>
             </Col>
           </Row>
@@ -838,7 +861,10 @@ const ListCode = () => {
                 action={`${AppConfig.baseUrl}promotion-service/price-rules/${priceRuleId}/discount-codes/read-file2`}
                 headers={{ Authorization: `Bearer ${token}` }}
                 beforeUpload={(file) => {
-                  if (file.type !== "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") {
+                  if (
+                    file.type !==
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                  ) {
                     setUploadStatus("error");
                     setUploadError(["Sai định dạng file. Chỉ upload file .xlsx"]);
                     return false;
@@ -872,9 +898,7 @@ const ListCode = () => {
                 <p className="ant-upload-drag-icon">
                   <RiUpload2Line size={48} />
                 </p>
-                <p className="ant-upload-hint">
-                  Kéo file vào đây hoặc tải lên từ thiết bị
-                </p>
+                <p className="ant-upload-hint">Kéo file vào đây hoặc tải lên từ thiết bị</p>
               </Dragger>
             </div>
           </Row>
@@ -930,7 +954,7 @@ const ListCode = () => {
       />
 
       {/* Process create new discount code */}
-      {isVisibleProcessModal &&
+      {isVisibleProcessModal && (
         <ProcessAddDiscountCodeModal
           visible={isVisibleProcessModal}
           onOk={onOKProgressImportCustomer}
@@ -938,10 +962,10 @@ const ListCode = () => {
           progressPercent={processPercent}
           isProcessing={isProcessing}
         />
-      }
+      )}
 
       {/* Progress export customer data */}
-      {isVisibleExportProcessModal &&
+      {isVisibleExportProcessModal && (
         <Modal
           onCancel={onCancelProgressModal}
           visible={isVisibleExportProcessModal}
@@ -951,24 +975,27 @@ const ListCode = () => {
           maskClosable={false}
           footer={[
             <>
-              {exportProcessPercent < 100 ?
+              {exportProcessPercent < 100 ? (
                 <Button key="cancel-process-modal" danger onClick={onCancelProgressModal}>
                   Thoát
                 </Button>
-                :
+              ) : (
                 <Button key="confirm-process-modal" type="primary" onClick={onCancelProgressModal}>
                   Xác nhận
                 </Button>
-              }
-            </>
-          ]}>
+              )}
+            </>,
+          ]}
+        >
           <div style={{ textAlign: "center" }}>
             <div style={{ marginBottom: 15 }}>
-              {exportProcessPercent < 100 ?
+              {exportProcessPercent < 100 ? (
                 <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
-                :
-                <span style={{ color: "#27AE60" }}>Đã xuất file dữ liệu mã khuyến mại thành công!</span>
-              }
+              ) : (
+                <span style={{ color: "#27AE60" }}>
+                  Đã xuất file dữ liệu mã khuyến mại thành công!
+                </span>
+              )}
             </div>
             <Progress
               type="circle"
@@ -980,16 +1007,16 @@ const ListCode = () => {
             />
           </div>
         </Modal>
-      }
+      )}
 
       {/* Process create new discount code */}
-      {isVisibleDiscountUsageDetailModal &&
+      {isVisibleDiscountUsageDetailModal && (
         <DiscountUsageDetailModal
           visible={isVisibleDiscountUsageDetailModal}
           discountUsageDetailList={discountUsageDetailList}
           onCloseModal={onCloseDiscountUsageDetailModal}
         />
-      }
+      )}
     </ContentContainer>
   );
 };

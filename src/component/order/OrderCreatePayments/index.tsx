@@ -11,7 +11,7 @@ import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import { yellowColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 
-const {Panel} = Collapse;
+const { Panel } = Collapse;
 
 type PropTypes = {
   payments: OrderPaymentRequest[];
@@ -31,7 +31,7 @@ type PropTypes = {
 
 /**
  * component dùng trong trang tạo đơn, chi tiết đơn hàng (đơn nháp), update đơn hàng, đổi trả đơn hàng
- * 
+ *
  * isDisablePostPayment: disable thanh toán chưa xác định (trường hợp chọn thanh toán qua hvc)
  *
  * payments: payment mặc định (vd trường hợp clone đơn hàng)
@@ -47,7 +47,7 @@ type PropTypes = {
  * totalAmountOrder: tiền đơn hàng
  *
  * shipmentMethod: phương thức đóng gói giao hàng để hiển thị thông báo
- * 
+ *
  * listPaymentMethod: danh sách payment method
  *
  */
@@ -84,9 +84,9 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
     return totalAmountOrder - totalAmountPayment;
   }, [totalAmountOrder, totalAmountPayment]);
 
-  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
-  console.log('totalAmountPayment', totalAmountPayment)
-  console.log('totalAmountOrder', totalAmountOrder)
+  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
+  console.log("totalAmountPayment", totalAmountPayment);
+  console.log("totalAmountOrder", totalAmountOrder);
 
   return (
     <StyledComponent>
@@ -94,7 +94,7 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
         <Form.Item
           // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
           // required
-          style={{marginBottom: 0}}
+          style={{ marginBottom: 0 }}
         >
           <Radio.Group
             value={paymentMethod}
@@ -102,7 +102,9 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
             disabled={levelOrder > 2 || isOrderFinishedOrCancel(orderDetail)}
           >
             <Space size={20}>
-              <Radio value={PaymentMethodOption.COD} disabled={isOrderReturnFromPOS}>COD</Radio>
+              <Radio value={PaymentMethodOption.COD} disabled={isOrderReturnFromPOS}>
+                COD
+              </Radio>
               <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
               <Radio
                 value={PaymentMethodOption.POSTPAYMENT}
@@ -116,8 +118,8 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
             shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
               <div className="order-cod-payment-footer">
                 <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể
-                  nhập giá trị Tiền thu hộ
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá trị
+                  Tiền thu hộ
                 </span>
               </div>
             )}
@@ -125,14 +127,14 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
             shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
               <div className="order-cod-payment-footer">
                 <span>
-                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể
-                  nhập giá trị Tiền thu hộ
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá trị
+                  Tiền thu hộ
                 </span>
               </div>
             )}
           {paymentMethod === PaymentMethodOption.COD &&
             shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
-              <div className="order-cod-payment-footer" style={{height: 83}}>
+              <div className="order-cod-payment-footer" style={{ height: 83 }}>
                 <div>
                   <div>
                     <div>
@@ -150,9 +152,9 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
         <Row
           gutter={24}
           hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
-          style={{marginTop: 18}}
+          style={{ marginTop: 18 }}
         >
-          <div style={{padding: "0 24px", maxWidth: "100%"}}>
+          <div style={{ padding: "0 24px", maxWidth: "100%" }}>
             <Collapse className="orders-timeline 3" defaultActiveKey={["1"]} ghost>
               <Panel
                 className="orders-timeline-custom orders-dot-status"
@@ -172,37 +174,35 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
                 showArrow={false}
                 // disabled={levelOrder > 2}
               >
-                <div style={{width: "1200px", maxWidth: "100%"}}>
+                <div style={{ width: "1200px", maxWidth: "100%" }}>
                   <Row gutter={24}>
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
-                        <span style={{paddingRight: "20px"}}>Tiền khách phải trả: </span>
+                        <span style={{ paddingRight: "20px" }}>Tiền khách phải trả: </span>
                         <strong>{formatCurrency(totalAmountOrder)}</strong>
                       </div>
                     </Col>
                     <Col lg={10} xxl={7} className="margin-top-bottom-10 55">
                       <div>
-                        <span style={{paddingRight: "20px"}}>Còn phải trả: </span>
+                        <span style={{ paddingRight: "20px" }}>Còn phải trả: </span>
                         <strong>
                           {formatCurrency(
-                            totalAmountCustomerNeedToPay > 0
-                              ? totalAmountCustomerNeedToPay
-                              : 0
+                            totalAmountCustomerNeedToPay > 0 ? totalAmountCustomerNeedToPay : 0,
                           )}
                         </strong>
                       </div>
                     </Col>
                     {totalAmountCustomerNeedToPay < 0 ? (
                       <Col lg={10} xxl={7} className="margin-top-bottom-10 55">
-                      <div>
-                        <span style={{paddingRight: "20px" }}>Tiền thừa: </span>
-                        <strong style={{color: yellowColor}}>
-                          {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
-                        </strong>
-                      </div>
-                    </Col>
-                    ): null}
-                    <Divider style={{margin: "10px 0"}} />
+                        <div>
+                          <span style={{ paddingRight: "20px" }}>Tiền thừa: </span>
+                          <strong style={{ color: yellowColor }}>
+                            {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
+                          </strong>
+                        </div>
+                      </Col>
+                    ) : null}
+                    <Divider style={{ margin: "10px 0" }} />
                     <OrderPayments
                       payments={payments}
                       setPayments={setPayments}

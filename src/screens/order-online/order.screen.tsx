@@ -65,14 +65,7 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { getStoreBankAccountNumbersService } from "service/order/order.service";
@@ -121,8 +114,7 @@ export default function Order() {
   // 	(state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
   // );
   const isShouldSetDefaultStoreBankAccount = useSelector(
-    (state: RootReducerType) =>
-      state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount,
+    (state: RootReducerType) => state.orderReducer.orderStore.isShouldSetDefaultStoreBankAccount,
   );
   const isLoadingDiscount = useSelector(
     (state: RootReducerType) => state.orderReducer.isLoadingDiscount,
@@ -132,33 +124,23 @@ export default function Order() {
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
   const [customerChange, setCustomerChange] = useState(false);
-  const [shippingAddress, setShippingAddress] =
-    useState<ShippingAddress | null>(null);
-  const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] =
-    useState<string>();
-  const [billingAddress, setBillingAddress] =
-    useState<BillingAddressRequestModel | null>(null);
+  const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
+  const [shippingAddressesSecondPhone, setShippingAddressesSecondPhone] = useState<string>();
+  const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
   const [orderAmount, setOrderAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
-  const [shipmentMethod, setShipmentMethod] = useState<number>(
-    ShipmentMethodOption.DELIVER_LATER,
-  );
+  const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_LATER);
   // console.log('billingAddress', billingAddress)
-  const [paymentMethod, setPaymentMethod] = useState<number>(
-    PaymentMethodOption.POSTPAYMENT,
-  );
+  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POSTPAYMENT);
 
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
-  const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] =
-    useState(0);
+  const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
 
   const [thirdPL, setThirdPL] = useState<thirdPLModel>({
     delivery_service_provider_code: "",
@@ -170,14 +152,14 @@ export default function Order() {
     shipping_fee_paid_to_three_pls: null,
   });
   const [creating, setCreating] = useState(false);
-  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] =
-    useState<number | null>(0);
+  const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
+    0,
+  );
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
   const [tags, setTags] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
-  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] =
-    useState<boolean>(false);
+  const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
   const [visibleBillStep, setVisibleBillStep] = useState({
     isShow: false,
     isAlreadyShow: false,
@@ -188,24 +170,18 @@ export default function Order() {
 
   // const [orderBillRequest, setOrderBillRequest] = useState<OrderBillRequestFormModel | undefined>(undefined);
 
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer,
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   // const [listOrderConfigs, setListOrderConfigs] =
   //   useState<OrderConfigResponseModel | null>(null);
 
-  const [listPaymentMethod, setListPaymentMethod] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
+  const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
   // const [shippingServiceConfig, setShippingServiceConfig] = useState<
   //   ShippingServiceConfigDetailResponseModel[]
   // >([]);
 
-  const [inventoryResponse, setInventoryResponse] =
-    useState<Array<InventoryResponse> | null>(null);
-  const [orderConfig, setOrderConfig] =
-    useState<OrderConfigResponseModel | null>(null);
+  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
+  const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(false);
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
@@ -221,9 +197,7 @@ export default function Order() {
   const handleCustomer = (_objCustomer: CustomerResponse | null) => {
     setCustomer(_objCustomer);
   };
-  const onChangeShippingAddress = (
-    _objShippingAddress: ShippingAddress | null,
-  ) => {
+  const onChangeShippingAddress = (_objShippingAddress: ShippingAddress | null) => {
     setShippingAddress(_objShippingAddress);
   };
 
@@ -414,30 +388,23 @@ export default function Order() {
           delivery_service_provider_id: thirdPL.delivery_service_provider_id,
           delivery_service_provider_type: "external_service",
           delivery_transport_type: thirdPL.delivery_transport_type,
-          delivery_service_provider_code:
-            thirdPL.delivery_service_provider_code,
-          delivery_service_provider_name:
-            thirdPL.delivery_service_provider_name,
+          delivery_service_provider_code: thirdPL.delivery_service_provider_code,
+          delivery_service_provider_name: thirdPL.delivery_service_provider_name,
           sender_address_id: storeId,
           service: thirdPL.service,
-          shipping_fee_paid_to_three_pls:
-            thirdPL.shipping_fee_paid_to_three_pls,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
         };
 
       case ShipmentMethodOption.SELF_DELIVER:
         return {
           ...objShipment,
-          delivery_service_provider_type:
-            thirdPL.delivery_service_provider_code,
+          delivery_service_provider_type: thirdPL.delivery_service_provider_code,
           service: thirdPL.service,
           shipper_code: value.shipper_code,
-          shipping_fee_paid_to_three_pls:
-            thirdPL.shipping_fee_paid_to_three_pls,
+          shipping_fee_paid_to_three_pls: thirdPL.shipping_fee_paid_to_three_pls,
           cod:
             orderAmount +
-            (shippingFeeInformedToCustomer
-              ? shippingFeeInformedToCustomer
-              : 0) -
+            (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
             getAmountPaymentRequest(payments) -
             (promotion?.value || 0),
         };
@@ -446,16 +413,9 @@ export default function Order() {
         objShipment.delivery_service_provider_type = "pick_at_store";
         let newCod = orderAmount;
         if (shippingFeeInformedToCustomer !== null) {
-          if (
-            orderAmount +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments) >
-            0
-          ) {
+          if (orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments) > 0) {
             newCod =
-              orderAmount +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments);
+              orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments);
           }
         } else {
           if (orderAmount - getAmountPaymentRequest(payments) > 0) {
@@ -518,10 +478,7 @@ export default function Order() {
   };
 
   const showSaveAndConfirmModal = () => {
-    if (
-      shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ||
-      paymentMethod !== 3
-    ) {
+    if (shipmentMethod !== ShipmentMethodOption.DELIVER_LATER || paymentMethod !== 3) {
       setIsVisibleSaveAndConfirm(true);
     } else {
       typeButton = OrderStatus.DRAFT;
@@ -555,8 +512,7 @@ export default function Order() {
     element2.disable = true;
     let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
-    let total_line_amount_after_line_discount =
-      getTotalAmountAfterDiscount(items);
+    let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
     values.tags = tags;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
@@ -570,18 +526,14 @@ export default function Order() {
     values.customer_ward = customer?.ward;
     values.customer_district = customer?.district;
     values.customer_city = customer?.city;
-    values.total_line_amount_after_line_discount =
-      total_line_amount_after_line_discount;
+    values.total_line_amount_after_line_discount = total_line_amount_after_line_discount;
     values.export_bill = billingAddress?.tax_code ? true : false;
     values.shipping_fee_informed_to_customer = shippingFeeInformedToCustomer;
     // values.bill = orderBillRequest;
 
     //Nếu là lưu nháp Fulfillment = [], payment = []
     if (typeButton === OrderStatus.DRAFT) {
-      if (
-        shipmentMethod === ShipmentMethodOption.PICK_AT_STORE &&
-        checkIfNotCustomerAddress()
-      ) {
+      if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
         showError("Vui lòng cập nhật địa chỉ giao hàng!");
         const element: any = document.getElementById(
           "customer_update_shipping_addresses_full_address",
@@ -630,16 +582,11 @@ export default function Order() {
       } else {
         if (totalAmountPayment > totalAmountOrder) {
           showError("Vui lòng không nhập thừa tiền !");
-          const element: any = document.getElementsByClassName(
-            "create-order-payment ",
-          )[0];
+          const element: any = document.getElementsByClassName("create-order-payment ")[0];
           scrollAndFocusToDomElement(element);
           return;
         }
-        if (
-          shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
-          checkIfNotCustomerAddress()
-        ) {
+        if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && checkIfNotCustomerAddress()) {
           showError("Vui lòng cập nhật địa chỉ giao hàng!");
           const element: any = document.getElementById(
             "customer_update_shipping_addresses_full_address",
@@ -653,9 +600,7 @@ export default function Order() {
             payments,
             totalAmountCustomerNeedToPay,
             listPaymentMethod,
-          ).filter(
-            (payment) => payment.amount !== 0 || payment.paid_amount !== 0,
-          ),
+          ).filter((payment) => payment.amount !== 0 || payment.paid_amount !== 0),
         };
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (checkIfNotCustomerAddress()) {
@@ -669,10 +614,7 @@ export default function Order() {
           } else {
             setCreating(true);
           }
-          if (
-            values.delivery_service_provider_id === null &&
-            typeButton !== OrderStatus.DRAFT
-          ) {
+          if (values.delivery_service_provider_id === null && typeButton !== OrderStatus.DRAFT) {
             showError("Vui lòng chọn đối tác giao hàng");
             setCreating(false);
           } else {
@@ -681,15 +623,11 @@ export default function Order() {
               // return;
               try {
                 await dispatch(
-                  orderCreateAction(
-                    valuesCalculateReturnAmount,
-                    createOrderCallback,
-                    () => {
-                      // on error
-                      setCreating(false);
-                      setIsSaveDraft(false);
-                    },
-                  ),
+                  orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
+                    // on error
+                    setCreating(false);
+                    setIsSaveDraft(false);
+                  }),
                 );
               } catch {
                 setCreating(false);
@@ -699,14 +637,9 @@ export default function Order() {
             // dispatch(orderCreateAction(values, createOrderCallback));
           }
         } else {
-          if (
-            shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-            !thirdPL.service
-          ) {
+          if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
             showError("Vui lòng chọn đơn vị vận chuyển!");
-            const element = document.getElementsByClassName(
-              "orders-shipment",
-            )[0] as HTMLElement;
+            const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
             scrollAndFocusToDomElement(element);
             setCreating(false);
           } else {
@@ -728,15 +661,11 @@ export default function Order() {
                   // return;
                   try {
                     await dispatch(
-                      orderCreateAction(
-                        valuesCalculateReturnAmount,
-                        createOrderCallback,
-                        () => {
-                          // on error
-                          setCreating(false);
-                          setIsSaveDraft(false);
-                        },
-                      ),
+                      orderCreateAction(valuesCalculateReturnAmount, createOrderCallback, () => {
+                        // on error
+                        setCreating(false);
+                        setIsSaveDraft(false);
+                      }),
                     );
                   } catch {
                     setCreating(false);
@@ -752,10 +681,7 @@ export default function Order() {
     }
   };
   const scroll = useCallback(() => {
-    if (
-      (window.pageYOffset > 100 || visibleBillStep.isAlreadyShow) &&
-      !visibleBillStep.isShow
-    ) {
+    if ((window.pageYOffset > 100 || visibleBillStep.isAlreadyShow) && !visibleBillStep.isShow) {
       setVisibleBillStep({
         isShow: true,
         isAlreadyShow: true,
@@ -771,16 +697,11 @@ export default function Order() {
       });
       if (existing.length) {
         let existingIndex = result.indexOf(existing[0]);
-        if (
-          result[existingIndex].payment_method_code === PaymentMethodCode.POINT
-        ) {
-          result[existingIndex].point =
-            (result[existingIndex]?.point || 0) + (payment?.point || 0);
+        if (result[existingIndex].payment_method_code === PaymentMethodCode.POINT) {
+          result[existingIndex].point = (result[existingIndex]?.point || 0) + (payment?.point || 0);
         }
-        result[existingIndex].paid_amount =
-          result[existingIndex].paid_amount + payment.paid_amount;
-        result[existingIndex].amount =
-          result[existingIndex].amount + payment.amount;
+        result[existingIndex].paid_amount = result[existingIndex].paid_amount + payment.paid_amount;
+        result[existingIndex].amount = result[existingIndex].amount + payment.amount;
         result[existingIndex].return_amount =
           result[existingIndex].return_amount + payment.return_amount;
       } else {
@@ -806,20 +727,14 @@ export default function Order() {
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             dispatch(getStoreBankAccountNumbersAction(response.data.items));
-            const selected = response.data.items.find(
-              (single) => single.default && single.status,
-            );
+            const selected = response.data.items.find((single) => single.default && single.status);
             if (isShouldSetDefaultStoreBankAccount) {
               if (selected) {
-                dispatch(
-                  changeSelectedStoreBankAccountAction(selected.account_number),
-                );
+                dispatch(changeSelectedStoreBankAccountAction(selected.account_number));
               } else {
                 let paymentsResult = [...payments];
                 let bankPaymentIndex = paymentsResult.findIndex(
-                  (payment) =>
-                    payment.payment_method_code ===
-                    PaymentMethodCode.BANK_TRANSFER,
+                  (payment) => payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER,
                 );
                 if (bankPaymentIndex > -1) {
                   paymentsResult[bankPaymentIndex].paid_amount = 0;
@@ -857,9 +772,7 @@ export default function Order() {
   useEffect(() => {
     dispatch(
       PaymentMethodGetList((response) => {
-        let result = response.filter(
-          (single) => single.code !== PaymentMethodCode.CARD,
-        );
+        let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethod(result);
       }),
     );
@@ -901,10 +814,7 @@ export default function Order() {
               const isFBOrder = response.channel_id === FACEBOOK.channel_id;
               let getGiftResponse = (itemNormal: OrderLineItemResponse) => {
                 return response.items.filter((item) => {
-                  return (
-                    item.type === Type.GIFT &&
-                    item.position === itemNormal.position
-                  );
+                  return item.type === Type.GIFT && item.position === itemNormal.position;
                 });
               };
               let responseItems: OrderLineItemRequest[] = response.items
@@ -924,9 +834,7 @@ export default function Order() {
               setItems(responseItems);
               dispatch(changeOrderLineItemsAction(responseItems));
 
-              setShippingFeeInformedToCustomer(
-                response.shipping_fee_informed_to_customer,
-              );
+              setShippingFeeInformedToCustomer(response.shipping_fee_informed_to_customer);
               if (response.store_id) {
                 setStoreId(response.store_id);
               }
@@ -945,16 +853,12 @@ export default function Order() {
 
               if (response.fulfillments && response.fulfillments[0]) {
                 if (response?.fulfillments[0]?.shipment) {
-                  if (
-                    response.fulfillments[0]?.shipment?.expected_received_date
-                  ) {
+                  if (response.fulfillments[0]?.shipment?.expected_received_date) {
                     newDatingShip = moment(
-                      response.fulfillments[0]?.shipment
-                        ?.expected_received_date,
+                      response.fulfillments[0]?.shipment?.expected_received_date,
                     );
                   }
-                  newShipperCode =
-                    response.fulfillments[0]?.shipment?.shipper_code;
+                  newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
                 }
               }
               await setInitialForm({
@@ -970,11 +874,9 @@ export default function Order() {
                 dating_ship: newDatingShip,
                 shipper_code: newShipperCode,
                 shipping_fee_paid_to_three_pls: response?.fulfillments
-                  ? response?.fulfillments[0]?.shipment
-                      ?.shipping_fee_paid_to_three_pls || null
+                  ? response?.fulfillments[0]?.shipment?.shipping_fee_paid_to_three_pls || null
                   : null,
-                shipping_fee_informed_to_customer:
-                  response.shipping_fee_informed_to_customer,
+                shipping_fee_informed_to_customer: response.shipping_fee_informed_to_customer,
                 payments: new_payments,
                 reference_code:
                   typeParam === "split-order"
@@ -1005,9 +907,7 @@ export default function Order() {
                 // clone có tiền thừa thì xóa
                 new_payments = mergePaymentData(
                   response.payments
-                    .filter(
-                      (single) => single.status === ORDER_PAYMENT_STATUS.paid,
-                    )
+                    .filter((single) => single.status === ORDER_PAYMENT_STATUS.paid)
                     .map((payment) => {
                       let result = {
                         ...payment,
@@ -1034,26 +934,19 @@ export default function Order() {
 
               let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
               if (response.fulfillments) {
-                const sortedFulfillments = sortFulfillments(
-                  response.fulfillments,
-                );
-                switch (
-                  sortedFulfillments[0]?.shipment
-                    ?.delivery_service_provider_type
-                ) {
+                const sortedFulfillments = sortFulfillments(response.fulfillments);
+                switch (sortedFulfillments[0]?.shipment?.delivery_service_provider_type) {
                   case ShipmentMethod.EMPLOYEE: {
                     newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
                     const shipmentEmployee = sortedFulfillments[0]?.shipment;
                     const thirdPLResponse = {
                       delivery_service_provider_code:
                         shipmentEmployee.delivery_service_provider_code,
-                      delivery_service_provider_id:
-                        shipmentEmployee.delivery_service_provider_id,
+                      delivery_service_provider_id: shipmentEmployee.delivery_service_provider_id,
                       insurance_fee: shipmentEmployee.insurance_fee,
                       delivery_service_provider_name:
                         shipmentEmployee.delivery_service_provider_name,
-                      delivery_transport_type:
-                        shipmentEmployee.delivery_transport_type,
+                      delivery_transport_type: shipmentEmployee.delivery_transport_type,
                       service: shipmentEmployee.service,
                       shipping_fee_paid_to_three_pls:
                         shipmentEmployee.shipping_fee_paid_to_three_pls,
@@ -1067,8 +960,7 @@ export default function Order() {
                     break;
                   case ShipmentMethod.EXTERNAL_SERVICE: {
                     newShipmentMethod = ShipmentMethodOption.DELIVER_PARTNER;
-                    const shipmentDeliverPartner =
-                      sortedFulfillments[0]?.shipment;
+                    const shipmentDeliverPartner = sortedFulfillments[0]?.shipment;
                     const thirdPLResponse = {
                       delivery_service_provider_code:
                         shipmentDeliverPartner.delivery_service_provider_code,
@@ -1077,8 +969,7 @@ export default function Order() {
                       insurance_fee: shipmentDeliverPartner.insurance_fee,
                       delivery_service_provider_name:
                         shipmentDeliverPartner.delivery_service_provider_name,
-                      delivery_transport_type:
-                        shipmentDeliverPartner.delivery_transport_type,
+                      delivery_transport_type: shipmentDeliverPartner.delivery_transport_type,
                       service: shipmentDeliverPartner.service,
                       shipping_fee_paid_to_three_pls:
                         shipmentDeliverPartner.shipping_fee_paid_to_three_pls,
@@ -1103,16 +994,11 @@ export default function Order() {
               }
               const bankPayment = response.payments?.find(
                 (single) =>
-                  single.payment_method_code ===
-                    PaymentMethodCode.BANK_TRANSFER &&
+                  single.payment_method_code === PaymentMethodCode.BANK_TRANSFER &&
                   single.bank_account_number,
               );
               if (bankPayment) {
-                dispatch(
-                  changeSelectedStoreBankAccountAction(
-                    bankPayment.bank_account_number,
-                  ),
-                );
+                dispatch(changeSelectedStoreBankAccountAction(bankPayment.bank_account_number));
               } else {
                 dispatch(setIsShouldSetDefaultStoreBankAccountAction(true));
               }
@@ -1169,8 +1055,9 @@ export default function Order() {
       );
       setVisibleCustomer(true);
       if (customer.shipping_addresses) {
-        let shipping_addresses_index: number =
-          customer.shipping_addresses.findIndex((x) => x.default === true);
+        let shipping_addresses_index: number = customer.shipping_addresses.findIndex(
+          (x) => x.default === true,
+        );
         let item =
           shipping_addresses_index !== -1
             ? customer.shipping_addresses[shipping_addresses_index]
@@ -1220,16 +1107,12 @@ export default function Order() {
       if (!pointFocus) return true;
 
       let discount = 0;
-      value.items.forEach(
-        (p: any) => (discount = discount + p.discount_amount),
-      );
+      value.items.forEach((p: any) => (discount = discount + p.discount_amount));
 
       let rank = loyaltyUsageRules.find(
         (x) =>
           x.rank_id ===
-          (loyaltyPoint?.loyalty_level_id === null
-            ? 0
-            : loyaltyPoint?.loyalty_level_id),
+          (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id),
       );
 
       // let currentPoint = !loyaltyPoint
@@ -1237,11 +1120,7 @@ export default function Order() {
       //   : loyaltyPoint.point === null
       //   ? 0
       //   : loyaltyPoint.point;
-      let point = !pointFocus
-        ? 0
-        : pointFocus.point === undefined
-        ? 0
-        : pointFocus.point;
+      let point = !pointFocus ? 0 : pointFocus.point === undefined ? 0 : pointFocus.point;
 
       let totalAmountPayable =
         orderAmount +
@@ -1249,14 +1128,10 @@ export default function Order() {
         (promotion?.value || 0); //tổng tiền phải trả
 
       let usageRate =
-        loyaltyRate === null || loyaltyRate === undefined
-          ? 0
-          : loyaltyRate.usage_rate;
+        loyaltyRate === null || loyaltyRate === undefined ? 0 : loyaltyRate.usage_rate;
 
       let enableUsingPoint =
-        loyaltyRate === null || loyaltyRate === undefined
-          ? false
-          : loyaltyRate.enable_using_point;
+        loyaltyRate === null || loyaltyRate === undefined ? false : loyaltyRate.enable_using_point;
 
       let limitOrderPercent = !rank
         ? 0
@@ -1266,8 +1141,7 @@ export default function Order() {
 
       let limitAmount = point * usageRate;
 
-      let amountLimitOrderPercent =
-        (totalAmountPayable * limitOrderPercent) / 100;
+      let amountLimitOrderPercent = (totalAmountPayable * limitOrderPercent) / 100;
 
       if (enableUsingPoint === false) {
         showError("Chương trình tiêu điểm đang tạm dừng hoạt động");
@@ -1278,20 +1152,13 @@ export default function Order() {
         showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
         return false;
       }
-      if (
-        rank?.block_order_have_discount === true &&
-        (discount > 0 || promotion)
-      ) {
-        showError(
-          "Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu",
-        );
+      if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
+        showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
         return false;
       }
 
       if (limitAmount > amountLimitOrderPercent) {
-        showError(
-          `Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`,
-        );
+        showError(`Số điểm tiêu vượt quá ${limitOrderPercent}% giá trị đơn hàng`);
         return false;
       }
 
@@ -1346,9 +1213,7 @@ export default function Order() {
     if (items && items != null && items?.length > 0) {
       let variant_id: Array<number> = [];
       items.forEach((element) => variant_id.push(element.variant_id));
-      dispatch(
-        inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse),
-      );
+      dispatch(inventoryGetDetailVariantIdsExt(variant_id, null, setInventoryResponse));
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, items?.length]);
@@ -1414,11 +1279,7 @@ export default function Order() {
   }, [eventFunctional]);
 
   if (isCloneOrderFromPOS) {
-    return (
-      <div style={{ padding: "20px 0" }}>
-        Đơn hàng offline không thể sao chép
-      </div>
-    );
+    return <div style={{ padding: "20px 0" }}>Đơn hàng offline không thể sao chép</div>;
   }
 
   return (
@@ -1448,9 +1309,7 @@ export default function Order() {
                 ref={formRef}
                 form={form}
                 onFinishFailed={({ errorFields }: any) => {
-                  const element: any = document.getElementById(
-                    errorFields[0].name.join(""),
-                  );
+                  const element: any = document.getElementById(errorFields[0].name.join(""));
                   scrollAndFocusToDomElement(element);
                 }}
                 onFinish={onFinish}
@@ -1486,18 +1345,12 @@ export default function Order() {
                       modalAction={modalAction}
                       setModalAction={setModalAction}
                       setOrderSourceId={setOrderSourceId}
-                      shippingAddressesSecondPhone={
-                        shippingAddressesSecondPhone
-                      }
-                      setShippingAddressesSecondPhone={
-                        setShippingAddressesSecondPhone
-                      }
+                      shippingAddressesSecondPhone={shippingAddressesSecondPhone}
+                      setShippingAddressesSecondPhone={setShippingAddressesSecondPhone}
                       form={form}
                       initialForm={initialForm}
                       updateOrder
-                      setShippingFeeInformedToCustomer={
-                        setShippingFeeInformedToCustomer
-                      }
+                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                       customerChange={customerChange}
                       setCustomerChange={setCustomerChange}
                       // handleOrderBillRequest={setOrderBillRequest}
@@ -1512,9 +1365,7 @@ export default function Order() {
                         form.setFieldsValue({ store_id: value });
                       }}
                       storeId={storeId}
-                      shippingFeeInformedToCustomer={
-                        shippingFeeInformedToCustomer
-                      }
+                      shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                       setItemGift={setItemGifts}
                       form={form}
                       items={items}
@@ -1526,18 +1377,12 @@ export default function Order() {
                       inventoryResponse={inventoryResponse}
                       customer={customer}
                       setInventoryResponse={setInventoryResponse}
-                      totalAmountCustomerNeedToPay={
-                        totalAmountCustomerNeedToPay
-                      }
+                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                       orderConfig={orderConfig}
                       orderSourceId={orderSourceId}
                       loyaltyPoint={loyaltyPoint}
-                      setShippingFeeInformedToCustomer={
-                        setShippingFeeInformedToCustomer
-                      }
-                      countFinishingUpdateCustomer={
-                        countFinishingUpdateCustomer
-                      }
+                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                      countFinishingUpdateCustomer={countFinishingUpdateCustomer}
                       shipmentMethod={shipmentMethod}
                       listStores={listStores}
                     />
@@ -1588,12 +1433,8 @@ export default function Order() {
                         customer={customer}
                         items={items}
                         isCancelValidateDelivery={false}
-                        totalAmountCustomerNeedToPay={
-                          totalAmountCustomerNeedToPay
-                        }
-                        setShippingFeeInformedToCustomer={
-                          ChangeShippingFeeCustomer
-                        }
+                        totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                        setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
                         onSelectShipment={onSelectShipment}
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}

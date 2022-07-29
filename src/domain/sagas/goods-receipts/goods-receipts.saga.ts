@@ -7,7 +7,7 @@ import {
   GoodsReceiptsResponse,
   GoodsReceiptsSearchResponse,
   GoodsReceiptsTypeResponse,
-  OrderConcernGoodsReceiptsResponse
+  OrderConcernGoodsReceiptsResponse,
 } from "model/response/pack/pack.response";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
@@ -24,8 +24,8 @@ import {
   deleteOrdergoodsReceipService,
   // updateNoteGoodreceiptService,
 } from "service/order/order-pack.service";
-import {unauthorizedAction} from "./../../actions/auth/auth.action";
-import {showError} from "utils/ToastUtils";
+import { unauthorizedAction } from "./../../actions/auth/auth.action";
+import { showError } from "utils/ToastUtils";
 import { OrderResponse } from "model/response/order/order.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
@@ -33,10 +33,10 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
  * lấy danh sách loại biên bản
  */
 function* getGoodsReceiptsTypeSaga(action: YodyAction) {
-  let {setData} = action.payload;
+  let { setData } = action.payload;
   try {
     let response: BaseResponse<Array<GoodsReceiptsTypeResponse>> = yield call(
-      getGoodsReceiptsTypeService
+      getGoodsReceiptsTypeService,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -58,12 +58,12 @@ function* getGoodsReceiptsTypeSaga(action: YodyAction) {
  * tạo biên bản bàn giao
  */
 function* createGoodsReceiptsSaga(action: YodyAction) {
-  let {data, setData} = action.payload;
-  put(showLoading())
+  let { data, setData } = action.payload;
+  put(showLoading());
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       createGoodsReceiptsService,
-      data
+      data,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -78,10 +78,9 @@ function* createGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch (e) {
     showError("Có lỗi xảy ra, vui lòng thử lại");
-    console.log(e)
-  }
-  finally{
-    put(hideLoading())
+    console.log(e);
+  } finally {
+    put(hideLoading());
   }
 }
 
@@ -89,11 +88,11 @@ function* createGoodsReceiptsSaga(action: YodyAction) {
  * tìm kiếm bản bàn giao
  */
 function* getGoodsReceiptsSerchSaga(action: YodyAction) {
-  let {data, setData} = action.payload;
+  let { data, setData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<GoodsReceiptsSearchResponse>> = yield call(
       getGoodsReceiptsSerchService,
-      data
+      data,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -117,13 +116,13 @@ function* getGoodsReceiptsSerchSaga(action: YodyAction) {
  * cập nhật biên bản bàn giao
  */
 function* updateGoodsReceiptsSaga(action: YodyAction) {
-  let {goodsReceiptsId, data, setData} = action.payload;
-  yield put(showLoading())
+  let { goodsReceiptsId, data, setData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       updateGoodsReceiptsService,
       goodsReceiptsId,
-      data
+      data,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -136,16 +135,15 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
         if (response.errors && response.errors.length) {
           response.errors.forEach((e: any) => showError(e));
         } else {
-          showError(response.message)
+          showError(response.message);
         }
         break;
     }
   } catch (e) {
-    console.log(e)
+    console.log(e);
     showError("Có lỗi xảy ra, vui lòng thử lại");
-  }
-  finally{
-    yield put(hideLoading())
+  } finally {
+    yield put(hideLoading());
   }
 }
 
@@ -154,12 +152,9 @@ function* updateGoodsReceiptsSaga(action: YodyAction) {
  */
 
 function* deleteGoodsReceiptsSaga(action: YodyAction) {
-  let {goodsReceiptsId, setData} = action.payload;
+  let { goodsReceiptsId, setData } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(
-      deleteGoodsReceiptsService,
-      goodsReceiptsId
-    );
+    let response: BaseResponse<any> = yield call(deleteGoodsReceiptsService, goodsReceiptsId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(true);
@@ -177,15 +172,17 @@ function* deleteGoodsReceiptsSaga(action: YodyAction) {
 }
 /**
  * xóa nhiều biên bản bàn giao
- * @param action 
+ * @param action
  */
-function* deleteAllGoodsReceipSaga(action: YodyAction)
-{
-  let {request,setData}=action.payload;
+function* deleteAllGoodsReceipSaga(action: YodyAction) {
+  let { request, setData } = action.payload;
   yield put(showLoading());
-  try{
-    let response : BaseResponse<GoodsReceiptsResponse>=yield call(deleteAllGoodsReceipService, request);
-    switch(response.code){
+  try {
+    let response: BaseResponse<GoodsReceiptsResponse> = yield call(
+      deleteAllGoodsReceipService,
+      request,
+    );
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
@@ -193,15 +190,13 @@ function* deleteAllGoodsReceipSaga(action: YodyAction)
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any)=>showError(e));
+        response.errors.forEach((e: any) => showError(e));
         break;
     }
-  }
-  catch(e){
+  } catch (e) {
     console.log(e);
     showError("Có lỗi xảy ra khi xoá nhiều biên bản bàn giao");
-  }
-  finally {
+  } finally {
     yield put(hideLoading());
   }
 }
@@ -210,12 +205,12 @@ function* deleteAllGoodsReceipSaga(action: YodyAction)
  * lấy thông tin biên bản bàn giao
  */
 function* getByIdGoodsReceiptsSaga(action: YodyAction) {
-  let {goodsReceiptsId, setData} = action.payload;
-  yield put(showLoading())
+  let { goodsReceiptsId, setData } = action.payload;
+  yield put(showLoading());
   try {
     let response: BaseResponse<GoodsReceiptsResponse> = yield call(
       getByIdGoodsReceiptsService,
-      goodsReceiptsId
+      goodsReceiptsId,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -230,18 +225,19 @@ function* getByIdGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch {
     showError("Có lỗi xảy ra vui lòng thử lại");
-  }
-  finally{
-    yield put(hideLoading())
+  } finally {
+    yield put(hideLoading());
   }
 }
 
 function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
-  let {param, setData} = action.payload;
-  yield put(showLoading())
+  let { param, setData } = action.payload;
+  yield put(showLoading());
   try {
-    let response: BaseResponse<OrderConcernGoodsReceiptsResponse[]> =
-      yield call(getOrderConcernGoodsReceiptsService, param);
+    let response: BaseResponse<OrderConcernGoodsReceiptsResponse[]> = yield call(
+      getOrderConcernGoodsReceiptsService,
+      param,
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -255,21 +251,21 @@ function* getOrderConcernGoodsReceiptsSaga(action: YodyAction) {
     }
   } catch {
     showError("Lỗi hệ thống, vui lòng thử lại");
-  }  finally {
+  } finally {
     yield put(hideLoading());
   }
-
 }
 
 /**
  *  Danh sách đơn hàng đủ điều kiện thêm vào biên bản
  */
 
-function* getOrderGoodsReceiptsSaga(action: YodyAction){
-  let {setData} = action.payload;
+function* getOrderGoodsReceiptsSaga(action: YodyAction) {
+  let { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<OrderResponse>> =
-      yield call(getOrderGoodsReceiptsService);
+    let response: BaseResponse<PageResponse<OrderResponse>> = yield call(
+      getOrderGoodsReceiptsService,
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -287,14 +283,13 @@ function* getOrderGoodsReceiptsSaga(action: YodyAction){
 }
 
 /**
- * In 
+ * In
  */
-function* getPrintGoodsReceiptsSaga(action:YodyAction)
-{
-  const{ids,type,setData}=action.payload;
-  try{
-    let response:BaseResponse<any>=yield call(getPrintGoodsReceiptsService, ids, type);
-    switch(response.code){
+function* getPrintGoodsReceiptsSaga(action: YodyAction) {
+  const { ids, type, setData } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(getPrintGoodsReceiptsService, ids, type);
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
@@ -302,11 +297,10 @@ function* getPrintGoodsReceiptsSaga(action:YodyAction)
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any)=>showError(e));
+        response.errors.forEach((e: any) => showError(e));
         break;
     }
-  }
-  catch{
+  } catch {
     showError("xảy ra lỗi in biên bản bàn giao, vui long thử lại sau");
   }
 }
@@ -314,13 +308,15 @@ function* getPrintGoodsReceiptsSaga(action:YodyAction)
 /**
  * xóa nhiều đơn hàng trong biên bản bàn giao
  */
-function* deleteOrdergoodsReceipSaga(action: YodyAction)
-{
-  let {order_ids, goods_receipt_ids, onSuccess}= action.payload;
-  try{
-    let response: BaseResponse<any>=yield call(deleteOrdergoodsReceipService, order_ids, goods_receipt_ids);
-    switch(response.code)
-    {
+function* deleteOrdergoodsReceipSaga(action: YodyAction) {
+  let { order_ids, goods_receipt_ids, onSuccess } = action.payload;
+  try {
+    let response: BaseResponse<any> = yield call(
+      deleteOrdergoodsReceipService,
+      order_ids,
+      goods_receipt_ids,
+    );
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         onSuccess(true);
         break;
@@ -329,11 +325,10 @@ function* deleteOrdergoodsReceipSaga(action: YodyAction)
         break;
       default:
         onSuccess(false);
-        response.errors.forEach((e:any)=>showError(e));
+        response.errors.forEach((e: any) => showError(e));
         break;
     }
-  }
-  catch(e){
+  } catch (e) {
     console.log(e);
     showError("xảy ra lỗi xóa đơn hàng biên bản bàn giao, vui long thử lại sau");
   }
@@ -345,11 +340,11 @@ function* deleteOrdergoodsReceipSaga(action: YodyAction)
 // function* updateNoteGoodreceiptSaga(action:YodyAction)
 // {
 //   const {id,note, onSuccess}=action.payload;
-  
+
 //   try{
 //     console.log(id,note, onSuccess);
 //     let response:BaseResponse<GoodsReceiptsResponse>= yield call(updateNoteGoodreceiptService,id, note);
-    
+
 //     switch(response.code)
 //     {
 //       case HttpStatus.SUCCESS:
@@ -378,11 +373,11 @@ export function* GoodsReceiptsSaga() {
   yield takeLatest(GoodsReceiptsType.GETBYID_GOODS_RECEIPTS, getByIdGoodsReceiptsSaga);
   yield takeLatest(
     GoodsReceiptsType.GET_ORDER_CONCERN_GOODS_RECEIPTS,
-    getOrderConcernGoodsReceiptsSaga
+    getOrderConcernGoodsReceiptsSaga,
   );
-  yield takeLatest(GoodsReceiptsType.GET_ORDER_GOODS_RECEIPTS_ADD,getOrderGoodsReceiptsSaga)
-  yield takeLatest(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS, getPrintGoodsReceiptsSaga)
-  yield takeLatest(GoodsReceiptsType.DELETE_ALL_GOODS_RECEIPTS,deleteAllGoodsReceipSaga)
-  yield takeLatest(GoodsReceiptsType.DELETE_ORDER_GOODS_RECEIPTS, deleteOrdergoodsReceipSaga)
+  yield takeLatest(GoodsReceiptsType.GET_ORDER_GOODS_RECEIPTS_ADD, getOrderGoodsReceiptsSaga);
+  yield takeLatest(GoodsReceiptsType.GET_PRINT_GOODS_RECEIPTS, getPrintGoodsReceiptsSaga);
+  yield takeLatest(GoodsReceiptsType.DELETE_ALL_GOODS_RECEIPTS, deleteAllGoodsReceipSaga);
+  yield takeLatest(GoodsReceiptsType.DELETE_ORDER_GOODS_RECEIPTS, deleteOrdergoodsReceipSaga);
   // yield takeLatest(GoodsReceiptsType.UPDATE_NOTE_GOODS_RECEIPT, updateNoteGoodreceiptSaga)
 }

@@ -1,6 +1,6 @@
 import { Button, Col, Row } from "antd";
 import { useCallback } from "react";
-import classNames from 'classnames'
+import classNames from "classnames";
 
 type CustomSelectManyProps = {
   value?: Array<string> | string | null;
@@ -9,18 +9,19 @@ type CustomSelectManyProps = {
   span?: number;
 };
 
-const CustomSelectMany: React.FC<CustomSelectManyProps> = (
-  props: CustomSelectManyProps
-) => {
-  const isActive = useCallback((key: string) => {
-    if (!props.value) {
-      return false;
-    }
-    if (props.value instanceof Array) {
-      return props.value.findIndex((item, index) => item === key) !== -1;
-    }
-    return key === props.value;
-  }, [props.value]);
+const CustomSelectMany: React.FC<CustomSelectManyProps> = (props: CustomSelectManyProps) => {
+  const isActive = useCallback(
+    (key: string) => {
+      if (!props.value) {
+        return false;
+      }
+      if (props.value instanceof Array) {
+        return props.value.findIndex((item, index) => item === key) !== -1;
+      }
+      return key === props.value;
+    },
+    [props.value],
+  );
   return (
     <Row gutter={5}>
       {Object.keys(props.data)?.map((key) => (

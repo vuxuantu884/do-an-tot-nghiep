@@ -26,7 +26,16 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
     company: CONSTANTS.DEFAULT_COMPANY.company,
   };
 
-  const { modalAction, formItem, form, visible, moreFormArguments, setVisibleForm, onCreate, onEdit } = props;
+  const {
+    modalAction,
+    formItem,
+    form,
+    visible,
+    moreFormArguments,
+    setVisibleForm,
+    onCreate,
+    onEdit,
+  } = props;
 
   const { listDepartments } = moreFormArguments;
   const [isVisibleFieldDefault, setIsVisibleFieldDefault] = useState(false);
@@ -35,27 +44,27 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
       ? {
-        channel_id: formItem.channel_id,
-        company_id: formItem.company_id,
-        company: DEFAULT_COMPANY.company,
-        name: formItem.name,
-        department_id: formItem.department_id,
-        department: formItem.department,
-        is_active: formItem.active,
-        is_default: formItem.default,
-        reference_id: formItem.reference_id,
-      }
+          channel_id: formItem.channel_id,
+          company_id: formItem.company_id,
+          company: DEFAULT_COMPANY.company,
+          name: formItem.name,
+          department_id: formItem.department_id,
+          department: formItem.department,
+          is_active: formItem.active,
+          is_default: formItem.default,
+          reference_id: formItem.reference_id,
+        }
       : {
-        channel_id: undefined,
-        company_id: DEFAULT_COMPANY.company_id,
-        company: DEFAULT_COMPANY.company,
-        name: "",
-        department_id: undefined,
-        department: "",
-        is_active: false,
-        is_default: false,
-        reference_id: undefined,
-      };
+          channel_id: undefined,
+          company_id: DEFAULT_COMPANY.company_id,
+          company: DEFAULT_COMPANY.company,
+          name: "",
+          department_id: undefined,
+          department: "",
+          is_active: false,
+          is_default: false,
+          reference_id: undefined,
+        };
 
   /**
    * when change company, set visible field Default
@@ -98,12 +107,12 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
   }, [listDepartments]);
 
   const getDepartmentName = (element: any, matchingId: number): any => {
-    if (element.id === matchingId){
+    if (element.id === matchingId) {
       return element;
     } else if (element.children !== null) {
       let i;
       let result = null;
-      for(i = 0; result == null && i < element.children.length; i++){
+      for (i = 0; result == null && i < element.children.length; i++) {
         result = getDepartmentName(element.children[i], matchingId);
       }
       return result;
@@ -114,11 +123,11 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
   const handleFormFinish = (value: OrderSourceModel) => {
     setVisibleForm && setVisibleForm(false);
     if (!isCreateForm) {
-      onEdit && onEdit(value)
+      onEdit && onEdit(value);
     } else {
       onCreate && onCreate(value);
     }
-  }
+  };
 
   return (
     <StyledComponent>
@@ -147,7 +156,10 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
               name="name"
               label="Tên nguồn đơn hàng"
               rules={[
-                { required: true, message: "Vui lòng điền tên nguồn đơn hàng!" },
+                {
+                  required: true,
+                  message: "Vui lòng điền tên nguồn đơn hàng!",
+                },
                 { max: 255, message: "Không được nhập quá 255 ký tự!" },
               ]}
             >
@@ -170,11 +182,12 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
                 allowClear
                 showSearch
                 notFoundContent="Không tìm thấy phòng ban"
-                treeNodeFilterProp='title'
+                treeNodeFilterProp="title"
                 onChange={(value: any) => {
                   let department: any = {};
                   for (let i = 0; i < departmentsForSource.length; i++) {
-                    if (getDepartmentName(departmentsForSource[i], value)) department = getDepartmentName(departmentsForSource[i], value);
+                    if (getDepartmentName(departmentsForSource[i], value))
+                      department = getDepartmentName(departmentsForSource[i], value);
                   }
                   form.setFieldsValue({ department: department.name });
                 }}
@@ -195,18 +208,17 @@ const FormOrderSource: React.FC<CustomModalFormModel> = (props: CustomModalFormM
         </Row>
         <Row>
           <Col span={24}>
-            <Form.Item
-              name="reference_id"
-              label="Mã tham chiếu"
-            >
-              <InputNumber style={{ width: "100%" }} maxLength={10} placeholder="Nhập mã tham chiếu" />
+            <Form.Item name="reference_id" label="Mã tham chiếu">
+              <InputNumber
+                style={{ width: "100%" }}
+                maxLength={10}
+                placeholder="Nhập mã tham chiếu"
+              />
             </Form.Item>
           </Col>
         </Row>
         <Form.Item name="is_active" valuePropName="checked" style={{ marginBottom: 10 }}>
-          <Checkbox onChange={handleChangeCheckFieldActive}>
-            Áp dụng cho đơn hàng
-          </Checkbox>
+          <Checkbox onChange={handleChangeCheckFieldActive}>Áp dụng cho đơn hàng</Checkbox>
         </Form.Item>
         <Form.Item
           name="is_default"

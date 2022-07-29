@@ -11,9 +11,7 @@ type DiscountModalProps = {
   onChange?: (type: string, discount: number) => void;
 };
 
-const DiscountModal: React.FC<DiscountModalProps> = (
-  props: DiscountModalProps
-) => {
+const DiscountModal: React.FC<DiscountModalProps> = (props: DiscountModalProps) => {
   const [form] = Form.useForm();
   const [type, setType] = useState<string>(props.type);
   useEffect(() => {
@@ -28,17 +26,12 @@ const DiscountModal: React.FC<DiscountModalProps> = (
       <Form
         form={form}
         onFinish={(value) => {
-          props.onChange &&
-            props.onChange(value.type, value.discount);
+          props.onChange && props.onChange(value.type, value.discount);
         }}
         layout="vertical"
       >
         <Form.Item label="Chiết khấu">
-          <Input.Group
-            className="product-item-discount"
-            style={{ width: "100%" }}
-            compact
-          >
+          <Input.Group className="product-item-discount" style={{ width: "100%" }} compact>
             <Form.Item noStyle name="type">
               <Select
                 style={{ width: "35%" }}
@@ -58,7 +51,7 @@ const DiscountModal: React.FC<DiscountModalProps> = (
                 onBlur={() => {
                   form.submit();
                 }}
-                isFloat={type === 'percent'}
+                isFloat={type === "percent"}
                 className="product-item-discount-input"
                 style={{ width: "65%", textAlign: "right" }}
                 placeholder="Nhập chiết khấu"

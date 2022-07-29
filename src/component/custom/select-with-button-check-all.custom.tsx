@@ -1,7 +1,7 @@
 import { Checkbox, SelectProps } from "antd";
 import React, { useEffect, useState } from "react";
 import CustomSelect from "./select.custom";
-import {StyledComponent} from "./select-with-button-check-all.custom.styles"
+import { StyledComponent } from "./select-with-button-check-all.custom.styles";
 
 interface PropTypes extends SelectProps<any> {
   onChangeAllSelect: any;
@@ -34,10 +34,17 @@ function CustomSelectWithButtonCheckAll(props: PropTypes) {
 
   return (
     <React.Fragment>
-			<StyledComponent>
-				<Checkbox onChange={onChangeAllSelect} checked={checked} />
-				<CustomSelect {...rest} dropdownClassName="selectOutsideWidthButtonCheckAll" dropdownStyle={{marginLeft: -20}} dropdownMatchSelectWidth = {false}>{props.children}</CustomSelect>
-			</StyledComponent>
+      <StyledComponent>
+        <Checkbox onChange={onChangeAllSelect} checked={checked} />
+        <CustomSelect
+          {...rest}
+          dropdownClassName="selectOutsideWidthButtonCheckAll"
+          dropdownStyle={{ marginLeft: -20 }}
+          dropdownMatchSelectWidth={false}
+        >
+          {props.children}
+        </CustomSelect>
+      </StyledComponent>
     </React.Fragment>
   );
 }

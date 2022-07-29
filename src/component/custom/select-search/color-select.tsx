@@ -102,21 +102,21 @@ function ColorSelect(props: SelectContentProps): ReactElement {
           colorSearchApi,
           {
             ids: isFilter ? JSON.parse(initParams).code : initParams,
-          }
+          },
         );
 
         let totalItems: ColorResponse[] = [];
         if (initSelectedResponse?.items && defaultOptons?.length > 0) {
           let set = new Set();
-          let mergeItems = [...initSelectedResponse.items,...defaultOptons];
-          totalItems = mergeItems.filter(item => {
+          let mergeItems = [...initSelectedResponse.items, ...defaultOptons];
+          totalItems = mergeItems.filter((item) => {
             if (!set.has(item.id)) {
               set.add(item.id);
               return true;
             }
             return false;
           }, set);
-           totalItems = _.uniqBy(totalItems, key!);
+          totalItems = _.uniqBy(totalItems, key!);
         } else if (defaultOptons) {
           totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
@@ -129,7 +129,7 @@ function ColorSelect(props: SelectContentProps): ReactElement {
     };
 
     getIntialValue();
-  }, [isFilter, mode, dispatch, value, defaultOptons,key]);
+  }, [isFilter, mode, dispatch, value, defaultOptons, key]);
 
   return (
     <SelectPagingV2
@@ -143,12 +143,20 @@ function ColorSelect(props: SelectContentProps): ReactElement {
       onPageChange={(key: string, page: number) => {
         handleColorSearch({ info: key, page: page });
       }}
-      {...selectProps}>
+      {...selectProps}
+    >
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code} value={isFilter ? JSON.stringify({
-          code: item.id,
-          name: item.name
-        }) : item.id}>
+        <SelectPagingV2.Option
+          key={item.code}
+          value={
+            isFilter
+              ? JSON.stringify({
+                  code: item.id,
+                  name: item.name,
+                })
+              : item.id
+          }
+        >
           {`${item.code}-${item.name}`}
         </SelectPagingV2.Option>
       ))}

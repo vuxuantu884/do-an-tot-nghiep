@@ -1,24 +1,24 @@
-import {Card, Col, Row} from "antd";
+import { Card, Col, Row } from "antd";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER, SAPO_URL, SHOPIFY_URL } from "config/url.config";
-import {OrderResponse} from "model/response/order/order.response";
+import { OrderResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { YODY_APP, YODY_LANDING_PAGE, YODY_WEB } from "utils/Constants";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropTypes = {
   OrderDetail: OrderResponse | null;
 };
 
 function SidebarOrderDetailInformation(props: PropTypes) {
-  const {OrderDetail} = props;
-  const [createdByName, setCreatedByName] = useState("")
-  const dispatch = useDispatch()
+  const { OrderDetail } = props;
+  const [createdByName, setCreatedByName] = useState("");
+  const dispatch = useDispatch();
   const renderSplitOrder = () => {
     const splitCharacter = "-";
     if (!OrderDetail?.linked_order_code) {
@@ -48,10 +48,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row gutter={5}>
           <Col span={10}>Đơn gốc tách đơn:</Col>
           <Col span={14}>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ORDER}/${OrderDetail.linked_order_code}`}
-            >
+            <Link target="_blank" to={`${UrlConfig.ORDER}/${OrderDetail.linked_order_code}`}>
               <strong>{OrderDetail.linked_order_code}</strong>
             </Link>
           </Col>
@@ -61,24 +58,22 @@ function SidebarOrderDetailInformation(props: PropTypes) {
   };
   const renderReturnedOrder = () => {
     let result = null;
-    if(OrderDetail?.order_returns && OrderDetail?.order_returns?.length > 0) {
+    if (OrderDetail?.order_returns && OrderDetail?.order_returns?.length > 0) {
       const returnedArr = OrderDetail?.order_returns;
       result = returnedArr.map((single, index) => {
-        return(
+        return (
           <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_RETURN}/${single.id}`}>
-              {single.code}
-            </Link>
+            <Link to={`${UrlConfig.ORDERS_RETURN}/${single.id}`}>{single.code}</Link>
             {index < returnedArr.length - 1 && ", "}
           </React.Fragment>
-        )
-      })
+        );
+      });
     }
     return result;
   };
 
   useEffect(() => {
-    if(OrderDetail?.created_by) {
+    if (OrderDetail?.created_by) {
       searchAccountPublicApi({
         codes: OrderDetail?.created_by,
         limit: undefined,
@@ -87,30 +82,28 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           if (isFetchApiSuccessful(response)) {
             setCreatedByName(response.data.items[0].full_name);
           } else {
-            handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+            handleFetchApiError(response, "Danh sách tài khoản", dispatch);
           }
         })
         .catch((error) => {
           console.log("error", error);
-        })
+        });
     }
-  }, [OrderDetail?.created_by, dispatch])
+  }, [OrderDetail?.created_by, dispatch]);
 
-  const getTitleEcommerce= (channelId:number|null)=>{
-    let title= "";
+  const getTitleEcommerce = (channelId: number | null) => {
+    let title = "";
 
-    if(channelId === YODY_WEB.channel_id){
-      title= "Website:";
-    }else if(channelId === YODY_APP.channel_id){
-      title="App:";
-    }else if(channelId===YODY_LANDING_PAGE.channel_id){
-      title="Landing page:"
-    }else{
-      title="Gian hàng TMĐT:";
+    if (channelId === YODY_WEB.channel_id) {
+      title = "Website:";
+    } else if (channelId === YODY_APP.channel_id) {
+      title = "App:";
+    } else if (channelId === YODY_LANDING_PAGE.channel_id) {
+      title = "Landing page:";
+    } else {
+      title = "Gian hàng TMĐT:";
     }
-    return (
-      <Col span={10}>{title}</Col>
-    )
+    return <Col span={10}>{title}</Col>;
   };
 
   const renderElementReference = (order?: OrderResponse | null) => {
@@ -126,7 +119,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           link = `${SAPO_URL.PRODUCTION}/${order.reference_code}`;
           break;
       }
-    }else if(order?.created_by && order?.created_by.toLocaleUpperCase() === "YD0WEBUSA"){
+    } else if (order?.created_by && order?.created_by.toLocaleUpperCase() === "YD0WEBUSA") {
       let environment = AppConfig.ENV;
       switch (environment) {
         case "DEV":
@@ -136,28 +129,35 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           link = `${SHOPIFY_URL.PRODUCTION}/${order.reference_code}`;
           break;
       }
-    }
-    else if(order?.url) {
-     link= order?.url;
-    }else{
+    } else if (order?.url) {
+      link = order?.url;
+    } else {
       link = `${BASE_NAME_ROUTER}${UrlConfig.ORDER}/${order?.reference_code}`;
     }
     return (
       <React.Fragment>
-        <a href={link} target="_blank" rel="noreferrer">{order?.reference_code}</a>
+        <a href={link} target="_blank" rel="noreferrer">
+          {order?.reference_code}
+        </a>
       </React.Fragment>
-    )
-  }
+    );
+  };
 
-  const renderElementReferenceHandover = (goods_receipts?:GoodsReceiptsResponse[]|null)=>{
+  const renderElementReferenceHandover = (goods_receipts?: GoodsReceiptsResponse[] | null) => {
     return (
       <React.Fragment>
-        {goods_receipts?.map(p=>(
-          <Link to={`${UrlConfig.DELIVERY_RECORDS}/${p.id}`} target="_blank" className="reference-good-receipt">{p.id} - {p.receipt_type_name}</Link>
+        {goods_receipts?.map((p) => (
+          <Link
+            to={`${UrlConfig.DELIVERY_RECORDS}/${p.id}`}
+            target="_blank"
+            className="reference-good-receipt"
+          >
+            {p.id} - {p.receipt_type_name}
+          </Link>
         ))}
       </React.Fragment>
-    )
-  }
+    );
+  };
 
   return (
     <StyledComponent>
@@ -165,35 +165,41 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row className="" gutter={5}>
           <Col span={10}>Cửa hàng:</Col>
           <Col span={14}>
-            <span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
-              <Link target="_blank" to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}>
+            <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ORDER}?page=1&limit=30&store_ids=${OrderDetail?.store_id}`}
+              >
                 {OrderDetail?.store}
               </Link>
             </span>
           </Col>
         </Row>
-				{OrderDetail?.order_return_origin?.order_id && (
-					<Row className="rowDetail" gutter={5}>
-						<Col span={10}>Mã đơn gốc:</Col>
-						<Col span={14}>
-							<span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
-								{OrderDetail?.order_return_origin?.order_id ? (
-									<Link to={`${UrlConfig.ORDER}/${OrderDetail?.order_return_origin?.order_id}`} target="_blank">
-										{OrderDetail?.order_return_origin?.order_code}
-									</Link>
-								) : (
-									"-"
-								)}
-							</span>
-						</Col>
-					</Row>
-				)}
+        {OrderDetail?.order_return_origin?.order_id && (
+          <Row className="rowDetail" gutter={5}>
+            <Col span={10}>Mã đơn gốc:</Col>
+            <Col span={14}>
+              <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
+                {OrderDetail?.order_return_origin?.order_id ? (
+                  <Link
+                    to={`${UrlConfig.ORDER}/${OrderDetail?.order_return_origin?.order_id}`}
+                    target="_blank"
+                  >
+                    {OrderDetail?.order_return_origin?.order_code}
+                  </Link>
+                ) : (
+                  "-"
+                )}
+              </span>
+            </Col>
+          </Row>
+        )}
         {OrderDetail?.ecommerce_shop_name && (
           <Row gutter={5}>
             {/* <Col span={10}>Gian hàng TMĐT:</Col> */}
             {getTitleEcommerce(OrderDetail?.channel_id)}
             <Col span={14}>
-              <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
+              <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
                 {OrderDetail?.ecommerce_shop_name}
               </span>
             </Col>
@@ -202,17 +208,15 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row gutter={5}>
           <Col span={10}>Điện thoại:</Col>
           <Col span={14}>
-						<a href={`tel:${OrderDetail?.store_phone_number}`} style={{fontWeight: 500}}>
-							<span >
-								{OrderDetail?.store_phone_number}
-							</span>
-						</a>
+            <a href={`tel:${OrderDetail?.store_phone_number}`} style={{ fontWeight: 500 }}>
+              <span>{OrderDetail?.store_phone_number}</span>
+            </a>
           </Col>
         </Row>
         <Row gutter={5}>
           <Col span={10}>Địa chỉ:</Col>
           <Col span={14}>
-            <span style={{fontWeight: 500, color: "#222222"}}>
+            <span style={{ fontWeight: 500, color: "#222222" }}>
               {OrderDetail?.store_full_address}
             </span>
           </Col>
@@ -221,7 +225,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           <Row gutter={5}>
             <Col span={10}>NV thu ngân:</Col>
             <Col span={14}>
-              <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
+              <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
                 <Link
                   target="_blank"
                   to={`${UrlConfig.ORDER}?page=1&limit=30&assignee_codes=${OrderDetail?.account_code}`}
@@ -235,10 +239,10 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row gutter={5}>
           <Col span={10}>{isOrderFromPOS(OrderDetail) ? "NV tư vấn:" : "NV bán hàng:"}</Col>
           <Col span={14}>
-            <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
+            <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
               <Link
                 target="_blank"
-								to={`${UrlConfig.ORDER}?page=1&limit=30&assignee_codes=${OrderDetail?.assignee_code}`}
+                to={`${UrlConfig.ORDER}?page=1&limit=30&assignee_codes=${OrderDetail?.assignee_code}`}
               >
                 {OrderDetail?.assignee_code} - {OrderDetail?.assignee}
               </Link>
@@ -248,10 +252,10 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row gutter={5}>
           <Col span={10}>NV marketing:</Col>
           <Col span={14}>
-            <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
+            <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
               <Link
                 target="_blank"
-								to={`${UrlConfig.ORDER}?page=1&limit=30&marketer_codes=${OrderDetail?.marketer_code}`}
+                to={`${UrlConfig.ORDER}?page=1&limit=30&marketer_codes=${OrderDetail?.marketer_code}`}
               >
                 {OrderDetail?.marketer_code} - {OrderDetail?.marketer}
               </Link>
@@ -261,10 +265,10 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row gutter={5}>
           <Col span={10}>NV điều phối:</Col>
           <Col span={14}>
-            <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
+            <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
               <Link
                 target="_blank"
-								to={`${UrlConfig.ORDER}?page=1&limit=30&coordinator_codes=${OrderDetail?.coordinator_code}`}
+                to={`${UrlConfig.ORDER}?page=1&limit=30&coordinator_codes=${OrderDetail?.coordinator_code}`}
               >
                 {OrderDetail?.coordinator_code} - {OrderDetail?.coordinator}
               </Link>
@@ -274,10 +278,10 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         <Row gutter={5}>
           <Col span={10}>Người tạo:</Col>
           <Col span={14}>
-            <span style={{fontWeight: 500, color: "#222222"}} className="text-focus">
+            <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
               <Link
                 target="_blank"
-								to={`${UrlConfig.ORDER}?page=1&limit=30&created_by=${OrderDetail?.account_code}`}
+                to={`${UrlConfig.ORDER}?page=1&limit=30&created_by=${OrderDetail?.account_code}`}
               >
                 {OrderDetail?.created_by} - {createdByName}
               </Link>
@@ -292,13 +296,15 @@ function SidebarOrderDetailInformation(props: PropTypes) {
             </Col>
           </Row>
         )}
-        
+
         {OrderDetail?.reason_name && (
           <Row gutter={5}>
             <Col span={10}>Lý do huỷ:</Col>
             <Col span={14}>
-              <span style={{fontWeight: 500, color: "rgb(226, 67, 67)"}} className="text-focus">
-                {OrderDetail?.sub_reason_name ? OrderDetail?.sub_reason_name : OrderDetail?.reason_name}
+              <span style={{ fontWeight: 500, color: "rgb(226, 67, 67)" }} className="text-focus">
+                {OrderDetail?.sub_reason_name
+                  ? OrderDetail?.sub_reason_name
+                  : OrderDetail?.reason_name}
               </span>
             </Col>
           </Row>
@@ -307,7 +313,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           <Row gutter={5}>
             <Col span={10}>Mã đơn trả hàng:</Col>
             <Col span={14}>
-              <span style={{fontWeight: 500, color: "rgb(226, 67, 67)"}} className="text-focus">
+              <span style={{ fontWeight: 500, color: "rgb(226, 67, 67)" }} className="text-focus">
                 {renderReturnedOrder()}
               </span>
             </Col>
@@ -315,7 +321,9 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         )}
         {OrderDetail?.goods_receipts && OrderDetail?.goods_receipts.length > 0 && (
           <Row gutter={5}>
-            <Col span={10} className="reference-good-receipt">Biên bản bàn giao:</Col>
+            <Col span={10} className="reference-good-receipt">
+              Biên bản bàn giao:
+            </Col>
             <Col span={14} style={{ wordWrap: "break-word" }}>
               {renderElementReferenceHandover(OrderDetail?.goods_receipts)}
             </Col>

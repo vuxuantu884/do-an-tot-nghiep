@@ -1,4 +1,16 @@
-import { Col, Form, Input, Modal, Row, Select, Checkbox, Button, Tabs, ButtonProps, Typography } from "antd";
+import {
+  Col,
+  Form,
+  Input,
+  Modal,
+  Row,
+  Select,
+  Checkbox,
+  Button,
+  Tabs,
+  ButtonProps,
+  Typography,
+} from "antd";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -12,14 +24,7 @@ import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { DeleteOutlined } from "@ant-design/icons";
 
-import {
-  ReactNode,
-  useCallback,
-  useEffect,
-  useState,
-  useMemo,
-  Fragment,
-} from "react";
+import { ReactNode, useCallback, useEffect, useState, useMemo, Fragment } from "react";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { POUtils } from "utils/POUtils";
@@ -28,7 +33,7 @@ import { showError } from "utils/ToastUtils";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig, { BASE_NAME_ROUTER, PurchaseOrderTabUrl } from "config/url.config";
-import RenderTabBar from 'component/table/StickyTabBar';
+import RenderTabBar from "component/table/StickyTabBar";
 import PurchaseOrderHistory from "../tab/PurchaseOrderHistory";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { PurchaseOrderDraft } from "screens/purchase-order/purchase-order-list.style";
@@ -57,7 +62,7 @@ export type ProcumentModalProps = {
   cancelText: string;
   item?: PurchaseProcument | null;
   isConfirmModal?: boolean;
-  key?: string,
+  key?: string;
   children(
     onQuantityChange: (quantity: any, index: any, bulkQuantity?: any) => void,
     onRemove: (index: number) => void,
@@ -68,7 +73,7 @@ export type ProcumentModalProps = {
     setBulkQuantity: (bulkQuantity: number) => void,
     setQuantityToZero: (quantity: number) => void,
   ): ReactNode;
-  okButtonProps?: ButtonProps
+  okButtonProps?: ButtonProps;
 };
 
 const { TabPane } = Tabs;
@@ -94,14 +99,14 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     isEdit,
     isDetail,
     isConfirmModal,
-    okButtonProps
+    okButtonProps,
   } = props;
   const [form] = Form.useForm();
   const [data, setData] = useState<Array<PurchaseProcumentLineItem>>([]);
   const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
   const [titleTabModal, setTitleTabModal] = useState<ReactNode>(title);
-  const [typeBulk, setTypeBulk] = useState<string>('percentage')
-  const [bulkQuantity, setBulkQuantity] = useState(0)
+  const [typeBulk, setTypeBulk] = useState<string>("percentage");
+  const [bulkQuantity, setBulkQuantity] = useState(0);
   const allProcurementItems = useMemo(() => {
     let newLineItem: Array<PurchaseOrderLineItem> = [];
     items.forEach((item) => {
@@ -113,7 +118,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         newLineItem[index].receipt_quantity += item.receipt_quantity;
         newLineItem[index].planned_quantity += item.planned_quantity;
       }
-    })
+    });
     let result = POUtils.getPOProcumentItem(newLineItem);
     result = result.map((item) => {
       if (visible) {
@@ -132,56 +137,52 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
 
   const [activeTab, setActiveTab] = useState<string>(PurchaseOrderTabUrl.INVENTORY);
 
-  const setAllFieldQuantity = useCallback((quantity) => {
-    let procurement_items: Array<PurchaseProcumentLineItem> =
-      form.getFieldValue(POProcumentField.procurement_items);
-    if (type === "inventory")
-      procurement_items.map(item => item.real_quantity = quantity)
-    else procurement_items.map(item => item.quantity = quantity)
-    form.setFieldsValue({ procurement_items: [...procurement_items] });
-  }, [form, type])
+  const setAllFieldQuantity = useCallback(
+    (quantity) => {
+      let procurement_items: Array<PurchaseProcumentLineItem> = form.getFieldValue(
+        POProcumentField.procurement_items,
+      );
+      if (type === "inventory") procurement_items.map((item) => (item.real_quantity = quantity));
+      else procurement_items.map((item) => (item.quantity = quantity));
+      form.setFieldsValue({ procurement_items: [...procurement_items] });
+    },
+    [form, type],
+  );
 
   useEffect(() => {
-    setAllFieldQuantity(0)
-  }, [setAllFieldQuantity, typeBulk])
-
+    setAllFieldQuantity(0);
+  }, [setAllFieldQuantity, typeBulk]);
 
   const onSearch = useCallback(
     (value: string) => {
       value = value.toUpperCase();
       let result = allProcurementItems.filter((variant) => {
         return (
-          variant.sku.toUpperCase().includes(value) ||
-          variant.variant.toUpperCase().includes(value)
+          variant.sku.toUpperCase().includes(value) || variant.variant.toUpperCase().includes(value)
         );
       });
       setData(result);
     },
-    [allProcurementItems, setData]
+    [allProcurementItems, setData],
   );
 
   const onSelectProduct = useCallback(
     (sku: string) => {
-      let procurement_items = form.getFieldValue(
-        POProcumentField.procurement_items
-      );
+      let procurement_items = form.getFieldValue(POProcumentField.procurement_items);
       let newProcumentItem = procurement_items.find(
-        (item: PurchaseProcumentLineItem) => item.sku === sku
+        (item: PurchaseProcumentLineItem) => item.sku === sku,
       );
       if (!newProcumentItem) {
         newProcumentItem = allProcurementItems.find(
-          (item: PurchaseProcumentLineItem) => item.sku === sku
+          (item: PurchaseProcumentLineItem) => item.sku === sku,
         );
         if (newProcumentItem) {
-          procurement_items = [
-            ...procurement_items,
-            JSON.parse(JSON.stringify(newProcumentItem)),
-          ];
+          procurement_items = [...procurement_items, JSON.parse(JSON.stringify(newProcumentItem))];
         }
       }
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
-    [form, allProcurementItems]
+    [form, allProcurementItems],
   );
 
   const renderResult = useMemo(() => {
@@ -192,9 +193,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
           <Row>
             <div className="product-item">
               <div className="product-item-image">
-                {item.variant_image !== null && (
-                  <img src={item.variant_image} alt="" />
-                )}
+                {item.variant_image !== null && <img src={item.variant_image} alt="" />}
               </div>
               <div className="product-item-info">
                 <div className="product-item-info-left">
@@ -221,7 +220,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         if (item.real_quantity) {
           real_quantity = real_quantity + item.real_quantity;
         }
-      })
+      });
 
       if (type === "draft" || type === "confirm") {
         if (quantity === 0) {
@@ -234,45 +233,50 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
       }
       onOk && onOk(value);
     },
-    [onOk, type]
+    [onOk, type],
   );
   const onQuantityChange = useCallback(
     (quantity, index: any, bulkQuantity: number) => {
-      let procurement_items: Array<PurchaseProcumentLineItem> =
-        form.getFieldValue(POProcumentField.procurement_items);
+      let procurement_items: Array<PurchaseProcumentLineItem> = form.getFieldValue(
+        POProcumentField.procurement_items,
+      );
       if (quantity !== undefined && index !== undefined) {
-        if (type === "inventory")
-          procurement_items[index].real_quantity = quantity;
+        if (type === "inventory") procurement_items[index].real_quantity = quantity;
         else procurement_items[index].quantity = quantity;
       } else if (bulkQuantity) {
-        if (typeBulk === 'quantity') {
-          setAllFieldQuantity(bulkQuantity)
+        if (typeBulk === "quantity") {
+          setAllFieldQuantity(bulkQuantity);
         } else {
           if (type === "inventory")
-            procurement_items.map(item => item.real_quantity = Math.round((bulkQuantity * item.ordered_quantity) / 100));
-          else procurement_items.map(item => item.quantity = Math.round((bulkQuantity * item.ordered_quantity) / 100))
+            procurement_items.map(
+              (item) =>
+                (item.real_quantity = Math.round((bulkQuantity * item.ordered_quantity) / 100)),
+            );
+          else
+            procurement_items.map(
+              (item) => (item.quantity = Math.round((bulkQuantity * item.ordered_quantity) / 100)),
+            );
         }
       }
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
-    [form, setAllFieldQuantity, type, typeBulk]
+    [form, setAllFieldQuantity, type, typeBulk],
   );
 
   const onRemove = useCallback(
     (index: number) => {
-      let procurement_items: Array<PurchaseProcumentLineItem> =
-        form.getFieldValue(POProcumentField.procurement_items);
+      let procurement_items: Array<PurchaseProcumentLineItem> = form.getFieldValue(
+        POProcumentField.procurement_items,
+      );
       procurement_items.splice(index, 1);
       form.setFieldsValue({ procurement_items: [...procurement_items] });
     },
-    [form]
+    [form],
   );
 
   const fillAll = (checked: boolean) => {
     if (checked) {
-      let currentProcument = form.getFieldValue(
-        POProcumentField.procurement_items
-      );
+      let currentProcument = form.getFieldValue(POProcumentField.procurement_items);
       let allLineId: Array<number | any> = [],
         lineIdMapping: any = {};
       allProcurementItems.forEach((item) => {
@@ -297,22 +301,20 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
     setActiveTab(active);
     switch (active) {
       case PurchaseOrderTabUrl.HISTORY:
-        setTitleTabModal(
-          () => {
-            return (
-              <div>
-                {"Chi tiết log phiếu nhập kho "}
-                <span style={{ color: "#2A2A86" }}>{item?.code}</span>
-              </div>
-            )
-          }
-        )
+        setTitleTabModal(() => {
+          return (
+            <div>
+              {"Chi tiết log phiếu nhập kho "}
+              <span style={{ color: "#2A2A86" }}>{item?.code}</span>
+            </div>
+          );
+        });
         return;
       default:
         setTitleTabModal(title);
         return;
     }
-  }
+  };
 
   useEffect(() => {
     if (item) {
@@ -457,14 +459,18 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         </Row>
       </Modal>
       <Modal
-        footer={!isDetail ? [
-          <Button loading={loading} onClick={onCancle}>
-            {cancelText}
-          </Button>,
-          <Button type="primary" loading={loading} onClick={submit}>
-            {okText}
-          </Button>,
-        ] : null}
+        footer={
+          !isDetail
+            ? [
+                <Button loading={loading} onClick={onCancle}>
+                  {cancelText}
+                </Button>,
+                <Button type="primary" loading={loading} onClick={submit}>
+                  {okText}
+                </Button>,
+              ]
+            : null
+        }
         onCancel={onCancle}
         width={920}
         visible={visible}
@@ -473,445 +479,241 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
         okButtonProps={okButtonProps}
       >
         <PurchaseOrderDraft>
-          {
-            title !== 'Tạo phiếu nháp' ?
-              (<Tabs
-                style={{ overflow: "initial", marginTop: "-24px" }}
-                activeKey={activeTab}
-                onChange={(active) => onChangeActive(active)}
-                renderTabBar={RenderTabBar}
-                // tabBarExtraContent={
-                // ([ProcumentStatus.DRAFT,ProcumentStatus.NOT_RECEIVED].indexOf(item?.status ?? "draft") !== -1) && <>
-                //   <Button icon={<DownloadOutlined />} onClick={exportExcel}>Export Excel</Button>
-                //   <Upload {...uploadProps} maxCount={1}>
-                //     <Button icon={<UploadOutlined />}>Import Excel</Button>
-                //   </Upload>
-                // </>}
-              >
-                <TabPane tab="Tồn kho" key={PurchaseOrderTabUrl.INVENTORY}>
-                  {item && !isDetail && (
-                    <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
-                      <Button
-                        type="default"
-                        className="danger"
-                        style={{
-                          position: "absolute",
-                          bottom: 10,
-                          left: 30,
-                        }}
-                        onClick={() => {
-                          setVisibleDelete(true);
-                        }}
-                      >
-                        Hủy phiếu
-                      </Button>
-                    </AuthWrapper>
-                  )}
-                  <Form
-                    initialValues={{
-                      procurement_items: [],
-                      store_id: defaultStore,
-                      status: ProcumentStatus.DRAFT,
-                      expect_receipt_date: ConvertDateToUtc(now),
-                    }}
-                    form={form}
-                    onFinishFailed={({ errorFields }: any) => {
-                      const element: any = document.getElementById(errorFields[0].name.join(""));
-                      element?.focus();
-                      const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-                      window.scrollTo({ top: y, behavior: "smooth" });
-                    }}
-                    onFinish={onFinish}
-                    layout="vertical"
-                  >
-                    {!isConfirmModal && (
-                      <Fragment>
-                        <Row gutter={50} style={{ marginTop: 5, marginBottom: 10 }}>
-                          <Col span={24} md={12}>
-                            <Row style={{ display: 'flex', justifyContent: 'space-between' }}>
+          {title !== "Tạo phiếu nháp" ? (
+            <Tabs
+              style={{ overflow: "initial", marginTop: "-24px" }}
+              activeKey={activeTab}
+              onChange={(active) => onChangeActive(active)}
+              renderTabBar={RenderTabBar}
+              // tabBarExtraContent={
+              // ([ProcumentStatus.DRAFT,ProcumentStatus.NOT_RECEIVED].indexOf(item?.status ?? "draft") !== -1) && <>
+              //   <Button icon={<DownloadOutlined />} onClick={exportExcel}>Export Excel</Button>
+              //   <Upload {...uploadProps} maxCount={1}>
+              //     <Button icon={<UploadOutlined />}>Import Excel</Button>
+              //   </Upload>
+              // </>}
+            >
+              <TabPane tab="Tồn kho" key={PurchaseOrderTabUrl.INVENTORY}>
+                {item && !isDetail && (
+                  <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
+                    <Button
+                      type="default"
+                      className="danger"
+                      style={{
+                        position: "absolute",
+                        bottom: 10,
+                        left: 30,
+                      }}
+                      onClick={() => {
+                        setVisibleDelete(true);
+                      }}
+                    >
+                      Hủy phiếu
+                    </Button>
+                  </AuthWrapper>
+                )}
+                <Form
+                  initialValues={{
+                    procurement_items: [],
+                    store_id: defaultStore,
+                    status: ProcumentStatus.DRAFT,
+                    expect_receipt_date: ConvertDateToUtc(now),
+                  }}
+                  form={form}
+                  onFinishFailed={({ errorFields }: any) => {
+                    const element: any = document.getElementById(errorFields[0].name.join(""));
+                    element?.focus();
+                    const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+                    window.scrollTo({ top: y, behavior: "smooth" });
+                  }}
+                  onFinish={onFinish}
+                  layout="vertical"
+                >
+                  {!isConfirmModal && (
+                    <Fragment>
+                      <Row gutter={50} style={{ marginTop: 5, marginBottom: 10 }}>
+                        <Col span={24} md={12}>
+                          <Row
+                            style={{
+                              display: "flex",
+                              justifyContent: "space-between",
+                            }}
+                          >
+                            <div>
+                              Đơn đặt hàng:{" "}
+                              <Link
+                                to={"#"}
+                                onClick={() => {
+                                  const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${poData?.id}`;
+                                  const newWindow = window.open(
+                                    url,
+                                    "_blank",
+                                    "noopener,noreferrer",
+                                  );
+                                  if (newWindow) newWindow.opener = null;
+                                }}
+                              >
+                                {poData?.code}
+                              </Link>
+                            </div>
+                            {poData?.reference ? (
                               <div>
-                                Đơn đặt hàng: {" "}
-                                <Link to={"#"} onClick={() => {
-                                  const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${poData?.id}`
-                                  const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
-                                  if (newWindow) newWindow.opener = null
-                                }}>
-                                  {poData?.code}
-                                </Link>
-                              </div>
-                              {poData?.reference ? <div>Mã tham chiếu:{" "}
+                                Mã tham chiếu:{" "}
                                 <Typography.Text strong>{`${poData?.reference}`}</Typography.Text>
-                              </div> : null}
+                              </div>
+                            ) : null}
+                          </Row>
+                        </Col>
+                        <Col span={24} md={12}>
+                          Nhà cung cấp:{" "}
+                          <Typography.Text
+                            strong
+                          >{`${poData?.supplier} - ${poData?.phone}`}</Typography.Text>
+                        </Col>
+                      </Row>
+                    </Fragment>
+                  )}
 
-                            </Row>
-                          </Col>
-                          <Col span={24} md={12}>
-                            Nhà cung cấp:  <Typography.Text strong>{`${poData?.supplier} - ${poData?.phone}`}</Typography.Text>
-                          </Col>
-                        </Row>
-
+                  <Row gutter={50}>
+                    <Form.Item hidden noStyle name={POProcumentField.id}>
+                      <Input />
+                    </Form.Item>
+                    <Form.Item hidden noStyle name={POProcumentField.code}>
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name={POProcumentField.procurement_items} hidden noStyle>
+                      <Input />
+                    </Form.Item>
+                    <Form.Item name={POProcumentField.status} hidden noStyle>
+                      <Input />
+                    </Form.Item>
+                    <Form.Item hidden noStyle name={POProcumentField.store}>
+                      <Input />
+                    </Form.Item>
+                    {type === "inventory" && (
+                      <Fragment>
+                        <Form.Item hidden noStyle name={POProcumentField.store_id}>
+                          <Input />
+                        </Form.Item>
+                        <Col span={24} md={12}>
+                          <Form.Item
+                            shouldUpdate={(prev, current) =>
+                              prev[POProcumentField.store_id] !== current[POProcumentField.store_id]
+                            }
+                          >
+                            {({ getFieldValue }) => {
+                              let store = getFieldValue(POProcumentField.store);
+                              return (
+                                <div>
+                                  Về kho: <strong>{store}</strong>
+                                </div>
+                              );
+                            }}
+                          </Form.Item>
+                        </Col>
+                        <Col span={24} md={12}>
+                          <Form.Item
+                            shouldUpdate={(prev, current) =>
+                              prev[POProcumentField.expect_receipt_date] !==
+                              current[POProcumentField.expect_receipt_date]
+                            }
+                          >
+                            {({ getFieldValue }) => {
+                              let expect_receipt_date = getFieldValue(
+                                POProcumentField.expect_receipt_date,
+                              );
+                              return (
+                                <div>
+                                  Ngày dự kiến{" "}
+                                  <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
+                                </div>
+                              );
+                            }}
+                          </Form.Item>
+                        </Col>
                       </Fragment>
                     )}
-
-                    <Row gutter={50}>
-                      <Form.Item hidden noStyle name={POProcumentField.id}>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden noStyle name={POProcumentField.code}>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name={POProcumentField.procurement_items} hidden noStyle>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name={POProcumentField.status} hidden noStyle>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden noStyle name={POProcumentField.store}>
-                        <Input />
-                      </Form.Item>
-                      {type === "inventory" && (
-                        <Fragment>
-                          <Form.Item hidden noStyle name={POProcumentField.store_id}>
-                            <Input />
+                    {type !== "inventory" && (
+                      <Fragment>
+                        <Col span={24} md={12}>
+                          <Form.Item
+                            name={POProcumentField.store_id}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng chọn kho nhận hàng",
+                              },
+                            ]}
+                            label="Kho nhận hàng"
+                          >
+                            <Select
+                              allowClear
+                              showSearch
+                              showArrow
+                              optionFilterProp="children"
+                              placeholder="Chọn kho nhận"
+                            >
+                              {stores.map((item) => (
+                                <Select.Option key={item.id} value={item.id}>
+                                  {item.name}
+                                </Select.Option>
+                              ))}
+                            </Select>
                           </Form.Item>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              shouldUpdate={(prev, current) =>
-                                prev[POProcumentField.store_id] !==
-                                current[POProcumentField.store_id]
-                              }
-                            >
-                              {({ getFieldValue }) => {
-                                let store = getFieldValue(POProcumentField.store);
-                                return (
-                                  <div>
-                                    Về kho: <strong>{store}</strong>
-                                  </div>
-                                );
-                              }}
-                            </Form.Item>
-                          </Col>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              shouldUpdate={(prev, current) =>
-                                prev[POProcumentField.expect_receipt_date] !==
-                                current[POProcumentField.expect_receipt_date]
-                              }
-                            >
-                              {({ getFieldValue }) => {
-                                let expect_receipt_date = getFieldValue(
-                                  POProcumentField.expect_receipt_date
-                                );
-                                return (
-                                  <div>
-                                    Ngày dự kiến{" "}
-                                    <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
-                                  </div>
-                                );
-                              }}
-                            </Form.Item>
-                          </Col>
-                        </Fragment>
-                      )}
-                      {type !== "inventory" && (
-                        <Fragment>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              name={POProcumentField.store_id}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Vui lòng chọn kho nhận hàng",
-                                },
-                              ]}
-                              label="Kho nhận hàng"
-                            >
-                              <Select
-                                allowClear
-                                showSearch
-                                showArrow
-                                optionFilterProp="children"
-                                placeholder="Chọn kho nhận"
-                              >
-                                {stores.map((item) => (
-                                  <Select.Option key={item.id} value={item.id}>
-                                    {item.name}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </Form.Item>
-                          </Col>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              name={POProcumentField.expect_receipt_date}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Vui lòng chọn ngày nhận dự kiến",
-                                },
-                              ]}
-                              label="Ngày nhận dự kiến"
-                            >
-                              <CustomDatepicker
-                                disableDate={(date) => date < moment().startOf("days")}
-                                style={{ width: "100%" }}
-                                format={DATE_FORMAT.DDMMYYY}
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Fragment>
-                      )}
-                    </Row>
-                    {!isConfirmModal && (
-                      <Row className="search-product-input">
-                        <Input.Group style={{ flex: 1, marginRight: 20 }}>
-                          <CustomAutoComplete
-                            id="#product_procument_search"
-                            dropdownClassName="product"
-                            textEmpty="Sản phẩm tìm kiếm không có trong đơn mua hàng, xin vui lòng chọn sản phẩm khác"
-                            placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-                            onSearch={onSearch}
-                            dropdownMatchSelectWidth={456}
-                            style={{ width: "100%" }}
-                            onSelect={onSelectProduct}
-                            options={renderResult}
-                          />
-                        </Input.Group>
-                        <Form.Item
-                          noStyle
-                          shouldUpdate={(prev, current) => {
-                            return (
-                              prev[POProcumentField.procurement_items] !==
-                              current[POProcumentField.procurement_items]
-                            );
-                          }}
-                        >
-                          {({ getFieldValue }) => {
-                            let checked = false;
-                            let procurement_items: Array<PurchaseProcumentLineItem> = getFieldValue(
-                              POProcumentField.procurement_items
-                            );
-                            checked = procurement_items.length === allProcurementItems.length;
-                            return (
-                              <>
-                                <div className="select-all-checkbox">
-                                  <Checkbox
-                                    checked={checked}
-                                    onChange={(e) => {
-                                      fillAll(e.target.checked);
-                                    }}
-                                  >
-                                    Chọn tất cả sản phẩm
-                                  </Checkbox>
-                                </div>
-                              </>
-                            );
-                          }}
-                        </Form.Item>
-                      </Row>
+                        </Col>
+                        <Col span={24} md={12}>
+                          <Form.Item
+                            name={POProcumentField.expect_receipt_date}
+                            rules={[
+                              {
+                                required: true,
+                                message: "Vui lòng chọn ngày nhận dự kiến",
+                              },
+                            ]}
+                            label="Ngày nhận dự kiến"
+                          >
+                            <CustomDatepicker
+                              disableDate={(date) => date < moment().startOf("days")}
+                              style={{ width: "100%" }}
+                              format={DATE_FORMAT.DDMMYYY}
+                            />
+                          </Form.Item>
+                        </Col>
+                      </Fragment>
                     )}
-                    <div>
+                  </Row>
+                  {!isConfirmModal && (
+                    <Row className="search-product-input">
+                      <Input.Group style={{ flex: 1, marginRight: 20 }}>
+                        <CustomAutoComplete
+                          id="#product_procument_search"
+                          dropdownClassName="product"
+                          textEmpty="Sản phẩm tìm kiếm không có trong đơn mua hàng, xin vui lòng chọn sản phẩm khác"
+                          placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                          onSearch={onSearch}
+                          dropdownMatchSelectWidth={456}
+                          style={{ width: "100%" }}
+                          onSelect={onSelectProduct}
+                          options={renderResult}
+                        />
+                      </Input.Group>
                       <Form.Item
+                        noStyle
                         shouldUpdate={(prev, current) => {
                           return (
                             prev[POProcumentField.procurement_items] !==
                             current[POProcumentField.procurement_items]
                           );
                         }}
-                        noStyle
                       >
                         {({ getFieldValue }) => {
-                          let procurement_items = getFieldValue(POProcumentField.procurement_items)
-                            ? getFieldValue(POProcumentField.procurement_items)
-                            : [];
-                          if (props.children) {
-                            return props.children(onQuantityChange, onRemove, procurement_items, typeBulk, setTypeBulk, bulkQuantity, setBulkQuantity, setAllFieldQuantity);
-                          }
-                        }}
-                      </Form.Item>
-                    </div>
-                  </Form>
-                </TabPane>
-                <TabPane tab="Lịch sử thao tác" key={PurchaseOrderTabUrl.HISTORY}>
-                  <PurchaseOrderHistory poData={poData} procumentCode={procumentCode} />
-                </TabPane>
-              </Tabs>) : (
-                <div>
-                  {item && (
-                    <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
-                      <Button
-                        type="default"
-                        className="danger"
-                        style={{
-                          position: "absolute",
-                          bottom: 10,
-                          left: 30,
-                        }}
-                        onClick={() => {
-                          setVisibleDelete(true);
-                        }}
-                      >
-                        Xóa
-                      </Button>
-                    </AuthWrapper>
-                  )}
-                  <Form
-                    initialValues={{
-                      procurement_items: [],
-                      store_id: defaultStore,
-                      status: ProcumentStatus.DRAFT,
-                      expect_receipt_date: ConvertDateToUtc(now),
-                    }}
-                    form={form}
-                    onFinishFailed={({ errorFields }: any) => {
-                      const element: any = document.getElementById(errorFields[0].name.join(""));
-                      element?.focus();
-                      const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-                      window.scrollTo({ top: y, behavior: "smooth" });
-                    }}
-                    onFinish={onFinish}
-                    layout="vertical"
-                  >
-                    <Row gutter={50}>
-                      <Form.Item hidden noStyle name={POProcumentField.id}>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden noStyle name={POProcumentField.code}>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name={POProcumentField.procurement_items} hidden noStyle>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item name={POProcumentField.status} hidden noStyle>
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden noStyle name={POProcumentField.store}>
-                        <Input />
-                      </Form.Item>
-                      {type === "inventory" && (
-                        <Fragment>
-                          <Form.Item hidden noStyle name={POProcumentField.store_id}>
-                            <Input />
-                          </Form.Item>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              shouldUpdate={(prev, current) =>
-                                prev[POProcumentField.store_id] !==
-                                current[POProcumentField.store_id]
-                              }
-                            >
-                              {({ getFieldValue }) => {
-                                let store = getFieldValue(POProcumentField.store);
-                                return (
-                                  <div>
-                                    Về kho: <strong>{store}</strong>
-                                  </div>
-                                );
-                              }}
-                            </Form.Item>
-                          </Col>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              shouldUpdate={(prev, current) =>
-                                prev[POProcumentField.expect_receipt_date] !==
-                                current[POProcumentField.expect_receipt_date]
-                              }
-                            >
-                              {({ getFieldValue }) => {
-                                let expect_receipt_date = getFieldValue(
-                                  POProcumentField.expect_receipt_date
-                                );
-                                return (
-                                  <div>
-                                    Ngày dự kiến{" "}
-                                    <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
-                                  </div>
-                                );
-                              }}
-                            </Form.Item>
-                          </Col>
-                        </Fragment>
-                      )}
-                      {type !== "inventory" && (
-                        <Fragment>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              name={POProcumentField.store_id}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Vui lòng chọn kho nhận hàng",
-                                },
-                              ]}
-                              label="Kho nhận hàng"
-                            >
-                              <Select
-                                showSearch
-                                showArrow
-                                allowClear
-                                placeholder="Chọn kho nhận"
-                                optionFilterProp="children"
-                              >
-                                {stores.map((item) => (
-                                  <Select.Option key={item.id} value={item.id}>
-                                    {item.name}
-                                  </Select.Option>
-                                ))}
-                              </Select>
-                            </Form.Item>
-                          </Col>
-                          <Col span={24} md={12}>
-                            <Form.Item
-                              name={POProcumentField.expect_receipt_date}
-                              rules={[
-                                {
-                                  required: true,
-                                  message: "Vui lòng chọn ngày nhận dự kiến",
-                                },
-                              ]}
-                              label="Ngày nhận dự kiến"
-                            >
-                              <CustomDatepicker
-                                disableDate={(date) => date < moment().startOf("days")}
-                                style={{ width: "100%" }}
-                                format={DATE_FORMAT.DDMMYYY}
-                              />
-                            </Form.Item>
-                          </Col>
-                        </Fragment>
-                      )}
-                    </Row>
-                    {!isConfirmModal && (
-                      <Row className="search-product-input">
-                        <Input.Group style={{ flex: 1, marginRight: 20 }}>
-                          <CustomAutoComplete
-                            id="#product_procument_search"
-                            dropdownClassName="product"
-                            textEmpty="Sản phẩm tìm kiếm không có trong đơn mua hàng, xin vui lòng chọn sản phẩm khác"
-                            placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
-                            onSearch={onSearch}
-                            dropdownMatchSelectWidth={456}
-                            style={{ width: "100%" }}
-                            onSelect={onSelectProduct}
-                            options={renderResult}
-                          />
-                        </Input.Group>
-                        <Form.Item
-                          noStyle
-                          shouldUpdate={(prev, current) => {
-                            return (
-                              prev[POProcumentField.procurement_items] !==
-                              current[POProcumentField.procurement_items]
-                            );
-                          }}
-                        >
-                          {({ getFieldValue }) => {
-                            let checked = false;
-                            let procurement_items: Array<PurchaseProcumentLineItem> = getFieldValue(
-                              POProcumentField.procurement_items
-                            );
-                            checked = procurement_items.length === allProcurementItems.length;
-                            return (
+                          let checked = false;
+                          let procurement_items: Array<PurchaseProcumentLineItem> = getFieldValue(
+                            POProcumentField.procurement_items,
+                          );
+                          checked = procurement_items.length === allProcurementItems.length;
+                          return (
+                            <>
                               <div className="select-all-checkbox">
                                 <Checkbox
                                   checked={checked}
@@ -922,36 +724,271 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (props) => {
                                   Chọn tất cả sản phẩm
                                 </Checkbox>
                               </div>
+                            </>
+                          );
+                        }}
+                      </Form.Item>
+                    </Row>
+                  )}
+                  <div>
+                    <Form.Item
+                      shouldUpdate={(prev, current) => {
+                        return (
+                          prev[POProcumentField.procurement_items] !==
+                          current[POProcumentField.procurement_items]
+                        );
+                      }}
+                      noStyle
+                    >
+                      {({ getFieldValue }) => {
+                        let procurement_items = getFieldValue(POProcumentField.procurement_items)
+                          ? getFieldValue(POProcumentField.procurement_items)
+                          : [];
+                        if (props.children) {
+                          return props.children(
+                            onQuantityChange,
+                            onRemove,
+                            procurement_items,
+                            typeBulk,
+                            setTypeBulk,
+                            bulkQuantity,
+                            setBulkQuantity,
+                            setAllFieldQuantity,
+                          );
+                        }
+                      }}
+                    </Form.Item>
+                  </div>
+                </Form>
+              </TabPane>
+              <TabPane tab="Lịch sử thao tác" key={PurchaseOrderTabUrl.HISTORY}>
+                <PurchaseOrderHistory poData={poData} procumentCode={procumentCode} />
+              </TabPane>
+            </Tabs>
+          ) : (
+            <div>
+              {item && (
+                <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
+                  <Button
+                    type="default"
+                    className="danger"
+                    style={{
+                      position: "absolute",
+                      bottom: 10,
+                      left: 30,
+                    }}
+                    onClick={() => {
+                      setVisibleDelete(true);
+                    }}
+                  >
+                    Xóa
+                  </Button>
+                </AuthWrapper>
+              )}
+              <Form
+                initialValues={{
+                  procurement_items: [],
+                  store_id: defaultStore,
+                  status: ProcumentStatus.DRAFT,
+                  expect_receipt_date: ConvertDateToUtc(now),
+                }}
+                form={form}
+                onFinishFailed={({ errorFields }: any) => {
+                  const element: any = document.getElementById(errorFields[0].name.join(""));
+                  element?.focus();
+                  const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }}
+                onFinish={onFinish}
+                layout="vertical"
+              >
+                <Row gutter={50}>
+                  <Form.Item hidden noStyle name={POProcumentField.id}>
+                    <Input />
+                  </Form.Item>
+                  <Form.Item hidden noStyle name={POProcumentField.code}>
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name={POProcumentField.procurement_items} hidden noStyle>
+                    <Input />
+                  </Form.Item>
+                  <Form.Item name={POProcumentField.status} hidden noStyle>
+                    <Input />
+                  </Form.Item>
+                  <Form.Item hidden noStyle name={POProcumentField.store}>
+                    <Input />
+                  </Form.Item>
+                  {type === "inventory" && (
+                    <Fragment>
+                      <Form.Item hidden noStyle name={POProcumentField.store_id}>
+                        <Input />
+                      </Form.Item>
+                      <Col span={24} md={12}>
+                        <Form.Item
+                          shouldUpdate={(prev, current) =>
+                            prev[POProcumentField.store_id] !== current[POProcumentField.store_id]
+                          }
+                        >
+                          {({ getFieldValue }) => {
+                            let store = getFieldValue(POProcumentField.store);
+                            return (
+                              <div>
+                                Về kho: <strong>{store}</strong>
+                              </div>
                             );
                           }}
                         </Form.Item>
-                      </Row>
-                    )}
-                    <div>
-                      <Form.Item
-                        shouldUpdate={(prev, current) => {
-                          return (
-                            prev[POProcumentField.procurement_items] !==
-                            current[POProcumentField.procurement_items]
-                          );
-                        }}
-                        noStyle
-                      >
-                        {({ getFieldValue }) => {
-                          let procurement_items = getFieldValue(POProcumentField.procurement_items)
-                            ? getFieldValue(POProcumentField.procurement_items)
-                            : [];
-
-                          if (props.children) {
-                            return props.children(onQuantityChange, onRemove, procurement_items, typeBulk, setTypeBulk, bulkQuantity, setBulkQuantity, setAllFieldQuantity);
+                      </Col>
+                      <Col span={24} md={12}>
+                        <Form.Item
+                          shouldUpdate={(prev, current) =>
+                            prev[POProcumentField.expect_receipt_date] !==
+                            current[POProcumentField.expect_receipt_date]
                           }
-                        }}
-                      </Form.Item>
-                    </div>
-                  </Form>
+                        >
+                          {({ getFieldValue }) => {
+                            let expect_receipt_date = getFieldValue(
+                              POProcumentField.expect_receipt_date,
+                            );
+                            return (
+                              <div>
+                                Ngày dự kiến{" "}
+                                <strong>{ConvertUtcToLocalDate(expect_receipt_date)}</strong>
+                              </div>
+                            );
+                          }}
+                        </Form.Item>
+                      </Col>
+                    </Fragment>
+                  )}
+                  {type !== "inventory" && (
+                    <Fragment>
+                      <Col span={24} md={12}>
+                        <Form.Item
+                          name={POProcumentField.store_id}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn kho nhận hàng",
+                            },
+                          ]}
+                          label="Kho nhận hàng"
+                        >
+                          <Select
+                            showSearch
+                            showArrow
+                            allowClear
+                            placeholder="Chọn kho nhận"
+                            optionFilterProp="children"
+                          >
+                            {stores.map((item) => (
+                              <Select.Option key={item.id} value={item.id}>
+                                {item.name}
+                              </Select.Option>
+                            ))}
+                          </Select>
+                        </Form.Item>
+                      </Col>
+                      <Col span={24} md={12}>
+                        <Form.Item
+                          name={POProcumentField.expect_receipt_date}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn ngày nhận dự kiến",
+                            },
+                          ]}
+                          label="Ngày nhận dự kiến"
+                        >
+                          <CustomDatepicker
+                            disableDate={(date) => date < moment().startOf("days")}
+                            style={{ width: "100%" }}
+                            format={DATE_FORMAT.DDMMYYY}
+                          />
+                        </Form.Item>
+                      </Col>
+                    </Fragment>
+                  )}
+                </Row>
+                {!isConfirmModal && (
+                  <Row className="search-product-input">
+                    <Input.Group style={{ flex: 1, marginRight: 20 }}>
+                      <CustomAutoComplete
+                        id="#product_procument_search"
+                        dropdownClassName="product"
+                        textEmpty="Sản phẩm tìm kiếm không có trong đơn mua hàng, xin vui lòng chọn sản phẩm khác"
+                        placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F1)"
+                        onSearch={onSearch}
+                        dropdownMatchSelectWidth={456}
+                        style={{ width: "100%" }}
+                        onSelect={onSelectProduct}
+                        options={renderResult}
+                      />
+                    </Input.Group>
+                    <Form.Item
+                      noStyle
+                      shouldUpdate={(prev, current) => {
+                        return (
+                          prev[POProcumentField.procurement_items] !==
+                          current[POProcumentField.procurement_items]
+                        );
+                      }}
+                    >
+                      {({ getFieldValue }) => {
+                        let checked = false;
+                        let procurement_items: Array<PurchaseProcumentLineItem> = getFieldValue(
+                          POProcumentField.procurement_items,
+                        );
+                        checked = procurement_items.length === allProcurementItems.length;
+                        return (
+                          <div className="select-all-checkbox">
+                            <Checkbox
+                              checked={checked}
+                              onChange={(e) => {
+                                fillAll(e.target.checked);
+                              }}
+                            >
+                              Chọn tất cả sản phẩm
+                            </Checkbox>
+                          </div>
+                        );
+                      }}
+                    </Form.Item>
+                  </Row>
+                )}
+                <div>
+                  <Form.Item
+                    shouldUpdate={(prev, current) => {
+                      return (
+                        prev[POProcumentField.procurement_items] !==
+                        current[POProcumentField.procurement_items]
+                      );
+                    }}
+                    noStyle
+                  >
+                    {({ getFieldValue }) => {
+                      let procurement_items = getFieldValue(POProcumentField.procurement_items)
+                        ? getFieldValue(POProcumentField.procurement_items)
+                        : [];
+
+                      if (props.children) {
+                        return props.children(
+                          onQuantityChange,
+                          onRemove,
+                          procurement_items,
+                          typeBulk,
+                          setTypeBulk,
+                          bulkQuantity,
+                          setBulkQuantity,
+                          setAllFieldQuantity,
+                        );
+                      }
+                    }}
+                  </Form.Item>
                 </div>
-              )
-          }
+              </Form>
+            </div>
+          )}
         </PurchaseOrderDraft>
       </Modal>
     </Fragment>

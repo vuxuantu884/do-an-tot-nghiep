@@ -1,14 +1,5 @@
 import { UploadOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Form,
-  Input,
-  Space,
-  Tag,
-  Typography,
-  Upload,
-} from "antd";
+import { Button, Card, Form, Input, Space, Tag, Typography, Upload } from "antd";
 import dashboardIcon from "assets/icon/dashboard.svg";
 import importIcon from "assets/icon/import-card.svg";
 import {
@@ -22,23 +13,13 @@ import { PoUpdateAction } from "domain/actions/po/po.action";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
-import {
-  POProgressResult,
-  PurchaseOrder,
-} from "model/purchase-order/purchase-order.model";
+import { POProgressResult, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   PurchaseProcument,
   PurchaseProcurementViewDraft,
 } from "model/purchase-order/purchase-procument";
 import moment, { Moment } from "moment";
-import React, {
-  lazy,
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { lazy, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import styled from "styled-components";
 import { POStatus, ProcumentStatus } from "utils/Constants";
@@ -60,16 +41,10 @@ import { PoPrTable } from "./po-pr-table";
 import { PurchaseOrderCreateContext } from "../provider/purchase-order.provider";
 import POProgressModal from "../POProgressModal";
 
-const ProcumentConfirmModal = lazy(
-  () => import("../modal/procument-confirm.modal"),
-);
-const ProcumentInventoryModal = lazy(
-  () => import("../modal/procument-inventory.modal"),
-);
+const ProcumentConfirmModal = lazy(() => import("../modal/procument-confirm.modal"));
+const ProcumentInventoryModal = lazy(() => import("../modal/procument-inventory.modal"));
 const ProcumentModal = lazy(() => import("../modal/procument.modal"));
-const POEditDraftProcurementModal = lazy(
-  () => import("../modal/POEditDraftProcurementModal"),
-);
+const POEditDraftProcurementModal = lazy(() => import("../modal/POEditDraftProcurementModal"));
 
 export type POInventoryFormProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
@@ -114,9 +89,7 @@ const TAB = [
     icon: importIcon,
   },
 ];
-const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
-  props: POInventoryFormProps,
-) => {
+const POInventoryFormCreate: React.FC<POInventoryFormProps> = (props: POInventoryFormProps) => {
   const {
     stores,
     status,
@@ -144,13 +117,9 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
   const [loadingRecive, setLoadingRecive] = useState(false);
   const [poItems, setPOItem] = useState<Array<PurchaseOrderLineItem>>([]);
   const [draft, setDraft] = useState<PurchaseProcument | null>(null);
-  const [procumentDraft, setProcumentDraft] =
-    useState<PurchaseProcument | null>(null);
-  const [procurements, setProcurements] = useState<
-    Array<PurchaseProcurementViewDraft>
-  >([]);
-  const [procumentInventory, setProcumentInventory] =
-    useState<PurchaseProcument | null>(null);
+  const [procumentDraft, setProcumentDraft] = useState<PurchaseProcument | null>(null);
+  const [procurements, setProcurements] = useState<Array<PurchaseProcurementViewDraft>>([]);
+  const [procumentInventory, setProcumentInventory] = useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const [isEditProcument, setEditProcument] = useState<boolean>(false);
   const [loadingEditDraft, setLoadingEditDraft] = useState<boolean>(false);
@@ -177,18 +146,9 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
         if (!poData) return;
         setLoadingCreate(true);
         if (isEditProcument) {
-          dispatch(
-            PoProcumentUpdateAction(
-              idNumber,
-              value.id,
-              value,
-              onAddProcumentCallback,
-            ),
-          );
+          dispatch(PoProcumentUpdateAction(idNumber, value.id, value, onAddProcumentCallback));
         } else {
-          dispatch(
-            PoProcumentCreateAction(idNumber, value, onAddProcumentCallback),
-          );
+          dispatch(PoProcumentCreateAction(idNumber, value, onAddProcumentCallback));
         }
       }
     },
@@ -214,13 +174,7 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
       if (idNumber && value.id) {
         if (!poData) return;
         setLoadingCreate(true);
-        dispatch(
-          PoProcumentDeleteAction(
-            idNumber,
-            value.id,
-            onDeleteProcumentCallback,
-          ),
-        );
+        dispatch(PoProcumentDeleteAction(idNumber, value.id, onDeleteProcumentCallback));
       }
     },
     [dispatch, idNumber, onDeleteProcumentCallback, poData],
@@ -244,14 +198,7 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
       if (idNumber && value.id) {
         if (!poData) return;
         setLoadingConfirm(true);
-        dispatch(
-          ApprovalPoProcumentAction(
-            idNumber,
-            value.id,
-            value,
-            onConfirmProcumentCallback,
-          ),
-        );
+        dispatch(ApprovalPoProcumentAction(idNumber, value.id, value, onConfirmProcumentCallback));
       }
     },
     [dispatch, idNumber, onConfirmProcumentCallback, poData],
@@ -287,14 +234,7 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
       if (idNumber && value.id) {
         if (!poData) return;
         setLoadingRecive(true);
-        dispatch(
-          ConfirmPoProcumentAction(
-            idNumber,
-            value.id,
-            value,
-            onReciveProcumentCallback,
-          ),
-        );
+        dispatch(ConfirmPoProcumentAction(idNumber, value.id, value, onReciveProcumentCallback));
       }
     },
     [dispatch, idNumber, onReciveProcumentCallback, poData],
@@ -327,8 +267,7 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
     const filedCheck = Object.values(ProcurementExportLineItemField);
     const error: Array<string> = [];
     fieldExcel.forEach((item) => {
-      if (!filedCheck.includes(item))
-        error.push(`Trường ${item} không tồn tại trong file Excel`);
+      if (!filedCheck.includes(item)) error.push(`Trường ${item} không tồn tại trong file Excel`);
     });
     if (error.length) {
       return;
@@ -337,17 +276,12 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
     const jsonDataFormat = jsonData.map((item: any) => {
       return {
         ...item,
-        [ProcurementExportLineItemField[POExpectedDateField.ngay_nhan_du_kien]]:
-          ConvertDateToUtc(
-            moment(
-              item[
-                ProcurementExportLineItemField[
-                  POExpectedDateField.ngay_nhan_du_kien
-                ]
-              ],
-              "DD/MM/YYYY",
-            ).format("MM-DD-YYYY"),
-          ),
+        [ProcurementExportLineItemField[POExpectedDateField.ngay_nhan_du_kien]]: ConvertDateToUtc(
+          moment(
+            item[ProcurementExportLineItemField[POExpectedDateField.ngay_nhan_du_kien]],
+            "DD/MM/YYYY",
+          ).format("MM-DD-YYYY"),
+        ),
       };
     });
     const objectCheckDate: any = {};
@@ -418,15 +352,11 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
 
                 return (
                   <Space>
-                    {isShowStatusTag && (
-                      <div className={dotClassName} style={{ fontSize: 8 }} />
-                    )}
+                    {isShowStatusTag && <div className={dotClassName} style={{ fontSize: 8 }} />}
                     <div className="d-flex">
                       <span className="title-card">NHẬP KHO</span>
                     </div>{" "}
-                    {isShowStatusTag && (
-                      <Tag className={className}>{statusName}</Tag>
-                    )}
+                    {isShowStatusTag && <Tag className={className}>{statusName}</Tag>}
                   </Space>
                 );
               }}
@@ -437,24 +367,18 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
               noStyle
               shouldUpdate={(prev, current) =>
                 prev[POField.line_items] !== current[POField.line_items] ||
-                prev[POField.expect_store_id] !==
-                  current[POField.expect_store_id] ||
+                prev[POField.expect_store_id] !== current[POField.expect_store_id] ||
                 prev[POField.receive_status] !== current[POField.receive_status]
               }
             >
               {({ getFieldValue }) => {
-                const expect_store_id: number = getFieldValue(
-                  POField.expect_store_id,
-                );
-                const line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-                  POField.line_items,
-                );
+                const expect_store_id: number = getFieldValue(POField.expect_store_id);
+                const line_items: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items);
                 const procurements: Array<PurchaseProcurementViewDraft> =
                   getFieldValue(POField.procurements) || [];
 
                 if (
-                  (status === POStatus.DRAFT ||
-                    status === POStatus.WAITING_APPROVAL) &&
+                  (status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) &&
                   props.isEdit
                 ) {
                   return (
@@ -520,18 +444,13 @@ const POInventoryFormCreate: React.FC<POInventoryFormProps> = (
             </Form.Item>
           }
         >
-          <POModelCreateFile
-            visible={false}
-            onCancel={() => {}}
-            onEnter={() => {}}
-          />
+          <POModelCreateFile visible={false} onCancel={() => {}} onEnter={() => {}} />
 
           <Form.Item hidden noStyle name={POField.receive_status}>
             <Input />
           </Form.Item>
           <div>
-            {status === POStatus.DRAFT ||
-            status === POStatus.WAITING_APPROVAL ? (
+            {status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL ? (
               <PoPrTable form={formMain} />
             ) : (
               <POInventoryView

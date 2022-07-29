@@ -58,11 +58,7 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => formAction.create()}
-            >
+            <Button key="submit" type="primary" onClick={() => formAction.create()}>
               Tạo mới địa chỉ
             </Button>
           </div>
@@ -84,11 +80,7 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button
-              key="save"
-              type="primary"
-              onClick={() => formAction.edit()}
-            >
+            <Button key="save" type="primary" onClick={() => formAction.edit()}>
               Lưu địa chỉ
             </Button>
           </div>
@@ -114,11 +106,7 @@ const CustomModal = (props: CustomModalType) => {
       visible={visible}
       okText="Thêm"
       cancelText="Thoát"
-      title={
-        isCreateModal
-          ? `Thêm mới ${modalTypeText}`
-          : `Cập nhật ${modalTypeText}`
-      }
+      title={isCreateModal ? `Thêm mới ${modalTypeText}` : `Cập nhật ${modalTypeText}`}
       footer={renderModalFooter()}
       onCancel={formAction.exit}
     >

@@ -17,7 +17,6 @@ export const StyledComponent = styled.div`
     .ant-row {
       justify-content: space-between;
     }
-
   }
   .rowPayment {
     margin: 10px 0;

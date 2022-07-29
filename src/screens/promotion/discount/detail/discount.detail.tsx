@@ -1,4 +1,4 @@
-import {Button, Card, Col, Modal, Progress, Row, Space} from "antd";
+import { Button, Card, Col, Modal, Progress, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import TextShowMore from "component/container/show-more/text-show-more";
@@ -6,7 +6,12 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
 import "domain/actions/promotion/promo-code/promo-code.action";
 import useAuthorization from "hook/useAuthorization";
-import { PriceRule, PriceRuleMethod, PriceRuleState, ProductEntitlements } from "model/promotion/price-rules.model";
+import {
+  PriceRule,
+  PriceRuleMethod,
+  PriceRuleState,
+  ProductEntitlements,
+} from "model/promotion/price-rules.model";
 import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
@@ -18,18 +23,23 @@ import {
   bulkDisablePriceRulesAction,
   bulkEnablePriceRulesAction,
   getPriceRuleAction,
-  getPriceRuleVariantPaggingAction
+  getPriceRuleVariantPaggingAction,
 } from "../../../../domain/actions/promotion/discount/discount.action";
 import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
 import DiscountRuleInfo from "../components/discount-rule-info";
-import { columnDiscountByRule, columnDiscountQuantity, columnFixedPrice, DISCOUNT_STATUS } from "../../constants";
+import {
+  columnDiscountByRule,
+  columnDiscountQuantity,
+  columnFixedPrice,
+  DISCOUNT_STATUS,
+} from "../../constants";
 import { DiscountStyled } from "../discount-style";
 import { PageResponse } from "model/base/base-metadata.response";
 import exportIcon from "assets/icon/export.svg";
-import {exportFile, getFile} from "service/other/export.service";
-import {HttpStatus} from "config/http-status.config";
-import {generateQuery} from "utils/AppUtils";
+import { exportFile, getFile } from "service/other/export.service";
+import { HttpStatus } from "config/http-status.config";
+import { generateQuery } from "utils/AppUtils";
 
 const MAX_LOAD_VARIANT_LIST = 3;
 const RELOAD_VARIANT_LIST_TIME = 3000;
@@ -41,8 +51,6 @@ type DetailMapping = {
   key?: string;
   isWebsite?: boolean;
 };
-
-
 
 const PromotionDetailScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -61,7 +69,7 @@ const PromotionDetailScreen: React.FC = () => {
       total: 0,
       limit: 30,
       page: 1,
-    }
+    },
   });
   const isFirstLoadVariantList = useRef(true);
   const countLoadVariantList = useRef(0);
@@ -91,7 +99,6 @@ const PromotionDetailScreen: React.FC = () => {
   }, []);
 
   const getEntitledMethod = (data: PriceRule) => {
-
     switch (data.entitled_method) {
       case PriceRuleMethod.FIXED_PRICE:
         return "Đồng giá";
@@ -100,7 +107,6 @@ const PromotionDetailScreen: React.FC = () => {
       case PriceRuleMethod.ORDER_THRESHOLD:
         return "Chiết khấu theo đơn hàng";
     }
-
   };
 
   const details = [
@@ -146,11 +152,9 @@ const PromotionDetailScreen: React.FC = () => {
     },
   ];
 
-
   const RenderStatus = (data: PriceRule) => {
     const status = DISCOUNT_STATUS.find((status) => status.code === data.state);
     return <span style={{ marginLeft: "20px" }}>{status?.Component}</span>;
-
   };
 
   const onChangePriceRuleStatus = (numberOfDisabled: number) => {
@@ -161,17 +165,24 @@ const PromotionDetailScreen: React.FC = () => {
       showError(`Cập nhật chiết khấu thất bại`);
     }
     dispatch(hideLoading());
-  }
+  };
 
   const handleDeactivate = () => {
     dispatch(showLoading());
-    dispatch(bulkDisablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)));
+    dispatch(
+      bulkDisablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) =>
+        onChangePriceRuleStatus(numberOfDisabled),
+      ),
+    );
   };
-
 
   const handleActivate = () => {
     dispatch(showLoading());
-    dispatch(bulkEnablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)));
+    dispatch(
+      bulkEnablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) =>
+        onChangePriceRuleStatus(numberOfDisabled),
+      ),
+    );
   };
 
   const RenderActionButton = () => {
@@ -194,9 +205,12 @@ const PromotionDetailScreen: React.FC = () => {
     }
   };
 
-  const getPriceRuleVariantData = useCallback((page=1, limit=30)=>{
-    dispatch(getPriceRuleVariantPaggingAction(idNumber,{page , limit }, handleResponse));
-  },[idNumber, dispatch, handleResponse]);
+  const getPriceRuleVariantData = useCallback(
+    (page = 1, limit = 30) => {
+      dispatch(getPriceRuleVariantPaggingAction(idNumber, { page, limit }, handleResponse));
+    },
+    [idNumber, dispatch, handleResponse],
+  );
 
   useEffect(() => {
     dispatch(getPriceRuleAction(idNumber, onResult));
@@ -213,7 +227,11 @@ const PromotionDetailScreen: React.FC = () => {
     const variantIdLength = dataDiscount?.entitlements[0]?.entitled_variant_ids.length ?? 0;
     const productIdLength = dataDiscount?.entitlements[0]?.entitled_product_ids.length ?? 0;
 
-    if (dataDiscount?.entitlements[0] && variantLength < variantIdLength + productIdLength && countLoadVariantList.current <= MAX_LOAD_VARIANT_LIST) {
+    if (
+      dataDiscount?.entitlements[0] &&
+      variantLength < variantIdLength + productIdLength &&
+      countLoadVariantList.current <= MAX_LOAD_VARIANT_LIST
+    ) {
       isVariantNotLoadYet = true;
       countLoadVariantList.current++;
       if (isFirstLoadVariantList.current) {
@@ -221,10 +239,9 @@ const PromotionDetailScreen: React.FC = () => {
         isFirstLoadVariantList.current = false;
       }
       setTimeout(() => {
-        getPriceRuleVariantData()
+        getPriceRuleVariantData();
       }, RELOAD_VARIANT_LIST_TIME);
     }
-
 
     // if (
     //   dataDiscount?.entitlements[0]?.entitled_product_ids.length === 0
@@ -244,7 +261,11 @@ const PromotionDetailScreen: React.FC = () => {
     //   }])
     // }
 
-    setQuantityColumn(dataDiscount?.entitled_method !== PriceRuleMethod.FIXED_PRICE ? columnFixedPrice : columnDiscountQuantity);
+    setQuantityColumn(
+      dataDiscount?.entitled_method !== PriceRuleMethod.FIXED_PRICE
+        ? columnFixedPrice
+        : columnDiscountQuantity,
+    );
     setIsLoadingVariantList(isVariantNotLoadYet);
   }, [dataVariants, dataDiscount, dispatch, handleResponse, idNumber, getPriceRuleVariantData]);
 
@@ -255,7 +276,7 @@ const PromotionDetailScreen: React.FC = () => {
     const exportParams = generateQuery({
       id: dataDiscount?.id,
       entitled_method: dataDiscount?.entitled_method,
-      export_time: Date.now()
+      export_time: Date.now(),
     });
 
     exportFile({
@@ -268,7 +289,9 @@ const PromotionDetailScreen: React.FC = () => {
           setIsVisibleProgressModal(true);
           setExportCode(response.data.code);
         } else {
-          showError(`${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+          showError(
+            `${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`,
+          );
         }
       })
       .catch(() => {
@@ -283,7 +306,7 @@ const PromotionDetailScreen: React.FC = () => {
   const resetProgress = () => {
     setExportProgress(0);
     setExportCode(null);
-  }
+  };
 
   const onCancelProgressModal = useCallback(() => {
     resetProgress();
@@ -353,10 +376,9 @@ const PromotionDetailScreen: React.FC = () => {
       extra={
         <Button
           size="large"
-          icon={
-            <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
-          }
-          onClick={handleExportVariant}>
+          icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+          onClick={handleExportVariant}
+        >
           Xuất file danh sách SP
         </Button>
       }
@@ -401,12 +423,7 @@ const PromotionDetailScreen: React.FC = () => {
                             <span style={{ fontWeight: 600 }}>:</span>
                           </Col>
                           <Col span={12} style={{ paddingLeft: 0 }}>
-
-                            <div
-                            >
-                              {detail.value ? detail.value : "---"}
-                            </div>
-
+                            <div>{detail.value ? detail.value : "---"}</div>
                           </Col>
                         </Col>
                       ))}
@@ -463,14 +480,11 @@ const PromotionDetailScreen: React.FC = () => {
                 className="card product-card"
                 title={
                   <div style={{ alignItems: "center" }}>
-                    <span className="title-card">
-                      DANH SÁCH SẢN PHẨM VÀ ĐIỀU KIỆN ÁP DỤNG
-                    </span>
+                    <span className="title-card">DANH SÁCH SẢN PHẨM VÀ ĐIỀU KIỆN ÁP DỤNG</span>
                   </div>
                 }
               >
-
-                {dataDiscount.entitled_method === PriceRuleMethod.ORDER_THRESHOLD &&
+                {dataDiscount.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
                   <>
                     <DiscountRuleInfo dataDiscount={dataDiscount} />
                     <CustomTable
@@ -479,34 +493,34 @@ const PromotionDetailScreen: React.FC = () => {
                       pagination={false}
                       rowKey="id"
                     />
-                  </>}
+                  </>
+                )}
 
-
-
-                {dataDiscount.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD && dataVariants && <CustomTable
-                  rowKey="id"
-                  dataSource={dataVariants.items}
-                  columns={
-                    dataVariants?.items?.length > 1
-                      ? quantityColumn
-                      : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
-                  }
-                  isLoading={isLoadingVariantList}
-                  pagination={{
-                    total: dataVariants.metadata?.total,
-                    pageSize: dataVariants.metadata?.limit,
-                    current: dataVariants.metadata?.page,
-                    onChange: (page: number, limit?:number) => {
-                      getPriceRuleVariantData(page,limit);
-                  },
-                  onShowSizeChange: (current: number, size: number) => {
-                    getPriceRuleVariantData(current,size);
-                  },
-                  showSizeChanger: true,
-                }}
-                  isShowPaginationAtHeader
-                />}
-
+                {dataDiscount.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD && dataVariants && (
+                  <CustomTable
+                    rowKey="id"
+                    dataSource={dataVariants.items}
+                    columns={
+                      dataVariants?.items?.length > 1
+                        ? quantityColumn
+                        : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
+                    }
+                    isLoading={isLoadingVariantList}
+                    pagination={{
+                      total: dataVariants.metadata?.total,
+                      pageSize: dataVariants.metadata?.limit,
+                      current: dataVariants.metadata?.page,
+                      onChange: (page: number, limit?: number) => {
+                        getPriceRuleVariantData(page, limit);
+                      },
+                      onShowSizeChange: (current: number, size: number) => {
+                        getPriceRuleVariantData(current, size);
+                      },
+                      showSizeChanger: true,
+                    }}
+                    isShowPaginationAtHeader
+                  />
+                )}
               </Card>
             </Col>
             <GeneralConditionDetail data={dataDiscount} />
@@ -518,12 +532,15 @@ const PromotionDetailScreen: React.FC = () => {
               <Space>
                 {allowUpdatePromoCode && (
                   <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
-                    <Link to={`${idNumber}/update`}><Button>Sửa</Button> </Link>
+                    <Link to={`${idNumber}/update`}>
+                      <Button>Sửa</Button>{" "}
+                    </Link>
                   </AuthWrapper>
-                )
-                }
+                )}
 
-                <Link to={`${idNumber}/replicate`}><Button>Nhân bản</Button> </Link>
+                <Link to={`${idNumber}/replicate`}>
+                  <Button>Nhân bản</Button>{" "}
+                </Link>
 
                 {allowUpdatePromoCode && RenderActionButton()}
               </Space>
@@ -532,7 +549,7 @@ const PromotionDetailScreen: React.FC = () => {
         </DiscountStyled>
       )}
 
-      {isVisibleProgressModal &&
+      {isVisibleProgressModal && (
         <Modal
           onCancel={onCancelProgressModal}
           visible={isVisibleProgressModal}
@@ -541,11 +558,8 @@ const PromotionDetailScreen: React.FC = () => {
           width={600}
           maskClosable={false}
           footer={[
-            <div style={{ display: "flex", justifyContent: "space-between"}}>
-              <Button
-                key="cancel-process-modal"
-                danger onClick={onCancelProgressModal}
-              >
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              <Button key="cancel-process-modal" danger onClick={onCancelProgressModal}>
                 Thoát
               </Button>
               <Button
@@ -556,15 +570,18 @@ const PromotionDetailScreen: React.FC = () => {
               >
                 Xác nhận
               </Button>
-            </div>
-          ]}>
+            </div>,
+          ]}
+        >
           <div style={{ textAlign: "center" }}>
             <div style={{ marginBottom: 15 }}>
-              {exportProgress < 100 ?
+              {exportProgress < 100 ? (
                 <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
-                :
-                <span style={{ color: "#27AE60" }}>Đã xuất file danh sách sản phẩm khuyến mãi thành công!</span>
-              }
+              ) : (
+                <span style={{ color: "#27AE60" }}>
+                  Đã xuất file danh sách sản phẩm khuyến mãi thành công!
+                </span>
+              )}
             </div>
             <Progress
               type="circle"
@@ -576,7 +593,7 @@ const PromotionDetailScreen: React.FC = () => {
             />
           </div>
         </Modal>
-      }
+      )}
     </ContentContainer>
   );
 };

@@ -5,21 +5,21 @@ import { getWarrantyCentersService } from "service/warranty/warranty.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 function useGetWarrantyCenters() {
-	const [warrantyCenters, setWarrantyCenters] = useState<Array<WarrantyCenterModel>>([]);
-	const dispatch = useDispatch();
+  const [warrantyCenters, setWarrantyCenters] = useState<Array<WarrantyCenterModel>>([]);
+  const dispatch = useDispatch();
 
-	useEffect(() => {
-		getWarrantyCentersService().then(response => {
-			console.log('response', response)
-			if (isFetchApiSuccessful(response)) {
-				setWarrantyCenters(response.data.items);
-			} else {
-				handleFetchApiError(response, "Danh sách lịch sử bảo hành", dispatch)
-			}
-		})
-	}, [dispatch]);
+  useEffect(() => {
+    getWarrantyCentersService().then((response) => {
+      console.log("response", response);
+      if (isFetchApiSuccessful(response)) {
+        setWarrantyCenters(response.data.items);
+      } else {
+        handleFetchApiError(response, "Danh sách lịch sử bảo hành", dispatch);
+      }
+    });
+  }, [dispatch]);
 
-	return warrantyCenters
+  return warrantyCenters;
 }
 
 export default useGetWarrantyCenters;

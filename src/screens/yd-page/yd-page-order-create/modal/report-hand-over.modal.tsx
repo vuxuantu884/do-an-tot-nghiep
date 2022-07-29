@@ -12,37 +12,32 @@ const { TextArea } = Input;
 type ReportHandOverModalProps = {
   handleOk: () => void;
   handleCancel: () => void;
-  handSubmit:(value:any)=>void;
+  handSubmit: (value: any) => void;
   visible: boolean;
   formRef: React.RefObject<FormInstance<any>>;
-  goodsReceiptsForm:any;
+  goodsReceiptsForm: any;
 };
 const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
-  props: ReportHandOverModalProps
+  props: ReportHandOverModalProps,
 ) => {
-  const { handleCancel, visible, formRef,goodsReceiptsForm,handleOk,handSubmit } = props;
+  const { handleCancel, visible, formRef, goodsReceiptsForm, handleOk, handSubmit } = props;
 
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   //const dispatch = useDispatch();
 
   const orderPackContextData = useContext(OrderPackContext);
 
   const listStores = orderPackContextData.listStores;
   const listThirdPartyLogistics = orderPackContextData.listThirdPartyLogistics;
-  const listGoodsReceiptsType= orderPackContextData.listGoodsReceiptsType;
-  const listChannels=orderPackContextData.listChannels;
+  const listGoodsReceiptsType = orderPackContextData.listGoodsReceiptsType;
+  const listChannels = orderPackContextData.listChannels;
   //const data=orderPackContextData.data;
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores) {
       newData = listStores.filter((store) =>
-        haveAccess(
-          store.id,
-          userReducer.account ? userReducer.account.account_stores : []
-        )
+        haveAccess(store.id, userReducer.account ? userReducer.account.account_stores : []),
       );
     }
     return newData;
@@ -76,15 +71,10 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   style={{ width: "100%" }}
                   placeholder="Chọn cửa hàng"
                   notFoundContent="Không tìm thấy kết quả"
-                  onChange={(value?: number) => {
-                  }}
+                  onChange={(value?: number) => {}}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
@@ -122,11 +112,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   // }}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
@@ -165,11 +151,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   // }}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
@@ -208,11 +190,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                   // }}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}

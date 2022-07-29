@@ -18,7 +18,7 @@ export const InventoryShipmentWrapper = styled.div`
       }
     }
   }
-  
+
   .error-mess {
     color: #ff4d4f;
     margin-top: 10px;

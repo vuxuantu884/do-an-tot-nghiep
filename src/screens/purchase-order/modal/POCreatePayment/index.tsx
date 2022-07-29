@@ -6,11 +6,12 @@ import {
   Col,
   Form,
   FormInstance,
-  Input, Modal,
+  Input,
+  Modal,
   Radio,
   Row,
   Select,
-  Typography
+  Typography,
 } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import CustomInputChange from "component/custom/custom-input-change";
@@ -18,7 +19,7 @@ import CustomDatepicker from "component/custom/date-picker.custom";
 import { POField } from "model/purchase-order/po-field";
 import {
   PurchasePayments,
-  PurchasePaymentsCreate
+  PurchasePaymentsCreate,
 } from "model/purchase-order/purchase-payment.model";
 import moment from "moment";
 import React, { useCallback, useEffect, useRef } from "react";
@@ -33,7 +34,7 @@ const initPOCreatePaymentValue = {
   reference: "",
   transaction_date: "",
   note: "",
-  is_refund: false
+  is_refund: false,
 };
 
 type POCreatePaymentModalProps = {
@@ -49,7 +50,7 @@ type POCreatePaymentModalProps = {
 };
 const { Item } = Form;
 const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
-  props: POCreatePaymentModalProps
+  props: POCreatePaymentModalProps,
 ) => {
   const {
     visible,
@@ -66,8 +67,8 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
   // const [remainPaymentNumber, setRemainPaymentNumber] = React.useState(0);
   // const [totalPayment, setTotalPayment] = React.useState(0);
   const [formPayment] = Form.useForm();
-  const [dataValue, setDataValue] = React.useState<Array<any>>([])
-  const [percentPayment, setPercentPayment] = React.useState<string>("")
+  const [dataValue, setDataValue] = React.useState<Array<any>>([]);
+  const [percentPayment, setPercentPayment] = React.useState<string>("");
 
   const onFinish = useCallback(() => {
     const paymentNewData = {
@@ -80,13 +81,13 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       status: PoPaymentStatus.DRAFT,
     };
     let old_payments: any = formMain.getFieldValue("payments");
-    if(!old_payments  || old_payments === null) {
+    if (!old_payments || old_payments === null) {
       old_payments = [];
     }
-    paymentNewData.amount = parseInt(paymentNewData.amount.replace(/\D/g, ''))
+    paymentNewData.amount = parseInt(paymentNewData.amount.replace(/\D/g, ""));
     if (paymentNewData.amount < 1000) {
-      showError("Thanh toán không được nhỏ hơn 1.000")
-      return
+      showError("Thanh toán không được nhỏ hơn 1.000");
+      return;
     }
     if (indexPurchasePayment) {
       old_payments[indexPurchasePayment] = paymentNewData;
@@ -97,13 +98,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       onChangeDataPayments(new_payments);
     }
     onCancel();
-  }, [
-    formMain,
-    formPayment,
-    onCancel,
-    indexPurchasePayment,
-    onChangeDataPayments,
-  ]);
+  }, [formMain, formPayment, onCancel, indexPurchasePayment, onChangeDataPayments]);
 
   const onOkPress = useCallback(() => {
     formPayment.submit();
@@ -111,8 +106,8 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
 
   const handleCancel = () => {
     onCancel();
-    setPercentPayment("")
-    setDataValue([])
+    setPercentPayment("");
+    setDataValue([]);
   };
 
   // const loadRemainPayment = useCallback(() => {
@@ -151,7 +146,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
     if (visible) {
       // loadRemainPayment();
       if (purchasePayment) {
-        purchasePayment.amount = purchasePayment.amount?.toLocaleString()
+        purchasePayment.amount = purchasePayment.amount?.toLocaleString();
         formPayment.setFieldsValue(purchasePayment);
       } else formPayment.setFieldsValue(initPOCreatePaymentValue);
     }
@@ -162,41 +157,47 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
       { percentage: value, text: `${value}% - Không bao gồm VAT`, tax: false },
       { percentage: value, text: `${value}% - Bao gồm VAT`, tax: true },
       { percentage: 100, text: "Thanh toán lần cuối", tax: true },
-    ]
+    ];
     if (value > 100) {
-      setDataValue([])
+      setDataValue([]);
       formPayment.setFieldsValue({ amount: value.toLocaleString() });
     } else {
-      setDataValue(dataArray)
+      setDataValue(dataArray);
     }
-    const amountPercent = ((value / remainPayment) * 100).toFixed(2) + " %"
-    setPercentPayment(amountPercent)
-  }
+    const amountPercent = ((value / remainPayment) * 100).toFixed(2) + " %";
+    setPercentPayment(amountPercent);
+  };
 
   const handleSelect = (data: string) => {
-    const poData = formMain.getFieldsValue(true)
-    const totalPaid = poData.total_paid ?? 0
-    const remainPayment = poData.total_payment - totalPaid
-    const array = data.split("-")
-    const number = parseInt(array[0])
-    const taxed = array[1]
-    let percentage = ""
+    const poData = formMain.getFieldsValue(true);
+    const totalPaid = poData.total_paid ?? 0;
+    const remainPayment = poData.total_payment - totalPaid;
+    const array = data.split("-");
+    const number = parseInt(array[0]);
+    const taxed = array[1];
+    let percentage = "";
     if (taxed === "true" && number === 100) {
-      formPayment.setFieldsValue({ amount: Math.round(remainPayment).toLocaleString() });
-      percentage = ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%"
+      formPayment.setFieldsValue({
+        amount: Math.round(remainPayment).toLocaleString(),
+      });
+      percentage = ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%";
     } else if (taxed === "false") {
-      const untaxedAmount = Math.round((poData.untaxed_amount * number) / 100)
+      const untaxedAmount = Math.round((poData.untaxed_amount * number) / 100);
       formPayment.setFieldsValue({ amount: untaxedAmount.toLocaleString() });
-      percentage = ((untaxedAmount / poData.total_payment) * 100).toFixed(2) + "%"
+      percentage = ((untaxedAmount / poData.total_payment) * 100).toFixed(2) + "%";
     } else {
-      const amount = Math.round((poData.total_payment * number) / 100)
-      percentage = ((amount / poData.total_payment) * 100).toFixed(2) + "%"
+      const amount = Math.round((poData.total_payment * number) / 100);
+      percentage = ((amount / poData.total_payment) * 100).toFixed(2) + "%";
       formPayment.setFieldsValue({ amount: amount.toLocaleString() });
     }
-    setPercentPayment(percentage)
-  }
+    setPercentPayment(percentage);
+  };
 
-  const options = dataValue.map((d: any, i) => <Select.Option key={i} value={`${d.percentage}-${d.tax}`}>{d.text}</Select.Option>);
+  const options = dataValue.map((d: any, i) => (
+    <Select.Option key={i} value={`${d.percentage}-${d.tax}`}>
+      {d.text}
+    </Select.Option>
+  ));
 
   return (
     <Modal
@@ -253,19 +254,13 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                 ]}
                 label="Phương thức thanh toán"
                 name="payment_method_code"
-                style={{ width: "100%"}}
+                style={{ width: "100%" }}
               >
                 <Radio.Group onChange={onChangePaymentMethod}>
-                  <Radio
-                    value={PoPaymentMethod.BANK_TRANSFER}
-                    key={PoPaymentMethod.BANK_TRANSFER}
-                  >
+                  <Radio value={PoPaymentMethod.BANK_TRANSFER} key={PoPaymentMethod.BANK_TRANSFER}>
                     Chuyển khoản
                   </Radio>
-                  <Radio
-                    value={PoPaymentMethod.CASH}
-                    key={PoPaymentMethod.CASH}
-                  >
+                  <Radio value={PoPaymentMethod.CASH} key={PoPaymentMethod.CASH}>
                     Tiền mặt
                   </Radio>
                 </Radio.Group>
@@ -276,9 +271,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
               <Item
                 name="transaction_date"
                 label="Ngày thanh toán"
-                rules={[
-                  { required: true, message: "Vui lòng nhập ngày thanh toán" },
-                ]}
+                rules={[{ required: true, message: "Vui lòng nhập ngày thanh toán" }]}
               >
                 <CustomDatepicker
                   disableDate={(date) => date <= moment().startOf("days")}
@@ -303,11 +296,17 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
                   icon: <InfoCircleOutlined />,
                 }}
                 help={
-                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12 }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      fontSize: 12,
+                    }}
+                  >
                     <div className="text-muted">
                       {`Số tiền còn phải trả: ${formatCurrency(Math.round(remainPayment))}`}
                     </div>
-                    <div style={{ textAlign: 'right' }}>
+                    <div style={{ textAlign: "right" }}>
                       <Typography.Text type="danger">
                         {percentPayment ? "~" + percentPayment : ""}
                       </Typography.Text>
@@ -317,31 +316,36 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
               >
                 {/* <CustomInputChange totalPayment={totalPayment} placeholder="0" remainPayment={Math.round(remainPaymentNumber)}/> */}
                 <AutoComplete
-                  style={{ textAlign: 'right', width: '100%', direction: "rtl" }}
+                  style={{
+                    textAlign: "right",
+                    width: "100%",
+                    direction: "rtl",
+                  }}
                   placeholder="0"
                   defaultActiveFirstOption={false}
                   showArrow={false}
                   onSelect={handleSelect}
                   onChange={(value) => {
-                    const number = Number(value.trim()
-                      .replaceAll(",", "")
-                      .replaceAll(".", "")
-                      .replace(/\D+/g, ""),
+                    const number = Number(
+                      value.trim().replaceAll(",", "").replaceAll(".", "").replace(/\D+/g, ""),
                     );
                     if (!number || isNaN(number)) {
-                      setDataValue([])
-                      setPercentPayment("")
+                      setDataValue([]);
+                      setPercentPayment("");
                       formPayment.setFieldsValue({ amount: "0" });
-                      return
+                      return;
                     } else {
                       if (remainPayment && number >= remainPayment) {
-                        const poData = formMain.getFieldsValue(true)
-                        const percentage = ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%"
-                        setPercentPayment(percentage)
-                        formPayment.setFieldsValue({ amount: Math.round(remainPayment).toLocaleString() });
-                        return remainPayment
+                        const poData = formMain.getFieldsValue(true);
+                        const percentage =
+                          ((remainPayment / poData.total_payment) * 100).toFixed(2) + "%";
+                        setPercentPayment(percentage);
+                        formPayment.setFieldsValue({
+                          amount: Math.round(remainPayment).toLocaleString(),
+                        });
+                        return remainPayment;
                       }
-                      handleSearch(number)
+                      handleSearch(number);
                       formPayment.setFieldsValue({
                         amount: number.toLocaleString(),
                       });
@@ -356,11 +360,7 @@ const POCreatePaymentModal: React.FC<POCreatePaymentModalProps> = (
             </Col>
             <Col xs={24} lg={12}>
               <Item name="reference" label="Số tham chiếu">
-                <Input
-                  placeholder="Nhập số tham chiếu"
-                  disabled={disabledRef}
-                  maxLength={255}
-                />
+                <Input placeholder="Nhập số tham chiếu" disabled={disabledRef} maxLength={255} />
               </Item>
             </Col>
             <Col xs={24} lg={24}>

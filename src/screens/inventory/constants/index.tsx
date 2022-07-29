@@ -1,55 +1,53 @@
-
 export const STATUS_INVENTORY_TRANSFER = {
-  REQUESTED : {
+  REQUESTED: {
     status: "requested",
-    name: "Yêu cầu"
+    name: "Yêu cầu",
   },
-  CONFIRM : {
+  CONFIRM: {
     status: "confirmed",
-    name: "Chờ chuyển"
+    name: "Chờ chuyển",
   },
-  TRANSFERRING : {
+  TRANSFERRING: {
     status: "transferring",
-    name: "Đang chuyển"
+    name: "Đang chuyển",
   },
-  PENDING : {
+  PENDING: {
     status: "pending",
-    name: "Chờ xử lý"
+    name: "Chờ xử lý",
   },
-  RECEIVED : {
+  RECEIVED: {
     status: "received",
-    name: "Đã nhận"
+    name: "Đã nhận",
   },
-  CANCELED : {
+  CANCELED: {
     status: "canceled",
-    name: "Đã huỷ"
+    name: "Đã huỷ",
   },
-}
+};
 
 export const STATUS_INVENTORY_TRANSFER_ARRAY = [
   {
     value: "requested",
-    name: "Yêu cầu"
+    name: "Yêu cầu",
   },
   {
     value: "confirmed",
-    name: "Chờ chuyển"
+    name: "Chờ chuyển",
   },
   {
     value: "transferring",
-    name: "Đang chuyển"
+    name: "Đang chuyển",
   },
   {
     value: "pending",
-    name: "Chờ xử lý"
+    name: "Chờ xử lý",
   },
   {
     value: "received",
-    name: "Đã nhận"
+    name: "Đã nhận",
   },
   {
     value: "canceled",
-    name: "Đã huỷ"
+    name: "Đã huỷ",
   },
-
-]
+];

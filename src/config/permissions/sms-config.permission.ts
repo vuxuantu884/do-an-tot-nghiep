@@ -4,5 +4,4 @@
 export const SMS_CONFIG_PERMISSIONS = {
   READ: "sms_read",
   UPDATE: "sms_update",
-}
-
+};

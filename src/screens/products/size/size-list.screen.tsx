@@ -1,5 +1,5 @@
-import {Button, Card, Form, Input} from "antd";
-import {MenuAction} from "component/table/ActionButton";
+import { Button, Card, Form, Input } from "antd";
+import { MenuAction } from "component/table/ActionButton";
 import search from "assets/img/search.svg";
 import CustomTable from "component/table/CustomTable";
 import {
@@ -9,12 +9,12 @@ import {
   SizeCreateRequest,
   SizeUpdateRequest,
 } from "model/product/size.model";
-import {Link, useHistory} from "react-router-dom";
-import {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {PageResponse} from "model/base/base-metadata.response";
-import {getQueryParams, useQuery} from "utils/useQuery";
-import {generateQuery} from "utils/AppUtils";
-import {useDispatch} from "react-redux";
+import { Link, useHistory } from "react-router-dom";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { PageResponse } from "model/base/base-metadata.response";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { generateQuery } from "utils/AppUtils";
+import { useDispatch } from "react-redux";
 import {
   sizeCreateAction,
   sizeDeleteManyAction,
@@ -23,23 +23,20 @@ import {
   sizeUpdateAction,
 } from "domain/actions/product/size.action";
 import UrlConfig from "config/url.config";
-import {showSuccess, showWarning} from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomFilter from "component/table/custom.filter";
-import {
-  DeleteOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import useAuthorization from "hook/useAuthorization";
-import {ProductPermission} from "config/permissions/product.permission";
+import { ProductPermission } from "config/permissions/product.permission";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import "assets/css/custom-filter.scss";
-import {modalActionType} from "model/modal/modal.model";
+import { modalActionType } from "model/modal/modal.model";
 import FormSize from "./conponents";
 import CustomModal from "component/modal/CustomModal";
 
-const actionsDefault: Array<MenuAction> = [ 
+const actionsDefault: Array<MenuAction> = [
   {
     id: 2,
     name: "Xóa",
@@ -56,7 +53,7 @@ const SizeListScreen: React.FC = () => {
   const dispatch = useDispatch();
   const [isShowModalDetail, setIsShowModalDetail] = useState(false);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [sizeDetail, setSizeDetail] = useState<SizeDetail>(); 
+  const [sizeDetail, setSizeDetail] = useState<SizeDetail>();
 
   let [params, setPrams] = useState<SizeQuery>({
     ...getQueryParams(query),
@@ -79,33 +76,40 @@ const SizeListScreen: React.FC = () => {
     {
       title: "Người tạo",
       render: (item: SizeResponse) => {
-        return item.created_name ?
-             <div>
-               <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
-             </div> :"---"
-       },
+        return item.created_name ? (
+          <div>
+            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
+              {item.created_name}
+            </Link>
+          </div>
+        ) : (
+          "---"
+        );
+      },
     },
   ];
 
   const onPageChange = useCallback(
     (page, size) => {
-      const newParams = {...params, 
+      const newParams = {
+        ...params,
         code: params.code?.trim(),
         page: page,
-        limit: size}
+        limit: size,
+      };
       let queryParam = generateQuery(params);
-     
-      setPrams({...newParams});
+
+      setPrams({ ...newParams });
       history.replace(`${UrlConfig.SIZES}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
   const onSelectedChange = useCallback((selectedRow: Array<SizeResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
 
@@ -113,11 +117,11 @@ const SizeListScreen: React.FC = () => {
     (values: SizeQuery) => {
       let query = generateQuery(values);
 
-      values= {...values, code: values.code?.trim() }
-      setPrams({...values});
+      values = { ...values, code: values.code?.trim() };
+      setPrams({ ...values });
       return history.replace(`${UrlConfig.SIZES}?${query}`);
     },
-    [history]
+    [history],
   );
 
   const [canUpdateSizes] = useAuthorization({
@@ -189,7 +193,7 @@ const SizeListScreen: React.FC = () => {
           break;
       }
     },
-    [onUpdate, selected]
+    [onUpdate, selected],
   );
 
   const isFirstLoad = useRef(true);
@@ -200,26 +204,31 @@ const SizeListScreen: React.FC = () => {
         setIsShowModalDetail(false);
         dispatch(
           sizeCreateAction(values, () => {
-              showSuccess("Thêm kích cỡ thành công.");
-              dispatch(sizeSearchAction(params, searchSizeCallback));
-          })
+            showSuccess("Thêm kích cỡ thành công.");
+            dispatch(sizeSearchAction(params, searchSizeCallback));
+          }),
         );
       },
-      [dispatch,params,searchSizeCallback]
+      [dispatch, params, searchSizeCallback],
     ),
-    Update: useCallback((data: SizeUpdateRequest) => { 
-      if (sizeDetail && sizeDetail.id) {
-        setIsShowModalDetail(false);
-        dispatch(sizeUpdateAction(sizeDetail.id, data, ()=>{
-            showSuccess("Cập nhật kích cỡ thành công."); 
-            dispatch(sizeSearchAction(params, searchSizeCallback));
-        }));
-      }
-    },[dispatch,params, sizeDetail,searchSizeCallback])
+    Update: useCallback(
+      (data: SizeUpdateRequest) => {
+        if (sizeDetail && sizeDetail.id) {
+          setIsShowModalDetail(false);
+          dispatch(
+            sizeUpdateAction(sizeDetail.id, data, () => {
+              showSuccess("Cập nhật kích cỡ thành công.");
+              dispatch(sizeSearchAction(params, searchSizeCallback));
+            }),
+          );
+        }
+      },
+      [dispatch, params, sizeDetail, searchSizeCallback],
+    ),
   };
 
   useEffect(() => {
-    setLoadingTable(true); 
+    setLoadingTable(true);
     isFirstLoad.current = false;
     dispatch(sizeSearchAction(params, searchSizeCallback));
   }, [dispatch, history, params, searchSizeCallback]);
@@ -315,7 +324,7 @@ const SizeListScreen: React.FC = () => {
         visible={isShowModalDetail}
         onCreate={(formValues: SizeCreateRequest) => actionsForm.Create(formValues)}
         onEdit={(formValues: SizeUpdateRequest) => actionsForm.Update(formValues)}
-        onDelete={()=>{}}
+        onDelete={() => {}}
         onCancel={() => setIsShowModalDetail(false)}
         modalAction={modalAction}
         componentForm={FormSize}

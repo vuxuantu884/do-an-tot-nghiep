@@ -1,11 +1,11 @@
-import {YodyAction} from "base/base.action";
+import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import {HttpStatus} from "config/http-status.config";
-import {unauthorizedAction} from "domain/actions/auth/auth.action";
-import {SupplierType} from "domain/types/core.type";
-import {PageResponse} from "model/base/base-metadata.response";
-import {SupplierResponse} from "model/core/supplier.model";
-import {call, put, takeEvery, takeLatest} from "redux-saga/effects";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { SupplierType } from "domain/types/core.type";
+import { PageResponse } from "model/base/base-metadata.response";
+import { SupplierResponse } from "model/core/supplier.model";
+import { call, put, takeEvery, takeLatest } from "redux-saga/effects";
 import {
   supplierDeleteApi,
   supplierDetailApi,
@@ -22,15 +22,12 @@ import {
   supplierUpdateContactApi,
   supplierDeleteContactApi,
 } from "service/core/supplier.service";
-import {showError} from "utils/ToastUtils";
-import {callApiSaga} from "utils/ApiUtils";
+import { showError } from "utils/ToastUtils";
+import { callApiSaga } from "utils/ApiUtils";
 function* supplierSearchSaga(action: YodyAction) {
-  const {query, searchSupplierCallback} = action.payload;
+  const { query, searchSupplierCallback } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(
-      supplierGetApi,
-      query
-    );
+    let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(supplierGetApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         searchSupplierCallback(response.data);
@@ -48,11 +45,9 @@ function* supplierSearchSaga(action: YodyAction) {
 }
 
 function* supplierGetAllSaga(action: YodyAction) {
-  const {setData} = action.payload;
+  const { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(
-      supplierGetApi
-    );
+    let response: BaseResponse<PageResponse<SupplierResponse>> = yield call(supplierGetApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -72,12 +67,18 @@ function* supplierGetAllSaga(action: YodyAction) {
 }
 
 function* supplierUpdateSaga(action: YodyAction) {
-  const {id, request, setData} = action.payload;
-  yield callApiSaga({isShowError:true, jobName: "supplierUpdateSaga"}, setData, supplierPutApi, id, request);
+  const { id, request, setData } = action.payload;
+  yield callApiSaga(
+    { isShowError: true, jobName: "supplierUpdateSaga" },
+    setData,
+    supplierPutApi,
+    id,
+    request,
+  );
 }
 
 function* supplierDetailSaga(action: YodyAction) {
-  const {id, setData} = action.payload;
+  const { id, setData } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(supplierDetailApi, id);
 
@@ -101,7 +102,7 @@ function* supplierDetailSaga(action: YodyAction) {
 }
 
 function* supplierCreateSaga(action: YodyAction) {
-  const {request, setData} = action.payload;
+  const { request, setData } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(supplierPostApi, request);
     switch (response.code) {
@@ -124,7 +125,7 @@ function* supplierCreateSaga(action: YodyAction) {
 }
 
 function* supplierDeleteSaga(action: YodyAction) {
-  const {id, deleteCallback} = action.payload;
+  const { id, deleteCallback } = action.payload;
   try {
     let response: BaseResponse<any | null> = yield call(supplierDeleteApi, id);
     switch (response.code) {
@@ -146,12 +147,12 @@ function* supplierDeleteSaga(action: YodyAction) {
 }
 
 function* createAddressSaga(action: YodyAction) {
-  const {id, request, callback} = action.payload;
+  const { id, request, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierCreateAddressApi,
       id,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -172,13 +173,13 @@ function* createAddressSaga(action: YodyAction) {
 }
 
 function* updateAddressSaga(action: YodyAction) {
-  const {id, addressId, request, callback} = action.payload;
+  const { id, addressId, request, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierUpdateAddressApi,
       id,
       addressId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -199,12 +200,12 @@ function* updateAddressSaga(action: YodyAction) {
 }
 
 function* deleteAddressSaga(action: YodyAction) {
-  const {id, addressId, callback} = action.payload;
+  const { id, addressId, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierDeleteAddressApi,
       id,
-      addressId
+      addressId,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -225,12 +226,12 @@ function* deleteAddressSaga(action: YodyAction) {
 }
 
 function* createPaymentSaga(action: YodyAction) {
-  const {id, request, callback} = action.payload;
+  const { id, request, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierCreatePaymentApi,
       id,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -251,13 +252,13 @@ function* createPaymentSaga(action: YodyAction) {
 }
 
 function* updatePaymentSaga(action: YodyAction) {
-  const {id, paymentId, request, callback} = action.payload;
+  const { id, paymentId, request, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierUpdatePaymentApi,
       id,
       paymentId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -278,12 +279,12 @@ function* updatePaymentSaga(action: YodyAction) {
 }
 
 function* deletePaymentSaga(action: YodyAction) {
-  const {id, paymentId, callback} = action.payload;
+  const { id, paymentId, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierDeletePaymentApi,
       id,
-      paymentId
+      paymentId,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -304,12 +305,12 @@ function* deletePaymentSaga(action: YodyAction) {
 }
 
 function* createContactSaga(action: YodyAction) {
-  const {id, request, callback} = action.payload;
+  const { id, request, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierCreateContactApi,
       id,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -330,13 +331,13 @@ function* createContactSaga(action: YodyAction) {
 }
 
 function* updateContactSaga(action: YodyAction) {
-  const {id, contactId, request, callback} = action.payload;
+  const { id, contactId, request, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierUpdateContactApi,
       id,
       contactId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -357,12 +358,12 @@ function* updateContactSaga(action: YodyAction) {
 }
 
 function* deleteContactSaga(action: YodyAction) {
-  const {id, contactId, callback} = action.payload;
+  const { id, contactId, callback } = action.payload;
   try {
     let response: BaseResponse<SupplierResponse> = yield call(
       supplierDeleteContactApi,
       id,
-      contactId
+      contactId,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

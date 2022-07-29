@@ -24,47 +24,42 @@ export interface ModalImportProps {
 const ConExportImportUser = {
   EXPORT: "TYPE_DOWNLOAD_FILE_IMPORT_ACCOUNT",
   IMPORT: "TYPE_DOWNLOAD_FILE_IMPORT_ACCOUNT",
-}
+};
 
 type process = {
-  total: number,
-  processed: number,
-  success: number,
-  error: number
-}
+  total: number;
+  processed: number;
+  success: number;
+  error: number;
+};
 
-const ImportExcel: React.FC<ModalImportProps> = (
-  props: ModalImportProps
-) => {
-  const { visible, onOk, onCancel, title } =
-    props;
+const ImportExcel: React.FC<ModalImportProps> = (props: ModalImportProps) => {
+  const { visible, onOk, onCancel, title } = props;
   const [fileList, setFileList] = useState<Array<File>>([]);
   const [errorData, setErrorData] = useState<Array<any>>([]);
   const [statusExport, setStatusExport] = useState<number>(STATUS_IMPORT_EXPORT.NONE);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
-  const [progressData, setProgressData] = useState<process>(
-    {
-      processed: 0,
-      success: 0,
-      error: 0,
-      total: 0
-    }
-  );
+  const [progressData, setProgressData] = useState<process>({
+    processed: 0,
+    success: 0,
+    error: 0,
+    total: 0,
+  });
 
-  const resetFile = ()=>{
+  const resetFile = () => {
     setFileList([]);
     setProgressData({
       processed: 0,
       success: 0,
       error: 0,
-      total: 0
+      total: 0,
     });
     setErrorData([]);
-  }
+  };
 
   const onRemoveFile = () => {
     resetFile();
-  }
+  };
 
   const ActionImport = {
     Ok: useCallback(() => {
@@ -76,24 +71,27 @@ const ImportExcel: React.FC<ModalImportProps> = (
       resetFile();
       onCancel();
     }, [onCancel]),
-    ExportTemplate: useCallback((e:any)=>{
-      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
-      e.preventDefault();
-      exportFileV2({
-        type: ConExportImportUser.EXPORT,
-      })
-        .then((res) => {
-          setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-          if (res.code === HttpStatus.SUCCESS) {
-            setListExportFile([...listExportFile, res.data.code]);
-          }
+    ExportTemplate: useCallback(
+      (e: any) => {
+        setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+        e.preventDefault();
+        exportFileV2({
+          type: ConExportImportUser.EXPORT,
         })
-        .catch((e:any) => {
-          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
-          showError("Có lỗi xảy ra, vui lòng thử lại sau");
-        });
-    },[listExportFile]),
-  }
+          .then((res) => {
+            setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+            if (res.code === HttpStatus.SUCCESS) {
+              setListExportFile([...listExportFile, res.data.code]);
+            }
+          })
+          .catch((e: any) => {
+            setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+            showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          });
+      },
+      [listExportFile],
+    ),
+  };
 
   const uploadProps = {
     beforeUpload: (file: any) => {
@@ -105,7 +103,7 @@ const ImportExcel: React.FC<ModalImportProps> = (
       setFileList([file]);
       return typeExcel || Upload.LIST_IGNORE;
     },
-  }
+  };
 
   const checkDisableOkButton = useCallback(() => {
     return !fileList.length;
@@ -141,13 +139,17 @@ const ImportExcel: React.FC<ModalImportProps> = (
   }, [listExportFile]);
 
   useEffect(() => {
-    if (listExportFile.length === 0 || statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH || statusExport === STATUS_IMPORT_EXPORT.ERROR) return;
+    if (
+      listExportFile.length === 0 ||
+      statusExport === STATUS_IMPORT_EXPORT.JOB_FINISH ||
+      statusExport === STATUS_IMPORT_EXPORT.ERROR
+    )
+      return;
     checkExportFile();
 
     const getFileInterval = setInterval(checkExportFile, 3000);
     return () => clearInterval(getFileInterval);
   }, [checkExportFile, listExportFile.length, statusExport]);
-  
 
   return (
     <Modal
@@ -163,114 +165,119 @@ const ImportExcel: React.FC<ModalImportProps> = (
     >
       <StyledProgressDownloadModal>
         <Typography.Text>
-          <img src={excelIcon} alt="" /> <a href="/" onClick={ActionImport.ExportTemplate}>file import người dùng mẫu (.xlsx)</a>
+          <img src={excelIcon} alt="" />{" "}
+          <a href="/" onClick={ActionImport.ExportTemplate}>
+            file import người dùng mẫu (.xlsx)
+          </a>
         </Typography.Text>
-        {statusExport !== STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS ?
+        {statusExport !== STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS ? (
           <div>
-            <div style={{ marginTop: "20px", marginBottom: "5px" }}><b>Tải file lên</b></div>
-            <Upload
-              onRemove={onRemoveFile}
-              maxCount={1}
-              {...uploadProps}
-              accept={ConAcceptImport}
-            >
+            <div style={{ marginTop: "20px", marginBottom: "5px" }}>
+              <b>Tải file lên</b>
+            </div>
+            <Upload onRemove={onRemoveFile} maxCount={1} {...uploadProps} accept={ConAcceptImport}>
               <Button icon={<UploadOutlined />}>Chọn file</Button>
             </Upload>
-          </div>:
+          </div>
+        ) : (
           <Row justify={"center"}>
-           <Col span={24}>
+            <Col span={24}>
               <Row justify={"center"}>
-                <LoadingOutlined style={{fontSize: "78px", color: "#E24343"}} />
+                <LoadingOutlined style={{ fontSize: "78px", color: "#E24343" }} />
               </Row>
               <Row justify={"center"}>
-                <h2 style={{padding: "10px 30px"}}>Đang tải file...</h2>
+                <h2 style={{ padding: "10px 30px" }}>Đang tải file...</h2>
               </Row>
             </Col>
-         </Row>
-        }
-        {
-            fileList.length > 0 &&
-            <div>
-              <div className="progress-body" style={{marginTop: "30px"}}>
-                <div className="progress-count">
-                  <div>
-                    <div>Tổng cộng</div>
-                    <div className="total-count">
-                      {isNullOrUndefined(progressData?.total) ?
-                        "--" :
-                        <NumberFormat
-                          value={progressData?.total}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      }
-                    </div>
+          </Row>
+        )}
+        {fileList.length > 0 && (
+          <div>
+            <div className="progress-body" style={{ marginTop: "30px" }}>
+              <div className="progress-count">
+                <div>
+                  <div>Tổng cộng</div>
+                  <div className="total-count">
+                    {isNullOrUndefined(progressData?.total) ? (
+                      "--"
+                    ) : (
+                      <NumberFormat
+                        value={progressData?.total}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    )}
                   </div>
+                </div>
 
-                  <div>
-                    <div>Đã xử lý</div>
-                    <div style={{ fontWeight: "bold" }}>
-                      {isNullOrUndefined(progressData?.processed) ?
-                        "--" :
-                        <NumberFormat
-                          value={progressData?.processed}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      }
-                    </div>
+                <div>
+                  <div>Đã xử lý</div>
+                  <div style={{ fontWeight: "bold" }}>
+                    {isNullOrUndefined(progressData?.processed) ? (
+                      "--"
+                    ) : (
+                      <NumberFormat
+                        value={progressData?.processed}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    )}
                   </div>
+                </div>
 
-                  <div>
-                    <div>Thành công</div>
-                    <div className="total-updated">
-                      {isNullOrUndefined(progressData?.success) ?
-                        "--" :
-                        <NumberFormat
-                          value={progressData?.success}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      }
-                    </div>
+                <div>
+                  <div>Thành công</div>
+                  <div className="total-updated">
+                    {isNullOrUndefined(progressData?.success) ? (
+                      "--"
+                    ) : (
+                      <NumberFormat
+                        value={progressData?.success}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    )}
                   </div>
+                </div>
 
-                  <div>
-                    <div>Lỗi</div>
-                    <div className="total-error">
-                      {isNullOrUndefined(progressData?.error) ?
-                        "--" :
-                        <NumberFormat
-                          value={progressData?.error}
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      }
-                    </div>
+                <div>
+                  <div>Lỗi</div>
+                  <div className="total-error">
+                    {isNullOrUndefined(progressData?.error) ? (
+                      "--"
+                    ) : (
+                      <NumberFormat
+                        value={progressData?.error}
+                        displayType={"text"}
+                        thousandSeparator={true}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
-              {errorData?.length ?
-                <div className="error-orders">
-                  <div className="title">Chi tiết lỗi:</div>
-                  <div className="error_message">
-                    <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
-                      <ul style={{ color: "#E24343" }}>
-                        {errorData.map((error, index) => (
-                          <li key={index} style={{ marginBottom: "5px" }}>
-                            <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
-                            <span>:</span>
-                            <span>{error.split(":")[1]}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+            </div>
+            {errorData?.length ? (
+              <div className="error-orders">
+                <div className="title">Chi tiết lỗi:</div>
+                <div className="error_message">
+                  <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
+                    <ul style={{ color: "#E24343" }}>
+                      {errorData.map((error, index) => (
+                        <li key={index} style={{ marginBottom: "5px" }}>
+                          <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
+                          <span>:</span>
+                          <span>{error.split(":")[1]}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                 </div>
-                : <div />
-            }
-            </div>
-          }
+              </div>
+            ) : (
+              <div />
+            )}
+          </div>
+        )}
       </StyledProgressDownloadModal>
     </Modal>
   );

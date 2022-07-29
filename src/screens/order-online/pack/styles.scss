@@ -135,13 +135,16 @@
   margin-top: 11px;
   padding: 0 14px;
 }
-.order-product-pick{
-  .ant-table-tbody>tr>td, .ant-table-thead>tr>th, .ant-table tfoot>tr>td, .ant-table tfoot>tr>th{
+.order-product-pick {
+  .ant-table-tbody > tr > td,
+  .ant-table-thead > tr > th,
+  .ant-table tfoot > tr > td,
+  .ant-table tfoot > tr > th {
     position: relative;
     padding: 5px;
     overflow-wrap: break-word;
   }
-  .yody-product-pick{
+  .yody-product-pick {
     position: absolute;
     top: 0;
     left: 0;
@@ -151,7 +154,7 @@
     display: flex;
     justify-content: center;
   }
-  .btn-do-fast{
+  .btn-do-fast {
     height: 25px;
     width: 25px;
     padding-top: 7px;
@@ -170,8 +173,8 @@
   height: 5px;
 }
 
-.packed-modal-confirm{
-  .ant-modal-header{
+.packed-modal-confirm {
+  .ant-modal-header {
     border-bottom: none;
   }
   .ant-modal-body {
@@ -179,7 +182,10 @@
     font-size: 14px;
     line-height: 1.5715;
     word-wrap: break-word;
-    .ant-table-tbody>tr>td, .ant-table-thead>tr>th, .ant-table tfoot>tr>td, .ant-table tfoot>tr>th {
+    .ant-table-tbody > tr > td,
+    .ant-table-thead > tr > th,
+    .ant-table tfoot > tr > td,
+    .ant-table tfoot > tr > th {
       position: relative;
       padding: 5px 16px;
       overflow-wrap: break-word;
@@ -194,9 +200,9 @@
   }
 }
 
-.ant-popover-inner{
-  .ant-popover-buttons{
-    .ant-btn{
+.ant-popover-inner {
+  .ant-popover-buttons {
+    .ant-btn {
       height: 30px;
       line-height: 15px;
     }

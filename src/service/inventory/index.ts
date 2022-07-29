@@ -15,7 +15,7 @@ import { FilterConfig, FilterConfigRequest } from "model/other";
 import { generateQuery } from "utils/AppUtils";
 
 const inventoryGetApi = (
-  query: InventoryQuery
+  query: InventoryQuery,
 ): Promise<BaseResponse<AllInventoryProductInStore[]>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.INVENTORY}/inventories?${params}`;
@@ -27,16 +27,14 @@ const logisticGateAwayGetApi = (): Promise<BaseResponse<LogisticGateAwayResponse
   return BaseAxios.get(link);
 };
 
-const inventoryGetDetailApi = (
-  query: InventoryQuery
-): Promise<BaseResponse<InventoryResponse>> => {
+const inventoryGetDetailApi = (query: InventoryQuery): Promise<BaseResponse<InventoryResponse>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.INVENTORY}/inventories/detail?${params}`;
   return BaseAxios.get(link);
 };
 
 const inventoryGetHistoryApi = (
-  query: HistoryInventoryQuery
+  query: HistoryInventoryQuery,
 ): Promise<BaseResponse<HistoryInventoryResponse>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.INVENTORY}/histories?${params}`;
@@ -45,28 +43,25 @@ const inventoryGetHistoryApi = (
 
 const inventoryGetDetailVariantIdsApi = (
   variant_id: number[],
-  store_id: number | null
+  store_id: number | null,
 ): Promise<BaseResponse<Array<InventoryResponse>>> => {
   let queryString = "";
   if (store_id) queryString += `store_id=${store_id}`;
-  if (variant_id)
-    variant_id.forEach((element) => (queryString += `&variant_id=${element}`));
+  if (variant_id) variant_id.forEach((element) => (queryString += `&variant_id=${element}`));
   let link = `${ApiConfig.INVENTORY}/inventories/detail?is_pageable=false&${queryString}`;
   return BaseAxios.get(link);
 };
 
 const inventoryGetDetailVariantIdsExtApi = (
   variant_id: number[],
-  store_id: number | null
+  store_id: number | null,
 ): Promise<BaseResponse<Array<InventoryResponse>>> => {
   let queryString = "";
   if (store_id) queryString += `store_id=${store_id}&`;
-  if (variant_id.length>0)
-  {
-    variant_id.forEach(function (value,index) {
-      queryString += `variant_ids=${value}`
-      if(index<variant_id.length-1)
-        queryString += `&`
+  if (variant_id.length > 0) {
+    variant_id.forEach(function (value, index) {
+      queryString += `variant_ids=${value}`;
+      if (index < variant_id.length - 1) queryString += `&`;
     });
   }
   let link = `${ApiConfig.INVENTORY}/inventories?is_detail=true&${queryString}`;
@@ -74,7 +69,7 @@ const inventoryGetDetailVariantIdsExtApi = (
 };
 
 const getInventoryByVariantsApi = (
-  query: InventoryVariantListQuery
+  query: InventoryVariantListQuery,
 ): Promise<BaseResponse<AllInventoryResponse>> => {
   let params = generateQuery(query);
   let url = `${ApiConfig.INVENTORY}/inventories?${params}`;
@@ -82,37 +77,23 @@ const getInventoryByVariantsApi = (
 };
 
 const createInventoryConfigService = (
-  request: FilterConfigRequest
+  request: FilterConfigRequest,
 ): Promise<BaseResponse<FilterConfig>> => {
-  return BaseAxios.post(
-    `${ApiConfig.CORE}/config`,
-      request
-  );
+  return BaseAxios.post(`${ApiConfig.CORE}/config`, request);
 };
 
 const updateInventoryConfigService = (
-  request: FilterConfigRequest
+  request: FilterConfigRequest,
 ): Promise<BaseResponse<FilterConfig>> => {
-  return BaseAxios.post(
-    `${ApiConfig.CORE}/config`,
-      request
-  );
+  return BaseAxios.post(`${ApiConfig.CORE}/config`, request);
 };
 
-const getInventoryConfigService = (
-  code: string
-): Promise<BaseResponse<Array<FilterConfig>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.CORE}/config/${code}`,
-  );
+const getInventoryConfigService = (code: string): Promise<BaseResponse<Array<FilterConfig>>> => {
+  return BaseAxios.get(`${ApiConfig.CORE}/config/${code}`);
 };
 
-const deleteInventoryConfigService = (
-  id: number
-): Promise<BaseResponse<Array<FilterConfig>>> => {
-  return BaseAxios.delete(
-    `${ApiConfig.CORE}/config/${id}`,
-  );
+const deleteInventoryConfigService = (id: number): Promise<BaseResponse<Array<FilterConfig>>> => {
+  return BaseAxios.delete(`${ApiConfig.CORE}/config/${id}`);
 };
 
 export {
@@ -126,5 +107,5 @@ export {
   createInventoryConfigService,
   updateInventoryConfigService,
   getInventoryConfigService,
-  deleteInventoryConfigService
+  deleteInventoryConfigService,
 };

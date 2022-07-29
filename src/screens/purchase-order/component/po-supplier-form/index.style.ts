@@ -6,4 +6,4 @@ export const EmailWrap = styled.div`
     color: #222222;
     margin-left: 8px;
   }
-`
+`;

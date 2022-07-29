@@ -5,5 +5,4 @@ type OrderReturnSingleContextType = {
   orderDetail: OrderResponse | null;
 };
 // tạo context
-export const OrderReturnSingleContext =
-  createContext<OrderReturnSingleContextType | null>(null);
+export const OrderReturnSingleContext = createContext<OrderReturnSingleContextType | null>(null);

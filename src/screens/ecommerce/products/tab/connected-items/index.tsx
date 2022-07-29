@@ -1,8 +1,4 @@
-import {
-  DownOutlined,
-  SearchOutlined,
-  SettingOutlined,
-} from "@ant-design/icons";
+import { DownOutlined, SearchOutlined, SettingOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -27,9 +23,7 @@ import filterIcon from "assets/icon/filter.svg";
 import warningCircleIcon from "assets/icon/warning-circle.svg";
 import BaseResponse from "base/base.response";
 import BaseFilter from "component/filter/base.filter";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { HttpStatus } from "config/http-status.config";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
@@ -54,15 +48,9 @@ import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import {
-  ECOMMERCE_LIST,
-  getEcommerceIcon,
-} from "screens/ecommerce/common/commonAction";
+import { ECOMMERCE_LIST, getEcommerceIcon } from "screens/ecommerce/common/commonAction";
 import { StyledStatus } from "screens/ecommerce/common/commonStyle";
-import {
-  StyledProductFilter,
-  StyledProductLink,
-} from "screens/ecommerce/products/styles";
+import { StyledProductFilter, StyledProductLink } from "screens/ecommerce/products/styles";
 import ConnectedItemActionColumn from "screens/ecommerce/products/tab/connected-items/ConnectedItemActionColumn";
 import { StyledComponent } from "screens/ecommerce/products/tab/connected-items/styles";
 import { StyledBaseFilter } from "screens/ecommerce/products/tab/total-items-ecommerce/styles";
@@ -77,25 +65,19 @@ import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import ConcatenateByExcel from "screens/ecommerce/products/tab/not-connected-items/ConcatenateByExcel";
 
-
-
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
-const productsUpdateStockPermission = [
-  EcommerceProductPermission.products_update_stock,
-];
-const productsDisconnectPermission = [
-  EcommerceProductPermission.products_disconnect,
-];
+const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
+const productsDisconnectPermission = [EcommerceProductPermission.products_disconnect];
 
 type ConnectedItemsProps = {
   handleSyncStockJob: (x: number) => void;
   isReloadPage: boolean;
-}
+};
 
 const EXPORT_PRODUCT_OPTION = {
   SELECTED: "selected",
   FILTERED: "filtered",
-}
+};
 
 const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   const { isReloadPage, handleSyncStockJob } = props;
@@ -120,8 +102,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     not: false,
   });
 
-  const isShowAction =
-    allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
+  const isShowAction = allowProductsDelete || allowProductsUpdateStock || allowProductsDisconnect;
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -171,14 +152,14 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       connected_date_from: null,
       connected_date_to: null,
     }),
-    []
+    [],
   );
 
   const [query, setQuery] = useState<ProductEcommerceQuery>(initialFormValues);
 
-  const queryParamsParsed: { [key: string]: string | (string | null)[] | null; } = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: {
+    [key: string]: string | (string | null)[] | null;
+  } = queryString.parse(location.search);
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
@@ -195,7 +176,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         dispatch(getProductEcommerceList(queryRequest, updateVariantData));
       }
     },
-    [dispatch, updateVariantData]
+    [dispatch, updateVariantData],
   );
 
   useEffect(() => {
@@ -220,9 +201,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
-          handleSyncStockJob(result.process_id)
+          handleSyncStockJob(result.process_id);
         }
-      })
+      }),
     );
   };
 
@@ -236,7 +217,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     setIdsItemSelected(itemSelected);
     setIsShowSyncStockModal(true);
   };
-  
+
   const cancelSyncStockModal = () => {
     setIsShowSyncStockModal(false);
   };
@@ -268,10 +249,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     dispatch(
       postSyncStockEcommerceProduct(requestSyncStock, (result) => {
         if (result) {
-          console.log(result)
-          handleSyncStockJob(result.process_id)
+          console.log(result);
+          handleSyncStockJob(result.process_id);
         }
-      })
+      }),
     );
   };
 
@@ -310,7 +291,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             showSuccess("Xóa sản phẩm thành công");
             reloadPage();
           }
-        })
+        }),
       );
     }
   };
@@ -350,59 +331,56 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
             showSuccess("Ngắt kết nối sản phẩm thành công");
             reloadPage();
           }
-        })
+        }),
       );
     }
   };
 
   //handle preparation safe stock product
   const handlePreparationExistSafe = () => {
-    setIsShowExistSafeModal(true)
-  }
+    setIsShowExistSafeModal(true);
+  };
   const onOkConcatenateByExcel = () => {
     setIsShowExistSafeModal(false);
-  }
-  
+  };
+
   const onCancelConcatenateByExcel = () => {
     setIsShowExistSafeModal(false);
-  }
+  };
 
   //handle show log history inventory
   const GetRequestResponseInventoryLog = (data: any) => {
-    setInventoryHistoryLog([data.items[0]])
-  }
+    setInventoryHistoryLog([data.items[0]]);
+  };
 
   const handleShowLogInventory = (item: any) => {
     dispatch(
-      getLogInventoryVariantAction(
-        item.ecommerce_variant_id,
-        GetRequestResponseInventoryLog
-      )
-    )
-    setInventoryHistoryLog([])
-  }
+      getLogInventoryVariantAction(item.ecommerce_variant_id, GetRequestResponseInventoryLog),
+    );
+    setInventoryHistoryLog([]);
+  };
 
   useEffect(() => {
     if (inventoryHistoryLog.length) {
-      setShowLogInventoryModal(true)
-   }
-  }, [inventoryHistoryLog.length]); 
+      setShowLogInventoryModal(true);
+    }
+  }, [inventoryHistoryLog.length]);
 
   const OkShowHistoryLogInventory = () => {
-    setShowLogInventoryModal(false)
-    setInventoryHistoryLog([])
-  }
+    setShowLogInventoryModal(false);
+    setInventoryHistoryLog([]);
+  };
 
   const CancelHistoryLogInventory = () => {
-    setShowLogInventoryModal(false)
-    setInventoryHistoryLog([])
-  }
+    setShowLogInventoryModal(false);
+    setInventoryHistoryLog([]);
+  };
   //end handle show log history inventory
   //handle export file
   const resetExportProductProcess = () => {
     setExportProcessId(null);
     setExportProcessPercent(0);
-  }
+  };
 
   const handleExportExcelProduct = () => {
     const itemSelected: any[] = [];
@@ -413,17 +391,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     }
 
     setIdsItemSelected(itemSelected);
-    setIsShowExportExcelModal(true)
-  }
+    setIsShowExportExcelModal(true);
+  };
 
   const cancelExportExcelProductModal = () => {
     setIsShowExportExcelModal(false);
     setExportProductType("");
-  }
+  };
 
   const onCancelProgressModal = () => {
     setIsVisibleExitProcessModal(true);
-  }
+  };
 
   const okExportExcelProduct = () => {
     const RequestExportExcel: RequestExportExcelQuery = {
@@ -432,7 +410,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       category_id: null,
       core_variant_id: null,
       variant_ids: exportProductType === EXPORT_PRODUCT_OPTION.SELECTED ? idsItemSelected : [],
-    }
+    };
 
     if (exportProductType === EXPORT_PRODUCT_OPTION.FILTERED) {
       const queryParam = { ...query };
@@ -449,7 +427,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     exportFileProduct(RequestExportExcel)
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProcessId(response.data.process_id)
+          setExportProcessId(response.data.process_id);
           setIsVisibleProgressModal(true);
           cancelExportExcelProductModal();
         }
@@ -459,36 +437,39 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       });
 
     setExportProcessPercent(0);
-  }
+  };
 
   const checkExportFile = useCallback(() => {
     let getProgressPromises: Promise<BaseResponse<any>> = getFileProduct(exportProcessId);
 
-    Promise.all([getProgressPromises]).then((responses) => {
-      responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          if (response.data && response.data.finish) {
-            if (response.data.api_error) {
-              setExportProcessPercent(0);
-              showError(`${response.data.api_error}`);
+    Promise.all([getProgressPromises])
+      .then((responses) => {
+        responses.forEach((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            if (response.data && response.data.finish) {
+              if (response.data.api_error) {
+                setExportProcessPercent(0);
+                showError(`${response.data.api_error}`);
+              } else {
+                if (response.data.url) {
+                  setExportProcessPercent(100);
+                  showSuccess("Xuất file dữ liệu sản phẩm thành công!");
+                  window.open(response.data.url);
+                }
+              }
+              setExportProcessId(null);
+              setIsVisibleProgressModal(false);
             } else {
-              if (response.data.url) {
-                setExportProcessPercent(100);
-                showSuccess("Xuất file dữ liệu sản phẩm thành công!");
-                window.open(response.data.url);
+              if (response.data.total > 0) {
+                const percent = Math.floor(
+                  (response.data.total_success / response.data.total) * 100,
+                );
+                setExportProcessPercent(percent >= 100 ? 99 : percent);
               }
             }
-            setExportProcessId(null);
-            setIsVisibleProgressModal(false);
-          } else {
-            if (response.data.total > 0) {
-              const percent = Math.floor(response.data.total_success / response.data.total * 100);
-              setExportProcessPercent(percent >= 100 ? 99 : percent);
-            }
           }
-        }
-      });
-    })
+        });
+      })
       .catch(() => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
@@ -514,7 +495,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
 
   const onCancelExitProcessModal = () => {
     setIsVisibleExitProcessModal(false);
-  }
+  };
 
   const onOkExitProcessModal = () => {
     resetExportProductProcess();
@@ -526,7 +507,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           if (responseData) {
             showSuccess(responseData);
           }
-        })
+        }),
       );
     }
   };
@@ -544,13 +525,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       align: "center",
       width: "70px",
       render: (item: any) => {
-        return (
-          <img
-            src={item.ecommerce_image_url}
-            style={{ height: "40px" }}
-            alt=""
-          />
-        );
+        return <img src={item.ecommerce_image_url} style={{ height: "40px" }} alt="" />;
       },
     },
     {
@@ -562,7 +537,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <div>
             <div>{item.ecommerce_sku}</div>
             <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
-            <div style={{ color: "#737373", fontStyle: "italic" }}>({item.ecommerce_variant_id})</div>
+            <div style={{ color: "#737373", fontStyle: "italic" }}>
+              ({item.ecommerce_variant_id})
+            </div>
             <div style={{ color: "#2a2a86", fontWeight: 500 }}>({item.shop})</div>
           </div>
         );
@@ -582,11 +559,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       align: "center",
       width: "100px",
       render: (item: any) => {
-        return (
-          <span>
-            {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
-          </span>
-        );
+        return <span>{item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}</span>;
       },
     },
     {
@@ -597,7 +570,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <StyledProductLink>
             <Link
               target="_blank"
-              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}>
+              to={`${UrlConfig.PRODUCT}/${item.core_product_id}/variants/${item.core_variant_id}`}
+            >
               {item.core_variant}
             </Link>
             <div>{item.core_sku}</div>
@@ -630,7 +604,15 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       align: "center",
       width: "120px",
       render: (item: any) => {
-        return <span>{item?.available_minimum ? item.available_minimum : item.available_minimum === 0 ? 0 : '-' }</span>;
+        return (
+          <span>
+            {item?.available_minimum
+              ? item.available_minimum
+              : item.available_minimum === 0
+              ? 0
+              : "-"}
+          </span>
+        );
       },
     },
     {
@@ -655,10 +637,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         return (
           <div>
             <span>Đồng bộ tồn</span>
-            <Tooltip
-              overlay="Kết quả đồng bộ tồn kho lần gần nhất"
-              placement="top"
-              color="blue">
+            <Tooltip overlay="Kết quả đồng bộ tồn kho lần gần nhất" placement="top" color="blue">
               <img src={warningCircleIcon} style={{ marginLeft: 5 }} alt="" />
             </Tooltip>
           </div>
@@ -700,7 +679,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       handleDeleteItem,
       handleSyncStock,
       handleDisconnectItem,
-      handleShowLogInventory
+      handleShowLogInventory,
     ),
   ]);
 
@@ -708,24 +687,30 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     {
       title: "Request",
       dataIndex: "request_log",
-      className: `${inventoryHistoryLog.length && inventoryHistoryLog[0].status === 'done' ? "log-inventory-column-error" : "log-inventory-column-success"}`,
-      render: (request: any) => <div>{request}</div>
+      className: `${
+        inventoryHistoryLog.length && inventoryHistoryLog[0].status === "done"
+          ? "log-inventory-column-error"
+          : "log-inventory-column-success"
+      }`,
+      render: (request: any) => <div>{request}</div>,
     },
 
     {
       title: "Response",
       dataIndex: "response_log",
-      className: `${inventoryHistoryLog.length && inventoryHistoryLog[0].status === 'done' ? "log-inventory-column-error" : "log-inventory-column-success"}`,
-      render: (response: any) => <div>{response}</div>
-    }
-  ])
+      className: `${
+        inventoryHistoryLog.length && inventoryHistoryLog[0].status === "done"
+          ? "log-inventory-column-error"
+          : "log-inventory-column-success"
+      }`,
+      render: (response: any) => <div>{response}</div>,
+    },
+  ]);
 
   let initialValues = useMemo(() => {
     return {
       ...query,
-      shop_ids: Array.isArray(query.shop_ids)
-        ? query.shop_ids
-        : [query.shop_ids],
+      shop_ids: Array.isArray(query.shop_ids) ? query.shop_ids : [query.shop_ids],
     };
   }, [query]);
 
@@ -743,12 +728,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     if (initialValues.shop_ids.length) {
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
-        const findStatus = ecommerceShopList?.find(
-          (item) => +item.id === +shopId
-        );
-        shopNameList = findStatus
-          ? shopNameList + findStatus.name + "; "
-          : shopNameList;
+        const findStatus = ecommerceShopList?.find((item) => +item.id === +shopId);
+        shopNameList = findStatus ? shopNameList + findStatus.name + "; " : shopNameList;
       });
       list.push({
         key: "shop_ids",
@@ -761,7 +742,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       list.push({
         key: "sku_or_name_ecommerce",
         name: "Sku, tên sản phẩm sàn",
-        value: initialValues.sku_or_name_ecommerce
+        value: initialValues.sku_or_name_ecommerce,
       });
     }
 
@@ -769,7 +750,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       list.push({
         key: "sku_or_name_core",
         name: "Sku, tên sản phẩm Yody",
-        value: initialValues.sku_or_name_core
+        value: initialValues.sku_or_name_core,
       });
     }
 
@@ -780,16 +761,16 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           value_update_stock_status = "Thành công";
           break;
         case "in_progress":
-          value_update_stock_status = "Đang xử lý"
+          value_update_stock_status = "Đang xử lý";
           break;
         case "error":
-          value_update_stock_status = "Thất bại"
+          value_update_stock_status = "Thất bại";
           break;
       }
       list.push({
         key: "update_stock_status",
         name: "Trạng thái đồng bộ tồn kho",
-        value: value_update_stock_status
+        value: value_update_stock_status,
       });
     }
 
@@ -828,37 +809,35 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         case "shop_ids":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{ [tag.key]: [] }
+            ...{ [tag.key]: [] },
           };
           break;
         case "created_date":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{ connected_date_from: null, connected_date_to: null }
+            ...{ connected_date_from: null, connected_date_to: null },
           };
           break;
         case "ecommerce_id":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{ [tag.key]: [], shop_ids: [] }
+            ...{ [tag.key]: [], shop_ids: [] },
           };
           break;
         default:
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{ [tag.key]: null }
+            ...{ [tag.key]: null },
           };
           break;
       }
 
       let queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
-
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, formAdvance]
+    [query, formAdvance],
   );
-
 
   const onFinish = (value: ProductEcommerceQuery) => {
     if (value) {
@@ -881,13 +860,13 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   useEffect(() => {
     let dataQuery: ProductEcommerceQuery = {
       ...initialFormValues,
-      ...getQueryParamsFromQueryString(queryParamsParsed)
+      ...getQueryParamsFromQueryString(queryParamsParsed),
     };
-    setFilterValueByQueryParam(dataQuery)
+    setFilterValueByQueryParam(dataQuery);
     setQuery(dataQuery);
     getEcommerceProduct(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, location.search])
+  }, [dispatch, location.search]);
 
   const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery) => {
     let checkEcommerceShop = Array.isArray(dataquery.shop_ids)
@@ -899,25 +878,28 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     if (dataquery.ecommerce_id === null) {
       removeEcommerce();
     } else if (dataquery.ecommerce_id in [1, 2, 3, 4, 5, 6]) {
-      formAdvance.setFieldsValue({ ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id })
+      formAdvance.setFieldsValue({
+        ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id,
+      });
       if (dataquery.shop_ids !== null) {
-        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => item.toString()) })
+        formAdvance.setFieldsValue({
+          shop_ids: checkEcommerceShop.map((item) => item.toString()),
+        });
       }
-
     } else {
-      formAdvance.setFieldsValue({ ecommerce_id: null })
+      formAdvance.setFieldsValue({ ecommerce_id: null });
       removeEcommerce();
     }
     const connected_date_from = dataquery.connected_date_from;
     const connected_date_to = dataquery.connected_date_to;
     if (connected_date_from === null) {
-      setConnectionStartDate(null)
+      setConnectionStartDate(null);
     } else {
       setConnectionStartDate(ConvertDateToUtc(connected_date_from));
     }
 
     if (connected_date_to === null) {
-      setConnectionEndDate(null)
+      setConnectionEndDate(null);
     } else {
       setConnectionEndDate(ConvertDateToUtc(connected_date_to));
     }
@@ -925,19 +907,35 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     if (connected_date_from !== null && connected_date_to !== null) {
       const startDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
       const endDateValueToDay = ConvertUtcToDate(ConvertDateToUtc(moment()));
-      const startDateValueYesterday = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
-      const endDateValueYesterday = ConvertUtcToDate(ConvertDateToUtc(moment().subtract(1, "days")));
-      const startDateValueThisWeek = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").add(7, "h")));
+      const startDateValueYesterday = ConvertUtcToDate(
+        ConvertDateToUtc(moment().subtract(1, "days")),
+      );
+      const endDateValueYesterday = ConvertUtcToDate(
+        ConvertDateToUtc(moment().subtract(1, "days")),
+      );
+      const startDateValueThisWeek = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("week").add(7, "h")),
+      );
       const endDateValueThisWeek = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week")));
-      const startDateValueLastWeek = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, "h")));
-      const endDateValueLastWeek = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks")));
-      const startDateValueThisMonth = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").add(7, "h")));
+      const startDateValueLastWeek = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("week").subtract(1, "weeks").add(7, "h")),
+      );
+      const endDateValueLastWeek = ConvertUtcToDate(
+        ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks")),
+      );
+      const startDateValueThisMonth = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("month").add(7, "h")),
+      );
       const endDateValueThisMonth = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month")));
-      const startDateValueLastMonth = ConvertUtcToDate(ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, "h")));
-      const endDateValueLastMonth = ConvertUtcToDate(ConvertDateToUtc(moment().endOf("month").subtract(1, "months")));
+      const startDateValueLastMonth = ConvertUtcToDate(
+        ConvertDateToUtc(moment().startOf("month").subtract(1, "months").add(7, "h")),
+      );
+      const endDateValueLastMonth = ConvertUtcToDate(
+        ConvertDateToUtc(moment().endOf("month").subtract(1, "months")),
+      );
 
       const date_from = ConvertUtcToDate(connected_date_from);
-      const date_to = ConvertUtcToDate(connected_date_to)
+      const date_to = ConvertUtcToDate(connected_date_to);
 
       if (date_from === startDateValueToDay && date_to === endDateValueToDay) {
         setDateButtonSelected("today");
@@ -952,26 +950,19 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       } else if (date_from === startDateValueLastMonth && date_to === endDateValueLastMonth) {
         setDateButtonSelected("lastmonth");
       }
-
     } else {
       setDateButtonSelected("");
     }
-  }
+  };
 
-  const ConvertUtcToDate = (
-    date?: Date | string | number | null,
-    format?: string
-  ) => {
+  const ConvertUtcToDate = (date?: Date | string | number | null, format?: string) => {
     if (date != null) {
       let localDate = moment.utc(date).toDate();
-      let dateFormat = moment(localDate).format(
-        format ? format : "DD/MM/YYYY"
-      );
+      let dateFormat = moment(localDate).format(format ? format : "DD/MM/YYYY");
       return dateFormat;
     }
     return "";
   };
-
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -980,12 +971,12 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         ...getQueryParamsFromQueryString(queryParamsParsed),
         page: page,
         limit: limit,
-      }
+      };
       const queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query]
+    [query],
   );
 
   //handle select ecommerce
@@ -1004,12 +995,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   }, []);
 
   const getEcommerceShop = (ecommerceId: any) => {
-    dispatch(
-      getShopEcommerceList(
-        { ecommerce_id: ecommerceId },
-        updateEcommerceShopList
-      )
-    );
+    dispatch(getShopEcommerceList({ ecommerce_id: ecommerceId }, updateEcommerceShopList));
   };
 
   //end handle select ecommerce
@@ -1018,7 +1004,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   const handleSelectEcommerce = (ecommerceId: any) => {
     if (ecommerceId !== ecommerceIdSelected) {
       formAdvance?.setFieldsValue({
-        shop_ids: []
+        shop_ids: [],
       });
 
       setEcommerceIdSelected(ecommerceId);
@@ -1032,9 +1018,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
   };
   //end handle select ecommerce
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
   const STOCK_STATUS = bootstrapReducer.data?.stock_sync_status;
 
@@ -1082,9 +1066,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
     <Menu>
       {allowProductsUpdateStock && (
         <Menu.Item key="1" onClick={handleSyncStockItemsSelected}>
-          <span>
-            Đồng bộ tồn kho lên sàn
-          </span>
+          <span>Đồng bộ tồn kho lên sàn</span>
         </Menu.Item>
       )}
 
@@ -1105,24 +1087,20 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         onClick={handleExportExcelProduct}
         disabled={!variantData.metadata || !variantData.metadata.total}
       >
-        <span>
-          Xuất excel
-        </span>
+        <span>Xuất excel</span>
       </Menu.Item>
 
       <Menu.Item key="sync-safe-stock" onClick={handlePreparationExistSafe}>
-          <span>
-            Báo tồn an toàn
-          </span>
+        <span>Báo tồn an toàn</span>
       </Menu.Item>
     </Menu>
   );
 
   const [connectionStartDate, setConnectionStartDate] = useState(
-    initialFormValues.connected_date_from || null
+    initialFormValues.connected_date_from || null,
   );
   const [connectionEndDate, setConnectionEndDate] = useState(
-    initialFormValues.connected_date_to || null
+    initialFormValues.connected_date_to || null,
   );
 
   const [dateButtonSelected, setDateButtonSelected] = useState("");
@@ -1142,32 +1120,24 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           endDateValue = ConvertDateToUtc(moment().subtract(1, "days"));
           break;
         case "thisweek":
-          startDateValue = ConvertDateToUtc(
-            moment().startOf("week").add(7, "h")
-          );
+          startDateValue = ConvertDateToUtc(moment().startOf("week").add(7, "h"));
           endDateValue = ConvertDateToUtc(moment().endOf("week"));
           break;
         case "lastweek":
           startDateValue = ConvertDateToUtc(
-            moment().startOf("week").subtract(1, "weeks").add(7, "h")
+            moment().startOf("week").subtract(1, "weeks").add(7, "h"),
           );
-          endDateValue = ConvertDateToUtc(
-            moment().endOf("week").subtract(1, "weeks")
-          );
+          endDateValue = ConvertDateToUtc(moment().endOf("week").subtract(1, "weeks"));
           break;
         case "thismonth":
-          startDateValue = ConvertDateToUtc(
-            moment().startOf("month").add(7, "h")
-          );
+          startDateValue = ConvertDateToUtc(moment().startOf("month").add(7, "h"));
           endDateValue = ConvertDateToUtc(moment().endOf("month"));
           break;
         case "lastmonth":
           startDateValue = ConvertDateToUtc(
-            moment().startOf("month").subtract(1, "months").add(7, "h")
+            moment().startOf("month").subtract(1, "months").add(7, "h"),
           );
-          endDateValue = ConvertDateToUtc(
-            moment().endOf("month").subtract(1, "months")
-          );
+          endDateValue = ConvertDateToUtc(moment().endOf("month").subtract(1, "months"));
           break;
         default:
           break;
@@ -1183,7 +1153,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         setConnectionEndDate(endDateValue);
       }
     },
-    [dateButtonSelected]
+    [dateButtonSelected],
   );
 
   const onChangeRangeDate = useCallback((dates) => {
@@ -1200,16 +1170,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       <Card>
         <StyledProductFilter>
           <div className="filter">
-            <Form
-              form={formAdvance}
-              onFinish={onFinish}
-              initialValues={initialFormValues}>
+            <Form form={formAdvance} onFinish={onFinish} initialValues={initialFormValues}>
               {isShowAction && (
                 <div className="action-dropdown">
-                  <Dropdown
-                    overlay={actionList}
-                    trigger={["click"]}
-                    disabled={isLoading}>
+                  <Dropdown overlay={actionList} trigger={["click"]} disabled={isLoading}>
                     <Button className="action-button">
                       <div style={{ marginRight: 10 }}>Thao tác</div>
                       <DownOutlined />
@@ -1218,23 +1182,18 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 </div>
               )}
 
-              <Form.Item
-                name="ecommerce_id"
-                className="select-channel-dropdown">
+              <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
-                  onClear={removeEcommerce}>
+                  onClear={removeEcommerce}
+                >
                   {ECOMMERCE_LIST?.map((item: any) => (
                     <Select.Option key={item.ecommerce_id} value={item.ecommerce_id}>
                       <div>
-                        <img
-                          src={item.icon}
-                          alt={item.id}
-                          style={{ marginRight: "10px" }}
-                        />
+                        <img src={item.icon} alt={item.id} style={{ marginRight: "10px" }} />
                         <span>{item.title}</span>
                       </div>
                     </Select.Option>
@@ -1242,11 +1201,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 </Select>
               </Form.Item>
 
-              <Form.Item
-                className="select-store-dropdown"
-                name="shop_ids"
-              >
-                {ecommerceIdSelected ?
+              <Form.Item className="select-store-dropdown" name="shop_ids">
+                {ecommerceIdSelected ? (
                   <TreeSelect
                     placeholder="Chọn gian hàng"
                     treeDefaultExpandAll
@@ -1280,15 +1236,11 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                       />
                     ))}
                   </TreeSelect>
-                  :
+                ) : (
                   <Tooltip title="Yêu cầu chọn sàn" color={"gold"}>
-                    <Select
-                      showSearch
-                      disabled={true}
-                      placeholder="Chọn gian hàng"
-                    />
+                    <Select showSearch disabled={true} placeholder="Chọn gian hàng" />
                   </Tooltip>
-                }
+                )}
               </Form.Item>
 
               <Form.Item name="sku_or_name_ecommerce" className="search-ecommerce-product">
@@ -1341,11 +1293,19 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
               </Form.Item>
             </Form>
             <div className="order-filter-tags">
-              {filters && filters.map((filter: any, index: any) => {
-                return (
-                  <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
-                )
-              })}
+              {filters &&
+                filters.map((filter: any, index: any) => {
+                  return (
+                    <Tag
+                      key={index}
+                      className="tag"
+                      closable
+                      onClose={(e) => onCloseTag(e, filter)}
+                    >
+                      {filter.name}: {filter.value}
+                    </Tag>
+                  );
+                })}
             </div>
           </div>
         </StyledProductFilter>
@@ -1377,20 +1337,17 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         onFilter={onFilterClick}
         onCancel={onCancelFilter}
         visible={visibleFilter}
-        width={400}>
+        width={400}
+      >
         <StyledBaseFilter>
           <Form
             form={formAdvance}
             onFinish={onFinish}
             initialValues={initialFormValues}
-            layout="vertical">
-            <Form.Item
-              name="update_stock_status"
-              label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}>
-              <Select
-                showSearch
-                placeholder="Chọn trạng thái đồng bộ tồn kho"
-                allowClear>
+            layout="vertical"
+          >
+            <Form.Item name="update_stock_status" label={<b>TRẠNG THÁI ĐỒNG BỘ TỒN KHO</b>}>
+              <Select showSearch placeholder="Chọn trạng thái đồng bộ tồn kho" allowClear>
                 {STOCK_STATUS &&
                   STOCK_STATUS.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -1405,25 +1362,22 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("yesterday")}
-                    className={
-                      dateButtonSelected === "yesterday" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "yesterday" ? "active-btn" : ""}
+                  >
                     Hôm qua
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("today")}
-                    className={
-                      dateButtonSelected === "today" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "today" ? "active-btn" : ""}
+                  >
                     Hôm nay
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("thisweek")}
-                    className={
-                      dateButtonSelected === "thisweek" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "thisweek" ? "active-btn" : ""}
+                  >
                     Tuần này
                   </Button>
                 </div>
@@ -1431,25 +1385,22 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                 <div className="date-option">
                   <Button
                     onClick={() => onSelectDate("lastweek")}
-                    className={
-                      dateButtonSelected === "lastweek" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "lastweek" ? "active-btn" : ""}
+                  >
                     Tuần trước
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("thismonth")}
-                    className={
-                      dateButtonSelected === "thismonth" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "thismonth" ? "active-btn" : ""}
+                  >
                     Tháng này
                   </Button>
 
                   <Button
                     onClick={() => onSelectDate("lastmonth")}
-                    className={
-                      dateButtonSelected === "lastmonth" ? "active-btn" : ""
-                    }>
+                    className={dateButtonSelected === "lastmonth" ? "active-btn" : ""}
+                  >
                     Tháng trước
                   </Button>
                 </div>
@@ -1466,13 +1417,9 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
                     connectionStartDate
                       ? moment(new Date(connectionStartDate), "DD-MM-YYYY")
                       : null,
-                    connectionEndDate
-                      ? moment(new Date(connectionEndDate), "DD-MM-YYYY")
-                      : null,
+                    connectionEndDate ? moment(new Date(connectionEndDate), "DD-MM-YYYY") : null,
                   ]}
-                  onChange={(date) =>
-                    onChangeRangeDate(date)
-                  }
+                  onChange={(date) => onChangeRangeDate(date)}
                 />
               </div>
             </Form.Item>
@@ -1486,7 +1433,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         okText="Đồng ý"
         cancelText="Hủy"
         onCancel={cancelDisconnectModal}
-        onOk={okDisconnectModal}>
+        onOk={okDisconnectModal}
+      >
         <div>
           <img src={disconnectIcon} style={{ marginRight: 20 }} alt="" />
           <span>Bạn có chắc chắn muốn hủy liên kết sản phẩm không?</span>
@@ -1499,7 +1447,8 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
         okText="Đồng ý"
         cancelText="Hủy"
         onCancel={cancelDeleteItemModal}
-        onOk={okDeleteItemModal}>
+        onOk={okDeleteItemModal}
+      >
         <div>
           <img src={circleDeleteIcon} style={{ marginRight: 20 }} alt="" />
           <span>Bạn có chắc chắn muốn xóa sản phẩm tải về không?</span>
@@ -1529,10 +1478,7 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
       >
         <Radio.Group onChange={onChangeExportProductOption} value={exportProductType}>
           <Space direction="vertical">
-            <Radio
-              value={EXPORT_PRODUCT_OPTION.SELECTED}
-              disabled={selectedRow.length <= 0}
-            >
+            <Radio value={EXPORT_PRODUCT_OPTION.SELECTED} disabled={selectedRow.length <= 0}>
               Tải sản phẩm đã chọn
             </Radio>
             <Radio value={EXPORT_PRODUCT_OPTION.FILTERED}>
@@ -1553,11 +1499,10 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <Button key="cancel" danger onClick={onCancelProgressModal}>
             Thoát
           </Button>,
-        ]}>
+        ]}
+      >
         <div style={{ textAlign: "center" }}>
-          <div style={{ marginBottom: 15 }}>
-            Đang tạo file, vui lòng đợi trong giây lát
-          </div>
+          <div style={{ marginBottom: 15 }}>Đang tạo file, vui lòng đợi trong giây lát</div>
           <Progress
             type="circle"
             strokeColor={{
@@ -1584,12 +1529,14 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           <img src={DeleteIcon} alt="" />
           <div style={{ marginLeft: 15 }}>
             <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải sản phẩm không?</strong>
-            <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.</div>
+            <div style={{ fontSize: 14 }}>
+              Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.
+            </div>
           </div>
         </div>
       </Modal>
 
-      {inventoryHistoryLog.length > 0 && 
+      {inventoryHistoryLog.length > 0 && (
         <Modal
           title="Chi tiết lịch sử đồng bộ"
           centered
@@ -1598,24 +1545,26 @@ const ConnectedItems: React.FC<ConnectedItemsProps> = (props) => {
           onCancel={() => CancelHistoryLogInventory()}
           width={1000}
         >
-          <Table columns={columnLogInventory} dataSource={inventoryHistoryLog} rowClassName="log-history-list" />
-        </Modal>
-      }
-
-       {/* Import customer file */}
-       {isShowExistSafeModal &&
-          <ConcatenateByExcel
-            title="Tồn an toàn"
-            visible={isShowExistSafeModal}
-            setVisible={setIsShowExistSafeModal}
-            descText="đồng bộ tồn an toàn"
-            syncType="min-stock"
-            onCancelConcatenateByExcel={onCancelConcatenateByExcel}
-            onOkConcatenateByExcel={onOkConcatenateByExcel}
+          <Table
+            columns={columnLogInventory}
+            dataSource={inventoryHistoryLog}
+            rowClassName="log-history-list"
           />
-        }
+        </Modal>
+      )}
 
-
+      {/* Import customer file */}
+      {isShowExistSafeModal && (
+        <ConcatenateByExcel
+          title="Tồn an toàn"
+          visible={isShowExistSafeModal}
+          setVisible={setIsShowExistSafeModal}
+          descText="đồng bộ tồn an toàn"
+          syncType="min-stock"
+          onCancelConcatenateByExcel={onCancelConcatenateByExcel}
+          onOkConcatenateByExcel={onOkConcatenateByExcel}
+        />
+      )}
     </StyledComponent>
   );
 };

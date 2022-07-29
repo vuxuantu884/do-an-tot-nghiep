@@ -2,9 +2,7 @@ import { Col, Form, Modal, Row, Select } from "antd";
 import CustomDatePicker from "component/custom/date-picker.custom";
 import { StoreResponse } from "model/core/store.model";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
-import {
-  PurchaseProcurementViewDraft
-} from "model/purchase-order/purchase-procument";
+import { PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { POInventoryDraftTable } from "screens/purchase-order/component/po-inventory/POInventoryDraft/styles";
@@ -17,16 +15,16 @@ type ProcurementModalProps = {
   lineItems: Array<PurchaseOrderLineItem>;
   dataSource: Array<PurchaseProcurementViewDraft>;
   stores: Array<StoreResponse>;
-  confirmLoading: boolean,
+  confirmLoading: boolean;
 };
 
 const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
-  props: ProcurementModalProps
+  props: ProcurementModalProps,
 ) => {
   const { visible, onCancel, onOk } = props;
-  const [procumentViewDraft, setProcumentViewDraft] = useState<
-    Array<PurchaseProcurementViewDraft>
-  >([]);
+  const [procumentViewDraft, setProcumentViewDraft] = useState<Array<PurchaseProcurementViewDraft>>(
+    [],
+  );
   // const defaultColumns: Array<
   //   ICustomTableColumType<PurchaseProcurementViewDraft>
   // > = [
@@ -130,7 +128,7 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
       procumentViewDraft[index1].expect_receipt_date = value ? value : "";
       setProcumentViewDraft([...procumentViewDraft]);
     },
-    [procumentViewDraft]
+    [procumentViewDraft],
   );
 
   // const onChangeStore = useCallback(
@@ -227,16 +225,24 @@ const POEditDraftProcurementModal: React.FC<ProcurementModalProps> = (
         <Row gutter={20}>
           <Col span={8}>
             <Form.Item label="Ngày nhận hàng" labelCol={{ span: 24 }}>
-              <Select disabled placeholder={procumentViewDraft?.length > 0 && procumentViewDraft[0] ? procumentViewDraft[0].store : "-"}>
-              </Select>
-
+              <Select
+                disabled
+                placeholder={
+                  procumentViewDraft?.length > 0 && procumentViewDraft[0]
+                    ? procumentViewDraft[0].store
+                    : "-"
+                }
+              ></Select>
             </Form.Item>
           </Col>
-          <Col span={8} >
+          <Col span={8}>
             <Form.Item label="Ngày nhận dự kiến" labelCol={{ span: 24 }}>
-
               <CustomDatePicker
-                value={procumentViewDraft?.length > 0 && procumentViewDraft[0] ? procumentViewDraft[0].expect_receipt_date : undefined}
+                value={
+                  procumentViewDraft?.length > 0 && procumentViewDraft[0]
+                    ? procumentViewDraft[0].expect_receipt_date
+                    : undefined
+                }
                 disableDate={(date) => date <= moment().startOf("days")}
                 format={DATE_FORMAT.DDMMYYY}
                 onChange={(value) => onChangeDate(value, 0)}

@@ -24,10 +24,7 @@ function ReturnMoneySelect(props: PropTypes) {
   /**
    * payment method bỏ tiêu điểm và qr pay
    */
-   const exceptMethods = [
-    PaymentMethodCode.QR_CODE,
-    PaymentMethodCode.POINT,
-  ];
+  const exceptMethods = [PaymentMethodCode.QR_CODE, PaymentMethodCode.POINT];
 
   const {
     totalAmountCustomerNeedToPay,
@@ -40,10 +37,10 @@ function ReturnMoneySelect(props: PropTypes) {
   } = props;
 
   // console.log('returnPaymentMethodCode', returnPaymentMethodCode)
-  if(!(listPaymentMethods.length > 0)) {
+  if (!(listPaymentMethods.length > 0)) {
     return null;
   }
-  
+
   let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
     return !exceptMethods.includes(single.code);
   });
@@ -60,7 +57,6 @@ function ReturnMoneySelect(props: PropTypes) {
   //   setInitialReturnAmount(result)
 
   // }, [totalAmountCustomerNeedToPay])
-  
 
   return (
     <StyledComponent>
@@ -104,10 +100,7 @@ function ReturnMoneySelect(props: PropTypes) {
                           </Form.Item>
                         </Col>
                         <Col span={12}>
-                          <Form.Item
-                            label="Số tiền"
-                            name={[index, "returnMoneyAmount"]}
-                          >
+                          <Form.Item label="Số tiền" name={[index, "returnMoneyAmount"]}>
                             <NumberInput
                               format={(a: string) => formatCurrency(a)}
                               replace={(a: string) => replaceFormatString(a)}
@@ -122,8 +115,8 @@ function ReturnMoneySelect(props: PropTypes) {
                               max={Math.abs(totalAmountCustomerNeedToPay)}
                               // value={initialReturnAmount}
                               onChange={(value) => {
-                                if(value &&value > Math.abs(totalAmountCustomerNeedToPay)) {
-                                  showError("Không nhập quá số tiền trả khách")
+                                if (value && value > Math.abs(totalAmountCustomerNeedToPay)) {
+                                  showError("Không nhập quá số tiền trả khách");
                                 }
                                 // setInitialReturnAmount(value || 0);
                               }}
@@ -161,7 +154,10 @@ function ReturnMoneySelect(props: PropTypes) {
             }}
           </Form.List>
         )}
-        <div className="note">* Chú ý: Đối với trả hàng online, yêu cầu đã nhận hàng và tài khoản được cấp quyền mới có thể thực hiện hoàn tiền.</div>
+        <div className="note">
+          * Chú ý: Đối với trả hàng online, yêu cầu đã nhận hàng và tài khoản được cấp quyền mới có
+          thể thực hiện hoàn tiền.
+        </div>
       </div>
     </StyledComponent>
   );

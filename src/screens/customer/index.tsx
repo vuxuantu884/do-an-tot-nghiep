@@ -1,25 +1,20 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import {Link, useHistory, useLocation} from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { Card, Button } from "antd";
 import { PlusOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
-import {ConvertTimestampToDate, ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
+import { ConvertTimestampToDate, ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
 import { getCustomerListAction } from "domain/actions/customer/customer.action";
 import { CustomerSearchQuery } from "model/query/customer.query";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 
-import {
-  CustomerGroups,
-  CustomerTypes,
-} from "domain/actions/customer/customer.action";
+import { CustomerGroups, CustomerTypes } from "domain/actions/customer/customer.action";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { StoreResponse } from "model/core/store.model";
 import { getListAllStoresSimpleAction } from "domain/actions/core/store.action";
@@ -37,21 +32,15 @@ import "screens/customer/customer.scss";
 
 import importIcon from "assets/icon/import.svg";
 import exportIcon from "assets/icon/export.svg";
-import {
-  StyledCustomer,
-  StyledCustomerExtraButton,
-} from "screens/customer/customerStyled";
-import {
-  generateQuery,
-  isNullOrUndefined,
-} from "utils/AppUtils";
+import { StyledCustomer, StyledCustomerExtraButton } from "screens/customer/customerStyled";
+import { generateQuery, isNullOrUndefined } from "utils/AppUtils";
 import ImportCustomerFile from "screens/customer/import-file/ImportCustomerFile";
 
-import {getQueryParamsFromQueryString } from "utils/useQuery";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
 import NumberFormat from "react-number-format";
 import ExportCustomerFile from "screens/customer/export-file/ExportCustomerFile";
-import {COLUMN_CONFIG_TYPE} from "utils/Constants";
+import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 
@@ -62,11 +51,9 @@ const exportCustomerPermission = [CustomerListPermission.customers_export];
 const Customer = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const location = useLocation()
+  const location = useLocation();
 
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   const [allowCreateCustomer] = useAuthorization({
     acceptPermissions: createCustomerPermission,
@@ -78,9 +65,7 @@ const Customer = () => {
     not: false,
   });
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const LIST_GENDER = bootstrapReducer.data?.gender;
   const initQuery: CustomerSearchQuery = useMemo(
     () => ({
@@ -154,17 +139,13 @@ const Customer = () => {
       to_wedding_date: null,
       customer_level_id: undefined,
     }),
-    []
+    [],
   );
 
   const [params, setParams] = useState<CustomerSearchQuery>(initQuery);
-  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Array<any>>(
-    []
-  );
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Array<any>>([]);
 
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [groups, setGroups] = useState<Array<any>>([]);
   const [types, setTypes] = useState<Array<any>>([]);
@@ -213,9 +194,7 @@ const Customer = () => {
         width: 80,
         align: "center",
         render: (value: any) => (
-          <div>
-            {LIST_GENDER?.find((item) => item.value === value)?.name}
-          </div>
+          <div>{LIST_GENDER?.find((item) => item.value === value)?.name}</div>
         ),
       },
       {
@@ -225,9 +204,7 @@ const Customer = () => {
         visible: true,
         width: 110,
         align: "center",
-        render: (value: string) => (
-          <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-        ),
+        render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
       },
       {
         title: "Điểm",
@@ -237,17 +214,14 @@ const Customer = () => {
         width: 100,
         align: "center",
         render: (value: any) => (
-          <div style={{textAlign: "right"}}>
-            {!isNullOrUndefined(value) ?
-              <NumberFormat
-                value={value}
-                displayType={"text"}
-                thousandSeparator={true}
-              />
-              : ""
-            }
+          <div style={{ textAlign: "right" }}>
+            {!isNullOrUndefined(value) ? (
+              <NumberFormat value={value} displayType={"text"} thousandSeparator={true} />
+            ) : (
+              ""
+            )}
           </div>
-        )
+        ),
       },
       {
         title: "Hạng thẻ",
@@ -274,16 +248,13 @@ const Customer = () => {
         align: "center",
         render: (value: any) => (
           <div style={{ textAlign: "right" }}>
-            {!isNullOrUndefined(value) ?
-              <NumberFormat
-                value={value}
-                displayType={"text"}
-                thousandSeparator={true}
-              />
-              : ""
-            }
+            {!isNullOrUndefined(value) ? (
+              <NumberFormat value={value} displayType={"text"} thousandSeparator={true} />
+            ) : (
+              ""
+            )}
           </div>
-        )
+        ),
       },
       {
         title: "Ngày mua đầu",
@@ -292,9 +263,7 @@ const Customer = () => {
         visible: true,
         width: 110,
         align: "center",
-        render: (value: string) => (
-          <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
-        ),
+        render: (value: string) => <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>,
       },
       {
         title: "Ngày mua cuối",
@@ -303,9 +272,7 @@ const Customer = () => {
         visible: true,
         width: 110,
         align: "center",
-        render: (value: string) => (
-          <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>
-        ),
+        render: (value: string) => <div>{ConvertTimestampToDate(value, DATE_FORMAT.DDMMYYY)}</div>,
       },
       {
         title: "Loại khách hàng",
@@ -323,10 +290,10 @@ const Customer = () => {
         width: 180,
         align: "center",
         render: (value: string, item: any) => {
-          const staff = (item.responsible_staff_code ? item.responsible_staff_code + " - " : "") + (item.responsible_staff ? item.responsible_staff  : "");
-          return (
-            <div>{staff}</div>
-          )
+          const staff =
+            (item.responsible_staff_code ? item.responsible_staff_code + " - " : "") +
+            (item.responsible_staff ? item.responsible_staff : "");
+          return <div>{staff}</div>;
         },
       },
       {
@@ -336,9 +303,7 @@ const Customer = () => {
         visible: true,
         width: 110,
         align: "center",
-        render: (value: string) => (
-          <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-        ),
+        render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
       },
       {
         title: "Mã số thẻ",
@@ -355,9 +320,7 @@ const Customer = () => {
         visible: false,
         width: 110,
         align: "center",
-        render: (value: string) => (
-          <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>
-        ),
+        render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>,
       },
       {
         title: "Cửa hàng kích hoạt",
@@ -397,8 +360,15 @@ const Customer = () => {
     }
   }, [columns, initColumns]);
 
-  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.CUSTOMER_COLUMNS);
-  useSetTableColumns(COLUMN_CONFIG_TYPE.CUSTOMER_COLUMNS, tableColumnConfigs, initColumns, setColumns)
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
+    COLUMN_CONFIG_TYPE.CUSTOMER_COLUMNS,
+  );
+  useSetTableColumns(
+    COLUMN_CONFIG_TYPE.CUSTOMER_COLUMNS,
+    tableColumnConfigs,
+    initColumns,
+    setColumns,
+  );
   // end handle columns
 
   const [data, setData] = useState<PageResponse<any>>({
@@ -414,7 +384,7 @@ const Customer = () => {
 
   const reloadPage = () => {
     window.location.reload();
-  }
+  };
 
   const onSelectRow = useCallback((selectedRow) => {
     let selectedRowIds: Array<any> = [];
@@ -432,12 +402,12 @@ const Customer = () => {
       const queryParam = generateQuery(newParams);
       history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const columnFinal = React.useMemo(
     () => columns.filter((item) => item.visible === true),
-    [columns]
+    [columns],
   );
 
   const setResult = React.useCallback((result: PageResponse<any> | false) => {
@@ -469,7 +439,7 @@ const Customer = () => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const onClearAdvancedFilter = useCallback(() => {
@@ -484,7 +454,7 @@ const Customer = () => {
       setIsLoading(true);
       dispatch(getCustomerListAction(params, setResult));
     },
-    [dispatch, setResult]
+    [dispatch, setResult],
   );
 
   useEffect(() => {
@@ -518,16 +488,16 @@ const Customer = () => {
 
   const handleImportFile = () => {
     setIsVisibleImportModal(true);
-  }
+  };
 
   const onOkImportCustomerFile = () => {
     setIsVisibleImportModal(false);
     reloadPage();
-  }
+  };
 
   const onCancelImportCustomerFile = () => {
     setIsVisibleImportModal(false);
-  }
+  };
   // end handle import file
 
   return (
@@ -541,7 +511,8 @@ const Customer = () => {
               disabled={isLoading}
               size="large"
               icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={handleImportFile}>
+              onClick={handleImportFile}
+            >
               Nhập file
             </Button>
 
@@ -550,10 +521,9 @@ const Customer = () => {
                 className="export-file-button"
                 disabled={isLoading}
                 size="large"
-                icon={
-                  <img src={exportIcon} style={{ marginRight: 8 }} alt="" />
-                }
-                onClick={handleExportFile}>
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={handleExportFile}
+              >
                 Xuất file
               </Button>
             )}
@@ -564,13 +534,15 @@ const Customer = () => {
                   disabled={isLoading}
                   className="ant-btn-outline ant-btn-primary"
                   size="large"
-                  icon={<PlusOutlined />}>
+                  icon={<PlusOutlined />}
+                >
                   Thêm khách hàng mới
                 </Button>
               </Link>
             )}
           </StyledCustomerExtraButton>
-        }>
+        }
+      >
         <AuthWrapper acceptPermissions={viewCustomerPermission} passThrough>
           {(allowed: boolean) =>
             allowed ? (
@@ -617,14 +589,10 @@ const Customer = () => {
           }
         </AuthWrapper>
 
-
         {/* Import customer file */}
-        {isVisibleImportModal &&
-          <ImportCustomerFile
-            onCancel={onCancelImportCustomerFile}
-            onOk={onOkImportCustomerFile}
-          />
-        }
+        {isVisibleImportModal && (
+          <ImportCustomerFile onCancel={onCancelImportCustomerFile} onOk={onOkImportCustomerFile} />
+        )}
 
         <ExportCustomerFile
           isVisibleExportModal={isVisibleExportModal}

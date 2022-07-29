@@ -1,17 +1,11 @@
-import {Button, Card, Dropdown, Space, Menu} from "antd";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { Button, Card, Dropdown, Space, Menu } from "antd";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import {
-  GoodsReceiptsTotalProductModel,
-} from "model/pack/pack.model";
+import { GoodsReceiptsTotalProductModel } from "model/pack/pack.model";
 import React, { useEffect, useState } from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import { StyledComponent } from "../styles";
-import {
-  DownOutlined,
-  FileExcelOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { DownOutlined, FileExcelOutlined, PrinterOutlined } from "@ant-design/icons";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
 
@@ -25,20 +19,17 @@ const resultPagingDefault: ResultPaging = {
   lastPage: 1,
   perPage: 30,
   total: 0,
-  result: []
-}
+  result: [],
+};
 
 const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
-  props: PackQuantityProductProps
+  props: PackQuantityProductProps,
 ) => {
-  const {
-    packProductQuantity,
-    handleAddOrderInPack,
-  } = props;
+  const { packProductQuantity, handleAddOrderInPack } = props;
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: resultPagingDefault.currentPage,
-    perPage: resultPagingDefault.perPage
+    perPage: resultPagingDefault.perPage,
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
@@ -65,7 +56,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       render: (value: string, i: GoodsReceiptsTotalProductModel) => {
         return (
           <React.Fragment>
-            <Link target="_blank"   to={`#`} style={{whiteSpace:"nowrap"}}>
+            <Link target="_blank" to={`#`} style={{ whiteSpace: "nowrap" }}>
               {value}
             </Link>
           </React.Fragment>
@@ -80,11 +71,14 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
       render: (value: string, i: GoodsReceiptsTotalProductModel) => {
         return (
           <React.Fragment>
-            <div style={{padding: "5px 0"}}>
-              <Link target="_blank"  to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.variant_id}`}>
+            <div style={{ padding: "5px 0" }}>
+              <Link
+                target="_blank"
+                to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.variant_id}`}
+              >
                 {value}
               </Link>
-              <div style={{fontSize: "0.86em"}}>{i.product_name}</div>
+              <div style={{ fontSize: "0.86em" }}>{i.product_name}</div>
             </div>
           </React.Fragment>
         );
@@ -167,14 +161,12 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
 
   useEffect(() => {
     if (!packProductQuantity || (packProductQuantity && packProductQuantity.length <= 0)) {
-      setResultPaging(resultPagingDefault)
-    }
-    else {
-      let result = flatDataPaging(packProductQuantity, pagingParam)
+      setResultPaging(resultPagingDefault);
+    } else {
+      let result = flatDataPaging(packProductQuantity, pagingParam);
       setResultPaging(result);
     }
-
-  }, [packProductQuantity, pagingParam])
+  }, [packProductQuantity, pagingParam]);
 
   return (
     <StyledComponent>
@@ -183,7 +175,7 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
         className="pack-card-products"
         extra={
           <Space>
-            <Dropdown trigger={["click"]}  overlay={menuCardProductQuantity}>
+            <Dropdown trigger={["click"]} overlay={menuCardProductQuantity}>
               <Button className="t1-btn">
                 Thao tác <DownOutlined />
               </Button>
@@ -191,24 +183,24 @@ const PackQuantityProduct: React.FC<PackQuantityProductProps> = (
           </Space>
         }
       >
-         <CustomTable
-            bordered
-            pagination={{
-              pageSize: resultPaging.perPage,
-              total: resultPaging.total,
-              current: resultPaging.currentPage,
-              showSizeChanger: true,
-              onChange: (page, size) => {
-                setPagingParam({ perPage: size || 10, currentPage: page })
-              },
-              onShowSizeChange: (page, size) => {
-                setPagingParam({ perPage: size || 10, currentPage: page })
-              },
-            }}
-            dataSource={resultPaging.result}
-            columns={column}
-            rowKey={(item: any) => item.key}
-          />
+        <CustomTable
+          bordered
+          pagination={{
+            pageSize: resultPaging.perPage,
+            total: resultPaging.total,
+            current: resultPaging.currentPage,
+            showSizeChanger: true,
+            onChange: (page, size) => {
+              setPagingParam({ perPage: size || 10, currentPage: page });
+            },
+            onShowSizeChange: (page, size) => {
+              setPagingParam({ perPage: size || 10, currentPage: page });
+            },
+          }}
+          dataSource={resultPaging.result}
+          columns={column}
+          rowKey={(item: any) => item.key}
+        />
       </Card>
     </StyledComponent>
   );

@@ -29,7 +29,7 @@ export interface CustomerBillingAddress extends BaseObject {
   buyer?: string;
   tax_code: string;
   default: boolean;
-  isDefault:boolean;
+  isDefault: boolean;
 }
 
 export class CustomerBillingAddressClass implements CustomerBillingAddress {
@@ -57,7 +57,7 @@ export class CustomerBillingAddressClass implements CustomerBillingAddress {
   request_id = "";
   operator_kc_id = "";
   tax_code = "";
-  isDefault=false;
+  isDefault = false;
 }
 
 export class CustomerShippingAddressClass implements CustomerShippingAddress {
@@ -170,10 +170,10 @@ export interface CustomerRequest extends BaseObject {
   tax_code: string | null;
   country_id: number | null;
   district_id: number | null;
-  district:string|null;
+  district: string | null;
   ward_id?: number | null;
-  ward?:string|null;
-  city?:string|null;
+  ward?: string | null;
+  city?: string | null;
   full_address: string | null;
   customer_type_id: number | null;
   customer_group_id: number | null;
@@ -209,9 +209,9 @@ export class CustomerModel implements CustomerRequest {
   tax_code = "";
   country_id = 233;
   district_id = null;
-  district="";
+  district = "";
   ward_id = null;
-  ward="";
+  ward = "";
   full_address = "";
   customer_type_id = null;
   customer_group_id = null;
@@ -236,19 +236,19 @@ export interface CustomerCardListRequest extends BaseQuery {
   to_assigned_date?: string;
   statuses?: Array<any>;
   release_ids?: Array<any>;
-  customer_id?: number | null,
+  customer_id?: number | null;
 }
 
 export interface YDpageCustomerRequest {
-  full_name: string | null,
-  phone: string | null,
-  birthday: string | null,
-  email: string | null,
-  gender: string | null,
-  city_id: number | null,
-  district_id: number | null,
-  ward_id: number | null,
-  full_address: string | null,
-  card_number: string | null,
-  customer_group_id: string | null,
+  full_name: string | null;
+  phone: string | null;
+  birthday: string | null;
+  email: string | null;
+  gender: string | null;
+  city_id: number | null;
+  district_id: number | null;
+  ward_id: number | null;
+  full_address: string | null;
+  card_number: string | null;
+  customer_group_id: string | null;
 }

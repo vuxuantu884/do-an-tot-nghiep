@@ -15,8 +15,7 @@ const KEY_ALL = -20;
 const TreeStore = (props: Props) => {
   const { form, name, placeholder, listStore, ...restProps } = props;
   const [stores, setStores] = useState<Array<StoreResponse>>();
-  const [noDepartmentStores, setNoDepartmentStores] =
-    useState<Array<StoreResponse>>();
+  const [noDepartmentStores, setNoDepartmentStores] = useState<Array<StoreResponse>>();
   const [selectedValues, setSelectedValues] = useState(restProps?.value || []);
   const KEY_MAP_STORE_LEVEL_3 = "department_h3";
   const KEY_MAP_STORE_LEVEL_4 = "department_h4";
@@ -55,10 +54,7 @@ const TreeStore = (props: Props) => {
   }, [restProps?.value, getAllIdStore]);
 
   useEffect(() => {
-    const groupBy = (
-      list: Array<StoreResponse>,
-      keyGetter: (store: StoreResponse) => any,
-    ) => {
+    const groupBy = (list: Array<StoreResponse>, keyGetter: (store: StoreResponse) => any) => {
       const map = new Map();
       list.forEach((item) => {
         const key = keyGetter(item);
@@ -95,24 +91,16 @@ const TreeStore = (props: Props) => {
 
     const grouped: any =
       listStore !== undefined
-        ? groupBy(
-            listStore,
-            (store: StoreResponse) => store[KEY_MAP_STORE_LEVEL_3],
-          )
+        ? groupBy(listStore, (store: StoreResponse) => store[KEY_MAP_STORE_LEVEL_3])
         : [];
     const newStore = _.filter([...grouped], (store) => store[0]);
-    setNoDepartmentStores(
-      _.filter(listStore, (source) => !source[KEY_MAP_STORE_LEVEL_3]),
-    );
+    setNoDepartmentStores(_.filter(listStore, (source) => !source[KEY_MAP_STORE_LEVEL_3]));
 
     newStore.forEach((item) => {
       if (item[1].length > 0) {
         const grouped: any =
           listStore !== undefined
-            ? groupByLevel4(
-                item[1],
-                (store: SourceResponse) => store[KEY_MAP_STORE_LEVEL_4],
-              )
+            ? groupByLevel4(item[1], (store: SourceResponse) => store[KEY_MAP_STORE_LEVEL_4])
             : [];
         const newSourcesLevel4 = _.filter([...grouped], (store) => store[0]);
         if (newSourcesLevel4.length > 0) item[1] = newSourcesLevel4;
@@ -168,10 +156,7 @@ const TreeStore = (props: Props) => {
             value.splice(index, 1);
           }
         }
-        if (
-          value.length === getAllIdStore().length - 1 &&
-          !selectedValues.includes(KEY_ALL)
-        ) {
+        if (value.length === getAllIdStore().length - 1 && !selectedValues.includes(KEY_ALL)) {
           value.push(KEY_ALL);
         }
         setSelectedValues(value);
@@ -226,11 +211,7 @@ const TreeStore = (props: Props) => {
         );
       })}
       {noDepartmentStores?.map((storeItem: StoreResponse) => (
-        <TreeSelect.TreeNode
-          key={storeItem.code}
-          value={storeItem.id}
-          title={storeItem.name}
-        />
+        <TreeSelect.TreeNode key={storeItem.code} value={storeItem.id} title={storeItem.name} />
       ))}
     </TreeSelect>
   );

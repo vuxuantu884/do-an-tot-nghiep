@@ -69,13 +69,13 @@ const CustomTable = (props: ICustomTableProps) => {
     (item: any, selected: boolean, selectedRow: any[]) => {
       onSelectedChange && onSelectedChange(selectedRow);
     },
-    [onSelectedChange]
+    [onSelectedChange],
   );
   const onSelectAll = useCallback(
     (selected, selectedRow: any[], changeRow: any[]) => {
       onSelectedChange && onSelectedChange(selectedRow);
     },
-    [onSelectedChange]
+    [onSelectedChange],
   );
   return (
     <div className="custom-table">
@@ -93,20 +93,12 @@ const CustomTable = (props: ICustomTableProps) => {
               }
             : undefined
         }
-        columns={
-          showColumnSetting ? columns?.concat(configSettingColumns) : columns
-        }
+        columns={showColumnSetting ? columns?.concat(configSettingColumns) : columns}
         locale={locale}
         loading={
           isLoading
             ? {
-                indicator: (
-                  <Spin
-                    indicator={
-                      <LoadingOutlined style={{ fontSize: 24 }} spin />
-                    }
-                  />
-                ),
+                indicator: <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />,
               }
             : false
         }

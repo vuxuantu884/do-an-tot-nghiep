@@ -12,14 +12,30 @@ export const useArray = (defaultValue: any[]) => {
     setArray((prevArr) => prevArr.filter(callback));
   };
   const update = (index: number, newElement: any) => {
-    setArray((prevArr) => [...prevArr.slice(0, index), newElement, ...prevArr.slice(index + 1, prevArr.length)]);
+    setArray((prevArr) => [
+      ...prevArr.slice(0, index),
+      newElement,
+      ...prevArr.slice(index + 1, prevArr.length),
+    ]);
   };
   const remove = (index: number) => {
-    setArray((prevArr) => [...prevArr.slice(0, index), ...prevArr.slice(index + 1, prevArr.length)]);
+    setArray((prevArr) => [
+      ...prevArr.slice(0, index),
+      ...prevArr.slice(index + 1, prevArr.length),
+    ]);
   };
   const clear = () => {
     setArray([]);
   };
 
-  return { array, set: setArray, prevArray, push, filter, update, remove, clear };
+  return {
+    array,
+    set: setArray,
+    prevArray,
+    push,
+    filter,
+    update,
+    remove,
+    clear,
+  };
 };

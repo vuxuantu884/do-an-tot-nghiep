@@ -96,7 +96,7 @@ function WarrantyReasons(props: PropTypes) {
     initQuery,
     location,
     countForceFetchData,
-    setQuery
+    setQuery,
   );
   let { warrantyReasons, metadata } = getWarrantyReasons;
 
@@ -135,7 +135,7 @@ function WarrantyReasons(props: PropTypes) {
         disabled: selectedRowKeys.length ? false : true,
       },
     ],
-    [ACTION_ID.active, ACTION_ID.delete, ACTION_ID.inactive, selectedRowKeys.length]
+    [ACTION_ID.active, ACTION_ID.delete, ACTION_ID.inactive, selectedRowKeys.length],
   );
 
   const onSelectedChange = (selectedRow: WarrantyReasonModel[]) => {
@@ -167,7 +167,7 @@ function WarrantyReasons(props: PropTypes) {
           dispatch(hideLoading());
         });
     },
-    [data, dispatch]
+    [data, dispatch],
   );
 
   const handleUpdatePrice = useCallback(
@@ -193,7 +193,7 @@ function WarrantyReasons(props: PropTypes) {
           dispatch(hideLoading());
         });
     },
-    [dispatch, data]
+    [dispatch, data],
   );
 
   const handleUpdateWarrantyReason = useCallback(
@@ -211,7 +211,7 @@ function WarrantyReasons(props: PropTypes) {
           dispatch(hideLoading());
         });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const handleOkConfirmModal = () => {
@@ -308,7 +308,7 @@ function WarrantyReasons(props: PropTypes) {
           setConfirmDeleteSubTitle(
             <React.Fragment>
               Bạn có chắc chắn muốn xóa các <strong>lý do bảo hành</strong> đã chọn ?
-            </React.Fragment>
+            </React.Fragment>,
           );
           setIsDeleteConfirmModalVisible(true);
           break;
@@ -317,7 +317,7 @@ function WarrantyReasons(props: PropTypes) {
           setConfirmSubTitle(
             <React.Fragment>
               Bạn có chắc chắn muốn kích hoạt các <strong>lý do bảo hành</strong> đã chọn ?
-            </React.Fragment>
+            </React.Fragment>,
           );
           setIsConfirmModalVisible(true);
           break;
@@ -326,7 +326,7 @@ function WarrantyReasons(props: PropTypes) {
           setConfirmSubTitle(
             <React.Fragment>
               Bạn có chắc chắn muốn ngừng kích hoạt các <strong>lý do bảo hành</strong> đã chọn ?
-            </React.Fragment>
+            </React.Fragment>,
           );
           setIsConfirmModalVisible(true);
           break;
@@ -334,7 +334,7 @@ function WarrantyReasons(props: PropTypes) {
           break;
       }
     },
-    [ACTION_ID.active, ACTION_ID.delete, ACTION_ID.inactive]
+    [ACTION_ID.active, ACTION_ID.delete, ACTION_ID.inactive],
   );
 
   const onPageChange = useCallback(
@@ -346,7 +346,7 @@ function WarrantyReasons(props: PropTypes) {
       history.push(`${location.pathname}?${queryParam}`);
       goToTopPage();
     },
-    [history, location.pathname, query]
+    [history, location.pathname, query],
   );
 
   const forceFetchData = useCallback(() => {
@@ -378,7 +378,7 @@ function WarrantyReasons(props: PropTypes) {
       // setSelectedRowKeys([]);
       // setSelectedRowCodes([]);
     },
-    [forceFetchData, history, location.pathname, query]
+    [forceFetchData, history, location.pathname, query],
   );
 
   useEffect(() => {
@@ -542,7 +542,7 @@ function WarrantyReasons(props: PropTypes) {
                         <React.Fragment>
                           Bạn có chắc chắn muốn xóa: <strong>Lý do bảo hành</strong> có tên{" "}
                           <strong>{`"${record.name}"`}</strong> ?
-                        </React.Fragment>
+                        </React.Fragment>,
                       );
                       setIsDeleteConfirmModalVisible(true);
                     }}

@@ -5,15 +5,9 @@ import UrlConfig from "config/url.config";
 import PackInfo from "./info/pack-info";
 import PackList from "./info/pack-list";
 import AddReportHandOver from "./info/add-report-hand-over";
-import {
-  DeliveryServicesGetList,
-  getChannels,
-} from "domain/actions/order/order.action";
+import { DeliveryServicesGetList, getChannels } from "domain/actions/order/order.action";
 import { useEffect, useState } from "react";
-import {
-  ChannelsResponse,
-  DeliveryServiceResponse,
-} from "model/response/order/order.response";
+import { ChannelsResponse, DeliveryServiceResponse } from "model/response/order/order.response";
 import { useDispatch, useSelector } from "react-redux";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import { StoreResponse } from "model/core/store.model";
@@ -21,7 +15,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { GoodsReceiptsTypeResponse } from "model/response/pack/pack.response";
 import { getGoodsReceiptsType } from "domain/actions/goods-receipts/goods-receipts.action";
 import { StyledComponent } from "./styles";
-import './styles.scss';
+import "./styles.scss";
 import { getPackInfo, setPackInfo } from "utils/LocalStorageUtils";
 import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -40,9 +34,9 @@ const PackSupportScreen: React.FC = () => {
 
   const [isFulFillmentPack, setIsFulFillmentPack] = useState<string[]>([]);
 
-  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<
-    DeliveryServiceResponse[]
-  >([]);
+  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>(
+    [],
+  );
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
   const [listStoresDataCanAccess, setListStoresDataCanAccess] = useState<Array<StoreResponse>>([]);
   const [listGoodsReceiptsType, setListGoodsReceiptsType] = useState<
@@ -50,8 +44,9 @@ const PackSupportScreen: React.FC = () => {
   >([]);
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
   const [isVisiblePackedOrderModal, setIsVisiblePackedOrderModal] = useState<boolean>(false);
-  const [orderPushFalseDelivery, setOrderPushFalseDelivery] = useState<OrderWithFulfillmentActiveModel[]>([])
-
+  const [orderPushFalseDelivery, setOrderPushFalseDelivery] = useState<
+    OrderWithFulfillmentActiveModel[]
+  >([]);
 
   const packSupportContextData = {
     listThirdPartyLogistics,
@@ -74,7 +69,7 @@ const PackSupportScreen: React.FC = () => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setListThirdPartyLogistics(response);
-      })
+      }),
     );
 
     dispatch(getGoodsReceiptsType(setListGoodsReceiptsType));
@@ -82,7 +77,7 @@ const PackSupportScreen: React.FC = () => {
     dispatch(
       getChannels(2, (data: ChannelsResponse[]) => {
         setListChannels(data);
-      })
+      }),
     );
 
     dispatch(StoreGetListAction(setListStores));
@@ -93,14 +88,10 @@ const PackSupportScreen: React.FC = () => {
     if (listStores && listStores.length) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
         newData = listStores.filter((store) =>
-          haveAccess(
-            store.id,
-            userReducer.account ? userReducer.account.account_stores : []
-          )
+          haveAccess(store.id, userReducer.account ? userReducer.account.account_stores : []),
         );
         setListStoresDataCanAccess(newData);
-      }
-      else {
+      } else {
         // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
         setListStoresDataCanAccess(listStores);
       }
@@ -112,24 +103,41 @@ const PackSupportScreen: React.FC = () => {
     if (packInfo) {
       dispatch(showLoading());
       let packInfoConvertJson: any = JSON.parse(packInfo);
-      let packData: PackModel = { ...new PackModelDefaultValue(), ...packInfoConvertJson };
-      let queryCode = packData.fulfillments.map(p => p.order_code);
-      let queryParam: any = { code: queryCode }
-      getListOrderApi(queryParam).then((response) => {
-        if (isFetchApiSuccessful(response)) {
-          let fulfillments = packData.fulfillments.filter(p =>
-            response.data.items.some(
-              p1 => p1.code === p.order_code && getFulfillmentActive(p1.fulfillments)?.status === FulFillmentStatus.PACKED
-                && (!p1.goods_receipts || (p1.goods_receipts && p1.goods_receipts?.length <= 0))
-            )
-          )
-          setSinglePack({ ...packData, store_id: packData.store_id, fulfillments: fulfillments });
-          setPackInfo({ ...packData, store_id: packData.store_id, fulfillments: fulfillments });
-        }
-        else handleFetchApiError(response, "Danh sách fulfillment", dispatch)
-      }).catch((err) => {
-        console.log(err);
-      }).finally(() => { dispatch(hideLoading()); });
+      let packData: PackModel = {
+        ...new PackModelDefaultValue(),
+        ...packInfoConvertJson,
+      };
+      let queryCode = packData.fulfillments.map((p) => p.order_code);
+      let queryParam: any = { code: queryCode };
+      getListOrderApi(queryParam)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            let fulfillments = packData.fulfillments.filter((p) =>
+              response.data.items.some(
+                (p1) =>
+                  p1.code === p.order_code &&
+                  getFulfillmentActive(p1.fulfillments)?.status === FulFillmentStatus.PACKED &&
+                  (!p1.goods_receipts || (p1.goods_receipts && p1.goods_receipts?.length <= 0)),
+              ),
+            );
+            setSinglePack({
+              ...packData,
+              store_id: packData.store_id,
+              fulfillments: fulfillments,
+            });
+            setPackInfo({
+              ...packData,
+              store_id: packData.store_id,
+              fulfillments: fulfillments,
+            });
+          } else handleFetchApiError(response, "Danh sách fulfillment", dispatch);
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+        .finally(() => {
+          dispatch(hideLoading());
+        });
     }
   }, [dispatch]);
 

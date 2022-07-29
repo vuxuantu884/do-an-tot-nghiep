@@ -19,7 +19,7 @@
       align-items: center;
 
       .ant-switch-checked {
-        background: #27AE60;
+        background: #27ae60;
       }
     }
   }
@@ -104,7 +104,8 @@
     .cancel-btn {
       background-color: white;
 
-      &:hover, &:focus {
+      &:hover,
+      &:focus {
         color: #222222;
         background-color: white;
       }

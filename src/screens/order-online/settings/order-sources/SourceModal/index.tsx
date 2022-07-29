@@ -34,7 +34,7 @@ const SourceModal = (props: CustomModalType) => {
       setVisibleForm(false);
       onDelete(form.getFieldsValue());
       setIsShowConfirmDelete(false);
-    }
+    },
   };
 
   useEffect(() => {
@@ -51,11 +51,7 @@ const SourceModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => form.submit()}
-            >
+            <Button key="submit" type="primary" onClick={() => form.submit()}>
               {createText ?? "Thêm"}
             </Button>
           </div>
@@ -64,8 +60,8 @@ const SourceModal = (props: CustomModalType) => {
       return (
         <div className="footer footer__edit">
           <div className="footer__left">
-            {
-              !isOnlyEdit && <Button
+            {!isOnlyEdit && (
+              <Button
                 key="delete"
                 type="primary"
                 danger
@@ -73,17 +69,13 @@ const SourceModal = (props: CustomModalType) => {
               >
                 Xóa
               </Button>
-            }
+            )}
           </div>
           <div className="footer__right">
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Đóng
             </Button>
-            <Button
-              key="save"
-              type="primary"
-              onClick={() => form.submit()}
-            >
+            <Button key="save" type="primary" onClick={() => form.submit()}>
               {updateText ?? "Lưu"}
             </Button>
           </div>
@@ -109,11 +101,7 @@ const SourceModal = (props: CustomModalType) => {
       visible={visible}
       okText="Thêm"
       cancelText="Thoát"
-      title={
-        isCreateModal
-          ? `Thêm ${modalTypeText}`
-          : `Cập nhật ${modalTypeText}`
-      }
+      title={isCreateModal ? `Thêm ${modalTypeText}` : `Cập nhật ${modalTypeText}`}
       footer={renderModalFooter()}
       onCancel={formAction.exit}
     >

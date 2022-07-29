@@ -1,11 +1,7 @@
 import { Upload } from "antd";
 
 const CustomUpload: React.FC = () => {
-  return (
-    <Upload>
-      
-    </Upload>
-  )
-}
+  return <Upload></Upload>;
+};
 
 export default CustomUpload;

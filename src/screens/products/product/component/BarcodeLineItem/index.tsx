@@ -11,9 +11,7 @@ type ProductItemProps = {
   onChange?: (checked: boolean) => void;
 };
 
-const BarcodeLineItem: React.FC<ProductItemProps> = (
-  props: ProductItemProps
-) => {
+const BarcodeLineItem: React.FC<ProductItemProps> = (props: ProductItemProps) => {
   const { data, showCheckBox, checked } = props;
   const avatar = Products.findAvatar(data.variant_images);
   return (
@@ -26,11 +24,7 @@ const BarcodeLineItem: React.FC<ProductItemProps> = (
           />
         )}
         <div className="bc-item-image">
-          <img
-            src={avatar === null ? imgDefIcon : avatar.url}
-            alt=""
-            className=""
-          />
+          <img src={avatar === null ? imgDefIcon : avatar.url} alt="" className="" />
         </div>
         <div className="bc-item-info">
           <div className="bc-item-info-left">

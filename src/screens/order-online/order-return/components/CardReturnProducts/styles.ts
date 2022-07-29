@@ -25,7 +25,7 @@ export const StyledComponent = styled.div`
   .columnQuantity {
     text-align: center;
   }
-  .ant-table-tbody>tr>td {
+  .ant-table-tbody > tr > td {
     padding: 8px;
   }
   .yody-pos-varian-name {

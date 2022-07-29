@@ -42,7 +42,7 @@ export const OrderThresholdStyle = styled.div`
   table {
     width: 100%;
     table-layout: fixed;
-    thead { 
+    thead {
       th {
         width: 30%;
       }

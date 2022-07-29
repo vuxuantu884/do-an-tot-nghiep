@@ -28,10 +28,11 @@ const ListInventoryAdjustments: React.FC = () => {
         extra={
           <Row>
             <Space>
-              <AuthWrapper
-                acceptPermissions={[InventoryAdjustmentPermission.create]}
-              >
-                <ButtonCreate child="Thêm phiếu kiểm" path={`${UrlConfig.INVENTORY_ADJUSTMENTS}/create`} />
+              <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.create]}>
+                <ButtonCreate
+                  child="Thêm phiếu kiểm"
+                  path={`${UrlConfig.INVENTORY_ADJUSTMENTS}/create`}
+                />
               </AuthWrapper>
             </Space>
           </Row>

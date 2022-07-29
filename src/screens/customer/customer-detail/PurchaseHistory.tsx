@@ -1,9 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Popover, Tooltip } from "antd";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import NumberFormat from "react-number-format";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import UrlConfig from "config/url.config";
@@ -19,27 +17,14 @@ import {
 } from "utils/AppUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import moment from "moment";
-import {
-  DeliveryServiceResponse,
-  ShipmentResponse,
-} from "model/response/order/order.response";
-import {
-  dangerColor,
-  primaryColor,
-  yellowColor,
-} from "utils/global-styles/variables";
+import { DeliveryServiceResponse, ShipmentResponse } from "model/response/order/order.response";
+import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import {
   nameQuantityWidth,
   StyledPurchaseHistory,
 } from "screens/customer/customer-detail/customerDetailStyled";
 import EditNote from "screens/order-online/component/edit-note";
-import {
-  COD,
-  OrderStatus,
-  PaymentMethodCode,
-  POS,
-  ShipmentMethod,
-} from "utils/Constants";
+import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
 import {
   DeliveryServicesGetList,
   getTrackingLogFulfillmentAction,
@@ -54,10 +39,7 @@ import {
   getCustomerOrderHistoryAction,
   getCustomerOrderReturnHistoryAction,
 } from "../../../domain/actions/customer/customer.action";
-import {
-  getVariantApi,
-  searchVariantsApi,
-} from "service/product/product.service";
+import { getVariantApi, searchVariantsApi } from "service/product/product.service";
 import DebounceSelect from "component/filter/component/debounce-select";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
@@ -65,11 +47,7 @@ import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreate
 import _ from "lodash";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
-import {
-  getLink,
-  getReturnMoneyStatusColor,
-  getFulfillmentActive,
-} from "utils/OrderUtils";
+import { getLink, getReturnMoneyStatusColor, getFulfillmentActive } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { OrderExtraModel, OrderModel } from "model/order/order.model";
@@ -171,9 +149,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     setSubStatus: "setSubStatus",
   };
 
-  const [deliveryServices, setDeliveryServices] = useState<
-    Array<DeliveryServiceResponse>
-  >([]);
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
   useEffect(() => {
     dispatch(
@@ -185,22 +161,15 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
   //handle get purchase history
   const [tableLoading, setTableLoading] = useState<boolean>(false);
-  const [orderHistoryQueryParams, setOrderHistoryQueryParams] = useState<any>(
-    initOrderSearchingQuery,
-  );
-  const [optionsVariant, setOptionsVariant] = useState<
-    { label: string; value: string }[]
-  >([]);
+  const [orderHistoryQueryParams, setOrderHistoryQueryParams] =
+    useState<any>(initOrderSearchingQuery);
+  const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
   const [rerenderSearchVariant, setRerenderSearchVariant] = useState(false);
   const [selectedOrder, setSelectedOrder] = useState<OrderModel | null>(null);
   const [typeAPi, setTypeAPi] = useState("");
-  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(
-    undefined,
-  );
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
 
-  const [purchaseHistoryData, setPurchaseHistoryData] = useState<
-    PageResponse<any>
-  >({
+  const [purchaseHistoryData, setPurchaseHistoryData] = useState<PageResponse<any>>({
     metadata: {
       limit: 10,
       page: 1,
@@ -222,12 +191,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   useEffect(() => {
     if (customer?.id) {
       setTableLoading(true);
-      dispatch(
-        getCustomerOrderReturnHistoryAction(
-          customer?.id,
-          updateOrderReturnedList,
-        ),
-      );
+      dispatch(getCustomerOrderReturnHistoryAction(customer?.id, updateOrderReturnedList));
     }
   }, [customer?.id, dispatch, updateOrderReturnedList]);
   // end order returned history
@@ -257,10 +221,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
   }
 
   useEffect(() => {
-    if (
-      orderHistoryQueryParams.variant_ids &&
-      orderHistoryQueryParams.variant_ids.length
-    ) {
+    if (orderHistoryQueryParams.variant_ids && orderHistoryQueryParams.variant_ids.length) {
       setRerenderSearchVariant(false);
       let variant_ids = convertItemToArray(orderHistoryQueryParams.variant_ids);
       (async () => {
@@ -304,9 +265,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           customer_id: customer?.id,
         };
         setTableLoading(true);
-        dispatch(
-          getCustomerOrderHistoryAction(newParams, updateOrderHistoryData),
-        );
+        dispatch(getCustomerOrderHistoryAction(newParams, updateOrderHistoryData));
       }
     },
     [customer?.id, dispatch, updateOrderHistoryData],
@@ -341,12 +300,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         getCustomerOrderHistory(newParams);
       }
     },
-    [
-      getCustomerOrderHistory,
-      history,
-      location.pathname,
-      orderHistoryQueryParams,
-    ],
+    [getCustomerOrderHistory, history, location.pathname, orderHistoryQueryParams],
   );
 
   const handleClearSearchOrderCustomer = () => {
@@ -366,21 +320,13 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
   // update purchase history data
   useEffect(() => {
-    if (
-      orderHistoryQueryParams.variant_ids &&
-      orderHistoryQueryParams.variant_ids.length > 0
-    ) {
+    if (orderHistoryQueryParams.variant_ids && orderHistoryQueryParams.variant_ids.length > 0) {
       setPurchaseHistoryData(orderHistoryData);
     } else {
       let newPurchaseHistoryData = _.cloneDeep(orderHistoryData);
-      newPurchaseHistoryData.items =
-        newPurchaseHistoryData.items.concat(orderReturnedList);
+      newPurchaseHistoryData.items = newPurchaseHistoryData.items.concat(orderReturnedList);
       newPurchaseHistoryData.items.sort((a, b) => {
-        return b.created_date < a.created_date
-          ? -1
-          : b.created_date > a.created_date
-          ? 1
-          : 0;
+        return b.created_date < a.created_date ? -1 : b.created_date > a.created_date ? 1 : 0;
       });
       setPurchaseHistoryData(newPurchaseHistoryData);
     }
@@ -423,17 +369,13 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
       return (
         <div
           className={`singlePayment ${
-            payment.payment_method_code === PaymentMethodCode.POINT
-              ? "ydPoint"
-              : null
+            payment.payment_method_code === PaymentMethodCode.POINT ? "ydPoint" : null
           }`}
           key={index}
         >
           <Tooltip title={selectedPayment?.tooltip || payment.payment_method}>
             <img src={selectedPayment?.icon} alt="" />
-            <span className="amount">
-              {formatCurrency(payment.paid_amount)}
-            </span>
+            <span className="amount">{formatCurrency(payment.paid_amount)}</span>
           </Tooltip>
         </div>
       );
@@ -539,9 +481,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         params.customer_note = newNote;
       }
       dispatch(
-        updateOrderPartial(params, orderID, () =>
-          onSuccessEditNote(newNote, noteType, orderID),
-        ),
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID)),
       );
     },
     [dispatch, onSuccessEditNote],
@@ -615,19 +555,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     let html = null;
     if (trackingLogFulfillment) {
       html = (
-        <TrackingLog
-          trackingLogFulfillment={trackingLogFulfillment}
-          trackingCode={trackingCode}
-        />
+        <TrackingLog trackingLogFulfillment={trackingLogFulfillment} trackingCode={trackingCode} />
       );
     }
     return html;
   };
 
   const changeSubStatusCallback = (value: string) => {
-    const index = purchaseHistoryData.items?.findIndex(
-      (single) => single.id === selectedOrder?.id,
-    );
+    const index = purchaseHistoryData.items?.findIndex((single) => single.id === selectedOrder?.id);
     if (index > -1) {
       let dataResult: dataExtra = { ...purchaseHistoryData };
       // selected = value;
@@ -668,14 +603,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     }
     //xóa data
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    dispatch,
-    selectedOrder,
-    setPurchaseHistoryData,
-    type.subStatus,
-    type.trackingCode,
-    typeAPi,
-  ]);
+  }, [dispatch, selectedOrder, setPurchaseHistoryData, type.subStatus, type.trackingCode, typeAPi]);
 
   const columnsPurchaseHistory: Array<ICustomTableColumType<any>> = useMemo(
     () => [
@@ -688,9 +616,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           return (
             <div>
               <div>
-                <b>
-                  {item.code_order_return ? item.customer_name : item.customer}
-                </b>
+                <b>{item.code_order_return ? item.customer_name : item.customer}</b>
               </div>
               <div>{item.customer_phone_number}</div>
             </div>
@@ -710,20 +636,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                 {item.code_order_return ? (
                   <>
                     <Tooltip title="Mã đơn trả hàng">
-                      <Link
-                        to={`${UrlConfig.ORDERS_RETURN}/${item.id}`}
-                        target="_blank"
-                      >
+                      <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">
                         {item.code_order_return}
                       </Link>
                     </Tooltip>
                     <Tooltip title="Click để copy">
                       <img
                         onClick={(e) => {
-                          copyTextToClipboard(
-                            e,
-                            item.code_order_return.toString(),
-                          );
+                          copyTextToClipboard(e, item.code_order_return.toString());
                           showSuccess("Đã copy mã đơn hàng!");
                         }}
                         src={copyFileBtn}
@@ -735,10 +655,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                 ) : (
                   <>
                     <Tooltip title="Mã đơn hàng">
-                      <Link
-                        to={`${UrlConfig.ORDER}/${item.id}`}
-                        target="_blank"
-                      >
+                      <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
                         {item.code}
                       </Link>
                     </Tooltip>
@@ -812,29 +729,21 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                     <div className="textSmall">
                       <span style={{ fontWeight: "bold" }}>Đơn gốc: </span>
                       <Tooltip title="Mã đơn gốc">
-                        <Link
-                          to={`${UrlConfig.ORDER}/${item.order_id}`}
-                          target="_blank"
-                        >
+                        <Link to={`${UrlConfig.ORDER}/${item.order_id}`} target="_blank">
                           {item.code_order}
                         </Link>
                       </Tooltip>
                     </div>
-                    <div
-                      className="textSmall"
-                      style={{ color: "red", fontWeight: "bold" }}
-                    >
+                    <div className="textSmall" style={{ color: "red", fontWeight: "bold" }}>
                       Trả hàng
                     </div>
                   </div>
-                ) : !item.code_order_return &&
-                  checkIfOrderCanBeReturned(item) ? (
+                ) : !item.code_order_return && checkIfOrderCanBeReturned(item) ? (
                   <div style={{ marginRight: 5 }}>
                     <ButtonCreateOrderReturn orderDetail={item} />
                   </div>
                 ) : null}
-                {item.status === OrderStatus.FINISHED ||
-                item.status === OrderStatus.COMPLETED ? (
+                {item.status === OrderStatus.FINISHED || item.status === OrderStatus.COMPLETED ? (
                   <div className="actionButton">
                     <Link
                       to={`${UrlConfig.WARRANTY}/create?orderID=${item.id}`}
@@ -913,14 +822,12 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                           <span>{formatCurrency(item.price)}</span>
                         </Tooltip>
 
-                        {item?.discount_items &&
-                        item.discount_items[0]?.value ? (
+                        {item?.discount_items && item.discount_items[0]?.value ? (
                           <div>
                             <Tooltip
                               title={
                                 "Chiết khấu sản phẩm: " +
-                                Math.round(item.discount_items[0]?.rate * 100) /
-                                  100 +
+                                Math.round(item.discount_items[0]?.rate * 100) / 100 +
                                 "%"
                               }
                             >
@@ -930,8 +837,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                                   textAlign: "right",
                                 }}
                               >
-                                {"-" +
-                                  formatCurrency(item.discount_items[0]?.value)}
+                                {"-" + formatCurrency(item.discount_items[0]?.value)}
                               </div>
                             </Tooltip>
 
@@ -942,9 +848,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                                   textAlign: "right",
                                 }}
                               >
-                                {formatCurrency(
-                                  item.price - item.discount_items[0].value,
-                                )}
+                                {formatCurrency(item.price - item.discount_items[0].value)}
                               </div>
                             </Tooltip>
                           </div>
@@ -967,8 +871,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         align: "right",
         width: 65,
         render: (record: any) => {
-          const discountAmount =
-            record.discounts && record.discounts[0]?.amount;
+          const discountAmount = record.discounts && record.discounts[0]?.amount;
           return (
             <>
               {/*Đơn hàng*/}
@@ -988,9 +891,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                       "Chiết khấu đơn hàng: " +
                       (discountAmount
                         ? Math.round(
-                            (record.discounts[0]?.rate
-                              ? record.discounts[0]?.rate
-                              : 0) * 100,
+                            (record.discounts[0]?.rate ? record.discounts[0]?.rate : 0) * 100,
                           ) / 100
                         : 0) +
                       "%"
@@ -1028,10 +929,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   {record.discounts?.length > 0 ? (
                     <Tooltip title="Khuyến mại đơn hàng">
                       <div style={{ color: dangerColor }}>
-                        <span>
-                          {" "}
-                          - {formatCurrency(record.discounts[0].value)}
-                        </span>
+                        <span> - {formatCurrency(record.discounts[0].value)}</span>
                       </div>
                     </Tooltip>
                   ) : null}
@@ -1061,9 +959,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           return (
             <React.Fragment>
               {/*Đơn hàng*/}
-              {!data.code_order_return &&
-                data.payments &&
-                renderOrderPayments(data)}
+              {!data.code_order_return && data.payments && renderOrderPayments(data)}
 
               {/*Đơn trả*/}
               {data.code_order_return && renderOrderReturnPayments(data)}
@@ -1098,9 +994,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                 }`}</div>
                 {data.status === OrderStatus.CANCELLED && (
                   <div className="minus-point">{`Hoàn tiêu: ${
-                    data.change_point?.subtract
-                      ? data.change_point?.subtract
-                      : 0
+                    data.change_point?.subtract ? data.change_point?.subtract : 0
                   }`}</div>
                 )}
               </div>
@@ -1133,9 +1027,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
           if (!recordStatuses) {
             recordStatuses = [];
           }
-          let selected = record.sub_status_code
-            ? record.sub_status_code
-            : "finished";
+          let selected = record.sub_status_code ? record.sub_status_code : "finished";
           if (!recordStatuses.some((single: any) => single.code === selected)) {
             recordStatuses.push({
               name: record.sub_status,
@@ -1159,11 +1051,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
                   {subStatuses ? (
                     <div className={`status-order ${className}`}>
-                      {
-                        subStatuses.find(
-                          (p) => p.code === record.sub_status_code,
-                        )?.sub_status
-                      }
+                      {subStatuses.find((p) => p.code === record.sub_status_code)?.sub_status}
                     </div>
                   ) : undefined}
                 </div>
@@ -1207,16 +1095,13 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
         align: "left",
         width: 110,
         render: (data: any) => {
-          const orderReturnReason =
-            data.return_reason?.name || data.reason || ""; // cập nhật lại khi BE thay đổi theo SO
+          const orderReturnReason = data.return_reason?.name || data.reason || ""; // cập nhật lại khi BE thay đổi theo SO
           return (
             <div className="orderNotes">
               {data.code_order_return ? (
                 <div className="order-reason">
                   <span className="order-reason-heading">{"Lý do trả: "}</span>
-                  <span className="order-reason-content">
-                    {orderReturnReason}
-                  </span>
+                  <span className="order-reason-content">{orderReturnReason}</span>
                 </div>
               ) : (
                 <>
@@ -1277,11 +1162,8 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
 
           switch (fulfillment.shipment.delivery_service_provider_type) {
             case ShipmentMethod.EXTERNAL_SERVICE:
-              const thirdPLId =
-                fulfillment.shipment.delivery_service_provider_id;
-              const service = deliveryServices.find(
-                (service) => service.id === thirdPLId,
-              );
+              const thirdPLId = fulfillment.shipment.delivery_service_provider_id;
+              const service = deliveryServices.find((service) => service.id === thirdPLId);
               return (
                 <React.Fragment>
                   {service && (
@@ -1299,23 +1181,16 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                         <div className="single">
                           <img src={iconShippingFeeInformedToCustomer} alt="" />
                           <span>
-                            {formatCurrency(
-                              record.shipping_fee_informed_to_customer || 0,
-                            )}
+                            {formatCurrency(record.shipping_fee_informed_to_customer || 0)}
                           </span>
                         </div>
                       </Tooltip>
 
                       <Tooltip title="Phí vận chuyển">
                         <div className="single">
-                          <img
-                            src={iconShippingFeePay3PL}
-                            alt=""
-                            className="iconShipping"
-                          />
+                          <img src={iconShippingFeePay3PL} alt="" className="iconShipping" />
                           {formatCurrency(
-                            fulfillment.shipment
-                              ?.shipping_fee_paid_to_three_pls || 0,
+                            fulfillment.shipment?.shipping_fee_paid_to_three_pls || 0,
                           )}
                         </div>
                       </Tooltip>
@@ -1363,8 +1238,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                       : "Đơn giao thường"}
                     {" - "}
                     <span style={{ color: primaryColor }}>
-                      {fulfillment.shipment?.shipper_code}-
-                      {fulfillment.shipment?.shipper_name}
+                      {fulfillment.shipment?.shipper_code}-{fulfillment.shipment?.shipper_name}
                     </span>
                   </div>
                   <Tooltip title="Tổng khối lượng">
@@ -1376,21 +1250,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   <Tooltip title="Phí ship báo khách">
                     <div className="single">
                       <img src={iconShippingFeeInformedToCustomer} alt="" />
-                      <span>
-                        {formatCurrency(
-                          record.shipping_fee_informed_to_customer || 0,
-                        )}
-                      </span>
+                      <span>{formatCurrency(record.shipping_fee_informed_to_customer || 0)}</span>
                     </div>
                   </Tooltip>
 
                   <Tooltip title="Phí vận chuyển">
                     <div className="single">
                       <img src={iconShippingFeePay3PL} alt="" />
-                      {formatCurrency(
-                        fulfillment.shipment?.shipping_fee_paid_to_three_pls ||
-                          0,
-                      )}
+                      {formatCurrency(fulfillment.shipment?.shipping_fee_paid_to_three_pls || 0)}
                     </div>
                   </Tooltip>
                 </React.Fragment>
@@ -1400,9 +1267,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                 <React.Fragment>
                   <div className="single">
                     <strong className="textSmall">Nhận tại {" - "}</strong>
-                    <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>
-                      {record.store}
-                    </Link>
+                    <Link to={`${UrlConfig.STORE}/${record?.store_id}`}>{record.store}</Link>
                   </div>
                   <Tooltip title="Tổng khối lượng">
                     <div className="single">
@@ -1413,21 +1278,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   <Tooltip title="Phí ship báo khách">
                     <div className="single">
                       <img src={iconShippingFeeInformedToCustomer} alt="" />
-                      <span>
-                        {formatCurrency(
-                          record.shipping_fee_informed_to_customer || 0,
-                        )}
-                      </span>
+                      <span>{formatCurrency(record.shipping_fee_informed_to_customer || 0)}</span>
                     </div>
                   </Tooltip>
 
                   <Tooltip title="Phí vận chuyển">
                     <div className="single">
                       <img src={iconShippingFeePay3PL} alt="" />
-                      {formatCurrency(
-                        fulfillment.shipment?.shipping_fee_paid_to_three_pls ||
-                          0,
-                      )}
+                      {formatCurrency(fulfillment.shipment?.shipping_fee_paid_to_three_pls || 0)}
                     </div>
                   </Tooltip>
                 </React.Fragment>
@@ -1445,21 +1303,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   <Tooltip title="Phí ship báo khách">
                     <div className="single">
                       <img src={iconShippingFeeInformedToCustomer} alt="" />
-                      <span>
-                        {formatCurrency(
-                          record.shipping_fee_informed_to_customer || 0,
-                        )}
-                      </span>
+                      <span>{formatCurrency(record.shipping_fee_informed_to_customer || 0)}</span>
                     </div>
                   </Tooltip>
 
                   <Tooltip title="Phí vận chuyển">
                     <div className="single">
                       <img src={iconShippingFeePay3PL} alt="" />
-                      {formatCurrency(
-                        fulfillment.shipment?.shipping_fee_paid_to_three_pls ||
-                          0,
-                      )}
+                      {formatCurrency(fulfillment.shipment?.shipping_fee_paid_to_three_pls || 0)}
                     </div>
                   </Tooltip>
                 </React.Fragment>
@@ -1476,21 +1327,14 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
                   <Tooltip title="Phí ship báo khách">
                     <div className="single">
                       <img src={iconShippingFeeInformedToCustomer} alt="" />
-                      <span>
-                        {formatCurrency(
-                          record.shipping_fee_informed_to_customer || 0,
-                        )}
-                      </span>
+                      <span>{formatCurrency(record.shipping_fee_informed_to_customer || 0)}</span>
                     </div>
                   </Tooltip>
 
                   <Tooltip title="Phí vận chuyển">
                     <div className="single">
                       <img src={iconShippingFeePay3PL} alt="" />
-                      {formatCurrency(
-                        fulfillment.shipment.shipping_fee_paid_to_three_pls ||
-                          0,
-                      )}
+                      {formatCurrency(fulfillment.shipment.shipping_fee_paid_to_three_pls || 0)}
                     </div>
                   </Tooltip>
                 </React.Fragment>

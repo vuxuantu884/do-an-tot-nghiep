@@ -29,10 +29,7 @@ const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
 
   const handleKeyDown = (e: any) => {
     let _tags = [...tagList];
-    if (
-      (e.which === 13 && inputValue !== "") ||
-      (e.which === 188 && inputValue !== "")
-    ) {
+    if ((e.which === 13 && inputValue !== "") || (e.which === 188 && inputValue !== "")) {
       _tags.push(inputValue);
       setInputValue("");
     }
@@ -48,18 +45,13 @@ const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
     props.onChange && props.onChange(_tags.join(","));
   };
 
-
   return (
     <StyledHashTag>
       <div
         className="custom-tags"
         onFocus={() => setBorder(true)}
         onBlur={() => setBorder(false)}
-        style={
-          border
-            ? { border: "1px solid #2a2a86" }
-            : { border: "1px solid #d9d9d9" }
-        }
+        style={border ? { border: "1px solid #2a2a86" } : { border: "1px solid #d9d9d9" }}
       >
         <div className={tagList?.length ? "tags-list" : ""}>
           {tagList.map((tag, index) => {
@@ -80,7 +72,7 @@ const HashTag: React.FC<HashTagProps> = (props: HashTagProps) => {
             );
           })}
         </div>
-        
+
         <Input
           maxLength={250}
           value={inputValue}

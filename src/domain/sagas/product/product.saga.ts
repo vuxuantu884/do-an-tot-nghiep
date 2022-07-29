@@ -1,4 +1,13 @@
-import { productBarcodeApi, productCheckDuplicateCodeApi, productDetailApi, productImportApi, productUpdateApi, productWrapperDeleteApi, productWrapperPutApi, searchVariantsInventoriesApi } from 'service/product/product.service';
+import {
+  productBarcodeApi,
+  productCheckDuplicateCodeApi,
+  productDetailApi,
+  productImportApi,
+  productUpdateApi,
+  productWrapperDeleteApi,
+  productWrapperPutApi,
+  searchVariantsInventoriesApi,
+} from "service/product/product.service";
 import {
   ProductHistoryResponse,
   ProductResponse,
@@ -20,18 +29,22 @@ import {
 import { showError } from "utils/ToastUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { deleteVariantApi, getVariantByBarcode, updateVariantApi } from "service/product/variant.service";
+import {
+  deleteVariantApi,
+  getVariantByBarcode,
+  updateVariantApi,
+} from "service/product/variant.service";
 import { ProductUploadModel } from "model/product/product-upload.model";
-import { SearchType } from 'domain/types/search.type';
-import { isFetchApiSuccessful } from 'utils/AppUtils';
-import { fetchApiErrorAction } from 'domain/actions/app.action';
+import { SearchType } from "domain/types/search.type";
+import { isFetchApiSuccessful } from "utils/AppUtils";
+import { fetchApiErrorAction } from "domain/actions/app.action";
 
 function* searchVariantSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsApi,
-      query
+      query,
     );
 
     switch (response.code) {
@@ -56,7 +69,7 @@ function* searchVariantsInventoriesSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchVariantsInventoriesApi,
-      query
+      query,
     );
 
     switch (response.code) {
@@ -82,7 +95,7 @@ function* searchProductWrapperSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       searchProductWrapperApi,
-      query
+      query,
     );
 
     switch (response.code) {
@@ -102,29 +115,29 @@ function* searchProductWrapperSaga(action: YodyAction) {
 }
 
 function* productWrapperDeleteSaga(action: YodyAction) {
-  const {ids, onDeleteSuccess} = action.payload; 
+  const { ids, onDeleteSuccess } = action.payload;
   let res = true;
-    try {
-      for(let i = 0 ; i< ids.length; i++) {
-        let response: BaseResponse<string> = yield call(productWrapperDeleteApi, ids[i]);
-        switch (response.code) {
-          case HttpStatus.SUCCESS:
-            break;
-          case HttpStatus.UNAUTHORIZED:
-            yield put(unauthorizedAction());
-            res = false;
-            break;
-          default:
-            res = false;
-            response.errors.forEach((e) => showError(e));
-            break;
-        }
+  try {
+    for (let i = 0; i < ids.length; i++) {
+      let response: BaseResponse<string> = yield call(productWrapperDeleteApi, ids[i]);
+      switch (response.code) {
+        case HttpStatus.SUCCESS:
+          break;
+        case HttpStatus.UNAUTHORIZED:
+          yield put(unauthorizedAction());
+          res = false;
+          break;
+        default:
+          res = false;
+          response.errors.forEach((e) => showError(e));
+          break;
       }
-      onDeleteSuccess(res);
-    } catch (error) {
-      onDeleteSuccess(false);
-      // showError("Có lỗi vui lòng thử lại sau");
     }
+    onDeleteSuccess(res);
+  } catch (error) {
+    onDeleteSuccess(false);
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
 }
 
 function* productWrapperUpdateSaga(action: YodyAction) {
@@ -133,7 +146,7 @@ function* productWrapperUpdateSaga(action: YodyAction) {
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       productWrapperPutApi,
       id,
-      request
+      request,
     );
 
     switch (response.code) {
@@ -158,23 +171,23 @@ function* productWrapperUpdateSaga(action: YodyAction) {
 function* searchVariantOrderSaga(action: YodyAction) {
   const { query, setData, handleError } = action.payload;
   try {
-		yield delay(500);
+    yield delay(500);
     if (query.info.length >= 3) {
       let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
         searchVariantsApi,
-        query
+        query,
       );
-			if (isFetchApiSuccessful(response)) {
-				let data = { ...response.data };
-				data.items = data.items.filter((item) => item.status === "active");
-				setData(data);
-			} else {
-				yield put(fetchApiErrorAction(response, "Tìm kiếm sản phẩm"));
-			}
+      if (isFetchApiSuccessful(response)) {
+        let data = { ...response.data };
+        data.items = data.items.filter((item) => item.status === "active");
+        setData(data);
+      } else {
+        yield put(fetchApiErrorAction(response, "Tìm kiếm sản phẩm"));
+      }
     }
   } catch (error) {
     handleError && handleError();
-		showError("Có lỗi khi tìm kiếm sản phẩm! Vui lòng thử lại sau!");
+    showError("Có lỗi khi tìm kiếm sản phẩm! Vui lòng thử lại sau!");
   }
 }
 
@@ -183,7 +196,7 @@ function* createProductSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<VariantResponse>> = yield call(
       createProductApi,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -233,7 +246,7 @@ function* uploadProductSaga(action: YodyAction) {
     let response: BaseResponse<Array<ProductUploadModel>> = yield call(
       productUploadApi,
       files,
-      folder
+      folder,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -257,11 +270,7 @@ function* uploadProductSaga(action: YodyAction) {
 function* variantUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    let response: BaseResponse<VariantResponse> = yield call(
-      updateVariantApi,
-      id,
-      request
-    );
+    let response: BaseResponse<VariantResponse> = yield call(updateVariantApi, id, request);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -285,8 +294,10 @@ function* variantUpdateSaga(action: YodyAction) {
 function* getHistorySaga(action: YodyAction) {
   const { query, onResult } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<ProductHistoryResponse>> =
-      yield call(productGetHistory, query);
+    let response: BaseResponse<PageResponse<ProductHistoryResponse>> = yield call(
+      productGetHistory,
+      query,
+    );
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -310,10 +321,7 @@ function* getHistorySaga(action: YodyAction) {
 function* getProductDetail(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<ProductResponse> = yield call(
-      productDetailApi,
-      id
-    );
+    let response: BaseResponse<ProductResponse> = yield call(productDetailApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -336,11 +344,7 @@ function* getProductDetail(action: YodyAction) {
 function* putProductUpdate(action: YodyAction) {
   const { id, request, onResult } = action.payload;
   try {
-    let response: BaseResponse<ProductResponse> = yield call(
-      productUpdateApi,
-      id,
-      request
-    );
+    let response: BaseResponse<ProductResponse> = yield call(productUpdateApi, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -360,10 +364,10 @@ function* putProductUpdate(action: YodyAction) {
   }
 }
 
-function* createProductBarcode(action: YodyAction){
+function* createProductBarcode(action: YodyAction) {
   const { request, onResult } = action.payload;
   try {
-    let response: BaseResponse<string> =yield call(productBarcodeApi, request);
+    let response: BaseResponse<string> = yield call(productBarcodeApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -386,7 +390,7 @@ function* createProductBarcode(action: YodyAction){
 export function* importProductSaga(action: YodyAction) {
   const { file, isCreate, onResult } = action.payload;
   try {
-    let response: BaseResponse<Array<string>> =yield call(productImportApi, file, isCreate);
+    let response: BaseResponse<Array<string>> = yield call(productImportApi, file, isCreate);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -411,13 +415,15 @@ function* variantUpdateSaleableSaga(action: YodyAction) {
   try {
     let arrSuccess: Array<VariantResponse> = [];
     let arrFail: Array<VariantResponse> = [];
-    for(let i = 0 ; i< variants.length; i++) {
-      let response: BaseResponse<VariantResponse> =yield call(updateVariantApi,
+    for (let i = 0; i < variants.length; i++) {
+      let response: BaseResponse<VariantResponse> = yield call(
+        updateVariantApi,
         variants[i].id,
-        variants[i]);
+        variants[i],
+      );
       switch (response.code) {
         case HttpStatus.SUCCESS:
-          arrSuccess.push(response.data)
+          arrSuccess.push(response.data);
           break;
         case HttpStatus.UNAUTHORIZED:
           arrFail.push(variants[i]);
@@ -439,10 +445,12 @@ function* variantDeleteSaga(action: YodyAction) {
   const { variants, onResult } = action.payload;
   let res = false;
   try {
-    for(let i = 0 ; i< variants.length; i++) {
-      let response: BaseResponse<VariantResponse> =yield call(deleteVariantApi,
+    for (let i = 0; i < variants.length; i++) {
+      let response: BaseResponse<VariantResponse> = yield call(
+        deleteVariantApi,
         variants[i].product_id,
-        variants[i].variant_id);
+        variants[i].variant_id,
+      );
       switch (response.code) {
         case HttpStatus.SUCCESS:
           break;
@@ -464,32 +472,32 @@ function* variantDeleteSaga(action: YodyAction) {
 }
 
 function* searchBarCodeSaga(action: YodyAction) {
-  let {barcode,setData} = action.payload;
+  let { barcode, setData } = action.payload;
   try {
     let response: BaseResponse<VariantResponse> = yield call(getVariantByBarcode, barcode);
 
-    switch(response.code) {
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
         break;
       default:
-        showError('Không tìm thấy sản phẩm')
+        showError("Không tìm thấy sản phẩm");
         break;
     }
   } catch (error) {
     console.log(error);
-    showError('Không tìm thấy sản phẩm 11112')
+    showError("Không tìm thấy sản phẩm 11112");
   }
 }
 
 export function* checkDuplicateSkuSaga(action: YodyAction) {
-  const {code, onResult } = action.payload;
+  const { code, onResult } = action.payload;
   try {
     let response: BaseResponse<null> = yield call(productCheckDuplicateCodeApi, code);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        onResult('');
+        onResult("");
         break;
       case HttpStatus.BAD_REQUEST:
         onResult(response.errors);
@@ -504,27 +512,17 @@ export function* checkDuplicateSkuSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    onResult('');
+    onResult("");
     // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 export function* productSaga() {
   yield takeLatest(ProductType.SEARCH_PRODUCT_REQUEST, searchVariantSaga);
-  yield takeLatest(
-    ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST,
-    searchProductWrapperSaga
-  );
-  yield takeLatest(
-    ProductType.DELETE_PRODUCT_WRAPPER_REQUEST,
-    productWrapperDeleteSaga);
-  yield takeLatest(
-    ProductType.UPDATE_PRODUCT_WRAPPER_REQUEST,
-    productWrapperUpdateSaga);
-  yield takeLatest(
-    ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST,
-    searchVariantOrderSaga
-  );
+  yield takeLatest(ProductType.SEARCH_PRODUCT_WRAPPER_REQUEST, searchProductWrapperSaga);
+  yield takeLatest(ProductType.DELETE_PRODUCT_WRAPPER_REQUEST, productWrapperDeleteSaga);
+  yield takeLatest(ProductType.UPDATE_PRODUCT_WRAPPER_REQUEST, productWrapperUpdateSaga);
+  yield takeLatest(ProductType.SEARCH_PRODUCT_FOR_ORDER_REQUEST, searchVariantOrderSaga);
   yield takeLatest(ProductType.CREATE_PRODUCT_REQUEST, createProductSaga);
   yield takeLatest(ProductType.VARIANT_DETAIL_REQUEST, variantDetailSaga);
   yield takeLatest(ProductType.VARIANT_UPDATE_REQUEST, variantUpdateSaga);
@@ -532,9 +530,9 @@ export function* productSaga() {
   yield takeLatest(ProductType.GET_HISTORY, getHistorySaga);
   yield takeLatest(ProductType.PRODUCT_DETAIL, getProductDetail);
   yield takeLatest(ProductType.PRODUCT_UPDATE, putProductUpdate);
-  yield takeLatest(ProductType.PRODUCT_BARCODE, createProductBarcode)
-  yield takeLatest(ProductType.PRODUCT_IMPORT, importProductSaga)
-  yield takeLatest(ProductType.VARIANT_UPDATE_SALEABLE, variantUpdateSaleableSaga)
+  yield takeLatest(ProductType.PRODUCT_BARCODE, createProductBarcode);
+  yield takeLatest(ProductType.PRODUCT_IMPORT, importProductSaga);
+  yield takeLatest(ProductType.VARIANT_UPDATE_SALEABLE, variantUpdateSaleableSaga);
   yield takeLatest(ProductType.VARIANT_DELETE, variantDeleteSaga);
   yield takeLatest(SearchType.SEARCH_BAR_CODE, searchBarCodeSaga);
   yield takeLatest(ProductType.DUPLICATE_PRODUCT_CODE, checkDuplicateSkuSaga);

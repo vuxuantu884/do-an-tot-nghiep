@@ -17,7 +17,7 @@ export const ImportStatusWrapper = styled.div`
     & .content {
       padding: 10px 15px;
       margin-top: 30px;
-      background-color: #F5F5F5;
+      background-color: #f5f5f5;
       max-width: 100%;
 
       ul {
@@ -36,7 +36,7 @@ export const ImportStatusWrapper = styled.div`
       }
     }
   }
-  
+
   .ant-upload-list-item-name {
     overflow: hidden !important;
     text-overflow: ellipsis;

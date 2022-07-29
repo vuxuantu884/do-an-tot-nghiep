@@ -3,18 +3,11 @@ import CustomSelect from "component/custom/select.custom";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import { setSubStatusAction } from "domain/actions/order/order.action";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-import {
-  OrderResponse,
-  OrderReturnReasonDetailModel,
-} from "model/response/order/order.response";
+import { OrderResponse, OrderReturnReasonDetailModel } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getOrderReasonService } from "service/order/return.service";
-import {
-  handleFetchApiError,
-  isFetchApiSuccessful,
-  isOrderFinishedOrCancel,
-} from "utils/AppUtils";
+import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel } from "utils/AppUtils";
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { checkIfOrderHasNotFinishPaymentMomo } from "utils/OrderUtils";
 import { showError, showWarning } from "utils/ToastUtils";
@@ -42,33 +35,25 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     isDisableUpdate = false,
   } = props;
   const dispatch = useDispatch();
-  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(
-    undefined,
-  );
-  const [valueSubStatusCode, setValueSubStatusCode] = useState<
-    string | undefined
-  >(undefined);
+  const [toSubStatusCode, setToSubStatusCode] = useState<string | undefined>(undefined);
+  const [valueSubStatusCode, setValueSubStatusCode] = useState<string | undefined>(undefined);
 
   const [isShowReason, setIsShowReason] = useState(false);
 
-  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] =
-    useState<number | undefined>(undefined);
+  const [subReasonRequireWarehouseChange, setSubReasonRequireWarehouseChange] = useState<
+    number | undefined
+  >(undefined);
 
   const [reasonId, setReasonId] = useState<number | undefined>(undefined);
 
-  const [
-    subReasonsRequireWarehouseChange,
-    setSubReasonsRequireWarehouseChange,
-  ] = useState<OrderReturnReasonDetailModel[]>([]);
+  const [subReasonsRequireWarehouseChange, setSubReasonsRequireWarehouseChange] = useState<
+    OrderReturnReasonDetailModel[]
+  >([]);
 
   // console.log("OrderDetailAllFulfillment",OrderDetailAllFulfillment)
   const subStatuses = useGetOrderSubStatuses();
 
-  const changeSubStatusCode = (
-    sub_status_code: string,
-    reasonId?: number,
-    subReason?: number,
-  ) => {
+  const changeSubStatusCode = (sub_status_code: string, reasonId?: number, subReason?: number) => {
     if (orderId) {
       dispatch(
         setSubStatusAction(
@@ -80,8 +65,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
             setOrderDetail && setOrderDetail(data);
             // setReload(true);
             // setIsShowReason(false);
-            if (data.sub_reason_id)
-              setSubReasonRequireWarehouseChange(data.sub_reason_id);
+            if (data.sub_reason_id) setSubReasonRequireWarehouseChange(data.sub_reason_id);
             else setSubReasonRequireWarehouseChange(undefined);
           },
           undefined,
@@ -155,9 +139,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
   useEffect(() => {
     if (subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
       setIsShowReason(true);
-      setSubReasonRequireWarehouseChange(
-        OrderDetailAllFulfillment?.sub_reason_id,
-      );
+      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id);
     } else {
       setIsShowReason(false);
     }
@@ -217,11 +199,7 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
                   return;
                 }
                 //setSubReasonRequireWarehouseChange(value);
-                changeSubStatusCode(
-                  ORDER_SUB_STATUS.require_warehouse_change,
-                  reasonId,
-                  value,
-                );
+                changeSubStatusCode(ORDER_SUB_STATUS.require_warehouse_change, reasonId, value);
               }}
               disabled={
                 isOrderFinishedOrCancel(OrderDetailAllFulfillment) ||

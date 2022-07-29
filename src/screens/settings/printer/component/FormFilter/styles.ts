@@ -26,8 +26,7 @@ export const StyledComponent = styled.div`
     text-align: left;
     width: 100%;
   }
-  .ant-select-disabled.ant-select:not(.ant-select-customize-input)
-    .ant-select-selector {
+  .ant-select-disabled.ant-select:not(.ant-select-customize-input) .ant-select-selector {
     color: inherit;
   }
   .ant-checkbox-disabled + span,

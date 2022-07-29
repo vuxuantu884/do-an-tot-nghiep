@@ -2,9 +2,9 @@ import styled from "styled-components";
 
 export const TextShowMoreStyle = styled.span`
   .content-show {
-    word-break: break-all
+    word-break: break-all;
   }
-  
+
   .show-more-text {
     color: #5656a2;
     font-weight: bold;

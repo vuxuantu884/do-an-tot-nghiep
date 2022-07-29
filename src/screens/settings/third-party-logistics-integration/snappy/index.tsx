@@ -24,8 +24,9 @@ function SingleThirdPartyLogisticSnappy(props: PropTypes) {
   const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.snappy.guideUrl;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const [thirdPartyLogistics, setThirdPartyLogistics] =
-    useState<DeliveryServiceResponse | null>(null);
+  const [thirdPartyLogistics, setThirdPartyLogistics] = useState<DeliveryServiceResponse | null>(
+    null,
+  );
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceTransportType[]>([]);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
@@ -51,9 +52,7 @@ function SingleThirdPartyLogisticSnappy(props: PropTypes) {
       });
       const formValueFormatted = {
         external_service_code,
-        status: isConnected
-          ? DELIVER_SERVICE_STATUS.active
-          : DELIVER_SERVICE_STATUS.inactive,
+        status: isConnected ? DELIVER_SERVICE_STATUS.active : DELIVER_SERVICE_STATUS.inactive,
         token: form.getFieldValue("token"),
         username: "",
         password: "",
@@ -74,7 +73,7 @@ function SingleThirdPartyLogisticSnappy(props: PropTypes) {
         updateDeliveryConfigurationAction(params, () => {
           setIsConnected(true);
           showSuccess("Kết nối thành công!");
-        })
+        }),
       );
     });
   };
@@ -85,7 +84,7 @@ function SingleThirdPartyLogisticSnappy(props: PropTypes) {
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
           <strong>{thirdPartyLogistics?.name}</strong>" ?
-        </React.Fragment>
+        </React.Fragment>,
       );
       setIsShowConfirmDisconnect(true);
     });
@@ -104,7 +103,7 @@ function SingleThirdPartyLogisticSnappy(props: PropTypes) {
       updateDeliveryConfigurationAction(params, () => {
         setIsConnected(false);
         showSuccess("Hủy kết nối thành công!");
-      })
+      }),
     );
     setIsShowConfirmDisconnect(false);
   };
@@ -134,11 +133,11 @@ function SingleThirdPartyLogisticSnappy(props: PropTypes) {
                     transport_types: activeDeliveryServices || [],
                   });
                 }
-              })
+              }),
             );
           }
         }
-      })
+      }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);

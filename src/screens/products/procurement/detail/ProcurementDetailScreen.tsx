@@ -1,24 +1,10 @@
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Image,
-  Modal,
-  Row,
-  Table,
-  Tabs,
-  Typography,
-} from "antd";
+import { Button, Card, Col, Divider, Image, Modal, Row, Table, Tabs, Typography } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { PurchaseOrderTabUrl } from "config/url.config";
 import { isEmpty } from "lodash";
-import {
-  PurchaseOrder,
-  PurchaseOrderPrint,
-} from "model/purchase-order/purchase-order.model";
+import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase-order.model";
 import {
   POProcumentField,
   POProcumentLineItemField,
@@ -26,13 +12,7 @@ import {
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import { useDispatch, useSelector } from "react-redux";
-import React, {
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import PurchaseOrderHistory from "screens/purchase-order/tab/PurchaseOrderHistory";
 import {
@@ -40,11 +20,7 @@ import {
   printMultipleProcurementApi,
 } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
-import {
-  OFFSET_HEADER_TABLE,
-  ProcurementStatus,
-  ProcurementStatusName,
-} from "utils/Constants";
+import { OFFSET_HEADER_TABLE, ProcurementStatus, ProcurementStatusName } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ImageProduct from "screens/products/product/component/image-product.component";
 import { POUtils } from "utils/POUtils";
@@ -76,9 +52,7 @@ const ProcurementDetailScreen: React.FC = () => {
   const [procurementData, setProcurementData] = useState<PurchaseProcument>();
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isError, setError] = useState(false);
-  const [activeTab, setActiveTab] = useState<string>(
-    PurchaseOrderTabUrl.INVENTORY,
-  );
+  const [activeTab, setActiveTab] = useState<string>(PurchaseOrderTabUrl.INVENTORY);
   const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
   const history = useHistory();
   const dispatch = useDispatch();
@@ -205,10 +179,8 @@ const ProcurementDetailScreen: React.FC = () => {
   const confirmDeletePhrase: string = useMemo(() => {
     if (!procurementData) return "";
     let prefix = "phiếu nháp";
-    if (procurementData.status === ProcurementStatus.not_received)
-      prefix = "phiếu duyệt";
-    else if (procurementData.status === ProcurementStatus.received)
-      prefix = "phiếu nhập kho";
+    if (procurementData.status === ProcurementStatus.not_received) prefix = "phiếu duyệt";
+    else if (procurementData.status === ProcurementStatus.received) prefix = "phiếu nhập kho";
     return `Bạn chắc chắn huỷ ${prefix} ${procurementData?.code}?`;
   }, [procurementData]);
 
@@ -221,13 +193,7 @@ const ProcurementDetailScreen: React.FC = () => {
 
   const onDeleteProcument = (value: PurchaseProcument) => {
     if (poID && value.id) {
-      dispatch(
-        PoProcumentDeleteAction(
-          parseInt(poID),
-          value.id,
-          onDeleteProcumentCallback,
-        ),
-      );
+      dispatch(PoProcumentDeleteAction(parseInt(poID), value.id, onDeleteProcumentCallback));
     }
   };
 
@@ -246,9 +212,7 @@ const ProcurementDetailScreen: React.FC = () => {
       const pageBreak = "<div class='pageBreak'></div>";
       if (!printContent || printContent.length === 0) return;
       const textResponse = printContent.map((single) => {
-        return (
-          "<div class='singleOrderPrint'>" + single.html_content + "</div>"
-        );
+        return "<div class='singleOrderPrint'>" + single.html_content + "</div>";
       });
       let textResponseFormatted = textResponse.join(pageBreak);
       //xóa thẻ p thừa
@@ -344,10 +308,7 @@ const ProcurementDetailScreen: React.FC = () => {
                   </div>
                 </Col>
                 <Col span={5}>
-                  <PhoneOutlined />{" "}
-                  <Text>
-                    {poData?.phone ?? poData?.supplier_address?.phone}
-                  </Text>
+                  <PhoneOutlined /> <Text>{poData?.phone ?? poData?.supplier_address?.phone}</Text>
                 </Col>
               </Row>
               <Divider />
@@ -357,9 +318,7 @@ const ProcurementDetailScreen: React.FC = () => {
                 </Col>
                 <Col span={8}>
                   Ngày nhận hàng:{" "}
-                  <Text strong>
-                    {ConvertUtcToLocalDate(procurementData?.stock_in_date)}
-                  </Text>
+                  <Text strong>{ConvertUtcToLocalDate(procurementData?.stock_in_date)}</Text>
                 </Col>
                 <Col span={8}>
                   {procurementData && (
@@ -380,9 +339,7 @@ const ProcurementDetailScreen: React.FC = () => {
             </div>
             <Table
               className="product-table"
-              rowKey={(record: PurchaseProcumentLineItem) =>
-                record.line_item_id
-              }
+              rowKey={(record: PurchaseProcumentLineItem) => record.line_item_id}
               rowClassName="product-table-row"
               dataSource={procurementData?.procurement_items}
               tableLayout="fixed"
@@ -404,18 +361,9 @@ const ProcurementDetailScreen: React.FC = () => {
                     return (
                       <>
                         {value ? (
-                          <Image
-                            width={40}
-                            height={40}
-                            placeholder="Xem"
-                            src={value ?? ""}
-                          />
+                          <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
                         ) : (
-                          <ImageProduct
-                            disabled={true}
-                            onClick={undefined}
-                            path={value}
-                          />
+                          <ImageProduct disabled={true} onClick={undefined} path={value} />
                         )}
                       </>
                     );
@@ -426,20 +374,12 @@ const ProcurementDetailScreen: React.FC = () => {
                   width: 150,
                   className: "ant-col-info",
                   dataIndex: POProcumentLineItemField.variant,
-                  render: (
-                    value: string,
-                    item: PurchaseProcumentLineItem,
-                    index: number,
-                  ) => (
+                  render: (value: string, item: PurchaseProcumentLineItem, index: number) => (
                     <div>
                       <div>
-                        <div className="product-item-sku">
-                          {item.sku.toUpperCase()}
-                        </div>
+                        <div className="product-item-sku">{item.sku.toUpperCase()}</div>
                         <div className="product-item-name text-truncate-1">
-                          <div className="product-item-name-detail">
-                            {value}
-                          </div>
+                          <div className="product-item-name-detail">{value}</div>
                         </div>
                       </div>
                     </div>
@@ -462,9 +402,7 @@ const ProcurementDetailScreen: React.FC = () => {
                   width: 100,
                   align: "center",
                   dataIndex: POProcumentLineItemField.ordered_quantity,
-                  render: (value, item, index) => (
-                    <div>{formatCurrency(value, ".")}</div>
-                  ),
+                  render: (value, item, index) => <div>{formatCurrency(value, ".")}</div>,
                 },
                 {
                   title: (
@@ -483,9 +421,7 @@ const ProcurementDetailScreen: React.FC = () => {
                   align: "center",
                   width: 100,
                   dataIndex: POProcumentLineItemField.accepted_quantity,
-                  render: (value, item, index) => (
-                    <div>{formatCurrency(value, ".")}</div>
-                  ),
+                  render: (value, item, index) => <div>{formatCurrency(value, ".")}</div>,
                 },
                 {
                   title: (
@@ -515,8 +451,7 @@ const ProcurementDetailScreen: React.FC = () => {
                 let real_quantity = 0;
                 data.forEach((item) => {
                   ordered_quantity = ordered_quantity + item.ordered_quantity;
-                  accepted_quantity =
-                    accepted_quantity + item.accepted_quantity;
+                  accepted_quantity = accepted_quantity + item.accepted_quantity;
                   real_quantity = real_quantity + item.real_quantity;
                 });
                 return (
@@ -536,9 +471,7 @@ const ProcurementDetailScreen: React.FC = () => {
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="center" index={3}>
-                        <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(real_quantity, ".")}
-                        </div>
+                        <div style={{ fontWeight: 700 }}>{formatCurrency(real_quantity, ".")}</div>
                       </Table.Summary.Cell>
                     </Table.Summary.Row>
                   </Table.Summary>
@@ -547,10 +480,7 @@ const ProcurementDetailScreen: React.FC = () => {
             />
           </TabPane>
           <TabPane tab="Lịch sử thao tác" key={PurchaseOrderTabUrl.HISTORY}>
-            <PurchaseOrderHistory
-              poData={poData}
-              procumentCode={procurementData?.code}
-            />
+            <PurchaseOrderHistory poData={poData} procumentCode={procurementData?.code} />
           </TabPane>
         </Tabs>
       </Card>
@@ -565,11 +495,7 @@ const ProcurementDetailScreen: React.FC = () => {
         leftComponent={
           <div>
             {poData && procurementData?.status !== ProcurementStatus.cancelled && (
-              <AuthWrapper
-                acceptPermissions={[
-                  PurchaseOrderPermission.procurements_delete,
-                ]}
-              >
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
                 <Button
                   type="default"
                   className="danger"

@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-
 export const StyledFooterAction = styled.div`
   .footer-action {
     display: flex;

@@ -1,13 +1,4 @@
-import {
-  Card,
-  Col,
-  DatePicker,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Switch,
-} from "antd";
+import { Card, Col, DatePicker, Form, FormInstance, Input, Row, Switch } from "antd";
 import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
 import moment from "moment";
 import { useState } from "react";
@@ -25,7 +16,7 @@ function OrderSettingInformation(props: PropType) {
   const datePickerFormat = DATE_FORMAT.fullDate;
   const { form, initialFormValue } = props;
   const [isActive, setIsActive] = useState(
-    initialFormValue.status === ORDER_SETTINGS_STATUS.active ? true : false
+    initialFormValue.status === ORDER_SETTINGS_STATUS.active ? true : false,
   );
   const onChangeStatus = (checked: any) => {
     setIsActive(checked);
@@ -55,12 +46,8 @@ function OrderSettingInformation(props: PropType) {
           <Input />
         </Form.Item>
         <div className="textExtra">
-          <span className={`shortText ${isActive ? "active" : "inactive"}`}>
-            Hoạt động
-          </span>
-          <span className={`longText ${isActive ? "inactive" : "active"}`}>
-            Dừng hoạt động
-          </span>
+          <span className={`shortText ${isActive ? "active" : "inactive"}`}>Hoạt động</span>
+          <span className={`longText ${isActive ? "inactive" : "active"}`}>Dừng hoạt động</span>
         </div>
       </div>
     );
@@ -72,9 +59,7 @@ function OrderSettingInformation(props: PropType) {
         <Form.Item
           name="program_name"
           label="Tên chương trình:"
-          rules={[
-            { required: true, message: "Vui lòng nhập tên chương trình" },
-          ]}
+          rules={[{ required: true, message: "Vui lòng nhập tên chương trình" }]}
         >
           <Input type="text" placeholder="Nhập tên chương trình" />
         </Form.Item>
@@ -83,9 +68,7 @@ function OrderSettingInformation(props: PropType) {
             <Form.Item
               name="start_date"
               label="Ngày bắt đầu:"
-              rules={[
-                { required: true, message: "Vui lòng chọn ngày bắt đầu" },
-              ]}
+              rules={[{ required: true, message: "Vui lòng chọn ngày bắt đầu" }]}
             >
               <DatePicker
                 placeholder={datePickerPlaceholder}
@@ -99,9 +82,7 @@ function OrderSettingInformation(props: PropType) {
             <Form.Item
               name="end_date"
               label="Ngày kết thúc:"
-              rules={[
-                { required: true, message: "Vui lòng chọn ngày kết thúc" },
-              ]}
+              rules={[{ required: true, message: "Vui lòng chọn ngày kết thúc" }]}
             >
               <DatePicker
                 placeholder={datePickerPlaceholder}

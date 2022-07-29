@@ -33,7 +33,7 @@ const ProductImportScreen: React.FC = () => {
       form.setFieldsValue({ file: [...fileData] });
       return false;
     },
-    [form]
+    [form],
   );
 
   const [percent, setPercent] = useState(0);
@@ -59,7 +59,7 @@ const ProductImportScreen: React.FC = () => {
         }, 2000);
       }
     },
-    [form]
+    [form],
   );
 
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
@@ -79,7 +79,7 @@ const ProductImportScreen: React.FC = () => {
         dispatch(productImportAction(file[0], is_create, onResult));
       }, 1000);
     },
-    [dispatch, onResult]
+    [dispatch, onResult],
   );
 
   const onClickSubmit = useCallback(() => {
@@ -160,9 +160,7 @@ const ProductImportScreen: React.FC = () => {
                     <Input />
                   </Form.Item>
                   <Form.Item
-                    shouldUpdate={(before, current) =>
-                      before.file !== current.file
-                    }
+                    shouldUpdate={(before, current) => before.file !== current.file}
                     label="File excel:"
                   >
                     {({ getFieldValue }) => {
@@ -202,17 +200,12 @@ const ProductImportScreen: React.FC = () => {
           className="ant-modal-header-nostyle ant-modal-footer-nostyle ant-modal-close-nostyle"
           visible={visibleUpload}
         >
-          <div
-            style={{ display: "flex", justifyContent: "center" }}
-            className="modal-upload"
-          >
+          <div style={{ display: "flex", justifyContent: "center" }} className="modal-upload">
             <Progress
               type="circle"
               percent={percent}
               width={200}
-              status={
-                status === 1 ? "normal" : status === 2 ? "success" : "exception"
-              }
+              status={status === 1 ? "normal" : status === 2 ? "success" : "exception"}
             />
           </div>
         </Modal>

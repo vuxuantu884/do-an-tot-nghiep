@@ -89,7 +89,9 @@ const ListProductScreen: React.FC = () => {
       {
         name: "Danh sách sản phẩm",
         key: ProductTabUrl.VARIANTS,
-        component: <TabProduct vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} />,
+        component: (
+          <TabProduct vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} />
+        ),
         isShow: canReadVariants,
       },
       {
@@ -113,11 +115,25 @@ const ListProductScreen: React.FC = () => {
       {
         name: "Lịch sử in tem",
         key: ProductTabUrl.STAMP_PRINTING_HISTORY,
-        component: <TabHistoryInStamp setVExportProduct={setVExportProduct} vExportProduct={vExportProduct} onTogglePickManyModal={onTogglePickManyModal} visiblePickManyModal={visiblePickManyModal} />,
+        component: (
+          <TabHistoryInStamp
+            setVExportProduct={setVExportProduct}
+            vExportProduct={vExportProduct}
+            onTogglePickManyModal={onTogglePickManyModal}
+            visiblePickManyModal={visiblePickManyModal}
+          />
+        ),
         isShow: canReadHistories,
       },
     ];
-  }, [canReadHistories, canReadVariants, canReadProducts, vExportProduct, onTogglePickManyModal, visiblePickManyModal]);
+  }, [
+    canReadHistories,
+    canReadVariants,
+    canReadProducts,
+    vExportProduct,
+    onTogglePickManyModal,
+    visiblePickManyModal,
+  ]);
   const tabs = useMemo(() => defaultTabs.filter((tab) => tab.isShow), [defaultTabs]);
 
   return (
@@ -145,31 +161,37 @@ const ListProductScreen: React.FC = () => {
                 </Button>
               </Link>
             </AuthWrapper>
-            {
-              (activeTab === UrlConfig.VARIANTS || activeTab === ProductTabUrl.STAMP_PRINTING_HISTORY) &&
+            {(activeTab === UrlConfig.VARIANTS ||
+              activeTab === ProductTabUrl.STAMP_PRINTING_HISTORY) && (
               <AuthWrapper acceptPermissions={[ProductPermission.export_excel]}>
                 <Button
                   className="light"
                   size="large"
                   icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-                  onClick={() => { setVExportProduct(true) }}
+                  onClick={() => {
+                    setVExportProduct(true);
+                  }}
                 >
                   Xuất file
                 </Button>
               </AuthWrapper>
-            }
-            {
-              (activeTab === UrlConfig.PRODUCT || activeTab === UrlConfig.VARIANTS) &&
+            )}
+            {(activeTab === UrlConfig.PRODUCT || activeTab === UrlConfig.VARIANTS) && (
               <AuthWrapper acceptPermissions={[ProductPermission.create]}>
                 {" "}
                 <ButtonCreate child="Thêm sản phẩm" path={`${UrlConfig.PRODUCT}/create`} />{" "}
               </AuthWrapper>
-            }
-            {activeTab === ProductTabUrl.STAMP_PRINTING_HISTORY &&
-              <Button onClick={onTogglePickManyModal} size="large" type="primary" icon={<GoPlus style={{ marginRight: "0.2em" }} />}>
+            )}
+            {activeTab === ProductTabUrl.STAMP_PRINTING_HISTORY && (
+              <Button
+                onClick={onTogglePickManyModal}
+                size="large"
+                type="primary"
+                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+              >
                 In mã vạch
               </Button>
-            }
+            )}
           </Space>
         </Row>
       }

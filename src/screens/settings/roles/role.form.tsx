@@ -18,7 +18,7 @@ interface Props {
   setIndeterminateModules: (indeterminateModules: string[]) => void;
   setCheckedModules: (checkedModules: string[]) => void;
   moduleData: PageResponse<ModuleAuthorize>;
-  backAction?: ()=>void;
+  backAction?: () => void;
 }
 
 export default function RoleForm(props: Props): ReactElement {
@@ -34,16 +34,10 @@ export default function RoleForm(props: Props): ReactElement {
     setActivePanel,
     setCheckedModules,
     setIndeterminateModules,
-    backAction
+    backAction,
   } = props;
   return (
-    <Form
-      layout="vertical"
-      name="create-role"
-      autoComplete="off"
-      onFinish={onFinish}
-      form={form}
-    >
+    <Form layout="vertical" name="create-role" autoComplete="off" onFinish={onFinish} form={form}>
       <Card title="NHÓM QUYỀN">
         <div className="padding-20">
           <Row gutter={50}>
@@ -66,14 +60,17 @@ export default function RoleForm(props: Props): ReactElement {
                 label="Tên nhóm quyền"
                 name="name"
               >
-                <Input placeholder="Nhập tên vai trò" onBlur={e=>form.setFieldsValue({name:e.target.value?.trim()})}/>
+                <Input
+                  placeholder="Nhập tên vai trò"
+                  onBlur={(e) => form.setFieldsValue({ name: e.target.value?.trim() })}
+                />
               </Form.Item>
             </Col>
             <Col span={24} lg={16} md={12} sm={24}>
               <Form.Item
                 name="description"
                 label="Mô tả"
-                rules={[{max: 255, message: "Mô tả không vượt quá 255 kí tự"}]}
+                rules={[{ max: 255, message: "Mô tả không vượt quá 255 kí tự" }]}
               >
                 <Input placeholder="Nhập mô tả" />
               </Form.Item>
@@ -97,7 +94,7 @@ export default function RoleForm(props: Props): ReactElement {
         backAction={backAction}
         rightComponent={
           <Button type="primary" htmlType="submit" loading={isSubmitting}>
-           {formType === ACTION_FORM_CONSTANTS.UPDATE ? 'Lưu lại' : 'Tạo nhóm quyền'}
+            {formType === ACTION_FORM_CONSTANTS.UPDATE ? "Lưu lại" : "Tạo nhóm quyền"}
           </Button>
         }
       />

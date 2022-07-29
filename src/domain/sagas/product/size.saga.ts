@@ -20,9 +20,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 function* getAllSizeSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
-      getAllSizeApi
-    );
+    let response: BaseResponse<PageResponse<SizeResponse>> = yield call(getAllSizeApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -42,10 +40,7 @@ function* getAllSizeSaga(action: YodyAction) {
 function* sizeSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-
-    let response: BaseResponse<PageResponse<SizeResponse>> = yield call(
-      getSearchSize,query
-    );
+    let response: BaseResponse<PageResponse<SizeResponse>> = yield call(getSearchSize, query);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -66,10 +61,7 @@ function* sizeSearchSaga(action: YodyAction) {
 function* sizeCreateSaga(action: YodyAction) {
   const { request, onCreateSuccess } = action.payload;
   try {
-    let response: BaseResponse<SizeResponse> = yield call(
-      sizeCreateApi,
-      request
-    );
+    let response: BaseResponse<SizeResponse> = yield call(sizeCreateApi, request);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -114,11 +106,7 @@ function* sizeDetailSaga(action: YodyAction) {
 function* sizeUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    let response: BaseResponse<SizeResponse> = yield call(
-      sizeUpdateApi,
-      id,
-      request
-    );
+    let response: BaseResponse<SizeResponse> = yield call(sizeUpdateApi, id, request);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:

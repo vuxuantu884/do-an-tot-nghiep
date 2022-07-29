@@ -13,33 +13,27 @@ import { generateQuery } from "utils/AppUtils";
  */
 
 export const getCustomerGroupService = (
-  query: BaseQuery
+  query: BaseQuery,
 ): Promise<BaseResponse<CustomerGroupResponseModel>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.CUSTOMER}/customer-groups/listing?${queryString}`);
 };
 
 export const createCustomerGroupService = (
-  newCustomerGroup: CustomerGroupModel
+  newCustomerGroup: CustomerGroupModel,
 ): Promise<BaseResponse<CustomerGroupResponseModel>> => {
-  return BaseAxios.post(
-    `${ApiConfig.CUSTOMER}/customer-groups`,
-    newCustomerGroup
-  );
+  return BaseAxios.post(`${ApiConfig.CUSTOMER}/customer-groups`, newCustomerGroup);
 };
 
 export const editCustomerGroupService = (
   id: number,
-  CustomerGroup: CustomerGroupModel
+  CustomerGroup: CustomerGroupModel,
 ): Promise<BaseResponse<CustomerGroupResponseModel>> => {
-  return BaseAxios.put(
-    `${ApiConfig.CUSTOMER}/customer-groups/${id}`,
-    CustomerGroup
-  );
+  return BaseAxios.put(`${ApiConfig.CUSTOMER}/customer-groups/${id}`, CustomerGroup);
 };
 
 export const deleteCustomerGroupService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<CustomerGroupResponseModel>> => {
   return BaseAxios.delete(`${ApiConfig.CUSTOMER}/customer-groups/${id}`);
 };

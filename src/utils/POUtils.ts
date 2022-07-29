@@ -42,10 +42,7 @@ const POUtils = {
     let result: Array<PurchaseOrderLineItem> = [];
     variants.forEach((variant, index) => {
       let newId = `${variant.sku}${new Date().getTime()}`;
-      let price_response = Products.findPrice(
-        variant.variant_prices,
-        AppConfig.currency,
-      );
+      let price_response = Products.findPrice(variant.variant_prices, AppConfig.currency);
       let variant_image = Products.findAvatar(variant.variant_images);
       let price = price_response !== null ? price_response.import_price : 0;
       const retailPrice = variant.variant_prices[0].retail_price;
@@ -155,12 +152,8 @@ const POUtils = {
   },
   totalAmount: (formMain: FormInstance): number => {
     let total = 0;
-    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items,
-    );
-    lineItems.forEach(
-      (item) => (total = total + item.line_amount_after_line_discount),
-    );
+    const lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    lineItems.forEach((item) => (total = total + item.line_amount_after_line_discount));
     return total;
   },
   updateLineItemByQuantity: (
@@ -188,11 +181,8 @@ const POUtils = {
   ): PurchaseOrderLineItem => {
     let amount = price * lineItem.quantity;
     let discount_amount =
-      POUtils.caculateDiscountAmount(
-        price,
-        lineItem.discount_rate,
-        lineItem.discount_value,
-      ) * lineItem.quantity;
+      POUtils.caculateDiscountAmount(price, lineItem.discount_rate, lineItem.discount_value) *
+      lineItem.quantity;
     return {
       ...lineItem,
       price: price,
@@ -210,8 +200,7 @@ const POUtils = {
   ): PurchaseOrderLineItem => {
     let amount = quantity * price;
     let discount_amount =
-      POUtils.caculateDiscountAmount(price, discount_rate, discount_value) *
-      quantity;
+      POUtils.caculateDiscountAmount(price, discount_rate, discount_value) * quantity;
     let tax = (amount * data.tax_rate) / 100;
     return {
       ...data,
@@ -235,11 +224,7 @@ const POUtils = {
     );
     return lineItem;
   },
-  caculatePrice: (
-    price: number,
-    discount_rate: number | null,
-    discount_value: number | null,
-  ) => {
+  caculatePrice: (price: number, discount_rate: number | null, discount_value: number | null) => {
     if (discount_rate !== null) {
       return price - (price * discount_rate) / 100;
     }
@@ -250,13 +235,9 @@ const POUtils = {
   },
   getVatList: (formMain: FormInstance, isSupplement?: Boolean): Array<Vat> => {
     let result: Array<Vat> = [];
-    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(
-      POField.line_items,
-    );
+    let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
     let tradeDiscountRate = formMain.getFieldValue(POField.trade_discount_rate);
-    let tradeDiscountValue = formMain.getFieldValue(
-      POField.trade_discount_value,
-    );
+    let tradeDiscountValue = formMain.getFieldValue(POField.trade_discount_value);
     let total = POUtils.totalAmount(formMain);
     lineItems.forEach((item) => {
       if (
@@ -264,22 +245,16 @@ const POUtils = {
           ? item.type === POLineItemType.SUPPLEMENT
           : item.type !== POLineItemType.SUPPLEMENT
       ) {
-        let index = result.findIndex(
-          (vatItem) => vatItem.rate === item.tax_rate,
-        );
+        let index = result.findIndex((vatItem) => vatItem.rate === item.tax_rate);
         let amount_after_discount = item.line_amount_after_line_discount;
         if (tradeDiscountRate !== null) {
           amount_after_discount =
-            amount_after_discount -
-            (amount_after_discount * tradeDiscountRate) / 100;
+            amount_after_discount - (amount_after_discount * tradeDiscountRate) / 100;
         } else if (tradeDiscountValue !== null) {
           amount_after_discount =
-            amount_after_discount -
-            (amount_after_discount / total) * tradeDiscountValue;
+            amount_after_discount - (amount_after_discount / total) * tradeDiscountValue;
         }
-        let amountTax = parseFloat(
-          ((amount_after_discount * item.tax_rate) / 100).toFixed(2),
-        );
+        let amountTax = parseFloat(((amount_after_discount * item.tax_rate) / 100).toFixed(2));
         if (index === -1) {
           result.push({
             rate: item.tax_rate,
@@ -302,11 +277,7 @@ const POUtils = {
     }
     return 0;
   },
-  getTotaTradelDiscount: (
-    total: number,
-    rate: number | null,
-    value: number | null,
-  ): number => {
+  getTotaTradelDiscount: (total: number, rate: number | null, value: number | null): number => {
     if (rate) {
       return (total * rate) / 100;
     }
@@ -384,13 +355,9 @@ const POUtils = {
   ) => {
     let newProcuments: Array<PurchaseProcument> = [];
     procuments?.forEach((item) => {
-      let newProcumentLineItem: PurchaseProcumentLineItem[] = [
-        ...item.procurement_items,
-      ];
+      let newProcumentLineItem: PurchaseProcumentLineItem[] = [...item.procurement_items];
       item.procurement_items.forEach((procumentItem, indexItem) => {
-        let index = data.findIndex(
-          (lineItem) => lineItem.sku === procumentItem.sku,
-        );
+        let index = data.findIndex((lineItem) => lineItem.sku === procumentItem.sku);
         if (index === -1) {
           newProcumentLineItem.splice(indexItem, 1);
         }
@@ -469,8 +436,7 @@ export function initSchemaLineItem(
         // get lineItem has variant_id in variantSameColor id
         lineItem = line_items.find((lineItem: PurchaseOrderLineItem) =>
           variantSameColor.find(
-            (variantItem: VariantResponse) =>
-              variantItem.id === lineItem.variant_id,
+            (variantItem: VariantResponse) => variantItem.id === lineItem.variant_id,
           ),
         );
         if (lineItem) {
@@ -504,37 +470,33 @@ export function initSchemaLineItem(
   /**
    * dánh sách các variant của sản phẩm
    */
-  const mappingColorAndSize = product.variants.map(
-    (variant: VariantResponse) => {
-      const lineItem = line_items?.find(
-        (lineItem) => lineItem.variant_id === variant.id,
-      );
-      let url: string = "";
-      variant.variant_images?.forEach((item1) => {
-        if (item1.variant_avatar) {
-          url = item1.url;
-        }
-      });
-      const retailPrice = variant.variant_prices[0].retail_price;
-      return {
-        lineItemId: lineItem?.id,
-        color: variant.color ?? variant.sku,
-        size: variant.size ?? variant.sku,
-        variantId: variant.id,
-        sku: variant.sku,
-        variant: variant.name,
-        product_id: product.id,
-        product: product.name,
-        variant_image: url,
-        planned_quantity: lineItem?.planned_quantity || 0,
-        receipt_quantity: lineItem?.receipt_quantity || 0,
-        barcode: variant.barcode,
-        product_type: product.product_type,
-        unit: product.unit,
-        retailPrice: retailPrice,
-      };
-    },
-  );
+  const mappingColorAndSize = product.variants.map((variant: VariantResponse) => {
+    const lineItem = line_items?.find((lineItem) => lineItem.variant_id === variant.id);
+    let url: string = "";
+    variant.variant_images?.forEach((item1) => {
+      if (item1.variant_avatar) {
+        url = item1.url;
+      }
+    });
+    const retailPrice = variant.variant_prices[0].retail_price;
+    return {
+      lineItemId: lineItem?.id,
+      color: variant.color ?? variant.sku,
+      size: variant.size ?? variant.sku,
+      variantId: variant.id,
+      sku: variant.sku,
+      variant: variant.name,
+      product_id: product.id,
+      product: product.name,
+      variant_image: url,
+      planned_quantity: lineItem?.planned_quantity || 0,
+      receipt_quantity: lineItem?.receipt_quantity || 0,
+      barcode: variant.barcode,
+      product_type: product.product_type,
+      unit: product.unit,
+      retailPrice: retailPrice,
+    };
+  });
 
   const variantIdList = product.variants.map((item: VariantResponse) => {
     return item.id;
@@ -557,10 +519,9 @@ export function initValueLineItem(
 ): Map<string, POLineItemGridValue> {
   const map = new Map<string, POLineItemGridValue>();
   poLineItemGridSchema.baseColor.forEach((c: POLineItemColor) => {
-    const sizeOfColor: POPairSizeColor[] =
-      poLineItemGridSchema.mappingColorAndSize.filter(
-        (item) => item.color === c.color,
-      );
+    const sizeOfColor: POPairSizeColor[] = poLineItemGridSchema.mappingColorAndSize.filter(
+      (item) => item.color === c.color,
+    );
     const initSizeValue: any = sizeOfColor.reduce(
       (prev: Array<POPairSizeQuantity>, current: POPairSizeColor) => {
         return [
@@ -568,9 +529,7 @@ export function initValueLineItem(
           {
             variantId: current.variantId,
             size: current.size,
-            quantity: line_items?.find(
-              (item) => item.variant_id === current.variantId,
-            )?.quantity,
+            quantity: line_items?.find((item) => item.variant_id === current.variantId)?.quantity,
           },
         ] as Array<POPairSizeQuantity>;
       },
@@ -589,18 +548,14 @@ export const getTotalPriceOfAllLineItem = (
   poLineItemGridValue: Array<Map<string, POLineItemGridValue>>,
 ) => {
   let amount: number = 0;
-  poLineItemGridValue.forEach(
-    (productLine: Map<string, POLineItemGridValue>) => {
-      const mapIterator = productLine.values();
-      const mapLength = productLine.size;
-      for (let i = 0; i < mapLength; i++) {
-        const value: POLineItemGridValue = mapIterator.next().value;
-        amount +=
-          value.price *
-          value.sizeValues.reduce((acc, cur) => acc + (cur.quantity ?? 0), 0);
-      }
-    },
-  );
+  poLineItemGridValue.forEach((productLine: Map<string, POLineItemGridValue>) => {
+    const mapIterator = productLine.values();
+    const mapLength = productLine.size;
+    for (let i = 0; i < mapLength; i++) {
+      const value: POLineItemGridValue = mapIterator.next().value;
+      amount += value.price * value.sizeValues.reduce((acc, cur) => acc + (cur.quantity ?? 0), 0);
+    }
+  });
   return amount;
 };
 
@@ -610,54 +565,46 @@ export const combineLineItemToSubmitData = (
   taxRate: number,
 ): any[] => {
   const newDataItems: any[] = [];
-  poLineItemGridValue.forEach(
-    (item: Map<string, POLineItemGridValue>, index: number) => {
-      poLineItemGridChema[index].mappingColorAndSize.forEach(
-        (pair: POPairSizeColor) => {
-          const value: POLineItemGridValue | undefined = item.get(pair.color);
+  poLineItemGridValue.forEach((item: Map<string, POLineItemGridValue>, index: number) => {
+    poLineItemGridChema[index].mappingColorAndSize.forEach((pair: POPairSizeColor) => {
+      const value: POLineItemGridValue | undefined = item.get(pair.color);
 
-          if (value) {
-            const qty =
-              value.sizeValues.find((item) => item.size === pair.size)
-                ?.quantity || 0;
-            if (qty > 0) {
-              const amount = qty * value.price;
-              newDataItems.push({
-                id: pair.lineItemId,
-                //Dữ liệu cơ bản thì lấy từ schema
-                variant_id: pair.variantId,
-                variant: pair.variant,
-                product_id: pair.product_id,
-                sku: pair.sku,
-                product: pair.product,
-                barcode: pair.barcode,
-                variant_image: pair.variant_image,
-                retail_price: pair.retailPrice,
-                receipt_quantity: pair?.receipt_quantity || 0,
-                planned_quantity: pair?.planned_quantity || 0,
-                // Dữ liệu nhập liệu thì lấy thì value object
-                quantity: qty,
-                price: value.price,
-                purchase_order_id: null,
-                tax: (amount * taxRate) / 100,
-                tax_rate: taxRate,
-                amount: amount, // Tổng tiền
-                line_amount_after_line_discount: qty * value.price, // Tổng tiền sau giảm giá, hiện tại chưa có nên để bằng amount
-                updated_by: "", // Để "" cho không lỗi máy chủ pận
-                updated_name: "", // Để "" cho không lỗi máy chủ pận, phần này BE handle
-              });
-            }
-          }
-        },
-      );
-    },
-  );
+      if (value) {
+        const qty = value.sizeValues.find((item) => item.size === pair.size)?.quantity || 0;
+        if (qty > 0) {
+          const amount = qty * value.price;
+          newDataItems.push({
+            id: pair.lineItemId,
+            //Dữ liệu cơ bản thì lấy từ schema
+            variant_id: pair.variantId,
+            variant: pair.variant,
+            product_id: pair.product_id,
+            sku: pair.sku,
+            product: pair.product,
+            barcode: pair.barcode,
+            variant_image: pair.variant_image,
+            retail_price: pair.retailPrice,
+            receipt_quantity: pair?.receipt_quantity || 0,
+            planned_quantity: pair?.planned_quantity || 0,
+            // Dữ liệu nhập liệu thì lấy thì value object
+            quantity: qty,
+            price: value.price,
+            purchase_order_id: null,
+            tax: (amount * taxRate) / 100,
+            tax_rate: taxRate,
+            amount: amount, // Tổng tiền
+            line_amount_after_line_discount: qty * value.price, // Tổng tiền sau giảm giá, hiện tại chưa có nên để bằng amount
+            updated_by: "", // Để "" cho không lỗi máy chủ pận
+            updated_name: "", // Để "" cho không lỗi máy chủ pận, phần này BE handle
+          });
+        }
+      }
+    });
+  });
   return newDataItems;
 };
 
-export const validateLineItemQuantity = (
-  lineItems: PurchaseOrderLineItem[],
-) => {
+export const validateLineItemQuantity = (lineItems: PurchaseOrderLineItem[]) => {
   if (lineItems?.every((item) => item.quantity === 0)) {
     return false;
   } else {
@@ -671,8 +618,9 @@ export const setProcurementLineItemById = (
   inputValue: number,
   quickInputQtyProcurementLineItem: QuickInputQtyProcurementLineItem,
 ) => {
-  const procurements: Array<PurchaseProcurementViewDraft> =
-    formMain.getFieldValue(POField.procurements);
+  const procurements: Array<PurchaseProcurementViewDraft> = formMain.getFieldValue(
+    POField.procurements,
+  );
 
   procurements.forEach((procurement: PurchaseProcurementViewDraft, index) => {
     /**
@@ -686,9 +634,7 @@ export const setProcurementLineItemById = (
       );
       if (mappingProcurementItem) {
         if (unit === QUANTITY_PROCUREMENT_UNIT.PERCENT) {
-          mappingProcurementItem.quantity = Math.ceil(
-            (inputValue * value) / 100,
-          );
+          mappingProcurementItem.quantity = Math.ceil((inputValue * value) / 100);
         } else {
           mappingProcurementItem.quantity = inputValue;
         }
@@ -739,9 +685,7 @@ export const fetchProductGridData = async (
       const notSupplementLineItems = poData?.line_items?.filter(
         (item) => item.type !== POLineItemType.SUPPLEMENT,
       );
-      newpoLineItemGridChema.push(
-        initSchemaLineItem(product, mode, notSupplementLineItems),
-      );
+      newpoLineItemGridChema.push(initSchemaLineItem(product, mode, notSupplementLineItems));
       setPoLineItemGridSchema(newpoLineItemGridChema);
 
       /**
@@ -749,9 +693,7 @@ export const fetchProductGridData = async (
        */
       const newpoLineItemGridValue: Map<string, POLineItemGridValue>[] = [];
       newpoLineItemGridChema.forEach((schema) => {
-        newpoLineItemGridValue.push(
-          initValueLineItem(schema, notSupplementLineItems),
-        );
+        newpoLineItemGridValue.push(initValueLineItem(schema, notSupplementLineItems));
       });
       setPoLineItemGridValue(newpoLineItemGridValue);
 
@@ -772,15 +714,9 @@ export const getUntaxedAmountByLineItemType = (
     lineItem.reduce((prev: number, cur: PurchaseOrderLineItem) => {
       const amount = prev + cur.quantity * cur.price;
 
-      if (
-        type === POLoadType.SUPPLEMENT &&
-        cur.type === POLineItemType.SUPPLEMENT
-      ) {
+      if (type === POLoadType.SUPPLEMENT && cur.type === POLineItemType.SUPPLEMENT) {
         return amount;
-      } else if (
-        type === POLoadType.NOT_SUPPLEMENT &&
-        cur.type !== POLineItemType.SUPPLEMENT
-      ) {
+      } else if (type === POLoadType.NOT_SUPPLEMENT && cur.type !== POLineItemType.SUPPLEMENT) {
         return amount;
       } else if (type === POLoadType.ALL) {
         return amount;
@@ -800,15 +736,9 @@ export const getTotalAmountByLineItemType = (
       const curAmount = cur.quantity * cur.price;
       const amount = prev + (curAmount + curAmount * (cur.tax_rate / 100));
 
-      if (
-        type === POLoadType.SUPPLEMENT &&
-        cur.type === POLineItemType.SUPPLEMENT
-      ) {
+      if (type === POLoadType.SUPPLEMENT && cur.type === POLineItemType.SUPPLEMENT) {
         return amount;
-      } else if (
-        type === POLoadType.NOT_SUPPLEMENT &&
-        cur.type !== POLineItemType.SUPPLEMENT
-      ) {
+      } else if (type === POLoadType.NOT_SUPPLEMENT && cur.type !== POLineItemType.SUPPLEMENT) {
         return amount;
       } else if (type === POLoadType.ALL) {
         return amount;
@@ -824,12 +754,8 @@ export const summaryContentByLineItemType = (
   poLineItemType?: POLineItemType,
 ) => {
   const status = form.getFieldValue(POField.status);
-  const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(
-    POField.line_items,
-  );
-  const hasSupplement = lineItems.some(
-    (item) => item.type === POLineItemType.SUPPLEMENT,
-  );
+  const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(POField.line_items);
+  const hasSupplement = lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT);
   if (
     hasSupplement &&
     [POStatus.FINALIZED, POStatus.STORED].includes(status) &&
@@ -843,29 +769,17 @@ export const summaryContentByLineItemType = (
 
 export const checkCanEditDraft = (form: FormInstance, isEdit: boolean) => {
   const stt = form.getFieldValue(POField.status);
-  return (
-    isEdit &&
-    (!stt || stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL)
-  );
+  return isEdit && (!stt || stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL);
 };
 
 export const isExpandsSupplement = (form: FormInstance, isEdit: boolean) => {
-  const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(
-    POField.line_items,
-  );
-  return (
-    isEdit || lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT)
-  );
+  const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(POField.line_items);
+  return isEdit || lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT);
 };
 
 export const isShowSupplement = (form: FormInstance) => {
   const stt = form.getFieldValue(POField.status);
-  return [
-    POStatus.FINALIZED,
-    POStatus.STORED,
-    POStatus.FINISHED,
-    POStatus.COMPLETED,
-  ].includes(stt);
+  return [POStatus.FINALIZED, POStatus.STORED, POStatus.FINISHED, POStatus.COMPLETED].includes(stt);
 };
 
 export const checkImportPriceLowByLineItem = (

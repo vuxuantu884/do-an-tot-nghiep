@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-
 export const StyledCustomerCard = styled.div`
   .page-header {
     height: 80px;
@@ -30,18 +29,17 @@ export const StyledCustomerCard = styled.div`
       border-radius: 100px;
       align-items: center;
       &__ACTIVE {
-          background-color: #27AE60;
+        background-color: #27ae60;
       }
       &__ASSIGNED {
-          background-color: #2A2A86;
+        background-color: #2a2a86;
       }
       &__LOCKED {
-          background-color: #676767;
+        background-color: #676767;
       }
       &__INACTIVE {
-          background-color: #676767;
+        background-color: #676767;
       }
     }
   }
-
 `;

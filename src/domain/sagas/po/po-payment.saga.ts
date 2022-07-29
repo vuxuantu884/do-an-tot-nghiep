@@ -6,7 +6,11 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { POPaymentType } from "domain/types/purchase-order.type";
 import { call, put, takeLatest } from "redux-saga/effects";
 import { showError } from "utils/ToastUtils";
-import { createPurchasePaymentService, updatePurchasePaymentService, deletePurchasePaymentService } from "service/purchase-order/purchase-payment.service";
+import {
+  createPurchasePaymentService,
+  updatePurchasePaymentService,
+  deletePurchasePaymentService,
+} from "service/purchase-order/purchase-payment.service";
 
 function* poPaymentCreateSaga(action: YodyAction) {
   const { poId, request, createCallback } = action.payload;
@@ -14,7 +18,7 @@ function* poPaymentCreateSaga(action: YodyAction) {
     let response: BaseResponse<BaseResponse<PurchasePayments>> = yield call(
       createPurchasePaymentService,
       poId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -42,7 +46,7 @@ function* poPaymentUpdateSaga(action: YodyAction) {
       updatePurchasePaymentService,
       poId,
       paymentId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

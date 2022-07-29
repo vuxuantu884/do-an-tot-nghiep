@@ -1,10 +1,10 @@
-import {call, put, takeLatest} from '@redux-saga/core/effects';
-import {YodyAction} from 'base/base.action';
-import BaseResponse from 'base/base.response';
-import {HttpStatus} from 'config/http-status.config';
-import {unauthorizedAction} from 'domain/actions/auth/auth.action';
-import { CollectionType } from 'domain/types/product.type';
-import {CollectionResponse} from 'model/product/collection.model';
+import { call, put, takeLatest } from "@redux-saga/core/effects";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { CollectionType } from "domain/types/product.type";
+import { CollectionResponse } from "model/product/collection.model";
 import {
   createCollectionApi,
   getCollectionApi,
@@ -14,17 +14,14 @@ import {
   collectionDeleteProductApi,
   collectionUpdateProductsApi,
   getProductsCollectionApi,
-} from 'service/product/collection.service';
-import { callApiSaga } from 'utils/ApiUtils';
-import {showError} from 'utils/ToastUtils';
+} from "service/product/collection.service";
+import { callApiSaga } from "utils/ApiUtils";
+import { showError } from "utils/ToastUtils";
 
 function* getCollectionSaga(action: YodyAction) {
-  const {query, setData} = action.payload;
+  const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<CollectionResponse>> = yield call(
-      getCollectionApi,
-      query
-    );
+    let response: BaseResponse<Array<CollectionResponse>> = yield call(getCollectionApi, query);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -43,12 +40,9 @@ function* getCollectionSaga(action: YodyAction) {
 }
 
 function* createCollectionSaga(action: YodyAction) {
-  const {request, onCreateSuccess} = action.payload;
+  const { request, onCreateSuccess } = action.payload;
   try {
-    let response: BaseResponse<CollectionResponse> = yield call(
-      createCollectionApi,
-      request
-    );
+    let response: BaseResponse<CollectionResponse> = yield call(createCollectionApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess(response.data);
@@ -66,12 +60,9 @@ function* createCollectionSaga(action: YodyAction) {
 }
 
 function* collectionDetailSaga(action: YodyAction) {
-  const {id, setData} = action.payload;
+  const { id, setData } = action.payload;
   try {
-    let response: BaseResponse<CollectionResponse> = yield call(
-      collectionDetailApi,
-      id
-    );
+    let response: BaseResponse<CollectionResponse> = yield call(collectionDetailApi, id);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -93,13 +84,9 @@ function* collectionDetailSaga(action: YodyAction) {
 }
 
 function* collectionUpdateSaga(action: YodyAction) {
-  const {id, request, onUpdateSuccess} = action.payload;
+  const { id, request, onUpdateSuccess } = action.payload;
   try {
-    let response: BaseResponse<CollectionResponse> = yield call(
-      updateCollectionApi,
-      id,
-      request
-    );
+    let response: BaseResponse<CollectionResponse> = yield call(updateCollectionApi, id, request);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -118,7 +105,7 @@ function* collectionUpdateSaga(action: YodyAction) {
 }
 
 function* collectionDeleteSaga(action: YodyAction) {
-  const {id, onDeleteSuccess} = action.payload;
+  const { id, onDeleteSuccess } = action.payload;
   try {
     let response: BaseResponse<string> = yield call(collectionDeleteApi, id);
 
@@ -134,15 +121,15 @@ function* collectionDeleteSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* collectionDeleteProductSaga(action: YodyAction) {
-  const {id, ids, onDeleteSuccess} = action.payload;
+  const { id, ids, onDeleteSuccess } = action.payload;
   try {
     for (let i = ids; i < ids.length; i++) {
-        let response: BaseResponse<string> = yield call(collectionDeleteProductApi,id, ids[i]);
+      let response: BaseResponse<string> = yield call(collectionDeleteProductApi, id, ids[i]);
 
       switch (response.code) {
         case HttpStatus.SUCCESS:
@@ -158,18 +145,18 @@ function* collectionDeleteProductSaga(action: YodyAction) {
     onDeleteSuccess(true);
   } catch (error) {
     onDeleteSuccess(false);
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* updateProductsCollectionSaga(action: YodyAction) {
-  const {request, onResult} = action.payload;
-  yield callApiSaga({isShowLoading:true}, onResult, collectionUpdateProductsApi, request);
+  const { request, onResult } = action.payload;
+  yield callApiSaga({ isShowLoading: true }, onResult, collectionUpdateProductsApi, request);
 }
 
 function* getProductsCollectionSaga(action: YodyAction) {
-  const {query, onResult} = action.payload;
-  yield callApiSaga({isShowLoading:false}, onResult, getProductsCollectionApi, query);
+  const { query, onResult } = action.payload;
+  yield callApiSaga({ isShowLoading: false }, onResult, getProductsCollectionApi, query);
 }
 
 export function* collectionSaga() {

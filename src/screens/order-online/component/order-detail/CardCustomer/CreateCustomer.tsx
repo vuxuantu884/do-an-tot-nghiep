@@ -7,35 +7,28 @@ import {
   PhoneOutlined,
   TeamOutlined,
   UpOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
-import {
-  Button,
-  Checkbox,
-  Col,
-  DatePicker,
-  Divider,
-  Form, Input,
-  Row,
-  Select
-} from "antd";
+import { Button, Checkbox, Col, DatePicker, Divider, Form, Input, Row, Select } from "antd";
 import CustomSelect from "component/custom/select.custom";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
-import {
-  CustomerCreateAction
-} from "domain/actions/customer/customer.action";
+import { CustomerCreateAction } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import {
   CustomerContactClass,
   CustomerModel,
   CustomerShippingAddress,
-  CustomerShippingAddressClass
+  CustomerShippingAddressClass,
 } from "model/request/customer.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import moment from "moment";
 import React, { useCallback, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
-import { findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea } from "utils/AppUtils";
+import {
+  findWard,
+  handleDelayActionWhenInsertTextInSearchInput,
+  handleFindArea,
+} from "utils/AppUtils";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -62,7 +55,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     setCustomerChange,
   } = props;
 
-  const fullAddressRef = useRef()
+  const fullAddressRef = useRef();
 
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
@@ -78,14 +71,16 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
     return areas.map((area: any) => {
       return {
         ...area,
-        city_name_normalize: area.city_name.normalize("NFD")
+        city_name_normalize: area.city_name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
           .toLowerCase()
           .replace("tinh ", "")
           .replace("tp. ", ""),
-        district_name_normalize: area.name.normalize("NFD")
+        district_name_normalize: area.name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
@@ -94,81 +89,92 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
           .replace("huyen ", "")
           // .replace("thanh pho ", "")
           .replace("thi xa ", ""),
-      }
-    })
+      };
+    });
   }, [areas]);
   var pattern = new RegExp(RegUtil.PHONE);
-  const initialFormValueCustomer ={
-      phone:  pattern.test(keySearchCustomer)?keySearchCustomer:"",
-      shipping_addresses_phone:"",
-      //birthday:moment("01/01/1991", "DD/MM/YYYY")
-    }
+  const initialFormValueCustomer = {
+    phone: pattern.test(keySearchCustomer) ? keySearchCustomer : "",
+    shipping_addresses_phone: "",
+    //birthday:moment("01/01/1991", "DD/MM/YYYY")
+  };
 
   const getWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, (data) => {
-          const value = formRef.current?.getFieldValue("full_address");
-          if (value) {
-            const newValue = value.toLowerCase();
+        dispatch(
+          WardGetByDistrictAction(value, (data) => {
+            const value = formRef.current?.getFieldValue("full_address");
+            if (value) {
+              const newValue = value.toLowerCase();
 
-            const newWards = data.map((ward: any) => {
-              return {
-                ...ward,
-                ward_name_normalize: ward.name.normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/đ/g, "d")
-                .replace(/Đ/g, "D")
-                .toLowerCase()
-                .replace("phuong ", "")
-                .replace("xa ", ""),
-              }
-            });
-            // console.log('newWards', newWards)
-            let district = document.getElementsByClassName("inputDistrictCreateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
-            // console.log('district', district)
-            const foundWard = findWard(district, newWards, newValue);
-            // console.log('foundWard', foundWard)
-            formRef.current?.setFieldsValue({
-              ward_id: foundWard ? foundWard.id : null,
-            })
-          }
-          setWards(data);
-        }));
+              const newWards = data.map((ward: any) => {
+                return {
+                  ...ward,
+                  ward_name_normalize: ward.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .toLowerCase()
+                    .replace("phuong ", "")
+                    .replace("xa ", ""),
+                };
+              });
+              // console.log('newWards', newWards)
+              let district =
+                document
+                  .getElementsByClassName("inputDistrictCreateCustomer")[0]
+                  .textContent?.replace("Vui lòng chọn khu vực", "") || "";
+              // console.log('district', district)
+              const foundWard = findWard(district, newWards, newValue);
+              // console.log('foundWard', foundWard)
+              formRef.current?.setFieldsValue({
+                ward_id: foundWard ? foundWard.id : null,
+              });
+            }
+            setWards(data);
+          }),
+        );
       }
     },
-    [dispatch, formRef]
+    [dispatch, formRef],
   );
 
   const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, (data) => {
-          const value = formRef.current?.getFieldValue("shipping_addresses_full_address");
-          if (value) {
-            const newValue = value.toLowerCase();
-            const newWards = data.map((ward: any) => {
-              return {
-                ...ward,
-                ward_name_normalize: ward.name.normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/đ/g, "d")
-                .replace(/Đ/g, "D")
-                .toLowerCase().replace("phuong ", "")
-                .replace("xa", ""),
-              }
-            });
-            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-            formRef.current?.setFieldsValue({
-              shipping_addresses_ward_id: findWard ? findWard.id : null,
-            })
-          }
-          setShippingWards(data);
-        }));
-
+        dispatch(
+          WardGetByDistrictAction(value, (data) => {
+            const value = formRef.current?.getFieldValue("shipping_addresses_full_address");
+            if (value) {
+              const newValue = value.toLowerCase();
+              const newWards = data.map((ward: any) => {
+                return {
+                  ...ward,
+                  ward_name_normalize: ward.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .toLowerCase()
+                    .replace("phuong ", "")
+                    .replace("xa", ""),
+                };
+              });
+              const findWard = newWards.find(
+                (ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1,
+              );
+              formRef.current?.setFieldsValue({
+                shipping_addresses_ward_id: findWard ? findWard.id : null,
+              });
+            }
+            setShippingWards(data);
+          }),
+        );
       }
     },
-    [dispatch, formRef]
+    [dispatch, formRef],
   );
 
   const createCustomerCallback = useCallback(
@@ -180,7 +186,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         setCustomerChange(false);
       }
     },
-    [handleChangeCustomer, setCustomerChange]
+    [handleChangeCustomer, setCustomerChange],
   );
 
   const handleSubmit = useCallback(
@@ -188,29 +194,36 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
       let area = areas.find((area: any) => area.id === values.district_id);
       values.full_name = values.full_name.trim();
 
-      let area_shipping_district = areas.find((area: any) => area.id === values.shipping_addresses_district_id);
-      let area_shipping_ward=shippingWards.find((ward:any)=>ward.id===values.shipping_addresses_ward_id)
+      let area_shipping_district = areas.find(
+        (area: any) => area.id === values.shipping_addresses_district_id,
+      );
+      let area_shipping_ward = shippingWards.find(
+        (ward: any) => ward.id === values.shipping_addresses_ward_id,
+      );
 
       let customer_district = areas.find((area: any) => area.id === values.district_id);
-      let customer_ward= wards.find((ward:any)=>ward.id===values.ward_id);
+      let customer_ward = wards.find((ward: any) => ward.id === values.ward_id);
 
-      let shipping_addresses: CustomerShippingAddress[] | null = isVisibleShipping === false ? [
-        {
-          ...new CustomerShippingAddressClass(),
-          is_default: true,
-          default: true,
-          name: values.shipping_addresses_name,
-          phone: values.shipping_addresses_phone,
-          country_id: VietNamId,
-          city_id: area ? area.city_id : null,
-          city: area_shipping_district.city_name,
-          district_id: values.shipping_addresses_district_id,
-          district:area_shipping_district.name,
-          ward_id: values.shipping_addresses_ward_id,
-          ward:area_shipping_ward?.name||"",
-          full_address: values.shipping_addresses_full_address,
-        }
-      ] : null;
+      let shipping_addresses: CustomerShippingAddress[] | null =
+        isVisibleShipping === false
+          ? [
+              {
+                ...new CustomerShippingAddressClass(),
+                is_default: true,
+                default: true,
+                name: values.shipping_addresses_name,
+                phone: values.shipping_addresses_phone,
+                country_id: VietNamId,
+                city_id: area ? area.city_id : null,
+                city: area_shipping_district.city_name,
+                district_id: values.shipping_addresses_district_id,
+                district: area_shipping_district.name,
+                ward_id: values.shipping_addresses_ward_id,
+                ward: area_shipping_ward?.name || "",
+                full_address: values.shipping_addresses_full_address,
+              },
+            ]
+          : null;
 
       let piece: any = {
         full_name: values.full_name?.trim(),
@@ -218,7 +231,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         city_id: area ? area.city_id : null,
         city: customer_district.city_name,
         district_id: values.district_id,
-        district:customer_district.name,
+        district: customer_district.name,
         ward_id: values.ward_id,
         ward: customer_ward?.name,
         card_number: values.card_number,
@@ -226,9 +239,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
         gender: values.gender,
         birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
         customer_group_id: values.customer_group_id,
-        wedding_date: values.wedding_date
-          ? new Date(values.wedding_date).toUTCString()
-          : null,
+        wedding_date: values.wedding_date ? new Date(values.wedding_date).toUTCString() : null,
         status: "active",
         country_id: VietNamId,
         contacts: [
@@ -240,48 +251,48 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
             email: values.contact_email,
           },
         ],
-        shipping_addresses: shipping_addresses
+        shipping_addresses: shipping_addresses,
       };
-      dispatch(
-        CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback)
-      );
+      dispatch(CustomerCreateAction({ ...new CustomerModel(), ...piece }, createCustomerCallback));
     },
-    [areas, shippingWards, wards, isVisibleShipping, dispatch, createCustomerCallback]
+    [areas, shippingWards, wards, isVisibleShipping, dispatch, createCustomerCallback],
   );
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
   }, [customerForm]);
 
-  const checkAddress = useCallback((type, value) => {
-    const findArea = handleFindArea(value, newAreas)
-    // console.log('findArea', findArea)
-    if (findArea) {
-      switch (type) {
-        case "full_address":
-          if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
-            formRef.current?.setFieldsValue({
-              district_id: findArea.id,
-              ward_id: null
-            })
-            getWards(findArea.id);
-          }
-          break;
-        case "shipping_addresses_full_address":
-          if (formRef.current?.getFieldValue("shipping_addresses_district_id") !== findArea.id) {
-            formRef.current?.setFieldsValue({
-              shipping_addresses_district_id: findArea.id,
-              shipping_addresses_ward_id: null
-            })
-            getShippingWards(findArea.id);
-          }
-          break;
-        default: break;
+  const checkAddress = useCallback(
+    (type, value) => {
+      const findArea = handleFindArea(value, newAreas);
+      // console.log('findArea', findArea)
+      if (findArea) {
+        switch (type) {
+          case "full_address":
+            if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+              formRef.current?.setFieldsValue({
+                district_id: findArea.id,
+                ward_id: null,
+              });
+              getWards(findArea.id);
+            }
+            break;
+          case "shipping_addresses_full_address":
+            if (formRef.current?.getFieldValue("shipping_addresses_district_id") !== findArea.id) {
+              formRef.current?.setFieldsValue({
+                shipping_addresses_district_id: findArea.id,
+                shipping_addresses_ward_id: null,
+              });
+              getShippingWards(findArea.id);
+            }
+            break;
+          default:
+            break;
+        }
       }
-
-    }
-  }, [formRef, getShippingWards, getWards, newAreas]);
-
+    },
+    [formRef, getShippingWards, getWards, newAreas],
+  );
 
   return (
     <>
@@ -311,13 +322,13 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 },
               ]}
               name="full_name"
-            //label="Tên khách hàng"
+              //label="Tên khách hàng"
             >
               <Input
                 placeholder="Nhập Tên khách hàng"
                 prefix={<UserOutlined style={{ color: "#71767B" }} />}
                 id="customer_add_full_name"
-              //suffix={<img src={arrowDownIcon} alt="down" />}
+                //suffix={<img src={arrowDownIcon} alt="down" />}
               />
             </Form.Item>
           </Col>
@@ -381,7 +392,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 }),
               ]}
               name="phone"
-            //label="Số điện thoại"
+              //label="Số điện thoại"
             >
               <Input
                 placeholder="Nhập số điện thoại"
@@ -437,9 +448,15 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               <Input
                 placeholder="Địa chỉ"
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
-                  checkAddress("full_address", e.target.value)
-                },500)}
+                onChange={(e) =>
+                  handleDelayActionWhenInsertTextInSearchInput(
+                    fullAddressRef,
+                    () => {
+                      checkAddress("full_address", e.target.value);
+                    },
+                    500,
+                  )
+                }
               />
             </Form.Item>
           </Col>
@@ -467,7 +484,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               <Col xs={24} lg={12}>
                 <Form.Item
                   name="gender"
-                //label="Giới tính"
+                  //label="Giới tính"
                 >
                   <Select
                     showSearch
@@ -503,7 +520,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       validator: async (_, birthday) => {
                         if (birthday && birthday > new Date()) {
                           return Promise.reject(
-                            new Error("Ngày sinh không được lớn hơn ngày hiện tại")
+                            new Error("Ngày sinh không được lớn hơn ngày hiện tại"),
                           );
                         }
                       },
@@ -515,20 +532,23 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     placeholder="Chọn ngày sinh"
                     format={"DD/MM/YYYY"}
                     // defaultPickerValue={moment("01/01/1991", "DD/MM/YYYY")}
-                    suffixIcon={
-                      <CalendarOutlined style={{ color: "#71767B", float: "left" }} />
-                    }
+                    suffixIcon={<CalendarOutlined style={{ color: "#71767B", float: "left" }} />}
                     onMouseLeave={() => {
                       const elm = document.getElementById("customer_add_birthday");
-                      const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
-                      if (newDate ) {
+                      const newDate = elm?.getAttribute("value")
+                        ? moment(elm?.getAttribute("value"), "DD/MM/YYYY")
+                        : undefined;
+                      if (newDate) {
                         formRef.current?.setFields([
                           {
                             name: "birthday",
                             value: newDate,
-                            errors: newDate > moment(new Date(), "DD/MM/YYYY") ? ["Ngày sinh không được lớn hơn ngày hiện tại"] : []
-                          }
-                        ])
+                            errors:
+                              newDate > moment(new Date(), "DD/MM/YYYY")
+                                ? ["Ngày sinh không được lớn hơn ngày hiện tại"]
+                                : [],
+                          },
+                        ]);
                       }
                     }}
                   />
@@ -538,7 +558,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
               <Col xs={24} lg={12}>
                 <Form.Item
                   name="customer_group_id"
-                // label="Nhóm"
+                  // label="Nhóm"
                 >
                   <Select
                     showSearch
@@ -593,7 +613,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 }}
                 style={{ marginLeft: "3px" }}
                 checked={isVisibleShipping}
-              //disabled={levelOrder > 3}
+                //disabled={levelOrder > 3}
               >
                 Thông tin của khách hàng cũng là thông tin giao hàng
               </Checkbox>
@@ -603,7 +623,11 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                 {customerChange === true && (
                   <Button
                     type="primary"
-                    style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                    style={{
+                      padding: "0 25px",
+                      fontWeight: 400,
+                      float: "right",
+                    }}
                     className="create-button-custom ant-btn-outline fixed-button"
                     onClick={() => {
                       onOkPress();
@@ -650,7 +674,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     <Input
                       placeholder="Nhập Tên người nhận"
                       prefix={<UserOutlined style={{ color: "#71767B" }} />}
-                    //suffix={<img src={arrowDownIcon} alt="down" />}
+                      //suffix={<img src={arrowDownIcon} alt="down" />}
                     />
                   </Form.Item>
                 </Col>
@@ -670,7 +694,7 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                       }),
                     ]}
                     name="shipping_addresses_phone"
-                  //label="Số điện thoại"
+                    //label="Số điện thoại"
                   >
                     <Input
                       placeholder="Nhập số điện thoại người nhận"
@@ -759,7 +783,9 @@ const CreateCustomer: React.FC<CreateCustomerProps> = (props) => {
                     <Input
                       placeholder="Địa chỉ"
                       prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                      onChange={(e) => checkAddress("shipping_addresses_full_address", e.target.value)}
+                      onChange={(e) =>
+                        checkAddress("shipping_addresses_full_address", e.target.value)
+                      }
                     />
                   </Form.Item>
                 </Col>

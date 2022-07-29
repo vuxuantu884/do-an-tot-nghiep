@@ -6,7 +6,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CustomerGroupResponseModel } from "model/response/customer/customer-group.response";
-import { CustomerType } from 'domain/types/customer.type';
+import { CustomerType } from "domain/types/customer.type";
 
 import {
   createCustomerGroupService,
@@ -20,9 +20,10 @@ function* listDataCustomerGroupSaga(action: YodyAction) {
   const { params, handleData } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<
-      PageResponse<CustomerGroupResponseModel>
-    > = yield call(getCustomerGroupService, params);
+    let response: BaseResponse<PageResponse<CustomerGroupResponseModel>> = yield call(
+      getCustomerGroupService,
+      params,
+    );
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -30,7 +31,7 @@ function* listDataCustomerGroupSaga(action: YodyAction) {
          * call function handleData in payload, variables are taken from the response -> use when dispatch
          */
         handleData(response.data);
-        console.log(response.data)
+        console.log(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -51,9 +52,10 @@ function* addCustomerGroupSaga(action: YodyAction) {
   const { item, handleData } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<
-      PageResponse<CustomerGroupResponseModel>
-    > = yield call(createCustomerGroupService, item);
+    let response: BaseResponse<PageResponse<CustomerGroupResponseModel>> = yield call(
+      createCustomerGroupService,
+      item,
+    );
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -79,9 +81,11 @@ function* editCustomerGroupSaga(action: YodyAction) {
   const { id, item, handleData } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<
-      PageResponse<CustomerGroupResponseModel>
-    > = yield call(editCustomerGroupService, id, item);
+    let response: BaseResponse<PageResponse<CustomerGroupResponseModel>> = yield call(
+      editCustomerGroupService,
+      id,
+      item,
+    );
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -107,9 +111,10 @@ function* deleteCustomerGroupSaga(action: YodyAction) {
   const { id, handleData } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<
-      PageResponse<CustomerGroupResponseModel>
-    > = yield call(deleteCustomerGroupService, id);
+    let response: BaseResponse<PageResponse<CustomerGroupResponseModel>> = yield call(
+      deleteCustomerGroupService,
+      id,
+    );
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -132,20 +137,8 @@ function* deleteCustomerGroupSaga(action: YodyAction) {
 }
 
 export function* customerGroupSaga() {
-  yield takeLatest(
-    CustomerType.CUSTOMER_GROUP_SEARCH,
-    listDataCustomerGroupSaga
-  );
-  yield takeLatest(
-    CustomerType.CUSTOMER_GROUP_CREATE,
-    addCustomerGroupSaga
-  );
-  yield takeLatest(
-    CustomerType.CUSTOMER_GROUP_EDIT,
-    editCustomerGroupSaga
-  );
-  yield takeLatest(
-    CustomerType.CUSTOMER_GROUP_DELETE,
-    deleteCustomerGroupSaga
-  );
+  yield takeLatest(CustomerType.CUSTOMER_GROUP_SEARCH, listDataCustomerGroupSaga);
+  yield takeLatest(CustomerType.CUSTOMER_GROUP_CREATE, addCustomerGroupSaga);
+  yield takeLatest(CustomerType.CUSTOMER_GROUP_EDIT, editCustomerGroupSaga);
+  yield takeLatest(CustomerType.CUSTOMER_GROUP_DELETE, deleteCustomerGroupSaga);
 }

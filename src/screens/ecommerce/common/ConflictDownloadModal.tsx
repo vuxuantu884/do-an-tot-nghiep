@@ -3,19 +3,16 @@ import { Button, Modal } from "antd";
 
 import notificationIcon from "assets/icon/notification.svg";
 
-
 type ConflictDownloadModalType = {
   visible: boolean;
   onOk: (data: any) => void;
   onCancel: () => void;
 };
 
-
 const ConflictDownloadModal: React.FC<ConflictDownloadModalType> = (
-  props: ConflictDownloadModalType
+  props: ConflictDownloadModalType,
 ) => {
   const { visible, onOk, onCancel } = props;
-
 
   return (
     <Modal
@@ -26,7 +23,7 @@ const ConflictDownloadModal: React.FC<ConflictDownloadModalType> = (
       maskClosable={false}
       onCancel={onCancel}
       footer={
-        <Button type="primary" onClick={onOk} >
+        <Button type="primary" onClick={onOk}>
           Đồng ý
         </Button>
       }

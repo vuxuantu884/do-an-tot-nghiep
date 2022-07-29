@@ -6,9 +6,18 @@ import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
-import { StockInOutField, StockInOutStatus, StockInOutType, StockInOutTypeMapping, StockInReasonField, StockInReasonMappingField, StockOutReasonField, StockOutReasonMappingField } from "../constant";
-import stockInOutIconFinalized from "assets/icon/stock-in-out-icon-finalized.svg"
-import stockInOutIconCancelled from "assets/icon/stock-in-out-icon-cancelled.svg"
+import {
+  StockInOutField,
+  StockInOutStatus,
+  StockInOutType,
+  StockInOutTypeMapping,
+  StockInReasonField,
+  StockInReasonMappingField,
+  StockOutReasonField,
+  StockOutReasonMappingField,
+} from "../constant";
+import stockInOutIconFinalized from "assets/icon/stock-in-out-icon-finalized.svg";
+import stockInOutIconCancelled from "assets/icon/stock-in-out-icon-cancelled.svg";
 import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StockInOutOthersPermission } from "config/permissions/stock-in-out.permission";
@@ -18,7 +27,11 @@ import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { callApiNative } from "utils/ApiUtils";
-import { cancelledMultipleStockInOut, getStockInOutOtherList, updateStockInOutOthers } from "service/inventory/stock-in-out/index.service";
+import {
+  cancelledMultipleStockInOut,
+  getStockInOutOtherList,
+  updateStockInOutOthers,
+} from "service/inventory/stock-in-out/index.service";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import StockInOutFilter from "../components/StockInOutFilter";
 import EditPopover from "screens/inventory-defects/ListInventoryDefect/components/EditPopover";
@@ -27,7 +40,7 @@ import useAuthorization from "hook/useAuthorization";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 // import { isEmpty } from "lodash";
 
-interface StockInOutOtherListProps { }
+interface StockInOutOtherListProps {}
 
 const actionsDefault: Array<MenuAction> = [
   {
@@ -50,55 +63,67 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [confirmCancel, setConfirmCancel] = useState<boolean>(false);
   const currentPermissions: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer.permissions
+    (state: RootReducerType) => state.permissionReducer.permissions,
   );
-  const history = useHistory()
-  const dispatch = useDispatch()
+  const history = useHistory();
+  const dispatch = useDispatch();
 
   const query = useQuery();
   let paramsUrl: any = useMemo(() => {
-    return { ...getQueryParams(query) }
+    return { ...getQueryParams(query) };
   }, [query]);
 
   const getListStockInOutOther = useCallback(async () => {
     const queryString = generateQuery(paramsUrl);
-    const response = await callApiNative({ isShowError: true }, dispatch, getStockInOutOtherList, queryString)
+    const response = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      getStockInOutOtherList,
+      queryString,
+    );
     if (response) {
-      setData(response)
-      setLoading(false)
+      setData(response);
+      setLoading(false);
     }
-  }, [dispatch, paramsUrl])
+  }, [dispatch, paramsUrl]);
 
   useEffect(() => {
-    getListStockInOutOther()
+    getListStockInOutOther();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history.location.search])
+  }, [history.location.search]);
 
   const updateStockInOutOthersNote = async (value: string, item: StockInOutOther) => {
-    if ((item.stock_in_out_reason === StockOutReasonField.stock_out_other
-      || item.stock_in_out_reason === StockInReasonField.stock_in_other)
-      && !value) {
-      showError("Không được để trống lý do")
-      return
+    if (
+      (item.stock_in_out_reason === StockOutReasonField.stock_out_other ||
+        item.stock_in_out_reason === StockInReasonField.stock_in_other) &&
+      !value
+    ) {
+      showError("Không được để trống lý do");
+      return;
     }
-    const dataSubmit = { ...item, [StockInOutField.internal_note]: value }
-    const response = await callApiNative({ isShowError: true, isShowLoading: true }, dispatch, updateStockInOutOthers, item.id, dataSubmit)
+    const dataSubmit = { ...item, [StockInOutField.internal_note]: value };
+    const response = await callApiNative(
+      { isShowError: true, isShowLoading: true },
+      dispatch,
+      updateStockInOutOthers,
+      item.id,
+      dataSubmit,
+    );
     if (response) {
-      showSuccess("Cập nhật thành công")
-      getListStockInOutOther()
+      showSuccess("Cập nhật thành công");
+      getListStockInOutOther();
     }
-
-  }
+  };
 
   const getTotalQuantity = useCallback(() => {
-    let total = 0
+    let total = 0;
     data.items?.forEach((el: StockInOutOther) => {
       el.stock_in_out_other_items.forEach((item: StockInOutItemsOther) => {
-        total += item.quantity
-      })
-    })
-    return formatCurrency(total, ".")
-  }, [data.items])
+        total += item.quantity;
+      });
+    });
+    return formatCurrency(total, ".");
+  }, [data.items]);
 
   const defaultColumns: Array<ICustomTableColumType<StockInOutOther>> = useMemo(() => {
     return [
@@ -112,51 +137,62 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
           return (
             <>
               <div>
-                <Link to={{
-                  pathname: `${UrlConfig.STOCK_IN_OUT_OTHERS}/${record.id}`,
-                }}>
+                <Link
+                  to={{
+                    pathname: `${UrlConfig.STOCK_IN_OUT_OTHERS}/${record.id}`,
+                  }}
+                >
                   <b>{value}</b>
                 </Link>
               </div>
               <div style={{ fontSize: 12 }}>
-                <div>Người tạo:{" "}
-                  <Link to={`${UrlConfig.ACCOUNTS}/${record.account_code}`} target="_blank" rel="noopener noreferrer">
+                <div>
+                  Người tạo:{" "}
+                  <Link
+                    to={`${UrlConfig.ACCOUNTS}/${record.account_code}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
                     {record.created_by} - {record.created_name}
                   </Link>
                 </div>
-                <div>Ngày tạo: {ConvertUtcToLocalDate(record.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+                <div>
+                  Ngày tạo: {ConvertUtcToLocalDate(record.created_date, DATE_FORMAT.DDMMYY_HHmm)}
                 </div>
               </div>
             </>
-          )
+          );
         },
       },
       {
         title: "Kho hàng",
         dataIndex: "store",
-        align: 'center',
+        align: "center",
         width: "10%",
         render: (value, record, index) => {
-          return (
-            <>
-              {value}
-            </>
-          )
+          return <>{value}</>;
         },
         visible: true,
       },
       {
-        title: <div><div>Số lượng</div><div>(<span style={{ color: "#2A2A86" }}>{getTotalQuantity()}</span>)</div></div>,
+        title: (
+          <div>
+            <div>Số lượng</div>
+            <div>
+              (<span style={{ color: "#2A2A86" }}>{getTotalQuantity()}</span>)
+            </div>
+          </div>
+        ),
         align: "center",
         width: "9%",
         dataIndex: "stock_in_out_other_items",
         visible: true,
         render: (value, record, index) => {
-          let totalQuantity = 0
+          let totalQuantity = 0;
           value.forEach((item: StockInOutItemsOther) => {
-            totalQuantity += item.quantity
-          })
-          return <span>{formatCurrency(totalQuantity, ".")}</span>
+            totalQuantity += item.quantity;
+          });
+          return <span>{formatCurrency(totalQuantity, ".")}</span>;
         },
       },
       {
@@ -166,11 +202,11 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         dataIndex: "stock_in_out_other_items",
         visible: true,
         render: (value: Array<StockInOutItemsOther>, record, index) => {
-          let totalAmount = 0
+          let totalAmount = 0;
           value.forEach((item: StockInOutItemsOther) => {
-            totalAmount += item.amount
-          })
-          return <span>{formatCurrency(totalAmount, ".")}</span>
+            totalAmount += item.amount;
+          });
+          return <span>{formatCurrency(totalAmount, ".")}</span>;
         },
       },
       {
@@ -180,26 +216,26 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         width: "9%",
         render: (value: string, record) => {
           let icon = "";
-          let color = ""
-          let text = ""
+          let color = "";
+          let text = "";
           if (!value) {
             return "";
           }
           switch (record.status) {
             case StockInOutStatus.finalized:
-              icon = stockInOutIconFinalized
-              color = "#27AE60"
-              text = `Đã ${StockInOutTypeMapping[record.type]}`
+              icon = stockInOutIconFinalized;
+              color = "#27AE60";
+              text = `Đã ${StockInOutTypeMapping[record.type]}`;
               break;
             case StockInOutStatus.cancelled:
-              icon = stockInOutIconCancelled
-              color = "#E24343"
-              text = "Đã hủy"
+              icon = stockInOutIconCancelled;
+              color = "#E24343";
+              text = "Đã hủy";
               break;
           }
           return (
             <>
-              <div style={{ color: color }} >
+              <div style={{ color: color }}>
                 {icon && <img src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }} />}
                 {text}
               </div>
@@ -216,14 +252,18 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         visible: true,
         render: (value: string, record: StockInOutOther) => {
           return (
-            <div>{record.type === StockInOutType.stock_in ? StockInReasonMappingField[value] : StockOutReasonMappingField[value]}</div>
-          )
-        }
+            <div>
+              {record.type === StockInOutType.stock_in
+                ? StockInReasonMappingField[value]
+                : StockOutReasonMappingField[value]}
+            </div>
+          );
+        },
       },
       {
         title: "Người đề xuất",
         dataIndex: "account_code",
-        align: 'center',
+        align: "center",
         width: "12%",
         visible: true,
         render: (value: string, record: StockInOutOther) => {
@@ -231,21 +271,17 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             return (
               <>
                 <div>
-                  <Link
-                    to={`${UrlConfig.ACCOUNTS}/${value}`}
-                    className="primary"
-                    target="_blank"
-                  >
+                  <Link to={`${UrlConfig.ACCOUNTS}/${value}`} className="primary" target="_blank">
                     {value}
                   </Link>
                 </div>
                 <span>{record.account_name}</span>
               </>
-            )
+            );
           } else {
-            return ""
+            return "";
           }
-        }
+        },
       },
       {
         title: <div style={{ textAlign: "center" }}>Ghi chú</div>,
@@ -254,7 +290,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         width: "17%",
         render: (value: string, item: StockInOutOther) => {
           const hasPermission = currentPermissions.includes(StockInOutOthersPermission.update);
-          const isRequire = item.stock_in_out_reason === StockOutReasonField.stock_out_other || item.stock_in_out_reason === StockInReasonField.stock_in_other
+          const isRequire =
+            item.stock_in_out_reason === StockOutReasonField.stock_out_other ||
+            item.stock_in_out_reason === StockInReasonField.stock_in_other;
           return (
             <>
               <EditPopover
@@ -268,31 +306,26 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
                 }}
               />
             </>
-          )
+          );
         },
       },
-    ]
+    ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPermissions, getTotalQuantity]);
 
-  const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<StockInOutOther>>
-  >(defaultColumns);
+  const [columns, setColumns] =
+    useState<Array<ICustomTableColumType<StockInOutOther>>>(defaultColumns);
 
   useEffect(() => {
     setColumns(defaultColumns);
   }, [defaultColumns]);
 
-  const columnFinal = useMemo(() =>
-    columns.filter((item) => item.visible === true)
-    , [columns]);
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const onPageChange = (page: number, size?: number) => {
     paramsUrl.page = page;
     paramsUrl.limit = size;
-    history.replace(
-      `${UrlConfig.STOCK_IN_OUT_OTHERS}?${generateQuery(paramsUrl)}`
-    );
+    history.replace(`${UrlConfig.STOCK_IN_OUT_OTHERS}?${generateQuery(paramsUrl)}`);
   };
 
   const onMenuClick = useCallback((index: number) => {
@@ -317,22 +350,27 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   }, [canUpdateStockInOut]);
 
   const onSelectedChange = useCallback((selectedRow: StockInOutOther[]) => {
-    setSelectedRowData([...selectedRow])
+    setSelectedRowData([...selectedRow]);
   }, []);
 
   const onCancelStockInOut = useCallback(async () => {
-    if(selectedRowData.length === 0) {
-      showWarning("Bạn chưa chọn phiếu nào")
-      return
+    if (selectedRowData.length === 0) {
+      showWarning("Bạn chưa chọn phiếu nào");
+      return;
     }
-    const ids = selectedRowData.map(((item: StockInOutOther) => item.id)).join(",")
-    const response = await callApiNative({ isShowError: true }, dispatch, cancelledMultipleStockInOut, ids)
-    if(response) {
-      showSuccess("Hủy phiếu thành công")
-      getListStockInOutOther()
+    const ids = selectedRowData.map((item: StockInOutOther) => item.id).join(",");
+    const response = await callApiNative(
+      { isShowError: true },
+      dispatch,
+      cancelledMultipleStockInOut,
+      ids,
+    );
+    if (response) {
+      showSuccess("Hủy phiếu thành công");
+      getListStockInOutOther();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, selectedRowData])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, selectedRowData]);
 
   return (
     <StyledComponent>
@@ -349,7 +387,10 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             // selectedRowKey={selected.map(e => e.id)}
             isLoading={loading}
             dataSource={data.items}
-            sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+            sticky={{
+              offsetScroll: 5,
+              offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+            }}
             columns={columnFinal}
             rowKey={(item: StockInOutOther) => item.id}
             // scroll={{ x: 2000 }}
@@ -366,24 +407,22 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
             bordered
           />
         </div>
-        {
-          showSettingColumn && (
-            <ModalSettingColumn
-              visible={showSettingColumn}
-              onCancel={() => setShowSettingColumn(false)}
-              onOk={(data) => {
-                setShowSettingColumn(false);
-                setColumns(data);
-              }}
-              data={columns}
-            />
-          )
-        }
+        {showSettingColumn && (
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumns(data);
+            }}
+            data={columns}
+          />
+        )}
         <ModalDeleteConfirm
           onCancel={() => setConfirmCancel(false)}
           onOk={() => {
             setConfirmCancel(false);
-            onCancelStockInOut()
+            onCancelStockInOut();
           }}
           title="Bạn chắc chắn xóa phiếu hàng ?"
           subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
@@ -391,7 +430,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         />
       </div>
     </StyledComponent>
-  )
-}
+  );
+};
 
-export default StockInOutOtherList
+export default StockInOutOtherList;

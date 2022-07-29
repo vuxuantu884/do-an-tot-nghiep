@@ -126,9 +126,7 @@ function ReadWarranty(props: PropTypes) {
 
   const renderTagStatus = () => {
     let html = null;
-    const tagStatus = tagStatusArr.find(
-      (tag) => tag.status === warranty?.status,
-    );
+    const tagStatus = tagStatusArr.find((tag) => tag.status === warranty?.status);
     if (tagStatus) {
       html = tagStatus.name;
     }
@@ -201,9 +199,7 @@ function ReadWarranty(props: PropTypes) {
               <Card
                 title={<div>Khách hàng</div>}
                 className="cardCustomer"
-                extra={
-                  <TagStatus type="success">{renderTagStatus()}</TagStatus>
-                }
+                extra={<TagStatus type="success">{renderTagStatus()}</TagStatus>}
               >
                 <div className="single">
                   {" "}
@@ -226,7 +222,7 @@ function ReadWarranty(props: PropTypes) {
                 </div>
                 <div className="single">
                   <div style={{ display: "flex", alignItems: "center" }}>
-                    <div style={{whiteSpace: "nowrap", marginRight: 30}}>
+                    <div style={{ whiteSpace: "nowrap", marginRight: 30 }}>
                       <img src={iconCalendar} alt="" />
                       Ngày hẹn trả:{" "}
                     </div>
@@ -242,11 +238,7 @@ function ReadWarranty(props: PropTypes) {
                           ...warranty,
                           appointment_date: value,
                         };
-                        updateWarrantyLineItemService(
-                          warranty.id,
-                          warranty.warranty.id,
-                          params,
-                        )
+                        updateWarrantyLineItemService(warranty.id, warranty.warranty.id, params)
                           .then((response) => {
                             if (isFetchApiSuccessful(response)) {
                               showSuccess("Cập nhật ngày hẹn trả thành công!");
@@ -274,9 +266,7 @@ function ReadWarranty(props: PropTypes) {
                   <Col span={8}>Người tạo:</Col>
                   <Col span={16}>
                     {warranty?.created_by && warranty?.created_name ? (
-                      <Link
-                        to={`${UrlConfig.ACCOUNTS}/${warranty?.created_by}`}
-                      >
+                      <Link to={`${UrlConfig.ACCOUNTS}/${warranty?.created_by}`}>
                         <b>{warranty?.created_name}</b>
                       </Link>
                     ) : (
@@ -287,11 +277,8 @@ function ReadWarranty(props: PropTypes) {
                 <Row>
                   <Col span={8}>Nhân viên tiếp nhận:</Col>
                   <Col span={16}>
-                    {warranty?.warranty?.assignee &&
-                    warranty?.warranty?.assignee_code ? (
-                      <Link
-                        to={`${UrlConfig.ACCOUNTS}/${warranty?.warranty?.assignee_code}`}
-                      >
+                    {warranty?.warranty?.assignee && warranty?.warranty?.assignee_code ? (
+                      <Link to={`${UrlConfig.ACCOUNTS}/${warranty?.warranty?.assignee_code}`}>
                         <b>{warranty?.warranty?.assignee}</b>
                       </Link>
                     ) : (
@@ -305,9 +292,8 @@ function ReadWarranty(props: PropTypes) {
                   <Col span={8}>Trạng thái xử lý sản phẩm:</Col>
                   <Col span={16}>
                     <b>
-                      {WARRANTY_ITEM_STATUS.find(
-                        (status) => status.code === warranty.status,
-                      )?.name || "-"}
+                      {WARRANTY_ITEM_STATUS.find((status) => status.code === warranty.status)
+                        ?.name || "-"}
                     </b>
                   </Col>
                 </Row>
@@ -348,9 +334,7 @@ function ReadWarranty(props: PropTypes) {
                       () => ({
                         validator(_, value) {
                           if (value && value < 1000) {
-                            return Promise.reject(
-                              new Error("Nhập 0 hoặc ít nhất 4 chữ số!"),
-                            );
+                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
                           }
                           return Promise.resolve();
                         },
@@ -380,9 +364,7 @@ function ReadWarranty(props: PropTypes) {
                       () => ({
                         validator(_, value) {
                           if (value && value < 1000) {
-                            return Promise.reject(
-                              new Error("Nhập 0 hoặc ít nhất 4 chữ số!"),
-                            );
+                            return Promise.reject(new Error("Nhập 0 hoặc ít nhất 4 chữ số!"));
                           }
                           return Promise.resolve();
                         },
@@ -406,18 +388,14 @@ function ReadWarranty(props: PropTypes) {
                 </Form>
               </Card>
               <Card title="Sản phẩm" className="cardProduct">
-                {warranty?.variant
-                  ? renderWarrantyItemHtml()
-                  : "Không có sản phẩm nào!"}
+                {warranty?.variant ? renderWarrantyItemHtml() : "Không có sản phẩm nào!"}
               </Card>
               <Card title="Loại bảo hành" className="cardProduct">
                 <Row>
                   <Col span={8}>Loại bảo hành:</Col>
                   <Col span={16}>
                     <b>
-                      {WARRANTY_TYPE.find(
-                        (status) => status.code === warranty.type,
-                      )?.name || "-"}
+                      {WARRANTY_TYPE.find((status) => status.code === warranty.type)?.name || "-"}
                     </b>
                   </Col>
                 </Row>
@@ -438,11 +416,7 @@ function ReadWarranty(props: PropTypes) {
                           ...warranty,
                           warranty_center_id: value,
                         };
-                        sendToWarrantyCentersService(
-                          warranty.warranty.id,
-                          warranty.id,
-                          params,
-                        )
+                        sendToWarrantyCentersService(warranty.warranty.id, warranty.id, params)
                           .then((response) => {
                             if (isFetchApiSuccessful(response)) {
                               showSuccess("Chuyển trung tâm bảo hành thành công!");

@@ -16,4 +16,4 @@ export const POCreatePaymentModalStyled = styled.div`
       max-width: 100%;
     }
   } */
-`
+`;

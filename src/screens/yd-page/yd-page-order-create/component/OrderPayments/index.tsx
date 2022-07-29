@@ -1,25 +1,25 @@
 // import { BugOutlined } from "@ant-design/icons";
-import {ArrowLeftOutlined} from "@ant-design/icons";
-import {Button, Checkbox, Col, Divider, Input, Row, Select} from "antd";
+import { ArrowLeftOutlined } from "@ant-design/icons";
+import { Button, Checkbox, Col, Divider, Input, Row, Select } from "antd";
 // import Cash from "component/icon/Cash";
 // import CreditCardOutlined from "component/icon/CreditCardOutlined";
 // import QrcodeOutlined from "component/icon/QrcodeOutlined";
 // import YdCoin from "component/icon/YdCoin";
-import {OrderPaymentRequest} from "model/request/order.request";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
-import {PaymentMethodResponse} from "model/response/order/paymentmethod.response";
-import React, {useCallback, useEffect, useMemo} from "react";
-import {formatCurrency, getAmountPayment, replaceFormatString} from "utils/AppUtils";
-import {PaymentMethodCode} from "utils/Constants";
-import {StyledComponent} from "./styles";
-import {useDispatch, useSelector} from "react-redux";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import React, { useCallback, useEffect, useMemo } from "react";
+import { formatCurrency, getAmountPayment, replaceFormatString } from "utils/AppUtils";
+import { PaymentMethodCode } from "utils/Constants";
+import { StyledComponent } from "./styles";
+import { useDispatch, useSelector } from "react-redux";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   changeSelectedStoreBankAccountAction,
-  setIsExportBillAction
+  setIsExportBillAction,
 } from "domain/actions/order/order.action";
 import NumberInput from "component/custom/number-input.custom";
-import {yellowColor} from "utils/global-styles/variables";
+import { yellowColor } from "utils/global-styles/variables";
 
 type PropType = {
   payments: OrderPaymentRequest[];
@@ -56,47 +56,54 @@ function OrderPayments(props: PropType): JSX.Element {
   const dispatch = useDispatch();
 
   const storeBankAccountNumbers = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderStore.storeBankAccountNumbers
+    (state: RootReducerType) => state.orderReducer.orderStore.storeBankAccountNumbers,
   );
 
   const selectedStoreBankAccount = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderStore.selectedStoreBankAccount
+    (state: RootReducerType) => state.orderReducer.orderStore.selectedStoreBankAccount,
   );
 
   const isExportBill = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
+    (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill,
   );
 
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => {
-      return (item.code !== PaymentMethodCode.CARD && item.code !== PaymentMethodCode.VN_PAY && item.code !== PaymentMethodCode.CASH);
-    })
+      return (
+        item.code !== PaymentMethodCode.CARD &&
+        item.code !== PaymentMethodCode.VN_PAY &&
+        item.code !== PaymentMethodCode.CASH
+      );
+    });
   }, [listPaymentMethod]);
 
   const usageRate = useMemo(() => {
     return loyaltyRate?.usage_rate ? loyaltyRate.usage_rate : 0;
   }, [loyaltyRate]);
 
-  const handlePayment = useCallback((payments: OrderPaymentRequest[]) => {
-    let paymentsResult = [...payments]
-    // let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
-    // if(bankPaymentIndex > -1) {
-    //   if(selectedStoreBankAccount) {
-    //     let abc = storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount);
-    //     if(abc) {
-    //       paymentsResult[bankPaymentIndex].bank_account_id = abc.id;
-    //       paymentsResult[bankPaymentIndex].bank_account_number = abc.account_number;
-    //       paymentsResult[bankPaymentIndex].bank_account_holder = abc.account_holder;
+  const handlePayment = useCallback(
+    (payments: OrderPaymentRequest[]) => {
+      let paymentsResult = [...payments];
+      // let bankPaymentIndex = paymentsResult.findIndex((payment)=>payment.payment_method_code===PaymentMethodCode.BANK_TRANSFER);
+      // if(bankPaymentIndex > -1) {
+      //   if(selectedStoreBankAccount) {
+      //     let abc = storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount);
+      //     if(abc) {
+      //       paymentsResult[bankPaymentIndex].bank_account_id = abc.id;
+      //       paymentsResult[bankPaymentIndex].bank_account_number = abc.account_number;
+      //       paymentsResult[bankPaymentIndex].bank_account_holder = abc.account_holder;
 
-    //     }
-    //   } else {
-    //     paymentsResult[bankPaymentIndex].paid_amount = 0;
-    //     paymentsResult[bankPaymentIndex].amount = 0;
-    //     paymentsResult[bankPaymentIndex].return_amount = 0;
-    //   }
-    // }
-    setPayments(paymentsResult);
-  }, [setPayments]);
+      //     }
+      //   } else {
+      //     paymentsResult[bankPaymentIndex].paid_amount = 0;
+      //     paymentsResult[bankPaymentIndex].amount = 0;
+      //     paymentsResult[bankPaymentIndex].return_amount = 0;
+      //   }
+      // }
+      setPayments(paymentsResult);
+    },
+    [setPayments],
+  );
 
   /**
    * tổng số tiền đã trả
@@ -109,7 +116,7 @@ function OrderPayments(props: PropType): JSX.Element {
 
   const handleInputPoint = (index: number, point: number | null) => {
     if (!point) {
-      point = 0
+      point = 0;
     }
     payments[index].point = point;
     payments[index].amount = point * usageRate;
@@ -122,9 +129,7 @@ function OrderPayments(props: PropType): JSX.Element {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
 
     if (!paymentMaster) return;
-    let indexPayment = payments.findIndex(
-      (p) => p.payment_method_id === payment_method_id
-    );
+    let indexPayment = payments.findIndex((p) => p.payment_method_id === payment_method_id);
     if (indexPayment === -1) {
       payments.push({
         payment_method_id: paymentMaster.id,
@@ -149,7 +154,7 @@ function OrderPayments(props: PropType): JSX.Element {
 
   const handleInputMoney = (index: number, amount: number | null) => {
     if (!amount) {
-      amount = 0
+      amount = 0;
     }
     if (payments[index].payment_method_code === PaymentMethodCode.POINT) {
       payments[index].point = amount;
@@ -158,8 +163,10 @@ function OrderPayments(props: PropType): JSX.Element {
     } else {
       payments[index].amount = amount;
       payments[index].paid_amount = amount;
-      if(payments[index].payment_method_code === PaymentMethodCode.BANK_TRANSFER) {
-        const selected = storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount);
+      if (payments[index].payment_method_code === PaymentMethodCode.BANK_TRANSFER) {
+        const selected = storeBankAccountNumbers.find(
+          (single) => single.account_number === selectedStoreBankAccount,
+        );
         payments[index].bank_account_holder = selected?.account_holder || undefined;
         payments[index].bank_account_id = selected?.id || undefined;
         payments[index].bank_account_number = selected?.account_number;
@@ -177,77 +184,70 @@ function OrderPayments(props: PropType): JSX.Element {
   const fillInputMoney = (code?: string) => {
     if (code && code.length === 0) return;
     let paymentCopy: OrderPaymentRequest[] = payments;
-    let indexPayment = paymentCopy.findIndex(x => x.payment_method_code === code);
+    let indexPayment = paymentCopy.findIndex((x) => x.payment_method_code === code);
 
     if (indexPayment !== -1) {
-
       if (paymentCopy[indexPayment].payment_method_code === PaymentMethodCode.POINT) {
-
         let addPoint = Math.round(totalAmountCustomerNeedToPay / usageRate);
-        paymentCopy[indexPayment].point = paymentCopy[indexPayment].point ? paymentCopy[indexPayment].point : addPoint;
+        paymentCopy[indexPayment].point = paymentCopy[indexPayment].point
+          ? paymentCopy[indexPayment].point
+          : addPoint;
 
-        let amount = paymentCopy[indexPayment].amount + (addPoint * usageRate);
-        let paid_amount = paymentCopy[indexPayment].paid_amount + (addPoint * usageRate);
+        let amount = paymentCopy[indexPayment].amount + addPoint * usageRate;
+        let paid_amount = paymentCopy[indexPayment].paid_amount + addPoint * usageRate;
 
         paymentCopy[indexPayment].amount = amount;
         paymentCopy[indexPayment].paid_amount = paid_amount;
-
-      }
-
-      else {
+      } else {
         let amount = paymentCopy[indexPayment].amount + totalAmountCustomerNeedToPay;
         if (amount < 0) {
-          amount = 0
+          amount = 0;
         }
         let paid_amount = paymentCopy[indexPayment].paid_amount + totalAmountCustomerNeedToPay;
         if (paid_amount < 0) {
-          paid_amount = 0
+          paid_amount = 0;
         }
         paymentCopy[indexPayment].amount = amount;
         paymentCopy[indexPayment].paid_amount = paid_amount;
       }
-
     }
 
-    handlePayment([...paymentCopy])
-  }
+    handlePayment([...paymentCopy]);
+  };
 
   // Xử lý phương thức thanh toán bằng chuyển khoản
   const onChangeStoreBankAccountNumber = (value: string) => {
-    if(value) {
-      dispatch(changeSelectedStoreBankAccountAction(value))
+    if (value) {
+      dispatch(changeSelectedStoreBankAccountAction(value));
     } else {
-      dispatch(changeSelectedStoreBankAccountAction(undefined))
+      dispatch(changeSelectedStoreBankAccountAction(undefined));
     }
     let paymentCopy: OrderPaymentRequest[] = payments;
-    let paymentBankIndex = paymentCopy.findIndex(single =>single.payment_method_code === PaymentMethodCode.BANK_TRANSFER)
-    const selected = storeBankAccountNumbers.find(single => single.account_number === value);
-    if(paymentBankIndex > -1) {
+    let paymentBankIndex = paymentCopy.findIndex(
+      (single) => single.payment_method_code === PaymentMethodCode.BANK_TRANSFER,
+    );
+    const selected = storeBankAccountNumbers.find((single) => single.account_number === value);
+    if (paymentBankIndex > -1) {
       paymentCopy[paymentBankIndex].bank_account_holder = selected?.account_holder || undefined;
       paymentCopy[paymentBankIndex].bank_account_id = selected?.id || undefined;
       paymentCopy[paymentBankIndex].bank_account_number = selected?.account_number;
     }
-    setPayments([...paymentCopy])
+    setPayments([...paymentCopy]);
   };
 
   const selectedStoreBankNumber = useMemo(() => {
-    return storeBankAccountNumbers.find(single => single.account_number === selectedStoreBankAccount)
+    return storeBankAccountNumbers.find(
+      (single) => single.account_number === selectedStoreBankAccount,
+    );
   }, [selectedStoreBankAccount, storeBankAccountNumbers]);
 
-  const renderBankTransferTitle = (index:number) => {
+  const renderBankTransferTitle = (index: number) => {
     return (
-      <Col
-        className="point-spending"
-        style={{ marginLeft: 12 }}
-        lg={15}
-        xxl={15}
-      >
+      <Col className="point-spending" style={{ marginLeft: 12 }} lg={15} xxl={15}>
         <div>
           <Input
             placeholder="Tham chiếu"
-            onChange={(e: any) =>
-              handleTransferReference(index, e.target.value)
-            }
+            onChange={(e: any) => handleTransferReference(index, e.target.value)}
             disabled={
               levelOrder > 2
               // ||
@@ -255,82 +255,94 @@ function OrderPayments(props: PropType): JSX.Element {
             }
           />
         </div>
-        <div style={{marginTop: 12}} title={`${selectedStoreBankNumber?.account_number} - ${selectedStoreBankNumber?.bank_name}`}>
+        <div
+          style={{ marginTop: 12 }}
+          title={`${selectedStoreBankNumber?.account_number} - ${selectedStoreBankNumber?.bank_name}`}
+        >
           <Select
             showSearch
             allowClear
             onChange={onChangeStoreBankAccountNumber}
             filterOption={(input, option: any) => {
               if (option) {
-                return (
-                  option.children.toLowerCase().indexOf(input.toLowerCase()) >=
-                  0
-                );
+                return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
               }
               return false;
             }}
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
             placeholder="Chọn số tài khoản"
             value={selectedStoreBankAccount?.toString()}
             notFoundContent="Không tìm thấy số tài khoản của cửa hàng!"
             disabled={!isExportBill && false}
           >
             {storeBankAccountNumbers.map((value) => (
-              <Select.Option key={value.account_number} value={value.account_number} title={`${value.account_number} - ${value.bank_name}`}>
+              <Select.Option
+                key={value.account_number}
+                value={value.account_number}
+                title={`${value.account_number} - ${value.bank_name}`}
+              >
                 {value.account_number} - {value.bank_name}
               </Select.Option>
             ))}
           </Select>
         </div>
       </Col>
-    )
+    );
   };
 
   const handleSwitchCheckHoaDon = (value: boolean) => {
-    dispatch(setIsExportBillAction(value))
+    dispatch(setIsExportBillAction(value));
   };
 
   const renderExportBill = () => {
     return (
       // Ẩn xuất hóa đơn
-      <div hidden style={{marginTop: 12, padding: "6px 0"}} className="exportBill">
+      <div hidden style={{ marginTop: 12, padding: "6px 0" }} className="exportBill">
         <Checkbox
           checked={isExportBill}
           onChange={(e) => {
             handleSwitchCheckHoaDon(e.target.checked);
           }}
-          style={{ marginRight: 8}}
+          style={{ marginRight: 8 }}
         >
           Xuất hóa đơn
         </Checkbox>
       </div>
-    )
+    );
   };
 
   useEffect(() => {
     if (payments.some((payment) => payment.payment_method_code === PaymentMethodCode.COD)) {
-      let _payments = payments.filter((single) => single.payment_method_code !== PaymentMethodCode.COD);
+      let _payments = payments.filter(
+        (single) => single.payment_method_code !== PaymentMethodCode.COD,
+      );
       handlePayment(_payments);
     }
+  }, [payments, handlePayment]);
 
-  }, [payments, handlePayment])
-  
-  const checkDisablePaymentMethodButton = useCallback((method) => {
-    return (levelOrder > 2 || (method.code?.toLowerCase() === PaymentMethodCode.MOMO && totalAmountOrder <= 0));
-  }, [levelOrder, totalAmountOrder]);
+  const checkDisablePaymentMethodButton = useCallback(
+    (method) => {
+      return (
+        levelOrder > 2 ||
+        (method.code?.toLowerCase() === PaymentMethodCode.MOMO && totalAmountOrder <= 0)
+      );
+    },
+    [levelOrder, totalAmountOrder],
+  );
 
   //Xóa bỏ momo payment method nếu số tiền Khách cần phải trả nhỏ hơn hoặc bằng 0
   useEffect(() => {
     if (totalAmountOrder <= 0) {
-      const momoPaymentIndex = payments.findIndex(item => item.payment_method_code?.toLowerCase() === PaymentMethodCode.MOMO);
+      const momoPaymentIndex = payments.findIndex(
+        (item) => item.payment_method_code?.toLowerCase() === PaymentMethodCode.MOMO,
+      );
       if (momoPaymentIndex !== -1) {
         payments.splice(momoPaymentIndex, 1);
       }
       handlePayment([...payments]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [totalAmountOrder])
-  
+  }, [totalAmountOrder]);
 
   return (
     <StyledComponent>
@@ -342,7 +354,8 @@ function OrderPayments(props: PropType): JSX.Element {
           className="btn-list-method"
           gutter={5}
           align="middle"
-          style={{ marginLeft: 0, marginRight: 0 }}>
+          style={{ marginLeft: 0, marginRight: 0 }}
+        >
           {ListPaymentMethods.map((method) => {
             // let icon = null;
             // switch (method.code) {
@@ -371,7 +384,7 @@ function OrderPayments(props: PropType): JSX.Element {
                       (p) =>
                         p.code === method.code ||
                         p.payment_method.toLowerCase() === method.code.toLowerCase() ||
-                        p.payment_method_id === method.id
+                        p.payment_method_id === method.id,
                     )
                       ? "primary"
                       : "default"
@@ -403,7 +416,8 @@ function OrderPayments(props: PropType): JSX.Element {
               fontWeight: 500,
               fontSize: "20px",
               padding: "0",
-            }}>
+            }}
+          >
             <span className="t-result-blue">{formatCurrency(totalAmountOrder)}</span>
           </Col>
         </Row>
@@ -414,7 +428,8 @@ function OrderPayments(props: PropType): JSX.Element {
               gutter={20}
               className="row-price"
               key={index}
-              style={{ justifyContent: "space-between", margin: "8px 0" }}>
+              style={{ justifyContent: "space-between", margin: "8px 0" }}
+            >
               <Col lg={15} xxl={9} style={{ padding: "0" }}>
                 <Row align="middle">
                   <b style={{ padding: "8px 0" }}>{method.payment_method}:</b>
@@ -424,7 +439,8 @@ function OrderPayments(props: PropType): JSX.Element {
                       <span
                         style={{
                           marginLeft: 5,
-                        }}>
+                        }}
+                      >
                         {" "}
                         (1 điểm = {formatCurrency(usageRate)}₫)
                       </span>
@@ -437,12 +453,8 @@ function OrderPayments(props: PropType): JSX.Element {
                           borderRadius: 5,
                           padding: 5,
                         }}
-                        format={(a: string) =>
-                          formatCurrency(a)
-                        }
-                        replace={(a: string) =>
-                          replaceFormatString(a)
-                        }
+                        format={(a: string) => formatCurrency(a)}
+                        replace={(a: string) => replaceFormatString(a)}
                         className="hide-number-handle"
                         onFocus={(e) => e.target.select()}
                         min={0}
@@ -471,20 +483,21 @@ function OrderPayments(props: PropType): JSX.Element {
                   ) : null}
 
                   {/*Ẩn chọn số tài khoản*/}
-                  {false && method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? (
-                    renderBankTransferTitle(index)
-                  ) : null}
-
+                  {false && method.payment_method_code === PaymentMethodCode.BANK_TRANSFER
+                    ? renderBankTransferTitle(index)
+                    : null}
                 </Row>
               </Col>
 
               {method.payment_method_code !== PaymentMethodCode.POINT ? (
-                <Col className="lbl-money" lg={6} xxl={6} style={{padding: 0}}>
+                <Col className="lbl-money" lg={6} xxl={6} style={{ padding: 0 }}>
                   <Input.Group compact>
                     <NumberInput
                       min={0}
                       value={method.paid_amount}
-                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
+                      disabled={
+                        method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2
+                      }
                       className="yody-payment-input hide-number-handle"
                       placeholder="Nhập tiền mặt"
                       style={{
@@ -494,29 +507,34 @@ function OrderPayments(props: PropType): JSX.Element {
                         borderRadius: 5,
                         padding: 5,
                       }}
-                      format={(a: string) =>
-                        formatCurrency(a)
-                      }
-                      replace={(a: string) =>
-                        replaceFormatString(a)
-                      }
+                      format={(a: string) => formatCurrency(a)}
+                      replace={(a: string) => replaceFormatString(a)}
                       onChange={(value) => {
-                        handleInputMoney(index, value)
+                        handleInputMoney(index, value);
                       }}
                       onFocus={(e) => e.target.select()}
                     />
                     <Button
-                      style={{ width: 32, height: 32, lineHeight: "unset", margin: 0 }}
+                      style={{
+                        width: 32,
+                        height: 32,
+                        lineHeight: "unset",
+                        margin: 0,
+                      }}
                       type="default"
                       icon={<ArrowLeftOutlined />}
                       onClick={() => {
-                        fillInputMoney(method.payment_method_code)
+                        fillInputMoney(method.payment_method_code);
                       }}
-                      disabled={method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2}
+                      disabled={
+                        method.payment_method_code === PaymentMethodCode.POINT || levelOrder > 2
+                      }
                     />
                   </Input.Group>
                   {/*Ẩn xuất hóa đơn*/}
-                  {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? renderExportBill() : null }
+                  {method.payment_method_code === PaymentMethodCode.BANK_TRANSFER
+                    ? renderExportBill()
+                    : null}
                 </Col>
               ) : (
                 <Col
@@ -551,7 +569,11 @@ function OrderPayments(props: PropType): JSX.Element {
               padding: 0,
             }}
           >
-            <span style={{ color: totalAmountCustomerNeedToPay < 0 ? yellowColor : "red" }}>
+            <span
+              style={{
+                color: totalAmountCustomerNeedToPay < 0 ? yellowColor : "red",
+              }}
+            >
               {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
             </span>
           </Col>

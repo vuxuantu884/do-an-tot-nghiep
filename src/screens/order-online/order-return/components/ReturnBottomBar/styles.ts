@@ -35,11 +35,11 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  .bottomBar-detail{
+  .bottomBar-detail {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    .btn-detail{
+    .btn-detail {
       padding: 0px 25px;
       font-weight: 400;
       margin: 0px 10px;

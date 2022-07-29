@@ -11,12 +11,12 @@ export const ChartColor = {
   white: "white",
 };
 export const DashboardContainer = styled.div`
-  margin-top: 20px; 
-  .divider-table{
+  margin-top: 20px;
+  .divider-table {
     border-top: 2px solid ${grayE5};
-    margin-top: 30px; 
+    margin-top: 30px;
     margin-bottom: 10px;
-     }
+  }
   .greeting {
     display: flex;
     align-items: center;
@@ -39,7 +39,7 @@ export const DashboardContainer = styled.div`
         color: #222222;
       }
     }
-  ${breakpoint.phone`
+    ${breakpoint.phone`
       &__title {
         display: none;
       }
@@ -58,8 +58,8 @@ export const DashboardContainer = styled.div`
         width: 60px;
         height: 60px;
       }
-  `} 
-  } 
+  `}
+  }
   .dashboard-filter {
     display: flex;
     align-items: center;
@@ -109,7 +109,7 @@ export const DashboardContainer = styled.div`
       width: 100%;
       height: 110px;
       border-bottom: 1px solid ${borderColor};
-      .income-box{
+      .income-box {
         padding-left: 0;
       }
     }
@@ -195,9 +195,9 @@ export const DashboardContainer = styled.div`
     }
     .store-rank {
       padding: 20px 30px;
-      border-right: 1px solid #E5E5E5;
-      border-left :1px solid #E5E5E5
-    } 
+      border-right: 1px solid #e5e5e5;
+      border-left: 1px solid #e5e5e5;
+    }
     .department-rank {
       padding: 20px 0 20px 30px;
     }
@@ -205,73 +205,71 @@ export const DashboardContainer = styled.div`
       .store-rank {
         padding: 20px 0;
         border: none;
-        border-top: 1px solid #E5E5E5;
-        border-bottom: 1px solid #E5E5E5;
+        border-top: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
       }
       .department-rank {
         padding: 20px 0;
       }
     }
   }
- .product-dashboard {
+  .product-dashboard {
     background: none;
     box-shadow: none;
     border: none;
-   &>.ant-card-body {
-     padding: 0 0 20px;
-   }
- }
-  .product-group{
-    &-cart{
+    & > .ant-card-body {
+      padding: 0 0 20px;
+    }
+  }
+  .product-group {
+    &-cart {
       border: none;
       .ant-card-bordered {
-        border : none;
+        border: none;
       }
-      .ant-card-body{
+      .ant-card-body {
         padding-right: 0;
-    }
-    .ant-tabs-content-holder{
-      margin-top: 20px;
-    }
-    .ant-tabs-nav{
-      padding: 0;
-    }
-    .ant-tabs-tab{
-      padding: 0 0 12px 12px !important;
-    }
-    .ant-table-tbody{
-      tr{
-        td{
-          border-bottom: 1px solid ${white};
+      }
+      .ant-tabs-content-holder {
+        margin-top: 20px;
+      }
+      .ant-tabs-nav {
+        padding: 0;
+      }
+      .ant-tabs-tab {
+        padding: 0 0 12px 12px !important;
+      }
+      .ant-table-tbody {
+        tr {
+          td {
+            border-bottom: 1px solid ${white};
+          }
+        }
+        .ant-table-cell {
+          padding: 0 !important;
+        }
+        .name-row {
+          padding: 12px;
+          background-color: #f5f5ff;
+        }
+
+        .value-row {
+          padding: 12px;
+          position: relative;
+          opacity: 0.9;
+        }
+        .process-bg {
+          background-color: #d7d7ff;
+          position: absolute;
+          width: 100%;
+          height: 100%;
+          top: 0;
+          left: 0;
+          z-index: -1;
         }
       }
-      .ant-table-cell{
-        padding : 0 !important;
-      }
-      .name-row{
-        padding : 12px;
-        background-color: #F5F5FF;     
     }
-
-  
-    .value-row{
-      padding : 12px;
-      position: relative;
-      opacity: 0.9; 
-    }
-    .process-bg{
-      background-color: #D7D7FF;
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0;
-      left: 0;
-      z-index: -1;  
-    }
-    }
-    
-  } 
-}
+  }
 `;
 
 export const ShowMyDataStyle = styled.div`
@@ -281,10 +279,10 @@ export const ShowMyDataStyle = styled.div`
   overflow-y: auto;
   overflow-x: hidden;
   width: 400px;
-.ant-radio-group {
-  display: grid;
-  grid-template-columns: repeat( 2,minmax(200px,1fr) );  
-  column-gap: 20px;
-  row-gap: 5px;
-}
-`
+  .ant-radio-group {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(200px, 1fr));
+    column-gap: 20px;
+    row-gap: 5px;
+  }
+`;

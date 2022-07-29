@@ -22,10 +22,10 @@ function AuthWrapper(props: AuthWrapperProps) {
 
   if (passThrough && typeof children === "function") {
     /**@description : chuyển giá trị vào children function (kể cả có quyền hay không)
-     * 
+     *
      * @param isPassed: boolean : true nếu có quyền truy cập
      * @param isLoadingUserPermission: boolean : true nếu đang tải quyền truy cập
-     * @returns function 
+     * @returns function
      */
     return children(isPassed, isLoadingUserPermission);
   } else if (isPassed) {

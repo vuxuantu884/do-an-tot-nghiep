@@ -1,5 +1,17 @@
 import { BaseObject } from "model/base/base.response";
-import { BillingAddressResponseModel, FulFillmentResponse, OrderBillResponseModel, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
+import {
+  BillingAddressResponseModel,
+  FulFillmentResponse,
+  OrderBillResponseModel,
+  OrderDiscountResponse,
+  OrderLineItemResponse,
+  OrderPaymentResponse,
+  OrderResponse,
+  OrderReturnModel,
+  ShipmentResponse,
+  ShippingAddress,
+  TrackingLogFulfillmentResponse,
+} from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { ORDER_TYPES } from "utils/Order.constants";
 
@@ -115,14 +127,14 @@ export interface OrderModel extends BaseObject {
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;
-	automatic_discount?: boolean;
+  automatic_discount?: boolean;
   total_weight: number | null;
   channel_code: string;
   created_on?: string | null;
   total_quantity: number;
-  goods_receipts?: GoodsReceiptsResponse[]|null;
+  goods_receipts?: GoodsReceiptsResponse[] | null;
   export_bill: boolean;
-  bill: OrderBillResponseModel|null;
+  bill: OrderBillResponseModel | null;
 }
 
 export interface OrderSearchQuery {
@@ -185,24 +197,24 @@ export interface OrderSearchQuery {
   marketing_campaign?: [];
   reference_code: string | null;
   search_term?: string | null;
-	services?: [];
+  services?: [];
   channel_codes?: Array<any> | [];
-  tracking_codes ?: Array<string> | [];
+  tracking_codes?: Array<string> | [];
   searched_product?: string | null;
-  discount_codes?:string[]|null;
+  discount_codes?: string[] | null;
   //record
-  in_goods_receipt?:number|null;
+  in_goods_receipt?: number | null;
   //webApp
-  utm_source?:string|null;
-  utm_medium?:string|null;
-  utm_content?:string|null;
-  utm_term?:string|null;
-  utm_id?:string|null;
-  utm_campaign?:string|null;
-  affiliate?:string|null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  utm_id?: string | null;
+  utm_campaign?: string | null;
+  affiliate?: string | null;
   //
-  is_expired_payment?:boolean | string | null;
-  expired_at?:number | null;
+  is_expired_payment?: boolean | string | null;
+  expired_at?: number | null;
 }
 
 export interface OrderSearchQueryModel {
@@ -262,23 +274,23 @@ export interface EcommerceOrderSearchQuery extends OrderSearchQuery {
 }
 
 export interface DuplicateOrderSearchQuery {
-  page: number|null;
-  limit: number|null;
-  issued_on_min:string|null;
-  issued_on_max:string|null;
-  search_term:string|null;
-  store_id?:number|null
+  page: number | null;
+  limit: number | null;
+  issued_on_min: string | null;
+  issued_on_max: string | null;
+  search_term: string | null;
+  store_id?: number | null;
 }
 
-export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
-  full_address:string,
-  ward:string,
-  district:string,
-  city:string,
-  country:string
+export interface DuplicateOrderDetailQuery extends OrderSearchQuery {
+  full_address: string;
+  ward: string;
+  district: string;
+  city: string;
+  country: string;
 }
 
-export interface StoreBankAccountNumbersQueryModel  {
+export interface StoreBankAccountNumbersQueryModel {
   store_ids: number[];
 }
 
@@ -292,12 +304,12 @@ export interface StoreBankAccountNumberModel {
   id: number;
 }
 
-export interface DuplicateOrderDetailQuery extends OrderSearchQuery{
-  full_address:string,
-  ward:string,
-  district:string,
-  city:string,
-  country:string
+export interface DuplicateOrderDetailQuery extends OrderSearchQuery {
+  full_address: string;
+  ward: string;
+  district: string;
+  city: string;
+  country: string;
 }
 
 export interface OrderExtraModel extends OrderModel {
@@ -310,21 +322,21 @@ export interface OrderExtraModel extends OrderModel {
   subStatus?: string;
 }
 
-export interface FulfillmentsOrderPackQuery{
-  code:string;
-  store_id?:number;
-  delivery_service_provider_id?:number;
+export interface FulfillmentsOrderPackQuery {
+  code: string;
+  store_id?: number;
+  delivery_service_provider_id?: number;
   // channel_id?:number;
   // receipt_type_id?:number;
 }
 
-export type OrderSourceTypeModel = "offline" | "online" | null ;
+export type OrderSourceTypeModel = "offline" | "online" | null;
 
 export type ChangeOrderStatusHtmlModel = {
   id: number;
   isSuccess: boolean;
   text: string;
-}
+};
 
 export type OrderTypeModel = typeof ORDER_TYPES[keyof typeof ORDER_TYPES];
 
@@ -333,27 +345,27 @@ export type CalculateVariantPointInOrderModel = {
   point_subtract: number;
   variant_id: number;
   order_line_id: number;
-}
+};
 
-export interface OrderWithFulfillmentActiveModel extends OrderModel{
-  fulfillment_active?:FulFillmentResponse;
+export interface OrderWithFulfillmentActiveModel extends OrderModel {
+  fulfillment_active?: FulFillmentResponse;
 }
 
 export interface OrderHistorySearch {
-  search_product?:string|null;
-  search_term?:string|null;
-  store_ids?:number|number[]|null;
-  source_ids?:number|null;
-  customer_ids?:number|null;
-  is_online?:boolean|null;
-  order_status?:string|null;
-  sub_status_code?:string|null;
-  payment_status?:string|null;
-  account_codes?:string|null;
-  assignee_codes?:string|null;
-  note?:string|null;
-  sort_type?:string|null;
-  sort_column?:string|null;
-  page?:number;
-  limit?:number;
+  search_product?: string | null;
+  search_term?: string | null;
+  store_ids?: number | number[] | null;
+  source_ids?: number | null;
+  customer_ids?: number | null;
+  is_online?: boolean | null;
+  order_status?: string | null;
+  sub_status_code?: string | null;
+  payment_status?: string | null;
+  account_codes?: string | null;
+  assignee_codes?: string | null;
+  note?: string | null;
+  sort_type?: string | null;
+  sort_column?: string | null;
+  page?: number;
+  limit?: number;
 }

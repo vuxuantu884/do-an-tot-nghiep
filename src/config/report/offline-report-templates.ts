@@ -1,5 +1,9 @@
 import UrlConfig from "config/url.config";
-import { AnalyticCube, AnalyticTemplateData, TimeAtOptionValue } from "model/report/analytics.model";
+import {
+  AnalyticCube,
+  AnalyticTemplateData,
+  TimeAtOptionValue,
+} from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -24,7 +28,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     iconImg: "thoi-gian.svg",
     id: 1,
-    chartColumnSelected: ['customers', 'total_sales'],
+    chartColumnSelected: ["customers", "total_sales"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -59,7 +63,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     cube: AnalyticCube.OfflineSales,
     iconImg: "nhan-vien.svg",
-    chartColumnSelected: ['total_sales', 'average_order_value'],
+    chartColumnSelected: ["total_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -77,7 +81,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     cube: AnalyticCube.OfflineSales,
     iconImg: "cua-hang.svg",
     id: 4,
-    chartColumnSelected: ['total_sales', 'average_order_value'],
+    chartColumnSelected: ["total_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -97,16 +101,16 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     iconImg: "san-pham.svg",
     id: 5,
-    chartColumnSelected: ['total_sales', 'net_quantity'],
+    chartColumnSelected: ["total_sales", "net_quantity"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   // {
   //   type: "Báo cáo trả hàng",
   //   name: " theo nhân viên",
-  //   query: `SHOW returns, returned_item_quantity 
-  //   BY staff_name 
+  //   query: `SHOW returns, returned_item_quantity
+  //   BY staff_name
   //   FROM offline_sales
-  //   WHERE sale_kind IN ('Trả hàng')  
+  //   WHERE sale_kind IN ('Trả hàng')
   //   SINCE ${START_OF_MONTH} UNTIL ${TODAY}
   //   ORDER BY returns DESC`,
   //   cube: AnalyticCube.OfflineSales,
@@ -133,7 +137,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_OFFLINE],
     iconImg: "san-pham.svg",
     id: 6,
-    chartColumnSelected: ['total_sales', 'net_quantity'],
+    chartColumnSelected: ["total_sales", "net_quantity"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -150,5 +154,5 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 7,
     chartColumnSelected: [],
     timeAtOption: TimeAtOptionValue.CompletedAt,
-  }
-]
+  },
+];

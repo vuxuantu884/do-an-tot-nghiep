@@ -55,11 +55,7 @@ function WarrantyCenterCreate() {
             showSuccess("Thêm mới trung tâm bảo hành thành công");
             history.push(`${UrlConfig.WARRANTY}/${WARRANTY_URL.center}`);
           } else {
-            handleFetchApiError(
-              response,
-              "Thêm mới trung tâm bảo hành",
-              dispatch,
-            );
+            handleFetchApiError(response, "Thêm mới trung tâm bảo hành", dispatch);
           }
         })
         .finally(() => {

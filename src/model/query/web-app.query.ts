@@ -95,4 +95,3 @@ export interface WebAppCreateShopifyRequest {
   name: string;
   inventorySync: string;
 }
-

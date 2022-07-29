@@ -27,15 +27,11 @@ export const getWarrantiesService = (
   return BaseAxios.get(`${ApiConfig.WARRANTY}/cards?${params}`);
 };
 
-export const getWarrantyDetailService = (
-  id: number,
-): Promise<BaseResponse<any>> => {
+export const getWarrantyDetailService = (id: number): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.WARRANTY}/cards/${id}`);
 };
 
-export const createWarrantyService = (
-  body: any,
-): Promise<BaseResponse<any>> => {
+export const createWarrantyService = (body: any): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.WARRANTY}/warranties`, body);
 };
 
@@ -127,32 +123,23 @@ export const createWarrantyCenterService = (
 export const getWarrantyCenterDetailService = (
   warrantyCenterId: number,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.get(
-    `${ApiConfig.WARRANTY}/warranties/centers/${warrantyCenterId}`,
-  );
+  return BaseAxios.get(`${ApiConfig.WARRANTY}/warranties/centers/${warrantyCenterId}`);
 };
 
 export const deleteWarrantyCenterService = (
   warrantyCenterId: number,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.delete(
-    `${ApiConfig.WARRANTY}/warranties/centers/${warrantyCenterId}`,
-  );
+  return BaseAxios.delete(`${ApiConfig.WARRANTY}/warranties/centers/${warrantyCenterId}`);
 };
 
 export const updateWarrantyCenterService = (
   warrantyCenterId: number,
   body: CreateWarrantyCenterParamsModel,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(
-    `${ApiConfig.WARRANTY}/warranties/centers/${warrantyCenterId}`,
-    body,
-  );
+  return BaseAxios.put(`${ApiConfig.WARRANTY}/warranties/centers/${warrantyCenterId}`, body);
 };
 
-export const deleteWarrantyCentersService = (
-  ids: number[],
-): Promise<BaseResponse<any>> => {
+export const deleteWarrantyCentersService = (ids: number[]): Promise<BaseResponse<any>> => {
   const query = {
     ids,
   };
@@ -170,31 +157,22 @@ export const updateWarrantyReasonService = (
   warrantyReasonId: number,
   body: UpdateWarrantyReasonParamsModel,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(
-    `${ApiConfig.WARRANTY}/warranties/reasons/${warrantyReasonId}`,
-    body,
-  );
+  return BaseAxios.put(`${ApiConfig.WARRANTY}/warranties/reasons/${warrantyReasonId}`, body);
 };
 
 export const deleteWarrantyReasonService = (
   warrantyReasonId: number,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.delete(
-    `${ApiConfig.WARRANTY}/warranties/reasons/${warrantyReasonId}`,
-  );
+  return BaseAxios.delete(`${ApiConfig.WARRANTY}/warranties/reasons/${warrantyReasonId}`);
 };
 
 export const getWarrantyReasonDetailService = (
   warrantyReasonId: number,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.get(
-    `${ApiConfig.WARRANTY}/warranties/reasons/${warrantyReasonId}`,
-  );
+  return BaseAxios.get(`${ApiConfig.WARRANTY}/warranties/reasons/${warrantyReasonId}`);
 };
 
-export const deleteWarrantyReasonsService = (
-  ids: number[],
-): Promise<BaseResponse<any>> => {
+export const deleteWarrantyReasonsService = (ids: number[]): Promise<BaseResponse<any>> => {
   const query = {
     ids,
   };
@@ -211,10 +189,7 @@ export const updateWarrantyReasonsActiveService = (
   };
   const body = { status };
   const params = generateQuery(query);
-  return BaseAxios.put(
-    `${ApiConfig.WARRANTY}/warranties/reasons?${params}`,
-    body,
-  );
+  return BaseAxios.put(`${ApiConfig.WARRANTY}/warranties/reasons?${params}`, body);
 };
 
 // trạng thái sản phẩm
@@ -223,18 +198,13 @@ export const getWarrantyProductStatusesService = (
   query?: GetWarrantyProductStatusesParamModel,
 ): Promise<BaseResponse<PageResponse<any>>> => {
   const params = generateQuery(query);
-  return BaseAxios.get(
-    `${ApiConfig.WARRANTY}/warranties/product-status?${params}`,
-  );
+  return BaseAxios.get(`${ApiConfig.WARRANTY}/warranties/product-status?${params}`);
 };
 
 export const createProductStatusService = (
   request: CreateWarrantyProductStatusModel,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.WARRANTY}/warranties/product-status`,
-    request,
-  );
+  return BaseAxios.post(`${ApiConfig.WARRANTY}/warranties/product-status`, request);
 };
 
 export const updateWarrantyProductStatusService = (
@@ -263,16 +233,12 @@ export const getWarrantyProductStatusService = (
   );
 };
 
-export const deleteWarrantyProductStatusesService = (
-  ids: number[],
-): Promise<BaseResponse<any>> => {
+export const deleteWarrantyProductStatusesService = (ids: number[]): Promise<BaseResponse<any>> => {
   const query = {
     ids,
   };
   const params = generateQuery(query);
-  return BaseAxios.delete(
-    `${ApiConfig.WARRANTY}/warranties/product-status?${params}`,
-  );
+  return BaseAxios.delete(`${ApiConfig.WARRANTY}/warranties/product-status?${params}`);
 };
 
 export const updateWarrantyLineItemService = (
@@ -286,9 +252,7 @@ export const updateWarrantyLineItemService = (
   );
 };
 
-export const getWarrantyCountService = (
-  query: string[],
-): Promise<BaseResponse<number[]>> => {
+export const getWarrantyCountService = (query: string[]): Promise<BaseResponse<number[]>> => {
   const body = {
     conditions: query,
   };
@@ -304,7 +268,5 @@ export const getPrintFormByWarrantyIdsService = (
     type,
   };
   const queryString = generateQuery(queryParams);
-  return BaseAxios.get(
-    `${ApiConfig.WARRANTY}/cards/print_forms?${queryString}`,
-  );
+  return BaseAxios.get(`${ApiConfig.WARRANTY}/cards/print_forms?${queryString}`);
 };

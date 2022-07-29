@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Form, Input } from "antd";
-import {formatCurrency} from "utils/AppUtils";
+import { formatCurrency } from "utils/AppUtils";
 
 type CustomInputProps = {
   name: string;
@@ -37,7 +37,7 @@ function CustomInput(props: CustomInputProps) {
   const [value, setValue] = useState<string>("");
 
   const updateNewCustomer = (inputValue: string) => {
-    const tempNewCustomerInfo = {...newCustomerInfo};
+    const tempNewCustomerInfo = { ...newCustomerInfo };
     tempNewCustomerInfo[name] = inputValue;
     setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
@@ -60,9 +60,8 @@ function CustomInput(props: CustomInputProps) {
 
   const rankLvl = () => {
     if (loyaltyUsageRules) {
-      return loyaltyUsageRules?.find(
-        (item: any) => item.rank_id === loyaltyPoint?.loyalty_level_id
-      )?.rank_name;
+      return loyaltyUsageRules?.find((item: any) => item.rank_id === loyaltyPoint?.loyalty_level_id)
+        ?.rank_name;
     }
   };
   return (
@@ -75,7 +74,9 @@ function CustomInput(props: CustomInputProps) {
         suffix={
           customer ? (
             <span style={{ fontWeight: 600, color: "#2a2a86" }}>
-              {rankLvl() ? `${rankLvl() || ""}: ${formatCurrency(loyaltyPoint?.point) || 0} điểm` : "Chưa có hạng"}
+              {rankLvl()
+                ? `${rankLvl() || ""}: ${formatCurrency(loyaltyPoint?.point) || 0} điểm`
+                : "Chưa có hạng"}
             </span>
           ) : null
         }

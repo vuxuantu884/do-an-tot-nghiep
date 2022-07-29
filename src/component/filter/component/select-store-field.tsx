@@ -25,7 +25,7 @@ function SelectStoreField(props: StoreSelectProps) {
     dispatch(
       getListStoresSimpleAction((stores) => {
         setAllStore(stores);
-      })
+      }),
     );
   }, [dispatch]);
   return (

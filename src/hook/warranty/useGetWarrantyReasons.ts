@@ -5,21 +5,21 @@ import { getWarrantyReasonsService } from "service/warranty/warranty.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 function useFetchWarrantyReasons() {
-	const [warrantyReasons, setWarrantyReasons] = useState<Array<WarrantyReasonModel>>([]);
-	const dispatch = useDispatch();
+  const [warrantyReasons, setWarrantyReasons] = useState<Array<WarrantyReasonModel>>([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-		getWarrantyReasonsService().then(response => {
-			console.log('response', response)
-			if (isFetchApiSuccessful(response)) {
-				setWarrantyReasons(response.data.items);
-			} else {
-				handleFetchApiError(response, "Danh sách lịch sử bảo hành", dispatch)
-			}
-		})
-	}, [dispatch]);
+    getWarrantyReasonsService().then((response) => {
+      console.log("response", response);
+      if (isFetchApiSuccessful(response)) {
+        setWarrantyReasons(response.data.items);
+      } else {
+        handleFetchApiError(response, "Danh sách lịch sử bảo hành", dispatch);
+      }
+    });
+  }, [dispatch]);
 
-  return warrantyReasons
+  return warrantyReasons;
 }
 
 export default useFetchWarrantyReasons;

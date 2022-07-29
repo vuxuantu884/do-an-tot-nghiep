@@ -2,10 +2,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { Divider, Input, List, Modal, Checkbox, Skeleton } from "antd";
 import { searchProductWrapperRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  ProductResponse,
-  ProductWrapperSearchQuery,
-} from "model/product/product.model";
+import { ProductResponse, ProductWrapperSearchQuery } from "model/product/product.model";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomPagination from "component/table/CustomPagination";
@@ -18,7 +15,7 @@ type PickManyProductModalType = {
   selected: Array<any>;
   onSave: (result: Array<ProductResponse>) => void;
   storeID?: number;
-  emptyText?:string
+  emptyText?: string;
 };
 
 let initQuery = {
@@ -28,48 +25,39 @@ let initQuery = {
 };
 
 const PickManyProductModal: React.FC<PickManyProductModalType> = (
-  props: PickManyProductModalType
-) => { 
+  props: PickManyProductModalType,
+) => {
   const dispatch = useDispatch();
   const [data, setData] = useState<PageResponse<ProductResponse> | null>(null);
   const [selection, setSelection] = useState<Array<ProductResponse>>([]);
-  const [query, setQuery] = useState<ProductWrapperSearchQuery>(
-    initQuery
-  );
-  const onResultSuccess = useCallback(
-    (result: PageResponse<ProductResponse> | false) => {
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  const [query, setQuery] = useState<ProductWrapperSearchQuery>(initQuery);
+  const onResultSuccess = useCallback((result: PageResponse<ProductResponse> | false) => {
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
   const onCheckedChange = useCallback(
     (checked, ProductResponse: ProductResponse) => {
       if (checked) {
-        let index = selection.findIndex(
-          (item) => item.id === ProductResponse.id
-        );
+        let index = selection.findIndex((item) => item.id === ProductResponse.id);
         if (index === -1) {
           selection.push(ProductResponse);
         }
       } else {
-        let index = selection.findIndex(
-          (item) => item.id === ProductResponse.id
-        );
+        let index = selection.findIndex((item) => item.id === ProductResponse.id);
         if (index !== -1) {
           selection.splice(index, 1);
         }
       }
       setSelection([...selection]);
     },
-    [selection]
+    [selection],
   );
   const onPageChange = useCallback(
     (page, size) => {
       setQuery({ ...query, page: page, limit: size });
     },
-    [query]
+    [query],
   );
 
   const fillAll = useCallback(
@@ -78,14 +66,14 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         if (data) setSelection(selection.concat(data?.items));
       } else {
         const tempSelection = [...selection];
-        data?.items.forEach(item => {
-          const removedIndex = tempSelection.findIndex(s => s.id === item.id)
+        data?.items.forEach((item) => {
+          const removedIndex = tempSelection.findIndex((s) => s.id === item.id);
           tempSelection.splice(removedIndex, 1);
-        })
+        });
         setSelection([...tempSelection]);
       }
     },
-    [data, selection]
+    [data, selection],
   );
 
   useEffect(() => {
@@ -128,7 +116,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       <Divider />
       <Checkbox
         style={{ marginLeft: 12 }}
-        checked={data?.items.every(item => selection.findIndex(s => s.id === item.id) > -1)}
+        checked={data?.items.every((item) => selection.findIndex((s) => s.id === item.id) > -1)}
         onChange={(e) => {
           fillAll(e.target.checked);
         }}
@@ -148,9 +136,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
             rowKey={(item) => item.id.toString()}
             renderItem={(item) => (
               <ProductItem
-                checked={
-                  selection.findIndex((item1) => item.id === item1.id) !== -1
-                }
+                checked={selection.findIndex((item1) => item.id === item1.id) !== -1}
                 showCheckBox={true}
                 data={item}
                 onChange={(checked) => {

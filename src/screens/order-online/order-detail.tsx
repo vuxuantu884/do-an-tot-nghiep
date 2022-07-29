@@ -153,7 +153,7 @@ const OrderDetail = (props: PropTypes) => {
     );
   }, [OrderDetail]);
   const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] = useState<OrderResponse | null>(
-    null
+    null,
   );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
@@ -194,7 +194,7 @@ const OrderDetail = (props: PropTypes) => {
 
   const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(
     isReceivedReturnProducts,
-    OrderDetail
+    OrderDetail,
   );
 
   //loyalty
@@ -283,7 +283,7 @@ const OrderDetail = (props: PropTypes) => {
       dispatch(
         actionSetIsReceivedOrderReturn(OrderDetail?.order_return_origin?.id, () => {
           dispatch(OrderDetailAction(id, onGetDetailSuccess));
-        })
+        }),
       );
     }
   };
@@ -358,12 +358,12 @@ const OrderDetail = (props: PropTypes) => {
           (f) =>
             f.status !== FulFillmentStatus.CANCELLED &&
             f.status !== FulFillmentStatus.RETURNED &&
-            f.status !== FulFillmentStatus.RETURNING
+            f.status !== FulFillmentStatus.RETURNING,
         );
 
         setOrderDetail(_data);
         setShippingFeeInformedCustomer(
-          _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0
+          _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0,
         );
         form.setFieldsValue({
           shipping_fee_informed_to_customer: _data.shipping_fee_informed_to_customer
@@ -385,7 +385,7 @@ const OrderDetail = (props: PropTypes) => {
         }
       }
     },
-    [form]
+    [form],
   );
 
   const handleUpdateSubStatus = () => {
@@ -414,11 +414,11 @@ const OrderDetail = (props: PropTypes) => {
           Number(sub_reason_id),
           reason,
           onSuccessCancel,
-          onError
-        )
+          onError,
+        ),
       );
     },
-    [OrderDetail?.id, dispatch]
+    [OrderDetail?.id, dispatch],
   );
 
   const handleConfirmToEcommerce = () => {};
@@ -428,7 +428,7 @@ const OrderDetail = (props: PropTypes) => {
   };
 
   const [ecommerceStoreAddress, setEcommerceStoreAddress] = useState<Array<EcommerceStoreAddress>>(
-    []
+    [],
   );
 
   const handleEcommerceStoreAddress = useCallback(() => {
@@ -487,11 +487,11 @@ const OrderDetail = (props: PropTypes) => {
                 showError("Có lỗi xảy ra");
               }
             }
-          }
-        )
+          },
+        ),
       );
     },
-    [OrderDetail, dispatch]
+    [OrderDetail, dispatch],
   );
 
   const ecommerceStoreAddressCallback = (data: any) => {
@@ -519,7 +519,7 @@ const OrderDetail = (props: PropTypes) => {
         case "clone":
           const newTab = window.open(
             `/admin${UrlConfig.ORDER}/create?action=clone&cloneId=${id}`,
-            "_blank"
+            "_blank",
           );
           newTab?.focus();
           break;
@@ -559,7 +559,7 @@ const OrderDetail = (props: PropTypes) => {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [OrderDetail?.id, handleEcommerceStoreAddress, history, id]
+    [OrderDetail?.id, handleEcommerceStoreAddress, history, id],
   );
 
   /**
@@ -577,7 +577,7 @@ const OrderDetail = (props: PropTypes) => {
       dispatch(
         confirmDraftOrderAction(OrderDetail.id, params, (response) => {
           setReload(true);
-        })
+        }),
       );
     }
   };
@@ -603,7 +603,7 @@ const OrderDetail = (props: PropTypes) => {
                 OrderDetail.channel === POS.channel_code
                   ? UrlConfig.OFFLINE_ORDERS
                   : UrlConfig.ORDER
-              }`
+              }`,
             );
           } else {
             handleFetchApiError(response, "Xóa đơn hàng", dispatch);
@@ -656,7 +656,7 @@ const OrderDetail = (props: PropTypes) => {
 
       onGetDetailSuccess(orderDetailCopy);
     },
-    [OrderDetail, onGetDetailSuccess]
+    [OrderDetail, onGetDetailSuccess],
   );
 
   const [disabledBottomActions, setDisabledBottomActions] = useState(false);
@@ -752,7 +752,7 @@ const OrderDetail = (props: PropTypes) => {
           (momoPayment) =>
             !momoPayment.short_link &&
             !checkIfExpiredOrCancelledPayment(momoPayment) &&
-            !checkIfFinishedPayment(momoPayment)
+            !checkIfFinishedPayment(momoPayment),
         )
       ) {
         getOrderDetail(id).then((response) => {
@@ -761,7 +761,7 @@ const OrderDetail = (props: PropTypes) => {
             return;
           }
           const momoPaymentsResponse = response.data?.payments.filter((single) =>
-            checkIfMomoPayment(single)
+            checkIfMomoPayment(single),
           );
           if (
             !momoPaymentsResponse.some((single) => {
@@ -787,7 +787,7 @@ const OrderDetail = (props: PropTypes) => {
       actionListConfigurationShippingServiceAndShippingFee((response) => {
         setShippingServiceConfig(response);
         dispatch(changeShippingServiceConfigAction(response));
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -797,7 +797,7 @@ const OrderDetail = (props: PropTypes) => {
         getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
           setCustomerDetail(data);
           dispatch(changeOrderCustomerAction(data));
-        })
+        }),
       );
     }
   }, [dispatch, OrderDetail]);
@@ -820,7 +820,7 @@ const OrderDetail = (props: PropTypes) => {
         StoreDetailAction(OrderDetail?.store_id, (data) => {
           setStoreDetail(data);
           dispatch(changeStoreDetailAction(data));
-        })
+        }),
       );
       getStoreBankAccountNumbersService({
         store_ids: [OrderDetail?.store_id],
@@ -839,7 +839,7 @@ const OrderDetail = (props: PropTypes) => {
             handleFetchApiError(
               response,
               "Danh sách số tài khoản ngân hàng của cửa hàng",
-              dispatch
+              dispatch,
             );
           }
         })
@@ -912,10 +912,10 @@ const OrderDetail = (props: PropTypes) => {
             setOrderDetail(orderDetailCopy);
             showSuccess("Cập nhật ghi chú thành công");
           }
-        })
+        }),
       );
     },
-    [OrderDetail, dispatch]
+    [OrderDetail, dispatch],
   );
 
   useEffect(() => {
@@ -930,7 +930,7 @@ const OrderDetail = (props: PropTypes) => {
       PaymentMethodGetList((response) => {
         let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
         setListPaymentMethods(result);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -938,7 +938,7 @@ const OrderDetail = (props: PropTypes) => {
     dispatch(
       orderConfigSaga((data: OrderConfigResponseModel) => {
         setOrderConfig(data);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -999,7 +999,8 @@ const OrderDetail = (props: PropTypes) => {
         isOrderFromPOS(OrderDetail) ? undefined : (
           <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
         )
-      }>
+      }
+    >
       <div className="orders">
         <Form layout="vertical" initialValues={initialFormValue} form={form}>
           <Row gutter={24} style={{ marginBottom: "70px" }}>
@@ -1114,7 +1115,7 @@ const OrderDetail = (props: PropTypes) => {
                     p.return_status === FulFillmentStatus.RETURNING) ||
                   (p.status === FulFillmentStatus.CANCELLED &&
                     p.return_status === FulFillmentStatus.RETURNED &&
-                    p.status_before_cancellation === FulFillmentStatus.SHIPPING)
+                    p.status_before_cancellation === FulFillmentStatus.SHIPPING),
               ) && (
                 <Alert
                   message={
@@ -1125,7 +1126,8 @@ const OrderDetail = (props: PropTypes) => {
                           fontWeight: "500",
                           fontSize: "15px",
                           padding: "10px 0",
-                        }}>
+                        }}
+                      >
                         <p>Lưu ý : Đối với đơn ở trạng thái đang hoàn</p>
                         <ul style={{ lineHeight: "18px", marginBottom: 0 }}>
                           <li>
@@ -1148,7 +1150,13 @@ const OrderDetail = (props: PropTypes) => {
                 <Alert
                   message={
                     <React.Fragment>
-                      <div style={{ fontWeight: "500", fontSize: "15px", padding: "10px 0" }}>
+                      <div
+                        style={{
+                          fontWeight: "500",
+                          fontSize: "15px",
+                          padding: "10px 0",
+                        }}
+                      >
                         <p>
                           Lưu ý : Không thể điều phối đơn hàng khi chờ khách thanh toán qua ví điện
                           tử

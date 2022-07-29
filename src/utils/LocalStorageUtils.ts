@@ -20,7 +20,7 @@ const removeToken = () => {
 };
 
 export const clearLocalStorage = () => {
-	localStorage.clear();
+  localStorage.clear();
 };
 
 const setAppSetting = (appSeting: any) => {
@@ -56,7 +56,7 @@ const getYdpageSource = (): string | null => {
 function setWithExpiry(key: string, value: string | boolean, ttl: number) {
   const item = {
     value: value,
-    expiry: new Date().getTime() + ttl
+    expiry: new Date().getTime() + ttl,
   };
   localStorage.setItem(key, JSON.stringify(item));
 }
@@ -76,13 +76,12 @@ function getWithExpiry(key: string) {
   return item.value;
 }
 
-function setSaveSearchhLocalStorage(key: string,value: string){
-  localStorage.setItem(key,value)
+function setSaveSearchhLocalStorage(key: string, value: string) {
+  localStorage.setItem(key, value);
 }
-function getSaveSearchLocalStorage(key: string){
+function getSaveSearchLocalStorage(key: string) {
   return localStorage.getItem(key);
 }
-
 
 export {
   setToken,
@@ -98,5 +97,5 @@ export {
   getWithExpiry,
   setWithExpiry,
   setSaveSearchhLocalStorage,
-  getSaveSearchLocalStorage
+  getSaveSearchLocalStorage,
 };

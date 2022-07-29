@@ -6,7 +6,7 @@ export enum ProcurementFilterAdvanceEnum {
   stock_in_bys = "stock_in_bys",
   stock_in = "stock_in",
   merchandisers = "merchandisers",
-  note = "note"
+  note = "note",
 }
 export enum ProcurementFilterBasicEnum {
   content = "content",
@@ -28,7 +28,7 @@ export const ProcurementFilterBasicName = {
   [ProcurementFilterBasicEnum.content]: "Thông tin tìm kiếm",
   [ProcurementFilterBasicEnum.suppliers]: "Nhà cung cấp",
   [ProcurementFilterBasicEnum.store_ids]: "Kho nhận",
-  [ProcurementFilterBasicEnum.status]: "Trạng thái"
+  [ProcurementFilterBasicEnum.status]: "Trạng thái",
 };
 
 export const ProcurementFilterAdvanceName = {
@@ -37,14 +37,13 @@ export const ProcurementFilterAdvanceName = {
   [ProcurementFilterAdvanceEnum.stock_in]: "Ngày nhập kho",
   [ProcurementFilterAdvanceEnum.expect_receipt]: "Ngày nhận dự kiến",
   [ProcurementFilterAdvanceEnum.merchandisers]: "Merchandiser",
-  [ProcurementFilterAdvanceEnum.note]: "Ghi chú"
+  [ProcurementFilterAdvanceEnum.note]: "Ghi chú",
 };
 
-
-export interface ProcurementFilterProps{
+export interface ProcurementFilterProps {
   onClickOpen?: () => void;
   paramsUrl?: any;
-  accounts?: Array<AccountResponse>
+  accounts?: Array<AccountResponse>;
 }
 
 export interface ProcurementFilter {
@@ -66,7 +65,7 @@ export interface ProcurementFilter {
 export enum ProcurementItemsFilterAdvanceEnum {
   stock_in_date = "stock_in_date",
   stock_in_by = "stock_in_by",
-  note = "note"
+  note = "note",
 }
 
 export const ProcurementItemsFilterAdvanceName = {

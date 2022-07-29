@@ -58,10 +58,7 @@ export const COLUMN_ORDER_LIST = [
   ...ATTRIBUTE_VALUE,
 ];
 
-export async function fetchQuery(
-  params: KeyDriverOnlineParams,
-  dispatch: Dispatch<any>,
-) {
+export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispatch<any>) {
   const response: AnalyticDataQuery = await callApiNative(
     { notifyAction: "SHOW_ALL" },
     dispatch,
@@ -77,9 +74,7 @@ export const convertDataToFlatTableKeyDriver = (
 ) => {
   const keyDriverIndex = attributeOrdered.indexOf("key_driver");
   const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
-  const keyDriverDescriptionIndex = attributeOrdered.indexOf(
-    "key_driver_description",
-  );
+  const keyDriverDescriptionIndex = attributeOrdered.indexOf("key_driver_description");
   const drillingLevelIndex = attributeOrdered.indexOf("drilling_level");
 
   const data: KeyDriverOnlineDataSourceType[] = [];
@@ -89,16 +84,13 @@ export const convertDataToFlatTableKeyDriver = (
     const currentKeyDriver = row[keyDriverIndex];
 
     const drillingLevel = Number(row[drillingLevelIndex]);
-    const departmentLevelIndex = attributeOrdered.indexOf(
-      `department_lv${drillingLevel}`,
-    );
+    const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
 
     const department = nonAccentVietnamese(row[departmentLevelIndex]);
     const objValue = {} as any;
 
     ATTRIBUTE_VALUE.forEach((attr) => {
-      objValue[nonAccentVietnamese(department) + "_" + attr] =
-        row[attributeOrdered.indexOf(attr)];
+      objValue[nonAccentVietnamese(department) + "_" + attr] = row[attributeOrdered.indexOf(attr)];
     });
 
     const otherValue = {} as any;
@@ -137,17 +129,13 @@ export const getAllDepartmentByAnalyticResult = (
     .sort((a, b) => a[drillingLevelIndex] - b[drillingLevelIndex])
     .map((row: Array<string>) => {
       const drillingLevel = Number(row[drillingLevelIndex]);
-      const departmentLevelIndex = attributeOrdered.indexOf(
-        `department_lv${drillingLevel}`,
-      );
+      const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
       return {
         groupedBy: row[departmentLevelIndex].toUpperCase(),
         drillingLevel: drillingLevel,
       };
     });
-  return uniqBy(departments, "groupedBy").filter(
-    (department) => department.groupedBy,
-  );
+  return uniqBy(departments, "groupedBy").filter((department) => department.groupedBy);
 };
 
 export async function saveMonthTargetKeyDriver(
@@ -165,8 +153,7 @@ export async function saveMonthTargetKeyDriver(
 
   if (columnDrillingLevel > 0) {
     for (let i = 1; i <= columnDrillingLevel; i++) {
-      departmentLevel[`department_lv${i}`] =
-        row[`${columnKey}_department_lv${i}`] || "";
+      departmentLevel[`department_lv${i}`] = row[`${columnKey}_department_lv${i}`] || "";
     }
   }
 
@@ -231,10 +218,6 @@ export const handleMoveFocusInput = (
   nextColumnElement?.focus();
 };
 
-export const getInputTargetId = (
-  row: number,
-  column: number,
-  prefix: string,
-) => {
+export const getInputTargetId = (row: number, column: number, prefix: string) => {
   return `${prefix}_row_${row}_column_${column}`;
 };

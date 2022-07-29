@@ -1,54 +1,55 @@
 .upload-loyalty-cards {
-    padding: 21px 30px 45px;
-    font-size: 14px;
-    line-height: 16px;
-    color: #222222;
+  padding: 21px 30px 45px;
+  font-size: 14px;
+  line-height: 16px;
+  color: #222222;
 
-    .release-label {
-        font-weight: 500;
-        margin-bottom: 9px;
+  .release-label {
+    font-weight: 500;
+    margin-bottom: 9px;
+  }
+
+  .release-content {
+    max-width: 350px;
+  }
+
+  .upload-icon {
+    margin-right: 8px;
+  }
+
+  .upload-area {
+    display: flex;
+    margin-bottom: 20px;
+
+    .upload-btn,
+    .upload-btn:hover {
+      background-color: white;
+      color: #222222;
     }
 
-    .release-content {
-        max-width: 350px;
+    .title {
+      font-weight: bold;
+      margin-right: 30px;
+      align-self: center;
     }
 
-    .upload-icon {
+    .file {
+      align-self: center;
+      margin-left: 14px;
+
+      .file-icon {
         margin-right: 8px;
+        color: #666666;
+      }
+
+      .delete-icon {
+        margin-left: 8px;
+        cursor: pointer;
+      }
     }
+  }
 
-    .upload-area {
-        display: flex;
-        margin-bottom: 20px;
-
-        .upload-btn, .upload-btn:hover {
-            background-color: white;
-            color: #222222;
-        }
-
-        .title {
-            font-weight: bold;
-            margin-right: 30px;
-            align-self: center;
-        }
-
-        .file {
-            align-self: center;
-            margin-left: 14px;
-
-            .file-icon {
-                margin-right: 8px;
-                color: #666666;
-            }
-
-            .delete-icon {
-                margin-left: 8px;
-                cursor: pointer;
-            }
-        }
-    }
-
-    .sample-file {
-        margin-top: 24px;
-    }
+  .sample-file {
+    margin-top: 24px;
+  }
 }

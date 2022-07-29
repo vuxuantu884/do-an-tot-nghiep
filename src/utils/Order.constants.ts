@@ -3,7 +3,7 @@ import { FulFillmentStatus } from "./Constants";
 export const ORDER_TYPES = {
   online: "online",
   offline: "offline",
-} as const
+} as const;
 
 export const DELIVER_SERVICE_STATUS = {
   active: "active",
@@ -31,30 +31,30 @@ export const ORDER_RETURN_HISTORY = [
   {
     code: "update",
     title: "Cập nhật",
-  }
+  },
 ];
 
 export const DISCOUNT_VALUE_TYPE = {
   percentage: "PERCENTAGE",
   fixedAmount: "FIXED_AMOUNT",
   fixedPrice: "FIXED_PRICE",
-}
+};
 
 export const RETURN_TYPE_VALUES = {
   online: "ONLINE",
   offline: "OFFLINE",
-}
+};
 
 export const RETURN_TYPES = [
   {
     name: "Trả lại chuyển hàng",
-    value: RETURN_TYPE_VALUES.online
+    value: RETURN_TYPE_VALUES.online,
   },
   {
     name: "Trả lại tại quầy",
-    value: RETURN_TYPE_VALUES.offline
-  }
-]
+    value: RETURN_TYPE_VALUES.offline,
+  },
+];
 
 export const ORDER_SUB_STATUS = {
   first_call_attempt: "first_call_attempt",
@@ -82,7 +82,7 @@ export const ORDER_SUB_STATUS = {
   change_depot: "change_depot",
   out_of_stock: "out_of_stock",
   coordinator_confirming: "coordinator_confirming",
-  confirm_returned: "confirm_returned"
+  confirm_returned: "confirm_returned",
 };
 
 export const SUB_STATUS_CANCEL_CODE = [
@@ -90,7 +90,6 @@ export const SUB_STATUS_CANCEL_CODE = [
   ORDER_SUB_STATUS.system_cancelled,
   ORDER_SUB_STATUS.delivery_service_cancelled,
 ];
-
 
 export const ORDER_RETURN_SUB_STATUS = {
   returning: {
@@ -101,21 +100,25 @@ export const ORDER_RETURN_SUB_STATUS = {
   },
 };
 
-export const FulfillmentCancelStatus = [FulFillmentStatus.RETURNED, FulFillmentStatus.RETURNING, FulFillmentStatus.CANCELLED];
+export const FulfillmentCancelStatus = [
+  FulFillmentStatus.RETURNED,
+  FulFillmentStatus.RETURNING,
+  FulFillmentStatus.CANCELLED,
+];
 
 export const ORDER_PAYMENT_STATUS = {
   paid: "paid", // đã trả
   unpaid: "unpaid", // chưa trả
   partial_paid: "partial_paid", // thanh toán một phần
   cancelled: "cancelled", // hủy
-}
+};
 
 export const ORDER_EXPORT_TYPE = {
   ECOMMERCE: "ecommerce_orders",
   orders_online: "orders_online",
   orders_offline: "orders_offline",
   returns: "returns",
-}
+};
 export const OrderStatus = {
   DRAFT: "draft",
   FINALIZED: "finalized",
@@ -154,8 +157,8 @@ export const OrderStatus = {
       OrderStatus.CANCELLED,
       OrderStatus.EXPIRED,
       OrderStatus.SHIPING,
-      OrderStatus.PACKED
-    ]
+      OrderStatus.PACKED,
+    ];
   },
   getClassName: (status: string) => {
     switch (status) {
@@ -178,10 +181,10 @@ export const OrderStatus = {
       default:
         return "";
     }
-  }
-}
+  },
+};
 
-export const  PAYMENT_METHOD_ENUM = {
+export const PAYMENT_METHOD_ENUM = {
   cod: {
     id: 0,
     code: "cod",
@@ -200,7 +203,7 @@ export const  PAYMENT_METHOD_ENUM = {
   bankTransfer: {
     id: 3,
     code: "bank_transfer",
-    name: "Chuyển khoản"
+    name: "Chuyển khoản",
   },
   qrPay: {
     id: 4,
@@ -222,13 +225,13 @@ export const  PAYMENT_METHOD_ENUM = {
     code: "point_refund",
     name: "Hoàn điểm",
   },
-}
+};
 
 export const FULFILLMENT_PUSHING_STATUS = {
   failed: "failed",
   waiting: "waiting",
   completed: "completed",
-}
+};
 
 export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
   ghtk: {
@@ -256,4 +259,4 @@ export const THIRD_PARTY_LOGISTICS_INTEGRATION = {
     code: "snappy",
     guideUrl: "",
   },
-}
+};

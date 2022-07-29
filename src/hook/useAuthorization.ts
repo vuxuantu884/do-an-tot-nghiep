@@ -18,11 +18,11 @@ function useAuthorization(props: UseAuthorizationProps) {
   const [allowed, setAllowed] = useState<boolean>(false);
   const [isLoadingUserPermission, setIsLoadingUserPermission] = useState<boolean>(false);
   const currentPermissions: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer.permissions
+    (state: RootReducerType) => state.permissionReducer.permissions,
   );
 
   const currentStores = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
 
   useEffect(() => {
@@ -30,7 +30,9 @@ function useAuthorization(props: UseAuthorizationProps) {
       setIsLoadingUserPermission(true);
       setAllowed(false);
     } else {
-      setAllowed(checkUserPermission(acceptPermissions, currentPermissions, acceptStoreIds, currentStores));
+      setAllowed(
+        checkUserPermission(acceptPermissions, currentPermissions, acceptStoreIds, currentStores),
+      );
       setIsLoadingUserPermission(false);
     }
   }, [acceptPermissions, currentPermissions, acceptStoreIds, currentStores]);

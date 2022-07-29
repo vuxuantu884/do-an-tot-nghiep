@@ -134,7 +134,7 @@ export const StyledComponent = styled.div`
             font-size: 12px;
             opacity: 0.8;
           }
-          .variant-sku{
+          .variant-sku {
             display: flex;
           }
         }

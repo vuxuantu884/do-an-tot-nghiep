@@ -10,14 +10,14 @@ type AccountDetailAction = {
   setAccountJobs: (jobs: Array<AccountJobResponse>) => void;
 };
 export const AccountDetailContext = createContext<Partial<AccountDetailAction>>(
-  {} as AccountDetailAction
+  {} as AccountDetailAction,
 );
 AccountDetailProvider.defaultProps = {};
-function AccountDetailProvider(props: {children: ReactNode}) {
+function AccountDetailProvider(props: { children: ReactNode }) {
   const [userCode, setUserCode] = useState<string>();
   const [accountInfo, setAccountInfo] = useState<AccountResponse>({} as AccountResponse);
   const [accountJobs, setAccountJobs] = useState<Array<AccountJobResponse>>(
-    [] as Array<AccountJobResponse>
+    [] as Array<AccountJobResponse>,
   );
 
   return (

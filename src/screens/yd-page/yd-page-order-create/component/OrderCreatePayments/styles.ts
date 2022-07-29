@@ -48,13 +48,14 @@ export const StyledComponent = styled.div`
   .ant-card-head {
     border-bottom: none;
   }
-  
+
   .orders-timeline .ant-collapse-item {
-    &::before, &::after {
+    &::before,
+    &::after {
       display: none;
     }
   }
-  
+
   .orders-timeline .ant-collapse-header {
     display: none;
   }
@@ -92,5 +93,4 @@ export const StyledComponent = styled.div`
   .hide-number-handle .ant-input-number-input-wrap > input {
     height: 32px;
   }
-
 `;

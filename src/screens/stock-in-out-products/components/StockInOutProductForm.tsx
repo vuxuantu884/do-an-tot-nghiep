@@ -1,4 +1,17 @@
-import { Button, Card, Col, Empty, Form, FormInstance, Input, Row, Select, Space, Table, Tooltip } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Empty,
+  Form,
+  FormInstance,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  Tooltip,
+} from "antd";
 import BaseButton from "component/base/BaseButton";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import { IconAddMultiple } from "component/icon/IconAddMultiple";
@@ -9,7 +22,7 @@ import { debounce, isEmpty } from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 // import { POField } from "model/purchase-order/po-field";
-import { createRef, useCallback, useEffect, useMemo, useState } from "react"
+import { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import useKeyboardJs from "react-use/lib/useKeyboardJs";
 import ProductItem from "screens/purchase-order/component/product-item";
@@ -20,11 +33,18 @@ import { Link } from "react-router-dom";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
 import { AiOutlineClose } from "react-icons/ai";
-import { StockOutPolicyPriceField, StockOutPolicyPriceMapping, StockInPolicyPrice, StockInOutPolicyPriceField, StockInOutPolicyPriceMapping, StockInOutField, StockInOutType } from "../constant";
+import {
+  StockOutPolicyPriceField,
+  StockOutPolicyPriceMapping,
+  StockInPolicyPrice,
+  StockInOutPolicyPriceField,
+  StockInOutPolicyPriceMapping,
+  StockInOutField,
+  StockInOutType,
+} from "../constant";
 import StockInOutProductUtils from "../util/StockInOutProductUtils";
 import { StockInOutItemsOther } from "model/stock-in-out-other";
 import { showError } from "utils/ToastUtils";
-
 
 interface IEProductFormProps {
   formMain: FormInstance;
@@ -32,15 +52,15 @@ interface IEProductFormProps {
   title: string;
 }
 const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) => {
-  const { formMain, inventoryType, title } = props
+  const { formMain, inventoryType, title } = props;
   const [loadingSearch, setLoadingSearch] = useState(false);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
-  const [isPressed] = useKeyboardJs('f3');
+  const [isPressed] = useKeyboardJs("f3");
   const [resultSearch, setResultSearch] = useState<Array<VariantResponse>>([]);
   // const [isSortSku, setIsSortSku] = useState(false);
-  const [typePrice, setTypePrice] = useState<string>(StockInOutPolicyPriceField.import_price)
-  const dispatch = useDispatch()
+  const [typePrice, setTypePrice] = useState<string>(StockInOutPolicyPriceField.import_price);
+  const dispatch = useDispatch();
 
   // const sizeIndex = [
   //   {
@@ -88,17 +108,14 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     return options;
   }, [resultSearch]);
 
-  const onResultSearch = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      setLoadingSearch(false);
-      if (!result) {
-        setResultSearch([]);
-      } else {
-        setResultSearch(result.items);
-      }
-    },
-    []
-  );
+  const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
+    setLoadingSearch(false);
+    if (!result) {
+      setResultSearch([]);
+    } else {
+      setResultSearch(result.items);
+    }
+  }, []);
 
   const onSearch = useCallback(
     (value: string) => {
@@ -112,14 +129,14 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
               page: 1,
               info: value.trim(),
             },
-            onResultSearch
-          )
+            onResultSearch,
+          ),
         );
       } else {
         setResultSearch([]);
       }
     },
-    [dispatch, onResultSearch]
+    [dispatch, onResultSearch],
   );
 
   // const swapItem = (a: any, b: any) => {
@@ -223,35 +240,49 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
   // }
 
   const handleSelectProduct = (variantId: string) => {
-    const stockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
+    const stockInOutOtherItems: Array<StockInOutItemsOther> =
+      formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
 
     const index = resultSearch.findIndex((item) => item.id.toString() === variantId);
     if (index !== -1) {
-      if (resultSearch[index].status === 'inactive') {
-        showError('Sản phẩm đã ngừng hoạt động')
-        return
+      if (resultSearch[index].status === "inactive") {
+        showError("Sản phẩm đã ngừng hoạt động");
+        return;
       }
       let variants: Array<VariantResponse> = [resultSearch[index]];
-      let newItems: Array<StockInOutItemsOther> = [...StockInOutProductUtils.convertVariantToStockInOutItem(variants, typePrice)];
-      let newStockInOutOtherItems = StockInOutProductUtils.addProduct(stockInOutOtherItems, newItems, typePrice);
+      let newItems: Array<StockInOutItemsOther> = [
+        ...StockInOutProductUtils.convertVariantToStockInOutItem(variants, typePrice),
+      ];
+      let newStockInOutOtherItems = StockInOutProductUtils.addProduct(
+        stockInOutOtherItems,
+        newItems,
+        typePrice,
+      );
       formMain.setFieldsValue({
-        stock_in_out_other_items: newStockInOutOtherItems
+        stock_in_out_other_items: newStockInOutOtherItems,
       });
     }
-  }
+  };
 
   const handlePickManyProduct = (items: Array<VariantResponse>) => {
     const variantsSelected = [...items];
-    const stockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
+    const stockInOutOtherItems: Array<StockInOutItemsOther> =
+      formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
 
     setVisibleManyProduct(false);
-    const newItems: Array<StockInOutItemsOther> = [...StockInOutProductUtils.convertVariantToStockInOutItem(variantsSelected, typePrice)];
-    let newStockInOutOtherItems = StockInOutProductUtils.addProduct(stockInOutOtherItems, newItems, typePrice);
+    const newItems: Array<StockInOutItemsOther> = [
+      ...StockInOutProductUtils.convertVariantToStockInOutItem(variantsSelected, typePrice),
+    ];
+    let newStockInOutOtherItems = StockInOutProductUtils.addProduct(
+      stockInOutOtherItems,
+      newItems,
+      typePrice,
+    );
     // if (isSortSku) {
     //   newStockInOutOtherItems = handleSortLineItems(newStockInOutOtherItems);
     // }
     formMain.setFieldsValue({
-      stock_in_out_other_items: newStockInOutOtherItems
+      stock_in_out_other_items: newStockInOutOtherItems,
     });
 
     // const oldStockInOutOtherItems = formMain.getFieldValue(StockInOutField.stock_in_out_other_items_old) || [];
@@ -261,7 +292,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     //     stock_in_out_other_items_old: newOldStockInOutItems
     //   })
     // }
-  }
+  };
 
   // const updateOldStockInOutItem = (StockInOutItem: StockInOutItemsOther) => {
   //   let oldStockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(
@@ -278,29 +309,38 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
   //   }
   // }
 
-  const handleChangeQuantityStockInOutItem = (quantity: number, item: StockInOutItemsOther, typePrice: string) => {
+  const handleChangeQuantityStockInOutItem = (
+    quantity: number,
+    item: StockInOutItemsOther,
+    typePrice: string,
+  ) => {
     const stockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(
-      StockInOutField.stock_in_out_other_items
+      StockInOutField.stock_in_out_other_items,
     );
     const indexOfItem = stockInOutOtherItems.findIndex((a) => a.sku === item.sku);
 
     if (stockInOutOtherItems[indexOfItem]) {
-      stockInOutOtherItems[indexOfItem] = StockInOutProductUtils.updateStockInOutItemByQuantity(stockInOutOtherItems[indexOfItem], quantity, typePrice);
+      stockInOutOtherItems[indexOfItem] = StockInOutProductUtils.updateStockInOutItemByQuantity(
+        stockInOutOtherItems[indexOfItem],
+        quantity,
+        typePrice,
+      );
       // updateOldStockInOutItem(stockInOutOtherItems[indexOfItem]);
       formMain.setFieldsValue({
         stock_in_out_other_items: [...stockInOutOtherItems],
-      })
+      });
     }
-  }
+  };
 
   const handleDeleteLineItem = (index: number) => {
-    let stockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(StockInOutField.stock_in_out_other_items);
+    let stockInOutOtherItems: Array<StockInOutItemsOther> = formMain.getFieldValue(
+      StockInOutField.stock_in_out_other_items,
+    );
     // const lineItem = stockInOutOtherItems[index];
     stockInOutOtherItems.splice(index, 1);
     formMain.setFieldsValue({
-      stock_in_out_other_items: [...stockInOutOtherItems]
+      stock_in_out_other_items: [...stockInOutOtherItems],
     });
-
 
     // let oldStockInOutItemsOther: Array<StockInOutItemsOther> = formMain.getFieldValue(StockInOutField.stock_in_out_other_items_old);
     // if (oldStockInOutItemsOther) {
@@ -312,48 +352,60 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
     //     });
     //   }
     // }
-  }
+  };
 
   const onSearchProduct = () => {
     let element: any = document.getElementById("#product_search");
     element?.focus();
     const y = element?.getBoundingClientRect()?.top + window.pageYOffset - 250;
     window.scrollTo({ top: y, behavior: "smooth" });
-  }
+  };
 
   useEffect(() => {
     if (isPressed) {
-      onSearchProduct()
+      onSearchProduct();
     }
-  }, [isPressed])
+  }, [isPressed]);
 
   const onChangePolicyPrice = (value: string) => {
-    setTypePrice(value)
-    const procurementItemsOther: StockInOutItemsOther[] = formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? []
-    const newProcurementItemsOther: StockInOutItemsOther[] = procurementItemsOther?.map((item: StockInOutItemsOther) => {
-      const amount = item.quantity * item[value]
-      return { ...item, policy_price: value, amount }
-    })
-    formMain.setFieldsValue({ [StockInOutField.stock_in_out_other_items]: newProcurementItemsOther })
+    setTypePrice(value);
+    const procurementItemsOther: StockInOutItemsOther[] =
+      formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
+    const newProcurementItemsOther: StockInOutItemsOther[] = procurementItemsOther?.map(
+      (item: StockInOutItemsOther) => {
+        const amount = item.quantity * item[value];
+        return { ...item, policy_price: value, amount };
+      },
+    );
+    formMain.setFieldsValue({
+      [StockInOutField.stock_in_out_other_items]: newProcurementItemsOther,
+    });
     // if (isSortSku) {
     //   formMain.setFieldsValue({ [StockInOutField.stock_in_out_other_items_old]: newProcurementItemsOther })
     // }
-  }
+  };
 
   return (
     <Card
       title={title}
       extra={
         <>
-          <Form.Item noStyle shouldUpdate={(prev, current) => prev.policy_price !== current.policy_price}>
+          <Form.Item
+            noStyle
+            shouldUpdate={(prev, current) => prev.policy_price !== current.policy_price}
+          >
             {({ getFieldValue }) => {
-              const policy_price = getFieldValue(StockInOutField.policy_price)
+              const policy_price = getFieldValue(StockInOutField.policy_price);
               if (!policy_price) {
                 if (inventoryType === StockInOutType.stock_in) {
-                  formMain.setFieldsValue({ [StockInOutField.policy_price]: StockInOutPolicyPriceField.import_price })
+                  formMain.setFieldsValue({
+                    [StockInOutField.policy_price]: StockInOutPolicyPriceField.import_price,
+                  });
                 } else {
-                  formMain.setFieldsValue({ [StockInOutField.policy_price]: StockOutPolicyPriceField.cost_price })
-                  setTypePrice(StockOutPolicyPriceField.cost_price)
+                  formMain.setFieldsValue({
+                    [StockInOutField.policy_price]: StockOutPolicyPriceField.cost_price,
+                  });
+                  setTypePrice(StockOutPolicyPriceField.cost_price);
                 }
               }
               return (
@@ -371,11 +423,10 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                             <Select.Option value={item.key} color="#222222">
                               {StockInOutPolicyPriceMapping[item.key]}
                             </Select.Option>
-                          )
+                          );
                         })}
                       </Select>
                     </Form.Item>
-
                   ) : (
                     <Form.Item name={StockInOutField.policy_price} style={{ margin: "0px" }}>
                       <Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
@@ -392,9 +443,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         </>
       }
     >
-      <Form.Item
-        noStyle
-      >
+      <Form.Item noStyle>
         <Input.Group className="display-flex margin-bottom-20">
           <CustomAutoComplete
             loading={loadingSearch}
@@ -410,10 +459,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
             options={renderResult}
             ref={productSearchRef}
             onClickAddNew={() => {
-              window.open(
-                `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                "_blank"
-              );
+              window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
             }}
           />
           <BaseButton
@@ -428,12 +474,14 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
       <Form.Item
         style={{ padding: 0 }}
         shouldUpdate={(prevValues, curValues) =>
-          prevValues[StockInOutField.stock_in_out_other_items] !== curValues[StockInOutField.stock_in_out_other_items] ||
+          prevValues[StockInOutField.stock_in_out_other_items] !==
+            curValues[StockInOutField.stock_in_out_other_items] ||
           prevValues[StockInOutField.policy_price] !== curValues[StockInOutField.policy_price]
         }
       >
         {({ getFieldValue }) => {
-          const procurementItemsOther: Array<StockInOutItemsOther> = getFieldValue(StockInOutField.stock_in_out_other_items) || [];
+          const procurementItemsOther: Array<StockInOutItemsOther> =
+            getFieldValue(StockInOutField.stock_in_out_other_items) || [];
 
           return (
             <Table
@@ -499,11 +547,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   dataIndex: "variant_image",
                   render: (value) => (
                     <div className="product-item-image">
-                      <img
-                        src={value === null ? imgDefIcon : value}
-                        alt=""
-                        className=""
-                      />
+                      <img src={value === null ? imgDefIcon : value} alt="" className="" />
                     </div>
                   ),
                 },
@@ -513,11 +557,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   // sorter: true,
                   className: "ant-col-info",
                   dataIndex: "variant_name",
-                  render: (
-                    value: string,
-                    item: StockInOutItemsOther,
-                    index: number
-                  ) => {
+                  render: (value: string, item: StockInOutItemsOther, index: number) => {
                     return (
                       <div>
                         <div>
@@ -535,7 +575,6 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                         </div>
                       </div>
                     );
-
                   },
                 },
                 {
@@ -548,25 +587,36 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                     >
                       <div>Số Lượng</div>
                       <div
-                        style={{ color: "#2A2A86", fontWeight: "normal", marginLeft: 5, }}
+                        style={{
+                          color: "#2A2A86",
+                          fontWeight: "normal",
+                          marginLeft: 5,
+                        }}
                       >
-                        ({formatCurrency(StockInOutProductUtils.totalQuantity(procurementItemsOther), ".")})
+                        (
+                        {formatCurrency(
+                          StockInOutProductUtils.totalQuantity(procurementItemsOther),
+                          ".",
+                        )}
+                        )
                       </div>
                     </div>
                   ),
                   width: "15%",
                   dataIndex: "quantity",
                   render: (value, item: StockInOutItemsOther, index) => {
-                    return <NumberInput
-                      isFloat={false}
-                      value={value}
-                      min={1}
-                      default={1}
-                      maxLength={9}
-                      onChange={(quantity) => {
-                        handleChangeQuantityStockInOutItem(quantity || 0, item, typePrice);
-                      }}
-                    />
+                    return (
+                      <NumberInput
+                        isFloat={false}
+                        value={value}
+                        min={1}
+                        default={1}
+                        maxLength={9}
+                        onChange={(quantity) => {
+                          handleChangeQuantityStockInOutItem(quantity || 0, item, typePrice);
+                        }}
+                      />
+                    );
                   },
                 },
                 // {
@@ -658,12 +708,14 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   fixed: procurementItemsOther.length !== 0 && "right",
                   width: 60,
                   render: (value: string, item, index: number) => {
-                    return <Button
-                      onClick={() => handleDeleteLineItem(index)}
-                      className="product-item-delete"
-                      style={{ textAlign: "right", width: "100%" }}
-                      icon={<AiOutlineClose />}
-                    />
+                    return (
+                      <Button
+                        onClick={() => handleDeleteLineItem(index)}
+                        className="product-item-delete"
+                        style={{ textAlign: "right", width: "100%" }}
+                        icon={<AiOutlineClose />}
+                      />
+                    );
                   },
                 },
               ]}
@@ -671,34 +723,40 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
               tableLayout="fixed"
               pagination={false}
             />
-          )
+          );
         }}
       </Form.Item>
       <Row gutter={24}>
         <Col span={12} />
         <Col span={12}>
           <Form.Item
-            shouldUpdate={(prevValues, curValues) => prevValues[StockInOutField.stock_in_out_other_items] !== curValues[StockInOutField.stock_in_out_other_items]}
+            shouldUpdate={(prevValues, curValues) =>
+              prevValues[StockInOutField.stock_in_out_other_items] !==
+              curValues[StockInOutField.stock_in_out_other_items]
+            }
             noStyle
           >
             {({ getFieldValue }) => {
-              const stock_in_out_other_items = getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
-              const totalAmount = StockInOutProductUtils.getTotalAmountByStockInOutItems(stock_in_out_other_items);
+              const stock_in_out_other_items =
+                getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
+              const totalAmount =
+                StockInOutProductUtils.getTotalAmountByStockInOutItems(stock_in_out_other_items);
               return (
                 !isEmpty(stock_in_out_other_items) && (
                   <div>
                     <div className="ie-payment-row ">
-                      <div><b>Tổng tiền:</b></div>
+                      <div>
+                        <b>Tổng tiền:</b>
+                      </div>
                       <div className="ie-payment-row-result">
                         {totalAmount === 0
                           ? "-"
                           : formatCurrency(Math.round(totalAmount || 0), ".")}
                       </div>
                     </div>
-
                   </div>
                 )
-              )
+              );
             }}
           </Form.Item>
         </Col>
@@ -713,7 +771,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         visible={visibleManyProduct}
       />
     </Card>
-  )
-}
+  );
+};
 
-export default IEProductForm
+export default IEProductForm;

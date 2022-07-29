@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const PurchaseOrderStyleWrapper = styled.div`
   .ant-tabs-tab a {
-    color: rgba(0,0,0,.85)
+    color: rgba(0, 0, 0, 0.85);
   }
   .ant-tabs-tab-active {
     a {

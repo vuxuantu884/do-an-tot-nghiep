@@ -1,5 +1,9 @@
 import { Table, Tabs } from "antd";
-import { TOP_CHARTS_KEY, TOTAL_SALES_STORE_TAB_KEY, TOTAL_SALES_STORE_TAB_NAME } from "config/dashboard";
+import {
+  TOP_CHARTS_KEY,
+  TOTAL_SALES_STORE_TAB_KEY,
+  TOTAL_SALES_STORE_TAB_NAME,
+} from "config/dashboard";
 import { DashboardTopSale } from "model/dashboard/dashboard.model";
 import React, { ReactElement, useContext, useState } from "react";
 import { formatCurrency } from "utils/AppUtils";
@@ -24,14 +28,22 @@ function TotalSalesByStoreTabs(): ReactElement {
 
   const onChangePage = (page: number) => {
     setCurrentPage(() => page);
-  }
+  };
 
   const TABS = [
     {
       key: TOTAL_SALES_STORE_TAB_KEY.TotalSales,
       name: TOTAL_SALES_STORE_TAB_NAME[TOTAL_SALES_STORE_TAB_KEY.TotalSales],
-      Component: <TotalSalesByStoreTable tabKey={TOTAL_SALES_STORE_TAB_KEY.TotalSales} tabName={TOTAL_SALES_STORE_TAB_NAME[TOTAL_SALES_STORE_TAB_KEY.TotalSales]} 
-        dataSource={topSale.get(TOP_CHARTS_KEY.STORE_SALES) || []} loading={isFetching} currentPage={currentPage} changePage={onChangePage} />,
+      Component: (
+        <TotalSalesByStoreTable
+          tabKey={TOTAL_SALES_STORE_TAB_KEY.TotalSales}
+          tabName={TOTAL_SALES_STORE_TAB_NAME[TOTAL_SALES_STORE_TAB_KEY.TotalSales]}
+          dataSource={topSale.get(TOP_CHARTS_KEY.STORE_SALES) || []}
+          loading={isFetching}
+          currentPage={currentPage}
+          changePage={onChangePage}
+        />
+      ),
     },
   ];
 
@@ -53,7 +65,7 @@ function TotalSalesByStoreTable(props: TotalSalesByStoreTableProps) {
   return (
     <Table
       loading={loading}
-      pagination={{defaultPageSize: 10, showSizeChanger: false }}
+      pagination={{ defaultPageSize: 10, showSizeChanger: false }}
       columns={[
         {
           title: "Cửa hàng",

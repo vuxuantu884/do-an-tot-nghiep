@@ -25,14 +25,12 @@ const BreadcrumbContainer = (props: IProps) => {
               {breadcrumb.map((item, index) => {
                 const { name, path } = item;
                 if (!path)
-                  return (
-                    <Breadcrumb.Item key={`breadcrumb_item_${index}`}>
-                      {name}
-                    </Breadcrumb.Item>
-                  );
+                  return <Breadcrumb.Item key={`breadcrumb_item_${index}`}>{name}</Breadcrumb.Item>;
                 return (
                   <Breadcrumb.Item key={`breadcrumb_item_${index}`}>
-                    <Link className="breadcrumb_hover" to={path}>{name}</Link>
+                    <Link className="breadcrumb_hover" to={path}>
+                      {name}
+                    </Link>
                   </Breadcrumb.Item>
                 );
               })}

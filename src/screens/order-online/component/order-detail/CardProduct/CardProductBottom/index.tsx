@@ -22,7 +22,7 @@ type PropType = {
     _items: Array<OrderLineItemRequest>,
     _amount: number,
     _discountRate: number,
-    _discountValue: number
+    _discountValue: number,
   ) => void;
 };
 
@@ -139,19 +139,24 @@ function CardProductBottom(props: PropType) {
                     margin: 0,
                     color: "#E24343",
                     backgroundColor: "#F5F5F5",
-                    textTransform: "uppercase"
+                    textTransform: "uppercase",
                   }}
                   className="orders-tag orders-tag-danger"
                   closable
                   onClose={() => {
                     setDiscountRate(0);
                     setDiscountValue(0);
-                    items?.forEach(item => item.discount_items = [{
-                      rate: 0,
-                      value: 0,
-                      amount: 0,
-                      reason: '',
-                    }])
+                    items?.forEach(
+                      (item) =>
+                        (item.discount_items = [
+                          {
+                            rate: 0,
+                            value: 0,
+                            amount: 0,
+                            reason: "",
+                          },
+                        ]),
+                    );
                   }}
                 >
                   {coupon}{" "}
@@ -164,9 +169,7 @@ function CardProductBottom(props: PropType) {
           <Row className="paymentRow" justify="space-between">
             <div>Phí ship báo khách:</div>
             <div className="font-weight-500 paymentRow-money">
-              {shippingFeeInformedToCustomer
-                ? formatCurrency(shippingFeeInformedToCustomer)
-                : "-"}
+              {shippingFeeInformedToCustomer ? formatCurrency(shippingFeeInformedToCustomer) : "-"}
             </div>
           </Row>
           <Divider className="margin-top-5 margin-bottom-5" />

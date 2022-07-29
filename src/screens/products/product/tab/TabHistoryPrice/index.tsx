@@ -1,31 +1,26 @@
-import CustomTable, {
-  ICustomTableColumType
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
 import { productGetHistoryAction } from "domain/actions/product/products.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  ProductHistoryQuery,
-  ProductHistoryResponse
-} from "model/product/product.model";
+import { ProductHistoryQuery, ProductHistoryResponse } from "model/product/product.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
 import { formatCurrencyForProduct, generateQuery } from "utils/AppUtils";
-import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE  } from "utils/Constants";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, getEndOfDay, getStartOfDay } from "utils/DateUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import HistoryProductFilter from "../../filter/HistoryProductFilter";
 import { StyledComponent } from "../style";
 const initQuery: ProductHistoryQuery = {
-  history_type: 'UPDATE_PRICE'
+  history_type: "UPDATE_PRICE",
 };
 
-const IS_PRODUCT_TYPE = ['ADD_PRODUCT', 'UPDATE_PRODUCT', 'DELETE_PRODUCT']
+const IS_PRODUCT_TYPE = ["ADD_PRODUCT", "UPDATE_PRODUCT", "DELETE_PRODUCT"];
 
 const TabHistoryPrice: React.FC = () => {
   const query = useQuery();
@@ -41,15 +36,12 @@ const TabHistoryPrice: React.FC = () => {
     },
     items: [],
   });
-  const onResult = useCallback(
-    (result: PageResponse<ProductHistoryResponse> | false) => {
-      setLoading(false);
-      if (result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  const onResult = useCallback((result: PageResponse<ProductHistoryResponse> | false) => {
+    setLoading(false);
+    if (result) {
+      setData(result);
+    }
+  }, []);
   let dataQuery: ProductHistoryQuery = {
     ...initQuery,
     ...getQueryParams(query),
@@ -63,10 +55,10 @@ const TabHistoryPrice: React.FC = () => {
       setParams({ ...params });
       history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const defaultColumn: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(()=>{
+  const defaultColumn: Array<ICustomTableColumType<ProductHistoryResponse>> = useMemo(() => {
     return [
       {
         title: "Sản phẩm",
@@ -116,7 +108,7 @@ const TabHistoryPrice: React.FC = () => {
         align: "right",
         width: 120,
         render: (value) => {
-          if(value){
+          if (value) {
             const DATA_CONVERT = JSON.parse(value);
             return formatCurrencyForProduct(DATA_CONVERT.import_price);
           }
@@ -146,11 +138,11 @@ const TabHistoryPrice: React.FC = () => {
         align: "right",
         width: 120,
         render: (value) => {
-         if(value){
-          const DATA_CONVERT = JSON.parse(value);
-          return formatCurrencyForProduct(DATA_CONVERT.retail_price);
-         }
-         return "---";
+          if (value) {
+            const DATA_CONVERT = JSON.parse(value);
+            return formatCurrencyForProduct(DATA_CONVERT.retail_price);
+          }
+          return "---";
         },
       },
       {
@@ -160,16 +152,17 @@ const TabHistoryPrice: React.FC = () => {
         visible: true,
         width: 200,
         render: (value, record) => {
-            return(
-              <div>
-                 {
-                  value !==null?
-                    <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.action_by}`}> 
-                      {value} 
-                    </Link>  :"---"
-                }
-              </div>
-            )
+          return (
+            <div>
+              {value !== null ? (
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.action_by}`}>
+                  {value}
+                </Link>
+              ) : (
+                "---"
+              )}
+            </div>
+          );
         },
       },
       {
@@ -178,15 +171,23 @@ const TabHistoryPrice: React.FC = () => {
         align: "left",
         dataIndex: "action_date",
         key: "action_date",
-        render: (value) => value?ConvertUtcToLocalDate(value):"---",
-        width: 160
-      }
-    ]
-  },[])
+        render: (value) => (value ? ConvertUtcToLocalDate(value) : "---"),
+        width: 160,
+      },
+    ];
+  }, []);
 
-  const [columns, setColumns] = useState<Array<ICustomTableColumType<ProductHistoryResponse>>>(defaultColumn);
-  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_PRICE);
-  useSetTableColumns(COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_PRICE, tableColumnConfigs, defaultColumn, setColumns);
+  const [columns, setColumns] =
+    useState<Array<ICustomTableColumType<ProductHistoryResponse>>>(defaultColumn);
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_PRICE,
+  );
+  useSetTableColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_PRODUCT_PRICE,
+    tableColumnConfigs,
+    defaultColumn,
+    setColumns,
+  );
 
   const columnFinal = useMemo(() => {
     return columns.filter((item) => item.visible === true);
@@ -200,14 +201,14 @@ const TabHistoryPrice: React.FC = () => {
   return (
     <StyledComponent>
       <HistoryProductFilter
-        onFinish={(values: any) => { 
+        onFinish={(values: any) => {
           let { from_action_date, to_action_date, condition } = values;
-      
+
           if (from_action_date) {
-            values.from_action_date = getStartOfDay(from_action_date)
+            values.from_action_date = getStartOfDay(from_action_date);
           }
           if (to_action_date) {
-            values.to_action_date = getEndOfDay(to_action_date)
+            values.to_action_date = getEndOfDay(to_action_date);
           }
           values.condition = condition && condition.trim();
           let newParams = { ...params, ...values, page: 1 };
@@ -217,7 +218,7 @@ const TabHistoryPrice: React.FC = () => {
           history.replace(`${ProductTabUrl.HISTORY_PRICES}?${queryParam}`);
         }}
         onShowColumnSetting={() => setShowSettingColumn(true)}
-        onMenuClick={() => { }}
+        onMenuClick={() => {}}
         actions={[]}
       />
       <CustomTable

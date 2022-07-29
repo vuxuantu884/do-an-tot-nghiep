@@ -1,20 +1,20 @@
-import {FilterOutlined} from "@ant-design/icons";
-import {Button, Collapse, Form, Input, Space, Tag} from "antd";
+import { FilterOutlined } from "@ant-design/icons";
+import { Button, Collapse, Form, Input, Space, Tag } from "antd";
 import search from "assets/img/search.svg";
-import {FilterWrapper} from "component/container/filter.container";
+import { FilterWrapper } from "component/container/filter.container";
 import CustomSelect from "component/custom/select.custom";
 import BaseFilter from "component/filter/base.filter";
 import NumberInputRange from "component/filter/component/number-input-range";
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
-import {StoreResponse} from "model/core/store.model";
-import {InventoryQuery} from "model/inventory";
+import { StoreResponse } from "model/core/store.model";
+import { InventoryQuery } from "model/inventory";
 import {
   AvdInventoryFilter,
   InventoryMappingField,
   InventoryQueryField,
 } from "model/inventory/field";
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 export interface InventoryFilterProps {
   id: string;
@@ -28,11 +28,11 @@ export interface InventoryFilterProps {
   openColumn: () => void;
 }
 
-const {Item} = Form;
-const {Panel} = Collapse;
+const { Item } = Form;
+const { Panel } = Collapse;
 
 function tagRender(props: any) {
-  const {label, closable, onClose} = props;
+  const { label, closable, onClose } = props;
   const onPreventMouseDown = (event: any) => {
     event.preventDefault();
     event.stopPropagation();
@@ -50,7 +50,7 @@ function tagRender(props: any) {
 }
 
 const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterProps) => {
-  const {params, listStore, onFilter, isMulti, openColumn, id} = props;
+  const { params, listStore, onFilter, isMulti, openColumn, id } = props;
   const [visible, setVisible] = useState(false);
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const [tempAdvanceFilters, setTempAdvanceFilters] = useState<any>({});
@@ -68,7 +68,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
       let data = formBaseFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
-    [formBaseFilter, onFilter]
+    [formBaseFilter, onFilter],
   );
 
   const onAdvanceFinish = useCallback(
@@ -76,7 +76,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
       let data = formAdvanceFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
-    [formAdvanceFilter, onFilter]
+    [formAdvanceFilter, onFilter],
   );
   const onFilterClick = useCallback(() => {
     props.onClearFilter && props.onClearFilter();
@@ -91,11 +91,10 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
     formAdvanceFilter.setFieldsValue(fields);
     setVisible(false);
     formAdvanceFilter.submit();
-
   }, [formAdvanceFilter]);
   useEffect(() => {
-    formBaseFilter.setFieldsValue({...advanceFilters});
-    formAdvanceFilter.setFieldsValue({...advanceFilters});
+    formBaseFilter.setFieldsValue({ ...advanceFilters });
+    formAdvanceFilter.setFieldsValue({ ...advanceFilters });
     setTempAdvanceFilters(advanceFilters);
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
   const resetField = useCallback(
@@ -110,16 +109,16 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
       });
       formBaseFilter.submit();
     },
-    [formBaseFilter, formAdvanceFilter]
+    [formBaseFilter, formAdvanceFilter],
   );
 
   useEffect(() => {
-    setAdvanceFilters({...params});
+    setAdvanceFilters({ ...params });
   }, [params]);
   return (
     <div className="inventory-filter">
       <Form.Provider
-        onFormFinish={(name, {values, forms}) => {
+        onFormFinish={(name, { values, forms }) => {
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
           let data = {
@@ -135,7 +134,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
           data = {
             ...data,
           };
-          formBaseFilter.setFieldsValue({...data});
+          formBaseFilter.setFieldsValue({ ...data });
           formAdvanceFilter?.setFieldsValue({
             ...data,
           });
@@ -152,7 +151,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
             <Item name={InventoryQueryField.condition} className="search">
               <Input
                 prefix={<img src={search} alt="" />}
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 placeholder="Tìm kiếm sản phẩm theo SKU"
               />
             </Item>
@@ -207,7 +206,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
             initialValues={{}}
             form={formAdvanceFilter}
           >
-            <Space className="po-filter" direction="vertical" style={{width: "100%"}}>
+            <Space className="po-filter" direction="vertical" style={{ width: "100%" }}>
               {Object.keys(AvdInventoryFilter).map((field) => {
                 let component: any = null;
                 switch (field) {
@@ -236,7 +235,7 @@ const InventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterP
   );
 };
 
-const FilterList = ({filters, resetField}: any) => {
+const FilterList = ({ filters, resetField }: any) => {
   let filtersKeys = Object.keys(filters);
   let renderTxt: any = null;
   return (
@@ -269,7 +268,7 @@ const FilterList = ({filters, resetField}: any) => {
             key={filterKey}
             className="fade"
             closable
-            style={{marginBottom: "20px"}}
+            style={{ marginBottom: "20px" }}
           >{`${renderTxt}`}</Tag>
         );
       })}

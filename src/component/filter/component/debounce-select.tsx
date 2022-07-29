@@ -1,9 +1,9 @@
-import React, { CSSProperties, FC, ReactNode } from 'react';
+import React, { CSSProperties, FC, ReactNode } from "react";
 // import ReactDOM from 'react-dom';
 // import 'antd/dist/antd.css';
 // import './index.css';
-import { Select, SelectProps, Spin } from 'antd';
-import debounce from 'lodash/debounce';
+import { Select, SelectProps, Spin } from "antd";
+import debounce from "lodash/debounce";
 
 interface Props extends SelectProps<any> {
   mode: "multiple" | "tags" | undefined;
@@ -16,11 +16,15 @@ interface Props extends SelectProps<any> {
   suffix?: ReactNode;
   fetchOptions: any;
   debounceTimeout?: number;
-  optionsVariant?: { label: string, value: string}[];
+  optionsVariant?: { label: string; value: string }[];
   // any props that come into the component
 }
-const DebounceSelect: FC<Props> =({ fetchOptions, debounceTimeout = 800, optionsVariant, ...props }) => {
-  
+const DebounceSelect: FC<Props> = ({
+  fetchOptions,
+  debounceTimeout = 800,
+  optionsVariant,
+  ...props
+}) => {
   const [fetching, setFetching] = React.useState(false);
   const [options, setOptions] = React.useState(optionsVariant);
   const fetchRef = React.useRef(0);
@@ -49,12 +53,11 @@ const DebounceSelect: FC<Props> =({ fetchOptions, debounceTimeout = 800, options
       // optionFilterProp="children"
       onSearch={debounceFetcher}
       notFoundContent={fetching ? <Spin size="small" /> : null}
-      getPopupContainer={trigger => trigger.parentNode}
+      getPopupContainer={(trigger) => trigger.parentNode}
       {...props}
       options={options}
     />
   );
-} // Usage of DebounceSelect
-
+}; // Usage of DebounceSelect
 
 export default DebounceSelect;

@@ -1,22 +1,24 @@
-import {LoadingOutlined} from "@ant-design/icons";
-import {Spin, Table as ANTTable, TableProps} from "antd";
-import {ColumnType, TableLocale} from "antd/lib/table/interface";
-import {PageConfig} from "config/page.config";
-import React, {useCallback} from "react";
+import { LoadingOutlined } from "@ant-design/icons";
+import { Spin, Table as ANTTable, TableProps } from "antd";
+import { ColumnType, TableLocale } from "antd/lib/table/interface";
+import { PageConfig } from "config/page.config";
+import React, { useCallback } from "react";
 import CustomPagination from "./CustomPagination";
 
 export interface ICustomTableProps extends Omit<TableProps<any>, "pagination"> {
   pagination?: false | ICustomTablePaginationConfig;
   onShowColumnSetting?: () => void;
-  onSelectedChange?: (selectedRows: any[], selected?:boolean,changeRow?: any[]) => void;
+  onSelectedChange?: (selectedRows: any[], selected?: boolean, changeRow?: any[]) => void;
   isLoading?: boolean;
   showColumnSetting?: boolean;
   isRowSelection?: boolean;
   selectedRowKey?: any[];
   isShowPaginationAtHeader?: boolean;
   onChangeRowKey?: (rowKey: any[]) => void;
-  rowSelectionRenderCell?: ((value: boolean, record: any, index: number, originNode: React.ReactNode) => React.ReactNode) | undefined;
-  rowSelectionWidth ?: number|string;
+  rowSelectionRenderCell?:
+    | ((value: boolean, record: any, index: number, originNode: React.ReactNode) => React.ReactNode)
+    | undefined;
+  rowSelectionWidth?: number | string;
 }
 
 export interface ICustomTableColumType<T> extends ColumnType<T> {
@@ -74,15 +76,15 @@ const CustomTable = (props: ICustomTableProps) => {
   const configSettingColumns: ICustomTableColumType<any>[] = [];
   const onSelect = useCallback(
     (item: any, selected: boolean, selectedRow: any[]) => {
-      onSelectedChange && onSelectedChange(selectedRow,selected,[{...item}]);
+      onSelectedChange && onSelectedChange(selectedRow, selected, [{ ...item }]);
     },
-    [onSelectedChange]
+    [onSelectedChange],
   );
   const onSelectAll = useCallback(
     (selected, selectedRow: any[], changeRow: any[]) => {
-      onSelectedChange && onSelectedChange(selectedRow,selected,changeRow);
+      onSelectedChange && onSelectedChange(selectedRow, selected, changeRow);
     },
-    [onSelectedChange]
+    [onSelectedChange],
   );
   return (
     <div className="custom-table">
@@ -107,9 +109,7 @@ const CustomTable = (props: ICustomTableProps) => {
         loading={
           isLoading
             ? {
-                indicator: (
-                  <Spin indicator={<LoadingOutlined style={{fontSize: 24}} spin />} />
-                ),
+                indicator: <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />,
               }
             : false
         }

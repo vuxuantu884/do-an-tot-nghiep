@@ -10,7 +10,7 @@ import {
 
 export const actionFetchListPrinter = (
   queryParams = {},
-  handleData: (data: PrinterResponseModel) => void
+  handleData: (data: PrinterResponseModel) => void,
 ) => {
   return {
     type: PRINTER_TYPES.listPrinter,
@@ -24,7 +24,7 @@ export const actionFetchListPrinter = (
 export const actionFetchPrinterDetail = (
   id: number,
   queryParams: {},
-  handleData: (data: BasePrinterModel) => void
+  handleData: (data: BasePrinterModel) => void,
 ) => {
   return {
     type: PRINTER_TYPES.getPrinterDetail,
@@ -36,10 +36,7 @@ export const actionFetchPrinterDetail = (
   };
 };
 
-export const actionCreatePrinter = (
-  formValue: BasePrinterModel,
-  handleData: () => void
-) => {
+export const actionCreatePrinter = (formValue: BasePrinterModel, handleData: () => void) => {
   return {
     type: PRINTER_TYPES.createPrinter,
     payload: {
@@ -50,7 +47,7 @@ export const actionCreatePrinter = (
 };
 
 export const actionFetchListPrinterVariables = (
-  handleData: (data: PrinterVariableResponseModel) => void
+  handleData: (data: PrinterVariableResponseModel) => void,
 ) => {
   return {
     type: PRINTER_TYPES.getListPrinterVariables,
@@ -63,7 +60,7 @@ export const actionFetchListPrinterVariables = (
 export const actionFetchPrintFormByOrderIds = (
   ids: number[],
   type: string,
-  handleData: (data: BaseResponse<PrintFormByOrderIdsResponseModel>) => void
+  handleData: (data: BaseResponse<PrintFormByOrderIdsResponseModel>) => void,
 ) => {
   return {
     type: PRINTER_TYPES.getPrintFormByOrderIds,
@@ -78,7 +75,7 @@ export const actionFetchPrintFormByOrderIds = (
 export const actionFetchPrintFormByInventoryTransferIds = (
   ids: number[],
   type: string,
-  handleData: (data: Array<PrinterInventoryTransferResponseModel>) => void
+  handleData: (data: Array<PrinterInventoryTransferResponseModel>) => void,
 ) => {
   return {
     type: PRINTER_TYPES.getPrintFormByInventoryTransferIds,

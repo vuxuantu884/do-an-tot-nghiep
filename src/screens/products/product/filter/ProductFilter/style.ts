@@ -20,16 +20,15 @@ export const StyledComponent = styled.div`
         .ant-space {
           width: 100%;
           gap: 0 !important;
-          &-item{
+          &-item {
             margin-right: 20px;
           }
-          &-item:first-child{
+          &-item:first-child {
             width: 100%;
           }
-          &-item:last-child{
+          &-item:last-child {
             margin-right: 0 !important;
           }
-          
         }
       }
       .search {
@@ -45,7 +44,7 @@ export const StyledComponent = styled.div`
     background: rgba(42, 42, 134, 0.05);
     border-radius: 50px;
   }
-  
+
   .w-100 {
     width: 100%;
   }

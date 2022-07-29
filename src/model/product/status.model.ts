@@ -1,4 +1,4 @@
 export interface StatusFilterResponse {
-  name: string,
-  value: string,
+  name: string;
+  value: string;
 }

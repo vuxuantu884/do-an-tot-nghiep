@@ -10,7 +10,7 @@ export interface CustomModalFormModel {
   formItem: any;
   form: FormInstance<any>;
   moreFormArguments?: any;
-  lstConfigFilter?: Array<FilterConfig>
+  lstConfigFilter?: Array<FilterConfig>;
   onEdit?: (value: OrderSourceModel) => void;
   onCreate?: (value: OrderSourceModel) => void;
   setVisibleForm?: React.Dispatch<React.SetStateAction<boolean>>;
@@ -31,8 +31,8 @@ export interface CustomModalType {
   deletedItemTitle?: string;
   componentForm: React.FC<CustomModalFormModel>;
   formItem: any;
-  moreFormArguments?: any; 
+  moreFormArguments?: any;
   createText?: string;
   updateText?: string;
-  lstConfigFilter?: Array<FilterConfig>
+  lstConfigFilter?: Array<FilterConfig>;
 }

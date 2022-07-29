@@ -5,7 +5,7 @@ import {
   getPurchaseOrderConfigService,
   returnPurchaseOrder,
   updateNotePurchaseOrder,
-  updatePurchaseOrderConfigService
+  updatePurchaseOrderConfigService,
 } from "./../../../service/purchase-order/purchase-order.service";
 import {
   searchPurchaseOrderApi,
@@ -18,10 +18,7 @@ import { HttpStatus } from "config/http-status.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { POConfig, POLogHistory, POType } from "domain/types/purchase-order.type";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  PurchaseOrder,
-  PurchaseOrderPrint,
-} from "model/purchase-order/purchase-order.model";
+import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase-order.model";
 import { call, put, takeLatest } from "redux-saga/effects";
 import {
   createPurchaseOrder,
@@ -33,14 +30,17 @@ import { showError } from "utils/ToastUtils";
 import { exportPOApi } from "./../../../service/purchase-order/purchase-order.service";
 import { ImportResponse } from "model/other/files/export-model";
 import { FilterConfig } from "model/other";
-import { getLogDetailProcurements, getLogProcurements } from "service/purchase-order/purchase-procument.service";
+import {
+  getLogDetailProcurements,
+  getLogProcurements,
+} from "service/purchase-order/purchase-procument.service";
 
 function* poCreateSaga(action: YodyAction) {
   const { request, createCallback } = action.payload;
   try {
     let response: BaseResponse<BaseResponse<PurchaseOrder>> = yield call(
       createPurchaseOrder,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -68,7 +68,7 @@ function* poUpdateSaga(action: YodyAction) {
     let response: BaseResponse<BaseResponse<PurchaseOrder>> = yield call(
       updatePurchaseOrder,
       id,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -90,14 +90,13 @@ function* poUpdateSaga(action: YodyAction) {
   }
 }
 
-
 function* poUpdateNoteSaga(action: YodyAction) {
   const { id, request, updateCallback } = action.payload;
   try {
     let response: BaseResponse<BaseResponse<PurchaseOrder>> = yield call(
       updateNotePurchaseOrder,
       id,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -149,10 +148,7 @@ function* poUpdateFinancialStatusSaga(action: YodyAction) {
 function* poDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    let response: BaseResponse<PurchaseOrder> = yield call(
-      getPurchaseOrderApi,
-      id
-    );
+    let response: BaseResponse<PurchaseOrder> = yield call(getPurchaseOrderApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
@@ -176,7 +172,7 @@ function* poSearchSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<PurchaseOrder>> = yield call(
       searchPurchaseOrderApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -197,10 +193,7 @@ function* poSearchSaga(action: YodyAction) {
 function* poDeleteSaga(action: YodyAction) {
   const { ids, deleteCallback } = action.payload;
   try {
-    let response: BaseResponse<any | null> = yield call(
-      deletePurchaseOrder,
-      ids
-    );
+    let response: BaseResponse<any | null> = yield call(deletePurchaseOrder, ids);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         deleteCallback(response.data);
@@ -224,11 +217,7 @@ function* poDeleteSaga(action: YodyAction) {
 function* poReturnSaga(action: YodyAction) {
   const { id, request, returnCallback } = action.payload;
   try {
-    let response: BaseResponse<any | null> = yield call(
-      returnPurchaseOrder,
-      id,
-      request
-    );
+    let response: BaseResponse<any | null> = yield call(returnPurchaseOrder, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
@@ -250,9 +239,9 @@ function* poReturnSaga(action: YodyAction) {
 }
 
 function* poPrintSaga(action: YodyAction) {
-  const { id,printType, updatePrintCallback } = action.payload;
+  const { id, printType, updatePrintCallback } = action.payload;
   try {
-    let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id,printType);
+    let response: Array<PurchaseOrderPrint> = yield call(getPrintContent, id, printType);
     updatePrintCallback(response);
   } catch (error) {
     console.log("error ", error);
@@ -263,10 +252,7 @@ function* poPrintSaga(action: YodyAction) {
 function* poCancelSaga(action: YodyAction) {
   const { id, cancelCallback } = action.payload;
   try {
-    let response: BaseResponse<PurchaseOrder> = yield call(
-      cancelPurchaseOrderApi,
-      id,
-    );
+    let response: BaseResponse<PurchaseOrder> = yield call(cancelPurchaseOrderApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
@@ -290,10 +276,7 @@ function* poCancelSaga(action: YodyAction) {
 function* exportPOSaga(action: YodyAction) {
   const { params, onResult } = action.payload;
   try {
-    let response: BaseResponse<ImportResponse> = yield call(
-      exportPOApi,
-      params,
-    );
+    let response: BaseResponse<ImportResponse> = yield call(exportPOApi, params);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -308,16 +291,16 @@ function* exportPOSaga(action: YodyAction) {
     }
   } catch (error: any) {
     onResult(false);
-    showError("Có lỗi vui lòng thử lại sau "+ error.message);
+    showError("Có lỗi vui lòng thử lại sau " + error.message);
   }
 }
 
 function* getConfigPoSaga(action: YodyAction) {
-  const {code, onResult } = action.payload;
+  const { code, onResult } = action.payload;
   try {
     let response: BaseResponse<Array<FilterConfig>> = yield call(
       getPurchaseOrderConfigService,
-      code
+      code,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -341,7 +324,7 @@ function* createConfigPoSaga(action: YodyAction) {
   try {
     let response: BaseResponse<FilterConfig> = yield call(
       createPurchaseOrderConfigService,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -363,11 +346,11 @@ function* createConfigPoSaga(action: YodyAction) {
 }
 
 function* updateConfigPoSaga(action: YodyAction) {
-  const {request, onResult } = action.payload;
+  const { request, onResult } = action.payload;
   try {
     let response: BaseResponse<FilterConfig> = yield call(
       updatePurchaseOrderConfigService,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -391,10 +374,7 @@ function* updateConfigPoSaga(action: YodyAction) {
 function* deleteConfigPoSaga(action: YodyAction) {
   const { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<FilterConfig> = yield call(
-      deletePurchaseOrderConfigService,
-      id
-    );
+    let response: BaseResponse<FilterConfig> = yield call(deletePurchaseOrderConfigService, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -417,10 +397,7 @@ function* deleteConfigPoSaga(action: YodyAction) {
 function* getLogDetailPOHistory(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    let response: BaseResponse<PurchaseOrder> = yield call(
-      getLogDetailProcurements,
-      id
-    );
+    let response: BaseResponse<PurchaseOrder> = yield call(getLogDetailProcurements, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -441,10 +418,7 @@ function* getLogDetailPOHistory(action: YodyAction) {
 function* getLogPOHistory(action: YodyAction) {
   const { code, setData } = action.payload;
   try {
-    let response: BaseResponse<PurchaseOrder> = yield call(
-      getLogProcurements,
-      code
-    );
+    let response: BaseResponse<PurchaseOrder> = yield call(getLogProcurements, code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -471,18 +445,9 @@ export function* poSaga() {
   yield takeLatest(POType.DELETE_PO_REQUEST, poDeleteSaga);
   yield takeLatest(POType.RETURN_PO_REQUEST, poReturnSaga);
   yield takeLatest(POType.GET_PRINT_CONTENT, poPrintSaga);
-  yield takeLatest(
-    POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST,
-    poUpdateFinancialStatusSaga
-  );
-  yield takeLatest(
-    POType.CANCEL_PO_REQUEST,
-    poCancelSaga
-  );
-  yield takeLatest(
-    POType.EXPORT_PO,
-    exportPOSaga
-  );
+  yield takeLatest(POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST, poUpdateFinancialStatusSaga);
+  yield takeLatest(POType.CANCEL_PO_REQUEST, poCancelSaga);
+  yield takeLatest(POType.EXPORT_PO, exportPOSaga);
   yield takeLatest(POConfig.GET_PO_CONFIG, getConfigPoSaga);
   yield takeLatest(POConfig.CREATE_PO_CONFIG, createConfigPoSaga);
   yield takeLatest(POConfig.UPDATE_PO_CONFIG, updateConfigPoSaga);

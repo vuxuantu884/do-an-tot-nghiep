@@ -7,7 +7,7 @@ import { StyledComponent } from "./styles";
 
 type PropType = {
   OrderDetail: OrderResponse | null;
-  editNote?:(note: any, customer_note: any, orderID: any)=>void;
+  editNote?: (note: any, customer_note: any, orderID: any) => void;
 };
 
 function SidebarOrderDetailExtraInformation(props: PropType) {
@@ -16,7 +16,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
   return (
     <StyledComponent>
       <Card title="THÔNG TIN BỔ SUNG">
-      <Row gutter={5} style={{ flexDirection: "column" }}>
+        <Row gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
             {/* <EditOutlined className="iconEdit" title="Sửa ghi chú" />
             <b>Ghi chú của khách:</b> */}
@@ -24,7 +24,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
               title="Ghi chú của khách: "
               color={primaryColor}
               onOk={(values) => {
-                editNote&&editNote(values?.note, values?.customer_note, OrderDetail?.id);
+                editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
               }}
               noteFormValue={{
                 note: OrderDetail?.note,
@@ -34,9 +34,11 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
           </Col>
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
-              {OrderDetail?.customer_note !== ""
-                ? (<TextWithLineBreak note={OrderDetail?.customer_note} />)
-                : "Không có ghi chú"}
+              {OrderDetail?.customer_note !== "" ? (
+                <TextWithLineBreak note={OrderDetail?.customer_note} />
+              ) : (
+                "Không có ghi chú"
+              )}
             </span>
           </Col>
         </Row>
@@ -49,7 +51,7 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
               title="Ghi chú nội bộ: "
               color={primaryColor}
               onOk={(values) => {
-                editNote&&editNote(values?.note, values?.customer_note, OrderDetail?.id);
+                editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
               }}
               noteFormValue={{
                 note: OrderDetail?.note,
@@ -59,17 +61,16 @@ function SidebarOrderDetailExtraInformation(props: PropType) {
           </Col>
           <Col span={24}>
             <span className="text-focus" style={{ wordWrap: "break-word" }}>
-              {OrderDetail?.note !== ""
-                ? (<TextWithLineBreak note={OrderDetail?.note} />)
-                : "Không có ghi chú"}
+              {OrderDetail?.note !== "" ? (
+                <TextWithLineBreak note={OrderDetail?.note} />
+              ) : (
+                "Không có ghi chú"
+              )}
             </span>
           </Col>
         </Row>
 
-        <Row
-          gutter={5}
-          style={{ flexDirection: "column" }}
-        >
+        <Row gutter={5} style={{ flexDirection: "column" }}>
           <Col span={24} style={{ marginBottom: 6 }}>
             <b>Nhãn:</b>
           </Col>

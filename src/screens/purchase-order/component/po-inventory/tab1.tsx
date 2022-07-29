@@ -1,9 +1,6 @@
 import { Button, Form, Table } from "antd";
 import { POField } from "model/purchase-order/po-field";
-import {
-  POLineItemType,
-  PurchaseOrderLineItem,
-} from "model/purchase-order/purchase-item.model";
+import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import imgDefIcon from "assets/img/img-def.svg";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
@@ -37,28 +34,20 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
       }
     >
       {({ getFieldValue }) => {
-        const line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-          POField.line_items,
-        );
-        const procurements: Array<PurchaseProcument> = getFieldValue(
-          POField.procurements,
-        );
+        const line_items: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items);
+        const procurements: Array<PurchaseProcument> = getFieldValue(POField.procurements);
         const receive_status: string = getFieldValue(POField.receive_status);
 
         const items =
           procurements !== undefined && procurements !== null
-            ? procurements.filter(
-                (item) => item.status === ProcumentStatus.RECEIVED,
-              )
+            ? procurements.filter((item) => item.status === ProcumentStatus.RECEIVED)
             : [];
         const new_line_items: Array<PurchaseOrderLineItem> = line_items;
         return (
           <div>
             <Table
               className="product-table"
-              rowKey={(record: PurchaseOrderLineItem) =>
-                record.id ? record.id : record.temp_id
-              }
+              rowKey={(record: PurchaseOrderLineItem) => (record.id ? record.id : record.temp_id)}
               rowClassName="product-table-row"
               dataSource={new_line_items}
               tableLayout="fixed"
@@ -77,11 +66,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                   dataIndex: "variant_image",
                   render: (value) => (
                     <div className="product-item-image">
-                      <img
-                        src={value === null ? imgDefIcon : value}
-                        alt=""
-                        className=""
-                      />
+                      <img src={value === null ? imgDefIcon : value} alt="" className="" />
                     </div>
                   ),
                 },
@@ -90,11 +75,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                   width: 85,
                   className: "ant-col-info",
                   dataIndex: "variant",
-                  render: (
-                    value: string,
-                    item: PurchaseOrderLineItem,
-                    index: number,
-                  ) => (
+                  render: (value: string, item: PurchaseOrderLineItem, index: number) => (
                     <div>
                       <div>
                         <div className="product-item-sku">
@@ -102,11 +83,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                             to="#"
                             onClick={() => {
                               const url = `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`;
-                              const newWindow = window.open(
-                                url,
-                                "_blank",
-                                "noopener,noreferrer",
-                              );
+                              const newWindow = window.open(url, "_blank", "noopener,noreferrer");
                               if (newWindow) newWindow.opener = null;
                             }}
                           >
@@ -114,9 +91,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                           </Link>
                         </div>
                         <div className="product-item-name text-truncate-1">
-                          <div className="product-item-name-detail">
-                            {value}
-                          </div>
+                          <div className="product-item-name-detail">{value}</div>
                         </div>
                       </div>
                     </div>
@@ -138,9 +113,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                   width: 80,
                   dataIndex: "quantity",
                   render: (value, item, index) => (
-                    <div style={{ textAlign: "right" }}>
-                      {formatCurrency(value || 0, ".")}
-                    </div>
+                    <div style={{ textAlign: "right" }}>{formatCurrency(value || 0, ".")}</div>
                   ),
                 },
                 {
@@ -185,15 +158,10 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                       style={{
                         textAlign: "right",
                         color:
-                          item.quantity - (item.receipt_quantity || 0) > 0
-                            ? "#E24343"
-                            : "#27AE60",
+                          item.quantity - (item.receipt_quantity || 0) > 0 ? "#E24343" : "#27AE60",
                       }}
                     >
-                      {formatCurrency(
-                        item.quantity - (item.receipt_quantity || 0),
-                        ".",
-                      )}
+                      {formatCurrency(item.quantity - (item.receipt_quantity || 0), ".")}
                     </div>
                   ),
                 },
@@ -208,14 +176,10 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                         <div style={{ fontWeight: 700 }}>Tổng</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={1}>
-                        <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(total || 0, ".")}
-                        </div>
+                        <div style={{ fontWeight: 700 }}>{formatCurrency(total || 0, ".")}</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={2}>
-                        <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(receipt || 0, ".")}
-                        </div>
+                        <div style={{ fontWeight: 700 }}>{formatCurrency(receipt || 0, ".")}</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={3}>
                         <div
@@ -242,11 +206,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                     justifyContent: "flex-end",
                   }}
                 >
-                  <AuthWrapper
-                    acceptPermissions={[
-                      PurchaseOrderPermission.procurements_finish,
-                    ]}
-                  >
+                  <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_finish]}>
                     <Button
                       onClick={() => setVisibleWarning(true)}
                       className={

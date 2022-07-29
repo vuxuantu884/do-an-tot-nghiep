@@ -72,7 +72,9 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  .ant-btn-default.active, .ant-btn-default:focus, .ant-btn-default:hover {
+  .ant-btn-default.active,
+  .ant-btn-default:focus,
+  .ant-btn-default:hover {
     color: unset !important;
     background-color: unset !important;
     border-color: unset !important;
@@ -87,5 +89,4 @@ export const StyledComponent = styled.div`
   .ant-picker {
     border-radius: 2px;
   }
-
 `;

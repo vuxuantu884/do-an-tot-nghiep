@@ -2,10 +2,7 @@ import { FormInstance } from "antd/es/form/Form";
 import { useFetchMerchans } from "hook/useFetchMerchans";
 import { groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
-import {
-  POLineItemType,
-  PurchaseOrderLineItem,
-} from "model/purchase-order/purchase-item.model";
+import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
   PODataSourceGrid,
   POExpectedDate,
@@ -54,9 +51,7 @@ type PurchaseOrderCreateAction = {
   isGridMode: boolean;
   setIsGridMode: React.Dispatch<React.SetStateAction<boolean>>;
   poLineItemGridChema: Array<POLineItemGridSchema>;
-  setPoLineItemGridChema: React.Dispatch<
-    React.SetStateAction<Array<POLineItemGridSchema>>
-  >;
+  setPoLineItemGridChema: React.Dispatch<React.SetStateAction<Array<POLineItemGridSchema>>>;
   poLineItemGridValue: Array<Map<string, POLineItemGridValue>>;
   setPoLineItemGridValue: React.Dispatch<
     React.SetStateAction<Array<Map<string, POLineItemGridValue>>>
@@ -68,40 +63,29 @@ type PurchaseOrderCreateAction = {
   purchaseOrder: PurchaseOrder;
   setPurchaseOrder: React.Dispatch<React.SetStateAction<PurchaseOrder>>;
   procurementTableData: Array<PODataSourceGrid>;
-  setProcurementTableData: React.Dispatch<
-    React.SetStateAction<Array<PODataSourceGrid>>
-  >;
+  setProcurementTableData: React.Dispatch<React.SetStateAction<Array<PODataSourceGrid>>>;
   expectedDate: Array<POExpectedDate>;
   setExpectedDate: React.Dispatch<React.SetStateAction<Array<POExpectedDate>>>;
   procurementsAll: Array<PurchaseProcument[]>;
-  setProcurementsAll: React.Dispatch<
-    React.SetStateAction<Array<PurchaseProcument[]>>
-  >;
+  setProcurementsAll: React.Dispatch<React.SetStateAction<Array<PurchaseProcument[]>>>;
   procurementTable: Array<ProcurementTable>;
-  setProcurementTable: React.Dispatch<
-    React.SetStateAction<Array<ProcurementTable>>
-  >;
+  setProcurementTable: React.Dispatch<React.SetStateAction<Array<ProcurementTable>>>;
   handleSetProcurementTableContext: (
     procurements: PurchaseProcument[],
     line_items: PurchaseOrderLineItem[],
     procurementsAll: Array<PurchaseProcument[]>,
   ) => void;
   handleChangeProcument: (formMain: FormInstance<any>) => void;
-  handleSortProcurements: (
-    procurements: PurchaseProcument[],
-  ) => PurchaseProcument[];
+  handleSortProcurements: (procurements: PurchaseProcument[]) => PurchaseProcument[];
 };
 
-export const PurchaseOrderCreateContext =
-  createContext<PurchaseOrderCreateAction>({} as PurchaseOrderCreateAction);
+export const PurchaseOrderCreateContext = createContext<PurchaseOrderCreateAction>(
+  {} as PurchaseOrderCreateAction,
+);
 
 function PurchaseOrderProvider(props: { children: ReactNode }) {
-  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder>(
-    {} as PurchaseOrder,
-  );
-  const [procurementTableData, setProcurementTableData] = useState<
-    Array<PODataSourceGrid>
-  >([]);
+  const [purchaseOrder, setPurchaseOrder] = useState<PurchaseOrder>({} as PurchaseOrder);
+  const [procurementTableData, setProcurementTableData] = useState<Array<PODataSourceGrid>>([]);
   const [expectedDate, setExpectedDate] = useState<Array<POExpectedDate>>([
     ...INITIAL_EXPECTED_DATE,
   ]);
@@ -109,9 +93,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
   const [isGridMode, setIsGridMode] = useState(true);
 
   // schema cho phần nhập nhanh số lượng line item
-  const [poLineItemGridChema, setPoLineItemGridChema] = useState<
-    Array<POLineItemGridSchema>
-  >([]);
+  const [poLineItemGridChema, setPoLineItemGridChema] = useState<Array<POLineItemGridSchema>>([]);
 
   //value để lookup data cho mỗi variant theo màu sắc// Mỗi POLineItemGridValue tương ứng 1 sản phẩm cha
   const [poLineItemGridValue, setPoLineItemGridValue] = useState<
@@ -125,89 +107,79 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
 
   const fetchDesigner = useFetchMerchans();
 
-  const [procurementsAll, setProcurementsAll] = useState<
-    Array<PurchaseProcument[]>
-  >([]);
+  const [procurementsAll, setProcurementsAll] = useState<Array<PurchaseProcument[]>>([]);
 
-  const [procurementTable, setProcurementTable] = useState<
-    Array<ProcurementTable>
-  >([]);
+  const [procurementTable, setProcurementTable] = useState<Array<ProcurementTable>>([]);
 
   const handleSetProcurementTableContext = (
     procurements: PurchaseProcument[],
     line_items: PurchaseOrderLineItem[],
     procurementsAll: Array<PurchaseProcument[]>,
   ) => {
-    if (
-      procurements.length > 0 &&
-      procurements[0].procurement_items.length > 0
-    ) {
+    if (procurements.length > 0 && procurements[0].procurement_items.length > 0) {
       const procurementItems = line_items as any[];
-      const procurementTable: ProcurementTable[] = procurementItems.map(
-        (procurementItem) => {
-          const quantityLineItems = procurementItems
-            .filter((item) => item.sku === procurementItem.sku)
-            .reduce((total, element) => total + element.quantity, 0);
-          const plannedQuantities = procurementsAll.map((procurementAll) => {
-            const procurementItemByVariantId = procurementAll
-              .reduce(
-                (acc, val) => acc.concat(val.procurement_items),
-                [] as Array<PurchaseProcumentLineItem>,
-              )
-              .filter((item) => item.variant_id === procurementItem.variant_id);
-            let plannedQuantity = undefined;
-            if (procurementItemByVariantId.length) {
-              plannedQuantity = procurementItemByVariantId.reduce(
-                (total, element) => total + element?.planned_quantity || 0,
-                0,
-              );
-            }
-            return plannedQuantity;
-          });
-          const realQuantities = procurementsAll.map((procurementAll) => {
-            const procurementItemByVariantId = procurementAll
-              .reduce(
-                (acc, val) => acc.concat(val.procurement_items),
-                [] as Array<PurchaseProcumentLineItem>,
-              )
-              .filter((item) => item.variant_id === procurementItem.variant_id);
-
-            let realQuantity = undefined;
-            if (procurementItemByVariantId.length) {
-              realQuantity = procurementItemByVariantId.reduce(
-                (total, element) => total + element?.real_quantity || 0,
-                0,
-              );
-            }
-            return realQuantity;
-          });
-
-          const uuids = groupBy(
-            procurementsAll.reduce((acc, val) => acc.concat(val)),
-            "uuid",
-          );
-          const procurementItemIndex =
-            procurements[0].procurement_items.findIndex(
-              (item) => item.variant_id === procurementItem.variant_id,
+      const procurementTable: ProcurementTable[] = procurementItems.map((procurementItem) => {
+        const quantityLineItems = procurementItems
+          .filter((item) => item.sku === procurementItem.sku)
+          .reduce((total, element) => total + element.quantity, 0);
+        const plannedQuantities = procurementsAll.map((procurementAll) => {
+          const procurementItemByVariantId = procurementAll
+            .reduce(
+              (acc, val) => acc.concat(val.procurement_items),
+              [] as Array<PurchaseProcumentLineItem>,
+            )
+            .filter((item) => item.variant_id === procurementItem.variant_id);
+          let plannedQuantity = undefined;
+          if (procurementItemByVariantId.length) {
+            plannedQuantity = procurementItemByVariantId.reduce(
+              (total, element) => total + element?.planned_quantity || 0,
+              0,
             );
-          if (procurementItemIndex === -1) {
-            return {
-              quantityLineItems,
-              plannedQuantities,
-              realQuantities,
-              ...procurementItem,
-              uuids: Object.keys(uuids),
-            };
           }
+          return plannedQuantity;
+        });
+        const realQuantities = procurementsAll.map((procurementAll) => {
+          const procurementItemByVariantId = procurementAll
+            .reduce(
+              (acc, val) => acc.concat(val.procurement_items),
+              [] as Array<PurchaseProcumentLineItem>,
+            )
+            .filter((item) => item.variant_id === procurementItem.variant_id);
+
+          let realQuantity = undefined;
+          if (procurementItemByVariantId.length) {
+            realQuantity = procurementItemByVariantId.reduce(
+              (total, element) => total + element?.real_quantity || 0,
+              0,
+            );
+          }
+          return realQuantity;
+        });
+
+        const uuids = groupBy(
+          procurementsAll.reduce((acc, val) => acc.concat(val)),
+          "uuid",
+        );
+        const procurementItemIndex = procurements[0].procurement_items.findIndex(
+          (item) => item.variant_id === procurementItem.variant_id,
+        );
+        if (procurementItemIndex === -1) {
           return {
             quantityLineItems,
             plannedQuantities,
             realQuantities,
-            ...procurements[0].procurement_items[procurementItemIndex],
+            ...procurementItem,
             uuids: Object.keys(uuids),
           };
-        },
-      );
+        }
+        return {
+          quantityLineItems,
+          plannedQuantities,
+          realQuantities,
+          ...procurements[0].procurement_items[procurementItemIndex],
+          uuids: Object.keys(uuids),
+        };
+      });
       setProcurementTable(procurementTable);
     }
   };
@@ -217,25 +189,20 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
       (formMain.getFieldsValue()?.procurements as PurchaseProcument[]) || [];
     const lineItems: PurchaseOrderLineItem[] =
       (formMain.getFieldsValue()?.line_items as PurchaseOrderLineItem[]) || [];
-    let lineItemsBackUp = JSON.parse(
-      JSON.stringify(lineItems),
-    ) as PurchaseOrderLineItem[];
+    let lineItemsBackUp = JSON.parse(JSON.stringify(lineItems)) as PurchaseOrderLineItem[];
     const procurementsBackUp = procurements.map((procurement) => {
-      procurement.procurement_items.forEach(
-        (procurementItem, indexProcurementItem) => {
-          const indexLineItem = lineItems.findIndex(
-            (lineItem) => lineItem.variant_id === procurementItem.variant_id,
+      procurement.procurement_items.forEach((procurementItem, indexProcurementItem) => {
+        const indexLineItem = lineItems.findIndex(
+          (lineItem) => lineItem.variant_id === procurementItem.variant_id,
+        );
+        if (indexLineItem === -1) {
+          procurement.procurement_items.splice(indexProcurementItem, 1);
+        } else {
+          lineItemsBackUp = lineItemsBackUp.filter(
+            (lineItemBackUp) => lineItemBackUp.variant_id !== procurementItem.variant_id,
           );
-          if (indexLineItem === -1) {
-            procurement.procurement_items.splice(indexProcurementItem, 1);
-          } else {
-            lineItemsBackUp = lineItemsBackUp.filter(
-              (lineItemBackUp) =>
-                lineItemBackUp.variant_id !== procurementItem.variant_id,
-            );
-          }
-        },
-      );
+        }
+      });
       return {
         ...procurement,
         procurement_items: procurement.procurement_items,
@@ -282,47 +249,39 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
       procurementsResult,
       ProcurementLineItemField.expect_receipt_date,
     );
-    const procurementsAllResult: Array<PurchaseProcument[]> = Object.values(
-      procurementsFilter,
-    ).map((procurementAll, indexProcurementAll) => {
-      const uuid = uuidv4();
-      return [
-        ...procurementAll.map((item) => {
-          return {
-            ...item,
-            uuid: uuid,
-            percent: item?.percent || 33.33,
-            procurement_items: [
-              ...item.procurement_items.map((procurementItem) => {
-                return {
-                  ...procurementItem,
-                  percent: item?.percent,
-                  uuid: uuid + indexProcurementAll,
-                };
-              }),
-            ],
-          };
-        }),
-      ];
-    });
+    const procurementsAllResult: Array<PurchaseProcument[]> = Object.values(procurementsFilter).map(
+      (procurementAll, indexProcurementAll) => {
+        const uuid = uuidv4();
+        return [
+          ...procurementAll.map((item) => {
+            return {
+              ...item,
+              uuid: uuid,
+              percent: item?.percent || 33.33,
+              procurement_items: [
+                ...item.procurement_items.map((procurementItem) => {
+                  return {
+                    ...procurementItem,
+                    percent: item?.percent,
+                    uuid: uuid + indexProcurementAll,
+                  };
+                }),
+              ],
+            };
+          }),
+        ];
+      },
+    );
     formMain.setFieldsValue({ procurements: procurementsResult });
     setProcurementsAll([...procurementsAllResult]);
-    handleSetProcurementTableContext(
-      procurementsResult,
-      lineItems,
-      procurementsAllResult,
-    );
+    handleSetProcurementTableContext(procurementsResult, lineItems, procurementsAllResult);
   };
 
   const handleSortProcurements = (procurements: PurchaseProcument[]) => {
     procurements.sort((pre, next) => {
       if (!pre.expect_receipt_date || !next.expect_receipt_date) return 0;
-      const preDate = new Date(
-        moment(pre.expect_receipt_date).format("MM-DD-YYYY"),
-      );
-      const nextDate = new Date(
-        moment(next.expect_receipt_date).format("MM-DD-YYYY"),
-      );
+      const preDate = new Date(moment(pre.expect_receipt_date).format("MM-DD-YYYY"));
+      const nextDate = new Date(moment(next.expect_receipt_date).format("MM-DD-YYYY"));
       return preDate.getTime() - nextDate.getTime() > 0 ? 1 : -1;
     });
     return procurements;

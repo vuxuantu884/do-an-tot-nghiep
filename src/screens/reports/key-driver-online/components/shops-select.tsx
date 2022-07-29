@@ -18,9 +18,7 @@ function StoresSelect(props: Props): ReactElement {
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
   const handleOnChange = (values: number[], labelList: any[]) => {
-    setSelectedShops(
-      labelList.length ? labelList : storesInAsm.map((item) => item.name),
-    );
+    setSelectedShops(labelList.length ? labelList : storesInAsm.map((item) => item.name));
   };
 
   const storesInAsm: StoreResponse[] = useMemo(() => {
@@ -40,9 +38,7 @@ function StoresSelect(props: Props): ReactElement {
     dispatch(
       searchDepartmentAction((result) => {
         if (result) {
-          const onlineDepartment = result.find(
-            (item) => item.name === "KINH DOANH ONLINE",
-          );
+          const onlineDepartment = result.find((item) => item.name === "KINH DOANH ONLINE");
           if (!onlineDepartment?.children?.length) {
             setStore([]);
           } else {
@@ -52,17 +48,14 @@ function StoresSelect(props: Props): ReactElement {
             if (!onlineBranch?.children?.length) {
               setStore([]);
             } else {
-              const stores = onlineBranch.children.reduce(
-                (res: any, item: any) => {
-                  if (item.children?.length) {
-                    res = [...res, ...item.children];
-                  } else {
-                    res = [...res, item];
-                  }
-                  return res;
-                },
-                [],
-              );
+              const stores = onlineBranch.children.reduce((res: any, item: any) => {
+                if (item.children?.length) {
+                  res = [...res, ...item.children];
+                } else {
+                  res = [...res, item];
+                }
+                return res;
+              }, []);
               setStore(stores);
             }
           }

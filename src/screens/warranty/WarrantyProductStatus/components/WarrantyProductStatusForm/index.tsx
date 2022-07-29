@@ -24,7 +24,8 @@ function WarrantyProductStatusForm(props: PropTypes) {
             required: true,
             message: "Vui lòng điền tên trạng thái",
           },
-        ]}>
+        ]}
+      >
         <Input placeholder="Nhập tên trạng thái" />
       </Form.Item>
       <Form.Item
@@ -37,12 +38,14 @@ function WarrantyProductStatusForm(props: PropTypes) {
             required: true,
             message: "Vui lòng chọn loại trạng thái",
           },
-        ]}>
+        ]}
+      >
         <CustomSelect
           allowClear
           showSearch
           placeholder="Chọn loại trạng thái"
-          optionFilterProp="children">
+          optionFilterProp="children"
+        >
           {WARRANTY_PRODUCT_STATUS_TYPE?.map((item) => (
             <Select.Option key={item.code} value={item.code}>
               {item.name}
@@ -55,7 +58,8 @@ function WarrantyProductStatusForm(props: PropTypes) {
         labelCol={{ span: 8 }}
         labelAlign={"left"}
         name="status"
-        valuePropName="checked">
+        valuePropName="checked"
+      >
         <Switch
         // defaultChecked={false}
         // onChange={(value) => {

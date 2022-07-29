@@ -14,18 +14,18 @@ import { StyledComponent } from "./styles";
 type PropTypes = {
   actions: Array<MenuAction>;
   isLoading?: boolean;
-  location: any,
+  location: any;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
   onShowColumnSetting?: () => void;
 };
 
 function WarrantyReasonFilter(props: PropTypes): JSX.Element {
-  const { actions, onMenuClick, onFilter, onShowColumnSetting, isLoading, location} = props;
+  const { actions, onMenuClick, onFilter, onShowColumnSetting, isLoading, location } = props;
 
   const queryParamsParsed: any = queryString.parse(location.search);
 
-  const loadingFilter = useMemo(() => { 
+  const loadingFilter = useMemo(() => {
     return !!isLoading;
   }, [isLoading]);
 
@@ -35,13 +35,15 @@ function WarrantyReasonFilter(props: PropTypes): JSX.Element {
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   const initialValues = useMemo(() => {
     return {
       ...queryParamsParsed,
-      query: Array.isArray(queryParamsParsed.query) ? queryParamsParsed.query.map((i:any) => Number(i)) : (queryParamsParsed.query),
+      query: Array.isArray(queryParamsParsed.query)
+        ? queryParamsParsed.query.map((i: any) => Number(i))
+        : queryParamsParsed.query,
       name: queryParamsParsed.name || undefined,
       status: queryParamsParsed.status || undefined,
     };
@@ -51,12 +53,12 @@ function WarrantyReasonFilter(props: PropTypes): JSX.Element {
     (values) => {
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   useEffect(() => {
-    formSearch.setFieldsValue(initialValues)
-  }, [formSearch, initialValues])
+    formSearch.setFieldsValue(initialValues);
+  }, [formSearch, initialValues]);
 
   return (
     <StyledComponent>
@@ -98,7 +100,8 @@ function WarrantyReasonFilter(props: PropTypes): JSX.Element {
                       allowClear
                       style={{ width: "100%" }}
                       placeholder="Trạng thái"
-                      notFoundContent="Không tìm thấy kết quả">
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
                       {WARRANTY_REASON_STATUS.map((item, index) => (
                         <Select.Option key={index} value={item.code}>
                           {item.name}

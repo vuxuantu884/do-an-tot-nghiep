@@ -16,11 +16,11 @@ export const textMutedColor = "#666666";
 export const textLinkColor = "#5656A2";
 export const grayF5Color = "#F5F5F5";
 export const grayE5Color = "#E5E5E5";
-export const defaultBgTag= "#F4F4F7";
+export const defaultBgTag = "#F4F4F7";
 export const focusBorderColor = primaryColor;
-export const sortActionColor ="#BFBFBF";
-export const bluePlus ="#3d3d3d";
-export const yellowColor ="#FCAF17";
+export const sortActionColor = "#BFBFBF";
+export const bluePlus = "#3d3d3d";
+export const yellowColor = "#FCAF17";
 
 //
 export const borderRadius = "2px";

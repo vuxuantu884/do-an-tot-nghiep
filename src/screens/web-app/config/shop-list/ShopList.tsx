@@ -6,7 +6,7 @@ import { useHistory } from "react-router-dom";
 import { StyledComponent } from "screens/web-app/config/shop-list/StyledSyncShopList";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import {WebAppConfigTabUrl} from "config/url.config";
+import { WebAppConfigTabUrl } from "config/url.config";
 
 type SyncShopListProps = {
   data: any;
@@ -14,10 +14,8 @@ type SyncShopListProps = {
   loading?: boolean;
 };
 
-const SyncShopList: React.FC<SyncShopListProps> = (
-  props: SyncShopListProps
-) => {
-  const { data, showDeleteModal,loading } = props;
+const SyncShopList: React.FC<SyncShopListProps> = (props: SyncShopListProps) => {
+  const { data, showDeleteModal, loading } = props;
   const history = useHistory();
 
   const handleUpdate = (item: any) => {
@@ -33,8 +31,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       width: "70px",
       fixed: "left",
       render: (l: any, v: any, i: any) => {
-        return <span>{i + 1}</span>
-      }
+        return <span>{i + 1}</span>;
+      },
     },
     {
       title: "Tên gian hàng",
@@ -43,20 +41,23 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       render: (value: any, data: any) => {
         return (
           <div style={{ display: "flex" }}>
-            <strong className="link" onClick={() => handleUpdate(data)}>{data.name}</strong>
+            <strong className="link" onClick={() => handleUpdate(data)}>
+              {data.name}
+            </strong>
           </div>
-        )
-      }
+        );
+      },
     },
     {
       title: "Website",
       width: "20%",
       dataIndex: "website",
       render: (value: any, data: any) => (
-        <div className="shop-show-style" style={{ textAlign: "left", minWidth:"150px"}}>
-          <a href={`http://${data.website}`} target="_blank" rel="noopener noreferrer">{data.website}</a> 
+        <div className="shop-show-style" style={{ textAlign: "left", minWidth: "150px" }}>
+          <a href={`http://${data.website}`} target="_blank" rel="noopener noreferrer">
+            {data.website}
+          </a>
         </div>
-
       ),
     },
     {
@@ -65,10 +66,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
       width: 120,
       align: "center",
       render: (value: string) => {
-        return (
-          <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>
-        )
-      }
+        return <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>;
+      },
     },
     actionColumn(handleUpdate, handleShowDeleteModal),
   ]);

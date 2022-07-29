@@ -9,8 +9,14 @@ import LogoVTP from "assets/img/LogoVTP.svg";
 import logoYody from "assets/img/logoYody.png";
 import { FeesResponse } from "model/response/order/order.response";
 import NumberFormat from "react-number-format";
-import { InventoryTransferDetailItem, InventoryTransferShipmentRequest } from "model/inventory/transfer";
-import { createInventoryTransferShipmentAction, getLogisticGateAwayAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import {
+  InventoryTransferDetailItem,
+  InventoryTransferShipmentRequest,
+} from "model/inventory/transfer";
+import {
+  createInventoryTransferShipmentAction,
+  getLogisticGateAwayAction,
+} from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { useDispatch } from "react-redux";
 import { SumWeightLineItems } from "utils/AppUtils";
 
@@ -33,7 +39,7 @@ let initFormShipment: InventoryTransferShipmentRequest = {
   who_paid: "",
   expected_delivery_time: "",
   office_time: null,
-}
+};
 
 type InventoryShipmentProps = {
   visible: boolean;
@@ -47,49 +53,40 @@ type InventoryShipmentProps = {
 };
 
 export const deliveryService = {
-    yody: {
-      code: "yody",
-      id: 1,
-      logo: logoYody,
-      name: "Tự giao hàng",
-    },
-    ghtk: {
-      code: "ghtk",
-      id: 2,
-      logo: LogoGHTK,
-      name: "Giao hàng tiết kiệm",
-    },
-    ghn: {
-      code: "ghn",
-      id: 3,
-      logo: LogoGHN,
-      name: "Giao hàng nhanh",
-    },
-    vtp: {
-      code: "vtp",
-      id: 4,
-      logo: LogoVTP,
-      name: "Viettel Post",
-    },
-    dhl: {
-      code: "dhl",
-      id: 5,
-      logo: LogoDHL,
-      name: "DHL",
-    },
-  };
+  yody: {
+    code: "yody",
+    id: 1,
+    logo: logoYody,
+    name: "Tự giao hàng",
+  },
+  ghtk: {
+    code: "ghtk",
+    id: 2,
+    logo: LogoGHTK,
+    name: "Giao hàng tiết kiệm",
+  },
+  ghn: {
+    code: "ghn",
+    id: 3,
+    logo: LogoGHN,
+    name: "Giao hàng nhanh",
+  },
+  vtp: {
+    code: "vtp",
+    id: 4,
+    logo: LogoVTP,
+    name: "Viettel Post",
+  },
+  dhl: {
+    code: "dhl",
+    id: 5,
+    logo: LogoDHL,
+    name: "DHL",
+  },
+};
 
-const InventoryShipment: React.FC<InventoryShipmentProps> = (
-  props: InventoryShipmentProps
-) => {
-  const {
-    visible,
-    onCancel,
-    infoFees,
-    levelOrder = 0,
-    dataTicket,
-    onOk,
-  } = props;
+const InventoryShipment: React.FC<InventoryShipmentProps> = (props: InventoryShipmentProps) => {
+  const { visible, onCancel, infoFees, levelOrder = 0, dataTicket, onOk } = props;
 
   const [shipmentForm] = Form.useForm();
   const [hvc, setHvc] = useState<number | null>(null);
@@ -105,15 +102,17 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
 
   const serviceFee = useMemo(() => {
     return {
-      yody: [{
-        delivery_service_code: 'yody',
-        total_fee: 0,
-        insurance_fee: 0,
-        transport_type: 'yody',
-        transport_type_name: "Yody Express",
-        note: null,
-        delivery: true,
-      }],
+      yody: [
+        {
+          delivery_service_code: "yody",
+          total_fee: 0,
+          insurance_fee: 0,
+          transport_type: "yody",
+          transport_type_name: "Yody Express",
+          note: null,
+          delivery: true,
+        },
+      ],
       ghtk: infoFees.filter((item) => item.delivery_service_code === "ghtk"),
       ghn: infoFees.filter((item) => item.delivery_service_code === "ghn"),
       vtp: infoFees.filter((item) => item.delivery_service_code === "vtp"),
@@ -122,19 +121,19 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
   }, [infoFees]);
 
   const changeServiceType = (id: number, code: string, item: any, fee: number) => {
-
     setHvc(id);
     setServiceCode(code);
     setServiceType(item);
     setServiceFeeTotal(fee);
   };
 
-
   useEffect(() => {
-    dispatch(getLogisticGateAwayAction((result) => {
-      console.log('result', result);
-    }))
-  }, [dispatch])
+    dispatch(
+      getLogisticGateAwayAction((result) => {
+        console.log("result", result);
+      }),
+    );
+  }, [dispatch]);
 
   const onFinish = useCallback(
     (data) => {
@@ -144,7 +143,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
       }
       setLoading(true);
       if (dataTicket) {
-        const deliveryTime = data.expected_delivery_time
+        const deliveryTime = data.expected_delivery_time;
 
         data.delivery_service_id = hvc;
         data.delivery_service_code = serviceCode;
@@ -163,17 +162,17 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
         data.expected_delivery_time = deliveryTime && deliveryTime.utc().format();
         data.office_time = officeTime;
 
-        dispatch(createInventoryTransferShipmentAction(dataTicket.id, data, (result) => {
-          setLoading(false);
-          onOk(result);
-        }));
-
-      }
-      else {
-        console.log('dataTicket is null');
+        dispatch(
+          createInventoryTransferShipmentAction(dataTicket.id, data, (result) => {
+            setLoading(false);
+            onOk(result);
+          }),
+        );
+      } else {
+        console.log("dataTicket is null");
       }
     },
-    [dataTicket, hvc, serviceCode, serviceType, serviceFeeTotal, officeTime, dispatch, onOk]
+    [dataTicket, hvc, serviceCode, serviceType, serviceFeeTotal, officeTime, dispatch, onOk],
   );
 
   return (
@@ -183,9 +182,7 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
       visible={visible}
       centered
       footer={[
-        <Button onClick={onCancel}>
-          Hủy
-        </Button>,
+        <Button onClick={onCancel}>Hủy</Button>,
         <Button loading={loading} type="primary" onClick={() => shipmentForm.submit()}>
           Chọn hãng vận chuyển
         </Button>,
@@ -245,29 +242,21 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
             </Col>
           </Row>
           <Row>
-
-          <div
-            className="ant-table ant-table-bordered custom-table"
-            style={{ marginTop: 20 }}
-          >
-            <div className="ant-table-container">
-              <div className="ant-table-content">
-                <table
-                  className="table-bordered"
-                  style={{ width: "100%", tableLayout: "auto" }}
-                >
-                  <thead className="ant-table-thead">
-                    <tr>
-                      <th className="ant-table-cell">Hãng vận chuyển</th>
-                      <th className="ant-table-cell">Dịch vụ chuyển phát</th>
-                      <th className="ant-table-cell" style={{ textAlign: "right" }}>
-                        Cước phí
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="ant-table-tbody">
-                    {["yody", "ghtk", "ghn", "vtp", "dhl"].map(
-                      (deliveryServiceName: string) => {
+            <div className="ant-table ant-table-bordered custom-table" style={{ marginTop: 20 }}>
+              <div className="ant-table-container">
+                <div className="ant-table-content">
+                  <table className="table-bordered" style={{ width: "100%", tableLayout: "auto" }}>
+                    <thead className="ant-table-thead">
+                      <tr>
+                        <th className="ant-table-cell">Hãng vận chuyển</th>
+                        <th className="ant-table-cell">Dịch vụ chuyển phát</th>
+                        <th className="ant-table-cell" style={{ textAlign: "right" }}>
+                          Cước phí
+                        </th>
+                      </tr>
+                    </thead>
+                    <tbody className="ant-table-tbody">
+                      {["yody", "ghtk", "ghn", "vtp", "dhl"].map((deliveryServiceName: string) => {
                         return (
                           ((serviceFee as any)[deliveryServiceName].length && (
                             <React.Fragment key={deliveryServiceName}>
@@ -280,86 +269,76 @@ const InventoryShipment: React.FC<InventoryShipmentProps> = (
                                   />
                                 </td>
                                 <td style={{ padding: 0 }}>
-                                  {(serviceFee as any)[deliveryServiceName].map(
-                                    (service: any) => {
-                                      return (
+                                  {(serviceFee as any)[deliveryServiceName].map((service: any) => {
+                                    return (
+                                      <div
+                                        style={{ padding: "8px 16px" }}
+                                        className="custom-table__has-border-bottom custom-table__has-select-radio"
+                                      >
+                                        <label className="radio-container">
+                                          <input
+                                            type="radio"
+                                            name="tt"
+                                            className="radio-delivery"
+                                            value={service.transport_type}
+                                            checked={
+                                              selectedShipmentMethod === service.transport_type
+                                            }
+                                            onChange={() => {
+                                              setSelectedShipmentMethod(service.transport_type);
+                                              setIsShowMessage(false);
+                                              changeServiceType(
+                                                (deliveryService as any)[deliveryServiceName].id,
+                                                deliveryServiceName,
+                                                service.transport_type,
+                                                service.total_fee,
+                                              );
+                                            }}
+                                            disabled={
+                                              (service.transport_type !== "yody" &&
+                                                service.total_fee === 0) ||
+                                              levelOrder > 3
+                                            }
+                                          />
+                                          <span className="checkmark" />
+                                          {service.transport_type_name}
+                                        </label>
+                                      </div>
+                                    );
+                                  })}
+                                </td>
+                                <td style={{ padding: 0, textAlign: "right" }}>
+                                  {(serviceFee as any)[deliveryServiceName].map((service: any) => {
+                                    return (
+                                      <>
                                         <div
                                           style={{ padding: "8px 16px" }}
                                           className="custom-table__has-border-bottom custom-table__has-select-radio"
                                         >
-                                          <label className="radio-container">
-                                            <input
-                                              type="radio"
-                                              name="tt"
-                                              className="radio-delivery"
-                                              value={service.transport_type}
-                                              checked={
-                                                selectedShipmentMethod ===
-                                                service.transport_type
-                                              }
-                                              onChange={() => {
-                                                setSelectedShipmentMethod(
-                                                  service.transport_type
-                                                );
-                                                setIsShowMessage(false);
-                                                changeServiceType(
-                                                  (deliveryService as any)[
-                                                    deliveryServiceName
-                                                  ].id,
-                                                  deliveryServiceName,
-                                                  service.transport_type,
-                                                  service.total_fee
-                                                );
-                                              }}
-                                              disabled={
-                                                (service.transport_type !== 'yody' && service.total_fee === 0) || levelOrder > 3
-                                              }
-                                            />
-                                            <span className="checkmark"/>
-                                            {service.transport_type_name}
-                                          </label>
+                                          {/* {service.total_fee} */}
+                                          <NumberFormat
+                                            value={service.total_fee}
+                                            className="foo"
+                                            displayType={"text"}
+                                            thousandSeparator={true}
+                                          />
                                         </div>
-                                      );
-                                    }
-                                  )}
-                                </td>
-                                <td style={{ padding: 0, textAlign: "right" }}>
-                                  {(serviceFee as any)[deliveryServiceName].map(
-                                    (service: any) => {
-                                      return (
-                                        <>
-                                          <div
-                                            style={{ padding: "8px 16px" }}
-                                            className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                          >
-                                            {/* {service.total_fee} */}
-                                            <NumberFormat
-                                              value={service.total_fee}
-                                              className="foo"
-                                              displayType={"text"}
-                                              thousandSeparator={true}
-                                            />
-                                          </div>
-                                        </>
-                                      );
-                                    }
-                                  )}
+                                      </>
+                                    );
+                                  })}
                                 </td>
                               </tr>
                             </React.Fragment>
                           )) ||
                           null
                         );
-                      }
-                    )}
-                  </tbody>
-                </table>
-                {isShowMessage && (
-                  <div className="error-mess">Vui lòng chọn Hãng vận chuyển</div>
-                )}
+                      })}
+                    </tbody>
+                  </table>
+                  {isShowMessage && <div className="error-mess">Vui lòng chọn Hãng vận chuyển</div>}
+                </div>
               </div>
             </div>
-          </div>
           </Row>
         </Form>
       </InventoryShipmentWrapper>

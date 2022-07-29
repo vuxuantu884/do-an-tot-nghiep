@@ -12,12 +12,7 @@ import {
   Checkbox,
 } from "antd";
 
-import {
-  EnvironmentFilled,
-  PhoneFilled,
-  PhoneOutlined,
-  PlusOutlined,
-} from "@ant-design/icons";
+import { EnvironmentFilled, PhoneFilled, PhoneOutlined, PlusOutlined } from "@ant-design/icons";
 import React, { useCallback, useMemo, useState, Fragment, lazy } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
@@ -38,8 +33,10 @@ import { RegUtil } from "utils/RegUtils";
 import UrlConfig from "config/url.config";
 import _ from "lodash";
 
-const SupplierAddModal = lazy(() => import("screens/products/supplier/modal/supplier-add-modal.screen"))
-const EditAddressModal = lazy(() => import("../modal/edit-address"))
+const SupplierAddModal = lazy(
+  () => import("screens/products/supplier/modal/supplier-add-modal.screen"),
+);
+const EditAddressModal = lazy(() => import("../modal/edit-address"));
 
 type POSupplierFormProps = {
   listCountries: Array<CountryResponse>;
@@ -51,9 +48,7 @@ type POSupplierFormProps = {
   hideExpand?: boolean;
   stepStatus?: string;
 };
-const POSupplierForm: React.FC<POSupplierFormProps> = (
-  props: POSupplierFormProps
-) => {
+const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProps) => {
   const {
     formMain,
     listCountries,
@@ -67,12 +62,9 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const dispatch = useDispatch();
-  const [visibleSupplierAddress, setVisibleSupplierAddress] = useState(
-    hideExpand ? true : false
-  );
+  const [visibleSupplierAddress, setVisibleSupplierAddress] = useState(hideExpand ? true : false);
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
-  const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
-    useState(false);
+  const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] = useState(false);
   const onResult = useCallback((result: PageResponse<SupplierResponse>) => {
     setLoadingSearch(false);
     setData(result.items);
@@ -81,51 +73,46 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const [addressChangeType, setAddressChangeType] = useState<string>("");
   const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(isEdit);
 
-
-  const debouncedSearchSupplier = React.useMemo(() =>
-    _.debounce((keyword: string) => {
-      setLoadingSearch(true);
-      dispatch(
-        SupplierSearchAction({ condition: keyword.trim(), status: "active" }, onResult)
-      );
-    }, 300),
-    [dispatch, onResult]
-  )
+  const debouncedSearchSupplier = React.useMemo(
+    () =>
+      _.debounce((keyword: string) => {
+        setLoadingSearch(true);
+        dispatch(SupplierSearchAction({ condition: keyword.trim(), status: "active" }, onResult));
+      }, 300),
+    [dispatch, onResult],
+  );
 
   const onChangeKeySearchSupplier = useCallback(
     (keyword: string) => {
-      debouncedSearchSupplier(keyword)
+      debouncedSearchSupplier(keyword);
     },
-    [debouncedSearchSupplier]
-  )
-
-  const ShowEditAddressModal = useCallback(
-    (addressInfo: PurchaseAddress, type: string) => {
-      setAddressChangeType(type);
-      setAddressChange(addressInfo);
-      setVisibleAddressModal(true);
-    },
-    []
+    [debouncedSearchSupplier],
   );
+
+  const ShowEditAddressModal = useCallback((addressInfo: PurchaseAddress, type: string) => {
+    setAddressChangeType(type);
+    setAddressChange(addressInfo);
+    setVisibleAddressModal(true);
+  }, []);
 
   const onSelect = useCallback(
     (value: string) => {
       let index = data.findIndex((item) => item.id.toString() === value);
       var supplier = data[index];
-      let indexAddress = supplier.addresses.findIndex(address => address.is_default);
-      let indexContact = supplier.contacts.findIndex(contact => contact.is_default);
+      let indexAddress = supplier.addresses.findIndex((address) => address.is_default);
+      let indexContact = supplier.contacts.findIndex((contact) => contact.is_default);
       let supplierAddress: PurchaseAddress = {
-        tax_code:  supplier.tax_code,
-        name: indexContact !== -1 ? supplier.contacts[indexContact].name : '',
-        email: indexContact !== -1 ? supplier.contacts[indexContact].email : '',
-        phone: indexContact !== -1 ? supplier.contacts[indexContact].phone : '',
+        tax_code: supplier.tax_code,
+        name: indexContact !== -1 ? supplier.contacts[indexContact].name : "",
+        email: indexContact !== -1 ? supplier.contacts[indexContact].email : "",
+        phone: indexContact !== -1 ? supplier.contacts[indexContact].phone : "",
         country_id: indexAddress !== -1 ? supplier.addresses[indexAddress].country_id : undefined,
-        country: indexAddress !== -1 ? supplier.addresses[indexAddress].country : '',
+        country: indexAddress !== -1 ? supplier.addresses[indexAddress].country : "",
         city_id: indexAddress !== -1 ? supplier.addresses[indexAddress].city_id : undefined,
-        city: indexAddress !== -1 ? supplier.addresses[indexAddress].city : '',
+        city: indexAddress !== -1 ? supplier.addresses[indexAddress].city : "",
         district_id: indexAddress !== -1 ? supplier.addresses[indexAddress].district_id : undefined,
-        district: indexAddress !== -1 ? supplier.addresses[indexAddress].district : '',
-        full_address: indexAddress !== -1 ? supplier.addresses[indexAddress].address : '',
+        district: indexAddress !== -1 ? supplier.addresses[indexAddress].district : "",
+        full_address: indexAddress !== -1 ? supplier.addresses[indexAddress].address : "",
       };
       formMain.setFieldsValue({
         supplier_id: value,
@@ -136,7 +123,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
       });
       setIsSelectSupplier(true);
     },
-    [data, formMain]
+    [data, formMain],
   );
   const removeSupplier = useCallback(() => {
     formMain.setFieldsValue({
@@ -168,20 +155,22 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   }, []);
   const OkSupplierAddModal = useCallback(
     (supplierItem: SupplierResponse) => {
-      let indexAddress = supplierItem.addresses.findIndex(address => address.is_default);
-      let indexContact = supplierItem.contacts.findIndex(contact => contact.is_default);
+      let indexAddress = supplierItem.addresses.findIndex((address) => address.is_default);
+      let indexContact = supplierItem.contacts.findIndex((contact) => contact.is_default);
       let supplierAddress: PurchaseAddress = {
         tax_code: supplierItem.tax_code,
-        name: indexContact !== -1 ? supplierItem.contacts[indexContact].name : '',
-        email: indexContact !== -1 ? supplierItem.contacts[indexContact].email : '',
-        phone: indexContact !== -1 ? supplierItem.contacts[indexContact].phone : '',
-        country_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country_id : undefined,
-        country: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country : '',
+        name: indexContact !== -1 ? supplierItem.contacts[indexContact].name : "",
+        email: indexContact !== -1 ? supplierItem.contacts[indexContact].email : "",
+        phone: indexContact !== -1 ? supplierItem.contacts[indexContact].phone : "",
+        country_id:
+          indexAddress !== -1 ? supplierItem.addresses[indexAddress].country_id : undefined,
+        country: indexAddress !== -1 ? supplierItem.addresses[indexAddress].country : "",
         city_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].city_id : undefined,
-        city: indexAddress !== -1 ? supplierItem.addresses[indexAddress].city : '',
-        district_id: indexAddress !== -1 ? supplierItem.addresses[indexAddress].district_id : undefined,
-        district: indexAddress !== -1 ? supplierItem.addresses[indexAddress].district : '',
-        full_address: indexAddress !== -1 ? supplierItem.addresses[indexAddress].address : '',
+        city: indexAddress !== -1 ? supplierItem.addresses[indexAddress].city : "",
+        district_id:
+          indexAddress !== -1 ? supplierItem.addresses[indexAddress].district_id : undefined,
+        district: indexAddress !== -1 ? supplierItem.addresses[indexAddress].district : "",
+        full_address: indexAddress !== -1 ? supplierItem.addresses[indexAddress].address : "",
       };
       formMain.setFieldsValue({
         supplier_id: supplierItem.id,
@@ -193,7 +182,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
       setIsSelectSupplier(true);
       setVisibleSupplierAddModal(false);
     },
-    [formMain]
+    [formMain],
   );
 
   const OkAddressModal = useCallback(
@@ -210,7 +199,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
       }
       setVisibleAddressModal(false);
     },
-    [formMain]
+    [formMain],
   );
 
   const changeVisibleSupplierAddress = () => {
@@ -240,10 +229,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
               let supplier: string = getFieldValue("supplier");
               return supplier_id ? (
                 <div>
-                  <Row
-                    align="middle"
-                    justify="space-between"
-                  >
+                  <Row align="middle" justify="space-between">
                     <Space>
                       <Avatar src={avatarDefault} />
                       <Link
@@ -265,9 +251,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       />
                     )}
                   </Row>
-                  <Divider
-                    style={{ padding: 0, marginTop: 10, marginBottom: 0 }}
-                  />
+                  <Divider style={{ padding: 0, marginTop: 10, marginBottom: 0 }} />
                 </div>
               ) : (
                 <div>
@@ -342,14 +326,11 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     >
                       {({ getFieldValue }) => {
                         let supplier_id = getFieldValue("supplier_id");
-                        let billing_address: PurchaseAddress =
-                          getFieldValue("billing_address");
+                        let billing_address: PurchaseAddress = getFieldValue("billing_address");
 
                         return supplier_id ? (
                           <div className="padding-top-20">
-                            <div className="title-address">
-                              Địa chỉ nhận hóa đơn :
-                            </div>
+                            <div className="title-address">Địa chỉ nhận hóa đơn :</div>
                             <Row className="customer-row-info">
                               <span style={{ fontWeight: 500 }}>
                                 <img
@@ -360,17 +341,13 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                     height: "18px",
                                   }}
                                 />{" "}
-                                {billing_address.name !== null
-                                  ? billing_address.name
-                                  : "---"}
+                                {billing_address.name !== null ? billing_address.name : "---"}
                               </span>
                             </Row>
                             <Row className="customer-row-info">
                               <span>
                                 <PhoneFilled />{" "}
-                                {billing_address.phone !== ""
-                                  ? billing_address.phone
-                                  : "---"}
+                                {billing_address.phone !== "" ? billing_address.phone : "---"}
                               </span>
                             </Row>
                             <Row className="customer-row-info">
@@ -396,13 +373,10 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                   color: "#5d5d8a",
                                   margin: 0,
                                   fontWeight: 400,
-                                  fontSize: '14px',
+                                  fontSize: "14px",
                                 }}
                                 onClick={() =>
-                                  ShowEditAddressModal(
-                                    billing_address,
-                                    AddressType.BILLADDRESS
-                                  )
+                                  ShowEditAddressModal(billing_address, AddressType.BILLADDRESS)
                                 }
                               >
                                 Thay đổi địa chỉ nhận hóa đơn
@@ -419,12 +393,13 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     className="font-weight-500"
                     style={{ paddingLeft: "34px", marginTop: "14px" }}
                   >
-                    {isEdit || (stepStatus === POStatus.COMPLETED || stepStatus === POStatus.FINISHED) ? (
+                    {isEdit ||
+                    stepStatus === POStatus.COMPLETED ||
+                    stepStatus === POStatus.FINISHED ? (
                       <div>
                         <Form.Item
                           shouldUpdate={(prevValues, curValues) =>
-                            prevValues.billing_address !==
-                            curValues.billing_address
+                            prevValues.billing_address !== curValues.billing_address
                           }
                           label={
                             <label className="title-address">
@@ -442,8 +417,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                           }
                         >
                           {({ getFieldValue }) => {
-                            let billing_address: PurchaseAddress =
-                              getFieldValue("billing_address");
+                            let billing_address: PurchaseAddress = getFieldValue("billing_address");
                             return (
                               <div
                                 style={{
@@ -489,7 +463,9 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                         />
                       </Form.Item>
                     )}
-                    {isEdit || (stepStatus === POStatus.COMPLETED || stepStatus === POStatus.FINISHED) ? (
+                    {isEdit ||
+                    stepStatus === POStatus.COMPLETED ||
+                    stepStatus === POStatus.FINISHED ? (
                       <div>
                         <Form.Item hidden name="supplier_note" noStyle>
                           <Input />
@@ -510,8 +486,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                             </label>
                           }
                           shouldUpdate={(prevValue, currentValue) =>
-                            prevValue.supplier_note !==
-                            currentValue.supplier_note
+                            prevValue.supplier_note !== currentValue.supplier_note
                           }
                         >
                           {({ getFieldValue }) => {
@@ -524,9 +499,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                   fontSize: 14,
                                 }}
                               >
-                                {supplier_note !== ""
-                                  ? supplier_note
-                                  : "Không có ghi chú"}
+                                {supplier_note !== "" ? supplier_note : "Không có ghi chú"}
                               </div>
                             );
                           }}
@@ -598,82 +571,75 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     >
                       {({ getFieldValue }) => {
                         let supplier_id = getFieldValue("supplier_id");
-                        let supplier_address: PurchaseAddress =
-                          getFieldValue("supplier_address");
+                        let supplier_address: PurchaseAddress = getFieldValue("supplier_address");
 
-                        return supplier_id && (
-                          <div>
-                            <div className="title-address">
-                              Địa chỉ xuất hàng :
-                            </div>
-                            <Row className="customer-row-info">
-                              <span style={{ fontWeight: 500 }}>
-                                <img
-                                  src={addressIcon}
-                                  alt=""
-                                  style={{
-                                    width: "18px",
-                                    height: "18px",
-                                  }}
-                                />{" "}
-                                {supplier_address.name !== null
-                                  ? supplier_address.name
-                                  : "--"}
-                              </span>
-                            </Row>
-                            <Row className="customer-row-info">
-                              <span>
-                                <PhoneFilled />{" "}
-                                {supplier_address.phone !== ""
-                                  ? supplier_address.phone
-                                  : "---"}
-                              </span>
-                            </Row>
-                            <Row className="customer-row-info">
-                              <span>
-                                <EnvironmentFilled />{" "}
-                                {supplier_address.full_address !== ""
-                                  ? supplier_address.full_address
-                                  : "---"}
-                              </span>
-                            </Row>
-                            <Row className="customer-row-info">
-                              <span>
-                                {supplier_address.country !== ""
-                                  ? supplier_address.country
-                                  : ""}
-                                {supplier_address.city !== null
-                                  ? " - " + supplier_address.city
-                                  : ""}
-                                {supplier_address.district !== null
-                                  ? " - " + supplier_address.district
-                                  : ""}
-                                {supplier_address.ward !== null &&
+                        return (
+                          supplier_id && (
+                            <div>
+                              <div className="title-address">Địa chỉ xuất hàng :</div>
+                              <Row className="customer-row-info">
+                                <span style={{ fontWeight: 500 }}>
+                                  <img
+                                    src={addressIcon}
+                                    alt=""
+                                    style={{
+                                      width: "18px",
+                                      height: "18px",
+                                    }}
+                                  />{" "}
+                                  {supplier_address.name !== null ? supplier_address.name : "--"}
+                                </span>
+                              </Row>
+                              <Row className="customer-row-info">
+                                <span>
+                                  <PhoneFilled />{" "}
+                                  {supplier_address.phone !== "" ? supplier_address.phone : "---"}
+                                </span>
+                              </Row>
+                              <Row className="customer-row-info">
+                                <span>
+                                  <EnvironmentFilled />{" "}
+                                  {supplier_address.full_address !== ""
+                                    ? supplier_address.full_address
+                                    : "---"}
+                                </span>
+                              </Row>
+                              <Row className="customer-row-info">
+                                <span>
+                                  {supplier_address.country !== "" ? supplier_address.country : ""}
+                                  {supplier_address.city !== null
+                                    ? " - " + supplier_address.city
+                                    : ""}
+                                  {supplier_address.district !== null
+                                    ? " - " + supplier_address.district
+                                    : ""}
+                                  {supplier_address.ward !== null &&
                                   supplier_address.ward !== undefined
-                                  ? " - " + supplier_address.ward
-                                  : ""}
-                              </span>
-                            </Row>
-                            <Button
-                              icon={<PlusOutlined />}
-                              type="link"
-                              style={{
-                                padding: 0,
-                                color: "#5d5d8a",
-                                margin: 0,
-                                fontWeight: 400,
-                                fontSize: '14px',
-                              }}
-                              onClick={() =>
-                                ShowEditAddressModal(
-                                  supplier_address,
-                                  AddressType.SUPPLIERADDRESS
-                                )
-                              }
-                            >
-                              Thay đổi địa chỉ xuất hàng
-                            </Button>
-                          </div>
+                                    ? " - " + supplier_address.ward
+                                    : ""}
+                                </span>
+                              </Row>
+                              <Button
+                                icon={<PlusOutlined />}
+                                type="link"
+                                style={{
+                                  padding: 0,
+                                  color: "#5d5d8a",
+                                  margin: 0,
+                                  fontWeight: 400,
+                                  fontSize: "14px",
+                                }}
+                                onClick={() =>
+                                  ShowEditAddressModal(
+                                    supplier_address,
+                                    AddressType.SUPPLIERADDRESS,
+                                  )
+                                }
+                              >
+                                Thay đổi địa chỉ xuất hàng
+                              </Button>
+                            </div>
+                          )
                         );
                       }}
                     </Form.Item>

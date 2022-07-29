@@ -24,8 +24,10 @@ function TabLogFilter({ onFilter, onClickOpen, params }: ProcumentLogFilterProps
     const newParams = {
       ...params,
       created_date_to: params.created_date_to ? formatDateFilter(params.created_date_to) : null,
-      created_date_from: params.created_date_from ? formatDateFilter(params.created_date_from) : null,
-    }
+      created_date_from: params.created_date_from
+        ? formatDateFilter(params.created_date_from)
+        : null,
+    };
     formBase.setFieldsValue(newParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formBase]);
@@ -36,28 +38,28 @@ function TabLogFilter({ onFilter, onClickOpen, params }: ProcumentLogFilterProps
         <div className="page-filter-heading">
           <div className="page-filter-full">
             <Form onFinish={onFilter} form={formBase} layout="inline">
-                <Item name="condition" style={{ flex: 1 }}>
-                  <Input
-                    className="input-search"
-                    prefix={<img src={search} alt="" />}
-                    placeholder="Tìm kiếm theo Mã phiếu nhập kho, Mã đơn hàng, Tên sản phẩm, Mã vạch sản phẩm"
-                  />
-                </Item>
-                <Item name="created_date_from" className="date">
-                  <CustomDatePicker placeholder="Thời gian từ" style={{width: '100%'}} />
-                </Item>
-                <Item name="created_date_to" className="date">
-                  <CustomDatePicker placeholder="Thời gian dến" style={{width: '100%'}} />
-                </Item>
-                <Item>
-                  <Button type="primary" htmlType="submit">
-                    Lọc
-                  </Button>
-                </Item>
-                <Item>
-                  <ButtonSetting onClick={onClickOpen} />
-                </Item>
-              </Form>
+              <Item name="condition" style={{ flex: 1 }}>
+                <Input
+                  className="input-search"
+                  prefix={<img src={search} alt="" />}
+                  placeholder="Tìm kiếm theo Mã phiếu nhập kho, Mã đơn hàng, Tên sản phẩm, Mã vạch sản phẩm"
+                />
+              </Item>
+              <Item name="created_date_from" className="date">
+                <CustomDatePicker placeholder="Thời gian từ" style={{ width: "100%" }} />
+              </Item>
+              <Item name="created_date_to" className="date">
+                <CustomDatePicker placeholder="Thời gian dến" style={{ width: "100%" }} />
+              </Item>
+              <Item>
+                <Button type="primary" htmlType="submit">
+                  Lọc
+                </Button>
+              </Item>
+              <Item>
+                <ButtonSetting onClick={onClickOpen} />
+              </Item>
+            </Form>
           </div>
         </div>
       </div>

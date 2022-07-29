@@ -1,11 +1,9 @@
-
 import { PriceRule } from "model/promotion/price-rules.model";
 import React, { createContext, ReactNode, useState } from "react";
 
 type IssueAction = {
-
-  isAllProduct: boolean;// need to remove
-  setIsAllProduct: (discountData: boolean) => void;// need to remove
+  isAllProduct: boolean; // need to remove
+  setIsAllProduct: (discountData: boolean) => void; // need to remove
   priceRuleData: PriceRule;
   setPriceRuleData: (discountData: PriceRule) => void;
   isLimitUsagePerCustomer?: boolean;
@@ -14,9 +12,7 @@ type IssueAction = {
   setIsLimitUsage: (discountData: boolean) => void;
 };
 
-export const IssueContext = createContext<IssueAction>(
-  {} as IssueAction
-);
+export const IssueContext = createContext<IssueAction>({} as IssueAction);
 
 function IssueProvider(props: { children: ReactNode }) {
   const [isAllProduct, setIsAllProduct] = useState<boolean>(false);
@@ -35,7 +31,7 @@ function IssueProvider(props: { children: ReactNode }) {
         isLimitUsagePerCustomer,
         setIsLimitUsagePerCustomer,
         isLimitUsage,
-        setIsLimitUsage
+        setIsLimitUsage,
       }}
     />
   );

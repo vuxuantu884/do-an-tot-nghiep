@@ -1,13 +1,5 @@
 import { EyeInvisibleOutlined, EyeTwoTone } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  Space
-} from "antd";
+import { Button, Card, Col, Form, Input, Row, Space } from "antd";
 import { RuleObject } from "antd/lib/form";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -16,9 +8,7 @@ import UrlConfig from "config/url.config";
 import { AccountUpdatePassAction } from "domain/actions/account/account.action";
 import { loadUserFromStorageAction } from "domain/actions/app.action";
 import useAuthorization from "hook/useAuthorization";
-import {
-  AccountRequest, AccountResponse
-} from "model/account/account.model";
+import { AccountRequest, AccountResponse } from "model/account/account.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -35,7 +25,9 @@ const AccountUpdatePassScreen: React.FC = () => {
   });
   const history = useHistory();
   const dispatch = useDispatch();
-  const isFirstChangePassword = useSelector((state: RootReducerType) => state.userReducer.account?.temporary_password);
+  const isFirstChangePassword = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.temporary_password,
+  );
 
   const backAction = () => {
     history.push(`${UrlConfig.ACCOUNTS}/me`);
@@ -44,9 +36,11 @@ const AccountUpdatePassScreen: React.FC = () => {
   const handleUpdateAccount = (res: AccountResponse) => {
     if (res) {
       showSuccess("Đặt lại mật khẩu thành công.");
-      dispatch(loadUserFromStorageAction(() => {
-        history.push(UrlConfig.HOME);
-      }));
+      dispatch(
+        loadUserFromStorageAction(() => {
+          history.push(UrlConfig.HOME);
+        }),
+      );
     }
     setLoading(false);
   };
@@ -74,11 +68,7 @@ const AccountUpdatePassScreen: React.FC = () => {
       ]}
     >
       <Card>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={onFinish}
-        >
+        <Form form={form} layout="vertical" onFinish={onFinish}>
           <Row>
             <Col span={24}>
               <Row>
@@ -134,7 +124,6 @@ const AccountUpdatePassScreen: React.FC = () => {
               </Row>
             </Col>
           </Row>
-
         </Form>
       </Card>
       <BottomBarContainer
@@ -142,9 +131,11 @@ const AccountUpdatePassScreen: React.FC = () => {
         backAction={backAction}
         rightComponent={
           <Space>
-            {allowUpdateAcc && <Button loading={loading} type="primary" onClick={() => form.submit()}>
-              Đặt lại mật khẩu
-            </Button>}
+            {allowUpdateAcc && (
+              <Button loading={loading} type="primary" onClick={() => form.submit()}>
+                Đặt lại mật khẩu
+              </Button>
+            )}
           </Space>
         }
       />

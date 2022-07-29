@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
 export const InventoryFiltersWrapper = styled.div`
-.custom-filter {
-  .page-filter {
-    padding-top: 20px;
+  .custom-filter {
+    .page-filter {
+      padding-top: 20px;
+    }
   }
-}
 `;
 
 export const BaseFilterWrapper = styled.div`
@@ -85,13 +85,13 @@ export const BaseFilterWrapper = styled.div`
     border-color: rgba(42, 42, 134, 0.05);
     background-color: rgba(42, 42, 134, 0.05);
   }
-  
+
   .label {
     margin-top: 10px;
     padding-bottom: 8px;
     font-weight: 500;
   }
-  
+
   .label-date {
     padding-bottom: 8px;
     font-weight: 500;

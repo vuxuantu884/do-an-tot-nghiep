@@ -7,31 +7,27 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 
 export const createPurchasePaymentService = (
   poId: number,
-  data: PurchasePayments
+  data: PurchasePayments,
 ): Promise<BaseResponse<PurchaseOrder>> => {
-  return BaseAxios.post(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/payments`,
-    data
-  );
+  return BaseAxios.post(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/payments`, data);
 };
 
 export const updatePurchasePaymentService = (
   poId: number,
   paymentId: number,
-  data: PurchasePayments
+  data: PurchasePayments,
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(
     `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/payments/${paymentId}`,
-    data
+    data,
   );
 };
-
 
 export const deletePurchasePaymentService = (
   poId: number,
   paymentId: number,
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.delete(
-    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/payments/${paymentId}`
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/${poId}/payments/${paymentId}`,
   );
 };

@@ -1,29 +1,9 @@
-import {
-  Space,
-  Button,
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-  TreeSelect,
-} from "antd";
+import { Space, Button, Card, Col, Form, FormInstance, Input, Row, Select, TreeSelect } from "antd";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, {
-  createRef,
-  useCallback,
-  useLayoutEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createRef, useCallback, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  CategoryCreateRequest,
-  CategoryResponse,
-} from "model/product/category.model";
+import { CategoryCreateRequest, CategoryResponse } from "model/product/category.model";
 import ContentContainer from "component/container/content.container";
 import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { RegUtil } from "utils/RegUtils";
@@ -43,9 +23,7 @@ const { TreeNode } = TreeSelect;
 const AddCategory: React.FC = () => {
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer,
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const [categories, setCategories] = useState<Array<CategoryResponse>>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const goods = useMemo(() => {
@@ -97,12 +75,7 @@ const AddCategory: React.FC = () => {
         },
       ]}
     >
-      <Form
-        ref={formRef}
-        onFinish={onFinish}
-        initialValues={initialRequest}
-        layout="vertical"
-      >
+      <Form ref={formRef} onFinish={onFinish} initialValues={initialRequest} layout="vertical">
         <Card title="Thông tin cơ bản">
           <Row gutter={50}>
             <Col span={24} lg={8} md={12} sm={24}>
@@ -171,9 +144,7 @@ const AddCategory: React.FC = () => {
                 >
                   <TreeNode value={-1} title="Danh mục cha" />
                   {categories.map((item, index) => (
-                    <React.Fragment key={index}>
-                      {TreeCategory(item)}
-                    </React.Fragment>
+                    <React.Fragment key={index}>{TreeCategory(item)}</React.Fragment>
                   ))}
                 </TreeSelect>
               </Form.Item>
@@ -197,10 +168,7 @@ const AddCategory: React.FC = () => {
 
 const TreeCategory = (item: CategoryResponse) => {
   return (
-    <TreeNode
-      value={item.id}
-      title={item.code ? `${item.code} - ${item.name}` : item.name}
-    >
+    <TreeNode value={item.id} title={item.code ? `${item.code} - ${item.name}` : item.name}>
       {item.children.length > 0 && (
         <React.Fragment>
           {item.children.map((item, index) => (

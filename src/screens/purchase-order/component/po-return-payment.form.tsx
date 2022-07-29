@@ -1,13 +1,4 @@
-import {
-  Form,
-  FormInstance,
-  Card,
-  Row,
-  Col,
-  Radio,
-  Input,
-  Checkbox,
-} from "antd";
+import { Form, FormInstance, Card, Row, Col, Radio, Input, Checkbox } from "antd";
 import { Fragment, useState, useEffect } from "react";
 import NumberInput from "component/custom/number-input.custom";
 import { PoPaymentMethod, PoPaymentStatus } from "utils/Constants";
@@ -26,7 +17,7 @@ type POReturnPaymentFormProps = {
 const { Item, List } = Form;
 
 const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
-  props: POReturnPaymentFormProps
+  props: POReturnPaymentFormProps,
 ) => {
   const { formMain, totalReturn, totalVat } = props;
   const [showPayment, setShowPayment] = useState(false);
@@ -85,9 +76,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
       extra={
         <Item
           style={{ display: "inline", verticalAlign: "middle" }}
-          shouldUpdate={(prev, current) =>
-            prev[POField.total_paid] !== current[POField.total_paid]
-          }
+          shouldUpdate={(prev, current) => prev[POField.total_paid] !== current[POField.total_paid]}
         >
           {({ getFieldValue }) => {
             let total_paid = getFieldValue(POField.total_paid);
@@ -110,8 +99,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
         shouldUpdate={(prev, current) =>
           prev[POField.total_paid] !== current[POField.total_paid] ||
           prev[POField.total] !== current[POField.total] ||
-          prev[POField.payment_condition_name] !==
-            current[POField.payment_condition_name] ||
+          prev[POField.payment_condition_name] !== current[POField.payment_condition_name] ||
           prev[POField.payment_note] !== current[POField.payment_note]
         }
       >
@@ -132,8 +120,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                   rules={[
                                     {
                                       required: true,
-                                      message:
-                                        "Vui lòng chọn phương thức thanh toán",
+                                      message: "Vui lòng chọn phương thức thanh toán",
                                     },
                                   ]}
                                   label="Phương thức thanh toán"
@@ -146,10 +133,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                     >
                                       Chuyển khoản
                                     </Radio>
-                                    <Radio
-                                      value={PoPaymentMethod.CASH}
-                                      key={PoPaymentMethod.CASH}
-                                    >
+                                    <Radio value={PoPaymentMethod.CASH} key={PoPaymentMethod.CASH}>
                                       Tiền mặt
                                     </Radio>
                                   </Radio.Group>
@@ -167,9 +151,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                   ]}
                                 >
                                   <CustomDatepicker
-                                    disableDate={(date) =>
-                                      date <= moment().startOf("days")
-                                    }
+                                    disableDate={(date) => date <= moment().startOf("days")}
                                     style={{ width: "100%" }}
                                     placeholder="dd/mm/yyyy"
                                   />
@@ -182,26 +164,20 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                   rules={[
                                     {
                                       required: true,
-                                      message:
-                                        "Vui lòng nhập số tiền thanh toán",
+                                      message: "Vui lòng nhập số tiền thanh toán",
                                     },
                                   ]}
                                 >
                                   <NumberInput
                                     format={(a: string) => formatCurrency(a)}
-                                    replace={(a: string) =>
-                                      replaceFormatString(a)
-                                    }
+                                    replace={(a: string) => replaceFormatString(a)}
                                     min={0}
                                     placeholder="Nhập số tiền cần thanh toán"
                                   />
                                 </Item>
                               </Col>
                               <Col xs={24} lg={12}>
-                                <Item
-                                  name={[field.name, "reference"]}
-                                  label="Số tham chiếu"
-                                >
+                                <Item name={[field.name, "reference"]} label="Số tham chiếu">
                                   <Input
                                     placeholder="Nhập số tham chiếu"
                                     disabled={disabledRef}
@@ -210,14 +186,8 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                                 </Item>
                               </Col>
                               <Col xs={24} lg={24}>
-                                <Item
-                                  name={[field.name, "note"]}
-                                  label="Ghi chú"
-                                >
-                                  <Input
-                                    maxLength={255}
-                                    placeholder="Nhập ghi chú"
-                                  />
+                                <Item name={[field.name, "note"]} label="Ghi chú">
+                                  <Input maxLength={255} placeholder="Nhập ghi chú" />
                                 </Item>
                               </Col>
                             </Fragment>
@@ -229,8 +199,7 @@ const POReturnPaymentForm: React.FC<POReturnPaymentFormProps> = (
                 )}
               </Fragment>
             );
-          } else
-            return <EmptyPlaceholder text="Không có thanh toán để hoàn trả" />;
+          } else return <EmptyPlaceholder text="Không có thanh toán để hoàn trả" />;
         }}
       </Item>
     </Card>

@@ -25,7 +25,8 @@ function GoodAreComingTable({ data, total }: GoodsAreComing) {
           render: (text, record: GoodsAreComingItem) => {
             return (
               <div>
-                <Link to={"/"}>{record.from.name}</Link> <FiArrowRight /> <Link to={"/"}>{record.to.name}</Link>
+                <Link to={"/"}>{record.from.name}</Link> <FiArrowRight />{" "}
+                <Link to={"/"}>{record.to.name}</Link>
               </div>
             );
           },

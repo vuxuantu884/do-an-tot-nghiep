@@ -82,11 +82,13 @@ function OrderCreatePayments(props: PropType): JSX.Element {
           <Form.Item
             // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
             // required
-            style={{ marginBottom: 0 }}>
+            style={{ marginBottom: 0 }}
+          >
             <Radio.Group
               value={paymentMethod}
               onChange={(e) => changePaymentMethod(e.target.value)}
-              disabled={levelOrder > 2}>
+              disabled={levelOrder > 2}
+            >
               <Space size={20}>
                 <Radio value={PaymentMethodOption.COD}>COD</Radio>
                 <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
@@ -115,13 +117,14 @@ function OrderCreatePayments(props: PropType): JSX.Element {
                         fontWeight: 500,
                         color: "#222222",
                         padding: "6px",
-                      }}>
+                      }}
+                    >
                       Lựa chọn 1 hoặc nhiều phương thức thanh toán
                     </span>
                   }
                   key="1"
                   showArrow={false}
-                // disabled={levelOrder > 2}
+                  // disabled={levelOrder > 2}
                 >
                   <div style={{ width: "1200px", maxWidth: "100%" }}>
                     {/* <Divider style={{ margin: "10px 0" }} /> */}

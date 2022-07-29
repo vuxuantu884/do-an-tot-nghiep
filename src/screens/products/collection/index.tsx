@@ -1,10 +1,10 @@
-import { Button, Card, Form, Input, Menu, Dropdown} from "antd";
+import { Button, Card, Form, Input, Menu, Dropdown } from "antd";
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
-import { useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import search from "assets/img/search.svg";
-import { CollectionResponse,CollectionQuery } from "model/product/collection.model";
+import { CollectionResponse, CollectionQuery } from "model/product/collection.model";
 import { generateQuery } from "utils/AppUtils";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
@@ -16,7 +16,10 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
-import { getCollectionRequestAction, collectionDeleteAction } from "domain/actions/product/collection.action";
+import {
+  getCollectionRequestAction,
+  collectionDeleteAction,
+} from "domain/actions/product/collection.action";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { ProductPermission } from "config/permissions/product.permission";
 import deleteIcon from "assets/icon/deleteIcon.svg";
@@ -31,8 +34,8 @@ const deleteCollectionPermission = [ProductPermission.collections_delete];
 
 const { Item } = Form;
 
-const CURRENT_PAGE = 1
-const PAGE_LIMIT = 30
+const CURRENT_PAGE = 1;
+const PAGE_LIMIT = 30;
 
 const Collection = () => {
   const history = useHistory();
@@ -70,7 +73,7 @@ const Collection = () => {
 
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        {allowUpdateCollection &&
+        {allowUpdateCollection && (
           <Menu.Item key="1">
             <Button
               icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
@@ -88,9 +91,9 @@ const Collection = () => {
               Chỉnh sửa
             </Button>
           </Menu.Item>
-        }
+        )}
 
-        {allowDeleteCollection &&
+        {allowDeleteCollection && (
           <Menu.Item key="2">
             <Button
               icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
@@ -104,34 +107,30 @@ const Collection = () => {
               }}
               onClick={() => {
                 setCollectionId(row.id);
-                setConfirmDelete(true)
+                setConfirmDelete(true);
               }}
             >
               Xóa
             </Button>
           </Menu.Item>
-        }
+        )}
       </Menu>
     );
 
     return (
       <>
-        {isShowAction &&
-          <Dropdown
-            overlay={menu}
-            trigger={["click"]}
-            placement="bottomRight"
-          >
+        {isShowAction && (
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
             <Button
               type="text"
               className="p-0 ant-btn-custom"
               icon={<img src={threeDot} alt=""></img>}
             ></Button>
           </Dropdown>
-        }
+        )}
       </>
     );
-  }
+  };
 
   const columns: Array<ICustomTableColumType<CollectionResponse>> = [
     {
@@ -158,19 +157,19 @@ const Collection = () => {
       title: "Mô tả",
       dataIndex: "description",
       width: 350,
-      render: (value)=>{
-        return <TextEllipsis value={value} />
-      }
+      render: (value) => {
+        return <TextEllipsis value={value} />;
+      },
     },
     {
       title: "Người tạo",
       width: 200,
-      render: (value: string,item: CollectionResponse) => {
+      render: (value: string, item: CollectionResponse) => {
         return (
           <div>
-             <Link to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
-                  {item.created_by} - {item.created_name}
-             </Link>
+            <Link to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
+              {item.created_by} - {item.created_name}
+            </Link>
           </div>
         );
       },
@@ -186,19 +185,19 @@ const Collection = () => {
       visible: true,
       width: "5%",
       className: "saleorder-product-card-action ",
-      render: (value, row, index) => RenderActionColumn(value, row, index)
+      render: (value, row, index) => RenderActionColumn(value, row, index),
     },
   ];
   const onFinish = useCallback(
     (values: CollectionQuery) => {
-      let query = generateQuery({...values});
+      let query = generateQuery({ ...values });
 
-      const newValues = {...values, condition: values.condition?.trim()};
+      const newValues = { ...values, condition: values.condition?.trim() };
 
       setPrams({ ...newValues });
       return history.replace(`${UrlConfig.COLLECTIONS}?${query}`);
     },
-    [history]
+    [history],
   );
 
   const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
@@ -220,11 +219,11 @@ const Collection = () => {
       params.page = page;
       params.limit = size;
 
-      history.push({search: `?page=${page}&limit=${size}`})
+      history.push({ search: `?page=${page}&limit=${size}` });
 
-      setPrams({...params});
+      setPrams({ ...params });
     },
-    [params, history]
+    [params, history],
   );
 
   useEffect(() => {
@@ -255,20 +254,20 @@ const Collection = () => {
       }
     >
       <Card>
-        <div className="custom-filter" style={{paddingBottom: 20}}>
-            <Form onFinish={onFinish} layout="inline" initialValues={params}>
-              <Item name="condition" style={{flex: 'auto'}} className="input-search">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tìm kiếm theo ID/Tên nhóm hàng"
-                />
-              </Item>
-              <Item>
-                <Button htmlType="submit" type="primary">
-                  Lọc
-                </Button>
-              </Item>
-            </Form>
+        <div className="custom-filter" style={{ paddingBottom: 20 }}>
+          <Form onFinish={onFinish} layout="inline" initialValues={params}>
+            <Item name="condition" style={{ flex: "auto" }} className="input-search">
+              <Input
+                prefix={<img src={search} alt="" />}
+                placeholder="Tìm kiếm theo ID/Tên nhóm hàng"
+              />
+            </Item>
+            <Item>
+              <Button htmlType="submit" type="primary">
+                Lọc
+              </Button>
+            </Item>
+          </Form>
         </div>
         <CustomTable
           isRowSelection={false}
@@ -278,7 +277,7 @@ const Collection = () => {
           columns={columns}
           rowKey={(item: CollectionResponse) => item.id}
         />
-         <CustomPagination
+        <CustomPagination
           pagination={{
             showSizeChanger: true,
             pageSize: data.metadata.limit,

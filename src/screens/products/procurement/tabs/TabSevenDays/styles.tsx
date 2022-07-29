@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const StyledComponent = styled.div`
   .procurement-code {
-    color: #5656A2;
+    color: #5656a2;
     cursor: pointer;
     transition: color 0.3s;
 
@@ -37,16 +37,16 @@ export const StyledComponent = styled.div`
 
     &-blue {
       background: rgba(42, 42, 134, 0.1);
-      color: #2A2A86;
+      color: #2a2a86;
     }
 
     &-green {
       background: rgba(39, 174, 96, 0.1);
-      color: #27AE60;
+      color: #27ae60;
     }
 
     &-gray {
-      background: #F5F5F5;
+      background: #f5f5f5;
       color: #666666;
     }
   }

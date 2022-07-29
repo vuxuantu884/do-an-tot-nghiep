@@ -7,20 +7,17 @@ type PropTypes = {
 };
 
 function DeleteOrderBillRequestConfirmModal(props: PropTypes) {
-  const {
-    isVisibleDeleteOrderBillRequestConfirmModal,
-    handleCancel,
-    handleDeleteExportRequest,
-  } = props;
+  const { isVisibleDeleteOrderBillRequestConfirmModal, handleCancel, handleDeleteExportRequest } =
+    props;
 
   return (
     <ModalDeleteConfirm
       visible={isVisibleDeleteOrderBillRequestConfirmModal}
       onOk={() => {
-        handleDeleteExportRequest()
+        handleDeleteExportRequest();
       }}
       onCancel={() => handleCancel()}
-      title='Bạn có chắc chắn muốn xóa “Thông tin xuất hóa đơn”?'
+      title="Bạn có chắc chắn muốn xóa “Thông tin xuất hóa đơn”?"
       subTitle="Toàn bộ thông tin xuất hóa đơn sẽ bị xóa và bạn có thể phải thêm lại."
       okText="Đồng ý"
       cancelText="Hủy"

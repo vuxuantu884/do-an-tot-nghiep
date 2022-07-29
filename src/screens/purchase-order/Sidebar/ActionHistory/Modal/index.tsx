@@ -1,20 +1,20 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState } from "react";
 import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
-import { useDispatch } from 'react-redux';
+import { useDispatch } from "react-redux";
 import purify from "dompurify";
-import moment from 'moment';
+import moment from "moment";
 import { StyledComponent } from "./styles";
-import { POGetActionLogDetail } from 'domain/actions/po/po.action';
-import { PO_RETURN_HISTORY } from 'utils/Constants';
-import _ from 'lodash';
+import { POGetActionLogDetail } from "domain/actions/po/po.action";
+import { PO_RETURN_HISTORY } from "utils/Constants";
+import _ from "lodash";
 
 type PropType = {
   isModalVisible: boolean;
   actionId?: number;
   procurementCode?: string;
   onCancel: () => void;
-}
+};
 
 type SingleLogType = {
   key: string;
@@ -46,7 +46,7 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
       );
     }
     return value;
-  }
+  };
 
   const ACTION_LOG_SHORTEN_COLUMN = [
     {
@@ -118,12 +118,13 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
     return result;
   };
 
-
   useEffect(() => {
     const renderActionLog = (data?: string) => {
       if (data) {
-        const dataJson = JSON.parse(data || '{}');
-        const procurementItem = _.find(dataJson.procurements, { code: procurementCode });
+        const dataJson = JSON.parse(data || "{}");
+        const procurementItem = _.find(dataJson.procurements, {
+          code: procurementCode,
+        });
         return (
           <div>
             <div>{`Nhân viên: ${dataJson.created_name}`}</div>
@@ -133,38 +134,37 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
             <div>{`Thời gian: ${moment(dataJson.updated_date).format(dateFormat)}`}</div>
             <div>{`Merchandiser: ${dataJson?.merchandiser}`}</div>
             <div>{`Số diện thoại: ${dataJson?.phone}`}</div>
-            {procurementCode && <div style={{ color: "red" }}>Thông tin phiếu nhập {procurementCode}: </div>}
-            {
-              procurementItem?.procurement_items.length > 0 ?  (procurementItem?.procurement_items?.map((item: any, index: number) => (
+            {procurementCode && (
+              <div style={{ color: "red" }}>Thông tin phiếu nhập {procurementCode}: </div>
+            )}
+            {procurementItem?.procurement_items.length > 0 ? (
+              procurementItem?.procurement_items?.map((item: any, index: number) => (
                 <div key={index}>
-                  {item.quantity > 0 && <div>
-                    <div style={{ fontWeight: "bold" }}>{`- Tên: ${item.variant}`}</div>
-                    <div>{`- SKU: ${item.sku}`}</div>
-                    <div>{`- SL nhận được duyệt: ${item.quantity}`}</div>
-                    <div>{`- Người tạo: ${item.updated_name}`}</div>
-                    <div>{`- Thời gian: ${moment(item.updated_date).format(dateFormat)}`}</div>
-                  </div>}
+                  {item.quantity > 0 && (
+                    <div>
+                      <div style={{ fontWeight: "bold" }}>{`- Tên: ${item.variant}`}</div>
+                      <div>{`- SKU: ${item.sku}`}</div>
+                      <div>{`- SL nhận được duyệt: ${item.quantity}`}</div>
+                      <div>{`- Người tạo: ${item.updated_name}`}</div>
+                      <div>{`- Thời gian: ${moment(item.updated_date).format(dateFormat)}`}</div>
+                    </div>
+                  )}
                 </div>
-              ))) : (
-                <div>(Không có thông tin phiếu nhập)</div>
-              )
-            }
+              ))
+            ) : (
+              <div>(Không có thông tin phiếu nhập)</div>
+            )}
           </div>
-          
         );
       }
-      return (<></>)
-    }
+      return <></>;
+    };
 
     if (actionId) {
       dispatch(
         POGetActionLogDetail(actionId, (response) => {
-          let detailToTextBefore = renderActionLog(
-            response.before?.data
-          );
-          let detailToTextCurrent = renderActionLog(
-            response.current?.data
-          );
+          let detailToTextBefore = renderActionLog(response.before?.data);
+          let detailToTextCurrent = renderActionLog(response.current?.data);
           setSingleLogDetail([
             {
               key: "1",
@@ -203,7 +203,7 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
               current: response.current?.device || "",
             },
           ]);
-        })
+        }),
       );
     }
   }, [dispatch, actionId, procurementCode]);
@@ -243,7 +243,7 @@ function ActionPurchaseORderHistoryModal(props: PropType) {
         )}
       </StyledComponent>
     </Modal>
-  )
+  );
 }
 
-export default ActionPurchaseORderHistoryModal
+export default ActionPurchaseORderHistoryModal;

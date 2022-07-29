@@ -7,8 +7,8 @@ export const StyledComponent = styled.div`
     }
   }
   .iconEdit {
-		margin-right: 5px;
-		cursor: pointer;
+    margin-right: 5px;
+    cursor: pointer;
     color: rgb(42, 42, 134);
-	}
+  }
 `;

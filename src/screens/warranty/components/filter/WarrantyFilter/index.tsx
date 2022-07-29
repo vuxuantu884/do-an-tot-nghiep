@@ -34,7 +34,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   const initialValues = useMemo(() => {
@@ -56,7 +56,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
     (values) => {
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   useEffect(() => {
@@ -80,7 +80,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       placeholder="Chọn cửa hàng"
                       notFoundContent="Không tìm thấy kết quả"
-                      dropdownStyle={{minWidth: 180}}
+                      dropdownStyle={{ minWidth: 180 }}
                     >
                       {stores.map((item, index) => (
                         <Select.Option key={index} value={item.id}>
@@ -140,7 +140,7 @@ function WarrantyFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       placeholder="Loại"
                       notFoundContent="Không tìm thấy kết quả"
-                      dropdownStyle={{minWidth: 170}}
+                      dropdownStyle={{ minWidth: 170 }}
                     >
                       {WARRANTY_TYPE.map((item, index) => (
                         <Select.Option key={index} value={item.code}>

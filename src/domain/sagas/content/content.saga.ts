@@ -2,8 +2,8 @@ import {
   getCityByCountryApi,
   getDistrictByCityApi,
   getGroupsApi,
-  getRegionApi
-} from 'service/content/content.service';
+  getRegionApi,
+} from "service/content/content.service";
 import { YodyAction } from "base/base.action";
 import { takeLatest, call } from "@redux-saga/core/effects";
 import BaseResponse from "base/base.response";
@@ -15,14 +15,12 @@ import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { put, takeEvery } from "redux-saga/effects";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { GroupResponse } from 'model/content/group.model';
+import { GroupResponse } from "model/content/group.model";
 
 function* countryGetSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<CountryResponse>> = yield call(
-      countryGetApi
-    );
+    let response: BaseResponse<Array<CountryResponse>> = yield call(countryGetApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -42,10 +40,7 @@ function* countryGetSaga(action: YodyAction) {
 function* districtGetSaga(action: YodyAction) {
   const { countryId, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<DistrictResponse>> = yield call(
-      getDistrictApi,
-      countryId
-    );
+    let response: BaseResponse<Array<DistrictResponse>> = yield call(getDistrictApi, countryId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -65,10 +60,7 @@ function* districtGetSaga(action: YodyAction) {
 function* cityByCountryGetSaga(action: YodyAction) {
   const { countryId, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<any>> = yield call(
-      getCityByCountryApi,
-      countryId
-    );
+    let response: BaseResponse<Array<any>> = yield call(getCityByCountryApi, countryId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -88,10 +80,7 @@ function* cityByCountryGetSaga(action: YodyAction) {
 function* districtByCityGetSaga(action: YodyAction) {
   const { cityId, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<DistrictResponse>> = yield call(
-      getDistrictByCityApi,
-      cityId
-    );
+    let response: BaseResponse<Array<DistrictResponse>> = yield call(getDistrictByCityApi, cityId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -111,10 +100,7 @@ function* districtByCityGetSaga(action: YodyAction) {
 function* wardGetSaga(action: YodyAction) {
   const { districtId, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<DistrictResponse>> = yield call(
-      getWardApi,
-      districtId
-    );
+    let response: BaseResponse<Array<DistrictResponse>> = yield call(getWardApi, districtId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -154,9 +140,7 @@ function* groupGetSaga(action: YodyAction) {
 function* GetRegionSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<CountryResponse>> = yield call(
-      getRegionApi
-    );
+    let response: BaseResponse<Array<CountryResponse>> = yield call(getRegionApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);

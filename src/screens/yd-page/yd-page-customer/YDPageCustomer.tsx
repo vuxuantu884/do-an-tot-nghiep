@@ -7,9 +7,14 @@ import YDPageCustomerView from "screens/yd-page/yd-page-customer/YDPageCustomerV
 import YDPageCustomerCreateUpdate from "screens/yd-page/yd-page-customer/YDPageCustomerCreateUpdate/YDPageCustomerCreateUpdate";
 
 const customersReadPermission = [YDpagePermission.customers_read, YDpagePermission.orders_create];
-const customersCreatePermission = [YDpagePermission.customers_create, YDpagePermission.orders_create];
-const customersUpdatePermission = [YDpagePermission.customers_update, YDpagePermission.orders_create];
-
+const customersCreatePermission = [
+  YDpagePermission.customers_create,
+  YDpagePermission.orders_create,
+];
+const customersUpdatePermission = [
+  YDpagePermission.customers_update,
+  YDpagePermission.orders_create,
+];
 
 const YDPageCustomer = (props: any) => {
   const {
@@ -28,7 +33,7 @@ const YDPageCustomer = (props: any) => {
     addFpPhone,
     deleteFpPhone,
     setFpDefaultPhone,
-		setCustomerDefaultPhone,
+    setCustomerDefaultPhone,
   } = props;
 
   const [allowCreateCustomer] = useAuthorization({
@@ -40,52 +45,55 @@ const YDPageCustomer = (props: any) => {
     not: false,
   });
 
-
   return (
     <div className="yd-page-customer">
       <AuthWrapper acceptPermissions={customersReadPermission} passThrough>
-        {(allowed: boolean) => (allowed ?
-          <>
-            {(customer && !isEditCustomer) &&
-              <YDPageCustomerView
-                allowUpdateCustomer={allowUpdateCustomer}
-                setIsEditCustomer={setIsEditCustomer}
-                customer={customer}
-                newCustomerInfo={newCustomerInfo}
-                setNewCustomerInfo={setNewCustomerInfo}
-                getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
-                customerPhone={customerPhone}
-                customerDefaultPhone={customerDefaultPhone}
-                customerPhones={customerPhones}
-                addFpPhone={addFpPhone}
-                deleteFpPhone={deleteFpPhone}
-                setFpDefaultPhone={setFpDefaultPhone}
-								setCustomerDefaultPhone={setCustomerDefaultPhone}
-              />
-            }
+        {(allowed: boolean) =>
+          allowed ? (
+            <>
+              {customer && !isEditCustomer && (
+                <YDPageCustomerView
+                  allowUpdateCustomer={allowUpdateCustomer}
+                  setIsEditCustomer={setIsEditCustomer}
+                  customer={customer}
+                  newCustomerInfo={newCustomerInfo}
+                  setNewCustomerInfo={setNewCustomerInfo}
+                  getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
+                  customerPhone={customerPhone}
+                  customerDefaultPhone={customerDefaultPhone}
+                  customerPhones={customerPhones}
+                  addFpPhone={addFpPhone}
+                  deleteFpPhone={deleteFpPhone}
+                  setFpDefaultPhone={setFpDefaultPhone}
+                  setCustomerDefaultPhone={setCustomerDefaultPhone}
+                />
+              )}
 
-            {(!customer || (customer && isEditCustomer)) &&
-              <YDPageCustomerCreateUpdate
-                allowCreateCustomer={allowCreateCustomer}
-                allowUpdateCustomer={allowUpdateCustomer}
-                customerGroups={customerGroups}
-                areaList={areaList}
-                customer={customer}
-                newCustomerInfo={newCustomerInfo}
-                setNewCustomerInfo={setNewCustomerInfo}
-                getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
-                customerPhone={customerPhone}
-                customerDefaultPhone={customerDefaultPhone}
-                customerPhones={customerPhones}
-                customerFbName={customerFbName}
-                addFpPhone={addFpPhone}
-                deleteFpPhone={deleteFpPhone}
-                setFpDefaultPhone={setFpDefaultPhone}
-								setCustomerDefaultPhone={setCustomerDefaultPhone}
-              />
-            }
-          </>
-          : <NoPermission />)}
+              {(!customer || (customer && isEditCustomer)) && (
+                <YDPageCustomerCreateUpdate
+                  allowCreateCustomer={allowCreateCustomer}
+                  allowUpdateCustomer={allowUpdateCustomer}
+                  customerGroups={customerGroups}
+                  areaList={areaList}
+                  customer={customer}
+                  newCustomerInfo={newCustomerInfo}
+                  setNewCustomerInfo={setNewCustomerInfo}
+                  getCustomerWhenPhoneChange={getCustomerWhenPhoneChange}
+                  customerPhone={customerPhone}
+                  customerDefaultPhone={customerDefaultPhone}
+                  customerPhones={customerPhones}
+                  customerFbName={customerFbName}
+                  addFpPhone={addFpPhone}
+                  deleteFpPhone={deleteFpPhone}
+                  setFpDefaultPhone={setFpDefaultPhone}
+                  setCustomerDefaultPhone={setCustomerDefaultPhone}
+                />
+              )}
+            </>
+          ) : (
+            <NoPermission />
+          )
+        }
       </AuthWrapper>
     </div>
   );

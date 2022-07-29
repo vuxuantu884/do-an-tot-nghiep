@@ -6,8 +6,8 @@ export const StyledComponent = styled.div`
     background-color: #ffffff;
     border: 1px solid #cccccc;
     &:hover {
-        background-color: #AFEEEE;
-        border: 1px solid #2a2a86;
+      background-color: #afeeee;
+      border: 1px solid #2a2a86;
     }
   }
 `;
@@ -137,7 +137,6 @@ export const StyledProductFilter = styled.div`
   }
 `;
 
-
 export const StyledProductLink = styled.div`
   a {
     &:hover {
@@ -145,4 +144,3 @@ export const StyledProductLink = styled.div`
     }
   }
 `;
-

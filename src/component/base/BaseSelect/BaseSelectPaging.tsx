@@ -5,7 +5,12 @@ import debounce from "lodash/debounce";
 import { AppConfig } from "../../../config/app.config";
 import BaseSelectPagination from "./BaseSelectPagination";
 
-function BaseSelectPaging<T>({ metadata, fetchData, valueSearch, ...props }: BaseSelectPagingType<T>) {
+function BaseSelectPaging<T>({
+  metadata,
+  fetchData,
+  valueSearch,
+  ...props
+}: BaseSelectPagingType<T>) {
   const totalPage = metadata ? Math.ceil((metadata.total || 1) / (metadata.limit || 1)) : 1;
 
   const onSearchValue = (value: string) => {
@@ -14,7 +19,10 @@ function BaseSelectPaging<T>({ metadata, fetchData, valueSearch, ...props }: Bas
   const onChange = (type: "next" | "prev") => {
     let newPage = type === "next" ? metadata.page + 1 : metadata.page - 1;
     if ((type === "prev" && newPage >= 1) || (type === "next" && newPage <= totalPage)) {
-      fetchData({ [`${valueSearch ? 'info' : 'condition'}`]: valueSearch?.trim(), page: newPage });
+      fetchData({
+        [`${valueSearch ? "info" : "condition"}`]: valueSearch?.trim(),
+        page: newPage,
+      });
     }
   };
   return (

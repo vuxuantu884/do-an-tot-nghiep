@@ -1,19 +1,13 @@
 import { Select, Spin } from "antd";
 import { AccountResponse } from "model/account/account.model";
-import React, {
-  MutableRefObject,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { MutableRefObject, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import {
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
   isFetchApiSuccessful,
-	removeMultiWhitespaceAndTrimText,
+  removeMultiWhitespaceAndTrimText,
 } from "utils/AppUtils";
 import CustomSelect from "../select.custom";
 
@@ -50,7 +44,7 @@ function AccountCustomSearchSelect(props: PropTypes) {
           searchAccountPublicApi({
             condition: value,
             limit: undefined,
-            status: isSearchAccountActive ? "active": undefined,
+            status: isSearchAccountActive ? "active" : undefined,
           })
             .then((response) => {
               if (isFetchApiSuccessful(response)) {
@@ -70,9 +64,7 @@ function AccountCustomSearchSelect(props: PropTypes) {
         }
       };
 
-      handleDelayActionWhenInsertTextInSearchInput(inputRef, () =>
-        getAccounts(value),
-      );
+      handleDelayActionWhenInsertTextInSearchInput(inputRef, () => getAccounts(value));
     },
     [isSearchAccountActive, setDataToSelect, dispatch, initDataToSelect],
   );
@@ -95,9 +87,7 @@ function AccountCustomSearchSelect(props: PropTypes) {
       allowClear
       optionFilterProp="children"
       placeholder={placeholder}
-      notFoundContent={
-        isLoading ? <Spin size="small" /> : "Không tìm thấy kết quả"
-      }
+      notFoundContent={isLoading ? <Spin size="small" /> : "Không tìm thấy kết quả"}
       {...rest}
     >
       {dataToSelect.length > 0 &&

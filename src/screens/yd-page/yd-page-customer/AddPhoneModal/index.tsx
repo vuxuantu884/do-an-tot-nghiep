@@ -33,20 +33,20 @@ const AddPhoneModal: React.FC<AddPhoneModalProps> = (props: AddPhoneModalProps) 
     (e) => {
       setNewPhone(e.target.value);
     },
-    [setNewPhone]
+    [setNewPhone],
   );
   const addNewPhone = useCallback(() => {
     form.validateFields().then(() => {
       addFpPhone(newPhone, () => {
         form.setFieldsValue({
-          "phone": ""
-        })
+          phone: "",
+        });
       });
     });
   }, [addFpPhone, newPhone, form]);
   useEffect(() => {
     form.resetFields();
-  }, [visible, form])
+  }, [visible, form]);
   return (
     <Modal
       width="400px"

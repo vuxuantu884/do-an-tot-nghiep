@@ -1,11 +1,11 @@
 import styled from "styled-components";
 
 export const InventoryFiltersWrapper = styled.div`
-.custom-filter {
-  .page-filter {
-    padding-top: 20px;
+  .custom-filter {
+    .page-filter {
+      padding-top: 20px;
+    }
   }
-}
 `;
 
 export const BaseFilterWrapper = styled.div`
@@ -42,7 +42,7 @@ export const BaseFilterWrapper = styled.div`
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
-  
+
   #price_max {
     border-left: none;
     border-top-left-radius: 0;
@@ -51,28 +51,28 @@ export const BaseFilterWrapper = styled.div`
   .ant-select {
     .ant-select-selector {
       .ant-select-selection-item {
-        background-color: #2A2A86;
+        background-color: #2a2a86;
         border-radius: 6px;
         font-style: normal;
         font-weight: normal;
         font-size: 14px;
         line-height: 18px;
         font-family: Roboto;
-        .ant-select-selection-item-content, .ant-select-selection-item-remove {
-          color: #FFFFFF;
+        .ant-select-selection-item-content,
+        .ant-select-selection-item-remove {
+          color: #ffffff;
         }
       }
     }
   }
   .active {
-    color: #FFFFFF;
+    color: #ffffff;
     border-color: rgba(42, 42, 134, 0.1);
-    background-color: #2A2A86;
+    background-color: #2a2a86;
   }
   .deactive {
     color: #2a2a86;
     border-color: rgba(42, 42, 134, 0.05);
     background-color: rgba(42, 42, 134, 0.05);
   }
-  
 `;

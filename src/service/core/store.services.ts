@@ -10,15 +10,13 @@ import { StoreCreateRequest, StoreUpdateRequest } from "model/core/store.model";
 import { StoreCustomResponse } from "model/response/order/order.response";
 
 export const storeGetApi = (
-  query?: StoreQuery
+  query?: StoreQuery,
 ): Promise<BaseResponse<PageResponse<StoreResponse>>> => {
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.CORE}/stores?${params}`);
 };
 
-export const storeRankGetApi = (): Promise<
-  BaseResponse<Array<StoreRankResponse>>
-> => {
+export const storeRankGetApi = (): Promise<BaseResponse<Array<StoreRankResponse>>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/ranks`);
 };
 
@@ -30,33 +28,29 @@ export const storesDetailApi = (id: number): Promise<BaseResponse<string>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/stores/${id}`);
 };
 
-export const storesDetailCustomApi = (
-  id: number
-): Promise<BaseResponse<StoreCustomResponse>> => {
+export const storesDetailCustomApi = (id: number): Promise<BaseResponse<StoreCustomResponse>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/stores/${id}`);
 };
 
 export const storesPutApi = (
   id: number,
-  request: StoreUpdateRequest
+  request: StoreUpdateRequest,
 ): Promise<BaseResponse<StoreResponse>> => {
   return BaseAxios.put(`${ApiConfig.CORE}/stores/${id}`, request);
 };
 
 export const storesPostApi = (
-  request: StoreCreateRequest
+  request: StoreCreateRequest,
 ): Promise<BaseResponse<StoreResponse>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/stores`, request);
 };
 
 export const storeValidateApi = (
-  request: StoreCreateRequest
+  request: StoreCreateRequest,
 ): Promise<BaseResponse<StoreResponse>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/stores/validate`, request);
 };
 
-export const storeGetTypeApi = (): Promise<
-  BaseResponse<Array<StoreTypeRequest>>
-> => {
+export const storeGetTypeApi = (): Promise<BaseResponse<Array<StoreTypeRequest>>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/store-type`);
 };

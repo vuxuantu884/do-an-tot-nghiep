@@ -3,21 +3,21 @@ import { STATUS_INVENTORY_TRANSFER } from "../../../constants";
 
 export const BG_COLOR_TAG = {
   TRANSFERRING: {
-    color: '#FCAF17'
+    color: "#FCAF17",
   },
   CONFIRM: {
-    color: '#666666'
+    color: "#666666",
   },
   PENDING: {
-    color: '#FCAF17'
+    color: "#FCAF17",
   },
   RECEIVED: {
-    color: '#27AE60'
+    color: "#27AE60",
   },
   CANCELED: {
-    color: '#E24343'
+    color: "#E24343",
   },
-}
+};
 
 export const InventoryTransferTabWrapper = styled.div`
   padding: 0px 0 20px 0;
@@ -59,7 +59,7 @@ export const InventoryTransferTabWrapper = styled.div`
     &-icon {
       margin-left: 10px;
       display: none;
-      color: #5656A1;
+      color: #5656a1;
       cursor: pointer;
     }
     &:hover {
@@ -68,10 +68,9 @@ export const InventoryTransferTabWrapper = styled.div`
       }
     }
   }
-  
+
   .mr-5 {
     margin-right: 5px;
     height: 20px;
   }
-  
 `;

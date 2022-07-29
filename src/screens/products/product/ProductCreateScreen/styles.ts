@@ -43,11 +43,11 @@ export const StyledComponent = styled.div`
       }
     }
   }
-  .button-plus{
-    width: 37px !important; 
-    height: 37px !important; 
+  .button-plus {
+    width: 37px !important;
+    height: 37px !important;
     padding: 0;
-    color: ${bluePlus}
+    color: ${bluePlus};
   }
   .care-title {
     font-weight: 500;
@@ -60,8 +60,8 @@ export const StyledComponent = styled.div`
     line-height: 32px;
   }
   .button-plus {
-    border: 1px solid #E5E5E5;
-    background: #FFFFFF;
-    color: #757575; 
+    border: 1px solid #e5e5e5;
+    background: #ffffff;
+    color: #757575;
   }
 `;

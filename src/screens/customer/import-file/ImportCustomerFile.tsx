@@ -1,48 +1,49 @@
-import React, {useCallback, useEffect, useState} from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {Button, Modal, Radio, Space, Typography, Upload,} from "antd";
+import { Button, Modal, Radio, Space, Typography, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
-import {showSuccess, showWarning} from "utils/ToastUtils";
+import { showSuccess, showWarning } from "utils/ToastUtils";
 import { importCustomerAction } from "domain/actions/customer/customer.action";
 import excelIcon from "assets/icon/icon-excel.svg";
 import { isNullOrUndefined } from "utils/AppUtils";
-import {HttpStatus} from "config/http-status.config";
+import { HttpStatus } from "config/http-status.config";
 import BaseResponse from "base/base.response";
-import {getProgressImportCustomerApi} from "service/customer/customer.service";
-import {EnumJobStatus} from "config/enum.config";
+import { getProgressImportCustomerApi } from "service/customer/customer.service";
+import { EnumJobStatus } from "config/enum.config";
 import ProgressImportCustomerModal from "screens/customer/import-file/ProgressImportCustomerModal";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-import {ImportCustomerQuery} from "model/query/customer.query";
+import { ImportCustomerQuery } from "model/query/customer.query";
 
 type ImportCustomerFileType = {
   onCancel: () => void;
   onOk: () => void;
 };
 
-const exampleCustomerFile = 'https://cdn.yody.io/files/customer-import/template.xlsx';
+const exampleCustomerFile = "https://cdn.yody.io/files/customer-import/template.xlsx";
 
-const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
-  props: ImportCustomerFileType
-) => {
+const ImportCustomerFile: React.FC<ImportCustomerFileType> = (props: ImportCustomerFileType) => {
   const { onOk, onCancel } = props;
-  
+
   const dispatch = useDispatch();
 
   const [isVisibleImportModal, setIsVisibleImportModal] = useState(true);
   const [fileList, setFileList] = useState<Array<File>>([]);
-  const [insertIfBlank , setInsertIfBlank] = useState(false);
+  const [insertIfBlank, setInsertIfBlank] = useState(false);
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
   const [importProgressPercent, setImportProgressPercent] = useState<number>(0);
   const [processCode, setProcessCode] = useState(null);
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
-  const [isVisibleExitImportCustomerModal, setIsVisibleExitImportCustomerModal] = useState<boolean>(false);
+  const [isVisibleExitImportCustomerModal, setIsVisibleExitImportCustomerModal] =
+    useState<boolean>(false);
 
   // upload customer file
   const beforeUploadFile = useCallback((file) => {
-    const isExcelFile = file.type === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' || file.type === 'application/vnd.ms-excel';
+    const isExcelFile =
+      file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+      file.type === "application/vnd.ms-excel";
     if (!isExcelFile) {
-      showWarning('Vui lòng chọn đúng định dạng file excel .xlsx .xls');
+      showWarning("Vui lòng chọn đúng định dạng file excel .xlsx .xls");
       return Upload.LIST_IGNORE;
     } else {
       setFileList([file]);
@@ -52,7 +53,7 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
 
   const onRemoveFile = (file: any) => {
     setFileList([]);
-  }
+  };
 
   const callbackImportCustomer = (response: any) => {
     setIsVisibleImportModal(false);
@@ -63,37 +64,42 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
     } else {
       onCancel && onCancel();
     }
-  }
-  
+  };
+
   const onOkImportModal = () => {
     if (fileList?.length) {
       const queryParams: ImportCustomerQuery = {
         file: fileList[0],
         insertIfBlank: insertIfBlank,
-      }
+      };
       dispatch(importCustomerAction(queryParams, callbackImportCustomer));
     } else {
-      showWarning("Vui lòng chọn file!")
+      showWarning("Vui lòng chọn file!");
     }
-  }
+  };
 
   const onCancelImportModal = () => {
     setIsVisibleImportModal(false);
     onCancel && onCancel();
-  }
+  };
 
   const resetProgress = () => {
     setProcessCode(null);
     setImportProgressPercent(0);
     setProgressData(null);
-  }
-  
+  };
+
   const getProgressImportFile = useCallback(() => {
-    let getImportProgressPromise: Promise<BaseResponse<any>> = getProgressImportCustomerApi(processCode);
+    let getImportProgressPromise: Promise<BaseResponse<any>> =
+      getProgressImportCustomerApi(processCode);
 
     Promise.all([getImportProgressPromise]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(response.data.total)
+        ) {
           const processData = response.data;
           setProgressData(processData);
           const progressCount = processData.processed;
@@ -111,7 +117,7 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
             //   showError(processData.api_error);
             // }
           } else {
-            const percent = Math.floor(progressCount / processData.total * 100);
+            const percent = Math.floor((progressCount / processData.total) * 100);
             setImportProgressPercent(percent);
           }
         }
@@ -128,20 +134,19 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
     return () => clearInterval(getFileInterval);
   }, [getProgressImportFile, importProgressPercent, processCode]);
 
-
   const onOKProgressImportCustomer = () => {
     resetProgress();
     setIsVisibleProgressModal(false);
     onOk && onOk();
-  }
+  };
 
   const onCancelProgressImportCustomer = () => {
     setIsVisibleExitImportCustomerModal(true);
-  }
+  };
 
   const onCancelExitImportCustomerModal = () => {
     setIsVisibleExitImportCustomerModal(false);
-  }
+  };
 
   const onOkExitImportCustomerModal = () => {
     setIsVisibleExitImportCustomerModal(false);
@@ -156,13 +161,12 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
     //     }
     //   })
     // );
-  }
+  };
 
   const checkDisableOkButton = useCallback(() => {
     return !fileList.length;
   }, [fileList.length]);
   // end upload customer file
-
 
   return (
     <div>
@@ -180,9 +184,14 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
       >
         <div>
           <Typography.Text>
-            <img src={excelIcon} alt="" /> <a href={exampleCustomerFile} download="Import_Transfer">file import khách hàng mẫu (.xlsx)</a>
+            <img src={excelIcon} alt="" />{" "}
+            <a href={exampleCustomerFile} download="Import_Transfer">
+              file import khách hàng mẫu (.xlsx)
+            </a>
           </Typography.Text>
-          <div style={{ marginTop: "20px", marginBottom: "5px" }}><b>Tải file lên</b></div>
+          <div style={{ marginTop: "20px", marginBottom: "5px" }}>
+            <b>Tải file lên</b>
+          </div>
           <Upload
             beforeUpload={beforeUploadFile}
             onRemove={onRemoveFile}
@@ -192,16 +201,29 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
             <Button icon={<UploadOutlined />}>Chọn file</Button>
           </Upload>
 
-          <Radio.Group defaultValue={insertIfBlank} style={{ marginTop: 20}} onChange={(e) => setInsertIfBlank(e.target.value)}>
+          <Radio.Group
+            defaultValue={insertIfBlank}
+            style={{ marginTop: 20 }}
+            onChange={(e) => setInsertIfBlank(e.target.value)}
+          >
             <Space direction="vertical">
-              <Radio value={false}>Tạo thông tin KH mới + Cập nhật thông tin KH cũ: <b>Chỉ cập nhật thông tin những trường trống, những trường đã có thông tin thì giữ nguyên thông tin cũ của KH</b></Radio>
-              <Radio value={true} style={{ marginTop: 10}}>Tạo thông tin KH mới + Cập nhật thông tin KH cũ: <b>Cập nhật toàn bộ thông tin mới chèn lên thông tin cũ của KH</b></Radio>
+              <Radio value={false}>
+                Tạo thông tin KH mới + Cập nhật thông tin KH cũ:{" "}
+                <b>
+                  Chỉ cập nhật thông tin những trường trống, những trường đã có thông tin thì giữ
+                  nguyên thông tin cũ của KH
+                </b>
+              </Radio>
+              <Radio value={true} style={{ marginTop: 10 }}>
+                Tạo thông tin KH mới + Cập nhật thông tin KH cũ:{" "}
+                <b>Cập nhật toàn bộ thông tin mới chèn lên thông tin cũ của KH</b>
+              </Radio>
             </Space>
           </Radio.Group>
         </div>
       </Modal>
 
-      {isVisibleProgressModal &&
+      {isVisibleProgressModal && (
         <ProgressImportCustomerModal
           visible={isVisibleProgressModal}
           onCancel={onCancelProgressImportCustomer}
@@ -210,9 +232,9 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
           progressPercent={importProgressPercent}
           isDownloading={isDownloading}
         />
-      }
+      )}
 
-      {isVisibleExitImportCustomerModal &&
+      {isVisibleExitImportCustomerModal && (
         <Modal
           width="600px"
           centered
@@ -227,12 +249,17 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src={DeleteIcon} alt="" />
             <div style={{ marginLeft: 15 }}>
-              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải file lên không?</strong>
-              <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải file khách hàng lên. <br /> Các khách hàng đã tải thành công sẽ được thêm vào danh sách khách hàng"</div>
+              <strong style={{ fontSize: 16 }}>
+                Bạn có chắc chắn muốn hủy tải file lên không?
+              </strong>
+              <div style={{ fontSize: 14 }}>
+                Hệ thống sẽ dừng việc tải file khách hàng lên. <br /> Các khách hàng đã tải thành
+                công sẽ được thêm vào danh sách khách hàng"
+              </div>
             </div>
           </div>
         </Modal>
-      }
+      )}
     </div>
   );
 };

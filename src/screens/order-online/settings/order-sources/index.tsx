@@ -1,47 +1,45 @@
-import {DeleteOutlined, PlusOutlined} from "@ant-design/icons";
+import { DeleteOutlined, PlusOutlined } from "@ant-design/icons";
 import { Button, Card, Form, Input, Select } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import ContentContainer from "component/container/content.container";
 import FormOrderSource from "component/forms/FormOrderSource";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import CustomFilter from "component/table/custom.filter";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {HttpStatus} from "config/http-status.config";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { HttpStatus } from "config/http-status.config";
 import UrlConfig from "config/url.config";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   actionAddOrderSource,
   actionDeleteOrderSource,
   actionEditOrderSource,
   actionFetchListOrderSources,
 } from "domain/actions/settings/order-sources.action";
-import {DepartmentResponse} from "model/account/department.model";
-import {modalActionType} from "model/modal/modal.model";
+import { DepartmentResponse } from "model/account/department.model";
+import { modalActionType } from "model/modal/modal.model";
 import {
   OrderSourceModel,
   OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import queryString from "query-string";
-import React, {useCallback, useEffect, useLayoutEffect, useMemo, useState} from "react";
-import {useDispatch} from "react-redux";
-import {withRouter} from "react-router";
-import {useHistory} from "react-router-dom";
-import {deleteMultiOrderSourceService} from "service/order/order.service";
-import {generateQuery} from "utils/AppUtils";
-import {showError, showSuccess} from "utils/ToastUtils";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
+import { useDispatch } from "react-redux";
+import { withRouter } from "react-router";
+import { useHistory } from "react-router-dom";
+import { deleteMultiOrderSourceService } from "service/order/order.service";
+import { generateQuery } from "utils/AppUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 import { primaryColor } from "utils/global-styles/variables";
 import { SourcePermissions } from "config/permissions/setting.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import NoPermission from "screens/no-permission.screen";
 import "assets/css/custom-filter.scss";
 import { callApiNative } from "utils/ApiUtils";
-import {
-  getSourcesWithParamsService
-} from "service/order/order.service";
+import { getSourcesWithParamsService } from "service/order/order.service";
 import { DepartmentGetListAction } from "domain/actions/account/account.action";
 import TreeDepartment from "component/tree-node/tree-department";
 import SourceModal from "./SourceModal";
@@ -68,7 +66,7 @@ const actionsDefault: Array<MenuAction> = [
 ];
 
 function OrderSources(props: PropTypes) {
-  const {location} = props;
+  const { location } = props;
   const queryParamsParsed: any = queryString.parse(location.search);
 
   const DEFAULT_PAGINATION = {
@@ -86,8 +84,9 @@ function OrderSources(props: PropTypes) {
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>([]);
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [modalSingleOrderSource, setModalSingleOrderSource] =
-    useState<OrderSourceModel | null>(null);
+  const [modalSingleOrderSource, setModalSingleOrderSource] = useState<OrderSourceModel | null>(
+    null,
+  );
 
   const [form] = Form.useForm();
 
@@ -122,7 +121,7 @@ function OrderSources(props: PropTypes) {
       render: (value) => {
         if (value) {
           return (
-            <span title={value} className="title" style={{color: primaryColor, fontWeight: 500}}>
+            <span title={value} className="title" style={{ color: primaryColor, fontWeight: 500 }}>
               {value}
             </span>
           );
@@ -232,15 +231,12 @@ function OrderSources(props: PropTypes) {
     }
   };
 
-  const onMenuClick = useCallback(
-    (index: number) => {
-      switch (index) {
-        case ACTIONS_INDEX.DELETE:
-          setIsShowConfirmDelete(true);
-      }
-    },
-    []
-  );
+  const onMenuClick = useCallback((index: number) => {
+    switch (index) {
+      case ACTIONS_INDEX.DELETE:
+        setIsShowConfirmDelete(true);
+    }
+  }, []);
 
   const actions = useMemo(() => {
     return actionsDefault.filter((item) => {
@@ -249,9 +245,7 @@ function OrderSources(props: PropTypes) {
       }
       return false;
     });
-  }, [
-    allowDeleteSource,
-  ]);
+  }, [allowDeleteSource]);
 
   const handleNavigateByQueryParams = (queryParams: any) => {
     history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
@@ -263,10 +257,10 @@ function OrderSources(props: PropTypes) {
     const resultParams = {
       ...queryParams,
       ...values,
-      department_ids: values.department_ids ? values.department_ids.join(',') : null,
-			page: 1,
+      department_ids: values.department_ids ? values.department_ids.join(",") : null,
+      page: 1,
     };
-    fetchData({...resultParams,name: name.trim()});
+    fetchData({ ...resultParams, name: name.trim() });
     handleNavigateByQueryParams(resultParams);
   };
 
@@ -295,15 +289,23 @@ function OrderSources(props: PropTypes) {
     return <React.Fragment>Bạn có chắc chắn muốn xóa danh sách đã chọn ?</React.Fragment>;
   };
 
-  const fetchData = useCallback(async(params: any) => {
-    const res: OrderSourceResponseModel = await callApiNative({isShowLoading: false},dispatch,getSourcesWithParamsService,params ?? queryParams);
+  const fetchData = useCallback(
+    async (params: any) => {
+      const res: OrderSourceResponseModel = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        getSourcesWithParamsService,
+        params ?? queryParams,
+      );
 
-    if (res) {
-      setListOrderSources(res.items);
-      setTotal(res.metadata.total);
-    }
-    setTableLoading(false);
-  }, [dispatch, queryParams]);
+      if (res) {
+        setListOrderSources(res.items);
+        setTotal(res.metadata.total);
+      }
+      setTableLoading(false);
+    },
+    [dispatch, queryParams],
+  );
 
   const gotoFirstPage = () => {
     const resultParams = {
@@ -315,11 +317,11 @@ function OrderSources(props: PropTypes) {
   };
 
   const handleFormOrderSourceFormatFormValues = (
-    formValues: OrderSourceModel
+    formValues: OrderSourceModel,
   ): OrderSourceModel => {
     return {
       ...formValues,
-      code: formValues.code? formValues.code: undefined,
+      code: formValues.code ? formValues.code : undefined,
     };
   };
 
@@ -330,14 +332,14 @@ function OrderSources(props: PropTypes) {
 
       const resultParams = {
         ...queryParams,
-        name: queryParams.name ? queryParams.name.trim() : ""
+        name: queryParams.name ? queryParams.name.trim() : "",
       };
 
       fetchData(resultParams);
       history.push(`${UrlConfig.ORDER_SOURCES}?${generateQuery(queryParams)}`);
       window.scrollTo(0, 0);
     },
-    [history, queryParams, fetchData]
+    [history, queryParams, fetchData],
   );
 
   const handleFormOrderSource = {
@@ -346,7 +348,7 @@ function OrderSources(props: PropTypes) {
         actionAddOrderSource(handleFormOrderSourceFormatFormValues(formValues), () => {
           setIsShowModalOrderSource(false);
           gotoFirstPage();
-        })
+        }),
       );
     },
     edit: (formValues: OrderSourceModel) => {
@@ -357,15 +359,12 @@ function OrderSources(props: PropTypes) {
             handleFormOrderSourceFormatFormValues(formValues),
             () => {
               dispatch(
-                actionFetchListOrderSources(
-                  queryParams,
-                  (data: OrderSourceResponseModel) => {
-                    setListOrderSources(data.items);
-                  }
-                )
+                actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
+                  setListOrderSources(data.items);
+                }),
               );
-            }
-          )
+            },
+          ),
         );
         setIsShowModalOrderSource(false);
       }
@@ -376,22 +375,22 @@ function OrderSources(props: PropTypes) {
           actionDeleteOrderSource(modalSingleOrderSource.id, () => {
             setIsShowModalOrderSource(false);
             gotoFirstPage();
-          })
+          }),
         );
       }
     },
   };
 
   useLayoutEffect(() => {
-      setTableLoading(true);
-      // eslint-disable-next-line react-hooks/exhaustive-deps
+    setTableLoading(true);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
     const valuesFromParams: formValuesType = {
       name: queryParamsParsed.name || undefined,
       department_ids: queryParamsParsed.department_ids
-        ? queryParamsParsed.department_ids.split(',').map((i: any) => Number(i))
+        ? queryParamsParsed.department_ids.split(",").map((i: any) => Number(i))
         : undefined,
     };
     form.setFieldsValue(valuesFromParams);
@@ -419,14 +418,16 @@ function OrderSources(props: PropTypes) {
   };
 
   useEffect(() => {
-    dispatch(DepartmentGetListAction((response: DepartmentResponse[]) => {
-      if (response) {
-        let newDepartments: Array<object> = [];
+    dispatch(
+      DepartmentGetListAction((response: DepartmentResponse[]) => {
+        if (response) {
+          let newDepartments: Array<object> = [];
 
-        filterDepartmentLevelThree(newDepartments, response);
-        setListDepartments(newDepartments);
-      }
-    }));
+          filterDepartmentLevelThree(newDepartments, response);
+          setListDepartments(newDepartments);
+        }
+      }),
+    );
     // eslint-disable-next-line
   }, [dispatch]);
 
@@ -452,48 +453,42 @@ function OrderSources(props: PropTypes) {
         >
           <Card>
             <div className="custom-filter">
-            <CustomFilter onMenuClick={onMenuClick} menu={actions} >
-              <Form
-                onFinish={onFilterFormFinish}
-                initialValues={initFilterParams}
-                layout="inline"
-                form={form}
-              >
-                <Form.Item name="name" className="input-search">
-                  <Input
-                    prefix={<img src={search} alt="" />}
-                    placeholder="Nguồn đơn hàng"
-                  />
-                </Form.Item>
-                <Form.Item
-                  style={{ width: 305 }}
-                  name="department_ids"
+              <CustomFilter onMenuClick={onMenuClick} menu={actions}>
+                <Form
+                  onFinish={onFilterFormFinish}
+                  initialValues={initFilterParams}
+                  layout="inline"
+                  form={form}
                 >
-                  <TreeDepartment listDepartment={listDepartments} style={{ width: '100%' }} />
-                </Form.Item>
-                <Form.Item name="active" style={{width: 200}}>
-                  <Select
-                    // showSearch
-                    allowClear
-                    placeholder="Trạng thái"
-                    optionFilterProp="title"
-                    // notFoundContent="Không tìm thấy phòng ban"
-                  >
-                    <Select.Option value="true" key="true">
-                      <span>Đang áp dụng</span>
-                    </Select.Option>
-                    <Select.Option value="false" key="false">
-                      <span>Ngưng áp dụng</span>
-                    </Select.Option>
-                  </Select>
-                </Form.Item>
-                <Form.Item style={{marginRight: 0}}>
-                  <Button type="primary" htmlType="submit">
-                    Lọc
-                  </Button>
-                </Form.Item>
-              </Form>
-            </CustomFilter>
+                  <Form.Item name="name" className="input-search">
+                    <Input prefix={<img src={search} alt="" />} placeholder="Nguồn đơn hàng" />
+                  </Form.Item>
+                  <Form.Item style={{ width: 305 }} name="department_ids">
+                    <TreeDepartment listDepartment={listDepartments} style={{ width: "100%" }} />
+                  </Form.Item>
+                  <Form.Item name="active" style={{ width: 200 }}>
+                    <Select
+                      // showSearch
+                      allowClear
+                      placeholder="Trạng thái"
+                      optionFilterProp="title"
+                      // notFoundContent="Không tìm thấy phòng ban"
+                    >
+                      <Select.Option value="true" key="true">
+                        <span>Đang áp dụng</span>
+                      </Select.Option>
+                      <Select.Option value="false" key="false">
+                        <span>Ngưng áp dụng</span>
+                      </Select.Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item style={{ marginRight: 0 }}>
+                    <Button type="primary" htmlType="submit">
+                      Lọc
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </CustomFilter>
             </div>
             <CustomTable
               bordered
@@ -506,9 +501,7 @@ function OrderSources(props: PropTypes) {
               }}
               showColumnSetting={false}
               pagination={{
-                pageSize: queryParams?.limit
-                  ? queryParams.limit
-                  : DEFAULT_PAGINATION.limit,
+                pageSize: queryParams?.limit ? queryParams.limit : DEFAULT_PAGINATION.limit,
                 total: total,
                 current: queryParams?.page ? queryParams.page : DEFAULT_PAGINATION.page,
                 showSizeChanger: true,
@@ -542,12 +535,8 @@ function OrderSources(props: PropTypes) {
           />
           <SourceModal
             visible={isShowModalOrderSource}
-            onCreate={(formValues: OrderSourceModel) =>
-              handleFormOrderSource.create(formValues)
-            }
-            onEdit={(formValues: OrderSourceModel) =>
-              handleFormOrderSource.edit(formValues)
-            }
+            onCreate={(formValues: OrderSourceModel) => handleFormOrderSource.create(formValues)}
+            onEdit={(formValues: OrderSourceModel) => handleFormOrderSource.edit(formValues)}
             onDelete={() => handleFormOrderSource.delete()}
             onCancel={() => setIsShowModalOrderSource(false)}
             modalAction={modalAction}
@@ -555,7 +544,7 @@ function OrderSources(props: PropTypes) {
             formItem={modalSingleOrderSource}
             deletedItemTitle={modalSingleOrderSource?.name}
             modalTypeText="Nguồn đơn hàng"
-            moreFormArguments={{listDepartments}}
+            moreFormArguments={{ listDepartments }}
           />
         </ContentContainer>
       ) : (

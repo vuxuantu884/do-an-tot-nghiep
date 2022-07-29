@@ -2,11 +2,15 @@ import { Form, Input } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import TagStatus from "component/tag/tag-status";
 import UrlConfig from "config/url.config";
-import { DiscountConditionRule, EntilementFormModel, ProductEntitlements } from "model/promotion/price-rules.model";
+import {
+  DiscountConditionRule,
+  EntilementFormModel,
+  ProductEntitlements,
+} from "model/promotion/price-rules.model";
 import { Rule } from "rc-field-form/lib/interface";
 import { Link } from "react-router-dom";
-import {formatCurrency, replaceFormatString} from "utils/AppUtils";
-import {  renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { renderDiscountValue, renderTotalBill } from "utils/PromotionUtils";
 import NumberInput from "component/custom/number-input.custom";
 import React from "react";
 const { Item } = Form;
@@ -33,12 +37,12 @@ export const PRICE_RULE_FIELDS = {
   entitled_method: "entitled_method",
   entitlements: "entitlements",
   number_of_discount_codes: "number_of_discount_codes",
-  number_of_entitlements : "number_of_entitlements",
+  number_of_entitlements: "number_of_entitlements",
   prerequisite_assignee_codes: "prerequisite_assignee_codes",
   prerequisite_birthday_duration: "prerequisite_birthday_duration",
   prerequisite_customer_group_ids: "prerequisite_customer_group_ids",
   prerequisite_customer_loyalty_level_ids: "prerequisite_customer_loyalty_level_ids",
-  prerequisite_customer_type_ids : "prerequisite_customer_type_ids",
+  prerequisite_customer_type_ids: "prerequisite_customer_type_ids",
   prerequisite_genders: "prerequisite_genders",
   prerequisite_order_source_ids: "prerequisite_order_source_ids",
   prerequisite_sales_channel_names: "prerequisite_sales_channel_names",
@@ -60,7 +64,7 @@ export const PRICE_RULE_FIELDS = {
   usage_limit: "usage_limit",
   usage_limit_per_customer: "usage_limit_per_customer",
   conditions: "conditions",
-}
+};
 
 export const DiscountUnitType = {
   PERCENTAGE: { value: "PERCENTAGE", label: "%" },
@@ -80,60 +84,60 @@ export const newEntitlements: EntilementFormModel = {
       allocation_limit: undefined,
       value: 0,
       value_type: undefined,
-    }
+    },
   ],
-}
+};
 
-export const OPERATOR_SELECT_OPTIONS  = [
+export const OPERATOR_SELECT_OPTIONS = [
   {
     label: "Bằng",
     value: "EQUALS",
-    activeType:["string", "number"],
+    activeType: ["string", "number"],
   },
   {
     label: "Không bằng",
     value: "NOT_EQUAL_TO",
-    activeType:["string", "number"],
+    activeType: ["string", "number"],
   },
   {
     label: "Chứa",
     value: "CONTAINS",
-    activeType:["string", "number"],
+    activeType: ["string", "number"],
   },
   {
     label: "Không chứa",
     value: "DOES_NOT_CONTAIN",
-    activeType:["string", "number"],
+    activeType: ["string", "number"],
   },
   {
     label: "Bắt đầu với",
     value: "STARTS_WITH",
-    activeType:["string", "number"],
+    activeType: ["string", "number"],
   },
   {
     label: "Kết thúc với",
     value: "ENDS_WITH",
-    activeType:["string", "number"],
+    activeType: ["string", "number"],
   },
   {
     label: "Lớn hơn",
     value: "GREATER_THAN",
-    activeType:["number"],
+    activeType: ["number"],
   },
   {
     label: "Lớn hơn hoặc bằng",
     value: "GREATER_THAN_OR_EQUAL_TO",
-    activeType:["number"],
+    activeType: ["number"],
   },
   {
     label: "Nhỏ hơn",
     value: "LESS_THAN",
-    activeType:["number"],
+    activeType: ["number"],
   },
   {
     label: "Nhỏ hơn hoặc bằng",
     value: "LESS_THAN_OR_EQUAL_TO",
-    activeType:["number"],
+    activeType: ["number"],
   },
 ];
 
@@ -141,71 +145,71 @@ export const FIELD_SELECT_OPTIONS = [
   {
     label: "Tên sản phẩm",
     value: "product_name",
-    type:["string"],
+    type: ["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} maxLength={50}/>
+        <Input placeholder="Tên sản phẩm" defaultValue={defaultValue} maxLength={50} />
       </Item>
     ),
   },
   {
     label: "Mã SKU",
     value: "sku",
-    type:["string"],
+    type: ["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Mã SKU" defaultValue={defaultValue} maxLength={50}/>
+        <Input placeholder="Mã SKU" defaultValue={defaultValue} maxLength={50} />
       </Item>
     ),
   },
   {
     label: "Danh mục sản phẩm",
     value: "category_name",
-    type:["string"],
+    type: ["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} maxLength={50}/>
+        <Input placeholder="Nhập danh mục" defaultValue={defaultValue} maxLength={50} />
       </Item>
     ),
   },
   {
     label: "Tag sản phẩm",
     value: "product_tag",
-    type:["string"],
+    type: ["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} maxLength={50}/>
+        <Input placeholder="Nhập tag sản phẩm" defaultValue={defaultValue} maxLength={50} />
       </Item>
     ),
   },
   {
     label: "Kích cỡ",
     value: "product_size",
-    type:["string", "number"],
+    type: ["string", "number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} maxLength={50}/>
+        <Input placeholder="Nhập kích cỡ" defaultValue={defaultValue} maxLength={50} />
       </Item>
     ),
   },
   {
     label: "Màu sắc",
     value: "option_color",
-    type:["string"],
+    type: ["string"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
-        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} maxLength={50}/>
+        <Input placeholder="Nhập màu sắc" defaultValue={defaultValue} maxLength={50} />
       </Item>
     ),
   },
   {
     label: "Giá trị đơn hàng",
     value: "subtotal",
-    type:["number"],
+    type: ["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
         <NumberInput
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           format={(a: string) => formatCurrency(a)}
           replace={(a: string) => replaceFormatString(a)}
           placeholder="Giá trị đơn hàng"
@@ -219,11 +223,11 @@ export const FIELD_SELECT_OPTIONS = [
   {
     label: "Số lượng",
     value: "quantity",
-    type:["number"],
+    type: ["number"],
     valueComponent: (name: string | Array<any>, rules: Rule[], defaultValue?: string) => (
       <Item name={name} rules={rules}>
         <NumberInput
-          style={{ width: '100%' }}
+          style={{ width: "100%" }}
           format={(a: string) => formatCurrency(a)}
           replace={(a: string) => replaceFormatString(a)}
           placeholder="Số lượng"
@@ -275,7 +279,6 @@ export const priorityOptions = [
   },
 ];
 
-
 export const dayOfWeekOptions = [
   {
     value: "SUN",
@@ -307,7 +310,6 @@ export const dayOfWeekOptions = [
   },
 ];
 
-
 //discount view
 export const DISCOUNT_STATUS = [
   {
@@ -315,20 +317,17 @@ export const DISCOUNT_STATUS = [
     value: "Đang áp dụng",
 
     Component: <TagStatus type="primary">Đang áp dụng</TagStatus>,
-
   },
   {
     code: "DISABLED",
     value: "Tạm ngưng",
 
     Component: <TagStatus type="warning">Tạm ngưng</TagStatus>,
-
   },
   {
     code: "DRAFT",
     value: "Chờ áp dụng",
-    Component: <TagStatus >Chờ áp dụng</TagStatus>,
-
+    Component: <TagStatus>Chờ áp dụng</TagStatus>,
   },
   {
     code: "CANCELLED",
@@ -351,16 +350,13 @@ export const columnFixedPrice = [
     align: "left",
     width: "20%",
     render: (sku: string, item: any, index: number) => {
-
       let url = `${UrlConfig.PRODUCT}/${item.product_id}`;
       if (item.variant_id) {
-        url = `${url}/variants/${item.variant_id}`
+        url = `${url}/variants/${item.variant_id}`;
       }
       return (
         <div>
-          <Link to={url}>
-            {sku}
-          </Link>
+          <Link to={url}>{sku}</Link>
           <div>{item.title}</div>
         </div>
       );
@@ -371,7 +367,7 @@ export const columnFixedPrice = [
     align: "center",
     visible: false,
     dataIndex: "cost",
-    render: (value: number) => value >= 0 ? formatCurrency(value) : "-",
+    render: (value: number) => (value >= 0 ? formatCurrency(value) : "-"),
   },
   {
     title: "Chiết khấu",
@@ -379,32 +375,33 @@ export const columnFixedPrice = [
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, item: any, index: number) => {
       if (entitlement) {
-        const { value, value_type } = entitlement.prerequisite_quantity_ranges[0]
-        return renderDiscountValue(value || 0, value_type || '');
+        const { value, value_type } = entitlement.prerequisite_quantity_ranges[0];
+        return renderDiscountValue(value || 0, value_type || "");
       } else {
-        return ''
+        return "";
       }
-    }
+    },
   },
   {
     title: "Giá sau chiết khấu",
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0 && record.cost >= 0) {
-        const { value, value_type } = entitlement.prerequisite_quantity_ranges[0]
+      if (
+        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
+        entitlement.prerequisite_quantity_ranges?.length > 0 &&
+        record.cost >= 0
+      ) {
+        const { value, value_type } = entitlement.prerequisite_quantity_ranges[0];
 
-        return <span style={{ color: "#E24343" }}>{
-          renderTotalBill(
-            record.cost,
-            value || 0,
-            value_type || ''
-          )
-        }</span>
+        return (
+          <span style={{ color: "#E24343" }}>
+            {renderTotalBill(record.cost, value || 0, value_type || "")}
+          </span>
+        );
       } else {
-        return "-"
+        return "-";
       }
-
     },
   },
   {
@@ -412,10 +409,13 @@ export const columnFixedPrice = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
+      if (
+        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
+        entitlement.prerequisite_quantity_ranges?.length > 0
+      ) {
         return entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to;
       }
-    }
+    },
   },
 ];
 
@@ -433,16 +433,14 @@ export const columnDiscountQuantity = [
     align: "left",
     width: "20%",
     render: (sku: string, item: ProductEntitlements, index: number) => {
-
       let url = `${UrlConfig.PRODUCT}/${item.product_id}`;
       if (item.variant_id) {
-        url = `${url}/variants/${item.variant_id}`
+        url = `${url}/variants/${item.variant_id}`;
       }
       return (
         <div>
-          <Link to={url}>
-            {sku}
-          </Link><br />
+          <Link to={url}>{sku}</Link>
+          <br />
           <div>{item.title}</div>
         </div>
       );
@@ -455,9 +453,9 @@ export const columnDiscountQuantity = [
     dataIndex: "cost",
     render: (cost: number) => {
       if (cost >= 0) {
-        return formatCurrency(cost)
+        return formatCurrency(cost);
       } else {
-        return "-"
+        return "-";
       }
     },
   },
@@ -466,12 +464,17 @@ export const columnDiscountQuantity = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel, record: ProductEntitlements) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
+      if (
+        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
+        entitlement.prerequisite_quantity_ranges?.length > 0
+      ) {
         return (
-          <span style={{ color: "#E24343" }}>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || '')}</span>
-        )
+          <span style={{ color: "#E24343" }}>
+            {formatCurrency(entitlement.prerequisite_quantity_ranges[0].value || "")}
+          </span>
+        );
       } else {
-        return '';
+        return "";
       }
     },
   },
@@ -480,15 +483,22 @@ export const columnDiscountQuantity = [
     align: "center",
     dataIndex: "entitlement",
     render: (entitlement: EntilementFormModel) => {
-      if (Array.isArray(entitlement?.prerequisite_quantity_ranges) && entitlement.prerequisite_quantity_ranges?.length > 0) {
+      if (
+        Array.isArray(entitlement?.prerequisite_quantity_ranges) &&
+        entitlement.prerequisite_quantity_ranges?.length > 0
+      ) {
         return (
-          <span>{formatCurrency(entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || '')}</span>
-        )
+          <span>
+            {formatCurrency(
+              entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to || "",
+            )}
+          </span>
+        );
       } else {
-        return '';
+        return "";
       }
-    }
-  }
+    },
+  },
 ];
 
 export const columnDiscountByRule = [
@@ -503,8 +513,8 @@ export const columnDiscountByRule = [
     visible: true,
     width: "20%",
     render: (field: string) => {
-      return (FIELD_SELECT_OPTIONS.find(x => x.value === field)?.label || '');
-    }
+      return FIELD_SELECT_OPTIONS.find((x) => x.value === field)?.label || "";
+    },
   },
   {
     title: "Loại điều kiện",
@@ -512,8 +522,8 @@ export const columnDiscountByRule = [
     visible: true,
     width: "20%",
     render: (operator: string) => {
-      return (OPERATOR_SELECT_OPTIONS.find(x => x.value === operator)?.label || '');
-    }
+      return OPERATOR_SELECT_OPTIONS.find((x) => x.value === operator)?.label || "";
+    },
   },
   {
     title: "Giá trị",
@@ -525,15 +535,13 @@ export const columnDiscountByRule = [
         return formatCurrency(value);
       }
       return value;
-    }
+    },
   },
 ];
 
-
 // update
 
-
-// promo code 
+// promo code
 export const STATUS_PROMO_CODE: any = [
   {
     disabled: false,

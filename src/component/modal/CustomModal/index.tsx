@@ -42,10 +42,10 @@ const CustomModal = (props: CustomModalType) => {
       setIsShowConfirmDelete(false);
     },
     edit: () => {
-      form.validateFields().then(()=> {
+      form.validateFields().then(() => {
         setVisibleForm(false);
         onEdit(form.getFieldsValue());
-      })
+      });
     },
   };
 
@@ -63,21 +63,17 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => formAction.create()}
-            >
-             {createText ?? "Thêm"}
+            <Button key="submit" type="primary" onClick={() => formAction.create()}>
+              {createText ?? "Thêm"}
             </Button>
           </div>
         );
       }
       return (
         <div className="footer footer__edit">
-           <div className="footer__left">
-             {
-                !isOnlyEdit &&  <Button
+          <div className="footer__left">
+            {!isOnlyEdit && (
+              <Button
                 key="delete"
                 type="primary"
                 danger
@@ -85,18 +81,14 @@ const CustomModal = (props: CustomModalType) => {
               >
                 Xóa
               </Button>
-             }
+            )}
           </div>
           <div className="footer__right">
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Đóng
             </Button>
-            <Button
-              key="save"
-              type="primary"
-              onClick={() => formAction.edit()}
-            >
-               {updateText ?? "Lưu"}
+            <Button key="save" type="primary" onClick={() => formAction.edit()}>
+              {updateText ?? "Lưu"}
             </Button>
           </div>
         </div>
@@ -121,11 +113,7 @@ const CustomModal = (props: CustomModalType) => {
       visible={visible}
       okText="Thêm"
       cancelText="Thoát"
-      title={
-        isCreateModal
-          ? `Thêm ${modalTypeText}`
-          : `Cập nhật ${modalTypeText}`
-      }
+      title={isCreateModal ? `Thêm ${modalTypeText}` : `Cập nhật ${modalTypeText}`}
       footer={renderModalFooter()}
       onCancel={formAction.exit}
     >

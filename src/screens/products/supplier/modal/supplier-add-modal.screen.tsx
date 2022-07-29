@@ -1,22 +1,19 @@
 import { Col, Form, Input, Modal, Radio, Row, Select } from "antd";
 import { AppConfig } from "config/app.config";
 import { AccountSearchAction } from "domain/actions/account/account.action";
-import {SupplierCreateAction, SupplierSearchAction} from "domain/actions/core/supplier.action";
+import { SupplierCreateAction, SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { AccountResponse } from "model/account/account.model";
 import { BaseMetadata, PageResponse } from "model/base/base-metadata.response";
-import {
-  SupplierCreateRequest,
-  SupplierResponse,
-} from "model/core/supplier.model";
+import { SupplierCreateRequest, SupplierResponse } from "model/core/supplier.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { VietNamId } from "utils/Constants";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
-import {validatePhoneSupplier} from "../../../../utils/supplier";
+import { validatePhoneSupplier } from "../../../../utils/supplier";
 import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
-import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
+import { useFetchMerchans } from "../../../../hook/useFetchMerchans";
 
 type SupplierAddModalProps = {
   visible: boolean;
@@ -26,48 +23,40 @@ type SupplierAddModalProps = {
 const { Item } = Form;
 const { Option } = Select;
 
-const SupplierAddModal: React.FC<SupplierAddModalProps> = (
-  props: SupplierAddModalProps
-) => {
+const SupplierAddModal: React.FC<SupplierAddModalProps> = (props: SupplierAddModalProps) => {
   const dispatch = useDispatch();
   const [formSupplierAdd] = Form.useForm();
   const { visible, onCancel, onOk } = props;
   const [metadata, setMetadata] = useState<BaseMetadata>({
     limit: 10,
     page: 1,
-    total: 0
+    total: 0,
   });
 
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
 
   const supplier_type = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type,
   );
-  const goods = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.goods
-  );
-  const currentUserCode = useSelector(
-    (state: RootReducerType) => state.userReducer?.account?.code
-  );
+  const goods = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.goods);
+  const currentUserCode = useSelector((state: RootReducerType) => state.userReducer?.account?.code);
 
   const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse>|false) => {
-      if(!data) {
+    (data: PageResponse<AccountResponse> | false) => {
+      if (!data) {
         return false;
       }
       let listWinAccount = data.items;
-      setMetadata(data.metadata)
-      let checkUser = listWinAccount.findIndex(
-        (val) => val.code === currentUserCode
-      );
+      setMetadata(data.metadata);
+      let checkUser = listWinAccount.findIndex((val) => val.code === currentUserCode);
       if (checkUser !== -1 && currentUserCode !== undefined) {
         formSupplierAdd.setFieldsValue({
           pic_code: currentUserCode,
         });
       }
     },
-    [currentUserCode, formSupplierAdd]
+    [currentUserCode, formSupplierAdd],
   );
   const createSupplierCallback = (result: SupplierResponse) => {
     if (result) {
@@ -75,23 +64,27 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
       onOk(result);
       formSupplierAdd.resetFields();
     }
-  }
+  };
 
   const onFinish = (values: SupplierCreateRequest) => {
-      values.contacts =[{email: "",
-                        fax: "",
-                        id: null,
-                        is_default: true,
-                        name: "",
-                        phone: values.phone ?? null,
-                        supplier_id: null,
-                        website: ""}];
+    values.contacts = [
+      {
+        email: "",
+        fax: "",
+        id: null,
+        is_default: true,
+        name: "",
+        phone: values.phone ?? null,
+        supplier_id: null,
+        website: "",
+      },
+    ];
     dispatch(SupplierCreateAction(values, createSupplierCallback));
-  }
+  };
 
   const onChangeGoods = (values: any) => {
-    formSupplierAdd.setFieldsValue({ goods: values })
-  }
+    formSupplierAdd.setFieldsValue({ goods: values });
+  };
 
   const handleCancel = () => {
     formSupplierAdd.resetFields();
@@ -102,34 +95,42 @@ const SupplierAddModal: React.FC<SupplierAddModalProps> = (
     validatePhoneSupplier({
       value,
       callback,
-      phoneList: listSupplier
-    })
+      phoneList: listSupplier,
+    });
   };
 
   const fetchAccount = (values: any) => {
     dispatch(
       AccountSearchAction(
-        { department_ids: [AppConfig.WIN_DEPARTMENT], status: "active", limit: metadata.limit, page: metadata.page, ...values },
-        setDataAccounts
-      )
+        {
+          department_ids: [AppConfig.WIN_DEPARTMENT],
+          status: "active",
+          limit: metadata.limit,
+          page: metadata.page,
+          ...values,
+        },
+        setDataAccounts,
+      ),
     );
-  }
+  };
 
   useEffect(() => {
-    if(goods) {
-      formSupplierAdd.setFieldsValue({ goods: ['fashion'] })
+    if (goods) {
+      formSupplierAdd.setFieldsValue({ goods: ["fashion"] });
     }
-  }, [goods, formSupplierAdd])
+  }, [goods, formSupplierAdd]);
 
   useEffect(() => {
-    fetchAccount({ condition: "", page: metadata.page })
-    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
-      if(response){
-        setListSupplier(response.items)
-      } else {
-        setListSupplier([]);
-      }
-    }))
+    fetchAccount({ condition: "", page: metadata.page });
+    dispatch(
+      SupplierSearchAction({ limit: 200 }, (response: PageResponse<SupplierResponse>) => {
+        if (response) {
+          setListSupplier(response.items);
+        } else {
+          setListSupplier([]);
+        }
+      }),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, setDataAccounts]);
 

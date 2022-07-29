@@ -31,7 +31,16 @@ SelectSearch.defaultProps = {
 };
 
 function SelectSearch(contentProps: SelectContentProps) {
-  const { id: name, value, mode, fixedQuery, key, isFilter, isGetName, ...selectProps } = contentProps;
+  const {
+    id: name,
+    value,
+    mode,
+    fixedQuery,
+    key,
+    isFilter,
+    isGetName,
+    ...selectProps
+  } = contentProps;
 
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
@@ -46,37 +55,41 @@ function SelectSearch(contentProps: SelectContentProps) {
 
   const [defaultOptons, setDefaultOptons] = useState<VariantSku3Response[]>([]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const handleSearch =async (queryParams: ProductWrapperSearchQuery) => {
+  const handleSearch = async (queryParams: ProductWrapperSearchQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
-    await callApiNative({isShowLoading: false},dispatch,searchVariantSku3Api,query).then((res)=>{
-      if (res) {
-        setData(res);
-      }
-      setIsSearching(false);
-    });
+    await callApiNative({ isShowLoading: false }, dispatch, searchVariantSku3Api, query).then(
+      (res) => {
+        if (res) {
+          setData(res);
+        }
+        setIsSearching(false);
+      },
+    );
   };
 
   useEffect(() => {
-    if(contentProps.defaultValue) {
-      const user: any =  { code: contentProps?.defaultValue, full_name: contentProps?.merchandiser }
-      setData({...data, items: [user, ...data.items]})
+    if (contentProps.defaultValue) {
+      const user: any = {
+        code: contentProps?.defaultValue,
+        full_name: contentProps?.merchandiser,
+      };
+      setData({ ...data, items: [user, ...data.items] });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentProps.defaultValue])
+  }, [contentProps.defaultValue]);
 
   /**
    * Option cho trang 1
    */
   useEffect(() => {
     const getDefaultOptions = async () => {
-      const response = await callApiNative(
-        { isShowError: true },
-        dispatch,
-        searchVariantSku3Api,
-        { ...fixedQuery, page: 1, limit: 30 }
-      );
-      
+      const response = await callApiNative({ isShowError: true }, dispatch, searchVariantSku3Api, {
+        ...fixedQuery,
+        page: 1,
+        limit: 30,
+      });
+
       setDefaultOptons(response?.items ?? []);
       setData({ ...response });
     };
@@ -107,7 +120,7 @@ function SelectSearch(contentProps: SelectContentProps) {
           {
             codes: isFilter ? JSON.parse(initCodes).code : initCodes,
             ...fixedQuery,
-          }
+          },
         );
 
         let totalItems: VariantSku3Response[] = [];
@@ -139,10 +152,10 @@ function SelectSearch(contentProps: SelectContentProps) {
       onPageChange={(key: string, page: number) => {
         handleSearch({ info: key.trim(), page: page });
       }}
-      filterOption={() => true}//lấy kết quả từ server
+      filterOption={() => true} //lấy kết quả từ server
       {...selectProps}
       value={contentProps.defaultValue || value}
-      >
+    >
       {data?.items?.map((item) => (
         <SelectPagingV2.Option key={item.code} value={item.code}>
           {item.code}

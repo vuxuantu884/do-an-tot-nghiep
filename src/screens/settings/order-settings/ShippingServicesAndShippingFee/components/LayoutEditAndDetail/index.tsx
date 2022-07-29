@@ -39,13 +39,11 @@ function LayoutEditAndDetail(props: PropType) {
 
   const [isLoadedData, setIsLoadedData] = useState(false);
   const [listProvinces, setListProvinces] = useState<ProvinceModel[]>([]);
-  const [list3rdPartyLogistic, setList3rdPartyLogistic] = useState<
-    DeliveryServiceResponse[]
-  >([]);
+  const [list3rdPartyLogistic, setList3rdPartyLogistic] = useState<DeliveryServiceResponse[]>([]);
 
   const checkIfSettingHasSameValue = (arr: any[]) => {
     let cloneArr = [...arr];
-    return _.uniqWith(cloneArr, _.isEqual).length !== arr.length; 
+    return _.uniqWith(cloneArr, _.isEqual).length !== arr.length;
   };
 
   const handleSubmitForm = (action: string) => {
@@ -61,32 +59,30 @@ function LayoutEditAndDetail(props: PropType) {
           // format necessary field
           start_date: moment(formValue.start_date).utc().format(),
           end_date: moment(formValue.end_date).utc().format(),
-          shipping_fee_configs: formValue.shipping_fee_configs.map(
-            (single: any) => {
-              const provinceSelected = listProvinces.find((singleCity) => {
-                return singleCity.name === single.city_name;
-              });
-              let city_id = undefined;
-              if (single.city_name === optionAllCities.name) {
-                city_id = optionAllCities.id;
-              } else if (provinceSelected) {
-                city_id = provinceSelected.id;
-              }
-              return {
-                from_price: single.from_price || 0,
-                to_price: single.to_price || 0,
-                city_name: single.city_name,
-                city_id,
-                transport_fee: single.transport_fee || 0,
-              };
+          shipping_fee_configs: formValue.shipping_fee_configs.map((single: any) => {
+            const provinceSelected = listProvinces.find((singleCity) => {
+              return singleCity.name === single.city_name;
+            });
+            let city_id = undefined;
+            if (single.city_name === optionAllCities.name) {
+              city_id = optionAllCities.id;
+            } else if (provinceSelected) {
+              city_id = provinceSelected.id;
             }
-          ),
+            return {
+              from_price: single.from_price || 0,
+              to_price: single.to_price || 0,
+              city_name: single.city_name,
+              city_id,
+              transport_fee: single.transport_fee || 0,
+            };
+          }),
         };
         console.log("formValueFormatted", formValueFormatted);
-        console.log('formValue.shipping_fee_configs', formValueFormatted.shipping_fee_configs)
-        if(checkIfSettingHasSameValue(formValueFormatted.shipping_fee_configs)) {
+        console.log("formValue.shipping_fee_configs", formValueFormatted.shipping_fee_configs);
+        if (checkIfSettingHasSameValue(formValueFormatted.shipping_fee_configs)) {
           let element = document.getElementById("orderSettingValue");
-          if(element) {
+          if (element) {
             scrollAndFocusToDomElement(element);
           }
           showError("Trùng cài đặt!");
@@ -95,34 +91,24 @@ function LayoutEditAndDetail(props: PropType) {
 
         if (action === LAYOUT_CREATE_AND_DETAIL.create) {
           dispatch(
-            actionCreateConfigurationShippingServiceAndShippingFee(
-              formValueFormatted,
-              () => {
-                history.push(UrlConfig.ORDER_SETTINGS);
-              }
-            )
+            actionCreateConfigurationShippingServiceAndShippingFee(formValueFormatted, () => {
+              history.push(UrlConfig.ORDER_SETTINGS);
+            }),
           );
         } else {
           if (id) {
             dispatch(
-              actionUpdateConfigurationShippingServiceAndShippingFee(
-                id,
-                formValueFormatted,
-                () => {
-                  // history.push(UrlConfig.ORDER_SETTINGS);
-                }
-              )
+              actionUpdateConfigurationShippingServiceAndShippingFee(id, formValueFormatted, () => {
+                // history.push(UrlConfig.ORDER_SETTINGS);
+              }),
             );
           }
         }
       })
       .catch((error) => {
-        const element: any = document.getElementById(
-          error.errorFields[0].name.join("")
-        );
+        const element: any = document.getElementById(error.errorFields[0].name.join(""));
         element?.focus();
-        const offsetY =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
+        const offsetY = element?.getBoundingClientRect()?.top + window.pageYOffset + -200;
         window.scrollTo({ top: offsetY, behavior: "smooth" });
       });
   };
@@ -137,7 +123,7 @@ function LayoutEditAndDetail(props: PropType) {
         setList3rdPartyLogistic(response);
         form.resetFields();
         setIsLoadedData(true);
-      })
+      }),
     );
   }, [dispatch, form]);
 
@@ -145,7 +131,7 @@ function LayoutEditAndDetail(props: PropType) {
     dispatch(
       CityByCountryAction(VietNamId, (response) => {
         setListProvinces(response);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -186,10 +172,7 @@ function LayoutEditAndDetail(props: PropType) {
       >
         {isLoadedData && (
           <Form form={form} layout="vertical" initialValues={initialFormValue}>
-            <OrderSettingInformation
-              form={form}
-              initialFormValue={initialFormValue}
-            />
+            <OrderSettingInformation form={form} initialFormValue={initialFormValue} />
             <OrderSettingValue listProvinces={listProvinces} />
             <SelectThirdPartyLogistic
               initialFormValue={initialFormValue}
@@ -219,9 +202,7 @@ function LayoutEditAndDetail(props: PropType) {
                 handleSubmitForm(layoutType);
               }}
             >
-              {layoutType === LAYOUT_CREATE_AND_DETAIL.create
-                ? "Tạo mới"
-                : "Cập nhật"}
+              {layoutType === LAYOUT_CREATE_AND_DETAIL.create ? "Tạo mới" : "Cập nhật"}
             </Button>
           </div>
         </div>

@@ -34,9 +34,7 @@ export const updateKeyDriversTarget = (
   return BaseAxiosApi.post(`${ApiConfig.KEY_DRIVER}`, params);
 };
 
-export const getKeyDriversTarget = (
-  params: KeyDriverParams,
-): Promise<BaseResponse<any>> => {
+export const getKeyDriversTarget = (params: KeyDriverParams): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.get(`${ApiConfig.KEY_DRIVER}`, { params });
 };
 
@@ -72,15 +70,7 @@ export const getCustomerPhoneSMSCounters = (
   params: CustomerPhoneSMSCountersParams,
   config?: AxiosRequestConfig,
 ): Promise<BaseResponse<any>> => {
-  const {
-    month,
-    year,
-    storeIds,
-    entityName,
-    loyaltyLevel,
-    reportedBy,
-    mergeLoyaltyLevel,
-  } = params;
+  const { month, year, storeIds, entityName, loyaltyLevel, reportedBy, mergeLoyaltyLevel } = params;
   let endpoint = `${ApiConfig.CUSTOMER_COUNTERS}?month.equals=${month}&year.equals=${year}&entityName.equals=${entityName}`;
   if (storeIds?.length) {
     storeIds.forEach((id, index) => {
@@ -99,9 +89,7 @@ export const getCustomerPhoneSMSCounters = (
   return BaseAxiosApi.get(endpoint, { ...config });
 };
 
-export const updateCustomerPhoneSMSCounters = (
-  params: any,
-): Promise<BaseResponse<any>> => {
+export const updateCustomerPhoneSMSCounters = (params: any): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.post(`${ApiConfig.CUSTOMER_COUNTERS}`, params);
 };
 

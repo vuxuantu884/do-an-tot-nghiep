@@ -41,7 +41,7 @@
 
 .printContent {
   table {
-		word-break: break-word;
+    word-break: break-word;
     td {
       padding-top: 5px;
       padding-bottom: 5px;
@@ -53,9 +53,9 @@
   .po-info {
     font-size: 12px !important;
     border-spacing: 0;
-    font-family: 'Times New Roman', Times, serif;
+    font-family: "Times New Roman", Times, serif;
   }
-   .po-info td {
+  .po-info td {
     vertical-align: top;
     padding: 0 !important;
   }
@@ -80,17 +80,17 @@
     overflow-wrap: break-word;
     text-align: center;
   }
-  .wrap-text-name{
+  .wrap-text-name {
     overflow-wrap: break-word;
     text-align: center;
   }
-  .header-wrap-code{
+  .header-wrap-code {
     width: 50px;
     text-align: center;
   }
   .wrap-text-code {
-   // transform: rotate(-90deg);
-    display:inline-block;
+    // transform: rotate(-90deg);
+    display: inline-block;
     text-align: center;
     width: 50px;
   }
@@ -110,27 +110,27 @@
     overflow-wrap: break-word;
     text-align: center;
   }
-  .po-img{
+  .po-img {
     max-height: 140px;
   }
 
-  .tb-payment{
+  .tb-payment {
     border-collapse: collapse;
     border-spacing: 0;
     table-layout: fixed;
     font-size: 8px;
   }
 
-  .tb-payment th{
+  .tb-payment th {
     border: 0.5px solid gray;
     padding: 2px;
   }
 
-  .tb-payment .th-first{
+  .tb-payment .th-first {
     border-right: 0;
   }
 
-  .tb-payment-times{
+  .tb-payment-times {
     border-collapse: collapse;
     border-spacing: 0;
     table-layout: fixed;
@@ -138,37 +138,38 @@
   }
 }
 
-.pr-text-cell{
+.pr-text-cell {
   font-size: 12px;
 }
-.pr-text-sign{
-    font-size: 10px;
+.pr-text-sign {
+  font-size: 10px;
 }
-.pr-cell{
-    height: 18px;
-    text-align: center;
+.pr-cell {
+  height: 18px;
+  text-align: center;
 }
-.pr-sum-table{
+.pr-sum-table {
   padding-right: 10px;
 }
-.pr-cell-barcode,.pr-cell-sku{
+.pr-cell-barcode,
+.pr-cell-sku {
   width: 100px;
 }
-.w50{
+.w50 {
   width: 50px;
 }
-.w80{
+.w80 {
   width: 80px;
 }
-.w90{
+.w90 {
   width: 90px;
 }
-.w100{
+.w100 {
   width: 100px;
 }
-.w110{
+.w110 {
   width: 110px;
 }
-.w120{
+.w120 {
   width: 120px;
 }

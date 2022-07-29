@@ -10,13 +10,8 @@ import { StyledComponent } from "./styles";
  */
 let keyword = "whatever";
 function Editor(props: any) {
-  const {
-    initialHtmlContent,
-    onChange,
-    listKeywords,
-    selectedPrintSize,
-    previewHeaderHeight,
-  } = props;
+  const { initialHtmlContent, onChange, listKeywords, selectedPrintSize, previewHeaderHeight } =
+    props;
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   const handleChange = (evt: any) => {
@@ -34,7 +29,7 @@ function Editor(props: any) {
   const handleInsertKeyword = (text: string) => {
     keyword = text;
     let editorButtonInsertHtml = document.getElementsByClassName(
-      "cke_button__inserthtml_label"
+      "cke_button__inserthtml_label",
     )[0] as HTMLElement;
     editorButtonInsertHtml.click();
   };
@@ -159,16 +154,7 @@ function Editor(props: any) {
             },
             {
               name: "clipboard",
-              items: [
-                "Cut",
-                "Copy",
-                "Paste",
-                "PasteText",
-                "PasteFromWord",
-                "-",
-                "Undo",
-                "Redo",
-              ],
+              items: ["Cut", "Copy", "Paste", "PasteText", "PasteFromWord", "-", "Undo", "Redo"],
             },
             {
               name: "document",
@@ -211,7 +197,7 @@ function Editor(props: any) {
                 exec: function (editor: any) {
                   // showModal();
                   let editorButtonShowModal = document.getElementsByClassName(
-                    "buttonShowModal"
+                    "buttonShowModal",
                   )[0] as HTMLElement;
                   editorButtonShowModal.click();
                 },

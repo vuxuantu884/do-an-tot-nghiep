@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import CustomTable from 'component/table/CustomTable';
-import { useDispatch } from 'react-redux';
+import React, { useState, useEffect } from "react";
+import CustomTable from "component/table/CustomTable";
+import { useDispatch } from "react-redux";
 import moment from "moment";
-import { PurchaseOrder } from 'model/purchase-order/purchase-order.model';
-import { getLogPOHistory } from 'domain/actions/po/po.action';
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import { getLogPOHistory } from "domain/actions/po/po.action";
 import { HiOutlineArrowNarrowRight } from "react-icons/hi";
-import { Link } from 'react-router-dom';
-import UrlConfig from 'config/url.config';
-import ActionPurchaseORderHistoryModal from 'screens/purchase-order/Sidebar/ActionHistory/Modal';
-import { Button } from 'antd';
-import { PO_RETURN_HISTORY } from 'utils/Constants';
+import { Link } from "react-router-dom";
+import UrlConfig from "config/url.config";
+import ActionPurchaseORderHistoryModal from "screens/purchase-order/Sidebar/ActionHistory/Modal";
+import { Button } from "antd";
+import { PO_RETURN_HISTORY } from "utils/Constants";
 
 type POHistoryProps = {
   poData?: PurchaseOrder;
   procumentCode?: string;
-}
+};
 
 type POLogHistory = {
   action: string;
@@ -30,7 +30,7 @@ type POLogHistory = {
   updated_name: string;
   ip_address: string;
   procurement_code: string;
-}
+};
 
 const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) => {
   const { procumentCode } = props;
@@ -69,30 +69,26 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       dataIndex: "updated_name",
       key: "updated_name",
       render: (updated_name: string, record: POLogHistory, index: number) => {
-        const {  updated_by } = record;
+        const { updated_by } = record;
         return (
-          (<div>
+          <div>
             <div style={{ color: "#2A2A86" }}>
-              <Link
-                target="_blank"
-                to={`${UrlConfig.ACCOUNTS}/${updated_by}`}
-                className="primary"
-              >
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${updated_by}`} className="primary">
                 {updated_by}
               </Link>
             </div>
             <div>{updated_name}</div>
-          </div>)
-        )
-      }
+          </div>
+        );
+      },
     },
     {
       title: "Thời gian sửa",
       dataIndex: "updated_date",
       key: "updated_date",
       render: (updated_date: string) => {
-        return moment(updated_date).format(formatDate).toString()
-      }
+        return moment(updated_date).format(formatDate).toString();
+      },
     },
     {
       title: "Thao tác",
@@ -101,7 +97,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       render: (status: string, record: POLogHistory) => {
         return (
           <Button
-            type='link'
+            type="link"
             style={{ paddingLeft: 0, color: "#2A2A86" }}
             onClick={() => {
               showModal(record.id);
@@ -109,8 +105,8 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
           >
             {renderSingleActionLogTitle(record.action)}
           </Button>
-        )
-      }
+        );
+      },
     },
     {
       title: "Trạng thái phiếu nhập kho",
@@ -118,28 +114,31 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
       key: "status",
       render: (status: string, record: POLogHistory) => {
         if (record) {
-          const { status_after, status_before} = record;
-          return (
-            status_after === status_before ? (<span>{status_before}</span>) : (
-              <div style={{display: "flex", alignItems: "center"}}>
-                { status_before && <span>{status_before}&nbsp;&nbsp;</span> }
-                {
-                  status_after && status_before && (<><HiOutlineArrowNarrowRight />&nbsp;&nbsp;</>)
-                }
-                { status_after && <span>{status_after}</span> }
-              </div>
-            )
+          const { status_after, status_before } = record;
+          return status_after === status_before ? (
+            <span>{status_before}</span>
+          ) : (
+            <div style={{ display: "flex", alignItems: "center" }}>
+              {status_before && <span>{status_before}&nbsp;&nbsp;</span>}
+              {status_after && status_before && (
+                <>
+                  <HiOutlineArrowNarrowRight />
+                  &nbsp;&nbsp;
+                </>
+              )}
+              {status_after && <span>{status_after}</span>}
+            </div>
           );
         }
-        return '';
-      }
+        return "";
+      },
     },
     {
       title: "Log ID",
       dataIndex: "id",
-      key: "id"
-    }
-  ]
+      key: "id",
+    },
+  ];
 
   useEffect(() => {
     if (procumentCode) {
@@ -163,7 +162,7 @@ const PurchaseOrderHistory: React.FC<POHistoryProps> = (props: POHistoryProps) =
         procurementCode={procumentCode}
       />
     </div>
-  )
-}
+  );
+};
 
-export default PurchaseOrderHistory
+export default PurchaseOrderHistory;

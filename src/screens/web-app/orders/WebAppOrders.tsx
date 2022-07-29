@@ -11,13 +11,14 @@ import { primaryColor } from "utils/global-styles/variables";
 import { getQueryParams, getQueryParamsFromQueryString, useQuery } from "utils/useQuery";
 
 import { StoreResponse } from "model/core/store.model";
-import {
-  OrderModel,
-  EcommerceOrderSearchQuery,
-} from "model/order/order.model";
-import {AccountResponse, DeliverPartnerResponse} from "model/account/account.model";
+import { OrderModel, EcommerceOrderSearchQuery } from "model/order/order.model";
+import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 
-import { DeliveryServicesGetList, getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import {
+  DeliveryServicesGetList,
+  getListOrderAction,
+  PaymentMethodGetList,
+} from "domain/actions/order/order.action";
 import {
   AccountSearchAction,
   ExternalShipperGetListAction,
@@ -33,9 +34,7 @@ import {
 
 import ContentContainer from "component/container/content.container";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import GetOrderDataModal from "screens/web-app/orders/component/GetOrderDataModal";
 import ProgressDownloadOrdersModal from "screens/web-app/orders/component/ProgressDownloadOrdersModal";
 import EcommerceOrderFilter from "screens/web-app/orders/component/EcommerceOrderFilter";
@@ -53,7 +52,7 @@ import CustomerIcon from "assets/icon/customer-icon.svg";
 import DeliveryrIcon from "assets/icon/gray-delivery.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
-import { nameQuantityWidth, StyledComponent, } from "screens/web-app/orders/orderStyles";
+import { nameQuantityWidth, StyledComponent } from "screens/web-app/orders/orderStyles";
 import useAuthorization from "hook/useAuthorization";
 import { SourceResponse } from "model/response/order/source.response";
 import { getListSourceRequest } from "domain/actions/product/source.action";
@@ -61,12 +60,19 @@ import { DeliveryServiceResponse, OrderResponse } from "model/response/order/ord
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { HttpStatus } from "config/http-status.config";
 import { FulFillmentStatus, OrderStatus } from "utils/Constants";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import {
-  downloadWebAppPrintForm, downloadWebAppOrderAction,
-  exitWebAppJobsAction, getWebAppShopList,
+  downloadWebAppPrintForm,
+  downloadWebAppOrderAction,
+  exitWebAppJobsAction,
+  getWebAppShopList,
 } from "domain/actions/web-app/web-app.actions";
-import { generateQuery, handleFetchApiError, isFetchApiSuccessful, isNullOrUndefined } from "utils/AppUtils";
+import {
+  generateQuery,
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isNullOrUndefined,
+} from "utils/AppUtils";
 import BaseResponse from "base/base.response";
 import { getWebAppJobsApi, getProgressDownloadEcommerceApi } from "service/web-app/web-app.service";
 
@@ -78,7 +84,7 @@ import { changeOrderStatusToPickedService } from "service/order/order.service";
 import { exportFile, getFile } from "service/other/export.service";
 import ExportModal from "screens/order-online/modal/export.modal";
 import EditNote from "screens/order-online/component/edit-note";
-import {getEcommerceIdByChannelId} from "screens/web-app/common/commonAction";
+import { getEcommerceIdByChannelId } from "screens/web-app/common/commonAction";
 import ExitProgressModal from "screens/web-app/orders/component/ExitProgressModal";
 import PrintEcommerceDeliveryNoteProcess from "screens/web-app/orders/process-modal/print-ecommerce-delivery-note/PrintEcommerceDeliveryNoteProcess";
 import queryString from "query-string";
@@ -86,7 +92,6 @@ import { RootReducerType } from "model/reducers/RootReducerType";
 import { getSaveSearchLocalStorage, setSaveSearchhLocalStorage } from "utils/LocalStorageUtils";
 import { SaveSearchType } from "utils/SaveSearchType";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-
 
 const initQuery: EcommerceOrderSearchQuery = {
   page: 1,
@@ -147,7 +152,6 @@ const ALL_CHANNEL = ["WEBSITE", "APP", "LANDINGPAGE"];
 const ordersViewPermission = [EcommerceOrderPermission.orders_read];
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
-
 const WebAppOrders: React.FC = () => {
   const query = useQuery();
   const dispatch = useDispatch();
@@ -155,10 +159,7 @@ const WebAppOrders: React.FC = () => {
   const location = useLocation();
   const { TabPane } = Tabs;
 
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
-
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   const [allowOrdersView] = useAuthorization({
     acceptPermissions: ordersViewPermission,
@@ -192,9 +193,9 @@ const WebAppOrders: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   //save search
-  const [saveSearchList,setSaveSearchList] = useState<Array<any>>([]);
-  const [isShowButtonRemoveSaveSearch,setIsShowButtonRemoveSaveSearch] = useState(false);
-  const [isShowRemoveSaveSearchModal,setIsShowRemoveSaveSearchModal] = useState(false);
+  const [saveSearchList, setSaveSearchList] = useState<Array<any>>([]);
+  const [isShowButtonRemoveSaveSearch, setIsShowButtonRemoveSaveSearch] = useState(false);
+  const [isShowRemoveSaveSearchModal, setIsShowRemoveSaveSearchModal] = useState(false);
   const user = useSelector((state: RootReducerType) => state.userReducer.account);
   useState<Array<AccountResponse>>();
   let dataQuery: EcommerceOrderSearchQuery = {
@@ -206,7 +207,7 @@ const WebAppOrders: React.FC = () => {
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [listOrderProcessingStatus, setListOrderProcessingStatus] = useState<
     OrderProcessingStatusModel[]
-    >([]);
+  >([]);
 
   const [pageQuery, setPageQuery] = useState(1);
 
@@ -231,21 +232,24 @@ const WebAppOrders: React.FC = () => {
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setDeliveryServices(response)
-      })
+        setDeliveryServices(response);
+      }),
     );
-    dispatch(ExternalShipperGetListAction((response) => {
-      if(response) {
-        setShippers(response)
-      }
-    }));
+    dispatch(
+      ExternalShipperGetListAction((response) => {
+        if (response) {
+          setShippers(response);
+        }
+      }),
+    );
   }, [dispatch]);
 
-
   useEffect(() => {
-    dispatch(getWebAppShopList({}, (responseData) => {
-      setWebAppShopList(responseData);
-    }));
+    dispatch(
+      getWebAppShopList({}, (responseData) => {
+        setWebAppShopList(responseData);
+      }),
+    );
   }, [dispatch]);
 
   const onExport = useCallback(
@@ -299,18 +303,19 @@ const WebAppOrders: React.FC = () => {
       EXPORT_IDs.selectedOrders,
       EXPORT_IDs.ordersFound,
       listExportFile,
-    ]
+    ],
   );
 
   const checkExportFile = useCallback(() => {
-
     let getFilePromises = listExportFile.map((code) => {
       return getFile(code);
     });
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(Math.round(response.data?.num_of_record / response.data?.total * 100));
+          setExportProgress(
+            Math.round((response.data?.num_of_record / response.data?.total) * 100),
+          );
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -333,7 +338,6 @@ const WebAppOrders: React.FC = () => {
       });
     });
   }, [listExportFile]);
-
 
   const status_order = [
     { name: "Nháp", value: "draft", className: "gray-status" },
@@ -358,15 +362,12 @@ const WebAppOrders: React.FC = () => {
   };
 
   // set ecommerce order data
-  const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel> | false) => {
-      setTableLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
+    setTableLoading(false);
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
 
   const getEcommerceOrderList = useCallback(() => {
     const requestParams = { ...params };
@@ -375,10 +376,12 @@ const WebAppOrders: React.FC = () => {
     }
 
     setTableLoading(true);
-    dispatch(getListOrderAction(requestParams, (result) => {
-      setTableLoading(false);
-      setSearchResult(result);
-    }));
+    dispatch(
+      getListOrderAction(requestParams, (result) => {
+        setTableLoading(false);
+        setSearchResult(result);
+      }),
+    );
   }, [dispatch, params, setSearchResult]);
 
   const editNote = useCallback(
@@ -393,15 +396,13 @@ const WebAppOrders: React.FC = () => {
       dispatch(
         updateOrderPartial(params, orderID, () => {
           getEcommerceOrderList();
-        })
+        }),
       );
     },
-    [dispatch, getEcommerceOrderList]
+    [dispatch, getEcommerceOrderList],
   );
 
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<OrderModel>>
-    >([
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<OrderModel>>>([
     {
       title: "ID",
       key: "order_id",
@@ -411,9 +412,14 @@ const WebAppOrders: React.FC = () => {
       width: 175,
       render: (data: any, item: OrderModel) => (
         <div>
-          <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank"><strong>{data.code}</strong></Link>
+          <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
+            <strong>{data.code}</strong>
+          </Link>
           <div>{ConvertUtcToLocalDate(data.created_date, "HH:mm DD/MM/YYYY")}</div>
-          <div><span style={{ color: "#666666" }}>Kho: </span><span>{data.store}</span></div>
+          <div>
+            <span style={{ color: "#666666" }}>Kho: </span>
+            <span>{data.store}</span>
+          </div>
           <div>({data.reference_code})</div>
         </div>
       ),
@@ -436,7 +442,9 @@ const WebAppOrders: React.FC = () => {
               </Link>{" "}
             </div>
             <div className="p-b-3">{record.shipping_address.phone}</div>
-            <div><strong>{record.ecommerce_shop_name}</strong></div>
+            <div>
+              <strong>{record.ecommerce_shop_name}</strong>
+            </div>
           </div>
         ) : (
           <div className="customer custom-td">
@@ -494,7 +502,7 @@ const WebAppOrders: React.FC = () => {
                             thousandSeparator={true}
                           />
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>
@@ -605,39 +613,41 @@ const WebAppOrders: React.FC = () => {
         const shipment = item.fulfillments && item.fulfillments[0] && item.fulfillments[0].shipment;
         return (
           <>
-            {shipment && (shipment.delivery_service_provider_type === "external_service" || shipment.delivery_service_provider_type === "shopee") &&
+            {shipment &&
+              (shipment.delivery_service_provider_type === "external_service" ||
+                shipment.delivery_service_provider_type === "shopee") && (
                 <>
-                    <strong>{shipment?.delivery_service_provider_name}</strong>
-                    <div>
-                        <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
-                        <NumberFormat
-                            value={shipment?.shipping_fee_informed_to_customer}
-                            className="foo"
-                            displayType={"text"}
-                            thousandSeparator={true}
-                        />
-                    </div>
-                    <div>
-                        <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
-                        <NumberFormat
-                            value={shipment?.shipping_fee_paid_to_three_pls}
-                            className="foo"
-                            displayType={"text"}
-                            thousandSeparator={true}
-                        />
-                    </div>
+                  <strong>{shipment?.delivery_service_provider_name}</strong>
+                  <div>
+                    <img src={CustomerIcon} alt="" style={{ marginRight: 5, height: 15 }} />
+                    <NumberFormat
+                      value={shipment?.shipping_fee_informed_to_customer}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
+                  <div>
+                    <img src={DeliveryrIcon} alt="" style={{ marginRight: 5, height: 13 }} />
+                    <NumberFormat
+                      value={shipment?.shipping_fee_paid_to_three_pls}
+                      className="foo"
+                      displayType={"text"}
+                      thousandSeparator={true}
+                    />
+                  </div>
                 </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "pick_at_store" &&
-                <>
-                    <strong>Nhận tại cửa hàng</strong>
-                </>
-            }
-            {shipment && shipment.delivery_service_provider_type === "Shipper" &&
-                <>
-                    <strong>Tự giao hàng</strong>
-                </>
-            }
+              )}
+            {shipment && shipment.delivery_service_provider_type === "pick_at_store" && (
+              <>
+                <strong>Nhận tại cửa hàng</strong>
+              </>
+            )}
+            {shipment && shipment.delivery_service_provider_type === "Shipper" && (
+              <>
+                <strong>Tự giao hàng</strong>
+              </>
+            )}
           </>
         );
       },
@@ -650,9 +660,7 @@ const WebAppOrders: React.FC = () => {
       align: "center",
       width: 150,
       render: (status_value: string) => {
-        const status = status_order.find(
-          (status) => status.value === status_value
-        );
+        const status = status_order.find((status) => status.value === status_value);
         return (
           <StyledStatus>
             <div className={status?.className}>{status?.name}</div>
@@ -666,9 +674,7 @@ const WebAppOrders: React.FC = () => {
       visible: true,
       width: 200,
       render: (item: any) => {
-        return (
-          <div className="p-b-3">{item.shipping_address.full_address}</div>
-        )
+        return <div className="p-b-3">{item.shipping_address.full_address}</div>;
       },
     },
     {
@@ -734,7 +740,9 @@ const WebAppOrders: React.FC = () => {
       visible: true,
       align: "center",
       width: 150,
-      render: (completed_on: string) => <div>{ConvertUtcToLocalDate(completed_on, "DD/MM/YYYY")}</div>,
+      render: (completed_on: string) => (
+        <div>{ConvertUtcToLocalDate(completed_on, "DD/MM/YYYY")}</div>
+      ),
     },
     {
       title: "Ngày huỷ",
@@ -742,9 +750,7 @@ const WebAppOrders: React.FC = () => {
       key: "cancelled_on",
       visible: true,
       align: "center",
-      render: (cancelled_on) => (
-        <div>{ConvertUtcToLocalDate(cancelled_on, "DD/MM/YYYY")}</div>
-      ),
+      render: (cancelled_on) => <div>{ConvertUtcToLocalDate(cancelled_on, "DD/MM/YYYY")}</div>,
     },
   ]);
 
@@ -763,13 +769,13 @@ const WebAppOrders: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      setPageQuery(page)
+      setPageQuery(page);
       let newPrams = { ...params, page, limit: size };
       let queryParam = generateQuery(newPrams);
       history.push(`${location.pathname}?${queryParam}`);
-      setPrams(newPrams)
+      setPrams(newPrams);
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const onFilter = useCallback(
@@ -779,18 +785,16 @@ const WebAppOrders: React.FC = () => {
       let queryParam = generateQuery(newPrams);
       if (currentParam !== queryParam) {
         history.push(`${location.pathname}?${queryParam}`);
-
       }
     },
-    [history, location.pathname, pageQuery, params]
+    [history, location.pathname, pageQuery, params],
   );
 
   const onClearFilter = useCallback(() => {
-    setPrams(initQuery)
+    setPrams(initQuery);
     let queryParam = generateQuery(initQuery);
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);
-
 
   // handle process modal
   const [isVisibleProcessModal, setIsVisibleProcessModal] = useState<boolean>(false);
@@ -807,17 +811,17 @@ const WebAppOrders: React.FC = () => {
     setCommonProcessId(null);
     setCommonProcessPercent(0);
     setCommonProcessData(null);
-  }
+  };
 
   // handle exit process modal
   const [isVisibleExitProcessModal, setIsVisibleExitProcessModal] = useState<boolean>(false);
   const [exitProcessModal, setExitProcessModal] = useState<any>({
-    exitProgressContent: <></>
+    exitProgressContent: <></>,
   });
 
   const onCancelExitProcessModal = () => {
     setIsVisibleExitProcessModal(false);
-  }
+  };
 
   const onOkExitProcessModal = () => {
     resetCommonProcess();
@@ -829,7 +833,7 @@ const WebAppOrders: React.FC = () => {
           if (responseData) {
             showSuccess(responseData);
           }
-        })
+        }),
       );
     }
   };
@@ -843,7 +847,11 @@ const WebAppOrders: React.FC = () => {
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(response.data.total)
+        ) {
           const responseData = response.data;
           setCommonProcessData(responseData);
           if (responseData.finish) {
@@ -858,8 +866,9 @@ const WebAppOrders: React.FC = () => {
               showError(responseData.api_error);
             }
           } else {
-            const progressCount = responseData.total_created + responseData.total_updated + responseData.total_error;
-            const percent = Math.floor(progressCount / responseData.total * 100);
+            const progressCount =
+              responseData.total_created + responseData.total_updated + responseData.total_error;
+            const percent = Math.floor((progressCount / responseData.total) * 100);
             setCommonProcessPercent(percent);
           }
         }
@@ -909,49 +918,58 @@ const WebAppOrders: React.FC = () => {
   };
 
   const downloadEcommerceDeliveryNote = useCallback((data: any) => {
-    if(data && data.process_id){
+    if (data && data.process_id) {
       setCommonProcessId(data.process_id);
       setIsVisibleProcessModal(true);
       setIsProcessing(true);
       setProcessMessage({
         success: "Tải dữ liệu phiếu giao hàng sàn thành công!",
-      })
+      });
 
       setExitProcessModal({
-        exitProgressContent:
+        exitProgressContent: (
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src={DeleteIcon} alt="" />
             <div style={{ marginLeft: 15 }}>
-              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải phiếu giao hàng không?</strong>
-              <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải phiếu giao hàng, bạn vẫn có thể tải lại sau nếu muốn.</div>
+              <strong style={{ fontSize: 16 }}>
+                Bạn có chắc chắn muốn hủy tải phiếu giao hàng không?
+              </strong>
+              <div style={{ fontSize: 14 }}>
+                Hệ thống sẽ dừng việc tải phiếu giao hàng, bạn vẫn có thể tải lại sau nếu muốn.
+              </div>
             </div>
           </div>
-      })
+        ),
+      });
     }
-  }, [])
+  }, []);
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handlePrintEcommerceDeliveryNote = useCallback(() => {
-      if (selectedRowKeys?.length > 0) {
-        let order_list: any = [];
-        selectedRowKeys.forEach(idSelected => {
-          const orderMatched = data?.items.find(i => i.id === idSelected)
-          if (orderMatched) {
-            const orderRequest = {
-              "order_sn": orderMatched.reference_code,
-              "tracking_number": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.tracking_code,
-              "delivery_name": orderMatched.fulfillments.find((item: any) => item.status !== FulFillmentStatus.CANCELLED)?.shipment?.delivery_service_provider_name,
-              "ecommerce_id": getEcommerceIdByChannelId(orderMatched.channel_id),
-              "shop_id": orderMatched.ecommerce_shop_id
-            }
-            order_list.push(orderRequest)
-          }
-        })
-        resetCommonProcess();
-        setIsPrintEcommerceDeliveryNote(true);
-        dispatch(downloadWebAppPrintForm({order_list}, downloadEcommerceDeliveryNote))
-      }
-    }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
+    if (selectedRowKeys?.length > 0) {
+      let order_list: any = [];
+      selectedRowKeys.forEach((idSelected) => {
+        const orderMatched = data?.items.find((i) => i.id === idSelected);
+        if (orderMatched) {
+          const orderRequest = {
+            order_sn: orderMatched.reference_code,
+            tracking_number: orderMatched.fulfillments.find(
+              (item: any) => item.status !== FulFillmentStatus.CANCELLED,
+            )?.shipment?.tracking_code,
+            delivery_name: orderMatched.fulfillments.find(
+              (item: any) => item.status !== FulFillmentStatus.CANCELLED,
+            )?.shipment?.delivery_service_provider_name,
+            ecommerce_id: getEcommerceIdByChannelId(orderMatched.channel_id),
+            shop_id: orderMatched.ecommerce_shop_id,
+          };
+          order_list.push(orderRequest);
+        }
+      });
+      resetCommonProcess();
+      setIsPrintEcommerceDeliveryNote(true);
+      dispatch(downloadWebAppPrintForm({ order_list }, downloadEcommerceDeliveryNote));
+    }
+  }, [selectedRowKeys, dispatch, downloadEcommerceDeliveryNote, data?.items]);
   // handle print ecommerce delivery note
 
   // handle print yody delivery note
@@ -967,7 +985,7 @@ const WebAppOrders: React.FC = () => {
       const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
       window.open(printPreviewUrl);
     },
-    [selectedRowKeys]
+    [selectedRowKeys],
   );
 
   const handlePrintShipment = () => {
@@ -975,7 +993,7 @@ const WebAppOrders: React.FC = () => {
     selectedRow.forEach((row) =>
       row.fulfillments?.forEach((single) => {
         ids.push(single.id);
-      })
+      }),
     );
 
     dispatch(showLoading());
@@ -983,7 +1001,7 @@ const WebAppOrders: React.FC = () => {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
         } else {
-          handleFetchApiError(response, "In phiếu giao hàng", dispatch)
+          handleFetchApiError(response, "In phiếu giao hàng", dispatch);
         }
       })
       .catch((error) => {
@@ -994,7 +1012,7 @@ const WebAppOrders: React.FC = () => {
       });
 
     printAction("shipment");
-  }
+  };
   // end handle print yody delivery note
 
   const handleExportOrder = () => {
@@ -1004,28 +1022,28 @@ const WebAppOrders: React.FC = () => {
       setStatusExport(1);
     }
     setShowExportModal(true);
-  }
+  };
 
   const actionList = [
     {
       id: 1,
       icon: <FileExcelOutlined />,
       name: "Xuất excel",
-      onClick: () => handleExportOrder()
+      onClick: () => handleExportOrder(),
     },
     {
       id: 2,
       name: "In phiếu giao hàng",
       icon: <PrinterOutlined />,
       disabled: !selectedRowKeys?.length || !data.items.length,
-      onClick: () => handlePrintShipment()
+      onClick: () => handlePrintShipment(),
     },
     {
       id: 3,
       name: "In phiếu xuất kho",
       icon: <PrinterOutlined />,
       disabled: !selectedRowKeys?.length || !data.items.length,
-      onClick: () => printAction("stock_export")
+      onClick: () => printAction("stock_export"),
     },
     // {
     //   id: "ecommerce_print_shipment",
@@ -1037,20 +1055,14 @@ const WebAppOrders: React.FC = () => {
   ];
   // end handle action button
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setAccounts(data.items);
+  }, []);
 
   // handle get order
   const openGetOrderModal = () => {
@@ -1095,7 +1107,6 @@ const WebAppOrders: React.FC = () => {
     return () => clearInterval(getFileInterval);
   }, [checkExportFile, listExportFile, statusExport]);
 
-
   useEffect(() => {
     if (allowOrdersView) {
       getEcommerceOrderList();
@@ -1109,54 +1120,52 @@ const WebAppOrders: React.FC = () => {
       dispatch(PaymentMethodGetList(setListPaymentMethod));
       dispatch(StoreGetListAction(setStore));
       dispatch(
-        actionFetchListOrderProcessingStatus(
-          {},
-          (data: OrderProcessingStatusResponseModel) => {
-            setListOrderProcessingStatus(data.items);
-          }
-        )
+        actionFetchListOrderProcessingStatus({}, (data: OrderProcessingStatusResponseModel) => {
+          setListOrderProcessingStatus(data.items);
+        }),
       );
     }
   }, [allowOrdersView, dispatch, setDataAccounts]);
 
-
   // handle progress download orders
   const [isVisibleConflictModal, setIsVisibleConflictModal] = useState<boolean>(false);
-  const [isVisibleProgressDownloadOrdersModal, setIsVisibleProgressDownloadOrdersModal] = useState<boolean>(false);
-  const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] = useState<boolean>(false);
+  const [isVisibleProgressDownloadOrdersModal, setIsVisibleProgressDownloadOrdersModal] =
+    useState<boolean>(false);
+  const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] =
+    useState<boolean>(false);
   const [processId, setProcessId] = useState(null);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressData, setProgressData] = useState(null);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
-  const [tabActiveSaveSearch,setTabActiveSaveSearch] = useState("all");
-  const [isSearching,setIsSearching] = useState(false);
+  const [tabActiveSaveSearch, setTabActiveSaveSearch] = useState("all");
+  const [isSearching, setIsSearching] = useState(false);
 
   const resetProgress = () => {
     setProcessId(null);
     setProgressPercent(0);
     setProgressData(null);
-  }
+  };
 
   const closeConflictDownloadModal = () => {
     setIsVisibleConflictModal(false);
-  }
+  };
 
   // handle progress download orders modal
   const onCancelProgressDownloadOrder = () => {
     setIsVisibleExitDownloadOrdersModal(true);
-  }
+  };
 
   const onOKProgressDownloadOrder = () => {
     resetProgress();
     reloadPage();
     setIsVisibleProgressDownloadOrdersModal(false);
-  }
+  };
   // end
 
   // handle exit download orders modal
   const onCancelExitDownloadOrdersModal = () => {
     setIsVisibleExitDownloadOrdersModal(false);
-  }
+  };
 
   const onOkExitDownloadOrdersModal = () => {
     resetProgress();
@@ -1167,33 +1176,39 @@ const WebAppOrders: React.FC = () => {
           setIsVisibleExitDownloadOrdersModal(false);
           onOKProgressDownloadOrder();
         }
-      })
+      }),
     );
-  }
+  };
   // end
 
   const getProgress = useCallback(() => {
-    let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
+    let getProgressPromises: Promise<BaseResponse<any>> =
+      getProgressDownloadEcommerceApi(processId);
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(response.data.total)
+        ) {
           const processData = response.data;
           setProgressData(processData);
-          const progressCount = processData.total_created + processData.total_updated + processData.total_error;
+          const progressCount =
+            processData.total_created + processData.total_updated + processData.total_error;
           if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
-            if (!processData.api_error){
+            if (!processData.api_error) {
               showSuccess("Hoàn thành tải đơn hàng");
-            }else {
+            } else {
               resetProgress();
               setIsVisibleProgressDownloadOrdersModal(false);
               showError(processData.api_error);
             }
           } else {
-            const percent = Math.floor(progressCount / processData.total * 100);
+            const percent = Math.floor((progressCount / processData.total) * 100);
             setProgressPercent(percent);
           }
         }
@@ -1211,19 +1226,19 @@ const WebAppOrders: React.FC = () => {
     const getFileInterval = setInterval(getProgress, 3000);
     return () => clearInterval(getFileInterval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProgress,  ]);
-// end progress download orders
+  }, [getProgress]);
+  // end progress download orders
 
   window.onbeforeunload = (e) => {
-    if (processId){
-      const message = "Quá trình sẽ vẫn tiếp tục nếu bạn rời khỏi trang?"
+    if (processId) {
+      const message = "Quá trình sẽ vẫn tiếp tục nếu bạn rời khỏi trang?";
       e = e || window.event;
-      if (e){
+      if (e) {
         e.returnValue = message;
       }
-      return message
+      return message;
     }
-  }
+  };
 
   useEffect(() => {
     let dataQuery: EcommerceOrderSearchQuery = {
@@ -1232,96 +1247,98 @@ const WebAppOrders: React.FC = () => {
     };
     setPrams(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch,setSearchResult, location.search]);
+  }, [dispatch, setSearchResult, location.search]);
 
   //savesearch
   const getListSaveSearch = () => {
     let key = "savesearch";
     let value = getSaveSearchLocalStorage(key);
     let result: Array<any> = [];
-    if(value){
-      result = JSON.parse(value)
-        result = result.filter((a) => {
-          return a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER;
+    if (value) {
+      result = JSON.parse(value);
+      result = result.filter((a) => {
+        return a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER;
       });
     }
     return result;
-  }
+  };
   useEffect(() => {
     setSaveSearchList(getListSaveSearch());
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[history,params])
+  }, [history, params]);
   const handleActiveSaveSearch = () => {
     let paramQuery = generateQuery(params);
-    let newParams = {...params};
+    let newParams = { ...params };
     newParams.page = null;
     newParams.limit = null;
-    if(generateQuery(newParams) === ""){
+    if (generateQuery(newParams) === "") {
       history.push(`/web-app-orders`);
-    }
-    else{
+    } else {
       history.push(`/web-app-orders?${paramQuery}`);
     }
     let saveSearchList = getListSaveSearch();
-    setSaveSearchList(saveSearchList)
+    setSaveSearchList(saveSearchList);
     setIsSearching(false);
-    if(saveSearchList){
-      let saveSearch = saveSearchList.find((a) => a.value === paramQuery && a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER);
-      if(saveSearch){
+    if (saveSearchList) {
+      let saveSearch = saveSearchList.find(
+        (a) =>
+          a.value === paramQuery && a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER,
+      );
+      if (saveSearch) {
         setIsShowButtonRemoveSaveSearch(true);
-        setTabActiveSaveSearch(saveSearch.id.toString())
-      }
-      else{
-        let newParam = {...params};
+        setTabActiveSaveSearch(saveSearch.id.toString());
+      } else {
+        let newParam = { ...params };
         newParam.page = null;
         newParam.limit = null;
         let newParamQuery = generateQuery(newParam);
-        if(newParamQuery === ""){
+        if (newParamQuery === "") {
           setTabActiveSaveSearch("all");
-        }
-        else{
+        } else {
           setIsSearching(true);
           setIsShowButtonRemoveSaveSearch(false);
           setTabActiveSaveSearch("searching");
         }
       }
     }
-  }
+  };
   const handleRemoveSaveSearch = () => {
     let saveSearchList = getListSaveSearch();
-    if(saveSearchList){
+    if (saveSearchList) {
       let paramQuery = generateQuery(params);
-      let index = saveSearchList.findIndex((a) => a.value === paramQuery && a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER);
-      if(index !== -1){
-        saveSearchList.splice(index,1)
-        setSaveSearchhLocalStorage("savesearch",JSON.stringify(saveSearchList));
+      let index = saveSearchList.findIndex(
+        (a) =>
+          a.value === paramQuery && a.userId === user?.id && a.type === SaveSearchType.WEBAPP_ORDER,
+      );
+      if (index !== -1) {
+        saveSearchList.splice(index, 1);
+        setSaveSearchhLocalStorage("savesearch", JSON.stringify(saveSearchList));
         setIsShowButtonRemoveSaveSearch(false);
         setIsShowRemoveSaveSearchModal(false);
         history.push(`${location.pathname}`);
       }
     }
-  }
+  };
   const confirmRemoveSaveSearch = () => {
     setIsShowRemoveSaveSearchModal(true);
-  }
+  };
   useEffect(() => {
     handleActiveSaveSearch();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[history,params])
+  }, [history, params]);
   const handleChangeTabSaveSearch = (tab: string) => {
-    if(tab === "all"){
+    if (tab === "all") {
       history.push(`${location.pathname}`);
-    }
-    else{
-      if(saveSearchList){
+    } else {
+      if (saveSearchList) {
         let saveSearch = saveSearchList.find((a) => a.id === parseInt(tab));
-        if(saveSearch){
+        if (saveSearch) {
           setIsShowButtonRemoveSaveSearch(true);
           history.push(`${location.pathname}?${saveSearch.value}`);
         }
       }
     }
-  }
+  };
 
   return (
     <StyledComponent>
@@ -1338,7 +1355,7 @@ const WebAppOrders: React.FC = () => {
         ]}
         extra={
           <>
-            {allowOrdersDownload &&
+            {allowOrdersDownload && (
               <Button
                 disabled={tableLoading}
                 onClick={openGetOrderModal}
@@ -1348,82 +1365,77 @@ const WebAppOrders: React.FC = () => {
               >
                 Tải đơn hàng về
               </Button>
-            }
+            )}
           </>
         }
       >
         <AuthWrapper acceptPermissions={ordersViewPermission} passThrough>
-          {(allowed: boolean) => (allowed ?
-            <Card>
-              {
-                saveSearchList && saveSearchList.length > 0 && (
+          {(allowed: boolean) =>
+            allowed ? (
+              <Card>
+                {saveSearchList && saveSearchList.length > 0 && (
                   <Tabs
                     activeKey={tabActiveSaveSearch}
                     onChange={(active) => handleChangeTabSaveSearch(active)}
                     className="tabs-list"
-                    style={{padding:"0px",marginBottom:"15px"}}
+                    style={{ padding: "0px", marginBottom: "15px" }}
                   >
-                    <TabPane tab="Tất cả đơn hàng" key="all">
-                    </TabPane>
+                    <TabPane tab="Tất cả đơn hàng" key="all"></TabPane>
                     {saveSearchList.map((item) => {
-                      return (
-                        <TabPane tab={item.name} key={item.id}>
-                        </TabPane>
-                      )
+                      return <TabPane tab={item.name} key={item.id}></TabPane>;
                     })}
-                    {isSearching && (
-                      <TabPane tab="Tìm kiếm..." key="searching">
-                      </TabPane>
-                    )}
+                    {isSearching && <TabPane tab="Tìm kiếm..." key="searching"></TabPane>}
                   </Tabs>
-                )
-              }
-              <EcommerceOrderFilter
-                actionList={actionList}
-                onFilter={onFilter}
-                isLoading={tableLoading}
-                params={params}
-                listSource={listSource}
-                listStore={listStore}
-                accounts={accounts}
-                deliveryService={deliveryServices}
-                shippers={shippers}
-                listPaymentMethod={listPaymentMethod}
-                subStatus={listOrderProcessingStatus}
-                onShowColumnSetting={() => setShowSettingColumn(true)}
-                onClearFilter={() => onClearFilter()}
-                changeActiveTabSaveSearch={handleActiveSaveSearch}
-                deleteSaveSearch={confirmRemoveSaveSearch}
-                isShowButtonRemoveSaveSearch={isShowButtonRemoveSaveSearch}
-              />
+                )}
+                <EcommerceOrderFilter
+                  actionList={actionList}
+                  onFilter={onFilter}
+                  isLoading={tableLoading}
+                  params={params}
+                  listSource={listSource}
+                  listStore={listStore}
+                  accounts={accounts}
+                  deliveryService={deliveryServices}
+                  shippers={shippers}
+                  listPaymentMethod={listPaymentMethod}
+                  subStatus={listOrderProcessingStatus}
+                  onShowColumnSetting={() => setShowSettingColumn(true)}
+                  onClearFilter={() => onClearFilter()}
+                  changeActiveTabSaveSearch={handleActiveSaveSearch}
+                  deleteSaveSearch={confirmRemoveSaveSearch}
+                  isShowButtonRemoveSaveSearch={isShowButtonRemoveSaveSearch}
+                />
 
-              <CustomTable
-                isRowSelection
-                bordered
-                isLoading={tableLoading}
-                showColumnSetting={true}
-                scroll={{ x: 2400 }}
-                sticky={{ offsetScroll: 10, offsetHeader: 55 }}
-                pagination={
-                  tableLoading
-                    ? false
-                    : {
-                      pageSize: data.metadata.limit,
-                      total: data.metadata.total,
-                      current: data.metadata.page,
-                      showSizeChanger: true,
-                      onChange: onPageChange,
-                      onShowSizeChange: onPageChange,
-                    }
-                }
-                onSelectedChange={onSelectTableRow}
-                dataSource={data.items}
-                columns={columnFinal}
-                rowKey={(item: OrderModel) => item.id}
-                className="ecommerce-order-list"
-              />
-            </Card>
-            : <NoPermission />)}
+                <CustomTable
+                  isRowSelection
+                  bordered
+                  isLoading={tableLoading}
+                  showColumnSetting={true}
+                  scroll={{ x: 2400 }}
+                  sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+                  pagination={
+                    tableLoading
+                      ? false
+                      : {
+                          pageSize: data.metadata.limit,
+                          total: data.metadata.total,
+                          current: data.metadata.page,
+                          showSizeChanger: true,
+                          onChange: onPageChange,
+                          onShowSizeChange: onPageChange,
+                        }
+                  }
+                  onSelectedChange={onSelectTableRow}
+                  dataSource={data.items}
+                  columns={columnFinal}
+                  rowKey={(item: OrderModel) => item.id}
+                  className="ecommerce-order-list"
+                />
+              </Card>
+            ) : (
+              <NoPermission />
+            )
+          }
         </AuthWrapper>
 
         <ModalDeleteConfirm
@@ -1432,11 +1444,9 @@ const WebAppOrders: React.FC = () => {
           subTitle="Bạn có muốn xóa kết quả tìm kiếm này? Thao tác này không thể khôi phục."
           onCancel={() => setIsShowRemoveSaveSearchModal(false)}
           onOk={handleRemoveSaveSearch}
-        >
+        ></ModalDeleteConfirm>
 
-        </ModalDeleteConfirm>
-
-        {isShowGetOrderModal &&
+        {isShowGetOrderModal && (
           <GetOrderDataModal
             visible={isShowGetOrderModal}
             isLoading={isLoading}
@@ -1444,9 +1454,9 @@ const WebAppOrders: React.FC = () => {
             onCancel={cancelGetOrderModal}
             onOk={handleDownloadOrdersSync}
           />
-        }
+        )}
 
-        {isVisibleProgressDownloadOrdersModal &&
+        {isVisibleProgressDownloadOrdersModal && (
           <ProgressDownloadOrdersModal
             visible={isVisibleProgressDownloadOrdersModal}
             onCancel={onCancelProgressDownloadOrder}
@@ -1455,10 +1465,10 @@ const WebAppOrders: React.FC = () => {
             progressPercent={progressPercent}
             isDownloading={isDownloading}
           />
-        }
+        )}
 
         {/*print ecommerce delivery note process*/}
-        {isPrintEcommerceDeliveryNote && isVisibleProcessModal &&
+        {isPrintEcommerceDeliveryNote && isVisibleProcessModal && (
           <PrintEcommerceDeliveryNoteProcess
             visible={isPrintEcommerceDeliveryNote && isVisibleProcessModal}
             isProcessing={isProcessing}
@@ -1467,34 +1477,34 @@ const WebAppOrders: React.FC = () => {
             processData={commonProcessData}
             processPercent={commonProcessPercent}
           />
-        }
+        )}
 
-        {isVisibleExitProcessModal &&
+        {isVisibleExitProcessModal && (
           <ExitProgressModal
             visible={isVisibleExitProcessModal}
             onCancel={onCancelExitProcessModal}
             onOk={onOkExitProcessModal}
             exitProgressContent={exitProcessModal.exitProgressContent}
           />
-        }
+        )}
         {/*end print ecommerce delivery note process*/}
 
-        {isVisibleConflictModal &&
+        {isVisibleConflictModal && (
           <ConflictDownloadModal
             visible={isVisibleConflictModal}
             onCancel={closeConflictDownloadModal}
             onOk={closeConflictDownloadModal}
           />
-        }
+        )}
 
-        {isVisibleExitDownloadOrdersModal &&
+        {isVisibleExitDownloadOrdersModal && (
           <ExitDownloadOrdersModal
             visible={isVisibleExitDownloadOrdersModal}
             onCancel={onCancelExitDownloadOrdersModal}
             onOk={onOkExitDownloadOrdersModal}
             pageTitle={"Danh sách đơn hàng"}
           />
-        }
+        )}
 
         {showSettingColumn && (
           <ModalSettingColumn

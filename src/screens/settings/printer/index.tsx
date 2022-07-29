@@ -1,23 +1,23 @@
-import {PlusOutlined} from "@ant-design/icons";
-import {Button, Card, Form} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Card, Form } from "antd";
 import ContentContainer from "component/container/content.container";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
-import {PrintPermissions} from "config/permissions/setting.permisssion";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { PrintPermissions } from "config/permissions/setting.permisssion";
 import UrlConfig from "config/url.config";
-import {actionFetchListPrinter} from "domain/actions/printer/printer.action";
+import { actionFetchListPrinter } from "domain/actions/printer/printer.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {BasePrinterModel, PrinterResponseModel} from "model/response/printer.response";
-import {useCallback, useEffect, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link, useHistory, useLocation} from "react-router-dom";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { BasePrinterModel, PrinterResponseModel } from "model/response/printer.response";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import NoPermission from "screens/no-permission.screen";
-import {generateQuery} from "utils/AppUtils";
+import { generateQuery } from "utils/AppUtils";
 import FormFilter from "./component/FormFilter";
 import IconEdit from "./images/iconEdit.svg";
 import IconPrintHover from "./images/iconPrintHover.svg";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 const SettingPrinter: React.FC = () => {
   const FAKE_PRINT_CONTENT = "<p>This is fake print content print screen</p>";
@@ -34,9 +34,7 @@ const SettingPrinter: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
 
   const [form] = Form.useForm();
   const initialFormValue = {
@@ -49,7 +47,7 @@ const SettingPrinter: React.FC = () => {
   });
   const [allowCreatePrint] = useAuthorization({
     acceptPermissions: [PrintPermissions.CREATE],
-  }); 
+  });
   const query = useQuery();
 
   let queryName = query.get("name");
@@ -74,21 +72,18 @@ const SettingPrinter: React.FC = () => {
       queryParams.page = page;
       queryParams.limit = size;
       let queryParam = generateQuery(queryParams);
-      setQueryParams({...queryParams});
+      setQueryParams({ ...queryParams });
       history.replace(`${UrlConfig.PRINTER}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, queryParams]
+    [history, queryParams],
   );
 
   const goToPageDetail = (id: string | number) => {
     history.push(`${UrlConfig.PRINTER}/${id}`);
   };
 
-  const handleEdit = (
-    e: React.MouseEvent<HTMLElement, MouseEvent>,
-    id: string | number
-  ) => {
+  const handleEdit = (e: React.MouseEvent<HTMLElement, MouseEvent>, id: string | number) => {
     e.stopPropagation();
     history.push(`${UrlConfig.PRINTER}/${id}?action=edit`);
   };
@@ -123,11 +118,9 @@ const SettingPrinter: React.FC = () => {
       render: (value, row, index) => {
         let result = value;
         if (bootstrapReducer) {
-          const selectedPrintSize = bootstrapReducer.data?.print_size.find(
-            (singlePrinterSize) => {
-              return singlePrinterSize.value === value;
-            }
-          );
+          const selectedPrintSize = bootstrapReducer.data?.print_size.find((singlePrinterSize) => {
+            return singlePrinterSize.value === value;
+          });
           if (selectedPrintSize) {
             result = selectedPrintSize.name;
           }
@@ -143,7 +136,7 @@ const SettingPrinter: React.FC = () => {
       width: "15%",
       render: (value, row, index) => {
         if (value) {
-          return <span style={{color: "#27AE60"}}>Áp dụng</span>;
+          return <span style={{ color: "#27AE60" }}>Áp dụng</span>;
         }
       },
     },
@@ -172,10 +165,7 @@ const SettingPrinter: React.FC = () => {
                 e.stopPropagation();
               }}
             >
-              <Link
-                to={`${UrlConfig.PRINTER}/${row.id}?action=edit&print=true`}
-                target="_blank"
-              >
+              <Link to={`${UrlConfig.PRINTER}/${row.id}?action=edit&print=true`} target="_blank">
                 <img src={IconPrintHover} alt="" className="icon--hover" />
                 In thử
               </Link>
@@ -233,7 +223,7 @@ const SettingPrinter: React.FC = () => {
             initialValues={initialFormValue}
             onFinish={handleSubmit}
             className="searchForm"
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
           >
             <FormFilter isCanEditFormHeader={true} isPagePrinterDetail={false} />
           </Form>
@@ -262,7 +252,7 @@ const SettingPrinter: React.FC = () => {
         setListPrinter(data.items);
         setTotal(data.metadata.total);
         setTableLoading(false);
-      })
+      }),
     );
   }, [dispatch, queryParams, queryStoreId, queryName]);
 
@@ -322,7 +312,7 @@ const SettingPrinter: React.FC = () => {
               }}
             />
           </Card>
-          <div style={{display: "none"}}>
+          <div style={{ display: "none" }}>
             <div className="printContent" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{

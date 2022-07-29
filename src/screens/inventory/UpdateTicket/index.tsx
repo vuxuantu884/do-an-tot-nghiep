@@ -2,7 +2,19 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from 
 import "./index.scss";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import { AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Table, Upload } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  Upload,
+} from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { UploadOutlined } from "@ant-design/icons";
@@ -25,7 +37,13 @@ import {
   inventoryUploadFileAction,
   updateInventoryTransferAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { FileUrl, InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
+import {
+  FileUrl,
+  InventoryTransferDetailItem,
+  LineItem,
+  StockTransferSubmit,
+  Store,
+} from "model/inventory/transfer";
 
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
@@ -60,10 +78,10 @@ const VARIANTS_FIELD = "line_items";
 let barCode = "";
 
 const UpdateTicket: FC = () => {
-  const [fromStores,setFromStores] = useState<Array<AccountStoreResponse>>();
+  const [fromStores, setFromStores] = useState<Array<AccountStoreResponse>>();
   const [form] = Form.useForm();
   const [dataTable, setDataTable] = useState<Array<VariantResponse> | any>(
-    [] as Array<VariantResponse>
+    [] as Array<VariantResponse>,
   );
 
   const history = useHistory();
@@ -80,16 +98,16 @@ const UpdateTicket: FC = () => {
   const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
-  const [isVisibleModalWarning, setIsVisibleModalWarning] =
-    useState<boolean>(false);
-  const [initDataForm, setInitDataForm] =
-    useState<InventoryTransferDetailItem | null>(null);
+  const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
+  const [initDataForm, setInitDataForm] = useState<InventoryTransferDetailItem | null>(null);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
 
   const location = useLocation();
-  const isContinueCreateImport = useSelector((state: any) => state.inventoryReducer.isContinueCreateImport);
+  const isContinueCreateImport = useSelector(
+    (state: any) => state.inventoryReducer.isContinueCreateImport,
+  );
   const stateImport: any = location.state;
   const query = useQuery();
   const queryParam: any = getQueryParams(query);
@@ -112,26 +130,27 @@ const UpdateTicket: FC = () => {
         form.setFieldsValue(result);
         setInitDataForm(result);
         setDataTable(result.line_items);
-        const listFile: any = result.attached_files?.map((item: string ) => {
+        const listFile: any = result.attached_files?.map((item: string) => {
           return {
             name: item,
             url: item,
-          }
+          };
         });
         setFileList(listFile);
         const fileCurrent = listFile?.map((item: any) => item.url);
         form.setFieldsValue({ attached_files: fileCurrent });
-        setToStoreData(stores.find(e=>e.id=== result.to_store_id));
+        setToStoreData(stores.find((e) => e.id === result.to_store_id));
       }
     },
-    [CopyId, form, stores]
+    [CopyId, form, stores],
   );
 
   function onQuantityChange(quantity: number | null, index: number) {
     const dataTableClone = _.cloneDeep(dataTable);
     dataTableClone[index].transfer_quantity = quantity;
 
-    dataTableClone[index].amount = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
+    dataTableClone[index].amount =
+      dataTableClone[index].transfer_quantity * dataTableClone[index].price;
     setDataTable(dataTableClone);
   }
 
@@ -151,24 +170,26 @@ const UpdateTicket: FC = () => {
     setDataTable(temps);
   }
 
-  const getMe = useCallback(async ()=>{
-    const res = await callApiNative({isShowLoading: false},dispatch,getAccountDetail);
+  const getMe = useCallback(async () => {
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getAccountDetail);
     if (res && res.account_stores) {
       setFromStores(res.account_stores);
     }
-  },[dispatch]);
+  }, [dispatch]);
 
-  const getStores = useCallback(async ()=>{
-    const res = await callApiNative({isShowLoading: false},dispatch,getStoreApi,{ status: "active", simple: true });
+  const getStores = useCallback(async () => {
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getStoreApi, {
+      status: "active",
+      simple: true,
+    });
     if (res) {
       setStores(res);
     }
-  },[dispatch]);
+  }, [dispatch]);
 
   useEffect(() => {
     getStores();
     getMe();
-
   }, [dispatch, getMe, getStores]);
 
   // get store
@@ -214,7 +235,7 @@ const UpdateTicket: FC = () => {
       stores.forEach((element: any) => {
         if (element.id === fromStores[0].store_id) {
           form.setFieldsValue({
-            from_store_id: CopyId ? element.id : initDataForm?.from_store_id
+            from_store_id: CopyId ? element.id : initDataForm?.from_store_id,
           });
           setFormStoreData(element);
         }
@@ -226,7 +247,7 @@ const UpdateTicket: FC = () => {
         return {
           store_id: i.id,
           store: i.name,
-        }
+        };
       });
       setFromStores(newStore);
     }
@@ -248,13 +269,14 @@ const UpdateTicket: FC = () => {
     }
   };
 
-  const [resultSearch, setResultSearch] = useState<
-    PageResponse<VariantResponse> | any
-    >();
+  const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
-  const onSearch = useCallback((value: string)=>{
-    setKeySearch(value);
-  },[setKeySearch]);
+  const onSearch = useCallback(
+    (value: string) => {
+      setKeySearch(value);
+    },
+    [setKeySearch],
+  );
 
   const onSearchProduct = useCallback(
     (value: string) => {
@@ -272,11 +294,13 @@ const UpdateTicket: FC = () => {
               store_ids: storeId,
               info: value.trim(),
             },
-            setResultSearch
-          )
+            setResultSearch,
+          ),
         );
       }
-    },[dispatch, setResultSearch, form]);
+    },
+    [dispatch, setResultSearch, form],
+  );
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -289,59 +313,54 @@ const UpdateTicket: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSelectProduct = useCallback((value: string, item?: VariantResponse) => {
-    const dataTemp = [...dataTable];
-    let selectedItem = resultSearch?.items?.find(
-      (variant: VariantResponse) => variant.id.toString() === value
-    );
+  const onSelectProduct = useCallback(
+    (value: string, item?: VariantResponse) => {
+      const dataTemp = [...dataTable];
+      let selectedItem = resultSearch?.items?.find(
+        (variant: VariantResponse) => variant.id.toString() === value,
+      );
 
-    if (item)
-      selectedItem = item;
+      if (item) selectedItem = item;
 
-    const variantPrice =
-      selectedItem &&
-      selectedItem.variant_prices &&
-      selectedItem.variant_prices[0] &&
-      selectedItem.variant_prices[0].retail_price;
-    const newResult = {
-      sku: selectedItem.sku,
-      barcode: selectedItem.barcode,
-      variant_name: selectedItem.name,
-      variant_id: selectedItem.id,
-      variant_image: findAvatar(selectedItem.variant_images),
-      product_name: selectedItem.product.name,
-      product_id: selectedItem.product.id,
-      available: selectedItem.available,
-      amount: 0,
-      price: variantPrice,
-      transfer_quantity: 1,
-      weight: selectedItem?.weight ? selectedItem?.weight : 0,
-      weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
-    };
+      const variantPrice =
+        selectedItem &&
+        selectedItem.variant_prices &&
+        selectedItem.variant_prices[0] &&
+        selectedItem.variant_prices[0].retail_price;
+      const newResult = {
+        sku: selectedItem.sku,
+        barcode: selectedItem.barcode,
+        variant_name: selectedItem.name,
+        variant_id: selectedItem.id,
+        variant_image: findAvatar(selectedItem.variant_images),
+        product_name: selectedItem.product.name,
+        product_id: selectedItem.product.id,
+        available: selectedItem.available,
+        amount: 0,
+        price: variantPrice,
+        transfer_quantity: 1,
+        weight: selectedItem?.weight ? selectedItem?.weight : 0,
+        weight_unit: selectedItem?.weight_unit ? selectedItem?.weight_unit : "",
+      };
 
-    if (
-      !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === newResult.sku,
-      )
-    ) {
-      setDataTable((prev: any) => {
-        return [
-          ...[{ ...newResult, transfer_quantity: 1 }],
-          ...prev,
-        ];
-      });
-    } else {
-      dataTemp?.forEach((e: VariantResponse) => {
-        if (e.sku === selectedItem.sku) {
-          e.transfer_quantity += 1;
-        }
-      });
-      setDataTable(dataTemp);
-    }
-    setKeySearch("");
-    barCode="";
-    setResultSearch([]);
-  },[resultSearch, dataTable]);
+      if (!dataTemp.some((variant: VariantResponse) => variant.sku === newResult.sku)) {
+        setDataTable((prev: any) => {
+          return [...[{ ...newResult, transfer_quantity: 1 }], ...prev];
+        });
+      } else {
+        dataTemp?.forEach((e: VariantResponse) => {
+          if (e.sku === selectedItem.sku) {
+            e.transfer_quantity += 1;
+          }
+        });
+        setDataTable(dataTemp);
+      }
+      setKeySearch("");
+      barCode = "";
+      setResultSearch([]);
+    },
+    [resultSearch, dataTable],
+  );
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     setVisibleManyProduct(false);
@@ -368,7 +387,7 @@ const UpdateTicket: FC = () => {
           price: variantPrice,
           transfer_quantity: 1,
           weight: item.weight,
-          weight_unit: item.weight_unit
+          weight_unit: item.weight_unit,
         };
       });
       setDataTable([...newResult]);
@@ -377,7 +396,7 @@ const UpdateTicket: FC = () => {
     }
 
     newDataTable.forEach((i: any, idx) => {
-      const findIndex = cloneResult.findIndex(e => e.id === i.variant_id);
+      const findIndex = cloneResult.findIndex((e) => e.id === i.variant_id);
 
       if (findIndex >= 0) {
         newDataTable[idx].transfer_quantity = newDataTable[idx].transfer_quantity + 1;
@@ -404,7 +423,7 @@ const UpdateTicket: FC = () => {
         price: variantPrice,
         transfer_quantity: 1,
         weight: item.weight,
-        weight_unit: item.weight_unit
+        weight_unit: item.weight_unit,
       };
     });
 
@@ -428,30 +447,26 @@ const UpdateTicket: FC = () => {
       let uuid = file.uid;
       files.push(file);
       dispatch(
-        inventoryUploadFileAction(
-          { files: files },
-          (data: false | Array<string>) => {
-            let index = fileList.findIndex((item) => item.uid === uuid);
-            if (!!data) {
-              if (index !== -1) {
-                fileList[index].status = "done";
-                fileList[index].url = data[0];
-                let fileCurrent: Array<string> =
-                  form.getFieldValue("attached_files");
-                if (!fileCurrent) {
-                  fileCurrent = [];
-                }
-                fileCurrent.push(data[0]);
-                let newFileCurrent = [...fileCurrent];
-                form.setFieldsValue({ attached_files: newFileCurrent });
+        inventoryUploadFileAction({ files: files }, (data: false | Array<string>) => {
+          let index = fileList.findIndex((item) => item.uid === uuid);
+          if (!!data) {
+            if (index !== -1) {
+              fileList[index].status = "done";
+              fileList[index].url = data[0];
+              let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+              if (!fileCurrent) {
+                fileCurrent = [];
               }
-            } else {
-              fileList.splice(index, 1);
-              showError("Upload ảnh không thành công");
+              fileCurrent.push(data[0]);
+              let newFileCurrent = [...fileCurrent];
+              form.setFieldsValue({ attached_files: newFileCurrent });
             }
-            setFileList([...fileList]);
+          } else {
+            fileList.splice(index, 1);
+            showError("Upload ảnh không thành công");
           }
-        )
+          setFileList([...fileList]);
+        }),
       );
     }
   };
@@ -483,46 +498,47 @@ const UpdateTicket: FC = () => {
         setIsLoading(false);
         showSuccess("Đổi dữ liệu thành công");
         history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
-      }
-      else {
+      } else {
         setIsLoading(false);
-
       }
     },
-    [history]
+    [history],
   );
 
-  const onResultGetDetailVariantIds = useCallback( result => {
-    if (result) {
-      setIsLoadingTable(false);
+  const onResultGetDetailVariantIds = useCallback(
+    (result) => {
+      if (result) {
+        setIsLoadingTable(false);
 
-      let newDataTable = [...dataTable];
+        let newDataTable = [...dataTable];
 
-      if (newDataTable.length === 0) return;
+        if (newDataTable.length === 0) return;
 
-      for (let i = 0; i < newDataTable.length; i++) {
-        newDataTable[i].available = result.items[i].available;
-        newDataTable[i].on_hand = result.items[i].on_hand;
+        for (let i = 0; i < newDataTable.length; i++) {
+          newDataTable[i].available = result.items[i].available;
+          newDataTable[i].on_hand = result.items[i].on_hand;
+        }
+
+        setDataTable(newDataTable);
+      } else {
+        setIsLoadingTable(false);
+        setDataTable([]);
+        form.setFieldsValue({ [VARIANTS_FIELD]: [] });
       }
-
-      setDataTable(newDataTable);
-    } else {
-      setIsLoadingTable(false);
-      setDataTable([]);
-      form.setFieldsValue({ [VARIANTS_FIELD]: [] });
-    }
-    setModalConfirm({ visible: false });
-  }, [dataTable, form])
+      setModalConfirm({ visible: false });
+    },
+    [dataTable, form],
+  );
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const changeFromStore = async (variants_id: any, storeData: Store) => {
     const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
       status: "active",
       store_ids: storeData.id,
-      variant_ids: variants_id.join(','),
+      variant_ids: variants_id.join(","),
       page: 1,
-      limit: 1000
-    })
+      limit: 1000,
+    });
     if (response) {
       onResultGetDetailVariantIds(response);
     }
@@ -538,7 +554,9 @@ const UpdateTicket: FC = () => {
         subTitle: "",
         onCancel: () => {
           setModalConfirm({ visible: false });
-          form.setFieldsValue({ from_store_id: fromStoreData ? fromStoreData.id : initDataForm?.from_store_id });
+          form.setFieldsValue({
+            from_store_id: fromStoreData ? fromStoreData.id : initDataForm?.from_store_id,
+          });
         },
         onOk: () => {
           setFormStoreData(storeData);
@@ -547,104 +565,49 @@ const UpdateTicket: FC = () => {
             setIsLoadingTable(true);
             changeFromStore(variants_id, storeData).then();
           } else {
-            setModalConfirm({ visible: false })
+            setModalConfirm({ visible: false });
           }
         },
       });
-    }, [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id]
+    },
+    [changeFromStore, dataTable, form, fromStoreData, initDataForm?.from_store_id],
   );
 
-  const onFinish = useCallback((data: StockTransferSubmit) => {
-    // let countError = 0;
-    // let arrError: Array<string> = [];
-    // dataTable?.forEach((element: VariantResponse, index: number) => {
-    //   const thisInput = document.getElementById(`item-quantity-${index}`);
-    //   if (!element.transfer_quantity) {
-    //     if (thisInput) thisInput.style.borderColor = "red";
-    //     countError++;
-    //     arrError.push(`${index + 1}`);
-    //   } else if (element.transfer_quantity === 0) {
-    //     if (thisInput) thisInput.style.borderColor = "red";
-    //     countError++;
-    //     arrError.push(`${index + 1}`);
-    //   } else if (
-    //     element.transfer_quantity > (element.available ? element.available : 0)
-    //   ) {
-    //     if (thisInput) thisInput.style.borderColor = "red";
-    //     arrError.push(`${index + 1}`);
-    //     countError++;
-    //   } else {
-    //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-    //   }
-    // });
-    //
-    // if (countError > 0) {
-    //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-    //   return;
-    // }
+  const onFinish = useCallback(
+    (data: StockTransferSubmit) => {
+      // let countError = 0;
+      // let arrError: Array<string> = [];
+      // dataTable?.forEach((element: VariantResponse, index: number) => {
+      //   const thisInput = document.getElementById(`item-quantity-${index}`);
+      //   if (!element.transfer_quantity) {
+      //     if (thisInput) thisInput.style.borderColor = "red";
+      //     countError++;
+      //     arrError.push(`${index + 1}`);
+      //   } else if (element.transfer_quantity === 0) {
+      //     if (thisInput) thisInput.style.borderColor = "red";
+      //     countError++;
+      //     arrError.push(`${index + 1}`);
+      //   } else if (
+      //     element.transfer_quantity > (element.available ? element.available : 0)
+      //   ) {
+      //     if (thisInput) thisInput.style.borderColor = "red";
+      //     arrError.push(`${index + 1}`);
+      //     countError++;
+      //   } else {
+      //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
+      //   }
+      // });
+      //
+      // if (countError > 0) {
+      //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
+      //   return;
+      // }
 
-    if (CopyId || stateImport) {
-      const dataCreate: any= {}
-      stores.forEach((store) => {
-        if (store.id === Number(data.from_store_id)) {
-          dataCreate.store_transfer = {
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-        if (store.id === Number(data.to_store_id)) {
-          dataCreate.store_receive = {
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-      });
-
-      if (dataTable.length === 0 && data.line_items.length === 0) {
-        showError("Vui lòng chọn sản phẩm");
-        return;
-      }
-
-      const newDataTable = dataTable.length === 0 ? data.line_items : dataTable;
-
-      dataCreate.line_items = newDataTable.map((item: any) => {
-        return {
-          sku: item.sku,
-          barcode: item.barcode,
-          variant_name: item.variant_name,
-          variant_id: item.variant_id,
-          variant_image: item.variant_image,
-          product_name: item.product_name,
-          product_id: item.product_id,
-          available: item.available,
-          transfer_quantity: item.transfer_quantity,
-          amount: item.price * item.transfer_quantity,
-          price: item.price,
-          weight: item.weight,
-          weight_unit: item.weight_unit
-        };
-      });
-
-      dataCreate.note = data.note;
-      dataCreate.attached_files = data.attached_files;
-      setIsLoading(true);
-      dispatch(stateImport && stateImport.isCreateRequest
-        ? creatInventoryTransferRequestAction(dataCreate, createCallback)
-        : creatInventoryTransferAction(dataCreate, createCallback)
-      );
-    }
-    else {
-      if (stores) {
+      if (CopyId || stateImport) {
+        const dataCreate: any = {};
         stores.forEach((store) => {
           if (store.id === Number(data.from_store_id)) {
-            data.store_transfer = {
-              id: initDataForm?.store_transfer?.id,
+            dataCreate.store_transfer = {
               store_id: store.id,
               hotline: store.hotline,
               address: store.address,
@@ -653,8 +616,7 @@ const UpdateTicket: FC = () => {
             };
           }
           if (store.id === Number(data.to_store_id)) {
-            data.store_receive = {
-              id: initDataForm?.store_receive?.id,
+            dataCreate.store_receive = {
               store_id: store.id,
               hotline: store.hotline,
               address: store.address,
@@ -663,21 +625,81 @@ const UpdateTicket: FC = () => {
             };
           }
         });
-      }
 
-      if (dataTable.length === 0) {
-        showError("Vui lòng chọn sản phẩm");
-        return;
-      }
-      data.line_items = dataTable;
-      delete data.from_store_id;
-      delete data.to_store_id;
-      if (initDataForm) {
+        if (dataTable.length === 0 && data.line_items.length === 0) {
+          showError("Vui lòng chọn sản phẩm");
+          return;
+        }
+
+        const newDataTable = dataTable.length === 0 ? data.line_items : dataTable;
+
+        dataCreate.line_items = newDataTable.map((item: any) => {
+          return {
+            sku: item.sku,
+            barcode: item.barcode,
+            variant_name: item.variant_name,
+            variant_id: item.variant_id,
+            variant_image: item.variant_image,
+            product_name: item.product_name,
+            product_id: item.product_id,
+            available: item.available,
+            transfer_quantity: item.transfer_quantity,
+            amount: item.price * item.transfer_quantity,
+            price: item.price,
+            weight: item.weight,
+            weight_unit: item.weight_unit,
+          };
+        });
+
+        dataCreate.note = data.note;
+        dataCreate.attached_files = data.attached_files;
         setIsLoading(true);
-        dispatch(updateInventoryTransferAction(initDataForm.id, data, createCallback));
+        dispatch(
+          stateImport && stateImport.isCreateRequest
+            ? creatInventoryTransferRequestAction(dataCreate, createCallback)
+            : creatInventoryTransferAction(dataCreate, createCallback),
+        );
+      } else {
+        if (stores) {
+          stores.forEach((store) => {
+            if (store.id === Number(data.from_store_id)) {
+              data.store_transfer = {
+                id: initDataForm?.store_transfer?.id,
+                store_id: store.id,
+                hotline: store.hotline,
+                address: store.address,
+                name: store.name,
+                code: store.code,
+              };
+            }
+            if (store.id === Number(data.to_store_id)) {
+              data.store_receive = {
+                id: initDataForm?.store_receive?.id,
+                store_id: store.id,
+                hotline: store.hotline,
+                address: store.address,
+                name: store.name,
+                code: store.code,
+              };
+            }
+          });
+        }
+
+        if (dataTable.length === 0) {
+          showError("Vui lòng chọn sản phẩm");
+          return;
+        }
+        data.line_items = dataTable;
+        delete data.from_store_id;
+        delete data.to_store_id;
+        if (initDataForm) {
+          setIsLoading(true);
+          dispatch(updateInventoryTransferAction(initDataForm.id, data, createCallback));
+        }
       }
-    }
-  },[CopyId, createCallback, dataTable, dispatch, initDataForm, stateImport, stores]);
+    },
+    [CopyId, createCallback, dataTable, dispatch, initDataForm, stateImport, stores],
+  );
 
   // const checkError = (index: number) => {
   //   const dataLineItems = dataTable;
@@ -715,15 +737,15 @@ const UpdateTicket: FC = () => {
     dispatch(
       deleteInventoryTransferAction(
         idNumber,
-        {note: value ? value : ""},
+        { note: value ? value : "" },
         (result: InventoryTransferDetailItem | false) => {
           if (!result) {
             return;
           } else {
             history.push(`${UrlConfig.INVENTORY_TRANSFERS}`);
           }
-        }
-      )
+        },
+      ),
     );
   };
 
@@ -753,20 +775,18 @@ const UpdateTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "red";
       } else if (element.transfer_quantity === 0) {
         if (thisInput) thisInput.style.borderColor = "red";
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
+      } else if (element.transfer_quantity > (element.available ? element.available : 0)) {
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
         if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
-
   }, [dataTable]);
 
-  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
-      if (keyCode === "Enter" && code){
-        barCode ="";
+  const handleSearchProduct = useCallback(
+    async (keyCode: string, code: string) => {
+      if (keyCode === "Enter" && code) {
+        barCode = "";
         setKeySearch("");
 
         if (RegUtil.BARCODE_NUMBER.test(code)) {
@@ -775,48 +795,49 @@ const UpdateTicket: FC = () => {
             showError("Vui lòng chọn kho gửi");
             return;
           }
-          let res = await callApiNative({isShowLoading: false},dispatch,searchVariantsApi,{barcode: code,store_ids:storeId ?? null});
+          let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
+            barcode: code,
+            store_ids: storeId ?? null,
+          });
           if (res && res.items && res.items.length > 0) {
-            onSelectProduct(res.items[0].id.toString(),res.items[0]);
+            onSelectProduct(res.items[0].id.toString(), res.items[0]);
           }
         }
-      }
-      else{
-        const txtSearchProductElement: any =
-          document.getElementById("product_search_variant");
+      } else {
+        const txtSearchProductElement: any = document.getElementById("product_search_variant");
 
         onSearchProduct(txtSearchProductElement?.value);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onSelectProduct,form, dispatch, onSearchProduct]
+    [onSelectProduct, form, dispatch, onSearchProduct],
   );
 
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
-
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
-          if (event.key !== "Enter" && event.key !== "Shift")
-            barCode = barCode + event.key;
+          if (event.key !== "Enter" && event.key !== "Shift") barCode = barCode + event.key;
 
           handleDelayActionWhenInsertTextInSearchInput(
             productAutoCompleteRef,
             () => handleSearchProduct(event.key, barCode),
-            500
+            500,
           );
           return;
         }
       }
-
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [onSelectProduct,form, dispatch, onSearchProduct]
+    [onSelectProduct, form, dispatch, onSearchProduct],
   );
 
-  const onSelect = useCallback((o)=>{
-    onSelectProduct(o);
-  },[onSelectProduct])
+  const onSelect = useCallback(
+    (o) => {
+      onSelectProduct(o);
+    },
+    [onSelectProduct],
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
@@ -830,8 +851,7 @@ const UpdateTicket: FC = () => {
       title: "STT",
       align: "center",
       width: "70px",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        index + 1,
+      render: (value: string, record: PurchaseOrderLineItem, index: number) => index + 1,
     },
     {
       title: "Ảnh",
@@ -874,16 +894,16 @@ const UpdateTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return form.getFieldValue('from_store_id') ? value || 0 : '';
+        return form.getFieldValue("from_store_id") ? value || 0 : "";
       },
     },
     {
-      title: <div>
-        <div>Số lượng</div>
-        <div className="text-center">
-          {getTotalQuantity()}
+      title: (
+        <div>
+          <div>Số lượng</div>
+          <div className="text-center">{getTotalQuantity()}</div>
         </div>
-      </div>,
+      ),
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
@@ -926,20 +946,28 @@ const UpdateTicket: FC = () => {
 
   return (
     <ContentContainer
-      title={ (CopyId || stateImport) ? 'Thêm mới Phiếu chuyển hàng' : `Sửa phiếu chuyển hàng ${initDataForm? initDataForm.code : ''}`}
-      breadcrumb={CopyId ? [] : [
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Chuyển hàng",
-          path: `${UrlConfig.INVENTORY_TRANSFERS}`,
-        },
-        {
-          name: stateImport ? 'Thêm mới' : `${initDataForm? initDataForm.code : ''}`,
-        },
-      ]}
+      title={
+        CopyId || stateImport
+          ? "Thêm mới Phiếu chuyển hàng"
+          : `Sửa phiếu chuyển hàng ${initDataForm ? initDataForm.code : ""}`
+      }
+      breadcrumb={
+        CopyId
+          ? []
+          : [
+              {
+                name: "Tổng quan",
+                path: UrlConfig.HOME,
+              },
+              {
+                name: "Chuyển hàng",
+                path: `${UrlConfig.INVENTORY_TRANSFERS}`,
+              },
+              {
+                name: stateImport ? "Thêm mới" : `${initDataForm ? initDataForm.code : ""}`,
+              },
+            ]
+      }
     >
       {initDataForm && (
         <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
@@ -954,25 +982,25 @@ const UpdateTicket: FC = () => {
           </Form.Item>
           <Row gutter={24}>
             <Col span={18}>
-              <Card
-                title="KHO HÀNG"
-                bordered={false}
-                className={"inventory-selectors"}
-              >
+              <Card title="KHO HÀNG" bordered={false} className={"inventory-selectors"}>
                 <Row gutter={24}>
                   <Col span={12}>
                     <Form.Item
                       name="from_store_id"
                       label={<b>Kho gửi</b>}
-                      rules={stateImport && stateImport.isCreateRequest ? [] : [
-                        {
-                          required: true,
-                          message: "Vui lòng chọn kho gửi",
-                        },
-                        {
-                          validator: validateStore,
-                        },
-                      ]}
+                      rules={
+                        stateImport && stateImport.isCreateRequest
+                          ? []
+                          : [
+                              {
+                                required: true,
+                                message: "Vui lòng chọn kho gửi",
+                              },
+                              {
+                                validator: validateStore,
+                              },
+                            ]
+                      }
                       labelCol={{ span: 24, offset: 0 }}
                     >
                       <Select
@@ -989,45 +1017,32 @@ const UpdateTicket: FC = () => {
                         }}
                         filterOption={(input: String, option: any) => {
                           if (option.props.value) {
-                            return strForSearch(option.props.children).includes(strForSearch(input));
+                            return strForSearch(option.props.children).includes(
+                              strForSearch(input),
+                            );
                           }
 
                           return false;
                         }}
                       >
                         {fromStores &&
-                        fromStores.map((item, index) => (
-                          <Option
-                            key={"from_store_id" + index}
-                            value={item.store_id || 0}
-                          >
-                            {item.store}
-                          </Option>
-                        ))}
+                          fromStores.map((item, index) => (
+                            <Option key={"from_store_id" + index} value={item.store_id || 0}>
+                              {item.store}
+                            </Option>
+                          ))}
                       </Select>
                     </Form.Item>
                     {fromStoreData ? (
                       <>
                         <RowDetail title="Mã CH" value={fromStoreData.code} />
-                        <RowDetail
-                          title="SĐT"
-                          value={fromStoreData.hotline}
-                        />
-                        <RowDetail
-                          title="Địa chỉ"
-                          value={ConvertFullAddress(fromStoreData)}
-                        />
+                        <RowDetail title="SĐT" value={fromStoreData.hotline} />
+                        <RowDetail title="Địa chỉ" value={ConvertFullAddress(fromStoreData)} />
                       </>
                     ) : (
                       <>
-                        <RowDetail
-                          title="Mã CH"
-                          value={initDataForm.from_store_code?.toString()}
-                        />
-                        <RowDetail
-                          title="SĐT"
-                          value={initDataForm.from_store_phone?.toString()}
-                        />
+                        <RowDetail title="Mã CH" value={initDataForm.from_store_code?.toString()} />
+                        <RowDetail title="SĐT" value={initDataForm.from_store_phone?.toString()} />
                         <RowDetail
                           title="Địa chỉ"
                           value={ConvertFullAddress(initDataForm.store_transfer)}
@@ -1064,43 +1079,33 @@ const UpdateTicket: FC = () => {
                         }}
                         filterOption={(input: String, option: any) => {
                           if (option.props.value) {
-                            return strForSearch(option.props.children).includes(strForSearch(input));
+                            return strForSearch(option.props.children).includes(
+                              strForSearch(input),
+                            );
                           }
 
                           return false;
                         }}
                       >
                         {Array.isArray(stores) &&
-                        stores.length > 0 &&
-                        stores.map((item, index) => (
-                          <Option
-                            key={"to_store_id" + index}
-                            value={item.id}
-                          >
-                            {item.name}
-                          </Option>
-                        ))}
+                          stores.length > 0 &&
+                          stores.map((item, index) => (
+                            <Option key={"to_store_id" + index} value={item.id}>
+                              {item.name}
+                            </Option>
+                          ))}
                       </Select>
                     </Form.Item>
                     {toStoreData ? (
                       <>
                         <RowDetail title="Mã CH" value={toStoreData.code} />
                         <RowDetail title="SĐT" value={toStoreData.hotline} />
-                        <RowDetail
-                          title="Địa chỉ"
-                          value={ConvertFullAddress(toStoreData)}
-                        />
+                        <RowDetail title="Địa chỉ" value={ConvertFullAddress(toStoreData)} />
                       </>
                     ) : (
                       <>
-                        <RowDetail
-                          title="Mã CH"
-                          value={initDataForm.to_store_code?.toString()}
-                        />
-                        <RowDetail
-                          title="SĐT"
-                          value={initDataForm.to_store_phone?.toString()}
-                        />
+                        <RowDetail title="Mã CH" value={initDataForm.to_store_code?.toString()} />
+                        <RowDetail title="SĐT" value={initDataForm.to_store_phone?.toString()} />
                         <RowDetail
                           title="Địa chỉ"
                           value={ConvertFullAddress(initDataForm.store_receive)}
@@ -1111,18 +1116,12 @@ const UpdateTicket: FC = () => {
                 </Row>
               </Card>
 
-              <Card
-                title="THÔNG TIN SẢN PHẨM"
-                bordered={false}
-                className={"product-detail"}
-              >
+              <Card title="THÔNG TIN SẢN PHẨM" bordered={false} className={"product-detail"}>
                 <div>
                   <Input.Group className="display-flex">
                     <AutoComplete
                       notFoundContent={
-                        keySearch.length >= 3
-                          ? "Không tìm thấy sản phẩm"
-                          : undefined
+                        keySearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
                       }
                       value={keySearch}
                       ref={productAutoCompleteRef}
@@ -1176,11 +1175,7 @@ const UpdateTicket: FC = () => {
               </Card>
             </Col>
             <Col span={6}>
-              <Card
-                title={"GHI CHÚ"}
-                bordered={false}
-                className={"inventory-note"}
-              >
+              <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
                 <Form.Item
                   name={"note"}
                   label={<b>Ghi chú nội bộ:</b>}
@@ -1217,7 +1212,7 @@ const UpdateTicket: FC = () => {
             </Col>
           </Row>
           <BottomBarContainer
-            leftComponent = {
+            leftComponent={
               <div onClick={() => setIsVisibleModalWarning(true)} style={{ cursor: "pointer" }}>
                 <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
                 {"Quay lại trang chi tiết"}
@@ -1225,16 +1220,12 @@ const UpdateTicket: FC = () => {
             }
             rightComponent={
               <Space>
+                {!CopyId && !stateImport && (
+                  <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>
+                )}
 
-                {(!CopyId && !stateImport) && <Button onClick={() => setIsDeleteTicket(true)}>Huỷ phiếu</Button>}
-
-                <Button
-                  disabled={isLoading}
-                  htmlType={"submit"}
-                  type="primary"
-                  loading={isLoading}
-                >
-                  {(CopyId || stateImport) ? 'Tạo' : 'Lưu'}
+                <Button disabled={isLoading} htmlType={"submit"} type="primary" loading={isLoading}>
+                  {CopyId || stateImport ? "Tạo" : "Lưu"}
                 </Button>
               </Space>
             }
@@ -1252,8 +1243,7 @@ const UpdateTicket: FC = () => {
         </Form>
       )}
       <ModalConfirm {...modalConfirm} />
-      {
-        isDeleteTicket &&
+      {isDeleteTicket && (
         <DeleteTicketModal
           onOk={onDeleteTicket}
           onCancel={() => setIsDeleteTicket(false)}
@@ -1264,9 +1254,8 @@ const UpdateTicket: FC = () => {
           cancelText="Thoát"
           title={`Bạn chắc chắn Hủy phiếu chuyển hàng ${initDataForm?.code}`}
         />
-      }
-      {
-        isVisibleModalWarning &&
+      )}
+      {isVisibleModalWarning && (
         <ModalConfirm
           onCancel={() => {
             setIsVisibleModalWarning(false);
@@ -1278,7 +1267,7 @@ const UpdateTicket: FC = () => {
           subTitle="Thông tin trên trang này sẽ không được lưu."
           visible={isVisibleModalWarning}
         />
-      }
+      )}
     </ContentContainer>
   );
 };

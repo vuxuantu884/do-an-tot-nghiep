@@ -14,14 +14,14 @@ import {
   actionAddCustomerGroup,
   actionDeleteCustomerGroup,
   actionEditCustomerGroup,
-  actionFetchListCustomerGroup
+  actionFetchListCustomerGroup,
 } from "domain/actions/customer/customer.action";
 import useAuthorization from "hook/useAuthorization";
 import { modalActionType } from "model/modal/modal.model";
 import { VariantResponse } from "model/product/product.model";
 import {
   CustomerGroupModel,
-  CustomerGroupResponseModel
+  CustomerGroupResponseModel,
 } from "model/response/customer/customer-group.response";
 import FormCustomerGroup from "screens/customer/customer-group/group.form.modal";
 import NoPermission from "screens/no-permission.screen";
@@ -34,14 +34,12 @@ import editIcon from "assets/icon/edit.svg";
 import threeDot from "assets/icon/three-dot.svg";
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
 
-
 const createCustomerGroupPermission = [CustomerGroupPermission.groups_create];
 const viewCustomerGroupPermission = [CustomerGroupPermission.groups_read];
 const updateCustomerGroupPermission = [CustomerGroupPermission.groups_update];
 const deleteCustomerGroupPermission = [CustomerGroupPermission.groups_delete];
 
 const SettingCustomerGroup: React.FC = () => {
-
   const [allowViewCustomerGroup] = useAuthorization({
     acceptPermissions: viewCustomerGroupPermission,
     not: false,
@@ -57,19 +55,15 @@ const SettingCustomerGroup: React.FC = () => {
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
   const dispatch = useDispatch();
-  const [listCustomerGroup, setListCustomerGroup] = useState<
-    CustomerGroupModel[]
-  >([]);
+  const [listCustomerGroup, setListCustomerGroup] = useState<CustomerGroupModel[]>([]);
   const useQuery = () => {
     return new URLSearchParams(useLocation().search);
   };
   const query = useQuery();
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
-    useState<any>(null);
+  const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] = useState<any>(null);
 
-  
   const RenderActionColumn = (value: any, row: any, index: number) => {
     const [allowUpdateCustomerGroup] = useAuthorization({
       acceptPermissions: updateCustomerGroupPermission,
@@ -80,12 +74,12 @@ const SettingCustomerGroup: React.FC = () => {
       acceptPermissions: deleteCustomerGroupPermission,
       not: false,
     });
-    
+
     const isShowAction = allowUpdateCustomerGroup || allowDeleteCustomerGroup;
-    
+
     const menu = (
       <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        {allowUpdateCustomerGroup &&
+        {allowUpdateCustomerGroup && (
           <Menu.Item key="1">
             <Button
               icon={<img alt="" style={{ marginRight: 12 }} src={editIcon} />}
@@ -105,9 +99,9 @@ const SettingCustomerGroup: React.FC = () => {
               Chỉnh sửa
             </Button>
           </Menu.Item>
-        }
-        
-        {allowDeleteCustomerGroup &&
+        )}
+
+        {allowDeleteCustomerGroup && (
           <Menu.Item key="2">
             <Button
               icon={<img alt="" style={{ marginRight: 12 }} src={deleteIcon} />}
@@ -127,28 +121,24 @@ const SettingCustomerGroup: React.FC = () => {
               Xóa
             </Button>
           </Menu.Item>
-        }
+        )}
       </Menu>
     );
 
     return (
       <>
-        {isShowAction &&
-          <Dropdown
-            overlay={menu}
-            trigger={["click"]}
-            placement="bottomRight"
-          >
+        {isShowAction && (
+          <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
             <Button
               type="text"
               className="p-0 ant-btn-custom"
               icon={<img src={threeDot} alt=""></img>}
             ></Button>
           </Dropdown>
-        }
+        )}
       </>
     );
-  }
+  };
 
   const columns: Array<ICustomTableColumType<VariantResponse>> = [
     {
@@ -214,11 +204,9 @@ const SettingCustomerGroup: React.FC = () => {
       visible: true,
       width: "5%",
       className: "saleorder-product-card-action ",
-      render: (value, row, index) => RenderActionColumn(value, row, index)
+      render: (value, row, index) => RenderActionColumn(value, row, index),
     },
   ];
-
-
 
   const columnFinal = () => columns.filter((item) => item.visible === true);
 
@@ -238,13 +226,13 @@ const SettingCustomerGroup: React.FC = () => {
       setParams({ ...params });
       window.scrollTo(0, 0);
     },
-    [params]
+    [params],
   );
 
   const addCustomerGroup = () => {
     return (
       <>
-        {allowCreateCustomerGroup &&
+        {allowCreateCustomerGroup && (
           <Button
             type="primary"
             className="ant-btn-outline ant-btn-primary"
@@ -257,11 +245,10 @@ const SettingCustomerGroup: React.FC = () => {
           >
             Thêm nhóm khách hàng
           </Button>
-        }
+        )}
       </>
     );
   };
-
 
   const gotoFirstPage = () => {
     const newParams = {
@@ -279,27 +266,20 @@ const SettingCustomerGroup: React.FC = () => {
         actionAddCustomerGroup(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
-        })
+        }),
       );
     },
     edit: (formValue: CustomerGroupModel) => {
       if (modalSingleServiceSubStatus) {
         dispatch(
-          actionEditCustomerGroup(
-            modalSingleServiceSubStatus.id,
-            formValue,
-            () => {
-              dispatch(
-                actionFetchListCustomerGroup(
-                  params,
-                  (data: CustomerGroupResponseModel) => {
-                    setListCustomerGroup(data.items);
-                  }
-                )
-              );
-              setIsShowModal(false);
-            }
-          )
+          actionEditCustomerGroup(modalSingleServiceSubStatus.id, formValue, () => {
+            dispatch(
+              actionFetchListCustomerGroup(params, (data: CustomerGroupResponseModel) => {
+                setListCustomerGroup(data.items);
+              }),
+            );
+            setIsShowModal(false);
+          }),
         );
       }
     },
@@ -309,7 +289,7 @@ const SettingCustomerGroup: React.FC = () => {
           actionDeleteCustomerGroup(modalSingleServiceSubStatus.id, () => {
             setIsShowConfirmDelete(false);
             gotoFirstPage();
-          })
+          }),
         );
       }
     },
@@ -325,14 +305,11 @@ const SettingCustomerGroup: React.FC = () => {
 
     setTableLoading(true);
     dispatch(
-      actionFetchListCustomerGroup(
-        params,
-        (data: CustomerGroupResponseModel) => {
-          setListCustomerGroup(data.items);
-          setTotal(data.metadata.total);
-          setTableLoading(false);
-        }
-      )
+      actionFetchListCustomerGroup(params, (data: CustomerGroupResponseModel) => {
+        setListCustomerGroup(data.items);
+        setTotal(data.metadata.total);
+        setTableLoading(false);
+      }),
     );
   }, [allowViewCustomerGroup, dispatch, params]);
 
@@ -352,34 +329,38 @@ const SettingCustomerGroup: React.FC = () => {
         extra={addCustomerGroup()}
       >
         <AuthWrapper acceptPermissions={viewCustomerGroupPermission} passThrough>
-          {(allowed: boolean) => (allowed ?
-            <>
-              {listCustomerGroup && (
-                <Card>
-                  <CustomTable
-                    isRowSelection
-                    isLoading={tableLoading}
-                    showColumnSetting={false}
-                    scroll={{ x: 1080 }}
-                    pagination={{
-                      pageSize: params.limit,
-                      total: total,
-                      current: params.page,
-                      showSizeChanger: true,
-                      onChange: onPageChange,
-                      onShowSizeChange: onPageChange,
-                    }}
-                    isShowPaginationAtHeader
-                    dataSource={listCustomerGroup}
-                    columns={columnFinal()}
-                    rowKey={(item: VariantResponse) => item.id}
-                  />
-                </Card>
-              )}
-            </>
-            : <NoPermission />)}
+          {(allowed: boolean) =>
+            allowed ? (
+              <>
+                {listCustomerGroup && (
+                  <Card>
+                    <CustomTable
+                      isRowSelection
+                      isLoading={tableLoading}
+                      showColumnSetting={false}
+                      scroll={{ x: 1080 }}
+                      pagination={{
+                        pageSize: params.limit,
+                        total: total,
+                        current: params.page,
+                        showSizeChanger: true,
+                        onChange: onPageChange,
+                        onShowSizeChange: onPageChange,
+                      }}
+                      isShowPaginationAtHeader
+                      dataSource={listCustomerGroup}
+                      columns={columnFinal()}
+                      rowKey={(item: VariantResponse) => item.id}
+                    />
+                  </Card>
+                )}
+              </>
+            ) : (
+              <NoPermission />
+            )
+          }
         </AuthWrapper>
-        
+
         {/* <ModalDeleteConfirm
           visible={isShowConfirmDelete}
           onOk={() => handleForm.delete()}
@@ -405,9 +386,7 @@ const SettingCustomerGroup: React.FC = () => {
           createBtnTitle="Tạo mới nhóm khách hàng"
           updateBtnTitle="Lưu nhóm khách hàng"
           visible={isShowModal}
-          onCreate={(formValue: CustomerGroupModel) =>
-            handleForm.create(formValue)
-          }
+          onCreate={(formValue: CustomerGroupModel) => handleForm.create(formValue)}
           onEdit={(formValue: CustomerGroupModel) => handleForm.edit(formValue)}
           onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}

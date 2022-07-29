@@ -47,9 +47,7 @@ const getRange = (distance: number, unit: "day" | "month" | "week") => {
   return [from.startOf(unit).utc(true).format(), to.endOf(unit).utc(true).format()];
 };
 
-const CustomRangePicker: React.FC<CustomRangePickerProps> = (
-  props: CustomRangePickerProps
-) => {
+const CustomRangePicker: React.FC<CustomRangePickerProps> = (props: CustomRangePickerProps) => {
   const { value, onChange, style } = props;
   const convertValue: [Moment, Moment] | undefined = useMemo(() => {
     if (

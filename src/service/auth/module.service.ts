@@ -5,6 +5,8 @@ import { ModuleAuthorizeQuery } from "model/auth/module.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import Module from "module";
 
-export const getModuleApi = (params: ModuleAuthorizeQuery): Promise<BaseResponse<PageResponse<Module>>> => { 
-  return BaseAxios.get(`${ApiConfig.AUTH}/modules`, {params});
+export const getModuleApi = (
+  params: ModuleAuthorizeQuery,
+): Promise<BaseResponse<PageResponse<Module>>> => {
+  return BaseAxios.get(`${ApiConfig.AUTH}/modules`, { params });
 };

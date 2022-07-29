@@ -8,7 +8,7 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   POProcumentLineItemField,
   PurchaseProcument,
-  PurchaseProcumentLineItem
+  PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
 import React, { Fragment, useState } from "react";
@@ -29,12 +29,10 @@ type ProcumentModalProps = {
   loading: boolean;
   isEdit: boolean;
   poData?: PurchaseOrder;
-  procumentCode: string
+  procumentCode: string;
 };
 
-const ProcumentModal: React.FC<ProcumentModalProps> = (
-  props: ProcumentModalProps
-) => {
+const ProcumentModal: React.FC<ProcumentModalProps> = (props: ProcumentModalProps) => {
   const {
     visible,
     now,
@@ -56,10 +54,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
 
   const { Option } = Select;
 
-  const handleRemoveLineItem = (
-    item: PurchaseProcumentLineItem,
-    lineIndex: number
-  ) => {
+  const handleRemoveLineItem = (item: PurchaseProcumentLineItem, lineIndex: number) => {
     setMessage(`Bạn chắc chắn xoá ${item.sku}`);
     setRemoveIndex(lineIndex);
     setIsShowConfirmDeleteLineItem(true);
@@ -99,7 +94,16 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
           okText={isEdit ? "Lưu phiếu nháp" : "Tạo phiếu nháp"}
           isEdit={isEdit}
         >
-          {(onQuantityChange, onRemove, line_items, typeBulk, setTypeBulk, bulkQuantity, setBulkQuantity, setAllFieldQuantity) => {
+          {(
+            onQuantityChange,
+            onRemove,
+            line_items,
+            typeBulk,
+            setTypeBulk,
+            bulkQuantity,
+            setBulkQuantity,
+            setAllFieldQuantity,
+          ) => {
             return (
               <Table
                 className="product-table"
@@ -124,11 +128,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     dataIndex: POProcumentLineItemField.variant_image,
                     render: (value) => (
                       <div className="product-item-image">
-                        <img
-                          src={value === null ? imgDefIcon : value}
-                          alt=""
-                          className=""
-                        />
+                        <img src={value === null ? imgDefIcon : value} alt="" className="" />
                       </div>
                     ),
                   },
@@ -137,18 +137,12 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     width: "99%",
                     className: "ant-col-info",
                     dataIndex: POProcumentLineItemField.variant,
-                    render: (
-                      value: string,
-                      item: PurchaseProcumentLineItem,
-                      index: number
-                    ) => (
+                    render: (value: string, item: PurchaseProcumentLineItem, index: number) => (
                       <div>
                         <div>
                           <div className="product-item-sku">{item.sku}</div>
                           <div className="product-item-name text-truncate-1">
-                            <div className="product-item-name-detail">
-                              {value}
-                            </div>
+                            <div className="product-item-name-detail">{value}</div>
                           </div>
                         </div>
                       </div>
@@ -166,14 +160,14 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                       >
                         SL Đặt hàng
                         <div style={{ color: "#2A2A86", fontWeight: "normal" }}>
-                          ({formatCurrency(POUtils.totalQuantity(items),".")})
+                          ({formatCurrency(POUtils.totalQuantity(items), ".")})
                         </div>
                       </div>
                     ),
                     width: 100,
                     dataIndex: POProcumentLineItemField.ordered_quantity,
                     render: (value, item, index) => (
-                      <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
+                      <div style={{ textAlign: "right" }}>{formatCurrency(value, ".")}</div>
                     ),
                   },
                   {
@@ -191,12 +185,13 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     ),
                     width: 100,
                     dataIndex: POProcumentLineItemField.accepted_quantity,
-                    render: (value, item, index) =>{
+                    render: (value, item, index) => {
                       return (
                         <div style={{ textAlign: "right" }}>
-                          {value ? formatCurrency(value,".") : 0}
+                          {value ? formatCurrency(value, ".") : 0}
                         </div>
-                      )},
+                      );
+                    },
                   },
                   {
                     title: (
@@ -215,7 +210,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                     dataIndex: POProcumentLineItemField.planned_quantity,
                     render: (value, item, index) => (
                       <div style={{ textAlign: "right" }}>
-                        {value ? formatCurrency(value,".") : 0}
+                        {value ? formatCurrency(value, ".") : 0}
                       </div>
                     ),
                   },
@@ -233,33 +228,34 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         <Input.Group compact>
                           <Select
                             defaultValue="percentage"
-                            style={{ width: '50%' }}
+                            style={{ width: "50%" }}
                             onChange={(value: string) => {
-                              setTypeBulk(value)
-                              setBulkQuantity(0)
-                            }}>
+                              setTypeBulk(value);
+                              setBulkQuantity(0);
+                            }}
+                          >
                             <Option value="percentage">%</Option>
                             <Option value="quantity">SL</Option>
                           </Select>
                           <NumberInput
-                            style={{ width: '50%' }}
+                            style={{ width: "50%" }}
                             onChange={(value) => {
-                              if (value === null) return setAllFieldQuantity(0)
-                              if (typeBulk === 'percentage' && value > 100) {
-                                value = 100
+                              if (value === null) return setAllFieldQuantity(0);
+                              if (typeBulk === "percentage" && value > 100) {
+                                value = 100;
                               }
-                              if (typeBulk === 'quantity' && value > 999999) {
-                                value = 999999
+                              if (typeBulk === "quantity" && value > 999999) {
+                                value = 999999;
                               }
-                              onQuantityChange(undefined, undefined, value)
-                              setBulkQuantity && setBulkQuantity(value)
+                              onQuantityChange(undefined, undefined, value);
+                              setBulkQuantity && setBulkQuantity(value);
                             }}
                             format={(value) => {
-                              if (typeBulk === 'percentage' && Number(value) > 100) {
-                                return "100"
+                              if (typeBulk === "percentage" && Number(value) > 100) {
+                                return "100";
                               }
-                              if (typeBulk === 'quantity' && Number(value) > 999999) {
-                                return "999999"
+                              if (typeBulk === "quantity" && Number(value) > 999999) {
+                                return "999999";
                               }
                               return value;
                             }}
@@ -317,38 +313,33 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                   let quantity = 0;
                   data.forEach((item) => {
                     ordered_quantity = ordered_quantity + item.ordered_quantity;
-                    accepted_quantity =
-                      accepted_quantity + item.accepted_quantity;
+                    accepted_quantity = accepted_quantity + item.accepted_quantity;
                     planned_quantity = planned_quantity + item.planned_quantity;
                     quantity = quantity + item.quantity;
                   });
                   return (
                     <Table.Summary>
                       <Table.Summary.Row>
-                        <Table.Summary.Cell
-                          align="center"
-                          colSpan={3}
-                          index={0}
-                        >
+                        <Table.Summary.Cell align="center" colSpan={3} index={0}>
                           <div style={{ fontWeight: 700 }}>Tổng</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={1}>
                           <div style={{ fontWeight: 700 }}>
-                            {formatCurrency(ordered_quantity,".")}
+                            {formatCurrency(ordered_quantity, ".")}
                           </div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={2}>
                           <div style={{ fontWeight: 700 }}>
-                            {formatCurrency(accepted_quantity,".")}
+                            {formatCurrency(accepted_quantity, ".")}
                           </div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={3}>
                           <div style={{ fontWeight: 700 }}>
-                            {formatCurrency(planned_quantity,".")}
+                            {formatCurrency(planned_quantity, ".")}
                           </div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={4}>
-                          <div style={{ fontWeight: 700 }}>{formatCurrency(quantity,".")}</div>
+                          <div style={{ fontWeight: 700 }}>{formatCurrency(quantity, ".")}</div>
                         </Table.Summary.Cell>
                         <Table.Summary.Cell align="right" index={5}>
                           <div style={{ fontWeight: 700 }}></div>
@@ -360,9 +351,7 @@ const ProcumentModal: React.FC<ProcumentModalProps> = (
                         onCancel={() => {
                           setIsShowConfirmDeleteLineItem(false);
                         }}
-                        title={
-                          <span style={{ fontSize: "1rem" }}>{message}</span>
-                        }
+                        title={<span style={{ fontSize: "1rem" }}>{message}</span>}
                       ></ModalDeleteConfirm>
                     </Table.Summary>
                   );

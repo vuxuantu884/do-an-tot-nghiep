@@ -53,9 +53,7 @@ const SupplierContact = ({ formFields }: { formFields: FormFieldItem }) => {
                 <React.Fragment key={key}>
                   {formFields.formGroups.map((group, index) => (
                     <Row key={index}>
-                      {group.map((control) =>
-                        controlContactRenderer(control, name),
-                      )}
+                      {group.map((control) => controlContactRenderer(control, name))}
                     </Row>
                   ))}
                 </React.Fragment>
