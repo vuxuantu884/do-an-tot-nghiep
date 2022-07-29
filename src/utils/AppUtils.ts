@@ -1877,13 +1877,6 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
       const checkedShippingFeeConfig =
         singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
           (single) => {
-            if (isApplyAll) {
-              return checkIfPrice(
-                orderPrice,
-                single.from_price,
-                single.to_price,
-              );
-            }
             return (
               checkIfSameCity(
                 single.city_id,
@@ -1902,22 +1895,22 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     listCheckedShippingFeeConfig,
   );
 
+  let result = 0;
   // lấy số nhỏ nhất
   if (
     listCheckedShippingFeeConfigFlatten &&
     listCheckedShippingFeeConfigFlatten.length > 0
   ) {
-    let result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
+    result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
     listCheckedShippingFeeConfigFlatten.forEach((single: any) => {
       if (single.transport_fee < result) {
         result = single.transport_fee;
       }
     });
-    form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
-    setShippingFeeInformedToCustomer &&
-      setShippingFeeInformedToCustomer(result);
-    showSuccess("Cập nhật phí ship báo khách thành công!");
   }
+  form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
+  setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(result);
+  showSuccess("Phí ship đã được thay đổi!");
 };
 
 export const getCustomerShippingAddress = (customer: CustomerResponse) => {
