@@ -600,16 +600,22 @@ export const deleteOrderBillDetailService = (
 
 export const cancelMomoTransactionService = (
   paymentId: number,
-): Promise<BaseResponse<OrderBillResponseModel>> => {
+): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/payments/${paymentId}/cancel`);
 };
 
 export const retryMomoTransactionService = (
   paymentId: number,
-): Promise<BaseResponse<OrderBillResponseModel>> => {
+): Promise<BaseResponse<any>> => {
   return BaseAxios.post(
     `${ApiConfig.ORDER}/payments/${paymentId}/retry-make-payment`,
   );
+};
+
+export const updateMomoTransactionStatusService = (
+  paymentId: number,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.ORDER}/payments/${paymentId}/status`);
 };
 
 export const getOrderHistoryService = (

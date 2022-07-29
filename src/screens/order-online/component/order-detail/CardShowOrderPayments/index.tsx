@@ -1,7 +1,20 @@
-import { Button, Card, Col, Collapse, Divider, FormInstance, Row, Space, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Collapse,
+  Divider,
+  FormInstance,
+  Row,
+  Space,
+  Tag,
+} from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
+import {
+  OrderPaymentResponse,
+  OrderResponse,
+} from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useMemo } from "react";
 import { useDispatch } from "react-redux";
@@ -9,6 +22,7 @@ import {
   cancelMomoTransactionService,
   getOrderDetail,
   retryMomoTransactionService,
+  updateMomoTransactionStatusService,
 } from "service/order/order.service";
 import {
   copyTextToClipboard,
@@ -18,7 +32,12 @@ import {
   isFetchApiSuccessful,
   sortFulfillments,
 } from "utils/AppUtils";
-import { FulFillmentStatus, OrderStatus, PaymentMethodCode, POS } from "utils/Constants";
+import {
+  FulFillmentStatus,
+  OrderStatus,
+  PaymentMethodCode,
+  POS,
+} from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { yellowColor } from "utils/global-styles/variables";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
@@ -111,7 +130,9 @@ function CardShowOrderPayments(props: PropTypes) {
 
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
 
-  const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
+  const totalPaid = OrderDetail?.payments
+    ? getAmountPayment(OrderDetail.payments)
+    : 0;
 
   // khách cần trả thêm
   const customerNeedToPayValueMore = useMemo(() => {
@@ -119,7 +140,9 @@ function CardShowOrderPayments(props: PropTypes) {
   }, [OrderDetail?.total, totalPaid]);
 
   const sortedFulfillments = useMemo(() => {
-    return OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
+    return OrderDetail?.fulfillments
+      ? sortFulfillments(OrderDetail?.fulfillments)
+      : [];
   }, [OrderDetail?.fulfillments]);
 
   /**
@@ -130,7 +153,10 @@ function CardShowOrderPayments(props: PropTypes) {
     if (!OrderDetail) {
       return false;
     }
-    if (checkIfOrderHasNoPayment(OrderDetail) && !sortedFulfillments[0]?.shipment?.cod) {
+    if (
+      checkIfOrderHasNoPayment(OrderDetail) &&
+      !sortedFulfillments[0]?.shipment?.cod
+    ) {
       result = true;
     } else {
       result = false;
@@ -158,7 +184,9 @@ function CardShowOrderPayments(props: PropTypes) {
               <div className={paymentClassName.left}>
                 <b>
                   COD
-                  <Tag className="orders-tag orders-tag-warning">Đang chờ thu</Tag>
+                  <Tag className="orders-tag orders-tag-warning">
+                    Đang chờ thu
+                  </Tag>
                 </b>
                 <span className="amount">
                   {OrderDetail !== null && OrderDetail?.fulfillments
@@ -167,17 +195,22 @@ function CardShowOrderPayments(props: PropTypes) {
                 </span>
               </div>
               <div className={paymentClassName.right}>
-                {sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED && (
+                {sortedFulfillments[0]?.status ===
+                  FulFillmentStatus.SHIPPED && (
                   <div>
                     <span className="date">
-                      {ConvertUtcToLocalDate(OrderDetail?.updated_date, dateFormat)}
+                      {ConvertUtcToLocalDate(
+                        OrderDetail?.updated_date,
+                        dateFormat,
+                      )}
                     </span>
                   </div>
                 )}
               </div>
             </div>
           }
-          key="cod-waiting"></Panel>
+          key="cod-waiting"
+        ></Panel>
       );
     }
   };
@@ -193,12 +226,16 @@ function CardShowOrderPayments(props: PropTypes) {
           <Col span={8}>
             <span className="text-field margin-right-40">Còn phải trả:</span>
             <b style={{ color: "red" }}>
-              {formatCurrency(customerNeedToPayValueMore > 0 ? customerNeedToPayValueMore : 0)}
+              {formatCurrency(
+                customerNeedToPayValueMore > 0 ? customerNeedToPayValueMore : 0,
+              )}
             </b>
           </Col>
           {customerNeedToPayValueMore < 0 && (
             <Col span={8}>
-              <span className="text-field margin-right-40">Đã hoàn tiền cho khách:</span>
+              <span className="text-field margin-right-40">
+                Đã hoàn tiền cho khách:
+              </span>
               <b style={{ color: yellowColor }}>
                 {formatCurrency(Math.abs(customerNeedToPayValueMore))}
               </b>
@@ -225,33 +262,41 @@ function CardShowOrderPayments(props: PropTypes) {
     main(payment: OrderPaymentResponse) {
       return (
         <div className="paymentTitle">
-          {payment.paid_amount < 0 ? "Hoàn tiền cho khách" : this.renderNotReturned(payment)}
+          {payment.paid_amount < 0
+            ? "Hoàn tiền cho khách"
+            : this.renderNotReturned(payment)}
           {renderPaymentPaidCodTag(payment)}
         </div>
       );
     },
+
     renderTitleMomo(payment: OrderPaymentResponse) {
       if (checkIfMomoPayment(payment)) {
         return (
           <div>
-            <div>{`${payment.payment_method} ${this.renderMomoPaymentStatus(payment)}`}</div>
+            <div>{`${payment.payment_method} ${this.renderMomoPaymentStatus(
+              payment,
+            )}`}</div>
             {this.renderMomoPaymentShortLink(payment)}
             {this.renderMomoPaymentReference(payment)}
           </div>
         );
       }
     },
+
     renderTitleNotMomo(payment: OrderPaymentResponse) {
       if (!checkIfMomoPayment(payment)) {
         return payment.payment_method;
       }
     },
+
     renderNotReturned(payment: OrderPaymentResponse) {
       if (checkIfMomoPayment(payment)) {
         return this.renderTitleMomo(payment);
       }
       return this.renderTitleNotMomo(payment);
     },
+
     renderMomoPaymentStatus(payment: OrderPaymentResponse) {
       if (checkIfMomoPayment(payment)) {
         if (payment.status === ORDER_PAYMENT_STATUS.unpaid) {
@@ -263,16 +308,29 @@ function CardShowOrderPayments(props: PropTypes) {
         if (payment.status === ORDER_PAYMENT_STATUS.paid) {
           return "(Đã thanh toán)";
         }
+        if (checkIfExpiredPayment(payment)) {
+          return "(Đã hết hạn)";
+        }
         return "(Hủy giao dịch)";
       }
     },
+
     renderMomoPaymentShortLink(payment: OrderPaymentResponse) {
-      if (!payment.short_link || checkIfFinishedPayment(payment)) {
+      if (
+        !payment.short_link ||
+        checkIfFinishedPayment(payment) ||
+        checkIfExpiredPayment(payment)
+      ) {
         return;
       }
       return (
         <div style={{ maxWidth: "85%" }}>
-          <a href={payment.short_link} target="_blank" rel="noreferrer" className="momoShortLink">
+          <a
+            href={payment.short_link}
+            target="_blank"
+            rel="noreferrer"
+            className="momoShortLink"
+          >
             {payment.short_link}
           </a>
           <img
@@ -289,12 +347,15 @@ function CardShowOrderPayments(props: PropTypes) {
         </div>
       );
     },
+
     renderMomoPaymentReference(payment: OrderPaymentResponse) {
       if (!checkIfMomoPayment(payment)) {
         return;
       }
       if (checkIfFinishedPayment(payment) && payment.ref_transaction_code) {
-        return <div className="momoReference">{payment.ref_transaction_code}</div>;
+        return (
+          <div className="momoReference">{payment.ref_transaction_code}</div>
+        );
       }
     },
   };
@@ -333,7 +394,8 @@ function CardShowOrderPayments(props: PropTypes) {
           style={{
             backgroundColor: "rgba(39, 174, 96, 0.1)",
             color: "#27AE60",
-          }}>
+          }}
+        >
           Đã thu COD
         </Tag>
       );
@@ -370,6 +432,22 @@ function CardShowOrderPayments(props: PropTypes) {
       });
   };
 
+  const handleUpdateMomoTransactionStatus = (payment: OrderPaymentResponse) => {
+    dispatch(showLoading());
+    updateMomoTransactionStatusService(payment.id)
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
+          showSuccess("Cập nhật trạng thái Momo thành công !");
+          handleFetchOrderDetail();
+        } else {
+          handleFetchApiError(response, "Cập nhật trạng thái Momo", dispatch);
+        }
+      })
+      .finally(() => {
+        dispatch(hideLoading());
+      });
+  };
+
   const handleRetryMomoTransaction = (payment: OrderPaymentResponse) => {
     dispatch(showLoading());
     retryMomoTransactionService(payment.id)
@@ -399,10 +477,32 @@ function CardShowOrderPayments(props: PropTypes) {
           danger
           className="ant-btn-outline momoButton cancelMomoButton"
           onClick={() => {
-            console.log("cancel momo");
             handleCancelMomoTransaction(payment);
-          }}>
+          }}
+        >
           Hủy giao dịch
+        </Button>
+      );
+    }
+    return null;
+  };
+
+  const renderMomoUpdateStatusButton = (payment: OrderPaymentResponse) => {
+    if (
+      checkIfMomoPayment(payment) &&
+      !checkIfFinishedPayment(payment) &&
+      !checkIfExpiredPayment(payment) &&
+      !checkIfCancelledPayment(payment)
+    ) {
+      return (
+        <Button
+          type="primary"
+          className="ant-btn-outline momoButton updateMomoButton"
+          onClick={() => {
+            handleUpdateMomoTransactionStatus(payment);
+          }}
+        >
+          Cập nhật trạng thái
         </Button>
       );
     }
@@ -424,7 +524,8 @@ function CardShowOrderPayments(props: PropTypes) {
           onClick={() => {
             console.log("cancel momo");
             handleRetryMomoTransaction(payment);
-          }}>
+          }}
+        >
           Tạo link Momo
         </Button>
       );
@@ -438,7 +539,11 @@ function CardShowOrderPayments(props: PropTypes) {
     }
     return (
       <div style={{ padding: "0 0 0 15px" }}>
-        <Collapse className="orders-timeline" defaultActiveKey={["paymentDetailMain"]} ghost>
+        <Collapse
+          className="orders-timeline"
+          defaultActiveKey={["paymentDetailMain"]}
+          ghost
+        >
           {OrderDetail?.payments
             // hiển thị tất
             // .filter((payment) => {
@@ -457,7 +562,8 @@ function CardShowOrderPayments(props: PropTypes) {
                 showArrow={false}
                 className={`orders-timeline-custom ${
                   !checkIfFinishedPayment(payment)
-                    ? checkIfExpiredPayment(payment) || checkIfCancelledPayment(payment)
+                    ? checkIfExpiredPayment(payment) ||
+                      checkIfCancelledPayment(payment)
                       ? "danger-collapse"
                       : "warning-collapse"
                     : "success-collapse"
@@ -479,15 +585,20 @@ function CardShowOrderPayments(props: PropTypes) {
                     <div className={paymentClassName.right}>
                       <div>
                         <div className="date">
-                          {ConvertUtcToLocalDate(payment.created_date, dateFormat)}
+                          {ConvertUtcToLocalDate(
+                            payment.created_date,
+                            dateFormat,
+                          )}
                         </div>
                         {renderMomoCancelTransactionButton(payment)}
+                        {renderMomoUpdateStatusButton(payment)}
                         {renderMomoRetryButton(payment)}
                       </div>
                     </div>
                   </div>
                 }
-                key={index}></Panel>
+                key={index}
+              ></Panel>
             ))}
           {/* cod đang chờ thu */}
           {renderCodWaiting()}
@@ -501,11 +612,13 @@ function CardShowOrderPayments(props: PropTypes) {
                     paddingLeft: "14px",
                     color: "#222222",
                     textTransform: "uppercase",
-                  }}>
+                  }}
+                >
                   Lựa chọn 1 hoặc nhiều phương thức thanh toán
                 </b>
               }
-              key="paymentDetailMain">
+              key="paymentDetailMain"
+            >
               {isShowPaymentPartialPayment && (
                 <UpdatePaymentCard
                   setPaymentMethod={onPaymentSelect}
@@ -545,7 +658,9 @@ function CardShowOrderPayments(props: PropTypes) {
   console.log("sortedFulfillments", sortedFulfillments);
   console.log("totalPaid", totalPaid);
 
-  const checkIfOrderHasPaidAllMoneyAmountIncludeCod = (OrderDetail: OrderResponse) => {
+  const checkIfOrderHasPaidAllMoneyAmountIncludeCod = (
+    OrderDetail: OrderResponse,
+  ) => {
     let codAmount = 0;
     if (!checkIfFulfillmentCancelled(sortedFulfillments[0])) {
       codAmount = sortedFulfillments[0]?.shipment?.cod || 0;
@@ -563,7 +678,10 @@ function CardShowOrderPayments(props: PropTypes) {
           disabledBottomActions)
       );
     };
-    if (!checkIfOrderHasPaidAllMoneyAmountIncludeCod(OrderDetail) && !isShowPaymentPartialPayment) {
+    if (
+      !checkIfOrderHasPaidAllMoneyAmountIncludeCod(OrderDetail) &&
+      !isShowPaymentPartialPayment
+    ) {
       return (
         <div className="text-right">
           <Divider style={{ margin: "10px 0" }} />
@@ -573,7 +691,8 @@ function CardShowOrderPayments(props: PropTypes) {
             onClick={() => setShowPaymentPartialPayment(true)}
             style={{ marginTop: 10 }}
             // đơn hàng nhận ở cửa hàng là hoàn thành nhưng vẫn cho thanh toán tiếp
-            disabled={checkIfDisabled()}>
+            disabled={checkIfDisabled()}
+          >
             Thanh toán
           </Button>
         </div>
@@ -594,7 +713,8 @@ function CardShowOrderPayments(props: PropTypes) {
             </div>
             <PaymentStatusTag orderDetail={OrderDetail} />
           </Space>
-        }>
+        }
+      >
         {/* trạng thái thanh toán */}
         {renderPaymentDetailTop(OrderDetail)}
 
