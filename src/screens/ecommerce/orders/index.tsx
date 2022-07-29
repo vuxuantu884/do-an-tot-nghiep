@@ -1633,9 +1633,25 @@ const EcommerceOrders: React.FC = () => {
     [selectedRowKeys]
   );
 
+  const printEcommerceAction = useCallback(
+    (printType: string) => {
+      let params = {
+        action: "print",
+        ids: selectedRowKeys,
+        "print-type": printType,
+        "print-dialog": true,
+      };
+      const queryParam = generateQuery(params);
+      const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ECOMMERCE}/print-preview?${queryParam}`;
+      window.open(printPreviewUrl, '_blank', 'noopener,noreferrer');
+    },
+    [selectedRowKeys]
+  );
+
+
   const handlePrintShipment = () => {
     handleChangeOrderStatusToPicked(selectedRow);
-    printAction("shipment");
+    printEcommerceAction("shipment");
   }
   // end handle print yody delivery note
 
