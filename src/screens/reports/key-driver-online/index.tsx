@@ -1,29 +1,28 @@
-import { Card, InputNumber, Table, Tooltip } from "antd";
+import { Card, InputNumber, InputNumberProps, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import { KeyDriverOnlineDataSourceType } from "model/report";
+import { KeyboardKey } from "model/other/keyboard/keyboard.model";
+import { AnalyticDataQuery, KeyDriverOnlineDataSourceType } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory, useLocation, useParams } from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
+import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, parseLocaleNumber } from "utils/AppUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import {
-  ATTRIBUTE_ORDER_LV_1,
-  ATTRIBUTE_ORDER_LV_2,
-  ATTRIBUTE_ORDER_LV_3,
+  COLUMN_ORDER_LIST,
   convertDataToFlatTableKeyDriver,
-  DRILLING_LEVEL,
-  fetchQuery,
   getAllDepartmentByAnalyticResult,
-  getTemplateQueryLevel2and3,
-  getTemplateQueryLevel3and4,
+  getInputTargetId,
   handleFocusInput,
-  LEVEL_1_2_TEMPLATE_QUERY,
+  handleMoveFocusInput,
   saveMonthTargetKeyDriver,
 } from "./helper";
 import { KeyDriverOnlineStyle } from "./index.style";
@@ -54,6 +53,23 @@ const baseColumns: any = [
 ];
 
 const SHOP_LEVEL = 3;
+const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
+const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Online";
+
+const inputTargetDefaultProps: InputNumberProps<any> = {
+  className: "input-number",
+  formatter: (value?: number) => formatCurrency(value || 0),
+  parser: (value?: string) => {
+    let parseValue = 0;
+    if (value) {
+      parseValue = parseLocaleNumber(value);
+    }
+    return parseValue;
+  },
+  onFocus: handleFocusInput,
+  keyboard: false,
+};
+
 function VerifyCell(props: VerifyCellProps) {
   const { row, children, value } = props;
   if (row.key.endsWith(".L")) {
@@ -67,13 +83,15 @@ function VerifyCell(props: VerifyCellProps) {
 }
 
 function KeyDriverOnline() {
-  const { templateCode } = useParams<{ templateCode: string }>();
   const history = useHistory();
   // get query from url
   const query = new URLSearchParams(useLocation().search);
-  const department = query.get("department");
-  const shop = query.get("shop");
+  const date = query.get("date") || moment().format(DATE_FORMAT.YYYYMMDD);
   const targetDay = query.get("day");
+  const keyDriverGroupLv1 =
+    query.get("keyDriverGroupLv1") || DEFAULT_KEY_DRIVER_GROUP_LV_1;
+  const departmentLv2 = query.get("departmentLv2");
+  const departmentLv3 = query.get("departmentLv3");
 
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
@@ -84,6 +102,8 @@ function KeyDriverOnline() {
     (
       departmentKey: string,
       department: string,
+      columnIndex: number,
+      columnDrillingLevel: number,
       className: string = "department-name--secondary",
       link: string,
     ): ColumnGroupType<any> | ColumnType<any> => {
@@ -99,7 +119,7 @@ function KeyDriverOnline() {
         onHeaderCell: (data: any) => {
           return {
             onClick: () => {
-              console.log("header", data);
+              // console.log("header", data);
             },
           };
         },
@@ -110,16 +130,6 @@ function KeyDriverOnline() {
               return (
                 <div>
                   <span>MỤC TIÊU THÁNG</span>
-                  {/* <Button
-                    ghost
-                    size={"small"}
-                    title="Cập nhật mục tiêu tháng"
-                    onClick={() => {
-                      updateTargetMonth(departmentKey);
-                    }}
-                  >
-                    <CheckSquareOutlined />
-                  </Button> */}
                 </div>
               );
             },
@@ -132,27 +142,54 @@ function KeyDriverOnline() {
               record: KeyDriverOnlineDataSourceType,
               index: number,
             ) => {
+              const drillLevel = Number(
+                record[`${departmentKey}_drilling_level`],
+              );
+              const targetDrillingLevel = Number(
+                record[`${departmentKey}_target_drilling_level`],
+              );
+
               return (
                 <InputNumber
-                  className="input-number"
-                  formatter={(value?: number) => formatCurrency(value || 0)}
-                  parser={(value?: string) => {
-                    let parseValue = 0;
-                    if (value) {
-                      parseValue = parseLocaleNumber(value);
-                    }
-                    return parseValue;
-                  }}
+                  id={getInputTargetId(
+                    index,
+                    columnIndex * 2,
+                    PREFIX_CELL_TABLE,
+                  )}
                   defaultValue={text}
-                  onFocus={handleFocusInput}
+                  disabled={
+                    drillLevel > targetDrillingLevel ||
+                    !drillLevel ||
+                    !targetDrillingLevel
+                  }
                   onPressEnter={(e: any) => {
                     const value = parseLocaleNumber(e.target.value);
                     saveMonthTargetKeyDriver(
                       { total: value },
                       record,
+                      columnDrillingLevel,
+                      departmentKey,
                       dispatch,
                     );
+                    handleMoveFocusInput(
+                      index,
+                      columnIndex * 2,
+                      PREFIX_CELL_TABLE,
+                      KeyboardKey.ArrowDown,
+                    );
                   }}
+                  onKeyDown={(e) => {
+                    const event = e;
+                    if (event.shiftKey) {
+                      handleMoveFocusInput(
+                        index,
+                        columnIndex * 2,
+                        PREFIX_CELL_TABLE,
+                        event.key,
+                      );
+                    }
+                  }}
+                  {...inputTargetDefaultProps}
                 />
               );
             },
@@ -214,19 +251,22 @@ function KeyDriverOnline() {
               record: KeyDriverOnlineDataSourceType,
               index: number,
             ) => {
+              const drillLevel = +record[`${departmentKey}_drilling_level`];
+              const targetDrillingLevel =
+                +record[`${departmentKey}_target_drilling_level`];
               return (
                 <InputNumber
-                  className="input-number"
-                  formatter={(value?: number) => formatCurrency(value || 0)}
-                  parser={(value?: string) => {
-                    let parseValue = 0;
-                    if (value) {
-                      parseValue = parseLocaleNumber(value);
-                    }
-                    return parseValue;
-                  }}
+                  id={getInputTargetId(
+                    index,
+                    columnIndex * 2 + 1,
+                    PREFIX_CELL_TABLE,
+                  )}
+                  disabled={
+                    drillLevel > targetDrillingLevel ||
+                    !drillLevel ||
+                    !targetDrillingLevel
+                  }
                   defaultValue={text}
-                  onFocus={handleFocusInput}
                   onPressEnter={(e: any) => {
                     const value = parseLocaleNumber(e.target.value);
                     let newTargetDay = Number(targetDay);
@@ -234,12 +274,32 @@ function KeyDriverOnline() {
                       newTargetDay && newTargetDay > 0 && newTargetDay <= 31
                         ? newTargetDay
                         : moment().date();
+                    handleMoveFocusInput(
+                      index,
+                      columnIndex * 2 + 1,
+                      PREFIX_CELL_TABLE,
+                      KeyboardKey.ArrowDown,
+                    );
                     saveMonthTargetKeyDriver(
                       { [`day_${day}`]: value },
                       record,
+                      columnDrillingLevel,
+                      departmentKey,
                       dispatch,
                     );
                   }}
+                  onKeyDown={(e) => {
+                    const event = e;
+                    if (event.shiftKey) {
+                      handleMoveFocusInput(
+                        index,
+                        columnIndex * 2 + 1,
+                        PREFIX_CELL_TABLE,
+                        event.key,
+                      );
+                    }
+                  }}
+                  {...inputTargetDefaultProps}
                 />
               );
             },
@@ -279,94 +339,70 @@ function KeyDriverOnline() {
         ],
       };
     },
-    [dispatch],
+    [dispatch, targetDay],
   );
 
   const initTable = useCallback(
     async (
-      templateCode: string,
-      department: string | null,
-      shop: string | null,
+      date: string,
+      keyDriverGroupLv1: string,
+      departmentLv2: string | null,
+      departmentLv3: string | null,
     ) => {
       setLoadingPage(true);
-      let allDepartment: { name: string; drillingLevel: number }[] = [];
-      switch (templateCode) {
-        case "level-1":
-          const data = await fetchQuery(LEVEL_1_2_TEMPLATE_QUERY, dispatch);
-          setData(
-            convertDataToFlatTableKeyDriver(
-              data.result,
-              ["department_lv2"],
-              ATTRIBUTE_ORDER_LV_1,
-            ),
-          );
-          allDepartment = getAllDepartmentByAnalyticResult(
-            data.result.data,
-            ["department_lv2"],
-            ATTRIBUTE_ORDER_LV_1,
-          );
-          break;
-        case "level-2":
-          const templateQueryLv23 = department
-            ? getTemplateQueryLevel2and3(department)
-            : null;
-          if (templateQueryLv23) {
-            const dataLv23 = await fetchQuery(templateQueryLv23, dispatch);
-            setData(
-              convertDataToFlatTableKeyDriver(
-                dataLv23.result,
-                ["department_lv3"],
-                ATTRIBUTE_ORDER_LV_2,
-              ),
-            );
-            allDepartment = getAllDepartmentByAnalyticResult(
-              dataLv23.result.data,
-              ["department_lv3"],
-              ATTRIBUTE_ORDER_LV_2,
-            );
-          }
-          break;
-        case "level-3":
-          const templateQueryLv34 = shop
-            ? getTemplateQueryLevel3and4(shop)
-            : null;
-          if (templateQueryLv34) {
-            const dataLv34 = await fetchQuery(templateQueryLv34, dispatch);
-            setData(
-              convertDataToFlatTableKeyDriver(
-                dataLv34.result,
-                ["department_lv4"],
-                ATTRIBUTE_ORDER_LV_3,
-              ),
-            );
-            allDepartment = getAllDepartmentByAnalyticResult(
-              dataLv34.result.data,
-              ["department_lv4"],
-              ATTRIBUTE_ORDER_LV_3,
-            );
-          }
-          break;
-      }
+      let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
+
+      const response: Omit<AnalyticDataQuery, "query"> = await callApiNative(
+        { notifyAction: "SHOW_ALL" },
+        dispatch,
+        getKeyDriverOnlineApi,
+        {
+          date,
+          keyDriverGroupLv1,
+          departmentLv2,
+          departmentLv3,
+        },
+      );
+
+      setData(
+        convertDataToFlatTableKeyDriver(response.result, COLUMN_ORDER_LIST),
+      );
+      allDepartment = getAllDepartmentByAnalyticResult(
+        response.result.data,
+        COLUMN_ORDER_LIST,
+      );
 
       const temp = [...baseColumns];
-      allDepartment.forEach(({ name, drillingLevel }, index: number) => {
+
+      allDepartment.forEach(({ groupedBy, drillingLevel }, index: number) => {
         let link = "";
         if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
-          let params = {};
-          if (drillingLevel === DRILLING_LEVEL.DEPARTMENT) {
-            params = { department: name };
-          } else if (drillingLevel === DRILLING_LEVEL.SHOP) {
-            params = { shop: name };
-          }
-          link = `${
-            UrlConfig.KEY_DRIVER_ONLINE
-          }/level-${drillingLevel}?${queryString.stringify(params)}`;
+          const defaultDate = date
+            ? date
+            : moment().format(DATE_FORMAT.YYYYMMDD);
+          const columnDepartmentLv2 =
+            drillingLevel === 2 ? groupedBy : departmentLv2;
+          const columnDepartmentLv3 =
+            drillingLevel === 3 ? groupedBy : departmentLv3;
+
+          const params = {
+            date: defaultDate,
+            keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+            departmentLv2: columnDepartmentLv2,
+            departmentLv3: columnDepartmentLv3,
+          };
+
+          link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(
+            params,
+          )}`;
         }
 
         temp.push(
           setObjectiveColumns(
-            nonAccentVietnamese(name),
-            name.toUpperCase(),
+            nonAccentVietnamese(groupedBy),
+            groupedBy.toUpperCase(),
+            index,
+            drillingLevel,
             index === 0 ? "department-name--primary" : undefined,
             link,
           ),
@@ -379,12 +415,22 @@ function KeyDriverOnline() {
   );
 
   useEffect(() => {
-    if (templateCode) {
-      initTable(templateCode, department, shop);
+    if (keyDriverGroupLv1 && date) {
+      initTable(date, keyDriverGroupLv1, departmentLv2, departmentLv3);
     } else {
-      history.push(`${UrlConfig.KEY_DRIVER_ONLINE}/level-1`);
+      const today = moment().format(DATE_FORMAT.YYYYMMDD);
+      history.push(
+        `${UrlConfig.KEY_DRIVER_ONLINE}/?date=${today}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
+      );
     }
-  }, [shop, department, templateCode, initTable, history]);
+  }, [
+    initTable,
+    history,
+    date,
+    keyDriverGroupLv1,
+    departmentLv2,
+    departmentLv3,
+  ]);
 
   const day = moment().format(DATE_FORMAT.DDMMYY_HHmm);
 
@@ -402,6 +448,10 @@ function KeyDriverOnline() {
             <Table
               className="disable-table-style" // để tạm background màu trắng vì chưa group data
               scroll={{ x: "max-content" }}
+              sticky={{
+                offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+                offsetScroll: 5,
+              }}
               bordered
               pagination={false}
               onRow={(record: any) => {
