@@ -570,7 +570,8 @@ function OrderPayments(props: PropTypes): JSX.Element {
                     levelOrder > 2 ||
                     (method.code === PaymentMethodCode.MOMO &&
                       checkIfOrderHasNotFinishedPaymentMomo(orderDetail)) ||
-                    method.code === PaymentMethodCode.VN_PAY
+                    method.code === PaymentMethodCode.VN_PAY ||
+                    method.code === PaymentMethodCode.MOMO
                   }
                 >
                   {method.name}
