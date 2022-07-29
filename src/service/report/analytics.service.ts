@@ -6,12 +6,12 @@ import { ApiConfig } from "config/api.config";
 import { AppConfig } from "config/app.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
+import { MonthlyCounterParams } from "model/report";
 import {
   AnalyticCustomize,
-  AnalyticQuery,
+  AnalyticDataQuery,
   AnalyticQueryMany,
   AnalyticTemplateParams,
-  MonthlyCounterParams,
 } from "model/report/analytics.model";
 import qs from "query-string";
 import { generateQuery } from "utils/AppUtils";
@@ -23,7 +23,7 @@ export const NO_SERVER_ERROR = "Báo cáo không có trên môi trường UAT";
 export const executeAnalyticsQueryService = (
   params: AnalyticTemplateParams,
   config?: AxiosRequestConfig,
-): Promise<BaseResponse<AnalyticQuery>> => {
+): Promise<BaseResponse<AnalyticDataQuery>> => {
   if (isUat) {
     return Promise.reject(new Error(NO_SERVER_ERROR));
   }
