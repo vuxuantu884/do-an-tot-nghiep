@@ -11,7 +11,7 @@ function useFetchWarrantyProductStatuses(
   initQuery: GetWarrantyProductStatusesParamModel,
   location: any,
   countForceFetchData: number,
-  setQuery: (data: GetWarrantyProductStatusesParamModel) => void
+  setQuery: (data: GetWarrantyProductStatusesParamModel) => void,
 ) {
   const [warrantyProductStatuses, setWarrantyProductStatuses] = useState<Array<any>>([]);
   const [metadata, setMetaData] = useState({
@@ -24,11 +24,11 @@ function useFetchWarrantyProductStatuses(
   console.log("queryParamsParsed", queryParamsParsed);
 
   const changeQueryFromStringToQuery = (value: string) => {
-    if(queryParamsParsed[value]) {
+    if (queryParamsParsed[value]) {
       return {
         [value]: undefined,
-        query: queryParamsParsed[value]
-      }
+        query: queryParamsParsed[value],
+      };
     }
   };
 
@@ -37,10 +37,10 @@ function useFetchWarrantyProductStatuses(
       ...initQuery,
       ...getQueryParamsFromQueryString(queryParamsParsed),
     };
-		let result = {
+    let result = {
       ...dataQuery,
       ...changeQueryFromStringToQuery("name"),
-		}
+    };
     setQuery(dataQuery);
     dispatch(showLoading());
     getWarrantyProductStatusesService(result)

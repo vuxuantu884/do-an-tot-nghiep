@@ -23,7 +23,8 @@ function BaseFilterResult({ data = [], onClose, ...props }: BaseFilterResultProp
               closeIcon={<CloseOutlined size={24} />}
               className="tag"
               {...props}
-              onClose={() => onClose(index)}>
+              onClose={() => onClose(index)}
+            >
               {item.keyName}: {item.valueName}
             </Tag>
           ))}

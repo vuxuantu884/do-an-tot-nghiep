@@ -21,8 +21,8 @@ interface CustomAutoCompleteType {
   textAdd?: string;
   textEmpty?: string;
   onClickAddNew?: () => void;
-	isFillInputWithTextSelected?: boolean; // có điền vào input giá trị đã select ko
-	defaultValue?: string; // giá trị mặc định
+  isFillInputWithTextSelected?: boolean; // có điền vào input giá trị đã select ko
+  defaultValue?: string; // giá trị mặc định
   isNotPermissionAudit?: boolean;
 }
 
@@ -37,9 +37,7 @@ export default class CustomAutoComplete extends Component<
 > {
   inputRef: Input | null = null;
   autoCompleteRef: RefSelectProps | null = null;
-  constructor(
-    props: CustomAutoCompleteType | Readonly<CustomAutoCompleteType>
-  ) {
+  constructor(props: CustomAutoCompleteType | Readonly<CustomAutoCompleteType>) {
     super(props);
     this.state = {
       open: false,
@@ -72,10 +70,7 @@ export default class CustomAutoComplete extends Component<
 
   add = () => {
     this.setState({ open: false }, () => {
-      setTimeout(
-        () => this.props.onClickAddNew && this.props.onClickAddNew(),
-        100
-      );
+      setTimeout(() => this.props.onClickAddNew && this.props.onClickAddNew(), 100);
     });
   };
 
@@ -87,7 +82,11 @@ export default class CustomAutoComplete extends Component<
         ref={(ref) => (this.autoCompleteRef = ref)}
         maxLength={255}
         notFoundContent={
-          this.state.value ? (this.props.textEmpty ? this.props.textEmpty : "Không có dữ liệu") : "Vui lòng điền kí tự!"
+          this.state.value
+            ? this.props.textEmpty
+              ? this.props.textEmpty
+              : "Không có dữ liệu"
+            : "Vui lòng điền kí tự!"
         }
         dropdownMatchSelectWidth={this.props.dropdownMatchSelectWidth}
         style={this.props.style}
@@ -97,7 +96,9 @@ export default class CustomAutoComplete extends Component<
         onSearch={this.onSearch}
         options={this.props.options}
         allowClear
-				defaultActiveFirstOption = {this.props.defaultActiveFirstOption ? this.props.defaultActiveFirstOption : true}
+        defaultActiveFirstOption={
+          this.props.defaultActiveFirstOption ? this.props.defaultActiveFirstOption : true
+        }
         dropdownRender={(menu) => {
           return !this.props.isNotPermissionAudit ? (
             <div className="dropdown-custom">
@@ -113,7 +114,9 @@ export default class CustomAutoComplete extends Component<
               )}
               {menu}
             </div>
-          ) : (<></>)
+          ) : (
+            <></>
+          );
         }}
         onSelect={this.onSelect}
         disabled={this.props.disabled}
@@ -122,10 +125,11 @@ export default class CustomAutoComplete extends Component<
           ref={(ref) => (this.inputRef = ref)}
           placeholder={this.props.placeholder}
           prefix={
-            this.props.loading ?
+            this.props.loading ? (
               <LoadingOutlined style={{ color: "#2a2a86" }} />
-              :
+            ) : (
               <SearchOutlined style={{ color: "#ABB4BD" }} />
+            )
           }
         />
       </AutoComplete>

@@ -88,8 +88,7 @@ function KeyDriverOnline() {
   const query = new URLSearchParams(useLocation().search);
   const date = query.get("date") || moment().format(DATE_FORMAT.YYYYMMDD);
   const targetDay = query.get("day");
-  const keyDriverGroupLv1 =
-    query.get("keyDriverGroupLv1") || DEFAULT_KEY_DRIVER_GROUP_LV_1;
+  const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_KEY_DRIVER_GROUP_LV_1;
   const departmentLv2 = query.get("departmentLv2");
   const departmentLv3 = query.get("departmentLv3");
 
@@ -137,31 +136,15 @@ function KeyDriverOnline() {
             align: "center",
             dataIndex: `${departmentKey}_monthly_target`,
             className: "input-cell",
-            render: (
-              text: any,
-              record: KeyDriverOnlineDataSourceType,
-              index: number,
-            ) => {
-              const drillLevel = Number(
-                record[`${departmentKey}_drilling_level`],
-              );
-              const targetDrillingLevel = Number(
-                record[`${departmentKey}_target_drilling_level`],
-              );
+            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
+              const drillLevel = Number(record[`${departmentKey}_drilling_level`]);
+              const targetDrillingLevel = Number(record[`${departmentKey}_target_drilling_level`]);
 
               return (
                 <InputNumber
-                  id={getInputTargetId(
-                    index,
-                    columnIndex * 2,
-                    PREFIX_CELL_TABLE,
-                  )}
+                  id={getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE)}
                   defaultValue={text}
-                  disabled={
-                    drillLevel > targetDrillingLevel ||
-                    !drillLevel ||
-                    !targetDrillingLevel
-                  }
+                  disabled={drillLevel > targetDrillingLevel || !drillLevel || !targetDrillingLevel}
                   onPressEnter={(e: any) => {
                     const value = parseLocaleNumber(e.target.value);
                     saveMonthTargetKeyDriver(
@@ -181,12 +164,7 @@ function KeyDriverOnline() {
                   onKeyDown={(e) => {
                     const event = e;
                     if (event.shiftKey) {
-                      handleMoveFocusInput(
-                        index,
-                        columnIndex * 2,
-                        PREFIX_CELL_TABLE,
-                        event.key,
-                      );
+                      handleMoveFocusInput(index, columnIndex * 2, PREFIX_CELL_TABLE, event.key);
                     }
                   }}
                   {...inputTargetDefaultProps}
@@ -228,11 +206,7 @@ function KeyDriverOnline() {
             align: "center",
             dataIndex: `${departmentKey}_monthly_forecasted`,
             className: "input-cell",
-            render: (
-              text: any,
-              record: KeyDriverOnlineDataSourceType,
-              index: number,
-            ) => {
+            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               return (
                 <VerifyCell row={record} value={text}>
                   {formatCurrency(text)}
@@ -246,26 +220,13 @@ function KeyDriverOnline() {
             align: "center",
             dataIndex: `${departmentKey}_daily_target`,
             className: "input-cell",
-            render: (
-              text: any,
-              record: KeyDriverOnlineDataSourceType,
-              index: number,
-            ) => {
+            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const drillLevel = +record[`${departmentKey}_drilling_level`];
-              const targetDrillingLevel =
-                +record[`${departmentKey}_target_drilling_level`];
+              const targetDrillingLevel = +record[`${departmentKey}_target_drilling_level`];
               return (
                 <InputNumber
-                  id={getInputTargetId(
-                    index,
-                    columnIndex * 2 + 1,
-                    PREFIX_CELL_TABLE,
-                  )}
-                  disabled={
-                    drillLevel > targetDrillingLevel ||
-                    !drillLevel ||
-                    !targetDrillingLevel
-                  }
+                  id={getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE)}
+                  disabled={drillLevel > targetDrillingLevel || !drillLevel || !targetDrillingLevel}
                   defaultValue={text}
                   onPressEnter={(e: any) => {
                     const value = parseLocaleNumber(e.target.value);
@@ -310,11 +271,7 @@ function KeyDriverOnline() {
             align: "center",
             dataIndex: `${departmentKey}_daily_actual`,
             className: "input-cell",
-            render: (
-              text: any,
-              record: KeyDriverOnlineDataSourceType,
-              index: number,
-            ) => {
+            render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               return (
                 <VerifyCell row={record} value={text}>
                   {formatCurrency(text)}
@@ -364,26 +321,17 @@ function KeyDriverOnline() {
         },
       );
 
-      setData(
-        convertDataToFlatTableKeyDriver(response.result, COLUMN_ORDER_LIST),
-      );
-      allDepartment = getAllDepartmentByAnalyticResult(
-        response.result.data,
-        COLUMN_ORDER_LIST,
-      );
+      setData(convertDataToFlatTableKeyDriver(response.result, COLUMN_ORDER_LIST));
+      allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
 
       const temp = [...baseColumns];
 
       allDepartment.forEach(({ groupedBy, drillingLevel }, index: number) => {
         let link = "";
         if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
-          const defaultDate = date
-            ? date
-            : moment().format(DATE_FORMAT.YYYYMMDD);
-          const columnDepartmentLv2 =
-            drillingLevel === 2 ? groupedBy : departmentLv2;
-          const columnDepartmentLv3 =
-            drillingLevel === 3 ? groupedBy : departmentLv3;
+          const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
+          const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
+          const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
 
           const params = {
             date: defaultDate,
@@ -392,9 +340,7 @@ function KeyDriverOnline() {
             departmentLv3: columnDepartmentLv3,
           };
 
-          link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(
-            params,
-          )}`;
+          link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(params)}`;
         }
 
         temp.push(
@@ -423,24 +369,14 @@ function KeyDriverOnline() {
         `${UrlConfig.KEY_DRIVER_ONLINE}/?date=${today}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
       );
     }
-  }, [
-    initTable,
-    history,
-    date,
-    keyDriverGroupLv1,
-    departmentLv2,
-    departmentLv3,
-  ]);
+  }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3]);
 
   const day = moment().format(DATE_FORMAT.DDMMYY_HHmm);
 
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Online"}
-      breadcrumb={[
-        { name: "Báo cáo" },
-        { name: "Báo cáo kết quả kinh doanh Online" },
-      ]}
+      breadcrumb={[{ name: "Báo cáo" }, { name: "Báo cáo kết quả kinh doanh Online" }]}
     >
       <KeyDriverOnlineStyle>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>

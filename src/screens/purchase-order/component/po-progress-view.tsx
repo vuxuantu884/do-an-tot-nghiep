@@ -9,9 +9,7 @@ type POProgressViewProps = {
   total: number;
   extra?: ReactNode;
 };
-const POProgressView: React.FC<POProgressViewProps> = (
-  props: POProgressViewProps
-) => {
+const POProgressView: React.FC<POProgressViewProps> = (props: POProgressViewProps) => {
   const { received, total, extra, receivedTitle, remainTitle } = props;
   const percent = useMemo(() => {
     if (received && total) {
@@ -20,14 +18,8 @@ const POProgressView: React.FC<POProgressViewProps> = (
     return 0;
   }, [received, total]);
   return (
-    <Row
-      className="padding-left-20 margin-top-20"
-      style={{ border: "1px solid #E5E5E5" }}
-    >
-      <Col
-        span={18}
-        style={{ borderRight: "1px solid #E5E5E5", paddingRight: 20 }}
-      >
+    <Row className="padding-left-20 margin-top-20" style={{ border: "1px solid #E5E5E5" }}>
+      <Col span={18} style={{ borderRight: "1px solid #E5E5E5", paddingRight: 20 }}>
         <div className="progress-view">
           <Progress
             // style={{ width: "100%" }}
@@ -53,27 +45,18 @@ const POProgressView: React.FC<POProgressViewProps> = (
         <div className="margin-bottom-20">{extra}</div>
       </Col>
       <Col span={6} flex="auto">
-        <div
-          className="padding-left-20"
-          style={{ textAlign: "left", marginTop: 25 }}
-        >
+        <div className="padding-left-20" style={{ textAlign: "left", marginTop: 25 }}>
           <span>
             {total - received >= 0 ? (
               <>
-                <MinusCircleFilled
-                  style={{ color: "#E24343", marginRight: 4 }}
-                />
-                {`${remainTitle}: `} 
-                <span style={{ color: "#E24343" }}>
-                  {formatCurrency(total - received)}
-                </span>
+                <MinusCircleFilled style={{ color: "#E24343", marginRight: 4 }} />
+                {`${remainTitle}: `}
+                <span style={{ color: "#E24343" }}>{formatCurrency(total - received)}</span>
               </>
             ) : (
               <>
-                <PlusCircleOutlined
-                  style={{ color: "#27ae60", marginRight: 4 }}
-                />
-                {`${remainTitle}: `} 
+                <PlusCircleOutlined style={{ color: "#27ae60", marginRight: 4 }} />
+                {`${remainTitle}: `}
                 <span style={{ color: "#27ae60" }}>
                   {formatCurrency(Math.abs(total - received))}
                 </span>

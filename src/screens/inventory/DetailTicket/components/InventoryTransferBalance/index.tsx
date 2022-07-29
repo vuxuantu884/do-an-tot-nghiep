@@ -19,7 +19,9 @@ type InventoryTransferBalanceModalProps = {
   visible: boolean;
 };
 
-const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps> = (props: InventoryTransferBalanceModalProps) => {
+const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps> = (
+  props: InventoryTransferBalanceModalProps,
+) => {
   const { data, onCancel, onOk, visible } = props;
 
   const dispatch = useDispatch();
@@ -30,8 +32,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       title: "STT",
       align: "center",
       width: "70px",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        index + 1,
+      render: (value: string, record: PurchaseOrderLineItem, index: number) => index + 1,
     },
     {
       title: "Ảnh",
@@ -73,7 +74,10 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       align: "center",
       width: 100,
       render: (value: string, row: LineItem) => {
-        const text = (row.real_quantity - row.transfer_quantity) >= 0 ? row.real_quantity - row.transfer_quantity : '';
+        const text =
+          row.real_quantity - row.transfer_quantity >= 0
+            ? row.real_quantity - row.transfer_quantity
+            : "";
         return text;
       },
     },
@@ -82,7 +86,10 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       width: 100,
       align: "center",
       render: (value: string, row: LineItem) => {
-        const text = (row.real_quantity - row.transfer_quantity) < 0 ? row.real_quantity - row.transfer_quantity : '';
+        const text =
+          row.real_quantity - row.transfer_quantity < 0
+            ? row.real_quantity - row.transfer_quantity
+            : "";
         return text;
       },
     },
@@ -92,12 +99,14 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       align: "center",
       width: 200,
       render: (value) => {
-        return <NumberFormat
-          value={value}
-          className="foo"
-          displayType={"text"}
-          thousandSeparator={true}
-        />
+        return (
+          <NumberFormat
+            value={value}
+            className="foo"
+            displayType={"text"}
+            thousandSeparator={true}
+          />
+        );
       },
     },
     {
@@ -105,14 +114,16 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       align: "center",
       width: 200,
       render: (item, row: LineItem) => {
-        const totalDifference = ( row.real_quantity - row.transfer_quantity ) * row.price;
+        const totalDifference = (row.real_quantity - row.transfer_quantity) * row.price;
         if (totalDifference) {
-          return <NumberFormat
-            value={totalDifference}
-            className="foo"
-            displayType={"text"}
-            thousandSeparator={true}
-          />
+          return (
+            <NumberFormat
+              value={totalDifference}
+              className="foo"
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          );
         }
         return 0;
       },
@@ -142,7 +153,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
           <Button key="back" onClick={onCancel}>
             Huỷ
           </Button>,
-          <Button style={{borderColor: "#2a2a86", color: "#2a2a86"}} onClick={() => {}}>
+          <Button style={{ borderColor: "#2a2a86", color: "#2a2a86" }} onClick={() => {}}>
             Kiểm kho theo sản phẩm
           </Button>,
           <Button
@@ -152,12 +163,14 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
             onClick={() => {
               if (data?.id) {
                 setLoading(true);
-                dispatch(adjustmentInventoryAction(data.id, (result) => {
-                  setLoading(false);
-                  if (result) {
-                    onOk(result);
-                  }
-                }))
+                dispatch(
+                  adjustmentInventoryAction(data.id, (result) => {
+                    setLoading(false);
+                    if (result) {
+                      onOk(result);
+                    }
+                  }),
+                );
               }
             }}
           >
@@ -167,42 +180,35 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       >
         <ModalWrapper>
           <Row>
-            <h2>Chuyển hàng <span>{data?.code}</span></h2>
+            <h2>
+              Chuyển hàng <span>{data?.code}</span>
+            </h2>
           </Row>
           <Row className="date-info">
-            <Col span={8} >
+            <Col span={8}>
               <div className="row-detail">
                 <div className="row-detail-left title">Ngày tạo</div>
                 <div className="dot data">:</div>
-                <div className="row-detail-right data">{
-                  ConvertUtcToLocalDate(
-                    data?.created_date,
-                    "DD/MM/YYYY"
-                  )}
+                <div className="row-detail-right data">
+                  {ConvertUtcToLocalDate(data?.created_date, "DD/MM/YYYY")}
                 </div>
               </div>
             </Col>
-            <Col span={8} >
+            <Col span={8}>
               <div className="row-detail">
                 <div className="row-detail-left title">Ngày chuyển</div>
                 <div className="dot data">:</div>
-                <div className="row-detail-right data">{
-                  ConvertUtcToLocalDate(
-                    data?.transfer_date,
-                    "DD/MM/YYYY"
-                  )}
+                <div className="row-detail-right data">
+                  {ConvertUtcToLocalDate(data?.transfer_date, "DD/MM/YYYY")}
                 </div>
               </div>
             </Col>
-            <Col span={8} >
+            <Col span={8}>
               <div className="row-detail">
                 <div className="row-detail-left title">Ngày nhận</div>
                 <div className="dot data">:</div>
-                <div className="row-detail-right data">{
-                  ConvertUtcToLocalDate(
-                    data?.pending_date,
-                    "DD/MM/YYYY"
-                  )}
+                <div className="row-detail-right data">
+                  {ConvertUtcToLocalDate(data?.pending_date, "DD/MM/YYYY")}
                 </div>
               </div>
             </Col>
@@ -221,64 +227,56 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
                 let missingAmount = 0;
                 let totalDifferenceAmount = 0;
                 data?.line_items.forEach((element: LineItem) => {
-                  totalDifferenceAmount += (element.real_quantity - element.transfer_quantity) * element.price;
+                  totalDifferenceAmount +=
+                    (element.real_quantity - element.transfer_quantity) * element.price;
                   if (element.real_quantity - element.transfer_quantity > 0) {
-                    excessAmount += (element.real_quantity - element.transfer_quantity);
+                    excessAmount += element.real_quantity - element.transfer_quantity;
                   }
                   if (element.real_quantity - element.transfer_quantity < 0) {
-                    missingAmount += (element.real_quantity - element.transfer_quantity);
+                    missingAmount += element.real_quantity - element.transfer_quantity;
                   }
                 });
                 return (
-                <Table.Summary fixed>
-                  <Table.Summary.Row>
-                    <Table.Summary.Cell align={"right"} index={1} colSpan={3}>
-                      <b>Tổng số lượng:</b>
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell align={"center"} index={2} >
-                      <b>{excessAmount}</b>
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell align={"center"} index={3}>
-                      <b>{missingAmount}</b>
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell index={4} >
-                    </Table.Summary.Cell>
-                    <Table.Summary.Cell align={"center"} index={6}>
-                      <b>
-                        <NumberFormat
-                          value={totalDifferenceAmount}
-                          className="foo"
-                          displayType={"text"}
-                          thousandSeparator={true}
-                        />
-                      </b>
-                    </Table.Summary.Cell>
-                  </Table.Summary.Row>
-                </Table.Summary>
-                )}}
-              />
+                  <Table.Summary fixed>
+                    <Table.Summary.Row>
+                      <Table.Summary.Cell align={"right"} index={1} colSpan={3}>
+                        <b>Tổng số lượng:</b>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell align={"center"} index={2}>
+                        <b>{excessAmount}</b>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell align={"center"} index={3}>
+                        <b>{missingAmount}</b>
+                      </Table.Summary.Cell>
+                      <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                      <Table.Summary.Cell align={"center"} index={6}>
+                        <b>
+                          <NumberFormat
+                            value={totalDifferenceAmount}
+                            className="foo"
+                            displayType={"text"}
+                            thousandSeparator={true}
+                          />
+                        </b>
+                      </Table.Summary.Cell>
+                    </Table.Summary.Row>
+                  </Table.Summary>
+                );
+              }}
+            />
           </Row>
-          <Row
-            className="note"
-            gutter={5}
-            style={{ flexDirection: "column" }}
-          >
+          <Row className="note" gutter={5} style={{ flexDirection: "column" }}>
             <Col span={24} style={{ marginBottom: 6 }}>
               <b>Ghi chú nội bộ:</b>
             </Col>
-            <Col span={24} >
-              {
-                data?.note ? (
-                  <span
-                    className="note-body"
-                    style={{ wordWrap: "break-word" }}
-                  >
-                    {data.note}
-                  </span>
-                ) : (
-                  <span>Không có ghi chú</span>
-                )
-              }
+            <Col span={24}>
+              {data?.note ? (
+                <span className="note-body" style={{ wordWrap: "break-word" }}>
+                  {data.note}
+                </span>
+              ) : (
+                <span>Không có ghi chú</span>
+              )}
             </Col>
           </Row>
         </ModalWrapper>

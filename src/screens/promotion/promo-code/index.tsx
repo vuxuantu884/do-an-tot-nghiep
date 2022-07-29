@@ -1,5 +1,5 @@
 import { FilterOutlined } from "@ant-design/icons";
-import {Button, Card, Form, Input, Select, Tag} from "antd";
+import { Button, Card, Form, Input, Select, Tag } from "antd";
 import search from "assets/img/search.svg";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
@@ -13,14 +13,15 @@ import { hideLoading } from "domain/actions/loading.action";
 import {
   bulkDeletePriceRules,
   bulkDisablePriceRulesAction,
-  bulkEnablePriceRulesAction, getListDiscountAction
+  bulkEnablePriceRulesAction,
+  getListDiscountAction,
 } from "domain/actions/promotion/discount/discount.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { PriceRule } from "model/promotion/price-rules.model";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import {Link, useHistory, useLocation} from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
@@ -33,11 +34,9 @@ import "./promo-code.scss";
 
 const PromotionCode = () => {
   const dispatch = useDispatch();
-  const location = useLocation()
+  const location = useLocation();
 
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   const initQuery: any = useMemo(
     () => ({
@@ -48,7 +47,7 @@ const PromotionCode = () => {
       coupon: "",
       state: null,
     }),
-    []
+    [],
   );
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
@@ -85,7 +84,7 @@ const PromotionCode = () => {
       }
       setTableLoading(false);
     },
-    [dispatch]
+    [dispatch],
   );
 
   const getCouponReleaseList = useCallback(
@@ -94,18 +93,18 @@ const PromotionCode = () => {
       setTableLoading(true);
       dispatch(getListDiscountAction(params, fetchData));
     },
-    [dispatch, fetchData]
+    [dispatch, fetchData],
   );
 
   const handleSetFormFieldsValue = useCallback(
     (fieldsValue) => {
       form.setFieldsValue({
-        ...fieldsValue
+        ...fieldsValue,
       });
     },
-    [form]
+    [form],
   );
-  
+
   useEffect(() => {
     const dataQuery: any = {
       ...initQuery,
@@ -130,7 +129,7 @@ const PromotionCode = () => {
       const queryParam = generateQuery(newParams);
       history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const onFilter = useCallback(
@@ -144,11 +143,11 @@ const PromotionCode = () => {
         history.push(`${location.pathname}?${queryParam}`);
       }
     },
-    [getCouponReleaseList, history, location.pathname, params]
+    [getCouponReleaseList, history, location.pathname, params],
   );
 
   const statuses: any = useMemo(
-    () => ([
+    () => [
       {
         code: "ACTIVE",
         value: "Đang áp dụng",
@@ -165,8 +164,8 @@ const PromotionCode = () => {
         code: "CANCELLED",
         value: "Đã huỷ",
       },
-    ]),
-    []
+    ],
+    [],
   );
 
   const columns: Array<ICustomTableColumType<any>> = [
@@ -213,8 +212,8 @@ const PromotionCode = () => {
       fixed: "left",
       align: "center",
       width: "20%",
-       render: (value: any, item: any) => (
-        <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date}/>
+      render: (value: any, item: any) => (
+        <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date} />
       ),
     },
     {
@@ -266,7 +265,7 @@ const PromotionCode = () => {
         }, 1500);
       }
     },
-    [dispatch, params, fetchData]
+    [dispatch, params, fetchData],
   );
 
   const onMenuClick = useCallback(
@@ -289,7 +288,7 @@ const PromotionCode = () => {
           break;
       }
     },
-    [dispatch, handleCallback, selectedRowKey]
+    [dispatch, handleCallback, selectedRowKey],
   );
 
   const { Item } = Form;
@@ -312,7 +311,7 @@ const PromotionCode = () => {
 
     if (params.state) {
       const status = statuses?.find(
-        (item: any) => item.code?.toString() === params.state?.toString()
+        (item: any) => item.code?.toString() === params.state?.toString(),
       );
       list.push({
         key: "state",
@@ -320,7 +319,7 @@ const PromotionCode = () => {
         value: status?.value || params.state,
       });
     }
-    
+
     if (params.coupon) {
       list.push({
         key: "coupon",
@@ -349,7 +348,7 @@ const PromotionCode = () => {
           break;
       }
     },
-    [onFilter, params]
+    [onFilter, params],
   );
   // end handle tag filter
 
@@ -374,19 +373,14 @@ const PromotionCode = () => {
         allowCreatePromoCode && (
           <ButtonCreate path={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`}>
             Thêm mới đợt phát hành
-          </ButtonCreate >
+          </ButtonCreate>
         )
       }
     >
       <Card>
         <div className="promotion-code__search">
           <CustomFilter onMenuClick={onMenuClick} menu={actionsPromo}>
-            <Form
-              onFinish={onFilter}
-              initialValues={params}
-              layout="inline"
-              form={form}
-            >
+            <Form onFinish={onFilter} initialValues={params} layout="inline" form={form}>
               <Item name="query" className="search">
                 <Input
                   prefix={<img src={search} alt="" />}
@@ -446,7 +440,8 @@ const PromotionCode = () => {
                   key={filter.key}
                   className="tag"
                   closable={!tableLoading}
-                  onClose={(e) => onCloseTag(e, filter)}>
+                  onClose={(e) => onCloseTag(e, filter)}
+                >
                   {filter.name}: {filter.value}
                 </Tag>
               );
@@ -461,7 +456,10 @@ const PromotionCode = () => {
             isRowSelection
             isLoading={tableLoading}
             locale={{ emptyText: "Không có bản ghi" }}
-            sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+            sticky={{
+              offsetScroll: 5,
+              offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+            }}
             pagination={{
               pageSize: dataSource?.metadata.limit || 0,
               total: dataSource?.metadata.total || 0,
@@ -477,7 +475,7 @@ const PromotionCode = () => {
           />
         </div>
       </Card>
-    </ContentContainer >
+    </ContentContainer>
   );
 };
 

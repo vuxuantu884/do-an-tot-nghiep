@@ -1,12 +1,8 @@
 import { Card, Tooltip } from "antd";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
-import {
-  getOrderMappingListAction,
-} from "domain/actions/web-app/web-app.actions";
+import { getOrderMappingListAction } from "domain/actions/web-app/web-app.actions";
 import useAuthorization from "hook/useAuthorization";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -21,14 +17,13 @@ import { AllOrdersMappingStyled } from "screens/web-app/orders-sync/all-orders/A
 
 import AllOrdersMappingFilter from "screens/web-app/orders-sync/all-orders/component/AllOrdersMappingFilter";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import checkIcon from "assets/icon/CheckIcon.svg"
-import stopIcon from "assets/icon/Stop.svg"
-import "./AllOrdersMapping.scss"
+import checkIcon from "assets/icon/CheckIcon.svg";
+import stopIcon from "assets/icon/Stop.svg";
+import "./AllOrdersMapping.scss";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
-import {getWebAppById} from "screens/web-app/common/commonAction";
-
+import { getWebAppById } from "screens/web-app/common/commonAction";
 
 const initQuery: WebAppGetOrdersMappingQuery = {
   page: 1,
@@ -42,7 +37,7 @@ const initQuery: WebAppGetOrdersMappingQuery = {
   ecommerce_order_statuses: [],
   shop_ids: [],
   source_id: null,
-  source_ids: []
+  source_ids: [],
 };
 
 const CORE_ORDER_STATUS = [
@@ -55,31 +50,29 @@ const CORE_ORDER_STATUS = [
 type AllOrdersMappingProps = {
   isReloadPage: boolean;
   setRowDataFilter: (x: any) => void;
-  handleDownloadSelectedOrders: () => void
-  handleSingleDownloadOrder: (x: any) => void
+  handleDownloadSelectedOrders: () => void;
+  handleSingleDownloadOrder: (x: any) => void;
 };
 
-const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
-  props: AllOrdersMappingProps
-) => {
+const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappingProps) => {
   const dispatch = useDispatch();
-  const history = useHistory()
-  const location = useLocation()
+  const history = useHistory();
+  const location = useLocation();
 
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: any = queryString.parse(location.search);
 
-
-  const { isReloadPage,setRowDataFilter, handleDownloadSelectedOrders, handleSingleDownloadOrder } = props;
+  const {
+    isReloadPage,
+    setRowDataFilter,
+    handleDownloadSelectedOrders,
+    handleSingleDownloadOrder,
+  } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useState<Array<AccountResponse>>();
   const [params, setPrams] = useState<WebAppGetOrdersMappingQuery>(initQuery);
   // const [allShopList, setAllShopList] = useState<Array<any>>([]);
-  const productsUpdateStockPermission = [
-    EcommerceProductPermission.products_update_stock,
-  ];
+  const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
 
   const [allowProductsUpdateStock] = useAuthorization({
     acceptPermissions: productsUpdateStockPermission,
@@ -101,14 +94,14 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     // const formatDateTime = "HH:mm:ss DD/MM/YYYY";
     const formatDateTime = "DD/MM/YYYY HH:mm:ss";
     const timeCreate = ConvertUtcToLocalDate(dateTimeData, formatDateTime);
-    const dateCreate = timeCreate.split(" ")[0]
-    const hourCreate = timeCreate.split(" ")[1]
+    const dateCreate = timeCreate.split(" ")[0];
+    const hourCreate = timeCreate.split(" ")[1];
     return (
       <div>
         <div>{dateCreate}</div>
         <div>{hourCreate}</div>
       </div>
-    )
+    );
   };
 
   const tableRowActionList = [
@@ -126,7 +119,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       width: "14%",
       render: (item) => (
         <div>
-          <span style={{ textAlign: "center"}}>{item}</span>
+          <span style={{ textAlign: "center" }}>{item}</span>
         </div>
       ),
     },
@@ -137,10 +130,9 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       align: "center",
       width: "12%",
       render: (value: any) => (
-        <div className="shop-show-style" style={{ textAlign: "left", minWidth:"150px"}}>
+        <div className="shop-show-style" style={{ textAlign: "left", minWidth: "150px" }}>
           {getWebAppById(value)?.title}
         </div>
-
       ),
     },
     {
@@ -160,9 +152,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       align: "center",
       width: "12%",
       render: (status_value: string) => {
-        const status = CORE_ORDER_STATUS.find(
-          (status) => status.value === status_value
-        );
+        const status = CORE_ORDER_STATUS.find((status) => status.value === status_value);
         return (
           <StyledStatus>
             <div className={status?.className}>{status?.name}</div>
@@ -183,14 +173,11 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
               <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
             )}
 
-            {
-              value !== "connected" && (
-                <Tooltip title={item.error_description}>
-                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-                </Tooltip>
-
-              )
-            }
+            {value !== "connected" && (
+              <Tooltip title={item.error_description}>
+                <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
+              </Tooltip>
+            )}
           </div>
         );
       },
@@ -205,7 +192,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         <div style={{ textAlign: "center" }}>
           <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
         </div>
-
       ),
     },
     {
@@ -217,14 +203,17 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     TableRowAction(tableRowActionList),
   ]);
 
-  const onSelectTableRow = useCallback((selectedRow) => {
-    const newSelectedRow = selectedRow.filter((row: any) => {
-      return row !== undefined;
-    });
-    const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
-    setSelectedRowKeys(selectedRowIds);
-    setRowDataFilter(newSelectedRow);
-  }, [setRowDataFilter]);
+  const onSelectTableRow = useCallback(
+    (selectedRow) => {
+      const newSelectedRow = selectedRow.filter((row: any) => {
+        return row !== undefined;
+      });
+      const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
+      setSelectedRowKeys(selectedRowIds);
+      setRowDataFilter(newSelectedRow);
+    },
+    [setRowDataFilter],
+  );
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -234,7 +223,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       let queryParam = generateQuery(newPrams);
       history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const onFilter = useCallback(
@@ -247,7 +236,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         history.push(`${location.pathname}?${newQueryParam}`);
       }
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const onClearFilter = useCallback(() => {
@@ -256,25 +245,25 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);
 
-  const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel> | false) => {
-      setIsLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
+    setIsLoading(false);
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
 
-  const getOrderMappingList = useCallback((queryParams) => {
-    setIsLoading(true);
-    dispatch(
-      getOrderMappingListAction(queryParams, (result) => {
-        setIsLoading(false);
-        setSearchResult(result);
-      })
-    );
-  }, [dispatch, setSearchResult]);
+  const getOrderMappingList = useCallback(
+    (queryParams) => {
+      setIsLoading(true);
+      dispatch(
+        getOrderMappingListAction(queryParams, (result) => {
+          setIsLoading(false);
+          setSearchResult(result);
+        }),
+      );
+    },
+    [dispatch, setSearchResult],
+  );
 
   useEffect(() => {
     let queryParams: WebAppGetOrdersMappingQuery = {
@@ -284,8 +273,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     setPrams(queryParams);
     getOrderMappingList(queryParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch,setSearchResult, location.search]);
-
+  }, [dispatch, setSearchResult, location.search]);
 
   // reload page
   useEffect(() => {

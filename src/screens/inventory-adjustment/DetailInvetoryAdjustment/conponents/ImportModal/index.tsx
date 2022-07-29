@@ -1,10 +1,10 @@
-import {Button, Col, Modal, Progress, Row, Typography, Upload} from "antd";
-import {UploadFile} from "antd/lib/upload/interface";
-import {ImportResponse} from "model/other/files/export-model";
-import {STATUS_IMPORT_EXPORT} from "../..";
-import {ImportStatusWrapper} from "./styles";
+import { Button, Col, Modal, Progress, Row, Typography, Upload } from "antd";
+import { UploadFile } from "antd/lib/upload/interface";
+import { ImportResponse } from "model/other/files/export-model";
+import { STATUS_IMPORT_EXPORT } from "../..";
+import { ImportStatusWrapper } from "./styles";
 
-const {Text} = Typography;
+const { Text } = Typography;
 
 type ImportModalProps = {
   visible: boolean;
@@ -17,9 +17,7 @@ type ImportModalProps = {
   hasImportUrl: boolean;
 };
 
-const InventoryTransferImportModal: React.FC<ImportModalProps> = (
-  props: ImportModalProps
-) => {
+const InventoryTransferImportModal: React.FC<ImportModalProps> = (props: ImportModalProps) => {
   const {
     visible,
     onCancel,
@@ -32,7 +30,6 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
   } = props;
 
   const renderModalFooter = () => {
-
     return (
       <>
         <Button
@@ -128,7 +125,7 @@ const InventoryTransferImportModal: React.FC<ImportModalProps> = (
           <div className="title">
             <b>Chi tiết: </b>
           </div>
-          <Upload showUploadList={{showRemoveIcon: false}} fileList={fileList} />
+          <Upload showUploadList={{ showRemoveIcon: false }} fileList={fileList} />
           {statusImport !== STATUS_IMPORT_EXPORT.DEFAULT && (
             <div className="content">
               <ul>

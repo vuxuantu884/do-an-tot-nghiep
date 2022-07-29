@@ -21,9 +21,7 @@ type StoreType = {
 const FormFilter: React.FC<PropType> = (props: PropType) => {
   const store_id_allShops = -1;
   const { isCanEditFormHeader, isPagePrinterDetail } = props;
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const [listStores, setListStores] = useState<StoreType>([]);
   const sprintConfigure = {
     listPrinterTypes: bootstrapReducer.data?.print_type,
@@ -38,7 +36,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
       getListStoresSimpleAction((response: StoreResponse[]) => {
         console.log("response", response);
         setListStores(response);
-      })
+      }),
     );
   }, [dispatch]);
   return (
@@ -64,11 +62,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
                 : undefined
             }
           >
-            <Input
-              type="text"
-              disabled={!isCanEditFormHeader}
-              placeholder="Nhập tên mẫu in"
-            />
+            <Input type="text" disabled={!isCanEditFormHeader} placeholder="Nhập tên mẫu in" />
           </Form.Item>
         </Col>
         <Col span={5}>
@@ -121,9 +115,7 @@ const FormFilter: React.FC<PropType> = (props: PropType) => {
               optionFilterProp="children"
               disabled={!isCanEditFormHeader}
             >
-              <Select.Option value={store_id_allShops}>
-                Tất cả cửa hàng
-              </Select.Option>
+              <Select.Option value={store_id_allShops}>Tất cả cửa hàng</Select.Option>
               {sprintConfigure.listStores &&
                 sprintConfigure.listStores.map((single, index) => {
                   // console.log("single", single);

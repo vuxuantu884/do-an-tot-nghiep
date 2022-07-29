@@ -28,7 +28,7 @@ type FormValueType = {
 };
 
 const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
-  props: CustomModalFormModel
+  props: CustomModalFormModel,
 ) => {
   const dispatch = useDispatch();
   const { modalAction, formItem, form, visible } = props;
@@ -219,11 +219,7 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
               </Form.Item>
             </Col>
             <Col span={12}>
-              <Form.Item
-                label={<span className="fw-500">Thành phố:</span>}
-                name="city_id"
-                hidden
-              >
+              <Form.Item label={<span className="fw-500">Thành phố:</span>} name="city_id" hidden>
                 <Input
                   placeholder="Nhập địa chỉ chi tiết"
                   style={{ width: "100%" }}

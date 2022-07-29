@@ -7,8 +7,8 @@ export interface OrderRequest {
   price_type: string | null;
   tax_treatment: string | null;
   source_id: number | null;
-  source_code?:string|null;
-  source?:string|null;
+  source_code?: string | null;
+  source?: string | null;
   note: string | null;
   tags: string | null;
   customer_note: string | null;
@@ -44,24 +44,24 @@ export interface OrderRequest {
   payments: Array<OrderPaymentRequest> | null;
   channel_id?: number | null;
   finalized?: boolean;
-  sub_status_code?: string; 
-	automatic_discount?: boolean;
+  sub_status_code?: string;
+  automatic_discount?: boolean;
   export_bill?: boolean;
   ecommerce_shop_id?: number | null;
-  bill?: OrderBillRequestFormModel|null;
+  bill?: OrderBillRequestFormModel | null;
 }
 
 export interface ReturnRequest extends OrderRequest {
   reason_id: number;
   reason_name: string | null;
   reason: string | null;
-  sub_reason_id: string|null;
+  sub_reason_id: string | null;
   received: boolean;
   order_returns?: any[];
-  store:string;
-  store_code:string;
-  store_phone_number:string;
-  store_full_address:string;
+  store: string;
+  store_code: string;
+  store_phone_number: string;
+  store_full_address: string;
   type: string;
   money_refund: number;
 }
@@ -151,7 +151,7 @@ export interface ShippingAddress {
   ward: string;
   zip_code: string;
   full_address: string;
-  second_phone?:string|null;
+  second_phone?: string | null;
 }
 
 export interface ShipmentRequest {
@@ -234,8 +234,8 @@ export interface OrderPaymentRequest {
   type: string;
   note: string;
   bank_account_id?: number;
-  bank_account_number?:	string;
-  bank_account_holder?:	string;
+  bank_account_number?: string;
+  bank_account_holder?: string;
   expired_at?: Date | null;
 }
 
@@ -294,7 +294,7 @@ export interface OrderLineItemRequest {
   discount_amount: number;
   position?: number;
   gifts: Array<OrderLineItemRequest>;
-  available:number|null;
+  available: number | null;
   maxQuantityToApplyDiscount?: number; // số lượng tối đa để hưởng chiết khấu nếu có
 }
 
@@ -490,30 +490,30 @@ export interface SplitOrderRequest {
 }
 
 /**
-* Tính điểm đổi trả
-*/
+ * Tính điểm đổi trả
+ */
 export interface OrderReturnCalculateRefundRequestModel {
-  customerId: number,
-  orderId: number,
-  items: OrderLineItemRequest[],
-  return_items: OrderResponse[],
-  refund_money: number
+  customerId: number;
+  orderId: number;
+  items: OrderLineItemRequest[];
+  return_items: OrderResponse[];
+  refund_money: number;
 }
 
 /**
-* thông tin xuất hóa đơn
-*/
+ * thông tin xuất hóa đơn
+ */
 
 export interface OrderBillRequestFormModel {
-  buyer?: string ;
-  tax_code?: string ;
-  name?: string ;
-  note?: string ;
-  email?: string ;
-  full_address?: string ;
+  buyer?: string;
+  tax_code?: string;
+  name?: string;
+  note?: string;
+  email?: string;
+  full_address?: string;
   contract?: boolean;
 }
 
-export interface OrderBillRequestModel extends  OrderBillRequestFormModel {
+export interface OrderBillRequestModel extends OrderBillRequestFormModel {
   order_id?: number | null;
 }

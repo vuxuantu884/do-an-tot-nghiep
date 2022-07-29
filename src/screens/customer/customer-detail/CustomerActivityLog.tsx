@@ -1,16 +1,19 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {Button, Modal} from "antd";
+import { Button, Modal } from "antd";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
-import CustomTable, {ICustomTableColumType,} from "component/table/CustomTable";
-import {StyledActivityLog, StyledActivityLogDetailModal} from "screens/customer/customer-detail/customerDetailStyled";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import {
+  StyledActivityLog,
+  StyledActivityLogDetailModal,
+} from "screens/customer/customer-detail/customerDetailStyled";
 import {
   getCustomerActivityLogAction,
-  getCustomerActivityLogDetailAction
+  getCustomerActivityLogDetailAction,
 } from "domain/actions/customer/customer.action";
-import clockHistoryIcon from "assets/icon/clock-history.svg"
+import clockHistoryIcon from "assets/icon/clock-history.svg";
 
 type CustomerActivityLogProps = {
   customer: any;
@@ -19,7 +22,7 @@ type CustomerActivityLogProps = {
 const ACTIVITY_LOG_ACTION = {
   CREATE: "Tạo mới",
   UPDATE: "Chỉnh sửa",
-}
+};
 
 function CustomerActivityLog(props: CustomerActivityLogProps) {
   const { customer } = props;
@@ -47,14 +50,11 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
   });
 
   // get activity Log List
-  const updateActivityLogList = useCallback(
-    (data: PageResponse<OrderModel> | false) => {
-      if (data) {
-        setActivityLogData(data);
-      }
-    },
-    []
-  );
+  const updateActivityLogList = useCallback((data: PageResponse<OrderModel> | false) => {
+    if (data) {
+      setActivityLogData(data);
+    }
+  }, []);
 
   useEffect(() => {
     if (customer?.id) {
@@ -68,7 +68,7 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
     (page, limit) => {
       setActivityLogQueryParams({ ...activityLogQueryParams, page, limit });
     },
-    [activityLogQueryParams, setActivityLogQueryParams]
+    [activityLogQueryParams, setActivityLogQueryParams],
   );
 
   const handleViewLogDetail = (response: any) => {
@@ -76,16 +76,19 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
       setIsVisibleLogDetail(true);
       setActivityLogDetailType(response.action?.toUpperCase());
       setActivityLogDetail(response.data);
-      setOldDataLogDetail(response.old_data?.replaceAll('null', ''));
-      setNewDataLogDetail(response.new_data?.replaceAll('null', ''));
+      setOldDataLogDetail(response.old_data?.replaceAll("null", ""));
+      setNewDataLogDetail(response.new_data?.replaceAll("null", ""));
     }
-  }
+  };
 
-  const getActivityLogDetail = useCallback((logId: number) => {
-    if (logId) {
-      dispatch(getCustomerActivityLogDetailAction(logId, handleViewLogDetail));
-    }
-  }, [dispatch]);
+  const getActivityLogDetail = useCallback(
+    (logId: number) => {
+      if (logId) {
+        dispatch(getCustomerActivityLogDetailAction(logId, handleViewLogDetail));
+      }
+    },
+    [dispatch],
+  );
 
   const getActivityLogAction = (action: string) => {
     switch (action?.toUpperCase()) {
@@ -98,68 +101,71 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
     }
   };
 
-  const activityLogColumns: Array<ICustomTableColumType<any>> =
-    React.useMemo(
-      () => [
-        {
-          title: "ID",
-          dataIndex: "id",
-          key: "id",
-          align: "center",
-          width: "15%",
-          render: (value: string, item: any) => {
-            return (
-              <div className="link" onClick={() => getActivityLogDetail(item.id)}>{value}</div>
-            );
-          },
-        },
-        {
-          title: "Người thao tác",
-          dataIndex: "created_name",
-          key: "created_name",
-          align: "center",
-        },
-        {
-          title: "Thời gian",
-          dataIndex: "created_date",
-          key: "created_date",
-          align: "center",
-          width: "20%",
-          render: (value: string) => <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>,
-        },
-        {
-          title: "Hành động",
-          dataIndex: "action",
-          key: "action",
-          align: "center",
-          width: "20%",
-          render: (value: string) => <div>{getActivityLogAction(value)}</div>,
-        },
-        {
-          title: "Nội dung",
-          dataIndex: "id",
-          key: "content",
-          align: "center",
-          width: 150,
-          render: (value: number) => (
-            <div>
-              <img
-                src={clockHistoryIcon}
-                style={{ cursor: "pointer" }}
-                alt=""
-                onClick={() => getActivityLogDetail(value)}
-              />
+  const activityLogColumns: Array<ICustomTableColumType<any>> = React.useMemo(
+    () => [
+      {
+        title: "ID",
+        dataIndex: "id",
+        key: "id",
+        align: "center",
+        width: "15%",
+        render: (value: string, item: any) => {
+          return (
+            <div className="link" onClick={() => getActivityLogDetail(item.id)}>
+              {value}
             </div>
-          )
+          );
         },
-      ],
-      [getActivityLogDetail]
-    );
+      },
+      {
+        title: "Người thao tác",
+        dataIndex: "created_name",
+        key: "created_name",
+        align: "center",
+      },
+      {
+        title: "Thời gian",
+        dataIndex: "created_date",
+        key: "created_date",
+        align: "center",
+        width: "20%",
+        render: (value: string) => (
+          <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYY_HHmm)}</div>
+        ),
+      },
+      {
+        title: "Hành động",
+        dataIndex: "action",
+        key: "action",
+        align: "center",
+        width: "20%",
+        render: (value: string) => <div>{getActivityLogAction(value)}</div>,
+      },
+      {
+        title: "Nội dung",
+        dataIndex: "id",
+        key: "content",
+        align: "center",
+        width: 150,
+        render: (value: number) => (
+          <div>
+            <img
+              src={clockHistoryIcon}
+              style={{ cursor: "pointer" }}
+              alt=""
+              onClick={() => getActivityLogDetail(value)}
+            />
+          </div>
+        ),
+      },
+    ],
+    [getActivityLogDetail],
+  );
 
   const onCloseLogDetailModal = () => {
     setActivityLogDetail(null);
     setIsVisibleLogDetail(false);
-  }
+  };
 
   return (
     <StyledActivityLog>
@@ -180,7 +186,7 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
         rowKey={(item: OrderModel) => item.id}
       />
 
-      {isVisibleLogDetail &&
+      {isVisibleLogDetail && (
         <Modal
           onOk={onCloseLogDetailModal}
           visible={isVisibleLogDetail}
@@ -191,37 +197,43 @@ function CustomerActivityLog(props: CustomerActivityLogProps) {
           footer={[
             <Button key="close" type="primary" onClick={onCloseLogDetailModal}>
               Đóng
-            </Button>
+            </Button>,
           ]}
         >
           <StyledActivityLogDetailModal>
             <div className="log-detail-modal-body">
-              {activityLogDetailType === "CREATE" ?
+              {activityLogDetailType === "CREATE" ? (
                 <div>
-                  <div><strong>Dữ liệu tạo mới:</strong></div>
+                  <div>
+                    <strong>Dữ liệu tạo mới:</strong>
+                  </div>
                   <div className="content">
                     <pre>{JSON.stringify(JSON.parse(activityLogDetail || "{}"), null, 2)}</pre>
                   </div>
                 </div>
-                :
+              ) : (
                 <div>
                   <div className="log-detail-update">
                     <div className="old-data">
-                      <div className="label"><strong>Dữ liệu cũ:</strong></div>
+                      <div className="label">
+                        <strong>Dữ liệu cũ:</strong>
+                      </div>
                       <div className="content">{oldDataLogDetail}</div>
                     </div>
 
                     <div className="new-data">
-                      <div className="label"><strong>Dữ liệu mới:</strong></div>
+                      <div className="label">
+                        <strong>Dữ liệu mới:</strong>
+                      </div>
                       <div className="content">{newDataLogDetail}</div>
                     </div>
                   </div>
                 </div>
-              }
+              )}
             </div>
           </StyledActivityLogDetailModal>
         </Modal>
-      }
+      )}
     </StyledActivityLog>
   );
 }

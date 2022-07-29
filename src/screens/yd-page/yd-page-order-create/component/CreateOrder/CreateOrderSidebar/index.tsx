@@ -1,13 +1,13 @@
-import {InfoCircleOutlined, SearchOutlined} from "@ant-design/icons";
-import {Card, Form, Input, Select} from "antd";
+import { InfoCircleOutlined, SearchOutlined } from "@ant-design/icons";
+import { Card, Form, Input, Select } from "antd";
 import UrlConfig from "config/url.config";
-import {AccountResponse} from "model/account/account.model";
-import {OrderResponse} from "model/response/order/order.response";
+import { AccountResponse } from "model/account/account.model";
+import { OrderResponse } from "model/response/order/order.response";
 import React from "react";
-import {Link} from "react-router-dom";
+import { Link } from "react-router-dom";
 import SidebarOrderHistory from "./SidebarOrderHistory";
 import CustomInputTags from "component/custom/custom-input-tags";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   accounts: AccountResponse[];
@@ -35,7 +35,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
-  const {accounts, onChangeTag, tags, customerId, orderDetail} = props;
+  const { accounts, onChangeTag, tags, customerId, orderDetail } = props;
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
@@ -63,10 +63,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
       return (
         <div>
           <label>Đơn gốc tách đơn:{"   "}</label>
-          <Link
-            target="_blank"
-            to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
-          >
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}>
             <strong>{orderDetail.linked_order_code}</strong>
           </Link>
         </div>
@@ -200,7 +197,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
           <Input.TextArea
             placeholder="Điền ghi chú"
             maxLength={500}
-            style={{minHeight: "130px"}}
+            style={{ minHeight: "130px" }}
           />
         </Form.Item>
         <Form.Item
@@ -214,7 +211,7 @@ const CreateOrderSidebar: React.FC<PropType> = (props: PropType) => {
           <Input.TextArea
             placeholder="Điền ghi chú"
             maxLength={500}
-            style={{minHeight: "130px"}}
+            style={{ minHeight: "130px" }}
           />
         </Form.Item>
         <Form.Item

@@ -15,11 +15,16 @@ export const getLoyaltyRankDetail = (id: number): Promise<BaseResponse<LoyaltyRa
   return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-rankings/${id}`);
 };
 
-export const createLoyaltyRank = (body: CreateLoyaltyRequest): Promise<BaseResponse<LoyaltyRankResponse>> => {
+export const createLoyaltyRank = (
+  body: CreateLoyaltyRequest,
+): Promise<BaseResponse<LoyaltyRankResponse>> => {
   return BaseAxios.post(`${ApiConfig.LOYALTY}/loyalty-rankings`, body);
 };
 
-export const updateLoyaltyRank = (id: number, body: CreateLoyaltyRequest): Promise<BaseResponse<LoyaltyRankResponse>> => {
+export const updateLoyaltyRank = (
+  id: number,
+  body: CreateLoyaltyRequest,
+): Promise<BaseResponse<LoyaltyRankResponse>> => {
   return BaseAxios.put(`${ApiConfig.LOYALTY}/loyalty-rankings/${id}`, body);
 };
 

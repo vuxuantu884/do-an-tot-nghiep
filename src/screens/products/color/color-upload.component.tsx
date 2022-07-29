@@ -1,14 +1,14 @@
-import {Spin, Upload} from 'antd';
-import uploadIcon from 'assets/img/upload.svg';
-import imgDefIcon from 'assets/img/img-def.svg';
-import {useCallback, useState} from 'react';
-import {useDispatch} from 'react-redux';
-import {productUploadAction} from 'domain/actions/product/products.action';
-import {ProductUploadModel} from 'model/product/product-upload.model';
-import {LoadingOutlined} from '@ant-design/icons';
-import React from 'react';
-import {RcFile} from 'antd/lib/upload';
-import {  showWarning } from 'utils/ToastUtils';
+import { Spin, Upload } from "antd";
+import uploadIcon from "assets/img/upload.svg";
+import imgDefIcon from "assets/img/img-def.svg";
+import { useCallback, useState } from "react";
+import { useDispatch } from "react-redux";
+import { productUploadAction } from "domain/actions/product/products.action";
+import { ProductUploadModel } from "model/product/product-upload.model";
+import { LoadingOutlined } from "@ant-design/icons";
+import React from "react";
+import { RcFile } from "antd/lib/upload";
+import { showWarning } from "utils/ToastUtils";
 
 type ColorUploadProps = {
   value?: number;
@@ -17,7 +17,7 @@ type ColorUploadProps = {
 };
 
 const ColorUpload: React.FC<ColorUploadProps> = (props: ColorUploadProps) => {
-  const {onChange, url} = props;
+  const { onChange, url } = props;
   const dispatch = useDispatch();
   const [imageUrl, setImageUrl] = useState<string | null>(url ? url : null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -29,16 +29,16 @@ const ColorUpload: React.FC<ColorUploadProps> = (props: ColorUploadProps) => {
         onChange && onChange(data[0].id);
       }
     },
-    [onChange]
+    [onChange],
   );
   const beforeUpload = useCallback((file: RcFile) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
     if (!isJpgOrPng) {
-      showWarning('Vui lòng chọn đúng định dạng file JPG, PNG');
+      showWarning("Vui lòng chọn đúng định dạng file JPG, PNG");
     }
     const isLt2M = file.size / 1024 / 1024 < 5;
     if (!isLt2M) {
-      showWarning('Cần chọn ảnh nhỏ hơn 5mb');
+      showWarning("Cần chọn ảnh nhỏ hơn 5mb");
     }
     return isJpgOrPng && isLt2M;
   }, []);
@@ -51,7 +51,7 @@ const ColorUpload: React.FC<ColorUploadProps> = (props: ColorUploadProps) => {
         }
         if (files.length > 0) {
           setLoading(true);
-          dispatch(productUploadAction(files, 'color', onUpload));
+          dispatch(productUploadAction(files, "color", onUpload));
         }
       }}
       beforeUpload={beforeUpload}
@@ -65,7 +65,7 @@ const ColorUpload: React.FC<ColorUploadProps> = (props: ColorUploadProps) => {
       <div className="upload-view">
         {loading ? (
           <div>
-            <Spin indicator={<LoadingOutlined style={{fontSize: 24}} spin />} />
+            <Spin indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />} />
           </div>
         ) : (
           <React.Fragment>

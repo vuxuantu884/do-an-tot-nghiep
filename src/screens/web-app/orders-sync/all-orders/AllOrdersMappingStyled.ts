@@ -1,9 +1,6 @@
 import styled from "styled-components";
 
-
-export const AllOrdersMappingStyled = styled.div`
-  
-`;
+export const AllOrdersMappingStyled = styled.div``;
 
 export const AllOrdersMappingFilterStyled = styled.div`
   .order-filter {
@@ -16,7 +13,7 @@ export const AllOrdersMappingFilterStyled = styled.div`
       }
     }
   }
-  
+
   .default-filter {
     display: flex;
     overflow-x: auto;
@@ -66,7 +63,7 @@ export const AllOrdersMappingFilterStyled = styled.div`
   .select-web-app {
     width: 200px;
     min-width: 160px;
-     margin-right: 15px;
+    margin-right: 15px;
   }
 `;
 
@@ -87,14 +84,13 @@ export const StyledBaseFilter = styled.div`
         background-color: #f5f5f5;
       }
       .ant-btn:hover {
-        border-color: #2A2A86;
+        border-color: #2a2a86;
       }
       .active-btn {
-        color: #FFFFFF;
+        color: #ffffff;
         border-color: rgba(42, 42, 134, 0.1);
-        background-color: #2A2A86;
+        background-color: #2a2a86;
       }
     }
-
   }
 `;

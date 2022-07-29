@@ -47,21 +47,21 @@ const UrlConfig = {
   DISCOUNT: `/discounts`,
   PROMO_CODE: `/issues`,
   GIFT: `/gifts`,
-  PACK_SUPPORT:`/orders-pack`,
-  DELIVERY_RECORDS:`/delivery-records`,
-  BANK:`/bank`,
-  BANK_ACCOUNT:`/bank-account`,
-  REPORTS:`/reports`,
-  ANALYTICS:`/analytics`,
-  ANALYTIC_SALES_OFFLINE:`/analytics/sales-offline`,
-  ANALYTIC_SALES_ONLINE:`/analytics/sales-online`,
-  ANALYTIC_FINACE:`/analytics/finance`,
-  ANALYTIC_CUSTOMER:`/analytics/customers`,
-  WARRANTY:`/warranties`,
+  PACK_SUPPORT: `/orders-pack`,
+  DELIVERY_RECORDS: `/delivery-records`,
+  BANK: `/bank`,
+  BANK_ACCOUNT: `/bank-account`,
+  REPORTS: `/reports`,
+  ANALYTICS: `/analytics`,
+  ANALYTIC_SALES_OFFLINE: `/analytics/sales-offline`,
+  ANALYTIC_SALES_ONLINE: `/analytics/sales-online`,
+  ANALYTIC_FINACE: `/analytics/finance`,
+  ANALYTIC_CUSTOMER: `/analytics/customers`,
+  WARRANTY: `/warranties`,
   INVENTORY_DEFECTS: `/inventory-defects`,
   KEY_DRIVER_OFFLINE: `/key-driver-offline`,
   STOCK_IN_OUT_OTHERS: `/stock-in-out-others`,
-  KEY_DRIVER_ONLINE: '/key-driver-online'
+  KEY_DRIVER_ONLINE: "/key-driver-online",
 };
 
 export const ProductTabUrl = {
@@ -80,9 +80,9 @@ export const SupplierTabUrl = {
 
 export const InventoryTransferTabUrl = {
   LIST: UrlConfig.INVENTORY_TRANSFERS,
-  LIST_TRANSFERRING_SENDER: UrlConfig.INVENTORY_TRANSFERS + '/transferring-sender',
-  LIST_TRANSFERRING_RECEIVE: UrlConfig.INVENTORY_TRANSFERS + '/transferring-receive',
-  LIST_EXPORT_IMPORT: UrlConfig.INVENTORY_TRANSFERS + '/export-import-list',
+  LIST_TRANSFERRING_SENDER: UrlConfig.INVENTORY_TRANSFERS + "/transferring-sender",
+  LIST_TRANSFERRING_RECEIVE: UrlConfig.INVENTORY_TRANSFERS + "/transferring-receive",
+  LIST_EXPORT_IMPORT: UrlConfig.INVENTORY_TRANSFERS + "/export-import-list",
   HISTORIES: UrlConfig.INVENTORY_TRANSFERS + "/histories",
 };
 export const InventoryTabUrl = {
@@ -97,7 +97,7 @@ export const ProcurementTabUrl = {
   SEVEN_DAYS: UrlConfig.PROCUREMENT + "/seven-days",
   ALL: UrlConfig.PROCUREMENT,
   LOGS: UrlConfig.PROCUREMENT + "/logs",
-  PRODUCTS: UrlConfig.PROCUREMENT + "/products"
+  PRODUCTS: UrlConfig.PROCUREMENT + "/products",
 };
 
 export const PurchaseOrderTabUrl = {
@@ -127,23 +127,23 @@ export const BASE_NAME_ROUTER = "/admin";
 export const WARRANTY_URL = {
   productStatus: "product-statuses",
   reason: "reasons",
-  center: "centers"
-}
+  center: "centers",
+};
 
 export const AccountUrl = {
   UPDATE_PASSWORD: `${UrlConfig.ACCOUNTS}/me/update-password`,
   USER_DETAIL: `${UrlConfig.ACCOUNTS}/:code`,
-  USER_PERMISSION: `${UrlConfig.ACCOUNTS}/:code/permissions`,  
-}
+  USER_PERMISSION: `${UrlConfig.ACCOUNTS}/:code/permissions`,
+};
 
-export const SAPO_URL={
-  TEST:"https://moitruongtest.mysapo.net/admin/orders",
-  PRODUCTION:"https://yodyvn.mysapo.net/admin/orders"
-}
+export const SAPO_URL = {
+  TEST: "https://moitruongtest.mysapo.net/admin/orders",
+  PRODUCTION: "https://yodyvn.mysapo.net/admin/orders",
+};
 
-export const SHOPIFY_URL={
-  TEST:"https://yodyusa.myshopify.com/admin/orders",
-  PRODUCTION:"https://yodyusa.myshopify.com/admin/orders"
-}
+export const SHOPIFY_URL = {
+  TEST: "https://yodyusa.myshopify.com/admin/orders",
+  PRODUCTION: "https://yodyusa.myshopify.com/admin/orders",
+};
 
 export default UrlConfig;

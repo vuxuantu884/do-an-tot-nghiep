@@ -36,7 +36,7 @@
     }
 
     .scroll-box {
-      border: 1px solid #E5E5E5;
+      border: 1px solid #e5e5e5;
       border-radius: 4px;
       min-width: 340px;
       padding: 12px 14px;
@@ -58,7 +58,7 @@
         font-size: 14px;
         line-height: 16px;
         text-decoration-line: underline;
-        color: #2A2A86;
+        color: #2a2a86;
         margin-left: 15px;
         cursor: pointer;
       }
@@ -76,11 +76,11 @@
       font-weight: 500;
 
       &__ACTIVE {
-        color: #27AE60;
+        color: #27ae60;
       }
 
       &__INACTIVE {
-        color: #FF0000;
+        color: #ff0000;
       }
     }
 
@@ -90,11 +90,11 @@
       color: white;
 
       &__HIGH {
-        background: #FF0000;
+        background: #ff0000;
       }
 
       &__LOW {
-        background: #F5F5F5;
+        background: #f5f5f5;
         color: #222222;
       }
     }
@@ -116,11 +116,11 @@
     max-height: 600px;
     .product-item {
       padding: 13px 9px;
-      box-shadow: 0px 1px 0px #F5F5F5;
+      box-shadow: 0px 1px 0px #f5f5f5;
       margin-right: 2px;
 
       &:hover {
-        background: #F3F3FF;
+        background: #f3f3ff;
       }
     }
   }

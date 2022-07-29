@@ -62,10 +62,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   const [stepStatusNumber, setStepStatusNumber] = useState<number>(0);
 
   const isFinishedReceiving = useMemo(() => {
-    return (
-      poStatus === POStatus.STORED &&
-      receive_status === ProcumentStatus.FINISHED
-    );
+    return poStatus === POStatus.STORED && receive_status === ProcumentStatus.FINISHED;
   }, [poStatus, receive_status]);
 
   const getDescription = (step: number) => {
@@ -76,23 +73,16 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
 
     switch (step) {
       case statusToStep[POStatus.DRAFT]:
-        if (stepStatusNumber >= 0 && order_date)
-          return ConvertUtcToLocalDate(order_date);
+        if (stepStatusNumber >= 0 && order_date) return ConvertUtcToLocalDate(order_date);
         return null;
       case statusToStep[POStatus.WAITING_APPROVAL]:
-        if (
-          stepStatusNumber >= statusToStep[POStatus.WAITING_APPROVAL] &&
-          waiting_approval_date
-        ) {
+        if (stepStatusNumber >= statusToStep[POStatus.WAITING_APPROVAL] && waiting_approval_date) {
           return ConvertUtcToLocalDate(waiting_approval_date);
         } else {
           return null;
         }
       case statusToStep[POStatus.FINALIZED]:
-        if (
-          stepStatusNumber >= statusToStep[POStatus.FINALIZED] &&
-          activated_date !== null
-        ) {
+        if (stepStatusNumber >= statusToStep[POStatus.FINALIZED] && activated_date !== null) {
           return ConvertUtcToLocalDate(activated_date);
         } else {
           return null;
@@ -106,17 +96,11 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           return ConvertUtcToLocalDate(updatedProcurementDate);
         return null;
       case statusToStep[FINISHED_RECEIVING]:
-        if (
-          stepStatusNumber >= statusToStep[FINISHED_RECEIVING] &&
-          receive_finished_date
-        )
+        if (stepStatusNumber >= statusToStep[FINISHED_RECEIVING] && receive_finished_date)
           return ConvertUtcToLocalDate(receive_finished_date);
         return null;
       default:
-        if (
-          stepStatusNumber === statusToStep[POStatus.CANCELLED] &&
-          cancelled_date
-        ) {
+        if (stepStatusNumber === statusToStep[POStatus.CANCELLED] && cancelled_date) {
           return ConvertUtcToLocalDate(cancelled_date);
         } else if (completed_date) {
           return ConvertUtcToLocalDate(completed_date);
@@ -182,11 +166,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           {(status === "process" || status === "finish") && <CheckOutlined />}
         </div>
       )}
-      className={
-        stepStatusNumber === statusToStep[POStatus.DRAFT]
-          ? "po-step daft"
-          : "po-step"
-      }
+      className={stepStatusNumber === statusToStep[POStatus.DRAFT] ? "po-step daft" : "po-step"}
       size="small"
       current={stepStatusNumber}
     >
@@ -199,11 +179,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
         />
       ))}
       <Steps.Step
-        className={
-          statusToStep[poStatus] === statusToStep[POStatus.CANCELLED]
-            ? "cancelled"
-            : ""
-        }
+        className={statusToStep[poStatus] === statusToStep[POStatus.CANCELLED] ? "cancelled" : ""}
         title={getLastStepName()}
         description={getDescription(statusToStep[POStatus.FINISHED])}
       />

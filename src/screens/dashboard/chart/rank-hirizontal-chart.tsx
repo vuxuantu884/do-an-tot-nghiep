@@ -6,7 +6,6 @@ import { ChartColor } from "../index.style";
 import { TooltipContentRankChart } from "../shared";
 import { RankChartStyle } from "./rank-chart.style";
 
-
 interface Props {
   title: string;
   subTitle: string;
@@ -42,7 +41,8 @@ function RankHorizontalChart(props: Props): ReactElement {
             }}
             barCategoryGap={0}
             barGap={0}
-            barSize={50}>
+            barSize={50}
+          >
             <CartesianGrid vertical={false} />
             <XAxis
               dataKey={(data: DashboardTopSale) => data.label}
@@ -84,7 +84,9 @@ function RankHorizontalChart(props: Props): ReactElement {
               fill={ChartColor.primary}
               name={legendPrimary}
             />
-            <Bar yAxisId="right" dataKey={(data: DashboardTopSale) => data.averageOrder}
+            <Bar
+              yAxisId="right"
+              dataKey={(data: DashboardTopSale) => data.averageOrder}
               fill={ChartColor.secondary}
               name={legendSecondary}
             />

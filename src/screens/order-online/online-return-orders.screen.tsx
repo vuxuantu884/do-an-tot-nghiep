@@ -28,8 +28,8 @@ const initQuery: ReturnSearchQuery = {
   channel_codes: [],
   assignee_codes: [],
   marketer_codes: [],
-  coordinator_codes:[],
-  searched_product:null,
+  coordinator_codes: [],
+  searched_product: null,
 };
 type PropTypes = {
   location: any;
@@ -37,7 +37,9 @@ type PropTypes = {
 
 function OnlineReturnOrdersScreen(props: PropTypes) {
   const { location } = props;
-  return <OrderReturnList initQuery={initQuery} location={location} orderType={ORDER_TYPES.online}/>
-};
+  return (
+    <OrderReturnList initQuery={initQuery} location={location} orderType={ORDER_TYPES.online} />
+  );
+}
 
 export default withRouter(OnlineReturnOrdersScreen);

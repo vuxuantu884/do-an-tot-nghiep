@@ -12,9 +12,7 @@ const Products = React.lazy(() => import("screens/ecommerce/products"));
 // const ForControl = React.lazy(() => import("screens/ecommerce/for-control"));
 // const Report = React.lazy(() => import("screens/ecommerce/report"));
 
-
 const ordersMappingViewPermission = [EcommerceOrderPermission?.orders_mapping_view];
-
 
 const ecommerce: Array<RouteMenu> = [
   {
@@ -27,7 +25,7 @@ const ecommerce: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: [],
-    permissions: ordersMappingViewPermission
+    permissions: ordersMappingViewPermission,
   },
   {
     path: `${UrlConfig.ECOMMERCE}-orders`,
@@ -49,37 +47,41 @@ const ecommerce: Array<RouteMenu> = [
     key: "submenu401",
     isShow: true,
     header: null,
-    subMenu: [{
-      path: `${UrlConfig.ECOMMERCE}-products/total-item`,
-      exact: true,
-      title: "Sản phẩm",
-      icon: "icon-dot",
-      component: Products,
-      key: "submenu402",
-      isShow: true,
-      header: null,
-      subMenu: [],
-    },{
-      path: `${UrlConfig.ECOMMERCE}-products/connected-item`,
-      exact: true,
-      title: "Sản phẩm",
-      icon: "icon-dot",
-      component: Products,
-      key: "submenu403",
-      isShow: true,
-      header: null,
-      subMenu: [],
-    },{
-      path: `${UrlConfig.ECOMMERCE}-products/not-connected-item`,
-      exact: true,
-      title: "Sản phẩm",
-      icon: "icon-dot",
-      component: Products,
-      key: "submenu404",
-      isShow: true,
-      header: null,
-      subMenu: [],
-    }],
+    subMenu: [
+      {
+        path: `${UrlConfig.ECOMMERCE}-products/total-item`,
+        exact: true,
+        title: "Sản phẩm",
+        icon: "icon-dot",
+        component: Products,
+        key: "submenu402",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ECOMMERCE}-products/connected-item`,
+        exact: true,
+        title: "Sản phẩm",
+        icon: "icon-dot",
+        component: Products,
+        key: "submenu403",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.ECOMMERCE}-products/not-connected-item`,
+        exact: true,
+        title: "Sản phẩm",
+        icon: "icon-dot",
+        component: Products,
+        key: "submenu404",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
   },
   //@todo: implement later
   // {

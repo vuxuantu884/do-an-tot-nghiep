@@ -7,13 +7,13 @@ import {
 } from "model/response/po/action-log.response";
 
 export const getPOActionLogService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<PurchaseOrderActionLogResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}/log`);
 };
 
 export const getPOActionLogDetailService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<ActionLogDetailResponse>> => {
   return BaseAxios.get(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/log/${id}`);
 };

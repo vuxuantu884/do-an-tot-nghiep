@@ -35,13 +35,13 @@ export const StyledWrapper = styled.div`
   .inventory-table {
     margin-top: 20px;
   }
-  
+
   .inventory-info {
     .ant-card-body {
       padding: 10px;
     }
   }
-  
+
   .inventory-note {
     .ant-card-body {
       padding: 10px 20px;
@@ -85,10 +85,10 @@ export const StyledWrapper = styled.div`
   .bottom {
     &__right {
       .ant-space-align-center {
-        gap: 20px!important;
+        gap: 20px !important;
 
         a {
-          color: #2A2A86;
+          color: #2a2a86;
         }
 
         a > span {
@@ -110,15 +110,17 @@ export const StyledWrapper = styled.div`
   .ant-table-summary {
     display: table-header-group;
   }
-  .ant-table-summary>tr>td, .ant-table-summary>tr>th {
+  .ant-table-summary > tr > td,
+  .ant-table-summary > tr > th {
     border-bottom: none;
   }
 
-  .inventory-adjustment-table, .inventory-info {
+  .inventory-adjustment-table,
+  .inventory-info {
     .ant-tag {
       padding: 2px 8px;
       border-radius: 20px;
-  
+
       &.${STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status} {
         background: ${BG_COLOR_TAG.ADJUSTED.background};
         color: ${BG_COLOR_TAG.ADJUSTED.color};
@@ -145,7 +147,7 @@ export const StyledWrapper = styled.div`
     }
     &-detail {
       & > span {
-        color: #2A2A86;
+        color: #2a2a86;
         font-size: 18px;
         margin-left: 5px;
         width: 20px;
@@ -167,23 +169,23 @@ export const StyledWrapper = styled.div`
   .pd16 {
     padding: 16px 0 16px 0;
   }
-  .audit_by{
+  .audit_by {
     font-weight: 500;
   }
   .row-detail {
     margin-bottom: 15px;
     font-size: 14px;
-    width: 100%; 
+    width: 100%;
     .label {
       color: #666666;
-    } 
-    .dot{
+    }
+    .dot {
       float: right;
       margin-right: 10px;
     }
     .data {
       color: #222222;
-      font-weight:500;
+      font-weight: 500;
     }
     .item-delete {
       width: 30px;
@@ -203,7 +205,7 @@ export const StyledWrapper = styled.div`
     }
   }
   .detail-info {
-    background: #FFFFFF;
+    background: #ffffff;
     border-radius: 4px;
     padding: 10px;
     margin: 10px 0 !important;
@@ -217,30 +219,31 @@ export const StyledWrapper = styled.div`
     position: relative;
     line-height: 20px;
     border-radius: 4px;
-    color: #FFFFFF;
+    color: #ffffff;
     padding: 10px 18px;
   }
   .label-green {
-    background-color: #27AE60;
+    background-color: #27ae60;
   }
   .label-red {
-    background-color: #E24343;
+    background-color: #e24343;
   }
-  .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th, .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
+  .custom-table .ant-table.ant-table-middle .ant-table-thead > tr > th,
+  .custom-table .ant-table.ant-table-middle .ant-table-tbody > tr > td {
     padding: 6px !important;
   }
 
   .btn-report {
     height: 42px;
-    color: #FCAF17;
-    border: 1px solid #FCAF17 !important;
+    color: #fcaf17;
+    border: 1px solid #fcaf17 !important;
     margin-right: 12px;
   }
 
   .icon-report {
     margin-right: 8.64px;
   }
-  
+
   .ant-radio-button-wrapper {
     padding: 0 5px !important;
   }
@@ -248,6 +251,6 @@ export const StyledWrapper = styled.div`
     padding: 0 2px !important;
   }
   .number-text {
-    color: #5656A2;
+    color: #5656a2;
   }
 `;

@@ -70,11 +70,7 @@ export enum KeyDriverField {
   ProductTotalSales = "product_total_sales",
 }
 
-export const ASM_LIST = [
-  "ASM Dương Sơn Tùng",
-  "ASM Nguyễn Văn Ánh",
-  "ASM Đỗ Quang Hiếu",
-];
+export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];
 
 export enum CustomerPhoneSMSCountersFilter {
   StoreIds = "storeIds",

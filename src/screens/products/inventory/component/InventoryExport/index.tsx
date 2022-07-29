@@ -1,6 +1,6 @@
 import { Modal, Form, Radio, Space, Row, Progress } from "antd";
 import { useCallback, Fragment } from "react";
-import { TYPE_EXPORT } from "screens/products/constants"; 
+import { TYPE_EXPORT } from "screens/products/constants";
 import { STATUS_IMPORT_EXPORT } from "utils/Constants";
 
 type ExportModalProps = {
@@ -10,18 +10,17 @@ type ExportModalProps = {
   exportProgressDetail?: number;
   statusExportDetail?: number;
 };
-   
- 
+
 const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) => {
   const [form] = Form.useForm();
-  const { visible, onCancel, onOk, exportProgressDetail, statusExportDetail=0 } = props;
+  const { visible, onCancel, onOk, exportProgressDetail, statusExportDetail = 0 } = props;
   const onCancelClick = useCallback(() => {
     onCancel();
   }, [onCancel]);
   const onOkClick = useCallback(() => {
     onOk(form.getFieldValue("record"));
-  }, [onOk,form]);
-  
+  }, [onOk, form]);
+
   return (
     <Modal
       onCancel={onCancelClick}
@@ -37,11 +36,12 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
         form={form}
         initialValues={{
           record: TYPE_EXPORT.page,
-        }} 
+        }}
         layout="vertical"
       >
         <Space direction="vertical" style={{ width: "100%" }}>
-          {statusExportDetail === 0 && <Fragment>
+          {statusExportDetail === 0 && (
+            <Fragment>
               <div className="title-address">Giới hạn kết quả xuất</div>
               <Form.Item name="record">
                 <Radio.Group>
@@ -51,28 +51,34 @@ const InventoryExport: React.FC<ExportModalProps> = (props: ExportModalProps) =>
                   </Space>
                 </Radio.Group>
               </Form.Item>
-              </Fragment>}
-            {
-              statusExportDetail=== STATUS_IMPORT_EXPORT.DEFAULT && (
-                <Row style={{ justifyContent: 'center'}}>
-                  <p>Đang gửi yêu cầu, vui lòng đợi trong giây lát ...</p>
-                </Row>
-              )
-            }
-            {(statusExportDetail !== 0 && statusExportDetail !== STATUS_IMPORT_EXPORT.DEFAULT) && (
-            <Row style={{ justifyContent: 'center'}}>
-              {statusExportDetail === STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
-              {statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH && <p>Đã tạo file thành công</p>}
+            </Fragment>
+          )}
+          {statusExportDetail === STATUS_IMPORT_EXPORT.DEFAULT && (
+            <Row style={{ justifyContent: "center" }}>
+              <p>Đang gửi yêu cầu, vui lòng đợi trong giây lát ...</p>
+            </Row>
+          )}
+          {statusExportDetail !== 0 && statusExportDetail !== STATUS_IMPORT_EXPORT.DEFAULT && (
+            <Row style={{ justifyContent: "center" }}>
+              {statusExportDetail === STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS && (
+                <p>Đang tạo file, vui lòng đợi trong giây lát</p>
+              )}
+              {statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH && (
+                <p>Đã tạo file thành công</p>
+              )}
               {statusExportDetail === STATUS_IMPORT_EXPORT.ERROR && <p>Đã có lỗi xảy ra!!!</p>}
-              <Row style={{ justifyContent: 'center', width: '100%'}}><Progress
-                type="circle"
-                strokeColor={{
-                  '0%': '#108ee9',
-                  '100%': '#87d068',
-                }}
-                percent={exportProgressDetail}
-              /></Row>
-            </Row>)}
+              <Row style={{ justifyContent: "center", width: "100%" }}>
+                <Progress
+                  type="circle"
+                  strokeColor={{
+                    "0%": "#108ee9",
+                    "100%": "#87d068",
+                  }}
+                  percent={exportProgressDetail}
+                />
+              </Row>
+            </Row>
+          )}
         </Space>
       </Form>
     </Modal>

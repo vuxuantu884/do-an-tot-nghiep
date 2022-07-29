@@ -1,8 +1,7 @@
 import styled from "styled-components";
-import {primaryColor} from "utils/global-styles/variables";
+import { primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
-  
   .order-filter-tags {
     margin-bottom: 20px;
     .tag {

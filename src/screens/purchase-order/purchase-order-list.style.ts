@@ -1,9 +1,9 @@
-import styled from 'styled-components'
+import styled from "styled-components";
 
 export const PurchaseOrderListContainer = styled.div`
-.page-filter{
-  padding: 0;
-}
+  .page-filter {
+    padding: 0;
+  }
 `;
 
 export const PurchaseOrderDraft = styled.div`
@@ -13,10 +13,10 @@ export const PurchaseOrderDraft = styled.div`
       margin: auto 0;
     }
   }
-  .coLofu{
-    position:unset ;
+  .coLofu {
+    position: unset;
   }
-  .bnQZA-d{
-    position:unset ;
+  .bnQZA-d {
+    position: unset;
   }
 `;

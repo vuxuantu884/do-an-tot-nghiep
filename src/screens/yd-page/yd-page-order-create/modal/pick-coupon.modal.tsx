@@ -1,7 +1,4 @@
-import {
-  Button, Form, FormInstance,
-  Input, Modal
-} from "antd";
+import { Button, Form, FormInstance, Input, Modal } from "antd";
 import React, { createRef, useEffect, useState } from "react";
 
 type PropType = {
@@ -11,7 +8,7 @@ type PropType = {
   coupon: string;
 };
 
-function PickCouponModal(props: PropType){
+function PickCouponModal(props: PropType) {
   const { visible, onCancelCouponModal, onOkCouponModal, coupon } = props;
   const [_coupon, setCoupon] = useState<string>(coupon);
 
@@ -32,16 +29,16 @@ function PickCouponModal(props: PropType){
 
   useEffect(() => {
     return () => {
-      setCoupon("")
-    }
-  }, [])
+      setCoupon("");
+    };
+  }, []);
 
   return (
     <Modal
       title="Mã giảm giá"
       onCancel={(e) => {
-        setCoupon("")
-        onCancelCouponModal(e)
+        setCoupon("");
+        onCancelCouponModal(e);
       }}
       centered
       visible={visible}
@@ -52,11 +49,7 @@ function PickCouponModal(props: PropType){
         </Button>,
       ]}
     >
-      <Form
-        ref={formRef}
-        layout="vertical"
-        onKeyPress={(e) => handleEnterToSubmit(e.which)}
-      >
+      <Form ref={formRef} layout="vertical" onKeyPress={(e) => handleEnterToSubmit(e.which)}>
         <Input
           placeholder="Mã giảm giá"
           onFocus={(e) => e.target.select()}
@@ -67,6 +60,6 @@ function PickCouponModal(props: PropType){
       </Form>
     </Modal>
   );
-};
+}
 
 export default PickCouponModal;

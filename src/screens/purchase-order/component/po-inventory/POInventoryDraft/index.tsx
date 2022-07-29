@@ -9,7 +9,7 @@ import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model"
 import {
   PurchaseProcument,
   PurchaseProcumentLineItem,
-  PurchaseProcurementViewDraft
+  PurchaseProcurementViewDraft,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import { useCallback } from "react";
@@ -37,9 +37,7 @@ type POInventoryDraftProps = {
   formMain: any;
 };
 
-const POInventoryDraft: React.FC<POInventoryDraftProps> = (
-  props: POInventoryDraftProps
-) => {
+const POInventoryDraft: React.FC<POInventoryDraftProps> = (props: POInventoryDraftProps) => {
   const { isEdit, formMain } = props;
   //state để lưu dữ liệu nhập nhanh cho 1 dòng procuments. vì là dữ liệu trung gian, nên không cần lưu trong form data
   // const { quickInputQtyProcurementLineItem, setQuickInputQtyProcurementLineItem } = useContext(PurchaseOrderCreateContext);
@@ -112,7 +110,6 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   //   });
   // }
 
-
   // const onChangeStore = (value: number, index1: number) => {
   //   const procument_items: Array<PurchaseProcurementViewDraft> =
   //     formMain.getFieldValue(POField.procurements);
@@ -126,22 +123,24 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
 
   const onChangeQuantity = useCallback(
     (value: number | null, sku: string, indexProcument: number) => {
-      let procument_items: Array<PurchaseProcurementViewDraft> =
-        formMain.getFieldValue(POField.procurements);
-      let indexLineItem = procument_items[indexProcument].procurement_items.findIndex((item) => item.sku === sku);
-      procument_items[indexProcument].procurement_items[
-        indexLineItem
-      ].quantity = value ? value : 0;
+      let procument_items: Array<PurchaseProcurementViewDraft> = formMain.getFieldValue(
+        POField.procurements,
+      );
+      let indexLineItem = procument_items[indexProcument].procurement_items.findIndex(
+        (item) => item.sku === sku,
+      );
+      procument_items[indexProcument].procurement_items[indexLineItem].quantity = value ? value : 0;
       formMain.setFieldsValue({
         [POField.procurements]: [...procument_items],
       });
     },
-    [formMain]
+    [formMain],
   );
 
   const deleteProcument = (index: number) => {
-    const procument_items: Array<PurchaseProcurementViewDraft> =
-      formMain.getFieldValue(POField.procurements);
+    const procument_items: Array<PurchaseProcurementViewDraft> = formMain.getFieldValue(
+      POField.procurements,
+    );
     procument_items.splice(index, 1);
     formMain.setFieldsValue({
       [POField.procurements]: [...procument_items],
@@ -177,7 +176,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   //      * Case % : set quantity * % cho dòng nhập nhanh
   //      */
   //     procurements[index].procurement_items.forEach((item: PurchaseOrderLineItemDraft) => {
-  //       // lấy giá nhập SL từ bảng product * %        
+  //       // lấy giá nhập SL từ bảng product * %
   //       if(item.id && quickInputProductLineItem.get(item.id)){
   //         const qtyOfSize = quickInputProductLineItem.get(item.id) || 0;
   //         item.quantity = Math.round(value * qtyOfSize / 100);
@@ -201,102 +200,102 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
   //   handleChangeQuantityLineItemProcument(quickInputQtyProcurementLineItem[index].value, index, unit);
   // }
 
-  const defaultColumns: Array<
-    ICustomTableColumType<PurchaseProcurementViewDraft>
-  > = [
-      // {
-      //   width: 50,
-      //   title: "STT",
-      //   align: "center",
-      //   render: (value, record, index) => index + 1,
-      // },
-      {
-        title: "Kho nhận",
-        dataIndex: "store_id",
-        width: 200,
-        render: (value, record, index) => (
-          // <Select
-          //   onChange={(value1: number) => onChangeStore(value1, index)}
-          //   value={value}
-          //   showSearch
-          //   showArrow
-          //   placeholder="Chọn kho nhận"
-          //   optionFilterProp="children"
-          // >
-          //   {stores.map((item) => (
-          //     <Select.Option key={item.id} value={item.id}>
-          //       {item.name}
-          //     </Select.Option>
-          //   ))}
-          // </Select>
-          "YD KHO TỔNG"
-        ),
-      },
-      {
-        width: 150,
-        title: "Ngày nhận dự kiến",
-        dataIndex: "expect_receipt_date",
-        render: (value, record, index: number) => (
-          <Form.Item label=""
-            name={[POField.procurements, index, POField.expect_receipt_date]}
-            rules={[{
+  const defaultColumns: Array<ICustomTableColumType<PurchaseProcurementViewDraft>> = [
+    // {
+    //   width: 50,
+    //   title: "STT",
+    //   align: "center",
+    //   render: (value, record, index) => index + 1,
+    // },
+    {
+      title: "Kho nhận",
+      dataIndex: "store_id",
+      width: 200,
+      render: (value, record, index) =>
+        // <Select
+        //   onChange={(value1: number) => onChangeStore(value1, index)}
+        //   value={value}
+        //   showSearch
+        //   showArrow
+        //   placeholder="Chọn kho nhận"
+        //   optionFilterProp="children"
+        // >
+        //   {stores.map((item) => (
+        //     <Select.Option key={item.id} value={item.id}>
+        //       {item.name}
+        //     </Select.Option>
+        //   ))}
+        // </Select>
+        "YD KHO TỔNG",
+    },
+    {
+      width: 150,
+      title: "Ngày nhận dự kiến",
+      dataIndex: "expect_receipt_date",
+      render: (value, record, index: number) => (
+        <Form.Item
+          label=""
+          name={[POField.procurements, index, POField.expect_receipt_date]}
+          rules={[
+            {
               required: true,
               message: "Vui lòng nhập ngày nhận dự kiến",
-            }]}
-            help={false}
-            style={{ marginBottom: 0 }}
-          >
-            <CustomDatePicker
-              value={value}
-              disableDate={(date) => date <= moment().startOf("days")}
-              format={DATE_FORMAT.DDMMYYY}
-            />
-          </Form.Item>
-        ),
-      },
-      // {
-      //   title: "Phân bổ",
-      //   width: 150,
-      //   render: (value, record, index) => {
-      //     /**
-      //      * Chỗ này lưu bằng contextApi để gửi qua lại các cpn trong màn tạo PO,
-      //      * vì không cần gửi lên server và cái form data hiện tại quá phức tạp nên không lưu bằng Form value
-      //      */
-      //     //tìm số item còn thiếu và thêm giá trị mặc định vào
-      //     const tempsQuickInputQty = [...quickInputQtyProcurementLineItem];
+            },
+          ]}
+          help={false}
+          style={{ marginBottom: 0 }}
+        >
+          <CustomDatePicker
+            value={value}
+            disableDate={(date) => date <= moment().startOf("days")}
+            format={DATE_FORMAT.DDMMYYY}
+          />
+        </Form.Item>
+      ),
+    },
+    // {
+    //   title: "Phân bổ",
+    //   width: 150,
+    //   render: (value, record, index) => {
+    //     /**
+    //      * Chỗ này lưu bằng contextApi để gửi qua lại các cpn trong màn tạo PO,
+    //      * vì không cần gửi lên server và cái form data hiện tại quá phức tạp nên không lưu bằng Form value
+    //      */
+    //     //tìm số item còn thiếu và thêm giá trị mặc định vào
+    //     const tempsQuickInputQty = [...quickInputQtyProcurementLineItem];
 
-      //     if (quickInputQtyProcurementLineItem.length - 1 < index) {
-      //       const diffLength = index + 1 - quickInputQtyProcurementLineItem.length;
-      //       for (let i = 0; i < diffLength; i++) {
-      //         tempsQuickInputQty.push({ unit: QUANTITY_PROCUREMENT_UNIT.PERCENT, value: 100 });
-      //       }
-      //     }
-      //     return <Input.Group compact>
-      //       <NumberInput
-      //         value={quickInputQtyProcurementLineItem[index].value}
-      //         onChange={(e) => handleChangeQuantityLineItemProcument(e || 0, index)}
-      //         style={{ width: "calc(100% - 50px)" }}
-      //         min={0}
-      //         maxLength={MAX_QTY_INPUT.toString().length}
-      //         max={quickInputQtyProcurementLineItem[index].unit === QUANTITY_PROCUREMENT_UNIT.SL ? MAX_QTY_INPUT : MAX_PERCENT_INPUT}
-      //       />
-      //       <Select
-      //         style={{ borderRadius: "0px", width: "50px" }}
-      //         showArrow={false}
-      //         value={quickInputQtyProcurementLineItem[index].unit}
-      //         onChange={(value: QUANTITY_PROCUREMENT_UNIT) => handleChangeUnitLineItemProcument(value, index)}
-      //       >
-      //         {OPTIONS_QUANTITY_PROCUREMENT_UNIT.map((item) => (
-      //           <Select.Option value={item.value} key={item.value}>
-      //             {item.label}
-      //           </Select.Option>
-      //         ))}
+    //     if (quickInputQtyProcurementLineItem.length - 1 < index) {
+    //       const diffLength = index + 1 - quickInputQtyProcurementLineItem.length;
+    //       for (let i = 0; i < diffLength; i++) {
+    //         tempsQuickInputQty.push({ unit: QUANTITY_PROCUREMENT_UNIT.PERCENT, value: 100 });
+    //       }
+    //     }
+    //     return <Input.Group compact>
+    //       <NumberInput
+    //         value={quickInputQtyProcurementLineItem[index].value}
+    //         onChange={(e) => handleChangeQuantityLineItemProcument(e || 0, index)}
+    //         style={{ width: "calc(100% - 50px)" }}
+    //         min={0}
+    //         maxLength={MAX_QTY_INPUT.toString().length}
+    //         max={quickInputQtyProcurementLineItem[index].unit === QUANTITY_PROCUREMENT_UNIT.SL ? MAX_QTY_INPUT : MAX_PERCENT_INPUT}
+    //       />
+    //       <Select
+    //         style={{ borderRadius: "0px", width: "50px" }}
+    //         showArrow={false}
+    //         value={quickInputQtyProcurementLineItem[index].unit}
+    //         onChange={(value: QUANTITY_PROCUREMENT_UNIT) => handleChangeUnitLineItemProcument(value, index)}
+    //       >
+    //         {OPTIONS_QUANTITY_PROCUREMENT_UNIT.map((item) => (
+    //           <Select.Option value={item.value} key={item.value}>
+    //             {item.label}
+    //           </Select.Option>
+    //         ))}
 
-      //       </Select>
-      //     </Input.Group>
-      //   },
-      // }
-    ];
+    //       </Select>
+    //     </Input.Group>
+    //   },
+    // }
+  ];
 
   if (!isEdit) {
     return (
@@ -304,28 +303,22 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
         <Form.Item
           noStyle
           shouldUpdate={(prev, current) =>
-            JSON.stringify(prev[POField.line_items]) !== JSON.stringify(current[POField.line_items]) ||
+            JSON.stringify(prev[POField.line_items]) !==
+              JSON.stringify(current[POField.line_items]) ||
             prev[POField.procurements] !== current[POField.procurements]
           }
         >
           {({ getFieldValue }) => {
-            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(
-              POField.line_items
-            );
+            let line_items: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items);
             let procument_items: Array<PurchaseProcurementViewDraft> =
               getFieldValue(POField.procurements) || [];
-            let columns: Array<
-              ICustomTableColumType<PurchaseProcurementViewDraft>
-            > = [];
+            let columns: Array<ICustomTableColumType<PurchaseProcurementViewDraft>> = [];
             let new_line_items: Array<PurchaseOrderLineItem> = [];
             line_items.forEach((item) => {
-              let index = new_line_items.findIndex(
-                (item1) => item1.sku === item.sku
-              );
+              let index = new_line_items.findIndex((item1) => item1.sku === item.sku);
               if (index === -1) {
                 new_line_items.push({ ...item });
-              }
-              else {
+              } else {
                 // new_line_items[index].quantity =
                 //   new_line_items[index]?.quantity + item?.quantity;
               }
@@ -341,14 +334,10 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   </div>
                 ),
                 dataIndex: "procurement_items",
-                render: (
-                  value: Array<PurchaseProcumentLineItem>,
-                  record,
-                  indexProcument
-                ) => (
+                render: (value: Array<PurchaseProcumentLineItem>, record, indexProcument) => (
                   <NumberInput
                     placeholder="Số lượng"
-                    value={value.find(item1 => item1.sku === item.sku)?.quantity}
+                    value={value.find((item1) => item1.sku === item.sku)?.quantity}
                     onChange={(v) => {
                       onChangeQuantity(v, item.sku, indexProcument);
                     }}
@@ -361,7 +350,7 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
               <Table
                 className="product-table"
                 pagination={false}
-                rowKey={(item) => item.id ? item.id : item.fake_id}
+                rowKey={(item) => (item.id ? item.id : item.fake_id)}
                 columns={[
                   ...defaultColumns,
                   // ...columns,
@@ -380,51 +369,51 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
                   },
                 ]}
                 dataSource={procument_items}
-              // summary={(data) => {
-              //   let newTotal: any = {};
-              //   data.forEach(item => {
-              //     item.procurement_items.forEach(item => {
-              //       if (newTotal[item.sku]) {
-              //         newTotal[item.sku] = newTotal[item.sku] + item.quantity;
-              //       } else {
-              //         newTotal[item.sku] = item.quantity
-              //       }
-              //     })
-              //   })
-              //   return (
-              //     <Table.Summary>
-              //       <Table.Summary.Row>
-              //         <Table.Summary.Cell
-              //           index={4}
-              //           colSpan={4}
-              //         >
-              //           <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", width: '100%' }}>
-              //             <Button
-              //               onClick={onAdd}
-              //               icon={<PlusOutlined />}
-              //               type="link"
-              //             >
-              //               Thêm kế hoạch
-              //             </Button>
-              //             <b>TỔNG</b>
-              //           </div>
+                // summary={(data) => {
+                //   let newTotal: any = {};
+                //   data.forEach(item => {
+                //     item.procurement_items.forEach(item => {
+                //       if (newTotal[item.sku]) {
+                //         newTotal[item.sku] = newTotal[item.sku] + item.quantity;
+                //       } else {
+                //         newTotal[item.sku] = item.quantity
+                //       }
+                //     })
+                //   })
+                //   return (
+                //     <Table.Summary>
+                //       <Table.Summary.Row>
+                //         <Table.Summary.Cell
+                //           index={4}
+                //           colSpan={4}
+                //         >
+                //           <div style={{ display: 'flex', alignItems: 'center', justifyContent: "space-between", width: '100%' }}>
+                //             <Button
+                //               onClick={onAdd}
+                //               icon={<PlusOutlined />}
+                //               type="link"
+                //             >
+                //               Thêm kế hoạch
+                //             </Button>
+                //             <b>TỔNG</b>
+                //           </div>
 
-              //         </Table.Summary.Cell>
-              //         {
-              //           new_line_items.map((new_line_items, index) => (
-              //             <Table.Summary.Cell align="right" index={index + 4} key={new_line_items.sku}>
-              //               <div style={{ marginRight: 15 }}>{newTotal[new_line_items.sku]}</div>
-              //             </Table.Summary.Cell>
-              //           ))
-              //         }
-              //         <Table.Summary.Cell
-              //           index={3}
-              //           colSpan={1}
-              //         />
-              //       </Table.Summary.Row>
-              //     </Table.Summary>
-              //   )
-              // }}
+                //         </Table.Summary.Cell>
+                //         {
+                //           new_line_items.map((new_line_items, index) => (
+                //             <Table.Summary.Cell align="right" index={index + 4} key={new_line_items.sku}>
+                //               <div style={{ marginRight: 15 }}>{newTotal[new_line_items.sku]}</div>
+                //             </Table.Summary.Cell>
+                //           ))
+                //         }
+                //         <Table.Summary.Cell
+                //           index={3}
+                //           colSpan={1}
+                //         />
+                //       </Table.Summary.Row>
+                //     </Table.Summary>
+                //   )
+                // }}
               />
             );
           }}
@@ -441,13 +430,30 @@ const POInventoryDraft: React.FC<POInventoryDraftProps> = (
         }
       >
         {({ getFieldValue }) => {
-          const procument_items: Array<PurchaseProcument> = getFieldValue(
-            POField.procurements
+          const procument_items: Array<PurchaseProcument> = getFieldValue(POField.procurements);
+          return (
+            <div>
+              <p>
+                Cửa hàng nhận :{" "}
+                <b>
+                  {procument_items?.length > 0 && procument_items[0]
+                    ? procument_items[0].store
+                    : "-"}
+                </b>{" "}
+              </p>
+              <p>
+                Ngày nhận dự kiến:{" "}
+                <b>
+                  {procument_items?.length > 0 && procument_items[0]
+                    ? ConvertUtcToLocalDate(
+                        procument_items[0].expect_receipt_date,
+                        DATE_FORMAT.DDMMYYY,
+                      )
+                    : "-"}
+                </b>
+              </p>
+            </div>
           );
-          return (<div>
-            <p>Cửa hàng nhận : <b>{procument_items?.length > 0 && procument_items[0] ? procument_items[0].store : "-"}</b> </p>
-            <p>Ngày nhận dự kiến: <b>{procument_items?.length > 0 && procument_items[0] ? ConvertUtcToLocalDate(procument_items[0].expect_receipt_date, DATE_FORMAT.DDMMYYY) : "-"}</b></p>
-          </div>)
         }}
       </Form.Item>
       {/* <Form.Item

@@ -1,10 +1,7 @@
 import { Col, Form, Input, Row, Table } from "antd";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import ButtonAdd from "component/icon/ButtonAdd";
-import {
-  PODataSourceGrid,
-  POExpectedDate,
-} from "model/purchase-order/purchase-order.model";
+import { PODataSourceGrid, POExpectedDate } from "model/purchase-order/purchase-order.model";
 import moment from "moment";
 import React, { useContext, useEffect, useState } from "react";
 import { ICustomTableColumType } from "screens/ecommerce/table/CustomTable";
@@ -30,12 +27,8 @@ interface Props {
 
 export const PoPrTable = (props: Props) => {
   const { form } = props;
-  const {
-    procurementTableData,
-    expectedDate,
-    setExpectedDate,
-    setProcurementTableData,
-  } = useContext(PurchaseOrderCreateContext);
+  const { procurementTableData, expectedDate, setExpectedDate, setProcurementTableData } =
+    useContext(PurchaseOrderCreateContext);
   const [settingTable, setSettingTable] = useState(DEFAULT_SPAN);
   const [dataSource, setDataSource] = useState<PODataSourceGrid[]>([]);
 
@@ -48,12 +41,8 @@ export const PoPrTable = (props: Props) => {
       dataIndex: "sku",
       render: (text: string, row: PODataSourceGrid, index: number) => {
         return (
-          <Link
-            to={`${UrlConfig.PRODUCT}/${row.productId}${UrlConfig.VARIANTS}/${row.variantId}`}
-          >
-            {text
-              ? text + (row.color_code ? "-" + row.color_code : "")
-              : row.color_code}
+          <Link to={`${UrlConfig.PRODUCT}/${row.productId}${UrlConfig.VARIANTS}/${row.variantId}`}>
+            {text ? text + (row.color_code ? "-" + row.color_code : "") : row.color_code}
           </Link>
         );
       },
@@ -70,8 +59,7 @@ export const PoPrTable = (props: Props) => {
       },
     },
   ];
-  const [columns, setColumn] =
-    useState<Array<ICustomTableColumType<any>>>(defaultColumns);
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>(defaultColumns);
 
   const Summary = (data: Readonly<PODataSourceGrid[]>) => {
     let ordered_quantity = 0;
@@ -85,9 +73,7 @@ export const PoPrTable = (props: Props) => {
             <div style={{ fontWeight: 700 }}>Tổng</div>
           </Table.Summary.Cell>
           <Table.Summary.Cell align="center" index={1}>
-            <div style={{ fontWeight: 700 }}>
-              {formatCurrency(ordered_quantity, ".")}
-            </div>
+            <div style={{ fontWeight: 700 }}>{formatCurrency(ordered_quantity, ".")}</div>
           </Table.Summary.Cell>
           {expectedDate.map((itemExpectedDate, index) => {
             let real_quantity = 0;
@@ -96,9 +82,7 @@ export const PoPrTable = (props: Props) => {
             });
             return (
               <Table.Summary.Cell align="right" index={1}>
-                <div style={{ fontWeight: 700 }}>
-                  {formatCurrency(real_quantity, ".")}
-                </div>
+                <div style={{ fontWeight: 700 }}>{formatCurrency(real_quantity, ".")}</div>
               </Table.Summary.Cell>
             );
           })}
@@ -160,24 +144,16 @@ export const PoPrTable = (props: Props) => {
       const expectedDateSortItem = procurementTableData[indexItem].expectedDate;
       expectedDateSortItem.sort((pre, next) => {
         if (!pre.date || !next.date) return 0;
-        const preDate = new Date(
-          moment(pre.date, "DD/MM/YYYY").format("MM-DD-YYYY"),
-        );
-        const nextDate = new Date(
-          moment(next.date, "DD/MM/YYYY").format("MM-DD-YYYY"),
-        );
+        const preDate = new Date(moment(pre.date, "DD/MM/YYYY").format("MM-DD-YYYY"));
+        const nextDate = new Date(moment(next.date, "DD/MM/YYYY").format("MM-DD-YYYY"));
         return preDate.getTime() - nextDate.getTime() > 0 ? 1 : -1;
       });
       procurementTableData[indexItem].expectedDate = [...expectedDateSortItem];
     });
     const expectedDateSort = expectedDate.sort((pre, next) => {
       if (!pre.date || !next.date) return 0;
-      const preDate = new Date(
-        moment(pre.date, "DD/MM/YYYY").format("MM-DD-YYYY"),
-      );
-      const nextDate = new Date(
-        moment(next.date, "DD/MM/YYYY").format("MM-DD-YYYY"),
-      );
+      const preDate = new Date(moment(pre.date, "DD/MM/YYYY").format("MM-DD-YYYY"));
+      const nextDate = new Date(moment(next.date, "DD/MM/YYYY").format("MM-DD-YYYY"));
       return preDate.getTime() - nextDate.getTime() > 0 ? 1 : -1;
     });
     expectedDateSort.forEach((item, index) => {
@@ -209,11 +185,7 @@ export const PoPrTable = (props: Props) => {
     setProcurementTableData([...procurementTableData]);
   };
 
-  const onChangeAmountExpectedNumber = (
-    value: number | null,
-    index: number,
-    indexRow: number,
-  ) => {
+  const onChangeAmountExpectedNumber = (value: number | null, index: number, indexRow: number) => {
     const dataClone = [...procurementTableData.filter((item) => item.quantity)];
     if (indexRow >= 0) {
       dataClone[indexRow].expectedDate[index].value = value || 0;
@@ -256,18 +228,13 @@ export const PoPrTable = (props: Props) => {
         <Row align="middle">
           {/* lấy khoang trong bang ben tren */}
           <Col span={3} style={{ display: "flex", justifyContent: "center" }}>
-            <StyledButton
-              type="button"
-              style={{ margin: "0 4px", opacity: "0" }}
-            >
+            <StyledButton type="button" style={{ margin: "0 4px", opacity: "0" }}>
               1
             </StyledButton>
           </Col>
           <Col span={21}>
             <Input.Group compact style={{ display: "flex" }}>
-              <Form.Item
-                style={{ marginBottom: "0", flex: "1", display: "flex" }}
-              >
+              <Form.Item style={{ marginBottom: "0", flex: "1", display: "flex" }}>
                 <NumberInput
                   size="small"
                   min={0}
@@ -295,36 +262,28 @@ export const PoPrTable = (props: Props) => {
   }, [expectedDate]);
 
   useEffect(() => {
-    const titleColumns: ICustomTableColumType<any>[] = expectedDate.map(
-      (date, index) => {
-        return {
-          title: titleColumn(index),
-          align: "right",
-          dataIndex: "expectedDate",
-          width: 25,
-          render: (
-            expectedDate: POExpectedDate[],
-            row: PODataSourceGrid,
-            indexRow: number,
-          ) => {
-            const valueRow = row.expectedDate[index]?.value || 0;
-            return (
-              <NumberInput
-                min={0}
-                value={valueRow}
-                onChange={(value) =>
-                  onChangeAmountExpectedNumber(value, index, indexRow)
-                }
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                maxLength={10}
-                key={index}
-              />
-            );
-          },
-        };
-      },
-    );
+    const titleColumns: ICustomTableColumType<any>[] = expectedDate.map((date, index) => {
+      return {
+        title: titleColumn(index),
+        align: "right",
+        dataIndex: "expectedDate",
+        width: 25,
+        render: (expectedDate: POExpectedDate[], row: PODataSourceGrid, indexRow: number) => {
+          const valueRow = row.expectedDate[index]?.value || 0;
+          return (
+            <NumberInput
+              min={0}
+              value={valueRow}
+              onChange={(value) => onChangeAmountExpectedNumber(value, index, indexRow)}
+              format={(a: string) => formatCurrency(a)}
+              replace={(a: string) => replaceFormatString(a)}
+              maxLength={10}
+              key={index}
+            />
+          );
+        },
+      };
+    });
     const contactColumns = defaultColumns.concat(titleColumns);
     setColumn([...contactColumns]);
   }, [expectedDate, procurementTableData]);
@@ -356,10 +315,7 @@ export const PoPrTable = (props: Props) => {
             summary={Summary}
           />
         </Col>
-        <Col
-          span={24 - settingTable}
-          style={{ paddingRight: "0", paddingLeft: "0" }}
-        >
+        <Col span={24 - settingTable} style={{ paddingRight: "0", paddingLeft: "0" }}>
           <ButtonRemove
             style={{
               marginTop: "12px",

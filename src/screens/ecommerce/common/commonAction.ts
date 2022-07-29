@@ -32,7 +32,7 @@ export const ECOMMERCE_LIST = [
     icon: shopeeIcon,
     key: "shopee",
     ecommerce_id: 1,
-    channel_id: 3
+    channel_id: 3,
   },
 
   {
@@ -40,7 +40,7 @@ export const ECOMMERCE_LIST = [
     icon: lazadaIcon,
     key: "lazada",
     ecommerce_id: 2,
-    channel_id: 15
+    channel_id: 15,
   },
 
   {
@@ -48,7 +48,7 @@ export const ECOMMERCE_LIST = [
     icon: tikiIcon,
     key: "tiki",
     ecommerce_id: 3,
-    channel_id: 17
+    channel_id: 17,
   },
 
   {
@@ -56,7 +56,7 @@ export const ECOMMERCE_LIST = [
     icon: tiktokIcon,
     key: "tiktok",
     ecommerce_id: 4,
-    channel_id: 20
+    channel_id: 20,
   },
 ];
 
@@ -231,7 +231,7 @@ export const TIKI_ORDER_STATUS_LIST = [
     name: "Đã hoàn",
     value: "returned",
   },
-]
+];
 
 export const TIKTOK_ORDER_STATUS_LIST = [
   {
@@ -266,7 +266,7 @@ export const TIKTOK_ORDER_STATUS_LIST = [
 
 export const getEcommerceIcon = (ecommerce_key: string) => {
   const ecommerce = ECOMMERCE_LIST.find(
-    (item) => item.key.toLowerCase() === ecommerce_key?.toLowerCase()
+    (item) => item.key.toLowerCase() === ecommerce_key?.toLowerCase(),
   );
   return ecommerce?.icon;
 };
@@ -277,11 +277,13 @@ export const getIconByEcommerceId = (ecommerce_id: number) => {
 };
 
 export const getEcommerceIdByChannelId = (channel_id: number) => {
-  const ecommerce = ECOMMERCE_LIST.find(item => item.channel_id.toString() === channel_id.toString());
+  const ecommerce = ECOMMERCE_LIST.find(
+    (item) => item.channel_id.toString() === channel_id.toString(),
+  );
   return ecommerce?.ecommerce_id;
 };
 
 export const getEcommerceIdByChannelCode = (channel_code: string) => {
-  const ecommerce = ECOMMERCE_LIST.find(item => item.key === channel_code?.toLowerCase());
+  const ecommerce = ECOMMERCE_LIST.find((item) => item.key === channel_code?.toLowerCase());
   return ecommerce?.ecommerce_id;
-}
+};

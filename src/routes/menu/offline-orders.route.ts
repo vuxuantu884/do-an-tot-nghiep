@@ -4,7 +4,9 @@ import { RouteMenu } from "model/other";
 import React from "react";
 
 const OfflineOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
-const OfflineReturnOrders = React.lazy(() => import("screens/order-online/offline-return-orders.screen"));
+const OfflineReturnOrders = React.lazy(
+  () => import("screens/order-online/offline-return-orders.screen"),
+);
 const offlineOrdersRoute: Array<RouteMenu> = [
   {
     fullUrl: `${process.env.REACT_APP_BASE_POS}`,
@@ -32,7 +34,7 @@ const offlineOrdersRoute: Array<RouteMenu> = [
     subMenu: [],
   },
   {
-		path: `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`,
+    path: `${UrlConfig.OFFLINE_ORDERS}${UrlConfig.ORDERS_RETURN}`,
     exact: true,
     title: "Danh sách trả hàng",
     icon: "icon-dot",

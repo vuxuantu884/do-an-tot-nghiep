@@ -24,7 +24,7 @@ function useGetWarrantyCount(params: string[]) {
       });
   }, [dispatch, params]);
 
-  return warrantyCount
+  return warrantyCount;
 }
 
 export default useGetWarrantyCount;

@@ -1,18 +1,19 @@
 @font-face {
-  font-family: 'laundry';
-  src:  url('fonts/laundry.eot?3innsm');
-  src:  url('fonts/laundry.eot?3innsm#iefix') format('embedded-opentype'),
-    url('fonts/laundry.ttf?3innsm') format('truetype'),
-    url('fonts/laundry.woff?3innsm') format('woff'),
-    url('fonts/laundry.svg?3innsm#laundry') format('svg');
+  font-family: "laundry";
+  src: url("fonts/laundry.eot?3innsm");
+  src: url("fonts/laundry.eot?3innsm#iefix") format("embedded-opentype"),
+    url("fonts/laundry.ttf?3innsm") format("truetype"),
+    url("fonts/laundry.woff?3innsm") format("woff"),
+    url("fonts/laundry.svg?3innsm#laundry") format("svg");
   font-weight: normal;
   font-style: normal;
   font-display: block;
 }
 
-[class^="ydl-"], [class*=" ydl-"] {
+[class^="ydl-"],
+[class*=" ydl-"] {
   /* use !important to prevent issues with browser extensions that change fonts */
-  font-family: 'laundry' !important;
+  font-family: "laundry" !important;
   speak: never;
   font-style: normal;
   font-weight: normal;

@@ -1,8 +1,4 @@
-import {
-  Button, Form, FormInstance,
-  Input,
-  InputNumber, Modal, Select
-} from "antd";
+import { Button, Form, FormInstance, Input, InputNumber, Modal, Select } from "antd";
 import React, { createRef, useState } from "react";
 // import { useDispatch } from 'react-redux';
 import { formatCurrency } from "utils/AppUtils";
@@ -17,8 +13,8 @@ type PropType = {
   amount: number;
 };
 
-function PickDiscountModal (props: PropType) {
-  const { visible, onCancelDiscountModal, onOkDiscountModal, type, value, rate} = props;
+function PickDiscountModal(props: PropType) {
+  const { visible, onCancelDiscountModal, onOkDiscountModal, type, value, rate } = props;
   const [_type, setType] = useState<string>(type);
   const [_value, setValue] = useState<number>(value);
   const [_rate, setRate] = useState<number>(rate);
@@ -59,11 +55,7 @@ function PickDiscountModal (props: PropType) {
         </Button>,
       ]}
     >
-      <Form
-        ref={formRef}
-        layout="vertical"
-        onKeyPress={(e) => handleEnterToSubmit(e.which)}
-      >
+      <Form ref={formRef} layout="vertical" onKeyPress={(e) => handleEnterToSubmit(e.which)}>
         <div className="site-input-group-wrapper saleorder-input-group-wrapper yd-page-order-discount-modal">
           <Form.Item>
             <Input.Group size="large">

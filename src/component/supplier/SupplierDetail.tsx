@@ -3,11 +3,17 @@ import { Card, Col, Form, FormInstance, Input, Row } from "antd";
 import SupplierInputOption from "./SupplierInputOption";
 import { useSelector } from "react-redux";
 import { RootReducerType } from "../../model/reducers/RootReducerType";
-import {FormFieldItem} from "../../screens/products/supplier/add/supplier-add.type";
+import { FormFieldItem } from "../../screens/products/supplier/add/supplier-add.type";
 
 const { Item } = Form;
 
-const SupplierDetail = ({ form, formFields }: { form: FormInstance, formFields: FormFieldItem }) => {
+const SupplierDetail = ({
+  form,
+  formFields,
+}: {
+  form: FormInstance;
+  formFields: FormFieldItem;
+}) => {
   const date_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.date_unit);
   const moq_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.moq_unit);
 

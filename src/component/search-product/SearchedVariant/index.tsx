@@ -17,11 +17,7 @@ function SearchedVariant(props: PropTypes): JSX.Element {
     <StyledComponent>
       <Row className="selected-searched-variant">
         <Col span={3} className="variant-columns-1">
-          <img
-            src={avatar === "" ? imgDefault : avatar}
-            alt="anh"
-            placeholder={imgDefault}
-          />
+          <img src={avatar === "" ? imgDefault : avatar} alt="anh" placeholder={imgDefault} />
         </Col>
         <Col span={15} className="variant-columns-2">
           <span
@@ -31,9 +27,7 @@ function SearchedVariant(props: PropTypes): JSX.Element {
           >
             {item.name}
           </span>
-          <div className="variant-info-color-sku yody-text-ellipsis">
-            {item.sku}
-          </div>
+          <div className="variant-info-color-sku yody-text-ellipsis">{item.sku}</div>
         </Col>
         <Col span={6} className="variant-columns-3">
           <Col className="black-color">

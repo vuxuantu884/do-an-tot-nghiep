@@ -1,16 +1,5 @@
 //#region Import
-import {
-  Button,
-  Card,
-  Col,
-  Divider,
-  Row,
-  Space,
-  Table,
-  Tag,
-  Tooltip,
-  Typography,
-} from "antd";
+import { Button, Card, Col, Divider, Row, Space, Table, Tag, Tooltip, Typography } from "antd";
 import giftIcon from "assets/icon/gift.svg";
 import storeBlueIcon from "assets/img/storeBlue.svg";
 import { Type } from "config/type.config";
@@ -53,10 +42,8 @@ function UpdateProductCard(props: PropTypes) {
     paymentMethods,
   } = props;
 
-  const [
-    orderDetailCalculatePointInVariant,
-    setOrderDetailCalculatePointInVariant,
-  ] = useState<OrderDetailWithCalculatePointVariantModel | null>(null);
+  const [orderDetailCalculatePointInVariant, setOrderDetailCalculatePointInVariant] =
+    useState<OrderDetailWithCalculatePointVariantModel | null>(null);
 
   const orderTotal = OrderDetail?.total || 0;
 
@@ -107,9 +94,7 @@ function UpdateProductCard(props: PropTypes) {
           {props.OrderDetail?.items
             .filter(
               (item) =>
-                item.position === l.position &&
-                item.type === Type.GIFT &&
-                l.type !== Type.SERVICE,
+                item.position === l.position && item.type === Type.GIFT && l.type !== Type.SERVICE,
             )
             .map((gift) => (
               <div key={gift.sku} className="yody-pos-addition yody-pos-gift 2">
@@ -119,11 +104,7 @@ function UpdateProductCard(props: PropTypes) {
               </div>
             ))}
           {l.note && (
-            <div
-              style={{ fontStyle: "italic", fontSize: "0.93em", marginTop: 5 }}
-            >
-              {l.note}
-            </div>
+            <div style={{ fontStyle: "italic", fontSize: "0.93em", marginTop: 5 }}>{l.note}</div>
           )}
         </div>
       );
@@ -151,9 +132,7 @@ function UpdateProductCard(props: PropTypes) {
     title: () => (
       <div>
         <span style={{ color: "#222222", textAlign: "right" }}>Đơn giá</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     className: "yody-pos-price text-right 1",
@@ -183,10 +162,7 @@ function UpdateProductCard(props: PropTypes) {
             <div className="d-flex justify-content-end yody-table-discount-converted">
               <Typography.Text type="danger">
                 <span style={{ fontSize: "0.857rem" }}>
-                  {formatPercentage(
-                    Math.round(l.discount_items[0]?.rate * 100 || 0) / 100,
-                  )}
-                  %
+                  {formatPercentage(Math.round(l.discount_items[0]?.rate * 100 || 0) / 100)}%
                 </span>
               </Typography.Text>
             </div>
@@ -215,9 +191,7 @@ function UpdateProductCard(props: PropTypes) {
     title: () => (
       <div>
         <span style={{ color: "#222222" }}>Tổng tiền:</span>
-        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>
-          ₫
-        </span>
+        <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
       </div>
     ),
     align: "right",
@@ -250,31 +224,22 @@ function UpdateProductCard(props: PropTypes) {
           .then((response) => {
             if (isFetchApiSuccessful(response)) {
               // console.log('response', response);
-              let orderDetailResult: OrderDetailWithCalculatePointVariantModel =
-                {
-                  ...OrderDetail,
-                  items: OrderDetail.items.map((item) => {
-                    const foundItem =
-                      response.data.find(
-                        (single) => single.order_line_id === item.id,
-                      ) ||
-                      response.data.find(
-                        (single) => single.variant_id === item.variant_id,
-                      );
-                    return {
-                      ...item,
-                      point_add: foundItem?.point_add,
-                      point_subtract: foundItem?.point_subtract,
-                    };
-                  }),
-                };
+              let orderDetailResult: OrderDetailWithCalculatePointVariantModel = {
+                ...OrderDetail,
+                items: OrderDetail.items.map((item) => {
+                  const foundItem =
+                    response.data.find((single) => single.order_line_id === item.id) ||
+                    response.data.find((single) => single.variant_id === item.variant_id);
+                  return {
+                    ...item,
+                    point_add: foundItem?.point_add,
+                    point_subtract: foundItem?.point_subtract,
+                  };
+                }),
+              };
               setOrderDetailCalculatePointInVariant(orderDetailResult);
             } else {
-              handleFetchApiError(
-                response,
-                "Tính điểm tiêu/tích đơn hàng",
-                dispatch,
-              );
+              handleFetchApiError(response, "Tính điểm tiêu/tích đơn hàng", dispatch);
               setOrderDetailCalculatePointInVariant(OrderDetail);
             }
           })
@@ -285,9 +250,7 @@ function UpdateProductCard(props: PropTypes) {
     }
   }, [OrderDetail, dispatch, paymentMethods]);
 
-  const getTotalLineItemsPointAdd = (
-    lineItems: OrderLineItemWithCalculateVariantPointModel[],
-  ) => {
+  const getTotalLineItemsPointAdd = (lineItems: OrderLineItemWithCalculateVariantPointModel[]) => {
     return lineItems.reduce((a, b) => a + (b?.point_add || 0), 0);
   };
 
@@ -373,9 +336,7 @@ function UpdateProductCard(props: PropTypes) {
                     }}
                   >
                     {orderDetailCalculatePointInVariant?.items &&
-                      getTotalQuantity(
-                        orderDetailCalculatePointInVariant?.items,
-                      )}
+                      getTotalQuantity(orderDetailCalculatePointInVariant?.items)}
                   </div>
 
                   <div
@@ -388,10 +349,7 @@ function UpdateProductCard(props: PropTypes) {
                     }}
                   >
                     {formatCurrency(
-                      orderDetailCalculatePointInVariant?.items.reduce(
-                        (a, b) => a + b.amount,
-                        0,
-                      ),
+                      orderDetailCalculatePointInVariant?.items.reduce((a, b) => a + b.amount, 0),
                     )}
                   </div>
                   <div
@@ -405,8 +363,7 @@ function UpdateProductCard(props: PropTypes) {
                   >
                     {formatCurrency(
                       orderDetailCalculatePointInVariant?.items.reduce(
-                        (a, b) =>
-                          a + (b.amount - b.line_amount_after_line_discount),
+                        (a, b) => a + (b.amount - b.line_amount_after_line_discount),
                         0,
                       ),
                     )}
@@ -420,9 +377,7 @@ function UpdateProductCard(props: PropTypes) {
                       padding: "0 16px",
                     }}
                   >
-                    {getTotalLineItemsPointAdd(
-                      orderDetailCalculatePointInVariant?.items,
-                    ) || "-"}
+                    {getTotalLineItemsPointAdd(orderDetailCalculatePointInVariant?.items) || "-"}
                   </div>
                   <div
                     style={{
@@ -463,13 +418,9 @@ function UpdateProductCard(props: PropTypes) {
             <Row className="payment-row" justify="space-between">
               <div className="font-weight-500">Tổng tiền:</div>
               <div className="font-weight-500">
-                {props.OrderDetail?.total_line_amount_after_line_discount !==
-                  undefined &&
-                  props.OrderDetail?.total_line_amount_after_line_discount !==
-                    null &&
-                  formatCurrency(
-                    props.OrderDetail?.total_line_amount_after_line_discount,
-                  )}
+                {props.OrderDetail?.total_line_amount_after_line_discount !== undefined &&
+                  props.OrderDetail?.total_line_amount_after_line_discount !== null &&
+                  formatCurrency(props.OrderDetail?.total_line_amount_after_line_discount)}
               </div>
             </Row>
 
@@ -485,26 +436,23 @@ function UpdateProductCard(props: PropTypes) {
             <Row className="payment-row" justify="space-between" align="middle">
               <Space align="center">
                 Chiết khấu:
-                {props.OrderDetail?.discounts &&
-                  props.OrderDetail?.discounts.length > 0 && (
-                    <div>
-                      <Tag
-                        style={{
-                          marginTop: 0,
-                          color: "#E24343",
-                          backgroundColor: "#F5F5F5",
-                        }}
-                        className="orders-tag orders-tag-danger"
-                      >
-                        {props.OrderDetail?.discounts[0]?.rate
-                          ? formatPercentage(
-                              props.OrderDetail?.discounts[0].rate,
-                            )
-                          : 0}{" "}
-                        %
-                      </Tag>
-                    </div>
-                  )}
+                {props.OrderDetail?.discounts && props.OrderDetail?.discounts.length > 0 && (
+                  <div>
+                    <Tag
+                      style={{
+                        marginTop: 0,
+                        color: "#E24343",
+                        backgroundColor: "#F5F5F5",
+                      }}
+                      className="orders-tag orders-tag-danger"
+                    >
+                      {props.OrderDetail?.discounts[0]?.rate
+                        ? formatPercentage(props.OrderDetail?.discounts[0].rate)
+                        : 0}{" "}
+                      %
+                    </Tag>
+                  </div>
+                )}
               </Space>
               <div className="font-weight-400 ">
                 {props.OrderDetail?.discounts &&
@@ -520,11 +468,8 @@ function UpdateProductCard(props: PropTypes) {
                 className="font-weight-500 "
                 style={{ color: successColor, textTransform: "uppercase" }}
               >
-                {OrderDetail?.discounts &&
-                OrderDetail?.discounts[0]?.discount_code
-                  ? handleDisplayCoupon(
-                      OrderDetail?.discounts[0]?.discount_code,
-                    )
+                {OrderDetail?.discounts && OrderDetail?.discounts[0]?.discount_code
+                  ? handleDisplayCoupon(OrderDetail?.discounts[0]?.discount_code)
                   : "-"}
               </div>
             </Row>
@@ -538,9 +483,7 @@ function UpdateProductCard(props: PropTypes) {
             <Divider className="margin-top-5 margin-bottom-5" />
             <Row className="payment-row" justify="space-between">
               <strong className="font-size-text 67">
-                {totalAmountReturnProducts
-                  ? "Tổng tiền hàng mua:"
-                  : "Khách cần trả:"}
+                {totalAmountReturnProducts ? "Tổng tiền hàng mua:" : "Khách cần trả:"}
               </strong>
               <strong>{formatCurrency(orderTotal)}</strong>
             </Row>
@@ -557,18 +500,13 @@ function UpdateProductCard(props: PropTypes) {
                   style={{ height: "auto", margin: " 5px 0" }}
                 />
                 <Row className="payment-row" justify="space-between">
-                  <strong
-                    className="font-size-text 55"
-                    style={{ fontWeight: "bold" }}
-                  >
+                  <strong className="font-size-text 55" style={{ fontWeight: "bold" }}>
                     {orderTotal - totalAmountReturnProducts < 0
                       ? "Cần trả khách:"
                       : "Khách cần trả:"}
                   </strong>
                   <strong className="text-success font-size-price">
-                    {formatCurrency(
-                      Math.abs(orderTotal - totalAmountReturnProducts),
-                    )}
+                    {formatCurrency(Math.abs(orderTotal - totalAmountReturnProducts))}
                   </strong>
                 </Row>
               </React.Fragment>

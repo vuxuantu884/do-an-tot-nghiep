@@ -27,18 +27,13 @@ function OrderFulfillmentCancelledShowDate(props: PropTypes) {
               }
             >
               <span>Ngày hủy giao </span>
-              <span>
-                {ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat)}
-              </span>
+              <span>{ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat)}</span>
             </div>
             {fulfillment.return_status === FulFillmentStatus.RETURNED && (
               <div className="saleorder-steps-three saleorder-steps dot-active">
                 <span>Ngày nhận lại</span>
                 <span>
-                  {ConvertUtcToLocalDate(
-                    fulfillment?.receive_cancellation_on,
-                    dateFormat,
-                  )}
+                  {ConvertUtcToLocalDate(fulfillment?.receive_cancellation_on, dateFormat)}
                 </span>
               </div>
             )}
@@ -49,9 +44,7 @@ function OrderFulfillmentCancelledShowDate(props: PropTypes) {
         return (
           <div className="saleorder-steps-three saleorder-steps dot-active">
             <span>Ngày hủy giao</span>
-            <span>
-              {ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat)}
-            </span>
+            <span>{ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat)}</span>
           </div>
         );
     }
@@ -66,9 +59,7 @@ function OrderFulfillmentCancelledShowDate(props: PropTypes) {
       <div className="saleorder-custom-steps">
         <div className="saleorder-steps-one saleorder-steps dot-active">
           <span>Ngày tạo</span>
-          <span>
-            {ConvertUtcToLocalDate(fulfillment?.created_date, dateFormat)}
-          </span>
+          <span>{ConvertUtcToLocalDate(fulfillment?.created_date, dateFormat)}</span>
         </div>
         {renderDateEnd()}
       </div>

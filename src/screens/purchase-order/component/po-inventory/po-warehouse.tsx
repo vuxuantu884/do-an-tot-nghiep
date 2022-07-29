@@ -10,14 +10,8 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import { groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
 import { POField } from "model/purchase-order/po-field";
-import {
-  POLineItemType,
-  PurchaseOrderLineItem,
-} from "model/purchase-order/purchase-item.model";
-import {
-  ProcurementTable,
-  PurchaseOrder,
-} from "model/purchase-order/purchase-order.model";
+import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { ProcurementTable, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   PurchaseProcument,
   PurchaseProcumentLineItem,
@@ -31,8 +25,7 @@ import { ProcumentStatus, ProcurementStatus } from "utils/Constants";
 import { ConvertDateToUtc, DATE_FORMAT } from "utils/DateUtils";
 import { showError } from "utils/ToastUtils";
 import { v4 as uuidv4 } from "uuid";
-const DEFAULT_SPAN =
-  window.screen.width <= 1360 ? 8 : window.screen.width <= 1600 ? 7 : 4.5;
+const DEFAULT_SPAN = window.screen.width <= 1360 ? 8 : window.screen.width <= 1600 ? 7 : 4.5;
 const DEFAULT_SCROLL = 50;
 const AMOUNT_COLUMNS = window.screen.width <= 1440 ? 3 : 5;
 interface IExpectReceiptDates extends PurchaseProcument {
@@ -57,9 +50,7 @@ export const PoWareHouse = (props: IProps) => {
     handleSetProcurementTableContext,
   } = useContext(PurchaseOrderCreateContext);
   const [columns, setColumns] = useState<Array<ICustomTableColumType<any>>>([]);
-  const [expectReceiptDates, setExpectReceiptDates] = useState<
-    Array<IExpectReceiptDates>
-  >([]);
+  const [expectReceiptDates, setExpectReceiptDates] = useState<Array<IExpectReceiptDates>>([]);
   const [ratio, setRatio] = useState({
     span: 0,
     scroll: DEFAULT_SCROLL,
@@ -70,9 +61,7 @@ export const PoWareHouse = (props: IProps) => {
 
   const handleSetRadio = (expectReceiptDates: IExpectReceiptDates[]) => {
     const span =
-      expectReceiptDates?.length === 1
-        ? AMOUNT_COLUMNS
-        : expectReceiptDates?.length * DEFAULT_SPAN;
+      expectReceiptDates?.length === 1 ? AMOUNT_COLUMNS : expectReceiptDates?.length * DEFAULT_SPAN;
     setRatio({
       span: span <= 22 ? span : 22,
       scroll:
@@ -82,21 +71,13 @@ export const PoWareHouse = (props: IProps) => {
     });
   };
 
-  const handleSetQuantityWarehouses = (
-    indexData: number,
-    value: number,
-    uuid: string,
-  ) => {
+  const handleSetQuantityWarehouses = (indexData: number, value: number, uuid: string) => {
     const procurementItemsIndex: PurchaseProcumentLineItem[] = procurementsAll
       .reduce((acc, val) => acc.concat(val), [])
-      .reduce(
-        (acc, val) => acc.concat(val.procurement_items),
-        [] as PurchaseProcumentLineItem[],
-      )
+      .reduce((acc, val) => acc.concat(val.procurement_items), [] as PurchaseProcumentLineItem[])
       .filter(
         (procurementItems) =>
-          procurementItems.variant_id ===
-          procurementTable[indexData].variant_id,
+          procurementItems.variant_id === procurementTable[indexData].variant_id,
       )
       .filter((procurementTable) => procurementTable.uuid === uuid)
       .map((item) => {
@@ -109,43 +90,34 @@ export const PoWareHouse = (props: IProps) => {
         };
       }); //uuid + index lấy uuid theo vị trí
 
-    const procurements = formMain?.getFieldValue(
-      POField.procurements,
-    ) as PurchaseProcument[];
-    const procurementItemsResult = procurementItemsIndex.map(
-      (procurementItem, index) => {
-        const quantity: number =
-          index === procurementItemsIndex.length - 1
-            ? value -
-              (procurementItemsIndex.reduce(
-                (acc, ele) => acc + ele.quantity,
-                0,
-              ) -
-                procurementItem.quantity)
-            : procurementItem.quantity;
-        return {
-          ...procurementItem,
-          planned_quantity: quantity,
-          quantity,
-          ordered_quantity: quantity,
-        };
-      },
-    );
+    const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
+    const procurementItemsResult = procurementItemsIndex.map((procurementItem, index) => {
+      const quantity: number =
+        index === procurementItemsIndex.length - 1
+          ? value -
+            (procurementItemsIndex.reduce((acc, ele) => acc + ele.quantity, 0) -
+              procurementItem.quantity)
+          : procurementItem.quantity;
+      return {
+        ...procurementItem,
+        planned_quantity: quantity,
+        quantity,
+        ordered_quantity: quantity,
+      };
+    });
     procurements.forEach((procurement, index) => {
-      procurementItemsResult.forEach(
-        (procurementItemIndex, indexProcurementItemsIndex) => {
-          const indexProcurementItem = procurement.procurement_items.findIndex(
-            (item) => item.id === procurementItemIndex.id,
+      procurementItemsResult.forEach((procurementItemIndex, indexProcurementItemsIndex) => {
+        const indexProcurementItem = procurement.procurement_items.findIndex(
+          (item) => item.id === procurementItemIndex.id,
+        );
+        if (indexProcurementItem >= 0) {
+          procurements[index].procurement_items.splice(
+            indexProcurementItem,
+            1,
+            procurementItemsResult[indexProcurementItemsIndex],
           );
-          if (indexProcurementItem >= 0) {
-            procurements[index].procurement_items.splice(
-              indexProcurementItem,
-              1,
-              procurementItemsResult[indexProcurementItemsIndex],
-            );
-          }
-        },
-      );
+        }
+      });
     });
 
     formMain?.setFieldsValue({
@@ -153,12 +125,7 @@ export const PoWareHouse = (props: IProps) => {
     });
   };
 
-  const onChangeNumber = (
-    indexData: number,
-    index: number,
-    value: number,
-    uuid: string,
-  ) => {
+  const onChangeNumber = (indexData: number, index: number, value: number, uuid: string) => {
     procurementTable[indexData].plannedQuantities[index] = value;
     handleSetQuantityWarehouses(indexData, value, uuid + index);
     setProcurementTable([...procurementTable]);
@@ -183,11 +150,7 @@ export const PoWareHouse = (props: IProps) => {
       ).map((procurement) => {
         if (procurement.uuid === expectReceiptDates[index].uuid) {
           const expectReceiptDate = value
-            ? ConvertDateToUtc(
-                moment(value, DATE_FORMAT.DDMMYYY).format(
-                  DATE_FORMAT.MM_DD_YYYY,
-                ),
-              )
+            ? ConvertDateToUtc(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY))
             : "";
           return {
             ...procurement,
@@ -203,44 +166,35 @@ export const PoWareHouse = (props: IProps) => {
     },
     [expectReceiptDates, formMain],
   );
-  const handleSetProcurementTableByExpectedDate = (
-    procurements: PurchaseProcument[],
-  ) => {
+  const handleSetProcurementTableByExpectedDate = (procurements: PurchaseProcument[]) => {
     const line_items: PurchaseOrderLineItem[] =
       (formMain?.getFieldsValue()?.line_items as PurchaseOrderLineItem[]) || [];
-    const procurementsFilter = groupBy(
-      procurements,
-      ProcurementLineItemField.expect_receipt_date,
+    const procurementsFilter = groupBy(procurements, ProcurementLineItemField.expect_receipt_date);
+    const procurementsAllResult: Array<PurchaseProcument[]> = Object.values(procurementsFilter).map(
+      (procurementAll, indexProcurementAll) => {
+        const uuid = uuidv4();
+        return [
+          ...procurementAll.map((item) => {
+            return {
+              ...item,
+              uuid: uuid,
+              percent: item?.percent || 33.33,
+              procurement_items: [
+                ...item.procurement_items.map((procurementItem) => {
+                  return {
+                    ...procurementItem,
+                    percent: item?.percent,
+                    uuid: uuid + indexProcurementAll,
+                  };
+                }),
+              ],
+            };
+          }),
+        ];
+      },
     );
-    const procurementsAllResult: Array<PurchaseProcument[]> = Object.values(
-      procurementsFilter,
-    ).map((procurementAll, indexProcurementAll) => {
-      const uuid = uuidv4();
-      return [
-        ...procurementAll.map((item) => {
-          return {
-            ...item,
-            uuid: uuid,
-            percent: item?.percent || 33.33,
-            procurement_items: [
-              ...item.procurement_items.map((procurementItem) => {
-                return {
-                  ...procurementItem,
-                  percent: item?.percent,
-                  uuid: uuid + indexProcurementAll,
-                };
-              }),
-            ],
-          };
-        }),
-      ];
-    });
     setProcurementsAll(procurementsAllResult);
-    handleSetProcurementTableContext(
-      procurements,
-      line_items,
-      procurementsAllResult,
-    );
+    handleSetProcurementTableContext(procurements, line_items, procurementsAllResult);
   };
   const onAddExpectedDate = () => {
     if (procurementsAll.length > 0) {
@@ -253,31 +207,15 @@ export const PoWareHouse = (props: IProps) => {
       const procurements: PurchaseProcument[] = formMain?.getFieldValue(
         POField.procurements,
       ) as PurchaseProcument[];
-      const procurementAddDefault: PurchaseProcument[] = procurementsAll[0].map(
-        (procurement) => {
-          const procurement_items = procurementItems.map((procurementItem) => {
-            const uuid2 = uuidv4();
-            const procurementItemIndex =
-              procurements[0].procurement_items.findIndex(
-                (item) => item.variant_id === procurementItem.variant_id,
-              );
-            if (procurementItemIndex === -1) {
-              return {
-                ...procurementItem,
-                quantity: 0,
-                id: uuid2,
-                planned_quantity: 0,
-                ordered_quantity: 0,
-                accepted_quantity: 0,
-                real_quantity: 0,
-                stock_in_by: "",
-                stock_in_date: "",
-                activated_by: "",
-                activated_date: "",
-              };
-            }
+      const procurementAddDefault: PurchaseProcument[] = procurementsAll[0].map((procurement) => {
+        const procurement_items = procurementItems.map((procurementItem) => {
+          const uuid2 = uuidv4();
+          const procurementItemIndex = procurements[0].procurement_items.findIndex(
+            (item) => item.variant_id === procurementItem.variant_id,
+          );
+          if (procurementItemIndex === -1) {
             return {
-              ...procurements[0].procurement_items[procurementItemIndex],
+              ...procurementItem,
               quantity: 0,
               id: uuid2,
               planned_quantity: 0,
@@ -289,25 +227,38 @@ export const PoWareHouse = (props: IProps) => {
               activated_by: "",
               activated_date: "",
             };
-          });
+          }
           return {
-            ...procurement,
-            id: 0,
-            uuid,
-            is_cancelled: false,
-            created_date: ConvertDateToUtc(new Date(Date.now())) as any,
-            updated_date: ConvertDateToUtc(new Date(Date.now())) as any,
-            expect_receipt_date: "",
-            procurement_items,
-            code: "",
-            status: ProcurementStatus.draft,
+            ...procurements[0].procurement_items[procurementItemIndex],
+            quantity: 0,
+            id: uuid2,
+            planned_quantity: 0,
+            ordered_quantity: 0,
+            accepted_quantity: 0,
+            real_quantity: 0,
             stock_in_by: "",
             stock_in_date: "",
             activated_by: "",
             activated_date: "",
           };
-        },
-      );
+        });
+        return {
+          ...procurement,
+          id: 0,
+          uuid,
+          is_cancelled: false,
+          created_date: ConvertDateToUtc(new Date(Date.now())) as any,
+          updated_date: ConvertDateToUtc(new Date(Date.now())) as any,
+          expect_receipt_date: "",
+          procurement_items,
+          code: "",
+          status: ProcurementStatus.draft,
+          stock_in_by: "",
+          stock_in_date: "",
+          activated_by: "",
+          activated_date: "",
+        };
+      });
       procurementAddDefault.forEach((item: Partial<PurchaseProcument>) => {
         delete item.id;
         delete item.code;
@@ -341,17 +292,14 @@ export const PoWareHouse = (props: IProps) => {
       indexExpectReceipt >= 0;
       indexExpectReceipt--
     ) {
-      const procurements = formMain?.getFieldValue(
-        POField.procurements,
-      ) as PurchaseProcument[];
+      const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
       let procurementsBackUp = [...procurements];
       let check = false;
       procurements.forEach((procurement, index) => {
         const status = procurements
           .filter(
             (procurementChildren) =>
-              procurementChildren.uuid ===
-              expectReceiptDates[indexExpectReceipt].uuid,
+              procurementChildren.uuid === expectReceiptDates[indexExpectReceipt].uuid,
           )
           .every((item) => item.status === ProcurementStatus.draft);
         if (status && indexExpectReceipt !== 0) {
@@ -367,10 +315,7 @@ export const PoWareHouse = (props: IProps) => {
       if (check) {
         expectReceiptDates.splice(indexExpectReceipt, 1);
         procurementTable.forEach((procurement, index) => {
-          procurementTable[index].plannedQuantities.splice(
-            indexExpectReceipt,
-            1,
-          );
+          procurementTable[index].plannedQuantities.splice(indexExpectReceipt, 1);
           procurementTable[index].realQuantities.splice(indexExpectReceipt, 1);
           procurementTable[index].uuids.splice(indexExpectReceipt, 1);
         });
@@ -384,12 +329,7 @@ export const PoWareHouse = (props: IProps) => {
   };
 
   const title = useCallback(
-    (
-      date: IExpectReceiptDates,
-      index: number,
-      received: boolean,
-      notReceived: boolean,
-    ) => {
+    (date: IExpectReceiptDates, index: number, received: boolean, notReceived: boolean) => {
       if (!(received || notReceived) && isEditDetail) {
         formMain?.setFieldsValue({
           ["expectedDate" + index]: date.date,
@@ -475,67 +415,58 @@ export const PoWareHouse = (props: IProps) => {
         result?.procurements,
         ProcurementLineItemField.expect_receipt_date,
       );
-      const procurementsAll: Array<PurchaseProcument[]> = Object.values(
-        procurementsFilter,
-      ).map((procurementAll, indexProcurementAll) => {
-        const uuid = uuidv4();
-        return [
-          ...procurementAll.map((item) => {
-            return {
-              ...item,
-              uuid: uuid,
-              percent: item?.percent || 33.33,
-              procurement_items: [
-                ...item.procurement_items.map((procurementItem) => {
-                  return {
-                    ...procurementItem,
-                    percent: item?.percent,
-                    uuid: uuid + indexProcurementAll, // ada them vị trí của procuments
-                  };
-                }),
-              ],
-            };
-          }),
-        ];
-      });
-      const procurementsExpectReceiptDates = Object.keys(
-        procurementsFilter,
-      ).map((procurementsExpectReceiptDate) => {
-        const procurementSplit = procurementsAll.reduce(
-          (acc, val) => acc.concat(val),
-          [],
-        );
-        // purchaseOrder.procurements = procurementSplit;
-        formMain?.setFieldsValue({
-          procurements: procurementSplit,
-        });
-
-        const procurementFitterStatus = groupBy(
-          procurementSplit.filter(
-            (item) =>
-              item.expect_receipt_date === procurementsExpectReceiptDate,
-          ),
-          ProcurementLineItemField.status,
-        );
-        const status: string =
-          Object.values(procurementFitterStatus)[0].length ===
-          procurementsAll[0].length
-            ? (Object.keys(procurementFitterStatus)[0] as any)
-            : ProcurementStatus.not_received;
-        return {
-          ...Object.values(procurementFitterStatus)[0][0],
-          status,
-          isAdd: false,
-          date: procurementsExpectReceiptDate
-            ? moment(procurementsExpectReceiptDate).format(DATE_FORMAT.DDMMYYY)
-            : "",
-        };
-      });
-      handleSetProcurementTableContext(
-        result.procurements,
-        result.line_items,
-        procurementsAll,
+      const procurementsAll: Array<PurchaseProcument[]> = Object.values(procurementsFilter).map(
+        (procurementAll, indexProcurementAll) => {
+          const uuid = uuidv4();
+          return [
+            ...procurementAll.map((item) => {
+              return {
+                ...item,
+                uuid: uuid,
+                percent: item?.percent || 33.33,
+                procurement_items: [
+                  ...item.procurement_items.map((procurementItem) => {
+                    return {
+                      ...procurementItem,
+                      percent: item?.percent,
+                      uuid: uuid + indexProcurementAll, // ada them vị trí của procuments
+                    };
+                  }),
+                ],
+              };
+            }),
+          ];
+        },
       );
+      const procurementsExpectReceiptDates = Object.keys(procurementsFilter).map(
+        (procurementsExpectReceiptDate) => {
+          const procurementSplit = procurementsAll.reduce((acc, val) => acc.concat(val), []);
+          // purchaseOrder.procurements = procurementSplit;
+          formMain?.setFieldsValue({
+            procurements: procurementSplit,
+          });
+
+          const procurementFitterStatus = groupBy(
+            procurementSplit.filter(
+              (item) => item.expect_receipt_date === procurementsExpectReceiptDate,
+            ),
+            ProcurementLineItemField.status,
+          );
+          const status: string =
+            Object.values(procurementFitterStatus)[0].length === procurementsAll[0].length
+              ? (Object.keys(procurementFitterStatus)[0] as any)
+              : ProcurementStatus.not_received;
+          return {
+            ...Object.values(procurementFitterStatus)[0][0],
+            status,
+            isAdd: false,
+            date: procurementsExpectReceiptDate
+              ? moment(procurementsExpectReceiptDate).format(DATE_FORMAT.DDMMYYY)
+              : "",
+          };
+        },
+      );
+      handleSetProcurementTableContext(result.procurements, result.line_items, procurementsAll);
       setExpectReceiptDates(procurementsExpectReceiptDates);
       setProcurementsAll(procurementsAll);
       handleSetRadio(procurementsExpectReceiptDates);
@@ -555,9 +486,7 @@ export const PoWareHouse = (props: IProps) => {
           align: "center",
           className: isEditDetail ? "custom-date" : "",
           width:
-            receivedOrNotReceived ||
-            data.isAdd ||
-            (!receivedOrNotReceived && isEditDetail)
+            receivedOrNotReceived || data.isAdd || (!receivedOrNotReceived && isEditDetail)
               ? 50
               : 40,
           render: (value, record, index) => {
@@ -571,11 +500,8 @@ export const PoWareHouse = (props: IProps) => {
                 ? undefined
                 : record.plannedQuantities[indexDate] || 0
               : 0;
-            const uuid = record?.uuids?.length
-              ? record.uuids[indexDate] || ""
-              : "";
-            if (real_quantity === undefined || planned_quantity === undefined)
-              return <></>;
+            const uuid = record?.uuids?.length ? record.uuids[indexDate] || "" : "";
+            if (real_quantity === undefined || planned_quantity === undefined) return <></>;
             return (
               <>
                 {data.isAdd ||
@@ -585,9 +511,7 @@ export const PoWareHouse = (props: IProps) => {
                   <NumberInput
                     min={0}
                     value={planned_quantity}
-                    onChange={(value) =>
-                      onChangeNumber(index, indexDate, value || 0, uuid)
-                    }
+                    onChange={(value) => onChangeNumber(index, indexDate, value || 0, uuid)}
                     format={(a: string) => formatCurrency(a)}
                     replace={(a: string) => replaceFormatString(a)}
                     maxLength={10}
@@ -595,11 +519,7 @@ export const PoWareHouse = (props: IProps) => {
                 ) : (
                   <Row>
                     <Col span={12} style={{ textAlign: "end" }}>
-                      <StyledSpanGreen
-                        notReceived={
-                          data.status === ProcurementStatus.not_received
-                        }
-                      >
+                      <StyledSpanGreen notReceived={data.status === ProcurementStatus.not_received}>
                         {real_quantity}
                       </StyledSpanGreen>
                       /
@@ -616,13 +536,7 @@ export const PoWareHouse = (props: IProps) => {
       }) || [];
     setColumns(columns);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    expectReceiptDates,
-    purchaseOrder?.procurements,
-    title,
-    isEditDetail,
-    procurementTable,
-  ]);
+  }, [expectReceiptDates, purchaseOrder?.procurements, title, isEditDetail, procurementTable]);
   useEffect(() => {
     return () => {
       setExpectReceiptDates([]);
@@ -639,9 +553,7 @@ export const PoWareHouse = (props: IProps) => {
         {" "}
         <Table
           className="product-table"
-          rowKey={(record: PurchaseOrderLineItem) =>
-            record.id ? record.id : record.temp_id
-          }
+          rowKey={(record: PurchaseOrderLineItem) => (record.id ? record.id : record.temp_id)}
           rowClassName="product-table-row"
           dataSource={procurementTable}
           tableLayout="fixed"
@@ -656,17 +568,13 @@ export const PoWareHouse = (props: IProps) => {
                     const totalPlannedQuantity = data.reduce((value, item) => {
                       return (
                         value +
-                        (item?.plannedQuantities?.length
-                          ? item?.plannedQuantities[index] || 0
-                          : 0)
+                        (item?.plannedQuantities?.length ? item?.plannedQuantities[index] || 0 : 0)
                       );
                     }, 0);
                     const totalRealQuantity = data.reduce((value, item) => {
                       return (
                         value +
-                        (item?.realQuantities?.length
-                          ? item?.realQuantities[index] || 0
-                          : 0)
+                        (item?.realQuantities?.length ? item?.realQuantities[index] || 0 : 0)
                       );
                     }, 0);
                     return (
@@ -675,22 +583,14 @@ export const PoWareHouse = (props: IProps) => {
                         index={procurement.id}
                       >
                         <Row>
-                          <StyledColSummary
-                            span={12}
-                            style={{ textAlign: "end", fontWeight: 700 }}
-                          >
-                            <span>
-                              {formatCurrency(totalRealQuantity, ".")}
-                            </span>
-                            /
+                          <StyledColSummary span={12} style={{ textAlign: "end", fontWeight: 700 }}>
+                            <span>{formatCurrency(totalRealQuantity, ".")}</span>/
                           </StyledColSummary>
                           <StyledColSummary
                             span={12}
                             style={{ textAlign: "start", fontWeight: 700 }}
                           >
-                            <span>
-                              {formatCurrency(totalPlannedQuantity, ".")}
-                            </span>
+                            <span>{formatCurrency(totalPlannedQuantity, ".")}</span>
                           </StyledColSummary>
                         </Row>
                       </Table.Summary.Cell>

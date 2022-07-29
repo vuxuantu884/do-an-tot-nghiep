@@ -41,15 +41,7 @@ SupplierSelect.defaultProps = {
 };
 
 function SupplierSelect(props: SelectContentProps): ReactElement {
-  const {
-    id: name,
-    value,
-    mode,
-    fixedQuery,
-    key,
-    isFilter,
-    ...selectProps
-  } = props;
+  const { id: name, value, mode, fixedQuery, key, isFilter, ...selectProps } = props;
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
   const [data, setData] = React.useState<PageResponse<SupplierResponse>>({
@@ -65,12 +57,7 @@ function SupplierSelect(props: SelectContentProps): ReactElement {
   const handleSupplierSearch = async (queryParams: SupplierQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
-    const response = await callApiNative(
-      { isShowError: true },
-      dispatch,
-      supplierGetApi,
-      query,
-    );
+    const response = await callApiNative({ isShowError: true }, dispatch, supplierGetApi, query);
     if (response) {
       setData(response);
     }
@@ -82,16 +69,11 @@ function SupplierSelect(props: SelectContentProps): ReactElement {
    */
   useEffect(() => {
     const getDefaultOptions = async () => {
-      const response = await callApiNative(
-        { isShowError: true },
-        dispatch,
-        supplierGetApi,
-        {
-          ...fixedQuery,
-          page: 1,
-          limit: 30,
-        },
-      );
+      const response = await callApiNative({ isShowError: true }, dispatch, supplierGetApi, {
+        ...fixedQuery,
+        page: 1,
+        limit: 30,
+      });
       setDefaultOptons(response.items);
       setData(response);
     };

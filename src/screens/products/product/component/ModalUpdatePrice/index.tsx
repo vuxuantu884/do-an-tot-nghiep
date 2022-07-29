@@ -20,14 +20,14 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
     <Modal
       okText="Cập nhật giá"
       onCancel={() => {
-        setCheckedAll(false)
+        setCheckedAll(false);
         setListSelected([]);
         props.onCancel();
       }}
       onOk={() => {
         props.onOk(listSelected);
-        setCheckedAll(false)
-        setListSelected([])
+        setCheckedAll(false);
+        setListSelected([]);
       }}
       title={
         <div>
@@ -60,9 +60,7 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
                     if (props.variants) {
                       if (e.target.checked) {
                         props.variants.forEach((item) => {
-                          let index = listSelected.findIndex(
-                            (item1) => item1 === item.id
-                          );
+                          let index = listSelected.findIndex((item1) => item1 === item.id);
                           if (index === -1) {
                             listSelected.push(item.id);
                           }
@@ -81,7 +79,7 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
           }
           className="list__variants"
           dataSource={props.variants.filter(
-            (item, index) => index !== props.currentVariant && item.id
+            (item, index) => index !== props.currentVariant && item.id,
           )}
           rowKey={(item) => item.id.toString()}
           renderItem={(item, index) => {
@@ -90,14 +88,9 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
               <List.Item>
                 <div className="line-item">
                   <Checkbox
-                    checked={
-                      listSelected.findIndex((item1) => item1 === item.id) !==
-                      -1
-                    }
+                    checked={listSelected.findIndex((item1) => item1 === item.id) !== -1}
                     onChange={(e) => {
-                      let index = listSelected.findIndex(
-                        (item1) => item1 === item.id
-                      );
+                      let index = listSelected.findIndex((item1) => item1 === item.id);
                       if (e.target.checked) {
                         if (index === -1) {
                           listSelected.push(item.id);
@@ -112,13 +105,8 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
                   />
                   <div className="line-item-container">
                     <div className="avatar">
-                      <img
-                        alt=""
-                        src={avatar !== null ? avatar.url : variantdefault}
-                      />
-                      {!item.saleable && (
-                        <div className="not-salable">Ngừng bán</div>
-                      )}
+                      <img alt="" src={avatar !== null ? avatar.url : variantdefault} />
+                      {!item.saleable && <div className="not-salable">Ngừng bán</div>}
                     </div>
                     <div
                       style={{

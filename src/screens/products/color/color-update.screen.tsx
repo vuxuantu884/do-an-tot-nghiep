@@ -1,23 +1,7 @@
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-  Switch,
-} from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row, Select, Switch } from "antd";
 import { ColorResponse, ColorUpdateRequest } from "model/product/color.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import {
@@ -119,9 +103,7 @@ const ColorUpdateScreen: React.FC = () => {
     if (!productStatusList) {
       return "";
     }
-    let index = productStatusList?.findIndex(
-      (item) => item.value === color?.status,
-    );
+    let index = productStatusList?.findIndex((item) => item.value === color?.status);
     if (index !== -1) {
       return productStatusList?.[index].name;
     }
@@ -160,12 +142,7 @@ const ColorUpdateScreen: React.FC = () => {
       ]}
     >
       {color !== null && (
-        <Form
-          ref={formRef}
-          initialValues={color}
-          onFinish={onFinish}
-          layout="vertical"
-        >
+        <Form ref={formRef} initialValues={color} onFinish={onFinish} layout="vertical">
           <Form.Item hidden noStyle name="version">
             <Input />
           </Form.Item>
@@ -191,9 +168,7 @@ const ColorUpdateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
-                      rules={[
-                        { required: true, message: "Vui lòng nhập tên màu" },
-                      ]}
+                      rules={[{ required: true, message: "Vui lòng nhập tên màu" }]}
                       label="Tên màu"
                       name="name"
                     >
@@ -211,10 +186,7 @@ const ColorUpdateScreen: React.FC = () => {
                       name="parent_id"
                       label="Màu chủ đạo"
                     >
-                      <Select
-                        placeholder="Chọn màu chủ đạo"
-                        className="selector"
-                      >
+                      <Select placeholder="Chọn màu chủ đạo" className="selector">
                         {selector.items.map((item) => (
                           <Option key={item.id} value={item.id}>
                             {item.name}
@@ -232,11 +204,7 @@ const ColorUpdateScreen: React.FC = () => {
                       />
                       <span
                         style={{ paddingLeft: 8 }}
-                        className={
-                          color?.status === "active"
-                            ? "text-success"
-                            : "text-error"
-                        }
+                        className={color?.status === "active" ? "text-success" : "text-error"}
                       >
                         {statusValue}
                       </span>
@@ -246,9 +214,7 @@ const ColorUpdateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Form.Item
-                      rules={[
-                        { required: true, message: "Vui lòng nhập mã màu" },
-                      ]}
+                      rules={[{ required: true, message: "Vui lòng nhập mã màu" }]}
                       name="code"
                       labelAlign="right"
                       label="Mã màu"
@@ -264,8 +230,7 @@ const ColorUpdateScreen: React.FC = () => {
                       rules={[
                         {
                           pattern: RegUtil.HEX_COLOR,
-                          message:
-                            "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
+                          message: "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
                         },
                       ]}
                     >
@@ -280,9 +245,7 @@ const ColorUpdateScreen: React.FC = () => {
             back={"Quay lại danh sách"}
             backAction={backAction}
             rightComponent={
-              <AuthWrapper
-                acceptPermissions={[ProductPermission.colors_update]}
-              >
+              <AuthWrapper acceptPermissions={[ProductPermission.colors_update]}>
                 <Button htmlType="submit" type="primary">
                   Lưu lại
                 </Button>

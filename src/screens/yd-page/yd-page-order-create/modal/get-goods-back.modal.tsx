@@ -11,19 +11,8 @@ type GetGoodsBackModalProps = {
   okText: string;
 };
 
-const GetGoodsBack: React.FC<GetGoodsBackModalProps> = (
-  props: GetGoodsBackModalProps
-) => {
-  const {
-    visible,
-    onCancel,
-    onOk,
-    text,
-    title,
-    icon,
-    okText,
-    cancelText,
-  } = props;
+const GetGoodsBack: React.FC<GetGoodsBackModalProps> = (props: GetGoodsBackModalProps) => {
+  const { visible, onCancel, onOk, text, title, icon, okText, cancelText } = props;
 
   return (
     <Modal
@@ -38,11 +27,7 @@ const GetGoodsBack: React.FC<GetGoodsBackModalProps> = (
           <img src={icon} alt="" />
           <div>
             <h4>{title}</h4>
-            <span
-              style={
-                title ? { fontWeight: 400 } : { fontWeight: 600, fontSize: 16 }
-              }
-            >
+            <span style={title ? { fontWeight: 400 } : { fontWeight: 600, fontSize: 16 }}>
               {text}
             </span>
           </div>

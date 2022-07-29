@@ -51,9 +51,7 @@ function* storeGetAllSaga(action: YodyAction) {
 function* storeGetListStoreSimpleAllSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(
-      getListStoreSimple,
-    );
+    let response: BaseResponse<Array<StoreResponse>> = yield call(getListStoreSimple);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -73,10 +71,7 @@ function* storeGetListStoreSimpleAllSaga(action: YodyAction) {
 function* storeSearchSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<StoreResponse>> = yield call(
-      storeGetApi,
-      query,
-    );
+    let response: BaseResponse<PageResponse<StoreResponse>> = yield call(storeGetApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -96,9 +91,7 @@ function* storeSearchSaga(action: YodyAction) {
 function* storeRanksaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    let response: BaseResponse<Array<StoreRankResponse>> = yield call(
-      storeRankGetApi,
-    );
+    let response: BaseResponse<Array<StoreRankResponse>> = yield call(storeRankGetApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -118,10 +111,7 @@ function* storeRanksaga(action: YodyAction) {
 function* storeCreateSaga(action: YodyAction) {
   const { request, onCreateSuccess } = action.payload;
   try {
-    let response: BaseResponse<StoreResponse> = yield call(
-      storesPostApi,
-      request,
-    );
+    let response: BaseResponse<StoreResponse> = yield call(storesPostApi, request);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -145,11 +135,7 @@ function* storeCreateSaga(action: YodyAction) {
 function* storeUpdateSaga(action: YodyAction) {
   const { id, request, onUpdateSuccess } = action.payload;
   try {
-    let response: BaseResponse<StoreResponse> = yield call(
-      storesPutApi,
-      id,
-      request,
-    );
+    let response: BaseResponse<StoreResponse> = yield call(storesPutApi, id, request);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -190,10 +176,7 @@ export function* storeDetailSaga(action: YodyAction) {
 export function* storeDetailCustomSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   try {
-    let response: BaseResponse<StoreCustomResponse> = yield call(
-      storesDetailCustomApi,
-      id,
-    );
+    let response: BaseResponse<StoreCustomResponse> = yield call(storesDetailCustomApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         response.data.accounts = [];
@@ -214,10 +197,7 @@ export function* storeDetailCustomSaga(action: YodyAction) {
 function* storeGetSearchSaga(action: YodyAction) {
   let { name, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(
-      getSearchListStore,
-      name,
-    );
+    let response: BaseResponse<Array<StoreResponse>> = yield call(getSearchListStore, name);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -237,10 +217,7 @@ function* storeGetSearchSaga(action: YodyAction) {
 function* storeValidateSaga(action: YodyAction) {
   let { data, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(
-      storeValidateApi,
-      data,
-    );
+    let response: BaseResponse<Array<StoreResponse>> = yield call(storeValidateApi, data);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(true);
@@ -260,9 +237,7 @@ function* storeValidateSaga(action: YodyAction) {
 function* storeGetTypeSaga(action: YodyAction) {
   let { onSuccess } = action.payload;
   try {
-    let response: BaseResponse<Array<StoreTypeRequest>> = yield call(
-      storeGetTypeApi,
-    );
+    let response: BaseResponse<Array<StoreTypeRequest>> = yield call(storeGetTypeApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onSuccess(response.data);
@@ -305,10 +280,7 @@ function* getStoreSearchIdsSaga(action: YodyAction) {
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.GET_SEARCH_STORE_REQUEST, storeGetSearchSaga);
-  yield takeLatest(
-    StoreType.GET_LIST_STORE_REQUEST_SIMPLE,
-    storeGetListStoreSimpleAllSaga,
-  );
+  yield takeLatest(StoreType.GET_LIST_STORE_REQUEST_SIMPLE, storeGetListStoreSimpleAllSaga);
   yield takeLatest(StoreType.STORE_SEARCH, storeSearchSaga);
   yield takeLatest(StoreType.STORE_RANK, storeRanksaga);
   yield takeLatest(StoreType.STORE_CREATE, storeCreateSaga);

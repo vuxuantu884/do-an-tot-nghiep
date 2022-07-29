@@ -1,5 +1,5 @@
-import {BaseQuery} from "model/base/base.query";
-import {PermissionsAuthorize} from "./permission.model";
+import { BaseQuery } from "model/base/base.query";
+import { PermissionsAuthorize } from "./permission.model";
 export interface ModuleAuthorize {
   id: number;
   description?: string;

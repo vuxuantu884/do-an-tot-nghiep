@@ -1,13 +1,13 @@
-import {Form, FormItemProps, Select} from "antd";
-import {FormInstance} from "antd/es/form/Form";
-import {StoreSearchAction} from "domain/actions/core/store.action";
-import _, {debounce} from "lodash";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreQuery, StoreResponse} from "model/core/store.model";
-import React, {ReactElement, useCallback, useEffect} from "react";
-import {useDispatch} from "react-redux";
+import { Form, FormItemProps, Select } from "antd";
+import { FormInstance } from "antd/es/form/Form";
+import { StoreSearchAction } from "domain/actions/core/store.action";
+import _, { debounce } from "lodash";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreQuery, StoreResponse } from "model/core/store.model";
+import React, { ReactElement, useCallback, useEffect } from "react";
+import { useDispatch } from "react-redux";
 
-const {Option} = Select;
+const { Option } = Select;
 interface Props extends FormItemProps {
   form?: FormInstance;
   label: string;
@@ -52,13 +52,13 @@ function StoreSelect({
   const [accountList, setAccountList] = React.useState<{
     items: Array<StoreResponse>;
     isLoading: boolean;
-  }>({items: [], isLoading: false});
+  }>({ items: [], isLoading: false });
 
   const handleChangeAccountSearch = useCallback(
     (key: string, ids?: string[]) => {
       if (queryAccount) {
         setAccountList((prev) => {
-          return {items: prev?.items || [], isLoading: true};
+          return { items: prev?.items || [], isLoading: true };
         });
 
         const query = _.cloneDeep(queryAccount);
@@ -72,11 +72,11 @@ function StoreSelect({
                 isLoading: false,
               });
             }
-          })
+          }),
         );
       }
     },
-    [dispatch, queryAccount]
+    [dispatch, queryAccount],
   );
   const onSearchAccount = debounce((key: string) => {
     handleChangeAccountSearch(key);
@@ -104,7 +104,7 @@ function StoreSelect({
       name={name}
       rules={rules}
       className={className}
-      labelCol={{span: 24, offset: 0}}
+      labelCol={{ span: 24, offset: 0 }}
       {...restFormProps}
     >
       <Select

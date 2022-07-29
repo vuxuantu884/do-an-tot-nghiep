@@ -9,20 +9,27 @@ import { useHistory } from "react-router";
 import { EcommerceProductTabUrl } from "config/url.config";
 
 type ProgressConcatenateByExcelModalType = {
-  title: string,
-  isVisibleProgressModal: any,
-  onCancelProgressConcatenateByExcel: any,
-  onOKProgressConcatenateByExcel: any,
-  progressData: any,
-  progressPercent: any,
-  isDownloading: boolean
+  title: string;
+  isVisibleProgressModal: any;
+  onCancelProgressConcatenateByExcel: any;
+  onOKProgressConcatenateByExcel: any;
+  progressData: any;
+  progressPercent: any;
+  isDownloading: boolean;
 };
 
 const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalType> = (
-  props: ProgressConcatenateByExcelModalType
+  props: ProgressConcatenateByExcelModalType,
 ) => {
-  const { title, isVisibleProgressModal, onCancelProgressConcatenateByExcel,
-    onOKProgressConcatenateByExcel, progressData, progressPercent, isDownloading } = props;
+  const {
+    title,
+    isVisibleProgressModal,
+    onCancelProgressConcatenateByExcel,
+    onOKProgressConcatenateByExcel,
+    progressData,
+    progressPercent,
+    isDownloading,
+  } = props;
 
   const [errorData, setErrorData] = useState<Array<any>>([]);
 
@@ -37,7 +44,7 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
 
   const okProgressProgressConcatenateByExcelModal = () => {
     onOKProgressConcatenateByExcel();
-    if (title === 'Ghép nối sản phẩm') {
+    if (title === "Ghép nối sản phẩm") {
       history.replace(EcommerceProductTabUrl.CONNECTED);
     }
   };
@@ -45,7 +52,6 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
   const cancelProgressConcatenateByExcelModal = () => {
     onCancelProgressConcatenateByExcel();
   };
-
 
   return (
     <Modal
@@ -60,12 +66,13 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
       maskClosable={false}
       footer={
         <StyledModalFooter>
-          {isDownloading ?
+          {isDownloading ? (
             <Button danger onClick={cancelProgressConcatenateByExcelModal}>
               Hủy
             </Button>
-            : <div />
-          }
+          ) : (
+            <div />
+          )}
 
           <Button
             type="primary"
@@ -83,42 +90,45 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
             <div>
               <div>Tổng cộng</div>
               <div className="total-count">
-                {isNullOrUndefined(progressData?.total) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
 
             <div>
               <div>Thành công</div>
               <div className="total-updated">
-                {isNullOrUndefined(progressData?.total_success) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total_success) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total_success}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
 
             <div>
               <div>Lỗi</div>
               <div className="total-error">
-                {isNullOrUndefined(progressData?.total_error) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total_error) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total_error}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
           </div>
@@ -131,7 +141,7 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
           />
         </div>
 
-        {errorData.length ?
+        {errorData.length ? (
           <div className="error-orders">
             <div className="title">Chi tiết lỗi:</div>
             <div className="error_message">
@@ -148,7 +158,9 @@ const ProgressConcatenateByExcelModal: React.FC<ProgressConcatenateByExcelModalT
               </div>
             </div>
           </div>
-          : <div />}
+        ) : (
+          <div />
+        )}
       </StyledProgressDownloadModal>
     </Modal>
   );

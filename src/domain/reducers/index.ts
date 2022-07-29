@@ -3,7 +3,7 @@ import appSettingReducer from "./appseting.reducer";
 import bootstrapReducer from "./bootstrap.reducer";
 import loadingReducer from "./loading.reducer";
 import userReducer from "./user.reducer";
-import permissionReducer from './permisson.reducer'
+import permissionReducer from "./permisson.reducer";
 import orderReducer from "./order.reducer";
 import inventoryReducer from "./inventory.reducre";
 const rootReducer = combineReducers({

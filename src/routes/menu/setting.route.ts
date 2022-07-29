@@ -1,120 +1,86 @@
 import UrlConfig, { AccountUrl } from "config/url.config";
 import React from "react";
-import {RouteMenu} from "model/other";
+import { RouteMenu } from "model/other";
+import { AccountPermissions, DepartmentsPermissions } from "config/permissions/account.permisssion";
 import {
-  AccountPermissions,
-  DepartmentsPermissions,
-} from "config/permissions/account.permisssion";
-import { AuthPermissions, PrintPermissions, SourcePermissions, StorePermissions } from "config/permissions/setting.permisssion";
+  AuthPermissions,
+  PrintPermissions,
+  SourcePermissions,
+  StorePermissions,
+} from "config/permissions/setting.permisssion";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
-import {SMS_CONFIG_PERMISSIONS} from "config/permissions/sms-config.permission";
+import { SMS_CONFIG_PERMISSIONS } from "config/permissions/sms-config.permission";
 
-const AccountMeScreen = React.lazy(
-  () => import("screens/settings/account/account.me.screen")
-);
-const BankAccountScreen = React.lazy(
-  () => import("screens/settings/bank/bank-account.screen")
-);
+const AccountMeScreen = React.lazy(() => import("screens/settings/account/account.me.screen"));
+const BankAccountScreen = React.lazy(() => import("screens/settings/bank/bank-account.screen"));
 const BankAccountCreateScreen = React.lazy(
-  () => import("screens/settings/bank/create/bank-account.create.screen")
+  () => import("screens/settings/bank/create/bank-account.create.screen"),
 );
 const BackAccountUpdateScreen = React.lazy(
-  () => import("screens/settings/bank/update/bank-account.update.screen")
+  () => import("screens/settings/bank/update/bank-account.update.screen"),
 );
-const SmsScreen = React.lazy(
-  () => import("screens/settings/sms/sms.screen")
-);
-const SmsOrderRetail = React.lazy(
-  () => import("screens/settings/sms/config/SmsOrderRetail")
-);
-const SmsWebsiteOrder = React.lazy(
-  () => import("screens/settings/sms/config/SmsWebsiteOrder")
-);
+const SmsScreen = React.lazy(() => import("screens/settings/sms/sms.screen"));
+const SmsOrderRetail = React.lazy(() => import("screens/settings/sms/config/SmsOrderRetail"));
+const SmsWebsiteOrder = React.lazy(() => import("screens/settings/sms/config/SmsWebsiteOrder"));
 
-const ManageUserScreen = React.lazy(
-  () => import("screens/settings/account/account.search.screen")
-);
+const ManageUserScreen = React.lazy(() => import("screens/settings/account/account.search.screen"));
 
 const AccountDetailScreen = React.lazy(() => import("screens/settings/account/detail"));
 // const ManageStoreScreen = React.lazy(
 //   () => import("screens/setting/manage-store.screen")
 // );
-const RoleListScreen = React.lazy(
-  () => import("screens/settings/roles/role-list.screen")
-);
-const RoleCreateScreen = React.lazy(
-  () => import("screens/settings/roles/role-create.screen")
-);
+const RoleListScreen = React.lazy(() => import("screens/settings/roles/role-list.screen"));
+const RoleCreateScreen = React.lazy(() => import("screens/settings/roles/role-create.screen"));
 const RoleUpdateScreen = React.lazy(
-  () => import("screens/settings/roles/update/role-update.screen")
+  () => import("screens/settings/roles/update/role-update.screen"),
 );
 const AccountCreateScreen = React.lazy(
-  () => import("screens/settings/account/account.create.screen")
+  () => import("screens/settings/account/account.create.screen"),
 );
 const AccountImportScreen = React.lazy(
-  () => import("screens/settings/account/account.import.screen")
+  () => import("screens/settings/account/account.import.screen"),
 );
 const AccountUpdateScreen = React.lazy(
-  () => import("screens/settings/account/account.update.screen")
+  () => import("screens/settings/account/account.update.screen"),
 );
 const AccountUpdatePassScreen = React.lazy(
-  () => import("screens/settings/account/account.update.pass.screen")
+  () => import("screens/settings/account/account.update.pass.screen"),
 );
 
 //store
-const StoreCreateScreen = React.lazy(
-  () => import("screens/settings/store/store-create.screen")
-);
-const StoreListScreen = React.lazy(
-  () => import("screens/settings/store/store-list.screen")
-);
-const StoreUpdateScreen = React.lazy(
-  () => import("screens/settings/store/store-update.screen")
-);
+const StoreCreateScreen = React.lazy(() => import("screens/settings/store/store-create.screen"));
+const StoreListScreen = React.lazy(() => import("screens/settings/store/store-list.screen"));
+const StoreUpdateScreen = React.lazy(() => import("screens/settings/store/store-update.screen"));
 const StoreDetailScreen = React.lazy(() => import("screens/settings/store/store-detail"));
 
 // fulfillment: quản lý đơn hàng
 const SettingFulfillmentScreen = React.lazy(
-  () => import("screens/order-online/settings/OrderProcessingStatus/OrderProcessingStatus")
+  () => import("screens/order-online/settings/OrderProcessingStatus/OrderProcessingStatus"),
 );
 
 // order sources: quản lý nguồn đơn hàng
 const SettingOrderSourcesScreen = React.lazy(
-  () => import("screens/order-online/settings/order-sources")
+  () => import("screens/order-online/settings/order-sources"),
 );
 
 // printer: quản lý mẫu in
 const SettingPrinterScreen = React.lazy(() => import("screens/settings/printer"));
-const SettingCreatePrinterScreen = React.lazy(
-  () => import("screens/settings/printer/create")
-);
-const SettingSinglePrinterScreen = React.lazy(
-  () => import("screens/settings/printer/id")
-);
+const SettingCreatePrinterScreen = React.lazy(() => import("screens/settings/printer/create"));
+const SettingSinglePrinterScreen = React.lazy(() => import("screens/settings/printer/id"));
 
 // OrderSettings: Cài đặt đơn hàng
 const OrderSettingsScreen = React.lazy(() => import("screens/settings/order-settings"));
 const OrderSettingsCreateShippingServicesAndShippingFeeScreen = React.lazy(
-  () => import("screens/settings/order-settings/ShippingServicesAndShippingFee/create")
+  () => import("screens/settings/order-settings/ShippingServicesAndShippingFee/create"),
 );
 const OrderSettingsCreateShippingServicesAndShippingDetailScreen = React.lazy(
-  () => import("screens/settings/order-settings/ShippingServicesAndShippingFee/id")
+  () => import("screens/settings/order-settings/ShippingServicesAndShippingFee/id"),
 );
-const DepartmentSearchScreen = React.lazy(
-  () => import("screens/settings/department/Search")
-);
-const DepartmentCreateScreen = React.lazy(
-  () => import("screens/settings/department/Create")
-);
-const DepartmentOverview = React.lazy(
-  () => import("screens/settings/department/Overview")
-);
-const DepartmentDetailScreen = React.lazy(
-  () => import("screens/settings/department/Detail")
-);
-const DepartmentUpdateScreen = React.lazy(
-  () => import("screens/settings/department/Update")
-);
+const DepartmentSearchScreen = React.lazy(() => import("screens/settings/department/Search"));
+const DepartmentCreateScreen = React.lazy(() => import("screens/settings/department/Create"));
+const DepartmentOverview = React.lazy(() => import("screens/settings/department/Overview"));
+const DepartmentDetailScreen = React.lazy(() => import("screens/settings/department/Detail"));
+const DepartmentUpdateScreen = React.lazy(() => import("screens/settings/department/Update"));
 
 const setting: Array<RouteMenu> = [
   {
@@ -152,7 +118,8 @@ const setting: Array<RouteMenu> = [
         subMenu: [],
         pathIgnore: ["create"],
         permissions: [AccountPermissions.UPDATE],
-      }, {
+      },
+      {
         path: AccountUrl.UPDATE_PASSWORD,
         exact: true,
         title: "Đặt lại mật khẩu",
@@ -475,7 +442,7 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.ORDER_SETTINGS,
     isShow: true,
     header: null,
-    permissions:[ODERS_PERMISSIONS.CONFIG_UPDATE],
+    permissions: [ODERS_PERMISSIONS.CONFIG_UPDATE],
     subMenu: [
       {
         path: `${UrlConfig.ORDER_SETTINGS}/create`,
@@ -511,7 +478,7 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.BANK_ACCOUNT,
     isShow: true,
     header: null,
-    subMenu:[
+    subMenu: [
       {
         path: `${UrlConfig.BANK_ACCOUNT}/create`,
         exact: true,
@@ -534,7 +501,7 @@ const setting: Array<RouteMenu> = [
         header: null,
         subMenu: [],
       },
-    ]
+    ],
   },
   {
     path: UrlConfig.SMS_SETTINGS,
@@ -546,8 +513,8 @@ const setting: Array<RouteMenu> = [
     key: UrlConfig.SMS_SETTINGS,
     isShow: true,
     header: null,
-    permissions:[SMS_CONFIG_PERMISSIONS.READ],
-    subMenu:[
+    permissions: [SMS_CONFIG_PERMISSIONS.READ],
+    subMenu: [
       {
         path: `${UrlConfig.SMS_SETTINGS}/order-retail`,
         exact: true,
@@ -572,8 +539,8 @@ const setting: Array<RouteMenu> = [
         permissions: [SMS_CONFIG_PERMISSIONS.READ],
         subMenu: [],
       },
-    ]
-  }
+    ],
+  },
 ];
 
 export default setting;

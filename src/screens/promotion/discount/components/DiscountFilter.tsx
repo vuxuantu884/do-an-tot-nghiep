@@ -2,31 +2,25 @@ import moment from "moment";
 import { StoreResponse } from "../../../../model/core/store.model";
 import { SourceResponse } from "../../../../model/response/order/source.response";
 import search from "assets/img/search.svg";
-import {
-  CustomerGroupModel,
-} from "../../../../model/response/customer/customer-group.response";
+import { CustomerGroupModel } from "../../../../model/response/customer/customer-group.response";
 import { DiscountSearchQuery } from "../../../../model/query/discount.query";
 import { MenuAction } from "../../../../component/table/ActionButton";
-import {Button, Col, Form, Input, Row, Select, Spin, Tag} from "antd";
-import React, { useCallback, useEffect, useMemo, useState} from "react";
+import { Button, Col, Form, Input, Row, Select, Spin, Tag } from "antd";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { StyledComponent } from "./style";
 import CustomFilter from "../../../../component/table/custom.filter";
+import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import {
-  DATE_FORMAT,
-  formatDateFilter
-} from "utils/DateUtils";
-import { SearchVariantField, SearchVariantMapping } from "../../../../model/promotion/promotion-mapping";
+  SearchVariantField,
+  SearchVariantMapping,
+} from "../../../../model/promotion/promotion-mapping";
 import useAuthorization from "hook/useAuthorization";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import BaseFilter from "component/filter/base.filter";
 import { FilterOutlined } from "@ant-design/icons";
 import TreeStore from "../../../products/inventory/filter/TreeStore";
-import {useDispatch} from "react-redux";
-import {
-  convertItemToArray,
-  handleFetchApiError,
-  isFetchApiSuccessful,
-} from "utils/AppUtils";
+import { useDispatch } from "react-redux";
+import { convertItemToArray, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import {
   getVariantApi,
   productDetailApi,
@@ -46,70 +40,69 @@ type DiscountFilterProps = {
   // tableLoading: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (value: DiscountSearchQuery | Object) => void;
-}
+};
 
 const statuses = [
   {
-    code: 'ACTIVE',
-    value: 'Đang áp dụng',
+    code: "ACTIVE",
+    value: "Đang áp dụng",
   },
   {
-    code: 'DISABLED',
-    value: 'Tạm ngưng',
+    code: "DISABLED",
+    value: "Tạm ngưng",
   },
   {
-    code: 'DRAFT',
-    value: 'Chờ áp dụng',
+    code: "DRAFT",
+    value: "Chờ áp dụng",
   },
   {
-    code: 'CANCELLED',
-    value: 'Đã huỷ',
+    code: "CANCELLED",
+    value: "Đã huỷ",
   },
-
-]
+];
 
 const discount_methods = [
   {
-    code: 'total_amount',
-    value: 'Theo tổng giá trị đơn hàng',
+    code: "total_amount",
+    value: "Theo tổng giá trị đơn hàng",
   },
   {
-    code: 'specific_item',
-    value: 'Theo từng sản phẩm',
+    code: "specific_item",
+    value: "Theo từng sản phẩm",
   },
   {
-    code: 'parity',
-    value: 'Đồng giá',
+    code: "parity",
+    value: "Đồng giá",
   },
   {
-    code: 'quantity',
-    value: 'Theo số lượng sản phẩm',
+    code: "quantity",
+    value: "Theo số lượng sản phẩm",
   },
   {
-    code: 'item_category',
-    value: 'Theo từng loại sản phẩm',
+    code: "item_category",
+    value: "Theo từng loại sản phẩm",
   },
-]
+];
 
 const DATE_LIST_FORMAT = {
-  todayFrom: moment().startOf('day').format('DD-MM-YYYY'),
-  todayTo: moment().endOf('day').format('DD-MM-YYYY'),
+  todayFrom: moment().startOf("day").format("DD-MM-YYYY"),
+  todayTo: moment().endOf("day").format("DD-MM-YYYY"),
 
-  yesterdayFrom: moment().startOf('day').subtract(1, 'days').format('DD-MM-YYYY'),
-  yesterdayTo: moment().endOf('day').subtract(1, 'days').format('DD-MM-YYYY'),
+  yesterdayFrom: moment().startOf("day").subtract(1, "days").format("DD-MM-YYYY"),
+  yesterdayTo: moment().endOf("day").subtract(1, "days").format("DD-MM-YYYY"),
 
-  thisWeekFrom: moment().startOf('week').format('DD-MM-YYYY'),
-  thisWeekTo: moment().endOf('week').format('DD-MM-YYYY'),
+  thisWeekFrom: moment().startOf("week").format("DD-MM-YYYY"),
+  thisWeekTo: moment().endOf("week").format("DD-MM-YYYY"),
 
-  lastWeekFrom: moment().startOf('week').subtract(1, 'weeks').format('DD-MM-YYYY'),
-  lastWeekTo: moment().endOf('week').subtract(1, 'weeks').format('DD-MM-YYYY'),
+  lastWeekFrom: moment().startOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
+  lastWeekTo: moment().endOf("week").subtract(1, "weeks").format("DD-MM-YYYY"),
 
-  thisMonthFrom: moment().startOf('month').format('DD-MM-YYYY'),
-  thisMonthTo: moment().endOf('month').format('DD-MM-YYYY'),
+  thisMonthFrom: moment().startOf("month").format("DD-MM-YYYY"),
+  thisMonthTo: moment().endOf("month").format("DD-MM-YYYY"),
 
-  lastMonthFrom: moment().subtract(1, 'months').startOf('month').format('DD-MM-YYYY'),
-  lastMonthTo: moment().subtract(1, 'months').endOf('month').format('DD-MM-YYYY'),
-}
+  lastMonthFrom: moment().subtract(1, "months").startOf("month").format("DD-MM-YYYY"),
+  lastMonthTo: moment().subtract(1, "months").endOf("month").format("DD-MM-YYYY"),
+};
 
 const { Item } = Form;
 const { Option } = Select;
@@ -131,12 +124,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  
+
   const [isLoading, setIsLoading] = useState(false);
   const [variantList, setVariantList] = useState<Array<any>>([]);
   const [variantIdSelected, setVariantIdSelected] = useState<string | null>("");
   const [isSearchingVariant, setIsSearchingVariant] = useState(false);
-  
+
   const [productList, setProductList] = useState<Array<any>>([]);
   const [productIdSelected, setProductIdSelected] = useState<string | null>("");
   const [isSearchingProduct, setIsSearchingProduct] = useState(false);
@@ -150,8 +143,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       ...params,
       status: convertItemToArray(params.status),
       discount_method: convertItemToArray(params.discount_method),
-      applied_shop: Array.isArray(params.applied_shop) ?
-        params.applied_shop.map((item: any) => Number(item))
+      applied_shop: Array.isArray(params.applied_shop)
+        ? params.applied_shop.map((item: any) => Number(item))
         : [Number(params.applied_shop)],
     };
   }, [params]);
@@ -159,34 +152,37 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
   // handle get variant by filter param
   const getVariantDetailById = useCallback(
     async (variantId: string) => {
-    let variants: any = [];
-    try {
-      variants = await getVariantApi(variantId)
-        .then((response) => {
-          if (isFetchApiSuccessful(response)) {
-            return [
-              {
-                label: response.data?.name,
-                value: response.data?.product_id?.toString() + response.data?.id?.toString(),
-                variantId: response.data?.id?.toString(),
-                productId: response.data?.product_id?.toString(),
-              }
-            ]
-          } else {
-            handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
-          }
-        }).catch((error) => {
-          console.log('getVariantDetailById fail: ', error);
-        })
-    } catch {}
-    setVariantList(variants);
-    setInitProductVariantList(variants);
-    if (variants?.length > 0) {
-      setProductVariantSelected(variants[0].value);
-      setVariantIdSelected(variants[0].variantId);
-      setProductIdSelected(variants[0].productId);
-    }
-  }, [dispatch]);
+      let variants: any = [];
+      try {
+        variants = await getVariantApi(variantId)
+          .then((response) => {
+            if (isFetchApiSuccessful(response)) {
+              return [
+                {
+                  label: response.data?.name,
+                  value: response.data?.product_id?.toString() + response.data?.id?.toString(),
+                  variantId: response.data?.id?.toString(),
+                  productId: response.data?.product_id?.toString(),
+                },
+              ];
+            } else {
+              handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
+            }
+          })
+          .catch((error) => {
+            console.log("getVariantDetailById fail: ", error);
+          });
+      } catch {}
+      setVariantList(variants);
+      setInitProductVariantList(variants);
+      if (variants?.length > 0) {
+        setProductVariantSelected(variants[0].value);
+        setVariantIdSelected(variants[0].variantId);
+        setProductIdSelected(variants[0].productId);
+      }
+    },
+    [dispatch],
+  );
 
   const getProductDetailById = useCallback(
     async (productId: number) => {
@@ -201,14 +197,15 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                   value: response.data?.id?.toString(),
                   variantId: null,
                   productId: response.data?.id?.toString(),
-                }
-              ]
+                },
+              ];
             } else {
               handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
             }
-          }).catch((error) => {
-            console.log('getVariantDetailById fail: ', error);
           })
+          .catch((error) => {
+            console.log("getVariantDetailById fail: ", error);
+          });
       } catch {}
       setProductList(products);
       setInitProductVariantList(products);
@@ -217,7 +214,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         setVariantIdSelected(products[0].variantId);
         setProductIdSelected(products[0].productId);
       }
-    }, [dispatch]);
+    },
+    [dispatch],
+  );
   // end handle get variant by filter param
 
   // handle select date by filter param
@@ -227,20 +226,35 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
     if (dateFrom === DATE_LIST_FORMAT.todayFrom && dateTo === DATE_LIST_FORMAT.todayTo) {
       setDate("today");
-    } else if (dateFrom === DATE_LIST_FORMAT.yesterdayFrom && dateTo === DATE_LIST_FORMAT.yesterdayTo) {
+    } else if (
+      dateFrom === DATE_LIST_FORMAT.yesterdayFrom &&
+      dateTo === DATE_LIST_FORMAT.yesterdayTo
+    ) {
       setDate("yesterday");
-    } else if (dateFrom === DATE_LIST_FORMAT.thisWeekFrom && dateTo === DATE_LIST_FORMAT.thisWeekTo) {
+    } else if (
+      dateFrom === DATE_LIST_FORMAT.thisWeekFrom &&
+      dateTo === DATE_LIST_FORMAT.thisWeekTo
+    ) {
       setDate("thisWeek");
-    } else if (dateFrom === DATE_LIST_FORMAT.lastWeekFrom && dateTo === DATE_LIST_FORMAT.lastWeekTo) {
+    } else if (
+      dateFrom === DATE_LIST_FORMAT.lastWeekFrom &&
+      dateTo === DATE_LIST_FORMAT.lastWeekTo
+    ) {
       setDate("lastWeek");
-    } else if(dateFrom === DATE_LIST_FORMAT.thisMonthFrom && dateTo === DATE_LIST_FORMAT.thisMonthTo) {
+    } else if (
+      dateFrom === DATE_LIST_FORMAT.thisMonthFrom &&
+      dateTo === DATE_LIST_FORMAT.thisMonthTo
+    ) {
       setDate("thisMonth");
-    } else if (dateFrom === DATE_LIST_FORMAT.lastMonthFrom && dateTo === DATE_LIST_FORMAT.lastMonthTo) {
+    } else if (
+      dateFrom === DATE_LIST_FORMAT.lastMonthFrom &&
+      dateTo === DATE_LIST_FORMAT.lastMonthTo
+    ) {
       setDate("lastMonth");
     } else {
       setDate("");
     }
-  }
+  };
   // end handle select date by filter param
 
   useEffect(() => {
@@ -249,37 +263,46 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     } else if (initialValues.product_id) {
       getProductDetailById(Number(initialValues.product_id));
     }
-    handleDateFilterParam(initialValues.from_created_date, initialValues.to_created_date, setCreatedDateClick);
+    handleDateFilterParam(
+      initialValues.from_created_date,
+      initialValues.to_created_date,
+      setCreatedDateClick,
+    );
     setCreatedDateStart(initialValues.from_created_date);
     setCreatedDateEnd(initialValues.to_created_date);
     form.setFieldsValue({
-      ...initialValues
+      ...initialValues,
     });
   }, [form, getProductDetailById, getVariantDetailById, initialValues]);
-  
+
   // handle search products, variants
   const onSearchVariants = async (value: string) => {
     let variants: any = [];
     try {
       setIsSearchingVariant(true);
-      variants = await searchVariantsApi({info: value.trim(), page: 1, limit: 30})
+      variants = await searchVariantsApi({
+        info: value.trim(),
+        page: 1,
+        limit: 30,
+      })
         .then((response) => {
           setIsSearchingVariant(false);
           if (isFetchApiSuccessful(response)) {
-            return response.data?.items?.map(item => {
+            return response.data?.items?.map((item) => {
               return {
                 label: item.name,
                 value: item.product_id?.toString() + item.id?.toString(),
                 variantId: item.id?.toString(),
                 productId: item.product_id?.toString(),
-              }
-            })
+              };
+            });
           } else {
             handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
           }
-        }).catch((error) => {
+        })
+        .catch((error) => {
           setIsSearchingVariant(false);
-          console.log('get Variant fail: ', error);
+          console.log("get Variant fail: ", error);
         });
     } catch {
       setIsSearchingVariant(false);
@@ -291,30 +314,35 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     let products: any = [];
     try {
       setIsSearchingProduct(true);
-      products = await searchProductWrapperApi({info: value.trim(), page: 1, limit: 30})
+      products = await searchProductWrapperApi({
+        info: value.trim(),
+        page: 1,
+        limit: 30,
+      })
         .then((response) => {
           setIsSearchingProduct(false);
           if (isFetchApiSuccessful(response)) {
-            return response.data?.items?.map(item => {
+            return response.data?.items?.map((item) => {
               return {
                 label: item.name,
                 value: item.id?.toString(),
                 variantId: null,
                 productId: item.id?.toString(),
-              }
-            })
+              };
+            });
           } else {
             handleFetchApiError(response, "Danh sách sản phẩm", dispatch);
           }
-        }).catch((error) => {
-          setIsSearchingProduct(false);
-          console.log('get Product fail: ', error);
         })
+        .catch((error) => {
+          setIsSearchingProduct(false);
+          console.log("get Product fail: ", error);
+        });
     } catch {
       setIsSearchingProduct(false);
     }
     setProductList(products);
-    };
+  };
 
   const handleSearchVariants = debounce((value: string) => {
     if (value?.trim()?.length >= 3) {
@@ -330,7 +358,11 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     } else {
       setIsLoading(false);
       const newProductVariantList = productList.concat(variantList).sort((a: any, b: any) => {
-        return (Number(b.productId) < Number(a.productId)) ? -1 : ((Number(b.productId) > Number(a.productId)) ? 1 : 0);
+        return Number(b.productId) < Number(a.productId)
+          ? -1
+          : Number(b.productId) > Number(a.productId)
+          ? 1
+          : 0;
       });
       setProductVariantList(newProductVariantList);
     }
@@ -348,7 +380,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setProductIdSelected(null);
   };
   // end handle search products, variants
-  
+
   //handle create date filter
   const [createdDateClick, setCreatedDateClick] = useState("");
   const [createdDateStart, setCreatedDateStart] = useState<any>(params.from_created_date);
@@ -359,7 +391,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setCreatedDateStart(null);
     setCreatedDateEnd(null);
   };
-  
+
   const clickOptionDate = useCallback(
     (type, value) => {
       let startDateValue = null;
@@ -408,9 +440,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           break;
       }
     },
-    [createdDateClick]
+    [createdDateClick],
   );
-  
+
   const handleCreatedDateStart = (date: any) => {
     setCreatedDateClick("");
     if (!date) {
@@ -419,7 +451,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       const startOfDate = date.utc().startOf("day");
       setCreatedDateStart(startOfDate?.toISOString());
     }
-  }
+  };
 
   const handleCreatedDateEnd = (date: any) => {
     setCreatedDateClick("");
@@ -429,21 +461,25 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       const endOfDate = date.utc().endOf("day");
       setCreatedDateEnd(endOfDate?.toISOString());
     }
-  }
+  };
   //end handle create date filter
 
   // useCallback
-  const onFinish = useCallback((values: DiscountSearchQuery) => {
-    const formValues = {
-      ...values,
-      variant_id: variantIdSelected,
-      product_id: productIdSelected,
-      from_created_date: createdDateStart,
-      to_created_date: createdDateEnd,
-      created_date: (createdDateStart || createdDateEnd) ? [createdDateStart, createdDateEnd] : null,
-    };
-    onFilter && onFilter(formValues);
-  }, [createdDateEnd, createdDateStart, onFilter, productIdSelected, variantIdSelected])
+  const onFinish = useCallback(
+    (values: DiscountSearchQuery) => {
+      const formValues = {
+        ...values,
+        variant_id: variantIdSelected,
+        product_id: productIdSelected,
+        from_created_date: createdDateStart,
+        to_created_date: createdDateEnd,
+        created_date:
+          createdDateStart || createdDateEnd ? [createdDateStart, createdDateEnd] : null,
+      };
+      onFilter && onFilter(formValues);
+    },
+    [createdDateEnd, createdDateStart, onFilter, productIdSelected, variantIdSelected],
+  );
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -452,11 +488,14 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
 
   const openFilter = useCallback(() => {
     setVisible(true);
-  }, [])
+  }, []);
 
-  const onActionClick = useCallback((index) => {
-    onMenuClick && onMenuClick(index);
-  }, [onMenuClick])
+  const onActionClick = useCallback(
+    (index) => {
+      onMenuClick && onMenuClick(index);
+    },
+    [onMenuClick],
+  );
 
   const onClearFilterClick = useCallback(() => {
     onFilter && onFilter(initQuery);
@@ -467,7 +506,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     setVisible(false);
   }, []);
 
-  const [allowUpdateDiscount] = useAuthorization({ acceptPermissions: [PromoPermistion.UPDATE] })
+  const [allowUpdateDiscount] = useAuthorization({
+    acceptPermissions: [PromoPermistion.UPDATE],
+  });
 
   // handle tag filter
   let filters = useMemo(() => {
@@ -480,15 +521,17 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         value: initialValues.query,
       });
     }
-    
+
     if (initialValues.variant_id || initialValues.product_id) {
       let productVariant;
       if (initialValues.variant_id) {
         productVariant = initProductVariantList.find(
-          item => item.variantId?.toString() === initialValues.variant_id?.toString());
+          (item) => item.variantId?.toString() === initialValues.variant_id?.toString(),
+        );
       } else {
         productVariant = initProductVariantList.find(
-          item => item.productId?.toString() === initialValues.product_id?.toString());
+          (item) => item.productId?.toString() === initialValues.product_id?.toString(),
+        );
       }
       list.push({
         key: "product_variant_id",
@@ -498,7 +541,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     }
 
     if (initialValues.state) {
-      const status = statuses.find(item => item.code === initialValues.state);
+      const status = statuses.find((item) => item.code === initialValues.state);
       list.push({
         key: "state",
         name: "Trạng thái",
@@ -506,14 +549,17 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       });
     }
 
-    if (initialValues.created_date?.length && (initialValues.created_date[0] ||initialValues.created_date[1])) {
+    if (
+      initialValues.created_date?.length &&
+      (initialValues.created_date[0] || initialValues.created_date[1])
+    ) {
       const [from_created_date, to_created_date] = initialValues.created_date;
       const startDate = formatDateFilter(from_created_date)?.format(DATE_FORMAT.DDMMYYY);
       const endDate = formatDateFilter(to_created_date)?.format(DATE_FORMAT.DDMMYYY);
       let createdDateTextFilter =
-        (initialValues.from_created_date ? startDate : "")
-        + " ~ " +
-        (initialValues.to_created_date ? endDate : "")
+        (initialValues.from_created_date ? startDate : "") +
+        " ~ " +
+        (initialValues.to_created_date ? endDate : "");
       list.push({
         key: "created_date",
         name: "Ngày tạo",
@@ -524,10 +570,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
     if (initialValues.status?.length) {
       let statusFiltered = "";
       initialValues.status.forEach((statusValue: string) => {
-        const status = statuses.find(item => item.code === statusValue);
-        statusFiltered = status
-          ? statusFiltered + status.value + "; "
-          : statusFiltered;
+        const status = statuses.find((item) => item.code === statusValue);
+        statusFiltered = status ? statusFiltered + status.value + "; " : statusFiltered;
       });
       list.push({
         key: "status",
@@ -540,7 +584,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       let appliedStoreFiltered = "";
       initialValues.applied_shop.forEach((store_id: any) => {
         const appliedStore = listStore?.find(
-          (item: any) => item.id?.toString() === store_id?.toString()
+          (item: any) => item.id?.toString() === store_id?.toString(),
         );
         appliedStoreFiltered = appliedStore
           ? appliedStoreFiltered + appliedStore.name + "; "
@@ -557,7 +601,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
       let discountMethodFiltered = "";
       initialValues.discount_method.forEach((discountMethodValue: any) => {
         const discountMethod = discount_methods.find(
-          (item: any) => item.code?.toString() === discountMethodValue?.toString()
+          (item: any) => item.code?.toString() === discountMethodValue?.toString(),
         );
         discountMethodFiltered = discountMethod
           ? discountMethodFiltered + discountMethod.value + "; "
@@ -571,7 +615,6 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         });
       }
     }
-    
 
     return list;
   }, [
@@ -608,12 +651,12 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
         case "created_date":
           clearCreatedDate();
           onFilter &&
-          onFilter({
-            ...params,
-            from_created_date: null,
-            to_created_date: null,
-            created_date: null,
-          });
+            onFilter({
+              ...params,
+              from_created_date: null,
+              to_created_date: null,
+              created_date: null,
+            });
           break;
         case "status":
           onFilter && onFilter({ ...params, status: [] });
@@ -629,30 +672,31 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           break;
       }
     },
-    [
-      onFilter,
-      params,
-    ]
+    [onFilter, params],
   );
   // end handle tag filter
 
-  
   return (
     <StyledComponent>
       <div className="discount-filter">
-        <CustomFilter onMenuClick={onActionClick} menu={actions} actionDisable={!allowUpdateDiscount}>
+        <CustomFilter
+          onMenuClick={onActionClick}
+          menu={actions}
+          actionDisable={!allowUpdateDiscount}
+        >
           <Form onFinish={onFinish} initialValues={params} layout="inline" form={form}>
             <Item name="query" className="search">
               <Input
                 prefix={<img src={search} alt="" />}
                 placeholder="Tìm kiếm theo mã, tên chương trình"
                 allowClear
-                onBlur={(e) => { form.setFieldsValue({ query: e.target.value?.trim() || '' }) }}
+                onBlur={(e) => {
+                  form.setFieldsValue({ query: e.target.value?.trim() || "" });
+                }}
               />
             </Item>
 
-            <Form.Item
-              className="search-variant">
+            <Form.Item className="search-variant">
               <Select
                 loading={isLoading}
                 showSearch
@@ -663,17 +707,15 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 onClear={onClearVariants}
                 optionFilterProp="children"
                 placeholder={"Tìm kiếm theo tên, mã, barcode sản phẩm"}
-                notFoundContent={
-                  isLoading ? <Spin size="small" /> : "Không tìm thấy kết quả"
-                }
-                getPopupContainer={trigger => trigger.parentNode}
+                notFoundContent={isLoading ? <Spin size="small" /> : "Không tìm thấy kết quả"}
+                getPopupContainer={(trigger) => trigger.parentNode}
                 filterOption={false}
                 options={productVariantList}
                 onSelect={onSelectProduct}
                 value={productVariantSelected}
               />
             </Form.Item>
-            
+
             <Item name="state">
               <Select
                 style={{ minWidth: "200px" }}
@@ -695,7 +737,9 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
               </Button>
             </Item>
             <Item>
-              <Button icon={<FilterOutlined />} onClick={openFilter}>Thêm bộ lọc</Button>
+              <Button icon={<FilterOutlined />} onClick={openFilter}>
+                Thêm bộ lọc
+              </Button>
             </Item>
           </Form>
         </CustomFilter>
@@ -714,7 +758,7 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
             );
           })}
         </div>
-        
+
         <BaseFilter
           visible={visible}
           onClearFilter={onClearFilterClick}
@@ -722,18 +766,13 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
           onCancel={onCancelFilter}
           width={700}
         >
-          <Form
-            onFinish={onFinish}
-            form={form}
-            initialValues={params}
-            layout="vertical"
-          >
+          <Form onFinish={onFinish} form={form} initialValues={params} layout="vertical">
             <Row gutter={20}>
               {Object.keys(SearchVariantMapping).map((key) => {
                 let component: any = null;
                 switch (key) {
                   case SearchVariantField.created_date:
-                    component =
+                    component = (
                       <FilterDateCustomerCustom
                         dateType="created_date"
                         clickOptionDate={clickOptionDate}
@@ -742,7 +781,8 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                         endDate={createdDateEnd}
                         handleSelectDateStart={handleCreatedDateStart}
                         handleSelectDateEnd={handleCreatedDateEnd}
-                      />;
+                      />
+                    );
                     break;
                   case SearchVariantField.status:
                     component = (
@@ -825,18 +865,19 @@ const DiscountFilter: React.FC<DiscountFilterProps> = (props: DiscountFilterProp
                 }
                 return (
                   <Col span={12} key={key}>
-                    <div style={{ marginBottom: 5 }}><b>{SearchVariantMapping[key]}</b></div>
+                    <div style={{ marginBottom: 5 }}>
+                      <b>{SearchVariantMapping[key]}</b>
+                    </div>
                     <Item name={key}>{component}</Item>
                   </Col>
                 );
-              })
-              }
+              })}
             </Row>
           </Form>
         </BaseFilter>
       </div>
     </StyledComponent>
-  )
-}
+  );
+};
 
 export default DiscountFilter;

@@ -19,7 +19,7 @@ import { DuplicateOrderSearchQuery } from "model/order/order.model";
 import { generateQuery } from "utils/AppUtils";
 import { getOrderDuplicateAction } from "domain/actions/order/order-duplicate.action";
 import { CustomerDuplicateModel } from "model/order/duplicate.model";
-import './order-duplicate.scss';
+import "./order-duplicate.scss";
 import { COLUMN_CONFIG_TYPE } from "utils/Constants";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
@@ -30,8 +30,8 @@ const initQuery: DuplicateOrderSearchQuery = {
   issued_on_min: "",
   issued_on_max: "",
   search_term: "",
-  store_id: undefined
-}
+  store_id: undefined,
+};
 
 const defaultData: PageResponse<CustomerDuplicateModel> = {
   metadata: {
@@ -40,10 +40,9 @@ const defaultData: PageResponse<CustomerDuplicateModel> = {
     total: 0,
   },
   items: [],
-}
+};
 
 const CustomerDuplicate: React.FC = () => {
-
   const dispatch = useDispatch();
   const query = useQuery();
   const history = useHistory();
@@ -61,7 +60,6 @@ const CustomerDuplicate: React.FC = () => {
   const [selectedRowCodes, setSelectedRowCodes] = useState<Array<number>>([]);
   const [data, setData] = useState<PageResponse<CustomerDuplicateModel>>(defaultData);
 
-
   const [columns, setColumns] = useState<Array<ICustomTableColumType<CustomerDuplicateModel>>>([
     {
       title: (
@@ -71,53 +69,57 @@ const CustomerDuplicate: React.FC = () => {
       ),
       dataIndex: "customer",
       render: (value: string, i: CustomerDuplicateModel) => {
-        let queryParamDetail=generateQuery({
+        let queryParamDetail = generateQuery({
           // store_ids:i.store_id,
-          issued_on_min:params.issued_on_min,
-          issued_on_max:params.issued_on_max,
-          full_address:i.full_address,
-          ward:i.ward,
-          district:i.district,
-          city:i.city,
-          country:i.country
+          issued_on_min: params.issued_on_min,
+          issued_on_max: params.issued_on_max,
+          full_address: i.full_address,
+          ward: i.ward,
+          district: i.district,
+          city: i.city,
+          country: i.country,
         });
         return (
           <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}/${i.store_id}?${queryParamDetail}`}>
+            <Link
+              to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}/${i.store_id}?${queryParamDetail}`}
+            >
               {value}
             </Link>
           </React.Fragment>
-        )
+        );
       },
       visible: true,
-      
+
       // fixed: "left",
       // className: "custom-shadow-td",
       width: 200,
-      align:"center"
+      align: "center",
     },
 
     {
       title: "Số điện thoại",
       dataIndex: "customer_phone_number",
       render: (value: string, i: CustomerDuplicateModel) => {
-        let queryParamDetail=generateQuery({
+        let queryParamDetail = generateQuery({
           //store_ids:i.store_id,
-          issued_on_min:params.issued_on_min,
-          issued_on_max:params.issued_on_max,
-          full_address:i.full_address,
-          ward:i.ward,
-          district:i.district,
-          city:i.city,
-          country:i.country
+          issued_on_min: params.issued_on_min,
+          issued_on_max: params.issued_on_max,
+          full_address: i.full_address,
+          ward: i.ward,
+          district: i.district,
+          city: i.city,
+          country: i.country,
         });
         return (
           <React.Fragment>
-            <Link to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}/${i.store_id}?${queryParamDetail}`}>
+            <Link
+              to={`${UrlConfig.ORDERS_DUPLICATE}/order/${i.customer_phone_number}/${i.store_id}?${queryParamDetail}`}
+            >
               {value}
             </Link>
           </React.Fragment>
-        )
+        );
       },
       visible: true,
       width: 200,
@@ -131,9 +133,7 @@ const CustomerDuplicate: React.FC = () => {
       ),
       dataIndex: "customer_full_address",
       render: (value: string, i: CustomerDuplicateModel) => {
-        return (
-          <React.Fragment>{value}</React.Fragment>
-        )
+        return <React.Fragment>{value}</React.Fragment>;
       },
       visible: true,
     },
@@ -141,67 +141,65 @@ const CustomerDuplicate: React.FC = () => {
       title: "Cửa hàng",
       dataIndex: "store",
       render: (value: string, i: CustomerDuplicateModel) => {
-        return (
-          <React.Fragment>{value}</React.Fragment>
-        )
+        return <React.Fragment>{value}</React.Fragment>;
       },
       visible: true,
       width: 200,
-      align: "center"
+      align: "center",
     },
     {
       title: "Tổng số đơn",
       dataIndex: "count_order",
       render: (value: string, i: CustomerDuplicateModel) => {
-        return (
-          <React.Fragment>{value}</React.Fragment>
-        )
+        return <React.Fragment>{value}</React.Fragment>;
       },
       visible: true,
       width: 120,
-      align: "center"
+      align: "center",
     },
-  ])
+  ]);
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
 
   // cột column
-  const columnConfigType =  COLUMN_CONFIG_TYPE.orderDuplicatedOnline;
-  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(columnConfigType)
+  const columnConfigType = COLUMN_CONFIG_TYPE.orderDuplicatedOnline;
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(columnConfigType);
   //cột của bảng
-  useSetTableColumns(columnConfigType, tableColumnConfigs, columns, setColumns)
+  useSetTableColumns(columnConfigType, tableColumnConfigs, columns, setColumns);
 
-  const onSelectedChange = useCallback((selectedRows: CustomerDuplicateModel[], selected?: boolean, changeRow?: CustomerDuplicateModel[]) => {
-    let selectedRowCodesCopy = [...selectedRowCodes];
-    // console.log("changeRow",changeRow)
+  const onSelectedChange = useCallback(
+    (
+      selectedRows: CustomerDuplicateModel[],
+      selected?: boolean,
+      changeRow?: CustomerDuplicateModel[],
+    ) => {
+      let selectedRowCodesCopy = [...selectedRowCodes];
+      // console.log("changeRow",changeRow)
 
-    if (changeRow && changeRow.length > 0) {
-      if (selected) {
-        changeRow?.forEach((row) => {
-          let index = selectedRowCodesCopy.findIndex((p) => p === row.key)
-          if (index === -1) {
-            selectedRowCodesCopy.push(row.key)
-          }
-        })
-        setSelectedRowCodes(selectedRowCodesCopy);
+      if (changeRow && changeRow.length > 0) {
+        if (selected) {
+          changeRow?.forEach((row) => {
+            let index = selectedRowCodesCopy.findIndex((p) => p === row.key);
+            if (index === -1) {
+              selectedRowCodesCopy.push(row.key);
+            }
+          });
+          setSelectedRowCodes(selectedRowCodesCopy);
+        } else {
+          changeRow?.forEach((row) => {
+            let index = selectedRowCodesCopy.findIndex((p) => p === row.key);
+            if (index !== -1) {
+              selectedRowCodesCopy.splice(index, 1);
+            }
+          });
+          setSelectedRowCodes(selectedRowCodesCopy);
+        }
       }
-      else {
-        changeRow?.forEach((row) => {
-          let index = selectedRowCodesCopy.findIndex((p) => p === row.key)
-          if (index !== -1) {
-            selectedRowCodesCopy.splice(index, 1)
-          }
-        })
-        setSelectedRowCodes(selectedRowCodesCopy);
-      }
-    }
-  }, [selectedRowCodes]);
-
-
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
+    },
+    [selectedRowCodes],
   );
+
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -212,39 +210,43 @@ const CustomerDuplicate: React.FC = () => {
       setSelectedRowCodes([]);
       history.replace(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const onFilter = useCallback((value: DuplicateOrderSearchQuery) => {
-    let newPrams = { ...params, ...value, page: 1 };
-    setPrams(newPrams);
-    let queryParam = generateQuery(newPrams);
-    history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
-  }, [history, params]);
-
+  const onFilter = useCallback(
+    (value: DuplicateOrderSearchQuery) => {
+      let newPrams = { ...params, ...value, page: 1 };
+      setPrams(newPrams);
+      let queryParam = generateQuery(newPrams);
+      history.push(`${UrlConfig.ORDERS_DUPLICATE}?${queryParam}`);
+    },
+    [history, params],
+  );
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
 
   useEffect(() => {
-    setTableLoading(true)
-    dispatch(getOrderDuplicateAction(params, (data: PageResponse<CustomerDuplicateModel>) => {
-      let result: PageResponse<CustomerDuplicateModel> = {...defaultData}
-      let resultItem=data.items.map((p, index)=>{
-        return {...p, key:index}
-      })
+    setTableLoading(true);
+    dispatch(
+      getOrderDuplicateAction(params, (data: PageResponse<CustomerDuplicateModel>) => {
+        let result: PageResponse<CustomerDuplicateModel> = { ...defaultData };
+        let resultItem = data.items.map((p, index) => {
+          return { ...p, key: index };
+        });
 
-      result.metadata={
-        limit: data.metadata.limit,
-        page: data.metadata.page,
-        total: data.metadata.total,
-      }
-      result.items=[...resultItem];
+        result.metadata = {
+          limit: data.metadata.limit,
+          page: data.metadata.page,
+          total: data.metadata.total,
+        };
+        result.items = [...resultItem];
 
-      setData(result);
-      setTableLoading(false)
-    }))
+        setData(result);
+        setTableLoading(false);
+      }),
+    );
   }, [dispatch, params]);
 
   return (
@@ -262,7 +264,6 @@ const CustomerDuplicate: React.FC = () => {
       extra={
         <Row>
           <Space>
-
             {/* <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
               {(isPassed: boolean) => (
                 <Button
@@ -282,7 +283,11 @@ const CustomerDuplicate: React.FC = () => {
 
             <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
               {(isPassed: boolean) => (
-                <ButtonCreate path={`${UrlConfig.ORDER}/create`} child="Thêm mới đơn hàng" disabled={!isPassed} />
+                <ButtonCreate
+                  path={`${UrlConfig.ORDER}/create`}
+                  child="Thêm mới đơn hàng"
+                  disabled={!isPassed}
+                />
               )}
             </AuthWrapper>
           </Space>
@@ -311,7 +316,6 @@ const CustomerDuplicate: React.FC = () => {
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
-
           onSelectedChange={(selectedRows, selected, changeRow) =>
             onSelectedChange(selectedRows, selected, changeRow)
           }
@@ -321,7 +325,6 @@ const CustomerDuplicate: React.FC = () => {
           rowKey={(item: CustomerDuplicateModel) => item.key}
           className="order-list"
         />
-
       </Card>
 
       {showSettingColumn && (
@@ -332,7 +335,7 @@ const CustomerDuplicate: React.FC = () => {
           onOk={(data) => {
             setShowSettingColumn(false);
             setColumns(data);
-            onSaveConfigTableColumn(data );
+            onSaveConfigTableColumn(data);
           }}
           data={columns}
         />

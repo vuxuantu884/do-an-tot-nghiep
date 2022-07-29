@@ -1,7 +1,7 @@
 import { BaseObject } from "model/base/base.response";
 
 export interface CustomerResponse extends BaseObject {
-  id:number;
+  id: number;
   full_address: string | null;
   full_name: string;
   phone: string | null;
@@ -19,11 +19,11 @@ export interface CustomerResponse extends BaseObject {
   card_number: string | null;
   customer_level_id: number;
   customer_level: string | null;
-  wedding_date: string|null;
-  birthday: string|null;
+  wedding_date: string | null;
+  birthday: string | null;
   gender: string;
   website: string | null;
-  responsible_staff_code: string|null;
+  responsible_staff_code: string | null;
   responsible_staff: string;
   affiliate_code: string | null;
   loyalty: number;
@@ -37,13 +37,13 @@ export interface CustomerResponse extends BaseObject {
   ward: string | null;
   district: string | null;
   city: string | null;
-  city_id: number| null;
-  district_id: number| null;
-  country_id: number| null;
+  city_id: number | null;
+  district_id: number | null;
+  country_id: number | null;
   ward_id: number | null;
   report: any;
   loyalty_level_id: number | null;
-  version:number;
+  version: number;
 }
 
 export interface note extends BaseObject {
@@ -82,7 +82,7 @@ export interface ShippingAddress extends BaseObject {
   ward: string;
   zip_code: string;
   full_address: string;
-  version:number;
+  version: number;
 }
 
 export interface contact extends BaseObject {

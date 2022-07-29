@@ -85,9 +85,7 @@ function CellInput(props: RowRender) {
         onChange?.(inputValue, props);
 
         setTargetMonth((prev: KeyDriverTarget[]) => {
-          const departmentIdx = prev.findIndex(
-            (item) => item.department === type,
-          );
+          const departmentIdx = prev.findIndex((item) => item.department === type);
           if (departmentIdx !== -1) {
             const keyDriverIdx = prev[departmentIdx].key_drivers.findIndex(
               (item) => item.key_driver === key,
@@ -121,17 +119,12 @@ function CellInput(props: RowRender) {
 function KeyDriverOfflineStore() {
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
-  const { isFetchingStoresKeyDriverTarget, refetch } =
-    useFetchStoresKeyDriverTarget();
-  const { isFetchingStoresKDOfflineTotalSales } =
-    useFetchStoresKDOfflineTotalSales();
-  const { isFetchingStoresOfflineTotalSalesLoyalty } =
-    useFetchStoresOfflineTotalSalesLoyalty();
+  const { isFetchingStoresKeyDriverTarget, refetch } = useFetchStoresKeyDriverTarget();
+  const { isFetchingStoresKDOfflineTotalSales } = useFetchStoresKDOfflineTotalSales();
+  const { isFetchingStoresOfflineTotalSalesLoyalty } = useFetchStoresOfflineTotalSalesLoyalty();
   const { isFetchingStoresCustomerVisitors } = useFetchStoresCustomerVisitors();
-  const { isFetchingStoresOfflineOnlineTotalSales } =
-    useFetchStoresOfflineOnlineTotalSales();
-  const { isFetchingStoresProductTotalSales } =
-    useFetchStoresProductTotalSales();
+  const { isFetchingStoresOfflineOnlineTotalSales } = useFetchStoresOfflineOnlineTotalSales();
+  const { isFetchingStoresProductTotalSales } = useFetchStoresProductTotalSales();
   const { data, targetMonth, setData, selectedAsm, selectedStores } =
     useContext(KDOfflineStoresContext);
   const dispatch = useDispatch();
@@ -140,9 +133,7 @@ function KeyDriverOfflineStore() {
   const updateTargetMonth = useCallback(
     async (departmentKey: string) => {
       if (targetMonth.length) {
-        const departmentKeyDrivers = targetMonth.find(
-          (item) => item.department === departmentKey,
-        );
+        const departmentKeyDrivers = targetMonth.find((item) => item.department === departmentKey);
         if (!departmentKeyDrivers) {
           return;
         }
@@ -209,14 +200,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return (
-                <CellInput
-                  value={text}
-                  record={record}
-                  type={departmentKey}
-                  time="month"
-                />
-              );
+              return <CellInput value={text} record={record} type={departmentKey} time="month" />;
             },
           },
           {
@@ -227,8 +211,7 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text
-                ? record.key === KeyDriverField.ConvertionRate &&
-                  formatCurrency(text)
+                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -252,8 +235,7 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text
-                ? record.key === KeyDriverField.ConvertionRate &&
-                  formatCurrency(text)
+                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -267,8 +249,7 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text
-                ? record.key === KeyDriverField.ConvertionRate &&
-                  formatCurrency(text)
+                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -283,8 +264,7 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text
-                ? record.key === KeyDriverField.ConvertionRate &&
-                  formatCurrency(text)
+                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -307,16 +287,10 @@ function KeyDriverOfflineStore() {
   );
 
   const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
-    if (
-      keyDriver[`${department}_accumulatedMonth`] &&
-      keyDriver[`${department}_month`]
-    ) {
+    if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
       keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
         ? (
-            +(
-              keyDriver[`${department}_accumulatedMonth`] /
-              keyDriver[`${department}_month`]
-            ) * 100
+            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100
           ).toFixed(1)
         : "";
     }
@@ -326,22 +300,14 @@ function KeyDriverOfflineStore() {
     if (keyDriver[`${department}_month`]) {
       const dayNumber = moment().date() - 1;
       const dayInMonth = moment().daysInMonth();
-      if (
-        !["average_order_value", "average_customer_spent"].includes(
-          keyDriver["key"],
-        )
-      ) {
+      if (!["average_order_value", "average_customer_spent"].includes(keyDriver["key"])) {
         keyDriver[`${department}_day`] =
-          keyDriver[`${department}_month`] -
-            (keyDriver[`${department}_accumulatedMonth`] || 0) >
-          0
+          keyDriver[`${department}_month`] - (keyDriver[`${department}_accumulatedMonth`] || 0) > 0
             ? Math.round(
                 (keyDriver[`${department}_month`] -
                   (keyDriver[`${department}_accumulatedMonth`] || 0)) /
                   (dayInMonth - dayNumber) +
-                  (KeyDriverField.CustomersCount === keyDriver["key"]
-                    ? 0.5
-                    : 0),
+                  (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0),
               )
             : Math.round(keyDriver[`${department}_month`] / dayInMonth);
       }
@@ -349,17 +315,11 @@ function KeyDriverOfflineStore() {
   };
 
   const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
-    if (
-      keyDriver[`${department}_actualDay`] &&
-      keyDriver[`${department}_day`]
-    ) {
+    if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
       keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
-        ? (
-            +(
-              keyDriver[`${department}_actualDay`] /
-              keyDriver[`${department}_day`]
-            ) * 100
-          ).toFixed(1)
+        ? (+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(
+            1,
+          )
         : "";
     }
   };
@@ -412,9 +372,7 @@ function KeyDriverOfflineStore() {
   useEffect(() => {
     const temp = [...baseColumns];
     selectedStores.forEach((asm) => {
-      temp.push(
-        setObjectiveColumns(nonAccentVietnameseKD(asm), asm.toUpperCase()),
-      );
+      temp.push(setObjectiveColumns(nonAccentVietnameseKD(asm), asm.toUpperCase()));
     });
     setFinalColumns(temp);
   }, [selectedStores, setObjectiveColumns]);

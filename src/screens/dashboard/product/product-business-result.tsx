@@ -36,12 +36,16 @@ function ProductSaleGroup(): ReactElement {
     {
       key: PRODUCT_RANK_TAB_KEY.total_sales,
       name: PRODUCT_RANK_TAB_NAME[PRODUCT_RANK_TAB_KEY.total_sales],
-      Component: <ProductGroupTable dataSource={dataSrcTopProduct} isQuantity={false} loading={isFetching} />,
+      Component: (
+        <ProductGroupTable dataSource={dataSrcTopProduct} isQuantity={false} loading={isFetching} />
+      ),
     },
     {
       key: PRODUCT_RANK_TAB_KEY.net_quantity,
       name: PRODUCT_RANK_TAB_NAME[PRODUCT_RANK_TAB_KEY.net_quantity],
-      Component: <ProductGroupTable dataSource={dataSrcTopProduct} isQuantity={true} loading={isFetching} />,
+      Component: (
+        <ProductGroupTable dataSource={dataSrcTopProduct} isQuantity={true} loading={isFetching} />
+      ),
     },
   ];
 
@@ -89,7 +93,8 @@ function ProductGroupTable(props: ProductGroupTableProps) {
                   className="process-bg"
                   style={{
                     width: getPercentOfRow(value, dataSource, isQuantity),
-                  }}></div>
+                  }}
+                ></div>
               </div>
             );
           },

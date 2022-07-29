@@ -5,24 +5,24 @@ import { getOrderProcessingStatusService } from "service/order/order-processing-
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 function useFetchOrderStatuses() {
-	const [orderStatuses, setOrderStatuses] = useState<Array<OrderProcessingStatusModel>>([]);
-	const dispatch = useDispatch();
+  const [orderStatuses, setOrderStatuses] = useState<Array<OrderProcessingStatusModel>>([]);
+  const dispatch = useDispatch();
 
   useEffect(() => {
-		const params=  {
+    const params = {
       sort_type: "asc",
       sort_column: "display_order",
-			limit: 1000,
-    }
-		getOrderProcessingStatusService(params).then(response => {
-			console.log('response', response)
-			if (isFetchApiSuccessful(response)) {
-				setOrderStatuses(response.data.items);
-			} else {
-				handleFetchApiError(response, "Danh sách cửa hàng", dispatch)
-			}
-		})
-	}, [dispatch]);
+      limit: 1000,
+    };
+    getOrderProcessingStatusService(params).then((response) => {
+      console.log("response", response);
+      if (isFetchApiSuccessful(response)) {
+        setOrderStatuses(response.data.items);
+      } else {
+        handleFetchApiError(response, "Danh sách cửa hàng", dispatch);
+      }
+    });
+  }, [dispatch]);
 
   return orderStatuses;
 }

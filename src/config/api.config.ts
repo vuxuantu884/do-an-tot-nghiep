@@ -16,12 +16,12 @@ const ServiceNames = {
   LOGISTIC_GATEWAY_SERVICE: "logistic-gateway-service",
   INVENTORY_ADJUSTMENT_SERVICE: "inventory-adjustment-service",
   PROMOTION_SERVICE: "promotion-service",
-  KEY_DRIVER_SERVICE: 'key-drivers',
-  KD_OFFLINE_TOTAL_SALES_SERVICE: 'key-drivers/offline-total-sales/v2',
-  OFFLINE_TOTAL_SALES_LOYALTY_LEVEL_SERVICE: 'key-drivers/offline-total-sales-by-loyalty-level',
-  KD_CUSTOMER_VISITORS_SERVICE: 'customer-visitors/key-drivers/sum',
-  KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE: 'key-drivers/offline-uniform-online-total-sales',
-  CUSTOMER_COUNTERS_SERVICE: 'customer-counters'
+  KEY_DRIVER_SERVICE: "key-drivers",
+  KD_OFFLINE_TOTAL_SALES_SERVICE: "key-drivers/offline-total-sales/v2",
+  OFFLINE_TOTAL_SALES_LOYALTY_LEVEL_SERVICE: "key-drivers/offline-total-sales-by-loyalty-level",
+  KD_CUSTOMER_VISITORS_SERVICE: "customer-visitors/key-drivers/sum",
+  KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE: "key-drivers/offline-uniform-online-total-sales",
+  CUSTOMER_COUNTERS_SERVICE: "customer-counters",
 };
 
 const v1 = ``;

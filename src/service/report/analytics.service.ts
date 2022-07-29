@@ -72,9 +72,7 @@ export const getCustomerVisitors = (
   }
 };
 
-export const updateCustomerVisitors = (
-  params: any,
-): Promise<BaseResponse<any>> => {
+export const updateCustomerVisitors = (params: any): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.post(`${ApiConfig.CUSTOMER_VISITORS}`, params);
 };
 
@@ -85,9 +83,7 @@ export const getAnalyticsMetadataService = (
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/metadata`, { params });
 };
 
-export const getAnalyticsCustomByIdService = (
-  id: number,
-): Promise<BaseResponse<any>> => {
+export const getAnalyticsCustomByIdService = (id: number): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/${id}`);
 };
 
@@ -116,15 +112,11 @@ export const updateAnalyticsCustomService = (
   id: number,
   params: Partial<AnalyticCustomize>,
 ): Promise<BaseResponse<any>> => {
-  params.query = params.query
-    ? removeSpacesAndEnterCharacters(params.query)
-    : undefined;
+  params.query = params.query ? removeSpacesAndEnterCharacters(params.query) : undefined;
   return BaseAxiosApi.put(`${ApiConfig.ANALYTICS}/${id}`, params);
 };
 
-export const deleteAnalyticsCustomService = (
-  id: number,
-): Promise<BaseResponse<any>> => {
+export const deleteAnalyticsCustomService = (id: number): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.delete(`${ApiConfig.ANALYTICS}/${id}`);
 };
 
@@ -136,8 +128,6 @@ export const searchVariantsSimpleService = (query: {
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/simple?${queryString}`);
 };
 
-export const onlineCounterService = (
-  params: MonthlyCounterParams,
-): Promise<BaseResponse<any>> => {
+export const onlineCounterService = (params: MonthlyCounterParams): Promise<BaseResponse<any>> => {
   return BaseAxiosApi.post(`/monthly-counters`, params);
 };

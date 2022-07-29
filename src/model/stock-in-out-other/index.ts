@@ -53,7 +53,7 @@ export interface StockInOutOther {
   internal_note: string | null;
   partner_note: string | null;
   type: string;
-  stock_in_out_other_items: Array<StockInOutItemsOther>
+  stock_in_out_other_items: Array<StockInOutItemsOther>;
   created_by?: string;
   created_date?: Date;
   created_name?: string;

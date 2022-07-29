@@ -9,20 +9,12 @@ import UrlConfig from "config/url.config";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderItemModel } from "model/other/order/order-model";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { createRef, useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  findAvatar,
-  findPrice,
-  findPriceInVariant,
-  findTaxInVariant,
-} from "utils/AppUtils";
+import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant } from "utils/AppUtils";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -88,15 +80,11 @@ const renderSearch = (item: VariantResponse) => {
   );
 };
 
-const AddGiftModal: React.FC<AddGiftModalProps> = (
-  props: AddGiftModalProps,
-) => {
+const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => {
   const { visible, onCancel, onOk, storeId } = props;
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
-  const [resultSearch, setResultSearch] = useState<
-    PageResponse<VariantResponse>
-  >({
+  const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 0,
       page: 1,
@@ -292,9 +280,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       className="saleorder-products-modal"
     >
       <AutoComplete
-        notFoundContent={
-          keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
-        }
+        notFoundContent={keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined}
         value={keysearch}
         ref={autoCompleteRef}
         onSelect={onVariantSelect}

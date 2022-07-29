@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const StyledComponent = styled.div`
   .send-order-box {
     &-default {
-        display: none;
+      display: none;
     }
   }
 
@@ -16,7 +16,7 @@ export const StyledComponent = styled.div`
       height: 24px;
       padding: 0 15px;
       line-height: 24px;
-      margin-right: 10px
+      margin-right: 10px;
     }
 
     & .page-ok-save-address {
@@ -30,5 +30,4 @@ export const StyledComponent = styled.div`
       display: none;
     }
   }
-
-`
+`;

@@ -18,7 +18,8 @@ function BaseSelect<T>({
       allowClear
       maxTagCount="responsive"
       notFoundContent="Không có dữ liệu"
-      {...props}>
+      {...props}
+    >
       {data.map(renderItem)}
     </Select>
   );

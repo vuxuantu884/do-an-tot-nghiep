@@ -4,7 +4,7 @@ import doubleArrow from "assets/icon/double_arrow.svg";
 import { getTrackingLogFulfillmentAction } from "domain/actions/order/order.action";
 import {
   FulFillmentResponse,
-  TrackingLogFulfillmentResponse
+  TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
 import moment from "moment";
 import React, { useEffect, useState } from "react";
@@ -12,10 +12,7 @@ import { useDispatch } from "react-redux";
 import { copyTextToClipboard } from "utils/AppUtils";
 import { ShipmentMethod } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import {
-  checkIfFulfillmentCancelled,
-  getTrackingCodeFulfillment
-} from "utils/OrderUtils";
+import { checkIfFulfillmentCancelled, getTrackingCodeFulfillment } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "./styles";
 
@@ -47,31 +44,18 @@ function OrderFulfillmentShowFulfillment(props: PropTypes) {
 
   const checkIfFulfillmentExternalOrShopee = () => {
     return (
-      fulfillment.shipment?.delivery_service_provider_type ===
-        ShipmentMethod.EXTERNAL_SERVICE ||
-      fulfillment.shipment?.delivery_service_provider_type ===
-        ShipmentMethod.SHOPEE
+      fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE ||
+      fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.SHOPEE
     );
   };
 
   const checkIfShowFulfillment = () => {
-    return (
-      checkIfFulfillmentExternalOrShopee() &&
-      !checkIfFulfillmentCancelled(fulfillment)
-    );
+    return checkIfFulfillmentExternalOrShopee() && !checkIfFulfillmentCancelled(fulfillment);
   };
 
   useEffect(() => {
-    if (
-      fulfillment.shipment?.tracking_code !== "Đang xử lý" &&
-      fulfillment.code
-    ) {
-      dispatch(
-        getTrackingLogFulfillmentAction(
-          fulfillment.code,
-          setTrackingLogFulfillment,
-        ),
-      );
+    if (fulfillment.shipment?.tracking_code !== "Đang xử lý" && fulfillment.code) {
+      dispatch(getTrackingLogFulfillmentAction(fulfillment.code, setTrackingLogFulfillment));
     }
   }, [dispatch, fulfillment.code, fulfillment.shipment?.tracking_code]);
 
@@ -94,11 +78,8 @@ function OrderFulfillmentShowFulfillment(props: PropTypes) {
                     </Typography.Link>
                     <div className="copyButton">
                       <img
-                        onClick={(e) =>{
-                          copyTextToClipboard(
-                            e,
-                            getTrackingCodeFulfillment(fulfillment)!,
-                          )
+                        onClick={(e) => {
+                          copyTextToClipboard(e, getTrackingCodeFulfillment(fulfillment)!);
                           showSuccess("Đã copy mã vận đơn!");
                         }}
                         src={copyFileBtn}
@@ -135,9 +116,7 @@ function OrderFulfillmentShowFulfillment(props: PropTypes) {
                     header={
                       <React.Fragment>
                         <b className="trackingNoteText">
-                          {item.shipping_status
-                            ? item.shipping_status
-                            : item.partner_note}
+                          {item.shipping_status ? item.shipping_status : item.partner_note}
                         </b>
                         <i className="icon-dot iconDot"></i>{" "}
                         <span className="fulfillmentTrackingLogDate">

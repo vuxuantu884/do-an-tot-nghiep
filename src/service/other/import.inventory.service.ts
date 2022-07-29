@@ -4,39 +4,27 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { VariantModel } from "model/pack/pack.model";
 
-export const exportFile = (
-  params: ImportRequest
-): Promise<BaseResponse<ImportResponse>> => {
+export const exportFile = (params: ImportRequest): Promise<BaseResponse<ImportResponse>> => {
   return BaseAxios.post(`${ApiConfig.INVENTORY_ADJUSTMENT}/excel/job/export`, params);
 };
 
-export const exportFileV2 = (
-  params: ImportRequest
-): Promise<BaseResponse<ImportResponse>> => {
-  return BaseAxios.post(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs`,params);
+export const exportFileV2 = (params: ImportRequest): Promise<BaseResponse<ImportResponse>> => {
+  return BaseAxios.post(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs`, params);
 };
 
-export const importFile = (
-  params: ImportRequest
-): Promise<BaseResponse<ImportResponse>> => {
+export const importFile = (params: ImportRequest): Promise<BaseResponse<ImportResponse>> => {
   return BaseAxios.post(`${ApiConfig.INVENTORY_ADJUSTMENT}/excel/job/import`, params);
 };
 
-export const importFileV2 = (
-  params: ImportRequest
-): Promise<BaseResponse<ImportResponse>> => {
+export const importFileV2 = (params: ImportRequest): Promise<BaseResponse<ImportResponse>> => {
   return BaseAxios.post(`${ApiConfig.IMPORT_EXPORT}/importing/jobs/create`, params);
 };
 
-export const getFile = (
-  code: string
-): Promise<BaseResponse<ImportResponse>> => {
+export const getFile = (code: string): Promise<BaseResponse<ImportResponse>> => {
   return BaseAxios.get(`${ApiConfig.INVENTORY_ADJUSTMENT}/excel/job/${code}`);
 };
 
-export const getFileV2 = (
-  code: string
-): Promise<BaseResponse<JobResponse>> => {
+export const getFileV2 = (code: string): Promise<BaseResponse<JobResponse>> => {
   return BaseAxios.get(`${ApiConfig.IMPORT_EXPORT}/exporting/jobs/${code}`);
 };
 

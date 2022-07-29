@@ -1,5 +1,5 @@
-import {BaseObject} from "model/base/base.response";
-import {StoreResponse} from "model/core/store.model";
+import { BaseObject } from "model/base/base.response";
+import { StoreResponse } from "model/core/store.model";
 import { ReasonReturn } from "model/order/return.model";
 import { GoodsReceiptsResponse } from "../pack/pack.response";
 
@@ -30,7 +30,7 @@ export interface OrderResponse extends BaseObject {
   coordinator_code: string | null;
   coordinator: string | null;
   channel_id: number | null;
-  channel_code:string|null;
+  channel_code: string | null;
   channel: string | null;
   customer_id: number | null;
   customer: string | null;
@@ -87,7 +87,7 @@ export interface OrderResponse extends BaseObject {
   shipment: ShipmentResponse | null | undefined;
   linked_order_code: string | null;
   ecommerce_shop_name: string | null;
-	automatic_discount?: boolean;
+  automatic_discount?: boolean;
   created_on?: string | null;
   utm_tracking?: {
     affiliate?: string | null;
@@ -96,12 +96,12 @@ export interface OrderResponse extends BaseObject {
     utm_campaign?: string | null;
     utm_term?: string | null;
     utm_content?: string | null;
-    utm_id?:string|null;
+    utm_id?: string | null;
   };
   export_bill: boolean;
   sub_reason_id?: number;
-  bill: OrderBillResponseModel|null;
-  goods_receipts?:GoodsReceiptsResponse[]|null;
+  bill: OrderBillResponseModel | null;
+  goods_receipts?: GoodsReceiptsResponse[] | null;
 }
 
 export interface OrderLineItemResponse {
@@ -134,8 +134,8 @@ export interface OrderLineItemResponse {
   discount_amount: number;
   position?: number;
   gifts: Array<OrderLineItemResponse>;
-  available:number|null;
-  order_line_item_id?:number|null;
+  available: number | null;
+  order_line_item_id?: number | null;
 }
 
 export interface ReturnProductModel extends OrderLineItemResponse {
@@ -143,8 +143,8 @@ export interface ReturnProductModel extends OrderLineItemResponse {
 }
 
 /**
-* thêm điểm tích/ tiêu
-*/
+ * thêm điểm tích/ tiêu
+ */
 export interface OrderLineItemWithCalculateVariantPointModel extends OrderLineItemResponse {
   point_add?: number;
   point_subtract?: number;
@@ -190,18 +190,18 @@ export interface FulFillmentResponse {
   return_status: string | null;
   reason_name?: string;
   sub_reason_name?: string;
-  returning_on?:string|null;
+  returning_on?: string | null;
 }
 
 export interface EcommerceDeliveryResponse {
-  cod: number | null,
-  shipping_fee_informed_to_customer: number | null,
-  shipping_fee_paid_to_three_pls: number | null,
+  cod: number | null;
+  shipping_fee_informed_to_customer: number | null;
+  shipping_fee_paid_to_three_pls: number | null;
   delivery_service_provider_code: string | null;
-  delivery_service_provider_id: number | null,
-  delivery_service_provider_name: string | null,
-  delivery_service_provider_type: string | null,
-  delivery_transport_type: string | null,
+  delivery_service_provider_id: number | null;
+  delivery_service_provider_name: string | null;
+  delivery_service_provider_type: string | null;
+  delivery_transport_type: string | null;
   office_time: string | null;
   requirements: string | null;
   requirements_name: string | null;
@@ -262,7 +262,7 @@ export interface OrderPaymentResponse extends BaseObject {
 }
 
 export interface BillingAddressResponseModel {
-  default: boolean| undefined;
+  default: boolean | undefined;
   name: string | undefined;
   email: string;
   phone: string;
@@ -279,7 +279,7 @@ export interface BillingAddressResponseModel {
   contract: boolean;
   buyer: string | undefined;
   tax_code: string | undefined;
-  order_id: number| undefined;
+  order_id: number | undefined;
   tax: string | undefined;
   address: string | undefined;
   note: string | undefined;
@@ -300,7 +300,7 @@ export interface ShippingAddress {
   ward: string;
   zip_code: string;
   full_address: string;
-  second_phone?:string|null;
+  second_phone?: string | null;
 }
 
 export interface ShipmentResponse extends BaseObject {
@@ -430,7 +430,7 @@ export interface StoreCustomResponse extends BaseObject {
   city_name: string;
   department: string;
   departmentParentName: string;
-  department_id: number,
+  department_id: number;
   status: string;
   status_name: string;
   zip_code: string;
@@ -440,7 +440,7 @@ export interface StoreCustomResponse extends BaseObject {
   ward_name: string;
   address: string;
   hotline: string;
-  vm:string;
+  vm: string;
   vm_code: string;
   mail: string;
   begin_date: string;
@@ -474,9 +474,9 @@ export interface TrackingLogFulfillmentResponse extends BaseObject {
   raw_data: string;
   action_date: string;
   deleted: boolean;
-  shipping_status: string|null;
+  shipping_status: string | null;
   status: string;
-  partner_note: string|null;
+  partner_note: string | null;
 }
 
 export interface ErrorLogResponse extends BaseObject {
@@ -492,14 +492,14 @@ export interface ErrorLogResponse extends BaseObject {
 export interface OrderReturnModel extends OrderResponse {
   received: boolean;
   total_amount: number;
-  code_order_return?:string;
+  code_order_return?: string;
 }
 
 export interface OrderReasonModel {
   code: string;
   id: number;
   name: string;
-  sub_reasons: OrderReturnReasonDetailModel[]
+  sub_reasons: OrderReturnReasonDetailModel[];
 }
 
 export interface OrderReturnReasonDetailModel {
@@ -510,7 +510,7 @@ export interface OrderReturnReasonDetailModel {
     code: string;
     id: number;
     name: string;
-  }[]
+  }[];
 }
 
 export interface OrderConfig extends BaseObject {
@@ -522,25 +522,25 @@ export interface OrderProductListModel extends OrderLineItemResponse {
   color: string;
 }
 
-export interface ChannelTypeResponse{
-  id:number;
-  code:string;
-  name:string
+export interface ChannelTypeResponse {
+  id: number;
+  code: string;
+  name: string;
 }
 
-export interface ChannelsResponse extends BaseObject{
-  name:string;
+export interface ChannelsResponse extends BaseObject {
+  name: string;
   channel_type: ChannelTypeResponse;
 }
 
-export interface PackFulFillmentResponse extends FulFillmentResponse{
-  order_code:string;
-  customer:string;
-  customer_id:number;
-  shipment_pushing_note:string;
-  shipment_pushing_status:string;
-  shipment_delivery_service_note:string;
-  shipment_expected_received_date:string;
+export interface PackFulFillmentResponse extends FulFillmentResponse {
+  order_code: string;
+  customer: string;
+  customer_id: number;
+  shipment_pushing_note: string;
+  shipment_pushing_status: string;
+  shipment_delivery_service_note: string;
+  shipment_expected_received_date: string;
 }
 
 export interface OrderReturnResponse {
@@ -553,7 +553,7 @@ export interface OrderDetailWithCalculatePointVariantModel extends OrderResponse
   items: Array<OrderLineItemWithCalculateVariantPointModel>;
 }
 
-export interface OrderBillResponseModel extends BaseObject{
+export interface OrderBillResponseModel extends BaseObject {
   full_address: string;
   buyer: string;
   contract: boolean;
@@ -582,7 +582,7 @@ export interface CustomerOrderHistoryResponse extends BaseObject {
   source?: string | null;
   assignee?: string | null;
   assignee_code?: string | null;
-  return_reason?:ReasonReturn|null;
+  return_reason?: ReasonReturn | null;
   reason_id?: number | null;
   point_refund?: number | null;
   money_refund?: number | null;
@@ -624,7 +624,7 @@ export interface CustomerOrderHistoryResponse extends BaseObject {
   finalized_on?: string | null;
   cancelled_on?: string | null;
   finished_on?: string | null;
-  note?:string|null;
+  note?: string | null;
   customer_note?: string | null;
   tags?: string | null;
   reference_code?: string | null;
@@ -633,7 +633,7 @@ export interface CustomerOrderHistoryResponse extends BaseObject {
   ecommerce_shop_id?: number | null;
   ecommerce_shop_name?: string | null;
   reason?: OrderReasonModel | null;
-  sub_reason?: OrderReturnReasonDetailModel|null;
+  sub_reason?: OrderReturnReasonDetailModel | null;
   other_reason?: string | null;
   linked_order_code?: string | null;
   total_quantity?: number | null;
@@ -649,6 +649,6 @@ export interface CustomerOrderHistoryResponse extends BaseObject {
   first_coordinator_confirm_on?: string | null;
   last_coordinator_confirm_on?: string | null;
   received?: boolean | null;
-  is_show_tracking_log?:boolean;
-  tracking_log?:Array<TrackingLogFulfillmentResponse> | null;
+  is_show_tracking_log?: boolean;
+  tracking_log?: Array<TrackingLogFulfillmentResponse> | null;
 }

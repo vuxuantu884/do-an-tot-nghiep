@@ -1,5 +1,8 @@
 import { BaseObject } from "model/base/base.response";
-import { LoyaltyProgramRuleItem, LoyaltyProgramRuleProductItem } from "model/request/loyalty/create-loyalty-accumulation.request";
+import {
+  LoyaltyProgramRuleItem,
+  LoyaltyProgramRuleProductItem,
+} from "model/request/loyalty/create-loyalty-accumulation.request";
 
 export interface LoyaltyAccumulationProgramResponse extends BaseObject {
   id: number;

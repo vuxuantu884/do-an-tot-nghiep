@@ -1,6 +1,6 @@
 export interface EcommerceAddressQuery {
   order_sn: String | null;
-  shop_id: null
+  shop_id: null;
 }
 
 export interface EcommerceStoreAddress {
@@ -54,7 +54,7 @@ export interface ShopAddressByShopId {
 export interface ErrorMessageBatchShipping {
   error: String;
   message: String;
-  request_id: string
+  request_id: string;
   response: any;
   warning: any;
   order_sn: string;

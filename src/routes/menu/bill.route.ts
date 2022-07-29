@@ -11,17 +11,17 @@ const AddReportHandOver = React.lazy(() => import("screens/order-online/pack/pac
 const PackUpdate = React.lazy(() => import("screens/order-online/pack/pack-update"));
 // const SplitOrdersScreen = React.lazy(() => import("screens/order-online/split-orders.screen"));
 const CustomerDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/index"));
-const OrderDuplicate = React.lazy(() => import("screens/order-online/order-duplicate/detail.screen"));
+const OrderDuplicate = React.lazy(
+  () => import("screens/order-online/order-duplicate/detail.screen"),
+);
 const ListOrder = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
 const Order = React.lazy(() => import("screens/order-online/order.screen"));
-const OnlineReturnOrders = React.lazy(() => import("screens/order-online/online-return-orders.screen"));
-const ScreenReturnCreate = React.lazy(
-  () => import("screens/order-online/order-return/create")
+const OnlineReturnOrders = React.lazy(
+  () => import("screens/order-online/online-return-orders.screen"),
 );
-const ScreenReturnDetail = React.lazy(
-  () => import("screens/order-online/order-return/[id]")
-);
+const ScreenReturnCreate = React.lazy(() => import("screens/order-online/order-return/create"));
+const ScreenReturnDetail = React.lazy(() => import("screens/order-online/order-return/[id]"));
 
 const YDPageAdmin = React.lazy(() => import("screens/yd-page"));
 
@@ -143,7 +143,7 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-      }
+      },
     ],
   },
   // {
@@ -213,11 +213,10 @@ const bill: Array<RouteMenu> = [
         isShow: true,
         header: null,
         subMenu: [],
-      }
+      },
     ],
     permissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
   },
-
 ];
 
 export default bill;

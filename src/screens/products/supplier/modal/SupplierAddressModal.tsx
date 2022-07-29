@@ -1,23 +1,23 @@
-import {Checkbox, Col, Form, Input, Modal, Row, Select} from "antd";
+import { Checkbox, Col, Form, Input, Modal, Row, Select } from "antd";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import {SupplierAddress, SupplierAddressResposne} from "model/core/supplier.model";
+import { SupplierAddress, SupplierAddressResposne } from "model/core/supplier.model";
 import { useCallback, useEffect } from "react";
 
 type SupplierAddressModalProps = {
   visible: boolean;
   onCancle: () => void;
   data: SupplierAddressResposne | null;
-  onSave: (addressId: number|undefined|null, request: SupplierAddress) => void;
+  onSave: (addressId: number | undefined | null, request: SupplierAddress) => void;
   countries: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
   confirmLoading: boolean;
 };
 
 const SupplierAddressModal: React.FC<SupplierAddressModalProps> = (
-  props: SupplierAddressModalProps
+  props: SupplierAddressModalProps,
 ) => {
-  const {visible, onCancle, data, onSave, countries, listDistrict, confirmLoading} = props;
+  const { visible, onCancle, data, onSave, countries, listDistrict, confirmLoading } = props;
   const [form] = Form.useForm();
   const onSelectDistrict = useCallback(
     (value: number) => {
@@ -30,17 +30,20 @@ const SupplierAddressModal: React.FC<SupplierAddressModalProps> = (
       if (cityId !== -1) {
         form.setFieldsValue({
           city_id: cityId,
-        })
+        });
       }
     },
-    [form, listDistrict]
+    [form, listDistrict],
   );
 
-  const onFinish = useCallback((value: SupplierAddress) => {
-    onSave(value.id, value);
-  }, [onSave]);
+  const onFinish = useCallback(
+    (value: SupplierAddress) => {
+      onSave(value.id, value);
+    },
+    [onSave],
+  );
   useEffect(() => {
-    if(visible && form) {
+    if (visible && form) {
       form.resetFields();
     }
   }, [form, visible]);
@@ -60,15 +63,17 @@ const SupplierAddressModal: React.FC<SupplierAddressModalProps> = (
       <Form
         onFinish={onFinish}
         form={form}
-        layout="vertical" 
+        layout="vertical"
         initialValues={
-          data === null ? {
-            country_id: 233,
-            city_id: null,
-            district_id: null,
-            address: '',
-            is_default: false,
-          } : data
+          data === null
+            ? {
+                country_id: 233,
+                city_id: null,
+                district_id: null,
+                address: "",
+                is_default: false,
+              }
+            : data
         }
       >
         <Row gutter={50}>
@@ -135,11 +140,10 @@ const SupplierAddressModal: React.FC<SupplierAddressModalProps> = (
             </Form.Item>
           </Col>
           <Col span={24}>
-            <Form.Item
-              valuePropName="checked"
-              name="is_default"
-            >
-              <Checkbox disabled={data && data.id && data.is_default ? true : false} >Đặt làm mặc định</Checkbox>
+            <Form.Item valuePropName="checked" name="is_default">
+              <Checkbox disabled={data && data.id && data.is_default ? true : false}>
+                Đặt làm mặc định
+              </Checkbox>
             </Form.Item>
           </Col>
         </Row>

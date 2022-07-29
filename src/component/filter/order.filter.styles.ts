@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {primaryColor} from "utils/global-styles/variables";
+import { primaryColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .order-options {
@@ -359,7 +359,7 @@ export const StyledComponent = styled.div`
       color: #737373;
     }
   }
-	/* .ant-select-selection-item {
+  /* .ant-select-selection-item {
 		background-color: ${primaryColor};
 		border-radius: 6px;
 		font-size: 1em;

@@ -3,34 +3,32 @@ import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
-const ShipmentsScreen = React.lazy(
-  () => import("screens/order-online/list-shipments")
+const ShipmentsScreen = React.lazy(() => import("screens/order-online/list-shipments"));
+
+const ShipmentsFailedScreen = React.lazy(
+  () => import("screens/order-online/list-shipments-failed.screen"),
 );
 
-const ShipmentsFailedScreen=React.lazy(()=>import("screens/order-online/list-shipments-failed.screen"));
-
-const ShipmentDetailScreen = React.lazy(
-  () => import("screens/order-online/shipment-detail")
-);
+const ShipmentDetailScreen = React.lazy(() => import("screens/order-online/shipment-detail"));
 
 // ThirdPartyLogisticsIntegration: Kết nối hãng vận chuyển
 const ThirdPartyLogisticsIntegrationScreen = React.lazy(
-  () => import("screens/settings/third-party-logistics-integration")
+  () => import("screens/settings/third-party-logistics-integration"),
 );
 const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangNhanh = React.lazy(
-  () => import("screens/settings/third-party-logistics-integration/giao-hang-nhanh")
+  () => import("screens/settings/third-party-logistics-integration/giao-hang-nhanh"),
 );
 const SingleThirdPartyLogisticsIntegrationScreen_ViettelPost = React.lazy(
-  () => import("screens/settings/third-party-logistics-integration/viettel-post")
+  () => import("screens/settings/third-party-logistics-integration/viettel-post"),
 );
 const SingleThirdPartyLogisticsIntegrationScreen_DHL = React.lazy(
-  () => import("screens/settings/third-party-logistics-integration/dhl")
+  () => import("screens/settings/third-party-logistics-integration/dhl"),
 );
 const SingleThirdPartyLogisticsIntegrationScreen_GiaoHangTietKiem = React.lazy(
-  () => import("screens/settings/third-party-logistics-integration/giao-hang-tiet-kiem")
+  () => import("screens/settings/third-party-logistics-integration/giao-hang-tiet-kiem"),
 );
 const SingleThirdPartyLogisticsIntegrationScreen_Snappy = React.lazy(
-  () => import("screens/settings/third-party-logistics-integration/snappy")
+  () => import("screens/settings/third-party-logistics-integration/snappy"),
 );
 
 const shipments: Array<RouteMenu> = [

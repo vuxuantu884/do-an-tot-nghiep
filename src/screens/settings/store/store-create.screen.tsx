@@ -1,4 +1,4 @@
-import {InfoCircleOutlined} from "@ant-design/icons";
+import { InfoCircleOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -11,7 +11,7 @@ import {
   Row,
   Select,
   Space,
-  TreeSelect
+  TreeSelect,
 } from "antd";
 import StoreTooltip from "assets/icon/store-tooltip.png";
 import BottomBarContainer from "component/container/bottom-bar.container";
@@ -19,9 +19,9 @@ import ContentContainer from "component/container/content.container";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
-import {AppConfig} from "config/app.config";
+import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
-import {AccountSearchAction} from "domain/actions/account/account.action";
+import { AccountSearchAction } from "domain/actions/account/account.action";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import {
   CountryGetAllAction,
@@ -34,32 +34,28 @@ import {
   StoreRankAction,
   // StoreValidateAction,
 } from "domain/actions/core/store.action";
-import {AccountResponse} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {CountryResponse} from "model/content/country.model";
-import {DistrictResponse} from "model/content/district.model";
-import {WardResponse} from "model/content/ward.model";
-import {StoreRankResponse} from "model/core/store-rank.model";
-import {
-  StoreCreateRequest,
-  StoreResponse,
-  StoreTypeRequest,
-} from "model/core/store.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CountryResponse } from "model/content/country.model";
+import { DistrictResponse } from "model/content/district.model";
+import { WardResponse } from "model/content/ward.model";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { StoreCreateRequest, StoreResponse, StoreTypeRequest } from "model/core/store.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 // import {RuleObject, StoreValue} from "rc-field-form/lib/interface";
-import React, {useCallback, useEffect, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router";
-import {RegUtil} from "utils/RegUtils";
+import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
 import { strForSearch } from "utils/StringUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
 
-const {Item} = Form;
-const {Panel} = Collapse;
-const {Option} = Select;
+const { Item } = Form;
+const { Panel } = Collapse;
+const { Option } = Select;
 const DefaultCountry = 233;
 const initRequest: StoreCreateRequest = {
   name: "",
@@ -82,7 +78,7 @@ const initRequest: StoreCreateRequest = {
   is_stocktaking: false,
   type: null,
   vm_code: null,
-  department_id: null
+  department_id: null,
 };
 
 const StoreCreateScreen: React.FC = () => {
@@ -98,7 +94,7 @@ const StoreCreateScreen: React.FC = () => {
   const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const [lstDepartment, setLstDepartment] = useState<Array<DepartmentResponse>>();
   const storeStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.store_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.store_status,
   );
   const [formMain] = Form.useForm();
 
@@ -129,7 +125,7 @@ const StoreCreateScreen: React.FC = () => {
       }
       dispatch(WardGetByDistrictAction(value, setWards));
     },
-    [cityViews, dispatch, formMain]
+    [cityViews, dispatch, formMain],
   );
   const onCreateSuccess = useCallback(
     (data: StoreResponse | false) => {
@@ -140,7 +136,7 @@ const StoreCreateScreen: React.FC = () => {
       history.push(`${UrlConfig.STORE}/${data.id}`);
       showSuccess("Thêm mới dữ liệu thành công");
     },
-    [history]
+    [history],
   );
 
   const onFinish = useCallback(
@@ -148,31 +144,31 @@ const StoreCreateScreen: React.FC = () => {
       setIsLoading(true);
       dispatch(StoreCreateAction(values, onCreateSuccess));
     },
-    [dispatch, onCreateSuccess]
+    [dispatch, onCreateSuccess],
   );
 
   const onResult = useCallback((data: PageResponse<AccountResponse> | false) => {
-    if (data) {}
+    if (data) {
+    }
   }, []);
 
-   const onResDepartment = useCallback((data: any) => {
+  const onResDepartment = useCallback((data: any) => {
     if (data) {
       setLstDepartment(data);
     }
   }, []);
 
-  const backAction = ()=>{
+  const backAction = () => {
     setModalConfirm({
       visible: true,
       onCancel: () => {
-        setModalConfirm({visible: false});
+        setModalConfirm({ visible: false });
       },
       onOk: () => {
         history.push(UrlConfig.STORE);
       },
       title: "Bạn có muốn quay lại?",
-      subTitle:
-        "Sau khi quay lại thay đổi sẽ không được lưu.",
+      subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
     });
   };
 
@@ -184,12 +180,15 @@ const StoreCreateScreen: React.FC = () => {
       dispatch(StoreGetTypeAction(setType));
       dispatch(
         AccountSearchAction(
-          {department_ids: [AppConfig.WM_DEPARTMENT], status: "active"},
-          onResult
-        )
+          { department_ids: [AppConfig.WM_DEPARTMENT], status: "active" },
+          onResult,
+        ),
       );
       dispatch(
-        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
+        departmentDetailAction(
+          AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : "",
+          onResDepartment,
+        ),
       );
     }
     firstload.current = true;
@@ -212,24 +211,17 @@ const StoreCreateScreen: React.FC = () => {
         },
       ]}
     >
-      <Form
-        form={formMain}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={initRequest}
-      >
+      <Form form={formMain} layout="vertical" onFinish={onFinish} initialValues={initRequest}>
         <Row gutter={20}>
           <Col span={18}>
-            <Card
-              title="Thông tin cửa hàng"
-            >
+            <Card title="Thông tin cửa hàng">
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    normalize={value => value.trimStart()}
+                    normalize={(value) => value.trimStart()}
                     rules={[
-                      {required: true, message: "Vui lòng nhập tên cửa hàng"},
-                      {max: 255, message: "Tên cửa hàng không quá 255 kí tự"},
+                      { required: true, message: "Vui lòng nhập tên cửa hàng" },
+                      { max: 255, message: "Tên cửa hàng không quá 255 kí tự" },
                       {
                         pattern: RegUtil.STRINGUTF8,
                         message: "Tên cửa hàng không gồm kí tự đặc biệt",
@@ -276,7 +268,7 @@ const StoreCreateScreen: React.FC = () => {
               </Row>
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item rules={[{required: true}]} label="Quốc gia" name="country_id">
+                  <Item rules={[{ required: true }]} label="Quốc gia" name="country_id">
                     <Select disabled placeholder="Chọn quốc gia">
                       {countries?.map((item) => (
                         <Option key={item.id} value={item.id}>
@@ -288,7 +280,7 @@ const StoreCreateScreen: React.FC = () => {
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    rules={[{required: true, message: "Vui lòng chọn khu vực"}]}
+                    rules={[{ required: true, message: "Vui lòng chọn khu vực" }]}
                     label="Khu vực"
                     name="district_id"
                   >
@@ -314,7 +306,7 @@ const StoreCreateScreen: React.FC = () => {
                   <Item
                     label="Phường/xã"
                     name="ward_id"
-                    rules={[{required: true, message: "Vui lòng chọn phường/xã"}]}
+                    rules={[{ required: true, message: "Vui lòng chọn phường/xã" }]}
                   >
                     <Select
                       placeholder="Chọn phường/xã"
@@ -361,7 +353,12 @@ const StoreCreateScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Item
-                    rules={[{required: true, message: "Vui lòng chọn loại cửa hàng"}]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn loại cửa hàng",
+                      },
+                    ]}
                     label="Phân loại"
                     name="type"
                   >
@@ -383,7 +380,12 @@ const StoreCreateScreen: React.FC = () => {
                   <Item
                     label="Phòng ban tương ứng"
                     name="department_id"
-                    rules={[{required: true, message: "Vui lòng chọn phòng ban tương ứng"}]}
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn phòng ban tương ứng",
+                      },
+                    ]}
                   >
                     <TreeSelect
                       placeholder="Chọn phòng ban tương ứng"
@@ -391,7 +393,7 @@ const StoreCreateScreen: React.FC = () => {
                       className="selector"
                       allowClear
                       showSearch
-                      treeNodeFilterProp='title'
+                      treeNodeFilterProp="title"
                     >
                       {lstDepartment?.map((item, index) => (
                         <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
@@ -400,11 +402,12 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                  <Item
-                    name="reference_id"
-                    label="Mã tham chiếu"
-                  >
-                    <InputNumber style={{width:"100%"}} maxLength={10} placeholder="Nhập mã tham chiếu" />
+                  <Item name="reference_id" label="Mã tham chiếu">
+                    <InputNumber
+                      style={{ width: "100%" }}
+                      maxLength={10}
+                      placeholder="Nhập mã tham chiếu"
+                    />
                   </Item>
                 </Col>
               </Row>
@@ -413,74 +416,70 @@ const StoreCreateScreen: React.FC = () => {
           <Col span={6}>
             <Card title="Thông tin tình trạng">
               <Row>
-                 <Col span={24}>
-                    <Item name="status"
-                      rules={[{required: true, message: "Vui lòng chọn trạng thái."}]}
-                      label="Trạng thái">
-                      <Select
-                        onChange={(value) => {
-                          if (value === "inactive") {
-                            formMain.setFieldsValue({
-                              is_saleable: false,
-                            });
-                          }
-                        }}
-                      >
-                        {storeStatusList?.map((item) => (
-                          <Option key={item.value} value={item.value}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
-                 </Col>
+                <Col span={24}>
+                  <Item
+                    name="status"
+                    rules={[{ required: true, message: "Vui lòng chọn trạng thái." }]}
+                    label="Trạng thái"
+                  >
+                    <Select
+                      onChange={(value) => {
+                        if (value === "inactive") {
+                          formMain.setFieldsValue({
+                            is_saleable: false,
+                          });
+                        }
+                      }}
+                    >
+                      {storeStatusList?.map((item) => (
+                        <Option key={item.value} value={item.value}>
+                          {item.name}
+                        </Option>
+                      ))}
+                    </Select>
+                  </Item>
+                </Col>
               </Row>
               <Row>
-              <Item
-                noStyle
-                shouldUpdate={(prev, current) =>
-                  prev.is_saleable !== current.is_saleable ||
-                  prev.status !== current.status
-                }
-              >
-                {({getFieldValue}) => {
-                  let status = getFieldValue("status");
-                  return (
-                    <Item valuePropName="checked" name="is_saleable">
-                      <Checkbox disabled={status === "inactive"}>
-                        Cho phép bán
-                      </Checkbox>
-                    </Item>
-                  );
-                }}
-              </Item>
+                <Item
+                  noStyle
+                  shouldUpdate={(prev, current) =>
+                    prev.is_saleable !== current.is_saleable || prev.status !== current.status
+                  }
+                >
+                  {({ getFieldValue }) => {
+                    let status = getFieldValue("status");
+                    return (
+                      <Item valuePropName="checked" name="is_saleable">
+                        <Checkbox disabled={status === "inactive"}>Cho phép bán</Checkbox>
+                      </Item>
+                    );
+                  }}
+                </Item>
               </Row>
               <Row>
-              <Item
-                noStyle
-                shouldUpdate={(prev, current) =>
-                  prev.is_saleable !== current.is_saleable ||
-                  prev.status !== current.status
-                }
-              >
-                {({getFieldValue}) => {
-                  let status = getFieldValue("status");
-                  return (
-                    <Item valuePropName="checked" name="is_stocktaking">
-                      <Checkbox disabled={status === "inactive"}>
-                        Đang kiểm kho
-                      </Checkbox>
-                    </Item>
-                  );
-                }}
-              </Item>
+                <Item
+                  noStyle
+                  shouldUpdate={(prev, current) =>
+                    prev.is_saleable !== current.is_saleable || prev.status !== current.status
+                  }
+                >
+                  {({ getFieldValue }) => {
+                    let status = getFieldValue("status");
+                    return (
+                      <Item valuePropName="checked" name="is_stocktaking">
+                        <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
+                      </Item>
+                    );
+                  }}
+                </Item>
               </Row>
             </Card>
           </Col>
         </Row>
 
         <Collapse
-          style={{marginBottom: 50}}
+          style={{ marginBottom: 50 }}
           defaultActiveKey="1"
           className="ant-collapse-card margin-top-20"
           expandIconPosition="right"
@@ -501,8 +500,8 @@ const StoreCreateScreen: React.FC = () => {
                         padding: 0,
                       },
                       title: () => (
-                        <div style={{width: 1000, display: "flex"}}>
-                          <img style={{width: 1000}} src={StoreTooltip} alt="" />
+                        <div style={{ width: 1000, display: "flex" }}>
+                          <img style={{ width: 1000 }} src={StoreTooltip} alt="" />
                         </div>
                       ),
                       icon: <InfoCircleOutlined />,
@@ -520,14 +519,15 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
-                <Item
+                  <Item
                     label="Diện tích cửa hàng (m²)"
                     name="square"
-                    rules={[
-                      {required: true, message: "Vui lòng nhập diện tích"},
-                    ]}
+                    rules={[{ required: true, message: "Vui lòng nhập diện tích" }]}
                   >
-                    <NumberInput style={{ textAlign: "left" }} placeholder="Nhập diện tích cửa hàng" />
+                    <NumberInput
+                      style={{ textAlign: "left" }}
+                      placeholder="Nhập diện tích cửa hàng"
+                    />
                   </Item>
                 </Col>
               </Row>
@@ -541,10 +541,7 @@ const StoreCreateScreen: React.FC = () => {
                     }}
                     name="begin_date"
                   >
-                    <CustomDatepicker
-                      style={{width: "100%"}}
-                      placeholder="Chọn ngày mở cửa"
-                    />
+                    <CustomDatepicker style={{ width: "100%" }} placeholder="Chọn ngày mở cửa" />
                   </Item>
                 </Col>
                 <Col span={24} lg={8} md={12} sm={24}>
@@ -556,7 +553,7 @@ const StoreCreateScreen: React.FC = () => {
                       icon: <InfoCircleOutlined />,
                     }}
                   >
-                    <AccountSearchPaging placeholder="Chọn VM phụ trách"/>
+                    <AccountSearchPaging placeholder="Chọn VM phụ trách" />
                   </Item>
                 </Col>
               </Row>

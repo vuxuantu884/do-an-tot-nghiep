@@ -1,5 +1,5 @@
 /**
- * @deprecated : 
+ * @deprecated :
  */
 import { SelectProps } from "antd";
 import _ from "lodash";
@@ -92,7 +92,7 @@ function SizeSelect(props: SelectContentProps): ReactElement {
           getSearchSize,
           {
             ids: isFilter ? JSON.parse(initIds).code : initIds,
-          }
+          },
         );
 
         let totalItems: SizeResponse[] = [];
@@ -100,16 +100,15 @@ function SizeSelect(props: SelectContentProps): ReactElement {
           // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
           // DUOCNC thêm đoạn xóa loại bỏ bản ghi trùng lặp
           let set = new Set();
-          let mergeItems = [...initSelectedResponse.items,...defaultOptons];
-          totalItems = mergeItems.filter(item => {
+          let mergeItems = [...initSelectedResponse.items, ...defaultOptons];
+          totalItems = mergeItems.filter((item) => {
             if (!set.has(item.id)) {
               set.add(item.id);
               return true;
             }
             return false;
           }, set);
-           totalItems = _.uniqBy(totalItems, key!);
-
+          totalItems = _.uniqBy(totalItems, key!);
         } else if (defaultOptons) {
           totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
@@ -137,12 +136,20 @@ function SizeSelect(props: SelectContentProps): ReactElement {
       onClear={() => handleSizeSearch({ code: "" })}
       onPageChange={(key: string, page: number) => {
         handleSizeSearch({ code: key, page: page });
-      }}>
+      }}
+    >
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code} value={isFilter ? JSON.stringify({
-          code: item.id,
-          name: item.code
-        }) : item.id}>
+        <SelectPagingV2.Option
+          key={item.code}
+          value={
+            isFilter
+              ? JSON.stringify({
+                  code: item.id,
+                  name: item.code,
+                })
+              : item.id
+          }
+        >
           {`${item.code}`}
         </SelectPagingV2.Option>
       ))}

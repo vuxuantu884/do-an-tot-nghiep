@@ -1,9 +1,6 @@
 import { SelectProps } from "antd";
 import _ from "lodash";
-import {
-  CollectionQuery,
-  CollectionResponse,
-} from "model/product/collection.model";
+import { CollectionQuery, CollectionResponse } from "model/product/collection.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -58,22 +55,17 @@ function SelectSearch(contentProps: SelectContentProps) {
   });
 
   const [defaultOptons, setDefaultOptons] = useState<CollectionResponse[]>([]);
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer,
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const handleSearch = (queryParams: CollectionQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
     dispatch(
-      getCollectionRequestAction(
-        query,
-        (response: PageResponse<CollectionResponse>) => {
-          if (response) {
-            setData(response);
-          }
-          setIsSearching(false);
-        },
-      ),
+      getCollectionRequestAction(query, (response: PageResponse<CollectionResponse>) => {
+        if (response) {
+          setData(response);
+        }
+        setIsSearching(false);
+      }),
     );
   };
 
@@ -93,12 +85,11 @@ function SelectSearch(contentProps: SelectContentProps) {
    */
   useEffect(() => {
     const getDefaultOptions = async () => {
-      const response = await callApiNative(
-        { isShowError: true },
-        dispatch,
-        getCollectionApi,
-        { ...fixedQuery, page: 1, limit: 30 },
-      );
+      const response = await callApiNative({ isShowError: true }, dispatch, getCollectionApi, {
+        ...fixedQuery,
+        page: 1,
+        limit: 30,
+      });
 
       setDefaultOptons(response?.items ?? []);
       setData({ ...response });
@@ -136,10 +127,7 @@ function SelectSearch(contentProps: SelectContentProps) {
         let totalItems: CollectionResponse[] = [];
         if (initSelectedResponse?.items && defaultOptons) {
           // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
-          totalItems = _.uniqBy(
-            [...initSelectedResponse.items, ...defaultOptons],
-            "code",
-          );
+          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultOptons], "code");
         } else if (defaultOptons) {
           totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {

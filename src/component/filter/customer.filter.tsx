@@ -1,16 +1,8 @@
-import {
-  Button,
-  Col,
-  Form,
-  Input,
-  Row,
-  Select,
-  Tooltip,
-} from "antd";
+import { Button, Col, Form, Input, Row, Select, Tooltip } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { SupplierQuery } from "model/core/supplier.model";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
-import {  useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import CustomFilter from "component/table/custom.filter";
@@ -34,9 +26,7 @@ type SupplierFilterProps = {
 const { Item } = Form;
 const { Option } = Select;
 
-const SupplierFilter: React.FC<SupplierFilterProps> = (
-  props: SupplierFilterProps
-) => {
+const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProps) => {
   const {
     onFilter,
     params,
@@ -55,10 +45,9 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
 
   const onFinish = useCallback(
     (values: SupplierQuery) => {
-      
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   const onFilterClick = useCallback(() => {
@@ -80,10 +69,9 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
   useEffect(() => {
-    
     if (visible) {
       formAdvance.resetFields();
     }

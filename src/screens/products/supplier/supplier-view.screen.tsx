@@ -58,7 +58,7 @@ const ViewSupplierScreen: React.FC = () => {
   const path = history.location.pathname;
   let active = path.split("/");
   const [activeTab, setActiveTab] = useState<string>(
-    active.length === 4 ? active[3] : SupplierTabUrl.CONTACTS
+    active.length === 4 ? active[3] : SupplierTabUrl.CONTACTS,
   );
   const [supplier, setSupplier] = useState<SupplierResponse | null>(null);
   const [isError, setError] = useState<boolean>(false);
@@ -123,7 +123,7 @@ const ViewSupplierScreen: React.FC = () => {
         }
       }
     },
-    [activeTab]
+    [activeTab],
   );
 
   const getButtonRight = useMemo(() => {
@@ -184,15 +184,17 @@ const ViewSupplierScreen: React.FC = () => {
     >
       {supplier && (
         <React.Fragment>
-          <Card title="Thông tin cơ bản" extra={
-                  <Space size={15}>
-                    <label className="text-default">Trạng thái:</label>
-                    <label
-                      className={supplier.status === "active" ? "text-success" : "text-error"}
-                    >
-                      {supplier.status_name}
-                    </label>
-                  </Space>}>
+          <Card
+            title="Thông tin cơ bản"
+            extra={
+              <Space size={15}>
+                <label className="text-default">Trạng thái:</label>
+                <label className={supplier.status === "active" ? "text-success" : "text-error"}>
+                  {supplier.status_name}
+                </label>
+              </Space>
+            }
+          >
             <Row gutter={50}>
               <Col span={8}>
                 <RowDetail title="Mã nhà cung cấp" value={supplier.code} />
@@ -202,18 +204,13 @@ const ViewSupplierScreen: React.FC = () => {
               <Col span={8}>
                 <RowDetail title="Số điện thoại" value={supplier.phone} />
                 <RowDetail title="Phân cấp" value={supplier.scorecard_name} />
-                <RowDetail
-                  title="Merchandiser"
-                  value={`${supplier.pic_code} - ${supplier.pic}`}
-                />
+                <RowDetail title="Merchandiser" value={`${supplier.pic_code} - ${supplier.pic}`} />
               </Col>
               <Col span={8}>
                 <RowDetail title="Mã số thuế" value={supplier.tax_code} />
                 <RowDetail
                   title="SL Tối thiểu"
-                  value={
-                    supplier.moq ? `${supplier.moq} (${supplier.moq_unit_name})` : ""
-                  }
+                  value={supplier.moq ? `${supplier.moq} (${supplier.moq_unit_name})` : ""}
                 />
                 <RowDetail
                   title="TG công nợ"
@@ -235,9 +232,7 @@ const ViewSupplierScreen: React.FC = () => {
                 setActiveTab(active);
               }}
               tabBarExtraContent={{
-                right: allowCreateSup && (
-                  <Button onClick={onClickAdd}>{getButtonRight}</Button>
-                ),
+                right: allowCreateSup && <Button onClick={onClickAdd}>{getButtonRight}</Button>,
               }}
               renderTabBar={RenderTabBar}
             >
@@ -251,12 +246,7 @@ const ViewSupplierScreen: React.FC = () => {
                   onDefault={(contactId, data) => {
                     setLoadingTableContact(true);
                     dispatch(
-                      SupplierUpdateContactAction(
-                        idNumber,
-                        contactId,
-                        data,
-                        updateSupplier
-                      )
+                      SupplierUpdateContactAction(idNumber, contactId, data, updateSupplier),
                     );
                   }}
                   onDelete={(contactId) => {
@@ -270,9 +260,7 @@ const ViewSupplierScreen: React.FC = () => {
                       onOk: () => {
                         setModalConfirm({ visible: false });
                         setLoadingTableContact(true);
-                        dispatch(
-                          SupplierDeleteContactAction(idNumber, contactId, updateSupplier)
-                        );
+                        dispatch(SupplierDeleteContactAction(idNumber, contactId, updateSupplier));
                       },
                     });
                   }}
@@ -289,12 +277,7 @@ const ViewSupplierScreen: React.FC = () => {
                   onDefault={(addressId, data) => {
                     setLoadingTableAddress(true);
                     dispatch(
-                      SupplierUpdateAddressAction(
-                        idNumber,
-                        addressId,
-                        data,
-                        updateSupplier
-                      )
+                      SupplierUpdateAddressAction(idNumber, addressId, data, updateSupplier),
                     );
                   }}
                   onDelete={(addressId) => {
@@ -308,9 +291,7 @@ const ViewSupplierScreen: React.FC = () => {
                       onOk: () => {
                         setModalConfirm({ visible: false });
                         setLoadingTablePayment(true);
-                        dispatch(
-                          SupplierDeleteAddressAction(idNumber, addressId, updateSupplier)
-                        );
+                        dispatch(SupplierDeleteAddressAction(idNumber, addressId, updateSupplier));
                       },
                     });
                   }}
@@ -335,9 +316,7 @@ const ViewSupplierScreen: React.FC = () => {
                       onOk: () => {
                         setModalConfirm({ visible: false });
                         setLoadingTablePayment(true);
-                        dispatch(
-                          SupplierDeletePaymentAction(idNumber, paymentId, updateSupplier)
-                        );
+                        dispatch(SupplierDeletePaymentAction(idNumber, paymentId, updateSupplier));
                       },
                     });
                   }}
@@ -361,9 +340,7 @@ const ViewSupplierScreen: React.FC = () => {
             dispatch(SupplierCreateAddressAction(idNumber, request, updateSupplier));
             return;
           }
-          dispatch(
-            SupplierUpdateAddressAction(idNumber, addressId, request, updateSupplier)
-          );
+          dispatch(SupplierUpdateAddressAction(idNumber, addressId, request, updateSupplier));
         }}
       />
       <SupplierPaymentModal
@@ -377,9 +354,7 @@ const ViewSupplierScreen: React.FC = () => {
             dispatch(SupplierCreatePaymentAction(idNumber, request, updateSupplier));
             return;
           }
-          dispatch(
-            SupplierUpdatePaymentAction(idNumber, paymentId, request, updateSupplier)
-          );
+          dispatch(SupplierUpdatePaymentAction(idNumber, paymentId, request, updateSupplier));
         }}
       />
       <SupplierContactModal
@@ -393,9 +368,7 @@ const ViewSupplierScreen: React.FC = () => {
             dispatch(SupplierCreateContactAction(idNumber, request, updateSupplier));
             return;
           }
-          dispatch(
-            SupplierUpdateContactAction(idNumber, contactId, request, updateSupplier)
-          );
+          dispatch(SupplierUpdateContactAction(idNumber, contactId, request, updateSupplier));
         }}
       />
       <ModalConfirm {...modalConfirm} />
@@ -403,9 +376,13 @@ const ViewSupplierScreen: React.FC = () => {
         back="Quay lại danh sách"
         rightComponent={
           allowCreateSup && (
-            <Button onClick={() => {
-              history.push(`${UrlConfig.SUPPLIERS}/${id}/update`)
-            }} htmlType="submit" type="primary">
+            <Button
+              onClick={() => {
+                history.push(`${UrlConfig.SUPPLIERS}/${id}/update`);
+              }}
+              htmlType="submit"
+              type="primary"
+            >
               Sửa nhà cung cấp
             </Button>
           )

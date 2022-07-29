@@ -35,13 +35,17 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
     } else {
       return "";
     }
-  }
+  };
 
   const isLogin = useSelector((state: RootReducerType) => state.userReducer.isLogin);
   const isLoadUser = useSelector((state: RootReducerType) => state.userReducer.isLoad);
-  const isTemporaryPassword = useSelector((state: RootReducerType) => state.userReducer.account?.temporary_password);
+  const isTemporaryPassword = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.temporary_password,
+  );
   const isLoadBootstrap = useSelector((state: RootReducerType) => state.bootstrapReducer.isLoad);
-  const collapsed = useSelector((state: RootReducerType) => Boolean(state.appSettingReducer.collapse));
+  const collapsed = useSelector((state: RootReducerType) =>
+    Boolean(state.appSettingReducer.collapse),
+  );
 
   const [isShowHeader, setIsShowHeader] = useState<boolean>(false);
 
@@ -64,7 +68,12 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
     return <SplashScreen />;
   }
 
-  if (isLoadUser && isLogin && isTemporaryPassword && location.pathname !== AccountUrl.UPDATE_PASSWORD){
+  if (
+    isLoadUser &&
+    isLogin &&
+    isTemporaryPassword &&
+    location.pathname !== AccountUrl.UPDATE_PASSWORD
+  ) {
     showInfo("Bạn cần đổi mật khẩu lần đầu để tiếp tục sử dụng ứng dụng");
     return <Redirect to={AccountUrl.UPDATE_PASSWORD} />;
   }
@@ -80,7 +89,7 @@ const Container: React.FC<ContainerProps> = (props: ContainerProps) => {
         isShowHeader={isShowHeader}
         setIsShowHeader={(value: boolean) => setIsShowHeader(value)}
       />
-      <Layout className={isShowHeader ? 'showHeader' : 'hideHeader'}>
+      <Layout className={isShowHeader ? "showHeader" : "hideHeader"}>
         <SidebarContainer collapsed={collapsed} path={location.pathname} />
         <Layout.Content className={classNames("container", collapsed && "collapsed")}>
           {children}

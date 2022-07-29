@@ -1,4 +1,3 @@
-
 import ContentContainer from "component/container/content.container";
 
 import UrlConfig from "config/url.config";
@@ -19,7 +18,7 @@ import PackDetailInfo from "./detail/pack-detail-info";
 import PackListOrder from "./detail/pack-list-order";
 import PackQuantityProduct from "./detail/pack-quantity-product";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
-import './styles.scss';
+import "./styles.scss";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
 import PackDetailBottomBar from "./detail/pack-detail-bottom-bar";
@@ -31,7 +30,6 @@ type PackParam = {
 
 const PackDetail: React.FC = () => {
   const dispatch = useDispatch();
-
 
   let { id } = useParams<PackParam>();
   let packId = parseInt(id);
@@ -51,85 +49,96 @@ const PackDetail: React.FC = () => {
     // },
   ]);
 
-  const [packProductQuantity, setPackProductQuantity] = useState<GoodsReceiptsTotalProductModel[]>([]);
+  const [packProductQuantity, setPackProductQuantity] = useState<GoodsReceiptsTotalProductModel[]>(
+    [],
+  );
 
   const [packOrderList, setPackOrderList] = useState<GoodsReceiptsOrderListModel[]>([]);
 
-  const fetchProductData = useCallback((storeId:number, order : GoodsReceiptsOrder[])=>{
-    let listVariant :OrderLineItemResponse[] =flattenArray(order.map((p)=>{
-      return getFulfillmentActive(p.fulfillments)?.items
-    }));
-    
-    let uniqueListVariant : OrderLineItemResponse[]=[];
+  const fetchProductData = useCallback(
+    (storeId: number, order: GoodsReceiptsOrder[]) => {
+      let listVariant: OrderLineItemResponse[] = flattenArray(
+        order.map((p) => {
+          return getFulfillmentActive(p.fulfillments)?.items;
+        }),
+      );
 
-    listVariant.forEach((itemVariant, i)=>{
-      let isVariant= uniqueListVariant.some(p1=>p1.variant_id===itemVariant.variant_id);
-      if(!isVariant){
-        uniqueListVariant.push({...itemVariant,quantity:itemVariant.quantity})
-      }else{
-        let quantity= itemVariant.quantity;
-        let index= uniqueListVariant.findIndex(p1=>p1.variant_id===itemVariant.variant_id);
-        
-        uniqueListVariant[index].quantity=uniqueListVariant[index].quantity + quantity;
-      }
-    })
+      let uniqueListVariant: OrderLineItemResponse[] = [];
 
-    let variantIds=uniqueListVariant.map(p=>p.variant_id)
+      listVariant.forEach((itemVariant, i) => {
+        let isVariant = uniqueListVariant.some((p1) => p1.variant_id === itemVariant.variant_id);
+        if (!isVariant) {
+          uniqueListVariant.push({
+            ...itemVariant,
+            quantity: itemVariant.quantity,
+          });
+        } else {
+          let quantity = itemVariant.quantity;
+          let index = uniqueListVariant.findIndex((p1) => p1.variant_id === itemVariant.variant_id);
 
-    const query:any ={
-      store_ids:[storeId],
-      variant_ids:variantIds,
-      limit: 1000
-    }
+          uniqueListVariant[index].quantity = uniqueListVariant[index].quantity + quantity;
+        }
+      });
 
-    dispatch(searchVariantsRequestAction(query,(data: PageResponse<VariantResponse>|false)=>{
-      if(data && data.items && data.items.length>0)
-      {
-        
-        const getLineItemProduct = (key:number,itemProduct: VariantResponse) => {
-          let quantity = uniqueListVariant.find(p=>p.variant_id===itemProduct.id)?.quantity
-          let price = uniqueListVariant.find(p=>p.variant_id===itemProduct.id)?.price
+      let variantIds = uniqueListVariant.map((p) => p.variant_id);
 
-          /**
+      const query: any = {
+        store_ids: [storeId],
+        variant_ids: variantIds,
+        limit: 1000,
+      };
+
+      dispatch(
+        searchVariantsRequestAction(query, (data: PageResponse<VariantResponse> | false) => {
+          if (data && data.items && data.items.length > 0) {
+            const getLineItemProduct = (key: number, itemProduct: VariantResponse) => {
+              let quantity = uniqueListVariant.find(
+                (p) => p.variant_id === itemProduct.id,
+              )?.quantity;
+              let price = uniqueListVariant.find((p) => p.variant_id === itemProduct.id)?.price;
+
+              /**
            *  Tổng số lượng -Tồn trong kho > 0 thì là thiếu, 
            *  Tổng số lượng-Tồn trong kho <=0 là đủ
               
            */
-          let totalIncomplate= (quantity||0) - itemProduct.on_hand;
-          totalIncomplate = totalIncomplate > 0 ? totalIncomplate : 0; 
-          return {
-            key: key,
-            barcode: itemProduct.barcode,
-            product_id: itemProduct.product_id,
-            product_sku: itemProduct.sku,
-            product_name: itemProduct.name,
-            variant_id: itemProduct.id,
-            inventory: 0,
-            price: price||0,
-            total_quantity: quantity||0,
-            total_incomplate: totalIncomplate,
-            on_hand: itemProduct.on_hand,
+              let totalIncomplate = (quantity || 0) - itemProduct.on_hand;
+              totalIncomplate = totalIncomplate > 0 ? totalIncomplate : 0;
+              return {
+                key: key,
+                barcode: itemProduct.barcode,
+                product_id: itemProduct.product_id,
+                product_sku: itemProduct.sku,
+                product_name: itemProduct.name,
+                variant_id: itemProduct.id,
+                inventory: 0,
+                price: price || 0,
+                total_quantity: quantity || 0,
+                total_incomplate: totalIncomplate,
+                on_hand: itemProduct.on_hand,
+              };
+            };
+
+            let resultListProduct: GoodsReceiptsTotalProductModel[] = [];
+
+            data.items.forEach((value, index) => {
+              resultListProduct.push(getLineItemProduct(index, value));
+            });
+            setPackProductQuantity([...resultListProduct]);
           }
-        }
-
-        let resultListProduct: GoodsReceiptsTotalProductModel[] = [];
-
-        data.items.forEach((value, index)=>{
-          resultListProduct.push(getLineItemProduct(index,value));
-        })
-        setPackProductQuantity([...resultListProduct]);
-      }
-    }))
-
-  },[dispatch])
+        }),
+      );
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     if (packId) {
       dispatch(
         getByIdGoodsReceipts(packId, (data: GoodsReceiptsResponse) => {
           setPackDetail(data);
-          if(data && data.orders){
-            fetchProductData(data.store_id,data.orders);
+          if (data && data.orders) {
+            fetchProductData(data.store_id, data.orders);
           }
 
           let keyOrder = 0;
@@ -144,12 +153,14 @@ const PackDetail: React.FC = () => {
             let trackingCode = null;
 
             let _itemProduct: FulfillmentsItemModel[] = [];
-            
+
             let fulfillments = getFulfillmentActive(itemOrder.fulfillments);
             if (fulfillments) {
               total_quantity += fulfillments.total_quantity ? fulfillments.total_quantity : 0;
               total_price += fulfillments.total ? fulfillments.total : 0;
-              postage += itemOrder?.shipping_fee_informed_to_customer ? itemOrder.shipping_fee_informed_to_customer : 0;
+              postage += itemOrder?.shipping_fee_informed_to_customer
+                ? itemOrder.shipping_fee_informed_to_customer
+                : 0;
               ffrmCode = fulfillments.code;
               trackingCode = fulfillments.shipment?.tracking_code;
               fulfillments.items.forEach((itemProduct) => {
@@ -161,14 +172,14 @@ const PackDetail: React.FC = () => {
                   variant_barcode: itemProduct.variant_barcode,
                   net_weight: itemProduct.weight,
                   quantity: itemProduct.quantity,
-                  price: itemProduct.price
-                })
+                  price: itemProduct.price,
+                });
               });
             }
 
             itemOrder.payments?.forEach((itemPayment) => {
               card_number += itemPayment.amount;
-            })
+            });
 
             resultListOrder.push({
               key: keyOrder++,
@@ -180,25 +191,25 @@ const PackDetail: React.FC = () => {
               total_quantity: total_quantity,
               total_price: total_price,
               postage: postage,
-              card_number: card_number,//tong thanh toan
+              card_number: card_number, //tong thanh toan
               sub_status: itemOrder.sub_status,
               note: itemOrder.note,
-              items: _itemProduct
-            })
+              items: _itemProduct,
+            });
           });
-          
+
           setPackOrderList(resultListOrder);
-        })
+        }),
       );
     } else {
       setError(true);
     }
   }, [dispatch, packId, fetchProductData]);
 
-  const handleDownLoad = () => { };
-  const handleDeleteFile = () => { };
+  const handleDownLoad = () => {};
+  const handleDeleteFile = () => {};
 
-  const handleAddOrderInPack = () => { };
+  const handleAddOrderInPack = () => {};
 
   return (
     <ContentContainer
@@ -230,15 +241,9 @@ const PackDetail: React.FC = () => {
         handleAddOrderInPack={handleAddOrderInPack}
       />
 
-      <PackListOrder
-        packDetail={packDetail}
-        packOrderList={packOrderList}
-      />
-      
-      <PackDetailBottomBar
-        packDetail={packDetail}
-      />
-      
+      <PackListOrder packDetail={packDetail} packOrderList={packOrderList} />
+
+      <PackDetailBottomBar packDetail={packDetail} />
     </ContentContainer>
   );
 };

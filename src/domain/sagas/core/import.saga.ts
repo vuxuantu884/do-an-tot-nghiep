@@ -9,11 +9,9 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { uploadFileApi } from "service/core/import.service";
 
 function* uploadSaga(action: YodyAction) {
-  let {files, folder, onResult } = action.payload;
+  let { files, folder, onResult } = action.payload;
   try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(uploadFileApi,
-      files,
-      folder);
+    let response: BaseResponse<Array<StoreResponse>> = yield call(uploadFileApi, files, folder);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);

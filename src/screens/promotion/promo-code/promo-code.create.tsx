@@ -7,7 +7,7 @@ import { getListChannelRequest } from "domain/actions/order/order.action";
 import { addPriceRules } from "domain/actions/promotion/discount/discount.action";
 import { StoreResponse } from "model/core/store.model";
 import { SourceResponse } from "model/response/order/source.response";
-import { ChannelResponse } from "model/response/product/channel.response"; 
+import { ChannelResponse } from "model/response/product/channel.response";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -24,7 +24,6 @@ import GeneralCreate from "./components/general.create";
 import "./promo-code.scss";
 import IssueProvider, { IssueContext } from "../issue/components/issue-provider";
 import { CustomerSelectionOption } from "model/promotion/price-rules.model";
-
 
 const CreatePromotionCodePage = () => {
   const dispatch = useDispatch();
@@ -47,7 +46,6 @@ const CreatePromotionCodePage = () => {
     usage_limit: "1",
     usage_unlimit_per_customer: true,
     starts_date: moment(),
-
   };
 
   useEffect(() => {
@@ -71,8 +69,7 @@ const CreatePromotionCodePage = () => {
     body.prerequisite_store_ids = values.prerequisite_store_ids?.length
       ? values.prerequisite_store_ids
       : null;
-    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names
-      ?.length
+    body.prerequisite_sales_channel_names = values.prerequisite_sales_channel_names?.length
       ? values.prerequisite_sales_channel_names
       : null;
     body.prerequisite_order_source_ids = values.prerequisite_order_source_ids?.length
@@ -83,9 +80,9 @@ const CreatePromotionCodePage = () => {
     body.entitled_method = "QUANTITY";
     body.prerequisite_subtotal_range = values.prerequisite_subtotal_range_min
       ? {
-        greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
-        less_than_or_equal_to: null,
-      }
+          greater_than_or_equal_to: values.prerequisite_subtotal_range_min,
+          less_than_or_equal_to: null,
+        }
       : null;
     if (values.entitlements && values.entitlements.length > 0) {
       body.entitlements = values.entitlements.map((entitlement: any) => {
@@ -125,27 +122,33 @@ const CreatePromotionCodePage = () => {
     }
     // ==Đối tượng khách hàng==
     // Áp dụng tất cả
-    body.customer_selection = values.customer_selection ? CustomerSelectionOption.ALL : CustomerSelectionOption.PREREQUISITE;
+    body.customer_selection = values.customer_selection
+      ? CustomerSelectionOption.ALL
+      : CustomerSelectionOption.PREREQUISITE;
 
     //Giới tính khách hàng
     body.prerequisite_genders = values.prerequisite_genders;
 
     //Ngày sinh khách hàng
-    const startsBirthday = values[CustomerFilterField.starts_birthday] ? moment(values[CustomerFilterField.starts_birthday]) : null;
-    const endsBirthday = values[CustomerFilterField.ends_birthday] ? moment(values[CustomerFilterField.ends_birthday]) : null;
+    const startsBirthday = values[CustomerFilterField.starts_birthday]
+      ? moment(values[CustomerFilterField.starts_birthday])
+      : null;
+    const endsBirthday = values[CustomerFilterField.ends_birthday]
+      ? moment(values[CustomerFilterField.ends_birthday])
+      : null;
     if (startsBirthday || endsBirthday) {
       body.prerequisite_birthday_duration = {
         starts_mmdd_key: startsBirthday
           ? Number(
-            (startsBirthday.month() + 1).toString().padStart(2, "0") +
-            startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-          )
+              (startsBirthday.month() + 1).toString().padStart(2, "0") +
+                startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+            )
           : null,
         ends_mmdd_key: endsBirthday
           ? Number(
-            (endsBirthday.month() + 1).toString().padStart(2, "0") +
-            endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-          )
+              (endsBirthday.month() + 1).toString().padStart(2, "0") +
+                endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+            )
           : null,
       };
     } else {
@@ -153,22 +156,26 @@ const CreatePromotionCodePage = () => {
     }
 
     //==Ngày cưới khách hàng
-    const startsWeddingDays = values[CustomerFilterField.starts_wedding_day] ? moment(values[CustomerFilterField.starts_wedding_day]) : null;
-    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day] ? moment(values[CustomerFilterField.ends_wedding_day]) : null;
+    const startsWeddingDays = values[CustomerFilterField.starts_wedding_day]
+      ? moment(values[CustomerFilterField.starts_wedding_day])
+      : null;
+    const endsWeddingDays = values[CustomerFilterField.ends_wedding_day]
+      ? moment(values[CustomerFilterField.ends_wedding_day])
+      : null;
 
     if (startsWeddingDays || endsWeddingDays) {
       body.prerequisite_wedding_duration = {
         starts_mmdd_key: startsWeddingDays
           ? Number(
-            (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-            startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-          )
+              (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
+                startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+            )
           : null,
         ends_mmdd_key: endsWeddingDays
           ? Number(
-            (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
-            endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
-          )
+              (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
+                endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
+            )
           : null,
       };
     } else {
@@ -196,15 +203,16 @@ const CreatePromotionCodePage = () => {
         }, 2000);
       } else dispatch(hideLoading());
     },
-    [dispatch, history]
+    [dispatch, history],
   );
-
-
 
   let isActive = true;
   const onFinish = (values: any) => {
     // Action: Lưu và kích hoạt
-    if (!isAllProduct && (values.entitlements.length === 0 || values.entitlements[0].entitled_variant_ids.length === 0)) {
+    if (
+      !isAllProduct &&
+      (values.entitlements.length === 0 || values.entitlements[0].entitled_variant_ids.length === 0)
+    ) {
       showError("Vui lòng chọn sản phẩm để áp dụng");
       return;
     }
@@ -218,12 +226,11 @@ const CreatePromotionCodePage = () => {
     // Action: Lưu và kích hoạt
     isActive = true;
     promoCodeForm.submit();
-  }
+  };
   const save = async () => {
     // Action: Lưu
     isActive = false;
     promoCodeForm.submit();
-
   };
 
   return (
@@ -290,13 +297,12 @@ const CreatePromotionCodePage = () => {
   );
 };
 
-
 const CreatePromoWithProvider = () => {
   return (
     <IssueProvider>
       <CreatePromotionCodePage />
     </IssueProvider>
   );
-}
+};
 
 export default CreatePromoWithProvider;

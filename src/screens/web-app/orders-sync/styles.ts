@@ -12,6 +12,4 @@ export const OrdersMappingStyled = styled.div`
       padding: 20px;
     }
   }
-
 `;
-

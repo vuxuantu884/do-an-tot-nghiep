@@ -7,12 +7,10 @@ export interface ModalConfirmProps {
   onCancel?: () => void;
   onNext?: () => void;
   bgIcon?: string;
-  onClickOutside? : ()=>void;
+  onClickOutside?: () => void;
 }
 
-const ModalConfirmPrice: React.FC<ModalConfirmProps> = (
-  props: ModalConfirmProps
-) => {
+const ModalConfirmPrice: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => {
   const { visible, onOk, onCancel, onClickOutside } = props;
   return (
     <Modal
@@ -60,13 +58,11 @@ const ModalConfirmPrice: React.FC<ModalConfirmProps> = (
           </div>
         </div>
         <div className="modal-confirm-right margin-left-20">
-          <div className="modal-confirm-title">
-            Bạn đã thay đổi giá bán của một phiên bản
-          </div>
+          <div className="modal-confirm-title">Bạn đã thay đổi giá bán của một phiên bản</div>
 
           <div className="modal-confirm-sub-title">
-            Bạn có muốn <Typography.Link> Cập nhật nhanh</Typography.Link> giá
-            bán cho các phiên bản khác?
+            Bạn có muốn <Typography.Link> Cập nhật nhanh</Typography.Link> giá bán cho các phiên bản
+            khác?
           </div>
         </div>
       </div>

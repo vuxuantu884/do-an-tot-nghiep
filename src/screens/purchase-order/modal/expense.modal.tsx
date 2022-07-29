@@ -20,7 +20,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
     (e) => {
       form.submit();
     },
-    [form]
+    [form],
   );
   const onCancel = useCallback(
     (e) => {
@@ -29,15 +29,17 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
       });
       props.onCancel && props.onCancel();
     },
-    [form, props]
+    [form, props],
   );
   const onFinish = useCallback(
     (value) => {
       let cost_lines: Array<CostLine> = value.cost_lines;
-      let result = [...cost_lines].filter(item => item.amount !== undefined && item.amount !== null && item.amount !== 0)
+      let result = [...cost_lines].filter(
+        (item) => item.amount !== undefined && item.amount !== null && item.amount !== 0,
+      );
       props.onOk(result);
     },
-    [props]
+    [props],
   );
   useEffect(() => {
     if (props.visible) {
@@ -88,10 +90,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                     </Form.Item>
                   </Col>
                   <Col span={9} md={9}>
-                    <Form.Item
-                      name={[name, "amount"]}
-                      fieldKey={[fieldKey, "amount"]}
-                    >
+                    <Form.Item name={[name, "amount"]} fieldKey={[fieldKey, "amount"]}>
                       <NumberInput
                         format={(a: string) => formatCurrency(a)}
                         replace={(a: string) => replaceFormatString(a)}
@@ -101,10 +100,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                     </Form.Item>
                   </Col>
                   <Col span={3} md={3}>
-                    <Button
-                      onClick={() => remove(name)}
-                      icon={<DeleteOutlined />}
-                    />
+                    <Button onClick={() => remove(name)} icon={<DeleteOutlined />} />
                   </Col>
                 </Row>
               ))}
@@ -122,8 +118,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                 <Col span={9} md={9}>
                   <Form.Item
                     shouldUpdate={(prevValues, curValues) =>
-                      prevValues[POField.cost_lines] !==
-                      curValues[POField.cost_lines]
+                      prevValues[POField.cost_lines] !== curValues[POField.cost_lines]
                     }
                     noStyle
                   >
@@ -137,8 +132,7 @@ const ExpenseModal: React.FC<ExpenseModalType> = (props: ExpenseModalType) => {
                             fontWeight: 700,
                           }}
                         >
-                          Tổng chi phí:{" "}
-                          {formatCurrency(POUtils.getTotaExpense(items))}
+                          Tổng chi phí: {formatCurrency(POUtils.getTotaExpense(items))}
                         </div>
                       );
                     }}

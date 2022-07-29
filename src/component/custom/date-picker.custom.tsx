@@ -13,12 +13,10 @@ type CustomDatePickerProps = {
   disableDate?: (date: Moment) => boolean;
   format?: string;
   showTime?: boolean;
-  defaultValue?: Moment | undefined
+  defaultValue?: Moment | undefined;
 };
 
-const CustomDatePicker: React.FC<CustomDatePickerProps> = (
-  props: CustomDatePickerProps
-) => {
+const CustomDatePicker: React.FC<CustomDatePickerProps> = (props: CustomDatePickerProps) => {
   const { value, onChange, placeholder, style, ...rest } = props;
   return (
     <DatePicker

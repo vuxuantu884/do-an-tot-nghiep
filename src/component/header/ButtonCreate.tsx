@@ -1,31 +1,29 @@
 import { Link } from "react-router-dom";
 import { Button } from "antd";
-import {GoPlus} from "react-icons/go";
+import { GoPlus } from "react-icons/go";
 import { ReactNode } from "react";
 type ButtonCreateProps = {
   path: string;
   disabled?: boolean;
   child?: any;
   children?: ReactNode;
-  size?:any;
+  size?: any;
   hidden?: boolean;
 };
 
-const ButtonCreate: React.FC<ButtonCreateProps> = (
-  props: ButtonCreateProps
-) => {
-  const {children, hidden} = props;
+const ButtonCreate: React.FC<ButtonCreateProps> = (props: ButtonCreateProps) => {
+  const { children, hidden } = props;
   return (
     <Link to={props.path}>
       <Button
         type="primary"
         className="ant-btn-primary"
-        size={props.size||"large"}
-        icon={<GoPlus style={{marginRight: "0.2em"}}/>}
+        size={props.size || "large"}
+        icon={<GoPlus style={{ marginRight: "0.2em" }} />}
         disabled={props.disabled}
         hidden={hidden}
       >
-        { props.child || children || 'Thêm mới' }
+        {props.child || children || "Thêm mới"}
       </Button>
     </Link>
   );

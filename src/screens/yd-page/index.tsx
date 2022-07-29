@@ -10,7 +10,8 @@ import { useDispatch } from "react-redux";
 import { FpageCustomerSearchQuery } from "model/query/customer.query";
 import {
   getCustomerDetailAction,
-  CustomerSearchByPhone, CustomerGroups,
+  CustomerSearchByPhone,
+  CustomerGroups,
 } from "domain/actions/customer/customer.action";
 import {
   getYDPageCustomerInfo,
@@ -22,9 +23,9 @@ import {
 import { showError } from "utils/ToastUtils";
 import { YDpageCustomerRequest } from "model/request/customer.request";
 
-import {BillingAddressRequestModel, ShippingAddress} from "model/request/order.request";
-import {DistrictGetByCountryAction} from "domain/actions/content/content.action";
-import {VietNamId} from "utils/Constants";
+import { BillingAddressRequestModel, ShippingAddress } from "model/request/order.request";
+import { DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import { VietNamId } from "utils/Constants";
 import "screens/yd-page/index.scss";
 
 const { TabPane } = Tabs;
@@ -47,7 +48,7 @@ const initCustomerInfo: YDpageCustomerRequest = {
   ward_id: null,
   full_address: null,
   card_number: null,
-	customer_group_id: null
+  customer_group_id: null,
 };
 
 function YDPageAdmin() {
@@ -60,10 +61,10 @@ function YDPageAdmin() {
   const [fbCustomerId] = React.useState<string | null>(queryString?.get("fbCustomerId"));
   const [customerFbName] = React.useState<string | null>(queryString?.get("fbName"));
   const [defaultSourceId] = React.useState<number | null>(
-    queryString?.get("defaultSourceId") ? Number(queryString?.get("defaultSourceId")) : null
+    queryString?.get("defaultSourceId") ? Number(queryString?.get("defaultSourceId")) : null,
   );
   const [defaultStoreId] = React.useState<number | null>(
-    queryString?.get("defaultStoreId") ? Number(queryString?.get("defaultStoreId")) : null
+    queryString?.get("defaultStoreId") ? Number(queryString?.get("defaultStoreId")) : null,
   );
   const [fbAdsId] = React.useState<string>(queryString?.get("fbAdsId")?.toString() || "");
 
@@ -142,7 +143,7 @@ function YDPageAdmin() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [customerPhone, dispatch, searchByPhoneCallback]
+    [customerPhone, dispatch, searchByPhoneCallback],
   );
 
   useEffect(() => {
@@ -173,11 +174,11 @@ function YDPageAdmin() {
           addFpagePhone(fbCustomerId, phone, (customerInfo: YDPageCustomerResponse) => {
             setYDPageCustomerInfo(customerInfo);
             callback();
-          })
+          }),
         );
       }
     },
-    [fbCustomerId, dispatch]
+    [fbCustomerId, dispatch],
   );
 
   const deleteFpPhone = useCallback(
@@ -190,7 +191,7 @@ function YDPageAdmin() {
         }
       }
     },
-    [customerDefaultPhone, fbCustomerId, dispatch]
+    [customerDefaultPhone, fbCustomerId, dispatch],
   );
 
   const setFpDefaultPhone = useCallback(
@@ -201,21 +202,23 @@ function YDPageAdmin() {
         dispatch(setFpageDefaultPhone(fbCustomerId, phone, setYDPageCustomerInfo));
       }
     },
-    [fbCustomerId, dispatch]
+    [fbCustomerId, dispatch],
   );
 
   useEffect(() => {
     if (customer) {
       setVisibleCustomer(true);
       if (customer.shipping_addresses?.length > 0) {
-        const shippingAddressesDefault = customer.shipping_addresses.find((item: any) => item.default) || null;
+        const shippingAddressesDefault =
+          customer.shipping_addresses.find((item: any) => item.default) || null;
         setShippingAddress(shippingAddressesDefault);
       } else {
         setShippingAddress(null);
       }
 
       if (customer.billing_addresses?.length > 0) {
-        const billingAddressDefault = customer.billing_addresses.find((item: any) => item.default) || null;
+        const billingAddressDefault =
+          customer.billing_addresses.find((item: any) => item.default) || null;
         setBillingAddress(billingAddressDefault);
       } else {
         setBillingAddress(null);
@@ -236,7 +239,7 @@ function YDPageAdmin() {
     (id: number | null) => {
       dispatch(getCustomerDetailAction(id, searchByPhoneCallback));
     },
-    [dispatch, searchByPhoneCallback]
+    [dispatch, searchByPhoneCallback],
   );
 
   return (
@@ -266,7 +269,7 @@ function YDPageAdmin() {
             addFpPhone={addFpPhone}
             deleteFpPhone={deleteFpPhone}
             setFpDefaultPhone={setFpDefaultPhone}
-						setCustomerDefaultPhone={setCustomerDefaultPhone}
+            setCustomerDefaultPhone={setCustomerDefaultPhone}
           />
         </TabPane>
         <TabPane key="2" tab={<div>TẠO ĐƠN</div>}>

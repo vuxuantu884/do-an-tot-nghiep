@@ -1,13 +1,11 @@
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { StyledComponent } from "./styles";
-import {
-  POSearchProcurement
-} from "domain/actions/po/po-procument.action";
+import { POSearchProcurement } from "domain/actions/po/po-procument.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
   ProcurementQuery,
   PurchaseProcument,
-  PurchaseProcumentLineItem
+  PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -44,9 +42,10 @@ const TabSevenDays: React.FC = () => {
       is_cancel: false,
       status: ProcumentStatus.NOT_RECEIVED,
       expect_receipt_from: getStartOfDay(today),
-      expect_receipt_to: moment(today).add(7, 'days').endOf('day').format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z",
+      expect_receipt_to:
+        moment(today).add(7, "days").endOf("day").format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z",
       ...getQueryParams(search),
-    }
+    };
     setLoading(true);
     dispatch(
       POSearchProcurement(newParams, (result) => {
@@ -54,7 +53,7 @@ const TabSevenDays: React.FC = () => {
         if (result) {
           setData(result);
         }
-      })
+      }),
     );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -64,14 +63,12 @@ const TabSevenDays: React.FC = () => {
       params.page = page;
       params.limit = size;
       setParams({ ...params });
-      history.replace(
-        `${UrlConfig.PROCUREMENT}/seven-days?${generateQuery(params)}`
-      );
+      history.replace(`${UrlConfig.PROCUREMENT}/seven-days?${generateQuery(params)}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = useMemo(()=> {
+  const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = useMemo(() => {
     return [
       {
         title: "Mã nhập kho",
@@ -87,11 +84,7 @@ const TabSevenDays: React.FC = () => {
         width: 150,
         visible: true,
         render: (value) => {
-          return (
-            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${value.id}`}>
-              {value.code}
-            </Link>
-          );
+          return <Link to={`${UrlConfig.PURCHASE_ORDERS}/${value.id}`}>{value.code}</Link>;
         },
       },
       {
@@ -101,7 +94,7 @@ const TabSevenDays: React.FC = () => {
         width: 120,
         visible: true,
         render: (value) => {
-          return (value?.reference)
+          return value?.reference;
         },
       },
       {
@@ -118,15 +111,16 @@ const TabSevenDays: React.FC = () => {
             >
               {value?.supplier}
             </Link>
-          )
-        }
+          );
+        },
       },
       {
         title: "Merchandiser",
         dataIndex: "purchase_order",
         visible: true,
         render: (value, row) => {
-          if (!row || !row.purchase_order.merchandiser_code || !row.purchase_order.merchandiser) return "";
+          if (!row || !row.purchase_order.merchandiser_code || !row.purchase_order.merchandiser)
+            return "";
           return (
             <Link
               to={`${UrlConfig.ACCOUNTS}/${row.purchase_order.merchandiser_code}`}
@@ -135,7 +129,7 @@ const TabSevenDays: React.FC = () => {
             >
               {`${row.purchase_order.merchandiser_code} - ${row.purchase_order.merchandiser}`}
             </Link>
-          )
+          );
         },
       },
       {
@@ -149,8 +143,7 @@ const TabSevenDays: React.FC = () => {
         title: "Ngày nhận hàng dự kiến",
         dataIndex: "expect_receipt_date",
         visible: true,
-        render: (value) =>
-          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+        render: (value) => ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
         width: 200,
       },
       {
@@ -184,24 +177,19 @@ const TabSevenDays: React.FC = () => {
         visible: true,
         render: (value) => value,
       },
-    ]
-  },[]);
+    ];
+  }, []);
 
-  const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<PurchaseProcument>>
-    >(defaultColumns);
+  const [columns, setColumns] =
+    useState<Array<ICustomTableColumType<PurchaseProcument>>>(defaultColumns);
 
-  const onSelectedChange = useCallback(
-    (selectedRow: Array<PurchaseProcument>) => {
-
-      setSelected(
-        selectedRow.filter(function (el) {
-          return el !== undefined;
-        })
-      );
-    },
-    []
-  );
+  const onSelectedChange = useCallback((selectedRow: Array<PurchaseProcument>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      }),
+    );
+  }, []);
 
   useEffect(() => {
     setColumns(defaultColumns);
@@ -213,7 +201,7 @@ const TabSevenDays: React.FC = () => {
 
   const query = useQuery();
   let paramsUrl: any = useMemo(() => {
-    return {...getQueryParams(query)}
+    return { ...getQueryParams(query) };
   }, [query]);
 
   return (

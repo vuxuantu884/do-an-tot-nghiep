@@ -36,15 +36,15 @@ const showTotal = (pagination: ICustomTablePaginationConfig) => {
     return "Không có kết quả";
   }
   if (to > total) to = total;
-  return <span>
-    <span className="text-bold">{from}</span> - <span className="text-bold">{to}</span> trong tổng <span className="text-bold">{total}</span>
-  </span>;
+  return (
+    <span>
+      <span className="text-bold">{from}</span> - <span className="text-bold">{to}</span> trong tổng{" "}
+      <span className="text-bold">{total}</span>
+    </span>
+  );
 };
 
-const handleLastNextPage = (
-  pagination: ICustomTablePaginationConfig,
-  type: number
-) => {
+const handleLastNextPage = (pagination: ICustomTablePaginationConfig, type: number) => {
   const { current = 1, total = 1, pageSize = 1, onChange } = pagination;
   const totalPage = Math.ceil(total / pageSize);
   if (!onChange) return;
@@ -56,16 +56,10 @@ const handleLastNextPage = (
   return onChange(1, pageSize);
 };
 
-const handleSizeChanger = (
-  pagination: ICustomTablePaginationConfig,
-  value: number
-) => {
+const handleSizeChanger = (pagination: ICustomTablePaginationConfig, value: number) => {
   const { current = 1, total = 1, onShowSizeChange } = pagination;
   const totalPage = Math.ceil(total / value);
-  return (
-    onShowSizeChange &&
-    onShowSizeChange(current > totalPage ? 1 : current, value)
-  );
+  return onShowSizeChange && onShowSizeChange(current > totalPage ? 1 : current, value);
 };
 
 const CustomPagination = (props: ICustomPaginationProps) => {
@@ -80,25 +74,18 @@ const CustomPagination = (props: ICustomPaginationProps) => {
         <div className="custom-table-pagination">
           <Row justify="space-between">
             <Col span={6}>
-              <span className="custom-table-pagination__showTotal">
-                {showTotal(pagination)}
-              </span>
+              <span className="custom-table-pagination__showTotal">{showTotal(pagination)}</span>
             </Col>
             {pagination.showSizeChanger && (
               <Col span={6}>
                 <div className="custom-table-pagination__sizeChange">
-                  <label
-                    htmlFor="custom-pagination-size-changer"
-                    style={{ marginRight: 4 }}
-                  >
+                  <label htmlFor="custom-pagination-size-changer" style={{ marginRight: 4 }}>
                     Hiển thị:{" "}
                   </label>
                   <Select
                     value={pagination.pageSize}
                     id="custom-pagination-size-changer"
-                    onChange={(value: number) =>
-                      handleSizeChanger(pagination, value)
-                    }
+                    onChange={(value: number) => handleSizeChanger(pagination, value)}
                   >
                     {pagination &&
                       PageConfig.map((size) => (
@@ -118,9 +105,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                     onClick={() => handleLastNextPage(pagination, 0)}
                     className={classNames(
                       "ant-pagination-item ant-pagination-item-link",
-                      pagination.current &&
-                        pagination.current === 1 &&
-                        "ant-pagination-disabled"
+                      pagination.current && pagination.current === 1 && "ant-pagination-disabled",
                     )}
                     disabled={pagination?.current === 1}
                     type="button"
@@ -144,7 +129,7 @@ const CustomPagination = (props: ICustomPaginationProps) => {
                       "ant-pagination-item ant-pagination-item-link",
                       pagination.current &&
                         pagination.current === totalPage &&
-                        "ant-pagination-disabled"
+                        "ant-pagination-disabled",
                     )}
                     disabled={pagination?.current === totalPage}
                     type="button"

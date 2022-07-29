@@ -1,5 +1,5 @@
-import {BaseMetadata} from "model/base/base-metadata.response";
-import {BaseObject} from "model/base/base.response";
+import { BaseMetadata } from "model/base/base-metadata.response";
+import { BaseObject } from "model/base/base.response";
 
 export interface OrderSourceModel {
   company?: string;
@@ -12,7 +12,7 @@ export interface OrderSourceModel {
   id: number;
   channel_id: number;
   is_default: boolean;
-  code?: string|null;
+  code?: string | null;
   is_channel: boolean;
   channel_type: {
     id: number;
@@ -26,8 +26,8 @@ export interface OrderSourceModel {
 export interface ChannelModel {
   id: number;
   code: string;
-  name: string|undefined;
-  channel_type_id: number|undefined;
+  name: string | undefined;
+  channel_type_id: number | undefined;
 }
 
 export interface ChannelTypeModel {

@@ -1,29 +1,11 @@
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-} from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row, Select } from "antd";
 import UrlConfig from "config/url.config";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
-import {
-  sizeDetailAction,
-  sizeUpdateAction,
-} from "domain/actions/product/size.action";
+import { sizeDetailAction, sizeUpdateAction } from "domain/actions/product/size.action";
 import { SizeUpdateRequest } from "model/product/size.model";
 import { CategoryResponse, CategoryView } from "model/product/category.model";
 import { SizeDetail, SizeResponse } from "model/product/size.model";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { createRef, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { convertCategory, convertSizeResponeToDetail } from "utils/AppUtils";
@@ -57,7 +39,7 @@ const SizeUpdateScreen: React.FC = () => {
   const isFirstLoad = useRef(true);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
-  }); 
+  });
 
   //Function callback
   const onSuccess = useCallback(() => {
@@ -71,8 +53,8 @@ const SizeUpdateScreen: React.FC = () => {
       setLoading(true);
       dispatch(sizeUpdateAction(idNumber, values, onSuccess));
     },
-    [dispatch, idNumber, onSuccess]
-  ); 
+    [dispatch, idNumber, onSuccess],
+  );
 
   const setCategory = useCallback((data: Array<CategoryResponse>) => {
     let newData = convertCategory(data);
@@ -89,23 +71,21 @@ const SizeUpdateScreen: React.FC = () => {
     }
   }, []);
 
-  const backAction = ()=>{ 
-    
-    if (!CompareObject(formRef.current?.getFieldsValue(),size)) {
+  const backAction = () => {
+    if (!CompareObject(formRef.current?.getFieldsValue(), size)) {
       setModalConfirm({
         visible: true,
         onCancel: () => {
-          setModalConfirm({visible: false});
+          setModalConfirm({ visible: false });
         },
-        onOk: () => { 
-          setModalConfirm({visible: false});
+        onOk: () => {
+          setModalConfirm({ visible: false });
           history.push(UrlConfig.SIZES);
         },
         title: "Bạn có muốn quay lại?",
-        subTitle:
-          "Sau khi quay lại thay đổi sẽ không được lưu.",
-      }); 
-    }else{
+        subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
+      });
+    } else {
       history.push(UrlConfig.SIZES);
     }
   };
@@ -145,12 +125,7 @@ const SizeUpdateScreen: React.FC = () => {
       ]}
     >
       {size !== null && (
-        <Form
-          ref={formRef}
-          onFinish={onFinish}
-          initialValues={size}
-          layout="vertical"
-        >
+        <Form ref={formRef} onFinish={onFinish} initialValues={size} layout="vertical">
           <Card title="Thông tin cơ bản">
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -173,11 +148,7 @@ const SizeUpdateScreen: React.FC = () => {
                   name="code"
                   normalize={(value) => (value || "").toUpperCase()}
                 >
-                  <Input
-                    maxLength={3}
-                    placeholder="Nhập kích cỡ"
-                    size="large"
-                  />
+                  <Input maxLength={3} placeholder="Nhập kích cỡ" size="large" />
                 </Form.Item>
               </Col>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -191,7 +162,12 @@ const SizeUpdateScreen: React.FC = () => {
                   name="category_ids"
                   label="Danh mục"
                 >
-                  <Select mode="multiple" placeholder="Chọn danh mục" showArrow maxTagCount="responsive">
+                  <Select
+                    mode="multiple"
+                    placeholder="Chọn danh mục"
+                    showArrow
+                    maxTagCount="responsive"
+                  >
                     {categories.map((item) => (
                       <Option key={item.id} value={item.id}>
                         {item.name}
@@ -212,10 +188,10 @@ const SizeUpdateScreen: React.FC = () => {
                 </Button>
               </AuthWrapper>
             }
-          /> 
+          />
         </Form>
       )}
-       <ModalConfirm {...modalConfirm} />
+      <ModalConfirm {...modalConfirm} />
     </ContentContainer>
   );
 };

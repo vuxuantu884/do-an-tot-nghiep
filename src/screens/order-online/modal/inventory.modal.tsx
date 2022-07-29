@@ -26,11 +26,11 @@ const priority = {
 };
 
 interface InventoryStore {
-  id: number,
-  name: string,
-  priority: number,
-  data: any,
-  color:string
+  id: number;
+  name: string;
+  priority: number;
+  data: any;
+  color: string;
 }
 
 const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProps) => {
@@ -50,15 +50,14 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
   const [selectedStoreId, setSelectedStoreId] = useState<number | null>(null);
   const [storeData, setStoreData] = useState<StoreResponse[] | null>(null);
 
-  const [rowProductHeight, setRowProductHeight] = useState(rowHeight)
+  const [rowProductHeight, setRowProductHeight] = useState(rowHeight);
 
   const setAllAvailable = (variantId: number) => {
-
     let inventoryInt = 0;
     if (inventoryArray && inventoryArray.length) {
       data.forEach(function (item) {
         inventoryInt += item.data[variantId];
-      })
+      });
     }
     return inventoryInt === null ? 0 : inventoryInt;
   };
@@ -67,10 +66,15 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     setSelectedStoreId(e.target.value);
   };
 
-  const onSearchInventory = useCallback((value: string) => {
-    let _item: StoreResponse[] | any = storeArrayResponse?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
-    setStoreData(_item);
-  }, [storeArrayResponse])
+  const onSearchInventory = useCallback(
+    (value: string) => {
+      let _item: StoreResponse[] | any = storeArrayResponse?.filter((x) =>
+        x.name.toLowerCase().includes(value.toLowerCase().trim()),
+      );
+      setStoreData(_item);
+    },
+    [storeArrayResponse],
+  );
 
   const handleOk = useCallback(() => {
     if (selectedStoreId) onChangeStore(selectedStoreId);
@@ -80,11 +84,13 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
   const data = useMemo(() => {
     let stores: Array<InventoryStore> = [];
     if (!storeData) return stores;
-    let validStore = storeData.filter((store) => store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER
-      && store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE)
+    let validStore = storeData.filter(
+      (store) =>
+        store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER &&
+        store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE,
+    );
 
     validStore?.forEach((value, index) => {
-      
       // columnsItem?.forEach((value1)=>{
       //   let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
       //   if((inventory?.available||0) < (value1.quantity||0)){
@@ -92,21 +98,29 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       //   }
       // })
 
-      let colorSuccess= columnsItem?.some(p=>(inventoryArray?.find((value2) => p.variant_id === value2.variant_id && value.id === value2.store_id)?.available||0)<p.quantity);
+      let colorSuccess = columnsItem?.some(
+        (p) =>
+          (inventoryArray?.find(
+            (value2) => p.variant_id === value2.variant_id && value.id === value2.store_id,
+          )?.available || 0) < p.quantity,
+      );
 
-      let colorStyle= !colorSuccess?successColor:"";
+      let colorStyle = !colorSuccess ? successColor : "";
 
       let store: InventoryStore = {
         id: value.id,
         name: value.name,
         priority: value.type === "ware_house" ? priority.ware_house : 1,
-        color:colorStyle,
+        color: colorStyle,
         data: {},
       };
 
       columnsItem?.forEach((value1) => {
-        let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
-        store.data[value1.variant_id.toString()] = inventory && inventory.available ? inventory.available : 0
+        let inventory = inventoryArray?.find(
+          (value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id,
+        );
+        store.data[value1.variant_id.toString()] =
+          inventory && inventory.available ? inventory.available : 0;
       });
       stores.push(store);
     });
@@ -130,7 +144,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
         }
       });
       return item2 - item1;
-    })
+    });
     return stores;
   }, [columnsItem, storeData, inventoryArray]);
 
@@ -142,16 +156,20 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     if (storeArrayResponse) setStoreData(storeArrayResponse);
   }, [storeArrayResponse]);
 
-  const element = document.getElementById("stickyRowProduct")
+  const element = document.getElementById("stickyRowProduct");
 
   useEffect(() => {
-    setRowProductHeight(element?.clientHeight && element?.clientHeight > rowHeight ? element?.clientHeight : rowHeight)
-  }, [element])
+    setRowProductHeight(
+      element?.clientHeight && element?.clientHeight > rowHeight
+        ? element?.clientHeight
+        : rowHeight,
+    );
+  }, [element]);
 
   // useEffect(() => {
   //   console.log('element?.clientHeight', element?.clientHeight)
   // }, [element?.clientHeight])
-  
+
   // console.log("columnsItem",columnsItem)
 
   return (
@@ -168,43 +186,55 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       <StyledComponent>
         <Row gutter={24}>
           <Col md={12}>
-            <Input.Search
-              placeholder="Tìm kiếm kho"
-              allowClear
-              onSearch={onSearchInventory}
-            />
+            <Input.Search placeholder="Tìm kiếm kho" allowClear onSearch={onSearchInventory} />
           </Col>
         </Row>
         <Row gutter={24} className="margin-top-10">
           <Col md={24}>
             <div className="overflow-table">
-              <Radio.Group
-                onChange={onChange}
-                value={selectedStoreId}
-                style={{ width: "100%" }}
-              >
+              <Radio.Group onChange={onChange} value={selectedStoreId} style={{ width: "100%" }}>
                 <table className="rules">
-                  <thead id="stickyRowProduct" style={{top: -1, background: grayF5Color}} className="tableElementSticky" >
+                  <thead
+                    id="stickyRowProduct"
+                    style={{ top: -1, background: grayF5Color }}
+                    className="tableElementSticky"
+                  >
                     <tr>
                       <th className="condition">Sản phẩm</th>
                       {columnsItem?.map((data, index) => (
-                        <th className="condition" key={index}>{data.variant}</th>
+                        <th className="condition" key={index}>
+                          {data.variant}
+                        </th>
                       ))}
                     </tr>
                   </thead>
-                  <tbody style={{top: rowProductHeight -5, background: "white"}} id="stickyRowCustomer" className="tableElementSticky">
+                  <tbody
+                    style={{ top: rowProductHeight - 5, background: "white" }}
+                    id="stickyRowCustomer"
+                    className="tableElementSticky"
+                  >
                     <tr>
                       <td className="condition">Khách đặt</td>
                       {columnsItem?.map((data, index) => (
-                        <td className="condition" key={index}>{data.quantity}</td>
+                        <td className="condition" key={index}>
+                          {data.quantity}
+                        </td>
                       ))}
                     </tr>
                   </tbody>
-                  <thead style={{top: rowProductHeight -8 + rowHeight, background: grayF5Color}} className="tableElementSticky">
+                  <thead
+                    style={{
+                      top: rowProductHeight - 8 + rowHeight,
+                      background: grayF5Color,
+                    }}
+                    className="tableElementSticky"
+                  >
                     <tr>
                       <th className="condition">Tổng có thế bán</th>
                       {columnsItem?.map((data, index) => (
-                        <th className="condition" key={index}>{setAllAvailable(data.variant_id)}</th>
+                        <th className="condition" key={index}>
+                          {setAllAvailable(data.variant_id)}
+                        </th>
                       ))}
                     </tr>
                   </thead>
@@ -213,11 +243,22 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                     {data?.map((item, index) => (
                       <tr key={index}>
                         <th className="condition" key={index}>
-                          <Radio value={item.id} style={{color:item.color}}>{item.name}</Radio>
+                          <Radio value={item.id} style={{ color: item.color }}>
+                            {item.name}
+                          </Radio>
                         </th>
 
                         {columnsItem?.map((_itemi, index) => (
-                          <td className="condition" key={_itemi.variant_id} style={item.data[_itemi.variant_id] <= 0 || item.data[_itemi.variant_id] <_itemi.quantity? {color: dangerColor} : {color:successColor}}>
+                          <td
+                            className="condition"
+                            key={_itemi.variant_id}
+                            style={
+                              item.data[_itemi.variant_id] <= 0 ||
+                              item.data[_itemi.variant_id] < _itemi.quantity
+                                ? { color: dangerColor }
+                                : { color: successColor }
+                            }
+                          >
                             {item.data[_itemi.variant_id]}
                           </td>
                         ))}
@@ -229,7 +270,6 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
             </div>
           </Col>
         </Row>
-
       </StyledComponent>
     </Modal>
   );

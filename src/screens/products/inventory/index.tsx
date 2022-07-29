@@ -6,7 +6,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { useHistory, useRouteMatch} from "react-router";
+import { useHistory, useRouteMatch } from "react-router";
 import { generateQuery } from "utils/AppUtils";
 import { getQueryParams } from "utils/useQuery";
 import AllTab from "./tab/all.tab";
@@ -22,33 +22,31 @@ const InventoryScreen: React.FC = () => {
   const history = useHistory();
   const [loading, setLoading] = useState<boolean>(true);
   const [stores, setStores] = useState<Array<StoreResponse>>([]);
-  const {path} = useRouteMatch();
-  const [vExportProduct,setVExportProduct] = useState(false);
-  const [showExportModal,setShowExportModal] = useState(false);
-  const [vExportInventory,setVExportInventory] = useState(false);
-  const [conditionFilter,setConditionFilter] = useState(null);
-  const [storeIds,setStoreIds] = useState(null);
+  const { path } = useRouteMatch();
+  const [vExportProduct, setVExportProduct] = useState(false);
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [vExportInventory, setVExportInventory] = useState(false);
+  const [conditionFilter, setConditionFilter] = useState(null);
+  const [storeIds, setStoreIds] = useState(null);
 
   useEffect(() => {
     let redirectUrl = path;
     if (redirectUrl) {
       const search = new URLSearchParams(history.location.search);
-      let newPrams = {...getQueryParams(search)};
+      let newPrams = { ...getQueryParams(search) };
       if (newPrams) redirectUrl += `?${generateQuery(newPrams)}`;
 
       switch (path) {
-        case  InventoryTabUrl.ALL:
+        case InventoryTabUrl.ALL:
           history.replace(redirectUrl);
           setActiveTab(InventoryTabUrl.ALL);
           break;
         case InventoryTabUrl.HISTORIES:
           if (conditionFilter) {
-            newPrams = {...newPrams,
-              condition:conditionFilter};
+            newPrams = { ...newPrams, condition: conditionFilter };
           }
           if (storeIds) {
-            newPrams = {...newPrams,
-              store_ids: storeIds};
+            newPrams = { ...newPrams, store_ids: storeIds };
           }
           redirectUrl = `?${generateQuery(newPrams)}`;
           history.replace(redirectUrl);
@@ -59,10 +57,10 @@ const InventoryScreen: React.FC = () => {
   }, [history, path, conditionFilter, storeIds]);
 
   useEffect(() => {
-    setLoading(false)
+    setLoading(false);
     dispatch(StoreGetListAction(setStores));
   }, [dispatch]);
-  
+
   return (
     <ContentContainer
       isLoading={loading}
@@ -77,62 +75,76 @@ const InventoryScreen: React.FC = () => {
         },
       ]}
       extra={
-        activeTab === InventoryTabUrl.HISTORIES ?
-        <Row>
-          <Space>
+        activeTab === InventoryTabUrl.HISTORIES ? (
+          <Row>
+            <Space>
               <Button
-                  className="light"
-                  size="large"
-                  icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                  onClick={() => {setVExportProduct(true)}}
-                >
-                  Xuất file
+                className="light"
+                size="large"
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={() => {
+                  setVExportProduct(true);
+                }}
+              >
+                Xuất file
               </Button>
-          </Space>
-        </Row> :
-        <Row>
-        <Space>
-            <Button
+            </Space>
+          </Row>
+        ) : (
+          <Row>
+            <Space>
+              <Button
                 title="Xuất tồn cửa hàng: hiển thị excel các cửa hàng được chọn theo dạng cột"
                 className="light"
                 size="large"
-                icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                onClick={() => {setShowExportModal(true)}}
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={() => {
+                  setShowExportModal(true);
+                }}
               >
                 Xuất tồn CH
-            </Button>
-            <Button
+              </Button>
+              <Button
                 title="Xuất tồn chi tiết: hiển thị excel như trên giao diện"
                 className="light"
                 size="large"
-                icon={<img src={exportIcon} style={{marginRight: 8}} alt="" />}
-                onClick={() => {setVExportInventory(true)}}
+                icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                onClick={() => {
+                  setVExportInventory(true);
+                }}
               >
                 Xuất tồn chi tiết
-            </Button>
-        </Space>
-      </Row>
+              </Button>
+            </Space>
+          </Row>
+        )
       }
     >
       <Card style={{ padding: 0 }} className="card-tab">
-        <Tabs
-          style={{ overflow: "initial" }}
-          activeKey={activeTab}
-          renderTabBar={RenderTabBar}          
-        >
+        <Tabs style={{ overflow: "initial" }} activeKey={activeTab} renderTabBar={RenderTabBar}>
           <TabPane tab={<Link to={InventoryTabUrl.ALL}>Tồn kho</Link>} key={InventoryTabUrl.ALL}>
             <AllTab
-             showExportModal={showExportModal} 
-             setShowExportModal={setShowExportModal} 
-             vExportInventory={vExportInventory}
-             setVExportInventory={setVExportInventory}
-             stores={stores} current={activeTab}
-             setConditionFilter={setConditionFilter}
-             setStoreIds={setStoreIds} />
+              showExportModal={showExportModal}
+              setShowExportModal={setShowExportModal}
+              vExportInventory={vExportInventory}
+              setVExportInventory={setVExportInventory}
+              stores={stores}
+              current={activeTab}
+              setConditionFilter={setConditionFilter}
+              setStoreIds={setStoreIds}
+            />
           </TabPane>
-          
-          <TabPane tab={<Link to={InventoryTabUrl.HISTORIES}>Lịch sử tồn kho</Link>} key={InventoryTabUrl.HISTORIES} >
-            <HistoryTab vExportProduct={vExportProduct} setVExportProduct={setVExportProduct} stores={stores} current={activeTab} />
+
+          <TabPane
+            tab={<Link to={InventoryTabUrl.HISTORIES}>Lịch sử tồn kho</Link>}
+            key={InventoryTabUrl.HISTORIES}
+          >
+            <HistoryTab
+              vExportProduct={vExportProduct}
+              setVExportProduct={setVExportProduct}
+              stores={stores}
+              current={activeTab}
+            />
           </TabPane>
         </Tabs>
       </Card>

@@ -1,6 +1,5 @@
 import styled from "styled-components";
 
-
 export const StyledHashTag = styled.div`
   .custom-tags {
     padding: 10px;
@@ -19,7 +18,7 @@ export const StyledHashTag = styled.div`
         border: 1px solid #d9d9d9;
         border-radius: 2px;
         opacity: 1;
-        transition: all .3s;
+        transition: all 0.3s;
         img {
           width: 18px;
           margin-left: 3px;
@@ -41,9 +40,10 @@ export const StyledHashTag = styled.div`
 `;
 
 export const RegionListDropdownStyled = styled.div`
-	.region-item {
-    .country-name, .region-code {
-			display: none;
-		}
-	}
+  .region-item {
+    .country-name,
+    .region-code {
+      display: none;
+    }
+  }
 `;

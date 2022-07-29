@@ -60,17 +60,9 @@ interface ProcurementFormProps {
   fileList: Array<UploadFile>;
 }
 
-type UploadStatus =
-  | "ERROR"
-  | "SUCCESS"
-  | "DONE"
-  | "PROCESSING"
-  | "REMOVED"
-  | undefined;
+type UploadStatus = "ERROR" | "SUCCESS" | "DONE" | "PROCESSING" | "REMOVED" | undefined;
 
-const ProcurementForm: React.FC<ProcurementFormProps> = (
-  props: ProcurementFormProps,
-) => {
+const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormProps) => {
   const {
     formMain,
     listPO,
@@ -89,30 +81,22 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const [loadingSearch, setLoadingSearch] = useState<boolean>(false);
   const [listStore, setListStore] = useState<Array<Store>>([]);
-  const [accountStores, setAccountStores] = useState<
-    Array<AccountStoreResponse>
-  >([]);
+  const [accountStores, setAccountStores] = useState<Array<AccountStoreResponse>>([]);
 
   const dispatch = useDispatch();
 
   const getMe = useCallback(async () => {
-    const res = await callApiNative(
-      { isShowLoading: false },
-      dispatch,
-      getAccountDetail,
-    );
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getAccountDetail);
     if (res && res.account_stores) {
       setAccountStores(res.account_stores);
     }
   }, [dispatch]);
 
   const getStores = useCallback(async () => {
-    const res = await callApiNative(
-      { isShowLoading: false },
-      dispatch,
-      getStoreApi,
-      { status: "active", simple: true },
-    );
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getStoreApi, {
+      status: "active",
+      simple: true,
+    });
     if (res) {
       setListStore(res);
     }
@@ -197,12 +181,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (
     () =>
       debounce((keyword: string) => {
         setLoadingSearch(true);
-        dispatch(
-          SupplierSearchAction(
-            { condition: keyword.trim(), status: "active" },
-            onResult,
-          ),
-        );
+        dispatch(SupplierSearchAction({ condition: keyword.trim(), status: "active" }, onResult));
       }, 300),
     [dispatch, onResult],
   );
@@ -265,8 +244,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (
           <Col span={12}>
             <Form.Item
               shouldUpdate={(prevValues, curValues) =>
-                prevValues[ProcurementField.supplier_id] !==
-                curValues[ProcurementField.supplier_id]
+                prevValues[ProcurementField.supplier_id] !== curValues[ProcurementField.supplier_id]
               }
               className="margin-bottom-0"
             >
@@ -297,19 +275,13 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (
                           )}
                         </div>
                         <>
-                          <Form.Item
-                            hidden
-                            name={[ProcurementField.supplier_id]}
-                          >
+                          <Form.Item hidden name={[ProcurementField.supplier_id]}>
                             <Input />
                           </Form.Item>
                           <Form.Item hidden name={[ProcurementField.supplier]}>
                             <Input />
                           </Form.Item>
-                          <Form.Item
-                            hidden
-                            name={[ProcurementField.supplier_phone]}
-                          >
+                          <Form.Item hidden name={[ProcurementField.supplier_phone]}>
                             <Input />
                           </Form.Item>
                           <Row>
@@ -408,21 +380,12 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (
                 }}
                 customRequest={(option: any) => {
                   return dispatch(
-                    uploadFileAction(
-                      [option.file],
-                      "stock-transfer",
-                      onResultChange,
-                    ),
+                    uploadFileAction([option.file], "stock-transfer", onResultChange),
                   );
                 }}
               >
-                <Button
-                  disabled={!isEmpty(listPO)}
-                  size="middle"
-                  icon={<UploadOutlined />}
-                >
-                  Nhập file sản phẩm{" "}
-                  <span style={{ color: "red", marginLeft: 3 }}>*</span>
+                <Button disabled={!isEmpty(listPO)} size="middle" icon={<UploadOutlined />}>
+                  Nhập file sản phẩm <span style={{ color: "red", marginLeft: 3 }}>*</span>
                 </Button>
               </Upload>
             </Form.Item>
@@ -516,14 +479,10 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (
             {uploadStatus === EnumImportStatus.processing ? (
               <Col span={24}>
                 <Row justify={"center"}>
-                  <LoadingOutlined
-                    style={{ fontSize: "78px", color: "#E24343" }}
-                  />
+                  <LoadingOutlined style={{ fontSize: "78px", color: "#E24343" }} />
                 </Row>
                 <Row justify={"center"}>
-                  <h2 style={{ padding: "10px 30px" }}>
-                    Đang xử lý nhập file...
-                  </h2>
+                  <h2 style={{ padding: "10px 30px" }}>Đang xử lý nhập file...</h2>
                 </Row>
               </Col>
             ) : (
@@ -550,14 +509,11 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (
                 {uploadStatus === EnumImportStatus.success && (
                   <>
                     <Row justify={"center"}>
-                      <CheckCircleOutlined
-                        style={{ fontSize: "78px", color: "#27AE60" }}
-                      />
+                      <CheckCircleOutlined style={{ fontSize: "78px", color: "#27AE60" }} />
                     </Row>
                     <Row justify={"center"}>
                       <h2 style={{ padding: "10px 30px" }}>
-                        Xử lý nhập hoàn tất:{" "}
-                        <strong style={{ color: "#2A2A86" }}></strong>{" "}
+                        Xử lý nhập hoàn tất: <strong style={{ color: "#2A2A86" }}></strong>{" "}
                       </h2>
                       <h4>{errorMessage ?? ""}</h4>
                     </Row>

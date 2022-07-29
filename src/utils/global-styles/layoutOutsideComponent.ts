@@ -15,9 +15,8 @@ export const globalCssLayoutOutsideComponent = css`
     .hideInSelect {
       display: none;
     }
-    
   }
-  .ant-select-item-option  {
+  .ant-select-item-option {
     .hideInDropdown {
       display: none;
     }
@@ -25,43 +24,43 @@ export const globalCssLayoutOutsideComponent = css`
       font-weight: 500;
     }
   }
-	.ant-picker-dropdown {
-		.datePickerFooter {
-			white-space: nowrap;
-		}
-		.datePickerSelectRange {
-			text-align: center;
-			cursor: pointer;
-			color: ${primaryColor};
-			&.active,
-			&:hover {
-				font-weight: 500;
-			}
-		}
-	}
+  .ant-picker-dropdown {
+    .datePickerFooter {
+      white-space: nowrap;
+    }
+    .datePickerSelectRange {
+      text-align: center;
+      cursor: pointer;
+      color: ${primaryColor};
+      &.active,
+      &:hover {
+        font-weight: 500;
+      }
+    }
+  }
 
-  .yody-modal-price-product .ant-modal-header{
+  .yody-modal-price-product .ant-modal-header {
     padding: 16px 20px 0px 20px;
   }
 
-  .yody-modal-price-product .ant-modal-body{
+  .yody-modal-price-product .ant-modal-body {
     padding: 5px 20px;
   }
-  .yody-table-product-search .ant-image-mask-info{
+  .yody-table-product-search .ant-image-mask-info {
     font-size: 10px;
   }
-  .yody-text-ellipsis{
+  .yody-text-ellipsis {
     display: block;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  .modal-des .ql-align-center img{
-    max-width: 100% ;
+  .modal-des .ql-align-center img {
+    max-width: 100%;
   }
 
   .modal-des img {
-    max-width: 70% ;
+    max-width: 70%;
   }
   .order-filter-drawer {
     .button-option-1 {
@@ -102,6 +101,5 @@ export const globalCssLayoutOutsideComponent = css`
       border-color: rgba(42, 42, 134, 0.05);
       background-color: rgba(42, 42, 134, 0.05);
     }
-
   }
 `;

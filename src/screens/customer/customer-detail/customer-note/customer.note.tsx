@@ -2,11 +2,7 @@ import { Row, Col } from "antd";
 import CustomTable from "component/table/CustomTable";
 import { ICustomTableColumType } from "component/table/CustomTable";
 import CustomerModal from "../../customer-modal";
-import {
-  CreateNote,
-  UpdateNote,
-  DeleteNote,
-} from "domain/actions/customer/customer.action";
+import { CreateNote, UpdateNote, DeleteNote } from "domain/actions/customer/customer.action";
 import React from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
@@ -23,15 +19,15 @@ import { modalActionType } from "model/modal/modal.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 
 type CustomerNoteInfoProps = {
-  customer: CustomerResponse | undefined,
-  customerDetailState: string,
-  modalAction: modalActionType ,
-  isShowModalNote: boolean,
-  setIsShowModalNote: (value: boolean) => void,
-  setModalAction: (value: modalActionType) => void,
-}
+  customer: CustomerResponse | undefined;
+  customerDetailState: string;
+  modalAction: modalActionType;
+  isShowModalNote: boolean;
+  setIsShowModalNote: (value: boolean) => void;
+  setModalAction: (value: modalActionType) => void;
+};
 
-const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteInfoProps) => {
+const CustomerNoteInfo: React.FC<CustomerNoteInfoProps> = (props: CustomerNoteInfoProps) => {
   const {
     customer,
     customerDetailState,
@@ -46,8 +42,7 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
   const onCancelNoteDelete = () => {
     setIsVisibleNoteModal(false);
   };
-  const [isVisibleNoteModal, setIsVisibleNoteModal] =
-    React.useState<boolean>(false);
+  const [isVisibleNoteModal, setIsVisibleNoteModal] = React.useState<boolean>(false);
 
   const handleNoteEdit = () => {
     setIsShowModalNote(true);
@@ -76,9 +71,7 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
       dataIndex: "",
       visible: true,
       render: (value, row, index) => {
-        return (
-          <div style={{ color: "#666666", width: 300 }}>{row.content}</div>
-        );
+        return <div style={{ color: "#666666", width: 300 }}>{row.content}</div>;
       },
     },
     {
@@ -109,8 +102,7 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
     },
     actionColumn(handleNoteEdit, handleNoteDelete, customerDetailState),
   ];
-  const noteColumnFinal = () =>
-    noteColumns.filter((item) => item.visible === true);
+  const noteColumnFinal = () => noteColumns.filter((item) => item.visible === true);
 
   const handleNoteForm = {
     create: (formValue: CustomerNote) => {
@@ -122,25 +114,20 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
             data
               ? showSuccess("Thêm mới ghi chú thành công")
               : showError("Thêm mới ghi chú thất bại");
-          })
+          }),
         );
     },
     edit: (formValue: CustomerNote) => {
       if (modalSingleNote) {
         if (customer)
           dispatch(
-            UpdateNote(
-              modalSingleNote.id,
-              customer.id,
-              formValue,
-              (data: note) => {
-                setIsShowModalNote(false);
-                gotoFirstPage(customer.id);
-                data
-                  ? showSuccess("Cập nhật ghi chú thành công")
-                  : showError("Cập nhật ghi chú thất bại");
-              }
-            )
+            UpdateNote(modalSingleNote.id, customer.id, formValue, (data: note) => {
+              setIsShowModalNote(false);
+              gotoFirstPage(customer.id);
+              data
+                ? showSuccess("Cập nhật ghi chú thành công")
+                : showError("Cập nhật ghi chú thất bại");
+            }),
           );
       }
     },
@@ -151,10 +138,8 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
             DeleteNote(modalSingleNote.id, customer.id, (data: note) => {
               setIsShowModalNote(false);
               gotoFirstPage(customer.id);
-              data
-                ? showSuccess("Xóa ghi chú thành công")
-                : showError("Xóa ghi chú thất bại");
-            })
+              data ? showSuccess("Xóa ghi chú thành công") : showError("Xóa ghi chú thất bại");
+            }),
           );
       }
     },
@@ -185,9 +170,7 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
           createBtnTitle="Tạo mới ghi chú"
           updateBtnTitle="Lưu ghi chú"
           visible={isShowModalNote}
-          onCreate={(formValue: CustomerNote) =>
-            handleNoteForm.create(formValue)
-          }
+          onCreate={(formValue: CustomerNote) => handleNoteForm.create(formValue)}
           onEdit={(formValue: CustomerNote) => handleNoteForm.edit(formValue)}
           onDelete={() => {}}
           onCancel={() => setIsShowModalNote(false)}
@@ -218,6 +201,6 @@ const CustomerNoteInfo : React.FC<CustomerNoteInfoProps> = (props: CustomerNoteI
       />
     </Row>
   );
-}
+};
 
 export default CustomerNoteInfo;

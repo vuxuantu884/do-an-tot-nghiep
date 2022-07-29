@@ -6,16 +6,20 @@ import { PageResponse } from "model/base/base-metadata.response";
 // import { showError } from "utils/ToastUtils";
 import { put } from "redux-saga/effects";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import { createWarrantyService, getWarrantiesService, getWarrantyDetailService, getWarrantyReasonsService, updateWarrantyService } from "service/warranty/warranty.service";
+import {
+  createWarrantyService,
+  getWarrantiesService,
+  getWarrantyDetailService,
+  getWarrantyReasonsService,
+  updateWarrantyService,
+} from "service/warranty/warranty.service";
 import { WarrantyType } from "domain/types/warranty.type";
 import { showError } from "utils/ToastUtils";
 
 function* GetDataWarranties(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      getWarrantiesService
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(getWarrantiesService);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -35,10 +39,7 @@ function* GetDataWarranties(action: YodyAction) {
 function* GetDetailsWarranty(action: YodyAction) {
   let { id, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      getWarrantyDetailService,
-      id
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(getWarrantyDetailService, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -54,13 +55,10 @@ function* GetDetailsWarranty(action: YodyAction) {
 
 function* CreateWarranty(action: YodyAction) {
   let { body, setData } = action.payload;
-  console.log('CreateWarranty', body);
-  
+  console.log("CreateWarranty", body);
+
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      createWarrantyService,
-      body
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(createWarrantyService, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -80,14 +78,10 @@ function* CreateWarranty(action: YodyAction) {
 
 function* UpdateWarranty(action: YodyAction) {
   let { id, body, setData } = action.payload;
-  console.log('UpdateWarranty', body);
-  
+  console.log("UpdateWarranty", body);
+
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      updateWarrantyService,
-      id,
-      body
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(updateWarrantyService, id, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -105,13 +99,10 @@ function* UpdateWarranty(action: YodyAction) {
   }
 }
 
-
 function* GetWarrantyReasons(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      getWarrantyReasonsService
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(getWarrantyReasonsService);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -135,5 +126,4 @@ export function* warrantySaga() {
   yield takeLatest(WarrantyType.CREATE_WARRANTY_REQUEST, CreateWarranty);
   yield takeLatest(WarrantyType.UPDATE_WARRANTY_REQUEST, UpdateWarranty);
   yield takeLatest(WarrantyType.GET_WARRANTY_REASONS_REQUEST, GetWarrantyReasons);
-  
 }

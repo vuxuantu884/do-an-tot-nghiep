@@ -6,20 +6,22 @@ import { LoyaltyCardAssignmentRequest } from "model/request/loyalty/card/CardAss
 import { LoyaltyCardResponse } from "model/response/loyalty/card/loyalty-card.response";
 import { generateQuery } from "utils/AppUtils";
 
-export const searchLoyaltyCardList = (query: CustomerCardListRequest): Promise<BaseResponse<LoyaltyCardResponse>> => {
+export const searchLoyaltyCardList = (
+  query: CustomerCardListRequest,
+): Promise<BaseResponse<LoyaltyCardResponse>> => {
   let params = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.LOYALTY}/loyalty-cards?${params}`);
 };
 
 export const loyaltyCardAssignmentApi = (
   id: number,
-  query: LoyaltyCardAssignmentRequest
+  query: LoyaltyCardAssignmentRequest,
 ): Promise<BaseResponse<LoyaltyCardResponse>> => {
   return BaseAxios.post(`${ApiConfig.LOYALTY}/loyalty-cards/assignment`, query);
 };
 
-export const loyaltyCardLockApi = (
-  id: number
-): Promise<BaseResponse<LoyaltyCardResponse>> => {
-  return BaseAxios.put(`${ApiConfig.LOYALTY}/loyalty-cards/${id}`, {status: 'INACTIVE'});
+export const loyaltyCardLockApi = (id: number): Promise<BaseResponse<LoyaltyCardResponse>> => {
+  return BaseAxios.put(`${ApiConfig.LOYALTY}/loyalty-cards/${id}`, {
+    status: "INACTIVE",
+  });
 };

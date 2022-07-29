@@ -13,7 +13,7 @@ import { Provider } from "react-redux";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import "assets/css/_inventoryTable.scss";
-import 'moment/locale/vi';
+import "moment/locale/vi";
 
 ReactDOM.render(
   <Provider store={store}>
@@ -21,7 +21,7 @@ ReactDOM.render(
       <App />
     </ConfigProvider>
   </Provider>,
-  document.getElementById("root")
+  document.getElementById("root"),
 );
 
 // If you want to start measuring performance in your app, pass a function

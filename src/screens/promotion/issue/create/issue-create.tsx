@@ -50,7 +50,7 @@ function IssueCreate(props: Props): ReactElement {
             dispatch(hideLoading());
             history.push(UrlConfig.PROMOTION + UrlConfig.PROMO_CODE);
           }
-        })
+        }),
       );
     } catch (error: any) {
       showError(error.message);
@@ -58,19 +58,19 @@ function IssueCreate(props: Props): ReactElement {
     }
   };
 
-      /**
-     * init data
-     */
-       useEffect(() => {
-        const initialValues = {
-            starts_date: moment(),
-            entitled_method: PriceRuleMethod.ORDER_THRESHOLD,
-            priority: 1,
-            entitlements: []
-        }
-        form.setFieldsValue(initialValues);
-    }, [form])
-    
+  /**
+   * init data
+   */
+  useEffect(() => {
+    const initialValues = {
+      starts_date: moment(),
+      entitled_method: PriceRuleMethod.ORDER_THRESHOLD,
+      priority: 1,
+      entitlements: [],
+    };
+    form.setFieldsValue(initialValues);
+  }, [form]);
+
   return (
     <ContentContainer
       title="Tạo khuyến mãi"
@@ -87,13 +87,10 @@ function IssueCreate(props: Props): ReactElement {
           name: "Tạo khuyến mãi",
           path: `${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/create`,
         },
-      ]}>
+      ]}
+    >
       <IssueStyled>
-        <Form
-          form={form}
-          name="issue-create"
-          onFinish={onFinish}
-          layout="vertical">
+        <Form form={form} name="issue-create" onFinish={onFinish} layout="vertical">
           <Row gutter={24}>
             <Col span={18}>
               <IssueForm form={form} />
@@ -122,12 +119,11 @@ function IssueCreate(props: Props): ReactElement {
                     marginRight: ".75rem",
                     borderColor: "#2a2a86",
                   }}
-                  type="ghost">
+                  type="ghost"
+                >
                   Lưu
                 </Button>
-                <Button
-                  type="primary"
-                  onClick={handleSaveAndActivate}>
+                <Button type="primary" onClick={handleSaveAndActivate}>
                   Lưu và kích hoạt
                 </Button>
               </AuthWrapper>

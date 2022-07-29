@@ -44,13 +44,10 @@ import CustomAutoComplete from "../../../../component/custom/autocomplete.cusom"
 import UrlConfig from "../../../../config/url.config";
 import { searchVariantsRequestAction } from "../../../../domain/actions/product/products.action";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
-import {
-  ProductResponse,
-  VariantResponse,
-} from "../../../../model/product/product.model";
-import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import { ProductResponse, VariantResponse } from "../../../../model/product/product.model";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import ProductItem from "../../../purchase-order/component/product-item";
-import {DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE} from "../../constants";
+import { DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE } from "../../constants";
 import { DiscountContext } from "./discount-provider";
 import NumberInput from "component/custom/number-input.custom";
 const Option = Select.Option;
@@ -67,9 +64,7 @@ const FixedAndQuantityGroup = (props: Props) => {
   const { key, name, form, remove, handleVisibleManyProduct } = props;
   const dispatch = useDispatch();
 
-  const [dataSearchVariant, setDataSearchVariant] = useState<
-    Array<VariantResponse>
-  >([]);
+  const [dataSearchVariant, setDataSearchVariant] = useState<Array<VariantResponse>>([]);
 
   const productSearchRef = createRef<CustomAutoComplete>();
 
@@ -78,10 +73,8 @@ const FixedAndQuantityGroup = (props: Props) => {
 
   const selectedProductParentRef = useRef<ProductResponse | null>(null);
   const variantsOfSelectedProductRef = useRef<Array<VariantResponse>>([]);
-  const [
-    isVisibleConfirmReplaceProductModal,
-    setIsVisibleConfirmReplaceProductModal,
-  ] = useState<boolean>(false);
+  const [isVisibleConfirmReplaceProductModal, setIsVisibleConfirmReplaceProductModal] =
+    useState<boolean>(false);
   const [discountUnitOptions, setDiscountUnitOptions] = useState<
     Array<{ value: string; label: string }>
   >([]);
@@ -103,10 +96,7 @@ const FixedAndQuantityGroup = (props: Props) => {
     if (!pageSize) {
       pageSize = dataProductForPagging.metadata.limit;
     }
-    const product = dataSourceForm.slice(
-      (page - 1) * pageSize,
-      page * pageSize
-    );
+    const product = dataSourceForm.slice((page - 1) * pageSize, page * pageSize);
     setDataProductForPagging({
       items: product,
       metadata: {
@@ -127,16 +117,13 @@ const FixedAndQuantityGroup = (props: Props) => {
       },
     });
   };
-  const onResultSearchVariant = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      if (!result) {
-        setDataSearchVariant([]);
-      } else {
-        setDataSearchVariant(result.items);
-      }
-    },
-    []
-  );
+  const onResultSearchVariant = useCallback((result: PageResponse<VariantResponse> | false) => {
+    if (!result) {
+      setDataSearchVariant([]);
+    } else {
+      setDataSearchVariant(result.items);
+    }
+  }, []);
 
   const onSearchVariant = useCallback(
     (value: string) => {
@@ -148,11 +135,11 @@ const FixedAndQuantityGroup = (props: Props) => {
             page: 1,
             info: value.trim(),
           },
-          onResultSearchVariant
-        )
+          onResultSearchVariant,
+        ),
       );
     },
-    [dispatch, onResultSearchVariant]
+    [dispatch, onResultSearchVariant],
   );
 
   const renderResult = useMemo(() => {
@@ -190,8 +177,7 @@ const FixedAndQuantityGroup = (props: Props) => {
     console.log("onDeleteItem", index, limit, page);
     // get index in table
     index = (page - 1) * limit + index;
-    const entilementFormValue: Array<EntilementFormModel> =
-      form.getFieldValue("entitlements");
+    const entilementFormValue: Array<EntilementFormModel> = form.getFieldValue("entitlements");
     // delete variant from display
     entilementFormValue[name]?.selectedProducts?.splice(index, 1);
 
@@ -217,36 +203,27 @@ const FixedAndQuantityGroup = (props: Props) => {
    */
   const handleAcceptParentProduct = () => {
     if (selectedProductParentRef.current) {
-      const entitlementForm: Array<EntilementFormModel> =
-        form.getFieldValue("entitlements");
+      const entitlementForm: Array<EntilementFormModel> = form.getFieldValue("entitlements");
 
       // delete variant from table
-      const filteredVariant = entitlementForm[name].selectedProducts?.filter(
-        (product) => {
-          return variantsOfSelectedProductRef.current?.every((variant) => {
-            return variant.sku !== product.sku;
-          });
-        }
-      );
+      const filteredVariant = entitlementForm[name].selectedProducts?.filter((product) => {
+        return variantsOfSelectedProductRef.current?.every((variant) => {
+          return variant.sku !== product.sku;
+        });
+      });
 
       // delete variant id
-      const filteredVariantId = entitlementForm[
-        name
-      ].entitled_variant_ids?.filter((variantId) => {
+      const filteredVariantId = entitlementForm[name].entitled_variant_ids?.filter((variantId) => {
         return variantsOfSelectedProductRef.current?.every((variant) => {
           return variant.id !== variantId;
         });
       });
 
       // set form value to display
-      filteredVariant?.unshift(
-        parseSelectProductToTableData(selectedProductParentRef.current)
-      );
+      filteredVariant?.unshift(parseSelectProductToTableData(selectedProductParentRef.current));
       entitlementForm[name].selectedProducts = filteredVariant;
       entitlementForm[name].entitled_variant_ids = filteredVariantId;
-      entitlementForm[name].entitled_product_ids.unshift(
-        selectedProductParentRef.current?.id
-      );
+      entitlementForm[name].entitled_product_ids.unshift(selectedProductParentRef.current?.id);
 
       form.setFieldsValue({ entitlements: _.cloneDeep(entitlementForm) });
     }
@@ -307,13 +284,15 @@ const FixedAndQuantityGroup = (props: Props) => {
   }, [dataSourceForm]);
 
   const checkIsPercentUnit = () => {
-    return form.getFieldValue([
-      "entitlements",
-      name,
-      "prerequisite_quantity_ranges",
-      0,
-      "value_type",
-    ]) === DiscountUnitType.PERCENTAGE.value;
+    return (
+      form.getFieldValue([
+        "entitlements",
+        name,
+        "prerequisite_quantity_ranges",
+        0,
+        "value_type",
+      ]) === DiscountUnitType.PERCENTAGE.value
+    );
   };
 
   return (
@@ -321,19 +300,11 @@ const FixedAndQuantityGroup = (props: Props) => {
       <Row gutter={16}>
         <Col span={8}>
           <Form.Item
-            name={[
-              name,
-              "prerequisite_quantity_ranges",
-              0,
-              "greater_than_or_equal_to",
-            ]}
+            name={[name, "prerequisite_quantity_ranges", 0, "greater_than_or_equal_to"]}
             label={
               <Space>
                 <span>SL tối thiểu</span>
-                <Tooltip
-                  title={
-                    "Số lượng tối thiểu cho sản phẩm để được áp dụng khuyến mại"
-                  }>
+                <Tooltip title={"Số lượng tối thiểu cho sản phẩm để được áp dụng khuyến mại"}>
                   <RiInformationLine />
                 </Tooltip>
               </Space>
@@ -343,9 +314,7 @@ const FixedAndQuantityGroup = (props: Props) => {
               ({ getFieldValue }) => ({
                 validator(_, value) {
                   if (typeof value === "number" && value <= 0) {
-                    return Promise.reject(
-                      new Error("Số lượng tối thiểu phải lớn hơn 0")
-                    );
+                    return Promise.reject(new Error("Số lượng tối thiểu phải lớn hơn 0"));
                   }
                   const quantity_limit = getFieldValue("quantity_limit");
                   if (!quantity_limit) {
@@ -353,27 +322,19 @@ const FixedAndQuantityGroup = (props: Props) => {
                   }
                   const entitlements = getFieldValue("entitlements");
                   const allocateLimit =
-                    entitlements[name]?.prerequisite_quantity_ranges
-                      .allocation_limit;
+                    entitlements[name]?.prerequisite_quantity_ranges.allocation_limit;
                   if (value && quantity_limit && value > quantity_limit) {
-                    return Promise.reject(
-                      new Error("SL Tối thiểu phải nhỏ hơn số lượng áp dụng")
-                    );
+                    return Promise.reject(new Error("SL Tối thiểu phải nhỏ hơn số lượng áp dụng"));
                   } else if (value && allocateLimit && value > allocateLimit) {
-                    return Promise.reject(
-                      new Error("SL Tối thiểu phải nhỏ hơn Giới hạn")
-                    );
+                    return Promise.reject(new Error("SL Tối thiểu phải nhỏ hơn Giới hạn"));
                   } else {
                     return Promise.resolve();
                   }
                 },
               }),
-            ]}>
-            <InputNumber
-              min={1}
-              max={MAX_FIXED_DISCOUNT_VALUE}
-              style={{ width: "100%" }}
-            />
+            ]}
+          >
+            <InputNumber min={1} max={MAX_FIXED_DISCOUNT_VALUE} style={{ width: "100%" }} />
           </Form.Item>
         </Col>
 
@@ -381,10 +342,9 @@ const FixedAndQuantityGroup = (props: Props) => {
           <Form.Item
             required
             label={
-              discountMethod === DiscountUnitType.FIXED_PRICE.value
-                ? "Giá cố định "
-                : "Chiết khấu"
-            }>
+              discountMethod === DiscountUnitType.FIXED_PRICE.value ? "Giá cố định " : "Chiết khấu"
+            }
+          >
             <Input.Group compact>
               <Form.Item
                 name={[name, "prerequisite_quantity_ranges", 0, "value"]}
@@ -406,9 +366,7 @@ const FixedAndQuantityGroup = (props: Props) => {
 
                         if (typeof value === "number") {
                           if (value <= 0) {
-                            return Promise.reject(
-                              new Error(msg + " phải lớn hơn 0")
-                            );
+                            return Promise.reject(new Error(msg + " phải lớn hơn 0"));
                           } else if (value > 999999999) {
                             return Promise.reject("Giá trị phải nhỏ hơn hoặc bằng 999.999.999");
                           }
@@ -418,7 +376,8 @@ const FixedAndQuantityGroup = (props: Props) => {
                     },
                   }),
                 ]}
-                noStyle>
+                noStyle
+              >
                 <NumberInput
                   style={{ width: "calc(100% - 70px)", textAlign: "left" }}
                   format={(a: string) => formatCurrency(a)}
@@ -428,20 +387,18 @@ const FixedAndQuantityGroup = (props: Props) => {
                   minLength={0}
                 />
               </Form.Item>
-              <Form.Item
-                name={[name, "prerequisite_quantity_ranges", 0, "value_type"]}
-                noStyle>
+              <Form.Item name={[name, "prerequisite_quantity_ranges", 0, "value_type"]} noStyle>
                 <Select
                   style={{ borderRadius: "0px", width: "70px" }}
                   onSelect={(e) => {
                     // setDiscountType(e?.toString() || "");
                     const value = form.getFieldValue("entitlements");
-                    value[name].prerequisite_quantity_ranges[0].value =
-                      undefined;
+                    value[name].prerequisite_quantity_ranges[0].value = undefined;
                     form.setFieldsValue({
                       entitlements: value,
                     });
-                  }}>
+                  }}
+                >
                   {discountUnitOptions.map((item) => (
                     <Option key={item.value} value={item.value}>
                       {item.label}
@@ -473,7 +430,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                   setIsVisibleConfirmReplaceProductModal,
                   form,
                   name,
-                  dispatch
+                  dispatch,
                 )
               }
               options={renderResult}
@@ -481,11 +438,10 @@ const FixedAndQuantityGroup = (props: Props) => {
               textEmpty={"Không tìm thấy sản phẩm"}
             />
             <Button
-              icon={
-                <img src={DuplicatePlus} style={{ marginRight: 8 }} alt="" />
-              }
+              icon={<img src={DuplicatePlus} style={{ marginRight: 8 }} alt="" />}
               onClick={() => handleVisibleManyProduct(name)}
-              style={{ width: 132, marginLeft: 10 }}>
+              style={{ width: 132, marginLeft: 10 }}
+            >
               Chọn nhiều
             </Button>
           </Input.Group>
@@ -507,14 +463,13 @@ const FixedAndQuantityGroup = (props: Props) => {
                       <div className="product-item-sku">
                         <Link
                           target="_blank"
-                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
+                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                        >
                           {item.sku}
                         </Link>
                       </div>
                       <div className="product-item-name">
-                        <span className="product-item-name-detail">
-                          {title}
-                        </span>
+                        <span className="product-item-name-detail">{title}</span>
                       </div>
                     </div>
                   </div>
@@ -577,7 +532,8 @@ const FixedAndQuantityGroup = (props: Props) => {
                 danger
                 onClick={() => {
                   remove(name);
-                }}>
+                }}
+              >
                 Xoá nhóm chiết khấu
               </Button>
             </Col>
@@ -594,7 +550,7 @@ const FixedAndQuantityGroup = (props: Props) => {
           onCancel={() => {
             handleDenyParentProduct(
               setIsVisibleConfirmReplaceProductModal,
-              selectedProductParentRef
+              selectedProductParentRef,
             );
           }}
         />

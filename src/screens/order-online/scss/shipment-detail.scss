@@ -1,4 +1,3 @@
-
 @import "assets/css/variable";
 
 .fulfillment-detail {
@@ -26,13 +25,11 @@
           }
           .value {
             width: 50%;
-            color: #222222,
+            color: #222222;
           }
         }
       }
-      
     }
-    
   }
   .info {
     width: 100%;
@@ -46,11 +43,10 @@
       }
       .value {
         width: 50%;
-        color: #222222,
+        color: #222222;
       }
     }
   }
-  
 }
 
 .ant-card-body {
@@ -70,14 +66,18 @@
       &:after {
         background-color: $green !important;
       }
-      b, i, span {
+      b,
+      i,
+      span {
         color: $green !important;
       }
       &.hasError {
         &:after {
           background-color: $red !important;
         }
-        b, i, span {
+        b,
+        i,
+        span {
           color: $red !important;
         }
       }
@@ -95,12 +95,12 @@
   }
   .orders-timeline-custom.order-shipment-dot-cancelled {
     // &::before {
-      .saleorder-header-content {
-        .text-field {
-          color: #e24343 !important;
-        }
+    .saleorder-header-content {
+      .text-field {
+        color: #e24343 !important;
       }
-      // background-color: #e24343;
+    }
+    // background-color: #e24343;
     // }
   }
 }

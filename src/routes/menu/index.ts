@@ -18,20 +18,12 @@ import warrantyRoute from "./warranty.route";
 import supplierRoutes from "./supplier.route";
 
 const Dashboard = React.lazy(() => import("screens/dashboard"));
-const Product = React.lazy(
-  () => import("screens/products/product/ProductSearchScreen"),
-);
-const OrderOnline = React.lazy(
-  () => import("screens/order-online/order.screen"),
-);
-const PosOrders = React.lazy(
-  () => import("screens/order-online/orders/offline-orders.screen"),
-);
+const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
+const OrderOnline = React.lazy(() => import("screens/order-online/order.screen"));
+const PosOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
 const Customer = React.lazy(() => import("screens/customer"));
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
-const WebAppOrdersSync = React.lazy(
-  () => import("screens/web-app/orders-sync/WebAppOrdersSync"),
-);
+const WebAppOrdersSync = React.lazy(() => import("screens/web-app/orders-sync/WebAppOrdersSync"));
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
 const YDpage = React.lazy(() => import("screens/YDpage/YDpage"));
 

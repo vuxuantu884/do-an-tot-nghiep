@@ -1,8 +1,5 @@
 import { CreateShippingServiceConfigReQuestFormModel } from "model/request/settings/order-settings.resquest";
-import {
-  LAYOUT_CREATE_AND_DETAIL,
-  ORDER_SETTINGS_STATUS,
-} from "utils/OrderSettings.constants";
+import { LAYOUT_CREATE_AND_DETAIL, ORDER_SETTINGS_STATUS } from "utils/OrderSettings.constants";
 import LayoutEditAndDetail from "../components/LayoutEditAndDetail";
 
 type PropType = {};

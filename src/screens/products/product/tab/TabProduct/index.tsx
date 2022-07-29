@@ -13,7 +13,7 @@ import {
   searchVariantsRequestAction,
   variantDeleteManyAction,
   variantUpdateAction,
-  variantUpdateManyAction
+  variantUpdateManyAction,
 } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -23,14 +23,10 @@ import {
   VariantPricesResponse,
   VariantResponse,
   VariantSearchQuery,
-  VariantUpdateRequest
+  VariantUpdateRequest,
 } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, {
-  useCallback,
-  useEffect, useMemo,
-  useState
-} from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { TYPE_EXPORT } from "screens/products/constants";
@@ -65,7 +61,7 @@ const initQuery: VariantSearchQuery = {
   made_ins: "",
   sizes: "",
   main_colors: "",
-  colors: ""
+  colors: "",
 };
 
 let variantResponse: VariantResponse | null = null;
@@ -81,7 +77,7 @@ const TabProduct: React.FC<any> = (props) => {
     return state.bootstrapReducer.data?.variant_status;
   });
   const currentPermissions: string[] = useSelector(
-    (state: RootReducerType) => state.permissionReducer.permissions
+    (state: RootReducerType) => state.permissionReducer.permissions,
   );
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -112,11 +108,13 @@ const TabProduct: React.FC<any> = (props) => {
   const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
   const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
-  const [allowReadSuppiers]= useAuthorization({acceptPermissions: [SuppliersPermissions.READ]});
+  const [allowReadSuppiers] = useAuthorization({
+    acceptPermissions: [SuppliersPermissions.READ],
+  });
 
   const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
-    
+
     return [
       {
         id: ACTIONS_INDEX.PRINT_BAR_CODE,
@@ -125,19 +123,19 @@ const TabProduct: React.FC<any> = (props) => {
       {
         id: ACTIONS_INDEX.ACTIVE,
         name: "Cho phép bán",
-        disabled: disabled || !canUpdatesaleable
+        disabled: disabled || !canUpdatesaleable,
       },
       {
         id: ACTIONS_INDEX.INACTIVE,
         name: "Ngừng bán",
-        disabled: disabled || !canUpdatesaleable
+        disabled: disabled || !canUpdatesaleable,
       },
       {
         id: ACTIONS_INDEX.DELETE,
         name: "Xóa sản phẩm",
-        disabled: disabled
+        disabled: disabled,
       },
-    ]
+    ];
   }, [canUpdatesaleable, selected]);
 
   const onPageChange = useCallback(
@@ -148,29 +146,34 @@ const TabProduct: React.FC<any> = (props) => {
       let queryParam = generateQuery(params);
       history.push(`${UrlConfig.VARIANTS}${history.location.hash}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const onFilter = useCallback((values) => {
-    let { info } = values;
-    values.info = info && info.trim();
-    let newPrams = {
-      ...params, ...{
-        ...values,
-        info: values.info ? values.info : values.info === '' ? null : params.info
-      }, page: 1
-    };
-    setPrams(newPrams);
-    let queryParam = generateQuery(newPrams);
-    history.replace(`${ProductTabUrl.VARIANTS}?${queryParam}`);
-  }, [params, history]);
+  const onFilter = useCallback(
+    (values) => {
+      let { info } = values;
+      values.info = info && info.trim();
+      let newPrams = {
+        ...params,
+        ...{
+          ...values,
+          info: values.info ? values.info : values.info === "" ? null : params.info,
+        },
+        page: 1,
+      };
+      setPrams(newPrams);
+      let queryParam = generateQuery(newPrams);
+      history.replace(`${ProductTabUrl.VARIANTS}?${queryParam}`);
+    },
+    [params, history],
+  );
 
   const setSearchResult = useCallback((result: PageResponse<VariantResponse> | false) => {
     if (!!result) {
       setData(result);
     }
     setTableLoading(false);
-  }, []);  
+  }, []);
 
   const onResultUpdateSaleable = useCallback(
     (success: Array<VariantResponse>, error: Array<VariantResponse>, isException) => {
@@ -188,7 +191,7 @@ const TabProduct: React.FC<any> = (props) => {
         setRowKey([]);
       }
     },
-    [data, dispatch, params, setSearchResult]
+    [data, dispatch, params, setSearchResult],
   );
 
   const onActive = useCallback(() => {
@@ -196,8 +199,7 @@ const TabProduct: React.FC<any> = (props) => {
       dispatch(showLoading());
       let request: Array<VariantUpdateRequest> = [];
       selected.forEach((value) => {
-        let variantRequest: VariantUpdateRequest =
-          Products.convertVariantResponseToRequest(value);
+        let variantRequest: VariantUpdateRequest = Products.convertVariantResponseToRequest(value);
         variantRequest.saleable = true;
         variantRequest.status = "active";
         request.push(variantRequest);
@@ -211,8 +213,7 @@ const TabProduct: React.FC<any> = (props) => {
       dispatch(showLoading());
       let request: Array<VariantUpdateRequest> = [];
       selected.forEach((value) => {
-        let variantRequest: VariantUpdateRequest =
-          Products.convertVariantResponseToRequest(value);
+        let variantRequest: VariantUpdateRequest = Products.convertVariantResponseToRequest(value);
         variantRequest.saleable = false;
         request.push(variantRequest);
       });
@@ -230,7 +231,7 @@ const TabProduct: React.FC<any> = (props) => {
         setSelected([]);
       }
     },
-    [dispatch, params, setSearchResult]
+    [dispatch, params, setSearchResult],
   );
 
   const onDelete = useCallback(() => {
@@ -261,7 +262,7 @@ const TabProduct: React.FC<any> = (props) => {
           break;
       }
     },
-    [history, onActive, onInActive, selected]
+    [history, onActive, onInActive, selected],
   );
 
   const onSave = useCallback(
@@ -277,30 +278,30 @@ const TabProduct: React.FC<any> = (props) => {
             dispatch(hideLoading());
             setTableLoading(true);
             dispatch(searchVariantsRequestAction(params, setSearchResult));
-          })
+          }),
         );
       }
     },
-    [dispatch, params, setSearchResult]
+    [dispatch, params, setSearchResult],
   );
 
   const ckeckPermissionReadCostPrice = (): boolean => {
-    if(currentPermissions){
-      if(currentPermissions.find(e=>e === ProductPermission.read_cost)) return true
-      else return false
-    }else {
-      return false
+    if (currentPermissions) {
+      if (currentPermissions.find((e) => e === ProductPermission.read_cost)) return true;
+      else return false;
+    } else {
+      return false;
     }
-  }
+  };
 
   const ckeckPermissionReadImportPrice = (): boolean => {
-    if(currentPermissions){
-      if(currentPermissions.find(e=>e === ProductPermission.read_import)) return true
-      else return false
-    }else {
-      return false
+    if (currentPermissions) {
+      if (currentPermissions.find((e) => e === ProductPermission.read_import)) return true;
+      else return false;
+    } else {
+      return false;
     }
-  }
+  };
 
   const defaultColumn: Array<ICustomTableColumType<VariantResponse>> = [
     {
@@ -326,26 +327,36 @@ const TabProduct: React.FC<any> = (props) => {
         );
       },
       visible: true,
-      key:'image'
+      key: "image",
     },
 
     {
       title: "Sản phẩm",
       dataIndex: "sku",
-      key: 'sku',
+      key: "sku",
       render: (value: string, i: VariantResponse) => {
-        let strName = (i.name.trim());
-        strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
-          : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
-            : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
+        let strName = i.name.trim();
+        strName =
+          window.screen.width >= 1920
+            ? splitEllipsis(strName, 100, 30)
+            : window.screen.width >= 1600
+            ? (strName = splitEllipsis(strName, 60, 30))
+            : window.screen.width >= 1366
+            ? (strName = splitEllipsis(strName, 47, 30))
+            : strName;
         return (
           <div>
-            <Link to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`} className="yody-text-ellipsis">
+            <Link
+              to={`${UrlConfig.PRODUCT}/${i.product_id}/variants/${i.id}`}
+              className="yody-text-ellipsis"
+            >
               {value}
             </Link>
-            <div><TextEllipsis value={strName} line={1} /></div>
+            <div>
+              <TextEllipsis value={strName} line={1} />
+            </div>
           </div>
-        )
+        );
       },
       visible: true,
     },
@@ -353,16 +364,12 @@ const TabProduct: React.FC<any> = (props) => {
       title: "Giá vốn",
       dataIndex: "variant_prices",
       align: "right",
-      key: 'cost_price',
+      key: "cost_price",
       visible: ckeckPermissionReadCostPrice(),
       width: 110,
       render: (value) => {
-        let prices: VariantPricesResponse | null = Products.findPrice(
-          value,
-          AppConfig.currency
-        );
+        let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency);
         if (prices !== null) {
-
           return formatCurrencyForProduct(prices.cost_price);
         }
         return 0;
@@ -372,16 +379,12 @@ const TabProduct: React.FC<any> = (props) => {
       title: "Giá nhập",
       dataIndex: "variant_prices",
       align: "right",
-      key: 'import_price',
+      key: "import_price",
       visible: ckeckPermissionReadImportPrice(),
       width: 110,
       render: (value) => {
-        let prices: VariantPricesResponse | null = Products.findPrice(
-          value,
-          AppConfig.currency
-        );
+        let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency);
         if (prices !== null) {
-
           return formatCurrencyForProduct(prices.import_price);
         }
         return 0;
@@ -395,12 +398,8 @@ const TabProduct: React.FC<any> = (props) => {
       visible: true,
       width: 110,
       render: (value) => {
-        let prices: VariantPricesResponse | null = Products.findPrice(
-          value,
-          AppConfig.currency
-        );
+        let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency);
         if (prices !== null) {
-
           return formatCurrencyForProduct(prices.retail_price);
         }
         return 0;
@@ -438,14 +437,15 @@ const TabProduct: React.FC<any> = (props) => {
       render: (record: VariantResponse) => {
         return (
           <div>
-            {
-              (record?.product?.designer) !== null ?
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.product?.designer_code}`}>
-                  {record?.product?.designer}
-                </Link> : "---"
-            }
+            {record?.product?.designer !== null ? (
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.product?.designer_code}`}>
+                {record?.product?.designer}
+              </Link>
+            ) : (
+              "---"
+            )}
           </div>
-        )
+        );
       },
     },
     {
@@ -457,14 +457,18 @@ const TabProduct: React.FC<any> = (props) => {
       render: (record: VariantResponse) => {
         return (
           <div>
-            {
-              (record?.product?.merchandiser) !== null ?
-                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.product?.merchandiser_code}`}>
-                  {record?.product?.merchandiser}
-                </Link> : "---"
-            }
+            {record?.product?.merchandiser !== null ? (
+              <Link
+                target="_blank"
+                to={`${UrlConfig.ACCOUNTS}/${record?.product?.merchandiser_code}`}
+              >
+                {record?.product?.merchandiser}
+              </Link>
+            ) : (
+              "---"
+            )}
           </div>
-        )
+        );
       },
     },
     {
@@ -475,7 +479,9 @@ const TabProduct: React.FC<any> = (props) => {
       align: "left",
       width: 110,
       render: (value, record) => {
-        return ((record?.created_date) !== null ? ConvertUtcToLocalDate(record?.created_date, DATE_FORMAT.DDMMYYY) : "---")
+        return record?.created_date !== null
+          ? ConvertUtcToLocalDate(record?.created_date, DATE_FORMAT.DDMMYYY)
+          : "---";
       },
     },
   ];
@@ -483,8 +489,15 @@ const TabProduct: React.FC<any> = (props) => {
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<VariantResponse>>>(defaultColumn);
 
-  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.COLUMN_VARIANT);
-  useSetTableColumns(COLUMN_CONFIG_TYPE.COLUMN_VARIANT, tableColumnConfigs, defaultColumn, setColumn);
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_VARIANT,
+  );
+  useSetTableColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_VARIANT,
+    tableColumnConfigs,
+    defaultColumn,
+    setColumn,
+  );
 
   const columnFinal = useMemo(() => {
     return columns.filter((item) => item.visible === true);
@@ -520,40 +533,43 @@ const TabProduct: React.FC<any> = (props) => {
       setSelected(
         selectedRow.filter(function (el) {
           return el !== undefined;
-        })
+        }),
       );
     },
-    [setSelected]
+    [setSelected],
   );
 
-  const getConditions = useCallback((type: string) => {
-    let conditions = {};
-    switch (type) {
-      case TYPE_EXPORT.selected:
-        let variant_ids = selected.map(e=>e.id).toString();
+  const getConditions = useCallback(
+    (type: string) => {
+      let conditions = {};
+      switch (type) {
+        case TYPE_EXPORT.selected:
+          let variant_ids = selected.map((e) => e.id).toString();
 
-        conditions = {variant_ids:variant_ids};
-          
-        break;
-      case TYPE_EXPORT.page:
-        conditions = {...params,
-          limit: params.limit ?? 30,
-          page: params.page ?? 1};
-        break;
-      case TYPE_EXPORT.all:
-        conditions = {...params
-          ,page:undefined
-          ,limit:undefined};
-        break;
-    }
-    return conditions;
-  },[params,selected]);
+          conditions = { variant_ids: variant_ids };
 
-  const resetExport= ()=>{
+          break;
+        case TYPE_EXPORT.page:
+          conditions = {
+            ...params,
+            limit: params.limit ?? 30,
+            page: params.page ?? 1,
+          };
+          break;
+        case TYPE_EXPORT.all:
+          conditions = { ...params, page: undefined, limit: undefined };
+          break;
+      }
+      return conditions;
+    },
+    [params, selected],
+  );
+
+  const resetExport = () => {
     setVExportProduct(false);
     setLoadingExport(false);
     setExportProgressDetail(0);
-  }
+  };
 
   const actionExport = {
     Ok: async (typeExport: string) => {
@@ -564,8 +580,8 @@ const TabProduct: React.FC<any> = (props) => {
         return;
       }
 
-      const conditions =  getConditions(typeExport);
-      const queryParam = generateQuery({...conditions});
+      const conditions = getConditions(typeExport);
+      const queryParam = generateQuery({ ...conditions });
       exportFileV2({
         conditions: queryParam,
         type: "TYPE_EXPORT_PRODUCT_VARIANT",
@@ -586,7 +602,7 @@ const TabProduct: React.FC<any> = (props) => {
     Cancel: () => {
       resetExport();
     },
-  }
+  };
 
   const checkExportFileDetail = useCallback(() => {
     let getFilePromises = listExportFileDetail.map((code) => {
@@ -611,7 +627,7 @@ const TabProduct: React.FC<any> = (props) => {
             downLoad.click();
             setListExportFileDetail(newListExportFile);
             resetExport();
-          }else if (response.data && response.data.status === "ERROR") {
+          } else if (response.data && response.data.status === "ERROR") {
             setStatusExportDetail(STATUS_IMPORT_EXPORT.ERROR);
             if (response.data.message) {
               showError(response.data.message);
@@ -620,11 +636,16 @@ const TabProduct: React.FC<any> = (props) => {
         }
       });
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listExportFileDetail]);
 
   useEffect(() => {
-    if (listExportFileDetail.length === STATUS_IMPORT_EXPORT.NONE || statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH || statusExportDetail === STATUS_IMPORT_EXPORT.ERROR) return;
+    if (
+      listExportFileDetail.length === STATUS_IMPORT_EXPORT.NONE ||
+      statusExportDetail === STATUS_IMPORT_EXPORT.JOB_FINISH ||
+      statusExportDetail === STATUS_IMPORT_EXPORT.ERROR
+    )
+      return;
     checkExportFileDetail();
 
     const getFileInterval = setInterval(checkExportFileDetail, 3000);
@@ -715,7 +736,6 @@ const TabProduct: React.FC<any> = (props) => {
         loading={loadingExport}
         exportProgress={exportProgressDetail}
       />
- 
     </StyledComponent>
   );
 };

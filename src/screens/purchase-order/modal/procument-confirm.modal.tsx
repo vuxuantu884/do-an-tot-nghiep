@@ -34,13 +34,11 @@ export type ProcumentConfirmProps = {
   procumentCode: string;
 };
 
-const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
-  props: ProcumentConfirmProps
-) => {
+const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (props: ProcumentConfirmProps) => {
   const {
     visible,
     now,
-    poData ,
+    poData,
     stores,
     procumentCode,
     onCancel,
@@ -52,18 +50,14 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
     items,
     isEdit,
   } = props;
-  const [isShowConfirmDeleteLineItem, setIsShowConfirmDeleteLineItem] =
-    useState(false);
+  const [isShowConfirmDeleteLineItem, setIsShowConfirmDeleteLineItem] = useState(false);
   const [message, setMessage] = useState("");
   const [removeIndex, setRemoveIndex] = useState(-1);
   const [allowApproval] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.procurements_approve],
   });
 
-  const handleRemoveLineItem = (
-    item: PurchaseProcumentLineItem,
-    lineIndex: number
-  ) => {
+  const handleRemoveLineItem = (item: PurchaseProcumentLineItem, lineIndex: number) => {
     setMessage(`Bạn chắc chắn huỷ ${item.sku}`);
     setRemoveIndex(lineIndex);
     setIsShowConfirmDeleteLineItem(true);
@@ -101,17 +95,15 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
             <span style={{ color: "#2A2A86" }}>{item?.code}</span>
           </div>
         }
-        okText={isEdit ? "Lưu phiếu duyệt" : (allowApproval ? "Duyệt phiếu nháp": "") }
+        okText={isEdit ? "Lưu phiếu duyệt" : allowApproval ? "Duyệt phiếu nháp" : ""}
       >
         {(onQuantityChange, onRemove, procurement_items) => {
-          const procurementItems = procurement_items.filter(item => item.quantity > 0);
+          const procurementItems = procurement_items.filter((item) => item.quantity > 0);
 
           return (
             <Table
               className="product-table"
-              rowKey={(record: PurchaseProcumentLineItem) =>
-                record.line_item_id
-              }
+              rowKey={(record: PurchaseProcumentLineItem) => record.line_item_id}
               rowClassName="product-table-row"
               dataSource={procurementItems}
               tableLayout="fixed"
@@ -131,11 +123,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   render: (value) => (
                     <div className="product-item-image">
                       <img
-                        src={
-                          !value || !value.toString().startsWith("http")
-                            ? imgDefIcon
-                            : value
-                        }
+                        src={!value || !value.toString().startsWith("http") ? imgDefIcon : value}
                         alt=""
                         className=""
                       />
@@ -147,18 +135,12 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   width: "99%",
                   className: "ant-col-info",
                   dataIndex: POProcumentLineItemField.variant,
-                  render: (
-                    value: string,
-                    item: PurchaseProcumentLineItem,
-                    index: number
-                  ) => (
+                  render: (value: string, item: PurchaseProcumentLineItem, index: number) => (
                     <div>
                       <div>
                         <div className="product-item-sku">{item.sku}</div>
                         <div className="product-item-name text-truncate-1">
-                          <div className="product-item-name-detail">
-                            {value}
-                          </div>
+                          <div className="product-item-name-detail">{value}</div>
                         </div>
                       </div>
                     </div>
@@ -183,7 +165,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   width: 130,
                   dataIndex: POProcumentLineItemField.ordered_quantity,
                   render: (value, item, index) => (
-                    <div style={{ textAlign: "right" }}>{formatCurrency(value,".")}</div>
+                    <div style={{ textAlign: "right" }}>{formatCurrency(value, ".")}</div>
                   ),
                 },
                 {
@@ -205,11 +187,12 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   width: 130,
                   dataIndex: POProcumentLineItemField.sku,
                   render: (value, item, index) => {
-                    let itemSku = items.find((item1) => item1.sku === value)
-                    let quantity =  itemSku ? itemSku.receipt_quantity : 0
+                    let itemSku = items.find((item1) => item1.sku === value);
+                    let quantity = itemSku ? itemSku.receipt_quantity : 0;
                     return (
-                    <div style={{ textAlign: "right" }}>{formatCurrency(quantity,".")}</div>
-                  )},
+                      <div style={{ textAlign: "right" }}>{formatCurrency(quantity, ".")}</div>
+                    );
+                  },
                 },
                 {
                   title: (
@@ -228,7 +211,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                   dataIndex: POProcumentLineItemField.planned_quantity,
                   render: (value, item, index) => (
                     <div style={{ textAlign: "right" }}>
-                      {value ? formatCurrency(value,".") : 0}
+                      {value ? formatCurrency(value, ".") : 0}
                     </div>
                   ),
                 },
@@ -260,26 +243,27 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                         onQuantityChange(quantity, index);
                       }}
                       format={(a: string) => formatCurrency(a)}
-                      replace={(a: string) =>
-                        replaceFormatString(a)
-                      }
+                      replace={(a: string) => replaceFormatString(a)}
                     />
                   ),
                 },
                 {
                   title: "",
-                  width: isEdit ? 0: 40,
-                  render: (value: string, item, index: number) =>{
-                    return isEdit ? <Fragment/>
-                     :<Button
-                      type="link"
-                      onClick={() => {
-                        handleRemoveLineItem(item, index);
-                      }}
-                    >
-                      x
-                    </Button>
-                  } ,
+                  width: isEdit ? 0 : 40,
+                  render: (value: string, item, index: number) => {
+                    return isEdit ? (
+                      <Fragment />
+                    ) : (
+                      <Button
+                        type="link"
+                        onClick={() => {
+                          handleRemoveLineItem(item, index);
+                        }}
+                      >
+                        x
+                      </Button>
+                    );
+                  },
                 },
                 {
                   title: "",
@@ -294,9 +278,9 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                 let quantity = 0;
                 data.forEach((item) => {
                   ordered_quantity += item.ordered_quantity;
-                  let itemSku = items.find((item1) => item1.sku === item.sku)
-                  if(itemSku) {
-                    real_quantity = real_quantity + itemSku.receipt_quantity
+                  let itemSku = items.find((item1) => item1.sku === item.sku);
+                  if (itemSku) {
+                    real_quantity = real_quantity + itemSku.receipt_quantity;
                   }
                   planned_quantity += item.planned_quantity;
                   quantity += item.quantity;
@@ -309,22 +293,20 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={1}>
                         <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(ordered_quantity,".")}
+                          {formatCurrency(ordered_quantity, ".")}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={2}>
-                        <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(real_quantity,".")}
-                        </div>
+                        <div style={{ fontWeight: 700 }}>{formatCurrency(real_quantity, ".")}</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={3}>
                         <div style={{ fontWeight: 700 }}>
-                          {formatCurrency(planned_quantity,".")}
+                          {formatCurrency(planned_quantity, ".")}
                         </div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={4}>
                         <div style={{ fontWeight: 700, marginRight: 15 }}>
-                          {formatCurrency(quantity,".")}
+                          {formatCurrency(quantity, ".")}
                         </div>
                       </Table.Summary.Cell>
                     </Table.Summary.Row>
@@ -334,9 +316,7 @@ const ProcumentConfirmModal: React.FC<ProcumentConfirmProps> = (
                       onCancel={() => {
                         setIsShowConfirmDeleteLineItem(false);
                       }}
-                      title={
-                        <span style={{ fontSize: "1rem" }}>{message}</span>
-                      }
+                      title={<span style={{ fontSize: "1rem" }}>{message}</span>}
                     ></ModalDeleteConfirm>
                   </Table.Summary>
                 );

@@ -17,21 +17,25 @@ function StoresSelect(props: Props): ReactElement {
   const { setSelectedAsm, setSelectedStores } = useContext(KDOfflineStoresContext);
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
-  const handleOnChange = (values: number[], labelList: any[] ) => {
-    setSelectedStores(labelList.length ? labelList : storesInAsm.map(item => item.name));
+  const handleOnChange = (values: number[], labelList: any[]) => {
+    setSelectedStores(labelList.length ? labelList : storesInAsm.map((item) => item.name));
   };
 
   const storesInAsm: StoreResponse[] = useMemo(() => {
     let selectedAsmName: string;
-    const stores = [...listStore].filter(item => {
-      if (!selectedAsmName && item.department_h3 && nonAccentVietnamese(item.department_h3) === asmName) {
+    const stores = [...listStore].filter((item) => {
+      if (
+        !selectedAsmName &&
+        item.department_h3 &&
+        nonAccentVietnamese(item.department_h3) === asmName
+      ) {
         selectedAsmName = item.department_h3;
       }
       return item.department_h3 && nonAccentVietnamese(item.department_h3) === asmName;
     });
     setTimeout(() => {
       if (stores.length) {
-        setSelectedStores(stores.map(item => item.name));
+        setSelectedStores(stores.map((item) => item.name));
       }
       if (selectedAsmName) {
         setSelectedAsm([selectedAsmName]);
@@ -40,12 +44,17 @@ function StoresSelect(props: Props): ReactElement {
     return stores;
   }, [asmName, listStore, setSelectedAsm, setSelectedStores]);
 
-
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
   return (
-    <TreeStore listStore={storesInAsm} name="" style={{ width: "250px" }} onChange={handleOnChange} placeholder={"Chọn bộ phận"}/>
+    <TreeStore
+      listStore={storesInAsm}
+      name=""
+      style={{ width: "250px" }}
+      onChange={handleOnChange}
+      placeholder={"Chọn bộ phận"}
+    />
   );
 }
 

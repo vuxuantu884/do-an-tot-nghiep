@@ -38,9 +38,13 @@ export const LoginWeb = (props: IProps) => {
       <StylesWrapperRight span={12}>
         <div
           className="container-right"
-          style={{ marginLeft: "auto !important", marginRight: "auto !important" }}>
+          style={{
+            marginLeft: "auto !important",
+            marginRight: "auto !important",
+          }}
+        >
           <Row gutter={24} align="middle" justify="space-between">
-            <Col >
+            <Col>
               <div className="hotline-info">
                 <img
                   style={{ marginRight: 5, width: "24px", height: "24px" }}
@@ -81,15 +85,23 @@ export const LoginWeb = (props: IProps) => {
                 className="login-form"
                 layout="vertical"
                 initialValues={{ username: "", password: "" }}
-                onFinish={onFinish}>
+                onFinish={onFinish}
+              >
                 <Form.Item
                   className="row-form"
                   label="Tên đăng nhập"
                   name="username"
                   rules={[
-                    { required: true, message: "Tên đăng nhập không được bỏ trống" },
-                    { pattern: /^[a-zA-Z0-9]{4,20}$/, message: "Tên đăng nhập sai định dạng" },
-                  ]}>
+                    {
+                      required: true,
+                      message: "Tên đăng nhập không được bỏ trống",
+                    },
+                    {
+                      pattern: /^[a-zA-Z0-9]{4,20}$/,
+                      message: "Tên đăng nhập sai định dạng",
+                    },
+                  ]}
+                >
                   <Input
                     className="username"
                     prefix={<UserOutlined style={{ color: "#c5c5c5", marginRight: 8 }} />}
@@ -103,7 +115,8 @@ export const LoginWeb = (props: IProps) => {
                   className="row-form"
                   label="Mật khẩu"
                   name="password"
-                  rules={[{ required: true, message: "Mật khẩu không được bỏ trống" }]}>
+                  rules={[{ required: true, message: "Mật khẩu không được bỏ trống" }]}
+                >
                   <Input.Password
                     prefix={<LockOutlined style={{ color: "#c5c5c5", marginRight: 8 }} />}
                     disabled={loading}
@@ -124,7 +137,8 @@ export const LoginWeb = (props: IProps) => {
                     size="large"
                     type="primary"
                     htmlType="submit"
-                    className="login-form-button">
+                    className="login-form-button"
+                  >
                     Đăng nhập
                   </Button>
                 </Form.Item>

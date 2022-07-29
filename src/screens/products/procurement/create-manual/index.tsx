@@ -1,6 +1,6 @@
-import { Button, Form, Input, Space } from "antd"
+import { Button, Form, Input, Space } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
-import ContentContainer from "component/container/content.container"
+import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import UrlConfig from "config/url.config";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -17,10 +17,14 @@ import { getStoreApi } from "service/inventory/transfer/index.service";
 import { AccountStoreResponse } from "model/account/account.model";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getAccountDetail } from "service/accounts/account.service";
-import { POProcumentField, ProcurementManual, PurchaseProcumentLineItemManual } from "model/purchase-order/purchase-procument";
+import {
+  POProcumentField,
+  ProcurementManual,
+  PurchaseProcumentLineItemManual,
+} from "model/purchase-order/purchase-procument";
 import ManualForm from "./components/ManualForm";
 import LineItems from "./components/LineItems";
-import ImportProcurementExcel from "./components/ImportProcurementExcel"
+import ImportProcurementExcel from "./components/ImportProcurementExcel";
 import { listPurchaseOrderBySupplier } from "service/purchase-order/purchase-order.service";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { POField } from "model/purchase-order/po-field";
@@ -29,7 +33,6 @@ import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model"
 import { createPurchaseProcumentManualService } from "service/purchase-order/purchase-procument.service";
 import { ImportOutlined } from "@ant-design/icons";
 
-
 const ProcurementCreateManualScreen: React.FC = () => {
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
   const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(false);
@@ -37,17 +40,20 @@ const ProcurementCreateManualScreen: React.FC = () => {
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const [accountStores, setAccountStores] = useState<Array<AccountStoreResponse>>([]);
   const [listStore, setListStore] = useState<Array<Store>>([]);
-  const [listPO, setListPO] = useState<Array<PurchaseOrder>>([])
-  const [poData, setPOData] = useState<PurchaseOrder>()
-  const [poLoading, setPOLoading] = useState<boolean>(false)
-  const [poDisable, setPODisable] = useState<boolean>(true)
+  const [listPO, setListPO] = useState<Array<PurchaseOrder>>([]);
+  const [poData, setPOData] = useState<PurchaseOrder>();
+  const [poLoading, setPOLoading] = useState<boolean>(false);
+  const [poDisable, setPODisable] = useState<boolean>(true);
   const [isImport, setIsImport] = useState<boolean>(false);
-  const history = useHistory()
-  const dispatch = useDispatch()
-  const [formMain] = Form.useForm()
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const [formMain] = Form.useForm();
 
   const getStores = useCallback(async () => {
-    const res = await callApiNative({ isShowLoading: false }, dispatch, getStoreApi, { status: "active", simple: true });
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getStoreApi, {
+      status: "active",
+      simple: true,
+    });
     if (res) {
       setListStore(res);
     }
@@ -55,7 +61,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
-  }, [dispatch])
+  }, [dispatch]);
 
   const getMe = useCallback(async () => {
     const res = await callApiNative({ isShowLoading: false }, dispatch, getAccountDetail);
@@ -65,14 +71,14 @@ const ProcurementCreateManualScreen: React.FC = () => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (isSelectSupplier) setPODisable(false)
-    else setPODisable(true)
-  }, [isSelectSupplier])
+    if (isSelectSupplier) setPODisable(false);
+    else setPODisable(true);
+  }, [isSelectSupplier]);
 
   useEffect(() => {
-    getMe()
-    getStores()
-  }, [dispatch, getStores, getMe])
+    getMe();
+    getStores();
+  }, [dispatch, getStores, getMe]);
 
   useEffect(() => {
     if (listStore.length === 0) return;
@@ -80,7 +86,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
     if (accountStores?.length === 1) {
       listStore.forEach((element) => {
         if (element.id === accountStores[0].store_id) {
-          formMain.setFieldsValue({ [POProcumentField.store_id]: element.id })
+          formMain.setFieldsValue({ [POProcumentField.store_id]: element.id });
         }
       });
     }
@@ -90,7 +96,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
         return {
           store_id: i.id,
           store: i.name,
-        }
+        };
       });
       setAccountStores(newStore);
     }
@@ -107,7 +113,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
         setLoadingSearch(true);
         dispatch(SupplierSearchAction({ condition: keyword.trim(), status: "active" }, onResult));
       }, 300),
-    [dispatch, onResult]
+    [dispatch, onResult],
   );
 
   const onChangeKeySearchSupplier = (keyword: string) => {
@@ -119,8 +125,8 @@ const ProcurementCreateManualScreen: React.FC = () => {
       [POProcumentField.supplier_id]: undefined,
       [POProcumentField.supplier]: null,
     });
-    removePOCode()
-    setListPO([])
+    removePOCode();
+    setListPO([]);
     setIsSelectSupplier(false);
   };
 
@@ -130,8 +136,8 @@ const ProcurementCreateManualScreen: React.FC = () => {
       [POField.id]: undefined,
       [POField.reference]: undefined,
     });
-    setPOData(undefined)
-  }
+    setPOData(undefined);
+  };
 
   const onSelect = (value: string) => {
     let index = data.findIndex((item) => item.id === +value);
@@ -146,93 +152,121 @@ const ProcurementCreateManualScreen: React.FC = () => {
   };
 
   const onSearchPO = debounce(async (value: string) => {
-    const id = formMain.getFieldValue([POProcumentField.supplier_id])
+    const id = formMain.getFieldValue([POProcumentField.supplier_id]);
     if (id) {
-      setPOLoading(true)
-      const res = await callApiNative({ isShowLoading: false }, dispatch, listPurchaseOrderBySupplier, id, { condition: value });
+      setPOLoading(true);
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        listPurchaseOrderBySupplier,
+        id,
+        { condition: value },
+      );
       if (res && res.length > 0) {
         setListPO(res);
-        setPOLoading(false)
+        setPOLoading(false);
       } else {
-        setPOLoading(false)
+        setPOLoading(false);
       }
     } else {
-      showError('Bạn chưa chọn nhà cung cấp')
+      showError("Bạn chưa chọn nhà cung cấp");
     }
-  }, 300)
+  }, 300);
 
-  const onSelectPO = useCallback((value: any) => {
-    let index = listPO.findIndex((item) => item.id === +value);
-    let poData = listPO[index];
-    setPOData(poData)
-    let newLineItem: Array<PurchaseOrderLineItem> = poData.line_items ?? [];
-    let result: Array<PurchaseProcumentLineItemManual> = []
-    newLineItem.forEach((item) => {
-      result.push({
-        barcode: item.barcode,
-        line_item_id: item.position,
-        product_id: item.product_id,
-        variant_id: item.variant_id,
-        sku: item.sku,
-        variant: item.variant,
-        variant_image: item.variant_image,
-        ordered_quantity: item.quantity,
-        planned_quantity: item.planned_quantity,
-        accepted_quantity: item.receipt_quantity,
-        receipt_quantity: item.receipt_quantity,
-        quantity: item.quantity,
-        real_quantity: 0,
-        fake_real_quantity: 0,
-        note: "",
-        retail_price: item.retail_price,
-        price: item.price,
-        product_name: item.product,
+  const onSelectPO = useCallback(
+    (value: any) => {
+      let index = listPO.findIndex((item) => item.id === +value);
+      let poData = listPO[index];
+      setPOData(poData);
+      let newLineItem: Array<PurchaseOrderLineItem> = poData.line_items ?? [];
+      let result: Array<PurchaseProcumentLineItemManual> = [];
+      newLineItem.forEach((item) => {
+        result.push({
+          barcode: item.barcode,
+          line_item_id: item.position,
+          product_id: item.product_id,
+          variant_id: item.variant_id,
+          sku: item.sku,
+          variant: item.variant,
+          variant_image: item.variant_image,
+          ordered_quantity: item.quantity,
+          planned_quantity: item.planned_quantity,
+          accepted_quantity: item.receipt_quantity,
+          receipt_quantity: item.receipt_quantity,
+          quantity: item.quantity,
+          real_quantity: 0,
+          fake_real_quantity: 0,
+          note: "",
+          retail_price: item.retail_price,
+          price: item.price,
+          product_name: item.product,
+        });
       });
-    });
-    formMain.setFieldsValue({
-      [POField.code]: poData.code,
-      [POField.reference]: poData.reference,
-      [POField.id]: poData.id,
-      [POProcumentField.procurement_items]: result
-    });
-  }, [formMain, listPO])
+      formMain.setFieldsValue({
+        [POField.code]: poData.code,
+        [POField.reference]: poData.reference,
+        [POField.id]: poData.id,
+        [POProcumentField.procurement_items]: result,
+      });
+    },
+    [formMain, listPO],
+  );
 
   const onQuantityChange = useCallback(
     (quantity, index: any) => {
-      let procurement_items: Array<PurchaseProcumentLineItemManual> =
-        formMain.getFieldValue(POProcumentField.procurement_items);
+      let procurement_items: Array<PurchaseProcumentLineItemManual> = formMain.getFieldValue(
+        POProcumentField.procurement_items,
+      );
       if (quantity !== undefined && index !== undefined) {
         procurement_items[index].real_quantity = quantity * 1;
         procurement_items[index].fake_real_quantity = quantity * 1;
-        procurement_items[index].accepted_quantity = quantity * 1
-        procurement_items[index].line_item_id = index
-        delete procurement_items[index].code
+        procurement_items[index].accepted_quantity = quantity * 1;
+        procurement_items[index].line_item_id = index;
+        delete procurement_items[index].code;
       }
-      formMain.setFieldsValue({ [POProcumentField.procurement_items]: [...procurement_items] });
+      formMain.setFieldsValue({
+        [POProcumentField.procurement_items]: [...procurement_items],
+      });
     },
-    [formMain]
+    [formMain],
   );
 
-  const onChangeStore = useCallback((value: any) => {
-    const store = accountStores.find((e) => e.store_id === value)
-    formMain.setFieldsValue({ [POProcumentField.store_id]: value, [POProcumentField.store]: store?.store })
-  }, [accountStores, formMain])
+  const onChangeStore = useCallback(
+    (value: any) => {
+      const store = accountStores.find((e) => e.store_id === value);
+      formMain.setFieldsValue({
+        [POProcumentField.store_id]: value,
+        [POProcumentField.store]: store?.store,
+      });
+    },
+    [accountStores, formMain],
+  );
 
   const importRealQuantity = (data: Array<PurchaseProcumentLineItemManual>) => {
-    formMain.setFieldsValue({ [POProcumentField.procurement_items]: [...data] });
+    formMain.setFieldsValue({
+      [POProcumentField.procurement_items]: [...data],
+    });
     setIsImport(false);
-  }
+  };
 
   const onFinish = async (data: any) => {
-    if (data.procurement_items.every((item: PurchaseProcumentLineItemManual) => item.real_quantity === 0)) {
-      showError('Vui lòng nhập số lượng sản phẩm')
-      return
+    if (
+      data.procurement_items.every(
+        (item: PurchaseProcumentLineItemManual) => item.real_quantity === 0,
+      )
+    ) {
+      showError("Vui lòng nhập số lượng sản phẩm");
+      return;
     }
-    const procurementItemClone: Array<PurchaseProcumentLineItemManual> = cloneDeep(data.procurement_items)
-    const procurementItemData: Array<PurchaseProcumentLineItemManual> = procurementItemClone.filter((item: PurchaseProcumentLineItemManual) => {
-      return (item.accepted_quantity && item.real_quantity)
-    })
-    if (!poData) return
+    const procurementItemClone: Array<PurchaseProcumentLineItemManual> = cloneDeep(
+      data.procurement_items,
+    );
+    const procurementItemData: Array<PurchaseProcumentLineItemManual> = procurementItemClone.filter(
+      (item: PurchaseProcumentLineItemManual) => {
+        return item.accepted_quantity && item.real_quantity;
+      },
+    );
+    if (!poData) return;
     const dataSubmit: ProcurementManual = {
       reference: "manual",
       is_cancelled: false,
@@ -242,13 +276,19 @@ const ProcurementCreateManualScreen: React.FC = () => {
       store_id: data.store_id,
       expect_receipt_date: poData.procurements[0].expect_receipt_date,
       procurement_items: procurementItemData,
-    }
-    const response = await callApiNative({ isShowError: true, isShowLoading: true }, dispatch, createPurchaseProcumentManualService, data.id, dataSubmit)
+    };
+    const response = await callApiNative(
+      { isShowError: true, isShowLoading: true },
+      dispatch,
+      createPurchaseProcumentManualService,
+      data.id,
+      dataSubmit,
+    );
     if (response) {
-      showSuccess('Tạo phiếu nhập kho thành công')
-      history.push(`${UrlConfig.PROCUREMENT}`)
+      showSuccess("Tạo phiếu nhập kho thành công");
+      history.push(`${UrlConfig.PROCUREMENT}`);
     }
-  }
+  };
 
   return (
     <ContentContainer
@@ -298,7 +338,13 @@ const ProcurementCreateManualScreen: React.FC = () => {
               ? getFieldValue(POProcumentField.procurement_items)
               : [];
             if (poData && !isEmpty(procurement_items)) {
-              return <LineItems formMain={formMain} procurement_items={procurement_items} onQuantityChange={onQuantityChange} />
+              return (
+                <LineItems
+                  formMain={formMain}
+                  procurement_items={procurement_items}
+                  onQuantityChange={onQuantityChange}
+                />
+              );
             }
           }}
         </Form.Item>
@@ -318,17 +364,20 @@ const ProcurementCreateManualScreen: React.FC = () => {
             if (poData && !isEmpty(procurement_items)) {
               return (
                 <ImportProcurementExcel
-                  onCancel={(preData: Array<PurchaseProcumentLineItemManual>) => { importRealQuantity(preData) }}
-                  onOk={(data: Array<PurchaseProcumentLineItemManual>) => { importRealQuantity(data) }}
+                  onCancel={(preData: Array<PurchaseProcumentLineItemManual>) => {
+                    importRealQuantity(preData);
+                  }}
+                  onOk={(data: Array<PurchaseProcumentLineItemManual>) => {
+                    importRealQuantity(data);
+                  }}
                   title="Import số lượng thực nhận"
                   visible={isImport}
                   dataTable={procurement_items}
                 />
-              )
+              );
             }
           }}
         </Form.Item>
-
       </Form>
       {isVisibleModalWarning && (
         <ModalConfirm
@@ -347,10 +396,10 @@ const ProcurementCreateManualScreen: React.FC = () => {
         leftComponent={
           <div
             onClick={() => {
-              let supplier_id = formMain.getFieldsValue([POProcumentField.supplier_id])
-              let store_id = formMain.getFieldsValue([POProcumentField.store_id])
-              if (supplier_id !== undefined || store_id !== undefined ) {
-                setIsVisibleModalWarning(true)
+              let supplier_id = formMain.getFieldsValue([POProcumentField.supplier_id]);
+              let store_id = formMain.getFieldsValue([POProcumentField.store_id]);
+              if (supplier_id !== undefined || store_id !== undefined) {
+                setIsVisibleModalWarning(true);
               }
             }}
             style={{ cursor: "pointer" }}
@@ -367,22 +416,24 @@ const ProcurementCreateManualScreen: React.FC = () => {
             >
               Huỷ
             </Button>
-            {
-              poData && <Button icon={<ImportOutlined />} onClick={() => {
-                setIsImport(true);
-              }}>Import Excel</Button>
-            }
-            <Button
-              type="primary"
-              onClick={() => formMain.submit()}
-            >
+            {poData && (
+              <Button
+                icon={<ImportOutlined />}
+                onClick={() => {
+                  setIsImport(true);
+                }}
+              >
+                Import Excel
+              </Button>
+            )}
+            <Button type="primary" onClick={() => formMain.submit()}>
               Xác nhận nhập
             </Button>
           </Space>
         }
       />
     </ContentContainer>
-  )
-}
+  );
+};
 
-export default ProcurementCreateManualScreen
+export default ProcurementCreateManualScreen;

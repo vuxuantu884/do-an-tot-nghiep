@@ -1,13 +1,17 @@
 import { POProcumentType } from "domain/types/purchase-order.type";
 import BaseAction from "base/base.action";
-import { ImportProcument, ProcurementQuery, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import {
+  ImportProcument,
+  ProcurementQuery,
+  PurchaseProcument,
+} from "model/purchase-order/purchase-procument";
 import { PageResponse } from "model/base/base-metadata.response";
 import BaseResponse from "base/base.response";
 
 export const PoProcumentCreateAction = (
   poId: number,
   request: PurchaseProcument,
-  createCallback: (result: PurchaseProcument | null) => void
+  createCallback: (result: PurchaseProcument | null) => void,
 ) => {
   return BaseAction(POProcumentType.CREATE_PO_PROCUMENT_REQUEST, {
     poId,
@@ -19,7 +23,7 @@ export const PoProcumentUpdateAction = (
   poId: number,
   procumentId: number,
   request: PurchaseProcument,
-  updateCallback: (result: PurchaseProcument | null) => void
+  updateCallback: (result: PurchaseProcument | null) => void,
 ) => {
   return BaseAction(POProcumentType.UPDATE_PO_PROCUMENT_REQUEST, {
     poId,
@@ -33,7 +37,7 @@ export const ConfirmPoProcumentAction = (
   poId: number,
   procumentId: number,
   request: PurchaseProcument,
-  updateCallback: (result: PurchaseProcument | null) => void
+  updateCallback: (result: PurchaseProcument | null) => void,
 ) => {
   return BaseAction(POProcumentType.CONFIRM_PROCUMENT, {
     poId,
@@ -47,7 +51,7 @@ export const ApprovalPoProcumentAction = (
   poId: number,
   procumentId: number,
   request: PurchaseProcument,
-  updateCallback: (result: PurchaseProcument | null) => void
+  updateCallback: (result: PurchaseProcument | null) => void,
 ) => {
   return BaseAction(POProcumentType.APROVAL_PROCUMENT, {
     poId,
@@ -60,7 +64,7 @@ export const ApprovalPoProcumentAction = (
 export const PoProcumentFinishAction = (
   poId: number,
   status: string,
-  updateCallback: (result: PurchaseProcument | null) => void
+  updateCallback: (result: PurchaseProcument | null) => void,
 ) => {
   return BaseAction(POProcumentType.FINNISH_PO_PROCUMENT_REQUEST, {
     poId,
@@ -72,7 +76,7 @@ export const PoProcumentFinishAction = (
 export const PoProcumentDeleteAction = (
   poId: number,
   procumentId: number,
-  deleteCallback: (result: boolean) => void
+  deleteCallback: (result: boolean) => void,
 ) => {
   return BaseAction(POProcumentType.DELETE_PO_PROCUMENT_REQUEST, {
     poId,
@@ -81,24 +85,22 @@ export const PoProcumentDeleteAction = (
   });
 };
 
-
 export const POSearchProcurement = (
   query: ProcurementQuery,
-  onResult: (result: PageResponse<PurchaseProcument>|false) => void
+  onResult: (result: PageResponse<PurchaseProcument> | false) => void,
 ) => {
   return BaseAction(POProcumentType.SEARCH_PROCUREMENT, {
     query,
-    onResult
+    onResult,
   });
 };
 
 export const importProcumentAction = (
   params: ImportProcument,
-  onResult: (result: BaseResponse<any>|false) => void
+  onResult: (result: BaseResponse<any> | false) => void,
 ) => {
   return BaseAction(POProcumentType.IMPORT_PROCUMENT, {
     params,
-    onResult
+    onResult,
   });
 };
-

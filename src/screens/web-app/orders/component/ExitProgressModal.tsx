@@ -1,5 +1,5 @@
 import React from "react";
-import { Modal,} from "antd";
+import { Modal } from "antd";
 
 type ExitProgressModalType = {
   visible: boolean;
@@ -8,12 +8,8 @@ type ExitProgressModalType = {
   exitProgressContent: any;
 };
 
-
-const ExitProgressModal: React.FC<ExitProgressModalType> = (
-  props: ExitProgressModalType
-) => {
+const ExitProgressModal: React.FC<ExitProgressModalType> = (props: ExitProgressModalType) => {
   const { visible, onOk, onCancel, exitProgressContent } = props;
-
 
   return (
     <Modal
@@ -27,11 +23,8 @@ const ExitProgressModal: React.FC<ExitProgressModalType> = (
       cancelText="Hủy"
       onOk={onOk}
     >
-      <>
-        {exitProgressContent}
-      </>
+      <>{exitProgressContent}</>
     </Modal>
-    
   );
 };
 

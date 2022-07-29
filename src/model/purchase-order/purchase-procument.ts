@@ -2,10 +2,7 @@ import { BaseQuery } from "model/base/base.query";
 import { ParsedUrlQueryInput } from "querystring";
 import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
-import {
-  ProcurementPropertiesDate,
-  PurchaseOrder,
-} from "./purchase-order.model";
+import { ProcurementPropertiesDate, PurchaseOrder } from "./purchase-order.model";
 
 export interface PurchaseProcument extends BaseObject {
   reference: string;
@@ -119,8 +116,7 @@ export interface PurchaseProcumentLineItem {
   uuid?: string;
 }
 
-export interface PurchaseProcumentLineItemManual
-  extends PurchaseProcumentLineItem {
+export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {
   fake_real_quantity: number;
   receipt_quantity: number;
   product_id?: number;

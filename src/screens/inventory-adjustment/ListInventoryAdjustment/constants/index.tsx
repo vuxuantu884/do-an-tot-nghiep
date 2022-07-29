@@ -1,51 +1,50 @@
-
 export const STATUS_INVENTORY_ADJUSTMENT = {
-  DRAFT : {
+  DRAFT: {
     status: "draft",
-    name: "Kế hoạch"
+    name: "Kế hoạch",
   },
   INITIALIZING: {
     status: "initializing",
-    name: "Đang khởi tạo"
+    name: "Đang khởi tạo",
   },
-  AUDITED : {
+  AUDITED: {
     status: "audited",
-    name: "Đã kiểm"
+    name: "Đã kiểm",
   },
-  ADJUSTED : {
+  ADJUSTED: {
     status: "adjusted",
-    name: "Đã cân tồn"
+    name: "Đã cân tồn",
   },
-  CANCELED : {
+  CANCELED: {
     status: "canceled",
-    name: "Đã hủy"
+    name: "Đã hủy",
   },
-}
+};
 
 export const STATUS_INVENTORY_ADJUSTMENT_ARRAY = [
   {
     value: "draft",
-    name: "Kế hoạch"
+    name: "Kế hoạch",
   },
   {
     value: "audited",
-    name: "Đã kiểm"
+    name: "Đã kiểm",
   },
   {
     value: "adjusted",
-    name: "Đã cân tồn"
+    name: "Đã cân tồn",
   },
-]
+];
 
-export const INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY= [
+export const INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY = [
   {
     value: "total",
-    name: "Toàn bộ"
+    name: "Toàn bộ",
   },
   {
     value: "partly",
-    name: "Một phần"
+    name: "Một phần",
   },
-]
+];
 
-export const INVENTORY_ADJUSTMENT_AUDIT_TYPE_CONSTANTS= []
+export const INVENTORY_ADJUSTMENT_AUDIT_TYPE_CONSTANTS = [];

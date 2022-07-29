@@ -1,27 +1,24 @@
-import {call, takeLatest} from "@redux-saga/core/effects";
-import {YodyAction} from "base/base.action";
+import { call, takeLatest } from "@redux-saga/core/effects";
+import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
-import {HttpStatus} from "config/http-status.config";
-import {unauthorizedAction} from "domain/actions/auth/auth.action";
-import {RoleType} from "domain/types/auth.type";
-import {RoleAuthorize, RoleResponse} from "model/auth/roles.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {put} from "redux-saga/effects";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { RoleType } from "domain/types/auth.type";
+import { RoleAuthorize, RoleResponse } from "model/auth/roles.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { put } from "redux-saga/effects";
 import {
   createRoleApi,
   getRoleByIdApi,
   roleGetListAPI,
   updateRoleByIdApi,
 } from "service/auth/role.service";
-import {showError} from "utils/ToastUtils";
+import { showError } from "utils/ToastUtils";
 
 function* RoleGetListSaga(action: YodyAction) {
-  let {query, setData} = action.payload;
+  let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<RoleResponse>> = yield call(
-      roleGetListAPI,
-      query
-    );
+    let response: BaseResponse<PageResponse<RoleResponse>> = yield call(roleGetListAPI, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -36,12 +33,9 @@ function* RoleGetListSaga(action: YodyAction) {
 }
 
 function* roleSearchSaga(action: YodyAction) {
-  let {query, setData} = action.payload;
+  let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<RoleAuthorize>> = yield call(
-      roleGetListAPI,
-      query
-    );
+    let response: BaseResponse<PageResponse<RoleAuthorize>> = yield call(roleGetListAPI, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -56,7 +50,7 @@ function* roleSearchSaga(action: YodyAction) {
 }
 
 function* createRoleSaga(action: YodyAction) {
-  let {role, setData} = action.payload;
+  let { role, setData } = action.payload;
   try {
     let response: BaseResponse<RoleAuthorize> = yield call(createRoleApi, role);
     switch (response.code) {
@@ -79,7 +73,7 @@ function* createRoleSaga(action: YodyAction) {
 }
 
 function* getRoleByIdSaga(action: YodyAction) {
-  let {id, setData} = action.payload;
+  let { id, setData } = action.payload;
   try {
     let response: BaseResponse<RoleAuthorize> = yield call(getRoleByIdApi, id);
     switch (response.code) {
@@ -102,7 +96,7 @@ function* getRoleByIdSaga(action: YodyAction) {
 }
 
 function* updateRoleSaga(action: YodyAction) {
-  let {role, setData} = action.payload;
+  let { role, setData } = action.payload;
   try {
     let response: BaseResponse<RoleAuthorize> = yield call(updateRoleByIdApi, role);
     switch (response.code) {

@@ -1,7 +1,7 @@
-import React, {useCallback} from "react";
-import {Space, Button, Checkbox} from "antd";
+import React, { useCallback } from "react";
+import { Space, Button, Checkbox } from "antd";
 import close from "assets/icon/close.svg";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PhoneRowProps = {
   phone: string;
@@ -11,7 +11,7 @@ type PhoneRowProps = {
 };
 
 const PhoneRow: React.FC<PhoneRowProps> = (props: PhoneRowProps) => {
-  const {phone, onSetDefault, onDelete, isDefaultPhone} = props;
+  const { phone, onSetDefault, onDelete, isDefaultPhone } = props;
   const deletePhone = useCallback(() => {
     onDelete(phone);
   }, [phone, onDelete]);

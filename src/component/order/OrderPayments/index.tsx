@@ -70,15 +70,15 @@ function OrderPayments(props: PropTypes): JSX.Element {
   const dispatch = useDispatch();
 
   const storeBankAccountNumbers = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderStore.storeBankAccountNumbers
+    (state: RootReducerType) => state.orderReducer.orderStore.storeBankAccountNumbers,
   );
 
   const selectedStoreBankAccount = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderStore.selectedStoreBankAccount
+    (state: RootReducerType) => state.orderReducer.orderStore.selectedStoreBankAccount,
   );
 
   const isExportBill = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill
+    (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill,
   );
 
   const paymentMethods = useMemo(() => {
@@ -92,7 +92,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
   }, [loyaltyRate]);
 
   const isPaymentAlreadyChanged = useSelector(
-    (state: RootReducerType) => state.orderReducer.orderPayment.isAlreadyChanged
+    (state: RootReducerType) => state.orderReducer.orderPayment.isAlreadyChanged,
   );
 
   const handlePayment = useCallback(
@@ -127,7 +127,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
         dispatch(changeIfPaymentAlreadyChangedAction(true));
       }
     },
-    [dispatch, isPaymentAlreadyChanged, setPayments]
+    [dispatch, isPaymentAlreadyChanged, setPayments],
   );
 
   /**
@@ -196,7 +196,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
       handleInputMoneyBank(payment: OrderPaymentRequest, amount: number) {
         if (checkIfBankPayment(payment)) {
           const selected = storeBankAccountNumbers.find(
-            (single) => single.account_number === selectedStoreBankAccount
+            (single) => single.account_number === selectedStoreBankAccount,
           );
           payment.bank_account_holder = selected?.account_holder || undefined;
           payment.bank_account_id = selected?.id || undefined;
@@ -270,7 +270,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
     }
     let paymentCopy: OrderPaymentRequest[] = payments;
     let paymentBankIndex = paymentCopy.findIndex(
-      (single) => single.payment_method_code === PaymentMethodCode.BANK_TRANSFER
+      (single) => single.payment_method_code === PaymentMethodCode.BANK_TRANSFER,
     );
     const selected = storeBankAccountNumbers.find((single) => single.account_number === value);
     if (paymentBankIndex > -1) {
@@ -283,7 +283,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
 
   const selectedStoreBankNumber = useMemo(() => {
     return storeBankAccountNumbers.find(
-      (single) => single.account_number === selectedStoreBankAccount
+      (single) => single.account_number === selectedStoreBankAccount,
     );
   }, [selectedStoreBankAccount, storeBankAccountNumbers]);
 
@@ -317,7 +317,8 @@ function OrderPayments(props: PropTypes): JSX.Element {
         </div>
         <div
           className="bankReference__section"
-          title={`${selectedStoreBankNumber?.account_number} - ${selectedStoreBankNumber?.bank_name}`}>
+          title={`${selectedStoreBankNumber?.account_number} - ${selectedStoreBankNumber?.bank_name}`}
+        >
           <Select
             showSearch
             allowClear
@@ -332,12 +333,14 @@ function OrderPayments(props: PropTypes): JSX.Element {
             placeholder="Chọn số tài khoản"
             value={selectedStoreBankAccount?.toString()}
             notFoundContent="Không tìm thấy số tài khoản của cửa hàng!"
-            disabled={!isExportBill && false}>
+            disabled={!isExportBill && false}
+          >
             {storeBankAccountNumbers.map((value, index) => (
               <Select.Option
                 key={value.account_number}
                 value={value.account_number}
-                title={`${value.account_number} - ${value.bank_name}`}>
+                title={`${value.account_number} - ${value.bank_name}`}
+              >
                 {value.account_number} - {value.bank_name}
               </Select.Option>
             ))}
@@ -360,7 +363,8 @@ function OrderPayments(props: PropTypes): JSX.Element {
             onChange={(e) => {
               handleSwitchCheckHoaDon(e.target.checked);
             }}
-            className="iconCheckbox">
+            className="iconCheckbox"
+          >
             Xuất hóa đơn
           </Checkbox>
         </div>
@@ -528,7 +532,8 @@ function OrderPayments(props: PropTypes): JSX.Element {
               ? "paymentBank"
               : undefined
           } `}
-          key={method.payment_method_code}>
+          key={method.payment_method_code}
+        >
           {renderPaymentDetailLeft(method, index)}
           {renderPaymentDetailRight(method, index)}
         </Row>
@@ -550,7 +555,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
                       (p) =>
                         p.code === method.code ||
                         p.payment_method.toLowerCase() === method.code.toLowerCase() ||
-                        p.payment_method_id === method.id
+                        p.payment_method_id === method.id,
                     )
                       ? "primary"
                       : "default"
@@ -566,7 +571,8 @@ function OrderPayments(props: PropTypes): JSX.Element {
                     (method.code === PaymentMethodCode.MOMO &&
                       checkIfOrderHasNotFinishedPaymentMomo(orderDetail)) ||
                     method.code === PaymentMethodCode.VN_PAY
-                  }>
+                  }
+                >
                   {method.name}
                 </Button>
               </Col>
@@ -587,7 +593,11 @@ function OrderPayments(props: PropTypes): JSX.Element {
             <b>{totalAmountCustomerNeedToPay >= 0 ? "Còn phải trả:" : "Tiền thừa:"}</b>
           </Col>
           <Col className="lbl-money rowLeftAmount__amount" lg={6} xxl={6}>
-            <span style={{ color: totalAmountCustomerNeedToPay < 0 ? yellowColor : dangerColor }}>
+            <span
+              style={{
+                color: totalAmountCustomerNeedToPay < 0 ? yellowColor : dangerColor,
+              }}
+            >
               {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
             </span>
           </Col>
@@ -600,7 +610,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
     const removeCodFromPayments = () => {
       if (payments.some((payment) => payment.payment_method_code === PaymentMethodCode.COD)) {
         let _payments = payments.filter(
-          (single) => single.payment_method_code !== PaymentMethodCode.COD
+          (single) => single.payment_method_code !== PaymentMethodCode.COD,
         );
         handlePayment(_payments);
       }

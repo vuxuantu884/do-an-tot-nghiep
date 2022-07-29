@@ -47,7 +47,7 @@ export const keyDriverOfflineTemplateData = [
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                   },
-                ]
+                ],
               },
               {
                 key: "near_vip_total_sales",
@@ -64,7 +64,7 @@ export const keyDriverOfflineTemplateData = [
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                   },
-                ]
+                ],
               },
               {
                 key: "birthday_total_sales",
@@ -86,7 +86,7 @@ export const keyDriverOfflineTemplateData = [
                         name: "TỶ LỆ CHUYỂN ĐỔI",
                         method: "",
                       },
-                    ]
+                    ],
                   },
                   {
                     key: "birthday_sms_customers",
@@ -103,9 +103,9 @@ export const keyDriverOfflineTemplateData = [
                         name: "TỶ LỆ CHUYỂN ĐỔI",
                         method: "",
                       },
-                    ]
-                  }
-                ]
+                    ],
+                  },
+                ],
               },
               {
                 key: "customer_gt90_days_total_sales",
@@ -122,7 +122,7 @@ export const keyDriverOfflineTemplateData = [
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                   },
-                ]
+                ],
               },
               {
                 key: "shopper_gt90_days_total_sales",
@@ -139,17 +139,17 @@ export const keyDriverOfflineTemplateData = [
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                   },
-                ]
+                ],
               },
               {
                 key: "new_customer_total_sales",
                 name: "MỚI",
-                method: "(Là data mới toanh)"
+                method: "(Là data mới toanh)",
               },
               {
                 key: "others_total_sales",
                 name: "KH CÒN LẠI",
-                method: "(là KH còn lại ko nằm trong các tệp trên)"
+                method: "(là KH còn lại ko nằm trong các tệp trên)",
               },
             ],
           },
@@ -173,19 +173,15 @@ export const keyDriverOfflineTemplateData = [
       },
       {
         name: "Doanh thu Giao hàng 4h",
-        method: "Tính năng đang phát triển"
+        method: "Tính năng đang phát triển",
       },
     ],
   },
   {
     key: KeyDriverField.ProductTotalSales,
     name: "Doanh thu theo sản phẩm",
-    children: []
-  }
+    children: [],
+  },
 ];
 
-export const ASM_LIST = [
-  'ASM Dương Sơn Tùng',
-  'ASM Nguyễn Văn Ánh',
-  'ASM Đỗ Quang Hiếu'
-]
+export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];

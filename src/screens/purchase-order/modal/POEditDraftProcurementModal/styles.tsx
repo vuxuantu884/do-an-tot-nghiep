@@ -13,4 +13,4 @@ export const POCrea = styled.div`
       width: 100%;
     }
   }
-`
+`;

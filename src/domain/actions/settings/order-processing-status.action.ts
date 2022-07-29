@@ -6,7 +6,7 @@ import {
 
 export const actionFetchListOrderProcessingStatus = (
   queryParams = {},
-  handleData: (data: OrderProcessingStatusResponseModel) => void
+  handleData: (data: OrderProcessingStatusResponseModel) => void,
 ) => {
   return {
     type: SETTING_TYPES.orderProcessingStatus.listData,
@@ -19,7 +19,7 @@ export const actionFetchListOrderProcessingStatus = (
 
 export const actionAddOrderProcessingStatus = (
   item: OrderProcessingStatusModel,
-  handleData: () => void
+  handleData: () => void,
 ) => {
   return {
     type: SETTING_TYPES.orderProcessingStatus.create,
@@ -33,7 +33,7 @@ export const actionAddOrderProcessingStatus = (
 export const actionEditOrderProcessingStatus = (
   id: number,
   item: OrderProcessingStatusModel,
-  handleData: () => void
+  handleData: () => void,
 ) => {
   return {
     type: SETTING_TYPES.orderProcessingStatus.edit,
@@ -45,10 +45,7 @@ export const actionEditOrderProcessingStatus = (
   };
 };
 
-export const actionDeleteOrderProcessingStatus = (
-  id: number,
-  handleData: () => void
-) => {
+export const actionDeleteOrderProcessingStatus = (id: number, handleData: () => void) => {
   return {
     type: SETTING_TYPES.orderProcessingStatus.delete,
     payload: {

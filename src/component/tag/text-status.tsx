@@ -1,7 +1,3 @@
-
-
-
-
 interface TextStatusProps {
   type?: string;
   children: React.ReactNode;
@@ -41,10 +37,12 @@ function TextStatus(props: TextStatusProps) {
   }
   return (
     // <TagStatusStyle>
-      <div style={{color: color}}>
-        { icon && <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }}/> }
-        {children}
-      </div>
+    <div style={{ color: color }}>
+      {icon && (
+        <img width={20} height={20} src={icon} alt="" style={{ marginRight: 4, marginBottom: 2 }} />
+      )}
+      {children}
+    </div>
     // </TagStatusStyle>
   );
 }

@@ -12,14 +12,8 @@ type PropTypes = {
 };
 
 function UserCustomFilterTag(props: PropTypes): JSX.Element {
-  const {
-    tagId,
-    onSelectFilterConfig,
-    name,
-    setConfigId,
-    setIsShowConfirmDelete,
-    tagActive,
-  } = props;
+  const { tagId, onSelectFilterConfig, name, setConfigId, setIsShowConfirmDelete, tagActive } =
+    props;
   return (
     <StyledComponent>
       <Tag

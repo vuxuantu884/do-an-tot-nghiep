@@ -76,7 +76,7 @@ function UpdatePaymentCard(props: PropTypes) {
       history.push(`${UrlConfig.ORDER}/${props.orderDetail.id}`);
       createPaymentCallback && createPaymentCallback();
     },
-    [createPaymentCallback, history, props]
+    [createPaymentCallback, history, props],
   );
 
   const onError = (error: boolean) => {
@@ -92,7 +92,7 @@ function UpdatePaymentCard(props: PropTypes) {
     } else {
       if (props.orderDetail.status === OrderStatus.DRAFT) {
         setTextValue(
-          "Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?"
+          "Đơn hàng sẽ được duyệt khi xác nhận thanh toán. Bạn không thay đổi được thông tin thanh toán của đơn sau khi xác nhận?",
         );
       }
     }
@@ -141,12 +141,17 @@ function UpdatePaymentCard(props: PropTypes) {
         payments: reCalculatePaymentReturn(
           request.payments,
           totalAmountCustomerNeedToPay,
-          listPaymentMethods
+          listPaymentMethods,
         ).filter((payment) => payment.amount !== 0 || payment.paid_amount !== 0),
       };
       try {
         await dispatch(
-          UpdatePaymentAction(valuesCalculateReturnAmount, props.order_id, onUpdateSuccess, onError)
+          UpdatePaymentAction(
+            valuesCalculateReturnAmount,
+            props.order_id,
+            onUpdateSuccess,
+            onError,
+          ),
         );
       } catch {
         onError(true);
@@ -195,7 +200,8 @@ function UpdatePaymentCard(props: PropTypes) {
                 className="ant-btn-outline fixed-button text-right 66"
                 style={{ float: "right", padding: "0 25px", marginRight: 0 }}
                 onClick={ShowConfirmPayment}
-                loading={createPayment}>
+                loading={createPayment}
+              >
                 Tạo thanh toán
               </Button>
               <Button
@@ -209,7 +215,8 @@ function UpdatePaymentCard(props: PropTypes) {
                   padding: "0 25px",
                 }}
                 onClick={cancelPayment}
-                disabled={createPayment}>
+                disabled={createPayment}
+              >
                 Hủy
               </Button>
             </div>
@@ -273,20 +280,23 @@ function UpdatePaymentCard(props: PropTypes) {
             <div className="d-flex" style={{ marginTop: "5px", border: "none" }}>
               <span className="title-card">THANH TOÁN</span>
             </div>
-          }>
+          }
+        >
           {props.isVisibleUpdatePayment === true && renderFullPaymentMethod()}
 
           {props.isVisibleUpdatePayment === false && (
             <div>
               <label
                 className="text-left"
-                style={{ marginTop: "20px", lineHeight: "40px" }}></label>
+                style={{ marginTop: "20px", lineHeight: "40px" }}
+              ></label>
               <Button
                 type="primary"
                 className="ant-btn-outline fixed-button text-right 3"
                 style={{ float: "right", padding: "0 25px" }}
                 onClick={ShowPayment}
-                disabled={props.disabled}>
+                disabled={props.disabled}
+              >
                 Thanh toán
               </Button>
             </div>

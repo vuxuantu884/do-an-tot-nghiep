@@ -25,21 +25,10 @@ import { FilterConfig, FilterConfigRequest } from "model/other";
 import { PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
-import React, {
-  createRef,
-  Fragment,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { createRef, Fragment, useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import FormSaveFilter from "screens/products/inventory/filter/components/FormSaveFilter";
-import {
-  FILTER_CONFIG_TYPE,
-  PoPaymentStatus,
-  POStatus,
-  ProcumentStatus,
-} from "utils/Constants";
+import { FILTER_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import {
   DATE_FORMAT,
   formatDateFilter,
@@ -168,9 +157,7 @@ const keysDateFilter = [
 ];
 
 const convertStoreLabel = (store: string, allStore: StoreResponse[]) => {
-  const storeFiltered = allStore.filter(
-    (i: StoreResponse) => i.id === Number(store),
-  );
+  const storeFiltered = allStore.filter((i: StoreResponse) => i.id === Number(store));
   return storeFiltered.length > 0 ? storeFiltered[0].name : "";
 };
 
@@ -193,21 +180,16 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
           case filterFields.cancelled_date:
           case filterFields.completed_date:
           case filterFields.expect_import_date:
-            if (!filters[`from_${filterKey}`] && !filters[`to_${filterKey}`])
-              return "";
+            if (!filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return "";
             renderTxt = `${filterFieldsMapping[filterKey]} 
             : ${
               filters[`from_${filterKey}`]
-                ? moment(filters[`from_${filterKey}`])
-                    .utc(false)
-                    .format(DATE_FORMAT.DDMMYYY)
+                ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
                 : "??"
             } 
             ~ ${
               filters[`to_${filterKey}`]
-                ? moment(filters[`to_${filterKey}`])
-                    .utc(false)
-                    .format(DATE_FORMAT.DDMMYYY)
+                ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
                 : "??"
             }`;
             break;
@@ -236,9 +218,7 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
             break;
           case filterFields.expected_store:
             if (!value || value === "" || value.length === 0) return null;
-            let newValuesStores = Array.isArray(value)
-              ? value
-              : value.split(",");
+            let newValuesStores = Array.isArray(value) ? value : value.split(",");
 
             newValuesStores = newValuesStores.filter((e: any) => e !== "");
             renderTxt = `${filterFieldsMapping[filterKey]} : `;
@@ -331,14 +311,10 @@ const AdvanceFormItems = ({
             );
             break;
           case filterFields.receive_status:
-            collapseChildren = (
-              <CustomSelectMany span={8} data={listProcumentStatus} />
-            );
+            collapseChildren = <CustomSelectMany span={8} data={listProcumentStatus} />;
             break;
           case filterFields.financial_status:
-            collapseChildren = (
-              <CustomSelectMany data={listPaymentStatus} span={8} />
-            );
+            collapseChildren = <CustomSelectMany data={listPaymentStatus} span={8} />;
             break;
           // case filterFields.merchandiser:
           //   collapseChildren = (
@@ -367,10 +343,7 @@ const AdvanceFormItems = ({
             break;
           case filterFields.tax_included:
             collapseChildren = (
-              <CustomSelectOne
-                span={12}
-                data={{ true: "Có VAT", false: "Không VAT" }}
-              />
+              <CustomSelectOne span={12} data={{ true: "Có VAT", false: "Không VAT" }} />
             );
             break;
           case filterFields.expected_store:
@@ -393,10 +366,7 @@ const AdvanceFormItems = ({
               //     </CustomSelect.Option>
               //   ))}
               // </CustomSelect>
-              <TreeStore
-                listStore={listStore}
-                placeholder="Kho nhận hàng dự kiến"
-              />
+              <TreeStore listStore={listStore} placeholder="Kho nhận hàng dự kiến" />
             );
             break;
           case filterFields.note:
@@ -413,9 +383,7 @@ const AdvanceFormItems = ({
           //   collapseChildren = <HashTag placeholder="Tìm kiếm theo tag" />;
           //   break;
           case filterFields.reference:
-            collapseChildren = (
-              <Input placeholder="Tìm kiếm theo mã tham chiếu" />
-            );
+            collapseChildren = <Input placeholder="Tìm kiếm theo mã tham chiếu" />;
             break;
           default:
             collapseChildren = null;
@@ -424,10 +392,7 @@ const AdvanceFormItems = ({
           <Col
             span={8}
             key={field}
-            hidden={
-              field === filterFields.status ||
-              field === filterFields.merchandiser
-            }
+            hidden={field === filterFields.status || field === filterFields.merchandiser}
           >
             <div className="font-weight-500">{filterFieldsMapping[field]}</div>
             <Item name={field}>{collapseChildren}</Item>
@@ -443,17 +408,13 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
 ) => {
   const { params, listStore, onFilter, onMenuClick, actions } = props;
   const [visible, setVisible] = useState(false);
-  const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>(
-    [],
-  );
+  const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>([]);
   const [tagAcitve, setTagActive] = useState<number | null>();
   const [configId, setConfigId] = useState<number>();
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
   const dispatch = useDispatch();
   const [showModalSaveFilter, setShowModalSaveFilter] = useState(false);
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer,
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const { account } = userReducer;
   const [modalAction, setModalAction] = useState<modalActionType>("create");
   const [wins, setWins] = useState<PageResponse<AccountResponse>>({
@@ -567,9 +528,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
           closeIcon={
             <CloseOutlined
               className={
-                tagAcitve === props.index
-                  ? "ant-tag-close-icon"
-                  : "ant-tag-close-icon-black"
+                tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"
               }
             />
           }
@@ -586,19 +545,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     );
   };
 
-  const onResultGetConfig = useCallback(
-    (res: BaseResponse<Array<FilterConfig>>) => {
-      if (res && res.data && res.data.length > 0) {
-        const configFilters = res.data.filter(
-          (e) => e.type === FILTER_CONFIG_TYPE.FILTER_PO,
-        );
-        setLstConfigFilter(configFilters);
-      } else {
-        setLstConfigFilter([]);
-      }
-    },
-    [],
-  );
+  const onResultGetConfig = useCallback((res: BaseResponse<Array<FilterConfig>>) => {
+    if (res && res.data && res.data.length > 0) {
+      const configFilters = res.data.filter((e) => e.type === FILTER_CONFIG_TYPE.FILTER_PO);
+      setLstConfigFilter(configFilters);
+    } else {
+      setLstConfigFilter([]);
+    }
+  }, []);
 
   const getConfigPo = useCallback(() => {
     if (account && account.code) {
@@ -642,19 +596,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   const onSaveFilter = useCallback(
     (request: FilterConfigRequest) => {
       if (request) {
-        let json_content = JSON.stringify(
-          formAdvanceFilter.getFieldsValue(),
-          function (k, v) {
-            return v === undefined ? null : v;
-          },
-        );
+        let json_content = JSON.stringify(formAdvanceFilter.getFieldsValue(), function (k, v) {
+          return v === undefined ? null : v;
+        });
         request.type = FILTER_CONFIG_TYPE.FILTER_PO;
         request.json_content = json_content;
 
         if (request.id && request.id !== null) {
-          const config = lstConfigFilter.find(
-            (e) => e.id.toString() === request.id.toString(),
-          );
+          const config = lstConfigFilter.find((e) => e.id.toString() === request.id.toString());
           if (lstConfigFilter && config) {
             request.name = config.name;
           }
@@ -667,20 +616,17 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     [dispatch, formAdvanceFilter, onResult, lstConfigFilter],
   );
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return false;
-      }
-      if (isWin) {
-        setWins(data);
-      }
-      if (isQC) {
-        setlstQC(data);
-      }
-    },
-    [],
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return false;
+    }
+    if (isWin) {
+      setWins(data);
+    }
+    if (isQC) {
+      setlstQC(data);
+    }
+  }, []);
 
   const getAccounts = useCallback(
     (code: string, page: number, qc: boolean, win: boolean) => {
@@ -708,30 +654,14 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
       status: params.status ? params.status : [],
       [rangeFilter.from_order_date]: formatDateFilter(params.from_order_date),
       [rangeFilter.to_order_date]: formatDateFilter(params.to_order_date),
-      [rangeFilter.from_activated_date]: formatDateFilter(
-        params.from_activated_date,
-      ),
-      [rangeFilter.to_activated_date]: formatDateFilter(
-        params.to_activated_date,
-      ),
-      [rangeFilter.from_cancelled_date]: formatDateFilter(
-        params.from_cancelled_date,
-      ),
-      [rangeFilter.to_cancelled_date]: formatDateFilter(
-        params.to_cancelled_date,
-      ),
-      [rangeFilter.from_expect_import_date]: formatDateFilter(
-        params.from_expect_import_date,
-      ),
-      [rangeFilter.to_expect_import_date]: formatDateFilter(
-        params.to_expect_import_date,
-      ),
-      [rangeFilter.from_completed_date]: formatDateFilter(
-        params.from_completed_date,
-      ),
-      [rangeFilter.to_completed_date]: formatDateFilter(
-        params.to_completed_date,
-      ),
+      [rangeFilter.from_activated_date]: formatDateFilter(params.from_activated_date),
+      [rangeFilter.to_activated_date]: formatDateFilter(params.to_activated_date),
+      [rangeFilter.from_cancelled_date]: formatDateFilter(params.from_cancelled_date),
+      [rangeFilter.to_cancelled_date]: formatDateFilter(params.to_cancelled_date),
+      [rangeFilter.from_expect_import_date]: formatDateFilter(params.from_expect_import_date),
+      [rangeFilter.to_expect_import_date]: formatDateFilter(params.to_expect_import_date),
+      [rangeFilter.from_completed_date]: formatDateFilter(params.from_completed_date),
+      [rangeFilter.to_completed_date]: formatDateFilter(params.to_completed_date),
       [filterFields.expected_store]: params.expected_store
         ? isArray(params.expected_store)
           ? params.expected_store
@@ -785,9 +715,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             to_completed_date: getEndOfDayCommon(to_completed_date),
             from_cancelled_date: getStartOfDayCommon(from_cancelled_date),
             to_cancelled_date: getEndOfDayCommon(to_cancelled_date),
-            from_expect_import_date: getStartOfDayCommon(
-              from_expect_import_date,
-            ),
+            from_expect_import_date: getStartOfDayCommon(from_expect_import_date),
             to_expect_import_date: getEndOfDayCommon(to_expect_import_date),
           };
           formBaseFilter.setFieldsValue({ ...data });
@@ -852,11 +780,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             </CustomFilter>
           </Form>
         </div>
-        <FilterList
-          filters={advanceFilters}
-          resetField={resetField}
-          allStores={listStore}
-        />
+        <FilterList filters={advanceFilters} resetField={resetField} allStores={listStore} />
         <BaseFilter
           onClearFilter={onResetFilter}
           onFilter={onFilterClick}
@@ -874,10 +798,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             layout="vertical"
             style={{ paddingTop: 12 }}
             onFieldsChange={(changedFields: any, allFields: any) => {
-              let fieldNames =
-                changedFields &&
-                changedFields.length > 0 &&
-                changedFields[0].name;
+              let fieldNames = changedFields && changedFields.length > 0 && changedFields[0].name;
               if (!fieldNames) return;
               let filtersSelected: any = {};
               fieldNames.forEach((fieldName: any) => {
@@ -892,14 +813,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             {lstConfigFilter && lstConfigFilter.length > 0 && (
               <div style={{ marginBottom: 20 }}>
                 {lstConfigFilter?.map((e, index) => {
-                  return (
-                    <FilterConfigCom
-                      key={index}
-                      id={e.id}
-                      index={index}
-                      name={e.name}
-                    />
-                  );
+                  return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />;
                 })}
               </div>
             )}

@@ -6,14 +6,18 @@ import { MenuAction } from "component/table/ActionButton";
 import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 import { PriceRule } from "model/promotion/price-rules.model";
-import React, {Fragment, ReactNode, useCallback, useEffect, useMemo, useState} from "react";
+import React, { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import {Link, useHistory, useLocation} from "react-router-dom";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import { OFFSET_HEADER_UNDER_NAVBAR, PROMO_TYPE } from "utils/Constants";
 import ContentContainer from "../../../component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "../../../component/table/CustomTable";
 import UrlConfig from "../../../config/url.config";
-import { bulkDisablePriceRulesAction, bulkEnablePriceRulesAction, getListDiscountAction } from "../../../domain/actions/promotion/discount/discount.action";
+import {
+  bulkDisablePriceRulesAction,
+  bulkEnablePriceRulesAction,
+  getListDiscountAction,
+} from "../../../domain/actions/promotion/discount/discount.action";
 import { PageResponse } from "../../../model/base/base-metadata.response";
 import { DiscountSearchQuery } from "../../../model/query/discount.query";
 import { showError, showSuccess } from "../../../utils/ToastUtils";
@@ -31,7 +35,6 @@ import { FiCheckCircle } from "react-icons/fi";
 import { RiDeleteBin2Fill } from "react-icons/ri";
 
 const DiscountPage = () => {
-
   const initQuery: DiscountSearchQuery = {
     limit: 30,
     page: 1,
@@ -53,11 +56,9 @@ const DiscountPage = () => {
 
   const dispatch = useDispatch();
   const history = useHistory();
-  const location = useLocation()
+  const location = useLocation();
 
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   const [tableLoading, setTableLoading] = useState<boolean>(true);
   const [discounts, setDiscounts] = useState<PageResponse<PriceRule>>({
@@ -68,7 +69,7 @@ const DiscountPage = () => {
     },
     items: [],
   });
-  
+
   const [params, setParams] = useState<DiscountSearchQuery>(initQuery);
   const [selectedRowKey, setSelectedRowKey] = useState<any>([]);
   const [listStore, setStore] = useState<Array<StoreResponse>>();
@@ -76,18 +77,17 @@ const DiscountPage = () => {
   const [allowCancelPromoCode] = useAuthorization({
     acceptPermissions: [PromoPermistion.CANCEL],
   });
-  const [allowUpdateDiscount] = useAuthorization({acceptPermissions:[PromoPermistion.UPDATE]})
+  const [allowUpdateDiscount] = useAuthorization({
+    acceptPermissions: [PromoPermistion.UPDATE],
+  });
 
   // handle get discount list
-  const getDiscountListCallback = useCallback(
-    (data: PageResponse<PriceRule> | null) => {
-      setTableLoading(false);
-      if (data) {
-        setDiscounts(data);
-      }
-    },
-    []
-  );
+  const getDiscountListCallback = useCallback((data: PageResponse<PriceRule> | null) => {
+    setTableLoading(false);
+    if (data) {
+      setDiscounts(data);
+    }
+  }, []);
 
   const getDiscountList = useCallback(
     (params) => {
@@ -95,7 +95,7 @@ const DiscountPage = () => {
       setTableLoading(true);
       dispatch(getListDiscountAction(params, getDiscountListCallback));
     },
-    [dispatch, getDiscountListCallback]
+    [dispatch, getDiscountListCallback],
   );
 
   useEffect(() => {
@@ -108,11 +108,10 @@ const DiscountPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
   // end handle get discount list
-  
+
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
-
 
   const actionFilter: Array<MenuAction> = useMemo(() => {
     if (selectedRowKey.length < 1) {
@@ -124,15 +123,14 @@ const DiscountPage = () => {
       return ACTIONS_DISCOUNT.map((e) => {
         e.disabled = false;
         return e;
-      }).filter((e) => e.id !== 1 && e.id !== 2)
+      }).filter((e) => e.id !== 1 && e.id !== 2);
     } else if (selectedRowKey.length > 0) {
       return ACTIONS_DISCOUNT.map((e) => {
         e.disabled = false;
         return e;
-      })
+      });
     }
     return ACTIONS_DISCOUNT;
-
   }, [allowCancelPromoCode, selectedRowKey]);
 
   function onChangePriceRuleStatus(numberOfDisabled: number): void {
@@ -149,10 +147,9 @@ const DiscountPage = () => {
     setTableLoading(true);
 
     dispatch(
-      bulkDisablePriceRulesAction(
-        { ids: [idNumber] },
-        (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)
-      )
+      bulkDisablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) =>
+        onChangePriceRuleStatus(numberOfDisabled),
+      ),
     );
   };
 
@@ -160,10 +157,9 @@ const DiscountPage = () => {
     setTableLoading(true);
 
     dispatch(
-      bulkEnablePriceRulesAction(
-        { ids: [idNumber] },
-        (numberOfDisabled: number) => onChangePriceRuleStatus(numberOfDisabled)
-      )
+      bulkEnablePriceRulesAction({ ids: [idNumber] }, (numberOfDisabled: number) =>
+        onChangePriceRuleStatus(numberOfDisabled),
+      ),
     );
   };
 
@@ -214,7 +210,7 @@ const DiscountPage = () => {
       visible: true,
       align: "center",
       render: (value: any, item: any) => (
-        <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date}/>
+        <DatePromotionColumn startDate={item.starts_date} endDate={item.ends_date} />
       ),
     },
     {
@@ -229,7 +225,9 @@ const DiscountPage = () => {
       dataIndex: "state",
       align: "center",
       render: (state: string) => {
-        const StatusTag: ReactNode = DISCOUNT_STATUS.find((e) => e.code === state)?.Component ?? <Fragment />;
+        const StatusTag: ReactNode = DISCOUNT_STATUS.find((e) => e.code === state)?.Component ?? (
+          <Fragment />
+        );
         return StatusTag;
       },
     },
@@ -239,33 +237,36 @@ const DiscountPage = () => {
       align: "center",
       render: (id: number, item: any) => (
         <Dropdown.Button
-        disabled={!allowUpdateDiscount}
+          disabled={!allowUpdateDiscount}
           overlay={
             <Menu>
               <Menu.Item icon={<EditOutlined />} key={1}>
                 <Link to={`discounts/${id}/update`}>Chỉnh sửa</Link>
               </Menu.Item>
-              {item.state ==="DISABLED"?(<Menu.Item
-                key={3}
-                icon={<FiCheckCircle />}
-                onClick={() => {
-                  handleActivatePriceRule(id);
-                }}
-              >
-                Kích hoạt
-              </Menu.Item>):(
-              <Menu.Item
-                key={3}
-                icon={<RiDeleteBin2Fill />}
-                onClick={() => {
-                  handleDeactivatePriceRule(id);
-                }}
-              >
-                Tạm ngừng
-              </Menu.Item>)}
+              {item.state === "DISABLED" ? (
+                <Menu.Item
+                  key={3}
+                  icon={<FiCheckCircle />}
+                  onClick={() => {
+                    handleActivatePriceRule(id);
+                  }}
+                >
+                  Kích hoạt
+                </Menu.Item>
+              ) : (
+                <Menu.Item
+                  key={3}
+                  icon={<RiDeleteBin2Fill />}
+                  onClick={() => {
+                    handleDeactivatePriceRule(id);
+                  }}
+                >
+                  Tạm ngừng
+                </Menu.Item>
+              )}
             </Menu>
           }
-          icon={<img src={threeDot} alt="" style={{ verticalAlign: 'super' }} />}
+          icon={<img src={threeDot} alt="" style={{ verticalAlign: "super" }} />}
         />
       ),
     },
@@ -286,37 +287,42 @@ const DiscountPage = () => {
     } else {
       history.push(`${location.pathname}?${queryParam}`);
     }
-  }
+  };
 
-  const onMenuClick =
-    (index: number) => {
-      setTableLoading(true);
-      const body = { ids: selectedRowKey };
-      switch (index) {
-        case 1:
-          dispatch(bulkEnablePriceRulesAction(body, (numberOfActived: number) => {
+  const onMenuClick = (index: number) => {
+    setTableLoading(true);
+    const body = { ids: selectedRowKey };
+    switch (index) {
+      case 1:
+        dispatch(
+          bulkEnablePriceRulesAction(body, (numberOfActived: number) => {
             if (typeof numberOfActived === "number") {
-              showSuccess(`Đã kích hoạt thành công ${numberOfActived}/${selectedRowKey.length} chương trình`);
+              showSuccess(
+                `Đã kích hoạt thành công ${numberOfActived}/${selectedRowKey.length} chương trình`,
+              );
               dispatch(getListDiscountAction(params, setDiscounts));
             }
-          }
-          ))
-          setTableLoading(false);
-          break;
-        case 2:
-          dispatch(bulkDisablePriceRulesAction(body, (numberOfActived: number) => {
+          }),
+        );
+        setTableLoading(false);
+        break;
+      case 2:
+        dispatch(
+          bulkDisablePriceRulesAction(body, (numberOfActived: number) => {
             if (typeof numberOfActived === "number") {
-              showSuccess(`Đã tạm ngưng thành công ${numberOfActived}/${selectedRowKey.length} chương trình`);
+              showSuccess(
+                `Đã tạm ngưng thành công ${numberOfActived}/${selectedRowKey.length} chương trình`,
+              );
               dispatch(getListDiscountAction(params, setDiscounts));
             }
-          }
-          ))
-          setTableLoading(false);
-          break;
-        case 3:
-          break;
-      }
-    };
+          }),
+        );
+        setTableLoading(false);
+        break;
+      case 3:
+        break;
+    }
+  };
 
   return (
     <ContentContainer
@@ -345,50 +351,46 @@ const DiscountPage = () => {
             >
               Tạo mới khuyến mại
             </Button>
-          </Link></AuthWrapper>
-
+          </Link>
+        </AuthWrapper>
       }
     >
       <DiscountStyled>
-      <Card
-        title={"Danh sách chiết khấu"}
-      >
-        <DiscountFilter
-          onMenuClick={onMenuClick}
-          initQuery={initQuery}
-          params={params}
-          actions={actionFilter}
-          onFilter={onFilter}
-          listStore={listStore}
-        />
-        <CustomTable
-          selectedRowKey={selectedRowKey}
-          onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey)}
-          isRowSelection
-          isLoading={tableLoading}
-          sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
-          pagination={{
-            pageSize: discounts?.metadata.limit || 0,
-            total: discounts?.metadata.total || 0,
-            current: discounts?.metadata.page,
-            showSizeChanger: true,
-            onChange: onPageChange,
-            onShowSizeChange: onPageChange,
-          }}
-          isShowPaginationAtHeader
-          dataSource={discounts?.items}
-          columns={columns}
-          rowKey={(item: any) => item.id}
-        />
-
-      </Card>
+        <Card title={"Danh sách chiết khấu"}>
+          <DiscountFilter
+            onMenuClick={onMenuClick}
+            initQuery={initQuery}
+            params={params}
+            actions={actionFilter}
+            onFilter={onFilter}
+            listStore={listStore}
+          />
+          <CustomTable
+            selectedRowKey={selectedRowKey}
+            onChangeRowKey={(rowKey) => setSelectedRowKey(rowKey)}
+            isRowSelection
+            isLoading={tableLoading}
+            sticky={{
+              offsetScroll: 5,
+              offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+            }}
+            pagination={{
+              pageSize: discounts?.metadata.limit || 0,
+              total: discounts?.metadata.total || 0,
+              current: discounts?.metadata.page,
+              showSizeChanger: true,
+              onChange: onPageChange,
+              onShowSizeChange: onPageChange,
+            }}
+            isShowPaginationAtHeader
+            dataSource={discounts?.items}
+            columns={columns}
+            rowKey={(item: any) => item.id}
+          />
+        </Card>
       </DiscountStyled>
     </ContentContainer>
-
-
   );
 };
 
 export default DiscountPage;
-
-

@@ -1,14 +1,4 @@
-import {
-  Card,
-  Checkbox,
-  Col,
-  Radio,
-  RadioChangeEvent,
-  Row,
-  Select,
-  Space,
-  Switch,
-} from "antd";
+import { Card, Checkbox, Col, Radio, RadioChangeEvent, Row, Select, Space, Switch } from "antd";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { OrderConfigRequestModel } from "model/request/settings/order-settings.resquest";
 import {
@@ -26,12 +16,7 @@ type PropType = {
 };
 
 function CardGeneralSettings(props: PropType) {
-  const {
-    listPrintConfig,
-    listActionsOrderPreview,
-    listOrderConfigs,
-    onUpdateOrderConfig,
-  } = props;
+  const { listPrintConfig, listActionsOrderPreview, listOrderConfigs, onUpdateOrderConfig } = props;
 
   const getInitParams = () => {
     let result = null;
@@ -43,7 +28,7 @@ function CardGeneralSettings(props: PropType) {
         order_config_action: listOrderConfigs.order_config_action,
         order_config_print_id: listOrderConfigs.order_config_print?.id,
         hide_gift: listOrderConfigs.hide_gift,
-        hide_bonus_item: listOrderConfigs.hide_bonus_item
+        hide_bonus_item: listOrderConfigs.hide_bonus_item,
       };
     }
     return result;
@@ -55,8 +40,8 @@ function CardGeneralSettings(props: PropType) {
 
   const valueApplyPrintOrderOption = {
     hideGift: "inHoaDonKhongHienThiQuaTang",
-    hideBonusItem: "inHoaDonKhongCoSanPhamTangKem"
-  }
+    hideBonusItem: "inHoaDonKhongCoSanPhamTangKem",
+  };
 
   const [valueCustomerCanViewOrder, setValueCustomerCanViewOrder] = useState("");
   const [invoicePrintingConfiguration, setInvoicePrintingConfiguration] = useState([]);
@@ -67,8 +52,7 @@ function CardGeneralSettings(props: PropType) {
       return;
     }
     setValueCustomerCanViewOrder(e.target.value);
-    const for_all_order =
-      e.target.value === valueCustomerCanViewOrderOption.forAllOrders;
+    const for_all_order = e.target.value === valueCustomerCanViewOrderOption.forAllOrders;
 
     listOrderConfigs.for_all_order =
       e.target.value === valueCustomerCanViewOrderOption.forAllOrders;
@@ -140,15 +124,10 @@ function CardGeneralSettings(props: PropType) {
 
   useEffect(() => {
     if (listOrderConfigs?.for_all_order) {
-      setValueCustomerCanViewOrder(
-        valueCustomerCanViewOrderOption.forAllOrders
-      );
+      setValueCustomerCanViewOrder(valueCustomerCanViewOrderOption.forAllOrders);
     } else {
-      setValueCustomerCanViewOrder(
-        valueCustomerCanViewOrderOption.forSingleOrder
-      );
+      setValueCustomerCanViewOrder(valueCustomerCanViewOrderOption.forSingleOrder);
     }
-
   }, [
     listOrderConfigs,
     valueCustomerCanViewOrderOption.forAllOrders,
@@ -157,19 +136,17 @@ function CardGeneralSettings(props: PropType) {
 
   useEffect(() => {
     let config: any = [];
-    if (listOrderConfigs?.hide_gift === true)
-      config.push(valueApplyPrintOrderOption.hideGift)
+    if (listOrderConfigs?.hide_gift === true) config.push(valueApplyPrintOrderOption.hideGift);
     if (listOrderConfigs?.hide_bonus_item === true)
-      config.push(valueApplyPrintOrderOption.hideBonusItem)
-    setInvoicePrintingConfiguration(config)
+      config.push(valueApplyPrintOrderOption.hideBonusItem);
+    setInvoicePrintingConfiguration(config);
   }, [
     listOrderConfigs,
     valueApplyPrintOrderOption.hideBonusItem,
-    valueApplyPrintOrderOption.hideGift
+    valueApplyPrintOrderOption.hideGift,
   ]);
 
-  const onChangeApplyPrint = (value:any) => {
-
+  const onChangeApplyPrint = (value: any) => {
     let initParams = getInitParams();
     if (!listOrderConfigs || !initParams) {
       return;
@@ -177,17 +154,23 @@ function CardGeneralSettings(props: PropType) {
 
     const params: OrderConfigRequestModel = {
       ...initParams,
-      hide_gift: value.findIndex((x:any) => x === valueApplyPrintOrderOption.hideGift) !== -1 ? true : false,
-      hide_bonus_item: value.findIndex((x:any) => x === valueApplyPrintOrderOption.hideBonusItem) !== -1 ? true : false,
+      hide_gift:
+        value.findIndex((x: any) => x === valueApplyPrintOrderOption.hideGift) !== -1
+          ? true
+          : false,
+      hide_bonus_item:
+        value.findIndex((x: any) => x === valueApplyPrintOrderOption.hideBonusItem) !== -1
+          ? true
+          : false,
     };
     setInvoicePrintingConfiguration(value);
     onUpdateOrderConfig(params);
-  }
+  };
 
   return (
     <StyledComponent>
       <Card title="Cài đặt chung">
-        <Row style={{ padding: "0px 30px" }} >
+        <Row style={{ padding: "0px 30px" }}>
           <Col span={12}>
             <div className="singleSetting">
               <h4 className="title">Cho khách hàng xem hàng</h4>
@@ -197,9 +180,7 @@ function CardGeneralSettings(props: PropType) {
                   value={valueCustomerCanViewOrder}
                 >
                   <div className="single">
-                    <Radio
-                      value={valueCustomerCanViewOrderOption.forSingleOrder}
-                    >
+                    <Radio value={valueCustomerCanViewOrderOption.forSingleOrder}>
                       Lựa chọn theo từng đơn
                     </Radio>
                   </div>
@@ -225,10 +206,7 @@ function CardGeneralSettings(props: PropType) {
                       listActionsOrderPreview.length > 0 &&
                       listActionsOrderPreview.map((single) => {
                         return (
-                          <Select.Option
-                            value={single.value}
-                            key={single.value}
-                          >
+                          <Select.Option value={single.value} key={single.value}>
                             {single.name}
                           </Select.Option>
                         );
@@ -240,20 +218,15 @@ function CardGeneralSettings(props: PropType) {
           </Col>
           <Col span={12}>
             <div className="singleSetting">
-              <h4 className="title">
-                Chọn in hóa đơn
-              </h4>
+              <h4 className="title">Chọn in hóa đơn</h4>
               <div className="singleSetting__content">
                 <Checkbox.Group
                   key={Math.random()}
                   onChange={onChangeApplyPrint}
-
                   value={invoicePrintingConfiguration}
                 >
                   <div className="single">
-                    <Checkbox
-                      value={valueApplyPrintOrderOption.hideGift}
-                    >
+                    <Checkbox value={valueApplyPrintOrderOption.hideGift}>
                       In hóa đơn không hiển thị quà tặng
                     </Checkbox>
                   </div>
@@ -325,32 +298,23 @@ function CardGeneralSettings(props: PropType) {
                 </Space>
               </div>
             </div>
-
           </Col>
           <Col span={12}>
             <div className="singleSetting">
-              <h4 className="title">
-                Cấu hình cho phép in nhiều liên đơn hàng
-              </h4>
+              <h4 className="title">Cấu hình cho phép in nhiều liên đơn hàng</h4>
               <div className="singleSetting__content">
                 <Select
                   key={Math.random()}
                   placeholder="Chọn số lượng"
                   onChange={onChangeSelectSettingPrinter}
                   className="selectInNhieuDonHang"
-                  defaultValue={
-                    listOrderConfigs?.order_config_print?.id.toString() ||
-                    undefined
-                  }
+                  defaultValue={listOrderConfigs?.order_config_print?.id.toString() || undefined}
                 >
                   {listPrintConfig &&
                     listPrintConfig.length > 0 &&
                     listPrintConfig.map((single) => {
                       return (
-                        <Select.Option
-                          value={single.id.toString()}
-                          key={single.id}
-                        >
+                        <Select.Option value={single.id.toString()} key={single.id}>
                           {single.name}
                         </Select.Option>
                       );

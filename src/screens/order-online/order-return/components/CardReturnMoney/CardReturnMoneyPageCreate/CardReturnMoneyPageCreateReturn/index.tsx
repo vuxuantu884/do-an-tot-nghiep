@@ -16,7 +16,7 @@ type PropTypes = {
 /**
  * input: listPaymentMethod, returnMoneyType
  * output: setReturnMoneyType
- * 
+ *
  * ghi chú: hiện tại ko cho hoàn tiền sau
  */
 function CardReturnMoneyPageCreateReturn(props: PropTypes) {
@@ -34,7 +34,7 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
   return (
     <Card className="margin-top-20" title={<span className="title-card">Thanh toán</span>}>
       <div className="create-order-payment return1">
-       {/* không cho hoàn tiền sau */}
+        {/* không cho hoàn tiền sau */}
         {/* <Radio.Group
           value={returnMoneyType}
           onChange={(e) => {

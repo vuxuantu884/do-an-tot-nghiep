@@ -7,15 +7,15 @@ function useSetTableColumns(
   columnType: string,
   tableColumnConfigs: FilterConfig[],
   initColumns: ICustomTableColumType<any>[],
-  setColumns: (columns: ICustomTableColumType<any>[]) => void
+  setColumns: (columns: ICustomTableColumType<any>[]) => void,
 ) {
   const orderVariable = useMemo(() => {
-    const orderArr = [COLUMN_CONFIG_TYPE.orderOffline, COLUMN_CONFIG_TYPE.orderOnline]
-    if(orderArr.includes(columnType)) {
-      return initColumns
+    const orderArr = [COLUMN_CONFIG_TYPE.orderOffline, COLUMN_CONFIG_TYPE.orderOnline];
+    if (orderArr.includes(columnType)) {
+      return initColumns;
     }
-    return null
-  }, [columnType, initColumns])
+    return null;
+  }, [columnType, initColumns]);
 
   useEffect(() => {
     const userConfigTableColumn = tableColumnConfigs.find((e) => e.type === columnType);
@@ -23,31 +23,39 @@ function useSetTableColumns(
     // console.log('userConfigTableColumn', userConfigTableColumn)
     if (userConfigTableColumn) {
       const config = JSON.parse(userConfigTableColumn?.json_content) as Array<
-      ICustomTableColumType<any>
+        ICustomTableColumType<any>
       >;
       // console.log('config', config);
-      let columnsWithConfigArr:ICustomTableColumType<any>[] = [];
+      let columnsWithConfigArr: ICustomTableColumType<any>[] = [];
       config.forEach((single) => {
-        const selected = initColumns.find(column => column.key === single.key)
+        const selected = initColumns.find((column) => column.key === single.key);
         // console.log('selected', selected);
-        if(selected) {
+        if (selected) {
           columnsWithConfigArr.push({
             ...selected,
-            visible: selected ? (single?.visible) : false,
-          })
+            visible: selected ? single?.visible : false,
+          });
         }
-      })
-      const leftColumnArr = initColumns.filter(column => !config.map(single => single.key).includes(column.key))
-      let columnResult:ICustomTableColumType<any>[] = [...columnsWithConfigArr, ...leftColumnArr];
+      });
+      const leftColumnArr = initColumns.filter(
+        (column) => !config.map((single) => single.key).includes(column.key),
+      );
+      let columnResult: ICustomTableColumType<any>[] = [...columnsWithConfigArr, ...leftColumnArr];
       // đặt column có fixed lên trước
-      let fixedLeftColumnResult = columnResult.filter(column => column.fixed && column.fixed !=="right");
-      let fixedRightColumnResult = columnResult.filter(column => column.fixed==="right");
-      let notFixedColumnResult = columnResult.filter(column => !column.fixed);
-      const sortedColumnResult = [...fixedLeftColumnResult, ...notFixedColumnResult, ...fixedRightColumnResult];
+      let fixedLeftColumnResult = columnResult.filter(
+        (column) => column.fixed && column.fixed !== "right",
+      );
+      let fixedRightColumnResult = columnResult.filter((column) => column.fixed === "right");
+      let notFixedColumnResult = columnResult.filter((column) => !column.fixed);
+      const sortedColumnResult = [
+        ...fixedLeftColumnResult,
+        ...notFixedColumnResult,
+        ...fixedRightColumnResult,
+      ];
       setColumns(sortedColumnResult);
     }
-  // bỏ initColumns, thêm orderVariable
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // bỏ initColumns, thêm orderVariable
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [columnType, setColumns, tableColumnConfigs, orderVariable]);
 }
 

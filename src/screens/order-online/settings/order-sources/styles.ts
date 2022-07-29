@@ -1,14 +1,14 @@
 import styled from "styled-components";
-import {dangerColor, successColor} from "utils/global-styles/variables";
+import { dangerColor, successColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
-    .cardExtra {
-      button {
-        &:not(:last-child) {
-          margin-right: 5px;
-        }
+  .cardExtra {
+    button {
+      &:not(:last-child) {
+        margin-right: 5px;
       }
     }
+  }
   .page-filter {
     padding-top: 0;
   }
@@ -64,7 +64,7 @@ export const StyledComponent = styled.div`
       color: ${dangerColor};
     }
   }
-  .custom-table .ant-table.ant-table-middle .ant-table-thead{
-    box-shadow: unset
+  .custom-table .ant-table.ant-table-middle .ant-table-thead {
+    box-shadow: unset;
   }
 `;

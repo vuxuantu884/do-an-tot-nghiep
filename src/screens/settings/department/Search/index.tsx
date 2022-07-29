@@ -3,7 +3,10 @@ import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { departmentDetailAction, searchDepartmentPagingAction } from "domain/actions/account/department.action";
+import {
+  departmentDetailAction,
+  searchDepartmentPagingAction,
+} from "domain/actions/account/department.action";
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -32,7 +35,10 @@ const DepartmentSearchScreen: React.FC = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const query = useQuery();
-  let dataQuery: DepartmentFilterProps = { ...initQuery, ...getQueryParams(query) };
+  let dataQuery: DepartmentFilterProps = {
+    ...initQuery,
+    ...getQueryParams(query),
+  };
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [data, setData] = useState<any>({
@@ -81,8 +87,16 @@ const DepartmentSearchScreen: React.FC = () => {
       render: (level: number, record: DepartmentView) => {
         return (
           <div>
-            <div>Cấp độ: <span className={level ? Number(level) < 3 ? 'high-level' : 'low-level' : ''}>{level}</span></div>
-            <div>Trực thuộc: {record.parent_name ? record.parent_name : Number(level) === 2 ? 'YODY' : ''}</div>
+            <div>
+              Cấp độ:{" "}
+              <span className={level ? (Number(level) < 3 ? "high-level" : "low-level") : ""}>
+                {level}
+              </span>
+            </div>
+            <div>
+              Trực thuộc:{" "}
+              {record.parent_name ? record.parent_name : Number(level) === 2 ? "YODY" : ""}
+            </div>
           </div>
         );
       },
@@ -102,9 +116,15 @@ const DepartmentSearchScreen: React.FC = () => {
       dataIndex: "status",
       width: 140,
       render: (status: string) => {
-        return status ? status === "active"
-          ? <span style={{ color: "#27AE60" }}>Đang hoạt động</span>
-          : <span style={{ color: "#E24343" }}>Ngừng hoạt động</span> : "";
+        return status ? (
+          status === "active" ? (
+            <span style={{ color: "#27AE60" }}>Đang hoạt động</span>
+          ) : (
+            <span style={{ color: "#E24343" }}>Ngừng hoạt động</span>
+          )
+        ) : (
+          ""
+        );
       },
     },
     {
@@ -160,12 +180,12 @@ const DepartmentSearchScreen: React.FC = () => {
           const newItems = result.items.map((i) => {
             return {
               ...i,
-              children: null
+              children: null,
             };
-          })
+          });
           setData({
             metadata: result.metadata,
-            items: newItems
+            items: newItems,
           });
           return;
         }
@@ -178,9 +198,7 @@ const DepartmentSearchScreen: React.FC = () => {
   }, [dispatch, params]);
 
   useEffect(() => {
-    dispatch(
-      departmentDetailAction('', onResDepartment),
-    );
+    dispatch(departmentDetailAction("", onResDepartment));
   }, [dispatch, onResDepartment]);
 
   const onFilter = useCallback(
@@ -221,24 +239,19 @@ const DepartmentSearchScreen: React.FC = () => {
             },
           ]}
           extra={
-            (
-              <>
-                <Link to={`${UrlConfig.DEPARTMENT}/overview`}>
-                  <Button
-                    className="btn-view"
-                    icon={<img className="icon-level" src={LevelIcon} alt="level" />}
-                  >
-                    Xem sơ đồ tổng quan
-                  </Button>
-                </Link>
-                {allowCreateDep && (
-                  <ButtonCreate
-                    child="Thêm phòng ban"
-                    path={`${UrlConfig.DEPARTMENT}/create`}
-                  />
-                )}
-              </>
-            )
+            <>
+              <Link to={`${UrlConfig.DEPARTMENT}/overview`}>
+                <Button
+                  className="btn-view"
+                  icon={<img className="icon-level" src={LevelIcon} alt="level" />}
+                >
+                  Xem sơ đồ tổng quan
+                </Button>
+              </Link>
+              {allowCreateDep && (
+                <ButtonCreate child="Thêm phòng ban" path={`${UrlConfig.DEPARTMENT}/create`} />
+              )}
+            </>
           }
         >
           <Card>
@@ -256,7 +269,7 @@ const DepartmentSearchScreen: React.FC = () => {
                 current: data.metadata.page,
                 total: data.metadata.total,
                 onChange: onPageChange,
-                onShowSizeChange: onPageChange
+                onShowSizeChange: onPageChange,
               }}
             />
             <CustomTable
@@ -264,7 +277,10 @@ const DepartmentSearchScreen: React.FC = () => {
               isLoading={loading}
               pagination={false}
               scroll={{ x: 1360 }}
-              sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+              sticky={{
+                offsetScroll: 5,
+                offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+              }}
               columns={columns}
             />
             <ModalSettingColumn

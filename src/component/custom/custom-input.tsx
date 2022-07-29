@@ -2,17 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Form, Input } from "antd";
 
 function CustomInput(props: any) {
-  const {
-    name,
-    label,
-    form,
-    message,
-    placeholder,
-    maxLength,
-    isRequired,
-    disabled,
-    type
-  } = props;
+  const { name, label, form, message, placeholder, maxLength, isRequired, disabled, type } = props;
 
   const [value, setValue] = useState<string>("");
 
@@ -36,7 +26,7 @@ function CustomInput(props: any) {
     >
       {type === "textarea" ? (
         <Input.TextArea
-          style={{minHeight: 130}}
+          style={{ minHeight: 130 }}
           disabled={disabled}
           maxLength={maxLength}
           placeholder={`${placeholder}`}

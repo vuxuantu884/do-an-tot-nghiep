@@ -16,10 +16,17 @@ function WarrantyBottomBar(props: PropTypes) {
         <Row gutter={24}>
           <Col md={12}></Col>
           <Col md={12} className="bottomBar__right">
-            <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "flex-end",
+                alignItems: "center",
+              }}
+            >
               <Button
                 style={{ padding: "0 25px", marginRight: 20, fontWeight: 400 }}
-                onClick={onCancel}>
+                onClick={onCancel}
+              >
                 Huỷ
               </Button>
               <Button type="primary" onClick={onOK}>

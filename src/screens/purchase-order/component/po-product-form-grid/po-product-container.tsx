@@ -1,13 +1,4 @@
-import {
-  Card,
-  Form,
-  FormInstance,
-  Input,
-  Radio,
-  RadioChangeEvent,
-  Select,
-  Space,
-} from "antd";
+import { Card, Form, FormInstance, Input, Radio, RadioChangeEvent, Select, Space } from "antd";
 import React, { ReactNode, useContext } from "react";
 import {
   INITIAL_EXPECTED_DATE,
@@ -68,10 +59,7 @@ const PoProductContainer = ({
         </>
       }
       extra={
-        <Form.Item
-          noStyle
-          shouldUpdate={(prev, current) => prev.status !== current.status}
-        >
+        <Form.Item noStyle shouldUpdate={(prev, current) => prev.status !== current.status}>
           {({ getFieldValue }) => {
             return (
               <Space size={20}>
@@ -84,18 +72,9 @@ const PoProductContainer = ({
                 <span>Chính sách giá:</span>
                 {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
                 {isEditMode ? (
-                  <Form.Item
-                    name={POField.policy_price_code}
-                    style={{ margin: "0px" }}
-                  >
-                    <Select
-                      style={{ minWidth: 145, height: 38 }}
-                      placeholder="Chính sách giá"
-                    >
-                      <Select.Option
-                        value={AppConfig.import_price}
-                        color="#222222"
-                      >
+                  <Form.Item name={POField.policy_price_code} style={{ margin: "0px" }}>
+                    <Select style={{ minWidth: 145, height: 38 }} placeholder="Chính sách giá">
+                      <Select.Option value={AppConfig.import_price} color="#222222">
                         Giá nhập
                       </Select.Option>
                     </Select>

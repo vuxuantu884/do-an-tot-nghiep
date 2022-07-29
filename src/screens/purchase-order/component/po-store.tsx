@@ -42,9 +42,7 @@ export const POStore = (props: IProps) => {
         defaultValue={AppConfig.PO_STORE_DEFAULT} //id Kho tổng
         filterOption={(input: String, option: any) => {
           if (option.props.value) {
-            return strForSearch(option.props.children).includes(
-              strForSearch(input),
-            );
+            return strForSearch(option.props.children).includes(strForSearch(input));
           }
 
           return false;

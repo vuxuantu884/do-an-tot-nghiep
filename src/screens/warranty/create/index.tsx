@@ -6,7 +6,7 @@ import {
   LoadingOutlined,
   PhoneOutlined,
   SearchOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
 import { AutoComplete, Button, Card, Col, DatePicker, Form, FormInstance, Input, Row } from "antd";
 import { default as imageDefault, default as imgDefault } from "assets/icon/img-default.svg";
@@ -23,7 +23,7 @@ import { OrderDetailAction } from "domain/actions/order/order.action";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import {
   createWarrantyAction,
-  getWarrantyReasonsAction
+  getWarrantyReasonsAction,
 } from "domain/actions/warranty/warranty.action";
 import purify from "dompurify";
 import useFetchStores from "hook/useFetchStores";
@@ -46,7 +46,7 @@ import {
   handleDelayActionWhenInsertTextInSearchInput,
   handleFetchApiError,
   isFetchApiSuccessful,
-  replaceFormatString
+  replaceFormatString,
 } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { RegUtil } from "utils/RegUtils";
@@ -218,8 +218,8 @@ function CreateWarranty(props: Props) {
                   },
                   () => {
                     setSearchProducts(false);
-                  }
-                )
+                  },
+                ),
               );
             } catch {
               setSearchProducts(false);
@@ -230,10 +230,10 @@ function CreateWarranty(props: Props) {
         }
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefProduct, () =>
-        handleSearchProduct()
+        handleSearchProduct(),
       );
     },
-    [dispatch]
+    [dispatch],
   );
   const convertResultSearchVariant = useMemo(() => {
     let options: any[] = [];
@@ -310,13 +310,13 @@ function CreateWarranty(props: Props) {
         dispatch(
           CustomerSearchSo(initQueryCustomer, (response) => {
             setResultSearch(response);
-          })
+          }),
         );
         setSearchCustomer(false);
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefCustomer, () => handleSearch());
     },
-    [dispatch]
+    [dispatch],
   );
 
   const searchCustomerSelect = useCallback(
@@ -324,7 +324,7 @@ function CreateWarranty(props: Props) {
       let index: number = -1;
       index = resultSearch.findIndex(
         (customerResponse: CustomerResponse) =>
-          customerResponse.id && customerResponse.id.toString() === value
+          customerResponse.id && customerResponse.id.toString() === value,
       );
       if (index !== -1) {
         dispatch(
@@ -336,24 +336,29 @@ function CreateWarranty(props: Props) {
                 customer_id: data.id,
                 customer: data.full_name,
                 customer_mobile: data.phone,
-                customer_address: `${data.full_address ? data.full_address : ""} ${data.ward ? data.ward : ""} ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim()
+                customer_address: `${data.full_address ? data.full_address : ""} ${
+                  data.ward ? data.ward : ""
+                } ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim(),
               });
             }
-          })
+          }),
         );
         setKeySearchCustomer("");
       }
     },
-    [dispatch, resultSearch, warrantyForm]
+    [dispatch, resultSearch, warrantyForm],
   );
 
   const disabledDate = (current: any) => {
     // Can not select days before today and today
-    return current && current < moment().subtract(1, 'days');
+    return current && current < moment().subtract(1, "days");
   };
 
   const disabledDatePurchaseDate = (current: any) => {
-    return (current && current < moment().subtract(6, 'months')) || (current && current > moment().endOf('day'));
+    return (
+      (current && current < moment().subtract(6, "months")) ||
+      (current && current > moment().endOf("day"))
+    );
   };
 
   const addItemsWarranty = useCallback(
@@ -380,7 +385,7 @@ function CreateWarranty(props: Props) {
         setWarrantyItems(newWarrantyItems);
       }
     },
-    [warrantyItems]
+    [warrantyItems],
   );
 
   const onSearchVariantSelect = useCallback(
@@ -400,7 +405,7 @@ function CreateWarranty(props: Props) {
       };
       addItemsWarranty(itemWarranty);
     },
-    [addItemsWarranty, resultSearchVariant.items]
+    [addItemsWarranty, resultSearchVariant.items],
   );
   const deleteItemsWarranty = useCallback(
     (item: any) => {
@@ -414,7 +419,7 @@ function CreateWarranty(props: Props) {
       });
       setWarrantyItems(newWarrantyItems);
     },
-    [warrantyItems]
+    [warrantyItems],
   );
 
   const onChangeItem = useCallback(
@@ -427,7 +432,7 @@ function CreateWarranty(props: Props) {
       newWarrantyItems.splice(index, 1, newWarrantyItem);
       setWarrantyItems(newWarrantyItems);
     },
-    [warrantyItems]
+    [warrantyItems],
   );
 
   const columnsWarrantyItems: Array<ICustomTableColumType<any>> = React.useMemo(
@@ -532,11 +537,13 @@ function CreateWarranty(props: Props) {
               format={DATE_FORMAT.DDMMYYY}
               suffixIcon={<CalendarOutlined style={{ color: "#71767B", float: "left" }} />}
               defaultValue={moment(record.finalized_on)}
-              onChange={(value) => onChangeItem(moment(value).format(), "finalized_on", record.index)}
+              onChange={(value) =>
+                onChangeItem(moment(value).format(), "finalized_on", record.index)
+              }
               disabledDate={disabledDatePurchaseDate}
               disabled={record.finished_on}
             />
-          )
+          );
         },
         visible: true,
         align: "center",
@@ -615,15 +622,18 @@ function CreateWarranty(props: Props) {
         width: 80,
       },
     ],
-    [deleteItemsWarranty, onChangeItem, reasons]
+    [deleteItemsWarranty, onChangeItem, reasons],
   );
 
   const handleCreateCallback = (data: any) => {
     console.log("data", data);
-    getPrintFormByWarrantyIdsService(data.line_items.map((single:any) => single.id), "warranty").then((response) => {
+    getPrintFormByWarrantyIdsService(
+      data.line_items.map((single: any) => single.id),
+      "warranty",
+    ).then((response) => {
       if (isFetchApiSuccessful(response)) {
         //xóa thẻ p thừa
-        let textResponse = response.data.map((single:any) => single.html_content)
+        let textResponse = response.data.map((single: any) => single.html_content);
         let textResponseFormatted = textResponse.join(pageBreak);
         let result = textResponseFormatted.replaceAll("<p></p>", "");
         setPrintContent(result);
@@ -657,9 +667,9 @@ function CreateWarranty(props: Props) {
               // ],
               expenses: i.reason_ids.map((reason_id: any) => {
                 return {
-                  reason_id: reason_id
-                }
-              })
+                  reason_id: reason_id,
+                };
+              }),
             };
           }),
         };
@@ -672,7 +682,7 @@ function CreateWarranty(props: Props) {
               handleCreateCallback(data);
             }
             setCreateLoading(false);
-          })
+          }),
         );
       }
     } else {
@@ -683,63 +693,64 @@ function CreateWarranty(props: Props) {
   useEffect(() => {
     if (isFirstLoad.current) {
       if (orderID) {
-        dispatch(OrderDetailAction(orderID, (data) => {
-          if (data) {
-            dispatch(
-              getCustomerDetailAction(data.customer_id, (data: CustomerResponse) => {
+        dispatch(
+          OrderDetailAction(orderID, (data) => {
+            if (data) {
+              dispatch(
+                getCustomerDetailAction(data.customer_id, (data: CustomerResponse) => {
+                  if (data) {
+                    setCustomerID(data.id);
+                    setHadCustomer(true);
+                    console.log("data", data.full_address, data.ward, data.district, data.city);
 
-                if (data) {
-                  setCustomerID(data.id);
-                  setHadCustomer(true);
-                  console.log('data', data.full_address, data.ward, data.district, data.city);
-
-                  warrantyForm.setFieldsValue({
-                    customer_id: data.id,
-                    customer: data.full_name,
-                    customer_mobile: data.phone,
-                    customer_address: `${data.full_address ? data.full_address : ""} ${data.ward ? data.ward : ""} ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim()
-                  });
-                }
-              })
-            );
-            warrantyForm.setFieldsValue({
-              store_id: data.store_id,
-              assignee_code: data.assignee_code,
-            });
-            const newWarrantyItems = data.items.map((item, index) => {
-              return {
-                ...item,
-                index,
-                finished_on: data.finished_on,
-                finalized_on: data.finalized_on,
-                type: null,
-                reason_ids: [],
-                price: 0,
-                customer_fee: 0,
-              }
-            });
-            setWarrantyItems(newWarrantyItems);
-          }
-        }));
+                    warrantyForm.setFieldsValue({
+                      customer_id: data.id,
+                      customer: data.full_name,
+                      customer_mobile: data.phone,
+                      customer_address: `${data.full_address ? data.full_address : ""} ${
+                        data.ward ? data.ward : ""
+                      } ${data.district ? data.district : ""} ${data.city ? data.city : ""}`.trim(),
+                    });
+                  }
+                }),
+              );
+              warrantyForm.setFieldsValue({
+                store_id: data.store_id,
+                assignee_code: data.assignee_code,
+              });
+              const newWarrantyItems = data.items.map((item, index) => {
+                return {
+                  ...item,
+                  index,
+                  finished_on: data.finished_on,
+                  finalized_on: data.finalized_on,
+                  type: null,
+                  reason_ids: [],
+                  price: 0,
+                  customer_fee: 0,
+                };
+              });
+              setWarrantyItems(newWarrantyItems);
+            }
+          }),
+        );
       }
       dispatch(
         searchAccountPublicAction({ limit: 30 }, (data) => {
           setAccounts(data.items);
           setAccountData(data.items);
-        })
+        }),
       );
       dispatch(
         getWarrantyReasonsAction((data) =>
-          setReasons(data.filter((reason) => reason.status === "ACTIVE"))
-        )
+          setReasons(data.filter((reason) => reason.status === "ACTIVE")),
+        ),
       );
       setLoadingData(false);
-
     } else {
       setLoadingData(false);
     }
     isFirstLoad.current = false;
-    
   }, [addItemsWarranty, dispatch, orderID, warrantyForm]);
 
   return (
@@ -878,7 +889,12 @@ function CreateWarranty(props: Props) {
               <Card title="Thông tin bảo hành" style={{ height: 340 }}>
                 <Form.Item
                   name="store_id"
-                  rules={[{ required: true, message: "Chọn cửa hàng tiếp nhận bảo hành" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Chọn cửa hàng tiếp nhận bảo hành",
+                    },
+                  ]}
                 >
                   <CustomSelect
                     // mode="multiple"
@@ -902,7 +918,12 @@ function CreateWarranty(props: Props) {
                 </Form.Item>
                 <Form.Item
                   name="assignee_code"
-                  rules={[{ required: true, message: "Chọn nhân viên tiếp nhận bảo hành" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Chọn nhân viên tiếp nhận bảo hành",
+                    },
+                  ]}
                 >
                   <AccountCustomSearchSelect
                     placeholder="Tìm theo họ tên hoặc mã nhân viên *"
@@ -935,7 +956,7 @@ function CreateWarranty(props: Props) {
                             name: "appointment_date",
                             value: newDate,
                             errors:
-                              newDate < moment().subtract(1, 'days')
+                              newDate < moment().subtract(1, "days")
                                 ? ["Ngày hẹn trả không được bé hơn ngày hiện tại"]
                                 : [],
                           },
@@ -966,15 +987,15 @@ function CreateWarranty(props: Props) {
                         warrantyForm.setFieldsValue({
                           customer_address: "Nhận tại cửa hàng",
                         });
-                      } else if (value === WarrantyFormType.SHIPPING &&
-                        warrantyForm.getFieldValue("customer_address") === "Nhận tại cửa hàng")
-                        {
-                          warrantyForm.setFieldsValue({
-                            customer_address: "",
-                          });
-                        }
+                      } else if (
+                        value === WarrantyFormType.SHIPPING &&
+                        warrantyForm.getFieldValue("customer_address") === "Nhận tại cửa hàng"
+                      ) {
+                        warrantyForm.setFieldsValue({
+                          customer_address: "",
+                        });
                       }
-                    }
+                    }}
                   >
                     <CustomSelect.Option key={"SHIPPING"} value={WarrantyFormType.SHIPPING}>
                       Giao trả hàng tận nhà khách
@@ -1056,9 +1077,19 @@ function CreateWarranty(props: Props) {
           <div className="bottomBar">
             <Row>
               <Col offset={12} md={12} style={{ marginTop: "8px" }}>
-                <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                  }}
+                >
                   <Button
-                    style={{ padding: "0 25px", marginRight: 20, fontWeight: 400 }}
+                    style={{
+                      padding: "0 25px",
+                      marginRight: 20,
+                      fontWeight: 400,
+                    }}
                     onClick={() => history.push(`${UrlConfig.WARRANTY}`)}
                   >
                     Huỷ

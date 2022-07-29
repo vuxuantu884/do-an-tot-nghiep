@@ -8,7 +8,12 @@ import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { searchAccountPublicApi } from "service/accounts/account.service";
-import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel, isOrderFromPOS } from "utils/AppUtils";
+import {
+  handleFetchApiError,
+  isFetchApiSuccessful,
+  isOrderFinishedOrCancel,
+  isOrderFromPOS,
+} from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
 type PropType = {
@@ -34,8 +39,7 @@ type PropType = {
  * onChangeTag: xử lý khi thay đổi tag
  */
 function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
-  const {orderDetail, form, storeId, updateOrder, isOrderReturn, isExchange} =
-    props;
+  const { orderDetail, form, storeId, updateOrder, isOrderReturn, isExchange } = props;
 
   const dispatch = useDispatch();
   const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
@@ -46,32 +50,24 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
 
   const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
 
-  const [assigneeAccountData, setAssigneeAccountData] = useState<Array<AccountResponse>>(
-    []
-  );
-  const [accountCodeAccountData, setAccountCodeAccountData] = useState<Array<AccountResponse>>(
-    []
-  );
-  const [marketingAccountData, setMarketingAccountData] = useState<
-    Array<AccountResponse>
-  >([]);
+  const [assigneeAccountData, setAssigneeAccountData] = useState<Array<AccountResponse>>([]);
+  const [accountCodeAccountData, setAccountCodeAccountData] = useState<Array<AccountResponse>>([]);
+  const [marketingAccountData, setMarketingAccountData] = useState<Array<AccountResponse>>([]);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [coordinatorAccountData, setCoordinatorAccountData] = useState<
-    Array<AccountResponse>
-  >([]);
+  const [coordinatorAccountData, setCoordinatorAccountData] = useState<Array<AccountResponse>>([]);
 
-  const [initAssigneeAccountData, setInitAssigneeAccountData] = useState<
-    Array<AccountResponse>
-  >([]);
+  const [initAssigneeAccountData, setInitAssigneeAccountData] = useState<Array<AccountResponse>>(
+    [],
+  );
   const [initAccountCodeAccountData, setInitAccountCodeAccountData] = useState<
     Array<AccountResponse>
   >([]);
-  const [initMarketingAccountData, setInitMarketingAccountData] = useState<
+  const [initMarketingAccountData, setInitMarketingAccountData] = useState<Array<AccountResponse>>(
+    [],
+  );
+  const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
     Array<AccountResponse>
   >([]);
-  const [initCoordinatorAccountData, setInitCoordinatorAccountData] = useState<
-  Array<AccountResponse>
->([]);
 
   const renderSplitOrder = () => {
     const splitCharacter = "-";
@@ -99,10 +95,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
       return (
         <div>
           <label>Đơn gốc tách đơn:{"   "}</label>
-          <Link
-            target="_blank"
-            to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}
-          >
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}>
             <strong>{orderDetail.linked_order_code}</strong>
           </Link>
         </div>
@@ -110,15 +103,17 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
     }
   };
 
-  useEffect(() => {
-  }, [dispatch, form, storeAccountData]);
+  useEffect(() => {}, [dispatch, form, storeAccountData]);
 
-	useEffect(() => {
-		if(!storeId) {
-			return;
-		}
-    const pushCurrentValueToDataAccount = (fieldName: string, storeAccountData: AccountResponse[]) => {
-			let fieldNameValue = form.getFieldValue(fieldName);
+  useEffect(() => {
+    if (!storeId) {
+      return;
+    }
+    const pushCurrentValueToDataAccount = (
+      fieldName: string,
+      storeAccountData: AccountResponse[],
+    ) => {
+      let fieldNameValue = form.getFieldValue(fieldName);
       if (fieldNameValue) {
         switch (fieldName) {
           case "assignee_code":
@@ -137,57 +132,56 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
             break;
         }
         if (storeAccountData.some((single) => single.code === fieldNameValue)) {
-					setAssigneeAccountData(storeAccountData);
-					setAccountCodeAccountData(storeAccountData);
-					setMarketingAccountData(storeAccountData);
-					setCoordinatorAccountData(storeAccountData);
+          setAssigneeAccountData(storeAccountData);
+          setAccountCodeAccountData(storeAccountData);
+          setMarketingAccountData(storeAccountData);
+          setCoordinatorAccountData(storeAccountData);
         } else {
-					searchAccountPublicApi({
-						condition: fieldNameValue,
-					})
-						.then((response) => {
-							if (isFetchApiSuccessful(response)) {
-								if(response.data.items.length === 0) {
-									return;
-								}
-								let result = [...storeAccountData];
-								result.push(response.data.items[0]);
-								switch (fieldName) {
-									case "assignee_code":
-										setInitAssigneeAccountData(result);
-										setAssigneeAccountData(result);
-										break;
+          searchAccountPublicApi({
+            condition: fieldNameValue,
+          })
+            .then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                if (response.data.items.length === 0) {
+                  return;
+                }
+                let result = [...storeAccountData];
+                result.push(response.data.items[0]);
+                switch (fieldName) {
+                  case "assignee_code":
+                    setInitAssigneeAccountData(result);
+                    setAssigneeAccountData(result);
+                    break;
                   case "account_code":
                     setInitAccountCodeAccountData(result);
                     setAccountCodeAccountData(result);
                     break;
-									case "marketer_code":
-										setInitMarketingAccountData(result);
-										setMarketingAccountData(result);
-										break;
+                  case "marketer_code":
+                    setInitMarketingAccountData(result);
+                    setMarketingAccountData(result);
+                    break;
                   case "coordinator_code":
                     setInitCoordinatorAccountData(result);
                     setCoordinatorAccountData(result);
                     break;
-									default:
-										break;
-								}
-							} else {
-								handleFetchApiError(response, "Danh sách tài khoản", dispatch)
-							}
-						})
-						.catch((error) => {
-							console.log("error", error);
-						});
-
-				}
+                  default:
+                    break;
+                }
+              } else {
+                handleFetchApiError(response, "Danh sách tài khoản", dispatch);
+              }
+            })
+            .catch((error) => {
+              console.log("error", error);
+            });
+        }
       }
     };
-		searchAccountPublicApi({
+    searchAccountPublicApi({
       store_ids: [storeId],
-		})
-    .then((response) => {
-      if (isFetchApiSuccessful(response)) {
+    })
+      .then((response) => {
+        if (isFetchApiSuccessful(response)) {
           setStoreAccountData(response.data.items);
           pushCurrentValueToDataAccount("assignee_code", response.data.items);
           pushCurrentValueToDataAccount("marketer_code", response.data.items);
@@ -196,27 +190,29 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
           setInitAssigneeAccountData(response.data.items);
           setInitMarketingAccountData(response.data.items);
         } else {
-          handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+          handleFetchApiError(response, "Danh sách tài khoản", dispatch);
         }
       })
-			.catch((error) => {
-				console.log("error", error);
-			})
-	}, [dispatch, form, storeId])
+      .catch((error) => {
+        console.log("error", error);
+      });
+  }, [dispatch, form, storeId]);
   return (
     <StyledComponent>
-      <Card title={
-        <React.Fragment>
-          {!isOrderReturn ? "THÔNG TIN ĐƠN HÀNG" : "THÔNG TIN CẬP NHẬT"}
-          {isOrderReturn ? (
-            <Tooltip title="Thêm sản phẩm đổi có thể thay đổi thông tin đơn hàng!" >
-              <span style={{margin: "0 0 0 5px"}}>
-                <InfoCircleOutlined />
-              </span>
-            </Tooltip>
-          ) : null}
-        </React.Fragment>
-      }>
+      <Card
+        title={
+          <React.Fragment>
+            {!isOrderReturn ? "THÔNG TIN ĐƠN HÀNG" : "THÔNG TIN CẬP NHẬT"}
+            {isOrderReturn ? (
+              <Tooltip title="Thêm sản phẩm đổi có thể thay đổi thông tin đơn hàng!">
+                <span style={{ margin: "0 0 0 5px" }}>
+                  <InfoCircleOutlined />
+                </span>
+              </Tooltip>
+            ) : null}
+          </React.Fragment>
+        }
+      >
         {isOrderReturn && isOrderFromPOS(orderDetail) ? (
           <Form.Item
             label="Nhân viên thu ngân"
@@ -234,7 +230,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
               dataToSelect={accountCodeAccountData}
               setDataToSelect={setAccountCodeAccountData}
               initDataToSelect={initAccountCodeAccountData}
-              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
               isSearchAccountActive
             />
           </Form.Item>
@@ -245,7 +241,9 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
           rules={[
             {
               required: !isOrderReturn,
-              message: isOrderFromPOS(orderDetail) ? "Vui lòng chọn nhân viên tư vấn" : "Vui lòng chọn nhân viên bán hàng",
+              message: isOrderFromPOS(orderDetail)
+                ? "Vui lòng chọn nhân viên tư vấn"
+                : "Vui lòng chọn nhân viên bán hàng",
             },
           ]}
         >
@@ -255,7 +253,7 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
             dataToSelect={assigneeAccountData}
             setDataToSelect={setAssigneeAccountData}
             initDataToSelect={initAssigneeAccountData}
-            disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+            disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
             isSearchAccountActive
           />
         </Form.Item>
@@ -287,32 +285,25 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
               dataToSelect={marketingAccountData}
               setDataToSelect={setMarketingAccountData}
               initDataToSelect={initMarketingAccountData}
-              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
               isSearchAccountActive
             />
           </Form.Item>
         ) : null}
         {!isOrderFromPOS(orderDetail) && updateOrder ? (
-          <Form.Item
-            label="Nhân viên điều phối"
-            name="coordinator_code"
-          >
+          <Form.Item label="Nhân viên điều phối" name="coordinator_code">
             <AccountCustomSearchSelect
               placeholder="Tìm theo họ tên hoặc mã nhân viên"
               initValue={initValueCoordinatorCode}
               dataToSelect={coordinatorAccountData}
               setDataToSelect={setCoordinatorAccountData}
               initDataToSelect={initCoordinatorAccountData}
-              disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+              disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
               isSearchAccountActive
             />
           </Form.Item>
         ) : (
-          <Form.Item
-            label="Nhân viên điều phối"
-            name="coordinator_code"
-            hidden
-          ></Form.Item>
+          <Form.Item label="Nhân viên điều phối" name="coordinator_code" hidden></Form.Item>
         )}
         <Form.Item
           label="Tham chiếu"
@@ -322,7 +313,11 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền tham chiếu" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)} />
+          <Input
+            placeholder="Điền tham chiếu"
+            maxLength={255}
+            disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+          />
         </Form.Item>
         <Form.Item
           label="Đường dẫn"
@@ -332,12 +327,16 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
             icon: <InfoCircleOutlined />,
           }}
         >
-          <Input placeholder="Điền đường dẫn" maxLength={255} disabled = {isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}/>
+          <Input
+            placeholder="Điền đường dẫn"
+            maxLength={255}
+            disabled={isOrderFinishedOrCancel(orderDetail) && !(isOrderReturn && isExchange)}
+          />
         </Form.Item>
         {renderSplitOrder()}
       </Card>
     </StyledComponent>
   );
-};
+}
 
 export default CreateOrderSidebarOrderInformation;

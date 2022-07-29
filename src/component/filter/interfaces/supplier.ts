@@ -36,6 +36,4 @@ export const FieldMapping = {
   [SupplierEnum.scorecard]: "Phân cấp",
   [SupplierEnum.district_id]: "Khu vực",
   [SupplierEnum.type]: "Loại",
-}
-
-
+};

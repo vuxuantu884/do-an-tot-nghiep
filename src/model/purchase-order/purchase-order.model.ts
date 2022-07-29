@@ -1,15 +1,8 @@
 import { BaseObject } from "./../base/base.response";
 import { BaseQuery } from "model/base/base.query";
 import { PurchaseAddress } from "./purchase-address.model";
-import {
-  Vat,
-  PurchaseOrderLineItem,
-  PurchaseOrderLineReturnItem,
-} from "./purchase-item.model";
-import {
-  PurchaseProcument,
-  PurchaseProcumentLineItem,
-} from "./purchase-procument";
+import { Vat, PurchaseOrderLineItem, PurchaseOrderLineReturnItem } from "./purchase-item.model";
+import { PurchaseProcument, PurchaseProcumentLineItem } from "./purchase-procument";
 import { PurchasePayments } from "./purchase-payment.model";
 import { PurchaseReturnOrder } from "./purchase-return.model";
 

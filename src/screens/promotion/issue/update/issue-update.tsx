@@ -10,13 +10,7 @@ import {
 } from "domain/actions/promotion/discount/discount.action";
 import { PriceRule } from "model/promotion/price-rules.model";
 import moment from "moment";
-import React, {
-  ReactElement,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
+import React, { ReactElement, useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import GeneralConditionForm from "screens/promotion/shared/general-condition.form";
@@ -57,7 +51,7 @@ function IssueUpdate(props: Props): ReactElement {
             history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${priceRuleId}`);
             setIsSubmitting(false);
           }
-        })
+        }),
       );
     } catch (error: any) {
       showError(error.message);
@@ -77,25 +71,20 @@ function IssueUpdate(props: Props): ReactElement {
             : null,
         value_type:
           result.entitlements.length > 0
-            ? result.entitlements[0]?.prerequisite_quantity_ranges[0]
-                ?.value_type
+            ? result.entitlements[0]?.prerequisite_quantity_ranges[0]?.value_type
             : null,
-        prerequisite_genders: result.prerequisite_genders?.map((item) =>
-          item.toLocaleUpperCase()
-        ),
+        prerequisite_genders: result.prerequisite_genders?.map((item) => item.toLocaleUpperCase()),
 
         starts_birthday: parseDurationToMoment(
-          result.prerequisite_birthday_duration?.starts_mmdd_key
+          result.prerequisite_birthday_duration?.starts_mmdd_key,
         ),
-        ends_birthday: parseDurationToMoment(
-          result.prerequisite_birthday_duration?.ends_mmdd_key
-        ),
+        ends_birthday: parseDurationToMoment(result.prerequisite_birthday_duration?.ends_mmdd_key),
 
         starts_wedding_day: parseDurationToMoment(
-          result.prerequisite_wedding_duration?.starts_mmdd_key
+          result.prerequisite_wedding_duration?.starts_mmdd_key,
         ),
         ends_wedding_day: parseDurationToMoment(
-          result.prerequisite_wedding_duration?.ends_mmdd_key
+          result.prerequisite_wedding_duration?.ends_mmdd_key,
         ),
       };
 
@@ -112,7 +101,7 @@ function IssueUpdate(props: Props): ReactElement {
       setPriceRuleData(formValue);
       form.setFieldsValue(formValue);
     },
-    [form, setPriceRuleData, setIsLimitUsage, setIsLimitUsagePerCustomer]
+    [form, setPriceRuleData, setIsLimitUsage, setIsLimitUsagePerCustomer],
   );
 
   /**
@@ -125,7 +114,7 @@ function IssueUpdate(props: Props): ReactElement {
         setLoading(false);
       }
     },
-    [parseDataToForm]
+    [parseDataToForm],
   );
 
   // Action: Lấy thông tin khuyến mãi
@@ -154,13 +143,10 @@ function IssueUpdate(props: Props): ReactElement {
           name: "Sửa khuyến mãi",
           path: `#`,
         },
-      ]}>
+      ]}
+    >
       <IssueStyled>
-        <Form
-          form={form}
-          name="discount_add"
-          onFinish={onFinish}
-          layout="vertical">
+        <Form form={form} name="discount_add" onFinish={onFinish} layout="vertical">
           <Row gutter={24}>
             <Col span={18}>
               <IssueForm form={form} />
@@ -177,16 +163,11 @@ function IssueUpdate(props: Props): ReactElement {
           </Row>
           <BottomBarContainer
             back="Quay lại danh sách đợt phát hành"
-            backAction={() =>
-              history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)
-            }
+            backAction={() => history.push(`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}`)}
             rightComponent={
               <div>
                 <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
-                  <Button
-                    type="primary"
-                    htmlType="submit"
-                    loading={isSubmitting}>
+                  <Button type="primary" htmlType="submit" loading={isSubmitting}>
                     Lưu
                   </Button>
                 </AuthWrapper>

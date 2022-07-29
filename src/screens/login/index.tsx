@@ -36,7 +36,7 @@ const Login = () => {
     (values) => {
       dispatch(loginRequestAction(values.username, values.password, setLoading));
     },
-    [dispatch]
+    [dispatch],
   );
   if (isLogin) {
     let url = query.get("returnUrl");
@@ -59,11 +59,7 @@ const Login = () => {
           loading={loading}
         />
       ) : (
-        <LoginWeb
-          callHotlineSupport={callHotlineSupport}
-          onFinish={onFinish}
-          loading={loading}
-        />
+        <LoginWeb callHotlineSupport={callHotlineSupport} onFinish={onFinish} loading={loading} />
       )}
     </>
   );

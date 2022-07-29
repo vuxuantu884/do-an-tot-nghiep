@@ -1,7 +1,11 @@
 import styled from "styled-components";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
-import {borderColor, dangerColor, primaryColor, successColor} from "utils/global-styles/variables";
-
+import {
+  borderColor,
+  dangerColor,
+  primaryColor,
+  successColor,
+} from "utils/global-styles/variables";
 
 // Inherit StyledCustomerInfo in StyledCustomerDetail
 export const StyledCustomerDetail = styled(StyledCustomerInfo)`
@@ -25,7 +29,7 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
     color: #ffffff;
     border-radius: 15px;
     &.active {
-      background-color: #27AE60;
+      background-color: #27ae60;
     }
     &.inactive {
       background-color: #676767;
@@ -34,7 +38,6 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
 
   .customer-info {
     .point-info {
-
     }
   }
 
@@ -60,25 +63,25 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
       background-color: transparent;
       outline: none;
       cursor: pointer;
-      transition: color .3s;
+      transition: color 0.3s;
       &:hover {
         color: #1890ff;
         text-decoration: underline;
       }
     }
   }
-  
+
   .show-more {
     display: flex;
     align-items: center;
     justify-content: space-between;
     .action {
       cursor: pointer;
-        margin-left: 10px;
+      margin-left: 10px;
     }
     .dash {
       width: 85%;
-      border-bottom: 1px dashed #E5E5E5;
+      border-bottom: 1px dashed #e5e5e5;
     }
   }
 
@@ -122,7 +125,7 @@ export const StyledCustomerDetail = styled(StyledCustomerInfo)`
       padding-left: 3px;
     }
   }
-`
+`;
 
 export const nameQuantityWidth = 200;
 // const quantityWidth = 50;
@@ -131,9 +134,9 @@ export const nameQuantityWidth = 200;
 // const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 
 export const StyledPurchaseHistory = styled.div`
-  .customer-order-history-filter{
+  .customer-order-history-filter {
     margin-top: 10px;
-    &-form{
+    &-form {
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -144,48 +147,49 @@ export const StyledPurchaseHistory = styled.div`
       margin: 0px;
     }
   }
-	.filter-line {
-		width: 100%;
-		display: flex;
-		align-items: center;
-		.search-variant {
-			flex-grow: 1;
-		}
-	}
-	
+  .filter-line {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    .search-variant {
+      flex-grow: 1;
+    }
+  }
+
   th {
     text-align: center !important;
-		padding: 12px 5px !important;
-		justify-content: center !important;
-		.separator {
-			display: none;
-		}
+    padding: 12px 5px !important;
+    justify-content: center !important;
+    .separator {
+      display: none;
+    }
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantityPrice,
   .ant-table-cell.orderStatus,
-	.ant-table-cell.notes {
+  .ant-table-cell.notes {
     padding: 0 !important;
   }
   td {
     position: relative;
   }
   .order-return-background {
-    background-color: rgb(239, 239, 252); 
-    .ant-table-cell-fix-left, .ant-table-cell-fix-right {
+    background-color: rgb(239, 239, 252);
+    .ant-table-cell-fix-left,
+    .ant-table-cell-fix-right {
       background-color: rgb(239, 239, 252);
     }
   }
 
-  .ant-table-tbody>tr.order-return-background:hover>td {
+  .ant-table-tbody > tr.order-return-background:hover > td {
     background-color: rgb(239, 239, 252);
   }
 
-  .ant-table-tbody>tr.order-return-background>td {
+  .ant-table-tbody > tr.order-return-background > td {
     transition: unset;
   }
 
-  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-body>table>tbody>tr>td {
+  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td {
     border-right: 1px solid #ddd;
   }
 
@@ -198,7 +202,7 @@ export const StyledPurchaseHistory = styled.div`
     justify-content: space-between;
   }
   .productNameWidth {
-    width: 60% ;
+    width: 60%;
   }
   .quantityWidth {
     width: 15%;
@@ -208,8 +212,8 @@ export const StyledPurchaseHistory = styled.div`
   .priceWidth {
     width: 30%;
     text-align: center;
-		justify-content: flex-end;
-		padding: 0 10px;
+    justify-content: flex-end;
+    padding: 0 10px;
   }
   .ant-table-cell {
     overflow: hidden;
@@ -248,14 +252,14 @@ export const StyledPurchaseHistory = styled.div`
         background-color: ${borderColor};
       }
     }
-		.quantity {
-			justify-content: center;
-		}
+    .quantity {
+      justify-content: center;
+    }
     .price {
       white-space: nowrap;
       display: flex;
       align-items: center;
-			justify-content: flex-end;
+      justify-content: flex-end;
       &:before {
         // content: "";
         display: block;
@@ -263,7 +267,7 @@ export const StyledPurchaseHistory = styled.div`
         position: absolute;
         z-index: 1;
         top: -999px;
-        bottom:-999px;
+        bottom: -999px;
         left: 0;
         background-color: ${borderColor};
       }
@@ -276,72 +280,72 @@ export const StyledPurchaseHistory = styled.div`
       -webkit-box-orient: vertical;
     }
   }
-	.orderSource {
-		margin-top: 9px;
-	}
-	.singlePayment {
-		img {
-			margin-right: 5px;
-		}
-		.amount {
-			position: relative;
-			top: 1px;
-		}
-	}
-	.notes {
-		position: relative;
-	}
-	.orderNotes {
-		.inner {
-			height: 100%;
-		}
-		.single {
-			height: 50%;
-			display: flex;
-			padding: 10px;
-			align-items: center;
-			&:not(:last-child) {
-				border-bottom: 1px solid ${borderColor};
-			}
-			.wrapper {
-				display: flex;
-			}
-			svg {
-				position: relative;
-				top: 3px;
-			}
-		}
-	}
-	.orderStatus {
-		.inner {
-			height: 100%;
-		}
-		.single {
-			padding: 10px;
-			&:not(:last-child) {
-				border-bottom: 1px solid ${borderColor};
-			}
-		}
-	}
-	.shipmentType {
-		.icon {
-			margin-right: 5px;
-		}
-		.single {
-			&:not(:last-child) {
-				margin-bottom: 5px;
-			}
-			img {
-				max-width: 100%;
-				margin-right: 5px;
-				position: relative;
-				top: -2px;
-				&.iconShipping {
-					top: 0
-				}
-			}
-		}
-	}
+  .orderSource {
+    margin-top: 9px;
+  }
+  .singlePayment {
+    img {
+      margin-right: 5px;
+    }
+    .amount {
+      position: relative;
+      top: 1px;
+    }
+  }
+  .notes {
+    position: relative;
+  }
+  .orderNotes {
+    .inner {
+      height: 100%;
+    }
+    .single {
+      height: 50%;
+      display: flex;
+      padding: 10px;
+      align-items: center;
+      &:not(:last-child) {
+        border-bottom: 1px solid ${borderColor};
+      }
+      .wrapper {
+        display: flex;
+      }
+      svg {
+        position: relative;
+        top: 3px;
+      }
+    }
+  }
+  .orderStatus {
+    .inner {
+      height: 100%;
+    }
+    .single {
+      padding: 10px;
+      &:not(:last-child) {
+        border-bottom: 1px solid ${borderColor};
+      }
+    }
+  }
+  .shipmentType {
+    .icon {
+      margin-right: 5px;
+    }
+    .single {
+      &:not(:last-child) {
+        margin-bottom: 5px;
+      }
+      img {
+        max-width: 100%;
+        margin-right: 5px;
+        position: relative;
+        top: -2px;
+        &.iconShipping {
+          top: 0;
+        }
+      }
+    }
+  }
 
   .expanded-row-render {
     margin-left: 6px;
@@ -370,7 +374,7 @@ export const StyledPurchaseHistory = styled.div`
     &.coordinator_confirmed {
       .ant-select-selector {
         color: #fff;
-        background: #52D276 !important;
+        background: #52d276 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -382,7 +386,7 @@ export const StyledPurchaseHistory = styled.div`
     &.awaiting_coordinator_confirmation {
       .ant-select-selector {
         color: #fff;
-        background: #FCAF17 !important;
+        background: #fcaf17 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -418,7 +422,7 @@ export const StyledPurchaseHistory = styled.div`
     &.second_call_attempt {
       .ant-select-selector {
         color: #fff;
-        background: #00897B !important;
+        background: #00897b !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -430,7 +434,7 @@ export const StyledPurchaseHistory = styled.div`
     &.third_call_attempt {
       .ant-select-selector {
         color: #fff;
-        background: #E8770A !important;
+        background: #e8770a !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -442,7 +446,7 @@ export const StyledPurchaseHistory = styled.div`
     &.merchandise_packed {
       .ant-select-selector {
         color: #fff;
-        background: #E8770A !important;
+        background: #e8770a !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -454,7 +458,7 @@ export const StyledPurchaseHistory = styled.div`
     &.shipping {
       .ant-select-selector {
         color: #fff;
-        background: #00897B !important;
+        background: #00897b !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -478,7 +482,7 @@ export const StyledPurchaseHistory = styled.div`
     &.merchandise_picking {
       .ant-select-selector {
         color: #fff;
-        background: #C98D17 !important;
+        background: #c98d17 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -490,7 +494,7 @@ export const StyledPurchaseHistory = styled.div`
     &.returned {
       .ant-select-selector {
         color: #fff;
-        background: #52D276 !important;
+        background: #52d276 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -526,7 +530,7 @@ export const StyledPurchaseHistory = styled.div`
     &.order_return {
       .ant-select-selector {
         color: #fff;
-        background: #FCAF17 !important;
+        background: #fcaf17 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -538,7 +542,7 @@ export const StyledPurchaseHistory = styled.div`
     &.coordinator_confirming {
       .ant-select-selector {
         color: #fff;
-        background: #E8770A  !important;
+        background: #e8770a !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -550,7 +554,7 @@ export const StyledPurchaseHistory = styled.div`
     &.returning {
       .ant-select-selector {
         color: #fff;
-        background: #E8770A  !important;
+        background: #e8770a !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -562,7 +566,7 @@ export const StyledPurchaseHistory = styled.div`
     &.awaiting_coordinator_confirmation {
       .ant-select-selector {
         color: #fff;
-        background: #FCAF17 !important;
+        background: #fcaf17 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -574,7 +578,7 @@ export const StyledPurchaseHistory = styled.div`
     &.require_warehouse_change {
       .ant-select-selector {
         color: #fff;
-        background: #8D6E63 !important;
+        background: #8d6e63 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -586,7 +590,7 @@ export const StyledPurchaseHistory = styled.div`
     &.cancelled {
       .ant-select-selector {
         color: #fff;
-        background: #E24343 !important;
+        background: #e24343 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -601,7 +605,7 @@ export const StyledPurchaseHistory = styled.div`
     &.delivery_service_cancelled {
       .ant-select-selector {
         color: #fff;
-        background: #E24343 !important;
+        background: #e24343 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -613,7 +617,7 @@ export const StyledPurchaseHistory = styled.div`
     &.out_of_stock {
       .ant-select-selector {
         color: #fff;
-        background: #E24343 !important;
+        background: #e24343 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -625,7 +629,7 @@ export const StyledPurchaseHistory = styled.div`
     &.system_cancelled {
       .ant-select-selector {
         color: #fff;
-        background: #E24343 !important;
+        background: #e24343 !important;
       }
       .ant-select-arrow {
         color: #fff;
@@ -638,21 +642,21 @@ export const StyledPurchaseHistory = styled.div`
   .noWrap {
     white-space: nowrap;
   }
-  .plus-point{
+  .plus-point {
     color: rgb(39, 174, 96);
     font-weight: 500;
   }
-  .minus-point{
+  .minus-point {
     color: rgb(226, 67, 67);
     font-weight: 500;
   }
-  .text-return-status{
+  .text-return-status {
     text-align: left;
     padding: 10px;
     //color:rgb(39, 174, 96) !important;
     font-weight: 500;
   }
-  .status-order{
+  .status-order {
     box-sizing: border-box;
     margin: 0;
     padding: 6px 10px;
@@ -674,18 +678,18 @@ export const StyledPurchaseHistory = styled.div`
 
 export const StyledActivityLog = styled.div`
   .link {
-    color: #2A2A86;
+    color: #2a2a86;
     text-decoration: none;
     background-color: transparent;
     outline: none;
     cursor: pointer;
-    transition: color .3s;
+    transition: color 0.3s;
     &:hover {
       color: #1890ff;
       text-decoration: underline;
     }
   }
-  
+
   .activity-log-detail-modal {
     .log-detail-modal-body {
       height: 500px;
@@ -702,13 +706,13 @@ export const StyledActivityLogDetailModal = styled.div`
     .log-detail-update {
       display: flex;
       justify-content: space-between;
-			.old-data {
-				flex-grow: 1;
-				margin-right: 20px;
-			}
-			.new-data {
+      .old-data {
         flex-grow: 1;
-			}
+        margin-right: 20px;
+      }
+      .new-data {
+        flex-grow: 1;
+      }
       .label {
         margin-bottom: 10px;
       }
@@ -717,7 +721,7 @@ export const StyledActivityLogDetailModal = styled.div`
       background: #eee;
       padding: 10px;
       margin-bottom: 0;
-			white-space: pre-wrap;
+      white-space: pre-wrap;
     }
   }
 `;

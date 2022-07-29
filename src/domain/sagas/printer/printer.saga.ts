@@ -6,18 +6,18 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PRINTER_TYPES } from "domain/types/printer.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import {
-	PrinterInventoryTransferResponseModel,
-	PrinterResponseModel,
-	PrinterVariableResponseModel,
-	PrintFormByOrderIdsResponseModel
+  PrinterInventoryTransferResponseModel,
+  PrinterResponseModel,
+  PrinterVariableResponseModel,
+  PrintFormByOrderIdsResponseModel,
 } from "model/response/printer.response";
 import {
-	createPrinterService,
-	getListPrinterService,
-	getListPrinterVariablesService,
-	getPrinterDetailService,
-	getPrintFormByOrderIdsService,
-	getPrintTicketIdsService
+  createPrinterService,
+  getListPrinterService,
+  getListPrinterVariablesService,
+  getPrinterDetailService,
+  getPrintFormByOrderIdsService,
+  getPrintTicketIdsService,
 } from "service/printer/printer.service";
 import { isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -28,13 +28,13 @@ function* listDataPrinterSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
       getListPrinterService,
-      queryParams
+      queryParams,
     );
-		if (isFetchApiSuccessful(response)) {
-			handleData(response.data);
-		} else {
-			yield put(fetchApiErrorAction(response, "Danh sách mẫu in"));
-		}
+    if (isFetchApiSuccessful(response)) {
+      handleData(response.data);
+    } else {
+      yield put(fetchApiErrorAction(response, "Danh sách mẫu in"));
+    }
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi khi lấy danh sách mẫu in. Vui lòng thử lại sau!");
@@ -50,13 +50,13 @@ function* getPrinterDetailSaga(action: YodyAction) {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
       getPrinterDetailService,
       id,
-      queryParams
+      queryParams,
     );
-		if (isFetchApiSuccessful(response)) {
-			handleData(response.data);
-		} else {
-			yield put(fetchApiErrorAction(response, "Chi tiết mẫu in"));
-		}
+    if (isFetchApiSuccessful(response)) {
+      handleData(response.data);
+    } else {
+      yield put(fetchApiErrorAction(response, "Chi tiết mẫu in"));
+    }
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi khi lấy chi tiết mẫu in. Vui lòng thử lại sau!");
@@ -70,14 +70,14 @@ function* createPrinterSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<PrinterResponseModel>> = yield call(
       createPrinterService,
-      formValue
+      formValue,
     );
-		if (isFetchApiSuccessful(response)) {
-			showSuccess("Tạo mới mẫu in thành công!");
+    if (isFetchApiSuccessful(response)) {
+      showSuccess("Tạo mới mẫu in thành công!");
       handleData();
-		} else {
-			yield put(fetchApiErrorAction(response, "Tạo mới mẫu in"));
-		}
+    } else {
+      yield put(fetchApiErrorAction(response, "Tạo mới mẫu in"));
+    }
   } catch (error) {
     console.log("error", error);
     // showError("Có lỗi vui lòng thử lại sau");
@@ -90,13 +90,14 @@ function* fetchListPrinterVariablesSaga(action: YodyAction) {
   const { handleData } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<PageResponse<PrinterVariableResponseModel>> =
-      yield call(getListPrinterVariablesService);
-		if (isFetchApiSuccessful(response)) {
-			handleData(response.data);
-		} else {
-			yield put(fetchApiErrorAction(response, "Danh sách từ khóa"));
-		}
+    let response: BaseResponse<PageResponse<PrinterVariableResponseModel>> = yield call(
+      getListPrinterVariablesService,
+    );
+    if (isFetchApiSuccessful(response)) {
+      handleData(response.data);
+    } else {
+      yield put(fetchApiErrorAction(response, "Danh sách từ khóa"));
+    }
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi khi lấy danh sách từ khóa. Vui lòng thử lại sau!");
@@ -109,13 +110,16 @@ function* fetchPrintFormByOrderIdsSaga(action: YodyAction) {
   const { ids, type, handleData } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<BaseResponse<PrintFormByOrderIdsResponseModel>> =
-      yield call(getPrintFormByOrderIdsService, ids, type);
-		if (isFetchApiSuccessful(response)) {
-			handleData(response);
-		} else {
-			yield put(fetchApiErrorAction(response, "In nhiều đơn hàng"));
-		}
+    let response: BaseResponse<BaseResponse<PrintFormByOrderIdsResponseModel>> = yield call(
+      getPrintFormByOrderIdsService,
+      ids,
+      type,
+    );
+    if (isFetchApiSuccessful(response)) {
+      handleData(response);
+    } else {
+      yield put(fetchApiErrorAction(response, "In nhiều đơn hàng"));
+    }
   } catch (error) {
     console.log("error", error);
     showError("Có lỗi khi kết nối api in nhiều đơn hàng! Vui lòng thử lại sau!");
@@ -128,12 +132,14 @@ function* fetchPrintInventoryTransferIdsSaga(action: YodyAction) {
   const { ids, type, handleData } = action.payload;
   yield put(showLoading());
   try {
-    let response: Array<PrinterInventoryTransferResponseModel> =
-      yield call(getPrintTicketIdsService, ids, type);
+    let response: Array<PrinterInventoryTransferResponseModel> = yield call(
+      getPrintTicketIdsService,
+      ids,
+      type,
+    );
     if (response.length > 0) {
       handleData(response);
-    }
-    else {
+    } else {
       // showError("Có lỗi vui lòng thử lại sau");
     }
   } catch (error) {
@@ -147,13 +153,10 @@ export function* settingPrinterSaga() {
   yield takeLatest(PRINTER_TYPES.listPrinter, listDataPrinterSaga);
   yield takeLatest(PRINTER_TYPES.getPrinterDetail, getPrinterDetailSaga);
   yield takeLatest(PRINTER_TYPES.createPrinter, createPrinterSaga);
-  yield takeLatest(PRINTER_TYPES.getPrintFormByInventoryTransferIds, fetchPrintInventoryTransferIdsSaga);
   yield takeLatest(
-    PRINTER_TYPES.getListPrinterVariables,
-    fetchListPrinterVariablesSaga
+    PRINTER_TYPES.getPrintFormByInventoryTransferIds,
+    fetchPrintInventoryTransferIdsSaga,
   );
-  yield takeLatest(
-    PRINTER_TYPES.getPrintFormByOrderIds,
-    fetchPrintFormByOrderIdsSaga
-  );
+  yield takeLatest(PRINTER_TYPES.getListPrinterVariables, fetchListPrinterVariablesSaga);
+  yield takeLatest(PRINTER_TYPES.getPrintFormByOrderIds, fetchPrintFormByOrderIdsSaga);
 }

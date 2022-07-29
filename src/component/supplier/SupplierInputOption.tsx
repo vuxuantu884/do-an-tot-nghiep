@@ -21,7 +21,7 @@ const SupplierInputOption = ({
 }: SupplierInputOptionProps) => {
   return (
     <>
-      <Item label={label} rules={[{required: true}]}>
+      <Item label={label} rules={[{ required: true }]}>
         <Input.Group className="ip-group" compact>
           <Item name={inputName} noStyle>
             <NumberInput isFloat style={{ width: "70%" }} placeholder={placeholder} />

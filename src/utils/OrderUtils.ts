@@ -3,19 +3,25 @@ import {
   FulFillmentResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
-  OrderResponse
+  OrderResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import moment, { Moment } from "moment";
 import { sortFulfillments } from "./AppUtils";
 import {
-  DELIVERY_SERVICE_PROVIDER_CODE, FulFillmentReturnStatus,
+  DELIVERY_SERVICE_PROVIDER_CODE,
+  FulFillmentReturnStatus,
   FulFillmentStatus,
   PaymentMethodCode,
   ShipmentMethod,
-  WEIGHT_UNIT
+  WEIGHT_UNIT,
 } from "./Constants";
-import { FulfillmentCancelStatus, OrderStatus, ORDER_PAYMENT_STATUS, ORDER_SUB_STATUS } from "./Order.constants";
+import {
+  FulfillmentCancelStatus,
+  OrderStatus,
+  ORDER_PAYMENT_STATUS,
+  ORDER_SUB_STATUS,
+} from "./Order.constants";
 
 export const isOrderDetailHasPointPayment = (
   OrderDetail: OrderResponse | null | undefined,
@@ -35,10 +41,7 @@ export const isOrderDetailHasPointPayment = (
   });
 };
 
-export const findPaymentMethodByCode = (
-  paymentMethods: PaymentMethodResponse[],
-  code: string,
-) => {
+export const findPaymentMethodByCode = (paymentMethods: PaymentMethodResponse[], code: string) => {
   return paymentMethods.find((single) => single.code === code);
 };
 
@@ -61,9 +64,7 @@ export const getOrderAmountPayment = (
   return value;
 };
 
-export const checkIfOrderHasPaidAllMoneyAmount = (
-  OrderDetail: OrderResponse | null,
-) => {
+export const checkIfOrderHasPaidAllMoneyAmount = (OrderDetail: OrderResponse | null) => {
   const amountPayment = getOrderAmountPayment(OrderDetail?.payments);
   if (amountPayment >= (OrderDetail?.total || 0)) {
     return true;
@@ -71,9 +72,7 @@ export const checkIfOrderHasPaidAllMoneyAmount = (
   return false;
 };
 
-export const renderContentWithBreakLine = (
-  content: string | null | undefined,
-) => {
+export const renderContentWithBreakLine = (content: string | null | undefined) => {
   if (!content) {
     return [""];
   }
@@ -84,9 +83,7 @@ export const renderContentWithBreakLine = (
   return result;
 };
 
-export const checkIfOrderHasShipmentCod = (
-  OrderDetail: OrderResponse | null,
-) => {
+export const checkIfOrderHasShipmentCod = (OrderDetail: OrderResponse | null) => {
   const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
   return sortedFulfillments[0]?.shipment?.cod;
 };
@@ -95,9 +92,7 @@ export const checkIfOrderCancelled = (OrderDetail: OrderResponse | null) => {
   return OrderDetail?.status === OrderStatus.CANCELLED;
 };
 
-export const checkIfFulfillmentCancelled = (
-  fulfillment: FulFillmentResponse,
-) => {
+export const checkIfFulfillmentCancelled = (fulfillment: FulFillmentResponse) => {
   if (!fulfillment?.status) {
     return false;
   }
@@ -108,18 +103,13 @@ export const checkIfFulfillmentCancelled = (
   );
 };
 
-export const checkIfFulfillmentIsAtStore = (
-  fulfillment: FulFillmentResponse,
-) => {
-  return (
-    fulfillment.shipment?.delivery_service_provider_type ===
-    ShipmentMethod.PICK_AT_STORE
-  );
+export const checkIfFulfillmentIsAtStore = (fulfillment: FulFillmentResponse) => {
+  return fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE;
 };
 
 export const calculateSumWeightResponse = (items?: OrderLineItemResponse[]) => {
   let totalWeight = 0;
-  console.log('items', items)
+  console.log("items", items);
   if (items) {
     items.forEach((item) => {
       let itemWeightByUnit = item.weight;
@@ -129,7 +119,7 @@ export const calculateSumWeightResponse = (items?: OrderLineItemResponse[]) => {
       totalWeight = totalWeight + itemWeightByUnit * item.quantity;
     });
   }
-  console.log('totalWeight', totalWeight)
+  console.log("totalWeight", totalWeight);
   return totalWeight;
 };
 
@@ -140,9 +130,7 @@ export const getQuantityWithTwoCharacter = (quantity: number) => {
   return quantity;
 };
 
-export const getTrackingCodeFulfillment = (
-  fulfillment: FulFillmentResponse | undefined | null,
-) => {
+export const getTrackingCodeFulfillment = (fulfillment: FulFillmentResponse | undefined | null) => {
   if (fulfillment) {
     return fulfillment.shipment?.tracking_code;
   }
@@ -154,58 +142,64 @@ export const checkIfFulfillmentReturning = (
   if (!fulfillment) {
     return false;
   }
-  return fulfillment.return_status === FulFillmentReturnStatus.RETURNING && fulfillment.status === FulFillmentStatus.SHIPPING;
+  return (
+    fulfillment.return_status === FulFillmentReturnStatus.RETURNING &&
+    fulfillment.status === FulFillmentStatus.SHIPPING
+  );
 };
 
-export const checkIfFulfillmentReturned = (
-  fulfillment: FulFillmentResponse | undefined | null,
-) => {
+export const checkIfFulfillmentReturned = (fulfillment: FulFillmentResponse | undefined | null) => {
   if (!fulfillment) {
     return false;
   }
-  return fulfillment.return_status === FulFillmentReturnStatus.RETURNED && fulfillment.status === FulFillmentStatus.CANCELLED;
+  return (
+    fulfillment.return_status === FulFillmentReturnStatus.RETURNED &&
+    fulfillment.status === FulFillmentStatus.CANCELLED
+  );
 };
 
 export const canCreateShipment = (fulfillments?: FulFillmentResponse[] | null) => {
   if (!fulfillments) return false;
   let createShipment = false;
-  if (!fulfillments.some((p) =>
-    p.status !== FulFillmentStatus.CANCELLED &&
-    p.status !== FulFillmentStatus.RETURNING &&
-    p.status !== FulFillmentStatus.RETURNED &&
-    p?.shipment?.delivery_service_provider_type
-  )) createShipment = true;
+  if (
+    !fulfillments.some(
+      (p) =>
+        p.status !== FulFillmentStatus.CANCELLED &&
+        p.status !== FulFillmentStatus.RETURNING &&
+        p.status !== FulFillmentStatus.RETURNED &&
+        p?.shipment?.delivery_service_provider_type,
+    )
+  )
+    createShipment = true;
   return createShipment;
-}
+};
 
-export const getFulfillmentActive = (
-  fulfillments?: FulFillmentResponse[] | null | any
-) => {
+export const getFulfillmentActive = (fulfillments?: FulFillmentResponse[] | null | any) => {
   if (!fulfillments) return undefined; //không tìm thấy ffm
 
-  let fulfillmentsExitsShipment = fulfillments.filter((p:any) => p.shipment);
+  let fulfillmentsExitsShipment = fulfillments.filter((p: any) => p.shipment);
 
   const sortedFulfillments = sortFulfillments(fulfillmentsExitsShipment);
   return sortedFulfillments[0];
 };
 
 export const checkIfOrderFinished = (orderDetail: OrderResponse | null | undefined) => {
-  return orderDetail?.status === OrderStatus.FINISHED ||
-    orderDetail?.status === OrderStatus.COMPLETED
+  return (
+    orderDetail?.status === OrderStatus.FINISHED || orderDetail?.status === OrderStatus.COMPLETED
+  );
 };
 
 /*
 kiểm tra đơn đã hoàn true:false
 */
 export const isDeliveryOrderReturned = (
-  fulfillments?: FulFillmentResponse | FulFillmentResponse[] | null
+  fulfillments?: FulFillmentResponse | FulFillmentResponse[] | null,
 ) => {
   if (!fulfillments) return false; //không tìm thấy ffm
   let fulfillment: FulFillmentResponse | null | undefined = null;
   if (Array.isArray(fulfillments)) {
     fulfillment = getFulfillmentActive(fulfillments);
-  }
-  else {
+  } else {
     fulfillment = fulfillments;
   }
 
@@ -221,20 +215,20 @@ export const isDeliveryOrderReturned = (
 };
 
 export const checkIfOrderReturned = (orderDetail: OrderResponse | null | undefined) => {
-  return orderDetail?.sub_status_code === ORDER_SUB_STATUS.returned
+  return orderDetail?.sub_status_code === ORDER_SUB_STATUS.returned;
 };
 
 export const checkIfOrderIsCancelledBy3PL = (orderDetail: OrderResponse | null | undefined) => {
-  return orderDetail?.sub_status_code === ORDER_SUB_STATUS.delivery_service_cancelled
+  return orderDetail?.sub_status_code === ORDER_SUB_STATUS.delivery_service_cancelled;
 };
 export const getLink = (providerCode: string, trackingCode: string) => {
   switch (providerCode) {
     case DELIVERY_SERVICE_PROVIDER_CODE.ghn:
-      return `https://donhang.ghn.vn/?order_code=${trackingCode}`
+      return `https://donhang.ghn.vn/?order_code=${trackingCode}`;
     case DELIVERY_SERVICE_PROVIDER_CODE.ghtk:
-      return `https://i.ghtk.vn/${trackingCode}`
+      return `https://i.ghtk.vn/${trackingCode}`;
     case DELIVERY_SERVICE_PROVIDER_CODE.vtp:
-      return `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don/`
+      return `https://viettelpost.com.vn/tra-cuu-hanh-trinh-don/`;
     default:
       break;
   }
@@ -246,17 +240,17 @@ export const getReturnMoneyStatusText = (paymentStatus: string) => {
     // case "unpaid":
     case ORDER_PAYMENT_STATUS.unpaid:
       // processIcon = "icon-blank";
-      textResult = "Chưa hoàn tiền"
+      textResult = "Chưa hoàn tiền";
       break;
     // case "paid":
     case ORDER_PAYMENT_STATUS.paid:
       // processIcon = "icon-full";
-      textResult = "Đã hoàn tiền"
+      textResult = "Đã hoàn tiền";
       break;
     // case "partial_paid":
     case ORDER_PAYMENT_STATUS.partial_paid:
       // processIcon = "icon-full";
-      textResult = "Hoàn tiền một phần"
+      textResult = "Hoàn tiền một phần";
       break;
     default:
       textResult = "";
@@ -264,7 +258,7 @@ export const getReturnMoneyStatusText = (paymentStatus: string) => {
   }
 
   return textResult;
-}
+};
 
 export const getReturnMoneyStatusColor = (paymentStatus: string) => {
   let textResult = "";
@@ -272,17 +266,17 @@ export const getReturnMoneyStatusColor = (paymentStatus: string) => {
     // case "unpaid":
     case ORDER_PAYMENT_STATUS.unpaid:
       // processIcon = "icon-blank";
-      textResult = "rgb(226, 67, 67)"
+      textResult = "rgb(226, 67, 67)";
       break;
     // case "paid":
     case ORDER_PAYMENT_STATUS.paid:
       // processIcon = "icon-full";
-      textResult = "rgb(16, 98, 39)"
+      textResult = "rgb(16, 98, 39)";
       break;
     // case "partial_paid":
     case ORDER_PAYMENT_STATUS.partial_paid:
       // processIcon = "icon-full";
-      textResult = "rgb(252, 175, 23)"
+      textResult = "rgb(252, 175, 23)";
       break;
     default:
       textResult = "";
@@ -290,90 +284,126 @@ export const getReturnMoneyStatusColor = (paymentStatus: string) => {
   }
 
   return textResult;
-}
-
-export const getTimeFormatOrderFilterTag = (date: Date | string | number | Moment, dateFormat: string = '') => {
-  return moment(date).format(dateFormat)
 };
 
-export const formatDateTimeOrderFilter = (date: Date | string | number | Moment | undefined, format: string = '') => {
-  if (!date) return
-  return format !== '' ? moment(date, format).utc(true) : moment(date).utc(true)
-}
+export const getTimeFormatOrderFilterTag = (
+  date: Date | string | number | Moment,
+  dateFormat: string = "",
+) => {
+  return moment(date).format(dateFormat);
+};
 
-export const getTimeFormatOrderFilter = (values: string, dateFormat: string = '') => {
-  return values ? moment(values).utc(false) : null
+export const formatDateTimeOrderFilter = (
+  date: Date | string | number | Moment | undefined,
+  format: string = "",
+) => {
+  if (!date) return;
+  return format !== "" ? moment(date, format).utc(true) : moment(date).utc(true);
+};
+
+export const getTimeFormatOrderFilter = (values: string, dateFormat: string = "") => {
+  return values ? moment(values).utc(false) : null;
 };
 
 /**
  * kiểm tra là đơn hvc đã hoàn
- * @param fulfillment 
- * @returns 
+ * @param fulfillment
+ * @returns
  */
 export const isFulfillmentReturned = (fulfillment: FulFillmentResponse | any) => {
-  let isFulfillment = fulfillment?.status === FulFillmentStatus.CANCELLED
-      && fulfillment?.return_status === FulFillmentStatus.RETURNED
-      && fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING;
-      
+  let isFulfillment =
+    fulfillment?.status === FulFillmentStatus.CANCELLED &&
+    fulfillment?.return_status === FulFillmentStatus.RETURNED &&
+    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING;
+
   return isFulfillment;
-}
-
-export const checkIfMomoPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
-  return payment.payment_method_code === PaymentMethodCode.MOMO
 };
 
-export const checkIfPointPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
-  return payment.payment_method_code === PaymentMethodCode.POINT
+export const checkIfMomoPayment = (payment: OrderPaymentRequest | OrderPaymentResponse) => {
+  return payment.payment_method_code === PaymentMethodCode.MOMO;
 };
 
-export const checkIfBankPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
-  return payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER
+export const checkIfPointPayment = (payment: OrderPaymentRequest | OrderPaymentResponse) => {
+  return payment.payment_method_code === PaymentMethodCode.POINT;
 };
 
-export const checkIfFinishedPayment = (payment: OrderPaymentRequest|OrderPaymentResponse) => {
-  return payment.status === ORDER_PAYMENT_STATUS.paid
+export const checkIfBankPayment = (payment: OrderPaymentRequest | OrderPaymentResponse) => {
+  return payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER;
 };
 
-export const checkIfOrderHasNotFinishPaymentMomo = (orderDetail: OrderResponse | null | undefined) => {
-  if(!orderDetail?.payments || orderDetail.payments.length === 0) {
+export const checkIfFinishedPayment = (payment: OrderPaymentRequest | OrderPaymentResponse) => {
+  return payment.status === ORDER_PAYMENT_STATUS.paid;
+};
+
+export const checkIfOrderHasNotFinishPaymentMomo = (
+  orderDetail: OrderResponse | null | undefined,
+) => {
+  if (!orderDetail?.payments || orderDetail.payments.length === 0) {
     return false;
   }
-  return orderDetail?.payments.some(payment => checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && !checkIfExpiredOrCancelledPayment(payment))
+  return orderDetail?.payments.some(
+    (payment) =>
+      checkIfMomoPayment(payment) &&
+      !checkIfFinishedPayment(payment) &&
+      !checkIfExpiredOrCancelledPayment(payment),
+  );
 };
 
-export const checkIfExpiredPayment = (payment: OrderPaymentResponse|OrderPaymentRequest) => {
-  if(!payment.expired_at) {
-    return false
+export const checkIfExpiredPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
+  if (!payment.expired_at) {
+    return false;
   }
-  return moment(payment.expired_at).isBefore(moment())
+  return moment(payment.expired_at).isBefore(moment());
 };
 
 export const checkIfNotFinishedAndExpiredPaymentMomo = (payment: OrderPaymentResponse) => {
-  return checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && checkIfExpiredPayment(payment)
+  return (
+    checkIfMomoPayment(payment) &&
+    !checkIfFinishedPayment(payment) &&
+    checkIfExpiredPayment(payment)
+  );
 };
 
 export const checkIfNotFinishedAndNotExpiredPaymentMomo = (payment: OrderPaymentResponse) => {
-  return checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && !checkIfExpiredPayment(payment)
+  return (
+    checkIfMomoPayment(payment) &&
+    !checkIfFinishedPayment(payment) &&
+    !checkIfExpiredPayment(payment)
+  );
 };
 
-export const checkIfOrderHasNotFinishedAndExpiredPaymentMomo = (orderDetail: OrderResponse | null | undefined) => {
-  if(!orderDetail?.payments || orderDetail.payments.length === 0) {
+export const checkIfOrderHasNotFinishedAndExpiredPaymentMomo = (
+  orderDetail: OrderResponse | null | undefined,
+) => {
+  if (!orderDetail?.payments || orderDetail.payments.length === 0) {
     return false;
   }
-  return orderDetail?.payments.some(payment =>checkIfNotFinishedAndExpiredPaymentMomo(payment))
+  return orderDetail?.payments.some((payment) => checkIfNotFinishedAndExpiredPaymentMomo(payment));
 };
 
-export const checkIfOrderHasNotFinishedPaymentMomo = (orderDetail: OrderResponse | null | undefined) => {
-  if(!orderDetail?.payments || orderDetail.payments.length === 0) {
+export const checkIfOrderHasNotFinishedPaymentMomo = (
+  orderDetail: OrderResponse | null | undefined,
+) => {
+  if (!orderDetail?.payments || orderDetail.payments.length === 0) {
     return false;
   }
-  return orderDetail?.payments.some(payment =>checkIfMomoPayment(payment) && !checkIfFinishedPayment(payment) && !checkIfExpiredOrCancelledPayment(payment))
+  return orderDetail?.payments.some(
+    (payment) =>
+      checkIfMomoPayment(payment) &&
+      !checkIfFinishedPayment(payment) &&
+      !checkIfExpiredOrCancelledPayment(payment),
+  );
 };
 
 export const checkIfCancelledPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
-  return payment.status === ORDER_PAYMENT_STATUS.cancelled
+  return payment.status === ORDER_PAYMENT_STATUS.cancelled;
 };
 
-export const checkIfExpiredOrCancelledPayment = (payment: OrderPaymentResponse | OrderPaymentRequest) => {
-  return checkIfCancelledPayment(payment) || (checkIfExpiredPayment(payment) && !checkIfFinishedPayment(payment))
+export const checkIfExpiredOrCancelledPayment = (
+  payment: OrderPaymentResponse | OrderPaymentRequest,
+) => {
+  return (
+    checkIfCancelledPayment(payment) ||
+    (checkIfExpiredPayment(payment) && !checkIfFinishedPayment(payment))
+  );
 };

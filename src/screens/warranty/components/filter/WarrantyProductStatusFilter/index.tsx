@@ -13,7 +13,7 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {
   actions: Array<MenuAction>;
-  location: any,
+  location: any;
   isLoading?: boolean;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: OrderSearchQuery | Object) => void;
@@ -21,11 +21,11 @@ type PropTypes = {
 };
 
 function WarrantyProductStatusFilter(props: PropTypes): JSX.Element {
-  const { actions, onMenuClick, onFilter, onShowColumnSetting, isLoading, location} = props;
+  const { actions, onMenuClick, onFilter, onShowColumnSetting, isLoading, location } = props;
 
   const queryParamsParsed: any = queryString.parse(location.search);
 
-  const loadingFilter = useMemo(() => { 
+  const loadingFilter = useMemo(() => {
     return !!isLoading;
   }, [isLoading]);
 
@@ -35,13 +35,15 @@ function WarrantyProductStatusFilter(props: PropTypes): JSX.Element {
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   const initialValues = useMemo(() => {
     return {
       ...queryParamsParsed,
-      query: Array.isArray(queryParamsParsed.query) ? queryParamsParsed.query.map((i:any) => Number(i)) : (queryParamsParsed.query),
+      query: Array.isArray(queryParamsParsed.query)
+        ? queryParamsParsed.query.map((i: any) => Number(i))
+        : queryParamsParsed.query,
       name: queryParamsParsed.name || undefined,
       status: queryParamsParsed.status || undefined,
     };
@@ -51,19 +53,18 @@ function WarrantyProductStatusFilter(props: PropTypes): JSX.Element {
     (values) => {
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   useEffect(() => {
-    formSearch.setFieldsValue(initialValues)
-  }, [formSearch, initialValues])
-  
+    formSearch.setFieldsValue(initialValues);
+  }, [formSearch, initialValues]);
 
   return (
     <StyledComponent>
       <div className="warranty-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form form={formSearch} initialValues={initialValues} layout="inline" onFinish={onFinish}>
+          <Form form={formSearch} initialValues={initialValues} layout="inline" onFinish={onFinish}>
             <div style={{ width: "100%" }}>
               <Row>
                 <Col span={8}>
@@ -99,7 +100,8 @@ function WarrantyProductStatusFilter(props: PropTypes): JSX.Element {
                       allowClear
                       style={{ width: "100%" }}
                       placeholder="Trạng thái"
-                      notFoundContent="Không tìm thấy kết quả">
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
                       {WARRANTY_PRODUCT_STATUS_STATUS.map((item, index) => (
                         <Select.Option key={index} value={item.code}>
                           {item.name}

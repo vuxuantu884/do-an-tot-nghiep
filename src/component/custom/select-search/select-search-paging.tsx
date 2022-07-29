@@ -13,7 +13,7 @@ export interface SelectContentProps<T> extends SelectProps<any> {
   isLoading?: boolean;
   optionKeyValue: string;
   optionKeyName: string;
-  defaultValue?: string | number | undefined | null
+  defaultValue?: string | number | undefined | null;
 }
 
 function SelectSearchPaging<T>({
@@ -62,8 +62,8 @@ function SelectSearchPaging<T>({
           <Select.Option key={item[optionKeyValue]} value={item[optionKeyValue]}>
             {item[optionKeyName]}
           </Select.Option>
-        )
-      }) }
+        );
+      })}
     </SelectPagingV2>
   );
 }

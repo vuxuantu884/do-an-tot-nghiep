@@ -10,18 +10,10 @@ type ConfirmConnectProductModalProps = {
   onCancel: () => void;
 };
 
-
 const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
-  props: ConfirmConnectProductModalProps
+  props: ConfirmConnectProductModalProps,
 ) => {
-  
-  const {
-    isVisible,
-    isLoading,
-    dataSource,
-    onOk,
-    onCancel,
-  } = props;
+  const { isVisible, isLoading, dataSource, onOk, onCancel } = props;
 
   const [columns] = useState<any>([
     {
@@ -30,9 +22,7 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
       width: "13%",
       key: "1",
       render: (l: any, v: any, i: any) => {
-        return (
-          <div>{i + 1}</div>
-        );
+        return <div>{i + 1}</div>;
       },
     },
     {
@@ -45,7 +35,7 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
           </div>
         );
       },
-    }
+    },
   ]);
 
   return (

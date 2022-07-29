@@ -12,5 +12,5 @@ export const ActionPOPrintType = {
 
 export const PurchaseOrderTabUrl = {
   LIST: UrlConfig.PURCHASE_ORDERS,
-  RETURN: UrlConfig.PURCHASE_ORDERS + "/returns"
-}
+  RETURN: UrlConfig.PURCHASE_ORDERS + "/returns",
+};

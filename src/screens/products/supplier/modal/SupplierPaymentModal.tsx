@@ -1,6 +1,6 @@
-import {Col, Form, Input, Modal, Row} from "antd";
-import {SupplierPayment, SupplierPaymentResposne} from "model/core/supplier.model";
-import {useCallback, useEffect} from "react";
+import { Col, Form, Input, Modal, Row } from "antd";
+import { SupplierPayment, SupplierPaymentResposne } from "model/core/supplier.model";
+import { useCallback, useEffect } from "react";
 
 type SupplierPaymentModalProps = {
   visible: boolean;
@@ -11,15 +11,15 @@ type SupplierPaymentModalProps = {
 };
 
 const SupplierPaymentModal: React.FC<SupplierPaymentModalProps> = (
-  props: SupplierPaymentModalProps
+  props: SupplierPaymentModalProps,
 ) => {
-  const {visible, onCancle, data, onSave, confirmLoading} = props;
+  const { visible, onCancle, data, onSave, confirmLoading } = props;
   const [form] = Form.useForm();
   const onFinish = useCallback(
     (value: SupplierPayment) => {
       onSave(value.id, value);
     },
-    [onSave]
+    [onSave],
   );
   useEffect(() => {
     if (visible && form) {
@@ -38,7 +38,6 @@ const SupplierPaymentModal: React.FC<SupplierPaymentModalProps> = (
       onOk={() => {
         form.submit();
       }}
-      
     >
       <Form
         onFinish={onFinish}

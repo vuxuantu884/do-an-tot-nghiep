@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, { useEffect, useState } from "react";
 import { Layout, Button, Badge, Avatar, Dropdown, Menu, Space, Tooltip } from "antd";
 import logo from "assets/img/logo.svg";
 import UrlConfig, { AccountUrl } from "config/url.config";
@@ -19,19 +19,16 @@ import { AppConfig } from "config/app.config";
 
 type HeaderContainerProps = {
   onCollapse: () => void;
-	isShowHeader: boolean;
-	setIsShowHeader: (value: boolean) => void;
+  isShowHeader: boolean;
+  setIsShowHeader: (value: boolean) => void;
 };
 
 const hotlineNumber = "0888 464 258";
-const supportLink = "https://rd.zapps.vn/detail/1034167903642421755?id=d1838e6d3228db768239&pageId=317413297&zl3rd=815789662550058820";
+const supportLink =
+  "https://rd.zapps.vn/detail/1034167903642421755?id=d1838e6d3228db768239&pageId=317413297&zl3rd=815789662550058820";
 
-const HeaderContainer: React.FC<HeaderContainerProps> = (
-  props: HeaderContainerProps
-) => {
-  const user_id = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.user_id
-  );
+const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
+  const user_id = useSelector((state: RootReducerType) => state.userReducer.account?.user_id);
   const myFullname = useSelector((state: RootReducerType) => state.userReducer.account?.full_name);
 
   const dispatch = useDispatch();
@@ -40,10 +37,10 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
   const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
 
   useEffect(() => {
-    if(window.location.pathname.indexOf('YDpage') < 0) {
-			setIsShowBtnDD(false)
-			props.setIsShowHeader(true)
-		}
+    if (window.location.pathname.indexOf("YDpage") < 0) {
+      setIsShowBtnDD(false);
+      props.setIsShowHeader(true);
+    }
   }, [props]);
 
   const Logo = () => {
@@ -90,8 +87,8 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
     window.open(supportLink, "_blank");
   };
 
-  const callHotlineSupport= () => {
-    window.location.href=`tel:${hotlineNumber}`;
+  const callHotlineSupport = () => {
+    window.location.href = `tel:${hotlineNumber}`;
   };
 
   window.onresize = () => {
@@ -99,21 +96,23 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
   };
 
   useEffect(() => {
-    if (screenWidth < 900 || ((AppConfig.ENV === "DEV" || AppConfig.ENV === "UAT") && screenWidth < 1100))  {
+    if (
+      screenWidth < 900 ||
+      ((AppConfig.ENV === "DEV" || AppConfig.ENV === "UAT") && screenWidth < 1100)
+    ) {
       setIsTabletMobileScreen(true);
     } else {
       setIsTabletMobileScreen(false);
     }
   }, [screenWidth]);
 
-
   return (
     <StyledComponent>
-      <Layout.Header className={props.isShowHeader ? 'show' : 'hide'}>
+      <Layout.Header className={props.isShowHeader ? "show" : "hide"}>
         <div className="ant-layout-header-left">
           <Link to={UrlConfig.HOME}>
             <div className="logo-header">
-            <Logo/>
+              <Logo />
             </div>
           </Link>
           <div className="header-right">
@@ -126,34 +125,39 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
         </div>
         <div className="ant-layout-header-right">
           <div className="markup-env">
-            <DevAndUatMarkup/>
+            <DevAndUatMarkup />
           </div>
           <Space size={15}>
-            {isTabletMobileScreen ?
+            {isTabletMobileScreen ? (
               <span>
-                <img onClick={callHotlineSupport} style={{ marginRight: 10 }} src={hotlineIcon} alt="hotline" />
+                <img
+                  onClick={callHotlineSupport}
+                  style={{ marginRight: 10 }}
+                  src={hotlineIcon}
+                  alt="hotline"
+                />
               </span>
-              :
+            ) : (
               <>
                 <div className="hotline-info">
                   <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
                   <span>
                     {"Hotline: "}
                     <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
-                      <span className="phone-number" onClick={callHotlineSupport}>{hotlineNumber}</span>
+                      <span className="phone-number" onClick={callHotlineSupport}>
+                        {hotlineNumber}
+                      </span>
                     </Tooltip>
                   </span>
                 </div>
-                <span className="support-link" onClick={linkToSupportPage}>{"Hướng dẫn gửi yêu cầu »"}</span>
+                <span className="support-link" onClick={linkToSupportPage}>
+                  {"Hướng dẫn gửi yêu cầu »"}
+                </span>
               </>
-            }
+            )}
 
             <Badge count={0} className="buttonNotifyWrapper">
-              <Button
-                color={"#222222"}
-                className="button-notify"
-                icon={<RiNotification2Line />}
-              />
+              <Button color={"#222222"} className="button-notify" icon={<RiNotification2Line />} />
             </Badge>
             <Dropdown
               className="layout-user"
@@ -163,25 +167,27 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (
             >
               <div className="ant-layout-sider-user">
                 <Avatar src="" size={36} />
-                <div className="sider-user-info yody-text-ellipsis">
-                  {myFullname}
-                </div>
+                <div className="sider-user-info yody-text-ellipsis">{myFullname}</div>
                 <RiArrowDropDownLine size={25} color="#737373" />
               </div>
             </Dropdown>
           </Space>
         </div>
-				{isShowBtnDD && 
-					<div className="drop-down-button">
-						<Button
-							onClick={() => props.setIsShowHeader(!props.isShowHeader)}
-							className="button-menu-collapse"
-							icon={
-								props.isShowHeader ? <AiOutlineCaretUp color={"black"} size={20} /> : <AiOutlineCaretDown color={"black"} size={20} />
-							}
-						/>
-					</div>
-				}
+        {isShowBtnDD && (
+          <div className="drop-down-button">
+            <Button
+              onClick={() => props.setIsShowHeader(!props.isShowHeader)}
+              className="button-menu-collapse"
+              icon={
+                props.isShowHeader ? (
+                  <AiOutlineCaretUp color={"black"} size={20} />
+                ) : (
+                  <AiOutlineCaretDown color={"black"} size={20} />
+                )
+              }
+            />
+          </div>
+        )}
       </Layout.Header>
     </StyledComponent>
   );

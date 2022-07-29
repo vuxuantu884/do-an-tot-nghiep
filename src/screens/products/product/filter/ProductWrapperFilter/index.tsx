@@ -18,25 +18,12 @@ import {
   SearchVariantWrapperField,
   SearchVariantWrapperMapping,
 } from "model/product/product-mapping";
-import {
-  ProductWrapperSearchQuery,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import { ProductWrapperSearchQuery, VariantSearchQuery } from "model/product/product.model";
 import { StatusFilterResponse } from "model/product/status.model";
 import moment from "moment";
-import React, {
-  createRef,
-  Fragment,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { createRef, Fragment, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  DATE_FORMAT,
-  formatDateFilter,
-  getStartOfDayCommon,
-} from "utils/DateUtils";
+import { DATE_FORMAT, formatDateFilter, getStartOfDayCommon } from "utils/DateUtils";
 import { StyledComponent } from "./styled";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
@@ -89,19 +76,9 @@ const listStatus = [
   },
 ];
 
-const ProductWrapperFilter: React.FC<ProductFilterProps> = (
-  props: ProductFilterProps,
-) => {
+const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) => {
   const dispatch = useDispatch();
-  const {
-    params,
-    actions,
-    onMenuClick,
-    onFilter,
-    onClickOpen,
-    listCategory,
-    goods,
-  } = props;
+  const { params, actions, onMenuClick, onFilter, onClickOpen, listCategory, goods } = props;
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState("");
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
@@ -121,95 +98,61 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     items: [],
     metadata: { limit: 20, page: 1, total: 0 },
   });
-  const [lstCollection, setLstCollection] = useState<Array<CollectionResponse>>(
-    [],
-  );
-  const setDataCollection = useCallback(
-    (data: PageResponse<CollectionResponse>) => {
-      setLstCollection(data.items);
-    },
-    [],
-  );
+  const [lstCollection, setLstCollection] = useState<Array<CollectionResponse>>([]);
+  const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
+    setLstCollection(data.items);
+  }, []);
 
-  const setDataDesigners = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) return;
-      setDeisgners((designer) => {
-        return {
-          ...designer,
-          items: [...designer.items, ...data.items],
-          metadata: data.metadata,
-        };
-      });
-    },
-    [],
-  );
+  const setDataDesigners = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) return;
+    setDeisgners((designer) => {
+      return {
+        ...designer,
+        items: [...designer.items, ...data.items],
+        metadata: data.metadata,
+      };
+    });
+  }, []);
 
-  const setDataWins = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) return;
-      setWins((wins) => {
-        return {
-          ...wins,
-          items: [...wins.items, ...data.items],
-          metadata: data.metadata,
-        };
-      });
-    },
-    [],
-  );
+  const setDataWins = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) return;
+    setWins((wins) => {
+      return {
+        ...wins,
+        items: [...wins.items, ...data.items],
+        metadata: data.metadata,
+      };
+    });
+  }, []);
 
   const getDesigners = useCallback(
     (code: string, page: number) => {
-      dispatch(
-        searchAccountPublicAction(
-          { codes: code, page: page },
-          setDataDesigners,
-        ),
-      );
+      dispatch(searchAccountPublicAction({ codes: code, page: page }, setDataDesigners));
     },
     [dispatch, setDataDesigners],
   );
 
   const getWins = useCallback(
     (code: string, page: number) => {
-      dispatch(
-        searchAccountPublicAction({ codes: code, page: page }, setDataWins),
-      );
+      dispatch(searchAccountPublicAction({ codes: code, page: page }, setDataWins));
     },
     [dispatch, setDataWins],
   );
 
   const getCollections = useCallback(
     (code: string, page: number) => {
-      dispatch(
-        getCollectionRequestAction(
-          { codes: code, page: page },
-          setDataCollection,
-        ),
-      );
+      dispatch(getCollectionRequestAction({ codes: code, page: page }, setDataCollection));
     },
     [dispatch, setDataCollection],
   );
 
   useEffect(() => {
-    const {
-      category_ids,
-      material_ids,
-      merchandisers,
-      designers,
-      goods,
-      collections,
-    } = params;
+    const { category_ids, material_ids, merchandisers, designers, goods, collections } = params;
 
     const filters = {
       ...params,
-      [SearchVariantWrapperField.from_create_date]: formatDateFilter(
-        params.from_create_date,
-      ),
-      [SearchVariantWrapperField.to_create_date]: formatDateFilter(
-        params.to_create_date,
-      ),
+      [SearchVariantWrapperField.from_create_date]: formatDateFilter(params.from_create_date),
+      [SearchVariantWrapperField.to_create_date]: formatDateFilter(params.to_create_date),
       category_ids: category_ids
         ? Array.isArray(category_ids)
           ? category_ids.map((i: string) => Number(i))
@@ -230,12 +173,9 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     setAdvanceFilters(filters);
     form.setFieldsValue(filters);
 
-    if (!designers || designers.length === 0)
-      form.resetFields(["designer_code"]);
-    if (!merchandisers || merchandisers.length === 0)
-      form.resetFields(["merchandiser_code"]);
-    if (!collections || collections.length === 0)
-      form.resetFields(["collections"]);
+    if (!designers || designers.length === 0) form.resetFields(["designer_code"]);
+    if (!merchandisers || merchandisers.length === 0) form.resetFields(["merchandiser_code"]);
+    if (!collections || collections.length === 0) form.resetFields(["collections"]);
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form, params]);
@@ -251,12 +191,8 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     (values: any) => {
       setAdvanceFilters(values);
       formNormal.setFieldsValue(values);
-      values.from_create_date = getStartOfDayCommon(
-        values.from_create_date,
-      )?.format();
-      values.to_create_date = getStartOfDayCommon(
-        values.to_create_date,
-      )?.format();
+      values.from_create_date = getStartOfDayCommon(values.from_create_date)?.format();
+      values.to_create_date = getStartOfDayCommon(values.to_create_date)?.format();
 
       onFilter && onFilter(values);
     },
@@ -308,12 +244,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
     <StyledComponent>
       <div className="product-filter">
         <CustomFilter onMenuClick={onActionClick} menu={actions}>
-          <Form
-            form={formNormal}
-            onFinish={onFinish}
-            initialValues={params}
-            layout="inline"
-          >
+          <Form form={formNormal} onFinish={onFinish} initialValues={params} layout="inline">
             <Item name="info" className="search">
               <Input
                 onChange={(e) =>
@@ -358,12 +289,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
           visible={visible}
           width={800}
         >
-          <Form
-            ref={formRef}
-            onFinish={onFinishAvd}
-            form={form}
-            layout="vertical"
-          >
+          <Form ref={formRef} onFinish={onFinishAvd} form={form} layout="vertical">
             <Row>
               <Col span={24}>
                 <Item name="info" className="search">
@@ -379,19 +305,11 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                 let component: any = null;
                 switch (key) {
                   case SearchVariantWrapperField.designers:
-                    component = (
-                      <AccountSearchPaging
-                        mode="multiple"
-                        placeholder="Chọn thiết kế"
-                      />
-                    );
+                    component = <AccountSearchPaging mode="multiple" placeholder="Chọn thiết kế" />;
                     break;
                   case SearchVariantWrapperField.merchandisers:
                     component = (
-                      <AccountSearchPaging
-                        mode="multiple"
-                        placeholder="Chọn Merchandiser"
-                      />
+                      <AccountSearchPaging mode="multiple" placeholder="Chọn Merchandiser" />
                     );
                     break;
                   case SearchVariantWrapperField.status:
@@ -437,10 +355,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                         maxTagCount="responsive"
                       >
                         {goods?.map((item) => (
-                          <CustomSelect.Option
-                            key={item.value}
-                            value={item.value}
-                          >
+                          <CustomSelect.Option key={item.value} value={item.value}>
                             {item.name}
                           </CustomSelect.Option>
                         ))}
@@ -481,10 +396,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                     break;
                   case SearchVariantWrapperField.collections:
                     component = (
-                      <CollectionSearchPaging
-                        mode="multiple"
-                        placeholder="Chọn chọn nhóm hàng"
-                      />
+                      <CollectionSearchPaging mode="multiple" placeholder="Chọn chọn nhóm hàng" />
                     );
                     break;
                   case SearchVariantWrapperField.tags:
@@ -493,9 +405,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (
                 }
                 return (
                   <Col span={12} key={key}>
-                    <div className="font-weight-500">
-                      {SearchVariantWrapperMapping[key]}
-                    </div>
+                    <div className="font-weight-500">{SearchVariantWrapperMapping[key]}</div>
                     <Item name={key}>{component}</Item>
                   </Col>
                 );
@@ -523,9 +433,7 @@ const FilterList = ({
   const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
   const newKeys = ConvertDatesLabel(newFilters, keysDateWrapperFilter);
-  filtersKeys = filtersKeys.filter(
-    (i) => !isExistInArr(keysDateWrapperFilter, i),
-  );
+  filtersKeys = filtersKeys.filter((i) => !isExistInArr(keysDateWrapperFilter, i));
 
   const formValue = form.getFieldsValue(true);
   let hasFilter = false;
@@ -542,12 +450,7 @@ const FilterList = ({
       <div>
         {[...newKeys, ...filtersKeys].map((filterKey) => {
           let value = filters[filterKey];
-          if (
-            !value &&
-            !filters[`from_${filterKey}`] &&
-            !filters[`to_${filterKey}`]
-          )
-            return null;
+          if (!value && !filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return null;
           if (value && Array.isArray(value) && value.length === 0) return null;
           if (!SearchVariantWrapperMapping[filterKey]) return null;
 
@@ -558,42 +461,30 @@ const FilterList = ({
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} 
             : ${
               filters[`from_${filterKey}`]
-                ? moment(filters[`from_${filterKey}`])
-                    .utc(false)
-                    .format(DATE_FORMAT.DDMMYYY)
+                ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
                 : "??"
             } 
             ~ ${
               filters[`to_${filterKey}`]
-                ? moment(filters[`to_${filterKey}`])
-                    .utc(false)
-                    .format(DATE_FORMAT.DDMMYYY)
+                ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
                 : "??"
             }`;
               break;
             case SearchVariantWrapperField.category_ids:
               let categoryIdTag = "";
               newValues.forEach((item: number) => {
-                const category = listCategory.find(
-                  (e: any) => e.id === Number(item),
-                );
+                const category = listCategory.find((e: any) => e.id === Number(item));
 
-                categoryIdTag = category
-                  ? categoryIdTag + category.name + "; "
-                  : categoryIdTag;
+                categoryIdTag = category ? categoryIdTag + category.name + "; " : categoryIdTag;
               });
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${categoryIdTag}`;
               break;
             case SearchVariantWrapperField.material_ids:
               let materialIdTag = "";
               newValues.forEach((item: number) => {
-                const material = materials.items.find(
-                  (e: any) => e.id === Number(item),
-                );
+                const material = materials.items.find((e: any) => e.id === Number(item));
 
-                materialIdTag = material
-                  ? materialIdTag + material.name + "; "
-                  : materialIdTag;
+                materialIdTag = material ? materialIdTag + material.name + "; " : materialIdTag;
               });
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${materialIdTag}`;
               break;
@@ -617,42 +508,30 @@ const FilterList = ({
               newValues.forEach((item: string) => {
                 const win = wins.items?.find((e: any) => e.code === item);
 
-                merchandiserTag = win
-                  ? merchandiserTag + win.full_name + "; "
-                  : merchandiserTag;
+                merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag;
               });
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${merchandiserTag}`;
               break;
             case SearchVariantWrapperField.designers:
               let designerTag = "";
               newValues.forEach((item: string) => {
-                const designer = designers.items?.find(
-                  (e: any) => e.code === item,
-                );
+                const designer = designers.items?.find((e: any) => e.code === item);
 
-                designerTag = designer
-                  ? designerTag + designer.full_name + "; "
-                  : designerTag;
+                designerTag = designer ? designerTag + designer.full_name + "; " : designerTag;
               });
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${designerTag}`;
               break;
             case SearchVariantWrapperField.collections:
               let collectionTag = "";
               newValues.forEach((item: string) => {
-                const colection = lstCollection?.find(
-                  (e: any) => e.code === item,
-                );
+                const colection = lstCollection?.find((e: any) => e.code === item);
 
-                collectionTag = colection
-                  ? collectionTag + colection.name + "; "
-                  : collectionTag;
+                collectionTag = colection ? collectionTag + colection.name + "; " : collectionTag;
               });
               renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${collectionTag}`;
               break;
             case SearchVariantWrapperField.tags:
-              renderTxt = `${
-                SearchVariantWrapperMapping[filterKey]
-              } : ${newValues.toString()}`;
+              renderTxt = `${SearchVariantWrapperMapping[filterKey]} : ${newValues.toString()}`;
               break;
           }
           return (

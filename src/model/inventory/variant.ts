@@ -1,6 +1,4 @@
-import {
-    VariantPricesResponse
-} from "../product/product.model";
+import { VariantPricesResponse } from "../product/product.model";
 
 export interface VariantStore {
   id: number;

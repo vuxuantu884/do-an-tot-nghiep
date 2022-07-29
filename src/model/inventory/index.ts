@@ -2,7 +2,6 @@ import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 import { ProductResponse, VariantImage, VariantPricesResponse } from "model/product/product.model";
 
-
 export interface InventoryResponse extends BaseObject {
   name: string;
   sku: string;
@@ -26,18 +25,18 @@ export interface InventoryResponse extends BaseObject {
   shipping: number;
   retail_price: number;
   import_price: number;
-  product: ProductResponse | null,
-  variant_prices:Array<VariantPricesResponse>,
-  variant_images:Array<VariantImage>,
+  product: ProductResponse | null;
+  variant_prices: Array<VariantPricesResponse>;
+  variant_images: Array<VariantImage>;
 }
 
 export interface InventoryQuery extends BaseQuery {
-  condition?: string,
-  store_id?: number|Array<number>,
-  variant_id?: number,
-  status?: string,
+  condition?: string;
+  store_id?: number | Array<number>;
+  variant_id?: number;
+  status?: string;
   store_adj?: number;
-  remain?:string
+  remain?: string;
 }
 export interface InventoryVariantListQuery extends InventoryQuery {
   variant_ids?: Array<number>;
@@ -45,24 +44,24 @@ export interface InventoryVariantListQuery extends InventoryQuery {
   is_detail?: boolean;
 }
 export interface AllInventoryResponse {
-  id: number,
-  sku: string,
-  product_id: number,
-  barcode: string,
-  name: string,
-  retail_price: string,
-  import_price: string,
-  total_on_hand: string,
-  total_available:number,
-  inventories: Array<InventoryResponse>,
+  id: number;
+  sku: string;
+  product_id: number;
+  barcode: string;
+  name: string;
+  retail_price: string;
+  import_price: string;
+  total_on_hand: string;
+  total_available: number;
+  inventories: Array<InventoryResponse>;
 }
 
-export interface HistoryInventoryResponse extends BaseObject{
+export interface HistoryInventoryResponse extends BaseObject {
   name: string;
   sku: string;
   company_id: number;
   store_id: number;
-  store: string,
+  store: string;
   variant_id: number;
   variant: string;
   product_id: number;
@@ -75,49 +74,48 @@ export interface HistoryInventoryResponse extends BaseObject{
   document_type: string;
   transaction_date: string;
   account_id: number;
-  account: string|null;
-  account_code: string|null;
+  account: string | null;
+  account_code: string | null;
   import_price: number;
   retail_price: number;
   total: number;
   total_discount: number;
   quantity: number;
   action: string;
-  on_hand: number
+  on_hand: number;
 }
 
 export interface HistoryInventoryQuery extends BaseQuery {
-  condition?: string,
-  document_type?: string | null,
-  store_ids?: number|Array<number>|null,
-  from_created_date?: string,
-  to_created_date?: string,
-  from_transaction_date?: string,
-  to_transaction_date?: string,
-  variant_id?: number,
-  to_quantity?: number,
-  from_quantity?: number,
-  ids?: string
+  condition?: string;
+  document_type?: string | null;
+  store_ids?: number | Array<number> | null;
+  from_created_date?: string;
+  to_created_date?: string;
+  from_transaction_date?: string;
+  to_transaction_date?: string;
+  variant_id?: number;
+  to_quantity?: number;
+  from_quantity?: number;
+  ids?: string;
 }
 
-
 export interface AllInventoryQuery extends BaseQuery {
-  info?: string,
-  store_ids?: number|Array<number>|null,
+  info?: string;
+  store_ids?: number | Array<number> | null;
 }
 
 export interface AllInventoryProductInStore {
-  store_id: number,
-  variant_id: number,
-  on_hand: number,
-  available: number,
-  committed: number,
-  in_coming: number,
-  on_way: number,
-  on_hold: number,
-  defect: number,
-  transferring: number,
-  shipping: any,
+  store_id: number;
+  variant_id: number;
+  on_hand: number;
+  available: number;
+  committed: number;
+  in_coming: number;
+  on_way: number;
+  on_hold: number;
+  defect: number;
+  transferring: number;
+  shipping: any;
 }
 
 export interface InventoryModel {

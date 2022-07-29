@@ -1,8 +1,8 @@
-import {FormInstance} from "antd";
-import {YodyAction} from "base/base.action";
-import {productGetDetail} from "domain/actions/product/products.action";
+import { FormInstance } from "antd";
+import { YodyAction } from "base/base.action";
+import { productGetDetail } from "domain/actions/product/products.action";
 import _ from "lodash";
-import {ProductResponse, VariantResponse} from "model/product/product.model";
+import { ProductResponse, VariantResponse } from "model/product/product.model";
 import {
   EntilementFormModel,
   // IgnoreVariant,
@@ -11,21 +11,20 @@ import {
   VariantEntitlementsFileImport,
 } from "model/promotion/price-rules.model";
 import moment from "moment";
-import {Dispatch} from "redux";
-import {DiscountUnitType} from "screens/promotion/constants";
-import {CustomerFilterField} from "screens/promotion/shared/cusomer-condition.form";
-import {formatCurrency} from "./AppUtils";
-import {PROMO_TYPE} from "./Constants";
-import {DATE_FORMAT} from "./DateUtils";
-import {showError} from "./ToastUtils";
-
+import { Dispatch } from "redux";
+import { DiscountUnitType } from "screens/promotion/constants";
+import { CustomerFilterField } from "screens/promotion/shared/cusomer-condition.form";
+import { formatCurrency } from "./AppUtils";
+import { PROMO_TYPE } from "./Constants";
+import { DATE_FORMAT } from "./DateUtils";
+import { showError } from "./ToastUtils";
 
 /**
  * Đóng modal xác nhận thêm mã cha
  */
 export const handleDenyParentProduct = (
   setIsVisibleConfirmModal: (value: boolean) => void,
-  selectedProductParentRef: any
+  selectedProductParentRef: any,
 ) => {
   selectedProductParentRef.current = null;
   setIsVisibleConfirmModal(false);
@@ -63,25 +62,23 @@ export const insertProduct = (
   if (isVariant && currentVariantIdList.includes(importItem.variant_id)) {
     currentEntilementList.forEach((element: EntilementFormModel, index: number) => {
       currentEntilementList[index].selectedProducts = element.selectedProducts?.filter(
-        (product: ProductEntitlements) => product.variant_id !== importItem.variant_id
+        (product: ProductEntitlements) => product.variant_id !== importItem.variant_id,
       );
 
-      currentEntilementList[index].entitled_variant_ids =
-        element.entitled_variant_ids?.filter(
-          (variantId: number) => variantId !== importItem.variant_id
-        );
+      currentEntilementList[index].entitled_variant_ids = element.entitled_variant_ids?.filter(
+        (variantId: number) => variantId !== importItem.variant_id,
+      );
     });
   } else if (!isVariant && currentProductIdList.includes(importItem.product_id)) {
     //Tìm sản phẩm cha sắp thêm xem đã có trong form chưa, có thì xoá đi
     currentEntilementList.forEach((element: EntilementFormModel, index: number) => {
       currentEntilementList[index].selectedProducts = element.selectedProducts?.filter(
-        (product: ProductEntitlements) => product.product_id !== importItem.product_id
+        (product: ProductEntitlements) => product.product_id !== importItem.product_id,
       );
 
-      currentEntilementList[index].entitled_product_ids =
-        element.entitled_product_ids?.filter(
-          (productId: number) => productId !== importItem.product_id
-        );
+      currentEntilementList[index].entitled_product_ids = element.entitled_product_ids?.filter(
+        (productId: number) => productId !== importItem.product_id,
+      );
     });
   }
 
@@ -92,7 +89,7 @@ export const insertProduct = (
       value: importItem.discount_value,
       value_type: importItem.discount_type,
       greater_than_or_equal_to: importItem.min_quantity,
-    })
+    }),
   );
 
   const itemParseFromFileToDisplay = {
@@ -115,9 +112,9 @@ export const insertProduct = (
     // nếu nhóm khuyến mãi không tồn tại trong danh sách => tạo mới
     const discount: EntilementFormModel = {
       selectedProducts: [itemParseFromFileToDisplay],
-      entitled_variant_ids: isVariant ? [importItem.variant_id] : [], 
+      entitled_variant_ids: isVariant ? [importItem.variant_id] : [],
       entitled_product_ids: !isVariant ? [importItem.product_id] : [],
-      prerequisite_quantity_ranges: [{...prerequisite_quantity}],
+      prerequisite_quantity_ranges: [{ ...prerequisite_quantity }],
     };
 
     currentEntilementList.unshift(discount);
@@ -127,7 +124,7 @@ export const insertProduct = (
         value_type: importItem.discount_type,
         greater_than_or_equal_to: importItem.min_quantity,
       }),
-      discount
+      discount,
     );
   } else {
     // nếu nhóm khuyến mãi đã tồn tại  & sản phẩm chưa tồn tại trong nhóm KM => thêm sản phẩm vào nhóm khuyến mãi
@@ -184,7 +181,7 @@ export const insertProduct = (
 export const shareDiscountImportedProduct = (
   currentEntilementList: Array<EntilementFormModel>,
   newProductList: Array<VariantEntitlementsFileImport>,
-  form: FormInstance
+  form: FormInstance,
 ) => {
   const currentDiscountGroupMap = new Map<string, EntilementFormModel>();
   // const ignoreProductMap = new Map<string, ProductEntitlements>();
@@ -192,8 +189,7 @@ export const shareDiscountImportedProduct = (
   let currentVariantIdList: Array<number> = [];
 
   currentEntilementList.forEach((item) => {
-    const {value, value_type, greater_than_or_equal_to} =
-      item.prerequisite_quantity_ranges[0];
+    const { value, value_type, greater_than_or_equal_to } = item.prerequisite_quantity_ranges[0];
 
     if (
       typeof value === "number" &&
@@ -201,24 +197,18 @@ export const shareDiscountImportedProduct = (
       typeof value_type === "string"
     ) {
       currentDiscountGroupMap.set(
-        JSON.stringify({value, value_type, greater_than_or_equal_to}),
-        item
+        JSON.stringify({ value, value_type, greater_than_or_equal_to }),
+        item,
       ); // map những nhóm chiết => key: giá trị chiết khấu, dơn vị, số lượng tối thiểu
     }
 
     // lấy ra danh id sách sản phẩm cha đã tồn tại
-    if (
-      Array.isArray(item.entitled_product_ids) &&
-      item.entitled_product_ids.length > 0
-    ) {
+    if (Array.isArray(item.entitled_product_ids) && item.entitled_product_ids.length > 0) {
       currentProductIdList = currentProductIdList.concat(item.entitled_product_ids);
     }
 
     // lấy ra danh id sách variant đã tồn tại
-    if (
-      Array.isArray(item.entitled_variant_ids) &&
-      item.entitled_variant_ids.length > 0
-    ) {
+    if (Array.isArray(item.entitled_variant_ids) && item.entitled_variant_ids.length > 0) {
       currentVariantIdList = currentVariantIdList.concat(item.entitled_variant_ids);
     }
   });
@@ -262,7 +252,7 @@ export const shareDiscountImportedProduct = (
   });
   const cleanEntilementList = currentEntilementList.filter(
     (element: EntilementFormModel) =>
-      element.selectedProducts && element.selectedProducts?.length > 0
+      element.selectedProducts && element.selectedProducts?.length > 0,
   );
 
   /** Đã xử lý loại bỏ các sản phẩm không phù hợp (Lỗi) ở BE */
@@ -272,7 +262,7 @@ export const shareDiscountImportedProduct = (
   //   );
   // }
 
-  form.setFieldsValue({entitlements: cleanEntilementList});
+  form.setFieldsValue({ entitlements: cleanEntilementList });
 };
 
 export function nonAccentVietnamese(str: string) {
@@ -366,12 +356,10 @@ export const formatDiscountValue = (value: number | undefined, isPercent: boolea
 export const getDayOptions = () => {
   let days = [];
   for (let i = 1; i <= 31; i++) {
-    days.push({key: `${i}`, value: `Ngày ${i}`});
+    days.push({ key: `${i}`, value: `Ngày ${i}` });
   }
   return days;
 };
-
- 
 
 /**
  * chọn sp chiết khấu
@@ -391,12 +379,11 @@ export const onSelectVariantOfDiscount = (
   setIsVisibleConfirmModal: (isVisible: boolean) => void,
   form: FormInstance,
   name: number, // index of a group entilement
-  dispatch: Dispatch<YodyAction>
+  dispatch: Dispatch<YodyAction>,
 ) => {
   const entitlements: Array<EntilementFormModel> = form.getFieldValue("entitlements");
 
-  const currentProductList: Array<ProductEntitlements> =
-    entitlements[name].selectedProducts || [];
+  const currentProductList: Array<ProductEntitlements> = entitlements[name].selectedProducts || [];
 
   const selectedItem = JSON.parse(value);
 
@@ -411,7 +398,7 @@ export const onSelectVariantOfDiscount = (
    *  Check sản phẩm đã tồn tại trong danh sách hay chưa
    */
   const checkExist = currentProductList.some(
-    (e) => e.sku === (selectedItem.sku ?? selectedItem.code)
+    (e) => e.sku === (selectedItem.sku ?? selectedItem.code),
   );
   if (checkExist) {
     showError("Sản phẩm đã được chọn!");
@@ -434,10 +421,7 @@ export const onSelectVariantOfDiscount = (
    * → popup thông báo sẽ áp dụng các variant còn lại của mã này
    * → Bấm XÁC NHẬN/ HỦY
    */
-  if (
-    !isVariant &&
-    currentProductList.some((e) => e?.sku?.startsWith(selectedItem?.sku))
-  ) {
+  if (!isVariant && currentProductList.some((e) => e?.sku?.startsWith(selectedItem?.sku))) {
     selectedProductParentRef.current = selectedItem;
 
     dispatch(
@@ -445,7 +429,7 @@ export const onSelectVariantOfDiscount = (
         if (result) {
           variantIdOfSelectedProdcutRef.current = result.variants;
         }
-      })
+      }),
     );
     setIsVisibleConfirmModal(true);
     return;
@@ -508,7 +492,7 @@ export const parseSelectVariantToTableData = (selectedItem: VariantResponse) => 
 export const addProductFromSelectToForm = (
   selectedItem: VariantResponse,
   form: FormInstance,
-  name: number
+  name: number,
 ) => {
   const entilementFormValue: EntilementFormModel[] = form.getFieldValue("entitlements");
   if (
@@ -516,7 +500,7 @@ export const addProductFromSelectToForm = (
     Array.isArray(entilementFormValue[name]?.selectedProducts)
   ) {
     const checkExist = entilementFormValue[name]?.selectedProducts?.some(
-      (e: any) => e.id === selectedItem.id
+      (e: any) => e.id === selectedItem.id,
     );
     if (checkExist) {
       showError("Sản phẩm đã được chọn!");
@@ -558,7 +542,7 @@ export const addProductFromSelectToForm = (
 
 export const getEntilementValue = (
   entitlements: EntilementFormModel[],
-  entitlementMethod: string
+  entitlementMethod: string,
 ) => {
   if (entitlementMethod === PriceRuleMethod.ORDER_THRESHOLD.toString()) {
     return [];
@@ -569,7 +553,7 @@ export const getEntilementValue = (
 
     // check không được để trống sản phẩm trong nhóm chiết khấu
     const checkEmpty = entitlements.some(
-      (e) => e.entitled_product_ids.length === 0 && e.entitled_variant_ids.length === 0
+      (e) => e.entitled_product_ids.length === 0 && e.entitled_variant_ids.length === 0,
     );
     if (checkEmpty) {
       throw new Error("Không được để trống sản phẩm trong nhóm chiết khấu");
@@ -609,13 +593,13 @@ export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC)
       starts_mmdd_key: startsBirthday
         ? Number(
             (startsBirthday.month() + 1).toString().padStart(2, "0") +
-              startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+              startsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
           )
         : null,
       ends_mmdd_key: endsBirthday
         ? Number(
             (endsBirthday.month() + 1).toString().padStart(2, "0") +
-              endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+              endsBirthday.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
           )
         : null,
     };
@@ -636,13 +620,13 @@ export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC)
       starts_mmdd_key: startsWeddingDays
         ? Number(
             (startsWeddingDays.month() + 1).toString().padStart(2, "0") +
-              startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+              startsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
           )
         : null,
       ends_mmdd_key: endsWeddingDays
         ? Number(
             (endsWeddingDays.month() + 1).toString().padStart(2, "0") +
-              endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0")
+              endsWeddingDays.format(DATE_FORMAT.DDMM).substring(0, 2).padStart(2, "0"),
           )
         : null,
     };
@@ -677,7 +661,7 @@ export const transformData = (values: any, priceRuleType = PROMO_TYPE.AUTOMATIC)
 export const handleChangeDiscountMethod = (
   value: PriceRuleMethod,
   form: FormInstance,
-  setDiscountMethod: (discountMethod: PriceRuleMethod) => void
+  setDiscountMethod: (discountMethod: PriceRuleMethod) => void,
 ) => {
   if (value) {
     setDiscountMethod(value);

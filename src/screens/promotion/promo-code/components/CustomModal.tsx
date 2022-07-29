@@ -3,7 +3,7 @@ import { Button, Col, Form, Input, Modal, Row } from "antd";
 import CloseIcon from "assets/icon/close.svg";
 import NumberInput from "component/custom/number-input.custom";
 import _ from "lodash";
-import {useCallback, useEffect, useLayoutEffect, useState} from "react";
+import { useCallback, useEffect, useLayoutEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { checkPromoCode } from "service/promotion/promo-code/promo-code.service";
 import { callApiNative } from "utils/ApiUtils";
@@ -21,7 +21,7 @@ type ModalProps = {
 };
 
 const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
-  const {type, title, visible, okText, cancelText, valueChange, onCancel, onOk} = props;
+  const { type, title, visible, okText, cancelText, valueChange, onCancel, onOk } = props;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
 
@@ -29,7 +29,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
   const [isSearching, setIsSearching] = useState<boolean>(false);
 
   useEffect(() => {
-    form.setFieldsValue({code: valueChange});
+    form.setFieldsValue({ code: valueChange });
   }, [valueChange, form]);
 
   const onCancelClick = useCallback(() => {
@@ -44,7 +44,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
     if (visible && form) {
       form.resetFields();
       setTimeout(() => {
-        form.setFieldsValue({listCode: [""]});
+        form.setFieldsValue({ listCode: [""] });
       }, 300);
     }
   }, [form, visible]);
@@ -71,41 +71,34 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
       .replace(/[^a-z0-9]/gi, "");
   }
 
-  function hasDuplicates(value:string, array: Array<any>) {
+  function hasDuplicates(value: string, array: Array<any>) {
     return array.filter((item) => item.toLowerCase() === value.toLowerCase()).length > 1;
   }
 
-   function checkCodeLocal(rule: any, value: string, callback: any) {
+  function checkCodeLocal(rule: any, value: string, callback: any) {
     const listCode = form.getFieldValue("listCode");
     console.log(listCode);
-    if(Array.isArray(listCode) && value && listCode.length>1 && hasDuplicates(value, listCode)) {
+    if (Array.isArray(listCode) && value && listCode.length > 1 && hasDuplicates(value, listCode)) {
       callback("Mã khuyến mãi đã tồn tại trong danh sách");
-    }else{
+    } else {
       callback();
     }
   }
 
- async function checkCodeOnline(value: string, name: number) {
-   form.validateFields();
-   setIsSearching(true);
-   const result = await callApiNative(
-     { isShowError: false },
-     dispatch,
-     checkPromoCode,
-     value
-   );
-   setIsSearching(false);
-   if (result) {
-     form.setFields([
-       { name: ["listCode", name], errors: ["Mã khuyến mãi đã tồn tại"] },
-     ]);
-     setIsFormInvalid(true);
-   } else {
-     form.setFields([{ name: ["listCode", name], errors: [] }]);
-     setIsFormInvalid(false);
-     console.log("object");
-   }
- }
+  async function checkCodeOnline(value: string, name: number) {
+    form.validateFields();
+    setIsSearching(true);
+    const result = await callApiNative({ isShowError: false }, dispatch, checkPromoCode, value);
+    setIsSearching(false);
+    if (result) {
+      form.setFields([{ name: ["listCode", name], errors: ["Mã khuyến mãi đã tồn tại"] }]);
+      setIsFormInvalid(true);
+    } else {
+      form.setFields([{ name: ["listCode", name], errors: [] }]);
+      setIsFormInvalid(false);
+      console.log("object");
+    }
+  }
 
   return (
     <Modal
@@ -118,7 +111,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
       cancelText={cancelText ? cancelText : "Không"}
       okButtonProps={{
         disabled: isFormInvalid,
-        loading: isSearching
+        loading: isSearching,
       }}
     >
       <Row gutter={24}>
@@ -128,13 +121,13 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
               form={form}
               name="discount_add"
               onFinish={onFinish}
-              initialValues={{code: valueChange}}
+              initialValues={{ code: valueChange }}
             >
               <Form.Item
                 name="code"
-                style={{marginBottom: 19}}
+                style={{ marginBottom: 19 }}
                 rules={[
-                  {required: true, message: "Cần nhập mã giảm giá"},
+                  { required: true, message: "Cần nhập mã giảm giá" },
                   () => ({
                     validator(rule, value) {
                       return new Promise((resolve, reject) => {
@@ -154,7 +147,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
               >
                 <Input
                   placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   maxLength={30}
                 />
               </Form.Item>
@@ -168,22 +161,25 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
               name="discount_add"
               onFinish={onFinish}
               layout="vertical"
-              initialValues={{listCode: []}}
+              initialValues={{ listCode: [] }}
             >
               <Form.List name="listCode">
-                {(fields, {add, remove}, {errors}) => {
+                {(fields, { add, remove }, { errors }) => {
                   return (
                     <>
-                      <p style={{fontWeight: 500, marginBottom: 10}}>Mã giảm giá</p>
-                      {fields.map(({key, name, fieldKey, ...restField}) => {
+                      <p style={{ fontWeight: 500, marginBottom: 10 }}>Mã giảm giá</p>
+                      {fields.map(({ key, name, fieldKey, ...restField }) => {
                         return (
                           <Form.Item
                             key={key}
                             name={name}
-                            style={{marginBottom: 19}}
+                            style={{ marginBottom: 19 }}
                             rules={[
-                              {required: true, message: "Cần nhập mã giảm giá"},
-                              ({getFieldValue}) => ({
+                              {
+                                required: true,
+                                message: "Cần nhập mã giảm giá",
+                              },
+                              ({ getFieldValue }) => ({
                                 // validator(rule, value, callback) {
                                 //   return new Promise((resolve, reject) => {
                                 //     const response = checkPromoCode(value);
@@ -204,14 +200,21 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                             <Input
                               className="modal-input"
                               placeholder="Nhập số và ký tự in hoa (tối đa 30 ký tự)"
-                              style={{width: "100%", textTransform: "uppercase"}}
+                              style={{
+                                width: "100%",
+                                textTransform: "uppercase",
+                              }}
                               maxLength={30}
                               autoFocus
-                              onChange={_.debounce((e:React.ChangeEvent<HTMLInputElement>)=>checkCodeOnline(e.target.value, name), 500)}
+                              onChange={_.debounce(
+                                (e: React.ChangeEvent<HTMLInputElement>) =>
+                                  checkCodeOnline(e.target.value, name),
+                                500,
+                              )}
                               suffix={
                                 <img
                                   src={CloseIcon}
-                                  style={{marginRight: 13}}
+                                  style={{ marginRight: 13 }}
                                   alt=""
                                   onClick={() => {
                                     form.validateFields();
@@ -227,7 +230,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                         type="link"
                         onClick={() => add()}
                         icon={<PlusOutlined />}
-                        style={{padding: "0 10px"}}
+                        style={{ padding: "0 10px" }}
                       >
                         Thêm mã khác
                       </Button>
@@ -258,12 +261,15 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                     name="count"
                     label="Số lượng mã giảm giá:"
                     rules={[
-                      {required: true, message: "Vui lòng nhập số lượng mã giảm giá"},
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số lượng mã giảm giá",
+                      },
                     ]}
                   >
                     <NumberInput
                       placeholder="Nhập số lượng mã"
-                      style={{textAlign: "left"}}
+                      style={{ textAlign: "left" }}
                       min={0}
                     />
                   </Form.Item>
@@ -272,7 +278,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                   <Form.Item
                     name="prefix"
                     label="Tiền tố:"
-                    normalize={(value) => nonAccentVietnamese(value)}                    
+                    normalize={(value) => nonAccentVietnamese(value)}
                   >
                     <Input placeholder="VD: YODY" maxLength={10} />
                   </Form.Item>
@@ -282,7 +288,10 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                     name="length"
                     label="Số kí tự ngẫu nhiên:"
                     rules={[
-                      {required: true, message: "Vui lòng nhập số kí tự ngẫu nhiên"},
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số kí tự ngẫu nhiên",
+                      },
                       () => ({
                         validator(rule, value) {
                           if (!value) return Promise.resolve();
@@ -297,7 +306,7 @@ const ModalAddCode: React.FC<ModalProps> = (props: ModalProps) => {
                   >
                     <NumberInput
                       placeholder="VD: 4"
-                      style={{textAlign: "left"}}
+                      style={{ textAlign: "left" }}
                       max={20}
                       min={4}
                     />

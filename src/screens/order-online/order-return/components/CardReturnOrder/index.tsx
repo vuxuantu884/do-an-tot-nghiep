@@ -1,6 +1,6 @@
-import {Card, Switch} from "antd";
+import { Card, Switch } from "antd";
 import React from "react";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   isDetailPage: boolean;
@@ -9,13 +9,13 @@ type PropType = {
   handleIsExchange?: (isExchange: boolean) => void;
 };
 function CardReturnOrder(props: PropType) {
-  const {isDetailPage, isExchange, handleIsExchange, isStepExchange} = props;
+  const { isDetailPage, isExchange, handleIsExchange, isStepExchange } = props;
   const renderCardExtra = () => {
     return (
       <React.Fragment>
         <Switch
           className="ant-switch-primary"
-          style={{marginRight: 20}}
+          style={{ marginRight: 20 }}
           disabled={isDetailPage || isStepExchange}
           defaultChecked={isDetailPage ? isExchange : false}
           onChange={(checked) => {

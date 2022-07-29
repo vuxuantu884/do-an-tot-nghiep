@@ -15,11 +15,9 @@ import {
 import { showError } from "utils/ToastUtils";
 
 function* searchSaga(action: YodyAction) {
-  let {  onResult } = action.payload;
+  let { onResult } = action.payload;
   try {
-    let response: BaseResponse<Array<DepartmentResponse>> = yield call(
-      departmentSearchApi,
-    );
+    let response: BaseResponse<Array<DepartmentResponse>> = yield call(departmentSearchApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -41,7 +39,7 @@ function* searchPagingSaga(action: YodyAction) {
   try {
     let response: BaseResponse<Array<DepartmentResponse>> = yield call(
       departmentSearchPagingApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -62,9 +60,7 @@ function* searchPagingSaga(action: YodyAction) {
 function* detailSaga(action: YodyAction) {
   let { id, onResult } = action.payload;
   try {
-    let response: BaseResponse<DepartmentResponse> = yield call(
-      departmentDetailApi, id,
-    );
+    let response: BaseResponse<DepartmentResponse> = yield call(departmentDetailApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -84,9 +80,7 @@ function* detailSaga(action: YodyAction) {
 function* createSaga(action: YodyAction) {
   let { request, onResult } = action.payload;
   try {
-    let response: BaseResponse<DepartmentResponse> = yield call(
-      departmentCreateApi, request,
-    );
+    let response: BaseResponse<DepartmentResponse> = yield call(departmentCreateApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -107,9 +101,7 @@ function* createSaga(action: YodyAction) {
 function* updateSaga(action: YodyAction) {
   let { id, request, onResult } = action.payload;
   try {
-    let response: BaseResponse<DepartmentResponse> = yield call(
-      departmentUpdateApi, id, request,
-    );
+    let response: BaseResponse<DepartmentResponse> = yield call(departmentUpdateApi, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -128,9 +120,9 @@ function* updateSaga(action: YodyAction) {
 }
 
 export function* departmentSaga() {
-  yield takeLatest(DepartmentType.SEARCH_DEPARTMENT, searchSaga)
-  yield takeLatest(DepartmentType.SEARCH_DEPARTMENT_PAGING, searchPagingSaga)
-  yield takeLatest(DepartmentType.DETAIL_DEPARTMENT, detailSaga)
-  yield takeLatest(DepartmentType.CREATE_DEPARTMENT, createSaga)
-  yield takeLatest(DepartmentType.UPDATE_DEPARTMENT, updateSaga)
+  yield takeLatest(DepartmentType.SEARCH_DEPARTMENT, searchSaga);
+  yield takeLatest(DepartmentType.SEARCH_DEPARTMENT_PAGING, searchPagingSaga);
+  yield takeLatest(DepartmentType.DETAIL_DEPARTMENT, detailSaga);
+  yield takeLatest(DepartmentType.CREATE_DEPARTMENT, createSaga);
+  yield takeLatest(DepartmentType.UPDATE_DEPARTMENT, updateSaga);
 }

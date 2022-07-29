@@ -12,9 +12,7 @@ type ContentContainerProps = {
   isLoading?: boolean;
 };
 
-const ContentContainer: React.FC<ContentContainerProps> = (
-  props: ContentContainerProps
-) => {
+const ContentContainer: React.FC<ContentContainerProps> = (props: ContentContainerProps) => {
   const history = useHistory();
   return (
     <React.Fragment>
@@ -35,11 +33,7 @@ const ContentContainer: React.FC<ContentContainerProps> = (
         />
       ) : (
         <React.Fragment>
-          <HeaderContainer
-            title={props.title}
-            breadcrumb={props.breadcrumb}
-            extra={props.extra}
-          />
+          <HeaderContainer title={props.title} breadcrumb={props.breadcrumb} extra={props.extra} />
           {props.isLoading ? (
             <Card>
               <Skeleton loading={true} />

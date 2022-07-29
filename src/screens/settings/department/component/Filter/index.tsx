@@ -11,8 +11,8 @@ import TreeDepartment from "component/tree-node/tree-department";
 import "./index.scss";
 
 const departmentStatus = [
-  { value: 'active', name: 'Đang hoạt động' },
-  { value: 'inactive', name: 'Ngừng hoạt động' },
+  { value: "active", name: "Đang hoạt động" },
+  { value: "inactive", name: "Ngừng hoạt động" },
 ];
 
 type DepartmentFilterProps = {
@@ -29,13 +29,7 @@ type DepartmentFilterProps = {
 const { Item } = Form;
 const { Option } = Select;
 const DepartmentFilter: React.FC<DepartmentFilterProps> = (props: DepartmentFilterProps) => {
-  const {
-    onFilter,
-    params,
-    onMenuClick,
-    listDepartment,
-    onClickOpen
-  } = props;
+  const { onFilter, params, onMenuClick, listDepartment, onClickOpen } = props;
   const [formAvd] = Form.useForm();
 
   const onFinish = useCallback(
@@ -45,14 +39,14 @@ const DepartmentFilter: React.FC<DepartmentFilterProps> = (props: DepartmentFilt
       }
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   useEffect(() => {
@@ -83,9 +77,11 @@ const DepartmentFilter: React.FC<DepartmentFilterProps> = (props: DepartmentFilt
           onFinish={onFinish}
           initialValues={{
             ...params,
-            department_ids: Array.isArray(params.department_ids) ?
-              params.department_ids : typeof params.department_ids === "string"
-                ? [params.department_ids] : [],
+            department_ids: Array.isArray(params.department_ids)
+              ? params.department_ids
+              : typeof params.department_ids === "string"
+              ? [params.department_ids]
+              : [],
           }}
         >
           <Form.Item
@@ -102,7 +98,11 @@ const DepartmentFilter: React.FC<DepartmentFilterProps> = (props: DepartmentFilt
               placeholder="Mã phòng ban, tên phòng ban, số điện thoại"
             />
           </Form.Item>
-          <Form.Item className="filter" name="department_ids" style={{ maxWidth: 310, minWidth: 250 }}>
+          <Form.Item
+            className="filter"
+            name="department_ids"
+            style={{ maxWidth: 310, minWidth: 250 }}
+          >
             <TreeDepartment
               placeholder="Phòng ban trực thuộc"
               listDepartment={listDepartment}
@@ -111,11 +111,7 @@ const DepartmentFilter: React.FC<DepartmentFilterProps> = (props: DepartmentFilt
             />
           </Form.Item>
           <Form.Item name="status" className="filter">
-            <CustomSelect
-              allowClear
-              showArrow
-              style={{ width: 180 }}
-              placeholder="Trạng thái">
+            <CustomSelect allowClear showArrow style={{ width: 180 }} placeholder="Trạng thái">
               {departmentStatus?.map((item) => (
                 <Option key={item.value} value={item.value}>
                   {item.name}

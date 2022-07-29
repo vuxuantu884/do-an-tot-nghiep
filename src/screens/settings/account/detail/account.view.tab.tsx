@@ -33,14 +33,12 @@ const JobColumn: Array<ColumnProps<Job>> = [
 
 function AccountViewTab() {
   const history = useHistory();
-  const listGender = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.gender
-  );
+  const listGender = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.gender);
   const detailContext = useContext(AccountDetailContext);
   const { accountInfo, userCode } = detailContext;
 
   const allowUpdateAcc = useAuthorization({
-    acceptPermissions: [AccountPermissions.UPDATE]
+    acceptPermissions: [AccountPermissions.UPDATE],
   });
 
   const stores = useMemo(() => {
@@ -72,7 +70,12 @@ function AccountViewTab() {
               <span className="account-title">Giới tính </span>
             </td>
             <td>
-              <b>: {accountInfo?.gender && listGender?.find(item=> item.value.toLocaleLowerCase() === accountInfo.gender)?.name} </b>
+              <b>
+                :{" "}
+                {accountInfo?.gender &&
+                  listGender?.find((item) => item.value.toLocaleLowerCase() === accountInfo.gender)
+                    ?.name}{" "}
+              </b>
             </td>
           </tr>
 
@@ -87,9 +90,7 @@ function AccountViewTab() {
               <span className="account-title">Ngày sinh </span>
             </td>
             <td>
-              <b>
-                : {ConvertUtcToLocalDate(accountInfo?.birthday, DATE_FORMAT.DDMMYYY)}{" "}
-              </b>
+              <b>: {ConvertUtcToLocalDate(accountInfo?.birthday, DATE_FORMAT.DDMMYYY)} </b>
             </td>
             <td>
               <span className="account-title">Khu vực </span>
@@ -121,7 +122,12 @@ function AccountViewTab() {
           <tr>
             <td>Cửa hàng</td>
             <td colSpan={5}>
-              <b>: <TextShowMore maxLength={500} splitCharactor=",">{stores}</TextShowMore></b>
+              <b>
+                :{" "}
+                <TextShowMore maxLength={500} splitCharactor=",">
+                  {stores}
+                </TextShowMore>
+              </b>
             </td>
           </tr>
         </tbody>
@@ -140,14 +146,11 @@ function AccountViewTab() {
         backAction={() => history.push(`${UrlConfig.ACCOUNTS}`)}
         rightComponent={
           <Space>
-            <Button
-              onClick={() => history.push(`${UrlConfig.ACCOUNTS}/${userCode}/update`)}
-            >
+            <Button onClick={() => history.push(`${UrlConfig.ACCOUNTS}/${userCode}/update`)}>
               <div style={{ display: "flex", alignItems: "center" }}>
                 {allowUpdateAcc ? (
                   <>
-                    <RiEditLine color="#757575" style={{ width: "15px" }} /> &nbsp; Chỉnh
-                    sửa
+                    <RiEditLine color="#757575" style={{ width: "15px" }} /> &nbsp; Chỉnh sửa
                   </>
                 ) : null}
               </div>

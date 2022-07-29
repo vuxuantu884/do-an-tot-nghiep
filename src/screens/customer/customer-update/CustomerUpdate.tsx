@@ -1,19 +1,13 @@
-import React, {createRef, useState} from "react";
+import React, { createRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
 
-import {
-  Form,
-  Button,
-  FormInstance,
-} from "antd";
+import { Form, Button, FormInstance } from "antd";
 
 import moment from "moment";
 import { showSuccess, showError } from "utils/ToastUtils";
 
-import {
-  AccountResponse,
-} from "model/account/account.model";
+import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { WardResponse } from "model/content/ward.model";
 import { CountryResponse } from "model/content/country.model";
@@ -38,7 +32,6 @@ import arrowBack from "assets/icon/arrow-back.svg";
 import { StyledCustomerInfo } from "screens/customer/customerStyled";
 import "screens/customer/customer.scss";
 
-
 const CustomerUpdate = (props: any) => {
   const params = useParams() as any;
   const [customerForm] = Form.useForm();
@@ -59,24 +52,20 @@ const CustomerUpdate = (props: any) => {
   const [status, setStatus] = React.useState<string>("active");
   const [regionCode, setRegionCode] = React.useState<string | null>(null);
 
-  const setDataAccounts = React.useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setAccounts(data.items);
-    },
-    []
-  );
+  const setDataAccounts = React.useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setAccounts(data.items);
+  }, []);
 
   const AccountChangeSearch = React.useCallback(
     (value) => {
-      dispatch(searchAccountPublicAction({condition: value}, setDataAccounts));
+      dispatch(searchAccountPublicAction({ condition: value }, setDataAccounts));
     },
-    [dispatch, setDataAccounts]
+    [dispatch, setDataAccounts],
   );
 
- 
   React.useEffect(() => {
     dispatch(DistrictGetByCountryAction(countryId, setAreas));
   }, [dispatch, countryId]);
@@ -124,16 +113,12 @@ const CustomerUpdate = (props: any) => {
   }, [dispatch, params]);
 
   React.useEffect(() => {
-    if (customer) { 
+    if (customer) {
       customerForm.setFieldsValue({
         ...customer,
         country_id: countryId,
-        birthday: customer.birthday
-          ? moment(customer.birthday)
-          : null,
-        wedding_date: customer.wedding_date
-          ? moment(customer.wedding_date)
-          : null,
+        birthday: customer.birthday ? moment(customer.birthday) : null,
+        wedding_date: customer.wedding_date ? moment(customer.wedding_date) : null,
       });
       setRegionCode(customer.region_code);
       setStatus(customer.status);
@@ -152,25 +137,23 @@ const CustomerUpdate = (props: any) => {
         history.goBack();
       }
     },
-    [history]
+    [history],
   );
 
   const handleSubmit = (values: any) => {
     const countrySelected = countries.find((country) => country.id === values.country_id);
     const area = areas.find((area) => area.id === values.district_id);
     const wardSelected = wards.find((item) => item.id === values.ward_id);
-    const staffSelected = accounts.find((account) => account.code === values.responsible_staff_code);
+    const staffSelected = accounts.find(
+      (account) => account.code === values.responsible_staff_code,
+    );
 
     values.full_name = values.full_name.trim();
     if (!values.full_name) return showError("Vui lòng nhập họ tên khách hàng");
     const processValue = {
       ...values,
-      birthday: values.birthday
-        ? new Date(values.birthday).toUTCString()
-        : null,
-      wedding_date: values.wedding_date
-        ? new Date(values.wedding_date).toUTCString()
-        : null,
+      birthday: values.birthday ? new Date(values.birthday).toUTCString() : null,
+      wedding_date: values.wedding_date ? new Date(values.wedding_date).toUTCString() : null,
       status: status,
       version: customer.version,
       country: countrySelected ? countrySelected.name : null,
@@ -200,14 +183,11 @@ const CustomerUpdate = (props: any) => {
     dispatch(UpdateCustomer(params.id, processValue, setResult));
   };
 
-  const handleSubmitFail = (errorInfo: any) => {
-  };
-  
+  const handleSubmitFail = (errorInfo: any) => {};
+
   return (
     <StyledCustomerInfo>
-      <ContentContainer
-        title="Sửa khách hàng"
-      >
+      <ContentContainer title="Sửa khách hàng">
         <Form
           form={customerForm}
           ref={formRef}
@@ -240,17 +220,13 @@ const CustomerUpdate = (props: any) => {
           />
 
           <div className="customer-info-footer">
-            <Button
-              disabled={isLoading}
-              type="text"
-              className="go-back-button"
-            >
-               <Link to="/customers">
+            <Button disabled={isLoading} type="text" className="go-back-button">
+              <Link to="/customers">
                 <img style={{ marginRight: "10px" }} src={arrowBack} alt="" />
                 Quay lại danh sách khách hàng
               </Link>
             </Button>
-            
+
             <div>
               <Button
                 disabled={isLoading}

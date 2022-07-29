@@ -27,7 +27,8 @@ function WarrantyCenterForm(props: PropTypes) {
       form={form}
       name="form-order-processing-status"
       layout="horizontal"
-      initialValues={initialFormValues}>
+      initialValues={initialFormValues}
+    >
       <Row gutter={30}>
         <Col span={12}>
           <Form.Item
@@ -40,7 +41,8 @@ function WarrantyCenterForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng nhập tên trung tâm bảo hành",
               },
-            ]}>
+            ]}
+          >
             <Input placeholder="Nhập tên trung tâm bảo hành" />
           </Form.Item>
           <Form.Item
@@ -57,7 +59,8 @@ function WarrantyCenterForm(props: PropTypes) {
                 pattern: RegUtil.PHONE,
                 message: "Số điện thoại chưa đúng định dạng",
               },
-            ]}>
+            ]}
+          >
             <Input placeholder="Nhập số điện thoại" />
           </Form.Item>
         </Col>
@@ -72,7 +75,8 @@ function WarrantyCenterForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng chọn tỉnh/TP",
               },
-            ]}>
+            ]}
+          >
             <CustomSelect
               showSearch
               placeholder="Chọn tỉnh/TP"
@@ -84,7 +88,8 @@ function WarrantyCenterForm(props: PropTypes) {
                 form.setFieldsValue({
                   district_id: undefined,
                 });
-              }}>
+              }}
+            >
               {cities?.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
                   {item.name}
@@ -102,7 +107,8 @@ function WarrantyCenterForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng chọn quận/huyện",
               },
-            ]}>
+            ]}
+          >
             <CustomSelect showSearch placeholder="Chọn quận/huyện" optionFilterProp="children">
               {districts?.map((item) => (
                 <Select.Option key={item.id} value={item.id}>
@@ -121,7 +127,8 @@ function WarrantyCenterForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng nhập địa chỉ",
               },
-            ]}>
+            ]}
+          >
             <Input placeholder="Nhập địa chỉ" />
           </Form.Item>
         </Col>

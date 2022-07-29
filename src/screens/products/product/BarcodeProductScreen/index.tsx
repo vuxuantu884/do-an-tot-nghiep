@@ -42,9 +42,7 @@ const BarcodeProductScreen: React.FC = () => {
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const [loadingButton, setLoadingButton] = useState<boolean>(false);
   const [visibleProduct, setVisibleProduct] = useState<boolean>(false);
-  const [dataSelected, setDataSelected] = useState<
-    Array<VariantBarcodeLineItem>
-  >([]);
+  const [dataSelected, setDataSelected] = useState<Array<VariantBarcodeLineItem>>([]);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
@@ -55,16 +53,13 @@ const BarcodeProductScreen: React.FC = () => {
     });
     return options;
   }, [data]);
-  const onResultSearch = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      if (!result) {
-        setData([]);
-      } else {
-        setData(result.items);
-      }
-    },
-    []
-  );
+  const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
+    if (!result) {
+      setData([]);
+    } else {
+      setData(result.items);
+    }
+  }, []);
   const onSearch = useCallback(
     (value: string) => {
       if (value.trim() !== "" && value.length >= 3) {
@@ -75,26 +70,29 @@ const BarcodeProductScreen: React.FC = () => {
               page: 1,
               info: value.trim(),
             },
-            onResultSearch
-          )
+            onResultSearch,
+          ),
         );
       } else {
         setData([]);
       }
     },
-    [dispatch, onResultSearch]
+    [dispatch, onResultSearch],
   );
 
-  const onResult = useCallback((data: string | false) => {
-    setLoadingButton(false);
-    if (!data) {
-    } else {
-      window.open(data);
-      setDataSelected([]);
-      showSuccess("Xuất excel thành công");
-      history.push(ProductTabUrl.STAMP_PRINTING_HISTORY);
-    }
-  }, [history]);
+  const onResult = useCallback(
+    (data: string | false) => {
+      setLoadingButton(false);
+      if (!data) {
+      } else {
+        window.open(data);
+        setDataSelected([]);
+        showSuccess("Xuất excel thành công");
+        history.push(ProductTabUrl.STAMP_PRINTING_HISTORY);
+      }
+    },
+    [history],
+  );
 
   const onInTemp = useCallback(() => {
     setLoadingButton(true);
@@ -115,9 +113,7 @@ const BarcodeProductScreen: React.FC = () => {
     (value: string) => {
       let index = data.findIndex((item) => item.id.toString() === value);
       if (index !== -1) {
-        let indexItem = dataSelected.findIndex(
-          (item) => item.id === data[index].id
-        );
+        let indexItem = dataSelected.findIndex((item) => item.id === data[index].id);
         if (indexItem === -1) {
           dataSelected.unshift({ ...data[index], quantity_req: 1 });
           setDataSelected([...dataSelected]);
@@ -125,12 +121,12 @@ const BarcodeProductScreen: React.FC = () => {
       }
       setData([]);
     },
-    [data, dataSelected]
+    [data, dataSelected],
   );
 
   useEffect(() => {
     if (state && state.selected) {
-      let dataSelect1: Array<VariantBarcodeLineItem> = []
+      let dataSelect1: Array<VariantBarcodeLineItem> = [];
       state.selected.forEach((item: VariantBarcodeLineItem) => {
         dataSelect1.push({ ...item, quantity_req: item?.quantity_req || 1 });
       });
@@ -170,7 +166,7 @@ const BarcodeProductScreen: React.FC = () => {
                 textAdd="Thêm mới sản phẩm"
                 onSelect={onSelectProduct}
                 options={renderResult}
-              // ref={productSearchRef}
+                // ref={productSearchRef}
               />
               <Button
                 className="button-pick-many"
@@ -218,13 +214,20 @@ const BarcodeProductScreen: React.FC = () => {
                   dataIndex: "variant_prices",
                   render: (value: Array<VariantPricesResponse>) => {
                     let price = Products.findPrice(value, AppConfig.currency);
-                    return price == null
-                      ? 0
-                      : formatCurrency(price?.retail_price);
+                    return price == null ? 0 : formatCurrency(price?.retail_price);
                   },
                 },
                 {
-                  title: <div> Số lượng tem<Tooltip title="SL tem in chia hết cho 3" > <InfoCircleOutlined /> </Tooltip></div>,
+                  title: (
+                    <div>
+                      {" "}
+                      Số lượng tem
+                      <Tooltip title="SL tem in chia hết cho 3">
+                        {" "}
+                        <InfoCircleOutlined />{" "}
+                      </Tooltip>
+                    </div>
+                  ),
                   dataIndex: "quantity_req",
                   width: 140,
                   render: (value: number, record, index) => {
@@ -273,13 +276,16 @@ const BarcodeProductScreen: React.FC = () => {
         onCancel={() => setVisibleProduct(false)}
         selected={dataSelected}
         onSave={(result: Array<VariantResponse>) => {
-          let dataSelect1: Array<VariantBarcodeLineItem> = []
+          let dataSelect1: Array<VariantBarcodeLineItem> = [];
           result.forEach((item: VariantResponse) => {
             let index = dataSelected.findIndex((item1) => item.id === item1.id);
             if (index === -1) {
               dataSelect1.unshift({ ...item, quantity_req: 1 });
             } else {
-              dataSelect1.unshift({ ...item, quantity_req: dataSelected[index].quantity_req });
+              dataSelect1.unshift({
+                ...item,
+                quantity_req: dataSelected[index].quantity_req,
+              });
             }
           });
           setDataSelected(dataSelect1);

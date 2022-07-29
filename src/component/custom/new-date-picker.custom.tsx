@@ -20,9 +20,7 @@ type CustomDatePickerProps = {
   id?: string;
 };
 
-const CustomDatePicker: React.FC<CustomDatePickerProps> = (
-  props: CustomDatePickerProps,
-) => {
+const CustomDatePicker: React.FC<CustomDatePickerProps> = (props: CustomDatePickerProps) => {
   const {
     value,
     onChange,

@@ -31,9 +31,9 @@ $desktop-width: 1400px;
 $black: #000000;
 $scoll-bar-table: 12px;
 $border-radius-scoll-bar-table: 12px;
-$link-color: #5656A2;
+$link-color: #5656a2;
 $link-color-hover: #1890ff;
-$dangerColor: #E24343;
+$dangerColor: #e24343;
 @mixin mobile {
   @media (max-width: #{$mobile-width}) {
     @content;

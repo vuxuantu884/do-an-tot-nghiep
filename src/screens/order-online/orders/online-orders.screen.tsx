@@ -17,9 +17,10 @@ function OrdersScreen(props: PropTypes) {
   const initChannelCodes = channels
     .map((single) => single.code)
     .filter((single) => {
-      return !ECOMMERCE_CHANNEL_CODES.map((code) =>
-        code.toLowerCase(),
-      ).includes(single.toLowerCase()) &&  single.toLowerCase() !==POS.channel_code.toLowerCase()
+      return (
+        !ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(single.toLowerCase()) &&
+        single.toLowerCase() !== POS.channel_code.toLowerCase()
+      );
     });
 
   const pageTitle = {
@@ -93,10 +94,10 @@ function OrdersScreen(props: PropTypes) {
       channel_codes: initChannelCodes,
       tracking_codes: [],
       searched_product: "",
-      discount_code:[],
-      in_goods_receipt:undefined,
-      is_expired_payment:null,
-      expired_at:null
+      discount_code: [],
+      in_goods_receipt: undefined,
+      is_expired_payment: null,
+      expired_at: null,
     };
   }, [initChannelCodes]);
 

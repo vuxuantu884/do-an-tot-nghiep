@@ -22,7 +22,8 @@ export const handleChangeMaterial = (material: MaterialResponse | false, form: F
     <p><br/></p>
     `;
     description = formatDescription;
-    form.setFieldsValue({ description: description, 
+    form.setFieldsValue({
+      description: description,
       material: material.name,
       component: material.component,
       advantages: material.advantages,
@@ -62,9 +63,8 @@ export const getFirstProductAvatarByVariantResponse = (variants: Array<VariantRe
 
     //set product avatar
     if (revertVariants[variantAvatarIndex].saleable)
-      revertVariants[variantAvatarIndex].variant_images[
-        FIRST_VARIANT_IMAGE_INDEX
-      ].product_avatar = true;
+      revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX].product_avatar =
+        true;
   }
 
   return revertVariants.reverse();
@@ -73,54 +73,59 @@ export const getFirstProductAvatarByVariantResponse = (variants: Array<VariantRe
 export const sizePriority: Array<SizePriority> = [
   {
     size: "XS",
-    priority: 1
+    priority: 1,
   },
   {
     size: "S",
-    priority: 2
+    priority: 2,
   },
   {
     size: "M",
-    priority: 3
+    priority: 3,
   },
   {
     size: "L",
-    priority: 4
+    priority: 4,
   },
   {
     size: "XL",
-    priority: 5
+    priority: 5,
   },
   {
     size: "2XL",
-    priority: 6
+    priority: 6,
   },
   {
     size: "3XL",
-    priority: 7
+    priority: 7,
   },
   {
     size: "4XL",
-    priority: 8
-  }
-]
+    priority: 8,
+  },
+];
 
 const compareSizeNumber = (a: number, b: number, sortTypeValue: number): number => {
   return (a - b) * sortTypeValue;
-}
+};
 
 const compareSizeStringAndNumber = (sortTypeValue: number): number => {
   /**
    * hiển thị size chữ rồi đến size số
    */
   return sortTypeValue * -1;
-}
+};
 
 const compareSizeNumberAndString = (sortTypeValue: number): number => {
-  return sortTypeValue
-}
+  return sortTypeValue;
+};
 
-export const sortSizeProduct = (firstSize: string | number, secondSize: string | number, sortType: "desc" | "asc", unknowSizePriority?: number): number => {
+export const sortSizeProduct = (
+  firstSize: string | number,
+  secondSize: string | number,
+  sortType: "desc" | "asc",
+  unknowSizePriority?: number,
+): number => {
   const sortTypeValue = sortType === "asc" ? 1 : -1;
   const unknowSizePriorityValue = typeof unknowSizePriority !== "number" ? 999 : unknowSizePriority; // size nào lạ thì ưu tiên cao hơn => đẩy về sau
   if (Number(firstSize) && Number(secondSize)) {
@@ -130,7 +135,7 @@ export const sortSizeProduct = (firstSize: string | number, secondSize: string |
   /**
    * case size : "m/l" "m-l" "10-11" "10/11"
    */
-  const regexMultisize = /\s*(?:-|\/)\s*/
+  const regexMultisize = /\s*(?:-|\/)\s*/;
   const firstSizesSplit = firstSize.toString().split(regexMultisize)[0];
   const secondSizeSplit = secondSize.toString().split(regexMultisize)[0];
 
@@ -147,16 +152,20 @@ export const sortSizeProduct = (firstSize: string | number, secondSize: string |
   }
 
   if (typeof firstSizesSplit === "string" && typeof secondSizeSplit === "string") {
-    const firstSizePriority = sizePriority.find(
-      (item: SizePriority) => item.size.toString().toLowerCase() === firstSizesSplit.toLowerCase()
-    )?.priority || unknowSizePriorityValue;
+    const firstSizePriority =
+      sizePriority.find(
+        (item: SizePriority) =>
+          item.size.toString().toLowerCase() === firstSizesSplit.toLowerCase(),
+      )?.priority || unknowSizePriorityValue;
 
-    const secondSizePriority = sizePriority.find(
-      (item: SizePriority) => item.size.toString().toLowerCase() === secondSizeSplit.toLowerCase()
-    )?.priority || unknowSizePriorityValue;
+    const secondSizePriority =
+      sizePriority.find(
+        (item: SizePriority) =>
+          item.size.toString().toLowerCase() === secondSizeSplit.toLowerCase(),
+      )?.priority || unknowSizePriorityValue;
 
     return (firstSizePriority - secondSizePriority) * sortTypeValue;
   }
 
   return 0;
-}
+};

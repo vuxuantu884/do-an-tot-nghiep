@@ -35,9 +35,7 @@ const reasons = [
 ];
 //
 
-const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
-  props: DeleteTicketModalProps
-) => {
+const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (props: DeleteTicketModalProps) => {
   const {
     visible,
     onCancel,
@@ -48,7 +46,7 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
     cancelText,
     textStore,
     loading,
-    isMultiple = false
+    isMultiple = false,
   } = props;
 
   const [deleteTicketForm] = Form.useForm();
@@ -58,10 +56,7 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
 
   const onFinish = useCallback(
     (data) => {
-
-      const choses_reason = reasons.find(
-        (element) => element.value === data.reason
-      );
+      const choses_reason = reasons.find((element) => element.value === data.reason);
 
       switch (data.reason) {
         case 4:
@@ -77,7 +72,7 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
           break;
       }
     },
-    [onOk]
+    [onOk],
   );
 
   return (
@@ -101,13 +96,7 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
               <div>
                 <h3>{title}</h3>
                 {!isMultiple && (
-                  <div
-                    style={
-                      title
-                        ? { fontWeight: 400 }
-                        : { fontWeight: 600, fontSize: 16 }
-                    }
-                  >
+                  <div style={title ? { fontWeight: 400 } : { fontWeight: 600, fontSize: 16 }}>
                     <div>Thao tác này sẽ tính toán lại tồn kho {textStore}</div>
                     <div>Thao tác này không thể hoàn tác.</div>
                   </div>
@@ -127,10 +116,7 @@ const DeleteTicketModal: React.FC<DeleteTicketModalProps> = (
               <Form.Item noStyle hidden name="note">
                 <Input />
               </Form.Item>
-              <div
-                className="orders-cancel-option"
-                style={{ margin: 0, padding: 0 }}
-              >
+              <div className="orders-cancel-option" style={{ margin: 0, padding: 0 }}>
                 <Item
                   label="Lý do hủy:"
                   name="reason"

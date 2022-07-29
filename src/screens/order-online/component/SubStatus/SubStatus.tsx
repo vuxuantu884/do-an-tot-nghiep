@@ -39,7 +39,8 @@ function SubStatus(props: PropTypes): JSX.Element {
                   style={{
                     marginRight: "10px",
                     color: "#222222",
-                  }}>
+                  }}
+                >
                   Mã vận đơn:
                 </span>
                 <Typography.Link
@@ -48,32 +49,34 @@ function SubStatus(props: PropTypes): JSX.Element {
                     color: "#2A2A86",
                     fontWeight: 500,
                     fontSize: 16,
-                  }}>
+                  }}
+                >
                   {TrackingCode(record)}
                 </Typography.Link>
                 <div
                   style={{
                     width: 30,
                     padding: "0 4px",
-                  }}>
-                    <Tooltip title="Click để copy">
-                      <img
-                        onClick={(e) => {
-                          copyTextToClipboard(e, TrackingCode(record)!);
-                          showSuccess("Đã copy mã vận đơn!");
-                        }}
-                        src={copyFileBtn}
-                        alt=""
-                        style={{ width: 23 }}
-                      />
-
-                    </Tooltip>
+                  }}
+                >
+                  <Tooltip title="Click để copy">
+                    <img
+                      onClick={(e) => {
+                        copyTextToClipboard(e, TrackingCode(record)!);
+                        showSuccess("Đã copy mã vận đơn!");
+                      }}
+                      src={copyFileBtn}
+                      alt=""
+                      style={{ width: 23 }}
+                    />
+                  </Tooltip>
                 </div>
               </Col>
             </Row>
           }
           key="1"
-          className="custom-css-collapse">
+          className="custom-css-collapse"
+        >
           <Collapse
             className="orders-timeline"
             expandIcon={({ isActive }) => (
@@ -87,7 +90,8 @@ function SubStatus(props: PropTypes): JSX.Element {
               />
             )}
             ghost
-            defaultActiveKey={["0"]}>
+            defaultActiveKey={["0"]}
+          >
             {trackingLogFulfillment?.map((item, index) => (
               <Collapse.Panel
                 className={`orders-timeline-custom orders-dot-status ${
@@ -99,19 +103,19 @@ function SubStatus(props: PropTypes): JSX.Element {
                       style={{
                         paddingLeft: "14px",
                         color: "#222222",
-                      }}>
+                      }}
+                    >
                       {item.shipping_status ? item.shipping_status : item.partner_note}
                     </b>
-                    <i
-                      className="icon-dot"
-                      ></i>{" "}
+                    <i className="icon-dot"></i>{" "}
                     <span style={{ color: "#737373" }}>
                       {moment(item.created_date).format("DD/MM/YYYY HH:mm")}
                     </span>
                   </React.Fragment>
                 }
                 key={index}
-                showArrow={false}></Collapse.Panel>
+                showArrow={false}
+              ></Collapse.Panel>
             ))}
           </Collapse>
         </Collapse.Panel>

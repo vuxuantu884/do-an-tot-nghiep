@@ -21,18 +21,26 @@ import { OrderSyncStyle, StyledStatus } from "./style";
 import { getParamsFromQuery } from "utils/useQuery";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderModel } from "model/order/order.model";
-import { getSourceListAction, getOrderMappingListAction, downloadWebAppOrderAction, syncWebAppOrderAction } from "domain/actions/web-app/web-app.actions";
+import {
+  getSourceListAction,
+  getOrderMappingListAction,
+  downloadWebAppOrderAction,
+  syncWebAppOrderAction,
+} from "domain/actions/web-app/web-app.actions";
 import { SourceResponse } from "model/response/order/source.response";
 import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { ConvertDateToUtc, ConvertUtcToLocalDate } from "utils/DateUtils";
-import { EcommerceOrderPermission, EcommerceProductPermission } from "config/permissions/ecommerce.permission";
+import {
+  EcommerceOrderPermission,
+  EcommerceProductPermission,
+} from "config/permissions/ecommerce.permission";
 import ProgressDownloadModal from "./ProcessDownloadModal";
 import { getProgressDownloadEcommerceApi } from "service/web-app/web-app.service";
 import ConflictDownloadModal from "../components/ConflictDownloadModal";
 
 import { OrderStatus } from "utils/Order.constants";
-import checkIcon from "assets/icon/CheckIcon.svg"
-import stopIcon from "assets/icon/Stop.svg"
+import checkIcon from "assets/icon/CheckIcon.svg";
+import stopIcon from "assets/icon/Stop.svg";
 
 const OrdersSync = () => {
   const dispatch = useDispatch();
@@ -76,20 +84,18 @@ const OrdersSync = () => {
     ecommerce_order_statuses: [],
     shop_ids: [],
     source_id: null,
-    source_ids: []
+    source_ids: [],
   };
   let queryParams: WebAppGetOrdersMappingQuery = {
     ...initQuery,
-    ...getParamsFromQuery(queryParamsParsed,initQuery),
+    ...getParamsFromQuery(queryParamsParsed, initQuery),
   };
   const [params, setParams] = useState<WebAppGetOrdersMappingQuery>(queryParams);
   const sourceListRef = useRef<Array<SourceResponse>>([]);
 
   //permission
   const orderDownloadPermisson = [EcommerceOrderPermission.orders_download];
-  const productsUpdateStockPermission = [
-    EcommerceProductPermission.products_update_stock,
-  ];
+  const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
   const [allowProductsUpdateStock] = useAuthorization({
     acceptPermissions: productsUpdateStockPermission,
     not: false,
@@ -114,34 +120,36 @@ const OrdersSync = () => {
       default:
         return "";
     }
-  }
+  };
 
   const convertDateTimeFormat = (dateTimeData: any) => {
     const formatDateTime = "DD/MM/YYYY HH:mm:ss";
     const timeCreate = ConvertUtcToLocalDate(dateTimeData, formatDateTime);
-    const dateCreate = timeCreate.split(" ")[0]
-    const hourCreate = timeCreate.split(" ")[1]
+    const dateCreate = timeCreate.split(" ")[0];
+    const hourCreate = timeCreate.split(" ")[1];
     return (
       <div>
         <div>{dateCreate}</div>
         <div>{hourCreate}</div>
       </div>
-    )
+    );
   };
 
   //get source list
   useEffect(() => {
     const getSourceList = () => {
-      dispatch(getSourceListAction((result: Array<SourceResponse>) => {
-        if (result) {
-          setSourceList(result);
-          sourceListRef.current = result;
-        }
-      }))
-    }
+      dispatch(
+        getSourceListAction((result: Array<SourceResponse>) => {
+          if (result) {
+            setSourceList(result);
+            sourceListRef.current = result;
+          }
+        }),
+      );
+    };
     getSourceList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, []);
   const getSourceNameById = (id: number) => {
     let result = "";
     if (sourceListRef) {
@@ -151,24 +159,25 @@ const OrdersSync = () => {
       }
     }
     return result;
-  }
+  };
 
   //handle download order
   const handleDownloadOrder = (params: any) => {
-    dispatch(downloadWebAppOrderAction(params, (data: any) => {
-      if (data) {
-        setIsShowGetOrderModal(false);
-        if (typeof data === "string") {
-          setIsShowConflictModal(true)
+    dispatch(
+      downloadWebAppOrderAction(params, (data: any) => {
+        if (data) {
+          setIsShowGetOrderModal(false);
+          if (typeof data === "string") {
+            setIsShowConflictModal(true);
+          } else {
+            setProcessId(data.process_id);
+            setIsShowProcessDownloadModal(true);
+            setIsDownloading(true);
+          }
         }
-        else {
-          setProcessId(data.process_id);
-          setIsShowProcessDownloadModal(true);
-          setIsDownloading(true);
-        }
-      }
-    }));
-  }
+      }),
+    );
+  };
 
   const handleSingleDownloadOrder = (rowData: any) => {
     const request = {
@@ -191,24 +200,30 @@ const OrdersSync = () => {
             setIsDownloading(true);
           }
         }
-      })
+      }),
     );
-  }
+  };
 
   const resetProgress = () => {
     setProcessId(null);
     setProgressPercent(0);
     setProgressData(null);
-  }
+  };
 
   const getProcessDownloadOrder = () => {
-    let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
+    let getProgressPromises: Promise<BaseResponse<any>> =
+      getProgressDownloadEcommerceApi(processId);
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(response.data.total)
+        ) {
           const processData = response.data;
           setProgressData(processData);
-          const progressCount = processData.total_created + processData.total_updated + processData.total_error;
+          const progressCount =
+            processData.total_created + processData.total_updated + processData.total_error;
           if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
@@ -221,13 +236,13 @@ const OrdersSync = () => {
               showError(processData.api_error);
             }
           } else {
-            const percent = Math.floor(progressCount / processData.total * 100);
+            const percent = Math.floor((progressCount / processData.total) * 100);
             setProgressPercent(percent);
           }
         }
       });
     });
-  }
+  };
 
   useEffect(() => {
     if (progressPercent === 100 || !processId) {
@@ -242,22 +257,26 @@ const OrdersSync = () => {
     getOrderSyncList();
     setIsShowProcessDownloadModal(false);
     resetProgress();
-  }
+  };
 
   //clear filter
   const handClearFilter = () => {
     setParams(initQuery);
     history.push(`${location.pathname}`);
-  }
+  };
 
   //handle filter
   const handleFilter = (value: any) => {
     let newParams = { ...params, ...value, page: 1 };
     if (newParams.created_date_from != null) {
-        newParams.created_date_from = moment(newParams.created_date_from, "DD-MM-YYYY").format("DD-MM-YYYY");
+      newParams.created_date_from = moment(newParams.created_date_from, "DD-MM-YYYY").format(
+        "DD-MM-YYYY",
+      );
     }
     if (newParams.created_date_to != null) {
-        newParams.created_date_to = moment(newParams.created_date_to, "DD-MM-YYYY").format("DD-MM-YYYY");
+      newParams.created_date_to = moment(newParams.created_date_to, "DD-MM-YYYY").format(
+        "DD-MM-YYYY",
+      );
     }
     let queryParam = generateQuery(params);
     let newQueryParam = generateQuery(newParams);
@@ -265,7 +284,7 @@ const OrdersSync = () => {
       setParams(newParams);
       history.push(`${location.pathname}?${newQueryParam}`);
     }
-  }
+  };
 
   //handle download single
   const handleDownloadOrderSelected = () => {
@@ -292,10 +311,10 @@ const OrdersSync = () => {
               setIsDownloading(true);
             }
           }
-        })
+        }),
       );
     }
-  }
+  };
 
   //handle change page
   const handleChangePage = (page: any, limit: any) => {
@@ -304,7 +323,7 @@ const OrdersSync = () => {
     window.scrollTo(0, 0);
     let queryParam = generateQuery(newParams);
     history.push(`${location.pathname}?${queryParam}`);
-  }
+  };
 
   //handle select row table
   const handleSelectRowTable = (rows: any) => {
@@ -315,23 +334,27 @@ const OrdersSync = () => {
       setIsSelectedRow(true);
     }
     setSelectedRows(newSelectedRow);
-  }
+  };
 
   //get data
   const getOrderSyncList = () => {
     setIsLoading(true);
-    const newParam = {...queryParams}
-    newParam.created_date_from = newParam.created_date_from ? moment(newParam.created_date_from, "DD-MM-YYYY").utc(true).format() : null
-    newParam.created_date_to = newParam.created_date_to ? moment(newParam.created_date_to, "DD-MM-YYYY").utc(true).format() : null
+    const newParam = { ...queryParams };
+    newParam.created_date_from = newParam.created_date_from
+      ? moment(newParam.created_date_from, "DD-MM-YYYY").utc(true).format()
+      : null;
+    newParam.created_date_to = newParam.created_date_to
+      ? moment(newParam.created_date_to, "DD-MM-YYYY").utc(true).format()
+      : null;
     dispatch(
       getOrderMappingListAction(newParam, (result) => {
         setIsLoading(false);
         if (!!result) {
           setData(result);
         }
-      })
+      }),
     );
-  }
+  };
   useEffect(() => {
     getOrderSyncList();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -357,7 +380,7 @@ const OrdersSync = () => {
       width: "10%",
       align: "center",
       render: (item) => (
-        <div >
+        <div>
           <span style={{ textAlign: "left" }}>{item}</span>
         </div>
       ),
@@ -370,9 +393,7 @@ const OrdersSync = () => {
       width: "250px",
       render: (shop: string) => (
         <div className="shop-show-style" style={{ textAlign: "left", minWidth: "150px" }}>
-          <Tooltip title={shop}>
-            {shop.length > 35 ? shop.substring(0,30) + "..." : shop}
-          </Tooltip>
+          <Tooltip title={shop}>{shop.length > 35 ? shop.substring(0, 30) + "..." : shop}</Tooltip>
         </div>
       ),
     },
@@ -414,14 +435,11 @@ const OrdersSync = () => {
             {value === "connected" && (
               <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
             )}
-            {
-              value !== "connected" && (
-                <Tooltip title={item.error_description}>
-                  <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-                </Tooltip>
-
-              )
-            }
+            {value !== "connected" && (
+              <Tooltip title={item.error_description}>
+                <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
+              </Tooltip>
+            )}
           </div>
         );
       },
@@ -436,7 +454,6 @@ const OrdersSync = () => {
         <div style={{ textAlign: "center" }}>
           <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
         </div>
-
       ),
     },
     {
@@ -449,7 +466,7 @@ const OrdersSync = () => {
       {
         onClick: handleSingleDownloadOrder,
         actionName: "Đồng bộ đơn hàng",
-      }
+      },
     ]),
   ]);
 
@@ -468,7 +485,7 @@ const OrdersSync = () => {
         ]}
         extra={
           <>
-            {allowOrdersDownload &&
+            {allowOrdersDownload && (
               <Button
                 onClick={() => setIsShowGetOrderModal(true)}
                 className="ant-btn-outline ant-btn-primary"
@@ -477,7 +494,7 @@ const OrdersSync = () => {
               >
                 Tải đơn hàng
               </Button>
-            }
+            )}
           </>
         }
       >
@@ -504,13 +521,13 @@ const OrdersSync = () => {
               isLoading
                 ? false
                 : {
-                  pageSize: data.metadata.limit,
-                  total: data.metadata.total,
-                  current: data.metadata.page,
-                  showSizeChanger: true,
-                  onChange: handleChangePage,
-                  onShowSizeChange: handleChangePage,
-                }
+                    pageSize: data.metadata.limit,
+                    total: data.metadata.total,
+                    current: data.metadata.page,
+                    showSizeChanger: true,
+                    onChange: handleChangePage,
+                    onShowSizeChange: handleChangePage,
+                  }
             }
             onSelectedChange={handleSelectRowTable}
             dataSource={data.items}
@@ -535,15 +552,15 @@ const OrdersSync = () => {
             isDownloading={isDownloading}
           />
         )}
-        {isShowConflictModal &&
+        {isShowConflictModal && (
           <ConflictDownloadModal
             visible={isShowConflictModal}
             onCancel={() => setIsShowConflictModal(false)}
             onOk={() => setIsShowConflictModal(false)}
           />
-        }
+        )}
       </ContentContainer>
     </OrderSyncStyle>
-  )
-}
+  );
+};
 export default OrdersSync;

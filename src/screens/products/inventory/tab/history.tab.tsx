@@ -16,7 +16,7 @@ import { showWarning } from "utils/ToastUtils";
 import { getQueryParams } from "utils/useQuery";
 import InventoryHisExport from "../component/InventoryHisExport";
 import HistoryInventoryFilter from "../filter/history.filter";
-import * as XLSX from 'xlsx';
+import * as XLSX from "xlsx";
 import moment from "moment";
 import { callApiNative } from "utils/ApiUtils";
 import { inventoryGetHistoryApi } from "service/inventory";
@@ -33,11 +33,11 @@ enum DocumentType {
 let firstLoad = true;
 
 const HistoryTab: React.FC<any> = (props) => {
-  const { stores,vExportProduct,setVExportProduct } = props;
+  const { stores, vExportProduct, setVExportProduct } = props;
   const history = useHistory();
   const query = new URLSearchParams(history.location.hash.substring(2));
   const dispatch = useDispatch();
-  const [totalItems,setTotalItems] = useState<number>(0)
+  const [totalItems, setTotalItems] = useState<number>(0);
 
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<HistoryInventoryResponse>>({
@@ -61,35 +61,30 @@ const HistoryTab: React.FC<any> = (props) => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      history.replace(
-        `${InventoryTabUrl.HISTORIES}?${queryParam}`
-      );
+      history.replace(`${InventoryTabUrl.HISTORIES}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
-  const onResult = useCallback(
-    (result: PageResponse<HistoryInventoryResponse> | false) => {
-      setLoading(false);
-      if (result) {
-        setData(result);
-        if (firstLoad) {
-          setTotalItems(result.metadata.total);
-        }
-        firstLoad = false;
-        return;
+  const onResult = useCallback((result: PageResponse<HistoryInventoryResponse> | false) => {
+    setLoading(false);
+    if (result) {
+      setData(result);
+      if (firstLoad) {
+        setTotalItems(result.metadata.total);
       }
+      firstLoad = false;
+      return;
+    }
 
-      setData({
-        metadata: {
-          limit: 30,
-          page: 1,
-          total: 0,
-        },
-        items: [],
-      });
-    },
-    []
-  );
+    setData({
+      metadata: {
+        limit: 30,
+        page: 1,
+        total: 0,
+      },
+      items: [],
+    });
+  }, []);
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
@@ -97,11 +92,9 @@ const HistoryTab: React.FC<any> = (props) => {
       let queryParam = generateQuery(params);
       setPrams({ ...params });
 
-      history.replace(
-        `${InventoryTabUrl.HISTORIES}?${queryParam}`
-      );
+      history.replace(`${InventoryTabUrl.HISTORIES}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
   const getUrlByDocumentType = (type: string) => {
@@ -117,35 +110,33 @@ const HistoryTab: React.FC<any> = (props) => {
         return UrlConfig.INVENTORY_TRANSFERS;
       case DocumentType.INVENTORY_ADJUSTMENT:
         return UrlConfig.INVENTORY_ADJUSTMENTS;
-        default:
-          return type;
+      default:
+        return type;
     }
   };
   const [selected, setSelected] = useState<Array<HistoryInventoryResponse>>([]);
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<HistoryInventoryResponse>>
-  >([]);
-  const ActionComponent = useChangeHeaderToAction(
-    "Sản phẩm",
-    selected.length > 0,
-    () => {},
-    []
-  );
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<HistoryInventoryResponse>>>([]);
+  const ActionComponent = useChangeHeaderToAction("Sản phẩm", selected.length > 0, () => {}, []);
 
-  const ellipName = (str: string|undefined)=>{
+  const ellipName = (str: string | undefined) => {
     if (!str) {
       return "";
     }
-    let strName = (str.trim());
-        strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
-          : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
-            : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
-    return strName
-  }
+    let strName = str.trim();
+    strName =
+      window.screen.width >= 1920
+        ? splitEllipsis(strName, 100, 30)
+        : window.screen.width >= 1600
+        ? (strName = splitEllipsis(strName, 60, 30))
+        : window.screen.width >= 1366
+        ? (strName = splitEllipsis(strName, 47, 30))
+        : strName;
+    return strName;
+  };
 
   const convertDocumentType = (type: string) => {
     const documentFiltered = documentTypes.filter((item) => item.value === type);
-    return documentFiltered.length > 0 ? documentFiltered[0].name : '';
+    return documentFiltered.length > 0 ? documentFiltered[0].name : "";
   };
 
   const defaultColumns: Array<ICustomTableColumType<HistoryInventoryResponse>> = [
@@ -156,14 +147,14 @@ const HistoryTab: React.FC<any> = (props) => {
       fixed: "left",
       render: (value, record, index) => {
         let strName = ellipName(record.name);
-       return  <div>
-          <Link
-            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
-          >
-            {value}
-          </Link>
-          <div>{strName}</div>
-        </div>
+        return (
+          <div>
+            <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}>
+              {value}
+            </Link>
+            <div>{strName}</div>
+          </div>
+        );
       },
     },
     {
@@ -179,9 +170,7 @@ const HistoryTab: React.FC<any> = (props) => {
 
         return (
           <div>
-            <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>
-              {value}
-            </Link>
+            <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>{value}</Link>
           </div>
         );
       },
@@ -192,11 +181,7 @@ const HistoryTab: React.FC<any> = (props) => {
       width: 150,
       dataIndex: "document_type",
       render: (value) => {
-        return (
-          <div>
-            {convertDocumentType(value)}
-          </div>
-        );
+        return <div>{convertDocumentType(value)}</div>;
       },
     },
     {
@@ -221,13 +206,13 @@ const HistoryTab: React.FC<any> = (props) => {
       dataIndex: "quantity",
       render: (value) => {
         let newValue = parseInt(value),
-              text: string = formatCurrency(newValue,".");
+          text: string = formatCurrency(newValue, ".");
 
         if (newValue && parseInt(value) > 0) {
           text = `+${text}`;
         }
         return text;
-      }
+      },
     },
     {
       width: 115,
@@ -235,7 +220,7 @@ const HistoryTab: React.FC<any> = (props) => {
       title: "Tồn trong kho",
       visible: true,
       dataIndex: "on_hand",
-      render: (value) => formatCurrency(value,".")
+      render: (value) => formatCurrency(value, "."),
     },
     {
       width: 250,
@@ -247,30 +232,28 @@ const HistoryTab: React.FC<any> = (props) => {
       width: 240,
       title: "Người sửa",
       visible: true,
-      render: (item: HistoryInventoryResponse)=>{
+      render: (item: HistoryInventoryResponse) => {
         return (
           <>
-           {item.account_code ?
-            <div>
-                <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}>
-                  {item.account}
-                </Link>
-            </div> : ""}
+            {item.account_code ? (
+              <div>
+                <Link to={`${UrlConfig.ACCOUNTS}/${item.account_code}`}>{item.account}</Link>
+              </div>
+            ) : (
+              ""
+            )}
           </>
         );
-      }
+      },
     },
   ];
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const onSelect = useCallback((selectedRow: Array<HistoryInventoryResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
 
@@ -278,18 +261,18 @@ const HistoryTab: React.FC<any> = (props) => {
     setColumn(defaultColumns);
     const search = new URLSearchParams(history.location.search);
     if (search) {
-      let condition = search.get('condition');
+      let condition = search.get("condition");
       condition = condition && condition.trim();
-      const store_ids = search.get('store_ids');
-      const document_type = search.get('document_type');
+      const store_ids = search.get("store_ids");
+      const document_type = search.get("document_type");
       setPrams({
         ...params,
         condition: condition ?? "",
-        store_ids: store_ids ? store_ids.split(',').map(Number) : [],
+        store_ids: store_ids ? store_ids.split(",").map(Number) : [],
         document_type: document_type ? document_type : null,
       });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selected, history.location.search]);
 
   const convertItemExport = (item: HistoryInventoryResponse) => {
@@ -304,52 +287,70 @@ const HistoryTab: React.FC<any> = (props) => {
       [`Kho hàng`]: item.store,
       [`Người sửa`]: item.account,
     };
-  }
+  };
 
-  const getItemsByCondition = useCallback(async (type: string) => {
-    let res: any;
-    let items: Array<HistoryInventoryResponse> = [];
-    const limit = 50;
-    let times = 0;
-    switch (type) {
-      case TYPE_EXPORT.page:
-        res = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, params);
-        items = res.items;
-        break;
-      case TYPE_EXPORT.selected:
-        items = selected;
-        break;
-      case TYPE_EXPORT.all:
-       const roundAll = Math.round(data.metadata.total / limit);
-       times = roundAll < (data.metadata.total / limit) ? roundAll + 1 : roundAll;
-
-        for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport");
-          if (output) output.innerHTML=items.length.toString();
-
-          const res1 = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, {...params,page: index,limit:limit});
-          items= items.concat(res1.items);
-        }
-        break;
-      case TYPE_EXPORT.allin:
-        if (!totalItems || totalItems===0) {
+  const getItemsByCondition = useCallback(
+    async (type: string) => {
+      let res: any;
+      let items: Array<HistoryInventoryResponse> = [];
+      const limit = 50;
+      let times = 0;
+      switch (type) {
+        case TYPE_EXPORT.page:
+          res = await callApiNative(
+            { isShowLoading: true },
+            dispatch,
+            inventoryGetHistoryApi,
+            params,
+          );
+          items = res.items;
           break;
-        }
-        const roundAllin = Math.round(totalItems / limit);
-        times = roundAllin < (totalItems / limit) ? roundAllin + 1 : roundAllin;
-        for (let index = 1; index <= times; index++) {
-          const output = document.getElementById("processExport");
-          if (output) output.innerHTML=items.length.toString();
+        case TYPE_EXPORT.selected:
+          items = selected;
+          break;
+        case TYPE_EXPORT.all:
+          const roundAll = Math.round(data.metadata.total / limit);
+          times = roundAll < data.metadata.total / limit ? roundAll + 1 : roundAll;
 
-          const res1 = await callApiNative({ isShowLoading: true }, dispatch, inventoryGetHistoryApi, {...params,page: index,limit:limit});
-          items= items.concat(res1.items);
-        }
-        break;
-      default:
-        break;
-    }
-    return items;
-  },[dispatch,selected,params,data,totalItems])
+          for (let index = 1; index <= times; index++) {
+            const output = document.getElementById("processExport");
+            if (output) output.innerHTML = items.length.toString();
+
+            const res1 = await callApiNative(
+              { isShowLoading: true },
+              dispatch,
+              inventoryGetHistoryApi,
+              { ...params, page: index, limit: limit },
+            );
+            items = items.concat(res1.items);
+          }
+          break;
+        case TYPE_EXPORT.allin:
+          if (!totalItems || totalItems === 0) {
+            break;
+          }
+          const roundAllin = Math.round(totalItems / limit);
+          times = roundAllin < totalItems / limit ? roundAllin + 1 : roundAllin;
+          for (let index = 1; index <= times; index++) {
+            const output = document.getElementById("processExport");
+            if (output) output.innerHTML = items.length.toString();
+
+            const res1 = await callApiNative(
+              { isShowLoading: true },
+              dispatch,
+              inventoryGetHistoryApi,
+              { ...params, page: index, limit: limit },
+            );
+            items = items.concat(res1.items);
+          }
+          break;
+        default:
+          break;
+      }
+      return items;
+    },
+    [dispatch, selected, params, data, totalItems],
+  );
 
   const actionExport = {
     Ok: async (typeExport: string) => {
@@ -374,14 +375,18 @@ const HistoryTab: React.FC<any> = (props) => {
       let worksheet = XLSX.utils.json_to_sheet(dataExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "data");
-      const today = moment(new Date(), 'YYYY/MM/DD');
+      const today = moment(new Date(), "YYYY/MM/DD");
 
-      const fileType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8';
-      const month = today.format('M');
-      const day   = today.format('D');
-      const year  = today.format('YYYY');
+      const fileType =
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+      const month = today.format("M");
+      const day = today.format("D");
+      const year = today.format("YYYY");
       //XLSX.writeFile(workbook, `inventory_history_${day}_${month}_${year}.xlsx`);
-      const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'array' });
+      const excelBuffer = XLSX.write(workbook, {
+        bookType: "xlsx",
+        type: "array",
+      });
       const data = new Blob([excelBuffer], { type: fileType });
       FileSaver.saveAs(data, `inventory_history_${day}_${month}_${year}.xlsx`);
       setVExportProduct(false);
@@ -389,12 +394,12 @@ const HistoryTab: React.FC<any> = (props) => {
     Cancel: () => {
       setVExportProduct(false);
     },
-  }
+  };
 
   useEffect(() => {
     setLoading(true);
     dispatch(inventoryGetHistoryAction(params, onResult));
-  }, [dispatch, onResult, params])
+  }, [dispatch, onResult, params]);
 
   return (
     <div>
@@ -403,7 +408,7 @@ const HistoryTab: React.FC<any> = (props) => {
         onFilter={onFilter}
         params={params}
         actions={[]}
-        onClearFilter={() => { }}
+        onClearFilter={() => {}}
         listStore={stores}
       />
       <CustomTable
@@ -435,13 +440,13 @@ const HistoryTab: React.FC<any> = (props) => {
         }}
         data={columns}
       />
-     <InventoryHisExport
+      <InventoryHisExport
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportProduct}
       />
     </div>
-  )
-}
+  );
+};
 
 export default HistoryTab;

@@ -3,7 +3,8 @@ import {
   Card,
   Checkbox,
   Col,
-  DatePicker, Form,
+  DatePicker,
+  Form,
   Input,
   InputNumber,
   Row,
@@ -11,7 +12,7 @@ import {
   Space,
   Switch,
   Table,
-  TimePicker
+  TimePicker,
 } from "antd";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import CustomInput from "component/custom/custom-input";
@@ -39,12 +40,7 @@ const TimeRangePicker = TimePicker.RangePicker;
 const Option = Select.Option;
 
 const GeneralCreate = (props: any) => {
-  const {
-    form,
-    listStore,
-    listSource,
-    listChannel,
-  } = props;
+  const { form, listStore, listSource, listChannel } = props;
 
   const dispatch = useDispatch();
 
@@ -79,16 +75,13 @@ const GeneralCreate = (props: any) => {
     return days;
   };
 
-  const onResultSearch = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      if (!result) {
-        setData([]);
-      } else {
-        setData(result.items);
-      }
-    },
-    [],
-  );
+  const onResultSearch = useCallback((result: PageResponse<VariantResponse> | false) => {
+    if (!result) {
+      setData([]);
+    } else {
+      setData(result.items);
+    }
+  }, []);
 
   const onSearch = useCallback(
     (value: string) => {
@@ -113,7 +106,7 @@ const GeneralCreate = (props: any) => {
 
   const onSelectProduct = useCallback(
     (value) => {
-      const selectedItem = data.find(e => e.id === Number(value));
+      const selectedItem = data.find((e) => e.id === Number(value));
       const checkExist = selectedProduct.some((e) => e.id === value);
       if (checkExist) {
         showError("Sản phẩm đã được chọn!");
@@ -135,41 +128,46 @@ const GeneralCreate = (props: any) => {
     [selectedProduct],
   );
 
-
-
   useEffect(() => {
     let entitlements: any[] = [];
-    selectedProduct && selectedProduct.forEach((item) => {
-      entitlements.push({
-        entitled_variant_ids: [item.id],
-        entitled_category_ids: null,
-        prerequisite_quantity_ranges: [{
-          greater_than_or_equal_to: null,
-          less_than_or_equal_to: null,
-          allocation_limit: null,
-          value_type: "",
-          value: 0,
-        }],
-        prerequisite_subtotal_ranges: null,
+    selectedProduct &&
+      selectedProduct.forEach((item) => {
+        entitlements.push({
+          entitled_variant_ids: [item.id],
+          entitled_category_ids: null,
+          prerequisite_quantity_ranges: [
+            {
+              greater_than_or_equal_to: null,
+              less_than_or_equal_to: null,
+              allocation_limit: null,
+              value_type: "",
+              value: 0,
+            },
+          ],
+          prerequisite_subtotal_ranges: null,
+        });
       });
-    });
     form.setFieldsValue({ entitlements: entitlements });
   }, [form, selectedProduct]);
 
   useEffect(() => {
     if (isAllProduct) {
-      let entitlements = [{
-        entitled_variant_ids: null,
-        entitled_category_ids: null,
-        prerequisite_quantity_ranges: [{
-          greater_than_or_equal_to: null,
-          less_than_or_equal_to: null,
-          allocation_limit: null,
-          value_type: "",
-          value: 0,
-        }],
-        prerequisite_subtotal_ranges: null,
-      }];
+      let entitlements = [
+        {
+          entitled_variant_ids: null,
+          entitled_category_ids: null,
+          prerequisite_quantity_ranges: [
+            {
+              greater_than_or_equal_to: null,
+              less_than_or_equal_to: null,
+              allocation_limit: null,
+              value_type: "",
+              value: 0,
+            },
+          ],
+          prerequisite_subtotal_ranges: null,
+        },
+      ];
       form.setFieldsValue({ entitlements: entitlements });
     }
   }, [form, isAllProduct]);
@@ -186,7 +184,6 @@ const GeneralCreate = (props: any) => {
           }
         >
           <Row gutter={30} style={{ padding: "0px 16px" }}>
-
             <Col span={12}>
               <CustomInput
                 name="title"
@@ -234,14 +231,12 @@ const GeneralCreate = (props: any) => {
                   showSearch
                   allowClear
                   filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
-                    0
+                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
                   }
                 >
                   <Option key="SALE_CODE" value={"SALE_CODE"}>
                     Mã giảm giá
                   </Option>
-
                 </Select>
               </Form.Item>
             </Col>
@@ -257,10 +252,7 @@ const GeneralCreate = (props: any) => {
         >
           <Row gutter={30} style={{ padding: "0px 16px" }}>
             <Col span={12}>
-              <Form.Item
-                label="Đơn hàng có giá trị từ:"
-                name={"prerequisite_subtotal_range_min"}
-              >
+              <Form.Item label="Đơn hàng có giá trị từ:" name={"prerequisite_subtotal_range_min"}>
                 <InputNumber
                   style={{
                     textAlign: "right",
@@ -322,97 +314,96 @@ const GeneralCreate = (props: any) => {
                 </Col>
                 <Col span={24}>
                   <Form.Item name="entitlements">
-                    {!isAllProduct && <Table
-                      className="product-table"
-                      rowKey={(record) => record.id}
-                      rowClassName="product-table-row"
-                      columns={[
-                        {
-                          title: "Sản phẩm",
-                          className: "ant-col-info",
-                          dataIndex: "variant",
-                          align: "left",
-                          width: "40%",
-                          render: (value: string, item, index: number) => {
-                            return (
-                              <div>
+                    {!isAllProduct && (
+                      <Table
+                        className="product-table"
+                        rowKey={(record) => record.id}
+                        rowClassName="product-table-row"
+                        columns={[
+                          {
+                            title: "Sản phẩm",
+                            className: "ant-col-info",
+                            dataIndex: "variant",
+                            align: "left",
+                            width: "40%",
+                            render: (value: string, item, index: number) => {
+                              return (
                                 <div>
-                                  <div className="product-item-sku">
-                                    <Link
-                                      target="_blank"
-                                      to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`}
-                                    >
-                                      {item.sku}
-                                    </Link>
-                                  </div>
-                                  <div className="product-item-name">
-                                    <span className="product-item-name-detail">
-                                      {item.name}
-                                    </span>
+                                  <div>
+                                    <div className="product-item-sku">
+                                      <Link
+                                        target="_blank"
+                                        to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.id}`}
+                                      >
+                                        {item.sku}
+                                      </Link>
+                                    </div>
+                                    <div className="product-item-name">
+                                      <span className="product-item-name-detail">{item.name}</span>
+                                    </div>
                                   </div>
                                 </div>
-                              </div>
-                            );
+                              );
+                            },
                           },
-                        },
-                        {
-                          title: "Số lượng tối thiểu",
-                          className: "ant-col-info",
-                          align: "center",
-                          width: "10%",
-                          render: (value: string, item, index: number) => {
-                            return (
-                              <div>
-                                <Form.Item
-                                  name={index + `min_value`}
-                                  rules={[
-                                    {
-                                      required: true,
-                                      message: "Cần nhập số lượng tối thiếu",
-                                    },
-                                  ]}
-                                >
-                                  <NumberInput
-                                    onChange={(value) => {
-                                      if (selectedProduct) {
-                                        let entitlementFields =
-                                          form.getFieldValue("entitlements");
-                                        let entitlement = entitlementFields.find(
-                                          (ele: any) =>
-                                            ele.entitled_variant_ids.includes(item.id)
-                                        );
-                                        entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to =
-                                          value;
-                                        form.setFieldsValue({
-                                          entitlements: entitlementFields,
-                                        });
-                                      }
-                                    }}
-                                  />
-                                </Form.Item>
-                              </div>
-                            );
+                          {
+                            title: "Số lượng tối thiểu",
+                            className: "ant-col-info",
+                            align: "center",
+                            width: "10%",
+                            render: (value: string, item, index: number) => {
+                              return (
+                                <div>
+                                  <Form.Item
+                                    name={index + `min_value`}
+                                    rules={[
+                                      {
+                                        required: true,
+                                        message: "Cần nhập số lượng tối thiếu",
+                                      },
+                                    ]}
+                                  >
+                                    <NumberInput
+                                      onChange={(value) => {
+                                        if (selectedProduct) {
+                                          let entitlementFields =
+                                            form.getFieldValue("entitlements");
+                                          let entitlement = entitlementFields.find((ele: any) =>
+                                            ele.entitled_variant_ids.includes(item.id),
+                                          );
+                                          entitlement.prerequisite_quantity_ranges[0].greater_than_or_equal_to =
+                                            value;
+                                          form.setFieldsValue({
+                                            entitlements: entitlementFields,
+                                          });
+                                        }
+                                      }}
+                                    />
+                                  </Form.Item>
+                                </div>
+                              );
+                            },
                           },
-                        },
-                        {
-                          className: "ant-col-info",
-                          align: "right",
-                          width: "10%",
-                          render: (value: string, item, index: number) => (
-                            <Row justify={"center"}>
-                              <CloseOutlined
-                                onClick={() => onDeleteItem(index)}
-                                className="product-item-delete"
-                                style={{ fontSize: "22px" }}
-                              />
-                            </Row>
-                          ),
-                        },
-                      ]}
-                      dataSource={selectedProduct}
-                      tableLayout="fixed"
-                      pagination={false}
-                    />}
+                          {
+                            className: "ant-col-info",
+                            align: "right",
+                            width: "10%",
+                            render: (value: string, item, index: number) => (
+                              <Row justify={"center"}>
+                                <CloseOutlined
+                                  onClick={() => onDeleteItem(index)}
+                                  className="product-item-delete"
+                                  style={{ fontSize: "22px" }}
+                                />
+                              </Row>
+                            ),
+                          },
+                        ]}
+                        dataSource={selectedProduct}
+                        tableLayout="fixed"
+                        pagination={false}
+                      />
+                    )}
                   </Form.Item>
                 </Col>
               </>
@@ -424,16 +415,23 @@ const GeneralCreate = (props: any) => {
       <Col span={6}>
         <CustomerContitionFormlStyle>
           {/* Thời gian áp dụng: */}
-          <Card title={
-            <span>
-              Thời gian áp dụng <span className="required-field">*</span>
-            </span>
-          }>
+          <Card
+            title={
+              <span>
+                Thời gian áp dụng <span className="required-field">*</span>
+              </span>
+            }
+          >
             <Row gutter={6}>
               <Col span={12}>
                 <Form.Item
                   name="starts_date"
-                  rules={[{ required: true, message: "Vui lòng chọn thời gian áp dụng" }]}
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn thời gian áp dụng",
+                    },
+                  ]}
                 >
                   <DatePicker
                     style={{ width: "100%" }}
@@ -466,8 +464,6 @@ const GeneralCreate = (props: any) => {
                   />
                 </Form.Item>
               </Col>
-
-
             </Row>
             {showTimeAdvance ? (
               <Row gutter={12} style={{ padding: "0px 16px" }}>
@@ -529,9 +525,17 @@ const GeneralCreate = (props: any) => {
           </Card>
           {/* Cửa hàng áp dụng: */}
           <Card title="Cửa hàng áp dụng">
-            <Row gutter={12} >
+            <Row gutter={12}>
               <Col span={24}>
-                <Form.Item name="prerequisite_store_ids" rules={[{ required: !allStore, message: "Vui lòng chọn cửa hàng áp dụng" }]}>
+                <Form.Item
+                  name="prerequisite_store_ids"
+                  rules={[
+                    {
+                      required: !allStore,
+                      message: "Vui lòng chọn cửa hàng áp dụng",
+                    },
+                  ]}
+                >
                   <TreeStore
                     form={form}
                     name="prerequisite_store_ids"
@@ -564,7 +568,10 @@ const GeneralCreate = (props: any) => {
                 <Form.Item
                   name="prerequisite_sales_channel_names"
                   rules={[
-                    { required: !allChannel, message: "Vui lòng chọn kênh bán hàng áp dụng" },
+                    {
+                      required: !allChannel,
+                      message: "Vui lòng chọn kênh bán hàng áp dụng",
+                    },
                   ]}
                 >
                   <Select
@@ -575,8 +582,7 @@ const GeneralCreate = (props: any) => {
                     showSearch
                     allowClear
                     filterOption={(input, option) =>
-                      option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
-                      0
+                      option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
                     }
                   >
                     {listChannel?.map((store: any, index: number) => (
@@ -601,12 +607,15 @@ const GeneralCreate = (props: any) => {
           </Card>
           {/* Nguồn đơn hàng áp dụng: */}
           <Card title="Nguồn đơn hàng áp dụng">
-            <Row gutter={12} >
+            <Row gutter={12}>
               <Col span={24}>
                 <Form.Item
                   name="prerequisite_order_source_ids"
                   rules={[
-                    { required: !allSource, message: "Vui lòng chọn nguồn bán hàng áp dụng" },
+                    {
+                      required: !allSource,
+                      message: "Vui lòng chọn nguồn bán hàng áp dụng",
+                    },
                   ]}
                 >
                   <Select
@@ -617,8 +626,7 @@ const GeneralCreate = (props: any) => {
                     showSearch
                     allowClear
                     filterOption={(input, option) =>
-                      option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
-                      0
+                      option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
                     }
                   >
                     {listSource?.map((source: any, index: number) => (
@@ -650,6 +658,6 @@ const GeneralCreate = (props: any) => {
       </Col>
     </Row>
   );
-}
+};
 
 export default GeneralCreate;

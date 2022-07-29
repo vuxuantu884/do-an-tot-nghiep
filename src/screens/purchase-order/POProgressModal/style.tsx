@@ -1,8 +1,6 @@
 import styled from "styled-components";
 
-export const StyledWrapper = styled.div`
- 
-`;
+export const StyledWrapper = styled.div``;
 
 export const POProgressWrapper = styled.div`
   .status {
@@ -21,7 +19,7 @@ export const POProgressWrapper = styled.div`
 
     & .content {
       padding: 10px 15px;
-      background-color: #F5F5F5;
+      background-color: #f5f5f5;
 
       ul {
         list-style: none;

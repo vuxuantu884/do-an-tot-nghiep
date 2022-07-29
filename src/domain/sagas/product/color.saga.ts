@@ -20,10 +20,7 @@ import { unauthorizedAction } from "domain/actions/auth/auth.action";
 function* searchColorSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(
-      colorSearchApi,
-      query
-    );
+    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
@@ -44,10 +41,7 @@ function* searchColorSaga(action: YodyAction) {
 function* getListColorSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(
-      colorSearchApi,
-      query
-    );
+    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
@@ -70,10 +64,7 @@ function* getListColorSaga(action: YodyAction) {
 function* getColorSaga(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(
-      colorSearchApi,
-      query
-    );
+    let response: BaseResponse<PageResponse<ColorResponse>> = yield call(colorSearchApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
@@ -134,10 +125,7 @@ function* deleteManyColorSaga(action: YodyAction) {
 export function* colorCreateSaga(action: YodyAction) {
   const { request, createCallback } = action.payload;
   try {
-    let response: BaseResponse<ColorResponse> = yield call(
-      colorCreateApi,
-      request
-    );
+    let response: BaseResponse<ColorResponse> = yield call(colorCreateApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         createCallback(response.data);
@@ -160,11 +148,7 @@ export function* colorCreateSaga(action: YodyAction) {
 export function* colorUpdateSaga(action: YodyAction) {
   const { id, request, onCreateSuccess } = action.payload;
   try {
-    let response: BaseResponse<string> = yield call(
-      colorUpdateApi,
-      id,
-      request
-    );
+    let response: BaseResponse<string> = yield call(colorUpdateApi, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess();

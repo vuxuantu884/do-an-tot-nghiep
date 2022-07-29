@@ -1,5 +1,5 @@
-import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import NumberFormat from "react-number-format";
 import {
@@ -17,16 +17,12 @@ import {
   Modal,
 } from "antd";
 
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { useQuery } from "utils/useQuery";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 
-import {
-  getCustomerListAction,
-} from "domain/actions/customer/customer.action";
+import { getCustomerListAction } from "domain/actions/customer/customer.action";
 import {
   createCustomerPointAdjustmentAction,
   getImportCodeCustomerAdjustmentAction,
@@ -50,20 +46,19 @@ import { StyledFooterAction } from "screens/customer/common/CommonStyled";
 import { UploadOutlined } from "@ant-design/icons";
 import ImportCustomerIntoAdjustmentFile from "../import-file/importCustomerIntoAdjustment";
 
-import { getImportCodeCustomerAdjustmentRequest, } from 'model/request/loyalty/loyalty.request';
+import { getImportCodeCustomerAdjustmentRequest } from "model/request/loyalty/loyalty.request";
 
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import BaseResponse from "base/base.response";
-import {HttpStatus} from "config/http-status.config";
-import {handleDelayActionWhenInsertTextInSearchInput, isNullOrUndefined} from "utils/AppUtils";
-import {EnumJobStatus} from "config/enum.config";
-import {getInfoAdjustmentByJobService} from "service/loyalty/loyalty.service";
+import { HttpStatus } from "config/http-status.config";
+import { handleDelayActionWhenInsertTextInSearchInput, isNullOrUndefined } from "utils/AppUtils";
+import { EnumJobStatus } from "config/enum.config";
+import { getInfoAdjustmentByJobService } from "service/loyalty/loyalty.service";
 import NumberInput from "component/custom/number-input.custom";
-import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 
 import deleteIcon from "assets/icon/deleteIcon.svg";
 import excelIcon from "assets/icon/icon-excel.svg";
-
 
 const { Item } = Form;
 const POINT_ADD_REASON = [
@@ -86,33 +81,32 @@ const CreatePointAdjustment = () => {
   const paramCustomerIds = query.get("customer_ids");
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const {account} = userReducer;
-  
+  const { account } = userReducer;
+
   const formRef = createRef<FormInstance>();
   const dispatch = useDispatch();
 
   const autoCompleteRefCustomer = useRef<any>(null);
-  
+
   const [customers, setCustomers] = useState<CustomerResponse[]>([]);
   const [selectedCustomers, setSelectedCustomers] = useState<any[]>([]);
   const [type, setType] = useState<string>(query.get("type") as any);
   const [isSearchingCustomer, setIsSearchingCustomer] = useState(false);
   const [keySearchCustomer, setKeySearchCustomer] = useState("");
   const [fieldName, setFieldName] = useState<string>("");
-  
+
   const [pointAdjustmentId, setPointAdjustmentId] = useState<number | null>(null);
   const [isVisibleErrorModal, setIsVisibleErrorModal] = useState<boolean>(false);
   const [errorData, setErrorData] = useState<Array<any>>([]);
-  
+
   const initFormValues = {
     type: type,
     reason: "Khác",
     value_change: null,
     note: null,
     search: "",
-    name: ""
+    name: "",
   };
-
 
   const callBackGetCustomerList = useCallback((result: PageResponse<any> | false) => {
     if (!!result) {
@@ -127,19 +121,18 @@ const CreatePointAdjustment = () => {
         page: 1,
         limit: customerIds.length,
         ids: customerIds,
-        search_type: "SIMPLE"
-      }
-      
+        search_type: "SIMPLE",
+      };
+
       dispatch(getCustomerListAction(params, callBackGetCustomerList));
     }
   }, [callBackGetCustomerList, dispatch, paramCustomerIds]);
 
-
   const handleRemoveCustomer = (customer: any) => {
-    const newSelectedCustomers = selectedCustomers.filter(item => item.id !== customer.id);
+    const newSelectedCustomers = selectedCustomers.filter((item) => item.id !== customer.id);
     setSelectedCustomers(newSelectedCustomers);
   };
-  
+
   const columns: Array<ICustomTableColumType<any>> = [
     {
       title: "STT",
@@ -169,14 +162,8 @@ const CreatePointAdjustment = () => {
       visible: true,
       dataIndex: "point",
       align: "center",
-      render: (value: any) => (
-        value ?
-        <NumberFormat
-          value={value}
-          displayType={"text"}
-          thousandSeparator={true}
-        /> : 0
-      ),
+      render: (value: any) =>
+        value ? <NumberFormat value={value} displayType={"text"} thousandSeparator={true} /> : 0,
     },
     {
       width: "60px",
@@ -191,7 +178,7 @@ const CreatePointAdjustment = () => {
             />
           </StyledComponent>
         );
-      }
+      },
     },
   ];
 
@@ -201,23 +188,23 @@ const CreatePointAdjustment = () => {
       setCustomers(data.items);
     }
   }, []);
-  
+
   const customerChangeSearch = useCallback(
     (value) => {
       setKeySearchCustomer(value);
-      if(value.length >= 3) {
+      if (value.length >= 3) {
         setIsSearchingCustomer(true);
       } else {
         setIsSearchingCustomer(false);
       }
-      
+
       let query: any = { request: value.trim() };
       const handleSearch = () => {
         dispatch(getCustomerListAction(query, updateCustomerList));
       };
       handleDelayActionWhenInsertTextInSearchInput(autoCompleteRefCustomer, () => handleSearch());
     },
-    [dispatch, updateCustomerList]
+    [dispatch, updateCustomerList],
   );
 
   const transformCustomers = useMemo(() => {
@@ -234,7 +221,7 @@ const CreatePointAdjustment = () => {
     const customer = option?.customer;
     if (customer) {
       const newSelectedCustomers = [...selectedCustomers];
-      const isExistCustomer = newSelectedCustomers.find(item => item.id === customer.id);
+      const isExistCustomer = newSelectedCustomers.find((item) => item.id === customer.id);
       if (isExistCustomer) {
         showWarning("Khách hàng đã được chọn!");
       } else {
@@ -243,7 +230,7 @@ const CreatePointAdjustment = () => {
             customer.point = data ? data.point : 0;
             newSelectedCustomers.unshift(customer);
             setSelectedCustomers(newSelectedCustomers);
-          })
+          }),
         );
       }
     }
@@ -259,7 +246,7 @@ const CreatePointAdjustment = () => {
       setSelectedCustomers([]);
       setPointAdjustmentId(data?.id);
       if (data?.total_error > 0) {
-        const errorList = data.errors_msg?.split("\n")
+        const errorList = data.errors_msg?.split("\n");
         const errorListValid = errorList?.filter((item: any) => item !== "");
         setErrorData(errorListValid);
         setIsVisibleErrorModal(true);
@@ -268,7 +255,7 @@ const CreatePointAdjustment = () => {
         goToPointAdjustmentDetail();
       }
     },
-    [formRef, goToPointAdjustmentDetail]
+    [formRef, goToPointAdjustmentDetail],
   );
 
   const onChangeName = (e: any) => {
@@ -283,7 +270,6 @@ const CreatePointAdjustment = () => {
     });
   };
 
-
   const onChangeType = useCallback(
     (value: string) => {
       setType(value);
@@ -291,15 +277,14 @@ const CreatePointAdjustment = () => {
         reason: "Khác",
       });
     },
-    [formRef]
+    [formRef],
   );
 
-  
   const goBack = () => {
     if (paramCustomerIds?.length) {
-      history.replace(`${UrlConfig.CUSTOMER}`)
+      history.replace(`${UrlConfig.CUSTOMER}`);
     } else {
-      history.replace(`${UrlConfig.CUSTOMER2}-adjustments`)
+      history.replace(`${UrlConfig.CUSTOMER2}-adjustments`);
     }
   };
 
@@ -312,7 +297,6 @@ const CreatePointAdjustment = () => {
   const [importProgressPercent, setImportProgressPercent] = useState<number>(0);
   const [isDownloading, setIsDownloading] = useState<boolean>(false);
 
-
   const handleJobCodeResponse = (data: any) => {
     if (data) {
       setImportCustomerAdjustmentCode(data.code);
@@ -321,25 +305,25 @@ const CreatePointAdjustment = () => {
     } else {
       showError("Có lỗi tải lên file tạo phiếu điều chỉnh. Vui lòng thử lại sau!");
     }
-  }
+  };
 
   // import modal
   const openImportFileModal = () => {
     setIsVisibleImportModal(true);
-  }
+  };
 
   const onOkImportModal = () => {
     setIsVisibleImportModal(false);
-  }
+  };
 
   const onCancelImportModal = () => {
     setIsVisibleImportModal(false);
-  }
+  };
   // end import modal
 
   const handleRemoveFileImportCustomerAdjustment = () => {
     setFileImportCustomerAdjustment([]);
-  }
+  };
 
   //-- end handle import customer adjustment --/
 
@@ -360,10 +344,12 @@ const CreatePointAdjustment = () => {
           reason: values.reason,
           created_by: account?.code || "",
           created_name: account?.full_name || "",
-        }
-        dispatch(getImportCodeCustomerAdjustmentAction(paramsByImportCustomer, handleJobCodeResponse))
+        };
+        dispatch(
+          getImportCodeCustomerAdjustmentAction(paramsByImportCustomer, handleJobCodeResponse),
+        );
       } else {
-        const customerIds = selectedCustomers.map(customer => customer.id);
+        const customerIds = selectedCustomers.map((customer) => customer.id);
         const params = {
           customer_ids: customerIds,
           note: values.note,
@@ -371,21 +357,30 @@ const CreatePointAdjustment = () => {
           value_change: values.value_change,
           type: values.type,
           name: values.name,
-        }
+        };
         dispatch(createCustomerPointAdjustmentAction(params, onUpdateEnd));
       }
     },
-    [account?.code, account?.full_name, dispatch, fileImportCustomerAdjustment, onUpdateEnd, selectedCustomers]
+    [
+      account?.code,
+      account?.full_name,
+      dispatch,
+      fileImportCustomerAdjustment,
+      onUpdateEnd,
+      selectedCustomers,
+    ],
   );
 
   const checkDisableCreateButton = useCallback(() => {
-    return !fieldName || (selectedCustomers.length === 0 && fileImportCustomerAdjustment.length === 0);
+    return (
+      !fieldName || (selectedCustomers.length === 0 && fileImportCustomerAdjustment.length === 0)
+    );
   }, [fieldName, fileImportCustomerAdjustment.length, selectedCustomers.length]);
 
   //handle create adjustment
   const handleCreateAdjustment = () => {
     formRef.current?.submit();
-  }
+  };
   //--end handle create adjustment --//
 
   // handle process import file
@@ -393,29 +388,38 @@ const CreatePointAdjustment = () => {
     setImportCustomerAdjustmentCode(null);
     setImportProgressPercent(0);
     setProgressData(null);
-  }
+  };
 
   const onOKProgressModal = () => {
     resetProgress();
     setIsVisibleProgressModal(false);
-  }
+  };
 
   const getProgressImportFile = useCallback(() => {
-    let getImportProgressPromise: Promise<BaseResponse<any>> = getInfoAdjustmentByJobService(importCustomerAdjustmentCode);
+    let getImportProgressPromise: Promise<BaseResponse<any>> = getInfoAdjustmentByJobService(
+      importCustomerAdjustmentCode,
+    );
     Promise.all([getImportProgressPromise]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data && !isNullOrUndefined(response.data.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(response.data.total)
+        ) {
           const processData = response.data;
           setProgressData(processData);
-          
+
           const progressCount = processData.processed;
-          if (progressCount >= processData.total || processData.status.toUpperCase() === EnumJobStatus.finish) {
+          if (
+            progressCount >= processData.total ||
+            processData.status.toUpperCase() === EnumJobStatus.finish
+          ) {
             setImportProgressPercent(100);
             setImportCustomerAdjustmentCode(null);
             setIsDownloading(false);
             showSuccess("Hoàn thành tạo mới phiếu điều chỉnh từ file tải lên!");
           } else {
-            const percent = Math.floor(progressCount / processData.total * 100);
+            const percent = Math.floor((progressCount / processData.total) * 100);
             setImportProgressPercent(percent);
           }
         }
@@ -432,7 +436,7 @@ const CreatePointAdjustment = () => {
     return () => clearInterval(getFileInterval);
   }, [getProgressImportFile, importCustomerAdjustmentCode, importProgressPercent]);
   // end handle process import file
-  
+
   return (
     <StyledCreatePointAdjustment>
       <ContentContainer
@@ -453,10 +457,9 @@ const CreatePointAdjustment = () => {
         extra={<></>}
       >
         <AuthWrapper acceptPermissions={createPointAdjustmentPermission} passThrough>
-            {(allowed: boolean) => (allowed ?
-              <Card
-                title="THÔNG TIN ĐIỀU CHỈNH"
-              >
+          {(allowed: boolean) =>
+            allowed ? (
+              <Card title="THÔNG TIN ĐIỀU CHỈNH">
                 <div className="create-point-adjustments">
                   <Form
                     onFinish={onFinish}
@@ -511,20 +514,20 @@ const CreatePointAdjustment = () => {
                               style={{ width: "100%" }}
                               onChange={onChangeType}
                             >
-                             <Select.Option key="ADD_POINT" value="ADD_POINT">
-                              Tặng điểm tích lũy
+                              <Select.Option key="ADD_POINT" value="ADD_POINT">
+                                Tặng điểm tích lũy
                               </Select.Option>
-                            
+
                               <Select.Option key="SUBTRACT_POINT" value="SUBTRACT_POINT">
-                              Trừ điểm tích lũy
+                                Trừ điểm tích lũy
                               </Select.Option>
-                            
+
                               <Select.Option key="ADD_MONEY" value="ADD_MONEY">
-                              Tặng tiền tích lũy
+                                Tặng tiền tích lũy
                               </Select.Option>
-                            
+
                               <Select.Option key="SUBTRACT_MONEY" value="SUBTRACT_MONEY">
-                              Trừ tiền tích lũy
+                                Trừ tiền tích lũy
                               </Select.Option>
                             </Select>
                           </Item>
@@ -545,41 +548,34 @@ const CreatePointAdjustment = () => {
                               },
                             ]}
                           >
-                            <Select
-                              placeholder="Chọn lý do điều chỉnh"
-                              style={{ width: "100%" }}
-                            >
-                              {type === "ADD_POINT" && 
+                            <Select placeholder="Chọn lý do điều chỉnh" style={{ width: "100%" }}>
+                              {type === "ADD_POINT" &&
                                 POINT_ADD_REASON.map((reason, idx) => (
                                   <Select.Option key={idx} value={reason}>
                                     {reason}
                                   </Select.Option>
-                                ))
-                              }
+                                ))}
 
-                              {type === "SUBTRACT_POINT" && 
-                                  POINT_SUBTRACT_REASON.map((reason, idx) => (
-                                    <Select.Option key={idx} value={reason}>
-                                      {reason}
-                                    </Select.Option>
-                                  ))
-                              }
+                              {type === "SUBTRACT_POINT" &&
+                                POINT_SUBTRACT_REASON.map((reason, idx) => (
+                                  <Select.Option key={idx} value={reason}>
+                                    {reason}
+                                  </Select.Option>
+                                ))}
 
-                              {type === "ADD_MONEY" && 
+                              {type === "ADD_MONEY" &&
                                 MONEY_ADD_REASON.map((reason, idx) => (
                                   <Select.Option key={idx} value={reason}>
                                     {reason}
                                   </Select.Option>
-                                ))
-                              }
+                                ))}
 
-                              {type === "SUBTRACT_MONEY" && 
+                              {type === "SUBTRACT_MONEY" &&
                                 MONEY_SUBTRACT_REASON.map((reason, idx) => (
                                   <Select.Option key={idx} value={reason}>
                                     {reason}
                                   </Select.Option>
-                                ))
-                              }
+                                ))}
                             </Select>
                           </Item>
                         </div>
@@ -652,7 +648,11 @@ const CreatePointAdjustment = () => {
                             <AutoComplete
                               allowClear
                               notFoundContent={
-                                isSearchingCustomer ? <Spin size="small"/> : "Không tìm thấy khách hàng"
+                                isSearchingCustomer ? (
+                                  <Spin size="small" />
+                                ) : (
+                                  "Không tìm thấy khách hàng"
+                                )
                               }
                               onSearch={customerChangeSearch}
                               options={transformCustomers}
@@ -676,16 +676,19 @@ const CreatePointAdjustment = () => {
                         </div>
                       </Col>
 
-                      <Col span={7}  className="customer-adjustment-file-name">
-                        {fileImportCustomerAdjustment.length > 0 &&
+                      <Col span={7} className="customer-adjustment-file-name">
+                        {fileImportCustomerAdjustment.length > 0 && (
                           <div style={{ marginTop: 10 }}>
-                            <img src={excelIcon} alt="" style={{ marginRight: 5 }}/>
-                            <span style={{ padding: "0 2px", wordBreak: "break-all" }}>{fileImportCustomerAdjustment[0].name}</span>
-                            <Tooltip
-                              overlay="Xóa file"
-                              placement="top"
-                              color="red"
+                            <img src={excelIcon} alt="" style={{ marginRight: 5 }} />
+                            <span
+                              style={{
+                                padding: "0 2px",
+                                wordBreak: "break-all",
+                              }}
                             >
+                              {fileImportCustomerAdjustment[0].name}
+                            </span>
+                            <Tooltip overlay="Xóa file" placement="top" color="red">
                               <img
                                 src={deleteIcon}
                                 style={{ marginLeft: 5, cursor: "pointer" }}
@@ -694,7 +697,7 @@ const CreatePointAdjustment = () => {
                               />
                             </Tooltip>
                           </div>
-                        }
+                        )}
                       </Col>
                     </Row>
 
@@ -712,23 +715,15 @@ const CreatePointAdjustment = () => {
 
                     <StyledFooterAction>
                       <div className="footer-action">
-                        <Button
-                          onClick={goBack}
-                          type="text"
-                          className="go-back-button"
-                        >
+                        <Button onClick={goBack} type="text" className="go-back-button">
                           <span>
                             <img style={{ marginRight: "10px" }} src={arrowBack} alt="" />
                             <span>Quay lại</span>
                           </span>
                         </Button>
-                        
+
                         <div className="confirm-button">
-                          <Button
-                            onClick={goBack}
-                            style={{ marginRight: 10 }}
-                            type="default"
-                          >
+                          <Button onClick={goBack} style={{ marginRight: 10 }} type="default">
                             Huỷ
                           </Button>
 
@@ -745,21 +740,24 @@ const CreatePointAdjustment = () => {
                   </Form>
                 </div>
               </Card>
-              : <NoPermission />)}
-          </AuthWrapper>
+            ) : (
+              <NoPermission />
+            )
+          }
+        </AuthWrapper>
 
-          {/* import customer file */}
-          <ImportCustomerIntoAdjustmentFile
-            isVisibleImportModal={isVisibleImportModal}
-            onOkImportModal={onOkImportModal}
-            onCancelImportModal={onCancelImportModal}
-            isVisibleProgressModal={isVisibleProgressModal}
-            progressData={progressData}
-            onOKProgressModal={onOKProgressModal}
-            setFileImportCustomerAdjustment={setFileImportCustomerAdjustment}
-            importProgressPercent={importProgressPercent}
-            isDownloading={isDownloading}
-          />
+        {/* import customer file */}
+        <ImportCustomerIntoAdjustmentFile
+          isVisibleImportModal={isVisibleImportModal}
+          onOkImportModal={onOkImportModal}
+          onCancelImportModal={onCancelImportModal}
+          isVisibleProgressModal={isVisibleProgressModal}
+          progressData={progressData}
+          onOKProgressModal={onOKProgressModal}
+          setFileImportCustomerAdjustment={setFileImportCustomerAdjustment}
+          importProgressPercent={importProgressPercent}
+          isDownloading={isDownloading}
+        />
 
         {/*Error create adjustment*/}
         <Modal
@@ -781,8 +779,8 @@ const CreatePointAdjustment = () => {
               <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
                 <ul style={{ color: "#E24343" }}>
                   {errorData?.map((error, index) => (
-                    <li key={index} style={{ marginBottom: "5px"}}>
-                      <span style={{fontWeight: 500}}>{error.split(":")[0]}</span>
+                    <li key={index} style={{ marginBottom: "5px" }}>
+                      <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
                       <span>:</span>
                       <span>{error.split(":")[1]}</span>
                     </li>

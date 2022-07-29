@@ -31,19 +31,11 @@ type AccountFilterProps = {
   onFilter?: (values: AccountSearchQuery) => void;
   onClearFilter?: () => void;
   onClickOpen?: () => void;
-
 };
 
 const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) => {
-  const {
-    params,
-    listDepartment,
-    listPosition,
-    listStatus,
-    onClearFilter,
-    onFilter,
-    onClickOpen
-  } = props;
+  const { params, listDepartment, listPosition, listStatus, onClearFilter, onFilter, onClickOpen } =
+    props;
   const [visible, setVisible] = useState(false);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
   const dispatch = useDispatch();
@@ -53,7 +45,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     (values: AccountSearchQuery) => {
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -67,9 +59,9 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
       position_ids: undefined,
       mobile: undefined,
       status: undefined,
-    })
+    });
     onClearFilter?.();
-  }
+  };
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -79,8 +71,8 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
   }, []);
 
   const parseStringToDate = (date: string | undefined) => {
-    return date ? moment(date) : undefined
-  }
+    return date ? moment(date) : undefined;
+  };
 
   useLayoutEffect(() => {
     if (visible) {
@@ -92,7 +84,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     dispatch(
       getListStoresSimpleAction((stores) => {
         setListStore(stores);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -106,13 +98,11 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
           from_date: parseStringToDate(params?.from_date?.toString()),
           to_date: parseStringToDate(params?.to_date?.toString()),
         }}
-        layout="inline">
+        layout="inline"
+      >
         <FilterWrapper>
           <Form.Item name="info" className="search" style={{ minWidth: 200 }}>
-            <Input
-              prefix={<img src={search} alt="" />}
-              placeholder="Tên/Mã nhân viên"
-            />
+            <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã nhân viên" />
           </Form.Item>
 
           <Form.Item name="department_ids">
@@ -147,7 +137,8 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
           onFilter={onFilterClick}
           onCancel={onCancelFilter}
           visible={visible}
-          width={396}>
+          width={396}
+        >
           <FilterAccountAdvancedStyles>
             <div className="ant-form ant-form-vertical">
               <Row gutter={50}>
@@ -156,21 +147,13 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
                     <Form.Item
                       name="from_date"
                       label="Thời gian tạo từ"
-                      className="filter-date__from">
-                      <DatePicker
-                        placeholder="20/01/2021"
-                        format="DD/MM/YYYY"
-                      />
+                      className="filter-date__from"
+                    >
+                      <DatePicker placeholder="20/01/2021" format="DD/MM/YYYY" />
                     </Form.Item>
                     <CgArrowRight />
-                    <Form.Item
-                      name="to_date"
-                      label="Đến"
-                      className="filter-date__from">
-                      <DatePicker
-                        placeholder="25/01/2021"
-                        format="DD/MM/YYYY"
-                      />
+                    <Form.Item name="to_date" label="Đến" className="filter-date__from">
+                      <DatePicker placeholder="25/01/2021" format="DD/MM/YYYY" />
                     </Form.Item>
                   </Row>
                 </Col>
@@ -178,11 +161,12 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
               <Row>
                 <Col span={24}>
                   <Form.Item name="position_ids" label="Vị trí">
-                    <Select showArrow placeholder="Vị trí" allowClear
+                    <Select
+                      showArrow
+                      placeholder="Vị trí"
+                      allowClear
                       showSearch
-                      filterOption={(input, option) =>
-                        fullTextSearch(input, option?.children)
-                      }
+                      filterOption={(input, option) => fullTextSearch(input, option?.children)}
                     >
                       {listPosition?.map((item) => (
                         <Select.Option key={item.id} value={item.id.toString()}>
@@ -203,11 +187,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
               <Row>
                 <Col span={24}>
                   <Form.Item name="store_ids" label="Cửa hàng">
-                    <TreeStore
-                      name="store_ids"
-                      listStore={listStore}
-                      form={formRef}
-                    />
+                    <TreeStore name="store_ids" listStore={listStore} form={formRef} />
                   </Form.Item>
                 </Col>
               </Row>

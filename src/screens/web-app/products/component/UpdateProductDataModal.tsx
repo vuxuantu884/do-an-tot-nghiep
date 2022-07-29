@@ -17,29 +17,22 @@ const { Option } = Select;
 const { RangePicker } = DatePicker;
 
 const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
-  props: UpdateProductDataModalProps
+  props: UpdateProductDataModalProps,
 ) => {
-  
-  const {
-    isVisible,
-    isLoading,
-    webAppShopList,
-    onCancel,
-    onOk,
-  } = props;
+  const { isVisible, isLoading, webAppShopList, onCancel, onOk } = props;
 
-  const [defaultShopId] = useState(webAppShopList[0]?.id || 438408);  //Set up default shop
+  const [defaultShopId] = useState(webAppShopList[0]?.id || 438408); //Set up default shop
   const [shopIdSelected, setShopIdSelected] = useState(defaultShopId || null);
   const [startDate, setStartDate] = useState<any>();
   const [endDate, setEndDate] = useState<any>();
-  
+
   const selectShop = (shop_id: any) => {
     setShopIdSelected(shop_id);
-  }
+  };
 
   const onClearShop = () => {
     setShopIdSelected(null);
-  }
+  };
 
   //handle select date
   const [selectedDateValue, setSelectedDateValue] = useState<any>();
@@ -48,16 +41,17 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     const myDate = date.split("/");
     let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
     return moment(new Date(newDate)).unix();
-  }
+  };
 
   const convertEndDateToTimestamp = (date: any) => {
     const myDate = date.split("/");
     const today = new Date();
     let time = "23:59:59";
 
-    if ((Number(myDate[0]) === Number(today.getDate())) &&
-      (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
-      (Number(myDate[2]) === Number(today.getFullYear()))
+    if (
+      Number(myDate[0]) === Number(today.getDate()) &&
+      Number(myDate[1]) === Number(today.getMonth()) + 1 &&
+      Number(myDate[2]) === Number(today.getFullYear())
     ) {
       time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     }
@@ -65,7 +59,7 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     const newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
     const dateTime = newDate + " " + time;
     return moment(new Date(dateTime)).unix();
-  }
+  };
 
   const onChangeDate = (dates: any, dateStrings: any) => {
     const startDate = convertStartDateToTimestamp(dateStrings[0]);
@@ -79,21 +73,20 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
 
   const isDisableGetItemOkButton = () => {
     return !startDate || !endDate;
-  }
+  };
 
   const onOkModal = () => {
     const params = {
       shop_id: shopIdSelected,
       update_time_from: startDate,
-      update_time_to: endDate
-    }
+      update_time_to: endDate,
+    };
     onOk && onOk(params);
-  }
+  };
 
   const onCancelModal = () => {
     onCancel && onCancel();
   };
-  
 
   return (
     <Modal
@@ -111,7 +104,9 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
     >
       <StyledUpdateProductDataModal>
         <div className="select-shop">
-          <div className="item-title">Lựa chọn gian hàng <span style={{ color: 'red' }}>*</span></div>
+          <div className="item-title">
+            Lựa chọn gian hàng <span style={{ color: "red" }}>*</span>
+          </div>
           <div className="select-shop-body">
             <Select
               showSearch
@@ -124,9 +119,7 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
               filterOption={(input, option) => {
                 if (option) {
                   const shopName = option.children && option.children[1];
-                  return (
-                    shopName?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                  );
+                  return shopName?.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                 }
                 return false;
               }}
@@ -142,7 +135,9 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
         </div>
 
         <div>
-          <div className="item-title">Thời gian <span style={{ color: 'red' }}>*</span></div>
+          <div className="item-title">
+            Thời gian <span style={{ color: "red" }}>*</span>
+          </div>
           <RangePicker
             disabled={isLoading}
             placeholder={["Từ ngày", "Đến ngày"]}
@@ -151,7 +146,9 @@ const UpdateProductDataModal: React.FC<UpdateProductDataModalProps> = (
             value={selectedDateValue}
             onChange={onChangeDate}
           />
-          <div style={{ marginTop: 10 }}><i>Ghi chú: Thời gian cập nhật sản phẩm</i></div>
+          <div style={{ marginTop: 10 }}>
+            <i>Ghi chú: Thời gian cập nhật sản phẩm</i>
+          </div>
         </div>
       </StyledUpdateProductDataModal>
     </Modal>

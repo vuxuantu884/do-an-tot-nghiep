@@ -33,11 +33,7 @@ function ChangeOrderStatusModal(props: PropTypes) {
 
   return (
     <StyledComponent>
-      <Modal
-        visible={visible}
-        onCancel={onCancelChangeStatusModal}
-        footer={null}
-      >
+      <Modal visible={visible} onCancel={onCancelChangeStatusModal} footer={null}>
         <Form layout="vertical" form={form} onFinish={onFinish}>
           <div style={{ marginBottom: 10 }}>Chọn trạng thái cần chuyển</div>
 
@@ -52,9 +48,7 @@ function ChangeOrderStatusModal(props: PropTypes) {
                 validator: async (_, value) => {
                   if (value === ORDER_SUB_STATUS.require_warehouse_change && !isEcommerceOrder) {
                     return Promise.reject(
-                      new Error(
-                        "Trạng thái đổi kho hàng cần vào chi tiết đơn để thực hiện!",
-                      ),
+                      new Error("Trạng thái đổi kho hàng cần vào chi tiết đơn để thực hiện!"),
                     );
                   }
                 },

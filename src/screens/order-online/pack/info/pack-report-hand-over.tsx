@@ -60,16 +60,14 @@ const initQueryGoodsReceipts: GoodsReceiptsSearchQuery = {
 
 const typePrint = {
   simple: "simple",
-  detail: "detail"
-}
+  detail: "detail",
+};
 
 type PackReportHandOverProps = {
   query: any;
 };
 
-const PackReportHandOver: React.FC<PackReportHandOverProps> = (
-  props: PackReportHandOverProps
-) => {
+const PackReportHandOver: React.FC<PackReportHandOverProps> = (props: PackReportHandOverProps) => {
   const { query } = props;
   const history = useHistory();
   const dispatch = useDispatch();
@@ -105,41 +103,48 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     items: [],
   });
 
-  const actions: Array<MenuAction> = useMemo(() => [
-    {
-      id: 1,
-      name: "In biên bản đầy đủ ",
-      icon: <PrinterOutlined />,
-      disabled: selectedRowKeys.length === 0
-    },
-    {
-      id: 2,
-      name: "In biên bản rút gọn ",
-      icon: <PrinterOutlined />,
-      disabled: selectedRowKeys.length === 0
-    },
-    {
-      id: 3,
-      name: "Xóa",
-      icon: <DeleteOutlined />,
-      color: (allowDeleteGoodsReceipt && selectedRowKeys.length !== 0) ? "#E24343" : "rgba(0,0,0,.25)",
-      disabled: !allowDeleteGoodsReceipt || selectedRowKeys.length === 0
-    },
-  ], [allowDeleteGoodsReceipt, selectedRowKeys.length]);
+  const actions: Array<MenuAction> = useMemo(
+    () => [
+      {
+        id: 1,
+        name: "In biên bản đầy đủ ",
+        icon: <PrinterOutlined />,
+        disabled: selectedRowKeys.length === 0,
+      },
+      {
+        id: 2,
+        name: "In biên bản rút gọn ",
+        icon: <PrinterOutlined />,
+        disabled: selectedRowKeys.length === 0,
+      },
+      {
+        id: 3,
+        name: "Xóa",
+        icon: <DeleteOutlined />,
+        color:
+          allowDeleteGoodsReceipt && selectedRowKeys.length !== 0 ? "#E24343" : "rgba(0,0,0,.25)",
+        disabled: !allowDeleteGoodsReceipt || selectedRowKeys.length === 0,
+      },
+    ],
+    [allowDeleteGoodsReceipt, selectedRowKeys.length],
+  );
 
   const [modalDeleteConfirm, setModalDeleteConfirms] = useState(false);
 
-  const handlePrintPack = useCallback((id = undefined, type: string) => {
-    let params = {
-      action: "print",
-      ids: id ? [id] : selectedRowKeys,
-      "print-type": "print-pack",
-      "pack-type": type
-    };
-    const queryParam = generateQuery(params);
-    const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
-    window.open(printPreviewUrl);
-  }, [selectedRowKeys]);
+  const handlePrintPack = useCallback(
+    (id = undefined, type: string) => {
+      let params = {
+        action: "print",
+        ids: id ? [id] : selectedRowKeys,
+        "print-type": "print-pack",
+        "pack-type": type,
+      };
+      const queryParam = generateQuery(params);
+      const printPreviewUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
+      window.open(printPreviewUrl);
+    },
+    [selectedRowKeys],
+  );
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -152,15 +157,17 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           break;
         case 3:
           if (!selectedRowKeys || selectedRowKeys.length === 0) break;
-          let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) => selectedRowKeys.some((single: number) => single.toString() === p.id.toString()));
+          let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) =>
+            selectedRowKeys.some((single: number) => single.toString() === p.id.toString()),
+          );
           // console.log('selectedOrder', selectedOrder);
 
           let canDelete = true;
           let idError = "";
-          selectedOrder.forEach(item => {
+          selectedOrder.forEach((item) => {
             if (item.orders && item.orders?.length) {
               canDelete = false;
-              idError += item.id + " "
+              idError += item.id + " ";
             }
           });
           if (canDelete) {
@@ -171,7 +178,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           break;
       }
     },
-    [goodsReceipt, handlePrintPack, selectedRowKeys]
+    [goodsReceipt, handlePrintPack, selectedRowKeys],
   );
 
   let delivery_services: Array<DeliveryServiceResponse> = [];
@@ -181,17 +188,18 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        delivery_services = response
-        setDeliveryServices(response)
-      })
+        delivery_services = response;
+        setDeliveryServices(response);
+      }),
     );
   }, [dispatch]);
 
-  const handleAddPack = useCallback((item: any) => {
-    history.push(
-      `${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}/update`
-    );
-  }, [history]);
+  const handleAddPack = useCallback(
+    (item: any) => {
+      history.push(`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}/update`);
+    },
+    [history],
+  );
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -201,7 +209,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       setPrams({ ...params });
       history.replace(`${UrlConfig.DELIVERY_RECORDS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
   const onFilter = useCallback(
@@ -212,7 +220,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       //setIsFilter(true)
       history.push(`${UrlConfig.DELIVERY_RECORDS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
   const onClearFilter = useCallback(() => {
@@ -233,38 +241,52 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
     data.items.forEach((item: GoodsReceiptsResponse, index: number) => {
       let order_quantity = item.orders?.length || 0; //SL đơn
-      let order_send_quantity = 0;//Số đơn gửi hvc 
-      let order_transport = 0;//Đơn đang chuyển
-      let order_success = 0;//đơn thành công
-      let order_returning = 0;//đơn đang hoàn
-      let order_returned = 0//đơn đã hoàn
-      let order_cancel = 0;//đơn hủy
+      let order_send_quantity = 0; //Số đơn gửi hvc
+      let order_transport = 0; //Đơn đang chuyển
+      let order_success = 0; //đơn thành công
+      let order_returning = 0; //đơn đang hoàn
+      let order_returned = 0; //đơn đã hoàn
+      let order_cancel = 0; //đơn hủy
 
       item.orders?.forEach(function (itemOrder) {
-        if (itemOrder.fulfillment_status === FulfillmentStatus.PACKED
-          || itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING
-          || itemOrder.fulfillment_status === FulfillmentStatus.SHIPPED
-          || (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED && itemOrder.status_before_cancellation === FulfillmentStatus.SHIPPING)) {
+        if (
+          itemOrder.fulfillment_status === FulfillmentStatus.PACKED ||
+          itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING ||
+          itemOrder.fulfillment_status === FulfillmentStatus.SHIPPED ||
+          (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED &&
+            itemOrder.status_before_cancellation === FulfillmentStatus.SHIPPING)
+        ) {
           order_send_quantity += 1;
         }
-        if (itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING
-          || (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED && itemOrder.return_status===FulfillmentStatus.RETURNING && itemOrder.status_before_cancellation === FulfillmentStatus.SHIPPING)) {
+        if (
+          itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING ||
+          (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED &&
+            itemOrder.return_status === FulfillmentStatus.RETURNING &&
+            itemOrder.status_before_cancellation === FulfillmentStatus.SHIPPING)
+        ) {
           order_transport += 1;
         }
 
         if (itemOrder.fulfillment_status === FulfillmentStatus.SHIPPED) {
           order_success += 1;
         }
-        if (itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING
-          && itemOrder.return_status === FulfillmentStatus.RETURNING) {
+        if (
+          itemOrder.fulfillment_status === FulfillmentStatus.SHIPPING &&
+          itemOrder.return_status === FulfillmentStatus.RETURNING
+        ) {
           order_returning += 1;
         }
-        if (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED
-          && itemOrder.return_status === FulfillmentStatus.RETURNED) {
+        if (
+          itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED &&
+          itemOrder.return_status === FulfillmentStatus.RETURNED
+        ) {
           order_returned += 1;
         }
-        if ((itemOrder.fulfillment_status === FulfillmentStatus.UNSHIPPED)
-        ||(itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED && itemOrder.status_before_cancellation !== FulfillmentStatus.SHIPPING)) {
+        if (
+          itemOrder.fulfillment_status === FulfillmentStatus.UNSHIPPED ||
+          (itemOrder.fulfillment_status === FulfillmentStatus.CANCELLED &&
+            itemOrder.status_before_cancellation !== FulfillmentStatus.SHIPPING)
+        ) {
           order_cancel += 1;
         }
       });
@@ -288,80 +310,86 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
         description: item.description,
         note: item.note,
         goods_receipts: item,
-        updated_date: item.updated_date
+        updated_date: item.updated_date,
       };
       dataResult.push(_result);
-
     });
     return dataResult;
   };
 
   const setLayoutDeleteAllGoodsReceipts = useMemo(() => {
-    let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) => selectedRowKeys.some((single: number) => single.toString() === p.id.toString()));
+    let selectedOrder: GoodsReceiptsResponse[] = goodsReceipt.filter((p) =>
+      selectedRowKeys.some((single: number) => single.toString() === p.id.toString()),
+    );
     return (
       <React.Fragment>
         {selectedOrder.map((value: GoodsReceiptsResponse, index: number) => (
           <p style={{ lineHeight: "18px" }}>
             <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${value.id}`} key={index}>
-              {value.id}- {value.delivery_service_name}-{" "}
-              {value.receipt_type_name}- {value.ecommerce_name}
+              {value.id}- {value.delivery_service_name}- {value.receipt_type_name}-{" "}
+              {value.ecommerce_name}
             </Link>{" "}
-            sẽ được xóa</p>
+            sẽ được xóa
+          </p>
         ))}
       </React.Fragment>
-    )
-  }, [goodsReceipt, selectedRowKeys])
-
-  const handleRemoveGoodsReceiptOk = useCallback((id = undefined) => {
-    let request: any = {
-      ids: id ? [id] : selectedRowKeys
-    }
-    // console.log('id', [id], selectedRowKeys);
-
-    dispatch(
-      deleteAllGoodsReceipts(request, (data: GoodsReceiptsResponse) => {
-        if (data) {
-          setTableLoading(true);
-          dispatch(
-            getGoodsReceiptsSearch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
-              if (data) {
-                let dataResult: Array<GoodsReceiptsSearchModel> = setDataTable(data);
-                /////
-                setData({
-                  metadata: {
-                    limit: data.metadata.limit,
-                    page: data.metadata.page,
-                    total: data.metadata.total,
-                  },
-                  items: dataResult,
-                });
-              } else {
-                setData({
-                  metadata: {
-                    limit: 30,
-                    page: 1,
-                    total: 0,
-                  },
-                  items: [],
-                })
-              }
-              setTableLoading(false);
-            })
-          );
-          setSelectedRowKeys([]);
-          setModalDeleteConfirms(false);
-          showSuccess(`Đã xóa biên bản bàn giao`);
-        }
-      })
     );
-  }, [dispatch, params, selectedRowKeys]);
+  }, [goodsReceipt, selectedRowKeys]);
+
+  const handleRemoveGoodsReceiptOk = useCallback(
+    (id = undefined) => {
+      let request: any = {
+        ids: id ? [id] : selectedRowKeys,
+      };
+      // console.log('id', [id], selectedRowKeys);
+
+      dispatch(
+        deleteAllGoodsReceipts(request, (data: GoodsReceiptsResponse) => {
+          if (data) {
+            setTableLoading(true);
+            dispatch(
+              getGoodsReceiptsSearch(
+                { ...params, page: 1 },
+                (data: PageResponse<GoodsReceiptsResponse>) => {
+                  if (data) {
+                    let dataResult: Array<GoodsReceiptsSearchModel> = setDataTable(data);
+                    /////
+                    setData({
+                      metadata: {
+                        limit: data.metadata.limit,
+                        page: data.metadata.page,
+                        total: data.metadata.total,
+                      },
+                      items: dataResult,
+                    });
+                  } else {
+                    setData({
+                      metadata: {
+                        limit: 30,
+                        page: 1,
+                        total: 0,
+                      },
+                      items: [],
+                    });
+                  }
+                  setTableLoading(false);
+                },
+              ),
+            );
+            setSelectedRowKeys([]);
+            setModalDeleteConfirms(false);
+            showSuccess(`Đã xóa biên bản bàn giao`);
+          }
+        }),
+      );
+    },
+    [dispatch, params, selectedRowKeys],
+  );
 
   const menu = (item: any) => {
     // console.log('allowDeleteGoodsReceipt', allowDeleteGoodsReceipt);
     return (
-      <Menu
-        className="yody-line-item-action-menu saleorders-product-dropdown"
-      >
+      <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
         <Menu.Item key="1">
           <Button
             icon={<img style={{ marginRight: 12 }} alt="" src={IconPrint} />}
@@ -413,7 +441,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
 
         <Menu.Item key="4">
           <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.DELETE_GOODS_RECEIPT]} passThrough>
-            {(isPassed: boolean) =>
+            {(isPassed: boolean) => (
               <Button
                 icon={<DeleteOutlined />}
                 type="text"
@@ -428,69 +456,75 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               >
                 Xoá
               </Button>
-            }
+            )}
           </AuthWrapper>
         </Menu.Item>
       </Menu>
     );
   };
 
-  const editNote = useCallback((id: number, newNote: string, record?: GoodsReceiptsSearchModel) => {
-    if (!id) return;
-    if (newNote && newNote.length > 255) {
-      showError("độ dài kí tự phải từ 0 đến 255");
-      return;
-    }
-    if (newNote.length <= 0) return;
-
-    if (!record?.goods_receipts) {
-      showError("Không tìm thấy biên bản bàn giao");
-      return;
-    }
-
-    let newRequest: any = {
-      ...record?.goods_receipts,
-      codes: [],
-      note: newNote,
-    }
-
-    dispatch(updateGoodsReceipts(id, newRequest, (data: GoodsReceiptsResponse) => {
-      if (data) {
-        setTableLoading(true);
-        dispatch(
-          getGoodsReceiptsSearch({ ...params, page: 1 }, (data: PageResponse<GoodsReceiptsResponse>) => {
-            if (data) {
-              let dataResult: Array<GoodsReceiptsSearchModel> = setDataTable(data);
-              /////
-              setData({
-                metadata: {
-                  limit: data.metadata.limit,
-                  page: data.metadata.page,
-                  total: data.metadata.total,
-                },
-                items: dataResult,
-              });
-            } else {
-              setData({
-                metadata: {
-                  limit: 30,
-                  page: 1,
-                  total: 0,
-                },
-                items: [],
-              })
-            }
-            setTableLoading(false);
-          })
-        );
-        showSuccess("Cập nhập ghi chú biên bản thành công");
+  const editNote = useCallback(
+    (id: number, newNote: string, record?: GoodsReceiptsSearchModel) => {
+      if (!id) return;
+      if (newNote && newNote.length > 255) {
+        showError("độ dài kí tự phải từ 0 đến 255");
+        return;
       }
-    }))
-  }, [dispatch, params])
+      if (newNote.length <= 0) return;
 
-  const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<GoodsReceiptsSearchModel>>
-  >([
+      if (!record?.goods_receipts) {
+        showError("Không tìm thấy biên bản bàn giao");
+        return;
+      }
+
+      let newRequest: any = {
+        ...record?.goods_receipts,
+        codes: [],
+        note: newNote,
+      };
+
+      dispatch(
+        updateGoodsReceipts(id, newRequest, (data: GoodsReceiptsResponse) => {
+          if (data) {
+            setTableLoading(true);
+            dispatch(
+              getGoodsReceiptsSearch(
+                { ...params, page: 1 },
+                (data: PageResponse<GoodsReceiptsResponse>) => {
+                  if (data) {
+                    let dataResult: Array<GoodsReceiptsSearchModel> = setDataTable(data);
+                    /////
+                    setData({
+                      metadata: {
+                        limit: data.metadata.limit,
+                        page: data.metadata.page,
+                        total: data.metadata.total,
+                      },
+                      items: dataResult,
+                    });
+                  } else {
+                    setData({
+                      metadata: {
+                        limit: 30,
+                        page: 1,
+                        total: 0,
+                      },
+                      items: [],
+                    });
+                  }
+                  setTableLoading(false);
+                },
+              ),
+            );
+            showSuccess("Cập nhập ghi chú biên bản thành công");
+          }
+        }),
+      );
+    },
+    [dispatch, params],
+  );
+
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<GoodsReceiptsSearchModel>>>([
     {
       title: "ID",
       visible: true,
@@ -499,7 +533,6 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       width: "120px",
       key: "ID",
       render: (l: any, item: GoodsReceiptsSearchModel, index: number) => {
-
         const service_id = item.delivery_service_id;
         if (service_id === -1) {
           return (
@@ -507,10 +540,10 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
-              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.updated_date).format("DD/MM/YYYY HH:mm")}</div>
-              <div className="shipment-details">
-                Tự vận chuyển
+              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>
+                {moment(item?.updated_date).format("DD/MM/YYYY HH:mm")}
               </div>
+              <div className="shipment-details">Tự vận chuyển</div>
             </React.Fragment>
           );
         } else {
@@ -520,15 +553,13 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               <Link target="_blank" to={`${UrlConfig.DELIVERY_RECORDS}/${item.id_handover_record}`}>
                 {item.id_handover_record}
               </Link>
-              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>{moment(item?.updated_date).format("DD/MM/YYYY HH:mm")}</div>
+              <div style={{ fontSize: "0.86em", lineHeight: "1.25" }}>
+                {moment(item?.updated_date).format("DD/MM/YYYY HH:mm")}
+              </div>
               <div className="shipment-details">
-                {service &&
-                  <img
-                    src={service.logo ? service.logo : ""}
-                    alt=""
-                    style={{ width: 100 }}
-                  />
-                }
+                {service && (
+                  <img src={service.logo ? service.logo : ""} alt="" style={{ width: 100 }} />
+                )}
               </div>
             </React.Fragment>
           );
@@ -551,11 +582,12 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       align: "center",
       width: "160px",
       render: (l: any, item: GoodsReceiptsSearchModel, index: number) => {
-
         return (
           <div>
-            <p style={{ marginBottom: 0 }} >{item.handover_record_type}</p>
-            {item.ecommerce_id !== -1 && <p style={{ color: "#2A2A86", marginBottom: 0 }}>({item.ecommerce_name})</p>}
+            <p style={{ marginBottom: 0 }}>{item.handover_record_type}</p>
+            {item.ecommerce_id !== -1 && (
+              <p style={{ color: "#2A2A86", marginBottom: 0 }}>({item.ecommerce_name})</p>
+            )}
           </div>
         );
       },
@@ -577,7 +609,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       width: "80px",
-      render: (value) => <b style={{ color: yellowColor }}>{value}</b>
+      render: (value) => <b style={{ color: yellowColor }}>{value}</b>,
     },
 
     {
@@ -587,7 +619,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       visible: true,
       align: "center",
       width: "100px",
-      render: (value) => <b style={{ color: greenColor }}>{value}</b>
+      render: (value) => <b style={{ color: greenColor }}>{value}</b>,
     },
 
     {
@@ -654,7 +686,7 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               </div>
             </div>
           </div>
-        )
+        );
       },
     },
     {
@@ -673,12 +705,8 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
       fixed: "right",
       className: "saleorder-product-card-action text-center",
       render: (l: any, item: GoodsReceiptsSearchModel, index: number) => {
-
         return (
-          <Dropdown
-            overlayStyle={{ minWidth: "15rem" }}
-            overlay={() => menu(item)}
-          >
+          <Dropdown overlayStyle={{ minWidth: "15rem" }} overlay={() => menu(item)}>
             <Button
               type="text"
               className="p-0 ant-btn-custom"
@@ -687,35 +715,35 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
           </Dropdown>
         );
       },
-    }
+    },
   ]);
 
   // let newColumns = columns
-  const columnFinal = useMemo(
-    () => {
-      return columns.filter((item: any) => item.visible === true)
-    },
-    [columns]
-  );
+  const columnFinal = useMemo(() => {
+    return columns.filter((item: any) => item.visible === true);
+  }, [columns]);
 
   // cột column
-  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(COLUMN_CONFIG_TYPE.orderDeliveryRecord)
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
+    COLUMN_CONFIG_TYPE.orderDeliveryRecord,
+  );
 
   //cột của bảng
-  useSetTableColumns(COLUMN_CONFIG_TYPE.orderDeliveryRecord, tableColumnConfigs, columns, setColumns)
+  useSetTableColumns(
+    COLUMN_CONFIG_TYPE.orderDeliveryRecord,
+    tableColumnConfigs,
+    columns,
+    setColumns,
+  );
   useEffect(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores.length > 0) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
         newData = listStores.filter((store) =>
-          haveAccess(
-            store.id,
-            userReducer.account ? userReducer.account.account_stores : []
-          )
+          haveAccess(store.id, userReducer.account ? userReducer.account.account_stores : []),
         );
         setListStoresDataCanAccess(newData);
-      }
-      else {
+      } else {
         // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
         setListStoresDataCanAccess(listStores);
       }
@@ -725,15 +753,24 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
   useEffect(() => {
     if (listStoresDataCanAccess && listStoresDataCanAccess.length > 0) {
       setTableLoading(true);
-      let from_date: Moment | undefined = convertFromStringToDate(params.from_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.startOf('day');
-      let to_date: Moment | undefined = convertFromStringToDate(params.to_date, "yyyy-MM-dd'T'HH:mm:ss'Z'")?.endOf('day');
+      let from_date: Moment | undefined = convertFromStringToDate(
+        params.from_date,
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+      )?.startOf("day");
+      let to_date: Moment | undefined = convertFromStringToDate(
+        params.to_date,
+        "yyyy-MM-dd'T'HH:mm:ss'Z'",
+      )?.endOf("day");
 
       let query = {
         ...params,
         from_date: from_date,
         to_date: to_date,
-        store_ids: params.store_ids && params.store_ids.length > 0 ? params.store_ids : listStoresDataCanAccess.map(p => p.id),
-      }
+        store_ids:
+          params.store_ids && params.store_ids.length > 0
+            ? params.store_ids
+            : listStoresDataCanAccess.map((p) => p.id),
+      };
 
       dispatch(
         getGoodsReceiptsSearch(query, (data: PageResponse<GoodsReceiptsResponse>) => {
@@ -749,19 +786,19 @@ const PackReportHandOver: React.FC<PackReportHandOverProps> = (
               items: dataResult,
             });
             setGoodsReceipt(data.items);
-          } else setData({
-            metadata: {
-              limit: 30,
-              page: 1,
-              total: 0,
-            },
-            items: [],
-          })
+          } else
+            setData({
+              metadata: {
+                limit: 30,
+                page: 1,
+                total: 0,
+              },
+              items: [],
+            });
           setTableLoading(false);
-        })
+        }),
       );
     }
-
   }, [dispatch, listStoresDataCanAccess, params]);
 
   return (

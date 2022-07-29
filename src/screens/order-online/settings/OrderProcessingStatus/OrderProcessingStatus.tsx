@@ -1,9 +1,9 @@
-import {PlusOutlined} from "@ant-design/icons";
-import {Button, Card} from "antd";
+import { PlusOutlined } from "@ant-design/icons";
+import { Button, Card } from "antd";
 import ContentContainer from "component/container/content.container";
 import FormOrderProcessingStatus from "component/forms/FormOrderProcessingStatus";
 import CustomModal from "component/modal/CustomModal";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
   actionAddOrderProcessingStatus,
@@ -11,18 +11,18 @@ import {
   actionEditOrderProcessingStatus,
   actionFetchListOrderProcessingStatus,
 } from "domain/actions/settings/order-processing-status.action";
-import {modalActionType} from "model/modal/modal.model";
-import {VariantResponse} from "model/product/product.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
+import { modalActionType } from "model/modal/modal.model";
+import { VariantResponse } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-import {useCallback, useEffect, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory, useLocation} from "react-router-dom";
-import {generateQuery} from "utils/AppUtils";
-import {StyledComponent} from "./OrderProcessingStatus.styles";
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory, useLocation } from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { StyledComponent } from "./OrderProcessingStatus.styles";
 
 function SettingOrderProcessingStatus() {
   const [tableLoading, setTableLoading] = useState(false);
@@ -40,9 +40,7 @@ function SettingOrderProcessingStatus() {
   const [modalSingleServiceSubStatus, setModalSingleServiceSubStatus] =
     useState<OrderProcessingStatusModel | null>(null);
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const LIST_STATUS = bootstrapReducer.data?.order_main_status;
 
   const columns: ICustomTableColumType<any>[] = [
@@ -57,7 +55,7 @@ function SettingOrderProcessingStatus() {
           return (
             <span
               title={value}
-              style={{wordWrap: "break-word", wordBreak: "break-word"}}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
               className="title text"
             >
               {value}
@@ -77,7 +75,7 @@ function SettingOrderProcessingStatus() {
           return (
             <span
               title={value}
-              style={{wordWrap: "break-word", wordBreak: "break-word"}}
+              style={{ wordWrap: "break-word", wordBreak: "break-word" }}
               className="title text"
             >
               {value}
@@ -107,11 +105,11 @@ function SettingOrderProcessingStatus() {
       visible: true,
       width: "10%",
       align: "center",
-      defaultSortOrder: 'ascend',
+      defaultSortOrder: "ascend",
       sorter: (a, b) => {
-        return a.display_order - b.display_order
-      }, 
-      sortDirections:['ascend', 'descend', 'ascend'],
+        return a.display_order - b.display_order;
+      },
+      sortDirections: ["ascend", "descend", "ascend"],
     },
     {
       title: "Ghi chú",
@@ -120,7 +118,7 @@ function SettingOrderProcessingStatus() {
       width: "20%",
       render: (value, row, index) => {
         return (
-          <span className="text" title={value} style={{color: "#666666"}}>
+          <span className="text" title={value} style={{ color: "#666666" }}>
             {value}
           </span>
         );
@@ -133,9 +131,9 @@ function SettingOrderProcessingStatus() {
       width: "25%",
       render: (value, row, index) => {
         if (value) {
-          return <span style={{color: "#27AE60"}}>Đang áp dụng</span>;
+          return <span style={{ color: "#27AE60" }}>Đang áp dụng</span>;
         }
-        return <span style={{color: "#E24343"}}>Ngưng áp dụng</span>;
+        return <span style={{ color: "#E24343" }}>Ngưng áp dụng</span>;
       },
     },
   ];
@@ -155,11 +153,11 @@ function SettingOrderProcessingStatus() {
       queryParams.page = page;
       queryParams.limit = size;
       let queryParam = generateQuery(queryParams);
-      setQueryParams({...queryParams});
+      setQueryParams({ ...queryParams });
       history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, queryParams]
+    [history, queryParams],
   );
 
   const createOrderServiceSubStatusHtml = () => {
@@ -184,7 +182,7 @@ function SettingOrderProcessingStatus() {
       ...queryParams,
       page: 1,
     };
-    setQueryParams({...newParams});
+    setQueryParams({ ...newParams });
     let queryParam = generateQuery(newParams);
     history.replace(`${UrlConfig.ORDER_PROCESSING_STATUS}?${queryParam}`);
     window.scrollTo(0, 0);
@@ -196,27 +194,23 @@ function SettingOrderProcessingStatus() {
         actionAddOrderProcessingStatus(formValue, () => {
           setIsShowModal(false);
           gotoFirstPage();
-        })
+        }),
       );
     },
     edit: (formValue: OrderProcessingStatusModel) => {
       if (modalSingleServiceSubStatus) {
         dispatch(
-          actionEditOrderProcessingStatus(
-            modalSingleServiceSubStatus.id,
-            formValue,
-            () => {
-              dispatch(
-                actionFetchListOrderProcessingStatus(
-                  queryParams,
-                  (data: OrderProcessingStatusResponseModel) => {
-                    setListOrderProcessingStatus(data.items);
-                  }
-                )
-              );
-              setIsShowModal(false);
-            }
-          )
+          actionEditOrderProcessingStatus(modalSingleServiceSubStatus.id, formValue, () => {
+            dispatch(
+              actionFetchListOrderProcessingStatus(
+                queryParams,
+                (data: OrderProcessingStatusResponseModel) => {
+                  setListOrderProcessingStatus(data.items);
+                },
+              ),
+            );
+            setIsShowModal(false);
+          }),
         );
       }
     },
@@ -226,7 +220,7 @@ function SettingOrderProcessingStatus() {
           actionDeleteOrderProcessingStatus(modalSingleServiceSubStatus.id, () => {
             setIsShowModal(false);
             gotoFirstPage();
-          })
+          }),
         );
       }
     },
@@ -244,8 +238,8 @@ function SettingOrderProcessingStatus() {
           setListOrderProcessingStatus(data.items);
           setTotal(data.metadata.total);
           setTableLoading(false);
-        }
-      )
+        },
+      ),
     );
   }, [dispatch, queryParams]);
 
@@ -299,9 +293,7 @@ function SettingOrderProcessingStatus() {
         )}
         <CustomModal
           visible={isShowModal}
-          onCreate={(formValue: OrderProcessingStatusModel) =>
-            handleForm.create(formValue)
-          }
+          onCreate={(formValue: OrderProcessingStatusModel) => handleForm.create(formValue)}
           onEdit={(formValue: OrderProcessingStatusModel) => handleForm.edit(formValue)}
           onDelete={() => handleForm.delete()}
           onCancel={() => setIsShowModal(false)}
@@ -314,6 +306,6 @@ function SettingOrderProcessingStatus() {
       </ContentContainer>
     </StyledComponent>
   );
-};
+}
 
 export default SettingOrderProcessingStatus;

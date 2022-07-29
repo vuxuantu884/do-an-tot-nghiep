@@ -5,22 +5,22 @@ export const StyledComponent = styled.div`
   .label {
     font-size: 18px;
     font-weight: 500;
-    color: #2A2A86;
+    color: #2a2a86;
   }
   .yody-icon {
     font-size: 50px;
   }
   .active {
-    color: #2A2A86;
+    color: #2a2a86;
   }
   .deactive {
     color: #757575;
   }
-  .button-plus{
-    width: 37px !important; 
-    height: 37px !important; 
+  .button-plus {
+    width: 37px !important;
+    height: 37px !important;
     padding: 0;
-    color: ${bluePlus}
+    color: ${bluePlus};
   }
   .care-title {
     font-weight: 500;
@@ -33,8 +33,8 @@ export const StyledComponent = styled.div`
     line-height: 32px;
   }
   .button-plus {
-    border: 1px solid #E5E5E5;
-    background: #FFFFFF;
-    color: #757575; 
+    border: 1px solid #e5e5e5;
+    background: #ffffff;
+    color: #757575;
   }
 `;

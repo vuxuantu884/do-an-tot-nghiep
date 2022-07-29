@@ -31,7 +31,7 @@ import {
 import isEqual from "lodash/isEqual";
 import { isArray } from "lodash";
 import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
-import {useFetchMerchans} from "../../../../hook/useFetchMerchans";
+import { useFetchMerchans } from "../../../../hook/useFetchMerchans";
 import { callApiNative } from "../../../../utils/ApiUtils";
 import { supplierGetApi } from "../../../../service/core/supplier.service";
 import { getStoreApi } from "service/inventory/transfer/index.service";
@@ -48,34 +48,28 @@ interface ProcurementTabListFilterProps extends ProcurementFilterProps {
 }
 
 function TabListFilter(props: ProcurementTabListFilterProps) {
-  const {
-    onClickOpen,
-    paramsUrl,
-    accounts,
-    actions,
-    onMenuClick
-  } = props;
+  const { onClickOpen, paramsUrl, accounts, actions, onMenuClick } = props;
   const history = useHistory();
   const dispatch = useDispatch();
-  const formRef = createRef<FormInstance>()
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
+  const formRef = createRef<FormInstance>();
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
   const [visible, setVisible] = useState(false);
-  const [dateClick, setDateClick] = useState('');
+  const [dateClick, setDateClick] = useState("");
   const [allStore, setAllStore] = useState<Array<StoreResponse>>();
   // const { array: selectedStatuses, set: setSelectedStatuses, remove: removeStatus } = useArray([])
-  const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
+  const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([]);
 
   const [formBase] = useForm();
   const [formAdvanced] = useForm();
 
-  const openVisibleFilter = () => setVisible(true)
-  const cancelFilter = () => setVisible(false)
+  const openVisibleFilter = () => setVisible(true);
+  const cancelFilter = () => setVisible(false);
 
   const resetFilter = () => {
     let fields = formAdvanced.getFieldsValue(true);
     for (let key in fields) {
-      if(fields[key] instanceof Array) {
+      if (fields[key] instanceof Array) {
         fields[key] = [];
       } else {
         fields[key] = null;
@@ -84,19 +78,25 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
     formAdvanced.resetFields();
     formAdvanced.submit();
     setVisible(false);
-  }
+  };
 
   const onAdvanceFinish = async (data: any) => {
     setVisible(false);
     if (data.note) {
       data = {
         ...data,
-        note: data.note.trim()
-      }
+        note: data.note.trim(),
+      };
     }
     // setSelectedStatuses(formAdvanced.getFieldValue('status'))
-    await history.replace(`${UrlConfig.PROCUREMENT}?${generateQuery({ ...paramsUrl, ...data, page: 1 })}`);
-  }
+    await history.replace(
+      `${UrlConfig.PROCUREMENT}?${generateQuery({
+        ...paramsUrl,
+        ...data,
+        page: 1,
+      })}`,
+    );
+  };
 
   // const handleClickStatus = (value: string) => {
   //   const findSelected = selectedStatuses.find(status => status === value)
@@ -108,9 +108,12 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
   //   }
   // }
 
-  const onRemoveStatus = useCallback((index: number) => {
-    remove(index)
-  }, [remove])
+  const onRemoveStatus = useCallback(
+    (index: number) => {
+      remove(index);
+    },
+    [remove],
+  );
 
   const convertParams = (params: any) => {
     return {
@@ -118,34 +121,37 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
       // [ProcurementFilterAdvanceEnum.status]: params.status,
       // [ProcurementFilterAdvanceEnum.stores]: params.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
     };
-  }
+  };
 
   const onBaseFinish = (data: any) => {
     if (data.content) {
       data = {
         ...data,
-        content: data.content.trim()
-      }
+        content: data.content.trim(),
+      };
     }
     let queryParam = generateQuery({ ...paramsUrl, ...data, page: 1 });
     history.replace(`${UrlConfig.PROCUREMENT}?${queryParam}`);
   };
 
   const formatDateRange = (from: Date, to: Date) => {
-    if(!from && !to) return
-    return `${from || '??'} ~ ${to || '??'}`
-  }
+    if (!from && !to) return;
+    return `${from || "??"} ~ ${to || "??"}`;
+  };
 
   useEffect(() => {
-    dispatch(SupplierGetAllAction((suppliers) => setAllSupplier(suppliers)))
+    dispatch(SupplierGetAllAction((suppliers) => setAllSupplier(suppliers)));
     // dispatch(getListStoresSimpleAction((stores) => setAllStore(stores)));
     const getStores = async () => {
-      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, { status: "active", simple: true })
+      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
+        status: "active",
+        simple: true,
+      });
       if (res) {
-        setAllStore(res)
+        setAllStore(res);
       }
-    }
-    getStores()
+    };
+    getStores();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -155,112 +161,167 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
       active: formatDateRange(paramsUrl.active_from, paramsUrl.active_to),
       stock_in: formatDateRange(paramsUrl.stock_in_from, paramsUrl.stock_in_to),
       expect_receipt: formatDateRange(paramsUrl.expect_receipt_from, paramsUrl.expect_receipt_to),
-    }
+    };
     // delete params date
-    const { active_from, active_to, stock_in_from, stock_in_to, expect_receipt_from, expect_receipt_to, ...rest} = newParams
+    const {
+      active_from,
+      active_to,
+      stock_in_from,
+      stock_in_to,
+      expect_receipt_from,
+      expect_receipt_to,
+      ...rest
+    } = newParams;
 
-    const formatted = formatFieldTag(rest, {...ProcurementFilterAdvanceName, ...ProcurementFilterBasicName})
+    const formatted = formatFieldTag(rest, {
+      ...ProcurementFilterAdvanceName,
+      ...ProcurementFilterBasicName,
+    });
     const transformParams = formatted.map((item) => {
       switch (item.keyId) {
         case ProcurementFilterBasicEnum.suppliers:
-          if(isArray(item.valueId)) {
-            const filterSupplier = allSupplier?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
-            if(filterSupplier)
-            return {...item, valueName: filterSupplier?.map((item: any) => item.pic).toString()}
+          if (isArray(item.valueId)) {
+            const filterSupplier = allSupplier?.filter((elem) =>
+              item.valueId.find((id: number) => +elem.id === +id),
+            );
+            if (filterSupplier)
+              return {
+                ...item,
+                valueName: filterSupplier?.map((item: any) => item.pic).toString(),
+              };
           }
-          const findSupplier = allSupplier?.find(supplier => +supplier.id === +item.valueId)
-          return {...item, valueName: findSupplier?.name}
+          const findSupplier = allSupplier?.find((supplier) => +supplier.id === +item.valueId);
+          return { ...item, valueName: findSupplier?.name };
         case ProcurementFilterBasicEnum.store_ids:
-          if(isArray(item.valueId)) {
-            const filterStore = allStore?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
-            if(filterStore)
-            return {...item, valueName: filterStore?.map((item: any) => item.name).toString()}
+          if (isArray(item.valueId)) {
+            const filterStore = allStore?.filter((elem) =>
+              item.valueId.find((id: number) => +elem.id === +id),
+            );
+            if (filterStore)
+              return {
+                ...item,
+                valueName: filterStore?.map((item: any) => item.name).toString(),
+              };
           }
-          const findStore= allStore?.find(store => +store.id === +item.valueId)
-          return {...item, valueName: findStore?.name}
+          const findStore = allStore?.find((store) => +store.id === +item.valueId);
+          return { ...item, valueName: findStore?.name };
         case ProcurementFilterBasicEnum.status:
           let statuses: any = [];
-          if(isArray(item.valueId)) {
-            item.valueId.forEach((item: any) => {statuses.push(ProcurementStatusName[item])})
+          if (isArray(item.valueId)) {
+            item.valueId.forEach((item: any) => {
+              statuses.push(ProcurementStatusName[item]);
+            });
           } else {
-            statuses = ProcurementStatusName[item.valueId]
+            statuses = ProcurementStatusName[item.valueId];
           }
-          return {...item, valueName: statuses?.toString()}
+          return { ...item, valueName: statuses?.toString() };
         case ProcurementFilterAdvanceEnum.stock_in_bys:
           if (isArray(item.valueId)) {
-            const filterAccounts = accounts?.filter((elem) => item.valueId.find((code: string) => elem.code === code));
+            const filterAccounts = accounts?.filter((elem) =>
+              item.valueId.find((code: string) => elem.code === code),
+            );
             if (filterAccounts)
-              return { ...item, valueName: filterAccounts?.map((item: any, index: number) => `${item?.code} - ${item?.full_name}${index === filterAccounts.length - 1 ? "" : ", "}`) }
+              return {
+                ...item,
+                valueName: filterAccounts?.map(
+                  (item: any, index: number) =>
+                    `${item?.code} - ${item?.full_name}${
+                      index === filterAccounts.length - 1 ? "" : ", "
+                    }`,
+                ),
+              };
           }
-          const findAccount = accounts?.find(account => account.code === item.valueId)
-          return { ...item, valueName: `${findAccount?.code} - ${findAccount?.full_name}` }
+          const findAccount = accounts?.find((account) => account.code === item.valueId);
+          return {
+            ...item,
+            valueName: `${findAccount?.code} - ${findAccount?.full_name}`,
+          };
         case ProcurementFilterAdvanceEnum.merchandisers:
           if (isArray(item.valueId)) {
-            const filterMerchandisers = merchans.items?.filter((elem) => item.valueId.find((code: string) => elem.code === code));
+            const filterMerchandisers = merchans.items?.filter((elem) =>
+              item.valueId.find((code: string) => elem.code === code),
+            );
             if (filterMerchandisers)
-              return { ...item, valueName: filterMerchandisers?.map((item: any, index: number) => `${item?.code} - ${item?.full_name}${index === filterMerchandisers.length - 1 ? "" : ", "}`) }
+              return {
+                ...item,
+                valueName: filterMerchandisers?.map(
+                  (item: any, index: number) =>
+                    `${item?.code} - ${item?.full_name}${
+                      index === filterMerchandisers.length - 1 ? "" : ", "
+                    }`,
+                ),
+              };
           }
-          const findMerchandiser = merchans.items?.find(mer => mer.code === item.valueId)
-          return { ...item, valueName: `${findMerchandiser?.code} - ${findMerchandiser?.full_name}` }
+          const findMerchandiser = merchans.items?.find((mer) => mer.code === item.valueId);
+          return {
+            ...item,
+            valueName: `${findMerchandiser?.code} - ${findMerchandiser?.full_name}`,
+          };
         case ProcurementFilterBasicEnum.content:
         case ProcurementFilterAdvanceEnum.active:
         case ProcurementFilterAdvanceEnum.stock_in:
         case ProcurementFilterAdvanceEnum.expect_receipt:
         case ProcurementFilterAdvanceEnum.note:
-          return { ...item, valueName: item.valueId.toString() }
+          return { ...item, valueName: item.valueId.toString() };
         default:
-          return item
+          return item;
       }
-    })
-    setParamsArray(transformParams)
+    });
+    setParamsArray(transformParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[paramsUrl, JSON.stringify(allStore), JSON.stringify(allSupplier), accounts])
+  }, [paramsUrl, JSON.stringify(allStore), JSON.stringify(allSupplier), accounts]);
 
   const removeDate = (params: any, key: string) => {
-    const { start, end } = splitDateRange(params[key])
-    params[`${key}_from`] = start !== "??" ? start : undefined
-    params[`${key}_to`] = end !== "??" ? end : undefined
-  }
+    const { start, end } = splitDateRange(params[key]);
+    params[`${key}_from`] = start !== "??" ? start : undefined;
+    params[`${key}_to`] = end !== "??" ? end : undefined;
+  };
 
   //watch remove tag
   useEffect(() => {
     (async () => {
-      if(paramsArray.length < (prevArray?.length || 0)) {
+      if (paramsArray.length < (prevArray?.length || 0)) {
         // const filterStatusInParams = paramsArray.filter((item: any) => item.keyId === 'status').map((param: any) => param.status)
         // setSelectedStatuses(filterStatusInParams)
-        let newParams = transformParamsToObject(paramsArray)
-        if(newParams?.active) {
-          removeDate(newParams, ProcurementFilterAdvanceEnum.active)
+        let newParams = transformParamsToObject(paramsArray);
+        if (newParams?.active) {
+          removeDate(newParams, ProcurementFilterAdvanceEnum.active);
         }
-        if(newParams?.stock_in) {
-          removeDate(newParams, ProcurementFilterAdvanceEnum.stock_in)
+        if (newParams?.stock_in) {
+          removeDate(newParams, ProcurementFilterAdvanceEnum.stock_in);
         }
-        if(newParams?.expect_receipt) {
-          removeDate(newParams, ProcurementFilterAdvanceEnum.expect_receipt)
+        if (newParams?.expect_receipt) {
+          removeDate(newParams, ProcurementFilterAdvanceEnum.expect_receipt);
         }
-        delete newParams[ProcurementFilterAdvanceEnum.active]
-        delete newParams[ProcurementFilterAdvanceEnum.stock_in]
-        delete newParams[ProcurementFilterAdvanceEnum.expect_receipt]
-        await history.push(`${history.location.pathname}?${generateQuery(newParams)}`)
+        delete newParams[ProcurementFilterAdvanceEnum.active];
+        delete newParams[ProcurementFilterAdvanceEnum.stock_in];
+        delete newParams[ProcurementFilterAdvanceEnum.expect_receipt];
+        await history.push(`${history.location.pathname}?${generateQuery(newParams)}`);
       }
     })();
-  }, [paramsArray, history, prevArray])
+  }, [paramsArray, history, prevArray]);
 
   const getSupplierByCode = async (ids: string) => {
     const res = await callApiNative({ isShowLoading: false }, dispatch, supplierGetApi, {
       ids,
     });
     if (res) setAllSupplier(res.items);
-  }
+  };
 
   useEffect(() => {
     const filters = convertParams(paramsUrl);
     formBase.setFieldsValue({
-      [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers?.toString()?.split(',').map((x: string) => parseInt(x)),
+      [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers
+        ?.toString()
+        ?.split(",")
+        .map((x: string) => parseInt(x)),
       [ProcurementFilterBasicEnum.content]: paramsUrl.content,
       [ProcurementFilterBasicEnum.status]: paramsUrl.status,
-      [ProcurementFilterBasicEnum.store_ids]: paramsUrl.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
-    })
+      [ProcurementFilterBasicEnum.store_ids]: paramsUrl.stores
+        ?.toString()
+        ?.split(",")
+        .map((x: string) => parseInt(x)),
+    });
     formAdvanced.setFieldsValue({
       ...filters,
       // status: filters.status,
@@ -272,7 +333,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
       expect_receipt_to: filters.expect_receipt_to,
       merchandisers: filters.merchandisers,
       stock_in_bys: filters.stock_in_bys,
-      note: filters.note
+      note: filters.note,
     });
     if (paramsUrl.suppliers) {
       getSupplierByCode(paramsUrl.suppliers).then();
@@ -301,7 +362,11 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                   placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng, Mã tham chiếu"
                 />
               </Item>
-              <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 200 }}>
+              <Item
+                name={ProcurementFilterBasicEnum.store_ids}
+                className="stores"
+                style={{ minWidth: 200 }}
+              >
                 <TreeStore
                   form={formBase}
                   name={ProcurementFilterBasicEnum.store_ids}
@@ -327,7 +392,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                   placeholder="Chọn trạng thái"
                   notFoundContent="Không tìm thấy kết quả"
                   optionFilterProp="children"
-                  getPopupContainer={trigger => trigger.parentNode}
+                  getPopupContainer={(trigger) => trigger.parentNode}
                 >
                   {Object.keys(ProcurementStatus).map((item, index) => (
                     <CustomSelect.Option
@@ -352,7 +417,9 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                     Thêm bộ lọc
                   </Button>
                 </Item>
-                <Item><ButtonSetting onClick={onClickOpen} /></Item>
+                <Item>
+                  <ButtonSetting onClick={onClickOpen} />
+                </Item>
               </div>
             </FilterProcurementStyle>
           </Form>
@@ -370,55 +437,66 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                   switch (field) {
                     case ProcurementFilterAdvanceEnum.active:
                     case ProcurementFilterAdvanceEnum.expect_receipt:
-                      component = <CustomFilterDatePicker
-                        fieldNameFrom={`${field}_from`}
-                        fieldNameTo={`${field}_to`}
-                        activeButton={dateClick}
-                        setActiveButton={setDateClick}
-                        formRef={formRef}
-                      />;
+                      component = (
+                        <CustomFilterDatePicker
+                          fieldNameFrom={`${field}_from`}
+                          fieldNameTo={`${field}_to`}
+                          activeButton={dateClick}
+                          setActiveButton={setDateClick}
+                          formRef={formRef}
+                        />
+                      );
                       break;
                     case ProcurementFilterAdvanceEnum.stock_in_bys:
-                      component = <AccountSearchPaging placeholder="Chọn người nhập" mode="multiple" />
+                      component = (
+                        <AccountSearchPaging placeholder="Chọn người nhập" mode="multiple" />
+                      );
                       break;
                     case ProcurementFilterAdvanceEnum.stock_in:
-                      component = <CustomFilterDatePicker
-                        fieldNameFrom={`${field}_from`}
-                        fieldNameTo={`${field}_to`}
-                        activeButton={dateClick}
-                        setActiveButton={setDateClick}
-                        formRef={formRef}
-                        format="DD/MM/YYYY HH:mm"
-                        showTime
-                      />;
+                      component = (
+                        <CustomFilterDatePicker
+                          fieldNameFrom={`${field}_from`}
+                          fieldNameTo={`${field}_to`}
+                          activeButton={dateClick}
+                          setActiveButton={setDateClick}
+                          formRef={formRef}
+                          format="DD/MM/YYYY HH:mm"
+                          showTime
+                        />
+                      );
                       break;
                     case ProcurementFilterAdvanceEnum.merchandisers:
-                      component = <BaseSelectMerchans
-                        merchans={merchans}
-                        fetchMerchans={fetchMerchans}
-                        isLoadingMerchans={isLoadingMerchans}
-                        mode={"multiple"}
-                      />;
+                      component = (
+                        <BaseSelectMerchans
+                          merchans={merchans}
+                          fetchMerchans={fetchMerchans}
+                          isLoadingMerchans={isLoadingMerchans}
+                          mode={"multiple"}
+                        />
+                      );
                       break;
                     case ProcurementFilterAdvanceEnum.note:
-                      component = (
-                        <Input placeholder="Tìm kiếm theo nội dung ghi chú" />
-                      );
+                      component = <Input placeholder="Tìm kiếm theo nội dung ghi chú" />;
                       break;
                   }
                   return (
                     <Col span={12} key={field}>
                       <div className="font-weight-500">{ProcurementFilterAdvanceName[field]}</div>
-                      {field === ProcurementFilterAdvanceEnum.note ?
-                        (<Item
+                      {field === ProcurementFilterAdvanceEnum.note ? (
+                        <Item
                           name={field}
                           rules={[
-                            { max: 255, message: "Thông tin tìm kiếm không được quá 255 ký tự" }
-                          ]}>
+                            {
+                              max: 255,
+                              message: "Thông tin tìm kiếm không được quá 255 ký tự",
+                            },
+                          ]}
+                        >
                           {component}
-                        </Item>)
-                        : (<Item name={field}>{component}</Item>)
-                      }
+                        </Item>
+                      ) : (
+                        <Item name={field}>{component}</Item>
+                      )}
                     </Col>
                   );
                 })}

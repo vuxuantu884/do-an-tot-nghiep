@@ -11,10 +11,7 @@ import { PoPaymentConditions } from "model/purchase-order/payment-conditions.mod
 function* paymentConditionsGetAll(action: YodyAction) {
   const { setData } = action.payload;
   try {
-
-    let response: BaseResponse<Array<PoPaymentConditions>> = yield call(
-      getPaymentConditionsrApi
-    );
+    let response: BaseResponse<Array<PoPaymentConditions>> = yield call(getPaymentConditionsrApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -33,8 +30,5 @@ function* paymentConditionsGetAll(action: YodyAction) {
 }
 
 export function* paymentConditionsSaga() {
-  yield takeLatest(
-    PaymentConditionsType.GET_PAYMENT_CONDITIONS_REQUEST,
-    paymentConditionsGetAll
-  );
+  yield takeLatest(PaymentConditionsType.GET_PAYMENT_CONDITIONS_REQUEST, paymentConditionsGetAll);
 }

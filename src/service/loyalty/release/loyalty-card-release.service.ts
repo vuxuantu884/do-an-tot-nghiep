@@ -7,7 +7,7 @@ import { generateQuery } from "utils/AppUtils";
 
 export const loyaltyCardUploadApi = (
   file: File,
-  name: string
+  name: string,
 ): Promise<BaseResponse<LoyaltyCardReleaseResponse>> => {
   let body = new FormData();
   body.append("name", name);
@@ -23,9 +23,7 @@ export const searchLoyaltyCardReleaseList = (query: BaseQuery): Promise<BaseResp
 };
 
 // get loyalty card release jobs api
-export const getLoyaltyCardReleaseJobsApi = (
-    process_id: any
-): Promise<BaseResponse<any>> => {
+export const getLoyaltyCardReleaseJobsApi = (process_id: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.LOYALTY}/loyalty-card-release/jobs/${process_id}`;
   return BaseAxios.get(requestUrl);
 };

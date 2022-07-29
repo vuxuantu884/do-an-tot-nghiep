@@ -2,11 +2,15 @@ import { KDGroup } from "model/report";
 import moment from "moment";
 import { useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { calculateTargetMonth, getDataManyQueryKeyDriverOffline, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import {
+  calculateTargetMonth,
+  getDataManyQueryKeyDriverOffline,
+  nonAccentVietnameseKD,
+} from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import {
-    STORES_PRODUCT_TOTAL_SALES_DAY_QUERY,
-    STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY
+  STORES_PRODUCT_TOTAL_SALES_DAY_QUERY,
+  STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
@@ -27,8 +31,11 @@ function useFetchStoresProductTotalSales() {
       const res = await getDataManyQueryKeyDriverOffline(
         dispatch,
         moment().date() > 1
-          ? [STORES_PRODUCT_TOTAL_SALES_DAY_QUERY(selectedAsm[0], selectedStores), STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY(selectedAsm[0], selectedStores)]
-          : [STORES_PRODUCT_TOTAL_SALES_DAY_QUERY(selectedAsm[0], selectedStores)]
+          ? [
+              STORES_PRODUCT_TOTAL_SALES_DAY_QUERY(selectedAsm[0], selectedStores),
+              STORES_PRODUCT_TOTAL_SALES_MONTH_QUERY(selectedAsm[0], selectedStores),
+            ]
+          : [STORES_PRODUCT_TOTAL_SALES_DAY_QUERY(selectedAsm[0], selectedStores)],
       );
 
       if (!res?.length) {
@@ -47,16 +54,17 @@ function useFetchStoresProductTotalSales() {
             if (idx !== -1) {
               childrenProduct[idx].name = item[0];
               childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`] = item[2];
-              childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] = calculateTargetMonth(item[2]);
+              childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] =
+                calculateTargetMonth(item[2]);
             } else {
               childrenProduct.push({
                 key: itemKey,
                 name: item[0],
                 [`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`]: item[2],
                 [`${nonAccentVietnameseKD(item[1])}_targetMonth`]: calculateTargetMonth(item[2]),
-              })
+              });
             }
-          } 
+          }
         });
         if (res[1]?.result) {
           const { data: resMonthData } = res[1].result;
@@ -66,17 +74,19 @@ function useFetchStoresProductTotalSales() {
               const idx = childrenProduct.findIndex((product: any) => product?.key === itemKey);
               if (idx !== -1) {
                 childrenProduct[idx].name = item[0];
-                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`] = item[2];
-                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] = calculateTargetMonth(item[2]);
+                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`] =
+                  item[2];
+                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] =
+                  calculateTargetMonth(item[2]);
               } else {
                 childrenProduct.push({
                   key: itemKey,
                   name: item[0],
                   [`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`]: item[2],
                   [`${nonAccentVietnameseKD(item[1])}_targetMonth`]: calculateTargetMonth(item[2]),
-                })
+                });
               }
-            } 
+            }
           });
         }
         storesProductTotalSales.children = childrenProduct;

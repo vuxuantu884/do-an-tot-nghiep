@@ -453,8 +453,8 @@
       color: $primary-color;
       cursor: default;
       &-icon {
-        filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg)
-          brightness(66%) contrast(100%);
+        filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg) brightness(66%)
+          contrast(100%);
       }
     }
   }

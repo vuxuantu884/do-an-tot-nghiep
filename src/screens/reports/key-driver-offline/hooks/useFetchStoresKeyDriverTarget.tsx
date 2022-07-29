@@ -11,7 +11,9 @@ function useFetchStoresKeyDriverTarget() {
   const dispatch = useDispatch();
   const { setData, selectedStores } = useContext(KDOfflineStoresContext);
 
-  const [isFetchingStoresKeyDriverTarget, setIsFetchingStoresKeyDriverTarget] = useState<boolean | undefined>();
+  const [isFetchingStoresKeyDriverTarget, setIsFetchingStoresKeyDriverTarget] = useState<
+    boolean | undefined
+  >();
 
   const findKeyDriverAndUpdateValue = useCallback(
     (data: any, keyDriversTarget: any, asmName: string, targetTime: "month" | "day") => {
@@ -27,7 +29,7 @@ function useFetchStoresKeyDriverTarget() {
         }
       });
     },
-    []
+    [],
   );
 
   const refetch = useCallback(() => {
@@ -52,7 +54,7 @@ function useFetchStoresKeyDriverTarget() {
         let dataPrev: any = prev[0];
         res.forEach((item: any) => {
           const { department, data: keyDriversTarget } = item;
-          [...selectedStores].forEach(asm => {
+          [...selectedStores].forEach((asm) => {
             const asmKey = nonAccentVietnameseKD(asm);
             if (department === asmKey) {
               findKeyDriverAndUpdateValue(dataPrev, keyDriversTarget, asmKey, "month");
@@ -62,15 +64,15 @@ function useFetchStoresKeyDriverTarget() {
         prev[0] = dataPrev;
         return [...prev];
       });
-      
+
       setIsFetchingStoresKeyDriverTarget(false);
     };
     fetchStoresKeyDriverTarget();
   }, [dispatch, findKeyDriverAndUpdateValue, setData, selectedStores]);
 
   useEffect(() => {
-    refetch()
-  }, [refetch])
+    refetch();
+  }, [refetch]);
 
   return { isFetchingStoresKeyDriverTarget, refetch };
 }

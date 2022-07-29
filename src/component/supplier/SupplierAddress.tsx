@@ -33,7 +33,7 @@ const SupplierAddress = ({
   useEffect(() => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(
-      DistrictGetByCountryAction(initialSupplierForm.addresses[0].country_id || 0, setListDistrict)
+      DistrictGetByCountryAction(initialSupplierForm.addresses[0].country_id || 0, setListDistrict),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, []);
@@ -62,7 +62,11 @@ const SupplierAddress = ({
       });
     } else {
       data = listDistrict.map((item) => {
-        return { ...item, value: item.id, name: `${item.city_name} - ${item.name}` };
+        return {
+          ...item,
+          value: item.id,
+          name: `${item.city_name} - ${item.name}`,
+        };
       });
     }
 

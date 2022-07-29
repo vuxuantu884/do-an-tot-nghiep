@@ -13,7 +13,9 @@ function SidebarOrderDetailInformation(props: PropType) {
     <StyledComponent>
       <Card title="THÔNG TIN NGUỒN">
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_source:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>
+            utm_source:
+          </Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_tracking?.utm_source}
@@ -21,7 +23,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_medium:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>
+            utm_medium:
+          </Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_tracking?.utm_medium}
@@ -29,7 +33,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_campaign:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>
+            utm_campaign:
+          </Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_tracking?.utm_campaign}
@@ -37,7 +43,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_term:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>
+            utm_term:
+          </Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_tracking?.utm_term}
@@ -45,7 +53,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_id:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>
+            utm_id:
+          </Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_tracking?.utm_id}
@@ -53,7 +63,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>utm_content:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>
+            utm_content:
+          </Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_tracking?.utm_content}
@@ -61,7 +73,9 @@ function SidebarOrderDetailInformation(props: PropType) {
           </Col>
         </Row>
         <Row gutter={5}>
-          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>Affiliate:</Col>
+          <Col span={10} style={{ fontWeight: 400, color: "#737373" }}>
+            Affiliate:
+          </Col>
           <Col span={14}>
             <span style={{ fontWeight: 400, color: "#222222" }} className="text-focus">
               {OrderDetail?.utm_tracking?.affiliate}

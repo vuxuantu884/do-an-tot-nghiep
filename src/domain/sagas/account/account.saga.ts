@@ -31,10 +31,7 @@ import { callApiSaga } from "utils/ApiUtils";
 function* AccountSearchSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
-      searchAccountApi,
-      query
-    );
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searchAccountApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -54,10 +51,7 @@ function* AccountSearchSaga(action: YodyAction) {
 function* AccountGetListSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
-      searchAccountApi,
-      query
-    );
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searchAccountApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -74,10 +68,7 @@ function* AccountGetListSaga(action: YodyAction) {
 function* AccountCreateSaga(action: YodyAction) {
   const { request, onCreateSuccess } = action.payload;
   try {
-    let response: BaseResponse<AccountResponse> = yield call(
-      AccountCreateService,
-      request
-    );
+    let response: BaseResponse<AccountResponse> = yield call(AccountCreateService, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess(response.data);
@@ -100,11 +91,7 @@ function* AccountCreateSaga(action: YodyAction) {
 function* AccountUpdateSaga(action: YodyAction) {
   const { id, request, setData } = action.payload;
   try {
-    let response: BaseResponse<AccountResponse> = yield call(
-      AccountUpdateService,
-      id,
-      request
-    );
+    let response: BaseResponse<AccountResponse> = yield call(AccountUpdateService, id, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -149,10 +136,7 @@ function* AccountUpdatePassSaga(action: YodyAction) {
 function* AccountDeleteSaga(action: YodyAction) {
   const { id, deleteCallback } = action.payload;
   try {
-    let response: BaseResponse<any | null> = yield call(
-      AccountDeleteService,
-      id
-    );
+    let response: BaseResponse<any | null> = yield call(AccountDeleteService, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         deleteCallback(true);
@@ -175,10 +159,7 @@ function* AccountDeleteSaga(action: YodyAction) {
 function* AccountGetByIdSaga(action: YodyAction) {
   const { code, setData } = action.payload;
   try {
-    let response: BaseResponse<AccountResponse> = yield call(
-      AccountGetByIdService,
-      code
-    );
+    let response: BaseResponse<AccountResponse> = yield call(AccountGetByIdService, code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         console.log(response.data);
@@ -200,9 +181,7 @@ function* AccountGetByIdSaga(action: YodyAction) {
 function* DepartmentGetListSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<DepartmentResponse>> = yield call(
-      getDepartmentAllApi
-    );
+    let response: BaseResponse<PageResponse<DepartmentResponse>> = yield call(getDepartmentAllApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -218,9 +197,7 @@ function* DepartmentGetListSaga(action: YodyAction) {
 function* PositionGetListSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<PositionResponse>> = yield call(
-      getPositionAllApi
-    );
+    let response: BaseResponse<PageResponse<PositionResponse>> = yield call(getPositionAllApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -237,9 +214,7 @@ function* PositionGetListSaga(action: YodyAction) {
 function* ShipperSearchSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
-      searchShipperApi
-    );
+    let response: BaseResponse<PageResponse<AccountResponse>> = yield call(searchShipperApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data.items);
@@ -256,9 +231,7 @@ function* ShipperSearchSaga(action: YodyAction) {
 function* ShipperExternalSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      externalShipperApi
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(externalShipperApi);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -276,7 +249,8 @@ function* powerBIEmbededSaga(action: YodyAction) {
   let { params, setData } = action.payload;
   try {
     let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
-      powerBIEmbededApi, params
+      powerBIEmbededApi,
+      params,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -292,33 +266,30 @@ function* powerBIEmbededSaga(action: YodyAction) {
 }
 
 function* getAccountMeSaga(action: YodyAction) {
-  let {  onResult } = action.payload;
+  let { onResult } = action.payload;
   //TODO: Handle token here
-    try {
-      let response: BaseResponse<AccountResponse> = yield call(getAccountDetail);
-      switch(response.code) {
-        case HttpStatus.SUCCESS:
-          onResult(response.data);
-          break;
-        case HttpStatus.UNAUTHORIZED:
-          yield put(unauthorizedAction());
-          break;
-        default:
-          onResult(false);
-          break;
-      }
-    } catch (error) {
-      onResult(false);
+  try {
+    let response: BaseResponse<AccountResponse> = yield call(getAccountDetail);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onResult(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onResult(false);
+        break;
     }
+  } catch (error) {
+    onResult(false);
+  }
 }
 
 function* updateMeSaga(action: YodyAction) {
-  const {request, setData } = action.payload;
+  const { request, setData } = action.payload;
   try {
-    let response: BaseResponse<AccountResponse> = yield call(
-      updateMeService,
-      request
-    );
+    let response: BaseResponse<AccountResponse> = yield call(updateMeService, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -337,11 +308,11 @@ function* updateMeSaga(action: YodyAction) {
 }
 
 function* searchAccountPublicSaga(action: YodyAction) {
-  const {query, onResult } = action.payload;
+  const { query, onResult } = action.payload;
   try {
     let response: BaseResponse<PageResponse<AccountResponse>> = yield call(
       searchAccountPublicApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -362,10 +333,7 @@ function* searchAccountPublicSaga(action: YodyAction) {
 export function* accountSaga() {
   yield takeEvery(AccountType.SEARCH_ACCOUNT_REQUEST, AccountSearchSaga);
   yield takeLatest(AccountType.GET_LIST_ACCOUNT_REQUEST, AccountGetListSaga);
-  yield takeLatest(
-    AccountType.GET_LIST_DEPARTMENT_REQUEST,
-    DepartmentGetListSaga
-  );
+  yield takeLatest(AccountType.GET_LIST_DEPARTMENT_REQUEST, DepartmentGetListSaga);
   yield takeLatest(AccountType.GET_LIST_POSITION_REQUEST, PositionGetListSaga);
   yield takeLatest(AccountType.GET_LIST_SHIPPER_REQUEST, ShipperSearchSaga);
   yield takeLatest(AccountType.GET_LIST_EXTERNAL_SHIPPER_REQUEST, ShipperExternalSaga);

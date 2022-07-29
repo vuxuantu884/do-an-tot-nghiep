@@ -1,38 +1,38 @@
 .overflow-table {
-    overflow-x: scroll;
-    overflow-y: scroll;
-    height: 500px;
+  overflow-x: scroll;
+  overflow-y: scroll;
+  height: 500px;
+  width: 100%;
+
+  thead {
+    border-bottom: solid 2px #e2e2e2;
+  }
+
+  tbody {
+    background-color: white;
+  }
+
+  .rules {
+    background: #f5f5f5;
+    box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.1);
     width: 100%;
 
-    thead {
-      border-bottom: solid 2px #e2e2e2;
+    .condition {
+      padding: 14px 11px;
+      min-width: 150px;
+      min-height: 70px;
+      font-size: 14px;
+      line-height: 16px;
+      border: solid 1px #e2e2e2;
+      text-align: center;
+      &:first-child {
+        text-align: left;
+        min-width: 300px;
+      }
     }
 
-    tbody {
-      background-color: white;
-    }
-
-    .rules {
-      background: #F5F5F5;
-      box-shadow: 0px 2px 0px rgba(0, 0, 0, 0.1);
-      width: 100%;
-
-      .condition {
-        padding: 14px 11px;
-        min-width: 150px;
-        min-height: 70px;
-        font-size: 14px;
-        line-height: 16px;
-        border: solid 1px #e2e2e2;
-        text-align: center;
-        &:first-child {
-          text-align: left;
-          min-width: 300px;
-        }
-      }
-
-      .checkbox {
-        text-align: center;
-      }
+    .checkbox {
+      text-align: center;
     }
   }
+}

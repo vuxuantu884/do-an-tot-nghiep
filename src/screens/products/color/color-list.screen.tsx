@@ -8,9 +8,7 @@ import { useDispatch } from "react-redux";
 import { PageResponse } from "model/base/base-metadata.response";
 import { MenuAction } from "component/table/ActionButton";
 import { showSuccess, showWarning } from "utils/ToastUtils";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { ColorResponse, ColorSearchQuery } from "model/product/color.model";
 import imgDefault from "assets/icon/img-default.svg";
 import {
@@ -51,9 +49,7 @@ const ColorListScreen: React.FC = () => {
     },
     items: [],
   });
-  const [listMainColor, setListMainColor] = useState<
-    PageResponse<ColorResponse>
-  >({
+  const [listMainColor, setListMainColor] = useState<PageResponse<ColorResponse>>({
     metadata: {
       limit: 0,
       page: 1,
@@ -68,9 +64,7 @@ const ColorListScreen: React.FC = () => {
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   let [params, setPrams] = useState<ColorSearchQuery>(getQueryParams(query));
-  const [columns, setColumn] = useState<
-    Array<ICustomTableColumType<ColorResponse>>
-  >([
+  const [columns, setColumn] = useState<Array<ICustomTableColumType<ColorResponse>>>([
     {
       title: "Mã màu",
       dataIndex: "code",
@@ -94,10 +88,7 @@ const ColorListScreen: React.FC = () => {
       render: (value: number, item: ColorResponse) => {
         return (
           value && (
-            <Link
-              target="_blank"
-              to={`${UrlConfig.VARIANTS}?colors=${item.id}`}
-            >
+            <Link target="_blank" to={`${UrlConfig.VARIANTS}?colors=${item.id}`}>
               {value}
             </Link>
           )
@@ -139,8 +130,7 @@ const ColorListScreen: React.FC = () => {
           <Image
             width={40}
             src={value}
-            style={{fontSize: 10,
-              textAlign: "center"}}
+            style={{ fontSize: 10, textAlign: "center" }}
             placeholder={<img alt="" src={imgDefault} />}
           />
         ) : (
@@ -156,10 +146,7 @@ const ColorListScreen: React.FC = () => {
       render: (item: ColorResponse) => {
         return item.created_name ? (
           <div>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}
-            >
+            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
               {item.created_name}
             </Link>
           </div>
@@ -181,10 +168,7 @@ const ColorListScreen: React.FC = () => {
     acceptPermissions: [ProductPermission.colors_delete],
   });
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns],
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const actions = useMemo(() => {
     return actionDefault.filter((item) => {
@@ -196,20 +180,15 @@ const ColorListScreen: React.FC = () => {
     });
   }, [canDeleteColor]);
 
-  const searchColorCallback = useCallback(
-    (listResult: PageResponse<ColorResponse>) => {
-      setTableLoading(false);
-      setData(listResult);
-    },
-    [],
-  );
+  const searchColorCallback = useCallback((listResult: PageResponse<ColorResponse>) => {
+    setTableLoading(false);
+    setData(listResult);
+  }, []);
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     showSuccess("Xóa màu sắc thành công");
     setTableLoading(true);
-    dispatch(
-      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback),
-    );
+    dispatch(getColorAction({ ...params, is_main_color: 0 }, searchColorCallback));
   }, [dispatch, params, searchColorCallback, selected]);
 
   const onDelete = useCallback(() => {
@@ -279,9 +258,7 @@ const ColorListScreen: React.FC = () => {
   );
 
   useEffect(() => {
-    dispatch(
-      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback),
-    );
+    dispatch(getColorAction({ ...params, is_main_color: 0 }, searchColorCallback));
     setTableLoading(true);
     dispatch(getColorAction({ is_main_color: 1 }, setListMainColor));
     return () => {};
@@ -304,10 +281,7 @@ const ColorListScreen: React.FC = () => {
       ]}
       extra={
         <AuthWrapper acceptPermissions={[ProductPermission.colors_create]}>
-          <ButtonCreate
-            child="Thêm màu sắc"
-            path={`${UrlConfig.COLORS}/create`}
-          />
+          <ButtonCreate child="Thêm màu sắc" path={`${UrlConfig.COLORS}/create`} />
         </AuthWrapper>
       }
     >
@@ -322,10 +296,7 @@ const ColorListScreen: React.FC = () => {
               layout="inline"
             >
               <Form.Item name="info" className="input-search">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tên/Mã màu sắc"
-                />
+                <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã màu sắc" />
               </Form.Item>
               <Form.Item name="parent_id">
                 <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>

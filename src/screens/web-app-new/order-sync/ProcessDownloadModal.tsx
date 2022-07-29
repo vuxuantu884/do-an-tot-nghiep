@@ -42,18 +42,15 @@ const ProgressDownloadModal = (props: ProgressDownloadModalProps) => {
       maskClosable={false}
       footer={
         <div>
-          {isDownloading ?
+          {isDownloading ? (
             <Button danger onClick={cancelProgressDownloadModal}>
               Hủy
             </Button>
-            : <div />
-          }
+          ) : (
+            <div />
+          )}
 
-          <Button
-            type="primary"
-            onClick={onOk}
-            loading={isDownloading}
-          >
+          <Button type="primary" onClick={onOk} loading={isDownloading}>
             Xác nhận
           </Button>
         </div>
@@ -65,53 +62,57 @@ const ProgressDownloadModal = (props: ProgressDownloadModalProps) => {
             <div>
               <div>Tổng cộng</div>
               <div className="total-count">
-                {isNullOrUndefined(progressData?.total) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
             <div>
               <div>ĐH mới</div>
               <div className="total-created">
-                {isNullOrUndefined(progressData?.total_created) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total_created) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total_created}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
             <div>
               <div>ĐH cập nhật</div>
               <div className="total-updated">
-                {isNullOrUndefined(progressData?.total_updated) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total_updated) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total_updated}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
             <div>
               <div>Lỗi</div>
               <div className="total-error">
-                {isNullOrUndefined(progressData?.total_error) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total_error) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total_error}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
           </div>
@@ -122,31 +123,29 @@ const ProgressDownloadModal = (props: ProgressDownloadModalProps) => {
             strokeColor="#2A2A86"
           />
         </div>
-        {errorData.length > 0 ?
-          (
-            <div className="error-orders">
-              <div className="title">Chi tiết lỗi:</div>
-              <div className="error_message">
-                <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
-                  <ul style={{ color: "#E24343" }}>
-                    {errorData.map((error, index) => (
-                      <li key={index} style={{ marginBottom: "5px" }}>
-                        <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
-                        <span>:</span>
-                        <span>{error.split(":")[1]}</span>
-                        <span>{error.split(":")[2]}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
+        {errorData.length > 0 ? (
+          <div className="error-orders">
+            <div className="title">Chi tiết lỗi:</div>
+            <div className="error_message">
+              <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
+                <ul style={{ color: "#E24343" }}>
+                  {errorData.map((error, index) => (
+                    <li key={index} style={{ marginBottom: "5px" }}>
+                      <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
+                      <span>:</span>
+                      <span>{error.split(":")[1]}</span>
+                      <span>{error.split(":")[2]}</span>
+                    </li>
+                  ))}
+                </ul>
               </div>
             </div>
-          )
-          :
-          (<></>)
-        }
+          </div>
+        ) : (
+          <></>
+        )}
       </StyledProgressDownloadModal>
     </Modal>
   );
-}
+};
 export default ProgressDownloadModal;

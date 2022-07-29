@@ -1,10 +1,7 @@
 import { Button, Checkbox, Col, Form, Input, Modal, Row } from "antd";
 import TextArea from "antd/lib/input/TextArea";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import {
-  BillingAddressRequestModel,
-  OrderBillRequestFormModel,
-} from "model/request/order.request";
+import { BillingAddressRequestModel, OrderBillRequestFormModel } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { useEffect, useMemo } from "react";
@@ -151,11 +148,7 @@ function OrderBillRequestModal(props: PropTypes) {
               form.setFieldsValue(initialFormValues);
             }
           } else {
-            handleFetchApiError(
-              response,
-              "Chi tiết yêu cầu xuất hóa đơn",
-              dispatch,
-            );
+            handleFetchApiError(response, "Chi tiết yêu cầu xuất hóa đơn", dispatch);
             form.setFieldsValue(initialFormValues);
           }
         })
@@ -177,8 +170,8 @@ function OrderBillRequestModal(props: PropTypes) {
   // console.log('customer111', customer)
 
   useEffect(() => {
-    form.setFieldsValue(initialFormValues)
-  }, [customer, form, initialFormValues])
+    form.setFieldsValue(initialFormValues);
+  }, [customer, form, initialFormValues]);
 
   return (
     <Modal

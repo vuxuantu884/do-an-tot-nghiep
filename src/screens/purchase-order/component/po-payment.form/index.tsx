@@ -1,8 +1,4 @@
-import {
-  CheckCircleOutlined,
-  EditOutlined,
-  MinusCircleOutlined
-} from "@ant-design/icons";
+import { CheckCircleOutlined, EditOutlined, MinusCircleOutlined } from "@ant-design/icons";
 import {
   Button,
   Card,
@@ -15,7 +11,7 @@ import {
   Select,
   Space,
   Tag,
-  Timeline
+  Timeline,
 } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import NumberInput from "component/custom/number-input.custom";
@@ -38,7 +34,7 @@ import {
   PoPaymentMethod,
   PoPaymentStatus,
   POStatus,
-  ProcumentStatus
+  ProcumentStatus,
 } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
@@ -46,8 +42,8 @@ import { StyledComponent } from "./styles";
 
 const { Option } = Select;
 
-const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"))
-const PaymentModal = lazy(() => import("screens/purchase-order/modal/payment.modal"))
+const ModalConfirm = lazy(() => import("component/modal/ModalConfirm"));
+const PaymentModal = lazy(() => import("screens/purchase-order/modal/payment.modal"));
 
 type POPaymentFormProps = {
   poId: number;
@@ -57,16 +53,22 @@ type POPaymentFormProps = {
   setSuggest: (isSuggest: boolean) => void;
   setVisiblePaymentModal: (value: boolean) => void;
   isVisiblePaymentModal: boolean;
-  paymentItem: PurchasePayments | undefined,
+  paymentItem: PurchasePayments | undefined;
   setPaymentItem: (paymentItem: PurchasePayments | undefined) => void;
-  initValue: any,
-  setInitValue: (initValue: any) => void,
+  initValue: any;
+  setInitValue: (initValue: any) => void;
   isEditMode: boolean;
 };
-const POPaymentForm: React.FC<POPaymentFormProps> = (
-  props: POPaymentFormProps
-) => {
-  const { isVisiblePaymentModal, setVisiblePaymentModal, paymentItem, setPaymentItem, initValue, setInitValue, isEditMode } = props
+const POPaymentForm: React.FC<POPaymentFormProps> = (props: POPaymentFormProps) => {
+  const {
+    isVisiblePaymentModal,
+    setVisiblePaymentModal,
+    paymentItem,
+    setPaymentItem,
+    initValue,
+    setInitValue,
+    isEditMode,
+  } = props;
   const dispatch = useDispatch();
   // const [isVisiblePaymentModal, setVisiblePaymentModal] = useState(false);
   const [isConfirmPayment, setConfirmPayment] = useState<boolean>(false);
@@ -77,10 +79,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
     visible: false,
   });
 
-  const date_unit = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.date_unit
-  );
-  const isEditPaymentCondition = (poData.status === POStatus.DRAFT || poData.status === POStatus.WAITING_APPROVAL)
+  const date_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.date_unit);
+  const isEditPaymentCondition =
+    poData.status === POStatus.DRAFT || poData.status === POStatus.WAITING_APPROVAL;
 
   const CancelPaymentModal = () => {
     setVisiblePaymentModal(false);
@@ -92,7 +93,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         props.loadDetail(props.poId, false, false);
       }
     },
-    [props, setVisiblePaymentModal]
+    [props, setVisiblePaymentModal],
   );
 
   const updateCallback = useCallback(
@@ -102,7 +103,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         props.loadDetail(props.poId, false, false);
       }
     },
-    [props]
+    [props],
   );
 
   const updateFinancialStatusCallback = useCallback(
@@ -112,7 +113,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         props.loadDetail(props.poId, false, false);
       }
     },
-    [props]
+    [props],
   );
 
   const convertDate = (date: enumConvertDate) => {
@@ -125,9 +126,8 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         return "Năm";
       default:
         return "";
-
     }
-  }
+  };
 
   const finishPayment = useCallback(() => {
     setConfirmPayment(true);
@@ -141,23 +141,24 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         setLoaddingApproval(newLoadings);
         let newItem = { ...item };
         newItem.status = PoPaymentStatus.PAID;
-        dispatch(
-          PoPaymentUpdateAction(props.poId, item.id, newItem, updateCallback)
-        );
+        dispatch(PoPaymentUpdateAction(props.poId, item.id, newItem, updateCallback));
       }
     },
-    [dispatch, loadingApproval, props.poId, updateCallback]
+    [dispatch, loadingApproval, props.poId, updateCallback],
   );
   const ShowPaymentModal = useCallback(() => {
     setPaymentItem(undefined);
     setVisiblePaymentModal(true);
   }, [setPaymentItem, setVisiblePaymentModal]);
 
-  const editPayment = useCallback((item: PurchasePayments, index: number) => {
-    setPaymentItem(item);
-    setIndexPaymentItem(index.toString());
-    setVisiblePaymentModal(true);
-  }, [setPaymentItem, setVisiblePaymentModal]);
+  const editPayment = useCallback(
+    (item: PurchasePayments, index: number) => {
+      setPaymentItem(item);
+      setIndexPaymentItem(index.toString());
+      setVisiblePaymentModal(true);
+    },
+    [setPaymentItem, setVisiblePaymentModal],
+  );
 
   const onDeletePayment = useCallback(() => {
     setIndexPaymentItem("");
@@ -170,8 +171,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           props.setSuggest(false);
           setModalConfirm({
             visible: true,
-            subTitle:
-              "Bạn có xác nhận tạo yêu cầu thanh toán chênh lệch hay không?",
+            subTitle: "Bạn có xác nhận tạo yêu cầu thanh toán chênh lệch hay không?",
             title: "Tổng tiền thanh toán lớn giá trị nhập kho thực tế",
             onCancel: () => {
               setModalConfirm({ visible: false });
@@ -198,8 +198,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           <Form.Item
             noStyle
             shouldUpdate={(prev, current) =>
-              prev[POField.financial_status] !==
-              current[POField.financial_status]
+              prev[POField.financial_status] !== current[POField.financial_status]
             }
           >
             {({ getFieldValue }) => {
@@ -241,8 +240,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           <Form.Item
             noStyle
             shouldUpdate={(prev, current) =>
-              prev[POField.financial_status] !==
-              current[POField.financial_status]
+              prev[POField.financial_status] !== current[POField.financial_status]
             }
           >
             {({ getFieldValue }) => {
@@ -257,9 +255,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               }
               return (
                 checkStatus && (
-                  <AuthWrapper
-                    acceptPermissions={[PurchaseOrderPermission.payments_create]}
-                  >
+                  <AuthWrapper acceptPermissions={[PurchaseOrderPermission.payments_create]}>
                     <Button
                       onClick={ShowPaymentModal}
                       style={{
@@ -282,94 +278,99 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           <Input />
         </Form.Item>
         <div>
-          <Row gutter={24} className="margin-bottom-20 row-payment-info" >
+          <Row gutter={24} className="margin-bottom-20 row-payment-info">
             <Col xs={24} lg={8} className="closing-date">
-              {isEditMode ? <Form.Item
-                name={POField.ap_closing_date}
-                rules={[{ required: (poData.status === POStatus.STORED && poData.receive_status !== "finished"), message: "" }]}
-              >
-                <DatePicker
-                  style={{ width: "100%", maxWidth: 250 }}
-                  placeholder="Ngày chốt công nợ"
-                  disabled={!(poData.status === POStatus.STORED && poData.receive_status !== "finished")}
-                  format={DATE_FORMAT.DDMMYYY}
-                  disabledDate={(current) => current >= moment().endOf("day") || current < moment().endOf("days").subtract(7, "days")}
-                />
-
-              </Form.Item>
-                :
-                <> <span className="text-field margin-right-10">
-                  Ngày chốt công nợ:
-                </span><strong className="po-payment-row-title">
-                    {poData.ap_closing_date ? moment(poData.ap_closing_date).format(DATE_FORMAT.DDMMYYY) : ""}
+              {isEditMode ? (
+                <Form.Item
+                  name={POField.ap_closing_date}
+                  rules={[
+                    {
+                      required:
+                        poData.status === POStatus.STORED && poData.receive_status !== "finished",
+                      message: "",
+                    },
+                  ]}
+                >
+                  <DatePicker
+                    style={{ width: "100%", maxWidth: 250 }}
+                    placeholder="Ngày chốt công nợ"
+                    disabled={
+                      !(poData.status === POStatus.STORED && poData.receive_status !== "finished")
+                    }
+                    format={DATE_FORMAT.DDMMYYY}
+                    disabledDate={(current) =>
+                      current >= moment().endOf("day") ||
+                      current < moment().endOf("days").subtract(7, "days")
+                    }
+                  />
+                </Form.Item>
+              ) : (
+                <>
+                  {" "}
+                  <span className="text-field margin-right-10">Ngày chốt công nợ:</span>
+                  <strong className="po-payment-row-title">
+                    {poData.ap_closing_date
+                      ? moment(poData.ap_closing_date).format(DATE_FORMAT.DDMMYYY)
+                      : ""}
                   </strong>
                 </>
-              }
+              )}
             </Col>
             <Col xs={24} lg={isEditMode && isEditPaymentCondition ? 10 : 8}>
-
-              {
-                isEditMode && isEditPaymentCondition ?
-                  <StyledFormItem label="Điều khoản thanh toán:">
-                    <Input.Group className="ip-group" compact>
-                      <Form.Item name="payment_condition_id" noStyle>
-                        <NumberInput
-                          isFloat
-                          style={{ width: "70%" }}
-                          placeholder="Nhập điều khoản thanh toán"
-                        />
+              {isEditMode && isEditPaymentCondition ? (
+                <StyledFormItem label="Điều khoản thanh toán:">
+                  <Input.Group className="ip-group" compact>
+                    <Form.Item name="payment_condition_id" noStyle>
+                      <NumberInput
+                        isFloat
+                        style={{ width: "70%" }}
+                        placeholder="Nhập điều khoản thanh toán"
+                      />
+                    </Form.Item>
+                    <Form.Item name="payment_condition_name" noStyle>
+                      <Select
+                        className="selector-group"
+                        defaultActiveFirstOption
+                        style={{ width: "30%" }}
+                      >
+                        {date_unit?.map((item) => (
+                          <Option key={item.value} value={item.value}>
+                            {item.name}
+                          </Option>
+                        ))}
+                      </Select>
+                    </Form.Item>
+                  </Input.Group>
+                </StyledFormItem>
+              ) : (
+                <div className="shortInformation__column">
+                  <span className="text-field margin-right-10">Điều khoản thanh toán:</span>
+                  <span>
+                    <strong className="po-payment-row-title">
+                      <Form.Item name={POField.payment_condition_id} noStyle hidden>
+                        <Input />
                       </Form.Item>
-                      <Form.Item name="payment_condition_name" noStyle>
-                        <Select
-                          className="selector-group"
-                          defaultActiveFirstOption
-                          style={{ width: "30%" }}
-                        >
-                          {date_unit?.map((item) => (
-                            <Option key={item.value} value={item.value}>
-                              {item.name}
-                            </Option>
-                          ))}
-                        </Select>
+                      <Form.Item
+                        noStyle
+                        shouldUpdate={(prev, current) =>
+                          prev[POField.payment_condition_id] !==
+                            current[POField.payment_condition_id] ||
+                          prev[POField.payment_condition_name] !==
+                            current[POField.payment_condition_name]
+                        }
+                      >
+                        {({ getFieldValue }) => {
+                          const payment_condition_name =
+                            (getFieldValue(POField.payment_condition_id) || "") +
+                            " " +
+                            convertDate(getFieldValue(POField.payment_condition_name));
+                          return payment_condition_name;
+                        }}
                       </Form.Item>
-                    </Input.Group>
-                  </StyledFormItem>
-                  :
-                  <div className="shortInformation__column">
-                    <span className="text-field margin-right-10">
-                      Điều khoản thanh toán:
-                    </span>
-                    <span>
-                      <strong className="po-payment-row-title">
-                        <Form.Item
-                          name={POField.payment_condition_id}
-                          noStyle
-                          hidden
-                        >
-                          <Input />
-                        </Form.Item>
-                        <Form.Item
-                          noStyle
-                          shouldUpdate={(prev, current) =>
-                            (prev[POField.payment_condition_id] !==
-                              current[POField.payment_condition_id]) || (prev[POField.payment_condition_name] !==
-                                current[POField.payment_condition_name])
-                          }
-                        >
-                          {({ getFieldValue }) => {
-                            const payment_condition_name = (getFieldValue(
-                              POField.payment_condition_id
-                            ) || "") + " " +
-                              convertDate(getFieldValue(
-                                POField.payment_condition_name
-                              ));
-                            return payment_condition_name;
-                          }}
-                        </Form.Item>
-                      </strong>
-                    </span>
-                  </div>
-              }
+                    </strong>
+                  </span>
+                </div>
+              )}
             </Col>
             <Col xs={24} lg={isEditMode && isEditPaymentCondition ? 6 : 8}>
               <div className="shortInformation__column">
@@ -378,8 +379,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                   <Form.Item
                     noStyle
                     shouldUpdate={(prev, current) =>
-                      prev[POField.payment_note] !==
-                      current[POField.payment_note]
+                      prev[POField.payment_note] !== current[POField.payment_note]
                     }
                   >
                     {({ getFieldValue }) => {
@@ -401,22 +401,16 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                     <Form.Item
                       noStyle
                       shouldUpdate={(prev, current) =>
-                        prev[POField.total_paid] !==
-                        current[POField.total_paid] ||
-                        prev[POField.total_payment] !==
-                        current[POField.total_payment]
+                        prev[POField.total_paid] !== current[POField.total_paid] ||
+                        prev[POField.total_payment] !== current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
                         let total_paid = getFieldValue(POField.total_paid);
-                        let total_payment = getFieldValue(
-                          POField.total_payment
-                        );
+                        let total_payment = getFieldValue(POField.total_payment);
                         let percent = 0;
                         if (total_paid && total_payment) {
-                          percent = Math.round(
-                            (total_paid / total_payment) * 100
-                          );
+                          percent = Math.round((total_paid / total_payment) * 100);
                         }
 
                         return (
@@ -438,16 +432,13 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                     </Form.Item>
                   </div>
                   <div className="checkOut__progress-text">
-                    <CheckCircleOutlined
-                      style={{ fontSize: "16px", color: "#27AE60" }}
-                    />
+                    <CheckCircleOutlined style={{ fontSize: "16px", color: "#27AE60" }} />
                     Đã thanh toán:{" "}
                     <strong>
                       <Form.Item
                         noStyle
                         shouldUpdate={(prev, current) =>
-                          prev[POField.total_paid] !==
-                          current[POField.total_paid]
+                          prev[POField.total_paid] !== current[POField.total_paid]
                         }
                       >
                         {({ getFieldValue }) => {
@@ -461,29 +452,21 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               </Col>
               <Col md={10}>
                 <div className="checkOut__column">
-                  <MinusCircleOutlined
-                    style={{ fontSize: "16px", color: "#E24343" }}
-                  />
+                  <MinusCircleOutlined style={{ fontSize: "16px", color: "#E24343" }} />
                   Còn phải trả:{" "}
                   <strong style={{ color: "#E24343" }}>
                     {" "}
                     <Form.Item
                       noStyle
                       shouldUpdate={(prev, current) =>
-                        prev[POField.total_paid] !==
-                        current[POField.total_paid] ||
-                        prev[POField.total_payment] !==
-                        current[POField.total_payment]
+                        prev[POField.total_paid] !== current[POField.total_paid] ||
+                        prev[POField.total_payment] !== current[POField.total_payment]
                       }
                     >
                       {({ getFieldValue }) => {
                         let total_paid = getFieldValue(POField.total_paid);
-                        let total_payment = getFieldValue(
-                          POField.total_payment
-                        );
-                        return formatCurrency(
-                          Math.round(total_payment - total_paid)
-                        );
+                        let total_payment = getFieldValue(POField.total_payment);
+                        return formatCurrency(Math.round(total_payment - total_paid));
                       }}
                     </Form.Item>
                   </strong>
@@ -501,9 +484,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                   }
                 >
                   {({ getFieldValue }) => {
-                    let payments: Array<PurchasePayments> = getFieldValue(
-                      POField.payments
-                    );
+                    let payments: Array<PurchasePayments> = getFieldValue(POField.payments);
 
                     return (
                       payments && (
@@ -512,30 +493,22 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                             <Timeline.Item
                               key={item.id}
                               className={
-                                item.status === PoPaymentStatus.PAID
-                                  ? "timeline__isFinished"
-                                  : ""
+                                item.status === PoPaymentStatus.PAID ? "timeline__isFinished" : ""
                               }
                             >
                               <Row gutter={24}>
                                 <Col md={8}>
                                   <div className="timeline__colTitle">
                                     <h3 className="po-payment-row-title">
-                                      {item.payment_method_code ===
-                                        PoPaymentMethod.BANK_TRANSFER
+                                      {item.payment_method_code === PoPaymentMethod.BANK_TRANSFER
                                         ? "Chuyển khoản"
                                         : "Tiền mặt"}
                                     </h3>
                                     <div>
-                                      {item.is_refund
-                                        ? "Yêu cầu hoàn tiền"
-                                        : "Yêu cầu thanh toán"}{" "}
+                                      {item.is_refund ? "Yêu cầu hoàn tiền" : "Yêu cầu thanh toán"}{" "}
                                       : <br />
                                       <strong>
-                                        {ConvertUtcToLocalDate(
-                                          item.transaction_date,
-                                          "DD/MM/YYYY"
-                                        )}{" "}
+                                        {ConvertUtcToLocalDate(item.transaction_date, "DD/MM/YYYY")}{" "}
                                       </strong>{" "}
                                     </div>
                                   </div>
@@ -543,22 +516,17 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                 <Col md={8}>
                                   {" "}
                                   <strong className="po-payment-row-title">
-                                    {item.amount
-                                      ? formatCurrency(Math.round(item.amount))
-                                      : ""}
+                                    {item.amount ? formatCurrency(Math.round(item.amount)) : ""}
                                   </strong>
                                 </Col>
                                 {item.status === PoPaymentStatus.PAID ? (
                                   <Col md={8}>
                                     <div className="timeline__status">
-                                      <CheckCircleOutlined style={{ fontSize: "18px" }} />{" "}
-                                      Đã duyệt
+                                      <CheckCircleOutlined style={{ fontSize: "18px" }} /> Đã duyệt
                                     </div>
                                     <div>
                                       Duyệt thanh toán <br />
-                                      <strong>
-                                        {ConvertUtcToLocalDate(item.updated_date)}
-                                      </strong>
+                                      <strong>{ConvertUtcToLocalDate(item.updated_date)}</strong>
                                     </div>
                                   </Col>
                                 ) : item.status !== PoPaymentStatus.CANCELLED ? (
@@ -576,14 +544,9 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                         <Button
                                           type="primary"
                                           onClick={() => onApprovalPayment(item)}
-                                          loading={
-                                            item.id ? loadingApproval[item.id] : false
-                                          }
+                                          loading={item.id ? loadingApproval[item.id] : false}
                                         >
-                                          <CheckCircleOutlined
-                                            style={{ fontSize: "18px" }}
-                                          />{" "}
-                                          Duyệt
+                                          <CheckCircleOutlined style={{ fontSize: "18px" }} /> Duyệt
                                         </Button>
                                       </AuthWrapper>
                                     </div>
@@ -601,9 +564,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
                                     </div>
                                     <div>
                                       Hủy thanh toán <br />
-                                      <strong>
-                                        {ConvertUtcToLocalDate(item.updated_date)}
-                                      </strong>
+                                      <strong>{ConvertUtcToLocalDate(item.updated_date)}</strong>
                                     </div>
                                   </Col>
                                 )}
@@ -623,15 +584,12 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
           noStyle
           shouldUpdate={(prev, current) =>
             prev[POField.payments] !== current[POField.payments] ||
-            prev[POField.financial_status] !==
-            current[POField.financial_status] ||
+            prev[POField.financial_status] !== current[POField.financial_status] ||
             prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
           {({ getFieldValue }) => {
-            let payments: Array<PurchasePayments> = getFieldValue(
-              POField.payments
-            );
+            let payments: Array<PurchasePayments> = getFieldValue(POField.payments);
             let financial_status = getFieldValue(POField.financial_status);
             let receive_status = getFieldValue(POField.receive_status);
             return (
@@ -641,9 +599,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
               financial_status !== PoFinancialStatus.CANCELLED &&
               financial_status !== PoFinancialStatus.PAID &&
               financial_status !== PoFinancialStatus.FINISHED && (
-                <AuthWrapper
-                  acceptPermissions={[PurchaseOrderPermission.payments_finish]}
-                >
+                <AuthWrapper acceptPermissions={[PurchaseOrderPermission.payments_finish]}>
                   <div className="card__footer">
                     <Button
                       onClick={finishPayment}
@@ -693,12 +649,7 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
         }}
         onOk={() => {
           setConfirmPayment(false);
-          dispatch(
-            PoUpdateFinancialStatusAction(
-              props.poId,
-              updateFinancialStatusCallback
-            )
-          );
+          dispatch(PoUpdateFinancialStatusAction(props.poId, updateFinancialStatusCallback));
         }}
         okText="Đồng ý"
         cancelText="Hủy"
@@ -711,19 +662,19 @@ const POPaymentForm: React.FC<POPaymentFormProps> = (
 };
 
 const StyledFormItem = styled(Form.Item)`
-flex-direction: row !important;
- margin-bottom: 0px !important;
-align-items: center !important;
-.ant-col.ant-form-item-label {
-  padding: 0 !important;
-  margin-right: 12px;
-}
-.ant-input {
-  max-width: 100px;
-}
-.ant-select.selector-group.ant-select-single.ant-select-show-arrow {
-  width: 85px !important;
-}
-`
+  flex-direction: row !important;
+  margin-bottom: 0px !important;
+  align-items: center !important;
+  .ant-col.ant-form-item-label {
+    padding: 0 !important;
+    margin-right: 12px;
+  }
+  .ant-input {
+    max-width: 100px;
+  }
+  .ant-select.selector-group.ant-select-single.ant-select-show-arrow {
+    width: 85px !important;
+  }
+`;
 
 export default POPaymentForm;

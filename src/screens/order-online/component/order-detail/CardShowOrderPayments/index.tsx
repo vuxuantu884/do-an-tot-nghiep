@@ -1,20 +1,7 @@
-import {
-  Button,
-  Card,
-  Col,
-  Collapse,
-  Divider,
-  FormInstance,
-  Row,
-  Space,
-  Tag,
-} from "antd";
+import { Button, Card, Col, Collapse, Divider, FormInstance, Row, Space, Tag } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import {
-  OrderPaymentResponse,
-  OrderResponse,
-} from "model/response/order/order.response";
+import { OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useMemo } from "react";
 import { useDispatch } from "react-redux";
@@ -32,12 +19,7 @@ import {
   isFetchApiSuccessful,
   sortFulfillments,
 } from "utils/AppUtils";
-import {
-  FulFillmentStatus,
-  OrderStatus,
-  PaymentMethodCode,
-  POS,
-} from "utils/Constants";
+import { FulFillmentStatus, OrderStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { yellowColor } from "utils/global-styles/variables";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
@@ -130,9 +112,7 @@ function CardShowOrderPayments(props: PropTypes) {
 
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
 
-  const totalPaid = OrderDetail?.payments
-    ? getAmountPayment(OrderDetail.payments)
-    : 0;
+  const totalPaid = OrderDetail?.payments ? getAmountPayment(OrderDetail.payments) : 0;
 
   // khách cần trả thêm
   const customerNeedToPayValueMore = useMemo(() => {
@@ -140,9 +120,7 @@ function CardShowOrderPayments(props: PropTypes) {
   }, [OrderDetail?.total, totalPaid]);
 
   const sortedFulfillments = useMemo(() => {
-    return OrderDetail?.fulfillments
-      ? sortFulfillments(OrderDetail?.fulfillments)
-      : [];
+    return OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
   }, [OrderDetail?.fulfillments]);
 
   /**
@@ -153,10 +131,7 @@ function CardShowOrderPayments(props: PropTypes) {
     if (!OrderDetail) {
       return false;
     }
-    if (
-      checkIfOrderHasNoPayment(OrderDetail) &&
-      !sortedFulfillments[0]?.shipment?.cod
-    ) {
+    if (checkIfOrderHasNoPayment(OrderDetail) && !sortedFulfillments[0]?.shipment?.cod) {
       result = true;
     } else {
       result = false;
@@ -184,9 +159,7 @@ function CardShowOrderPayments(props: PropTypes) {
               <div className={paymentClassName.left}>
                 <b>
                   COD
-                  <Tag className="orders-tag orders-tag-warning">
-                    Đang chờ thu
-                  </Tag>
+                  <Tag className="orders-tag orders-tag-warning">Đang chờ thu</Tag>
                 </b>
                 <span className="amount">
                   {OrderDetail !== null && OrderDetail?.fulfillments
@@ -195,14 +168,10 @@ function CardShowOrderPayments(props: PropTypes) {
                 </span>
               </div>
               <div className={paymentClassName.right}>
-                {sortedFulfillments[0]?.status ===
-                  FulFillmentStatus.SHIPPED && (
+                {sortedFulfillments[0]?.status === FulFillmentStatus.SHIPPED && (
                   <div>
                     <span className="date">
-                      {ConvertUtcToLocalDate(
-                        OrderDetail?.updated_date,
-                        dateFormat,
-                      )}
+                      {ConvertUtcToLocalDate(OrderDetail?.updated_date, dateFormat)}
                     </span>
                   </div>
                 )}
@@ -226,16 +195,12 @@ function CardShowOrderPayments(props: PropTypes) {
           <Col span={8}>
             <span className="text-field margin-right-40">Còn phải trả:</span>
             <b style={{ color: "red" }}>
-              {formatCurrency(
-                customerNeedToPayValueMore > 0 ? customerNeedToPayValueMore : 0,
-              )}
+              {formatCurrency(customerNeedToPayValueMore > 0 ? customerNeedToPayValueMore : 0)}
             </b>
           </Col>
           {customerNeedToPayValueMore < 0 && (
             <Col span={8}>
-              <span className="text-field margin-right-40">
-                Đã hoàn tiền cho khách:
-              </span>
+              <span className="text-field margin-right-40">Đã hoàn tiền cho khách:</span>
               <b style={{ color: yellowColor }}>
                 {formatCurrency(Math.abs(customerNeedToPayValueMore))}
               </b>
@@ -262,9 +227,7 @@ function CardShowOrderPayments(props: PropTypes) {
     main(payment: OrderPaymentResponse) {
       return (
         <div className="paymentTitle">
-          {payment.paid_amount < 0
-            ? "Hoàn tiền cho khách"
-            : this.renderNotReturned(payment)}
+          {payment.paid_amount < 0 ? "Hoàn tiền cho khách" : this.renderNotReturned(payment)}
           {renderPaymentPaidCodTag(payment)}
         </div>
       );
@@ -274,9 +237,7 @@ function CardShowOrderPayments(props: PropTypes) {
       if (checkIfMomoPayment(payment)) {
         return (
           <div>
-            <div>{`${payment.payment_method} ${this.renderMomoPaymentStatus(
-              payment,
-            )}`}</div>
+            <div>{`${payment.payment_method} ${this.renderMomoPaymentStatus(payment)}`}</div>
             {this.renderMomoPaymentShortLink(payment)}
             {this.renderMomoPaymentReference(payment)}
           </div>
@@ -325,12 +286,7 @@ function CardShowOrderPayments(props: PropTypes) {
       }
       return (
         <div style={{ maxWidth: "85%" }}>
-          <a
-            href={payment.short_link}
-            target="_blank"
-            rel="noreferrer"
-            className="momoShortLink"
-          >
+          <a href={payment.short_link} target="_blank" rel="noreferrer" className="momoShortLink">
             {payment.short_link}
           </a>
           <img
@@ -353,9 +309,7 @@ function CardShowOrderPayments(props: PropTypes) {
         return;
       }
       if (checkIfFinishedPayment(payment) && payment.ref_transaction_code) {
-        return (
-          <div className="momoReference">{payment.ref_transaction_code}</div>
-        );
+        return <div className="momoReference">{payment.ref_transaction_code}</div>;
       }
     },
   };
@@ -539,11 +493,7 @@ function CardShowOrderPayments(props: PropTypes) {
     }
     return (
       <div style={{ padding: "0 0 0 15px" }}>
-        <Collapse
-          className="orders-timeline"
-          defaultActiveKey={["paymentDetailMain"]}
-          ghost
-        >
+        <Collapse className="orders-timeline" defaultActiveKey={["paymentDetailMain"]} ghost>
           {OrderDetail?.payments
             // hiển thị tất
             // .filter((payment) => {
@@ -562,8 +512,7 @@ function CardShowOrderPayments(props: PropTypes) {
                 showArrow={false}
                 className={`orders-timeline-custom ${
                   !checkIfFinishedPayment(payment)
-                    ? checkIfExpiredPayment(payment) ||
-                      checkIfCancelledPayment(payment)
+                    ? checkIfExpiredPayment(payment) || checkIfCancelledPayment(payment)
                       ? "danger-collapse"
                       : "warning-collapse"
                     : "success-collapse"
@@ -585,10 +534,7 @@ function CardShowOrderPayments(props: PropTypes) {
                     <div className={paymentClassName.right}>
                       <div>
                         <div className="date">
-                          {ConvertUtcToLocalDate(
-                            payment.created_date,
-                            dateFormat,
-                          )}
+                          {ConvertUtcToLocalDate(payment.created_date, dateFormat)}
                         </div>
                         {renderMomoCancelTransactionButton(payment)}
                         {renderMomoUpdateStatusButton(payment)}
@@ -658,9 +604,7 @@ function CardShowOrderPayments(props: PropTypes) {
   console.log("sortedFulfillments", sortedFulfillments);
   console.log("totalPaid", totalPaid);
 
-  const checkIfOrderHasPaidAllMoneyAmountIncludeCod = (
-    OrderDetail: OrderResponse,
-  ) => {
+  const checkIfOrderHasPaidAllMoneyAmountIncludeCod = (OrderDetail: OrderResponse) => {
     let codAmount = 0;
     if (!checkIfFulfillmentCancelled(sortedFulfillments[0])) {
       codAmount = sortedFulfillments[0]?.shipment?.cod || 0;
@@ -678,10 +622,7 @@ function CardShowOrderPayments(props: PropTypes) {
           disabledBottomActions)
       );
     };
-    if (
-      !checkIfOrderHasPaidAllMoneyAmountIncludeCod(OrderDetail) &&
-      !isShowPaymentPartialPayment
-    ) {
+    if (!checkIfOrderHasPaidAllMoneyAmountIncludeCod(OrderDetail) && !isShowPaymentPartialPayment) {
       return (
         <div className="text-right">
           <Divider style={{ margin: "10px 0" }} />

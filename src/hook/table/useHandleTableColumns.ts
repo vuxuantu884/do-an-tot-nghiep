@@ -13,7 +13,7 @@ import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 
 function useHandleFilterColumns(
   columnType: string,
-  onSuccessCallback?: (res: BaseResponse<FilterConfig>) => void
+  onSuccessCallback?: (res: BaseResponse<FilterConfig>) => void,
 ) {
   const [tableColumnConfigs, setTableColumnConfigs] = useState<Array<FilterConfig>>([]);
   const dispatch = useDispatch();
@@ -29,7 +29,7 @@ function useHandleFilterColumns(
         }
       });
     },
-    [dispatch, onSuccessCallback]
+    [dispatch, onSuccessCallback],
   );
 
   const handleUpdateColumn = useCallback(
@@ -42,7 +42,7 @@ function useHandleFilterColumns(
         }
       });
     },
-    [dispatch, onSuccessCallback]
+    [dispatch, onSuccessCallback],
   );
 
   const onSaveConfigTableColumn = useCallback(
@@ -71,7 +71,7 @@ function useHandleFilterColumns(
       columnType,
       handleCreateColumn,
       handleUpdateColumn,
-    ]
+    ],
   );
 
   useEffect(() => {

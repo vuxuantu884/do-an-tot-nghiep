@@ -1,39 +1,35 @@
-
-import { BaseObject } from 'model/base/base.response';
-import { BaseQuery } from 'model/base/base.query';
-
+import { BaseObject } from "model/base/base.response";
+import { BaseQuery } from "model/base/base.query";
 
 export interface SizeCategory {
-  category_id: number,
-  category_name: string,
+  category_id: number;
+  category_name: string;
 }
 
 export interface SizeResponse extends BaseObject {
-  categories: Array<SizeCategory>
+  categories: Array<SizeCategory>;
 }
 
 export interface SizeDetail extends BaseObject {
-  code: string,
+  code: string;
 }
-
 
 export interface SizeQuery extends BaseQuery {
-  category_id?: ""|number,
-  code?: string,
-  ids?: string
+  category_id?: "" | number;
+  code?: string;
+  ids?: string;
 }
-
 
 export interface SizeCreateRequest {
-  id: number|null,
-  code: string,
+  id: number | null;
+  code: string;
 }
 
-export interface SizeUpdateRequest extends SizeCreateRequest  {
-  version: number,
+export interface SizeUpdateRequest extends SizeCreateRequest {
+  version: number;
 }
 
 export interface SizePriority {
-  size: string | number,
-  priority: number,
+  size: string | number;
+  priority: number;
 }

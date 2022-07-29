@@ -6,7 +6,7 @@ const PurchaseProcumentExportField = {
   accepted_quantity: "accepted_quantity",
   real_quantity: "real_quantity",
   sl: "sl",
-}
+};
 
 const PurchaseProcumentExportMapping = {
   [PurchaseProcumentExportField.sku]: "sku",
@@ -16,10 +16,6 @@ const PurchaseProcumentExportMapping = {
   [PurchaseProcumentExportField.accepted_quantity]: "SL đã nhận",
   [PurchaseProcumentExportField.real_quantity]: "SL thực nhận",
   [PurchaseProcumentExportField.sl]: "Số lượng",
-}
+};
 
-
-export {
-  PurchaseProcumentExportField,
-  PurchaseProcumentExportMapping
-}
+export { PurchaseProcumentExportField, PurchaseProcumentExportMapping };

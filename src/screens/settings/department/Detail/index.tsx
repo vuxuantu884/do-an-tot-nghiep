@@ -5,7 +5,10 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { DepartmentsPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
-import { departmentDetailAction, searchDepartmentAction } from "domain/actions/account/department.action";
+import {
+  departmentDetailAction,
+  searchDepartmentAction,
+} from "domain/actions/account/department.action";
 import useAuthorization from "hook/useAuthorization";
 import { DepartmentResponse } from "model/account/department.model";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -52,10 +55,12 @@ const DepartmentCreateScreen: React.FC = () => {
   const dataChildren = useMemo(() => {
     let dataNode: Array<DataNode> = [];
     if (data !== null) {
-      data.children && data.children.length > 0 && data.children.forEach((item) => {
-        const temp = convertDepTree(item);
-        dataNode = [...dataNode, ...temp];
-      });
+      data.children &&
+        data.children.length > 0 &&
+        data.children.forEach((item) => {
+          const temp = convertDepTree(item);
+          dataNode = [...dataNode, ...temp];
+        });
     }
     return dataNode;
   }, [data, convertDepTree]);
@@ -140,7 +145,10 @@ const DepartmentCreateScreen: React.FC = () => {
                     <RowDetail title="Tên phòng ban" value={data.name} />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Quản lý" value={data.manager_code ? `${data.manager_code} - ${data.manager}` : ''} />
+                    <RowDetail
+                      title="Quản lý"
+                      value={data.manager_code ? `${data.manager_code} - ${data.manager}` : ""}
+                    />
                   </Col>
                   <Col span={24}>
                     <RowDetail title="Cấp độ" value={data.level} />
@@ -157,10 +165,16 @@ const DepartmentCreateScreen: React.FC = () => {
                     <RowDetail title="Địa chỉ" value={data.address} />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Người tạo" value={data.created_by ? `${data.created_by} - ${data.created_name}` : ''} />
+                    <RowDetail
+                      title="Người tạo"
+                      value={data.created_by ? `${data.created_by} - ${data.created_name}` : ""}
+                    />
                   </Col>
                   <Col span={24}>
-                    <RowDetail title="Ngày tạo" value={ConvertUtcToLocalDate(data.created_date, DATE_FORMAT.DDMMYY_HHmm)} />
+                    <RowDetail
+                      title="Ngày tạo"
+                      value={ConvertUtcToLocalDate(data.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+                    />
                   </Col>
                 </Row>
               </Card>

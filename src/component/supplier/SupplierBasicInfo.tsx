@@ -18,7 +18,7 @@ import { useParams } from "react-router-dom";
 import { SupplierSearchAction } from "../../domain/actions/core/supplier.action";
 import { validatePhoneSupplier } from "../../utils/supplier";
 import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
-import {useFetchMerchans} from "../../hook/useFetchMerchans";
+import { useFetchMerchans } from "../../hook/useFetchMerchans";
 import BaseSelectPaging from "../base/BaseSelect/BaseSelectPaging";
 import BaseSelect from "../base/BaseSelect/BaseSelect";
 
@@ -39,7 +39,7 @@ const SupplierBasicInfo = ({
   const [listSupplier, setListSupplier] = useState<Array<SupplierResponse>>([]);
   const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
   const [isActiveStatus, setIsActiveStatus] = useState(initialSupplierForm.status === "active");
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
 
   const [data, setData] = useState<PageResponse<CollectionResponse>>({
     metadata: {
@@ -51,13 +51,13 @@ const SupplierBasicInfo = ({
   });
 
   const supplier_types = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type,
   );
   const scorecards = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
+    (state: RootReducerType) => state.bootstrapReducer.data?.scorecard,
   );
   const supplier_status = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status,
   );
 
   useEffect(() => {
@@ -67,7 +67,7 @@ const SupplierBasicInfo = ({
         if (response) {
           setListSupplier(response?.items || []);
         }
-      })
+      }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [params]);
@@ -75,7 +75,7 @@ const SupplierBasicInfo = ({
   const statusValue = useMemo(() => {
     if (!supplier_status) return;
     let findStatus = supplier_status.find(
-      (item) => item.value === (isActiveStatus ? "active" : "inactive")
+      (item) => item.value === (isActiveStatus ? "active" : "inactive"),
     );
     return findStatus?.name;
   }, [isActiveStatus, supplier_status]);
@@ -90,7 +90,10 @@ const SupplierBasicInfo = ({
   const onSearchGroupProducts = (values: any) => {
     setIsSearchingGroupProducts(true);
     dispatch(
-      getCollectionRequestAction({ ...params, ...values, limit: data.metadata.limit }, onGetSuccess)
+      getCollectionRequestAction(
+        { ...params, ...values, limit: data.metadata.limit },
+        onGetSuccess,
+      ),
     );
   };
 
@@ -114,23 +117,23 @@ const SupplierBasicInfo = ({
   };
 
   const onChangeInput = (value: string, propName: string): string => {
-    const fields = form.getFieldsValue()
-    let { contacts,name } = fields;
-    
+    const fields = form.getFieldsValue();
+    let { contacts, name } = fields;
+
     if (propName === FormFields.name) {
       contacts[0][FormFields.name] = value.toUpperCase();
       name = value.toUpperCase();
       // Object.assign(contacts[0], { [FormFields.name]: value })
     } else if (propName === FormFields.phone) {
       // Object.assign(contacts[0], { [FormFields.phone]: value })
-      contacts[0][FormFields.phone] = value
+      contacts[0][FormFields.phone] = value;
     }
     form.setFieldsValue({
       contacts,
-      name
-    })
-    return value
-  }
+      name,
+    });
+    return value;
+  };
 
   const renderSelectOptions = ({ placeholder, ...rest }: Partial<IFormControl>) => {
     return (
@@ -178,8 +181,12 @@ const SupplierBasicInfo = ({
               return rule;
             }
             return rule;
-          })}>
-          <Input {...{ placeholder, disabled }} onChange={(e) => onChangeInput(e.target.value, name)} />
+          })}
+        >
+          <Input
+            {...{ placeholder, disabled }}
+            onChange={(e) => onChangeInput(e.target.value, name)}
+          />
         </Item>
       ),
       [ComponentType.Select]: (
@@ -244,7 +251,8 @@ const SupplierBasicInfo = ({
               </Item>
             </Space>
           )
-        }>
+        }
+      >
         {formFields.formGroups.map((group, index) => (
           <Row gutter={50} key={index}>
             {group.map(controlInfoRenderer)}

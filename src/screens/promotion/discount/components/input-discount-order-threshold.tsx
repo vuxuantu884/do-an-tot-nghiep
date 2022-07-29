@@ -1,7 +1,7 @@
-import { Divider, Form, FormInstance, Radio } from 'antd';
-import React from 'react';
-import { DiscountUnitType, PRICE_RULE_FIELDS } from 'screens/promotion/constants';
-import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import { Divider, Form, FormInstance, Radio } from "antd";
+import React from "react";
+import { DiscountUnitType, PRICE_RULE_FIELDS } from "screens/promotion/constants";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
 
 interface Props {
@@ -18,9 +18,7 @@ const InputiscountOrderThreshold = (props: Props) => {
       <Form.Item
         name={[PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]}
         label="Giá trị chiết khấu trên hoá đơn"
-        rules={[
-          { required: true, message: "Giá trị chiết khấu không được để trống" },
-        ]}
+        rules={[{ required: true, message: "Giá trị chiết khấu không được để trống" }]}
       >
         <Radio.Group
           onChange={(e) => {
@@ -39,24 +37,23 @@ const InputiscountOrderThreshold = (props: Props) => {
         name={[PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value]}
         rules={[
           { required: true, message: "Giá trị chiết khấu không được để trống" },
-          (({ getFieldValue }) => ({
+          ({ getFieldValue }) => ({
             validator(_, value) {
               if (typeof value === "number" && value < 1) {
                 return Promise.reject("Giá trị chiết khấu phải lớn hơn 0");
               }
 
               if (
-                getFieldValue([PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]) === DiscountUnitType.PERCENTAGE.value
+                getFieldValue([PRICE_RULE_FIELDS.rule, PRICE_RULE_FIELDS.value_type]) ===
+                DiscountUnitType.PERCENTAGE.value
               ) {
                 if (value > 100) {
-                  return Promise.reject(
-                    "Giá trị phải nhỏ hơn hoặc bằng 100%",
-                  );
+                  return Promise.reject("Giá trị phải nhỏ hơn hoặc bằng 100%");
                 }
               }
               return Promise.resolve();
-            }
-          }))
+            },
+          }),
         ]}
       >
         <NumberInput
@@ -69,7 +66,7 @@ const InputiscountOrderThreshold = (props: Props) => {
         />
       </Form.Item>
     </div>
-  )
-}
+  );
+};
 
-export default InputiscountOrderThreshold
+export default InputiscountOrderThreshold;

@@ -11,16 +11,14 @@ import IconEdit from "./images/edit.svg";
 import { StyledComponent } from "./styles";
 
 function ThirdPartyLogisticsIntegration() {
-  const [thirdPartyLogistics, setThirdPartyLogistics] = useState<
-    DeliveryServiceResponse[]
-  >([]);
+  const [thirdPartyLogistics, setThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
   const dispatch = useDispatch();
 
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setThirdPartyLogistics(response);
-      })
+      }),
     );
   }, [dispatch]);
   return (
@@ -46,11 +44,7 @@ function ThirdPartyLogisticsIntegration() {
                           <Link
                             to={`${UrlConfig.THIRD_PARTY_LOGISTICS_INTEGRATION}/${single.code}`}
                           >
-                            <img
-                              src={single.logo}
-                              alt=""
-                              style={{ width: 145, maxHeight: 45 }}
-                            />
+                            <img src={single.logo} alt="" style={{ width: 145, maxHeight: 45 }} />
                           </Link>
                         </div>
                         <h3 className="singleThirdParty__title">

@@ -57,7 +57,7 @@ function WarrantyStatus(props: PropTypes) {
   const [countForceFetchData, setCountForceFetchData] = useState(0);
   const [isShowSettingColumn, setIsShowSettingColumn] = useState(false);
   const [columns, setColumns] = useState<Array<ICustomTableColumType<WarrantyProductStatusModel>>>(
-    []
+    [],
   );
 
   const [selectedData, setSelectedData] = useState<WarrantyProductStatusValueUpdateGetModel>({
@@ -88,7 +88,7 @@ function WarrantyStatus(props: PropTypes) {
     initQuery,
     location,
     countForceFetchData,
-    setQuery
+    setQuery,
   );
   let { warrantyProductStatuses, metadata } = getWarrantyProductStatuses;
   const [data, setData] = useState<WarrantyReasonModel[]>([]);
@@ -122,7 +122,7 @@ function WarrantyStatus(props: PropTypes) {
         disabled: selectedRowKeys.length ? false : true,
       },
     ],
-    [ACTION_ID.active, ACTION_ID.delete, ACTION_ID.inactive, selectedRowKeys.length]
+    [ACTION_ID.active, ACTION_ID.delete, ACTION_ID.inactive, selectedRowKeys.length],
   );
 
   const onSelectedChange = (selectedRow: WarrantyReasonModel[]) => {
@@ -144,9 +144,7 @@ function WarrantyStatus(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Cập nhật loại trạng thái thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id
-          );
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
           if (index > -1 && values.type) {
             let dataResult = [...data];
             dataResult[index].type = values.type;
@@ -178,7 +176,7 @@ function WarrantyStatus(props: PropTypes) {
           dispatch(hideLoading());
         });
     },
-    [dispatch]
+    [dispatch],
   );
 
   const onMenuClick = useCallback(
@@ -189,7 +187,7 @@ function WarrantyStatus(props: PropTypes) {
           setConfirmDeleteSubTitle(
             <React.Fragment>
               Bạn có chắc chắn muốn xóa các: <strong>Lý do bảo hành</strong> đã chọn ?
-            </React.Fragment>
+            </React.Fragment>,
           );
           setIsDeleteConfirmModalVisible(true);
           break;
@@ -198,7 +196,7 @@ function WarrantyStatus(props: PropTypes) {
           break;
       }
     },
-    [ACTION_ID.delete]
+    [ACTION_ID.delete],
   );
 
   const onPageChange = useCallback(
@@ -210,7 +208,7 @@ function WarrantyStatus(props: PropTypes) {
       history.push(`${location.pathname}?${queryParam}`);
       goToTopPage();
     },
-    [history, location.pathname, query]
+    [history, location.pathname, query],
   );
 
   const forceFetchData = useCallback(() => {
@@ -239,7 +237,7 @@ function WarrantyStatus(props: PropTypes) {
         history.push(`${location.pathname}?${queryParam}`);
       }
     },
-    [forceFetchData, history, location.pathname, query]
+    [forceFetchData, history, location.pathname, query],
   );
 
   const handleDeleteSingle = () => {
@@ -251,9 +249,7 @@ function WarrantyStatus(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Xóa trạng thái bảo hành thành công!");
-          const index = data.findIndex(
-            (single) => single.id === rowSelected.current?.record.id
-          );
+          const index = data.findIndex((single) => single.id === rowSelected.current?.record.id);
           if (index > -1) {
             let dataResult = [...data];
             dataResult.splice(index, 1);
@@ -274,9 +270,7 @@ function WarrantyStatus(props: PropTypes) {
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           showSuccess("Xóa trạng thái bảo hành thành công!");
-          let dataResult = [...data].filter(
-            (single) => !selectedRowKeys.includes(single.id)
-          );
+          let dataResult = [...data].filter((single) => !selectedRowKeys.includes(single.id));
           setData(dataResult);
           console.log("response", response);
         } else {
@@ -406,7 +400,7 @@ function WarrantyStatus(props: PropTypes) {
                         <React.Fragment>
                           Bạn có chắc chắn muốn xóa: <strong>Trạng thái bảo hành</strong> có tên{" "}
                           <strong>{`"${record.name}"`}</strong> ?
-                        </React.Fragment>
+                        </React.Fragment>,
                       );
                       setIsDeleteConfirmModalVisible(true);
                     }}

@@ -7,8 +7,14 @@ import { useCallback, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getListStore } from "service/core/store.service";
 import { callApiNative } from "utils/ApiUtils";
-import { StockInOutField, StockInOutType, stockOutReason, stockInReason, StockInReasonField, StockOutReasonField } from "../constant";
-
+import {
+  StockInOutField,
+  StockInOutType,
+  stockOutReason,
+  stockInReason,
+  StockInReasonField,
+  StockOutReasonField,
+} from "../constant";
 
 interface StockInOutWareHouseFormProps {
   title: string;
@@ -18,50 +24,54 @@ interface StockInOutWareHouseFormProps {
 }
 
 type AccountStore = {
-  id:number,
+  id: number;
   store_id: number;
   store: string;
-}
+};
 
-const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (props: StockInOutWareHouseFormProps) => {
-  const { title, stockInOutType, setIsRequireNote, formMain } = props
+const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (
+  props: StockInOutWareHouseFormProps,
+) => {
+  const { title, stockInOutType, setIsRequireNote, formMain } = props;
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const userStores: any = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
-  const dispatch = useDispatch()
+  const dispatch = useDispatch();
 
   const getStores = useCallback(async () => {
     const res = await callApiNative({ isShowLoading: false }, dispatch, getListStore);
     const accountStores = userStores?.map((store: AccountStore) => {
-      return { id: store.store_id, name: store.store }
-    })
+      return { id: store.store_id, name: store.store };
+    });
     if (res && userStores && userStores.length === 0) {
       setListStore(res);
     } else if (userStores && userStores.length === 1) {
-      setListStore(accountStores)
-      formMain.setFieldsValue({ [StockInOutField.store_id]: accountStores[0].id })
-      formMain.setFieldsValue({ [StockInOutField.store]: accountStores[0].name })
+      setListStore(accountStores);
+      formMain.setFieldsValue({
+        [StockInOutField.store_id]: accountStores[0].id,
+      });
+      formMain.setFieldsValue({
+        [StockInOutField.store]: accountStores[0].name,
+      });
     } else if (userStores && userStores.length > 0) {
-      setListStore(accountStores)
+      setListStore(accountStores);
     }
   }, [dispatch, formMain, setListStore, userStores]);
 
   useEffect(() => {
-    getStores()
-  }, [getStores])
+    getStores();
+  }, [getStores]);
 
   return (
-    <Card
-      title={title}
-      bordered={false}
-    >
+    <Card title={title} bordered={false}>
       <Row gutter={24}>
         <Form.Item name={StockInOutField.store} noStyle hidden>
           <Input />
         </Form.Item>
         <Col span={12}>
-          <Text strong>Kho hàng </Text><span style={{ color: 'red' }}>*</span>
+          <Text strong>Kho hàng </Text>
+          <span style={{ color: "red" }}>*</span>
           <Form.Item
             name={[StockInOutField.store_id]}
             rules={[
@@ -78,22 +88,27 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (props: 
               optionFilterProp="children"
               placeholder="Chọn 1 kho hàng"
               onSelect={(value: number) => {
-                const store = listStore.find((item:StoreResponse) => item.id === value)
-                if (store) formMain.setFieldsValue({[StockInOutField.store] : store.name})
+                const store = listStore.find((item: StoreResponse) => item.id === value);
+                if (store)
+                  formMain.setFieldsValue({
+                    [StockInOutField.store]: store.name,
+                  });
               }}
             >
-              {!isEmpty(listStore) && listStore.map((item) => (
-                <Select.Option key={item.id} value={item.id}>
-                  {item.name}
-                </Select.Option>
-              ))}
+              {!isEmpty(listStore) &&
+                listStore.map((item) => (
+                  <Select.Option key={item.id} value={item.id}>
+                    {item.name}
+                  </Select.Option>
+                ))}
             </Select>
           </Form.Item>
         </Col>
         <Col span={12}>
           {stockInOutType === StockInOutType.stock_in ? (
             <>
-              <Text strong>Lý do nhập </Text><span style={{ color: 'red' }}>*</span>
+              <Text strong>Lý do nhập </Text>
+              <span style={{ color: "red" }}>*</span>
               <Form.Item
                 name={[StockInOutField.stock_in_out_reason]}
                 rules={[
@@ -110,8 +125,9 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (props: 
                   optionFilterProp="children"
                   placeholder="Chọn lý do nhận"
                   onChange={(value) => {
-                    if (value && value === StockInReasonField.stock_in_other) setIsRequireNote(true)
-                    else setIsRequireNote(false)
+                    if (value && value === StockInReasonField.stock_in_other)
+                      setIsRequireNote(true);
+                    else setIsRequireNote(false);
                   }}
                 >
                   {stockInReason.map((item, i) => (
@@ -124,7 +140,8 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (props: 
             </>
           ) : (
             <>
-              <Text strong>Lý do xuất </Text><span style={{ color: 'red' }}>*</span>
+              <Text strong>Lý do xuất </Text>
+              <span style={{ color: "red" }}>*</span>
               <Form.Item
                 name={[StockInOutField.stock_in_out_reason]}
                 rules={[
@@ -141,8 +158,9 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (props: 
                   optionFilterProp="children"
                   placeholder="Chọn lý do xuất"
                   onChange={(value) => {
-                    if (value && value === StockOutReasonField.stock_out_other) setIsRequireNote(true)
-                    else setIsRequireNote(false)
+                    if (value && value === StockOutReasonField.stock_out_other)
+                      setIsRequireNote(true);
+                    else setIsRequireNote(false);
                   }}
                 >
                   {stockOutReason.map((item, i) => (
@@ -154,12 +172,10 @@ const StockInOutWareHouseForm: React.FC<StockInOutWareHouseFormProps> = (props: 
               </Form.Item>
             </>
           )}
-
         </Col>
       </Row>
-
     </Card>
-  )
-}
+  );
+};
 
-export default StockInOutWareHouseForm
+export default StockInOutWareHouseForm;

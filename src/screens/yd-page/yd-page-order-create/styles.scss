@@ -1,31 +1,31 @@
 .order-info {
-    display: flex;
-    &-customer {
-        width: 100%;
-        &-title {
-          color: #666;
-        }
-
-        &-content {
-           padding-left: 6px;
-        }
+  display: flex;
+  &-customer {
+    width: 100%;
+    &-title {
+      color: #666;
     }
-    margin-bottom: 20px;
+
+    &-content {
+      padding-left: 6px;
+    }
+  }
+  margin-bottom: 20px;
 }
 
 .ant-modal-body {
-    padding: 0px 12px;
+  padding: 0px 12px;
 }
 
 .ant-modal-header {
-    padding: 16px 12px;
+  padding: 16px 12px;
 }
 
 .create-order-table {
-    max-height: 160px;
-    overflow-y: scroll;
+  max-height: 160px;
+  overflow-y: scroll;
 }
 
 .ant-tooltip {
-    z-index: 999999999 !important;
+  z-index: 999999999 !important;
 }

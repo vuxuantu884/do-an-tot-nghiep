@@ -31,26 +31,26 @@ const InventoryImportExportScreen: React.FC<RouteComponentProps> = (props) => {
         <Row>
           <Space>
             <AuthWrapper acceptPermissions={[StockInOutOthersPermission.create]}>
-            <Button
-              type="primary"
-              className="ant-btn-primary"
-              size={"large"}
-              icon={<GoPlus style={{ marginRight: "0.2em" }} />}
-              onClick={() => history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-in`)}
-            >
-              Nhập khác
-            </Button>
+              <Button
+                type="primary"
+                className="ant-btn-primary"
+                size={"large"}
+                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                onClick={() => history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-in`)}
+              >
+                Nhập khác
+              </Button>
             </AuthWrapper>
             <AuthWrapper acceptPermissions={[StockInOutOthersPermission.create]}>
-            <Button
-              type="primary"
-              className="ant-btn-primary"
-              size={"large"}
-              icon={<GoPlus style={{ marginRight: "0.2em" }} />}
-              onClick={() => history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-out`)}
-            >
-              Xuất khác
-            </Button>
+              <Button
+                type="primary"
+                className="ant-btn-primary"
+                size={"large"}
+                icon={<GoPlus style={{ marginRight: "0.2em" }} />}
+                onClick={() => history.push(`${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-out`)}
+              >
+                Xuất khác
+              </Button>
             </AuthWrapper>
           </Space>
         </Row>

@@ -10,14 +10,11 @@ export interface ModalConfirmProps {
   okText?: string;
   cancelText?: string;
   bgIcon?: string;
-  loading?: boolean,
+  loading?: boolean;
 }
 
-const ModalConfirm: React.FC<ModalConfirmProps> = (
-  props: ModalConfirmProps
-) => {
-  const { visible, onOk, onCancel, title, subTitle, okText, cancelText, loading } =
-    props;
+const ModalConfirm: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => {
+  const { visible, onOk, onCancel, title, subTitle, okText, cancelText, loading } = props;
   return (
     <Modal
       confirmLoading={loading}
@@ -44,9 +41,7 @@ const ModalConfirm: React.FC<ModalConfirmProps> = (
         </div>
         <div className="modal-confirm-right margin-left-20">
           <div className="modal-confirm-title">{title}</div>
-          {subTitle !== "" && (
-            <div className="modal-confirm-sub-title">{subTitle}</div>
-          )}
+          {subTitle !== "" && <div className="modal-confirm-sub-title">{subTitle}</div>}
         </div>
       </div>
     </Modal>

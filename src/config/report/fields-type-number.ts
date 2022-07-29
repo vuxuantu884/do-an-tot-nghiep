@@ -1,3 +1,1 @@
-export const fieldsTypeNumber = [
-    'order_id', 'product_price'
-]
+export const fieldsTypeNumber = ["order_id", "product_price"];

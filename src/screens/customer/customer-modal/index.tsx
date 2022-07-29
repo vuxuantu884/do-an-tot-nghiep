@@ -36,7 +36,6 @@ export interface CustomModalType {
   moreFormArguments?: any;
 }
 
-
 const updateCustomerGroupPermission = [CustomerGroupPermission.groups_update];
 
 const CustomModal = (props: CustomModalType) => {
@@ -103,11 +102,7 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            <Button
-              key="submit"
-              type="primary"
-              onClick={() => formAction.create()}
-            >
+            <Button key="submit" type="primary" onClick={() => formAction.create()}>
               {createBtnTitle}
             </Button>
           </div>
@@ -130,15 +125,11 @@ const CustomModal = (props: CustomModalType) => {
             <Button key="exit" type="default" onClick={() => formAction.exit()}>
               Thoát
             </Button>
-            {allowUpdateCustomerGroup &&
-              <Button
-                key="save"
-                type="primary"
-                onClick={() => formAction.edit()}
-              >
+            {allowUpdateCustomerGroup && (
+              <Button key="save" type="primary" onClick={() => formAction.edit()}>
                 {updateBtnTitle}
               </Button>
-            }
+            )}
           </div>
         </div>
       );
@@ -162,11 +153,7 @@ const CustomModal = (props: CustomModalType) => {
       visible={visible}
       okText="Thêm"
       cancelText="Thoát"
-      title={
-        isCreateModal
-          ? `Thêm mới ${modalTypeText}`
-          : `Cập nhật ${modalTypeText}`
-      }
+      title={isCreateModal ? `Thêm mới ${modalTypeText}` : `Cập nhật ${modalTypeText}`}
       footer={renderModalFooter()}
       onCancel={formAction.exit}
     >

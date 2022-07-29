@@ -41,7 +41,7 @@ export const reset = css`
       color: ${primaryColor};
     }
   }
-	ul {
-		padding-left: 15px;
-	}
+  ul {
+    padding-left: 15px;
+  }
 `;

@@ -1,6 +1,6 @@
-import {Tag, TagProps} from "antd";
+import { Tag, TagProps } from "antd";
 import React from "react";
-import {TagStatusStyle} from "./tag-status.style";
+import { TagStatusStyle } from "./tag-status.style";
 import classnames from "classnames";
 
 declare const TagTypes: ["normal", "success", "danger", "primary", "warning", "secondary"];
@@ -58,8 +58,12 @@ function TagStatus(props: TagStatusProps) {
   }
   return (
     <TagStatusStyle>
-      <Tag color={bgColor} style={{color: color}} className={classnames(isOutline ? "outline" :"", className) }>
-        { icon && <img src={icon} alt="" style={{ marginRight: 4 }}/> }
+      <Tag
+        color={bgColor}
+        style={{ color: color }}
+        className={classnames(isOutline ? "outline" : "", className)}
+      >
+        {icon && <img src={icon} alt="" style={{ marginRight: 4 }} />}
         {children}
       </Tag>
     </TagStatusStyle>

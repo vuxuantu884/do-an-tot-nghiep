@@ -30,9 +30,7 @@ const listExtraMenu = () => {
 
 const listRoutesNotShowInMenu = () => {
   let list: Array<RouteMenu> = [];
-  routesNotShowInMenu.forEach(
-    (item) => (list = [...list, ...getAllRoute(item)])
-  );
+  routesNotShowInMenu.forEach((item) => (list = [...list, ...getAllRoute(item)]));
 
   return list;
 };
@@ -56,7 +54,6 @@ const getAllRoute = (route: RouteMenu) => {
 };
 
 const MainRoute = () => {
-
   return (
     <Switch>
       {listRoutesNotShowInMenu().map((item: RouteMenu) => (

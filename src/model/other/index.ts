@@ -17,13 +17,13 @@ export interface RouteMenu {
   permissions?: Array<string>;
   activeLink?: Array<string>;
 }
-export interface FilterConfigRequest extends BaseObject{
-  json_content: string,
-  type: string,
-  name: string,
-  save_filter_type: string
+export interface FilterConfigRequest extends BaseObject {
+  json_content: string;
+  type: string;
+  name: string;
+  save_filter_type: string;
 }
 
-export interface FilterConfig extends FilterConfigRequest{
-  status: string,
+export interface FilterConfig extends FilterConfigRequest {
+  status: string;
 }

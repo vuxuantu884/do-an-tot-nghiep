@@ -42,7 +42,7 @@ const actionsDefault: Array<MenuAction> = [
   {
     id: 2,
     name: "Xóa",
-    icon:<DeleteOutlined />
+    icon: <DeleteOutlined />,
   },
 ];
 const { Item } = Form;
@@ -63,7 +63,7 @@ const ListMaterial: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const marterialStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.material_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.material_status,
   );
 
   const onUpdateNote = (note: string, items: MaterialResponse) => {
@@ -81,12 +81,12 @@ const ListMaterial: React.FC = () => {
       dataIndex: "code",
       key: "code",
       render: (value: string, item: MaterialResponse) => {
-        return <div>
-          <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>{value}</Link>
+        return (
           <div>
-            {ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm)}
+            <Link to={`${UrlConfig.MATERIALS}/${item.id}`}>{value}</Link>
+            <div>{ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm)}</div>
           </div>
-        </div>;
+        );
       },
     },
     {
@@ -99,7 +99,7 @@ const ListMaterial: React.FC = () => {
           <div className="text-center">
             <TextShowMore maxLength={100}>{value}</TextShowMore>
             <div>
-              <span style={{ color: '#666666' }}>{item.fabric_code}</span>
+              <span style={{ color: "#666666" }}>{item.fabric_code}</span>
             </div>
           </div>
         );
@@ -111,25 +111,19 @@ const ListMaterial: React.FC = () => {
       key: "component",
       width: 150,
       render: (value: string) => {
-        return <TextShowMore maxLength={100}>{value}</TextShowMore>
-      }
+        return <TextShowMore maxLength={100}>{value}</TextShowMore>;
+      },
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       width: 120,
       render: (value: string, item: MaterialResponse) => {
-        const marterial = marterialStatusList?.find((e:any) => e.value === value);
+        const marterial = marterialStatusList?.find((e: any) => e.value === value);
         let statusName = "";
         if (marterial) statusName = marterial.name;
         return (
-          <label
-            className={
-              value === "active" ? "text-success" : "text-error"
-            }
-          >
-            {statusName}
-          </label>
+          <label className={value === "active" ? "text-success" : "text-error"}>{statusName}</label>
         );
       },
     },
@@ -141,9 +135,25 @@ const ListMaterial: React.FC = () => {
       render: (value: string, item: MaterialResponse) => {
         return (
           <div>
-            <div>Khổ vải: <span className="font-weight-500">{formatCurrency(value)} {value ? item.fabric_size_unit : ''}</span></div>
-            <div>Trọng lượng: <span className="font-weight-500">{formatCurrency(item.weight)} {item.weight ? item.weight_unit : ''}</span></div>
-            <div>Giá: <span className="font-weight-500">{formatCurrency(item.price)} {item.price ? item.price_unit : ''}{item.price_measure_unit ? `/${item.price_measure_unit}` : ''}</span></div>
+            <div>
+              Khổ vải:{" "}
+              <span className="font-weight-500">
+                {formatCurrency(value)} {value ? item.fabric_size_unit : ""}
+              </span>
+            </div>
+            <div>
+              Trọng lượng:{" "}
+              <span className="font-weight-500">
+                {formatCurrency(item.weight)} {item.weight ? item.weight_unit : ""}
+              </span>
+            </div>
+            <div>
+              Giá:{" "}
+              <span className="font-weight-500">
+                {formatCurrency(item.price)} {item.price ? item.price_unit : ""}
+                {item.price_measure_unit ? `/${item.price_measure_unit}` : ""}
+              </span>
+            </div>
           </div>
         );
       },
@@ -154,15 +164,18 @@ const ListMaterial: React.FC = () => {
       key: "suppliers",
       width: 150,
       render: (value: Array<SupplierResponse>) => {
-        return <div>
-          {value?.length > 0 && value?.map((i: SupplierResponse) => {
-            return (
-              <div>
-                <Link to={`${UrlConfig.SUPPLIERS}/${i.id}`}>{i.name}</Link>
-              </div>
-            );
-          })}
-        </div>;
+        return (
+          <div>
+            {value?.length > 0 &&
+              value?.map((i: SupplierResponse) => {
+                return (
+                  <div>
+                    <Link to={`${UrlConfig.SUPPLIERS}/${i.id}`}>{i.name}</Link>
+                  </div>
+                );
+              })}
+          </div>
+        );
       },
     },
     {
@@ -171,18 +184,23 @@ const ListMaterial: React.FC = () => {
       dataIndex: "application",
       key: "application",
       render: (value: string) => {
-        return <TextShowMore maxLength={100}>{value}</TextShowMore>
-      }
+        return <TextShowMore maxLength={100}>{value}</TextShowMore>;
+      },
     },
     {
       title: "Người tạo",
       width: 130,
       key: "created_name",
       render: (item: MaterialResponse) => {
-        return item.created_name ?
+        return item.created_name ? (
           <div>
-            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_by} - {item.created_name}</Link>
-          </div> : "---";
+            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
+              {item.created_by} - {item.created_name}
+            </Link>
+          </div>
+        ) : (
+          "---"
+        );
       },
     },
     {
@@ -213,15 +231,12 @@ const ListMaterial: React.FC = () => {
     },
   ];
 
-  const onGetSuccess = useCallback(
-    (data: PageResponse<MaterialResponse> | false) => {
-      setLoading(false);
-      if (!!data) {
-        setData(data);
-      }
-    },
-    []
-  );
+  const onGetSuccess = useCallback((data: PageResponse<MaterialResponse> | false) => {
+    setLoading(false);
+    if (!!data) {
+      setData(data);
+    }
+  }, []);
 
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
@@ -259,7 +274,8 @@ const ListMaterial: React.FC = () => {
   const onFinish = useCallback(
     (values: MaterialQuery) => {
       let newPrams = {
-        ...params, ...values,
+        ...params,
+        ...values,
         info: values.info?.trim(),
         description: values.description?.trim(),
         page: 1,
@@ -268,7 +284,7 @@ const ListMaterial: React.FC = () => {
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.MATERIALS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
   const onPageChange = useCallback(
     (page, size) => {
@@ -285,7 +301,7 @@ const ListMaterial: React.FC = () => {
       setPrams({ ...newPrams });
       history.replace(`${UrlConfig.MATERIALS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
   const onMenuClick = useCallback(
     (index: number) => {
@@ -302,7 +318,7 @@ const ListMaterial: React.FC = () => {
           break;
       }
     },
-    [selected, onUpdate]
+    [selected, onUpdate],
   );
 
   const [canDeleteMaterials] = useAuthorization({
@@ -354,19 +370,18 @@ const ListMaterial: React.FC = () => {
           name: "Danh sách chất liệu",
         },
       ]}
-      extra={<AuthWrapper acceptPermissions={[ProductPermission.materials_create]}>
-        <ButtonCreate child="Thêm chất liệu" path={`${UrlConfig.MATERIALS}/create`} />
-        </AuthWrapper>}
+      extra={
+        <AuthWrapper acceptPermissions={[ProductPermission.materials_create]}>
+          <ButtonCreate child="Thêm chất liệu" path={`${UrlConfig.MATERIALS}/create`} />
+        </AuthWrapper>
+      }
     >
       <Card>
         <div className="custom-filter">
           <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
             <Form onFinish={onFinish} initialValues={params} layout="inline">
               <Item name="info" className="input-search">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tên / Mã chất liệu"
-                />
+                <Input prefix={<img src={search} alt="" />} placeholder="Tên / Mã chất liệu" />
               </Item>
               <Item name="component">
                 <Input

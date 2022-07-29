@@ -1,13 +1,5 @@
 //#region Import
-import {
-  Row,
-  Col,
-  Form,
-  Button,
-  Checkbox,
-  Divider,
-  Tag,
-} from "antd";
+import { Row, Col, Form, Button, Checkbox, Divider, Tag } from "antd";
 
 const PurchaseItem = () => {
   //#region state
@@ -40,9 +32,7 @@ const PurchaseItem = () => {
             <Form.Item>
               <div className="display-flex flex-space-between align-center">
                 <div>
-                  <span className="text-focus text-bottom-dash margin-right-10">
-                    Chiết khấu
-                  </span>
+                  <span className="text-focus text-bottom-dash margin-right-10">Chiết khấu</span>
                   <Tag className="orders-tag orders-tag-danger" closable>
                     10%
                   </Tag>
@@ -53,9 +43,7 @@ const PurchaseItem = () => {
             <Form.Item>
               <div className="display-flex flex-space-between align-center">
                 <div>
-                  <span className="text-focus margin-right-10">
-                    Mã giảm giá
-                  </span>{" "}
+                  <span className="text-focus margin-right-10">Mã giảm giá</span>{" "}
                   <Tag className="orders-tag orders-tag-focus" closable>
                     10%
                   </Tag>

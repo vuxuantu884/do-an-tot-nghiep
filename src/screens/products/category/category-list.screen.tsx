@@ -13,11 +13,7 @@ import { convertCategory, generateQuery } from "utils/AppUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import {
-  DeleteOutlined,
-  EditOutlined,
-  ExportOutlined,
-} from "@ant-design/icons";
+import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
@@ -65,9 +61,7 @@ const Category = () => {
   const [selected, setSelected] = useState<Array<CategoryView>>([]);
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer,
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const goods = useMemo(() => {
     if (bootstrapReducer.data && bootstrapReducer.data.goods) {
       return bootstrapReducer.data.goods;
@@ -122,10 +116,7 @@ const Category = () => {
       render: (item: CategoryView) => {
         return item.created_name ? (
           <div>
-            <Link
-              target="_blank"
-              to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}
-            >
+            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
               {item.created_name}
             </Link>
           </div>
@@ -152,12 +143,7 @@ const Category = () => {
   const onDeleteSuccess = useCallback(async () => {
     setSelected([]);
     showSuccess("Xóa danh mục thành công");
-    const res = await callApiNative(
-      { isShowLoading: false },
-      dispatch,
-      getCategoryApi,
-      params,
-    );
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getCategoryApi, params);
     setLoading(false);
     if (res && res.data) {
       onGetSuccess(res.data);
@@ -216,12 +202,7 @@ const Category = () => {
   }, []);
 
   const getData = useCallback(async () => {
-    const res = await callApiNative(
-      { isShowLoading: false },
-      dispatch,
-      getCategoryApi,
-      params,
-    );
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getCategoryApi, params);
     if (res) {
       onGetSuccess(res);
     }
@@ -252,10 +233,7 @@ const Category = () => {
       ]}
       extra={
         <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
-          <ButtonCreate
-            child="Thêm danh mục"
-            path={`${UrlConfig.CATEGORIES}/create`}
-          />
+          <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
         </AuthWrapper>
       }
     >
@@ -264,10 +242,7 @@ const Category = () => {
           <CustomFilter menu={menuFilter} onMenuClick={onMenuClick}>
             <Form onFinish={onFinish} layout="inline" initialValues={params}>
               <Item name="query" className="input-search">
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Tên/Mã danh mục"
-                />
+                <Input prefix={<img src={search} alt="" />} placeholder="Tên/Mã danh mục" />
               </Item>
               <Item name="goods">
                 <CustomSelect

@@ -1,17 +1,17 @@
-import {Table, Modal, Input, Row, Col} from "antd";
-import {CreateOrderReturnContext} from "contexts/order-return/create-order-return";
-import React, {useContext, useEffect, useState} from "react";
+import { Table, Modal, Input, Row, Col } from "antd";
+import { CreateOrderReturnContext } from "contexts/order-return/create-order-return";
+import React, { useContext, useEffect, useState } from "react";
 import "assets/css/_modal.scss";
-import {StoreResponse} from "model/core/store.model";
+import { StoreResponse } from "model/core/store.model";
 import { fullTextSearch } from "utils/StringUtils";
 
 type StoreReturnModelProps = {
   isModalVisible: boolean;
   handleCancel: () => void;
-  setModalVisible:(value:boolean)=>void;
+  setModalVisible: (value: boolean) => void;
 };
 
-const {Search} = Input;
+const { Search } = Input;
 
 export interface StoreModel {
   key: number;
@@ -19,10 +19,8 @@ export interface StoreModel {
   store_name: string;
 }
 
-const StoreReturnModel: React.FC<StoreReturnModelProps> = (
-  props: StoreReturnModelProps
-) => {
-  const {isModalVisible,setModalVisible, handleCancel} = props;
+const StoreReturnModel: React.FC<StoreReturnModelProps> = (props: StoreReturnModelProps) => {
+  const { isModalVisible, setModalVisible, handleCancel } = props;
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
   const [data, setData] = useState<StoreModel[]>([]);
@@ -62,11 +60,10 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
-      let _item: StoreResponse | null|undefined = listStoreReturn?.find(
-        (x) => x.id === selectedRows[0].store_id
+      let _item: StoreResponse | null | undefined = listStoreReturn?.find(
+        (x) => x.id === selectedRows[0].store_id,
       );
-      if(_item)
-      setSelectStore(_item);
+      if (_item) setSelectStore(_item);
     },
   };
 
@@ -74,7 +71,7 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (
     if (listStoreReturn) {
       let query = value.trim();
       let newData: StoreResponse[] = listStoreReturn.filter(function (el) {
-        return fullTextSearch(query, el.name)
+        return fullTextSearch(query, el.name);
       });
 
       let result: StoreModel[] = [];
@@ -89,15 +86,14 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (
     }
   };
 
-
   return (
     <>
       <Modal
         title="Chọn kho cần trả hàng"
         visible={isModalVisible}
-        onOk={()=>{
-            createOrderReturnContext?.return.setStoreReturn(selectStore);
-            setModalVisible(false);
+        onOk={() => {
+          createOrderReturnContext?.return.setStoreReturn(selectStore);
+          setModalVisible(false);
         }}
         onCancel={handleCancel}
         width={500}
@@ -112,14 +108,14 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (
               onChange={(e: any) => {
                 handleSearchStore(e.target.value);
               }}
-              style={{width: "60%", float: "right"}}
+              style={{ width: "60%", float: "right" }}
             />
           </Col>
         </Row>
         <Row>
           <Col md={24}>
             <Table
-              scroll={{y: 500}}
+              scroll={{ y: 500 }}
               rowSelection={{
                 type: "radio",
                 columnWidth: 50,

@@ -22,17 +22,18 @@ import actionColumn from "../../common/action.column";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 
-
 type CustomerContactInfoProps = {
-  customer: CustomerResponse | undefined,
-  customerDetailState: string,
-  modalAction: modalActionType ,
-  isShowModalContacts: boolean,
-  setIsShowModalContacts: (value: boolean) => void,
-  setModalAction: (value: modalActionType) => void,
-}
+  customer: CustomerResponse | undefined;
+  customerDetailState: string;
+  modalAction: modalActionType;
+  isShowModalContacts: boolean;
+  setIsShowModalContacts: (value: boolean) => void;
+  setModalAction: (value: modalActionType) => void;
+};
 
-const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: CustomerContactInfoProps) => {
+const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (
+  props: CustomerContactInfoProps,
+) => {
   const {
     customer,
     customerDetailState,
@@ -43,10 +44,8 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
-  const [isVisibleContactModal, setIsVisibleContactModal] =
-    React.useState<boolean>(false);
-  const [modalSingleContact, setModalSingleContact] =
-    React.useState<CustomerContact>();
+  const [isVisibleContactModal, setIsVisibleContactModal] = React.useState<boolean>(false);
+  const [modalSingleContact, setModalSingleContact] = React.useState<CustomerContact>();
   // contact column
   const gotoFirstPage = (customerId: any) => {
     history.replace(`${UrlConfig.CUSTOMER}/` + customerId + `#${customerDetailState}`);
@@ -108,11 +107,7 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
       // width: "20%",
       render: (value, row, index) => {
         return (
-          <div
-            className="text"
-            title={value}
-            style={{ color: "#666666", width: 200 }}
-          >
+          <div className="text" title={value} style={{ color: "#666666", width: 200 }}>
             {value}
           </div>
         );
@@ -122,13 +117,7 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
   ];
   const columnFinal = () => columns.filter((item) => item.visible === true);
   const customerContactFiltered = customer?.contacts?.filter((contact: any) => {
-    if (
-      contact.title ||
-      contact.name ||
-      contact.email ||
-      contact.phone ||
-      contact.note
-    ) {
+    if (contact.title || contact.name || contact.email || contact.phone || contact.note) {
       return true;
     }
     return false;
@@ -143,25 +132,20 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
             data
               ? showSuccess("Tạo mới liên hệ thành công")
               : showError("Tạo mới liên hệ thất bại");
-          })
+          }),
         );
     },
     edit: (formValue: CustomerContact) => {
       if (modalSingleContact) {
         if (customer)
           dispatch(
-            UpdateContact(
-              modalSingleContact.id,
-              customer.id,
-              formValue,
-              (data: contact) => {
-                setIsShowModalContacts(false);
-                gotoFirstPage(customer.id);
-                data
-                  ? showSuccess("Cập nhật liên hệ thành công")
-                  : showError("Cập nhật liên hệ thất bại");
-              }
-            )
+            UpdateContact(modalSingleContact.id, customer.id, formValue, (data: contact) => {
+              setIsShowModalContacts(false);
+              gotoFirstPage(customer.id);
+              data
+                ? showSuccess("Cập nhật liên hệ thành công")
+                : showError("Cập nhật liên hệ thất bại");
+            }),
           );
       }
     },
@@ -169,17 +153,11 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
       if (modalSingleContact) {
         if (customer)
           dispatch(
-            DeleteContact(
-              modalSingleContact.id,
-              customer.id,
-              (data: contact) => {
-                setIsShowModalContacts(false);
-                gotoFirstPage(customer.id);
-                data
-                  ? showSuccess("Xóa liên hệ thành công")
-                  : showError("Xóa liên hệ thất bại");
-              }
-            )
+            DeleteContact(modalSingleContact.id, customer.id, (data: contact) => {
+              setIsShowModalContacts(false);
+              gotoFirstPage(customer.id);
+              data ? showSuccess("Xóa liên hệ thành công") : showError("Xóa liên hệ thất bại");
+            }),
           );
       }
     },
@@ -214,9 +192,7 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
           //   // onShowSizeChange: onPageChange,
           // }}
           pagination={false}
-          dataSource={
-            customerContactFiltered ? customerContactFiltered.reverse() : []
-          }
+          dataSource={customerContactFiltered ? customerContactFiltered.reverse() : []}
           columns={columnFinal()}
           rowKey={(item: contact) => item.id}
           onRow={(record: CustomerContact) => {
@@ -232,12 +208,8 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
           createBtnTitle="Tạo mới thông tin liên hệ"
           updateBtnTitle="Lưu thông tin liên hệ"
           visible={isShowModalContacts}
-          onCreate={(formValue: CustomerContact) =>
-            handleContactForm.create(formValue)
-          }
-          onEdit={(formValue: CustomerContact) =>
-            handleContactForm.edit(formValue)
-          }
+          onCreate={(formValue: CustomerContact) => handleContactForm.create(formValue)}
+          onEdit={(formValue: CustomerContact) => handleContactForm.edit(formValue)}
           onDelete={() => {}}
           onCancel={() => setIsShowModalContacts(false)}
           modalAction={modalAction}
@@ -267,6 +239,6 @@ const CustomerContactInfo: React.FC<CustomerContactInfoProps> = (props: Customer
       />
     </Row>
   );
-}
+};
 
 export default CustomerContactInfo;

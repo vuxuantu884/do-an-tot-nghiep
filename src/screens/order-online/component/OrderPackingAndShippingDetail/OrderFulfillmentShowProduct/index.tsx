@@ -21,11 +21,7 @@ function OrderFulfillmentShowProduct(props: PropTypes) {
               <Row>
                 <Col style={{ alignItems: "center" }}>
                   <b className="panelHeader">
-                    {orderDetail?.items.reduce(
-                      (a: any, b: any) => a + b.quantity,
-                      0,
-                    )}{" "}
-                    SẢN PHẨM
+                    {orderDetail?.items.reduce((a: any, b: any) => a + b.quantity, 0)} SẢN PHẨM
                   </b>
                 </Col>
               </Row>
@@ -37,22 +33,12 @@ function OrderFulfillmentShowProduct(props: PropTypes) {
                 <div className="orders-shipment-item-view-wrap">
                   <div className="orders-shipment-item-name">
                     <div>
-                      <Typography.Link className="sku">
-                        {item.sku}
-                      </Typography.Link>
+                      <Typography.Link className="sku">{item.sku}</Typography.Link>
                     </div>
-                    <Badge
-                      status="default"
-                      text={item.variant}
-                      style={{ marginLeft: 7 }}
-                    />
+                    <Badge status="default" text={item.variant} style={{ marginLeft: 7 }} />
                   </div>
                   <div className="shipmentItemRight">
-                    {item.type === PRODUCT_TYPE.gift ? (
-                      <span>Quà tặng</span>
-                    ) : (
-                      <div></div>
-                    )}
+                    {item.type === PRODUCT_TYPE.gift ? <span>Quà tặng</span> : <div></div>}
                     <span style={{ marginRight: 10 }}>
                       {getQuantityWithTwoCharacter(item.quantity)}
                     </span>

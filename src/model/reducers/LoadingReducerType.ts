@@ -1,3 +1,3 @@
 export interface LoadingReducerType {
-  isVisible: boolean
+  isVisible: boolean;
 }

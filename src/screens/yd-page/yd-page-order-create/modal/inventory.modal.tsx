@@ -23,10 +23,10 @@ const pitority = {
 };
 
 interface InventoryStore {
-  id: number,
-  name: string,
-  pitority: number,
-  data: any,
+  id: number;
+  name: string;
+  pitority: number;
+  data: any;
 }
 
 const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProps) => {
@@ -45,12 +45,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
   const [storeData, setsStoreData] = useState<StoreResponse[] | null>(null);
 
   const setAllAvailable = (variantId: number) => {
-
     let inventoryInt = 0;
     if (inventoryArray && inventoryArray.length) {
       data.forEach(function (item) {
         inventoryInt += item.data[variantId];
-      })
+      });
     }
     return inventoryInt === null ? 0 : inventoryInt;
   };
@@ -59,10 +58,15 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
     setSelectedStoreId(e.target.value);
   };
 
-  const onSearchInventory = useCallback((value: string) => {
-    let _item: StoreResponse[] | any = storeArrayResponse?.filter(x => x.name.toLowerCase().includes(value.toLowerCase().trim()));
-    setsStoreData(_item);
-  }, [storeArrayResponse])
+  const onSearchInventory = useCallback(
+    (value: string) => {
+      let _item: StoreResponse[] | any = storeArrayResponse?.filter((x) =>
+        x.name.toLowerCase().includes(value.toLowerCase().trim()),
+      );
+      setsStoreData(_item);
+    },
+    [storeArrayResponse],
+  );
 
   const handleOk = useCallback(() => {
     if (selectedStoreId) setStoreId(selectedStoreId);
@@ -80,8 +84,11 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       };
 
       columnsItem?.forEach((value1) => {
-        let inventory = inventoryArray?.find((value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id);
-        store.data[value1.variant_id.toString()] = inventory && inventory.available ? inventory.available : 0
+        let inventory = inventoryArray?.find(
+          (value2) => value1.variant_id === value2.variant_id && value.id === value2.store_id,
+        );
+        store.data[value1.variant_id.toString()] =
+          inventory && inventory.available ? inventory.available : 0;
       });
       stores.push(store);
     });
@@ -101,10 +108,10 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
 
       Object.keys(a.data).forEach((key) => {
         totalAvaiable1 = totalAvaiable1 + a.data[key];
-      })
+      });
       Object.keys(b.data).forEach((key) => {
         totalAvaiable2 = totalAvaiable2 + b.data[key];
-      })
+      });
       if (item1 === columnsItem?.length && item2 === columnsItem?.length) {
         if (a.pitority >= b.pitority) {
           return totalAvaiable2 - totalAvaiable1;
@@ -116,7 +123,7 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
         return totalAvaiable2 - totalAvaiable1;
       }
       return item2 - item1;
-    })
+    });
     return stores;
   }, [columnsItem, storeData, inventoryArray]);
 
@@ -138,47 +145,51 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
       width={900}
       onOk={handleOk}
       onCancel={handleCancel}
-			bodyStyle={{ padding: "25px 8px" }}
+      bodyStyle={{ padding: "25px 8px" }}
     >
       <Row gutter={24}>
         <Col md={12}>
-          <Input.Search
-            placeholder="Tìm kiếm kho"
-            allowClear
-            onSearch={onSearchInventory}
-          />
+          <Input.Search placeholder="Tìm kiếm kho" allowClear onSearch={onSearchInventory} />
         </Col>
       </Row>
       <Row gutter={24} className="margin-top-10">
         <Col md={24}>
           <div className="overflow-table">
-            <Radio.Group
-              onChange={onChange}
-              value={selectedStoreId}
-              style={{ width: "100%" }}
-            >
+            <Radio.Group onChange={onChange} value={selectedStoreId} style={{ width: "100%" }}>
               <table className="rules">
                 <thead>
                   <tr>
-                    <th className="condition" style={{ minWidth: '150px' }}>Sản phẩm</th>
+                    <th className="condition" style={{ minWidth: "150px" }}>
+                      Sản phẩm
+                    </th>
                     {columnsItem?.map((data, index) => (
-                      <th className="condition" key={index} style={{ minWidth: '90px' }}>{data.variant}</th>
+                      <th className="condition" key={index} style={{ minWidth: "90px" }}>
+                        {data.variant}
+                      </th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   <tr>
-                    <td className="condition" style={{ minWidth: '150px' }}>Khách đặt</td>
+                    <td className="condition" style={{ minWidth: "150px" }}>
+                      Khách đặt
+                    </td>
                     {columnsItem?.map((data, index) => (
-                      <td className="condition" key={index} style={{ minWidth: '90px' }}>{data.quantity}</td>
+                      <td className="condition" key={index} style={{ minWidth: "90px" }}>
+                        {data.quantity}
+                      </td>
                     ))}
                   </tr>
                 </tbody>
                 <thead>
                   <tr>
-                    <th className="condition" style={{ minWidth: '150px' }}>Tổng có thế bán</th>
+                    <th className="condition" style={{ minWidth: "150px" }}>
+                      Tổng có thế bán
+                    </th>
                     {columnsItem?.map((data, index) => (
-                      <th className="condition" key={index} style={{ minWidth: '90px' }}>{setAllAvailable(data.variant_id)}</th>
+                      <th className="condition" key={index} style={{ minWidth: "90px" }}>
+                        {setAllAvailable(data.variant_id)}
+                      </th>
                     ))}
                   </tr>
                 </thead>
@@ -186,11 +197,15 @@ const InventoryModal: React.FC<InventoryModalProps> = (props: InventoryModalProp
                 <tbody>
                   {data?.map((item, index) => (
                     <tr key={index}>
-                      <th className="condition" key={index} style={{ minWidth: '150px' }}>
+                      <th className="condition" key={index} style={{ minWidth: "150px" }}>
                         <Radio value={item.id}>{item.name}</Radio>
                       </th>
                       {columnsItem?.map((_itemi, index) => (
-                        <td className="condition" key={_itemi.variant_id} style={{ minWidth: '90px' }}>
+                        <td
+                          className="condition"
+                          key={_itemi.variant_id}
+                          style={{ minWidth: "90px" }}
+                        >
                           {item.data[_itemi.variant_id]}
                         </td>
                       ))}

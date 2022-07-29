@@ -1,29 +1,19 @@
-import {
-  Button,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-  Tag,
-  InputNumber,
-} from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag, InputNumber } from "antd";
 
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
 import search from "assets/img/search.svg";
-import {AccountResponse} from "model/account/account.model";
-import {FilterOutlined} from "@ant-design/icons";
+import { AccountResponse } from "model/account/account.model";
+import { FilterOutlined } from "@ant-design/icons";
 import CustomSelect from "component/custom/select.custom";
-import {OrderSearchQuery} from "model/order/order.model";
+import { OrderSearchQuery } from "model/order/order.model";
 import moment from "moment";
 import BaseFilter from "component/filter/base.filter";
 import {
   INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY,
   STATUS_INVENTORY_ADJUSTMENT_ARRAY,
 } from "../../constants";
-import {StoreResponse} from "model/core/store.model";
+import { StoreResponse } from "model/core/store.model";
 import "./styles.scss";
 import ButtonSetting from "component/table/ButtonSetting";
 import { formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
@@ -46,11 +36,11 @@ type InventoryAdjustmentFilterProps = {
   stores?: Array<StoreResponse>;
 };
 
-const {Item} = Form;
-const {Option} = Select;
+const { Item } = Form;
+const { Option } = Select;
 
 const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
-  props: InventoryAdjustmentFilterProps
+  props: InventoryAdjustmentFilterProps,
 ) => {
   const {
     params,
@@ -60,9 +50,9 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     onShowColumnSetting,
     stores,
     accounts,
-    setAccounts
+    setAccounts,
   } = props;
-  const [dateClick, setDateClick] = useState('');
+  const [dateClick, setDateClick] = useState("");
   const initialValues = useMemo(() => {
     return {
       ...params,
@@ -90,18 +80,16 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       if (!data) return;
       setAccounts && setAccounts(data.items);
     },
-    [setAccounts]
+    [setAccounts],
   );
 
   const dispatch = useDispatch();
-  const getCreatedName = useCallback((code: string, page: number) => {
-    dispatch(
-      searchAccountPublicAction(
-        { codes: code, page: page },
-        setDataAccount
-      )
-    );
-  }, [dispatch, setDataAccount]);
+  const getCreatedName = useCallback(
+    (code: string, page: number) => {
+      dispatch(searchAccountPublicAction({ codes: code, page: page }, setDataAccount));
+    },
+    [dispatch, setDataAccount],
+  );
 
   useEffect(() => {
     const filter = {
@@ -114,7 +102,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       to_adjusted_date: formatDateFilter(params.to_adjusted_date),
     };
 
-    if (params.created_name && params.created_name !== '') getCreatedName(params.created_name, 1);
+    if (params.created_name && params.created_name !== "") getCreatedName(params.created_name, 1);
 
     formAvd.setFieldsValue(filter);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -147,29 +135,45 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       e.preventDefault();
       switch (tag.key) {
         case "status":
-          onFilter && onFilter({...params, status: []});
+          onFilter && onFilter({ ...params, status: [] });
           break;
         case "audit_type":
-          onFilter && onFilter({...params, audit_type: []});
+          onFilter && onFilter({ ...params, audit_type: [] });
           break;
         case "total_variant":
           onFilter &&
-            onFilter({...params, from_total_variant: null, to_total_variant: null});
+            onFilter({
+              ...params,
+              from_total_variant: null,
+              to_total_variant: null,
+            });
           break;
         case "total_quantity":
           onFilter &&
-            onFilter({...params, from_total_quantity: null, to_total_quantity: null});
+            onFilter({
+              ...params,
+              from_total_quantity: null,
+              to_total_quantity: null,
+            });
           break;
         case "total_amount":
           onFilter &&
-            onFilter({...params, from_total_amount: null, to_total_amount: null});
+            onFilter({
+              ...params,
+              from_total_amount: null,
+              to_total_amount: null,
+            });
           break;
         case "created_name":
-          onFilter && onFilter({...params, created_name: []});
+          onFilter && onFilter({ ...params, created_name: [] });
           break;
         case "created_date":
           onFilter &&
-            onFilter({...params, from_created_date: null, to_created_date: null});
+            onFilter({
+              ...params,
+              from_created_date: null,
+              to_created_date: null,
+            });
           break;
         case "audited_date":
           onFilter &&
@@ -192,7 +196,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           break;
       }
     },
-    [onFilter, params]
+    [onFilter, params],
   );
 
   const onFinish = useCallback(
@@ -203,9 +207,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       };
       onFilter && onFilter(valuesForm);
     },
-    [
-      onFilter,
-    ]
+    [onFilter],
   );
 
   const onFinishAvd = useCallback(
@@ -220,7 +222,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
 
       onFilter && onFilter(values);
     },
-    [formAvd, onFilter]
+    [formAvd, onFilter],
   );
 
   const filters = () => {
@@ -229,19 +231,16 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       let textStatus = "";
 
       if (initialValues.status.length > 1) {
-
         initialValues.status.forEach((statusValue: any) => {
           const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
-            (status) => status.value === statusValue
+            (status) => status.value === statusValue,
           );
           textStatus = status ? textStatus + status.name + "; " : textStatus;
         });
-
       } else if (initialValues.status.length === 1) {
-
         initialValues.status.forEach((statusValue: any) => {
           const status = STATUS_INVENTORY_ADJUSTMENT_ARRAY?.find(
-            (status) => status.value === statusValue
+            (status) => status.value === statusValue,
           );
           textStatus = status ? textStatus + status.name : textStatus;
         });
@@ -257,22 +256,20 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       let auditTypeName = "";
       let auditTypes = initialValues.audit_type;
       if (!Array.isArray(auditTypes)) {
-        auditTypes = [auditTypes]
+        auditTypes = [auditTypes];
       }
 
       if (auditTypes.length > 1) {
         auditTypes.forEach((value: any) => {
           const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
-            (auditType) => auditType.value === value
+            (auditType) => auditType.value === value,
           );
           auditTypeName = auditType ? auditTypeName + auditType.name + "; " : auditTypeName;
         });
-
       } else if (auditTypes.length === 1) {
-
         auditTypes.forEach((value: any) => {
           const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY?.find(
-            (auditType) => auditType.value === value
+            (auditType) => auditType.value === value,
           );
           auditTypeName = auditType ? auditTypeName + auditType.name : auditTypeName;
         });
@@ -296,24 +293,27 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
       });
     }
     if (initialValues.created_name.length) {
-      let textAccount = ""
+      let textAccount = "";
       if (initialValues.created_name.length > 1) {
         initialValues.created_name.forEach((i: any) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code + "; " : textAccount
-        })
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code + "; "
+            : textAccount;
+        });
       } else if (initialValues.created_name.length === 1) {
-
         initialValues.created_name.forEach((i: any) => {
-          const findAccount = accounts?.find(item => item.code === i)
-          textAccount = findAccount ? textAccount + findAccount.full_name + " - " + findAccount.code : textAccount
-        })
+          const findAccount = accounts?.find((item) => item.code === i);
+          textAccount = findAccount
+            ? textAccount + findAccount.full_name + " - " + findAccount.code
+            : textAccount;
+        });
       }
       list.push({
-        key: 'created_name',
-        name: 'Người tạo',
-        value: textAccount
-      })
+        key: "created_name",
+        name: "Người tạo",
+        value: textAccount,
+      });
     }
     if (initialValues.from_created_date || initialValues.to_created_date) {
       let textCreatedDate =
@@ -363,7 +363,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
     }
 
     return list;
-  }
+  };
 
   return (
     <>
@@ -375,7 +375,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
           initialValues={initialValues}
           layout="inline"
         >
-          <Item style={{flex: 1}} name="code" className="input-search">
+          <Item style={{ flex: 1 }} name="code" className="input-search">
             <Input
               prefix={<img src={search} alt="" />}
               placeholder="Tìm kiếm theo mã phiếu kiểm"
@@ -399,12 +399,12 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               onClear={() => formSearchRef?.current?.submit()}
             >
               {Array.isArray(stores) &&
-              stores.length > 0 &&
-              stores.map((item, index) => (
-                <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
-                  {item.name}
-                </Option>
-              ))}
+                stores.length > 0 &&
+                stores.map((item, index) => (
+                  <Option key={"adjusted_store_id" + index} value={item.id.toString()}>
+                    {item.name}
+                  </Option>
+                ))}
             </CustomSelect>
           </Item>
           <Item>
@@ -437,22 +437,22 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
               layout="vertical"
             >
               <>
-                <Row gutter={12} style={{marginTop: "10px"}}>
+                <Row gutter={12} style={{ marginTop: "10px" }}>
                   <Col span={12}>
                     <div className="font-weight-500">Trạng thái</div>
-                    <Item name="status" style={{margin: "10px 0px"}}>
+                    <Item name="status" style={{ margin: "10px 0px" }}>
                       <CustomSelect
                         mode="multiple"
                         showArrow
                         placeholder="Chọn trạng thái"
                         notFoundContent="Không tìm thấy kết quả"
                         optionFilterProp="children"
-                        style={{width: "100%"}}
+                        style={{ width: "100%" }}
                         getPopupContainer={(trigger) => trigger.parentNode}
                       >
                         {STATUS_INVENTORY_ADJUSTMENT_ARRAY.map((item, index) => (
                           <CustomSelect.Option
-                            style={{width: "100%"}}
+                            style={{ width: "100%" }}
                             key={index.toString()}
                             value={item.value}
                           >
@@ -464,7 +464,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                   </Col>
                   <Col span={12}>
                     <div className="font-weight-500">Loại kiểm kho</div>
-                    <Item name="audit_type" style={{margin: "10px 0px"}}>
+                    <Item name="audit_type" style={{ margin: "10px 0px" }}>
                       <CustomSelect
                         mode="multiple"
                         showSearch
@@ -473,13 +473,13 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         placeholder="Chọn loại kiểm kho"
                         notFoundContent="Không tìm thấy kết quả"
                         optionFilterProp="children"
-                        style={{width: "100%"}}
+                        style={{ width: "100%" }}
                         getPopupContainer={(trigger) => trigger.parentNode}
                       >
                         {INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.map((item, index) => {
                           return (
                             <CustomSelect.Option
-                              style={{width: "100%"}}
+                              style={{ width: "100%" }}
                               key={index.toString()}
                               value={item.value}
                             >
@@ -491,11 +491,11 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                     </Item>
                   </Col>
                 </Row>
-                <Row gutter={12} style={{marginTop: "10px"}}>
+                <Row gutter={12} style={{ marginTop: "10px" }}>
                   <Col span={12}>
                     <div className="font-weight-500 mb-10">Người tạo</div>
                     <Item name="created_name">
-                      <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple"/>
+                      <AccountSearchPaging placeholder="Chọn người tạo" mode="multiple" />
                     </Item>
                   </Col>
                   <Col span={12}>
@@ -539,7 +539,7 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                     <Input.Group compact>
                       <Item
                         name="from_total_quantity"
-                        style={{textAlign: "center", margin: "10px 0px"}}
+                        style={{ textAlign: "center", margin: "10px 0px" }}
                       >
                         <InputNumber
                           className="price_min"
@@ -549,12 +549,10 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
                         />
                       </Item>
 
-                      <div
-                        className="site-input-split"
-                      >~</div>
+                      <div className="site-input-split">~</div>
                       <Item
                         name="to_total_quantity"
-                        style={{textAlign: "center", margin: "10px 0px"}}
+                        style={{ textAlign: "center", margin: "10px 0px" }}
                       >
                         <InputNumber
                           className="site-input-right price_max"
@@ -575,7 +573,12 @@ const InventoryAdjustmentFilters: React.FC<InventoryAdjustmentFilterProps> = (
         {filters() &&
           filters().map((filter: any) => {
             return (
-              <Tag style={{ marginBottom: 20 }} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
+              <Tag
+                style={{ marginBottom: 20 }}
+                className="tag"
+                closable
+                onClose={(e) => onCloseTag(e, filter)}
+              >
                 {filter.name}: {filter.value}
               </Tag>
             );

@@ -16,4 +16,4 @@ export const LoyaltyPermission = {
   programs_update: `${Loyalty}_programs_update`,
   programs_delete: `${Loyalty}_programs_delete`,
   loyalties_config: `${Loyalty}_config`,
-}
+};

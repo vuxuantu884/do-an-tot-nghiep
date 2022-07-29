@@ -17,8 +17,8 @@ const StockInOutProductUtils = {
       // let price = price_response !== null ? price_response.import_price : 0;
       const retailPrice = variant.variant_prices[0].retail_price;
       const costPrice = variant.variant_prices[0].cost_price;
-      const wholeSalePrice = variant.variant_prices[0].wholesale_price
-      const importPrice = variant.variant_prices[0].import_price
+      const wholeSalePrice = variant.variant_prices[0].wholesale_price;
+      const importPrice = variant.variant_prices[0].import_price;
       let newItem: StockInOutItemsOther = {
         sku: variant.sku,
         barcode: variant.barcode,
@@ -35,7 +35,7 @@ const StockInOutProductUtils = {
         retail_price: retailPrice ?? 0,
         cost_price: costPrice ?? 0,
         wholesale_price: wholeSalePrice ?? 0,
-        import_price: importPrice ?? 0
+        import_price: importPrice ?? 0,
       };
       result.push(newItem);
     });
@@ -66,27 +66,27 @@ const StockInOutProductUtils = {
   updateStockInOutItemByQuantity: (
     stockInOutItem: StockInOutItemsOther,
     quantity: number,
-    typePrice: string
-  ) : StockInOutItemsOther =>{
+    typePrice: string,
+  ): StockInOutItemsOther => {
     let amount = quantity * stockInOutItem[typePrice];
     return {
       ...stockInOutItem,
       quantity: quantity,
       amount: amount,
-    }
+    };
   },
   getTotalAmountByStockInOutItems: (stockInOutItemsOther: Array<StockInOutItemsOther>): number => {
-    let total = 0
+    let total = 0;
     stockInOutItemsOther.forEach((item: any) => {
-      total += item.amount
-    })
-    return total
+      total += item.amount;
+    });
+    return total;
   },
   totalQuantity: (data: Array<StockInOutItemsOther>): number => {
     let total = 0;
     data.forEach((item) => (total = total + item.quantity));
     return total;
   },
-}
+};
 
-export default StockInOutProductUtils
+export default StockInOutProductUtils;

@@ -10,11 +10,11 @@ export interface PointAdjustmentListRequest extends BaseQuery {
 }
 
 export interface CreateCustomerPointAdjustmentRequest {
-  customer_ids: Array<any> | []
-  note?: string
-  reason: string
-  value_change: number
-  type: string
+  customer_ids: Array<any> | [];
+  note?: string;
+  reason: string;
+  value_change: number;
+  type: string;
 }
 
 export interface getImportCodeCustomerAdjustmentRequest {
@@ -51,5 +51,3 @@ export interface getInfoAdjustmentByJobRequest {
   data_response: any;
   deleted: boolean;
 }
-
-

@@ -21,9 +21,9 @@ export const StyledComponent = styled.div`
     }
     .data {
       color: #222222;
-      font-weight:500;
+      font-weight: 500;
     }
-    .row-detail-right{
+    .row-detail-right {
       word-wrap: break-word;
     }
   }

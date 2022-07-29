@@ -33,14 +33,14 @@ function CardReturnMoney(props: PropTypes) {
   } = props;
 
   const checkIfHasReturnMoney = (payments: OrderPaymentResponse[]) => {
-    return payments.some(payment => payment.amount > 0)
+    return payments.some((payment) => payment.amount > 0);
   };
 
   const renderCardTitle = () => {
     return (
       <React.Fragment>
         <span className="title-card">
-          Hoàn tiền {" "}
+          Hoàn tiền{" "}
           {payments && payments.length > 0 && checkIfHasReturnMoney(payments) && (
             <Tag
               className="orders-tag orders-tag-success"

@@ -1,5 +1,5 @@
 export interface StoreRankResponse {
-  id: number,
-  code: string,
-  description: string,
+  id: number;
+  code: string;
+  description: string;
 }

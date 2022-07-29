@@ -3,63 +3,63 @@ import { BaseObject } from "../base/base.response";
 export interface InventoryTransferSearchQuery {
   page: number;
   limit: number;
-  condition: string | null,
-  from_store_id: any,
-  to_store_id: any,
-  simple: boolean,
-  status: string[],
-  created_by: [],
-  transfer_by: [],
-  received_by: [],
-  cancel_by: [],
-  note: string | null,
-  from_created_date: any,
-  to_created_date: any,
-  from_transfer_date: any,
-  to_transfer_date: any,
-  from_receive_date: any,
-  to_receive_date: any,
-  from_cancel_date: any,
-  to_cancel_date: any,
-  from_pending_date: any,
-  to_pending_date: any,
+  condition: string | null;
+  from_store_id: any;
+  to_store_id: any;
+  simple: boolean;
+  status: string[];
+  created_by: [];
+  transfer_by: [];
+  received_by: [];
+  cancel_by: [];
+  note: string | null;
+  from_created_date: any;
+  to_created_date: any;
+  from_transfer_date: any;
+  to_transfer_date: any;
+  from_receive_date: any;
+  to_receive_date: any;
+  from_cancel_date: any;
+  to_cancel_date: any;
+  from_pending_date: any;
+  to_pending_date: any;
 }
 
 export interface InventoryTransferImportExportSearchQuery {
   page: number;
   limit: number;
-  condition: string | null,
-  from_store_id: any,
-  to_store_id: any,
-  simple: boolean,
-  status: string[],
-  created_by: [],
-  transfer_by: [],
-  received_by: [],
-  cancel_by: [],
-  note: string | null,
-  from_created_date: any,
-  to_created_date: any,
-  from_transfer_date: any,
-  to_transfer_date: any,
-  from_receive_date: any,
-  to_receive_date: any,
-  from_cancel_date: any,
-  to_cancel_date: any,
-  from_pending_date: any,
-  to_pending_date: any,
+  condition: string | null;
+  from_store_id: any;
+  to_store_id: any;
+  simple: boolean;
+  status: string[];
+  created_by: [];
+  transfer_by: [];
+  received_by: [];
+  cancel_by: [];
+  note: string | null;
+  from_created_date: any;
+  to_created_date: any;
+  from_transfer_date: any;
+  to_transfer_date: any;
+  from_receive_date: any;
+  to_receive_date: any;
+  from_cancel_date: any;
+  to_cancel_date: any;
+  from_pending_date: any;
+  to_pending_date: any;
 }
 
-export interface InventoryTransferLogSearchQuery{
+export interface InventoryTransferLogSearchQuery {
   page: number;
   limit: number;
-  condition: string | null,
-  from_store_id: number | null,
-  to_store_id: number | null,
-  updated_by: [],
-  action: [],
-  from_created_date: any,
-  to_created_date: any
+  condition: string | null;
+  from_store_id: number | null;
+  to_store_id: number | null;
+  updated_by: [];
+  action: [];
+  from_created_date: any;
+  to_created_date: any;
 }
 
 export interface Store extends BaseObject {
@@ -99,7 +99,7 @@ export type StoreStatus = {
   limit?: number;
   page?: number;
   info?: string;
-  store_ids?: number|null;
+  store_ids?: number | null;
 };
 
 export type FileParam = {
@@ -130,7 +130,7 @@ export interface LineItem {
   price: number;
   barcode: string;
   weight: number;
-  weight_unit: string
+  weight_unit: string;
 }
 
 export interface FileUrl {
@@ -142,22 +142,22 @@ export interface FileUrl {
 export type StockTransferSubmit = {
   store_transfer: {
     id?: number;
-    store_id: number,
-    hotline: string,
-    address: string,
-    name: string,
-    code: string
-  },
+    store_id: number;
+    hotline: string;
+    address: string;
+    name: string;
+    code: string;
+  };
   store_receive: {
     id?: number;
-    store_id: number,
-    hotline: string,
-    address: string,
-    name: string,
-    code: string
-  }
+    store_id: number;
+    hotline: string;
+    address: string;
+    name: string;
+    code: string;
+  };
   from_store_id?: number;
-  to_store_id?:number;
+  to_store_id?: number;
   note: string;
   attached_files: FileUrl[];
   line_items: LineItem[];
@@ -165,40 +165,40 @@ export type StockTransferSubmit = {
 };
 
 export type TrackingLogs = {
-  fulfillment_code: string,
-  shipping_message: string,
-  shipping_status: string,
-  updated_date: string,
+  fulfillment_code: string;
+  shipping_message: string;
+  shipping_status: string;
+  updated_date: string;
 };
 
 export type ShipmentItem = {
-  id: number,
-  delivery_service_id: number,
-  delivery_service_code: string,
-  delivery_service_name: string,
-  delivery_service_logo: string,
-  order_code: string,
-  fulfillment_code: string,
-  store_id: number,
-  partner_shop_id: number,
-  money_collection: string,
-  transport_type: string,
-  tracking_logs: TrackingLogs[],
-  transport_type_name: string,
-  cod: number,
-  insurance: string,
-  weight: number,
-  weight_unit: string,
-  total_fee: number,
-  insurance_fee: string,
-  note_to_shipper: string,
-  partner_note: string,
-  shipping_requirement: string,
-  who_paid: string,
-  tracking_code: string,
-  expected_delivery_time: string,
-  office_time: boolean,
-  status: string
+  id: number;
+  delivery_service_id: number;
+  delivery_service_code: string;
+  delivery_service_name: string;
+  delivery_service_logo: string;
+  order_code: string;
+  fulfillment_code: string;
+  store_id: number;
+  partner_shop_id: number;
+  money_collection: string;
+  transport_type: string;
+  tracking_logs: TrackingLogs[];
+  transport_type_name: string;
+  cod: number;
+  insurance: string;
+  weight: number;
+  weight_unit: string;
+  total_fee: number;
+  insurance_fee: string;
+  note_to_shipper: string;
+  partner_note: string;
+  shipping_requirement: string;
+  who_paid: string;
+  tracking_code: string;
+  expected_delivery_time: string;
+  office_time: boolean;
+  status: string;
 };
 
 export interface InventoryTransferDetailItem {
@@ -247,30 +247,30 @@ export interface InventoryTransferDetailItem {
 }
 
 export interface InventoryExportImportTransferDetailItem {
-  id: number,
-  code: string,
-  version: string | null,
-  created_by: string,
-  created_name: string,
-  created_date: Date,
-  updated_by: string,
-  updated_name: string,
-  updated_date: Date,
-  sku: string,
-  variant_name: string,
-  variant_id: number,
-  transfer_quantity: number,
-  received_quantity: number,
-  price: number,
-  amount: number,
-  exported_code: string,
-  exported_name: string,
-  exported_date: Date,
-  received_by: string,
-  received_name: string,
-  receive_date: Date,
-  inventory_transfer: InventoryTransferDetailItem,
-  barcode: string
+  id: number;
+  code: string;
+  version: string | null;
+  created_by: string;
+  created_name: string;
+  created_date: Date;
+  updated_by: string;
+  updated_name: string;
+  updated_date: Date;
+  sku: string;
+  variant_name: string;
+  variant_id: number;
+  transfer_quantity: number;
+  received_quantity: number;
+  price: number;
+  amount: number;
+  exported_code: string;
+  exported_name: string;
+  exported_date: Date;
+  received_by: string;
+  received_name: string;
+  receive_date: Date;
+  inventory_transfer: InventoryTransferDetailItem;
+  barcode: string;
 }
 
 export type DeleteTicketRequest = {
@@ -278,71 +278,71 @@ export type DeleteTicketRequest = {
 };
 
 export type DataExport = {
-  transfers: Object[]
-}
+  transfers: Object[];
+};
 
 export type DataMultipleCancel = {
-  note: string,
-  transfers: Object[]
-}
+  note: string;
+  transfers: Object[];
+};
 
 export interface InventoryTransferLog {
-    id: number;
-    code: string;
-    version: number;
-    created_by: string;
-    created_name: string;
-    created_date: Date;
-    updated_by: string;
-    updated_name: string;
-    updated_date: Date;
-    root_id: number;
-    data: string;
-    action: string;
-    transfer_code: string;
-    transfer_id: number;
-    from_store_name: string;
-    to_store_name: string;
-    from_store_id: number;
-    to_store_id: number;
+  id: number;
+  code: string;
+  version: number;
+  created_by: string;
+  created_name: string;
+  created_date: Date;
+  updated_by: string;
+  updated_name: string;
+  updated_date: Date;
+  root_id: number;
+  data: string;
+  action: string;
+  transfer_code: string;
+  transfer_id: number;
+  from_store_name: string;
+  to_store_name: string;
+  from_store_id: number;
+  to_store_id: number;
 }
 
 export interface InventoryTransferShipmentRequest {
-  delivery_service_id: number | null,
-  delivery_service_code: string | null,
-  delivery_service_name: string | null,
-  delivery_service_logo: string | null,
-  order_code: string | null,
-  fulfillment_code: string | null,
-  store_id: number | null,
-  transport_type: string | null,
-  transport_type_name: string | null,
-  cod: number | null,
-  weight: number | null,
-  weight_unit: string | null,
-  total_fee: number | null,
-  note_to_shipper: string | null,
-  shipping_requirement: string | null,
-  who_paid: string | null,
-  expected_delivery_time: string | null,
-  office_time:boolean | null,
+  delivery_service_id: number | null;
+  delivery_service_code: string | null;
+  delivery_service_name: string | null;
+  delivery_service_logo: string | null;
+  order_code: string | null;
+  fulfillment_code: string | null;
+  store_id: number | null;
+  transport_type: string | null;
+  transport_type_name: string | null;
+  cod: number | null;
+  weight: number | null;
+  weight_unit: string | null;
+  total_fee: number | null;
+  note_to_shipper: string | null;
+  shipping_requirement: string | null;
+  who_paid: string | null;
+  expected_delivery_time: string | null;
+  office_time: boolean | null;
 }
 
 export interface TransportTypeRS {
-  code:	string,
-  external_service_code:	string,
-  name:	string,
-  description:	string,
-  active: boolean,
+  code: string;
+  external_service_code: string;
+  name: string;
+  description: string;
+  active: boolean;
 }
 export interface LogisticGateAwayResponse {
-  id:	number,
-  code:	string,
-  external_service_code:	string,
-  logo:	string,
-  name:	string,
-  active:	boolean,
-  transport_types: Array<TransportTypeRS>
+  id: number;
+  code: string;
+  external_service_code: string;
+  logo: string;
+  name: string;
+  active: boolean;
+  transport_types: Array<TransportTypeRS>;
 }
 
 export interface InventoryProcessImport {

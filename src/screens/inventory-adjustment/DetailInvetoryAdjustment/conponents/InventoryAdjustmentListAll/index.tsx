@@ -37,22 +37,22 @@ import { STATUS_INVENTORY_ADJUSTMENT } from "../../../ListInventoryAdjustment/co
 import NumberInput from "../../../../../component/custom/number-input.custom";
 
 const arrTypeNote = [
-  {key: 1,value: "XNK sai quy trình"},
-  {key: 2,value: "Sai trạng thái đơn hàng"},
-  {key: 3,value: "Thất thoát"},
-]
+  { key: 1, value: "XNK sai quy trình" },
+  { key: 2, value: "Sai trạng thái đơn hàng" },
+  { key: 3, value: "Thất thoát" },
+];
 
 type propsInventoryAdjustment = {
   data: InventoryAdjustmentDetailItem;
-  idNumber: number,
-  keySearch: string,
-  tab: string,
-  isPermissionAudit: boolean,
-  isRerenderTab: boolean,
-  tableLoading: boolean,
-  objSummaryTableByAuditTotal: any,
-  setIsReRender: () => void,
-  setDataTab?: (value: any) => void,
+  idNumber: number;
+  keySearch: string;
+  tab: string;
+  isPermissionAudit: boolean;
+  isRerenderTab: boolean;
+  tableLoading: boolean;
+  objSummaryTableByAuditTotal: any;
+  setIsReRender: () => void;
+  setDataTab?: (value: any) => void;
 };
 
 export interface Summary {
@@ -63,7 +63,7 @@ export interface Summary {
 }
 
 const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
-  props: propsInventoryAdjustment
+  props: propsInventoryAdjustment,
 ) => {
   const [dataLinesItem, setDataLinesItem] = useState<PageResponse<LineItemAdjustment>>({
     metadata: {
@@ -102,38 +102,52 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
   };
 
   const onChangeReason = useCallback(
-    (value: string | null, row: LineItemAdjustment, dataItems: PageResponse<LineItemAdjustment>) => {
+    (
+      value: string | null,
+      row: LineItemAdjustment,
+      dataItems: PageResponse<LineItemAdjustment>,
+    ) => {
       row.note = value;
 
-      dataItems.items.forEach((e)=>{
+      dataItems.items.forEach((e) => {
         if (e.variant_id === row.id) {
           e.note = row.note;
         }
       });
 
-      setDataLinesItem({...dataItems});
+      setDataLinesItem({ ...dataItems });
       debounceChangeReason();
     },
-    [debounceChangeReason]
+    [debounceChangeReason],
   );
 
-  const handleNoteChange = useCallback(async (index:number, newValue: string,item: LineItemAdjustment) => {
-    const value = newValue;
-    if (value && value.indexOf('##') !== -1) {
-      return;
-    }
+  const handleNoteChange = useCallback(
+    async (index: number, newValue: string, item: LineItemAdjustment) => {
+      const value = newValue;
+      if (value && value.indexOf("##") !== -1) {
+        return;
+      }
 
-    item.note = value ?? "";
-    if (item.note) {
-      item.note = item.note.substring(item.note.lastIndexOf("#")+1,item.note.length);
-    }
+      item.note = value ?? "";
+      if (item.note) {
+        item.note = item.note.substring(item.note.lastIndexOf("#") + 1, item.note.length);
+      }
 
-    const res = await callApiNative({isShowError: false},dispatch, updateReasonItemOnlineInventoryApi,data?.id ?? 0,item.id,item);
+      const res = await callApiNative(
+        { isShowError: false },
+        dispatch,
+        updateReasonItemOnlineInventoryApi,
+        data?.id ?? 0,
+        item.id,
+        item,
+      );
 
-    if (res) {
-      onChangeReason(item.note, item, dataLinesItem);
-    }
-  },[dispatch, data?.id, onChangeReason, dataLinesItem]);
+      if (res) {
+        onChangeReason(item.note, item, dataLinesItem);
+      }
+    },
+    [dispatch, data?.id, onChangeReason, dataLinesItem],
+  );
 
   const reloadOnHand = async (item: any) => {
     setLoadingTable(true);
@@ -141,12 +155,19 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       status: "active",
       store_ids: data.store.id,
       variant_ids: item.variant_id,
-    })
+    });
 
     if (product) {
-      const res = await callApiNative({isShowError: false}, dispatch, updateOnHandItemOnlineInventoryApi,data?.id ?? 0, item.id, {
-        on_hand: product?.items.length > 0 ? product?.items[0].on_hand : 0
-      });
+      const res = await callApiNative(
+        { isShowError: false },
+        dispatch,
+        updateOnHandItemOnlineInventoryApi,
+        data?.id ?? 0,
+        item.id,
+        {
+          on_hand: product?.items.length > 0 ? product?.items[0].on_hand : 0,
+        },
+      );
 
       if (res) {
         showSuccess("Cập nhật tồn trong kho thành công");
@@ -184,7 +205,8 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     [dataLinesItem.items],
   );
 
-  const debounceChangeRealOnHand = useMemo(() =>
+  const debounceChangeRealOnHand = useMemo(
+    () =>
       _.debounce((row: LineItemAdjustment, realOnHand: number) => {
         if (row.real_on_hand === realOnHand && realOnHand !== 0) {
           return;
@@ -204,7 +226,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           row.on_hand_adj = totalDiff;
           row.on_hand_adj_dis = `${totalDiff}`;
         }
-        if (!data || (!data.id)) {
+        if (!data || !data.id) {
           return null;
         }
 
@@ -268,7 +290,13 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tổng tồn</div>
-            <div className="number-text">({objSummaryTableByAuditTotal.totalStock ? formatCurrency(objSummaryTableByAuditTotal.totalStock) : 0})</div>
+            <div className="number-text">
+              (
+              {objSummaryTableByAuditTotal.totalStock
+                ? formatCurrency(objSummaryTableByAuditTotal.totalStock)
+                : 0}
+              )
+            </div>
           </>
         );
       },
@@ -284,8 +312,12 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Đang giao</div>
-            <div
-              className="number-text">({objSummaryTableByAuditTotal.totalShipping ? formatCurrency(objSummaryTableByAuditTotal.totalShipping) : 0})
+            <div className="number-text">
+              (
+              {objSummaryTableByAuditTotal.totalShipping
+                ? formatCurrency(objSummaryTableByAuditTotal.totalShipping)
+                : 0}
+              )
             </div>
           </>
         );
@@ -302,7 +334,13 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Đang chuyển đi</div>
-            <div className="number-text">({objSummaryTableByAuditTotal.totalOnWay ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay) : 0})</div>
+            <div className="number-text">
+              (
+              {objSummaryTableByAuditTotal.totalOnWay
+                ? formatCurrency(objSummaryTableByAuditTotal.totalOnWay)
+                : 0}
+              )
+            </div>
           </>
         );
       },
@@ -318,7 +356,9 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Tồn trong kho</div>
-            <div className="number-text">({formatCurrency(objSummaryTableByAuditTotal.onHand)})</div>
+            <div className="number-text">
+              ({formatCurrency(objSummaryTableByAuditTotal.onHand)})
+            </div>
           </>
         );
       },
@@ -334,7 +374,9 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         return (
           <>
             <div>Số kiểm</div>
-            <div className="number-text">({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})</div>
+            <div className="number-text">
+              ({formatCurrency(objSummaryTableByAuditTotal.realOnHand)})
+            </div>
           </>
         );
       },
@@ -349,7 +391,9 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
               min={0}
               maxLength={12}
               value={value}
-              onBlur={(e: any) => debounceChangeRealOnHand(row, e.target.value !== "" ? e.target.value : 0)}
+              onBlur={(e: any) =>
+                debounceChangeRealOnHand(row, e.target.value !== "" ? e.target.value : 0)
+              }
             />
           );
         } else {
@@ -363,12 +407,16 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           <>
             <div>Thừa/Thiếu</div>
             <Row align="middle" justify="center">
-              {objSummaryTableByAuditTotal.totalExcess === 0 || !objSummaryTableByAuditTotal.totalExcess ? (
+              {objSummaryTableByAuditTotal.totalExcess === 0 ||
+              !objSummaryTableByAuditTotal.totalExcess ? (
                 ""
               ) : (
-                <div style={{color: "#27AE60"}}>+{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}</div>
+                <div style={{ color: "#27AE60" }}>
+                  +{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}
+                </div>
               )}
-              {objSummaryTableByAuditTotal.totalExcess && objSummaryTableByAuditTotal.totalMissing ? (
+              {objSummaryTableByAuditTotal.totalExcess &&
+              objSummaryTableByAuditTotal.totalMissing ? (
                 <Space>/</Space>
               ) : (
                 ""
@@ -376,7 +424,9 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
               {objSummaryTableByAuditTotal.totalMissing === 0 ? (
                 ""
               ) : (
-                <div style={{ color: "red" }}>{formatCurrency(objSummaryTableByAuditTotal.totalMissing)}</div>
+                <div style={{ color: "red" }}>
+                  {formatCurrency(objSummaryTableByAuditTotal.totalMissing)}
+                </div>
               )}
             </Row>
           </>
@@ -389,22 +439,31 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           return null;
         }
         if (item.on_hand_adj && item.on_hand_adj < 0) {
-          return <div style={{color: "red"}}>{item.on_hand_adj}</div>;
+          return <div style={{ color: "red" }}>{item.on_hand_adj}</div>;
         } else {
-          return <div style={{color: "green"}}>{item.on_hand_adj ? `+${item.on_hand_adj}` : ''}</div>;
+          return (
+            <div style={{ color: "green" }}>{item.on_hand_adj ? `+${item.on_hand_adj}` : ""}</div>
+          );
         }
       },
     },
     {
-      title: <div>
-        Lý do <Tooltip title={
+      title: (
         <div>
-          <div>1.XNK sai quy trình</div>
-          <div>2.Sai trạng thái đơn hàng</div>
-          <div>3.Thất thoát</div>
+          Lý do{" "}
+          <Tooltip
+            title={
+              <div>
+                <div>1.XNK sai quy trình</div>
+                <div>2.Sai trạng thái đơn hàng</div>
+                <div>3.Thất thoát</div>
+              </div>
+            }
+          >
+            <InfoCircleOutlined type="primary" color="primary" />
+          </Tooltip>
         </div>
-      }><InfoCircleOutlined type="primary" color="primary" /></Tooltip>
-      </div>,
+      ),
       dataIndex: "note",
       align: "left",
       width: 80,
@@ -412,42 +471,56 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         let note = `${index}#${value}`;
         let tooltip = null;
 
-        if (!arrTypeNote.find(e=>e.value === value)) {
+        if (!arrTypeNote.find((e) => e.value === value)) {
           note = `${index}##${value}`;
-          tooltip= value;
+          tooltip = value;
         }
 
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED && allowUpdate) {
           return (
-            <Radio.Group className="custom-radio-group" value={note} buttonStyle="solid" onChange={(e)=>{
-              handleNoteChange(index,e.target.value,row);
-            }}>
+            <Radio.Group
+              className="custom-radio-group"
+              value={note}
+              buttonStyle="solid"
+              onChange={(e) => {
+                handleNoteChange(index, e.target.value, row);
+              }}
+            >
               <Tooltip placement="topLeft" title={arrTypeNote[0].value}>
-                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[0].value}`}>
+                <Radio.Button
+                  style={{ paddingLeft: 12, paddingRight: 12 }}
+                  value={`${index}#${arrTypeNote[0].value}`}
+                >
                   <UserSwitchOutlined />
                 </Radio.Button>
               </Tooltip>
-               <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
-                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[1].value}`}>
+              <Tooltip placement="topLeft" title={arrTypeNote[1].value}>
+                <Radio.Button
+                  style={{ paddingLeft: 12, paddingRight: 12 }}
+                  value={`${index}#${arrTypeNote[1].value}`}
+                >
                   <CodepenOutlined />
                 </Radio.Button>
               </Tooltip>
-               <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
-                <Radio.Button style={{paddingLeft: 12,paddingRight:12}} value={`${index}#${arrTypeNote[2].value}`}>
+              <Tooltip placement="topLeft" title={arrTypeNote[2].value}>
+                <Radio.Button
+                  style={{ paddingLeft: 12, paddingRight: 12 }}
+                  value={`${index}#${arrTypeNote[2].value}`}
+                >
                   <PieChartOutlined />
                 </Radio.Button>
               </Tooltip>
-               <Tooltip placement="topLeft" title={tooltip}>
-                 <EditNote
-                   isGroupButton
-                   note={tooltip}
-                   title=""
-                   onOk={(newNote) => {
-                     handleNoteChange(index, newNote, row).then();
-                   }}
-                 />
+              <Tooltip placement="topLeft" title={tooltip}>
+                <EditNote
+                  isGroupButton
+                  note={tooltip}
+                  title=""
+                  onOk={(newNote) => {
+                    handleNoteChange(index, newNote, row).then();
+                  }}
+                />
               </Tooltip>
-          </Radio.Group>
+            </Radio.Group>
           );
         }
         return value || "";
@@ -457,12 +530,18 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       title: "",
       width: 30,
       render: (value: string, row) => {
-        return <>
-          {data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status && data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
-            <ReloadOutlined title="Cập nhật lại tồn trong kho" onClick={() => reloadOnHand(row)} />
-          )}
-        </>
-      }
+        return (
+          <>
+            {data.status !== STATUS_INVENTORY_ADJUSTMENT.AUDITED.status &&
+              data.status !== STATUS_INVENTORY_ADJUSTMENT.ADJUSTED.status && (
+                <ReloadOutlined
+                  title="Cập nhật lại tồn trong kho"
+                  onClick={() => reloadOnHand(row)}
+                />
+              )}
+          </>
+        );
+      },
     },
   ];
 
@@ -475,27 +554,32 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps,
-    []
+    [],
   );
 
-  const getLinesItemAdjustment = useCallback((page: number,size: number, keySearch: string|null)=>{
-    setTimeout(() => {
-      setLoadingTable(true);
-      dispatch(
-        getLinesItemAdjustmentAction(
-          idNumber,
-          `page=${page}&limit=${size}&type=${tab === "1" ? "deviant" : "total"}&condition=${keySearch?.toString()}`,
-          onResultDataTable,
-        ),
-      );
-    }, 0);
-  }, [dispatch, idNumber, tab, onResultDataTable]);
+  const getLinesItemAdjustment = useCallback(
+    (page: number, size: number, keySearch: string | null) => {
+      setTimeout(() => {
+        setLoadingTable(true);
+        dispatch(
+          getLinesItemAdjustmentAction(
+            idNumber,
+            `page=${page}&limit=${size}&type=${
+              tab === "1" ? "deviant" : "total"
+            }&condition=${keySearch?.toString()}`,
+            onResultDataTable,
+          ),
+        );
+      }, 0);
+    },
+    [dispatch, idNumber, tab, onResultDataTable],
+  );
 
   const onPageChange = useCallback(
     (page, size) => {
-      getLinesItemAdjustment(page,size, keySearch);
+      getLinesItemAdjustment(page, size, keySearch);
     },
-    [keySearch, getLinesItemAdjustment]
+    [keySearch, getLinesItemAdjustment],
   );
 
   useEffect(() => {
@@ -524,16 +608,15 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         dataSource={dataLinesItem.items}
       />
       <CustomPagination
-       pagination={{
-         pageSize: dataLinesItem.metadata.limit,
-         total: dataLinesItem.metadata.total,
-         current: dataLinesItem.metadata.page,
-         showSizeChanger: true,
-         onChange: onPageChange,
-         onShowSizeChange: onPageChange,
-       }}
-      >
-        </CustomPagination>
+        pagination={{
+          pageSize: dataLinesItem.metadata.limit,
+          total: dataLinesItem.metadata.total,
+          current: dataLinesItem.metadata.page,
+          showSizeChanger: true,
+          onChange: onPageChange,
+          onShowSizeChange: onPageChange,
+        }}
+      ></CustomPagination>
     </>
   );
 };

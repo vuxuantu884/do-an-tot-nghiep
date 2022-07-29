@@ -12,10 +12,21 @@ import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { HttpStatus } from "config/http-status.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
-import { searchAccountPublicAction, ShipperGetListAction } from "domain/actions/account/account.action";
+import {
+  searchAccountPublicAction,
+  ShipperGetListAction,
+} from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
-import { getDetailOrderDuplicateAction, putOrderDuplicateCancel, putOrderDuplicateMerge } from "domain/actions/order/order-duplicate.action";
-import { DeliveryServicesGetList, PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
+import {
+  getDetailOrderDuplicateAction,
+  putOrderDuplicateCancel,
+  putOrderDuplicateMerge,
+} from "domain/actions/order/order-duplicate.action";
+import {
+  DeliveryServicesGetList,
+  PaymentMethodGetList,
+  updateOrderPartial,
+} from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -26,12 +37,12 @@ import {
   OrderItemModel,
   OrderModel,
   OrderPaymentModel,
-  OrderSearchQuery
+  OrderSearchQuery,
 } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   OrderProcessingStatusModel,
-  OrderProcessingStatusResponseModel
+  OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
 import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -56,8 +67,8 @@ import MergeOrderModel from "./modal/merge-order.modal";
 
 const ACTION_ID = {
   mergeOrder: 1,
-  cancelOrder: 2
-}
+  cancelOrder: 2,
+};
 
 type DuplicateParam = {
   customer_phone: string;
@@ -68,12 +79,12 @@ const actions: Array<MenuAction> = [
   {
     id: ACTION_ID.mergeOrder,
     name: "Gộp đơn đã chọn",
-    icon: <ShrinkOutlined />
+    icon: <ShrinkOutlined />,
   },
   {
     id: ACTION_ID.cancelOrder,
     name: "Huỷ đơn đã chọn",
-    icon: <CloseSquareOutlined />
+    icon: <CloseSquareOutlined />,
   },
 ];
 
@@ -131,10 +142,10 @@ const initQuery: DuplicateOrderDetailQuery = {
   services: [],
   coordinator_codes: [],
   marketer_codes: [],
-  channel_codes:[],
+  channel_codes: [],
   created_by: [],
-  discount_codes:[],
-  marketing_campaign:[],
+  discount_codes: [],
+  marketing_campaign: [],
 };
 
 const OrderDuplicate: React.FC = () => {
@@ -161,18 +172,16 @@ const OrderDuplicate: React.FC = () => {
     OrderProcessingStatusModel[]
   >([]);
 
-  const [listPaymentMethod, setListPaymentMethod] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
-  let delivery_services: Array<DeliveryServiceResponse> = []
+  const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
+  let delivery_services: Array<DeliveryServiceResponse> = [];
   const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
   useEffect(() => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
-        delivery_services = response
-        setDeliveryServices(response)
-      })
+        delivery_services = response;
+        setDeliveryServices(response);
+      }),
     );
   }, [dispatch]);
 
@@ -208,7 +217,7 @@ const OrderDuplicate: React.FC = () => {
               </Link>
             </div>
           </React.Fragment>
-        )
+        );
       },
       visible: true,
       fixed: "left",
@@ -217,7 +226,7 @@ const OrderDuplicate: React.FC = () => {
     },
     {
       title: "Khách hàng",
-      render: (record: OrderResponse) =>
+      render: (record: OrderResponse) => (
         <div className="customer custom-td">
           <div className="name p-b-3" style={{ color: "#2A2A86" }}>
             <Link
@@ -232,13 +241,12 @@ const OrderDuplicate: React.FC = () => {
 					<div className="p-b-3">{record.shipping_address.full_address}</div> */}
           {record.customer_phone_number && (
             <div className="p-b-3">
-              <a href={`tel:${record.customer_phone_number}`}>
-                {record.customer_phone_number}
-              </a>
+              <a href={`tel:${record.customer_phone_number}`}>{record.customer_phone_number}</a>
             </div>
           )}
           <div className="p-b-3">{renderCustomerAddress(record)}</div>
-        </div>,
+        </div>
+      ),
       key: "customer",
       visible: true,
       width: 150,
@@ -274,7 +282,6 @@ const OrderDuplicate: React.FC = () => {
                         {item.variant}
                       </div>
                     </div>
-
                   </div>
                   <div className="quantity quantityWidth">
                     <span>{item.quantity}</span>
@@ -291,11 +298,11 @@ const OrderDuplicate: React.FC = () => {
     },
     {
       title: "Địa chỉ giao hàng",
-      render: (record: OrderResponse) =>
+      render: (record: OrderResponse) => (
         <div className="customer custom-td">
           <div className="p-b-3">{renderCustomerShippingAddress(record)}</div>
         </div>
-      ,
+      ),
       key: "shipping_address",
       visible: true,
       width: 190,
@@ -305,12 +312,14 @@ const OrderDuplicate: React.FC = () => {
       key: "shipment.type",
       render: (record: any) => {
         if (record.fulfillments.length) {
-          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id);
           if (newFulfillments[0].shipment) {
             switch (newFulfillments[0].shipment.delivery_service_provider_type) {
               case ShipmentMethod.EXTERNAL_SERVICE:
                 const service_code = newFulfillments[0].shipment.delivery_service_provider_code;
-                const service = delivery_services.find((service) => service.external_service_code === service_code);
+                const service = delivery_services.find(
+                  (service) => service.external_service_code === service_code,
+                );
                 return (
                   service && (
                     <img
@@ -325,11 +334,12 @@ const OrderDuplicate: React.FC = () => {
                 return `Đối tác - ${newFulfillments[0].shipment.shipper_code} - ${newFulfillments[0].shipment.shipper_name}`;
               case ShipmentMethod.PICK_AT_STORE:
                 return `Nhận tại - ${record.store}`;
-              default: return ""
+              default:
+                return "";
             }
           }
         }
-        return ""
+        return "";
       },
       visible: true,
       width: 140,
@@ -382,7 +392,8 @@ const OrderDuplicate: React.FC = () => {
                   <div
                     style={{
                       color: "#737373",
-                    }}>
+                    }}
+                  >
                     {status?.name}
                   </div>
                 )}
@@ -391,7 +402,8 @@ const OrderDuplicate: React.FC = () => {
                   <div
                     style={{
                       color: "#FCAF17",
-                    }}>
+                    }}
+                  >
                     {status?.name}
                   </div>
                 )}
@@ -400,7 +412,8 @@ const OrderDuplicate: React.FC = () => {
                   <div
                     style={{
                       color: "#27AE60",
-                    }}>
+                    }}
+                  >
                     {status?.name}
                   </div>
                 )}
@@ -409,7 +422,8 @@ const OrderDuplicate: React.FC = () => {
                   <div
                     style={{
                       color: "#E24343",
-                    }}>
+                    }}
+                  >
                     {status?.name}
                   </div>
                 )}
@@ -428,7 +442,7 @@ const OrderDuplicate: React.FC = () => {
       key: "source",
       visible: true,
       align: "center",
-      width: "130px"
+      width: "130px",
     },
     {
       title: "Đóng gói",
@@ -436,7 +450,7 @@ const OrderDuplicate: React.FC = () => {
       render: (record: any) => {
         let processIcon = "icon-blank";
         if (record.fulfillments.length) {
-          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id);
           processIcon = newFulfillments[0].packed_on ? "icon-full" : "icon-blank";
         }
         return (
@@ -455,7 +469,7 @@ const OrderDuplicate: React.FC = () => {
       render: (record: any) => {
         let processIcon = "icon-blank";
         if (record.fulfillments.length) {
-          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id)
+          const newFulfillments = record.fulfillments?.sort((a: any, b: any) => b.id - a.id);
           processIcon = newFulfillments[0].export_on ? "icon-full" : "icon-blank";
         }
         return (
@@ -532,7 +546,7 @@ const OrderDuplicate: React.FC = () => {
         }),
       visible: true,
       align: "center",
-      width: 160
+      width: 160,
     },
     {
       title: "Khách phải trả",
@@ -572,13 +586,7 @@ const OrderDuplicate: React.FC = () => {
         payments.forEach((payment) => {
           total += payment.amount;
         });
-        return (
-          <NumberFormat
-            value={formatCurrency(total)}
-            className="foo"
-            displayType={"text"}
-          />
-        );
+        return <NumberFormat value={formatCurrency(total)} className="foo" displayType={"text"} />;
       },
       visible: true,
       align: "center",
@@ -607,22 +615,28 @@ const OrderDuplicate: React.FC = () => {
     },
     {
       title: "Ghi chú nội bộ",
-      render: (record) =>
-        <EditNote note={record.note} onOk={(newNote) => {
-          editNote(newNote, 'note', record.id)
-        }} />
-      ,
+      render: (record) => (
+        <EditNote
+          note={record.note}
+          onOk={(newNote) => {
+            editNote(newNote, "note", record.id);
+          }}
+        />
+      ),
       key: "note",
       visible: true,
       align: "center",
     },
     {
       title: "Ghi chú của khách",
-      render: (record) =>
-        <EditNote note={record.customer_note} onOk={(newNote) => {
-          editNote(newNote, 'customer_note', record.id)
-        }} />
-      ,
+      render: (record) => (
+        <EditNote
+          note={record.customer_note}
+          onOk={(newNote) => {
+            editNote(newNote, "customer_note", record.id);
+          }}
+        />
+      ),
       key: "customer_note",
       visible: true,
       align: "center",
@@ -641,14 +655,11 @@ const OrderDuplicate: React.FC = () => {
       visible: true,
       render: (value, items, index) => {
         return (
-          <Link
-            target="_blank"
-            to={`${UrlConfig.ORDER}/${items.reference_code}`}
-          >
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${items.reference_code}`}>
             {value}
           </Link>
-        )
-      }
+        );
+      },
     },
     {
       title: "Tổng SL",
@@ -667,7 +678,7 @@ const OrderDuplicate: React.FC = () => {
       key: "assignee",
       visible: true,
       align: "center",
-      width: 200
+      width: 200,
     },
     {
       title: "Nhân viên tạo đơn",
@@ -675,7 +686,7 @@ const OrderDuplicate: React.FC = () => {
       key: "account",
       visible: true,
       align: "center",
-      width: 200
+      width: 200,
     },
     {
       title: "Ngày hoàn tất đơn",
@@ -705,13 +716,13 @@ const OrderDuplicate: React.FC = () => {
       total: 0,
     },
     items: [],
-  }
+  };
 
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
+
+  const status_order = bootstrapReducer.data?.order_main_status.filter(
+    (single) => single.value !== "splitted",
   );
-
-  const status_order = bootstrapReducer.data?.order_main_status.filter(single => single.value !== "splitted");
 
   //arrow function
   const renderCustomerAddress = (orderDetail: OrderResponse) => {
@@ -752,9 +763,11 @@ const OrderDuplicate: React.FC = () => {
       params.limit = size;
       let queryParam = generateQuery(params);
       setPrams({ ...params });
-      history.replace(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`);
+      history.replace(
+        `${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`,
+      );
     },
-    [history, params, customer_phone, store_id]
+    [history, params, customer_phone, store_id],
   );
 
   const onFilter = useCallback(
@@ -762,10 +775,12 @@ const OrderDuplicate: React.FC = () => {
       let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      setIsFilter(true)
-      history.push(`${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`);
+      setIsFilter(true);
+      history.push(
+        `${UrlConfig.ORDERS_DUPLICATE}/order/${customer_phone}/${store_id}?${queryParam}`,
+      );
     },
-    [history, params, customer_phone, store_id]
+    [history, params, customer_phone, store_id],
   );
 
   const onClearFilter = useCallback(() => {
@@ -782,10 +797,8 @@ const OrderDuplicate: React.FC = () => {
       }
       switch (index) {
         case 1:
-          if (selectedOrder.length <= 1)
-            showError("Bạn phải chọn từ 2 đơn hàng trở lên")
-          else
-            setMergeOrderVisible(true);
+          if (selectedOrder.length <= 1) showError("Bạn phải chọn từ 2 đơn hàng trở lên");
+          else setMergeOrderVisible(true);
           break;
         case 2:
           setCancelOrderComfirm(true);
@@ -794,7 +807,7 @@ const OrderDuplicate: React.FC = () => {
           break;
       }
     },
-    [selectedOrder]
+    [selectedOrder],
   );
 
   const onExport = useCallback(
@@ -810,7 +823,7 @@ const OrderDuplicate: React.FC = () => {
         case 3:
           newParams = {
             code: selectedRowCodes,
-            is_online: true
+            is_online: true,
           };
           break;
         case 4:
@@ -851,7 +864,7 @@ const OrderDuplicate: React.FC = () => {
           showError("Có lỗi xảy ra, vui lòng thử lại sau");
         });
     },
-    [params, selectedRowCodes, listExportFile]
+    [params, selectedRowCodes, listExportFile],
   );
   const checkExportFile = useCallback(() => {
     let getFilePromises = listExportFile.map((code) => {
@@ -860,7 +873,9 @@ const OrderDuplicate: React.FC = () => {
     Promise.all(getFilePromises).then((responses) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProgress(Math.round(response.data.num_of_record / response.data.total * 10000) / 100);
+          setExportProgress(
+            Math.round((response.data.num_of_record / response.data.total) * 10000) / 100,
+          );
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
             setExportProgress(100);
@@ -872,10 +887,10 @@ const OrderDuplicate: React.FC = () => {
             setListExportFile(newListExportFile);
           }
           if (response.data && response.data.status === "ERROR") {
-            setStatusExport(4)
+            setStatusExport(4);
           }
         } else {
-          setStatusExport(4)
+          setStatusExport(4);
         }
       });
     });
@@ -895,29 +910,41 @@ const OrderDuplicate: React.FC = () => {
     if (!!result) {
       setData(result);
       // eslint-disable-next-line react-hooks/exhaustive-deps
-      data1 = result
+      data1 = result;
     }
   }, []);
 
   const handleSearchResult = useCallback(() => {
     setTableLoading(true);
 
-    let _issued_on_min = moment(new Date().setHours(-24)).format('DD-MM-YYYY');
-    let _issued_on_max = moment(new Date()).format('DD-MM-YYYY');
+    let _issued_on_min = moment(new Date().setHours(-24)).format("DD-MM-YYYY");
+    let _issued_on_max = moment(new Date()).format("DD-MM-YYYY");
 
-    dispatch(getDetailOrderDuplicateAction({
-      ...params
-      , store_ids: params.store_ids && params.store_ids.length > 0 ? params.store_ids : [store_id]
-      , search_term: params.search_term && params.search_term.length > 0 ? params.search_term : customer_phone
-      , issued_on_min: params.issued_on_min && params.issued_on_min.length > 0 ? params.issued_on_min : _issued_on_min
-      , issued_on_max: params.issued_on_max && params.issued_on_max.length > 0 ? params.issued_on_max : _issued_on_max
-    }, setSearchResult));
+    dispatch(
+      getDetailOrderDuplicateAction(
+        {
+          ...params,
+          store_ids:
+            params.store_ids && params.store_ids.length > 0 ? params.store_ids : [store_id],
+          search_term:
+            params.search_term && params.search_term.length > 0
+              ? params.search_term
+              : customer_phone,
+          issued_on_min:
+            params.issued_on_min && params.issued_on_min.length > 0
+              ? params.issued_on_min
+              : _issued_on_min,
+          issued_on_max:
+            params.issued_on_max && params.issued_on_max.length > 0
+              ? params.issued_on_max
+              : _issued_on_max,
+        },
+        setSearchResult,
+      ),
+    );
   }, [dispatch, params, store_id, customer_phone, setSearchResult]);
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const setDataAccounts = (data: PageResponse<AccountResponse> | false) => {
     if (!data) {
@@ -926,65 +953,77 @@ const OrderDuplicate: React.FC = () => {
     setAccounts(data.items);
   };
 
-  const onSuccessEditNote = useCallback((newNote, noteType, orderID) => {
-    const indexOrder = data1.items.findIndex((item: any) => item.id === orderID)
-    const newItems = [...data1.items]
-    if (indexOrder > -1) {
-      const newItem: any = newItems[indexOrder]
-      newItems.splice(indexOrder, 1, {
-        ...newItem,
-        note: noteType === 'note' ? newNote : newItem.note,
-        customer_note: noteType === 'customer_note' ? newNote : newItem.customer_note
-      })
-    }
-    const newData = {
-      ...data1,
-      items: newItems
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    data1 = newData
-    setData(newData)
-  }, [data1]);
-
-  const editNote = useCallback((newNote, noteType, orderID) => {
-    let params: any = {}
-    if (noteType === 'note') {
-      params.note = newNote
-    }
-    if (noteType === 'customer_note') {
-      params.customer_note = newNote
-    }
-    dispatch(updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID)))
-  }, [dispatch, onSuccessEditNote]);
-
-  const hanldMergeOrderOk = useCallback((value: number) => {
-    if (value === null) {
-      showWarning("Yêu cầu chọn đơn hàng gốc");
-      return;
-    }
-    if (selectedOrder.length <= 0) {
-      showWarning("Yêu cầu chọn đơn hàng cần gộp");
-      return;
-    }
-    setTableLoading(true);
-    setMergeOrderVisible(false);
-    let selectedOrderIds = selectedOrder.map((row: any) => row.id);
-    dispatch(putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
-      if (data) {
-        setSelectedOrder([]);
-        setRowKey([]);
-        handleSearchResult();
-        showSuccess("Gộp đơn thành công");
+  const onSuccessEditNote = useCallback(
+    (newNote, noteType, orderID) => {
+      const indexOrder = data1.items.findIndex((item: any) => item.id === orderID);
+      const newItems = [...data1.items];
+      if (indexOrder > -1) {
+        const newItem: any = newItems[indexOrder];
+        newItems.splice(indexOrder, 1, {
+          ...newItem,
+          note: noteType === "note" ? newNote : newItem.note,
+          customer_note: noteType === "customer_note" ? newNote : newItem.customer_note,
+        });
       }
-      else {
-        setTableLoading(false);
+      const newData = {
+        ...data1,
+        items: newItems,
+      };
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+      data1 = newData;
+      setData(newData);
+    },
+    [data1],
+  );
+
+  const editNote = useCallback(
+    (newNote, noteType, orderID) => {
+      let params: any = {};
+      if (noteType === "note") {
+        params.note = newNote;
       }
-    }));
-  }, [dispatch, selectedOrder, handleSearchResult])
+      if (noteType === "customer_note") {
+        params.customer_note = newNote;
+      }
+      dispatch(
+        updateOrderPartial(params, orderID, () => onSuccessEditNote(newNote, noteType, orderID)),
+      );
+    },
+    [dispatch, onSuccessEditNote],
+  );
+
+  const hanldMergeOrderOk = useCallback(
+    (value: number) => {
+      if (value === null) {
+        showWarning("Yêu cầu chọn đơn hàng gốc");
+        return;
+      }
+      if (selectedOrder.length <= 0) {
+        showWarning("Yêu cầu chọn đơn hàng cần gộp");
+        return;
+      }
+      setTableLoading(true);
+      setMergeOrderVisible(false);
+      let selectedOrderIds = selectedOrder.map((row: any) => row.id);
+      dispatch(
+        putOrderDuplicateMerge(value, selectedOrderIds, (data: OrderModel) => {
+          if (data) {
+            setSelectedOrder([]);
+            setRowKey([]);
+            handleSearchResult();
+            showSuccess("Gộp đơn thành công");
+          } else {
+            setTableLoading(false);
+          }
+        }),
+      );
+    },
+    [dispatch, selectedOrder, handleSearchResult],
+  );
 
   const hanldMergeOrderCancel = () => {
     setMergeOrderVisible(false);
-  }
+  };
 
   //hủy đơn trùng
   const hanldCancelOrderOk = useCallback(() => {
@@ -993,22 +1032,22 @@ const OrderDuplicate: React.FC = () => {
     let selectedOrderIds = selectedOrder.map((row: any) => row.id);
 
     setTableLoading(true);
-    setCancelOrderComfirm(false)
+    setCancelOrderComfirm(false);
 
-    dispatch(putOrderDuplicateCancel(selectedOrderIds, (data: any) => {
-      if (data === true) {
-        setSelectedOrder([]);
-        setRowKey([]);
-        handleSearchResult();
-        selectedOrder.forEach((e) => {
-          showSuccess(`Đã hủy đơn hàng: ${e.code}`);
-        });
-      }
-      else {
-        setTableLoading(false);
-      }
-    }));
-
+    dispatch(
+      putOrderDuplicateCancel(selectedOrderIds, (data: any) => {
+        if (data === true) {
+          setSelectedOrder([]);
+          setRowKey([]);
+          handleSearchResult();
+          selectedOrder.forEach((e) => {
+            showSuccess(`Đã hủy đơn hàng: ${e.code}`);
+          });
+        } else {
+          setTableLoading(false);
+        }
+      }),
+    );
   }, [dispatch, selectedOrder, handleSearchResult]);
 
   ///arrow function
@@ -1019,31 +1058,26 @@ const OrderDuplicate: React.FC = () => {
     handleSearchResult();
   }, [handleSearchResult]);
 
-  useEffect(() => {
-
-  }, [data]);
+  useEffect(() => {}, [data]);
 
   useEffect(() => {
     dispatch(searchAccountPublicAction({ limit: 30 }, setDataAccounts));
     dispatch(getListAllSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
-    dispatch(PaymentMethodGetList(
-      (data) => {
-        data.push({
-          name: 'COD',
-          code: 'cod',
-          id: 0
-        })
-        setListPaymentMethod(data)
-      }
-    ));
     dispatch(
-      actionFetchListOrderProcessingStatus(
-        {},
-        (data: OrderProcessingStatusResponseModel) => {
-          setListOrderProcessingStatus(data.items);
-        }
-      )
+      PaymentMethodGetList((data) => {
+        data.push({
+          name: "COD",
+          code: "cod",
+          id: 0,
+        });
+        setListPaymentMethod(data);
+      }),
+    );
+    dispatch(
+      actionFetchListOrderProcessingStatus({}, (data: OrderProcessingStatusResponseModel) => {
+        setListOrderProcessingStatus(data.items);
+      }),
     );
   }, [dispatch]);
 
@@ -1056,7 +1090,7 @@ const OrderDuplicate: React.FC = () => {
       const selectedRowCodes: any = selectedOrder.map((row: any) => row.code);
       setSelectedRowCodes(selectedRowCodes);
     }
-  }, [selectedOrder])
+  }, [selectedOrder]);
 
   ///useEffect
 
@@ -1071,7 +1105,7 @@ const OrderDuplicate: React.FC = () => {
           },
           {
             name: "Đơn trùng",
-            path: UrlConfig.ORDERS_DUPLICATE
+            path: UrlConfig.ORDERS_DUPLICATE,
           },
           {
             name: "Danh sách đơn trùng",
@@ -1094,7 +1128,7 @@ const OrderDuplicate: React.FC = () => {
                   </Button>}
               </AuthWrapper> */}
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.EXPORT]} passThrough>
-                {(isPassed: boolean) =>
+                {(isPassed: boolean) => (
                   <Button
                     type="default"
                     className="light"
@@ -1107,13 +1141,14 @@ const OrderDuplicate: React.FC = () => {
                     disabled={!isPassed}
                   >
                     Xuất file
-                  </Button>}
+                  </Button>
+                )}
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[ODERS_PERMISSIONS.CREATE]} passThrough>
-                {(isPassed: boolean) =>
-                  <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />}
+                {(isPassed: boolean) => (
+                  <ButtonCreate path={`${UrlConfig.ORDER}/create`} disabled={!isPassed} />
+                )}
               </AuthWrapper>
-
             </Space>
           </Row>
         }
@@ -1142,7 +1177,9 @@ const OrderDuplicate: React.FC = () => {
             isRowSelection
             isLoading={tableLoading}
             showColumnSetting={true}
-            scroll={{ x: 4400 * columnFinal.length / (columns.length ? columns.length : 1) }}
+            scroll={{
+              x: (4400 * columnFinal.length) / (columns.length ? columns.length : 1),
+            }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={{
               pageSize: data.metadata.limit,
@@ -1204,11 +1241,13 @@ const OrderDuplicate: React.FC = () => {
           subTitle={
             <React.Fragment>
               {selectedOrder.map((value: OrderModel, index: number) => (
-                <p style={{ lineHeight: "18px" }}>Thông tin của đơn hàng ID{" "}
+                <p style={{ lineHeight: "18px" }}>
+                  Thông tin của đơn hàng ID{" "}
                   <Link target="_blank" to={`${UrlConfig.ORDER}/${value.id}`}>
                     {value.code}
                   </Link>{" "}
-                  sẽ được huỷ</p>
+                  sẽ được huỷ
+                </p>
               ))}
             </React.Fragment>
           }

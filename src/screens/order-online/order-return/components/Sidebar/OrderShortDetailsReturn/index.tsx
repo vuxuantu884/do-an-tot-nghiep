@@ -1,10 +1,10 @@
-import {Card, Col, Row} from "antd";
+import { Card, Col, Row } from "antd";
 import UrlConfig from "config/url.config";
-import {OrderResponse} from "model/response/order/order.response";
+import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
-import {Link} from "react-router-dom";
-import {DATE_FORMAT} from "utils/DateUtils";
-import {StyledComponent} from "./styles";
+import { Link } from "react-router-dom";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { StyledComponent } from "./styles";
 
 type PropType = {
   OrderDetail: OrderResponse | null;
@@ -14,14 +14,14 @@ type PropType = {
  * Input: OrderDetail
  */
 function OrderShortDetailsReturn(props: PropType) {
-  const {OrderDetail} = props;
+  const { OrderDetail } = props;
   return (
     <StyledComponent>
       <Card className="card-block card-block-normal" title="Thông tin Đơn TRẢ hàng">
-			<Row className="rowDetail" gutter={5}>
+        <Row className="rowDetail" gutter={5}>
           <Col span={9}>Mã đơn trả hàng:</Col>
           <Col span={15}>
-            <span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
+            <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
               <Link to={`${UrlConfig.ORDERS_RETURN}/${OrderDetail?.id}`} target="_blank">
                 {OrderDetail?.code}
               </Link>
@@ -31,7 +31,7 @@ function OrderShortDetailsReturn(props: PropType) {
         <Row className="rowDetail" gutter={5}>
           <Col span={9}>Mã đơn hàng gốc:</Col>
           <Col span={15}>
-            <span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
+            <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
               {OrderDetail?.order_code && OrderDetail.order_id ? (
                 <Link to={`${UrlConfig.ORDER}/${OrderDetail.order_id}`} target="_blank">
                   {OrderDetail?.order_code}
@@ -45,7 +45,7 @@ function OrderShortDetailsReturn(props: PropType) {
         <Row className="rowDetail" gutter={5}>
           <Col span={9}>Kho cửa hàng:</Col>
           <Col span={15}>
-            <span style={{fontWeight: 500, color: "#2A2A86"}} className="text-focus">
+            <span style={{ fontWeight: 500, color: "#2A2A86" }} className="text-focus">
               {OrderDetail?.store ? (
                 <Link to={`${UrlConfig.STORE}/${OrderDetail.store_id}`} target="_blank">
                   {OrderDetail?.store}
@@ -80,21 +80,19 @@ function OrderShortDetailsReturn(props: PropType) {
           <Col span={9}>Ngày hoàn tiền:</Col>
           <Col span={15}>
             {OrderDetail?.payments && OrderDetail?.payments[0]
-              ? moment(OrderDetail?.payments[0].created_date).format(
-                  DATE_FORMAT.DDMMYY_HHmm
-                )
+              ? moment(OrderDetail?.payments[0].created_date).format(DATE_FORMAT.DDMMYY_HHmm)
               : "-"}
           </Col>
         </Row>
         <Row className="rowDetail" gutter={5}>
           <Col span={9}>NV trả hàng:</Col>
-          <Col span={15} style={{wordWrap: "break-word"}}>
+          <Col span={15} style={{ wordWrap: "break-word" }}>
             {OrderDetail?.account ? OrderDetail?.account : "-"}
           </Col>
         </Row>
         <Row className="rowDetail" gutter={5}>
           <Col span={9}>Ghi chú:</Col>
-          <Col span={15} style={{wordWrap: "break-word"}}>
+          <Col span={15} style={{ wordWrap: "break-word" }}>
             {OrderDetail?.note ? OrderDetail?.note : "-"}
           </Col>
         </Row>

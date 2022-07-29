@@ -9,9 +9,7 @@ type POProgressViewProps = {
   total: number;
   extra?: ReactNode;
 };
-const POProgressViewInVenTory: React.FC<POProgressViewProps> = (
-  props: POProgressViewProps,
-) => {
+const POProgressViewInVenTory: React.FC<POProgressViewProps> = (props: POProgressViewProps) => {
   const { received, total, extra, receivedTitle, remainTitle } = props;
   const percent = useMemo(() => {
     if (received && total) {

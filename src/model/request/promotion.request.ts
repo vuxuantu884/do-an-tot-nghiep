@@ -36,7 +36,7 @@ export interface DiscountRequestModel {
   line_items: LineItemRequestModel[];
   applied_discount: {
     code: string;
-  }|null;
+  } | null;
   taxes_included: boolean | null;
   tax_exempt: boolean | null;
 }

@@ -1,22 +1,10 @@
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-} from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row, Select } from "antd";
 import { ColorCreateRequest, ColorResponse } from "model/product/color.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
-import {
-  colorCreateAction,
-  getColorAction,
-} from "domain/actions/product/color.action";
+import { colorCreateAction, getColorAction } from "domain/actions/product/color.action";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import ColorUpload from "./color-upload.component";
@@ -90,12 +78,7 @@ const ColorCreateScreen: React.FC = () => {
         },
       ]}
     >
-      <Form
-        ref={formRef}
-        onFinish={onFinish}
-        initialValues={initialRequest}
-        layout="vertical"
-      >
+      <Form ref={formRef} onFinish={onFinish} initialValues={initialRequest} layout="vertical">
         <Card title="Thông tin cơ bản">
           <Row gutter={50}>
             <Col
@@ -119,9 +102,7 @@ const ColorCreateScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item
-                    rules={[
-                      { required: true, message: "Vui lòng nhập tên màu" },
-                    ]}
+                    rules={[{ required: true, message: "Vui lòng nhập tên màu" }]}
                     label="Tên màu"
                     name="name"
                   >
@@ -152,9 +133,7 @@ const ColorCreateScreen: React.FC = () => {
               <Row gutter={50}>
                 <Col span={24} lg={8} md={12} sm={24}>
                   <Form.Item
-                    rules={[
-                      { required: true, message: "Vui lòng nhập mã màu" },
-                    ]}
+                    rules={[{ required: true, message: "Vui lòng nhập mã màu" }]}
                     name="code"
                     labelAlign="right"
                     label="Mã màu"
@@ -170,8 +149,7 @@ const ColorCreateScreen: React.FC = () => {
                     rules={[
                       {
                         pattern: RegUtil.HEX_COLOR,
-                        message:
-                          "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
+                        message: "Màu sắc không chứa ký tự đặc biệt và có 6 ký tự",
                       },
                     ]}
                   >
@@ -185,11 +163,7 @@ const ColorCreateScreen: React.FC = () => {
         <BottomBarContainer
           back={"Quay lại danh sách"}
           rightComponent={
-            <Button
-              loading={loadingSaveButton}
-              htmlType="submit"
-              type="primary"
-            >
+            <Button loading={loadingSaveButton} htmlType="submit" type="primary">
               Tạo màu sắc
             </Button>
           }

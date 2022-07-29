@@ -14,12 +14,21 @@ type PropTypes = {
   subReasonRequireWarehouseChange?: number;
   changeSubStatusCallback: (value: string, data?: any) => void;
   setToSubStatusCode: (value: string | undefined) => void;
-  setOrderDetail?:(data:OrderResponse)=>void;
+  setOrderDetail?: (data: OrderResponse) => void;
 };
 
 let isConfirmedChangeSubStatus = false;
 function SubStatusChange(props: PropTypes): JSX.Element {
-  const { orderId, toSubStatus, changeSubStatusCallback, setToSubStatusCode, isEcommerceOrder, reasonId, subReasonRequireWarehouseChange, setOrderDetail } = props;
+  const {
+    orderId,
+    toSubStatus,
+    changeSubStatusCallback,
+    setToSubStatusCode,
+    isEcommerceOrder,
+    reasonId,
+    subReasonRequireWarehouseChange,
+    setOrderDetail,
+  } = props;
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [subText, setSubText] = useState("");
 
@@ -34,7 +43,7 @@ function SubStatusChange(props: PropTypes): JSX.Element {
       isChange = false;
       setIsShowModalConfirm(true);
       setSubText(
-        "Đơn hàng trạng thái khách hàng hủy, HVC hủy, Hệ thống hủy sẽ không thao tác được nữa."
+        "Đơn hàng trạng thái khách hàng hủy, HVC hủy, Hệ thống hủy sẽ không thao tác được nữa.",
       );
     } else if (toSubStatus === ORDER_SUB_STATUS.out_of_stock) {
       setSubText("Đơn hàng trạng thái Hết Hàng sẽ không thao tác được nữa.");
@@ -67,15 +76,19 @@ function SubStatusChange(props: PropTypes): JSX.Element {
               resetValues();
               changeSubStatusCallback(toSubStatus, data);
               setToSubStatusCode(undefined);
-              setOrderDetail && setOrderDetail(data)
+              setOrderDetail && setOrderDetail(data);
             },
             () => {
               resetValues();
               setToSubStatusCode(undefined);
             },
-            (isEcommerceOrder && toSubStatus === ORDER_SUB_STATUS.require_warehouse_change) ? reasonId : undefined,
-            (isEcommerceOrder && toSubStatus === ORDER_SUB_STATUS.require_warehouse_change) ? subReasonRequireWarehouseChange : undefined,
-          )
+            isEcommerceOrder && toSubStatus === ORDER_SUB_STATUS.require_warehouse_change
+              ? reasonId
+              : undefined,
+            isEcommerceOrder && toSubStatus === ORDER_SUB_STATUS.require_warehouse_change
+              ? subReasonRequireWarehouseChange
+              : undefined,
+          ),
         );
       }
     }
@@ -90,7 +103,7 @@ function SubStatusChange(props: PropTypes): JSX.Element {
     isEcommerceOrder,
     reasonId,
     subReasonRequireWarehouseChange,
-    setOrderDetail
+    setOrderDetail,
   ]);
 
   useEffect(() => {

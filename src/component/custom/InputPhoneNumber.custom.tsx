@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { CSSProperties, useCallback } from "react";
 import { Input } from "antd";
-import {showWarning} from "utils/ToastUtils";
+import { showWarning } from "utils/ToastUtils";
 
 interface InputPhoneNumberProps {
-  id?: string
+  id?: string;
   style?: CSSProperties;
   className?: string;
   placeholder?: string;
@@ -13,7 +13,7 @@ interface InputPhoneNumberProps {
   onChange?: (v: string | null) => void;
   onBlur?: () => void;
   onKeyPress?: (event: any) => void;
-  onPressEnter?: (event:any) => void;
+  onPressEnter?: (event: any) => void;
   prefix?: React.ReactNode;
   suffix?: React.ReactNode;
   maxLength?: number;
@@ -21,9 +21,9 @@ interface InputPhoneNumberProps {
   allowClear?: boolean;
 }
 
-const NOT_NUMBER_REGEX = /[^0-9]/ig;
+const NOT_NUMBER_REGEX = /[^0-9]/gi;
 
-const InputPhoneNumber: React.FC<InputPhoneNumberProps> = ({...props}: InputPhoneNumberProps) => {
+const InputPhoneNumber: React.FC<InputPhoneNumberProps> = ({ ...props }: InputPhoneNumberProps) => {
   const {
     id,
     className,
@@ -42,7 +42,7 @@ const InputPhoneNumber: React.FC<InputPhoneNumberProps> = ({...props}: InputPhon
     allowClear,
   } = props;
 
-  const [data, setData] = useState<string>('');
+  const [data, setData] = useState<string>("");
 
   useEffect(() => {
     if (defaultValue) {
@@ -56,12 +56,12 @@ const InputPhoneNumber: React.FC<InputPhoneNumberProps> = ({...props}: InputPhon
       if (NOT_NUMBER_REGEX.test(inputValue)) {
         showWarning("Số điện thoại chỉ được phép nhập số!");
       }
-      const validInputValue: string = inputValue.replaceAll(NOT_NUMBER_REGEX, '');
+      const validInputValue: string = inputValue.replaceAll(NOT_NUMBER_REGEX, "");
       setData(validInputValue);
 
       onChange && onChange(validInputValue);
     },
-    [onChange]
+    [onChange],
   );
 
   const handleOnBlur = useCallback(
@@ -70,12 +70,12 @@ const InputPhoneNumber: React.FC<InputPhoneNumberProps> = ({...props}: InputPhon
       if (NOT_NUMBER_REGEX.test(inputValue)) {
         showWarning("Số điện thoại chỉ được phép nhập số!");
       }
-      const validInputValue: string = inputValue.replaceAll(NOT_NUMBER_REGEX, '');
+      const validInputValue: string = inputValue.replaceAll(NOT_NUMBER_REGEX, "");
       setData(validInputValue);
 
       onBlur && onBlur();
     },
-    [onBlur]
+    [onBlur],
   );
 
   return (

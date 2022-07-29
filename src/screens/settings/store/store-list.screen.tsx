@@ -1,36 +1,36 @@
-import {Card, Tooltip} from "antd";
+import { Card, Tooltip } from "antd";
 import StoreFilter from "component/filter/store.filter";
-import {MenuAction} from "component/table/ActionButton";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { MenuAction } from "component/table/ActionButton";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import {
   StoreRankAction,
   StoreSearchAction,
   StoreGetTypeAction,
 } from "domain/actions/core/store.action";
-import {StoreQuery, StoreTypeRequest} from "model/core/store.model";
-import {StoreResponse} from "model/core/store.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {useHistory} from "react-router";
-import {generateQuery} from "utils/AppUtils";
-import {getQueryParams, useQuery} from "utils/useQuery";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import {RiCheckboxCircleLine} from "react-icons/ri";
-import {StoreRankResponse} from "model/core/store-rank.model";
-import {GroupGetAction} from "domain/actions/content/content.action";
-import {GroupResponse} from "model/content/group.model";
+import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
+import { StoreResponse } from "model/core/store.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useHistory } from "react-router";
+import { generateQuery } from "utils/AppUtils";
+import { getQueryParams, useQuery } from "utils/useQuery";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import { RiCheckboxCircleLine } from "react-icons/ri";
+import { StoreRankResponse } from "model/core/store-rank.model";
+import { GroupGetAction } from "domain/actions/content/content.action";
+import { GroupResponse } from "model/content/group.model";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
-import {ConvertUtcToLocalDate, DATE_FORMAT} from "utils/DateUtils";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
-import {OFFSET_HEADER_UNDER_NAVBAR} from "utils/Constants";
-import {EditOutlined} from "@ant-design/icons";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import { EditOutlined } from "@ant-design/icons";
 import useAuthorization from "hook/useAuthorization";
-import {StorePermissions} from "config/permissions/setting.permisssion";
+import { StorePermissions } from "config/permissions/setting.permisssion";
 import NoPermission from "screens/no-permission.screen";
-import {DepartmentResponse} from "model/account/department.model";
+import { DepartmentResponse } from "model/account/department.model";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { AppConfig } from "config/app.config";
 
@@ -69,14 +69,14 @@ const StoreListScreen: React.FC = () => {
   //master data
   const [rowKey, setRowKey] = useState<Array<any>>([]);
   const storeStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.store_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.store_status,
   );
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [groups, setGroups] = useState<Array<GroupResponse>>([]);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   //end master data
-  let dataQuery: StoreQuery = {...initQuery, ...getQueryParams(query)};
+  let dataQuery: StoreQuery = { ...initQuery, ...getQueryParams(query) };
   const [params, setPrams] = useState<StoreQuery>(dataQuery);
   const [data, setData] = useState<PageResponse<StoreResponse>>({
     metadata: {
@@ -125,8 +125,12 @@ const StoreListScreen: React.FC = () => {
   const findParent = useCallback((list: any, departmentId: number, parent = null) => {
     if (!list) return;
     for (let item of list) {
-      let res: any = item.id === departmentId ? parent ? parent : item
-        : item.children && findParent(item.children, departmentId, item);
+      let res: any =
+        item.id === departmentId
+          ? parent
+            ? parent
+            : item
+          : item.children && findParent(item.children, departmentId, item);
       if (res) return res;
     }
   }, []);
@@ -144,11 +148,12 @@ const StoreListScreen: React.FC = () => {
         return (
           <div
             className="data-hover"
-            onClick={() => history.push(`${UrlConfig.STORE}/${record.id}`)}>
+            onClick={() => history.push(`${UrlConfig.STORE}/${record.id}`)}
+          >
             {value}
           </div>
-        )
-      }
+        );
+      },
     },
     {
       title: "Tên cửa hàng",
@@ -193,8 +198,8 @@ const StoreListScreen: React.FC = () => {
       align: "center",
       visible: true,
       sorter: (currentRecord, nextRecord) => {
-        const currentRankName = currentRecord.rank_name?.toUpperCase() || '';
-        const nextRankName = nextRecord.rank_name?.toUpperCase() || '';
+        const currentRankName = currentRecord.rank_name?.toUpperCase() || "";
+        const nextRankName = nextRecord.rank_name?.toUpperCase() || "";
 
         if (currentRankName > nextRankName) {
           return 1;
@@ -325,7 +330,7 @@ const StoreListScreen: React.FC = () => {
             break;
         }
         return (
-          <div style={{textAlign: "center", fontSize: "20px"}} className={text}>
+          <div style={{ textAlign: "center", fontSize: "20px" }} className={text}>
             <Tooltip title={value}>
               <RiCheckboxCircleLine />
             </Tooltip>
@@ -340,42 +345,48 @@ const StoreListScreen: React.FC = () => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({...params});
+      setPrams({ ...params });
       history.push(`${UrlConfig.STORE}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
   const onFilter = useCallback(
     (values) => {
       values.info = values.info ? values.info.trim() : null;
-      let newPrams = {...params, ...values, page: 1};
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.STORE}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const onResDepartment = useCallback((departmentData: DepartmentResponse | Array<DepartmentResponse> | false) => {
-    if (departmentData) {
-      setDepartment(departmentData);
+  const onResDepartment = useCallback(
+    (departmentData: DepartmentResponse | Array<DepartmentResponse> | false) => {
+      if (departmentData) {
+        setDepartment(departmentData);
 
-      setData((data: any) => {
-        if (!data) return;
+        setData((data: any) => {
+          if (!data) return;
 
-        const newData = { ...data };
-        if (newData.items.length === 0) return data;
+          const newData = { ...data };
+          if (newData.items.length === 0) return data;
 
-        newData.items.forEach((i: any) => {
-          if (i.parent_id === -1) i.departmentParentName = i.name;
-          else i.departmentParentName = findParent(departmentData, i.department_id) ? findParent(departmentData, i.department_id).name : null;
+          newData.items.forEach((i: any) => {
+            if (i.parent_id === -1) i.departmentParentName = i.name;
+            else
+              i.departmentParentName = findParent(departmentData, i.department_id)
+                ? findParent(departmentData, i.department_id).name
+                : null;
+          });
+
+          setData(newData);
+          return data;
         });
-
-        setData(newData);
-        return data;
-      });
-    }
-  }, [findParent]);
+      }
+    },
+    [findParent],
+  );
 
   const onGetDataSuccess = useCallback((data: PageResponse<StoreResponse>) => {
     setLoading(false);
@@ -384,23 +395,19 @@ const StoreListScreen: React.FC = () => {
 
   const onMenuClick = useCallback(
     (index: number) => {
-
       if (index === actions[0].id && selected.length === 1) {
         history.push(`${UrlConfig.STORE}/${selected[0].id}/update`);
       }
     },
-    [selected, history, actions]
+    [selected, history, actions],
   );
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   const onSelect = useCallback((selectedRow: Array<StoreResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
 
@@ -412,7 +419,10 @@ const StoreListScreen: React.FC = () => {
       dispatch(StoreGetTypeAction(setType));
     }
     dispatch(
-      departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : '', onResDepartment)
+      departmentDetailAction(
+        AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : "",
+        onResDepartment,
+      ),
     );
     isFirstLoad.current = false;
     setLoading(true);
@@ -458,7 +468,7 @@ const StoreListScreen: React.FC = () => {
               isRowSelection
               showColumnSetting={true}
               isLoading={loading}
-              scroll={{x: 1480}}
+              scroll={{ x: 1480 }}
               pagination={{
                 pageSize: data.metadata.limit,
                 total: data.metadata.total,
@@ -469,7 +479,10 @@ const StoreListScreen: React.FC = () => {
               }}
               onSelectedChange={onSelect}
               // scroll={{x: 1080}}
-              sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
+              sticky={{
+                offsetScroll: 5,
+                offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+              }}
               dataSource={data.items}
               columns={columnFinal}
               rowKey={(item: StoreResponse) => item.id}

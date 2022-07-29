@@ -2,7 +2,19 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from 
 import "./index.scss";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import { AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Table, Upload } from "antd";
+import {
+  AutoComplete,
+  Button,
+  Card,
+  Col,
+  Form,
+  Input,
+  Row,
+  Select,
+  Space,
+  Table,
+  Upload,
+} from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -19,7 +31,12 @@ import {
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
+import {
+  InventoryTransferDetailItem,
+  LineItem,
+  StockTransferSubmit,
+  Store,
+} from "model/inventory/transfer";
 import _ from "lodash";
 
 import { PageResponse } from "model/base/base-metadata.response";
@@ -51,7 +68,9 @@ let barCode = "";
 const VARIANTS_FIELD = "line_items";
 
 const RequestTicket: FC = () => {
-  const myStores: any = useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
+  const myStores: any = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
   const [fromStores, setFromStores] = useState<Array<AccountStoreResponse>>();
   const [form] = Form.useForm();
   const [quantityInput, setQuantityInput] = useState<any>({});
@@ -71,14 +90,14 @@ const RequestTicket: FC = () => {
   const [keySearch, setKeySearch] = useState<string>("");
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
-  const [isVisibleModalWarning, setIsVisibleModalWarning] =
-    useState<boolean>(false);
+  const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
 
   function onQuantityChange(quantity: number | null, index: number) {
     const dataTableClone = _.cloneDeep(dataTable);
     dataTableClone[index].transfer_quantity = quantity;
 
-    dataTableClone[index].amount = dataTableClone[index].transfer_quantity * dataTableClone[index].price;
+    dataTableClone[index].amount =
+      dataTableClone[index].transfer_quantity * dataTableClone[index].price;
 
     setDataTable(dataTableClone);
 
@@ -105,13 +124,11 @@ const RequestTicket: FC = () => {
     setDataTable(temps);
     //delete row in form data
     let variantField = form.getFieldValue(VARIANTS_FIELD);
-    variantField?.forEach(
-      (row: VariantResponse, index: number, array: VariantResponse[]) => {
-        if (row.id === variantId) {
-          array.splice(index, 1);
-        }
-      },
-    );
+    variantField?.forEach((row: VariantResponse, index: number, array: VariantResponse[]) => {
+      if (row.id === variantId) {
+        array.splice(index, 1);
+      }
+    });
     //delete state manage input value
     delete quantityInput[variantId];
   }
@@ -139,36 +156,38 @@ const RequestTicket: FC = () => {
   useEffect(() => {
     getStores();
     getMe();
-
   }, [dispatch, getMe, getStores]);
 
   // validate
-  const validateStore = useCallback((rule: any, value: any, callback: any): void => {
-    if (value) {
-      const from_store_id = form.getFieldValue("from_store_id");
-      const to_store_id = form.getFieldValue("to_store_id");
+  const validateStore = useCallback(
+    (rule: any, value: any, callback: any): void => {
+      if (value) {
+        const from_store_id = form.getFieldValue("from_store_id");
+        const to_store_id = form.getFieldValue("to_store_id");
 
-      if (from_store_id && to_store_id && (from_store_id.toString() === to_store_id.toString())) {
-        callback(`Kho gửi và kho nhận không được trùng nhau`);
-      } else {
-        form.setFields([
-          {
-            name: "to_store_id",
-            errors: [],
-          },
-          {
-            name: "from_store_id",
-            errors: [],
-          },
-        ]);
-        callback();
+        if (from_store_id && to_store_id && from_store_id.toString() === to_store_id.toString()) {
+          callback(`Kho gửi và kho nhận không được trùng nhau`);
+        } else {
+          form.setFields([
+            {
+              name: "to_store_id",
+              errors: [],
+            },
+            {
+              name: "from_store_id",
+              errors: [],
+            },
+          ]);
+          callback();
+        }
+
+        return;
       }
 
-      return;
-    }
-
-    callback()
-  }, [form]);
+      callback();
+    },
+    [form],
+  );
 
   const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse> | any>();
 
@@ -187,7 +206,9 @@ const RequestTicket: FC = () => {
           ),
         );
       }
-    }, [dispatch, setResultSearch]);
+    },
+    [dispatch, setResultSearch],
+  );
 
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
 
@@ -203,34 +224,33 @@ const RequestTicket: FC = () => {
     return options;
   }, [resultSearch]);
 
-  const onSearch = useCallback((value: string) => {
-    setKeySearch(value);
-  }, [setKeySearch]);
+  const onSearch = useCallback(
+    (value: string) => {
+      setKeySearch(value);
+    },
+    [setKeySearch],
+  );
 
-  const onSelectProduct = useCallback((value: string, item: VariantResponse) => {
-    let dataTemp = [...dataTable];
-    let selectedItem = item;
+  const onSelectProduct = useCallback(
+    (value: string, item: VariantResponse) => {
+      let dataTemp = [...dataTable];
+      let selectedItem = item;
 
-    if (
-      !dataTemp.some(
-        (variant: VariantResponse) => variant.sku === selectedItem?.sku,
-      )
-    ) {
-      setDataTable((prev: any) => prev.concat([{ ...selectedItem, transfer_quantity: 1 }]));
-      dataTemp = [
-        ...[{ ...selectedItem, transfer_quantity: 1 }],
-        ...dataTemp,
-      ];
-    } else {
-      const indexItem = dataTemp.findIndex(e => e.sku === item.sku);
+      if (!dataTemp.some((variant: VariantResponse) => variant.sku === selectedItem?.sku)) {
+        setDataTable((prev: any) => prev.concat([{ ...selectedItem, transfer_quantity: 1 }]));
+        dataTemp = [...[{ ...selectedItem, transfer_quantity: 1 }], ...dataTemp];
+      } else {
+        const indexItem = dataTemp.findIndex((e) => e.sku === item.sku);
 
-      dataTemp[indexItem].transfer_quantity += 1;
-    }
-    setDataTable([...dataTemp]);
-    setResultSearch([]);
+        dataTemp[indexItem].transfer_quantity += 1;
+      }
+      setDataTable([...dataTemp]);
+      setResultSearch([]);
 
-    form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
-  }, [dataTable, form]);
+      form.setFieldsValue({ [VARIANTS_FIELD]: dataTemp });
+    },
+    [dataTable, form],
+  );
 
   const onPickManyProduct = (result: Array<VariantResponse>) => {
     const newResult = result?.map((item) => {
@@ -242,9 +262,7 @@ const RequestTicket: FC = () => {
 
     const dataTemp = [...dataTable, ...newResult];
 
-    const arrayUnique = [
-      ...new Map(dataTemp.map((item) => [item.id, item])).values(),
-    ];
+    const arrayUnique = [...new Map(dataTemp.map((item) => [item.id, item])).values()];
 
     setDataTable(arrayUnique);
     form.setFieldsValue({ [VARIANTS_FIELD]: arrayUnique });
@@ -266,30 +284,26 @@ const RequestTicket: FC = () => {
       let uuid = file.uid;
       files.push(file);
       dispatch(
-        inventoryUploadFileAction(
-          { files: files },
-          (data: false | Array<string>) => {
-            let index = fileList.findIndex((item) => item.uid === uuid);
-            if (!!data) {
-              if (index !== -1) {
-                fileList[index].status = "done";
-                fileList[index].url = data[0];
-                let fileCurrent: Array<string> =
-                  form.getFieldValue("attached_files");
-                if (!fileCurrent) {
-                  fileCurrent = [];
-                }
-                fileCurrent.push(data[0]);
-                let newFileCurrent = [...fileCurrent];
-                form.setFieldsValue({ attached_files: newFileCurrent });
+        inventoryUploadFileAction({ files: files }, (data: false | Array<string>) => {
+          let index = fileList.findIndex((item) => item.uid === uuid);
+          if (!!data) {
+            if (index !== -1) {
+              fileList[index].status = "done";
+              fileList[index].url = data[0];
+              let fileCurrent: Array<string> = form.getFieldValue("attached_files");
+              if (!fileCurrent) {
+                fileCurrent = [];
               }
-            } else {
-              fileList.splice(index, 1);
-              showError("Upload ảnh không thành công");
+              fileCurrent.push(data[0]);
+              let newFileCurrent = [...fileCurrent];
+              form.setFieldsValue({ attached_files: newFileCurrent });
             }
-            setFileList([...fileList]);
-          },
-        ),
+          } else {
+            fileList.splice(index, 1);
+            showError("Upload ảnh không thành công");
+          }
+          setFileList([...fileList]);
+        }),
       );
     }
   };
@@ -325,27 +339,30 @@ const RequestTicket: FC = () => {
     [history],
   );
 
-  const onResultGetDetailVariantIds = useCallback(result => {
-    if (result) {
-      setIsLoadingTable(false);
+  const onResultGetDetailVariantIds = useCallback(
+    (result) => {
+      if (result) {
+        setIsLoadingTable(false);
 
-      let newDataTable = [...dataTable];
+        let newDataTable = [...dataTable];
 
-      if (newDataTable.length === 0) return;
+        if (newDataTable.length === 0) return;
 
-      for (let i = 0; i < newDataTable.length; i++) {
-        newDataTable[i].available = result.items[i].available;
-        newDataTable[i].on_hand = result.items[i].on_hand;
+        for (let i = 0; i < newDataTable.length; i++) {
+          newDataTable[i].available = result.items[i].available;
+          newDataTable[i].on_hand = result.items[i].on_hand;
+        }
+
+        setDataTable(newDataTable);
+      } else {
+        setIsLoadingTable(false);
+        setDataTable([]);
+        setQuantityInput({});
+        form.setFieldsValue({ [VARIANTS_FIELD]: [] });
       }
-
-      setDataTable(newDataTable);
-    } else {
-      setIsLoadingTable(false);
-      setDataTable([]);
-      setQuantityInput({});
-      form.setFieldsValue({ [VARIANTS_FIELD]: [] });
-    }
-  }, [dataTable, form]);
+    },
+    [dataTable, form],
+  );
 
   const onChangeFromStore = async (storeId: number) => {
     const variants_id = dataTable?.map((item: VariantResponse) => item.id);
@@ -355,10 +372,10 @@ const RequestTicket: FC = () => {
       const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
         status: "active",
         store_ids: storeId,
-        variant_ids: variants_id.join(','),
+        variant_ids: variants_id.join(","),
         page: 1,
-        limit: 1000
-      })
+        limit: 1000,
+      });
       if (response) {
         onResultGetDetailVariantIds(response);
       }
@@ -458,34 +475,35 @@ const RequestTicket: FC = () => {
         if (thisInput) thisInput.style.borderColor = "red";
       } else if (element.transfer_quantity === 0) {
         if (thisInput) thisInput.style.borderColor = "red";
-      } else if (
-        element.transfer_quantity > (element.available ? element.available : 0)
-      ) {
+      } else if (element.transfer_quantity > (element.available ? element.available : 0)) {
         if (thisInput) thisInput.style.borderColor = "red";
       } else {
         if (thisInput) thisInput.style.borderColor = "#d9d9d9";
       }
     });
-
   }, [dataTable]);
 
-  const handleSearchProduct = useCallback(async (keyCode: string, code: string) => {
-    barCode = "";
+  const handleSearchProduct = useCallback(
+    async (keyCode: string, code: string) => {
+      barCode = "";
 
-    if (keyCode === "Enter" && code) {
-      setKeySearch("");
-      let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, { barcode: code });
-      if (res && res.items && res.items.length > 0) {
-        onSelectProduct(res.items[0].id.toString(), res.items[0]);
+      if (keyCode === "Enter" && code) {
+        setKeySearch("");
+        let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
+          barcode: code,
+        });
+        if (res && res.items && res.items.length > 0) {
+          onSelectProduct(res.items[0].id.toString(), res.items[0]);
+        }
+      } else {
+        const txtSearchProductElement: any = document.getElementById("product_search_variant");
+
+        onSearchProduct(txtSearchProductElement?.value);
       }
-    } else {
-      const txtSearchProductElement: any =
-        document.getElementById("product_search_variant");
-
-      onSearchProduct(txtSearchProductElement?.value);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, onSelectProduct, onSearchProduct, form]);
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [dispatch, onSelectProduct, onSearchProduct, form],
+  );
 
   const eventKeyPress = useCallback(
     (event: KeyboardEvent) => {
@@ -500,14 +518,11 @@ const RequestTicket: FC = () => {
     },
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [
-      dispatch, handleSearchProduct,
-    ],
+    [dispatch, handleSearchProduct],
   );
 
   const eventKeydown = useCallback(
     (event: KeyboardEvent) => {
-
       if (event.target instanceof HTMLInputElement) {
         if (event.target.id === "product_search_variant") {
           if (event.key !== "Enter") {
@@ -522,15 +537,17 @@ const RequestTicket: FC = () => {
           return;
         }
       }
-
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [handleSearchProduct],
   );
 
-  const onSelect = useCallback((o, obj) => {
-    onSelectProduct(o, obj.label.props.data);
-  }, [onSelectProduct]);
+  const onSelect = useCallback(
+    (o, obj) => {
+      onSelectProduct(o, obj.label.props.data);
+    },
+    [onSelectProduct],
+  );
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeydown);
@@ -546,8 +563,7 @@ const RequestTicket: FC = () => {
       title: "STT",
       align: "center",
       width: "50px",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        index + 1,
+      render: (value: string, record: PurchaseOrderLineItem, index: number) => index + 1,
     },
     {
       title: "Ảnh",
@@ -592,7 +608,7 @@ const RequestTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return form.getFieldValue('from_store_id') ? value || 0 : '';
+        return form.getFieldValue("from_store_id") ? value || 0 : "";
       },
     },
     {
@@ -601,16 +617,16 @@ const RequestTicket: FC = () => {
       align: "center",
       width: 100,
       render: (value) => {
-        return form.getFieldValue('from_store_id') ? value || 0 : '';
+        return form.getFieldValue("from_store_id") ? value || 0 : "";
       },
     },
     {
-      title: <div>
-        <div>Số lượng</div>
-        <div className="text-center">
-          {getTotalQuantity()}
+      title: (
+        <div>
+          <div>Số lượng</div>
+          <div className="text-center">{getTotalQuantity()}</div>
         </div>
-      </div>,
+      ),
       width: 100,
       align: "center",
       dataIndex: "transfer_quantity",
@@ -670,11 +686,7 @@ const RequestTicket: FC = () => {
             <Input />
           </Form.Item>
           <Col span={18}>
-            <Card
-              title="KHO HÀNG"
-              bordered={false}
-              className={"inventory-selectors"}
-            >
+            <Card title="KHO HÀNG" bordered={false} className={"inventory-selectors"}>
               <Row gutter={24}>
                 <Col span={12}>
                   <Form.Item
@@ -710,10 +722,7 @@ const RequestTicket: FC = () => {
                       }}
                     >
                       {stores.map((item, index) => (
-                        <Option
-                          key={"store_id" + index}
-                          value={item.id.toString()}
-                        >
+                        <Option key={"store_id" + index} value={item.id.toString()}>
                           {item.name}
                         </Option>
                       ))}
@@ -723,10 +732,7 @@ const RequestTicket: FC = () => {
                     <>
                       <RowDetail title="Mã CH" value={fromStoreData.code} />
                       <RowDetail title="SĐT" value={fromStoreData.hotline} />
-                      <RowDetail
-                        title="Địa chỉ"
-                        value={ConvertFullAddress(fromStoreData)}
-                      />
+                      <RowDetail title="Địa chỉ" value={ConvertFullAddress(fromStoreData)} />
                     </>
                   )}
                 </Col>{" "}
@@ -754,7 +760,9 @@ const RequestTicket: FC = () => {
                       onChange={(value: string) => {
                         myStores.forEach((element: any) => {
                           if (element.store_id === parseInt(value)) {
-                            const storeFiltered = stores.filter((item) => item.id === element.store_id);
+                            const storeFiltered = stores.filter(
+                              (item) => item.id === element.store_id,
+                            );
                             setToStoreData(storeFiltered[0]);
                           }
                         });
@@ -768,44 +776,30 @@ const RequestTicket: FC = () => {
                       }}
                     >
                       {Array.isArray(myStores) &&
-                      myStores.length > 0 &&
-                      myStores.map((item, index) => (
-                        <Option
-                          key={"to_store_id" + index}
-                          value={item.store_id.toString()}
-                        >
-                          {item.store}
-                        </Option>
-                      ))}
+                        myStores.length > 0 &&
+                        myStores.map((item, index) => (
+                          <Option key={"to_store_id" + index} value={item.store_id.toString()}>
+                            {item.store}
+                          </Option>
+                        ))}
                     </Select>
                   </Form.Item>
                   {toStoreData && (
                     <>
                       <RowDetail title="Mã CH" value={toStoreData.code} />
                       <RowDetail title="SĐT" value={toStoreData.hotline} />
-                      <RowDetail
-                        title="Địa chỉ"
-                        value={ConvertFullAddress(toStoreData)}
-                      />
+                      <RowDetail title="Địa chỉ" value={ConvertFullAddress(toStoreData)} />
                     </>
                   )}
                 </Col>
               </Row>
             </Card>
 
-            <Card
-              title="THÔNG TIN SẢN PHẨM"
-              bordered={false}
-            >
+            <Card title="THÔNG TIN SẢN PHẨM" bordered={false}>
               <div>
                 <Input.Group className="display-flex">
-
                   <AutoComplete
-                    notFoundContent={
-                      keySearch.length >= 3
-                        ? "Không tìm thấy sản phẩm"
-                        : undefined
-                    }
+                    notFoundContent={keySearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined}
                     value={keySearch}
                     ref={productAutoCompleteRef}
                     onSelect={onSelect}
@@ -853,11 +847,7 @@ const RequestTicket: FC = () => {
             </Card>
           </Col>
           <Col span={6}>
-            <Card
-              title={"GHI CHÚ"}
-              bordered={false}
-              className={"inventory-note"}
-            >
+            <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
               <Form.Item
                 name={"note"}
                 label={<b>Ghi chú nội bộ:</b>}
@@ -918,8 +908,7 @@ const RequestTicket: FC = () => {
             visible={visibleManyProduct}
           />
         )}
-        {
-          isVisibleModalWarning &&
+        {isVisibleModalWarning && (
           <ModalConfirm
             onCancel={() => {
               setIsVisibleModalWarning(false);
@@ -931,7 +920,7 @@ const RequestTicket: FC = () => {
             subTitle="Thông tin trên trang này sẽ không được lưu."
             visible={isVisibleModalWarning}
           />
-        }
+        )}
       </Form>
     </ContentContainer>
   );

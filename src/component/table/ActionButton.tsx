@@ -1,25 +1,24 @@
-
 import { DownOutlined } from "@ant-design/icons";
-import {Button, Dropdown, DropDownProps, Menu} from "antd";
+import { Button, Dropdown, DropDownProps, Menu } from "antd";
 import { ButtonType } from "antd/lib/button/button.d";
-import {CSSProperties} from "react";
+import { CSSProperties } from "react";
 
-type ActionProps = Pick<DropDownProps, 'placement' | 'getPopupContainer'> & {
+type ActionProps = Pick<DropDownProps, "placement" | "getPopupContainer"> & {
   menu?: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   disabled?: boolean;
   type?: ButtonType;
   buttonStyle?: CSSProperties | undefined;
-  buttonText?: string
+  buttonText?: string;
 };
 
 export interface MenuAction {
   id: number;
   name: string;
-  icon?:any;
-  color?:any;
+  icon?: any;
+  color?: any;
   disabled?: boolean;
-  hidden?:boolean;
+  hidden?: boolean;
 }
 
 const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
@@ -39,7 +38,7 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
                 key={item.id}
                 onClick={() => props.onMenuClick && props.onMenuClick(item.id)}
                 icon={item.icon}
-                style={!item.disabled?{color:item.color}:undefined}
+                style={!item.disabled ? { color: item.color } : undefined}
               >
                 {item.name}
               </Menu.Item>
@@ -48,7 +47,11 @@ const ActionButton: React.FC<ActionProps> = (props: ActionProps) => {
       }
       trigger={["click"]}
     >
-      <Button type={props.type ? props.type : "link"} className="action-button" style={props.buttonStyle}>
+      <Button
+        type={props.type ? props.type : "link"}
+        className="action-button"
+        style={props.buttonStyle}
+      >
         <div style={{ marginRight: 10 }}>{props.buttonText ?? "Thao tác"}</div>
         <DownOutlined />
       </Button>

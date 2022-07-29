@@ -8,7 +8,7 @@ import {
   PlusOutlined,
   TeamOutlined,
   UpOutlined,
-  UserOutlined
+  UserOutlined,
 } from "@ant-design/icons";
 import {
   Button,
@@ -21,25 +21,34 @@ import {
   Popover,
   Row,
   Select,
-  Spin
+  Spin,
 } from "antd";
 import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 import {
-  CustomerUpdateAction, getCustomerDetailAction
+  CustomerUpdateAction,
+  getCustomerDetailAction,
 } from "domain/actions/customer/customer.action";
 import { WardResponse } from "model/content/ward.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { CustomerModel, CustomerRequest, CustomerShippingAddress } from "model/request/customer.request";
-import { BillingAddressRequestModel, OrderBillRequestFormModel } from "model/request/order.request";
 import {
-  CustomerResponse,
-  ShippingAddress
-} from "model/response/customer/customer.response";
+  CustomerModel,
+  CustomerRequest,
+  CustomerShippingAddress,
+} from "model/request/customer.request";
+import { BillingAddressRequestModel, OrderBillRequestFormModel } from "model/request/order.request";
+import { CustomerResponse, ShippingAddress } from "model/response/customer/customer.response";
 import { OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { findWard, getCustomerShippingAddress, handleCalculateShippingFeeApplyOrderSetting, handleDelayActionWhenInsertTextInSearchInput, handleFindArea, totalAmount } from "utils/AppUtils";
+import {
+  findWard,
+  getCustomerShippingAddress,
+  handleCalculateShippingFeeApplyOrderSetting,
+  handleDelayActionWhenInsertTextInSearchInput,
+  handleFindArea,
+  totalAmount,
+} from "utils/AppUtils";
 import { GENDER_OPTIONS, VietNamId } from "utils/Constants";
 import { textBodyColor } from "utils/global-styles/variables";
 import { RegUtil } from "utils/RegUtils";
@@ -57,8 +66,8 @@ type UpdateCustomerProps = {
   customerItem: any;
   shippingAddress: ShippingAddress | any;
   levelOrder?: number;
-  shippingAddressesSecondPhone?:string;
-  setShippingAddressesSecondPhone?:(value:string)=>void;
+  shippingAddressesSecondPhone?: string;
+  setShippingAddressesSecondPhone?: (value: string) => void;
   setSingleShippingAddress: (item: CustomerShippingAddress | null) => void;
   ShippingAddressChange: (items: any) => void;
   ShowAddressModalEdit: () => void;
@@ -73,7 +82,7 @@ type UpdateCustomerProps = {
   // handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
   // initOrderBillRequest: OrderBillRequestFormModel | undefined;
   billingAddress: BillingAddressRequestModel | null;
-  setBillingAddress: (items: BillingAddressRequestModel|null) => void;
+  setBillingAddress: (items: BillingAddressRequestModel | null) => void;
 };
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
@@ -101,43 +110,53 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     setBillingAddress,
   } = props;
 
-  const fullAddressRef = useRef()
+  const fullAddressRef = useRef();
 
-  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+  const orderLineItems = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems,
+  );
 
-  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+  const shippingServiceConfig = useSelector(
+    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
+  );
 
-  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
+  const transportService = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
+  );
 
   const dispatch = useDispatch();
   const [customerForm] = Form.useForm();
   // const formRefCustomer = createRef<FormInstance>();
   const formRefCustomer = useRef<any>();
 
-
   const [isVisibleCollapseCustomer, setVisibleCollapseCustomer] = useState(false);
 
   const [isVisibleOrderBillRequestModal, setIsVisibleOrderBillRequestModal] = useState(false);
-  const [isVisibleConfirmDeleteOrderBillRequestModal, setIsVisibleConfirmDeleteOrderBillRequestModal] = useState(false);
+  const [
+    isVisibleConfirmDeleteOrderBillRequestModal,
+    setIsVisibleConfirmDeleteOrderBillRequestModal,
+  ] = useState(false);
 
   // const [isVisibleBtnUpdate, setVisibleBtnUpdate] = useState(false);
   const [wards, setWards] = useState<Array<WardResponse>>([]);
   const [shippingWards, setShippingWards] = useState<Array<WardResponse>>([]);
 
-  const [orderBillId, setOrderBillId] = useState<number|null>(billingAddress?.order_id || null)
+  const [orderBillId, setOrderBillId] = useState<number | null>(billingAddress?.order_id || null);
 
   const newAreas = useMemo(() => {
     return areas.map((area: any) => {
       return {
         ...area,
-        city_name_normalize: area.city_name.normalize("NFD")
+        city_name_normalize: area.city_name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
           .toLowerCase()
           .replace("tinh ", "")
           .replace("tp. ", ""),
-        district_name_normalize: area.name.normalize("NFD")
+        district_name_normalize: area.name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
@@ -146,84 +165,90 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           .replace("huyen ", "")
           // .replace("thanh pho ", "")
           .replace("thi xa ", ""),
-      }
-    })
+      };
+    });
   }, [areas]);
 
   const getWards = useCallback(
     (value: number | undefined) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, (data) => {
-          const value = formRefCustomer.current?.getFieldValue("full_address");
-          if (value) {
-            const newValue = value.toLowerCase();
+        dispatch(
+          WardGetByDistrictAction(value, (data) => {
+            const value = formRefCustomer.current?.getFieldValue("full_address");
+            if (value) {
+              const newValue = value.toLowerCase();
 
-            const newWards = data.map((ward: any) => {
-              return {
-                ...ward,
-                ward_name_normalize: ward.name.normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/đ/g, "d")
-                .replace(/Đ/g, "D")
-                .toLowerCase()
-                .replace("phuong ", "")
-                .replace("xa ", ""),
-              }
-            });
-            const findWard = newWards.find((ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1);
-            formRefCustomer.current?.setFieldsValue({
-              ward_id: findWard ? findWard.id : null,
-            })
-
-          }
-          setWards(data);
-        }));
+              const newWards = data.map((ward: any) => {
+                return {
+                  ...ward,
+                  ward_name_normalize: ward.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .toLowerCase()
+                    .replace("phuong ", "")
+                    .replace("xa ", ""),
+                };
+              });
+              const findWard = newWards.find(
+                (ward: any) => newValue.indexOf(ward.ward_name_normalize) > -1,
+              );
+              formRefCustomer.current?.setFieldsValue({
+                ward_id: findWard ? findWard.id : null,
+              });
+            }
+            setWards(data);
+          }),
+        );
       }
     },
-    [dispatch, formRefCustomer]
+    [dispatch, formRefCustomer],
   );
 
   const getShippingWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, (data) => {
-          const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
-          if (value) {
-            const newValue = value.toLowerCase();
-            const newWards = data.map((ward: any) => {
-              return {
-                ...ward,
-                ward_name_normalize: ward.name.normalize("NFD")
-                .replace(/[\u0300-\u036f]/g, "")
-                .replace(/đ/g, "d")
-                .replace(/Đ/g, "D")
-                .toLowerCase()
-                .replace("phuong ", "")
-                .replace("xa ", ""),
-              }
-            });
-            let district = document.getElementsByClassName("inputDistrictUpdateCustomer")[0].textContent;
-            // console.log('district', district)
-            const foundWard = findWard(district, newWards, newValue);
-            // console.log('foundWard', foundWard)
-            formRefCustomer.current?.setFieldsValue({
-              shipping_addresses_ward_id: foundWard ? foundWard.id : null,
-            })
-          }
-          setShippingWards(data);
-        }));
-
+        dispatch(
+          WardGetByDistrictAction(value, (data) => {
+            const value = formRefCustomer.current?.getFieldValue("shipping_addresses_full_address");
+            if (value) {
+              const newValue = value.toLowerCase();
+              const newWards = data.map((ward: any) => {
+                return {
+                  ...ward,
+                  ward_name_normalize: ward.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .toLowerCase()
+                    .replace("phuong ", "")
+                    .replace("xa ", ""),
+                };
+              });
+              let district = document.getElementsByClassName("inputDistrictUpdateCustomer")[0]
+                .textContent;
+              // console.log('district', district)
+              const foundWard = findWard(district, newWards, newValue);
+              // console.log('foundWard', foundWard)
+              formRefCustomer.current?.setFieldsValue({
+                shipping_addresses_ward_id: foundWard ? foundWard.id : null,
+              });
+            }
+            setShippingWards(data);
+          }),
+        );
       }
     },
-    [dispatch, formRefCustomer]
+    [dispatch, formRefCustomer],
   );
 
   //properties
   const disableInput = levelOrder >= 4 ? true : false;
 
-  const initialFormValueshippingAddress =
-    customerItem
-      ? {
+  const initialFormValueshippingAddress = customerItem
+    ? {
         full_name: customerItem.full_name,
         district_id: customerItem.district_id,
         phone: customerItem.phone || "",
@@ -242,9 +267,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
         shipping_addresses_phone: shippingAddress?.phone || "",
         shipping_addresses_ward_id: shippingAddress?.ward_id,
         shipping_addresses_full_address: shippingAddress?.full_address,
-        shipping_addresses_second_phone: shippingAddressesSecondPhone
+        shipping_addresses_second_phone: shippingAddressesSecondPhone,
       }
-      : {
+    : {
         shipping_addresses__card_number: "",
         shipping_addresses_name: "",
         shipping_addresses_district_id: null,
@@ -283,32 +308,38 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       //return;
       if (!customerItem) return;
 
-      let _shippingAddress: ShippingAddress[] = customerItem.shipping_addresses ? customerItem.shipping_addresses : [];
+      let _shippingAddress: ShippingAddress[] = customerItem.shipping_addresses
+        ? customerItem.shipping_addresses
+        : [];
 
       if (shippingAddress && _shippingAddress && _shippingAddress.length > 0) {
         let index = _shippingAddress.findIndex((x) => x.id === shippingAddress.id);
         _shippingAddress.splice(index, 1);
       }
 
-      let shipping_district = areas.find((area: any) => area.id === value.shipping_addresses_district_id);
-      let shipping_ward=shippingWards.find((ward:any)=>ward.id===value.shipping_addresses_ward_id)
+      let shipping_district = areas.find(
+        (area: any) => area.id === value.shipping_addresses_district_id,
+      );
+      let shipping_ward = shippingWards.find(
+        (ward: any) => ward.id === value.shipping_addresses_ward_id,
+      );
       let customer_district = areas.find((area: any) => area.id === value.district_id);
-      let customer_ward= wards.find((ward:any)=>ward.id===value.ward_id);
+      let customer_ward = wards.find((ward: any) => ward.id === value.ward_id);
 
       let paramShipping = {
         ...shippingAddress,
         name: value.shipping_addresses_name.trim(),
         district_id: value.shipping_addresses_district_id,
-        district:shipping_district.name,
+        district: shipping_district.name,
         city_id: shipping_district.city_id,
         city: shipping_district.city_name,
         phone: value.shipping_addresses_phone.trim(),
         ward_id: value.shipping_addresses_ward_id,
-        ward:shipping_ward?.name,
+        ward: shipping_ward?.name,
         full_address: value.shipping_addresses_full_address,
         is_default: true,
         default: true,
-        country_id: shippingAddress ? shippingAddress.country_id : VietNamId
+        country_id: shippingAddress ? shippingAddress.country_id : VietNamId,
       };
 
       _shippingAddress.push(paramShipping);
@@ -333,97 +364,129 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           city_id: customer_district.city_id,
           city: customer_district.city_name,
           district_id: value.district_id,
-          district:customer_district.name,
+          district: customer_district.name,
           phone: value.phone,
           ward_id: value.ward_id,
           ward: customer_ward?.name,
           card_number: value.card_number,
           full_address: value.full_address,
-          gender: GENDER_OPTIONS.findIndex((p)=>p.value===value.gender)===-1?null:value.gender,
+          gender:
+            GENDER_OPTIONS.findIndex((p) => p.value === value.gender) === -1 ? null : value.gender,
           birthday: value.birthday,
-          customer_group_id: value.customer_group_id
-        }
-      }
-      else {
+          customer_group_id: value.customer_group_id,
+        };
+      } else {
         customerRequest = {
           ...customerItem,
-          gender: GENDER_OPTIONS.findIndex((p)=>p.value===customerItem.gender)===-1?null:customerItem.gender,
-          billing_addresses: customerItem.billing_addresses ? customerItem.billing_addresses.map((item: any) => {
-            let _item = { ...item };
-            _item.is_default = _item.default;
-            return _item;
-          }) : [],
-          shipping_addresses: _shippingAddress ? _shippingAddress.map((item: any) => {
-            let _item = { ...item };
-            _item.is_default = _item.default;
-            return _item;
-          }) : []
-        }
+          gender:
+            GENDER_OPTIONS.findIndex((p) => p.value === customerItem.gender) === -1
+              ? null
+              : customerItem.gender,
+          billing_addresses: customerItem.billing_addresses
+            ? customerItem.billing_addresses.map((item: any) => {
+                let _item = { ...item };
+                _item.is_default = _item.default;
+                return _item;
+              })
+            : [],
+          shipping_addresses: _shippingAddress
+            ? _shippingAddress.map((item: any) => {
+                let _item = { ...item };
+                _item.is_default = _item.default;
+                return _item;
+              })
+            : [],
+        };
       }
-      dispatch(CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
-        if (datas) {
-          showSuccess("Cập nhật thông tin khách thành công!");
-          setCustomerChange(false);
-          handleChangeCustomer(datas);
-          const shippingAddress = getCustomerShippingAddress(datas);
-          const orderAmount = totalAmount(orderLineItems);
-          handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
-        }
-        else{
-          dispatch(
-            getCustomerDetailAction(
-              customerItem.id,
-              (data_i: CustomerResponse | null) => {
+      dispatch(
+        CustomerUpdateAction(customerItem.id, customerRequest, (datas: CustomerResponse) => {
+          if (datas) {
+            showSuccess("Cập nhật thông tin khách thành công!");
+            setCustomerChange(false);
+            handleChangeCustomer(datas);
+            const shippingAddress = getCustomerShippingAddress(datas);
+            const orderAmount = totalAmount(orderLineItems);
+            handleCalculateShippingFeeApplyOrderSetting(
+              shippingAddress?.city_id,
+              orderAmount,
+              shippingServiceConfig,
+              transportService,
+              form,
+              setShippingFeeInformedToCustomer,
+            );
+          } else {
+            dispatch(
+              getCustomerDetailAction(customerItem.id, (data_i: CustomerResponse | null) => {
                 if (data_i) {
                   handleChangeCustomer(data_i);
                 }
-              }
-            )
-          );
-        }
-
-      }));
+              }),
+            );
+          }
+        }),
+      );
     },
-    [customerItem, shippingAddress, areas, shippingWards, wards, isVisibleCollapseCustomer, dispatch, setCustomerChange, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
+    [
+      customerItem,
+      shippingAddress,
+      areas,
+      shippingWards,
+      wards,
+      isVisibleCollapseCustomer,
+      dispatch,
+      setCustomerChange,
+      handleChangeCustomer,
+      orderLineItems,
+      shippingServiceConfig,
+      transportService,
+      form,
+      setShippingFeeInformedToCustomer,
+    ],
   );
 
   const onOkPress = useCallback(() => {
     customerForm.submit();
   }, [customerForm]);
 
-  const checkAddress = useCallback((type, value) => {
-    const findArea = handleFindArea(value, newAreas)
-    // console.log('findArea', findArea)
-    if (findArea) {
-      switch (type) {
-        case "full_address":
-          if (formRefCustomer.current?.getFieldValue("district_id") !== findArea.id) {
-            formRefCustomer.current?.setFieldsValue({
-              district_id: findArea.id,
-              ward_id: null
-            })
-            getWards(findArea.id);
-          }
-          break;
-        case "shipping_addresses_full_address":
-          if (formRefCustomer.current?.getFieldValue("shipping_addresses_district_id") !== findArea.id) {
-            formRefCustomer.current?.setFieldsValue({
-              shipping_addresses_district_id: findArea.id,
-              shipping_addresses_ward_id: null
-            })
-            getShippingWards(findArea.id);
-          }
-          break;
-        default: break;
+  const checkAddress = useCallback(
+    (type, value) => {
+      const findArea = handleFindArea(value, newAreas);
+      // console.log('findArea', findArea)
+      if (findArea) {
+        switch (type) {
+          case "full_address":
+            if (formRefCustomer.current?.getFieldValue("district_id") !== findArea.id) {
+              formRefCustomer.current?.setFieldsValue({
+                district_id: findArea.id,
+                ward_id: null,
+              });
+              getWards(findArea.id);
+            }
+            break;
+          case "shipping_addresses_full_address":
+            if (
+              formRefCustomer.current?.getFieldValue("shipping_addresses_district_id") !==
+              findArea.id
+            ) {
+              formRefCustomer.current?.setFieldsValue({
+                shipping_addresses_district_id: findArea.id,
+                shipping_addresses_ward_id: null,
+              });
+              getShippingWards(findArea.id);
+            }
+            break;
+          default:
+            break;
+        }
       }
-
-    }
-  }, [formRefCustomer, getShippingWards, getWards, newAreas]);
+    },
+    [formRefCustomer, getShippingWards, getWards, newAreas],
+  );
 
   const handleClickDeleteExportRequest = () => {
     // console.log('handleClickDeleteExportRequest');
     setIsVisibleOrderBillRequestModal(false);
-    setIsVisibleConfirmDeleteOrderBillRequestModal(true)
+    setIsVisibleConfirmDeleteOrderBillRequestModal(true);
   };
 
   // console.log('orderBillId', orderBillId)
@@ -431,7 +494,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
   const handleDeleteExportRequest = () => {
     setBillingAddress(null);
     setIsVisibleConfirmDeleteOrderBillRequestModal(false);
-    setOrderBillId(null)
+    setOrderBillId(null);
     // if(!orderBillId) {
     //   return;
     // }
@@ -450,20 +513,23 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     // })
   };
 
-  const handleOkOrderBillRequest = (values:OrderBillRequestFormModel, orderBillId: number | null) => {
-    console.log('values', values);
+  const handleOkOrderBillRequest = (
+    values: OrderBillRequestFormModel,
+    orderBillId: number | null,
+  ) => {
+    console.log("values", values);
     setIsVisibleOrderBillRequestModal(false);
     setBillingAddress({
       ...billingAddress,
       order_id: orderBillId,
-      ...values
+      ...values,
     });
     setOrderBillId(orderBillId);
   };
 
   useEffect(() => {
     customerForm.resetFields();
-  }, [customerForm,shippingAddress]);
+  }, [customerForm, shippingAddress]);
 
   return (
     <StyledComponent>
@@ -472,9 +538,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
           <div className="page-filter-left 22">ĐỊA CHỈ GIAO HÀNG</div>
         </Col>
         <Col span={12}>
-          <OrderBillRequestButton 
-            handleClickOrderBillRequestButton={() => setIsVisibleOrderBillRequestModal(true)} 
-            orderDetail={orderDetail} 
+          <OrderBillRequestButton
+            handleClickOrderBillRequestButton={() => setIsVisibleOrderBillRequestModal(true)}
+            orderDetail={orderDetail}
             color={textBodyColor}
           />
         </Col>
@@ -503,7 +569,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   },
                 ]}
                 name="shipping_addresses_name"
-              //label="Tên khách hàng"
+                //label="Tên khách hàng"
               >
                 <Input
                   placeholder="Nhập Tên khách hàng"
@@ -620,16 +686,14 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             </Col>
 
             <Col xs={24} lg={12}>
-              <Form.Item
-                style={customerItem !== null ? { marginBottom: "0px" } : {}}
-              >
+              <Form.Item style={customerItem !== null ? { marginBottom: "0px" } : {}}>
                 <Input
                   placeholder="Nhập số điện thoại phụ"
                   prefix={<PhoneOutlined style={{ color: "#71767B" }} />}
                   disabled={disableInput}
                   value={shippingAddressesSecondPhone}
-                  onChange={(value)=>{
-                    if(setShippingAddressesSecondPhone)
+                  onChange={(value) => {
+                    if (setShippingAddressesSecondPhone)
                       setShippingAddressesSecondPhone(value.target.value);
                     //ShippingAddressChange({...shippingAddress,second_phone:value.target.value})
                   }}
@@ -652,9 +716,15 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   placeholder="Địa chỉ"
                   prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
                   disabled={disableInput}
-                  onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
-                    checkAddress("shipping_addresses_full_address", e.target.value)
-                  },500)}
+                  onChange={(e) =>
+                    handleDelayActionWhenInsertTextInSearchInput(
+                      fullAddressRef,
+                      () => {
+                        checkAddress("shipping_addresses_full_address", e.target.value);
+                      },
+                      500,
+                    )
+                  }
                 />
               </Form.Item>
             </Col>
@@ -721,8 +791,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                             handleShippingDelete={showAddressModalDelete}
                             handleSingleShippingAddress={setSingleShippingAddress}
                             handleShippingAddress={ShippingAddressChange}
-                            form= {form}
-                            setShippingFeeInformedToCustomer= {setShippingFeeInformedToCustomer}
+                            form={form}
+                            setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                           />
                         }
                         trigger="click"
@@ -760,11 +830,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           >
                             Thay đổi địa chỉ
                           </div>
-                          <Button
-                            type="link"
-                            icon={<PlusOutlined />}
-                            onClick={ShowAddressModalAdd}
-                          >
+                          <Button type="link" icon={<PlusOutlined />} onClick={ShowAddressModalAdd}>
                             Thêm địa chỉ mới
                           </Button>
                         </Row>
@@ -808,12 +874,12 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           },
                         ]}
                         name="full_name"
-                      //label="Tên khách hàng"
+                        //label="Tên khách hàng"
                       >
                         <Input
                           placeholder="Nhập Tên khách hàng"
                           prefix={<UserOutlined style={{ color: "#71767B" }} />}
-                        //suffix={<img src={arrowDownIcon} alt="down" />}
+                          //suffix={<img src={arrowDownIcon} alt="down" />}
                         />
                       </Form.Item>
                     </Col>
@@ -856,8 +922,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         </Select>
                       </Form.Item>
                     </Col>
-                    <Form.Item label="city" name="city_id" hidden>
-                    </Form.Item>
+                    <Form.Item label="city" name="city_id" hidden></Form.Item>
 
                     <Col xs={24} lg={12}>
                       <Form.Item
@@ -919,7 +984,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="card_number"
-                      //style={customerItem !== null ? { marginBottom: "0px" } : {}}
+                        //style={customerItem !== null ? { marginBottom: "0px" } : {}}
                       >
                         <Input
                           placeholder="Nhập mã thẻ"
@@ -931,21 +996,27 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="full_address"
-                      //style={customerItem !== null ? { marginBottom: "0px" } : {}}
+                        //style={customerItem !== null ? { marginBottom: "0px" } : {}}
                       >
                         <Input
                           placeholder="Địa chỉ"
                           prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                          onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
-                            checkAddress("full_address", e.target.value)
-                          },500)}
+                          onChange={(e) =>
+                            handleDelayActionWhenInsertTextInSearchInput(
+                              fullAddressRef,
+                              () => {
+                                checkAddress("full_address", e.target.value);
+                              },
+                              500,
+                            )
+                          }
                         />
                       </Form.Item>
                     </Col>
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="gender"
-                      //label="Giới tính"
+                        //label="Giới tính"
                       >
                         <Select
                           showSearch
@@ -981,7 +1052,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                             validator: async (_, birthday) => {
                               if (birthday && birthday > new Date()) {
                                 return Promise.reject(
-                                  new Error("Ngày sinh không được lớn hơn ngày hiện tại")
+                                  new Error("Ngày sinh không được lớn hơn ngày hiện tại"),
                                 );
                               }
                             },
@@ -989,7 +1060,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                         ]}
                       >
                         <DatePicker
-                          defaultPickerValue={customerItem?.birthday ? moment(customerItem?.birthday) : undefined}
+                          defaultPickerValue={
+                            customerItem?.birthday ? moment(customerItem?.birthday) : undefined
+                          }
                           style={{ width: "100%" }}
                           placeholder="Chọn ngày sinh"
                           format={"DD/MM/YYYY"}
@@ -998,11 +1071,13 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                           }
                           onMouseLeave={() => {
                             const elm = document.getElementById("customer_update_birthday");
-                            const newDate = elm?.getAttribute('value') ? moment(elm?.getAttribute('value'), "DD/MM/YYYY") : undefined
+                            const newDate = elm?.getAttribute("value")
+                              ? moment(elm?.getAttribute("value"), "DD/MM/YYYY")
+                              : undefined;
                             if (newDate) {
                               formRefCustomer.current?.setFieldsValue({
-                                birthday: newDate
-                              })
+                                birthday: newDate,
+                              });
                             }
                           }}
                         />
@@ -1012,7 +1087,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                     <Col xs={24} lg={12}>
                       <Form.Item
                         name="customer_group_id"
-                      // label="Nhóm"
+                        // label="Nhóm"
                       >
                         <Select
                           showSearch
@@ -1036,7 +1111,6 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                       </Form.Item>
                     </Col>
                   </Row>
-
                 </div>
               )}
 
@@ -1062,7 +1136,11 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                   {customerChange && (
                     <Button
                       type="primary"
-                      style={{ padding: "0 25px", fontWeight: 400, float: "right" }}
+                      style={{
+                        padding: "0 25px",
+                        fontWeight: 400,
+                        float: "right",
+                      }}
                       className="create-button-custom ant-btn-outline fixed-button"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -1077,15 +1155,18 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
             </div>
           )}
         </Spin>
-
       </Form>
       <OrderBillRequestModal
-        modalTitle= {orderDetail?.bill?.id ? "Chỉnh sửa thông tin xuất hóa đơn" :"Thông tin xuất hóa đơn"}
+        modalTitle={
+          orderDetail?.bill?.id ? "Chỉnh sửa thông tin xuất hóa đơn" : "Thông tin xuất hóa đơn"
+        }
         isVisibleOrderBillRequestModal={isVisibleOrderBillRequestModal}
-        handleCancel={() =>{setIsVisibleOrderBillRequestModal(false)}}
-        isPageOrderUpdate = {isPageOrderUpdate}
-        handleClickDelete = {isPageOrderUpdate ? handleClickDeleteExportRequest : undefined}
-        orderDetail = {orderDetail}
+        handleCancel={() => {
+          setIsVisibleOrderBillRequestModal(false);
+        }}
+        isPageOrderUpdate={isPageOrderUpdate}
+        handleClickDelete={isPageOrderUpdate ? handleClickDeleteExportRequest : undefined}
+        orderDetail={orderDetail}
         handleOk={handleOkOrderBillRequest}
         billingAddress={billingAddress}
         orderBillId={orderBillId}
@@ -1095,7 +1176,9 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       {isPageOrderUpdate && (
         <DeleteOrderBillRequestConfirmModal
           isVisibleDeleteOrderBillRequestConfirmModal={isVisibleConfirmDeleteOrderBillRequestModal}
-          handleCancel={() =>{setIsVisibleConfirmDeleteOrderBillRequestModal(false)}}
+          handleCancel={() => {
+            setIsVisibleConfirmDeleteOrderBillRequestModal(false);
+          }}
           handleDeleteExportRequest={handleDeleteExportRequest}
         />
       )}

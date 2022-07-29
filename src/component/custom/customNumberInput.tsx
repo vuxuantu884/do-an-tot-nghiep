@@ -3,7 +3,7 @@ import { Input } from "antd";
 import { RegUtil } from "utils/RegUtils";
 
 interface CustomNumberInputProps {
-  id?: string
+  id?: string;
   value?: any;
   onChange?: (v: any) => void;
   onBlur?: () => void;
@@ -37,30 +37,36 @@ const CustomNumberInput: React.FC<CustomNumberInputProps> = (props: CustomNumber
     autoComplete = "off",
   } = props;
 
-  const [data, setData] = useState<string>('');
-
+  const [data, setData] = useState<string>("");
 
   useEffect(() => {
-    setData(value !== undefined && value !== null ? value.toString() : '');
+    setData(value !== undefined && value !== null ? value.toString() : "");
   }, [value]);
-  
-  const handleOnChange = useCallback((e) => {
+
+  const handleOnChange = useCallback(
+    (e) => {
       let inputText: string = e.target.value;
-      const inputValue = format ? (revertFormat ? revertFormat(inputText) : inputText.replace(/\D/g,'')) : inputText;
+      const inputValue = format
+        ? revertFormat
+          ? revertFormat(inputText)
+          : inputText.replace(/\D/g, "")
+        : inputText;
       setData(inputValue);
       onChange && onChange(inputValue || null);
     },
-    [format, onChange, revertFormat]
+    [format, onChange, revertFormat],
   );
 
-  const handleOnBlur = useCallback((e) => {
-    if (RegUtil.NUMBERREG.test(value)) {
-      setData(parseInt(value).toString());
-      onChange && onChange(parseInt(value));
-    }
-    onBlur && onBlur();
-  }, [onBlur, onChange, value]);
-
+  const handleOnBlur = useCallback(
+    (e) => {
+      if (RegUtil.NUMBERREG.test(value)) {
+        setData(parseInt(value).toString());
+        onChange && onChange(parseInt(value));
+      }
+      onBlur && onBlur();
+    },
+    [onBlur, onChange, value],
+  );
 
   return (
     <Input
@@ -68,7 +74,7 @@ const CustomNumberInput: React.FC<CustomNumberInputProps> = (props: CustomNumber
       className={className}
       placeholder={placeholder}
       value={format ? format(data) : data}
-      style={{textAlign: 'right', ...style}}
+      style={{ textAlign: "right", ...style }}
       onBlur={handleOnBlur}
       onChange={handleOnChange}
       prefix={prefix}

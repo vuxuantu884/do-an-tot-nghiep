@@ -19,21 +19,21 @@ import { EcommerceCreateLogistic } from "../../model/ecommerce/ecommerce.model";
 
 const addFpagePhone = (
   userId: string,
-  phone: string
+  phone: string,
 ): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/phones/${phone}`;
   return BaseAxios.post(link);
 };
 const deleteFpagePhone = (
   userId: string,
-  phone: string
+  phone: string,
 ): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/phones/${phone}`;
   return BaseAxios.delete(link);
 };
 const setFpageDefaultPhone = (
   userId: string,
-  phone: string
+  phone: string,
 ): Promise<BaseResponse<YDPageCustomerResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/fpage/users/${userId}/defaultPhone/${phone}`;
   return BaseAxios.post(link);
@@ -44,7 +44,7 @@ const getFpageCustomer = (userId: string): Promise<BaseResponse<YDPageCustomerRe
 };
 // config sync and setting screen
 const ecommerceCreateApi = (
-  request: EcommerceRequest
+  request: EcommerceRequest,
 ): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops`;
   return BaseAxios.post(link, request);
@@ -52,7 +52,7 @@ const ecommerceCreateApi = (
 
 const ecommerceUpdateApi = (
   id: number,
-  EcommerceConfig: EcommerceRequest
+  EcommerceConfig: EcommerceRequest,
 ): Promise<BaseResponse<EcommerceResponse>> => {
   let link = `${ApiConfig.ECOMMERCE}/shops/${id}`;
   return BaseAxios.put(link, EcommerceConfig);
@@ -97,7 +97,7 @@ const ecommerceGetShopApi = (query: any) => {
 };
 
 const ecommercePostVariantsApi = (
-  requestBody: PostProductEcommerceQuery
+  requestBody: PostProductEcommerceQuery,
 ): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ECOMMERCE}/variants`;
   return BaseAxios.post(link, requestBody);
@@ -115,7 +115,7 @@ const ecommerceDisconnectItemApi = (ids: any) => {
 };
 
 const ecommercePostSyncStockItemApi = (
-  requestBody: RequestSyncStockQuery
+  requestBody: RequestSyncStockQuery,
 ): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ECOMMERCE}/variants/stock-sync`;
   return BaseAxios.post(link, requestBody);
@@ -139,7 +139,7 @@ const ecommercePutConnectItemApi = (requestBody: any) => {
 
 //ecommerce order api
 const postEcommerceOrderApi = (
-  requestBody: PostEcommerceOrderQuery
+  requestBody: PostEcommerceOrderQuery,
 ): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ECOMMERCE}/orders`;
   return BaseAxios.post(link, requestBody);
@@ -153,7 +153,7 @@ const getProgressDownloadEcommerceApi = (process_id: any): Promise<BaseResponse<
 
 //get progress download ecommerce orders
 const exitProgressDownloadEcommerceApi = (
-  query: ExitProgressDownloadEcommerceQuery
+  query: ExitProgressDownloadEcommerceQuery,
 ): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.ECOMMERCE}/orders/download-process/${query.processId}`;
   return BaseAxios.put(requestUrl);
@@ -184,15 +184,13 @@ export const importConcatenateByExcelService = (formData: FormData) => {
 };
 
 // get ecommerce jobs api
-export const getEcommerceJobsApi = (
-  process_id: any
-): Promise<BaseResponse<any>> => {
+export const getEcommerceJobsApi = (process_id: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.ECOMMERCE}/jobs/${process_id}`;
   return BaseAxios.get(requestUrl);
 };
 
 const changeEcommerceOrderStatusService = (
-  ecommerceOrderStatusRequest: EcommerceOrderStatusRequest
+  ecommerceOrderStatusRequest: EcommerceOrderStatusRequest,
 ): Promise<BaseResponse<EcommerceChangeOrderStatusReponse>> | null => {
   let link = `${ApiConfig.ECOMMERCE}/order-status`;
   return BaseAxios.post(link, ecommerceOrderStatusRequest);
@@ -200,16 +198,14 @@ const changeEcommerceOrderStatusService = (
 
 //exit ecommerce jobs api
 export const exitEcommerceJobsApi = (
-  query: ExitProgressDownloadEcommerceQuery
+  query: ExitProgressDownloadEcommerceQuery,
 ): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.ECOMMERCE}/jobs/${query.processId}`;
   return BaseAxios.put(requestUrl);
 };
 
 // get ecommerce delivery note
-export const getEcommercePrintForm = (
-    requestBody: any
-): Promise<BaseResponse<any>> => {
+export const getEcommercePrintForm = (requestBody: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.ECOMMERCE}/orders/print-forms`;
   return BaseAxios.post(requestUrl, requestBody);
 };
@@ -219,24 +215,25 @@ export const getEcommerceAddressByShopIdApi = (query: any) => {
   let params = generateQuery(query);
   let link = `${ApiConfig.ECOMMERCE}/logistic/list-store-address?${params}`;
   return BaseAxios.get(link);
-}
+};
 
 //batching shipping shoppe product
-export const batchShippingShopeeProductApi = (
-  requestBody: any
-): Promise<BaseResponse<any>> => {
-const requestUrl = `${ApiConfig.ECOMMERCE}/logistic/batch-shipping-order`;
-return BaseAxios.post(requestUrl, requestBody);
+export const batchShippingShopeeProductApi = (requestBody: any): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.ECOMMERCE}/logistic/batch-shipping-order`;
+  return BaseAxios.post(requestUrl, requestBody);
 };
 
 //get log inventory follow variant
 export const getLogInventoryVariantApi = (variant_id: any) => {
   let link = `${ApiConfig.ECOMMERCE}/variants/sync-stock-logs/${variant_id}`;
   return BaseAxios.get(link);
-}
+};
 
 //print ecommerce order shipment
-export const getEcommerceOrdersPrintFormService = (ids: string[], type: string): Promise<BaseResponse<any>> => {
+export const getEcommerceOrdersPrintFormService = (
+  ids: string[],
+  type: string,
+): Promise<BaseResponse<any>> => {
   const queryParams = {
     ids,
     type,

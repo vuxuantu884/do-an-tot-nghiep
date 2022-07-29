@@ -5,32 +5,31 @@ import NumberFormat from "react-number-format";
 import { Card } from "antd";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import ContentContainer from "component/container/content.container";
-import CustomTable, { ICustomTableColumType, } from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { getPointAdjustmentDetailAction } from "domain/actions/loyalty/loyalty.action";
-import { StyledPointAdjustmentDetail } from 'screens/customer/point-adjustment/StyledPointAdjustment';
-
+import { StyledPointAdjustmentDetail } from "screens/customer/point-adjustment/StyledPointAdjustment";
 
 const TYPE_ADJUSTMENT = [
   {
     title: "Tặng điểm",
-    value: "ADD_POINT"
+    value: "ADD_POINT",
   },
 
   {
     title: "Trừ điểm",
-    value: "SUBTRACT_POINT"
+    value: "SUBTRACT_POINT",
   },
 
   {
     title: "Tặng tiền tích lũy",
-    value: "ADD_MONEY"
+    value: "ADD_MONEY",
   },
 
   {
     title: "Trừ tiền tích lũy",
-    value: "SUBTRACT_MONEY"
+    value: "SUBTRACT_MONEY",
   },
-]
+];
 
 const valueChangeInfoColumns: Array<ICustomTableColumType<any>> = [
   {
@@ -49,15 +48,15 @@ const valueChangeInfoColumns: Array<ICustomTableColumType<any>> = [
     render: (value: any, item: any) => {
       return (
         <div style={{ textAlign: "right" }}>
-        {item.customers?.length &&
-          <NumberFormat
-            value={item.customers?.length}
-            displayType={"text"}
-            thousandSeparator={true}
-          />
-        }
+          {item.customers?.length && (
+            <NumberFormat
+              value={item.customers?.length}
+              displayType={"text"}
+              thousandSeparator={true}
+            />
+          )}
         </div>
-      )
+      );
     },
   },
   {
@@ -66,10 +65,8 @@ const valueChangeInfoColumns: Array<ICustomTableColumType<any>> = [
     width: "12%",
     align: "center",
     render: (value: any, item: any) => {
-      const type = TYPE_ADJUSTMENT.find(type => type.value === value);
-      return (
-        <div>{type?.title}</div>
-      )
+      const type = TYPE_ADJUSTMENT.find((type) => type.value === value);
+      return <div>{type?.title}</div>;
     },
   },
   {
@@ -79,27 +76,24 @@ const valueChangeInfoColumns: Array<ICustomTableColumType<any>> = [
     align: "center",
     render: (value: any, item: any) => (
       <div style={{ textAlign: "right" }}>
-        {value &&
-          <NumberFormat
-          value={value}
-          displayType={"text"}
-          thousandSeparator={true}
-          />
-        }
+        {value && <NumberFormat value={value} displayType={"text"} thousandSeparator={true} />}
       </div>
     ),
   },
   {
     title: "Lý do điều chỉnh",
     dataIndex: "reason",
-    width: "12%"
+    width: "12%",
   },
   {
     title: "Người điều chỉnh",
     dataIndex: "created_by",
     width: "15%",
     render: (value: any, item: any) => (
-      <div>{value ? value + " - " : ""}{item.created_name ? item.created_name : ""}</div>
+      <div>
+        {value ? value + " - " : ""}
+        {item.created_name ? item.created_name : ""}
+      </div>
     ),
   },
   {
@@ -114,11 +108,9 @@ const valueChangeInfoColumns: Array<ICustomTableColumType<any>> = [
   {
     title: "Ghi chú",
     dataIndex: "note",
-    render: (value: any, item: any) => (
-      <div>{value ? value : ""}</div>
-    ),
+    render: (value: any, item: any) => <div>{value ? value : ""}</div>,
   },
-]
+];
 
 const customerListColumns: Array<ICustomTableColumType<any>> = [
   {
@@ -145,7 +137,6 @@ const PointAdjustmentDetail = () => {
   const [detailData, setDetailData] = useState<any>();
   const [customersData, setCustomersData] = useState<Array<any>>([]);
 
-
   useEffect(() => {
     const adjustmentId = params.id;
     if (adjustmentId) {
@@ -155,20 +146,15 @@ const PointAdjustmentDetail = () => {
             setCustomersData(data.customers);
             setDetailData([data]);
           }
-        })
+        }),
       );
     }
   }, [dispatch, params.id]);
 
-
   return (
     <StyledPointAdjustmentDetail>
-      <ContentContainer
-        title="Thông tin phiếu điều chỉnh"
-      >
-        <Card
-          title="THÔNG TIN ĐIỀU CHỈNH"
-        >
+      <ContentContainer title="Thông tin phiếu điều chỉnh">
+        <Card title="THÔNG TIN ĐIỀU CHỈNH">
           <CustomTable
             bordered
             dataSource={detailData}
@@ -178,9 +164,7 @@ const PointAdjustmentDetail = () => {
           />
         </Card>
 
-        <Card
-          title="DANH SÁCH KHÁCH HÀNG ÁP DỤNG"
-        >
+        <Card title="DANH SÁCH KHÁCH HÀNG ÁP DỤNG">
           <CustomTable
             bordered
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}

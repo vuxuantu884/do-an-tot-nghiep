@@ -13,8 +13,9 @@ import React, {
   ReactElement,
   useCallback,
   useContext,
-  useEffect, useMemo,
-  useState
+  useEffect,
+  useMemo,
+  useState,
 } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -39,7 +40,7 @@ function PromoCodeUpdateForm({
   isUnlimitUsagePerUser,
   isUnlimitUsage,
   selectedProduct: selectedProductFromProps,
-  typeUnit
+  typeUnit,
 }: Props): ReactElement {
   const dispatch = useDispatch();
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -50,7 +51,6 @@ function PromoCodeUpdateForm({
   const [selectedProduct, setSelectedProduct] = useState<Array<any>>([]);
   const [data, setData] = useState<Array<VariantResponse>>([]);
   const { isAllProduct, setIsAllProduct } = useContext(IssueContext);
-
 
   const onDeleteItem = (index: number) => {
     //delete item in form data
@@ -85,14 +85,14 @@ function PromoCodeUpdateForm({
               page: 1,
               info: value.trim(),
             },
-            onResultSearch
-          )
+            onResultSearch,
+          ),
         );
       } else {
         setData([]);
       }
     },
-    [dispatch, onResultSearch]
+    [dispatch, onResultSearch],
   );
   const onSelectProduct = (value: string) => {
     const selectedItem = data.find((e) => e.id === Number(value));
@@ -139,18 +139,22 @@ function PromoCodeUpdateForm({
 
   useEffect(() => {
     if (isAllProduct) {
-      let entitlements = [{
-        entitled_variant_ids: null,
-        entitled_category_ids: null,
-        prerequisite_quantity_ranges: [{
-          greater_than_or_equal_to: null,
-          less_than_or_equal_to: null,
-          allocation_limit: null,
-          value_type: "",
-          value: 0,
-        }],
-        prerequisite_subtotal_ranges: null,
-      }];
+      let entitlements = [
+        {
+          entitled_variant_ids: null,
+          entitled_category_ids: null,
+          prerequisite_quantity_ranges: [
+            {
+              greater_than_or_equal_to: null,
+              less_than_or_equal_to: null,
+              allocation_limit: null,
+              value_type: "",
+              value: 0,
+            },
+          ],
+          prerequisite_subtotal_ranges: null,
+        },
+      ];
       form.setFieldsValue({ entitlements: entitlements });
     } else {
       form.setFieldsValue({ entitlements: [] });
@@ -165,7 +169,7 @@ function PromoCodeUpdateForm({
           </div>
         }
       >
-        <Row gutter={30}  >
+        <Row gutter={30}>
           <Col span={12}>
             <Form.Item
               name="title"
@@ -192,11 +196,17 @@ function PromoCodeUpdateForm({
             </Form.Item>
           </Col>
 
-          <Col span={12} >
-            <Form.Item name="description" label='Mô tả' rules={[{
-              max: 500,
-              message: 'Mô tả không được vượt quá 500 ký tự',
-            }]}>
+          <Col span={12}>
+            <Form.Item
+              name="description"
+              label="Mô tả"
+              rules={[
+                {
+                  max: 500,
+                  message: "Mô tả không được vượt quá 500 ký tự",
+                },
+              ]}
+            >
               <Input.TextArea
                 placeholder="Nhập mô tả cho đợt phát hành"
                 autoSize={{ minRows: 5, maxRows: 5 }}
@@ -206,7 +216,7 @@ function PromoCodeUpdateForm({
         </Row>
       </Card>
       <Card>
-        <Row gutter={30}  >
+        <Row gutter={30}>
           {/* Loại khuyến mãi */}
           <Col span={24}>
             <Form.Item label={"Loại khuyến mãi"}>
@@ -215,7 +225,10 @@ function PromoCodeUpdateForm({
                 placeholder="Chọn loại mã khuyến mãi"
                 onChange={(value: string) => setType(value)}
               >
-                <Option key={PriceRuleMethod.ORDER_THRESHOLD} value={PriceRuleMethod.ORDER_THRESHOLD}>
+                <Option
+                  key={PriceRuleMethod.ORDER_THRESHOLD}
+                  value={PriceRuleMethod.ORDER_THRESHOLD}
+                >
                   Khuyến mãi theo đơn hàng
                 </Option>
               </Select>
@@ -326,9 +339,7 @@ function PromoCodeUpdateForm({
                                   </Link>
                                 </div>
                                 <div className="product-item-name">
-                                  <span className="product-item-name-detail">
-                                    {item.name}
-                                  </span>
+                                  <span className="product-item-name-detail">{item.name}</span>
                                 </div>
                               </div>
                             </div>

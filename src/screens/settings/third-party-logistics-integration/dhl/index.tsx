@@ -3,12 +3,12 @@ import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import {
   DeliveryServicesGetList,
   getDeliveryTransportTypesAction,
-  updateDeliveryConfigurationAction
+  updateDeliveryConfigurationAction,
 } from "domain/actions/order/order.action";
 import { updateConfigReQuestModel } from "model/request/settings/third-party-logistics-settings.resquest";
 import {
   DeliveryServiceResponse,
-  DeliveryServiceTransportType
+  DeliveryServiceTransportType,
 } from "model/response/order/order.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -24,8 +24,9 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
   const guideUrl = THIRD_PARTY_LOGISTICS_INTEGRATION.dhl.guideUrl;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const [thirdPartyLogistics, setThirdPartyLogistics] =
-    useState<DeliveryServiceResponse | null>(null);
+  const [thirdPartyLogistics, setThirdPartyLogistics] = useState<DeliveryServiceResponse | null>(
+    null,
+  );
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceTransportType[]>([]);
   const [isShowConfirmDisconnect, setIsShowConfirmDisconnect] = useState(false);
   const [confirmSubTitle, setConfirmSubTitle] = useState<React.ReactNode>("");
@@ -52,9 +53,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
       });
       const formValueFormatted = {
         external_service_code,
-        status: isConnected
-          ? DELIVER_SERVICE_STATUS.active
-          : DELIVER_SERVICE_STATUS.inactive,
+        status: isConnected ? DELIVER_SERVICE_STATUS.active : DELIVER_SERVICE_STATUS.inactive,
         token: "",
         username: form.getFieldValue("username"),
         password: form.getFieldValue("password"),
@@ -76,7 +75,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
         updateDeliveryConfigurationAction(params, () => {
           setIsConnected(true);
           showSuccess("Kết nối thành công!");
-        })
+        }),
       );
     });
   };
@@ -87,7 +86,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
         <React.Fragment>
           Bạn có chắc chắn muốn hủy kết nối hãng vận chuyển "
           <strong>{thirdPartyLogistics?.name}</strong>" ?
-        </React.Fragment>
+        </React.Fragment>,
       );
       setIsShowConfirmDisconnect(true);
     });
@@ -107,7 +106,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
       updateDeliveryConfigurationAction(params, () => {
         setIsConnected(false);
         showSuccess("Hủy kết nối thành công!");
-      })
+      }),
     );
     setIsShowConfirmDisconnect(false);
   };
@@ -137,11 +136,11 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
                     transport_types: activeDeliveryServices || [],
                   });
                 }
-              })
+              }),
             );
           }
         }
-      })
+      }),
     );
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch]);
@@ -186,11 +185,7 @@ function SingleThirdPartyLogisticGHN(props: PropTypes) {
               },
             ]}
           >
-            <Input
-              type="password"
-              placeholder="Nhập Password"
-              style={{ width: "100%" }}
-            />
+            <Input type="password" placeholder="Nhập Password" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
             name="transport_types"

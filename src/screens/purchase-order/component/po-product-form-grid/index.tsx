@@ -1,21 +1,9 @@
-import {
-  Col,
-  Divider,
-  FormInstance,
-  Input,
-  InputNumber,
-  Row,
-  Skeleton,
-  Table,
-} from "antd";
+import { Col, Divider, FormInstance, Input, InputNumber, Row, Skeleton, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
 import { flatMapDeep, groupBy, uniq } from "lodash";
 import debounce from "lodash/debounce";
 import isEmpty from "lodash/isEmpty";
-import {
-  POLineItemType,
-  PurchaseOrderLineItem,
-} from "model/purchase-order/purchase-item.model";
+import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
   PODataSourceGrid,
   PODataSourceVariantItemGrid,
@@ -29,13 +17,7 @@ import {
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
-import React, {
-  createRef,
-  useCallback,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
+import React, { createRef, useCallback, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
@@ -64,11 +46,7 @@ import {
   ProductWrapperSearchQuery,
 } from "../../../../model/product/product.model";
 import { POField } from "../../../../model/purchase-order/po-field";
-import {
-  findAvatar,
-  formatCurrency,
-  replaceFormatString,
-} from "../../../../utils/AppUtils";
+import { findAvatar, formatCurrency, replaceFormatString } from "../../../../utils/AppUtils";
 import ProductItem from "./product-item";
 import { PoProductFormContainer } from "./styles";
 import { ProcurementLineItemField } from "model/procurement/field";
@@ -101,16 +79,14 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
   const { fetchMerchans } = fetchMerchandiser;
   const { fetchMerchans: fetchDesigns } = fetchDesigner;
   const [isLoadingProduct, setIsLoadingProduct] = useState(false);
-  const [productList, setProductList] = useState<PageResponse<ProductResponse>>(
-    {
-      metadata: {
-        limit: 30,
-        page: 1,
-        total: 0,
-      },
-      items: [],
+  const [productList, setProductList] = useState<PageResponse<ProductResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
     },
-  );
+    items: [],
+  });
 
   const renderResult = useMemo(() => {
     return productList.items.map((item: ProductResponse) => {
@@ -149,14 +125,11 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
         if (data.variants) {
           const variants = data.variants.filter(
             (variant) =>
-              variant.status !== "inactive" &&
-              variant.type !== AppConfig.VARIANT_TYPE_ERROR,
+              variant.status !== "inactive" && variant.type !== AppConfig.VARIANT_TYPE_ERROR,
           ); //variant.type === 1 là sản phẩm lỗi
           const dataSourceGrids: any[] = variants.map((variant) => {
             const retailPrice =
-              variant.variant_prices.length > 0
-                ? variant.variant_prices[0]?.retail_price
-                : null;
+              variant.variant_prices.length > 0 ? variant.variant_prices[0]?.retail_price : null;
             const expectedDateClone = expectedDate.map((item) => {
               return {
                 ...item,
@@ -192,9 +165,7 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
           procurements.forEach((procurement: any, index: number) => {
             procurement.procurement_items = data.variants.map((variant) => {
               const retailPrice =
-                variant.variant_prices.length > 0
-                  ? variant.variant_prices[0]?.retail_price
-                  : null;
+                variant.variant_prices.length > 0 ? variant.variant_prices[0]?.retail_price : null;
               return {
                 sku: variant.sku,
                 quantity: 0,
@@ -244,70 +215,65 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
     );
   };
 
-  const transformDataSource = (
-    isEditMode: boolean,
-  ): Array<PODataSourceGrid> => {
+  const transformDataSource = (isEditMode: boolean): Array<PODataSourceGrid> => {
     const dataSrc: Array<PODataSourceGrid> = [];
-    poLineItemGridChema.forEach(
-      (schema: POLineItemGridSchema, schemaIndex: number) => {
-        schema.baseColor.forEach((c) => {
-          const { color_code, color } = c;
-          /**
-           * Check nếu dòng không có variant nào được nhập quantity thì ẩn
-           *DK : view mode
-           */
-          if (
-            !isEditMode &&
-            poLineItemGridValue[schemaIndex]
-              .get(color)
-              ?.sizeValues.every((sizeValue) => !sizeValue.quantity)
-          ) {
-            return;
-          }
+    poLineItemGridChema.forEach((schema: POLineItemGridSchema, schemaIndex: number) => {
+      schema.baseColor.forEach((c) => {
+        const { color_code, color } = c;
+        /**
+         * Check nếu dòng không có variant nào được nhập quantity thì ẩn
+         *DK : view mode
+         */
+        if (
+          !isEditMode &&
+          poLineItemGridValue[schemaIndex]
+            .get(color)
+            ?.sizeValues.every((sizeValue) => !sizeValue.quantity)
+        ) {
+          return;
+        }
 
-          const row: any = {
-            schemaIndex,
-            productId: schema.productId,
-            productCode: schema.productCode,
-            productName: schema.productName,
-            color_code,
-            color,
-            ...schema.baseSize.reduce(
-              (previousValue: any, currentValue: any) => {
-                const mapping = schema.mappingColorAndSize.find(
-                  (variant) =>
-                    variant.color === color && variant.size === currentValue,
-                );
-                const variantId = mapping ? mapping.variantId : null;
-                return {
-                  ...previousValue,
-                  [currentValue]: {
-                    variantId: variantId,
-                    disabled: !variantId,
-                    productId: schema.productId,
-                    productCode: schema.productCode,
-                    productName: schema.productName,
-                    schemaIndex,
-                  },
-                };
-              },
-              {
-                /**{
-                 * M : {
-                 * variantId,
-                 * disabled,
-                 * ...
-                 * }
-                 *}
-                 */
-              },
-            ),
-          };
+        const row: any = {
+          schemaIndex,
+          productId: schema.productId,
+          productCode: schema.productCode,
+          productName: schema.productName,
+          color_code,
+          color,
+          ...schema.baseSize.reduce(
+            (previousValue: any, currentValue: any) => {
+              const mapping = schema.mappingColorAndSize.find(
+                (variant) => variant.color === color && variant.size === currentValue,
+              );
+              const variantId = mapping ? mapping.variantId : null;
+              return {
+                ...previousValue,
+                [currentValue]: {
+                  variantId: variantId,
+                  disabled: !variantId,
+                  productId: schema.productId,
+                  productCode: schema.productCode,
+                  productName: schema.productName,
+                  schemaIndex,
+                },
+              };
+            },
+            {
+              /**{
+               * M : {
+               * variantId,
+               * disabled,
+               * ...
+               * }
+               *}
+               */
+            },
+          ),
+        };
 
-          dataSrc.push(row);
-        });
-      },
-    );
+        dataSrc.push(row);
+      });
+    });
     return dataSrc;
   };
 
@@ -348,9 +314,7 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
       taxRate,
     );
     const supplementLineItems =
-      valueForm?.line_items?.filter(
-        (e) => e.type === POLineItemType.SUPPLEMENT,
-      ) || [];
+      valueForm?.line_items?.filter((e) => e.type === POLineItemType.SUPPLEMENT) || [];
     valueForm.line_items = [
       ...gridLineItems.filter((item) => item.id),
       ...gridLineItems.filter((item) => !item.id),
@@ -370,41 +334,36 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
     if (typeof inputValue === "number") {
       let isCreate = false;
       const newpoLineItemGridValue = [...poLineItemGridValue];
-      newpoLineItemGridValue.forEach(
-        (schema: Map<string, POLineItemGridValue>) => {
-          const mapIterator = schema.values();
-          const mapLength = schema.size;
-          for (let i = 0; i < mapLength; i++) {
-            const { sizeValues } = mapIterator.next().value;
-            sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
-              if (sizeValue.size === size) {
-                sizeValue.quantity = inputValue;
-                const index = procurementTableData.findIndex(
-                  (item) => item.variantId === sizeValue.variantId,
-                );
-                if (index >= 0) {
-                  isCreate = true;
-                  procurementTableData[index].quantity = inputValue; //create
-                }
+      newpoLineItemGridValue.forEach((schema: Map<string, POLineItemGridValue>) => {
+        const mapIterator = schema.values();
+        const mapLength = schema.size;
+        for (let i = 0; i < mapLength; i++) {
+          const { sizeValues } = mapIterator.next().value;
+          sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
+            if (sizeValue.size === size) {
+              sizeValue.quantity = inputValue;
+              const index = procurementTableData.findIndex(
+                (item) => item.variantId === sizeValue.variantId,
+              );
+              if (index >= 0) {
+                isCreate = true;
+                procurementTableData[index].quantity = inputValue; //create
               }
-            });
-          }
-        },
-      );
+            }
+          });
+        }
+      });
       setPoLineItemGridValue(newpoLineItemGridValue);
       const valueForm: PurchaseOrder = {
         ...formMain.getFieldsValue(),
       } as PurchaseOrder;
-      const gridLineItems: PurchaseOrderLineItem[] =
-        combineLineItemToSubmitData(
-          newpoLineItemGridValue,
-          poLineItemGridChema,
-          taxRate,
-        );
+      const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(
+        newpoLineItemGridValue,
+        poLineItemGridChema,
+        taxRate,
+      );
       const supplementLineItems =
-        valueForm?.line_items?.filter(
-          (e) => e.type === POLineItemType.SUPPLEMENT,
-        ) || [];
+        valueForm?.line_items?.filter((e) => e.type === POLineItemType.SUPPLEMENT) || [];
 
       valueForm.line_items = [
         ...gridLineItems.filter((item) => item.id),
@@ -437,64 +396,57 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
    */
   const onChangePriceHeader = (value: number) => {
     const newpoLineItemGridValue = [...poLineItemGridValue];
-    newpoLineItemGridValue.forEach(
-      (valueLine: Map<string, POLineItemGridValue>) => {
-        const mapIterator = valueLine.values();
-        const mapLength = valueLine.size;
-        for (let i = 0; i < mapLength; i++) {
-          mapIterator.next().value.price = value;
-        }
-      },
-    );
+    newpoLineItemGridValue.forEach((valueLine: Map<string, POLineItemGridValue>) => {
+      const mapIterator = valueLine.values();
+      const mapLength = valueLine.size;
+      for (let i = 0; i < mapLength; i++) {
+        mapIterator.next().value.price = value;
+      }
+    });
 
     setPoLineItemGridValue(newpoLineItemGridValue);
   };
 
   const sumOfQty = useMemo((): number => {
     let sum = 0;
-    poLineItemGridValue.forEach(
-      (valueLine: Map<string, POLineItemGridValue>) => {
-        const mapIterator = valueLine.values();
-        const mapLength = valueLine.size;
-        for (let i = 0; i < mapLength; i++) {
-          const { sizeValues } = mapIterator.next().value;
-          if (sizeValues.length > 0) {
-            for (let index = 0; index < sizeValues.length; index++) {
-              const element = sizeValues[index];
-              sum += element.quantity || 0;
-            }
+    poLineItemGridValue.forEach((valueLine: Map<string, POLineItemGridValue>) => {
+      const mapIterator = valueLine.values();
+      const mapLength = valueLine.size;
+      for (let i = 0; i < mapLength; i++) {
+        const { sizeValues } = mapIterator.next().value;
+        if (sizeValues.length > 0) {
+          for (let index = 0; index < sizeValues.length; index++) {
+            const element = sizeValues[index];
+            sum += element.quantity || 0;
           }
         }
-      },
-    );
+      }
+    });
     return Number(sum);
   }, [poLineItemGridValue]);
 
   const sizeRenderTable = useMemo((): Array<string> => {
     if (isEditMode) {
-      return uniq(
-        flatMapDeep(poLineItemGridChema?.map((schema) => schema.baseSize)),
-      ).sort((a, b) => sortSizeProduct(a, b, "asc"));
+      return uniq(flatMapDeep(poLineItemGridChema?.map((schema) => schema.baseSize))).sort((a, b) =>
+        sortSizeProduct(a, b, "asc"),
+      );
     } else if (poLineItemGridValue.length > 0) {
       const availableSize: string[] = [];
-      poLineItemGridValue.forEach(
-        (valueLine: Map<string, POLineItemGridValue>) => {
-          const mapIterator = valueLine.values();
-          const mapLength = valueLine.size;
-          for (let i = 0; i < mapLength; i++) {
-            const { sizeValues }: POLineItemGridValue =
-              mapIterator.next().value;
-            if (sizeValues.length > 0) {
-              for (let index = 0; index < sizeValues.length; index++) {
-                const element = sizeValues[index];
-                if (element.quantity > 0) {
-                  availableSize.push(element.size);
-                }
+      poLineItemGridValue.forEach((valueLine: Map<string, POLineItemGridValue>) => {
+        const mapIterator = valueLine.values();
+        const mapLength = valueLine.size;
+        for (let i = 0; i < mapLength; i++) {
+          const { sizeValues }: POLineItemGridValue = mapIterator.next().value;
+          if (sizeValues.length > 0) {
+            for (let index = 0; index < sizeValues.length; index++) {
+              const element = sizeValues[index];
+              if (element.quantity > 0) {
+                availableSize.push(element.size);
               }
             }
           }
-        },
-      );
+        }
+      });
       return uniq(availableSize).sort((a, b) => sortSizeProduct(a, b, "asc"));
     } else {
       return [];
@@ -595,21 +547,14 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
           className: "size-column",
           align: "center",
           width: 80,
-          render: (
-            v: PODataSourceVariantItemGrid,
-            record: PODataSourceGrid,
-          ) => {
+          render: (v: PODataSourceVariantItemGrid, record: PODataSourceGrid) => {
             let quantityOfSize = undefined;
             let variantId: number | null = null;
             const { schemaIndex } = record;
             // check product thứ mấy và get ra số lượng của từng màu
-            const sizeOfColor = poLineItemGridValue[schemaIndex].get(
-              record.color,
-            );
+            const sizeOfColor = poLineItemGridValue[schemaIndex].get(record.color);
             if (sizeOfColor) {
-              const valueOfSize = sizeOfColor.sizeValues.find(
-                (variant) => variant.size === size,
-              );
+              const valueOfSize = sizeOfColor.sizeValues.find((variant) => variant.size === size);
               quantityOfSize = valueOfSize?.quantity;
               variantId = valueOfSize?.variantId || null;
             }
@@ -628,21 +573,14 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
                 disabled={!!record.disabled || !variantId}
                 onChange={(value: number) => {
                   if (variantId) {
-                    onChangeQuantity(
-                      value,
-                      record.color,
-                      variantId,
-                      schemaIndex,
-                    );
+                    onChangeQuantity(value, record.color, variantId, schemaIndex);
                   } else {
                     showError("Ô nhập số lượng không hợp lệ");
                   }
                 }}
               />
             ) : (
-              !record.disabled &&
-                quantityOfSize &&
-                formatCurrency(quantityOfSize)
+              !record.disabled && quantityOfSize && formatCurrency(quantityOfSize)
             );
           },
         };
@@ -661,15 +599,12 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
       render: (color: string, row: PODataSourceGrid, index) => {
         let total = 0;
         const { schemaIndex } = row;
-        const sizeQtyOfColorObject =
-          poLineItemGridValue[schemaIndex].get(color);
+        const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
 
         if (sizeQtyOfColorObject) {
-          sizeQtyOfColorObject.sizeValues.forEach(
-            (variant: POPairSizeQuantity) => {
-              total += variant.quantity || 0;
-            },
-          );
+          sizeQtyOfColorObject.sizeValues.forEach((variant: POPairSizeQuantity) => {
+            total += variant.quantity || 0;
+          });
         }
         return formatCurrency(total);
       },
@@ -694,8 +629,7 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
       align: "center",
       render: (color: string, row: PODataSourceGrid) => {
         const { schemaIndex } = row;
-        const sizeQtyOfColorObject =
-          poLineItemGridValue[schemaIndex].get(color);
+        const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
         return isEditMode ? (
           <NumberInput
             min={0}
@@ -717,14 +651,11 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
       render: (color: string, row: PODataSourceGrid) => {
         let total = 0;
         const { schemaIndex } = row;
-        const sizeQtyOfColorObject =
-          poLineItemGridValue[schemaIndex].get(color);
+        const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
         const price = sizeQtyOfColorObject?.price ?? 0;
-        sizeQtyOfColorObject?.sizeValues.forEach(
-          (variant: POPairSizeQuantity) => {
-            total += (variant.quantity || 0) * price;
-          },
-        );
+        sizeQtyOfColorObject?.sizeValues.forEach((variant: POPairSizeQuantity) => {
+          total += (variant.quantity || 0) * price;
+        });
         return formatCurrency(total) + " đ";
       },
     },
@@ -748,10 +679,7 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
             options={renderResult}
             ref={productSearchRef}
             onClickAddNew={() => {
-              window.open(
-                `${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`,
-                "_blank",
-              );
+              window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
             }}
           />
           <BaseButton
@@ -776,8 +704,7 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
           columns={columns}
           rowKey={(record: PODataSourceGrid) => record.color}
           footer={() => {
-            const amount: number =
-              getTotalPriceOfAllLineItem(poLineItemGridValue);
+            const amount: number = getTotalPriceOfAllLineItem(poLineItemGridValue);
             formMain.setFieldsValue({
               [POField.total]: Math.round(amount + amount * (taxRate / 100)),
             });
@@ -807,9 +734,7 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
                           }}
                         />
                       ) : (
-                        <span className="po-payment-row-error">
-                          {`(${taxRate})%`}:
-                        </span>
+                        <span className="po-payment-row-error">{`(${taxRate})%`}:</span>
                       )}
                     </div>
                     <div className="po-payment-row-result">

@@ -1,4 +1,4 @@
 export interface BaseMapping {
-  field: string,
-  displayField: string,
+  field: string;
+  displayField: string;
 }

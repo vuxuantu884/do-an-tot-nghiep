@@ -28,7 +28,8 @@ function WarrantyReasonForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng nhập lý do",
               },
-            ]}>
+            ]}
+          >
             <Input placeholder="Nhập tên lý do" />
           </Form.Item>
           <Form.Item
@@ -41,7 +42,8 @@ function WarrantyReasonForm(props: PropTypes) {
                 required: true,
                 message: "Vui lòng chọn trạng thái hoạt động",
               },
-            ]}>
+            ]}
+          >
             <CustomSelect showSearch placeholder="Chọn trạng thái" optionFilterProp="children">
               {WARRANTY_REASON_STATUS?.map((item) => (
                 <Select.Option key={item.code} value={item.code}>
@@ -66,10 +68,11 @@ function WarrantyReasonForm(props: PropTypes) {
                   return Promise.resolve();
                 },
               }),
-            ]}>
+            ]}
+          >
             <NumberInput
               format={(a: string) => {
-                return formatCurrencyInputValue(a)
+                return formatCurrencyInputValue(a);
               }}
               replace={(a: string) => replaceFormatString(a)}
               placeholder="Nhập phí thực tế"
@@ -94,13 +97,14 @@ function WarrantyReasonForm(props: PropTypes) {
                   return Promise.resolve();
                 },
               }),
-            ]}>
+            ]}
+          >
             <NumberInput
               format={(a: string) => {
-                if(a) {
-                  return formatCurrency(a)
+                if (a) {
+                  return formatCurrency(a);
                 } else {
-                  return ""
+                  return "";
                 }
               }}
               replace={(a: string) => replaceFormatString(a)}

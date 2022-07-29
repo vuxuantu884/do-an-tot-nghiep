@@ -66,7 +66,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
   } = props;
 
   const isLoadingDiscount = useSelector(
-    (state: RootReducerType) => state.orderReducer.isLoadingDiscount
+    (state: RootReducerType) => state.orderReducer.isLoadingDiscount,
   );
 
   const acceptPermissionsUpdate = useCallback(() => {
@@ -129,7 +129,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
 
   const checkIsFulfillmentShipping = useMemo(
     () => orderDetail?.fulfillments?.some((p) => p.status === FulFillmentStatus.SHIPPING),
-    [orderDetail]
+    [orderDetail],
   );
 
   const isOrderHasNotFinishedAndNotExpiredPaymentMomo =
@@ -155,7 +155,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
               <Button
                 className="ant-btn-outline fixed-button cancle-button bottomBarRight__button"
                 onClick={() => window.location.reload()}
-                disabled={isSaveDraft || creating}>
+                disabled={isSaveDraft || creating}
+              >
                 Huỷ
               </Button>
               <Button
@@ -165,7 +166,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 onClick={showSaveAndConfirmModal}
                 loading={isSaveDraft}
                 disabled={creating || isLoadingDiscount}
-                id="save-draft-confirm">
+                id="save-draft-confirm"
+              >
                 Lưu nháp (F6)
               </Button>
               <Button
@@ -177,7 +179,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   formRef.current?.submit();
                 }}
                 loading={creating}
-                disabled={isSaveDraft || isLoadingDiscount}>
+                disabled={isSaveDraft || isLoadingDiscount}
+              >
                 Lưu và Xác nhận (F9)
               </Button>
             </div>
@@ -197,7 +200,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 className="ant-btn-outline fixed-button cancle-button bottomBarRight__button"
                 onClick={() => updateCancelClick && updateCancelClick()}
                 disabled={updating}
-                id="btn-order-cancel">
+                id="btn-order-cancel"
+              >
                 Huỷ (F4)
               </Button>
               {stepsStatusValue === OrderStatus.DRAFT && (
@@ -211,7 +215,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     formRef.current?.submit();
                   }}
                   disabled={isLoadingDiscount}
-                  loading={updatingConfirm}>
+                  loading={updatingConfirm}
+                >
                   Cập nhật và xác nhận
                 </Button>
               )}
@@ -225,7 +230,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                       formRef.current?.submit();
                     }}
                     loading={updating}
-                    disabled={!isPassed || isLoadingDiscount}>
+                    disabled={!isPassed || isLoadingDiscount}
+                  >
                     Cập nhật đơn hàng (F9)
                   </Button>
                 )}
@@ -258,7 +264,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           !isPassed ||
                           isDeliveryOrderReturned(orderDetail?.fulfillments) ||
                           isOrderHasNotFinishedAndNotExpiredPaymentMomo
-                        }>
+                        }
+                      >
                         Huỷ đơn hàng
                       </Menu.Item>
                     )}
@@ -274,7 +281,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                           (orderDetail?.order_return_origin !== null &&
                             orderDetail?.order_return_origin !== undefined) ||
                           isOrderFromPOS(orderDetail)
-                        }>
+                        }
+                      >
                         Sao chép đơn hàng
                       </Menu.Item>
                     )}
@@ -286,7 +294,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   orderDetail.channel_id === EcommerceChannelId.SHOPEE ? (
                     <Menu.Item
                       key="confirm"
-                      onClick={() => orderActionsClick && orderActionsClick("confirm")}>
+                      onClick={() => orderActionsClick && orderActionsClick("confirm")}
+                    >
                       Xác nhận đơn trên sàn
                     </Menu.Item>
                   ) : null}
@@ -296,12 +305,14 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         key="cochange_status_packednfirm"
                         onClick={() =>
                           orderActionsClick && orderActionsClick("change_status_packed")
-                        }>
+                        }
+                      >
                         Tạo gói hàng Lazada
                       </Menu.Item>
                       <Menu.Item
                         key="change_status_rts"
-                        onClick={() => orderActionsClick && orderActionsClick("change_status_rts")}>
+                        onClick={() => orderActionsClick && orderActionsClick("change_status_rts")}
+                      >
                         Báo Lazada sẵn sàng giao
                       </Menu.Item>
                     </Fragment>
@@ -309,7 +320,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   {stepsStatusValue === FulFillmentStatus.SHIPPED ? (
                     <Menu.Item
                       key="print"
-                      onClick={() => orderActionsClick && orderActionsClick("print")}>
+                      onClick={() => orderActionsClick && orderActionsClick("print")}
+                    >
                       In lại hoá đơn
                     </Menu.Item>
                   ) : null}
@@ -319,10 +331,11 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                     onClick={() =>
                       window.open(
                         `${UrlConfig.WARRANTY}/create?orderID=${orderDetail?.id}`,
-                        "_blank"
+                        "_blank",
                       )
                     }
-                    disabled={orderDetail?.status !== OrderStatus.FINISHED}>
+                    disabled={orderDetail?.status !== OrderStatus.FINISHED}
+                  >
                     Tạo bảo hành
                   </Menu.Item>
                   {!checkIsFulfillmentShipping && (
@@ -332,14 +345,16 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         id="btn-order-delete"
                         onClick={deleteOrderClick}
                         style={{ color: "red" }}
-                        disabled={isOrderHasNotFinishedAndNotExpiredPaymentMomo}>
+                        disabled={isOrderHasNotFinishedAndNotExpiredPaymentMomo}
+                      >
                         Xóa
                       </Menu.Item>
                     </AuthWrapper>
                   )}
                 </Menu>
               }
-              trigger={["click"]}>
+              trigger={["click"]}
+            >
               <Button className="bottomBarRight__button">
                 Thêm thao tác <DownOutlined />
               </Button>
@@ -354,7 +369,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                       orderActionsClick && orderActionsClick("cancelFulfillmentAndUpdate")
                     }
                     className="bottomBarRight__button"
-                    disabled={disabledBottomActions || !isPassed || isLoadingDiscount}>
+                    disabled={disabledBottomActions || !isPassed || isLoadingDiscount}
+                  >
                     Hủy đơn giao & sửa đơn hàng
                   </Button>
                 )}
@@ -386,7 +402,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                         isLoadingDiscount ||
                         isOrderHasNotFinishedAndNotExpiredPaymentMomo
                       }
-                      id="btn-order-edit">
+                      id="btn-order-edit"
+                    >
                       Sửa đơn hàng (F9)
                     </Button>
                   )}
@@ -397,7 +414,8 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 type="primary"
                 className="bottomBarRight__button"
                 onClick={onConfirmOrder}
-                disabled={disabledBottomActions}>
+                disabled={disabledBottomActions}
+              >
                 Xác nhận đơn
               </Button>
             )}

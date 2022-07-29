@@ -5,7 +5,6 @@ import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
 import { ProcessTypeContants } from "./products";
 
-
 type ProgressDownloadProductsModalType = {
   visible: boolean;
   isLoading: boolean;
@@ -48,18 +47,15 @@ const ProgressDownloadProductsModal = (props: ProgressDownloadProductsModalType)
       maskClosable={false}
       footer={
         <StyledModalFooter>
-          {isLoading ?
+          {isLoading ? (
             <Button danger onClick={cancelProgressDownloadModal}>
               Hủy
             </Button>
-            : <div />
-          }
+          ) : (
+            <div />
+          )}
 
-          <Button
-            type="primary"
-            onClick={okProgressDownloadModal}
-            loading={isLoading}
-          >
+          <Button type="primary" onClick={okProgressDownloadModal} loading={isLoading}>
             Xác nhận
           </Button>
         </StyledModalFooter>
@@ -71,76 +67,81 @@ const ProgressDownloadProductsModal = (props: ProgressDownloadProductsModalType)
             <div>
               <div>Tổng cộng</div>
               <div className="total-count">
-                {isNullOrUndefined(progressData?.total) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
 
-            {processType === ProcessTypeContants.Download &&
+            {processType === ProcessTypeContants.Download && (
               <div>
                 <div>SP cha mới</div>
                 <div className="total-created">
-                  {isNullOrUndefined(progressData?.total_created) ?
-                    "--" :
+                  {isNullOrUndefined(progressData?.total_created) ? (
+                    "--"
+                  ) : (
                     <NumberFormat
                       value={progressData?.total_created}
                       displayType={"text"}
                       thousandSeparator={true}
                     />
-                  }
+                  )}
                 </div>
               </div>
-            }
+            )}
 
-            {processType === ProcessTypeContants.Download &&
+            {processType === ProcessTypeContants.Download && (
               <div>
                 <div>SP cha cập nhật</div>
                 <div className="total-updated">
-                  {isNullOrUndefined(progressData?.total_updated) ?
-                    "--" :
+                  {isNullOrUndefined(progressData?.total_updated) ? (
+                    "--"
+                  ) : (
                     <NumberFormat
                       value={progressData?.total_updated}
                       displayType={"text"}
                       thousandSeparator={true}
                     />
-                  }
+                  )}
                 </div>
               </div>
-            }
+            )}
             {(processType === ProcessTypeContants.Sync ||
-              processType === ProcessTypeContants.Connect) &&
+              processType === ProcessTypeContants.Connect) && (
               <div>
                 {processType === ProcessTypeContants.Sync && <div>Đồng bộ tồn thành công</div>}
                 {processType === ProcessTypeContants.Connect && <div>Ghép nối thành công</div>}
                 <div className="total-updated">
-                  {isNullOrUndefined(progressData?.total_success) ?
-                    "--" :
+                  {isNullOrUndefined(progressData?.total_success) ? (
+                    "--"
+                  ) : (
                     <NumberFormat
                       value={progressData?.total_success}
                       displayType={"text"}
                       thousandSeparator={true}
                     />
-                  }
+                  )}
                 </div>
               </div>
-            }
+            )}
             <div>
               <div>Lỗi</div>
               <div className="total-error">
-                {isNullOrUndefined(progressData?.total_error) ?
-                  "--" :
+                {isNullOrUndefined(progressData?.total_error) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={progressData?.total_error}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
           </div>
@@ -153,7 +154,7 @@ const ProgressDownloadProductsModal = (props: ProgressDownloadProductsModalType)
           />
         </div>
 
-        {errorData.length ?
+        {errorData.length ? (
           <div className="error-orders">
             <div className="title">Chi tiết lỗi:</div>
             <div className="error_message">
@@ -170,7 +171,9 @@ const ProgressDownloadProductsModal = (props: ProgressDownloadProductsModalType)
               </div>
             </div>
           </div>
-          : <div />}
+        ) : (
+          <div />
+        )}
       </StyledProgressDownloadModal>
     </Modal>
   );

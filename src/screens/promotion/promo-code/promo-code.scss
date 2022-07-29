@@ -1,5 +1,6 @@
 @import "assets/css/variable";
-.promotion-code__search, .discount-code__search {
+.promotion-code__search,
+.discount-code__search {
   .page-filter-right {
     margin-left: 16px;
     width: 100%;
@@ -50,7 +51,7 @@
 
 hr {
   margin: 18px 0;
-  border-bottom: 1px solid #E5E5E5;
+  border-bottom: 1px solid #e5e5e5;
   border-top: none;
 }
 
@@ -64,7 +65,7 @@ hr {
 .card {
   .status-tag {
     margin-left: 10px;
-    background-color: #27AE60;
+    background-color: #27ae60;
     color: #ffffff;
     font-size: 12px;
     font-weight: 400;
@@ -76,7 +77,7 @@ hr {
 
 .card-discount-code {
   cursor: pointer;
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
   border-radius: 10px;
   width: 100%;
   padding: 15px 13px;
@@ -104,15 +105,15 @@ hr {
   }
 
   .ant-input:-moz-placeholder {
-      text-transform: initial;
+    text-transform: initial;
   }
 
   .ant-input::-moz-placeholder {
-      text-transform: initial;
+    text-transform: initial;
   }
 
   .ant-input:-ms-input-placeholder {
-      text-transform: initial;
+    text-transform: initial;
   }
 }
 .ant-select {
@@ -125,6 +126,6 @@ hr {
   }
 }
 
-.input-number{
+.input-number {
   width: 100%;
 }

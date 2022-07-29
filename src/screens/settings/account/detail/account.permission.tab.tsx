@@ -26,7 +26,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   const isFirstLoad = useRef(true);
   const [moduleData, setModuleData] = useState<PageResponse<ModuleAuthorize>>();
   const [permissionData, setPermissionData] = useState<Map<number, PermissionsAuthorize>>(
-    new Map([])
+    new Map([]),
   ); // Map<permissionId, PermissionsAuthorize>
   const [activePanel, setActivePanel] = useState<string | string[]>([]);
   const [indeterminateModules, setIndeterminateModules] = useState<string[]>([]);
@@ -73,7 +73,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
     dispatch(
       updateAccountPermissionAction(permission, (result: string) => {
         getAccountData();
-      })
+      }),
     );
   };
 
@@ -84,7 +84,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
   const onChangeCheckBoxPermission = (
     e: CheckboxChangeEvent,
     module: ModuleAuthorize,
-    permission: PermissionsAuthorize
+    permission: PermissionsAuthorize,
   ) => {
     updatePermission();
   };
@@ -94,7 +94,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
     (data: PageResponse<ModuleAuthorize>) => {
       // get total permission of module
       const totalPermissionOfModules = new Map(
-        data.items.map((item) => [item.code, item.permissions.length])
+        data.items.map((item) => [item.code, item.permissions.length]),
       );
       // get permission of account
       const permissionDataTemps = new Map<number, PermissionsAuthorize>();
@@ -131,7 +131,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
       // set default active panel
       setActivePanel(_.uniq([...defaultCheckedModules, ...defaultIndeterminateModules]));
     },
-    [accountInfo, form]
+    [accountInfo, form],
   );
 
   const onSetModuleData = useCallback(
@@ -142,7 +142,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
       }
       setLoadingPermission(false);
     },
-    [handleDefaultCheckbox]
+    [handleDefaultCheckbox],
   );
 
   useEffect(() => {
@@ -176,7 +176,7 @@ function AccountPermissionTab(props: AccountPermissionProps) {
         <Divider style={{ marginBottom: 0, borderTop: "1px solid #d9d9d9" }} />
       </div>
       {loadingPermission ? (
-        <Skeleton/>
+        <Skeleton />
       ) : (
         <CreateRoleStyled>
           <Form form={form}>

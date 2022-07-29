@@ -2,9 +2,9 @@ import { ReactNode } from "react";
 import { StyledComponent } from "./style";
 
 type RowDetailProps = {
-  title: string,
-  value: ReactNode,
-}
+  title: string;
+  value: ReactNode;
+};
 
 const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {
   return (
@@ -15,7 +15,7 @@ const RowDetail: React.FC<RowDetailProps> = (props: RowDetailProps) => {
         <div className="row-detail-right data">{props.value}</div>
       </div>
     </StyledComponent>
-  )
-}
+  );
+};
 
 export default RowDetail;

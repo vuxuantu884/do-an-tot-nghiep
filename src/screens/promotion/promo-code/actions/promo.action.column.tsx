@@ -9,7 +9,9 @@ import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import useAuthorization from "hook/useAuthorization";
 
 const ActionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) => {
-  const [allowUpdateAndCancelPromo] = useAuthorization({ acceptPermissions: [PromoPermistion.UPDATE, PromoPermistion.CANCEL] });
+  const [allowUpdateAndCancelPromo] = useAuthorization({
+    acceptPermissions: [PromoPermistion.UPDATE, PromoPermistion.CANCEL],
+  });
   const _actionColumn = {
     title: "",
     visible: true,
@@ -19,8 +21,7 @@ const ActionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
       const menu = (
         <StyledMenu>
           <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-
-            {handleStatus &&
+            {handleStatus && (
               <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
                 <Menu.Item key="2">
                   <Button
@@ -33,7 +34,7 @@ const ActionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
                   </Button>
                 </Menu.Item>
               </AuthWrapper>
-            }
+            )}
 
             <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
               <Menu.Item key="3">
@@ -65,7 +66,6 @@ const ActionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
                 </Button>
               </Menu.Item>
             </AuthWrapper>
-
           </Menu>
         </StyledMenu>
       );
@@ -92,7 +92,7 @@ const ActionColumn = (handleUpdate: any, handleDelete: any, handleStatus?: any) 
               <Button
                 type="text"
                 className="p-0 ant-btn-custom"
-                icon={<img src={threeDot} alt="" style={{ verticalAlign: 'super' }} />}
+                icon={<img src={threeDot} alt="" style={{ verticalAlign: "super" }} />}
               ></Button>
             </Dropdown>
           </div>

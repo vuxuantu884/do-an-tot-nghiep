@@ -106,7 +106,8 @@ function WarrantyCenterDetail() {
           {
             name: "Chi tiết trạng thái bảo hành",
           },
-        ]}>
+        ]}
+      >
         <StyledComponent>
           <Card title="Thông tin chi tiết">
             <WarrantyCenterForm initialFormValues={initialFormValues} form={form} />

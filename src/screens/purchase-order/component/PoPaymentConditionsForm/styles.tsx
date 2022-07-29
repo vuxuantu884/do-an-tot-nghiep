@@ -6,4 +6,4 @@ export const POPaymentConditionsFormStyled = styled.div`
       margin: 8px;
     }
   }
-`
+`;

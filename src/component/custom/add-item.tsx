@@ -5,25 +5,23 @@ import React from "react";
 type AddItemProps = {
   onClick?: () => void;
   title: string;
-  isNotFound:boolean;
+  isNotFound: boolean;
 };
 
 const AddItem: React.FC<AddItemProps> = (props: AddItemProps) => {
-  const {isNotFound, title, onClick } = props;
+  const { isNotFound, title, onClick } = props;
   return (
     <div>
-    <Button
-      icon={<AiOutlinePlusCircle size={24} />}
-      className="dropdown-add-new"
-      type="link"
-      onClick={onClick}
-    >
-      {/* <PlusCircleOutlined /> */}
-      {title}
-    </Button>
-    {isNotFound &&(
-      "Không tìm thấy kêt quả"
-    )}
+      <Button
+        icon={<AiOutlinePlusCircle size={24} />}
+        className="dropdown-add-new"
+        type="link"
+        onClick={onClick}
+      >
+        {/* <PlusCircleOutlined /> */}
+        {title}
+      </Button>
+      {isNotFound && "Không tìm thấy kêt quả"}
     </div>
   );
 };

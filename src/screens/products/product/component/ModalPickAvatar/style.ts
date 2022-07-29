@@ -8,20 +8,19 @@ export const StyledComponent = styled.div`
     grid-gap: 10px;
     .img-frame {
       position: relative;
-        img {
-      border-radius: 0;
-      width: 100%;
-      height: 165px;
-      object-fit: cover;
-      cursor: pointer;
-    }
-    .av-checkbox {
+      img {
+        border-radius: 0;
+        width: 100%;
+        height: 165px;
+        object-fit: cover;
+        cursor: pointer;
+      }
+      .av-checkbox {
         position: absolute;
         bottom: 10px;
         right: 20px;
       }
     }
-  
   }
   .avatar-show {
     width: 200px;

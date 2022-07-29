@@ -55,9 +55,7 @@ export const POModelCreateFile = (props: IProps) => {
             </div>
           </Col>
 
-          <Row className="status">
-            {/* <Progress percent={dataProcess?.percent} /> */}
-          </Row>
+          <Row className="status">{/* <Progress percent={dataProcess?.percent} /> */}</Row>
         </Row>
         <Row className="import-info">
           <div className="title">

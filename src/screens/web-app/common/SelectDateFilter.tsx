@@ -13,18 +13,9 @@ type SelectDateFilterProps = {
   isUTC?: boolean | false;
 };
 
-const SelectDateFilter: React.FC<SelectDateFilterProps> = (
-  props: SelectDateFilterProps
-) => {
-  const {
-    clickOptionDate,
-    onChangeRangeDate,
-    dateType,
-    dateSelected,
-    startDate,
-    endDate,
-    isUTC,
-  } = props;
+const SelectDateFilter: React.FC<SelectDateFilterProps> = (props: SelectDateFilterProps) => {
+  const { clickOptionDate, onChangeRangeDate, dateType, dateSelected, startDate, endDate, isUTC } =
+    props;
 
   return (
     <StyledSelectDateFilter>
@@ -74,7 +65,7 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
           <SettingOutlined style={{ marginRight: "5px" }} />
           Tùy chọn khoảng thời gian:
         </span>
-        {!isUTC &&
+        {!isUTC && (
           <DatePicker.RangePicker
             format="DD-MM-YYYY"
             style={{ width: "100%" }}
@@ -82,13 +73,11 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
               startDate ? moment(startDate, "DD-MM-YYYY") : null,
               endDate ? moment(endDate, "DD-MM-YYYY") : null,
             ]}
-            onChange={(date, dateString) =>
-              onChangeRangeDate(date, dateString, dateType)
-            }
+            onChange={(date, dateString) => onChangeRangeDate(date, dateString, dateType)}
           />
-        }
+        )}
 
-        {isUTC &&
+        {isUTC && (
           <DatePicker.RangePicker
             format="DD-MM-YYYY"
             style={{ width: "100%" }}
@@ -96,12 +85,9 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
               startDate ? moment(new Date(startDate), "DD-MM-YYYY") : null,
               endDate ? moment(new Date(endDate), "DD-MM-YYYY") : null,
             ]}
-            onChange={(date, dateString) =>
-              onChangeRangeDate(date, dateString, dateType)
-            }
+            onChange={(date, dateString) => onChangeRangeDate(date, dateString, dateType)}
           />
-        }
-        
+        )}
       </div>
     </StyledSelectDateFilter>
   );

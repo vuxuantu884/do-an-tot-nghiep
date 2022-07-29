@@ -2,10 +2,7 @@ import { SearchOutlined } from "@ant-design/icons";
 import { Divider, Input, List, Modal, Checkbox, Skeleton } from "antd";
 import { searchVariantsRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import CustomPagination from "component/table/CustomPagination";
@@ -46,14 +43,11 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const [query, setQuery] = useState<VariantSearchQuery>(
     props.storeID ? initQueryHasStoreID : initQuery,
   );
-  const onResultSuccess = useCallback(
-    (result: PageResponse<VariantResponse> | false) => {
-      if (!!result) {
-        setData(result);
-      }
-    },
-    [],
-  );
+  const onResultSuccess = useCallback((result: PageResponse<VariantResponse> | false) => {
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
   const onCheckedChange = useCallback(
     (checked, variantResponse: VariantResponse) => {
       if (variantResponse && variantResponse.status === "inactive") {
@@ -61,16 +55,12 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         return;
       }
       if (checked) {
-        let index = selection.findIndex(
-          (item) => item.id === variantResponse.id,
-        );
+        let index = selection.findIndex((item) => item.id === variantResponse.id);
         if (index === -1) {
           selection.push(variantResponse);
         }
       } else {
-        let index = selection.findIndex(
-          (item) => item.id === variantResponse.id,
-        );
+        let index = selection.findIndex((item) => item.id === variantResponse.id);
         if (index !== -1) {
           selection.splice(index, 1);
         }
@@ -92,9 +82,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         if (data) setSelection([...selection, ...data?.items]);
         if (data && data.items.some((el) => el.status === "inactive")) {
           const variantsClone = [...data?.items];
-          const filterVariantsInactive = variantsClone.filter(
-            (el) => el.status !== "inactive",
-          );
+          const filterVariantsInactive = variantsClone.filter((el) => el.status !== "inactive");
           setSelection([...selection, ...filterVariantsInactive]);
         }
       } else {
@@ -137,9 +125,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const fillAllChecked = () => {
     if (data) {
       const dataClone = [...data.items];
-      const filterVariantsInactive = dataClone.filter(
-        (el) => el.status !== "inactive",
-      );
+      const filterVariantsInactive = dataClone.filter((el) => el.status !== "inactive");
       return filterVariantsInactive.every(
         (item) => selection.findIndex((s) => s.id === item.id) > -1,
       );
@@ -198,9 +184,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
               <ProductItem
                 isTransfer={props.isTransfer}
                 checked={
-                  selection.findIndex(
-                    (item1) => item.id === (item1.variant_id ?? item1.id),
-                  ) !== -1
+                  selection.findIndex((item1) => item.id === (item1.variant_id ?? item1.id)) !== -1
                 }
                 showCheckBox={true}
                 data={item}

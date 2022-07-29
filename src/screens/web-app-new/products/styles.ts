@@ -6,8 +6,8 @@ export const StyledComponent = styled.div`
     background-color: #ffffff;
     border: 1px solid #cccccc;
     &:hover {
-        background-color: #AFEEEE;
-        border: 1px solid #2a2a86;
+      background-color: #afeeee;
+      border: 1px solid #2a2a86;
     }
   }
 `;
@@ -154,9 +154,8 @@ export const StyledProductFilter = styled.div`
     display: flex;
     -webkit-box-align: center;
     align-items: center;
-}
+  }
 `;
-
 
 export const StyledProductLink = styled.div`
   text-align: left;
@@ -185,15 +184,14 @@ export const StyledBaseFilter = styled.div`
         background-color: #f5f5f5;
       }
       .ant-btn:hover {
-        border-color: #2A2A86;
+        border-color: #2a2a86;
       }
       .active-btn {
-        color: #FFFFFF;
+        color: #ffffff;
         border-color: rgba(42, 42, 134, 0.1);
-        background-color: #2A2A86;
+        background-color: #2a2a86;
       }
     }
-
   }
   .date-option {
     display: flex;
@@ -206,9 +204,9 @@ export const StyledBaseFilter = styled.div`
       line-height: 29px;
     }
     .active {
-        color: #ffffff;
-        border-color: rgba(42, 42, 134, 0.1);
-        background-color: #2a2a86;
+      color: #ffffff;
+      border-color: rgba(42, 42, 134, 0.1);
+      background-color: #2a2a86;
     }
   }
   .ant-picker {

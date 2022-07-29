@@ -10,18 +10,10 @@ export interface NumberInputRangeProps {
   onChange?: (value: Array<number | undefined>) => void;
 }
 
-const NumberInputRange: React.FC<NumberInputRangeProps> = (
-  props: NumberInputRangeProps
-) => {
+const NumberInputRange: React.FC<NumberInputRangeProps> = (props: NumberInputRangeProps) => {
   const { placeholderFrom, placeholderTo } = props;
-  const p1 = useMemo(
-    () => (placeholderFrom ? placeholderFrom : "Từ"),
-    [placeholderFrom]
-  );
-  const p2 = useMemo(
-    () => (placeholderTo ? placeholderTo : "Đến"),
-    [placeholderTo]
-  );
+  const p1 = useMemo(() => (placeholderFrom ? placeholderFrom : "Từ"), [placeholderFrom]);
+  const p2 = useMemo(() => (placeholderTo ? placeholderTo : "Đến"), [placeholderTo]);
   const [focus1, setFocus1] = useState(false);
   const [focus2, setFocus2] = useState(false);
   const style = useMemo(() => {
@@ -51,13 +43,13 @@ const NumberInputRange: React.FC<NumberInputRangeProps> = (
     (a) => {
       props.onChange && props.onChange([a, value[1]]);
     },
-    [props, value]
+    [props, value],
   );
   const onChangeInput2 = useCallback(
     (a) => {
       props.onChange && props.onChange([value[0], a]);
     },
-    [props, value]
+    [props, value],
   );
   return (
     <div className="range">

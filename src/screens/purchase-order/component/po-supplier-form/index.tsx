@@ -1,24 +1,7 @@
-import {
-  Card,
-  Input,
-  Form,
-  Button,
-  Row,
-  Divider,
-  Col,
-  FormInstance,
-  Checkbox,
-} from "antd";
+import { Card, Input, Form, Button, Row, Divider, Col, FormInstance, Checkbox } from "antd";
 
 import { MailFilled } from "@ant-design/icons";
-import React, {
-  useCallback,
-  useMemo,
-  useState,
-  lazy,
-  useContext,
-  useEffect,
-} from "react";
+import React, { useCallback, useMemo, useState, lazy, useContext, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -55,9 +38,7 @@ type POSupplierFormProps = {
   hideExpand?: boolean;
   stepStatus?: string;
 };
-const POSupplierForm: React.FC<POSupplierFormProps> = (
-  props: POSupplierFormProps,
-) => {
+const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProps) => {
   const {
     formMain,
     listCountries,
@@ -76,8 +57,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
   const [isSendInvoice, setIsSendInvoice] = useState(
     !!hideExpand || !!purchaseOrder?.billing_address?.email,
   );
-  const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
-    useState(false);
+  const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] = useState(false);
   const onResult = useCallback((result: PageResponse<SupplierResponse>) => {
     setLoadingSearch(false);
     setData(result.items);
@@ -94,12 +74,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
     () =>
       _.debounce((keyword: string) => {
         setLoadingSearch(true);
-        dispatch(
-          SupplierSearchAction(
-            { condition: keyword.trim(), status: "active" },
-            onResult,
-          ),
-        );
+        dispatch(SupplierSearchAction({ condition: keyword.trim(), status: "active" }, onResult));
       }, 300),
     [dispatch, onResult],
   );
@@ -258,8 +233,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                     )}
                   </Row>
                   <Divider style={{ marginBottom: 0 }} />
-                  {((isSelectSupplier && showBillingAddress) ||
-                    supplier_id) && (
+                  {((isSelectSupplier && showBillingAddress) || supplier_id) && (
                     <>
                       <Form.Item hidden name="supplier_id">
                         <Input />
@@ -279,12 +253,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                       <POSupplierAddress
                         getFieldValue={getFieldValue}
                         field="billing_address"
-                        onEdit={() =>
-                          showEditAddressModal(
-                            billing_address,
-                            "billing_address",
-                          )
-                        }
+                        onEdit={() => showEditAddressModal(billing_address, "billing_address")}
                       />
                       <Divider style={{ marginTop: 0 }} />
                       <div className="margin-top-bottom-10">
@@ -305,10 +274,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                             getFieldValue={getFieldValue}
                             field="supplier_address"
                             onEdit={() =>
-                              showEditAddressModal(
-                                supplier_address,
-                                "supplier_address",
-                              )
+                              showEditAddressModal(supplier_address, "supplier_address")
                             }
                           />
                           <Divider style={{ marginTop: 0 }} />
@@ -330,25 +296,18 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (
                                     label={
                                       <label>
                                         <MailFilled />
-                                        <span className="label">
-                                          {" "}
-                                          Email gửi hóa đơn
-                                        </span>
+                                        <span className="label"> Email gửi hóa đơn</span>
                                       </label>
                                     }
                                     rules={[
                                       {
                                         required: true,
                                         pattern: RegUtil.EMAIL,
-                                        message:
-                                          "Vui lòng nhập đúng định dạng email",
+                                        message: "Vui lòng nhập đúng định dạng email",
                                       },
                                     ]}
                                   >
-                                    <Input
-                                      placeholder="Nhập email gửi hóa đơn"
-                                      maxLength={255}
-                                    />
+                                    <Input placeholder="Nhập email gửi hóa đơn" maxLength={255} />
                                   </Form.Item>
                                 </Col>
                               </Row>

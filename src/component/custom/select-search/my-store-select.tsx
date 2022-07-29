@@ -13,7 +13,9 @@ const defaultSelectProps = {
 };
 MyStoreSelect.defaultProps = {};
 function MyStoreSelect(props: Props): ReactElement {
-  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
+  const myStores: any = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
   return (
     <Select
       {...defaultSelectProps}
@@ -32,7 +34,7 @@ function MyStoreSelect(props: Props): ReactElement {
           <Select.Option value={store.store_id} key={"store_id" + store.store_id}>
             {store.store}
           </Select.Option>
-        ) : null
+        ) : null,
       )}
     </Select>
   );

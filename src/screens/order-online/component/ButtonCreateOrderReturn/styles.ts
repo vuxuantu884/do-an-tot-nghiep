@@ -8,6 +8,5 @@ export const StyledComponent = styled.div`
     border: none;
     background: none;
     padding: 0;
-}
+  }
 `;
- 

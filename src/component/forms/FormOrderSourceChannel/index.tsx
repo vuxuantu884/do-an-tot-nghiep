@@ -7,14 +7,13 @@ import { StyledComponent } from "./styles";
 
 type FormValuesType = {
   code: string;
-  name: string|undefined;
-  channel_type_id: number|undefined;
+  name: string | undefined;
+  channel_type_id: number | undefined;
 };
 
 function FormOrderSourceChannel(props: CustomModalFormModel) {
-
-  const {modalAction, formItem, form, visible, moreFormArguments} = props;
-  const {listChannelTypes} = moreFormArguments;
+  const { modalAction, formItem, form, visible, moreFormArguments } = props;
+  const { listChannelTypes } = moreFormArguments;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValues: FormValuesType =
     !isCreateForm && formItem
@@ -35,27 +34,22 @@ function FormOrderSourceChannel(props: CustomModalFormModel) {
 
   return (
     <StyledComponent>
-      <Form
-        form={form}
-        name="control-hooks"
-        layout="vertical"
-        initialValues={initialFormValues}
-      >
+      <Form form={form} name="control-hooks" layout="vertical" initialValues={initialFormValues}>
         <Form.Item
           name="name"
           label="Tên kênh"
           rules={[
-            {required: true, message: "Vui lòng điền tên kênh!"},
-            {max: 255, message: "Không được nhập quá 255 ký tự!"},
+            { required: true, message: "Vui lòng điền tên kênh!" },
+            { max: 255, message: "Không được nhập quá 255 ký tự!" },
           ]}
         >
-          <Input placeholder="Nhập tên kênh" style={{width: "100%"}} />
+          <Input placeholder="Nhập tên kênh" style={{ width: "100%" }} />
         </Form.Item>
         <Form.Item
           name="code"
           label="Mã nguồn"
           rules={[
-            {required: true, message: "Vui lòng điền mã nguồn!"},
+            { required: true, message: "Vui lòng điền mã nguồn!" },
             () => ({
               validator(_, value) {
                 if (RegUtil.ONLY_STRING.test(value)) {
@@ -64,26 +58,24 @@ function FormOrderSourceChannel(props: CustomModalFormModel) {
                 return Promise.reject(new Error("Chỉ nhập kí tự chữ và in hoa!"));
               },
             }),
-            {len: 4, message: "Nhập 4 ký tự!"},
+            { len: 4, message: "Nhập 4 ký tự!" },
           ]}
         >
           <Input
             type="text"
             placeholder="Nhập mã nguồn"
-            style={{width: "100%", textTransform: "uppercase"}}
+            style={{ width: "100%", textTransform: "uppercase" }}
           />
         </Form.Item>
         <Form.Item
           name="channel_type_id"
           label="Loại kênh"
-          rules={[
-            {required: true, message: "Vui lòng chọn loại kênh!"},
-          ]}
+          rules={[{ required: true, message: "Vui lòng chọn loại kênh!" }]}
         >
           <Select
             showSearch
             allowClear
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
             placeholder="Chọn loại kênh"
             optionFilterProp="children"
             filterOption={(input, option) =>

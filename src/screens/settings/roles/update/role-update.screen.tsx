@@ -18,14 +18,14 @@ import { ACTION_FORM_CONSTANTS } from "../constants";
 import RoleForm from "../role.form";
 
 const RoleUpdateScreen: React.FC = () => {
-  const {id} = useParams<{id: string}>();
+  const { id } = useParams<{ id: string }>();
   console.log(id);
 
   const history = useHistory();
   const [form] = Form.useForm();
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
-  }); 
+  });
 
   const dispatch = useDispatch();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -61,7 +61,7 @@ const RoleUpdateScreen: React.FC = () => {
           showSuccess("Chỉnh sửa nhóm quyền thành công");
           history.push(UrlConfig.ROLES);
         }
-      })
+      }),
     );
   };
 
@@ -71,7 +71,7 @@ const RoleUpdateScreen: React.FC = () => {
       setRoleData(data);
       // get total permission of module
       const totalPermissionOfModules = new Map(
-        moduleData?.items.map((item) => [item.code, item.permissions.length])
+        moduleData?.items.map((item) => [item.code, item.permissions.length]),
       );
 
       let defaultCheckedModules: string[] = [];
@@ -107,26 +107,25 @@ const RoleUpdateScreen: React.FC = () => {
       });
       setDataOrigin(form.getFieldsValue());
     },
-    [form, moduleData]
+    [form, moduleData],
   );
 
   const [dataOrigin, setDataOrigin] = useState<RoleAuthorizeRequest | null>(null);
-  const backAction = ()=>{ 
+  const backAction = () => {
     if (JSON.stringify(form.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
       setModalConfirm({
         visible: true,
         onCancel: () => {
-          setModalConfirm({visible: false});
+          setModalConfirm({ visible: false });
         },
-        onOk: () => { 
-          setModalConfirm({visible: false});
+        onOk: () => {
+          setModalConfirm({ visible: false });
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
-        subTitle:
-          "Sau khi quay lại thay đổi sẽ không được lưu.",
-      }); 
-    }else{
+        subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
+      });
+    } else {
       history.goBack();
     }
   };
@@ -135,7 +134,7 @@ const RoleUpdateScreen: React.FC = () => {
     dispatch(
       getModuleAction(getAllModuleParam, (response: PageResponse<ModuleAuthorize>) => {
         setModuleData(response);
-      })
+      }),
     );
   }, [dispatch, id]);
 
@@ -147,7 +146,7 @@ const RoleUpdateScreen: React.FC = () => {
           if (response) {
             handleDefaultField(response);
           }
-        })
+        }),
       );
     }
   }, [dispatch, id, handleDefaultField, moduleData]);
@@ -171,7 +170,7 @@ const RoleUpdateScreen: React.FC = () => {
     >
       {moduleData && (
         <RoleForm
-        formType={ACTION_FORM_CONSTANTS.UPDATE}
+          formType={ACTION_FORM_CONSTANTS.UPDATE}
           form={form}
           moduleData={moduleData}
           activePanel={activePanel}

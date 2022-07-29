@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import {ChartColor} from "../index.style";
+import { ChartColor } from "../index.style";
 
 export const RankChartStyle = styled.div`
   .rank-chart {
@@ -20,9 +20,9 @@ export const RankChartStyle = styled.div`
     &__legend-item {
       display: inline-flex;
       align-items: end;
-      p{
+      p {
         margin: 0;
-        line-height: .6;
+        line-height: 0.6;
       }
       &--primary {
         background-color: ${ChartColor.primary};

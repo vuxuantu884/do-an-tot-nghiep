@@ -39,10 +39,10 @@ function SingleThirdPartyLogisticLayout(props: PropTypes) {
   return (
     <StyledComponent>
       <ContentContainer
-        title= {
+        title={
           nameSingleThirdPartyLogistic
-          ? `Chỉnh sửa Kết nối hãng vận chuyển ${nameSingleThirdPartyLogistic}`
-          : "Đang tải dữ liệu..."
+            ? `Chỉnh sửa Kết nối hãng vận chuyển ${nameSingleThirdPartyLogistic}`
+            : "Đang tải dữ liệu..."
         }
         breadcrumb={[
           {
@@ -51,8 +51,8 @@ function SingleThirdPartyLogisticLayout(props: PropTypes) {
           },
           {
             name: nameSingleThirdPartyLogistic
-            ? `${nameSingleThirdPartyLogistic}`
-            : "Đang tải dữ liệu..."
+              ? `${nameSingleThirdPartyLogistic}`
+              : "Đang tải dữ liệu...",
           },
         ]}
       >

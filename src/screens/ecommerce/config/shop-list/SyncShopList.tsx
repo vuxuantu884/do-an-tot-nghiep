@@ -1,4 +1,4 @@
-import React, {useCallback, useMemo, useState} from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Button } from "antd";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
 import CustomTable from "component/table/CustomTable";
@@ -6,10 +6,13 @@ import actionColumn from "screens/ecommerce/config/actions/action.column";
 import { useHistory } from "react-router-dom";
 import successIcon from "assets/icon/success_2.svg";
 import { ECOMMERCE_ICON } from "screens/ecommerce/common/commonAction";
-import { StyledHeader, StyledComponent } from "screens/ecommerce/config/shop-list/StyledSyncShopList";
+import {
+  StyledHeader,
+  StyledComponent,
+} from "screens/ecommerce/config/shop-list/StyledSyncShopList";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
-import {SourceResponse} from "model/response/order/source.response";
+import { SourceResponse } from "model/response/order/source.response";
 
 type SyncShopListProps = {
   configData: any;
@@ -22,17 +25,15 @@ type SyncShopListProps = {
 const SYNC_TYPE = [
   {
     value: "manual",
-    name: "Thủ công"
+    name: "Thủ công",
   },
   {
     value: "auto",
-    name: "Tự động"
-  }
-]
+    name: "Tự động",
+  },
+];
 
-const SyncShopList: React.FC<SyncShopListProps> = (
-  props: SyncShopListProps
-) => {
+const SyncShopList: React.FC<SyncShopListProps> = (props: SyncShopListProps) => {
   const { configData, sourceList, setConfigToView, showDeleteModal } = props;
   const history = useHistory();
   const [activatedBtn, setActivatedBtn] = React.useState({
@@ -43,19 +44,28 @@ const SyncShopList: React.FC<SyncShopListProps> = (
     key: 0,
   });
 
-  const handleUpdate = useCallback((item: any) => {
-    setConfigToView(item);
-    history.replace(`${history.location.pathname}#setting`);
-  }, [history, setConfigToView]);
+  const handleUpdate = useCallback(
+    (item: any) => {
+      setConfigToView(item);
+      history.replace(`${history.location.pathname}#setting`);
+    },
+    [history, setConfigToView],
+  );
 
-  const handleShowDeleteModal = useCallback((item: EcommerceResponse) => {
-    showDeleteModal(item);
-  }, [showDeleteModal]);
+  const handleShowDeleteModal = useCallback(
+    (item: EcommerceResponse) => {
+      showDeleteModal(item);
+    },
+    [showDeleteModal],
+  );
 
-  const getSourceNameById = useCallback((sourceId: number) => {
-    const source = sourceList.find(item => Number(item.id) === Number(sourceId));
-    return source ? source.name : "";
-  }, [sourceList]);
+  const getSourceNameById = useCallback(
+    (sourceId: number) => {
+      const source = sourceList.find((item) => Number(item.id) === Number(sourceId));
+      return source ? source.name : "";
+    },
+    [sourceList],
+  );
 
   const columns: any = useMemo(() => {
     return [
@@ -65,8 +75,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
         width: "70px",
         fixed: "left",
         render: (l: any, v: any, i: any) => {
-          return <span>{i + 1}</span>
-        }
+          return <span>{i + 1}</span>;
+        },
       },
       {
         title: "Gian hàng",
@@ -75,21 +85,27 @@ const SyncShopList: React.FC<SyncShopListProps> = (
         render: (value: any, data: any) => {
           return (
             <div style={{ display: "flex" }}>
-              <img src={ECOMMERCE_ICON[data.ecommerce?.toLowerCase()]} alt="" style={{ marginRight: 8 }} />
-              <strong className="link" onClick={() => handleUpdate(data)}>{data.name}</strong>
+              <img
+                src={ECOMMERCE_ICON[data.ecommerce?.toLowerCase()]}
+                alt=""
+                style={{ marginRight: 8 }}
+              />
+              <strong className="link" onClick={() => handleUpdate(data)}>
+                {data.name}
+              </strong>
             </div>
-          )
-        }
+          );
+        },
       },
       {
         title: "Tên shop (Sàn)",
         width: "10%",
-        dataIndex: "ecommerce_shop"
+        dataIndex: "ecommerce_shop",
       },
       {
         title: "Cửa hàng",
         width: "10%",
-        dataIndex: "store"
+        dataIndex: "store",
       },
       {
         title: "Kho đồng bộ tồn",
@@ -98,11 +114,9 @@ const SyncShopList: React.FC<SyncShopListProps> = (
           let inventories = "";
           data.inventories?.forEach((item: any) => {
             inventories = item.deleted ? inventories : inventories + item.store + ", ";
-          })
-          return (
-            <div>{inventories}</div>
-          )
-        }
+          });
+          return <div>{inventories}</div>;
+        },
       },
       {
         title: "Nguồn đơn hàng",
@@ -110,10 +124,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
         dataIndex: "source_id",
         render: (source_id: number) => {
           const sourceName = getSourceNameById(source_id);
-          return (
-            <div>{sourceName}</div>
-          )
-        }
+          return <div>{sourceName}</div>;
+        },
       },
       {
         title: "Kiểu đồng bộ tồn",
@@ -122,10 +134,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
         width: 150,
         render: (value: string) => {
           const inventorySyncType = SYNC_TYPE.find((item: any) => item.value === value);
-          return (
-            <div>{inventorySyncType?.name}</div>
-          )
-        }
+          return <div>{inventorySyncType?.name}</div>;
+        },
       },
       {
         title: "Kiểu đồng bộ đơn hàng",
@@ -134,10 +144,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
         width: 150,
         render: (value: string) => {
           const orderSyncType = SYNC_TYPE.find((item: any) => item.value === value);
-          return (
-            <div>{orderSyncType?.name}</div>
-          )
-        }
+          return <div>{orderSyncType?.name}</div>;
+        },
       },
       {
         title: "Kiểu sản phẩm khi tải đơn về",
@@ -145,10 +153,8 @@ const SyncShopList: React.FC<SyncShopListProps> = (
         align: "center",
         width: 150,
         render: () => {
-          return (
-            <div>Đợi ghép nối</div>
-          )
-        }
+          return <div>Đợi ghép nối</div>;
+        },
       },
       {
         title: "Nhân viên bán hàng",
@@ -161,13 +167,11 @@ const SyncShopList: React.FC<SyncShopListProps> = (
         width: 120,
         align: "center",
         render: (value: string) => {
-          return (
-            <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>
-          )
-        }
+          return <div>{ConvertUtcToLocalDate(value, "DD/MM/YYYY")}</div>;
+        },
       },
       actionColumn(handleUpdate, handleShowDeleteModal),
-    ]
+    ];
   }, [getSourceNameById, handleShowDeleteModal, handleUpdate]);
 
   const [buttons] = useState<Array<any>>([
@@ -209,8 +213,6 @@ const SyncShopList: React.FC<SyncShopListProps> = (
     },
   ]);
 
-  
-
   const configDataFiltered =
     configData &&
     configData?.filter((item: any) => {
@@ -228,9 +230,7 @@ const SyncShopList: React.FC<SyncShopListProps> = (
           {buttons.map((button) => (
             <Button
               key={button.id}
-              className={
-                button.key === activatedBtn?.key ? "active-button" : ""
-              }
+              className={button.key === activatedBtn?.key ? "active-button" : ""}
               icon={button.icon && <img src={button.icon} alt={button.id} />}
               type="ghost"
               onClick={() => setActivatedBtn(button)}
