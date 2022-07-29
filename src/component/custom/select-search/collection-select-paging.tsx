@@ -1,6 +1,9 @@
 import { SelectProps } from "antd";
 import _ from "lodash";
-import { CollectionQuery, CollectionResponse } from "model/product/collection.model";
+import {
+  CollectionQuery,
+  CollectionResponse,
+} from "model/product/collection.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -32,7 +35,16 @@ SelectSearch.defaultProps = {
 };
 
 function SelectSearch(contentProps: SelectContentProps) {
-  const { id: name, value, mode, fixedQuery, key, isFilter, isGetName, ...selectProps } = contentProps;
+  const {
+    id: name,
+    value,
+    mode,
+    fixedQuery,
+    key,
+    isFilter,
+    isGetName,
+    ...selectProps
+  } = contentProps;
 
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
@@ -46,27 +58,35 @@ function SelectSearch(contentProps: SelectContentProps) {
   });
 
   const [defaultOptons, setDefaultOptons] = useState<CollectionResponse[]>([]);
-  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer,
+  );
   const handleSearch = (queryParams: CollectionQuery) => {
     setIsSearching(true);
     const query = { ...fixedQuery, ...queryParams };
     dispatch(
-      getCollectionRequestAction(query, (response: PageResponse<CollectionResponse>) => {
-        if (response) {
-          setData(response);
-        }
-        setIsSearching(false);
-      })
+      getCollectionRequestAction(
+        query,
+        (response: PageResponse<CollectionResponse>) => {
+          if (response) {
+            setData(response);
+          }
+          setIsSearching(false);
+        },
+      ),
     );
   };
 
   useEffect(() => {
-    if(contentProps.defaultValue) {
-      const user: any =  { code: contentProps?.defaultValue, full_name: contentProps?.merchandiser }
-      setData({...data, items: [user, ...data.items]})
+    if (contentProps.defaultValue) {
+      const user: any = {
+        code: contentProps?.defaultValue,
+        full_name: contentProps?.merchandiser,
+      };
+      setData({ ...data, items: [user, ...data.items] });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentProps.defaultValue])
+  }, [contentProps.defaultValue]);
 
   /**
    * Option cho trang 1
@@ -77,9 +97,9 @@ function SelectSearch(contentProps: SelectContentProps) {
         { isShowError: true },
         dispatch,
         getCollectionApi,
-        { ...fixedQuery, page: 1, limit: 30 }
+        { ...fixedQuery, page: 1, limit: 30 },
       );
-      
+
       setDefaultOptons(response?.items ?? []);
       setData({ ...response });
     };
@@ -110,13 +130,16 @@ function SelectSearch(contentProps: SelectContentProps) {
           {
             codes: isFilter ? JSON.parse(initCodes).code : initCodes,
             ...fixedQuery,
-          }
+          },
         );
 
         let totalItems: CollectionResponse[] = [];
         if (initSelectedResponse?.items && defaultOptons) {
           // merge 2 mảng, cho item(s) đang được chọn trước đó vào đầu tiên
-          totalItems = _.uniqBy([...initSelectedResponse.items, ...defaultOptons], "code");
+          totalItems = _.uniqBy(
+            [...initSelectedResponse.items, ...defaultOptons],
+            "code",
+          );
         } else if (defaultOptons) {
           totalItems = defaultOptons;
         } else if (initSelectedResponse?.items) {
@@ -142,15 +165,22 @@ function SelectSearch(contentProps: SelectContentProps) {
       onPageChange={(key: string, page: number) => {
         handleSearch({ condition: key.trim(), page: page });
       }}
-      filterOption={() => true}//lấy kết quả từ server
+      filterOption={() => true} //lấy kết quả từ server
       {...selectProps}
       value={contentProps.defaultValue || value}
-      >
+    >
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code + name} value={isFilter || isGetName ? JSON.stringify({
-          code: item.code,
-          name: item.name
-        }) : item.code}>
+        <SelectPagingV2.Option
+          key={item.code + name}
+          value={
+            isFilter || isGetName
+              ? JSON.stringify({
+                  code: item.code,
+                  name: item.name,
+                })
+              : item.code
+          }
+        >
           {`${item.code} - ${item.name}`}
         </SelectPagingV2.Option>
       ))}

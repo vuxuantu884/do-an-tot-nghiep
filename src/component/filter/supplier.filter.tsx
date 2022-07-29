@@ -12,8 +12,16 @@ import { getCollectionRequestAction } from "../../domain/actions/product/collect
 import { useDispatch } from "react-redux";
 import useEffectOnce from "react-use/lib/useEffectOnce";
 import BaseFilterResult from "../base/BaseFilterResult";
-import { FieldMapping, SupplierEnum, SupplierFilterProps } from "./interfaces/supplier";
-import { formatFieldTag, generateQuery, transformParamsToObject } from "../../utils/AppUtils";
+import {
+  FieldMapping,
+  SupplierEnum,
+  SupplierFilterProps,
+} from "./interfaces/supplier";
+import {
+  formatFieldTag,
+  generateQuery,
+  transformParamsToObject,
+} from "../../utils/AppUtils";
 import { useArray } from "../../hook/useArray";
 import { useHistory } from "react-router";
 import UrlConfig from "../../config/url.config";
@@ -27,7 +35,9 @@ import ButtonSetting from "component/table/ButtonSetting";
 const { Item } = Form;
 const { Option } = Select;
 
-const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProps) => {
+const SupplierFilter: React.FC<SupplierFilterProps> = (
+  props: SupplierFilterProps,
+) => {
   const {
     onFilter,
     params,
@@ -39,14 +49,16 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     actions,
     onMenuClick,
     setParams,
-    onClickOpen
+    onClickOpen,
   } = props;
-  const dispatch = useDispatch()
-  const history = useHistory()
+  const dispatch = useDispatch();
+  const history = useHistory();
   const [visible, setVisible] = useState(false);
   const [formBasic] = Form.useForm();
   const [formAdvance] = Form.useForm();
-  const [collections, setCollections] = useState<PageResponse<CollectionResponse>>({
+  const [collections, setCollections] = useState<
+    PageResponse<CollectionResponse>
+  >({
     metadata: {
       limit: 10,
       page: 1,
@@ -54,35 +66,41 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     },
     items: [],
   });
-  const [isSearchingCollections, setIsSearchingCollections] = React.useState(false);
-  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans()
-  const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([])
+  const [isSearchingCollections, setIsSearchingCollections] =
+    React.useState(false);
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
+  const {
+    array: paramsArray,
+    set: setParamsArray,
+    remove,
+    prevArray,
+  } = useArray([]);
 
   const onFinish = (values: SupplierQuery) => {
     onFilter && onFilter({ ...values, condition: values.condition?.trim() });
-  }
+  };
   const getStatusObjFromEnum = () => {
     const statusObj: any = {};
     if (supplierStatus) {
-      supplierStatus.forEach(item => {
+      supplierStatus.forEach((item) => {
         statusObj[item.value] = item.name;
       });
     }
     return statusObj;
-  }
+  };
   const onFilterClick = () => {
     setVisible(false);
     formAdvance.submit();
-  }
+  };
   const onClearFilterAdvanceClick = () => {
     formAdvance.setFieldsValue(initValue);
     setVisible(false);
     formAdvance.submit();
-  }
+  };
 
   const onActionClick = (index: number) => {
     onMenuClick && onMenuClick(index);
-  }
+  };
   useEffect(() => {
     if (visible) formAdvance.resetFields();
     formBasic.setFieldsValue({
@@ -92,7 +110,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
     });
     formAdvance.setFieldsValue({
       ...formAdvance.getFieldsValue(true),
-      district_id: params.district_id
+      district_id: params.district_id,
     });
   }, [formAdvance, formBasic, listDistrict, visible, params]);
 
@@ -104,62 +122,98 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
   };
 
   useEffectOnce(() => {
-    dispatch(getCollectionRequestAction({ ...params, limit: collections.metadata.limit,codes: undefined}, onGetSuccess));
-  })
+    dispatch(
+      getCollectionRequestAction(
+        { ...params, limit: collections.metadata.limit, codes: undefined },
+        onGetSuccess,
+      ),
+    );
+  });
 
   const onSearchCollections = (values: any) => {
     setIsSearchingCollections(true);
     dispatch(
-      getCollectionRequestAction({ ...params, ...values, limit: collections.metadata.limit }, onGetSuccess)
+      getCollectionRequestAction(
+        { ...params, ...values, limit: collections.metadata.limit },
+        onGetSuccess,
+      ),
     );
   };
 
   useEffect(() => {
-    const formatted = formatFieldTag(params, FieldMapping)
+    const formatted = formatFieldTag(params, FieldMapping);
     const newParams = formatted.map((item) => {
       switch (item.keyId) {
         case SupplierEnum.status:
-          return { ...item, valueName: item.valueId === "inactive" ? "Ngừng hoạt động" : "Đang hoạt động" }
+          return {
+            ...item,
+            valueName:
+              item.valueId === "inactive"
+                ? "Ngừng hoạt động"
+                : "Đang hoạt động",
+          };
         case SupplierEnum.type:
-          return { ...item, valueName: item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân" }
+          return {
+            ...item,
+            valueName:
+              item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân",
+          };
         case SupplierEnum.condition:
-          return { ...item, valueName: item.valueId }
+          return { ...item, valueName: item.valueId };
         case SupplierEnum.merchandiser:
-          return { ...item, valueName: item.valueId.toString() }
+          return { ...item, valueName: item.valueId.toString() };
         case SupplierEnum.district_id:
-          const findDistrict = listDistrict?.find(district => +district.id === +item.valueId)
-          return { ...item, valueName: findDistrict?.name }
+          const findDistrict = listDistrict?.find(
+            (district) => +district.id === +item.valueId,
+          );
+          return { ...item, valueName: findDistrict?.name };
         case SupplierEnum.scorecard:
-          return { ...item, valueName: item.valueId }
+          return { ...item, valueName: item.valueId };
         case SupplierEnum.collection_id:
-          const findCollection = collections.items.find(collection => +collection.id === +item.valueId)
-          return { ...item, valueName: findCollection?.name }
+          const findCollection = collections.items.find(
+            (collection) => +collection.id === +item.valueId,
+          );
+          return { ...item, valueName: findCollection?.name };
         default:
-          return item
+          return item;
       }
-    })
-    setParamsArray(newParams)
+    });
+    setParamsArray(newParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params, JSON.stringify(listDistrict), JSON.stringify(collections), setParamsArray])
+  }, [
+    params,
+    JSON.stringify(listDistrict),
+    JSON.stringify(collections),
+    setParamsArray,
+  ]);
 
   useEffect(() => {
     //Xóa tag
     if (paramsArray.length < (prevArray?.length || 0)) {
-      const newParams = transformParamsToObject(paramsArray)
-      setParams(newParams)
-      history.replace(`${UrlConfig.SUPPLIERS}?${generateQuery(newParams)}`)
+      const newParams = transformParamsToObject(paramsArray);
+      setParams(newParams);
+      history.replace(`${UrlConfig.SUPPLIERS}?${generateQuery(newParams)}`);
     }
-  }, [history, prevArray, paramsArray, setParams])
+  }, [history, prevArray, paramsArray, setParams]);
 
   return (
     <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form onFinish={onFinish} initialValues={params} form={formBasic} layout="inline">
-          <Item name="condition" style={{ flex: 1 }} shouldUpdate={(pre, cur) => pre.condition !== cur.condition}>
+        <Form
+          onFinish={onFinish}
+          initialValues={params}
+          form={formBasic}
+          layout="inline"
+        >
+          <Item
+            name="condition"
+            style={{ flex: 1 }}
+            shouldUpdate={(pre, cur) => pre.condition !== cur.condition}
+          >
             <Input
               prefix={<img src={search} alt="" />}
               placeholder="Tìm kiếm theo tên, mã, số điện thoại nhà cung cấp"
-              defaultValue={formAdvance.getFieldValue('condition')}
+              defaultValue={formAdvance.getFieldValue("condition")}
               allowClear
             />
           </Item>
@@ -232,7 +286,11 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProp
               loading={isSearchingCollections}
               metadata={collections.metadata}
               data={collections.items}
-              renderItem={(item) => <Option key={item.id} value={item.id.toString()}>{item.name}</Option>}
+              renderItem={(item) => (
+                <Option key={item.id} value={item.id.toString()}>
+                  {item.name}
+                </Option>
+              )}
               fetchData={onSearchCollections}
               placeholder="Chọn nhóm hàng"
             />
