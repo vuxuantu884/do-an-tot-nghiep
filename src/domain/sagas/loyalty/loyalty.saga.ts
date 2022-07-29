@@ -14,13 +14,26 @@ import {
   LoyaltyUsageType,
   LoyaltyPointsType,
   LoyaltyPointsAdjustmentType,
-  LoyaltyChangeValueAdjustmentType
+  LoyaltyChangeValueAdjustmentType,
 } from "domain/types/loyalty.type";
-import { loyaltyCardUploadApi, searchLoyaltyCardReleaseList } from "service/loyalty/release/loyalty-card-release.service";
-import { createLoyaltyRank, deleteLoyaltyRank, getLoyaltyRankDetail, getLoyaltyRankList, updateLoyaltyRank } from "service/loyalty/ranking/loyalty-ranking.service";
+import {
+  loyaltyCardUploadApi,
+  searchLoyaltyCardReleaseList,
+} from "service/loyalty/release/loyalty-card-release.service";
+import {
+  createLoyaltyRank,
+  deleteLoyaltyRank,
+  getLoyaltyRankDetail,
+  getLoyaltyRankList,
+  updateLoyaltyRank,
+} from "service/loyalty/ranking/loyalty-ranking.service";
 import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
 import { LoyaltyCardReleaseResponse } from "model/response/loyalty/release/loyalty-card-release.response";
-import { loyaltyCardAssignmentApi, loyaltyCardLockApi, searchLoyaltyCardList } from "service/loyalty/card/loyalty-card.service";
+import {
+  loyaltyCardAssignmentApi,
+  loyaltyCardLockApi,
+  searchLoyaltyCardList,
+} from "service/loyalty/card/loyalty-card.service";
 import { LoyaltyAccumulationProgramResponse } from "model/response/loyalty/loyalty-accumulation.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
@@ -49,11 +62,7 @@ function* uploadLoyaltyCardSaga(action: YodyAction) {
   const { file, name, callback } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      loyaltyCardUploadApi,
-      file,
-      name
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(loyaltyCardUploadApi, file, name);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -79,11 +88,7 @@ function* loyaltyCardAssignmentSaga(action: YodyAction) {
   const { query, id, callback } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      loyaltyCardAssignmentApi,
-      id,
-      query
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(loyaltyCardAssignmentApi, id, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -109,10 +114,7 @@ function* loyaltyCardLockSaga(action: YodyAction) {
   const { id, callback } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<PageResponse<any>> = yield call(
-      loyaltyCardLockApi,
-      id
-    );
+    let response: BaseResponse<PageResponse<any>> = yield call(loyaltyCardLockApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -137,10 +139,7 @@ function* loyaltyCardLockSaga(action: YodyAction) {
 function* getLoyaltyRankingList(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      getLoyaltyRankList,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(getLoyaltyRankList, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -160,10 +159,7 @@ function* getLoyaltyRankingList(action: YodyAction) {
 function* getLoyaltyRankingDetail(action: YodyAction) {
   const { id, callback } = action.payload;
   try {
-    const response: BaseResponse<LoyaltyRankResponse> = yield call(
-      getLoyaltyRankDetail,
-      id
-    );
+    const response: BaseResponse<LoyaltyRankResponse> = yield call(getLoyaltyRankDetail, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -183,10 +179,7 @@ function* getLoyaltyRankingDetail(action: YodyAction) {
 function* createLoyaltyRanking(action: YodyAction) {
   const { body, callback } = action.payload;
   try {
-    const response: BaseResponse<LoyaltyRankResponse> = yield call(
-      createLoyaltyRank,
-      body
-    );
+    const response: BaseResponse<LoyaltyRankResponse> = yield call(createLoyaltyRank, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -206,11 +199,7 @@ function* createLoyaltyRanking(action: YodyAction) {
 function* updateLoyaltyRanking(action: YodyAction) {
   const { id, body, callback } = action.payload;
   try {
-    const response: BaseResponse<LoyaltyRankResponse> = yield call(
-      updateLoyaltyRank,
-      id,
-      body
-    );
+    const response: BaseResponse<LoyaltyRankResponse> = yield call(updateLoyaltyRank, id, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -230,14 +219,11 @@ function* updateLoyaltyRanking(action: YodyAction) {
 function* deleteLoyaltyRankSaga(action: YodyAction) {
   const { id, callback } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      deleteLoyaltyRank,
-      id
-    );
+    const response: BaseResponse<any> = yield call(deleteLoyaltyRank, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        showSuccess('Xóa thành công')
-        callback()
+        showSuccess("Xóa thành công");
+        callback();
         break;
       case HttpStatus.UNAUTHORIZED:
         yield put(unauthorizedAction());
@@ -256,7 +242,7 @@ function* getLoyaltyCardReleaseList(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<LoyaltyCardReleaseResponse>> = yield call(
       searchLoyaltyCardReleaseList,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -279,7 +265,7 @@ function* getLoyaltyCardList(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<LoyaltyCardReleaseResponse>> = yield call(
       searchLoyaltyCardList,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -302,7 +288,7 @@ function* createLoyaltyAccumulationProgram(action: YodyAction) {
   try {
     const response: BaseResponse<LoyaltyAccumulationProgramResponse> = yield call(
       createLoyaltyProgram,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -326,7 +312,7 @@ function* updateLoyaltyAccumulationProgram(action: YodyAction) {
     const response: BaseResponse<LoyaltyAccumulationProgramResponse> = yield call(
       updateLoyaltyProgram,
       id,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -348,7 +334,10 @@ function* loyaltyDetailSaga(action: YodyAction) {
   const { id, setData } = action.payload;
   yield put(showLoading());
   try {
-    let response: BaseResponse<LoyaltyAccumulationProgramResponse> = yield call(getLoyaltyProgramDetail, id);
+    let response: BaseResponse<LoyaltyAccumulationProgramResponse> = yield call(
+      getLoyaltyProgramDetail,
+      id,
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -390,7 +379,12 @@ function* loyaltyRateSaga(action: YodyAction) {
 function* createLoyaltyRateSaga(action: YodyAction) {
   const { addingRate, usageRate, enableUsingPoint, setData } = action.payload;
   try {
-    let response: BaseResponse<LoyaltyRateResponse> = yield call(createLoyaltyRate, addingRate, usageRate, enableUsingPoint);
+    let response: BaseResponse<LoyaltyRateResponse> = yield call(
+      createLoyaltyRate,
+      addingRate,
+      usageRate,
+      enableUsingPoint,
+    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -450,10 +444,7 @@ function* createLoyaltyUsageSaga(action: YodyAction) {
 function* getLoyaltyProgramList(action: YodyAction) {
   const { query, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      searchLoyaltyProgramList,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(searchLoyaltyProgramList, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -473,10 +464,7 @@ function* getLoyaltyProgramList(action: YodyAction) {
 function* getloyaltyPoint(action: YodyAction) {
   const { customerId, setData } = action.payload;
   try {
-    const response: BaseResponse<LoyaltyPoint> = yield call(
-      getLoyaltyPoint,
-      customerId
-    );
+    const response: BaseResponse<LoyaltyPoint> = yield call(getLoyaltyPoint, customerId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -485,7 +473,7 @@ function* getloyaltyPoint(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
+        response.errors.forEach((e: any) => showError(e));
         setData(false);
         break;
     }
@@ -501,7 +489,7 @@ function* addLoyaltyPoint(action: YodyAction) {
     const response: BaseResponse<LoyaltyPoint> = yield call(
       addLoyaltyPointService,
       customerId,
-      params
+      params,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -511,8 +499,8 @@ function* addLoyaltyPoint(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
-        onError()
+        response.errors.forEach((e: any) => showError(e));
+        onError();
         break;
     }
   } catch (error) {
@@ -526,7 +514,7 @@ function* subtractLoyaltyPoint(action: YodyAction) {
     const response: BaseResponse<LoyaltyPoint> = yield call(
       subtractLoyaltyPointService,
       customerId,
-      params
+      params,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -536,8 +524,8 @@ function* subtractLoyaltyPoint(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
-        onError()
+        response.errors.forEach((e: any) => showError(e));
+        onError();
         break;
     }
   } catch (error) {
@@ -560,8 +548,8 @@ function* getLoyaltyAdjustMoneySaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
-        onError()
+        response.errors.forEach((e: any) => showError(e));
+        onError();
         break;
     }
   } catch (error) {
@@ -572,10 +560,7 @@ function* getLoyaltyAdjustMoneySaga(action: YodyAction) {
 function* getPointAdjustmentListSaga(action: YodyAction) {
   const { query, callback } = action.payload;
   try {
-    const response: BaseResponse<LoyaltyPoint> = yield call(
-      getPointAdjustmentListService,
-      query,
-    );
+    const response: BaseResponse<LoyaltyPoint> = yield call(getPointAdjustmentListService, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -584,7 +569,7 @@ function* getPointAdjustmentListSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
+        response.errors.forEach((e: any) => showError(e));
         callback(false);
         break;
     }
@@ -609,7 +594,7 @@ function* getPointAdjustmentDetailSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
+        response.errors.forEach((e: any) => showError(e));
         callback(false);
         break;
     }
@@ -623,10 +608,7 @@ function* createCustomerPointAdjustmentSaga(action: YodyAction) {
   const { params, successCallback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<any> = yield call(
-      createCustomerPointAdjustmentService,
-      params
-    );
+    const response: BaseResponse<any> = yield call(createCustomerPointAdjustmentService, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -636,7 +618,7 @@ function* createCustomerPointAdjustmentSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
+        response.errors.forEach((e: any) => showError(e));
         break;
     }
   } catch (error) {
@@ -650,10 +632,7 @@ function* getImportCodeCustomerAdjustmentSaga(action: YodyAction) {
   const { params, successCallback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<any> = yield call(
-      getImportCodeCustomerAdjustmentService,
-      params
-    );
+    const response: BaseResponse<any> = yield call(getImportCodeCustomerAdjustmentService, params);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -663,7 +642,7 @@ function* getImportCodeCustomerAdjustmentSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
+        response.errors.forEach((e: any) => showError(e));
         break;
     }
   } catch (error) {
@@ -676,10 +655,7 @@ function* getImportCodeCustomerAdjustmentSaga(action: YodyAction) {
 function* getInfoAdjustmentByJobSaga(action: YodyAction) {
   const { code, callback } = action.payload;
   try {
-    const response: BaseResponse<LoyaltyPoint> = yield call(
-      getInfoAdjustmentByJobService,
-      code,
-    );
+    const response: BaseResponse<LoyaltyPoint> = yield call(getInfoAdjustmentByJobService, code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -688,7 +664,7 @@ function* getInfoAdjustmentByJobSaga(action: YodyAction) {
         yield put(unauthorizedAction());
         break;
       default:
-        response.errors.forEach((e:any) => showError(e));
+        response.errors.forEach((e: any) => showError(e));
         callback(false);
         break;
     }
@@ -698,7 +674,6 @@ function* getInfoAdjustmentByJobSaga(action: YodyAction) {
   }
 }
 
-
 export function* loyaltySaga() {
   yield takeLatest(LoyaltyCardReleaseType.UPLOAD, uploadLoyaltyCardSaga);
   yield takeLatest(LoyaltyRankType.SEARCH_LOYALTY_RANK_REQUEST, getLoyaltyRankingList);
@@ -706,12 +681,21 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyRankType.UPDATE_LOYALTY_RANK_REQUEST, updateLoyaltyRanking);
   yield takeLatest(LoyaltyRankType.CREATE_LOYALTY_RANK_REQUEST, createLoyaltyRanking);
   yield takeLatest(LoyaltyRankType.DELELTE_LOYALTY_RANK_REQUEST, deleteLoyaltyRankSaga);
-  yield takeLatest(LoyaltyCardReleaseType.SEARCH_LOYALTY_CARD_RELEASE_REQUEST, getLoyaltyCardReleaseList);
+  yield takeLatest(
+    LoyaltyCardReleaseType.SEARCH_LOYALTY_CARD_RELEASE_REQUEST,
+    getLoyaltyCardReleaseList,
+  );
   yield takeLatest(LoyaltyCardType.SEARCH_LOYALTY_CARD_REQUEST, getLoyaltyCardList);
   yield takeLatest(LoyaltyCardType.ASSIGN_CUSTOMER_REQUEST, loyaltyCardAssignmentSaga);
   yield takeLatest(LoyaltyCardType.LOCK_CARD_REQUEST, loyaltyCardLockSaga);
-  yield takeLatest(LoyaltyProgramType.CREATE_LOYALTY_ACCUMULATION_PROGRAM_REQUEST, createLoyaltyAccumulationProgram);
-  yield takeLatest(LoyaltyProgramType.UPDATE_LOYALTY_ACCUMULATION_PROGRAM_REQUEST, updateLoyaltyAccumulationProgram);
+  yield takeLatest(
+    LoyaltyProgramType.CREATE_LOYALTY_ACCUMULATION_PROGRAM_REQUEST,
+    createLoyaltyAccumulationProgram,
+  );
+  yield takeLatest(
+    LoyaltyProgramType.UPDATE_LOYALTY_ACCUMULATION_PROGRAM_REQUEST,
+    updateLoyaltyAccumulationProgram,
+  );
   yield takeLatest(LoyaltyProgramType.GET_LOYALTY_ACCUMULATION_PROGRAM_DETAIL, loyaltyDetailSaga);
   yield takeLatest(LoyaltyRateType.GET_LOYALTY_RATE_REQUEST, loyaltyRateSaga);
   yield takeLatest(LoyaltyRateType.CREATE_LOYALTY_RATE_REQUEST, createLoyaltyRateSaga);
@@ -722,9 +706,24 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyPointsType.ADD_LOYALTY_POINT, addLoyaltyPoint);
   yield takeLatest(LoyaltyPointsType.SUBTRACT_LOYALTY_POINT, subtractLoyaltyPoint);
   yield takeLatest(LoyaltyPointsType.GET_LOYALTY_ADJUST_MONEY, getLoyaltyAdjustMoneySaga);
-  yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST, getPointAdjustmentListSaga);
-  yield takeLatest(LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL, getPointAdjustmentDetailSaga);
-  yield takeLatest(LoyaltyPointsAdjustmentType.CREATE_CUSTOMER_POINT_ADJUSTMENT, createCustomerPointAdjustmentSaga);
-  yield takeLatest(LoyaltyChangeValueAdjustmentType.GET_LOYALTY_CODE_IMPORT_ADJUSTMENT, getImportCodeCustomerAdjustmentSaga);
-  yield takeLatest(LoyaltyChangeValueAdjustmentType.GET_LOYALTY_VALUE_CHANGE_ADJUSTMENT, getInfoAdjustmentByJobSaga);
+  yield takeLatest(
+    LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_LIST,
+    getPointAdjustmentListSaga,
+  );
+  yield takeLatest(
+    LoyaltyPointsAdjustmentType.GET_LOYALTY_ADJUST_POINT_DETAIL,
+    getPointAdjustmentDetailSaga,
+  );
+  yield takeLatest(
+    LoyaltyPointsAdjustmentType.CREATE_CUSTOMER_POINT_ADJUSTMENT,
+    createCustomerPointAdjustmentSaga,
+  );
+  yield takeLatest(
+    LoyaltyChangeValueAdjustmentType.GET_LOYALTY_CODE_IMPORT_ADJUSTMENT,
+    getImportCodeCustomerAdjustmentSaga,
+  );
+  yield takeLatest(
+    LoyaltyChangeValueAdjustmentType.GET_LOYALTY_VALUE_CHANGE_ADJUSTMENT,
+    getInfoAdjustmentByJobSaga,
+  );
 }

@@ -6,8 +6,7 @@ import { useEffect, Fragment } from "react";
 import { useSelector } from "react-redux";
 import { RegUtil } from "utils/RegUtils";
 import { StockInOutField, StockInOutTypeMapping } from "../constant";
-import "../index.scss"
-
+import "../index.scss";
 
 interface InfoFormProps {
   title: string;
@@ -17,35 +16,38 @@ interface InfoFormProps {
 }
 
 const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
-  const { title, formMain, isRequireNote, stockInOutType } = props
-  const userAccount = useSelector((state: RootReducerType) => state.userReducer.account)
+  const { title, formMain, isRequireNote, stockInOutType } = props;
+  const userAccount = useSelector((state: RootReducerType) => state.userReducer.account);
 
   useEffect(() => {
     if (userAccount && !formMain.getFieldValue([StockInOutField.account])) {
-      formMain.setFieldsValue({ [StockInOutField.account_name]: userAccount.full_name })
-      formMain.setFieldsValue({ [StockInOutField.account_code]: userAccount.code })
-      formMain.setFieldsValue({ [StockInOutField.account]: `${userAccount.code} - ${userAccount.full_name}` })
+      formMain.setFieldsValue({
+        [StockInOutField.account_name]: userAccount.full_name,
+      });
+      formMain.setFieldsValue({
+        [StockInOutField.account_code]: userAccount.code,
+      });
+      formMain.setFieldsValue({
+        [StockInOutField.account]: `${userAccount.code} - ${userAccount.full_name}`,
+      });
     }
-  }, [formMain, userAccount])
+  }, [formMain, userAccount]);
 
   const validatePhone = (_: any, value: any, callback: any): void => {
     if (value) {
       if (!RegUtil.PHONE.test(value)) {
         callback(`Số điện thoại không đúng định dạng`);
       } else {
-        callback()
+        callback();
       }
     } else {
-      callback()
+      callback();
     }
-  }
+  };
 
   return (
     <>
-      <Card
-        title={title}
-        bordered={false}
-      >
+      <Card title={title} bordered={false}>
         <div>
           <Fragment>
             <Form.Item name={StockInOutField.account_name} noStyle hidden>
@@ -73,9 +75,13 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
                 style={{ width: "100%" }}
                 isGetName
                 onSelect={(value: string) => {
-                  const account = JSON.parse(value)
-                  formMain.setFieldsValue({ [StockInOutField.account_name]: account.name })
-                  formMain.setFieldsValue({ [StockInOutField.account_code]: account.code })
+                  const account = JSON.parse(value);
+                  formMain.setFieldsValue({
+                    [StockInOutField.account_name]: account.name,
+                  });
+                  formMain.setFieldsValue({
+                    [StockInOutField.account_code]: account.code,
+                  });
                 }}
               />
             </Form.Item>
@@ -85,7 +91,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
               rules={[
                 {
                   max: 225,
-                  message: "Không được nhập quá 225 ký tự"
+                  message: "Không được nhập quá 225 ký tự",
                 },
               ]}
               label="Đối tác"
@@ -95,9 +101,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
             <Form.Item
               className="ie-form-label"
               name={[StockInOutField.partner_mobile]}
-              rules={[
-                { validator: validatePhone }
-              ]}
+              rules={[{ validator: validatePhone }]}
               label="Số điện thoại"
             >
               <Input maxLength={11} placeholder="Nhập số điện thoại" />
@@ -113,7 +117,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
               rules={[
                 {
                   max: 500,
-                  message: "Không được nhập quá 500 ký tự"
+                  message: "Không được nhập quá 500 ký tự",
                 },
               ]}
             >
@@ -122,10 +126,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
           </Fragment>
         </div>
       </Card>
-      <Card
-        className="po-form margin-top-20"
-        title="THÔNG TIN BỔ SUNG"
-      >
+      <Card className="po-form margin-top-20" title="THÔNG TIN BỔ SUNG">
         <Fragment>
           <Form.Item
             className="ie-form-label"
@@ -142,7 +143,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
               },
               {
                 max: 255,
-                message: "Không được nhập quá 255 ký tự"
+                message: "Không được nhập quá 255 ký tự",
               },
             ]}
           >
@@ -160,7 +161,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
           rules={[
             {
               max: 255,
-              message: "Không được nhập quá 255 ký tự"
+              message: "Không được nhập quá 255 ký tự",
             },
           ]}
         >
@@ -168,7 +169,7 @@ const InfoForm: React.FC<InfoFormProps> = (props: InfoFormProps) => {
         </Form.Item>
       </Card>
     </>
-  )
-}
+  );
+};
 
-export default InfoForm
+export default InfoForm;

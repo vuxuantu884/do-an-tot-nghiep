@@ -2,10 +2,7 @@ import { Button, Form, Table } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import { POField } from "model/purchase-order/po-field";
-import {
-  POProcumentField,
-  PurchaseProcument,
-} from "model/purchase-order/purchase-procument";
+import { POProcumentField, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { formatCurrency } from "utils/AppUtils";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -15,27 +12,21 @@ type TabConfirmedProps = {
   confirmInventory: (item: PurchaseProcument, isEdit: boolean, procumentCode: string) => void;
 };
 
-const TabConfirmed: React.FC<TabConfirmedProps> = (
-  props: TabConfirmedProps
-) => {
+const TabConfirmed: React.FC<TabConfirmedProps> = (props: TabConfirmedProps) => {
   const { confirmInventory } = props;
   return (
     <Form.Item
       noStyle
-      shouldUpdate={(prev, current) =>
-        prev[POField.procurements] !== current[POField.procurements]
-      }
+      shouldUpdate={(prev, current) => prev[POField.procurements] !== current[POField.procurements]}
     >
       {({ getFieldValue }) => {
-        let procurements: Array<PurchaseProcument> = getFieldValue(
-          POField.procurements
-        );
+        let procurements: Array<PurchaseProcument> = getFieldValue(POField.procurements);
         let items =
           procurements !== undefined && procurements !== null
             ? procurements.filter(
                 (item) =>
                   item.status === ProcumentStatus.NOT_RECEIVED ||
-                  item.status === ProcumentStatus.CANCELLED
+                  item.status === ProcumentStatus.CANCELLED,
               )
             : [];
         return (
@@ -44,13 +35,11 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
               emptyText: "Không có đơn duyệt",
             }}
             className="product-table"
-            rowKey={(record: PurchaseProcument) =>
-              record.id ? record.id : new Date().getTime()
-            }
+            rowKey={(record: PurchaseProcument) => (record.id ? record.id : new Date().getTime())}
             rowClassName="product-table-row"
             dataSource={items}
             tableLayout="fixed"
-            scroll={{y: 250, x: 845}}
+            scroll={{ y: 250, x: 845 }}
             pagination={false}
             columns={[
               {
@@ -66,20 +55,26 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                   </div>
                 ),
                 dataIndex: "code",
-                render: (value, item, index) => (
-                  !item?.is_cancelled ? (<Button
-                    type="link"
-                    onClick={() => {
-                      confirmInventory(item, true, item?.code);
-                    }}
-                  >
-                    <div style={{color: "#5D5D8A", textDecoration: "underline"}}>
-                      {value}
-                    </div>
-                  </Button>) : (
+                render: (value, item, index) =>
+                  !item?.is_cancelled ? (
+                    <Button
+                      type="link"
+                      onClick={() => {
+                        confirmInventory(item, true, item?.code);
+                      }}
+                    >
+                      <div
+                        style={{
+                          color: "#5D5D8A",
+                          textDecoration: "underline",
+                        }}
+                      >
+                        {value}
+                      </div>
+                    </Button>
+                  ) : (
                     <div style={{ cursor: "no-drop" }}>{value}</div>
-                  )
-                ),
+                  ),
               },
               {
                 title: "Kho nhận hàng",
@@ -105,14 +100,14 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                 title: "SL Nhận hàng được duyệt",
                 dataIndex: POProcumentField.procurement_items,
                 render: (value, item, index: number) =>
-                  formatCurrency(POUtils.totalQuantityProcument(value),".")
+                  formatCurrency(POUtils.totalQuantityProcument(value), "."),
               },
               {
                 title: "",
                 width: 200,
                 dataIndex: POProcumentField.status,
                 render: (value, item, index: number) => (
-                  <div style={{display: "flex", justifyContent: "flex-end"}}>
+                  <div style={{ display: "flex", justifyContent: "flex-end" }}>
                     {item.is_cancelled ? (
                       <Button disabled>Đã huỷ</Button>
                     ) : (
@@ -122,8 +117,8 @@ const TabConfirmed: React.FC<TabConfirmedProps> = (
                         <Button
                           onClick={() => {
                             console.log(item);
-                            
-                            confirmInventory(item, false, item?.code)
+
+                            confirmInventory(item, false, item?.code);
                           }}
                           type="primary"
                         >

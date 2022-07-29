@@ -36,8 +36,7 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
   const timeApply = [
     {
       name: "Từ",
-      value:
-        data?.starts_date && moment(data.starts_date).format(DATE_FORMAT.DDMMYY_HHmm),
+      value: data?.starts_date && moment(data.starts_date).format(DATE_FORMAT.DDMMYY_HHmm),
       key: "1",
     },
     {
@@ -110,15 +109,16 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       <Card className="card" title="Cửa hàng áp dụng">
         <Row>
           <Col span={24}>
-            {Array.isArray(data.prerequisite_store_ids) && data.prerequisite_store_ids.length > 0 ? (
+            {Array.isArray(data.prerequisite_store_ids) &&
+            data.prerequisite_store_ids.length > 0 ? (
               <>
                 <p>{data?.prerequisite_store_ids.length} cửa hàng </p>
                 <ul
                   style={{
                     padding: "0 16px",
-                    maxHeight: '300px',
-                    overflowY: 'auto',
-                    width: '100%'
+                    maxHeight: "300px",
+                    overflowY: "auto",
+                    width: "100%",
                   }}
                 >
                   {listStore &&
@@ -137,16 +137,16 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       <Card className="card" title="Kênh bán áp dụng">
         <Row>
           <Col span={24}>
-            {Array.isArray(data?.prerequisite_sales_channel_names) && data.prerequisite_sales_channel_names.length > 0 ? (
+            {Array.isArray(data?.prerequisite_sales_channel_names) &&
+            data.prerequisite_sales_channel_names.length > 0 ? (
               <ul
                 style={{
                   padding: "0 16px",
                 }}
               >
-                {
-                  data?.prerequisite_sales_channel_names.map((name) => (
-                    <li key={name}>{name}</li>
-                  ))}
+                {data?.prerequisite_sales_channel_names.map((name) => (
+                  <li key={name}>{name}</li>
+                ))}
               </ul>
             ) : (
               "Áp dụng toàn bộ"
@@ -158,7 +158,8 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       <Card className="card" title="Nguồn đơn hàng áp dụng">
         <Row>
           <Col span={24}>
-            {Array.isArray(data?.prerequisite_order_source_ids) && data?.prerequisite_order_source_ids.length > 0 ? (
+            {Array.isArray(data?.prerequisite_order_source_ids) &&
+            data?.prerequisite_order_source_ids.length > 0 ? (
               <ul
                 style={{
                   padding: "0 16px",
@@ -177,6 +178,6 @@ export default function GeneralConditionDetail(props: Props): ReactElement {
       </Card>
       {/* khách hàng áp dụng */}
       <CustomerConditionDetail {...data} />
-    </Col >
+    </Col>
   );
 }

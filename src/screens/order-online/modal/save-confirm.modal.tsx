@@ -14,7 +14,7 @@ type SaveAndConfirmOrderModalProps = {
 };
 
 const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
-  props: SaveAndConfirmOrderModalProps
+  props: SaveAndConfirmOrderModalProps,
 ) => {
   const {
     visible,
@@ -59,7 +59,8 @@ const SaveAndConfirmOrder: React.FC<SaveAndConfirmOrderModalProps> = (
         </div>,
       ]}
       width={600}
-      className="saleorder-modal-config"></Modal>
+      className="saleorder-modal-config"
+    ></Modal>
   );
 };
 

@@ -1,10 +1,10 @@
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {DeleteOutlined, DownloadOutlined, VerticalAlignBottomOutlined} from "@ant-design/icons";
+import { DeleteOutlined, DownloadOutlined, VerticalAlignBottomOutlined } from "@ant-design/icons";
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import {Button, Card, Col, Dropdown, Row, Space, Table,Menu} from "antd";
-import {ICustomTableColumType} from "component/table/CustomTable";
-import {GoodsReceiptsFileModel} from "model/pack/pack.model";
-import {GoodsReceiptsResponse} from "model/response/pack/pack.response";
+import { Button, Card, Col, Dropdown, Row, Space, Table, Menu } from "antd";
+import { ICustomTableColumType } from "component/table/CustomTable";
+import { GoodsReceiptsFileModel } from "model/pack/pack.model";
+import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import moment from "moment";
 import React from "react";
 import threeDot from "assets/icon/three-dot.svg";
@@ -12,13 +12,13 @@ import threeDot from "assets/icon/three-dot.svg";
 type PackDetailInfoProps = {
   packDetail: GoodsReceiptsResponse | any;
   packFile: GoodsReceiptsFileModel[] | any;
-  handleDownLoad:()=>void;
-  handleDeleteFile:()=>void;
+  handleDownLoad: () => void;
+  handleDeleteFile: () => void;
 };
 
 const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProps) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const {packDetail, packFile,handleDownLoad,handleDeleteFile} = props;
+  const { packDetail, packFile, handleDownLoad, handleDeleteFile } = props;
 
   const actionColumn = (handleDownLoad: any, handleDeleteFile: any) => {
     const _actionColumn = {
@@ -55,7 +55,7 @@ const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProp
                   paddingLeft: 24,
                   background: "transparent",
                   border: "none",
-                  color:"#E24343"
+                  color: "#E24343",
                 }}
                 onClick={handleDeleteFile}
               >
@@ -134,7 +134,7 @@ const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProp
         );
       },
     },
-    actionColumn(handleDownLoad,handleDeleteFile)
+    actionColumn(handleDownLoad, handleDeleteFile),
   ];
   return (
     <Card title="Thông tin biên bản bàn giao" className="pack-card">
@@ -149,9 +149,7 @@ const PackDetailInfo: React.FC<PackDetailInfoProps> = (props: PackDetailInfoProp
         <Col md={6}>
           <Space>
             <span className="t1-color">Ngày:</span>
-            <span className="t1">
-              {moment(packDetail?.updated_date).format("DD/MM/YYYY")}
-            </span>
+            <span className="t1">{moment(packDetail?.updated_date).format("DD/MM/YYYY")}</span>
             <span className="t1">{packDetail?.orders?.length} đơn</span>
           </Space>
         </Col>

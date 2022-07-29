@@ -6,11 +6,11 @@ export const StyledConfig = styled.div`
     display: flex;
   }
 
-  .ecommerce-user-detail{
+  .ecommerce-user-detail {
     border: 1px solid ${borderColor};
     padding: 7px 15px;
     margin-bottom: 20px;
-    .ant-col{
+    .ant-col {
       margin: 5px 0;
     }
   }
@@ -26,8 +26,7 @@ export const StyledConfig = styled.div`
     flex-direction: column;
     margin: 0 0 14px;
   }
-  label{
-    
+  label {
     font-weight: 500;
   }
   .description-name {
@@ -42,38 +41,38 @@ export const StyledConfig = styled.div`
     font-size: 13px;
     color: #666666;
     position: relative;
-    padding: 0 20px ;
-    &> li {
-      span{
-        padding: 0 10px
+    padding: 0 20px;
+    & > li {
+      span {
+        padding: 0 10px;
       }
     }
-    &> li::marker{
+    & > li::marker {
       content: "•";
       font-size: 12px;
       color: #666666;
     }
   }
-  .config-setting-footer{
+  .config-setting-footer {
     display: flex;
     justify-content: space-between;
     margin-top: 10px;
-    
+
     .delete-shop-btn {
       color: red;
       border: 1px solid rgb(226, 67, 67);
-      background: #FFFFFF;
+      background: #ffffff;
     }
   }
 
-  .ant-form-item-label{
+  .ant-form-item-label {
     display: -webkit-inline-box;
   }
 
-  button{
+  button {
     display: flex;
     align-items: center;
-    img{
+    img {
       margin-right: 11px;
     }
   }

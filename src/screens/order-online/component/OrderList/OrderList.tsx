@@ -205,14 +205,14 @@ function OrderList(props: PropTypes) {
             () => {
               setTableLoading(false);
               setIsFilter(false);
-            }
-          )
+            },
+          ),
         );
         resolve();
       });
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [dispatch, setSearchResult]
+    [dispatch, setSearchResult],
   );
 
   const handleFetchData = useCallback(
@@ -222,7 +222,7 @@ function OrderList(props: PropTypes) {
         setIsFilter(false);
       });
     },
-    [fetchData]
+    [fetchData],
   );
 
   const [columns, setColumns] = useState<Array<ICustomTableColumType<OrderModel>>>([]);
@@ -275,7 +275,7 @@ function OrderList(props: PropTypes) {
       ACTION_ID.printStockExport,
       allowOrderDelete,
       selectedRows.length,
-    ]
+    ],
   );
 
   const onSelectedChange = useCallback(
@@ -324,7 +324,7 @@ function OrderList(props: PropTypes) {
       setSelectedRowKeys(selectedRowKeysCopy);
       setSelectedRowCodes(selectedRowCodesCopy);
     },
-    [selectedRowCodes, selectedRowKeys]
+    [selectedRowCodes, selectedRowKeys],
   );
 
   const onClearSelected = () => {
@@ -341,7 +341,7 @@ function OrderList(props: PropTypes) {
       history.push(`${location.pathname}?${queryParam}`);
       goToTopPage();
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
   const onFilter = useCallback(
     (values) => {
@@ -358,7 +358,7 @@ function OrderList(props: PropTypes) {
       setSelectedRowCodes([]);
       onClearSelected();
     },
-    [handleFetchData, history, location.pathname, params]
+    [handleFetchData, history, location.pathname, params],
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
@@ -377,7 +377,7 @@ function OrderList(props: PropTypes) {
       //history.push(`${location.pathname}?${queryParam}`);
       window.open(pathname, "_blank");
     },
-    [orderType, params]
+    [orderType, params],
   );
 
   const onMenuClick = useCallback(
@@ -395,7 +395,7 @@ function OrderList(props: PropTypes) {
           selectedRows.forEach((row) =>
             row.fulfillments?.forEach((single) => {
               ids.push(single.id);
-            })
+            }),
           );
           dispatch(showLoading());
           changeOrderStatusToPickedService(ids)
@@ -422,7 +422,7 @@ function OrderList(props: PropTypes) {
           selectedRows.forEach((row) =>
             row.fulfillments?.forEach((single) => {
               ids.push(single.id);
-            })
+            }),
           );
           window.open(printPreviewUrlExport);
           // không chuyển trạng thái nữa
@@ -482,7 +482,7 @@ function OrderList(props: PropTypes) {
             break;
           }
           const isOrderShipping = selectedRows.filter((p) =>
-            p.fulfillments?.some((p1) => p1.status === FulFillmentStatus.SHIPPING)
+            p.fulfillments?.some((p1) => p1.status === FulFillmentStatus.SHIPPING),
           );
 
           // console.log("isOrderShipping",isOrderShipping)
@@ -498,7 +498,8 @@ function OrderList(props: PropTypes) {
                     overflow: "hidden",
                     whiteSpace: "nowrap",
                     paddingTop: "7px",
-                  }}>
+                  }}
+                >
                   ({isOrderShipping.length}) đơn đang chuyển:
                   <div style={{ marginLeft: 10, fontWeight: 500 }}>
                     {isOrderShipping.map((value) => (
@@ -579,7 +580,7 @@ function OrderList(props: PropTypes) {
       location.pathname,
       selectedRows,
       selectedRowKeys,
-    ]
+    ],
   );
 
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
@@ -590,7 +591,7 @@ function OrderList(props: PropTypes) {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setDeliveryServices(response);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -646,7 +647,7 @@ function OrderList(props: PropTypes) {
       selectedRowCodes,
       orderType,
       listExportFile,
-    ]
+    ],
   );
   const checkExportFile = useCallback(() => {
     let getFilePromises = listExportFile.map((code) => {
@@ -656,7 +657,7 @@ function OrderList(props: PropTypes) {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           setExportProgress(
-            Math.round((response.data.num_of_record / response.data.total) * 10000) / 100
+            Math.round((response.data.num_of_record / response.data.total) * 10000) / 100,
           );
           if (response.data && response.data.status === "FINISH") {
             setStatusExport(3);
@@ -824,7 +825,7 @@ function OrderList(props: PropTypes) {
       let dataResult = { ...data };
       dataResult.items[index].sub_status_code = toStatus;
       dataResult.items[index].sub_status = listOrderProcessingStatus.find(
-        (single) => single.code === toStatus
+        (single) => single.code === toStatus,
       )?.sub_status;
       setData(dataResult);
     }
@@ -921,7 +922,7 @@ function OrderList(props: PropTypes) {
         if (response) {
           setShippers(response);
         }
-      })
+      }),
     );
     dispatch(getListAllSourceRequest(setListSource));
     dispatch(StoreGetListAction(setStore));
@@ -933,7 +934,7 @@ function OrderList(props: PropTypes) {
           id: 0,
         });
         setListPaymentMethod(data);
-      })
+      }),
     );
     const params = {
       sort_type: "asc",
@@ -943,7 +944,7 @@ function OrderList(props: PropTypes) {
       actionFetchListOrderProcessingStatus(params, (data: OrderProcessingStatusResponseModel) => {
         setListOrderProcessingStatus(data.items);
         setInitListOrderProcessingStatus(data.items);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -992,7 +993,8 @@ function OrderList(props: PropTypes) {
                     onClick={() => {
                       setShowExportModal(true);
                     }}
-                    disabled={!isPassed}>
+                    disabled={!isPassed}
+                  >
                     Xuất file
                   </Button>
                 )}
@@ -1014,13 +1016,15 @@ function OrderList(props: PropTypes) {
                       href={process.env.REACT_APP_BASE_POS || ""}
                       target="_blank"
                       rel="noreferrer"
-                      className="buttonLink">
+                      className="buttonLink"
+                    >
                       <Button
                         type="primary"
                         className="ant-btn-primary"
                         size={"large"}
                         icon={<GoPlus style={{ marginRight: "0.2em" }} />}
-                        disabled={!isPassed}>
+                        disabled={!isPassed}
+                      >
                         Thêm mới đơn hàng
                       </Button>
                     </a>
@@ -1029,7 +1033,8 @@ function OrderList(props: PropTypes) {
               )}
             </Space>
           </Row>
-        }>
+        }
+      >
         <Card>
           <OrdersFilter
             onMenuClick={onMenuClick}

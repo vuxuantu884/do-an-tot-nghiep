@@ -1,5 +1,9 @@
 import { Table, TablePaginationConfig, Tabs } from "antd";
-import { PAGE_SIZE, PRODUCT_LIST_TAB_KEY, PRODUCT_LIST_TAB_NAME } from "config/dashboard/product-list-config";
+import {
+  PAGE_SIZE,
+  PRODUCT_LIST_TAB_KEY,
+  PRODUCT_LIST_TAB_NAME,
+} from "config/dashboard/product-list-config";
 import { DashboardProductList } from "model/dashboard/dashboard.model";
 import React, { ReactElement, useContext, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -27,26 +31,50 @@ function ProductListTabs(): ReactElement {
 
   const onChangePage = (page: number) => {
     setCurrentPage(() => page);
-  }
+  };
 
   const TABS = [
     {
       key: PRODUCT_LIST_TAB_KEY.TotalSales,
       name: PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.TotalSales],
-      Component: <ProductListTable tabKey={PRODUCT_LIST_TAB_KEY.TotalSales} tabName={PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.TotalSales]} 
-        dataSource={dataProductList} loading={isFetching} currentPage={currentPage} changePage={onChangePage} />,
+      Component: (
+        <ProductListTable
+          tabKey={PRODUCT_LIST_TAB_KEY.TotalSales}
+          tabName={PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.TotalSales]}
+          dataSource={dataProductList}
+          loading={isFetching}
+          currentPage={currentPage}
+          changePage={onChangePage}
+        />
+      ),
     },
     {
       key: PRODUCT_LIST_TAB_KEY.NetQuantity,
       name: PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.NetQuantity],
-      Component: <ProductListTable tabKey={PRODUCT_LIST_TAB_KEY.NetQuantity} tabName={PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.NetQuantity]} 
-      dataSource={dataProductList} loading={isFetching} currentPage={currentPage} changePage={onChangePage} />,
+      Component: (
+        <ProductListTable
+          tabKey={PRODUCT_LIST_TAB_KEY.NetQuantity}
+          tabName={PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.NetQuantity]}
+          dataSource={dataProductList}
+          loading={isFetching}
+          currentPage={currentPage}
+          changePage={onChangePage}
+        />
+      ),
     },
     {
       key: PRODUCT_LIST_TAB_KEY.OnHand,
       name: PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.OnHand],
-      Component: <ProductListTable tabKey={PRODUCT_LIST_TAB_KEY.OnHand} tabName={PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.OnHand]} 
-        dataSource={dataProductList} loading={isFetching} currentPage={currentPage}  changePage={onChangePage} />,
+      Component: (
+        <ProductListTable
+          tabKey={PRODUCT_LIST_TAB_KEY.OnHand}
+          tabName={PRODUCT_LIST_TAB_NAME[PRODUCT_LIST_TAB_KEY.OnHand]}
+          dataSource={dataProductList}
+          loading={isFetching}
+          currentPage={currentPage}
+          changePage={onChangePage}
+        />
+      ),
     },
   ];
 
@@ -70,11 +98,20 @@ function ProductListTable(props: ProductListTableProps) {
   return (
     <Table
       loading={loading}
-      pagination={{ defaultPageSize: PAGE_SIZE, showSizeChanger: false, current: currentPage }}
+      pagination={{
+        defaultPageSize: PAGE_SIZE,
+        showSizeChanger: false,
+        current: currentPage,
+      }}
       onChange={async (pagination: TablePaginationConfig) => {
         if (pagination?.current && pagination?.current !== currentPage) {
           changePage(pagination.current);
-          const productListMapper = await mapOnHandByVariantSkusIntoProducts(dataSource, dispatch, pagination.current, deparmentIdList);
+          const productListMapper = await mapOnHandByVariantSkusIntoProducts(
+            dataSource,
+            dispatch,
+            pagination.current,
+            deparmentIdList,
+          );
           setDataProductList(() => productListMapper);
         }
       }}
@@ -82,7 +119,7 @@ function ProductListTable(props: ProductListTableProps) {
         {
           title: "Sản phẩm",
           dataIndex: "label",
-          width: '60%',
+          width: "60%",
           render: (text: string) => {
             return (
               <div className="name-row">
@@ -98,7 +135,11 @@ function ProductListTable(props: ProductListTableProps) {
           render: (value: number) => {
             return (
               <div className="value-row">
-                {tabKey === PRODUCT_LIST_TAB_KEY.TotalSales ? <div>{formatCurrency(value, ".") + "đ"}</div> : <div>{typeof value === "number" ? formatCurrency(value, ".") : value}</div>}
+                {tabKey === PRODUCT_LIST_TAB_KEY.TotalSales ? (
+                  <div>{formatCurrency(value, ".") + "đ"}</div>
+                ) : (
+                  <div>{typeof value === "number" ? formatCurrency(value, ".") : value}</div>
+                )}
               </div>
             );
           },

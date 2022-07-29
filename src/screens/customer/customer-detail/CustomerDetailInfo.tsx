@@ -1,16 +1,15 @@
-import React, {useCallback} from "react";
+import React, { useCallback } from "react";
 import { Link, useParams } from "react-router-dom";
 import { Card, Tag } from "antd";
 
 import useAuthorization from "hook/useAuthorization";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import {RegionResponse} from "model/content/country.model";
+import { RegionResponse } from "model/content/country.model";
 import { CustomerListPermission } from "config/permissions/customer.permission";
 
 import arrowLeft from "assets/icon/arrow-left.svg";
 import arrowUp from "assets/icon/arrow-up.svg";
-
 
 const genreEnum: any = {
   male: "Nam",
@@ -39,9 +38,7 @@ type detailMapping = {
   isWebsite?: boolean;
 };
 
-const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
-  props: CustomerDetailInfoProps
-) => {
+const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (props: CustomerDetailInfoProps) => {
   const { customer, loyaltyCard, regionList } = props;
 
   const [allowUpdateCustomer] = useAuthorization({
@@ -52,10 +49,15 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
   const params = useParams<CustomerParams>();
   const [isShowMore, setIsShowMore] = React.useState<boolean>(false);
 
-  const getRegionFlag = useCallback((regionCode: string | null) => {
-    const _region = regionList.find(region => region.region_code?.toString() === regionCode?.toString());
-    return _region?.flag_image || null;
-  }, [regionList]);
+  const getRegionFlag = useCallback(
+    (regionCode: string | null) => {
+      const _region = regionList.find(
+        (region) => region.region_code?.toString() === regionCode?.toString(),
+      );
+      return _region?.flag_image || null;
+    },
+    [regionList],
+  );
 
   const customerDetail: Array<detailMapping> | undefined = React.useMemo(() => {
     if (customer) {
@@ -95,9 +97,11 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         },
         {
           name: "Địa chỉ",
-          value: `${customer.full_address ? customer.full_address : ""}${customer.ward ? " - " + customer.ward : ""
-            }${customer.district ? " - " + customer.district : ""}${customer.city ? " - " + customer.city : ""
-            }`,
+          value: `${customer.full_address ? customer.full_address : ""}${
+            customer.ward ? " - " + customer.ward : ""
+          }${customer.district ? " - " + customer.district : ""}${
+            customer.city ? " - " + customer.city : ""
+          }`,
           position: "right",
           key: "8",
         },
@@ -118,10 +122,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         {
           name: "Ngày cưới",
           value: customer.wedding_date
-            ? ConvertUtcToLocalDate(
-              customer.wedding_date,
-              DATE_FORMAT.DDMMYYY
-            )
+            ? ConvertUtcToLocalDate(customer.wedding_date, DATE_FORMAT.DDMMYYY)
             : null,
           position: "left",
           key: "4",
@@ -141,7 +142,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         {
           name: "Thẻ khách hàng",
           // value: loyaltyCard?.card_number,
-          value: customer?.card_number?.trim() === "null" ? "" : customer?.card_number,   // fix card number: null
+          value: customer?.card_number?.trim() === "null" ? "" : customer?.card_number, // fix card number: null
           position: "right",
           key: "4",
         },
@@ -165,11 +166,9 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
         },
         {
           name: "Nhân viên phụ trách",
-          value: `${customer.responsible_staff_code
-            ? customer.responsible_staff_code
-            : ""
-            }${customer.responsible_staff ? "-" + customer.responsible_staff : ""
-            }`,
+          value: `${customer.responsible_staff_code ? customer.responsible_staff_code : ""}${
+            customer.responsible_staff ? "-" + customer.responsible_staff : ""
+          }`,
           position: "left",
           key: "1",
         },
@@ -197,7 +196,7 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
       ];
       return details;
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer, loyaltyCard]);
 
   const onClickWebsite = React.useCallback((value: any) => {
@@ -211,21 +210,21 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
     window.open(link, "_blank");
   }, []);
 
-
   return (
     <Card
       className="general-info"
       title={
         <>
           <span className="card-title">THÔNG TIN CÁ NHÂN</span>
-          {customer && customer.status === "active" ?
+          {customer && customer.status === "active" ? (
             <Tag className="customer-status active">Đang hoạt động</Tag>
-            : <Tag className="customer-status inactive">Không hoạt động</Tag>
-          }
+          ) : (
+            <Tag className="customer-status inactive">Không hoạt động</Tag>
+          )}
         </>
       }
-      extra={allowUpdateCustomer &&
-        [
+      extra={
+        allowUpdateCustomer && [
           <Link key={params.id} to={`/customers/${params.id}/update`}>
             Cập nhật
           </Link>,
@@ -235,7 +234,8 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
       <div className="row-item">
         <div className="left-item">
           {customerDetail &&
-            customerDetail.filter((detail: detailMapping) => detail.position === "left")
+            customerDetail
+              .filter((detail: detailMapping) => detail.position === "left")
               .map((detail: detailMapping, index: number) => (
                 <div className="detail-info" key={index}>
                   <div className="title">
@@ -245,9 +245,13 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
 
                   <span className="content">
                     {detail.value ? detail.value : "---"}
-                    {detail.key === "phone" && detail.region_flag &&
-                      <img src={detail.region_flag} alt="flag_image" style={{ height: "22px", marginLeft: "10px"}}/>
-                    }
+                    {detail.key === "phone" && detail.region_flag && (
+                      <img
+                        src={detail.region_flag}
+                        alt="flag_image"
+                        style={{ height: "22px", marginLeft: "10px" }}
+                      />
+                    )}
                   </span>
                 </div>
               ))}
@@ -255,7 +259,8 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
 
         <div className="right-item">
           {customerDetail &&
-            customerDetail.filter((detail: detailMapping) => detail.position === "right")
+            customerDetail
+              .filter((detail: detailMapping) => detail.position === "right")
               .map((detail: detailMapping, index: number) => (
                 <div className="detail-info" key={index}>
                   <div className="title">
@@ -265,18 +270,17 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
 
                   <span className="content">{detail.value ? detail.value : "---"}</span>
                 </div>
-              ))
-          }
+              ))}
         </div>
-
       </div>
 
-      {isShowMore &&
+      {isShowMore && (
         <>
           <div className="row-item">
             <div className="left-item">
               {customerDetailCollapse &&
-                customerDetailCollapse.filter((detail: detailMapping) => detail.position === "left")
+                customerDetailCollapse
+                  .filter((detail: detailMapping) => detail.position === "left")
                   .map((detail: detailMapping, index: number) => (
                     <div className="detail-info" key={index}>
                       <div className="title">
@@ -284,25 +288,28 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
                         <span style={{ fontWeight: 600 }}>:</span>
                       </div>
 
-                      {detail.value ?
-                        (detail.isWebsite ?
-                          <span className="content link"
+                      {detail.value ? (
+                        detail.isWebsite ? (
+                          <span
+                            className="content link"
                             onClick={() => onClickWebsite(detail.value)}
                           >
                             {detail.value}
                           </span>
-                          : <span className="content">{detail.value}</span>
+                        ) : (
+                          <span className="content">{detail.value}</span>
                         )
-                        : <span className="content">{"---"}</span>
-                      }
+                      ) : (
+                        <span className="content">{"---"}</span>
+                      )}
                     </div>
-                  ))
-              }
+                  ))}
             </div>
 
             <div className="right-item">
               {customerDetailCollapse &&
-                customerDetailCollapse.filter((detail: detailMapping) => detail.position === "right")
+                customerDetailCollapse
+                  .filter((detail: detailMapping) => detail.position === "right")
                   .map((detail: detailMapping, index: number) => (
                     <div className="detail-info" key={index}>
                       <div className="title">
@@ -312,27 +319,36 @@ const CustomerDetailInfo: React.FC<CustomerDetailInfoProps> = (
 
                       <span className="content">{detail.value ? detail.value : "---"}</span>
                     </div>
-                  ))
-              }
+                  ))}
             </div>
           </div>
 
-          <div style={{ cursor: "pointer", marginLeft: "10px" }} onClick={() => { setIsShowMore(!isShowMore) }}>
+          <div
+            style={{ cursor: "pointer", marginLeft: "10px" }}
+            onClick={() => {
+              setIsShowMore(!isShowMore);
+            }}
+          >
             <img alt="arrowUp" src={arrowUp} />
             <span style={{ marginLeft: "10px", color: "#5656A2" }}>Thu gọn</span>
           </div>
         </>
-      }
+      )}
 
-      {!isShowMore &&
+      {!isShowMore && (
         <div className="show-more">
-          <span className="action" onClick={() => { setIsShowMore(!isShowMore) }}>
+          <span
+            className="action"
+            onClick={() => {
+              setIsShowMore(!isShowMore);
+            }}
+          >
             <img alt="arrowUp" src={arrowLeft} />
             <span style={{ marginLeft: "10px", color: "#5656A2" }}>Xem thêm</span>
           </span>
           <div className="dash" />
         </div>
-      }
+      )}
     </Card>
   );
 };

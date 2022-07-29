@@ -10,38 +10,45 @@ const nameWidth = nameQuantityWidth - quantityWidth - priceWidth;
 export const HistoryPurchaseStyled = styled.div`
   th {
     text-align: center !important;
-		padding: 12px 5px !important;
-		justify-content: center !important;
-		.separator {
-			display: none;
-		}
+    padding: 12px 5px !important;
+    justify-content: center !important;
+    .separator {
+      display: none;
+    }
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantityPrice,
   .ant-table-cell.orderStatus,
-	.ant-table-cell.notes {
+  .ant-table-cell.notes {
     padding: 0 !important;
   }
   td {
     position: relative;
   }
   .order-return-background {
-    background-color: rgb(239, 239, 252); 
-    .ant-table-cell-fix-left, .ant-table-cell-fix-right {
+    background-color: rgb(239, 239, 252);
+    .ant-table-cell-fix-left,
+    .ant-table-cell-fix-right {
       background-color: rgb(239, 239, 252);
     }
   }
 
-  .ant-table-tbody>tr.order-return-background:hover>td {
+  .ant-table-tbody > tr.order-return-background:hover > td {
     background-color: rgb(239, 239, 252);
   }
 
-  .ant-table-tbody>tr.order-return-background>td {
+  .ant-table-tbody > tr.order-return-background > td {
     transition: unset;
   }
 
-  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-body>table>tbody>tr>td,
-  .ant-table.ant-table-bordered>.ant-table-container>.ant-table-header>table>thead>tr>th{
+  .ant-table.ant-table-bordered > .ant-table-container > .ant-table-body > table > tbody > tr > td,
+  .ant-table.ant-table-bordered
+    > .ant-table-container
+    > .ant-table-header
+    > table
+    > thead
+    > tr
+    > th {
     border-right: 1px solid #ddd;
   }
 
@@ -57,14 +64,14 @@ export const HistoryPurchaseStyled = styled.div`
     width: ${nameWidth}px;
     &:before {
       content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        bottom: 0;
-        right: ${quantityWidth + priceWidth}px;
-        background-color: ${borderColor};
+      display: block;
+      width: 1px;
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      bottom: 0;
+      right: ${quantityWidth + priceWidth}px;
+      background-color: ${borderColor};
     }
   }
   .quantityWidth {
@@ -72,14 +79,14 @@ export const HistoryPurchaseStyled = styled.div`
     text-align: center;
     &:before {
       content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: 0;
-        bottom: 0;
-        right: ${priceWidth}px;
-        background-color: ${borderColor};
+      display: block;
+      width: 1px;
+      position: absolute;
+      z-index: 1;
+      top: 0;
+      bottom: 0;
+      right: ${priceWidth}px;
+      background-color: ${borderColor};
     }
   }
   .massWidth {
@@ -89,8 +96,8 @@ export const HistoryPurchaseStyled = styled.div`
   .priceWidth {
     width: ${priceWidth}px;
     text-align: center;
-		justify-content: flex-end;
-		padding: 0 10px;
+    justify-content: flex-end;
+    padding: 0 10px;
   }
   .custom-td {
     height: 100%;
@@ -125,9 +132,9 @@ export const HistoryPurchaseStyled = styled.div`
         background-color: ${borderColor};
       }
     }
-		.quantity {
-			justify-content: center;
-		}
+    .quantity {
+      justify-content: center;
+    }
     .mass {
       white-space: nowrap;
       display: flex;
@@ -149,7 +156,7 @@ export const HistoryPurchaseStyled = styled.div`
       white-space: nowrap;
       display: flex;
       align-items: center;
-			justify-content: center;
+      justify-content: center;
       &:before {
         content: "";
         display: block;
@@ -170,11 +177,8 @@ export const HistoryPurchaseStyled = styled.div`
       -webkit-box-orient: vertical;
     }
   }
-	
+
   .inner {
     width: 100%;
   }
-  
 `;
-
-

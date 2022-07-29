@@ -1,14 +1,6 @@
-import {
-  Button,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select, Tag,
-} from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
 import { MenuAction } from "component/table/ActionButton";
-import React, { createRef, useCallback, useEffect,  useState } from "react";
+import React, { createRef, useCallback, useEffect, useState } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
 import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
@@ -23,7 +15,12 @@ import ButtonSetting from "component/table/ButtonSetting";
 import CustomSelect from "component/custom/select.custom";
 import TreeDepartment from "component/tree-node/tree-department";
 import CustomFilterDatePicker from "../custom/filter-date-picker.custom";
-import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import {
+  DATE_FORMAT,
+  formatDateFilter,
+  getEndOfDayCommon,
+  getStartOfDayCommon,
+} from "utils/DateUtils";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
 import moment from "moment";
 
@@ -43,26 +40,26 @@ type StoreFilterProps = {
 };
 
 const SearchStoreFields = {
-  rank: 'rank',
-  type: 'type',
-  hotline: 'hotline',
-  square: 'square',
-  from_square: 'from_square',
-  to_square: 'to_square',
-  begin_date: 'begin_date',
-  from_begin_date: 'from_begin_date',
-  to_begin_date: 'to_begin_date',
+  rank: "rank",
+  type: "type",
+  hotline: "hotline",
+  square: "square",
+  from_square: "from_square",
+  to_square: "to_square",
+  begin_date: "begin_date",
+  from_begin_date: "from_begin_date",
+  to_begin_date: "to_begin_date",
 };
 
 const SearchStoreMapping = {
-  [SearchStoreFields.rank]: 'Phân cấp',
-  [SearchStoreFields.type]: 'Phân loại',
-  [SearchStoreFields.hotline]: 'Số điện thoại',
-  [SearchStoreFields.begin_date]: 'Ngày mở cửa',
-  [SearchStoreFields.square]: 'Diện tích',
+  [SearchStoreFields.rank]: "Phân cấp",
+  [SearchStoreFields.type]: "Phân loại",
+  [SearchStoreFields.hotline]: "Số điện thoại",
+  [SearchStoreFields.begin_date]: "Ngày mở cửa",
+  [SearchStoreFields.square]: "Diện tích",
 };
 
-const keysFilter = ['begin_date', 'square'];
+const keysFilter = ["begin_date", "square"];
 
 const { Item } = Form;
 const { Option } = Select;
@@ -76,10 +73,10 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     initValue,
     type,
     listDepartment,
-    onClickOpen
+    onClickOpen,
   } = props;
   const [visible, setVisible] = useState(false);
-  const [dateClick, setDateClick] = useState('');
+  const [dateClick, setDateClick] = useState("");
   const [formAvd] = Form.useForm();
   const formRef = createRef<FormInstance>();
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
@@ -90,14 +87,14 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
       values.to_begin_date = getEndOfDayCommon(values.to_begin_date)?.format();
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   const onFinish = useCallback(
     (values: StoreQuery) => {
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   const onFilterClick = useCallback(() => {
@@ -117,7 +114,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   const resetField = useCallback(
@@ -125,7 +122,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
       formAvd.resetFields([field]);
       formAvd.submit();
     },
-    [formAvd]
+    [formAvd],
   );
 
   const onClearFilterAdvanceClick = useCallback(() => {
@@ -154,9 +151,11 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
           onFinish={onFinish}
           initialValues={{
             ...params,
-            department_ids: Array.isArray(params.department_ids) ?
-              params.department_ids : typeof params.department_ids === 'string'
-                ? [params.department_ids] : [],
+            department_ids: Array.isArray(params.department_ids)
+              ? params.department_ids
+              : typeof params.department_ids === "string"
+              ? [params.department_ids]
+              : [],
           }}
           layout="inline"
         >
@@ -166,15 +165,15 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
               placeholder="Tên/ Mã cửa hàng/ Số điện thoại/ Hotline"
             />
           </Form.Item>
-          <Form.Item name="department_ids" style={{ maxWidth: 310, minWidth:250 }}>
-            <TreeDepartment placeholder="Chọn trực thuộc" listDepartment={listDepartment} style={{ width: 250}}/>
+          <Form.Item name="department_ids" style={{ maxWidth: 310, minWidth: 250 }}>
+            <TreeDepartment
+              placeholder="Chọn trực thuộc"
+              listDepartment={listDepartment}
+              style={{ width: 250 }}
+            />
           </Form.Item>
           <Form.Item name="status">
-            <CustomSelect
-            allowClear
-            showArrow
-            style={{ width: 180 }}
-            placeholder="Chọn trạng thái">
+            <CustomSelect allowClear showArrow style={{ width: 180 }} placeholder="Chọn trạng thái">
               {storeStatusList?.map((item) => (
                 <Option key={item.value} value={item.value}>
                   {item.name}
@@ -191,8 +190,8 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
             <Button onClick={openFilter}>Thêm bộ lọc</Button>
           </Form.Item>
           <Item>
-              <ButtonSetting onClick={onClickOpen} />
-            </Item>
+            <ButtonSetting onClick={onClickOpen} />
+          </Item>
         </Form>
       </CustomFilter>
       <FilterList
@@ -208,12 +207,7 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
         visible={visible}
         width={396}
       >
-        <Form
-          form={formAvd}
-          onFinish={onAdvanceFinish}
-          ref={formRef}
-          layout="vertical"
-        >
+        <Form form={formAvd} onFinish={onAdvanceFinish} ref={formRef} layout="vertical">
           <Item name="rank" label="Phân cấp">
             <Select placeholder="Chọn phân cấp">
               <Option value="">Chọn phân cấp</Option>
@@ -267,13 +261,8 @@ const StoreFilter: React.FC<StoreFilterProps> = (props: StoreFilterProps) => {
   );
 };
 
-const FilterList = ({
-    filters,
-    resetField,
-    type,
-    storeRanks
-  }: any) => {
-  const newFilters = {...filters};
+const FilterList = ({ filters, resetField, type, storeRanks }: any) => {
+  const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
   let renderTxt: any = null;
   const newKeys = ConvertDatesLabel(newFilters, keysFilter);
@@ -288,24 +277,39 @@ const FilterList = ({
         switch (filterKey) {
           case SearchStoreFields.begin_date:
             renderTxt = `${SearchStoreMapping[filterKey]} 
-            : ${filters[`from_${filterKey}`] ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'} 
-            ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
+            : ${
+              filters[`from_${filterKey}`]
+                ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
+                : "??"
+            } 
+            ~ ${
+              filters[`to_${filterKey}`]
+                ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
+                : "??"
+            }`;
             break;
           case SearchStoreFields.square:
             renderTxt = `${SearchStoreMapping[filterKey]} 
-            : ${filters[`from_${filterKey}`] ? filters[`from_${filterKey}`] : '??'} 
-            ~ ${filters[`to_${filterKey}`] ? filters[`to_${filterKey}`] : '??'}`
+            : ${filters[`from_${filterKey}`] ? filters[`from_${filterKey}`] : "??"} 
+            ~ ${filters[`to_${filterKey}`] ? filters[`to_${filterKey}`] : "??"}`;
             break;
           case SearchStoreFields.rank:
             if (!value) return null;
-            const storeRankFiltered = storeRanks && storeRanks.length > 0
-              && storeRanks.filter((i: any) => i.id === Number(value));
-            renderTxt = `${SearchStoreMapping[filterKey]} : ${storeRankFiltered.length > 0 && storeRankFiltered[0].code}`;
+            const storeRankFiltered =
+              storeRanks &&
+              storeRanks.length > 0 &&
+              storeRanks.filter((i: any) => i.id === Number(value));
+            renderTxt = `${SearchStoreMapping[filterKey]} : ${
+              storeRankFiltered.length > 0 && storeRankFiltered[0].code
+            }`;
             break;
           case SearchStoreFields.type:
             if (!value) return null;
-            const typeFiltered = type && type.length > 0 && type.filter((i: any) => i.value === value);
-            renderTxt = `${SearchStoreMapping[filterKey]} : ${typeFiltered.length > 0 && typeFiltered[0].name}`;
+            const typeFiltered =
+              type && type.length > 0 && type.filter((i: any) => i.value === value);
+            renderTxt = `${SearchStoreMapping[filterKey]} : ${
+              typeFiltered.length > 0 && typeFiltered[0].name
+            }`;
             break;
           case SearchStoreFields.hotline:
             if (!value) return null;
@@ -325,7 +329,7 @@ const FilterList = ({
                 resetField("to_square");
                 return;
               }
-              resetField(filterKey)
+              resetField(filterKey);
             }}
             key={filterKey}
             className="fade margin-bottom-20"

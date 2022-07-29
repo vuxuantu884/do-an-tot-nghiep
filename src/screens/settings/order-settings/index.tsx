@@ -39,15 +39,14 @@ function OrderSettings(props: PropType) {
   const [isTableLoading, setIsTableLoading] = useState(true);
   const [isLoadedData, setIsLoadedData] = useState(false);
 
-  const [listPrintConfig, setListPrintConfig] = useState<
-    OrderConfigPrintResponseModel[] | null
-  >(null);
+  const [listPrintConfig, setListPrintConfig] = useState<OrderConfigPrintResponseModel[] | null>(
+    null,
+  );
 
-  const [listOrderConfigs, setListOrderConfigs] =
-    useState<OrderConfigResponseModel | null>(null);
+  const [listOrderConfigs, setListOrderConfigs] = useState<OrderConfigResponseModel | null>(null);
 
   const shipping_requirements = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement,
   );
 
   const [ShippingServiceConfig, setShippingServiceConfig] = useState<
@@ -64,9 +63,9 @@ function OrderSettings(props: PropType) {
           actionListConfigurationShippingServiceAndShippingFee((response) => {
             setShippingServiceConfig(response);
             setIsTableLoading(false);
-          })
+          }),
         );
-      })
+      }),
     );
   };
 
@@ -97,11 +96,7 @@ function OrderSettings(props: PropType) {
       dataIndex: "status",
       key: "status",
       className: "columnActive",
-      render: (
-        value: any,
-        row: ShippingServiceConfigDetailResponseModel,
-        index: number
-      ) => {
+      render: (value: any, row: ShippingServiceConfigDetailResponseModel, index: number) => {
         if (value === ORDER_SETTINGS_STATUS.active) {
           return (
             <div>
@@ -118,9 +113,7 @@ function OrderSettings(props: PropType) {
         const menu = (
           <Menu>
             <Menu.Item key="1">
-              <Link
-                to={`${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${row.id}`}
-              >
+              <Link to={`${UrlConfig.ORDER_SETTINGS}/shipping-services-and-shipping-fee/${row.id}`}>
                 <Button
                   icon={<img alt="" style={{ marginRight: 12 }} src={iconEdit} />}
                   type="text"
@@ -200,7 +193,7 @@ function OrderSettings(props: PropType) {
     dispatch(
       actionEditOrderConfig(params, (response) => {
         console.log("response", response);
-      })
+      }),
     );
   };
 
@@ -208,7 +201,7 @@ function OrderSettings(props: PropType) {
     dispatch(
       actionGetOrderConfigPrint((response) => {
         setListPrintConfig(response);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -217,7 +210,7 @@ function OrderSettings(props: PropType) {
       actionGetOrderConfig((response) => {
         setListOrderConfigs(response);
         setIsLoadedData(true);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -226,7 +219,7 @@ function OrderSettings(props: PropType) {
       actionListConfigurationShippingServiceAndShippingFee((response) => {
         setShippingServiceConfig(response);
         setIsTableLoading(false);
-      })
+      }),
     );
   }, [dispatch]);
 
@@ -259,10 +252,7 @@ function OrderSettings(props: PropType) {
           <div style={{ marginBottom: 15 }}>Đang cập nhật...</div>
         )}
 
-        <Card
-          title="Cài đặt dịch vụ vận chuyển và phí ship báo khách"
-          extra={renderCardExtra()}
-        >
+        <Card title="Cài đặt dịch vụ vận chuyển và phí ship báo khách" extra={renderCardExtra()}>
           <CustomTable
             isLoading={isTableLoading}
             showColumnSetting={false}

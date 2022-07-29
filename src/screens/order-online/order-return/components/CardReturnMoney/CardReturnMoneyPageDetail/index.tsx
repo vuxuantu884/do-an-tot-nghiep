@@ -42,10 +42,10 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
           Hoàn tiền
           {returnPaymentStatus === ORDER_PAYMENT_STATUS.paid && (
             <Tag
-							color="success"
+              color="success"
               className="orders-tag orders-tag-success"
               style={{
-								marginLeft: 10,
+                marginLeft: 10,
               }}
             >
               Đã hoàn tiền
@@ -57,19 +57,24 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
   };
 
   const renderPayments = () => {
-    if (returnPaymentStatus === ORDER_PAYMENT_STATUS.paid || returnPaymentStatus === ORDER_PAYMENT_STATUS.partial_paid) {
+    if (
+      returnPaymentStatus === ORDER_PAYMENT_STATUS.paid ||
+      returnPaymentStatus === ORDER_PAYMENT_STATUS.partial_paid
+    ) {
       return (
         <Timeline>
           {payments.map((single, index) => {
-            if(single.paid_amount === 0) {
-              return null
+            if (single.paid_amount === 0) {
+              return null;
             }
             return (
               <Timeline.Item key={index} color="#27AE60">
                 <Row gutter={24}>
                   <Col md={8}>
                     <div className="timeline__colTitle 111">
-                      <h3>{single.paid_amount < 0 ? "Hoàn tiền cho khách" : single.payment_method}</h3>
+                      <h3>
+                        {single.paid_amount < 0 ? "Hoàn tiền cho khách" : single.payment_method}
+                      </h3>
                     </div>
                   </Col>
                   <Col md={8} style={{ textAlign: "center" }}>
@@ -87,7 +92,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
         </Timeline>
       );
     } else {
-      if(!isShowPaymentMethod) {
+      if (!isShowPaymentMethod) {
         return (
           <React.Fragment>
             <div
@@ -108,7 +113,6 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
             </div>
           </React.Fragment>
         );
-
       }
     }
   };

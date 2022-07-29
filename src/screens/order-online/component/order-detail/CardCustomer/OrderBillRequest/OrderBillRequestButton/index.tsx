@@ -15,14 +15,11 @@ function OrderBillRequestButton(props: PropTypes) {
   return (
     <StyledComponent>
       <div className={`exportRequest ${color === dangerColor ? null : "isCreate"}`}>
-        <span
-          className="buttonExportRequest"
-          onClick={() => handleClickOrderBillRequestButton()}
-        >
+        <span className="buttonExportRequest" onClick={() => handleClickOrderBillRequestButton()}>
           <span className="icon">
-            <IconDocument color={color}/>
+            <IconDocument color={color} />
           </span>
-          {orderDetail ? "Thông tin xuất hóa đơn" : "Yêu cầu xuất hóa đơn" }
+          {orderDetail ? "Thông tin xuất hóa đơn" : "Yêu cầu xuất hóa đơn"}
         </span>
       </div>
     </StyledComponent>

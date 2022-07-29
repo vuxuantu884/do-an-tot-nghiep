@@ -3,7 +3,7 @@ import { BaseQuery } from "../base/base.query";
 export interface CustomerSearchQuery extends BaseQuery {
   ids?: Array<any> | [];
   search_type?: string | null;
-  is_simple?:number|null;
+  is_simple?: number | null;
   request?: string | null;
   gender?: string | null;
   customer_group_ids?: Array<any> | [];
@@ -58,12 +58,12 @@ export interface CustomerSearchQuery extends BaseQuery {
   last_order_time_from?: String | null;
   last_order_time_to?: String | null;
   // Web/App
-  utm_source?: string|null;
-  utm_medium?: string|null;
-  utm_content?: string|null;
-  utm_term?: string|null;
-  utm_id?: string|null;
-  utm_campaign?: string|null;
+  utm_source?: string | null;
+  utm_medium?: string | null;
+  utm_content?: string | null;
+  utm_term?: string | null;
+  utm_id?: string | null;
+  utm_campaign?: string | null;
   //
 
   phone?: string | null;
@@ -76,15 +76,15 @@ export interface CustomerSearchQuery extends BaseQuery {
 }
 
 export interface FpageCustomerSearchQuery extends BaseQuery {
-  request: "",
-  phone: string | null
+  request: "";
+  phone: string | null;
 }
 
 export interface ExportCustomerRequest {
   conditions?: string;
   fields?: Array<string> | null;
   type: string;
-  url?: string
+  url?: string;
 }
 
 export interface ImportCustomerQuery {

@@ -20,7 +20,7 @@ import {
   calculateKDAverageCustomerSpent,
   calculateKDAverageOrderValue,
   calculateKDConvertionRate,
-  nonAccentVietnameseKD
+  nonAccentVietnameseKD,
 } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { ASM_LIST } from "./constant/key-driver-offline-template-data";
@@ -32,7 +32,7 @@ import useFetchOfflineTotalSalesLoyalty from "./hooks/useFetchOfflineTotalSalesL
 import useFetchProductTotalSales from "./hooks/useFetchProductTotalSales";
 import { KeyDriverOfflineStyle } from "./index.style";
 import KeyDriverOfflineProvider, {
-  KeyDriverOfflineContext
+  KeyDriverOfflineContext,
 } from "./provider/key-driver-offline-provider";
 
 type RowData = {
@@ -75,7 +75,7 @@ function CellInput(props: RowRender) {
   const { setTargetMonth } = useContext(KeyDriverOfflineContext);
   const { onChange, record, value, type } = props;
   const { key } = record;
-  
+
   return (
     <InputNumber
       className="input-number"
@@ -89,7 +89,7 @@ function CellInput(props: RowRender) {
           const departmentIdx = prev.findIndex((item) => item.department === type);
           if (departmentIdx !== -1) {
             const keyDriverIdx = prev[departmentIdx].key_drivers.findIndex(
-              (item) => item.key_driver === key
+              (item) => item.key_driver === key,
             );
             if (keyDriverIdx !== -1) {
               prev[departmentIdx].key_drivers[keyDriverIdx].value = inputValue;
@@ -145,7 +145,7 @@ function KeyDriverOffline() {
       const dayInMonth = moment().daysInMonth();
       if (
         ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
-          keyDriver["key"]
+          keyDriver["key"],
         )
       ) {
         keyDriver[`${department}_day`] =
@@ -153,7 +153,8 @@ function KeyDriverOffline() {
             ? Math.round(
                 (keyDriver[`${department}_month`] -
                   (keyDriver[`${department}_accumulatedMonth`] || 0)) /
-                  (dayInMonth - dayNumber) + (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0)
+                  (dayInMonth - dayNumber) +
+                  (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0),
               )
             : Math.round(keyDriver[`${department}_month`] / dayInMonth);
       }
@@ -163,7 +164,9 @@ function KeyDriverOffline() {
   const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
       keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
-        ? (+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(1)
+        ? (+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(
+            1,
+          )
         : "";
     }
   };
@@ -227,7 +230,7 @@ function KeyDriverOffline() {
           }
           calculateMonthRate(item);
           calculateDayRate(item);
-        })
+        });
         return [...prev];
       });
       setTimeout(() => {
@@ -262,7 +265,7 @@ function KeyDriverOffline() {
         { notifyAction: "SHOW_ALL" },
         dispatch,
         updateKeyDriversTarget,
-        params
+        params,
       );
       if (!res) {
         showError("Cập nhật mục tiêu tháng thất bại");
@@ -276,7 +279,7 @@ function KeyDriverOffline() {
   const setObjectiveColumns = (
     departmentKey: string,
     department: string,
-    className: string = "department-name--secondary"
+    className: string = "department-name--secondary",
   ): ColumnGroupType<any> | ColumnType<any> => {
     return {
       title: department.toLowerCase().includes("tổng công ty") ? (
@@ -284,7 +287,8 @@ function KeyDriverOffline() {
       ) : (
         <Link
           className={classnames("department-name", className)}
-          to={`${UrlConfig.KEY_DRIVER_OFFLINE}/${nonAccentVietnameseKD(department).toLowerCase()}`}>
+          to={`${UrlConfig.KEY_DRIVER_OFFLINE}/${nonAccentVietnameseKD(department).toLowerCase()}`}
+        >
           {department}
         </Link>
       ),
@@ -309,7 +313,8 @@ function KeyDriverOffline() {
                   title="Cập nhật mục tiêu tháng"
                   onClick={() => {
                     updateTargetMonth(departmentKey);
-                  }}>
+                  }}
+                >
                   <CheckSquareOutlined />
                 </Button>
               </div>
@@ -418,7 +423,8 @@ function KeyDriverOffline() {
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Offline"}
-      breadcrumb={[{ name: "Báo cáo" }, { name: "Báo cáo kết quả kinh doanh Offline" }]}>
+      breadcrumb={[{ name: "Báo cáo" }, { name: "Báo cáo kết quả kinh doanh Offline" }]}
+    >
       <KeyDriverOfflineStyle>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
           {loadingPage === false ? (
@@ -440,7 +446,9 @@ function KeyDriverOffline() {
               columns={finalColumns}
               dataSource={data}
             />
-          ) : <Spin />}
+          ) : (
+            <Spin />
+          )}
         </Card>
       </KeyDriverOfflineStyle>
     </ContentContainer>

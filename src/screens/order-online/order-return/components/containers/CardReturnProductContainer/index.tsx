@@ -10,7 +10,7 @@ import { OrderReturnCalculateRefundRequestModel } from "model/request/order.requ
 import {
   OrderLineItemResponse,
   OrderResponse,
-  ReturnProductModel
+  ReturnProductModel,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -25,7 +25,7 @@ import {
   getProductDiscountPerOrder,
   getProductDiscountPerProduct,
   handleFetchApiError,
-  isFetchApiSuccessful
+  isFetchApiSuccessful,
 } from "utils/AppUtils";
 import { isOrderDetailHasPointPayment } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
@@ -36,12 +36,12 @@ type PropTypes = {
   autoCompleteRef: React.RefObject<RefSelectProps>;
   discountRate?: number;
   orderId: number | undefined;
-  searchVariantInputValue:string;
+  searchVariantInputValue: string;
   handleCanReturn?: (value: boolean) => void;
   setIsVisibleModalWarningPointRefund?: (value: boolean) => void;
   listStores: StoreResponse[];
   setSearchVariantInputValue: (value: string) => void;
-  setListOrderProductsResult:(value:OrderLineItemResponse[])=>void;
+  setListOrderProductsResult: (value: OrderLineItemResponse[]) => void;
   isAlreadyShowWarningPoint: boolean;
   listPaymentMethods: PaymentMethodResponse[];
 };
@@ -51,7 +51,8 @@ function CardReturnProductContainer(props: PropTypes) {
     handleCanReturn,
     orderId,
     setIsVisibleModalWarningPointRefund,
-    autoCompleteRef,searchVariantInputValue,
+    autoCompleteRef,
+    searchVariantInputValue,
     setSearchVariantInputValue,
     setListOrderProductsResult,
     listStores,
@@ -63,9 +64,7 @@ function CardReturnProductContainer(props: PropTypes) {
 
   const createOrderReturnContext = useContext(CreateOrderReturnContext);
 
-
   const [isCheckReturnAll, setIsCheckReturnAll] = useState(true);
-  
 
   const listReturnProducts = createOrderReturnContext?.return.listReturnProducts;
   const listItemCanBeReturn = createOrderReturnContext?.return.listItemCanBeReturn;
@@ -79,7 +78,6 @@ function CardReturnProductContainer(props: PropTypes) {
   const OrderDetail = createOrderReturnContext?.orderDetail;
   // const listOrderProducts = OrderDetail?.items;
   const isExchange = createOrderReturnContext?.isExchange;
-
 
   const onSelectSearchedVariant = (value: string) => {
     if (!listItemCanBeReturn) {
@@ -154,7 +152,7 @@ function CardReturnProductContainer(props: PropTypes) {
           ...single,
           maxQuantityCanBeReturned: single.quantity,
           amount: single.quantity * single.price,
-          line_amount_after_line_discount: single.quantity * (single.price - single.discount_value)
+          line_amount_after_line_discount: single.quantity * (single.price - single.discount_value),
         };
       });
       if (setListReturnProducts) {
@@ -177,18 +175,19 @@ function CardReturnProductContainer(props: PropTypes) {
     setIsCheckReturnAll(e.target.checked);
   };
 
-
   useEffect(() => {
     if (!listReturnProducts) {
       return;
     }
-    if(listReturnProducts.some(single => single.maxQuantityCanBeReturned > single.quantity) || listReturnProducts.length !== listItemCanBeReturn?.length) {
-      setIsCheckReturnAll(false)
+    if (
+      listReturnProducts.some((single) => single.maxQuantityCanBeReturned > single.quantity) ||
+      listReturnProducts.length !== listItemCanBeReturn?.length
+    ) {
+      setIsCheckReturnAll(false);
     } else {
-      setIsCheckReturnAll(true)
+      setIsCheckReturnAll(true);
     }
-  }, [listItemCanBeReturn?.length, listReturnProducts])
-  
+  }, [listItemCanBeReturn?.length, listReturnProducts]);
 
   const renderSearchVariant = (item: OrderLineItemResponse) => {
     let avatar = item.variant_image;
@@ -220,7 +219,8 @@ function CardReturnProductContainer(props: PropTypes) {
                 color: "#737373",
                 textDecoration: "underline",
                 textDecorationColor: "#737373",
-              }}>
+              }}
+            >
               đ
             </span>
           </span>
@@ -230,8 +230,8 @@ function CardReturnProductContainer(props: PropTypes) {
   };
 
   const convertResultSearchVariant = useMemo(() => {
-    if (!listItemCanBeReturn)  return [];
-    if (!listOrderProductsResult)return [];
+    if (!listItemCanBeReturn) return [];
+    if (!listOrderProductsResult) return [];
     let options: any[] = [];
 
     // let listOrderProductsResult = listItemCanBeReturn;
@@ -255,13 +255,14 @@ function CardReturnProductContainer(props: PropTypes) {
 
   const onChangeProductSearchValue = (value: string) => {
     setSearchVariantInputValue(value);
-    let result = listItemCanBeReturn?.filter((single) => {
-      return (
-        fullTextSearch(searchVariantInputValue, single.variant) ||
-        fullTextSearch(searchVariantInputValue, single.sku) ||
-        fullTextSearch(searchVariantInputValue, single.variant_barcode)
-      );
-    })||[];
+    let result =
+      listItemCanBeReturn?.filter((single) => {
+        return (
+          fullTextSearch(searchVariantInputValue, single.variant) ||
+          fullTextSearch(searchVariantInputValue, single.sku) ||
+          fullTextSearch(searchVariantInputValue, single.variant_barcode)
+        );
+      }) || [];
 
     // console.log(result)
 
@@ -275,7 +276,7 @@ function CardReturnProductContainer(props: PropTypes) {
     let resultListReturnProducts = [...listReturnProducts];
     resultListReturnProducts[index].quantity = Number(
       // value === null ? "0" : value.toString().replace(".", "")
-      value ? value : 0
+      value ? value : 0,
     );
     if (value) {
       resultListReturnProducts[index].amount = resultListReturnProducts[index].price * value;
@@ -285,16 +286,16 @@ function CardReturnProductContainer(props: PropTypes) {
             ...discount,
             amount: value * discount.value,
           };
-        }
+        },
       );
       resultListReturnProducts[index].discount_value = getLineItemDiscountValue(
-        resultListReturnProducts[index]
+        resultListReturnProducts[index],
       );
       resultListReturnProducts[index].discount_rate = getLineItemDiscountRate(
-        resultListReturnProducts[index]
+        resultListReturnProducts[index],
       );
       resultListReturnProducts[index].discount_amount = getLineItemDiscountAmount(
-        resultListReturnProducts[index]
+        resultListReturnProducts[index],
       );
       resultListReturnProducts[index].line_amount_after_line_discount =
         getLineAmountAfterLineDiscount(resultListReturnProducts[index]);
@@ -353,7 +354,7 @@ function CardReturnProductContainer(props: PropTypes) {
       });
       return totalPrice;
     },
-    [OrderDetail]
+    [OrderDetail],
   );
 
   // const totalPriceReturnToCustomer = useMemo(() => {
@@ -381,20 +382,19 @@ function CardReturnProductContainer(props: PropTypes) {
   // }, [OrderDetail, dispatch, getTotalPrice, listReturnProducts, orderId]);
 
   // const eventKeyPress = useCallback(
-	// 	(event: KeyboardEvent) => {
-			
-	// 	},
+  // 	(event: KeyboardEvent) => {
 
-	// 	[onChangeProductSearchValue]
-	// );
+  // 	},
+
+  // 	[onChangeProductSearchValue]
+  // );
 
   // useEffect(() => {
-	// 	window.addEventListener("keypress", eventKeyPress);
-	// 	return () => {
-	// 		window.removeEventListener("keypress", eventKeyPress);
-	// 	};
-	// }, [eventKeyPress]);
-  
+  // 	window.addEventListener("keypress", eventKeyPress);
+  // 	return () => {
+  // 		window.removeEventListener("keypress", eventKeyPress);
+  // 	};
+  // }, [eventKeyPress]);
 
   /**
    * tính toán refund khi tiêu điểm
@@ -403,7 +403,7 @@ function CardReturnProductContainer(props: PropTypes) {
     if (!listReturnProducts) {
       return;
     }
-    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods)
+    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods);
     const refund_money = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
     if (isUsingPoint) {
       if (OrderDetail?.customer_id && orderId && refund_money > 0) {
@@ -435,9 +435,9 @@ function CardReturnProductContainer(props: PropTypes) {
         setTimeout(() => {
           dispatch(
             actionGetOrderReturnCalculateRefund(params, (response) => {
-              if(!response.point_refund) {
-                if(!isAlreadyShowWarningPoint) {
-                  setIsVisibleModalWarningPointRefund && setIsVisibleModalWarningPointRefund(true)
+              if (!response.point_refund) {
+                if (!isAlreadyShowWarningPoint) {
+                  setIsVisibleModalWarningPointRefund && setIsVisibleModalWarningPointRefund(true);
                   // setIsAlreadyShowWarningPoint(true)
                 }
               }
@@ -448,9 +448,8 @@ function CardReturnProductContainer(props: PropTypes) {
                   moneyRefund: response.money_refund,
                 });
               }
-            })
+            }),
           );
-          
         }, 500);
       } else {
         if (setRefund) {
@@ -462,51 +461,62 @@ function CardReturnProductContainer(props: PropTypes) {
         }
       }
     }
-  // bỏ isAlreadyShowWarningPoint
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [OrderDetail, OrderDetail?.customer_id, OrderDetail?.items, OrderDetail?.payments, dispatch, getTotalPrice, listReturnProducts, orderId, setIsVisibleModalWarningPointRefund, setRefund]);
+    // bỏ isAlreadyShowWarningPoint
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    OrderDetail,
+    OrderDetail?.customer_id,
+    OrderDetail?.items,
+    OrderDetail?.payments,
+    dispatch,
+    getTotalPrice,
+    listReturnProducts,
+    orderId,
+    setIsVisibleModalWarningPointRefund,
+    setRefund,
+  ]);
 
   useEffect(() => {
     if (!listReturnProducts) {
       return;
     }
     let result = 0;
-    
-    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods)
+
+    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods);
     if (!isUsingPoint) {
-      if(!orderId) {
+      if (!orderId) {
         return;
       }
       if (setTotalAmountReturnProducts) {
         // result = getTotalPrice(listReturnProducts);
-        let resultListReturnProducts = [...listReturnProducts].filter(single => single.quantity);
-        if(resultListReturnProducts.length > 0) {
-          const params: CalculateMoneyRefundRequestModel =  {
-            items: resultListReturnProducts.map(single => {
+        let resultListReturnProducts = [...listReturnProducts].filter((single) => single.quantity);
+        if (resultListReturnProducts.length > 0) {
+          const params: CalculateMoneyRefundRequestModel = {
+            items: resultListReturnProducts.map((single) => {
               return {
                 order_line_id: single.id,
                 sku: single.sku,
                 quantity: single.quantity,
-              }
-            })
-          }
+              };
+            }),
+          };
           // console.log('params', params)
-          dispatch(showLoading())
-          calculateMoneyRefundService(orderId, params).then(response => {
-            if (isFetchApiSuccessful(response)) {
-              result = response.data;
-              if (setTotalAmountReturnProducts) {
-                setTotalAmountReturnProducts(Math.round(result));
+          dispatch(showLoading());
+          calculateMoneyRefundService(orderId, params)
+            .then((response) => {
+              if (isFetchApiSuccessful(response)) {
+                result = response.data;
+                if (setTotalAmountReturnProducts) {
+                  setTotalAmountReturnProducts(Math.round(result));
+                }
+              } else {
+                handleFetchApiError(response, "Tính tiền hoàn lại", dispatch);
               }
-            } else {
-              handleFetchApiError(response, "Tính tiền hoàn lại", dispatch);
-            }
-            // console.log('response', response)
-            
-          }).finally(() => {
-            dispatch(hideLoading())
-          })
-
+              // console.log('response', response)
+            })
+            .finally(() => {
+              dispatch(hideLoading());
+            });
         } else {
           result = 0;
         }
@@ -520,7 +530,16 @@ function CardReturnProductContainer(props: PropTypes) {
     if (setTotalAmountReturnProducts) {
       setTotalAmountReturnProducts(Math.round(result));
     }
-  }, [OrderDetail, dispatch, getTotalPrice, listPaymentMethods, listReturnProducts, orderId, refund?.moneyRefund, setTotalAmountReturnProducts]);
+  }, [
+    OrderDetail,
+    dispatch,
+    getTotalPrice,
+    listPaymentMethods,
+    listReturnProducts,
+    orderId,
+    refund?.moneyRefund,
+    setTotalAmountReturnProducts,
+  ]);
 
   return (
     <CardReturnProducts

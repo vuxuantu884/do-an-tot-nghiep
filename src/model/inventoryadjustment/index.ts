@@ -4,23 +4,23 @@ import { ProductResponse, VariantImage, VariantPricesResponse } from "model/prod
 export interface InventoryAdjustmentSearchQuery {
   page: number;
   limit: number;
-  condition: string | null,
-  adjusted_store_id: number | null,
-  status: [] | null,
-  audit_type: [] | null,
-  from_total_variant: number | null,
-  to_total_variant: number | null,
-  from_total_quantity: number | null,
-  to_total_quantity: number | null,
-  from_total_amount: number | null,
-  to_total_amount: number | null,
-  created_name: string[] | null,
-  from_created_date: string|null,
-  to_created_date: string|null,
-  from_audited_date: string|null,
-  to_audited_date: string|null,
-  from_adjusted_date: string|null,
-  to_adjusted_date: string|null,
+  condition: string | null;
+  adjusted_store_id: number | null;
+  status: [] | null;
+  audit_type: [] | null;
+  from_total_variant: number | null;
+  to_total_variant: number | null;
+  from_total_quantity: number | null;
+  to_total_quantity: number | null;
+  from_total_amount: number | null;
+  to_total_amount: number | null;
+  created_name: string[] | null;
+  from_created_date: string | null;
+  to_created_date: string | null;
+  from_audited_date: string | null;
+  to_audited_date: string | null;
+  from_adjusted_date: string | null;
+  to_adjusted_date: string | null;
 }
 
 export type StoreStatus = {
@@ -37,7 +37,6 @@ export type FileParam = {
   folder: string;
 };
 
-
 export interface LineItemAdjustment {
   id: number;
   code: string;
@@ -50,29 +49,29 @@ export interface LineItemAdjustment {
   updated_date: Date;
   sku: string;
   name: string;
-  variant_id: number,
+  variant_id: number;
   variant_name: string;
-  variant_images:Array<VariantImage>,
-  variant_prices:Array<VariantPricesResponse>,
+  variant_images: Array<VariantImage>;
+  variant_prices: Array<VariantPricesResponse>;
   product_name: string;
   product_id: number;
-  product:ProductResponse,
-  available:number|null,
-  weight: number,
-  weight_unit: string,
+  product: ProductResponse;
+  available: number | null;
+  weight: number;
+  weight_unit: string;
   amount: number;
   price: number;
   barcode: string;
-  on_hand: number,
-  real_on_hand: number,
-  on_hand_adj: number | null,
-  total_stock: number,
-  shipping: number,
-  on_way: number,
-  transferring: number,
-  on_hand_adj_dis: string | null,
-  note: string|null,
-  total_variant_deviant: number
+  on_hand: number;
+  real_on_hand: number;
+  on_hand_adj: number | null;
+  total_stock: number;
+  shipping: number;
+  on_way: number;
+  transferring: number;
+  on_hand_adj_dis: string | null;
+  note: string | null;
+  total_variant_deviant: number;
 }
 
 export interface FileUrl {
@@ -94,8 +93,8 @@ export interface InventoryAdjustmentDetailItem {
   audit_name?: string;
   updated_name: string;
   updated_date: Date;
-  adjusted_store_id: number,
-  adjusted_store_name: string | null,
+  adjusted_store_id: number;
+  adjusted_store_name: string | null;
   status: string;
   total_variant: number;
   total_quantity: number;
@@ -117,5 +116,4 @@ export interface InventoryAdjustmentDetailItem {
   total_variant_deviant: number;
   line_items: Array<LineItemAdjustment>;
   store: StoreResponse;
-};
-
+}

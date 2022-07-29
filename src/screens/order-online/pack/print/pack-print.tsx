@@ -1,11 +1,11 @@
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { useRef, useState } from "react";
-import {StyledComponent} from "../../print/styles";
+import { StyledComponent } from "../../print/styles";
 import purify from "dompurify";
 
-const PackPrint:React.FC=()=>{
-    // const pageBreak = "<div class='pageBreak'></div>";
+const PackPrint: React.FC = () => {
+  // const pageBreak = "<div class='pageBreak'></div>";
   const [printContent] = useState("");
   // const dispatch = useDispatch();
   const printElementRef = useRef(null);
@@ -42,6 +42,6 @@ const PackPrint:React.FC=()=>{
       </ContentContainer>
     </StyledComponent>
   );
-}
+};
 
 export default PackPrint;

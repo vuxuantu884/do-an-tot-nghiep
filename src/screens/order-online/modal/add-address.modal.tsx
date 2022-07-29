@@ -1,7 +1,14 @@
 import { Col, Form, Input, Modal, Row, Select } from "antd";
 //import arrowDownIcon from "assets/img/drow-down.svg";
-import { CountryGetAllAction, WardGetByDistrictAction } from "domain/actions/content/content.action";
-import { CreateShippingAddress, getCustomerDetailAction, UpdateShippingAddress } from "domain/actions/customer/customer.action";
+import {
+  CountryGetAllAction,
+  WardGetByDistrictAction,
+} from "domain/actions/content/content.action";
+import {
+  CreateShippingAddress,
+  getCustomerDetailAction,
+  UpdateShippingAddress,
+} from "domain/actions/customer/customer.action";
 import { CountryResponse } from "model/content/country.model";
 import { WardResponse } from "model/content/ward.model";
 import { modalActionType } from "model/modal/modal.model";
@@ -21,11 +28,11 @@ type AddAddressModalProps = {
   handleChangeCustomer: any;
   formItem: any;
   visible: boolean;
-	areas: any[];
+  areas: any[];
   modalAction: modalActionType;
   onCancel: () => void;
   onOk: () => void;
-  setShippingFeeInformedToCustomer: ((value: number | null) => void) | undefined
+  setShippingFeeInformedToCustomer: ((value: number | null) => void) | undefined;
 };
 
 type FormValueType = {
@@ -41,11 +48,9 @@ type FormValueType = {
   default: boolean;
 };
 
-const AddAddressModal: React.FC<AddAddressModalProps> = (
-  props: AddAddressModalProps
-) => {
+const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalProps) => {
   const {
-		areas,
+    areas,
     visible,
     onCancel,
     formItem,
@@ -55,11 +60,17 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
     setShippingFeeInformedToCustomer,
   } = props;
 
-  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+  const orderLineItems = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems,
+  );
 
-  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+  const shippingServiceConfig = useSelector(
+    (state: RootReducerType) => state.orderReducer.shippingServiceConfig,
+  );
 
-  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
+  const transportService = useSelector(
+    (state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service,
+  );
 
   const [form] = Form.useForm();
   const dispatch = useDispatch();
@@ -146,56 +157,66 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
         if (customer && formItem) {
           value.is_default = value.default;
           dispatch(
-            UpdateShippingAddress(
-              value.id,
-              customer.id,
-              value,
-              (data: ShippingAddress) => {
-                if (data) {
-                  dispatch(
-                    getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
-                      handleChangeCustomer(datas);
-                      const orderAmount = totalAmount(orderLineItems);
-                      if(value.default) {
-                        handleCalculateShippingFeeApplyOrderSetting(data?.city_id, orderAmount, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer)
-                      }
-                    })
-                  );
-                  onCancel();
-                  showSuccess("Cập nhật địa chỉ thành công");
-                } else {
-                  showError("Cập nhật địa chỉ thất bại");
-                }
+            UpdateShippingAddress(value.id, customer.id, value, (data: ShippingAddress) => {
+              if (data) {
+                dispatch(
+                  getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
+                    handleChangeCustomer(datas);
+                    const orderAmount = totalAmount(orderLineItems);
+                    if (value.default) {
+                      handleCalculateShippingFeeApplyOrderSetting(
+                        data?.city_id,
+                        orderAmount,
+                        shippingServiceConfig,
+                        transportService,
+                        form,
+                        setShippingFeeInformedToCustomer,
+                      );
+                    }
+                  }),
+                );
+                onCancel();
+                showSuccess("Cập nhật địa chỉ thành công");
+              } else {
+                showError("Cập nhật địa chỉ thất bại");
               }
-            )
+            }),
           );
         }
       } else {
         if (customer) {
           value.is_default = false;
           dispatch(
-            CreateShippingAddress(
-              customer.id,
-              value,
-              (data: CustomerShippingAddress) => {
-                if (data) {
-                  dispatch(
-                    getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
-                      handleChangeCustomer(datas);
-                    })
-                  );
-                  onCancel();
-                  showSuccess("Thêm địa chỉ thành công");
-                } else {
-                  showError("Thêm địa chỉ thất bại");
-                }
+            CreateShippingAddress(customer.id, value, (data: CustomerShippingAddress) => {
+              if (data) {
+                dispatch(
+                  getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
+                    handleChangeCustomer(datas);
+                  }),
+                );
+                onCancel();
+                showSuccess("Thêm địa chỉ thành công");
+              } else {
+                showError("Thêm địa chỉ thất bại");
               }
-            )
+            }),
           );
         }
       }
     },
-    [isCreateForm, customer, formItem, dispatch, onCancel, handleChangeCustomer, orderLineItems, shippingServiceConfig, transportService, form, setShippingFeeInformedToCustomer]
+    [
+      isCreateForm,
+      customer,
+      formItem,
+      dispatch,
+      onCancel,
+      handleChangeCustomer,
+      orderLineItems,
+      shippingServiceConfig,
+      transportService,
+      form,
+      setShippingFeeInformedToCustomer,
+    ],
   );
 
   return (
@@ -210,20 +231,13 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
       onCancel={handleCancel}
       width={"700px"}
     >
-      <Form
-        form={form}
-        initialValues={initialFormValue}
-        layout="vertical"
-        onFinish={handleSubmit}
-      >
+      <Form form={form} initialValues={initialFormValue} layout="vertical" onFinish={handleSubmit}>
         <Row gutter={20}>
           <Col span={24}>
             <Form.Item
               name="name"
               label={<b>Họ tên người nhận:</b>}
-              rules={[
-                { required: true, message: "Vui lòng nhập họ tên người nhận" },
-              ]}
+              rules={[{ required: true, message: "Vui lòng nhập họ tên người nhận" }]}
             >
               <Input
                 placeholder="Nhập họ tên người nhận"
@@ -312,11 +326,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (
                 </Form.Item>
               </Col>
               <Col span={12}>
-                <Form.Item
-                  label={<span className="fw-500">Thành phố:</span>}
-                  name="city_id"
-                  hidden
-                >
+                <Form.Item label={<span className="fw-500">Thành phố:</span>} name="city_id" hidden>
                   <Input
                     placeholder="Nhập địa chỉ chi tiết"
                     style={{ width: "100%" }}

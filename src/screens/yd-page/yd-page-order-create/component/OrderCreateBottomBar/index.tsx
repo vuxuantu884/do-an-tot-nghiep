@@ -53,84 +53,78 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
           <Col span={24}>
             <CreateBillStep status={stepsStatusValue} orderDetail={orderDetail} />
           </Col>
-          {isVisibleGroupButtons &&
-            formRef &&
-            handleTypeButton &&
-            showSaveAndConfirmModal && (
-              <Col span={24} className="yd-page-btns">
-                <Button
-                  style={{ padding: "0 25px", fontWeight: 400 }}
-                  className="ant-btn-outline fixed-button cancle-button"
-                  onClick={() => window.location.reload()}
-                  disabled={isSaveDraft || creating}
-                >
-                  Huỷ
-                </Button>
-                <Button
-                  style={{ padding: "0 25px", fontWeight: 400 }}
-                  className="create-button-custom ant-btn-outline fixed-button"
-                  type="primary"
-                  ghost
-                  onClick={showSaveAndConfirmModal}
-                  loading={isSaveDraft}
-                  disabled={creating}
-                  id="save-draft-confirm"
-                >
-                  Lưu nháp
-                </Button>
-                <Button
-                  style={{ padding: "0 25px", fontWeight: 400 }}
-                  type="primary"
-                  className="create-button-custom"
-                  id="save-and-confirm"
-                  onClick={() => {
-                    handleTypeButton(OrderStatus.FINALIZED);
-                    // console.log(
-                    //   "formRef.current.value",
-                    //   formRef?.current?.getFieldsValue()
-                    // );
-                    formRef.current?.submit();
-                  }}
-                  loading={creating}
-                  disabled={isSaveDraft}
-                >
-                  Lưu và Xác nhận
-                </Button>
-              </Col>
-            )}
-          {isVisibleUpdateButtons &&
-            formRef &&
-            handleTypeButton &&
-            showSaveAndConfirmModal && (
-              <Col span={24} style={{ marginTop: "8px" }}>
-                <Button
-                  style={{ padding: "0 25px", fontWeight: 400 }}
-                  className="ant-btn-outline fixed-button cancle-button"
-                  onClick={() => updateCancelClick && updateCancelClick()}
-                  disabled={updating}
-                >
-                  Huỷ
-                </Button>
+          {isVisibleGroupButtons && formRef && handleTypeButton && showSaveAndConfirmModal && (
+            <Col span={24} className="yd-page-btns">
+              <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
+                className="ant-btn-outline fixed-button cancle-button"
+                onClick={() => window.location.reload()}
+                disabled={isSaveDraft || creating}
+              >
+                Huỷ
+              </Button>
+              <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
+                className="create-button-custom ant-btn-outline fixed-button"
+                type="primary"
+                ghost
+                onClick={showSaveAndConfirmModal}
+                loading={isSaveDraft}
+                disabled={creating}
+                id="save-draft-confirm"
+              >
+                Lưu nháp
+              </Button>
+              <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
+                type="primary"
+                className="create-button-custom"
+                id="save-and-confirm"
+                onClick={() => {
+                  handleTypeButton(OrderStatus.FINALIZED);
+                  // console.log(
+                  //   "formRef.current.value",
+                  //   formRef?.current?.getFieldsValue()
+                  // );
+                  formRef.current?.submit();
+                }}
+                loading={creating}
+                disabled={isSaveDraft}
+              >
+                Lưu và Xác nhận
+              </Button>
+            </Col>
+          )}
+          {isVisibleUpdateButtons && formRef && handleTypeButton && showSaveAndConfirmModal && (
+            <Col span={24} style={{ marginTop: "8px" }}>
+              <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
+                className="ant-btn-outline fixed-button cancle-button"
+                onClick={() => updateCancelClick && updateCancelClick()}
+                disabled={updating}
+              >
+                Huỷ
+              </Button>
 
-                <Button
-                  style={{ padding: "0 25px", fontWeight: 400 }}
-                  type="primary"
-                  className="create-button-custom"
-                  id="save-and-confirm"
-                  onClick={() => {
-                    handleTypeButton(OrderStatus.FINALIZED);
-                    // console.log(
-                    //   "formRef.current.value",
-                    //   formRef?.current?.getFieldsValue()
-                    // );
-                    formRef.current?.submit();
-                  }}
-                  loading={updating}
-                >
-                  Cập nhật đơn hàng
-                </Button>
-              </Col>
-            )}
+              <Button
+                style={{ padding: "0 25px", fontWeight: 400 }}
+                type="primary"
+                className="create-button-custom"
+                id="save-and-confirm"
+                onClick={() => {
+                  handleTypeButton(OrderStatus.FINALIZED);
+                  // console.log(
+                  //   "formRef.current.value",
+                  //   formRef?.current?.getFieldsValue()
+                  // );
+                  formRef.current?.submit();
+                }}
+                loading={updating}
+              >
+                Cập nhật đơn hàng
+              </Button>
+            </Col>
+          )}
           {isVisibleActionsButtons && (
             <Col span={24} style={{ marginTop: "8px" }}>
               <Dropdown
@@ -171,7 +165,13 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 }
                 trigger={["click"]}
               >
-                <Button style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}>
+                <Button
+                  style={{
+                    padding: "0 25px",
+                    fontWeight: 400,
+                    margin: "0 10px",
+                  }}
+                >
                   Thêm thao tác <DownOutlined />
                 </Button>
               </Dropdown>
@@ -181,16 +181,12 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 overlay={
                   <Menu>
                     <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
+                      onClick={() => props.orderActionsClick && props.orderActionsClick("print")}
                     >
                       In nhanh
                     </Menu.Item>
                     <Menu.Item
-                      onClick={() =>
-                        props.orderActionsClick && props.orderActionsClick("print")
-                      }
+                      onClick={() => props.orderActionsClick && props.orderActionsClick("print")}
                     >
                       In tuỳ chọn
                     </Menu.Item>
@@ -201,16 +197,23 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 <Button
                   type="primary"
                   ghost
-                  style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                  style={{
+                    padding: "0 25px",
+                    fontWeight: 400,
+                    margin: "0 10px",
+                  }}
                 >
-                  <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In đơn
-                  hàng
+                  <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In đơn hàng
                 </Button>
               </Dropdown>
               {isShowConfirmOrderButton && (
                 <Button
                   type="primary"
-                  style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                  style={{
+                    padding: "0 25px",
+                    fontWeight: 400,
+                    margin: "0 10px",
+                  }}
                   onClick={onConfirmOrder}
                   disabled={disabledBottomActions}
                 >

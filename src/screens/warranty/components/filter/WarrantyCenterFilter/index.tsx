@@ -24,7 +24,7 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
 
   const [selectedCityId, setSelectedCityId] = useState<number | null>(null);
 
-  console.log('selectedCityId', selectedCityId)
+  console.log("selectedCityId", selectedCityId);
 
   const cities = useGetCities();
   const districts = useGetDistricts(selectedCityId);
@@ -40,7 +40,7 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   const initialValues = useMemo(() => {
@@ -56,7 +56,7 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
     (values) => {
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   useEffect(() => {
@@ -64,7 +64,7 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
   }, [formSearch, initialValues]);
 
   useEffect(() => {
-    if(initialValues.city_id) {
+    if (initialValues.city_id) {
       setSelectedCityId(+initialValues.city_id);
     }
   }, [initialValues.city_id]);
@@ -76,7 +76,7 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
           <Form form={formSearch} initialValues={initialValues} layout="inline" onFinish={onFinish}>
             <div style={{ width: "100%" }}>
               <Row>
-              <Col span={6}>
+                <Col span={6}>
                   <Form.Item name="name">
                     <Input type="text" placeholder="Tên trung tâm" />
                   </Form.Item>
@@ -98,9 +98,10 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
                       onChange={(value) => {
                         setSelectedCityId(+value);
                         formSearch.setFieldsValue({
-                          district_id: undefined
-                        })
-                      }}>
+                          district_id: undefined,
+                        });
+                      }}
+                    >
                       {cities.map((item, index) => (
                         <Select.Option key={item.id} value={item.id}>
                           {item.name}
@@ -117,7 +118,8 @@ function WarrantyCenterFilter(props: PropTypes): JSX.Element {
                       allowClear
                       style={{ width: "100%" }}
                       placeholder="Chọn quận/huyện"
-                      notFoundContent="Không tìm thấy kết quả">
+                      notFoundContent="Không tìm thấy kết quả"
+                    >
                       {districts.map((item, index) => (
                         <Select.Option key={index} value={item.id}>
                           {item.name}

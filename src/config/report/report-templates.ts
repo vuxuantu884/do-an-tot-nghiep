@@ -3,7 +3,7 @@ import {
   AnalyticCustomizeTemplateForCreate,
   AnalyticTemplateData,
   AnalyticTemplateGroup,
-  TimeAtOptionValue
+  TimeAtOptionValue,
 } from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -18,7 +18,7 @@ export const REPORT_CUBES = {
   [UrlConfig.ANALYTIC_SALES_OFFLINE]: ["sales", "payments"],
   [UrlConfig.ANALYTIC_FINACE]: ["costs"],
   [UrlConfig.ANALYTIC_CUSTOMER]: ["sales", "payments"],
-}
+};
 
 export const REPORT_NAMES = {
   [UrlConfig.ANALYTIC_SALES_OFFLINE]: "Báo cáo bán lẻ",
@@ -42,7 +42,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_FINACE],
     cube: AnalyticCube.Costs,
     iconImg: "nhan-vien.svg",
-    chartColumnSelected: ['gross_profit'],
+    chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -56,7 +56,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     cube: AnalyticCube.Costs,
     iconImg: "cua-hang.svg",
     id: 2,
-    chartColumnSelected: ['gross_margin'],
+    chartColumnSelected: ["gross_margin"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -72,7 +72,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_FINACE],
     iconImg: "nguon-ban-hang.svg",
     id: 3,
-    chartColumnSelected: ['gross_margin'],
+    chartColumnSelected: ["gross_margin"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -88,7 +88,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_FINACE],
     iconImg: "san-pham.svg",
     id: 4,
-    chartColumnSelected: ['gross_profit'],
+    chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -104,7 +104,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_FINACE],
     iconImg: "thoi-gian.svg",
     id: 5,
-    chartColumnSelected: ['gross_profit'],
+    chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -137,7 +137,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     iconImg: "thanh-toan-nhom kh.png",
     alias: [UrlConfig.ANALYTIC_CUSTOMER],
     id: 14,
-    chartColumnSelected: ['payments'],
+    chartColumnSelected: ["payments"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -157,7 +157,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     iconImg: "ban-hang-nhom kh.png",
     alias: [UrlConfig.ANALYTIC_CUSTOMER],
     id: 15,
-    chartColumnSelected: ['net_sales', 'average_order_value'],
+    chartColumnSelected: ["net_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -173,7 +173,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     iconImg: "ban-hang-nhom kh.png",
     alias: [UrlConfig.ANALYTIC_FINACE],
     id: 15,
-    chartColumnSelected: ['gross_profit'],
+    chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -193,7 +193,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     iconImg: "dia-chi-kh.png",
     alias: [UrlConfig.ANALYTIC_CUSTOMER],
     id: 16,
-    chartColumnSelected: ['customers', 'net_sales'],
+    chartColumnSelected: ["customers", "net_sales"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -209,10 +209,10 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     iconImg: "dia-chi-kh.png",
     alias: [UrlConfig.ANALYTIC_FINACE],
     id: 16,
-    chartColumnSelected: ['gross_profit', 'gross_margin'],
+    chartColumnSelected: ["gross_profit", "gross_margin"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
-  ...ONLINE_REPORT_TEMPLATES
+  ...ONLINE_REPORT_TEMPLATES,
 ];
 
 //re-generate unique id
@@ -223,29 +223,29 @@ const REPORT_TEMPLATES = REPORT_TEMPLATES_LIST_NO_ID.map((item, index: number) =
 
 // offline reports - báo cáo bán lẻ
 const CUSTOMIZE_TEMPLATE_SALES_FOR_CREATE: Array<AnalyticCustomizeTemplateForCreate> =
-  REPORT_TEMPLATES.filter((template) => template.alias.includes(UrlConfig.ANALYTIC_SALES_OFFLINE)).map(
-    (item: AnalyticTemplateData) => ({
-      name: item.type + " " + item.name,
-      cube: item.cube,
-      query: item.query,
-      chartColumnSelected: item.chartColumnSelected,
-      timeAtOption: item.timeAtOption,
-      chart_query: item.chart_query,
-    })
-  );
+  REPORT_TEMPLATES.filter((template) =>
+    template.alias.includes(UrlConfig.ANALYTIC_SALES_OFFLINE),
+  ).map((item: AnalyticTemplateData) => ({
+    name: item.type + " " + item.name,
+    cube: item.cube,
+    query: item.query,
+    chartColumnSelected: item.chartColumnSelected,
+    timeAtOption: item.timeAtOption,
+    chart_query: item.chart_query,
+  }));
 
 // online reports - báo cáo đơn hàng
 const CUSTOMIZE_TEMPLATE_ONLINE_FOR_CREATE: Array<AnalyticCustomizeTemplateForCreate> =
-  REPORT_TEMPLATES.filter((template) => template.alias.includes(UrlConfig.ANALYTIC_SALES_ONLINE)).map(
-    (item: AnalyticTemplateData) => ({
-      name: item.type + " " + item.name,
-      cube: item.cube,
-      query: item.query,
-      chartColumnSelected: item.chartColumnSelected,
-      timeAtOption: item.timeAtOption,
-      chart_query: item.chart_query,
-    })
-  );
+  REPORT_TEMPLATES.filter((template) =>
+    template.alias.includes(UrlConfig.ANALYTIC_SALES_ONLINE),
+  ).map((item: AnalyticTemplateData) => ({
+    name: item.type + " " + item.name,
+    cube: item.cube,
+    query: item.query,
+    chartColumnSelected: item.chartColumnSelected,
+    timeAtOption: item.timeAtOption,
+    chart_query: item.chart_query,
+  }));
 
 const CUSTOMIZE_TEMPLATE_FINANCE_FOR_CREATE: Array<AnalyticCustomizeTemplateForCreate> =
   REPORT_TEMPLATES.filter((template) => template.alias.includes(UrlConfig.ANALYTIC_FINACE)).map(
@@ -256,7 +256,7 @@ const CUSTOMIZE_TEMPLATE_FINANCE_FOR_CREATE: Array<AnalyticCustomizeTemplateForC
       chartColumnSelected: item.chartColumnSelected,
       timeAtOption: item.timeAtOption,
       chart_query: item.chart_query,
-    })
+    }),
   );
 
 const CUSTOMIZE_TEMPLATE_CUSTOMER_FOR_CREATE: Array<AnalyticCustomizeTemplateForCreate> =
@@ -268,7 +268,7 @@ const CUSTOMIZE_TEMPLATE_CUSTOMER_FOR_CREATE: Array<AnalyticCustomizeTemplateFor
       chartColumnSelected: item.chartColumnSelected,
       timeAtOption: item.timeAtOption,
       chart_query: item.chart_query,
-    })
+    }),
   );
 
 export const CUSTOMIZE_TEMPLATE = {
@@ -281,7 +281,7 @@ export const CUSTOMIZE_TEMPLATE = {
 export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
   [UrlConfig.ANALYTIC_SALES_OFFLINE]: [
     {
-      name: 'Nhóm báo cáo bán hàng',
+      name: "Nhóm báo cáo bán hàng",
       cube: AnalyticCube.OfflineSales,
       group: AnalyticCube.OfflineSales,
     },
@@ -292,7 +292,7 @@ export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
   ],
   [UrlConfig.ANALYTIC_SALES_ONLINE]: [
     {
-      name: 'Nhóm báo cáo đơn hàng',
+      name: "Nhóm báo cáo đơn hàng",
       cube: AnalyticCube.Sales,
       group: AnalyticCube.Sales,
     },
@@ -303,17 +303,17 @@ export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
   ],
   [UrlConfig.ANALYTIC_FINACE]: [
     {
-      name: 'Nhóm báo cáo lợi nhuận',
+      name: "Nhóm báo cáo lợi nhuận",
       cube: AnalyticCube.Costs,
       group: AnalyticCube.Costs,
-    }
+    },
   ],
   [UrlConfig.ANALYTIC_CUSTOMER]: [
     {
-      name: 'Nhóm báo cáo khách hàng',
+      name: "Nhóm báo cáo khách hàng",
       cube: AnalyticCube.All,
       group: AnalyticCube.Customers,
-    }
+    },
   ],
 };
 
@@ -338,39 +338,39 @@ export const DETAIL_LINKS = [
 
 export const TIME_GROUP_BY = [
   {
-      label: 'Giờ',
-      value: 'hour'
+    label: "Giờ",
+    value: "hour",
   },
   {
-      label: 'Ngày',
-      value: 'day'
+    label: "Ngày",
+    value: "day",
   },
   {
-      label: 'Tháng',
-      value: 'month'
+    label: "Tháng",
+    value: "month",
   },
   {
-      label: 'Năm',
-      value: 'year'
-  }
-]
+    label: "Năm",
+    value: "year",
+  },
+];
 
 export const TIME_AT_OPTION = [
   {
-      label: 'Ngày tạo',
-      value: TimeAtOptionValue.CreatedAt
+    label: "Ngày tạo",
+    value: TimeAtOptionValue.CreatedAt,
   },
   {
-      label: 'Ngày xác nhận',
-      value: TimeAtOptionValue.FinalizedAt
+    label: "Ngày xác nhận",
+    value: TimeAtOptionValue.FinalizedAt,
   },
   {
-      label: 'Ngày thành công',
-      value: TimeAtOptionValue.CompletedAt
+    label: "Ngày thành công",
+    value: TimeAtOptionValue.CompletedAt,
   },
   {
-      label: 'Ngày huỷ',
-      value: TimeAtOptionValue.CancelledAt
+    label: "Ngày huỷ",
+    value: TimeAtOptionValue.CancelledAt,
   },
-]
+];
 export default REPORT_TEMPLATES;

@@ -91,7 +91,7 @@ function* rootSaga() {
     OrderDuplicateSaga(),
     importSaga(),
     bankAccountSagas(),
-    warrantySaga()
+    warrantySaga(),
   ]);
 }
 

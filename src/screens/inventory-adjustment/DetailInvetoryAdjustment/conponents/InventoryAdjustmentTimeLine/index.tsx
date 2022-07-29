@@ -40,36 +40,39 @@ const InventoryAdjustmentTimeLine: React.FC<StepStatusProps> = (props: StepStatu
     </div>
   );
 
-  const strreateDate = inventoryAdjustmentDetail?.created_date ? moment(inventoryAdjustmentDetail.created_date).format(formatDate) : '';
-  const stradjusted_date = inventoryAdjustmentDetail?.adjusted_date ? moment(inventoryAdjustmentDetail.adjusted_date).format(formatDate) : '';
-  let straudited_date ="";
+  const strreateDate = inventoryAdjustmentDetail?.created_date
+    ? moment(inventoryAdjustmentDetail.created_date).format(formatDate)
+    : "";
+  const stradjusted_date = inventoryAdjustmentDetail?.adjusted_date
+    ? moment(inventoryAdjustmentDetail.adjusted_date).format(formatDate)
+    : "";
+  let straudited_date = "";
   if (inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT) {
-    straudited_date  = `(${ConvertUtcToLocalDate(inventoryAdjustmentDetail.audited_date,DATE_FORMAT.DDMMYYY)})`;
-  }else if(inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED
-    || inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED){
-    straudited_date  = `${ConvertUtcToLocalDate(inventoryAdjustmentDetail.audited_date,DATE_FORMAT.DDMMYY_HHmm)}`;
+    straudited_date = `(${ConvertUtcToLocalDate(
+      inventoryAdjustmentDetail.audited_date,
+      DATE_FORMAT.DDMMYYY,
+    )})`;
+  } else if (
+    inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.AUDITED ||
+    inventoryAdjustmentDetail?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.ADJUSTED
+  ) {
+    straudited_date = `${ConvertUtcToLocalDate(
+      inventoryAdjustmentDetail.audited_date,
+      DATE_FORMAT.DDMMYY_HHmm,
+    )}`;
   }
 
   return (
-      <Steps
-        progressDot={progressDot}
-        size="small"
-        current={currentStep}
-        className="create-bill-step"
-      >
-        <Steps.Step
-          title="Kế hoạch"
-          description={strreateDate}
-        />
-        <Steps.Step
-          title="Kiểm kho"
-          description={straudited_date}
-        />
-        <Steps.Step
-          title="Đã cân tồn"
-          description={stradjusted_date}
-        /> 
-      </Steps>
+    <Steps
+      progressDot={progressDot}
+      size="small"
+      current={currentStep}
+      className="create-bill-step"
+    >
+      <Steps.Step title="Kế hoạch" description={strreateDate} />
+      <Steps.Step title="Kiểm kho" description={straudited_date} />
+      <Steps.Step title="Đã cân tồn" description={stradjusted_date} />
+    </Steps>
   );
 };
 

@@ -23,11 +23,7 @@ import { PaymentMethodGetList } from "domain/actions/order/order.action";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import {
-  PaymentMethodCode,
-  PaymentMethodOption,
-  ShipmentMethodOption,
-} from "utils/Constants";
+import { PaymentMethodCode, PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import { formatCurrency, formatSuffixPoint, getAmountPayment, replaceFormat } from "utils/AppUtils";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
@@ -70,17 +66,14 @@ function CardPayments(props: CardPaymentsProps) {
   };
 
   const dispatch = useDispatch();
-  const [listPaymentMethod, setListPaymentMethod] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
+  const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
   const ListPaymentMethods = useMemo(() => {
     return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
   }, [listPaymentMethod]);
 
   const usageRate = useMemo(() => {
-    let usageRate =
-      loyaltyRate === null || loyaltyRate === undefined ? 0 : loyaltyRate.usage_rate;
+    let usageRate = loyaltyRate === null || loyaltyRate === undefined ? 0 : loyaltyRate.usage_rate;
     return usageRate;
   }, [loyaltyRate]);
 
@@ -106,9 +99,7 @@ function CardPayments(props: CardPaymentsProps) {
   const handlePickPaymentMethod = (payment_method_id?: number) => {
     let paymentMaster = ListPaymentMethods.find((p) => payment_method_id === p.id);
     if (!paymentMaster) return;
-    let indexPayment = payments.findIndex(
-      (p) => p.payment_method_id === payment_method_id
-    );
+    let indexPayment = payments.findIndex((p) => p.payment_method_id === payment_method_id);
     if (indexPayment === -1) {
       payments.push({
         payment_method_id: paymentMaster.id,
@@ -163,14 +154,19 @@ function CardPayments(props: CardPaymentsProps) {
   const createOrderContext = useContext(OrderCreateContext);
   // console.log('createOrderContext', createOrderContext)
   const totalOrderAmountAfterDiscountAddShippingFee =
-    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee || (props.amount ? props.amount : 0);
+    createOrderContext?.price.totalOrderAmountAfterDiscountAddShippingFee ||
+    (props.amount ? props.amount : 0);
 
   const totalAmountPayment = getAmountPayment(payments);
 
   const totalAmountCustomerNeedToPay =
-    createOrderContext?.price.totalAmountCustomerNeedToPay || (props.amount ? (props.amount - totalAmountPayment) : 0);
+    createOrderContext?.price.totalAmountCustomerNeedToPay ||
+    (props.amount ? props.amount - totalAmountPayment : 0);
 
-    console.log('totalOrderAmountAfterDiscountAddShippingFee', totalOrderAmountAfterDiscountAddShippingFee)
+  console.log(
+    "totalOrderAmountAfterDiscountAddShippingFee",
+    totalOrderAmountAfterDiscountAddShippingFee,
+  );
 
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
@@ -200,10 +196,7 @@ function CardPayments(props: CardPaymentsProps) {
               <Space size={20}>
                 <Radio value={PaymentMethodOption.COD}>COD</Radio>
                 <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
-                <Radio
-                  value={PaymentMethodOption.POSTPAYMENT}
-                  disabled={isDisablePostPayment}
-                >
+                <Radio value={PaymentMethodOption.POSTPAYMENT} disabled={isDisablePostPayment}>
                   Chưa xác định
                 </Radio>
               </Space>
@@ -212,8 +205,8 @@ function CardPayments(props: CardPaymentsProps) {
               shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
                 <div className="order-cod-payment-footer">
                   <span>
-                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể
-                    nhập giá trị Tiền thu hộ
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                    trị Tiền thu hộ
                   </span>
                 </div>
               )}
@@ -221,8 +214,8 @@ function CardPayments(props: CardPaymentsProps) {
               shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
                 <div className="order-cod-payment-footer">
                   <span>
-                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể
-                    nhập giá trị Tiền thu hộ
+                    Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá
+                    trị Tiền thu hộ
                   </span>
                 </div>
               )}
@@ -272,9 +265,7 @@ function CardPayments(props: CardPaymentsProps) {
                     <Row gutter={24}>
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
-                          <span style={{ paddingRight: "20px" }}>
-                            Tiền khách phải trả:{" "}
-                          </span>
+                          <span style={{ paddingRight: "20px" }}>Tiền khách phải trả: </span>
                           <strong>
                             {formatCurrency(totalOrderAmountAfterDiscountAddShippingFee)}
                           </strong>
@@ -283,9 +274,7 @@ function CardPayments(props: CardPaymentsProps) {
                       <Col lg={10} xxl={7} className="margin-top-bottom-10">
                         <div>
                           <span style={{ paddingRight: "20px" }}>Còn phải trả: 4 </span>
-                          <strong>
-                            {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
-                          </strong>
+                          <strong>{formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}</strong>
                         </div>
                       </Col>
                       <Divider style={{ margin: "10px 0" }} />
@@ -305,19 +294,11 @@ function CardPayments(props: CardPaymentsProps) {
                               case PaymentMethodCode.CARD:
                               case PaymentMethodCode.BANK_TRANSFER:
                                 icon = (
-                                  <CreditCardOutlined
-                                    paymentData={payments}
-                                    method={method}
-                                  />
+                                  <CreditCardOutlined paymentData={payments} method={method} />
                                 );
                                 break;
                               case PaymentMethodCode.QR_CODE:
-                                icon = (
-                                  <QrcodeOutlined
-                                    paymentData={payments}
-                                    method={method}
-                                  />
-                                );
+                                icon = <QrcodeOutlined paymentData={payments} method={method} />;
                                 break;
                               case PaymentMethodCode.POINT:
                                 icon = <YdCoin paymentData={payments} method={method} />;
@@ -336,7 +317,7 @@ function CardPayments(props: CardPaymentsProps) {
                                         p.code === method.code ||
                                         p.payment_method.toLowerCase() ===
                                           method.code.toLowerCase() ||
-                                        p.payment_method_id === method.id
+                                        p.payment_method_id === method.id,
                                     )
                                       ? "primary"
                                       : "default"
@@ -382,9 +363,7 @@ function CardPayments(props: CardPaymentsProps) {
                             }}
                           >
                             <span className="t-result-blue">
-                              {formatCurrency(
-                                totalOrderAmountAfterDiscountAddShippingFee
-                              )}
+                              {formatCurrency(totalOrderAmountAfterDiscountAddShippingFee)}
                             </span>
                           </Col>
                         </Row>
@@ -398,9 +377,7 @@ function CardPayments(props: CardPaymentsProps) {
                             >
                               <Col lg={15} xxl={9} style={{ padding: "0" }}>
                                 <Row align="middle">
-                                  <b style={{ padding: "8px 0" }}>
-                                    {method.payment_method}:
-                                  </b>
+                                  <b style={{ padding: "8px 0" }}>{method.payment_method}:</b>
                                   {method.code === PaymentMethodCode.POINT ? (
                                     <Col className="point-spending">
                                       <span
@@ -415,9 +392,7 @@ function CardPayments(props: CardPaymentsProps) {
                                       <InputNumber
                                         value={
                                           // method.point
-                                          isCloneOrder
-                                            ? method.amount / usageRate
-                                            : method.point
+                                          isCloneOrder ? method.amount / usageRate : method.point
                                         }
                                         style={{
                                           width: 110,
@@ -429,13 +404,9 @@ function CardPayments(props: CardPaymentsProps) {
                                         formatter={(value) =>
                                           formatSuffixPoint(value ? value : "0")
                                         }
-                                        parser={(value) =>
-                                          replaceFormat(value ? value : "0")
-                                        }
+                                        parser={(value) => replaceFormat(value ? value : "0")}
                                         min={0}
-                                        max={
-                                          calculateMax(props.amount, index) / usageRate
-                                        }
+                                        max={calculateMax(props.amount, index) / usageRate}
                                         onChange={(value) => {
                                           handleInputPoint(index, value);
                                         }}
@@ -475,13 +446,10 @@ function CardPayments(props: CardPaymentsProps) {
                                     max={calculateMax(props.amount, index)}
                                     value={method.paid_amount}
                                     disabled={
-                                      method.code === PaymentMethodCode.POINT ||
-                                      levelOrder > 2
+                                      method.code === PaymentMethodCode.POINT || levelOrder > 2
                                     }
                                     className="yody-payment-input hide-number-handle"
-                                    formatter={(value) =>
-                                      formatCurrency(value ? value : "0")
-                                    }
+                                    formatter={(value) => formatCurrency(value ? value : "0")}
                                     placeholder="Nhập tiền mặt"
                                     style={{
                                       textAlign: "right",

@@ -11,26 +11,23 @@ import {
   disableBulkPromoCode,
   getDiscountUsageDetailApi,
 } from "../../../../service/promotion/promo-code/promo-code.service";
-import {YodyAction} from "../../../../base/base.action";
+import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
-import {call, put, takeLatest} from "@redux-saga/core/effects";
-import {HttpStatus} from "../../../../config/http-status.config";
-import {unauthorizedAction} from "../../../actions/auth/auth.action";
-import {showError} from "../../../../utils/ToastUtils";
-import {PageResponse} from "../../../../model/base/base-metadata.response";
-import {PromoCodeType} from "../../../types/promotion.type";
-import {all} from "redux-saga/effects";
-import {DiscountCode, DiscountUsageDetailResponse} from "model/promotion/price-rules.model";
-import {callApiSaga} from "utils/ApiUtils";
+import { call, put, takeLatest } from "@redux-saga/core/effects";
+import { HttpStatus } from "../../../../config/http-status.config";
+import { unauthorizedAction } from "../../../actions/auth/auth.action";
+import { showError } from "../../../../utils/ToastUtils";
+import { PageResponse } from "../../../../model/base/base-metadata.response";
+import { PromoCodeType } from "../../../types/promotion.type";
+import { all } from "redux-saga/effects";
+import { DiscountCode, DiscountUsageDetailResponse } from "model/promotion/price-rules.model";
+import { callApiSaga } from "utils/ApiUtils";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 function* checkPromoCodeAtc(action: YodyAction) {
-  const {code, handleResponse} = action.payload;
+  const { code, handleResponse } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<DiscountCode>> = yield call(
-      checkPromoCode,
-      code
-    );
+    const response: BaseResponse<PageResponse<DiscountCode>> = yield call(checkPromoCode, code);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         handleResponse(true);
@@ -49,18 +46,14 @@ function* checkPromoCodeAtc(action: YodyAction) {
 }
 
 function* getPromoCode(action: YodyAction) {
-  const {priceRuleId, query, setData} = action.payload;
-  yield callApiSaga({notifyAction:"SHOW_ALL"}, setData, getAllPromoCodeList, priceRuleId, query);
+  const { priceRuleId, query, setData } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, setData, getAllPromoCodeList, priceRuleId, query);
 }
 
 function* getPromoCodeByIdAct(action: YodyAction) {
-  const {priceRuleId, id, onResult} = action.payload;
+  const { priceRuleId, id, onResult } = action.payload;
   try {
-    let response: BaseResponse<DiscountCode> = yield call(
-      getPromoCodeById,
-      priceRuleId,
-      id
-    );
+    let response: BaseResponse<DiscountCode> = yield call(getPromoCodeById, priceRuleId, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -81,12 +74,12 @@ function* getPromoCodeByIdAct(action: YodyAction) {
 }
 
 function* getDiscountUsageDetailSaga(action: YodyAction) {
-  const {discountCode, onResult} = action.payload;
+  const { discountCode, onResult } = action.payload;
   yield put(showLoading());
   try {
     let response: BaseResponse<Array<DiscountUsageDetailResponse>> = yield call(
       getDiscountUsageDetailApi,
-      discountCode
+      discountCode,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -103,21 +96,16 @@ function* getDiscountUsageDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     onResult(false);
-  }
-  finally {
+  } finally {
     yield put(hideLoading());
   }
 }
 
 function* deletePromoCodeByIdAct(action: YodyAction) {
   console.log("deletePriceRuleByIdAct - action : ", action);
-  const {priceRuleId, id, deleteCallBack} = action.payload;
+  const { priceRuleId, id, deleteCallBack } = action.payload;
   try {
-    const response: BaseResponse<DiscountCode> = yield call(
-      deletePromoCodeById,
-      priceRuleId,
-      id
-    );
+    const response: BaseResponse<DiscountCode> = yield call(deletePromoCodeById, priceRuleId, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         deleteCallBack(true);
@@ -139,13 +127,9 @@ function* deletePromoCodeByIdAct(action: YodyAction) {
 
 function* updatePromoCodeByIdAct(action: YodyAction) {
   console.log("updatePromoCodeByIdAct - action : ", action);
-  const {priceRuleId, body, updateCallBack} = action.payload;
+  const { priceRuleId, body, updateCallBack } = action.payload;
   try {
-    const response: BaseResponse<DiscountCode> = yield call(
-      updatePromoCodeById,
-      priceRuleId,
-      body
-    );
+    const response: BaseResponse<DiscountCode> = yield call(updatePromoCodeById, priceRuleId, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         updateCallBack(true);
@@ -166,13 +150,9 @@ function* updatePromoCodeByIdAct(action: YodyAction) {
 }
 
 function* addPromoCodeManualAct(action: YodyAction) {
-  const {priceRuleId, body, addCallBack} = action.payload;
+  const { priceRuleId, body, addCallBack } = action.payload;
   try {
-    const response: BaseResponse<DiscountCode> = yield call(
-      addPromoCode,
-      priceRuleId,
-      body
-    );
+    const response: BaseResponse<DiscountCode> = yield call(addPromoCode, priceRuleId, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         addCallBack(true);
@@ -196,13 +176,9 @@ function* addPromoCodeManualAct(action: YodyAction) {
 
 function* deleteBulkPromoCodeAct(action: YodyAction) {
   console.log("deleteBulkPromoCodeAct - action : ", action);
-  const {priceRuleId, body, deleteCallBack} = action.payload;
+  const { priceRuleId, body, deleteCallBack } = action.payload;
   try {
-    const response: BaseResponse<DiscountCode> = yield call(
-      deleteBulkPromoCode,
-      priceRuleId,
-      body
-    );
+    const response: BaseResponse<DiscountCode> = yield call(deleteBulkPromoCode, priceRuleId, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         deleteCallBack(true);
@@ -224,12 +200,12 @@ function* deleteBulkPromoCodeAct(action: YodyAction) {
 
 function* publishedBulkPromoCodeAct(action: YodyAction) {
   console.log("publishedBulkPromoCodeAct - action : ", action);
-  const {priceRuleId, body, publishedCallBack} = action.payload;
+  const { priceRuleId, body, publishedCallBack } = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       publishedBulkPromoCode,
       priceRuleId,
-      body
+      body,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -252,13 +228,9 @@ function* publishedBulkPromoCodeAct(action: YodyAction) {
 
 function* enableBulkPromoCodeAct(action: YodyAction) {
   console.log("enableBulkPromoCodeAct - action : ", action);
-  const {priceRuleId, body, enableCallBack} = action.payload;
+  const { priceRuleId, body, enableCallBack } = action.payload;
   try {
-    const response: BaseResponse<DiscountCode> = yield call(
-      enableBulkPromoCode,
-      priceRuleId,
-      body
-    );
+    const response: BaseResponse<DiscountCode> = yield call(enableBulkPromoCode, priceRuleId, body);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         enableCallBack(true);
@@ -280,12 +252,12 @@ function* enableBulkPromoCodeAct(action: YodyAction) {
 
 function* disableBulkPromoCodeAct(action: YodyAction) {
   console.log("disableBulkPromoCodeAct - action : ", action);
-  const {priceRuleId, body, disableCallBack} = action.payload;
+  const { priceRuleId, body, disableCallBack } = action.payload;
   try {
     const response: BaseResponse<DiscountCode> = yield call(
       disableBulkPromoCode,
       priceRuleId,
-      body
+      body,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:

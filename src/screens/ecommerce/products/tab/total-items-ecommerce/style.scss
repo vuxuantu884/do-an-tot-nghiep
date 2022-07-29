@@ -1,20 +1,20 @@
 .log-history-list {
-    .log-inventory-column {
-        &-success {
-            color: #27AE60
-        }
-        &-error {
-            color: #ff3f34;
-        }
+  .log-inventory-column {
+    &-success {
+      color: #27ae60;
     }
+    &-error {
+      color: #ff3f34;
+    }
+  }
 }
 
 .ant-table-pagination {
-    display: none;
+  display: none;
 }
 
 ant-table-pagination,
-.ant-table-tbody >tr>td,
- .ant-modal-footer {
-    border: none;
+.ant-table-tbody > tr > td,
+.ant-modal-footer {
+  border: none;
 }

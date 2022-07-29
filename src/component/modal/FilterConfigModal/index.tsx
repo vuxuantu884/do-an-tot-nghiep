@@ -34,12 +34,15 @@ function FilterConfigModal(props: PropTypes) {
 
   const [filterTypeRadio, setFilterTypeRadio] = useState<number>(1);
 
-  const onChangeSaveFilterType = useCallback((e) => {
-    setFilterTypeRadio(e.target.value);
-    form.setFieldsValue({
-      save_filter_type: e.target.value
-    })
-  }, [form]);
+  const onChangeSaveFilterType = useCallback(
+    (e) => {
+      setFilterTypeRadio(e.target.value);
+      form.setFieldsValue({
+        save_filter_type: e.target.value,
+      });
+    },
+    [form],
+  );
 
   useEffect(() => {
     if (visible) {
@@ -62,13 +65,15 @@ function FilterConfigModal(props: PropTypes) {
               onClick={() => {
                 form.validateFields().then(() => {
                   const values = form.getFieldsValue();
-                  console.log('values', values);
+                  console.log("values", values);
                   // return;
                   values.save_filter_type = filterTypeRadio;
-                  if(filterTypeRadio === FILTER_TYPE_CONSTANT.NEW) {
+                  if (filterTypeRadio === FILTER_TYPE_CONSTANT.NEW) {
                     values.id = undefined;
                   } else {
-                    values.name = filterConfigs.find(single => single.id.toString() === values.id.toString())?.name
+                    values.name = filterConfigs.find(
+                      (single) => single.id.toString() === values.id.toString(),
+                    )?.name;
                   }
                   onOk(values);
                 });
@@ -104,10 +109,7 @@ function FilterConfigModal(props: PropTypes) {
           >
             <div>
               <Form.Item name="save_filter_type">
-                <Radio.Group
-                  value={filterTypeRadio}
-                  className="display-block"
-                >
+                <Radio.Group value={filterTypeRadio} className="display-block">
                   <Space direction="vertical" className="display-block">
                     <Radio
                       value={FILTER_TYPE_CONSTANT.NEW}
@@ -120,10 +122,7 @@ function FilterConfigModal(props: PropTypes) {
                       name="name"
                       rules={[
                         {
-                          required:
-                            filterTypeRadio === FILTER_TYPE_CONSTANT.NEW
-                              ? true
-                              : false,
+                          required: filterTypeRadio === FILTER_TYPE_CONSTANT.NEW ? true : false,
                           message: "Bạn chưa nhập tên bộ lọc mới",
                         },
                         {
@@ -132,10 +131,7 @@ function FilterConfigModal(props: PropTypes) {
                         },
                       ]}
                     >
-                      <Input
-                        className="item-radio-option"
-                        placeholder="Nhập tên bộ lọc mới"
-                      />
+                      <Input className="item-radio-option" placeholder="Nhập tên bộ lọc mới" />
                     </Form.Item>
                     <Radio
                       value={FILTER_TYPE_CONSTANT.UPDATE}
@@ -150,9 +146,7 @@ function FilterConfigModal(props: PropTypes) {
                         rules={[
                           {
                             required:
-                            filterTypeRadio === FILTER_TYPE_CONSTANT.UPDATE
-                                ? true
-                                : false,
+                              filterTypeRadio === FILTER_TYPE_CONSTANT.UPDATE ? true : false,
                             message: "Bạn chưa chọn tên bộ lọc",
                           },
                         ]}
@@ -171,10 +165,7 @@ function FilterConfigModal(props: PropTypes) {
                           maxTagCount="responsive"
                         >
                           {filterConfigs?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.id}
-                              value={item.id.toString()}
-                            >
+                            <CustomSelect.Option key={item.id} value={item.id.toString()}>
                               {item.name}
                             </CustomSelect.Option>
                           ))}
@@ -188,8 +179,7 @@ function FilterConfigModal(props: PropTypes) {
                     filterTypeRadio === FILTER_TYPE_CONSTANT.UPDATE && "red"
                   } text-info`}
                 >
-                  Bộ lọc được lưu sẽ hiển thị ở dạng nút chọn trong Popup{" "}
-                  <b>“Thêm bộ lọc”</b>
+                  Bộ lọc được lưu sẽ hiển thị ở dạng nút chọn trong Popup <b>“Thêm bộ lọc”</b>
                 </div>
               </Form.Item>
             </div>

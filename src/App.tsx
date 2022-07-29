@@ -1,8 +1,5 @@
 import { BASE_NAME_ROUTER } from "config/url.config";
-import {
-  loadSettingAppAction,
-  loadUserFromStorageAction,
-} from "domain/actions/app.action";
+import { loadSettingAppAction, loadUserFromStorageAction } from "domain/actions/app.action";
 import { profilePermissionAction } from "domain/actions/auth/permission.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useEffect, Suspense } from "react";
@@ -14,15 +11,11 @@ import SplashScreen from "./screens/splash.screen";
 
 function App() {
   const dispatch = useDispatch();
-  const isLoad = useSelector(
-    (state: RootReducerType) => {
-      return state.userReducer.isLoad
-    }
-  );
+  const isLoad = useSelector((state: RootReducerType) => {
+    return state.userReducer.isLoad;
+  });
 
-  const user_id = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.user_id
-  );
+  const user_id = useSelector((state: RootReducerType) => state.userReducer.account?.user_id);
 
   useEffect(() => {
     if (!isLoad) {

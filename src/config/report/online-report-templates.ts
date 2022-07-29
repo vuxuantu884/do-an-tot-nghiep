@@ -1,5 +1,9 @@
 import UrlConfig from "config/url.config";
-import { AnalyticCube, AnalyticTemplateData, TimeAtOptionValue } from "model/report/analytics.model";
+import {
+  AnalyticCube,
+  AnalyticTemplateData,
+  TimeAtOptionValue,
+} from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
 
@@ -20,7 +24,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nhan-vien.svg",
     id: 1,
-    chartColumnSelected: ['pre_total_sales'],
+    chartColumnSelected: ["pre_total_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -36,7 +40,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nhan-vien.svg",
     id: 2,
-    chartColumnSelected: ['pre_total_sales', 'pre_orders'],
+    chartColumnSelected: ["pre_total_sales", "pre_orders"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -52,7 +56,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nhan-vien.svg",
     id: 3,
-    chartColumnSelected: ['pre_total_sales'],
+    chartColumnSelected: ["pre_total_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -68,7 +72,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 4,
-    chartColumnSelected: ['total_sales'],
+    chartColumnSelected: ["total_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -84,7 +88,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 5,
-    chartColumnSelected: ['total_sales'],
+    chartColumnSelected: ["total_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -106,7 +110,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 6,
-    chartColumnSelected: ['total_sales', 'average_order_value'],
+    chartColumnSelected: ["total_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   {
@@ -122,7 +126,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 7,
-    chartColumnSelected: ['pre_total_sales'],
+    chartColumnSelected: ["pre_total_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -138,7 +142,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 8,
-    chartColumnSelected: ['pre_total_sales', 'pre_orders'],
+    chartColumnSelected: ["pre_total_sales", "pre_orders"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -154,17 +158,17 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "nguon-ban-hang.svg",
     id: 9,
-    chartColumnSelected: ['pre_total_sales', 'pre_orders'],
+    chartColumnSelected: ["pre_total_sales", "pre_orders"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   // {
   //   type: "Báo cáo đơn hàng",
   //   name: "theo lí do hủy đơn",
-  //   query: `SHOW orders, return_count, net_quantity, total_sales 
-  //   BY shipping_city 
-  //   FROM sales 
-  //   WHERE sale_area IN ('Khối KD Online') 
-  //   SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+  //   query: `SHOW orders, return_count, net_quantity, total_sales
+  //   BY shipping_city
+  //   FROM sales
+  //   WHERE sale_area IN ('Khối KD Online')
+  //   SINCE ${START_OF_MONTH} UNTIL ${TODAY}
   //   ORDER BY total_sales DESC `,
   //   cube: AnalyticCube.Sales,
   //   alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
@@ -176,11 +180,11 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   // {
   //   type: "Báo cáo đơn hàng",
   //   name: "theo HVC",
-  //   query: `SHOW orders, return_count, net_quantity, total_sales 
-  //   BY shipping_city 
-  //   FROM sales 
-  //   WHERE sale_area IN ('Khối KD Online') 
-  //   SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+  //   query: `SHOW orders, return_count, net_quantity, total_sales
+  //   BY shipping_city
+  //   FROM sales
+  //   WHERE sale_area IN ('Khối KD Online')
+  //   SINCE ${START_OF_MONTH} UNTIL ${TODAY}
   //   ORDER BY total_sales DESC `,
   //   cube: AnalyticCube.Sales,
   //   alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
@@ -203,7 +207,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "san-pham.svg",
     id: 12,
-    chartColumnSelected: ['pre_total_sales', 'pre_ordered_item_quantity'],
+    chartColumnSelected: ["pre_total_sales", "pre_ordered_item_quantity"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -219,7 +223,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     alias: [UrlConfig.ANALYTIC_SALES_ONLINE],
     iconImg: "san-pham.svg",
     id: 13,
-    chartColumnSelected: ['pre_total_sales', 'pre_ordered_item_quantity'],
+    chartColumnSelected: ["pre_total_sales", "pre_ordered_item_quantity"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
   },
   {
@@ -235,4 +239,4 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     chartColumnSelected: [],
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
-]
+];

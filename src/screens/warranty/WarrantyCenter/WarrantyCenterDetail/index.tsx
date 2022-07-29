@@ -37,14 +37,13 @@ function WarrantyCenterDetail() {
   const cities = useGetCities();
   const districts = useGetDistricts(selectedCityId);
 
-  const [initialFormValues, setInitialFormValues] =
-    useState<FormValueCreateCenterType>({
-      name: undefined,
-      phone: undefined,
-      city_id: undefined,
-      district_id: undefined,
-      address: undefined,
-    });
+  const [initialFormValues, setInitialFormValues] = useState<FormValueCreateCenterType>({
+    name: undefined,
+    phone: undefined,
+    city_id: undefined,
+    district_id: undefined,
+    address: undefined,
+  });
 
   const onOK = () => {
     form.validateFields().then(() => {
@@ -64,11 +63,7 @@ function WarrantyCenterDetail() {
             showSuccess("Cập nhật trung tâm bảo hành thành công");
             history.push(`${UrlConfig.WARRANTY}/${WARRANTY_URL.center}`);
           } else {
-            handleFetchApiError(
-              response,
-              "Cập nhật trung tâm bảo hành",
-              dispatch,
-            );
+            handleFetchApiError(response, "Cập nhật trung tâm bảo hành", dispatch);
           }
         })
         .finally(() => {
@@ -100,11 +95,7 @@ function WarrantyCenterDetail() {
           setInitialFormValues(values);
           form.setFieldsValue(values);
         } else {
-          handleFetchApiError(
-            response,
-            "Chi tiết trung tâm bảo hành",
-            dispatch,
-          );
+          handleFetchApiError(response, "Chi tiết trung tâm bảo hành", dispatch);
         }
       })
       .finally(() => {

@@ -1,3 +1,3 @@
-import PurchaseOrderScreen from "./PurchaseOrderScreen"
+import PurchaseOrderScreen from "./PurchaseOrderScreen";
 
-export { PurchaseOrderScreen }
+export { PurchaseOrderScreen };

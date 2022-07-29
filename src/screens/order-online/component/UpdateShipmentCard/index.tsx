@@ -35,13 +35,7 @@ import {
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
-import React, {
-  forwardRef,
-  useCallback,
-  useEffect,
-  useImperativeHandle,
-  useState,
-} from "react";
+import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import CancelFulfillmentModal from "screens/order-online/modal/cancel-fullfilment.modal";
@@ -145,10 +139,9 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
 
   useEffect(() => {
     // set ecommerce shipment
-    const fulfillmentsHasShipment =
-      OrderDetailAllFulfillment?.fulfillments?.filter(
-        (item: any) => !!item.shipment,
-      );
+    const fulfillmentsHasShipment = OrderDetailAllFulfillment?.fulfillments?.filter(
+      (item: any) => !!item.shipment,
+    );
     const fulfillment =
       fulfillmentsHasShipment && fulfillmentsHasShipment.length > 0
         ? fulfillmentsHasShipment[0]
@@ -183,22 +176,16 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   // state
   // const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
   //   useState<number>(0);
-  const [isVisibleShippedConfirm, setIsVisibleShippedConfirm] =
-    useState<boolean>(false);
-  const [requirementNameView, setRequirementNameView] = useState<string | null>(
-    null,
-  );
+  const [isVisibleShippedConfirm, setIsVisibleShippedConfirm] = useState<boolean>(false);
+  const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
   const [updateShipment, setUpdateShipment] = useState(false);
   const [cancelShipment, setCancelShipment] = useState(false);
 
   // const [trackingLogFulfillment, setTrackingLogFulfillment] =
   // 	useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  const [deliveryServices, setDeliveryServices] = useState<
-    DeliveryServiceResponse[]
-  >([]);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const shipping_requirements = useSelector(
-    (state: RootReducerType) =>
-      state.bootstrapReducer.data?.shipping_requirement,
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement,
   );
 
   const [allowCreatePacked] = useAuthorization({
@@ -336,9 +323,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   };
   const onReturnSuccess = (value: OrderResponse) => {
     setCancelShipment(false);
-    showSuccess(
-      `Bạn đã nhận hàng trả lại của đơn giao hàng ${fulfillmentIdGoodReturn}`,
-    );
+    showSuccess(`Bạn đã nhận hàng trả lại của đơn giao hàng ${fulfillmentIdGoodReturn}`);
     setIsVisibleGoodsReturn(false);
     onReload && onReload();
   };
@@ -367,34 +352,26 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
           value.status = FulFillmentStatus.PICKED;
           value.action = FulFillmentStatus.PICKED;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onPickSuccess, onError),
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onPickSuccess, onError));
           break;
         case 2:
           value.status = FulFillmentStatus.PACKED;
           value.action = FulFillmentStatus.PACKED;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onPackSuccess, onError),
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onPackSuccess, onError));
 
           break;
         case 3:
           value.status = FulFillmentStatus.SHIPPING;
           value.action = FulFillmentStatus.SHIPPING;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onShippingSuccess, onError),
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onShippingSuccess, onError));
           break;
         case 4:
           value.status = FulFillmentStatus.SHIPPED;
           value.action = FulFillmentStatus.SHIPPED;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onShippedSuccess, onError),
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onShippedSuccess, onError));
           break;
         case 5:
           value.status = FulFillmentStatus.CANCELLED;
@@ -421,9 +398,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
           value.status = FulFillmentStatus.RETURNING;
           value.action = FulFillmentStatus.RETURNING;
           setUpdateShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onCancelSuccess, onError),
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         case 7:
           value.status = FulFillmentStatus.RETURNED;
@@ -432,9 +407,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
           value.sub_cancel_reason_id = dataCancelFFM.reasonSubID;
           value.reason = dataCancelFFM.reason;
           setCancelShipment(true);
-          dispatch(
-            UpdateFulFillmentStatusAction(value, onCancelSuccess, onError),
-          );
+          dispatch(UpdateFulFillmentStatusAction(value, onCancelSuccess, onError));
           break;
         default:
           return;
@@ -442,17 +415,15 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     })();
   };
   // shipping confirm
-  const [isVisibleShippingConfirm, setIsVisibleShippingConfirm] =
-    useState<boolean>(false);
+  const [isVisibleShippingConfirm, setIsVisibleShippingConfirm] = useState<boolean>(false);
   const onOkShippingConfirm = () => {
     if (
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].status ===
-        FulFillmentStatus.UNSHIPPED &&
-      props.OrderDetail?.fulfillments[0].shipment
-        ?.delivery_service_provider_type !== ShipmentMethod.PICK_AT_STORE
+      props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+      props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
+        ShipmentMethod.PICK_AT_STORE
     ) {
       fulfillmentTypeOrderRequest(1);
     } else if (
@@ -460,10 +431,9 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       (props.OrderDetail?.fulfillments &&
         props.OrderDetail?.fulfillments.length > 0 &&
         props.OrderDetail?.fulfillments[0].shipment &&
-        props.OrderDetail?.fulfillments[0].status ===
-          FulFillmentStatus.UNSHIPPED &&
-        props.OrderDetail?.fulfillments[0].shipment
-          ?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE)
+        props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+        props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type ===
+          ShipmentMethod.PICK_AT_STORE)
     ) {
       fulfillmentTypeOrderRequest(2);
     } else if (
@@ -471,8 +441,8 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].shipment
-        ?.delivery_service_provider_type !== ShipmentMethod.PICK_AT_STORE
+      props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
+        ShipmentMethod.PICK_AT_STORE
     ) {
       fulfillmentTypeOrderRequest(3);
     } else if (
@@ -480,10 +450,9 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       (props.OrderDetail?.fulfillments &&
         props.OrderDetail?.fulfillments.length > 0 &&
         props.OrderDetail?.fulfillments[0].shipment &&
-        props.OrderDetail?.fulfillments[0].status ===
-          FulFillmentStatus.PACKED &&
-        props.OrderDetail?.fulfillments[0].shipment
-          ?.delivery_service_provider_type === ShipmentMethod.PICK_AT_STORE)
+        props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.PACKED &&
+        props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type ===
+          ShipmentMethod.PICK_AT_STORE)
     ) {
       fulfillmentTypeOrderRequest(4);
     }
@@ -553,8 +522,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
-        value.delivery_service_provider_type =
-          thirdPL.delivery_service_provider_code;
+        value.delivery_service_provider_type = thirdPL.delivery_service_provider_code;
         value.service = thirdPL.service;
       }
       if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
@@ -562,29 +530,21 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       }
 
       if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER) {
-        value.delivery_service_provider_id =
-          thirdPL.delivery_service_provider_id;
+        value.delivery_service_provider_id = thirdPL.delivery_service_provider_id;
         value.delivery_service_provider_type = ShipmentMethod.EXTERNAL_SERVICE;
-        value.delivery_service_provider_code =
-          thirdPL.delivery_service_provider_code;
-        value.delivery_service_provider_name =
-          thirdPL.delivery_service_provider_name;
+        value.delivery_service_provider_code = thirdPL.delivery_service_provider_code;
+        value.delivery_service_provider_name = thirdPL.delivery_service_provider_name;
         // delivery_transport_type = serviceName
         value.delivery_transport_type = thirdPL.delivery_transport_type;
         value.sender_address_id = props.OrderDetail.store_id;
         value.service = thirdPL.service;
-        value.shipping_fee_informed_to_customer =
-          props.shippingFeeInformedCustomer;
-        value.shipping_fee_paid_to_three_pls =
-          thirdPL.shipping_fee_paid_to_three_pls;
+        value.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
+        value.shipping_fee_paid_to_three_pls = thirdPL.shipping_fee_paid_to_three_pls;
       }
     }
     if (props.OrderDetail != null) {
       FulFillmentRequest.order_id = props.OrderDetail.id;
-      if (
-        props.OrderDetail.fulfillments &&
-        props.OrderDetail.fulfillments.length !== 0
-      ) {
+      if (props.OrderDetail.fulfillments && props.OrderDetail.fulfillments.length !== 0) {
         FulFillmentRequest.id = props.OrderDetail.fulfillments[0].id;
       }
     }
@@ -593,9 +553,8 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       checkPaymentStatusToShow(props.OrderDetail) === 1 &&
       value.shipping_fee_informed_to_customer !== null
     ) {
-      let cod = props.OrderDetail.total -
-      getAmountPayment(props.OrderDetail.payments);
-      if(cod < 0) {
+      let cod = props.OrderDetail.total - getAmountPayment(props.OrderDetail.payments);
+      if (cod < 0) {
         cod = 0;
       }
       value.cod = cod;
@@ -606,22 +565,17 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
         console.log("22");
       }
     }
-    if (
-      props.OrderDetail?.status === "draft" &&
-      customerNeedToPayValue === props.totalPaid
-    ) {
+    if (props.OrderDetail?.status === "draft" && customerNeedToPayValue === props.totalPaid) {
       value.cod = customerNeedToPayValue;
     }
 
     // console.log("value33", value);
     // return;
 
-    FulFillmentRequest.shipment =
-      isEcommerceOrder && ecommerceShipment ? ecommerceShipment : value;
+    FulFillmentRequest.shipment = isEcommerceOrder && ecommerceShipment ? ecommerceShipment : value;
 
     if (props.shippingFeeInformedCustomer !== null) {
-      FulFillmentRequest.shipping_fee_informed_to_customer =
-        props.shippingFeeInformedCustomer;
+      FulFillmentRequest.shipping_fee_informed_to_customer = props.shippingFeeInformedCustomer;
     }
     if (props.shippingFeeInformedCustomer !== null) {
       FulFillmentRequest.total =
@@ -629,8 +583,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
         props.OrderDetail?.total_line_amount_after_line_discount +
           props.shippingFeeInformedCustomer;
     } else {
-      FulFillmentRequest.total =
-        props.OrderDetail?.total_line_amount_after_line_discount;
+      FulFillmentRequest.total = props.OrderDetail?.total_line_amount_after_line_discount;
     }
 
     let UpdateLineFulFillment: UpdateLineFulFillment = {
@@ -642,26 +595,15 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     // console.log('UpdateLineFulFillment', UpdateLineFulFillment);
     // return;
 
-    if (
-      shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER &&
-      !thirdPL.service
-    ) {
+    if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
       showError("Vui lòng chọn đơn vị vận chuyển!");
-      const element = document.getElementsByClassName(
-        "orders-shipment",
-      )[0] as HTMLElement;
+      const element = document.getElementsByClassName("orders-shipment")[0] as HTMLElement;
       scrollAndFocusToDomElement(element);
     } else {
       setUpdateShipment(true);
       (async () => {
         try {
-          await dispatch(
-            UpdateShipmentAction(
-              UpdateLineFulFillment,
-              onUpdateSuccess,
-              onError,
-            ),
-          );
+          await dispatch(UpdateShipmentAction(UpdateLineFulFillment, onUpdateSuccess, onError));
         } catch {}
       })();
       // setUpdateShipment(false);
@@ -669,18 +611,11 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   };
   // get req to view
   const getRequirementName = useCallback(() => {
-    if (
-      OrderDetail &&
-      OrderDetail?.fulfillments &&
-      OrderDetail?.fulfillments.length > 0
-    ) {
+    if (OrderDetail && OrderDetail?.fulfillments && OrderDetail?.fulfillments.length > 0) {
       if (sortedFulfillments[0]) {
       }
-      let requirement =
-        OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
-      const reqObj = shipping_requirements?.find(
-        (r) => r.value === requirement,
-      );
+      let requirement = OrderDetail?.fulfillments[0].shipment?.requirements?.toString();
+      const reqObj = shipping_requirements?.find((r) => r.value === requirement);
       setRequirementNameView(reqObj ? reqObj?.name : "");
     }
   }, [OrderDetail, shipping_requirements, sortedFulfillments]);
@@ -699,14 +634,10 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   console.log("props.totalPaid", props.totalPaid);
 
   // Cancel fulfillments
-  const [isVisibleCancelFulfillment, setIsVisibleCancelFulfillment] =
-    useState<boolean>(false);
+  const [isVisibleCancelFulfillment, setIsVisibleCancelFulfillment] = useState<boolean>(false);
   const [isShipping, setIsShipping] = useState<boolean>(false);
-  const [isVisibleGoodsReturn, setIsVisibleGoodsReturn] =
-    useState<boolean>(false);
-  const [fulfillmentIdGoodReturn, setFulfillmentIdGoodReturn] = useState<
-    number | null
-  >(null);
+  const [isVisibleGoodsReturn, setIsVisibleGoodsReturn] = useState<boolean>(false);
+  const [fulfillmentIdGoodReturn, setFulfillmentIdGoodReturn] = useState<number | null>(null);
 
   const cancelFulfillment = useCallback(() => {
     if (
@@ -723,17 +654,8 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   }, [OrderDetail]);
 
   const onOKCancelFulfillment = useCallback(
-    (
-      reasonID: string,
-      reasonSubID: string,
-      reason: string,
-      isGotoUpdate: boolean = false,
-    ) => {
-      fulfillmentTypeOrderRequest(
-        5,
-        { reasonID, reasonSubID, reason },
-        isGotoUpdate,
-      );
+    (reasonID: string, reasonSubID: string, reason: string, isGotoUpdate: boolean = false) => {
+      fulfillmentTypeOrderRequest(5, { reasonID, reasonSubID, reason }, isGotoUpdate);
       setIsVisibleCancelFulfillment(false);
     },
     [fulfillmentTypeOrderRequest],
@@ -775,10 +697,9 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       props.OrderDetail?.fulfillments &&
       props.OrderDetail?.fulfillments.length > 0 &&
       props.OrderDetail?.fulfillments[0].shipment &&
-      props.OrderDetail?.fulfillments[0].status ===
-        FulFillmentStatus.UNSHIPPED &&
-      props.OrderDetail?.fulfillments[0].shipment
-        ?.delivery_service_provider_type !== ShipmentMethod.PICK_AT_STORE
+      props.OrderDetail?.fulfillments[0].status === FulFillmentStatus.UNSHIPPED &&
+      props.OrderDetail?.fulfillments[0].shipment?.delivery_service_provider_type !==
+        ShipmentMethod.PICK_AT_STORE
     ) {
       fulfillmentTypeOrderRequest(1);
     }
@@ -789,12 +710,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     () => ({
       handleCancelFulfillmentAndUpdate() {
         const otherReasonId = "1";
-        onOKCancelFulfillment(
-          otherReasonId,
-          "",
-          "Hủy đơn giao và sửa đơn hàng",
-          true,
-        );
+        onOKCancelFulfillment(otherReasonId, "", "Hủy đơn giao và sửa đơn hàng", true);
       },
     }),
     [onOKCancelFulfillment],
@@ -830,8 +746,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
             <div className="d-flex">
               <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
             </div>
-            {OrderDetailAllFulfillment?.fulfillment_status ===
-              FulFillmentStatus.SHIPPED && (
+            {OrderDetailAllFulfillment?.fulfillment_status === FulFillmentStatus.SHIPPED && (
               <Tag
                 className="orders-tag text-menu"
                 style={{
@@ -846,56 +761,43 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
         }
         extra={
           <Space size={26}>
-            {props.OrderDetail?.fulfillments &&
-              props.OrderDetail?.fulfillments.length > 0 && (
-                // props.OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
-                <div className="text-menu">
-                  {sortedFulfillments[0]?.shipment?.expected_received_date && (
-                    <React.Fragment>
-                      <img
-                        src={calendarOutlined}
-                        alt=""
-                        className="expectedReceivedDateIcon"
-                      />
-                      <span>
-                        {sortedFulfillments[0]?.shipment?.expected_received_date
-                          ? moment(
-                              sortedFulfillments[0]?.shipment
-                                ?.expected_received_date,
-                            ).format(dateFormat)
-                          : ""}
-                      </span>
-                    </React.Fragment>
-                  )}
-                  {sortedFulfillments[0]?.shipment?.office_time && (
-                    <span>Giờ hành chính</span>
-                  )}
-                </div>
-              )}
+            {props.OrderDetail?.fulfillments && props.OrderDetail?.fulfillments.length > 0 && (
+              // props.OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
+              <div className="text-menu">
+                {sortedFulfillments[0]?.shipment?.expected_received_date && (
+                  <React.Fragment>
+                    <img src={calendarOutlined} alt="" className="expectedReceivedDateIcon" />
+                    <span>
+                      {sortedFulfillments[0]?.shipment?.expected_received_date
+                        ? moment(sortedFulfillments[0]?.shipment?.expected_received_date).format(
+                            dateFormat,
+                          )
+                        : ""}
+                    </span>
+                  </React.Fragment>
+                )}
+                {sortedFulfillments[0]?.shipment?.office_time && <span>Giờ hành chính</span>}
+              </div>
+            )}
           </Space>
         }
       >
         {/* xét trường hợp nữa đơn hàng từ POS */}
         {newFulfillments.map(
           (fulfillment) =>
-            (fulfillment.shipment ||
-              isOrderFromPOS(OrderDetailAllFulfillment)) && (
+            (fulfillment.shipment || isOrderFromPOS(OrderDetailAllFulfillment)) && (
               <React.Fragment>
                 <div key={fulfillment.id} className="fulfillmentWrapper">
                   <Collapse
                     className="saleorder_shipment_order_colapse payment_success"
-                    defaultActiveKey={[
-                      checkIfFulfillmentCancelled(fulfillment) ? "0" : "1",
-                    ]}
+                    defaultActiveKey={[checkIfFulfillmentCancelled(fulfillment) ? "0" : "1"]}
                     expandIcon={({ isActive }) => (
                       <div className="saleorder-header-arrow 2">
                         <img
                           alt=""
                           src={doubleArrow}
                           style={{
-                            transform: `${
-                              !isActive ? "rotate(270deg)" : "rotate(0deg)"
-                            }`,
+                            transform: `${!isActive ? "rotate(270deg)" : "rotate(0deg)"}`,
                           }}
                         />
                       </div>
@@ -929,12 +831,8 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                         isUpdateOrder={false}
                       />
                       <OrderFulfillmentShowProduct orderDetail={OrderDetail} />
-                      <OrderFulfillmentShowFulfillment
-                        fulfillment={fulfillment}
-                      />
-                      <OrderFulfillmentCancelledShowDate
-                        fulfillment={fulfillment}
-                      />
+                      <OrderFulfillmentShowFulfillment fulfillment={fulfillment} />
+                      <OrderFulfillmentCancelledShowDate fulfillment={fulfillment} />
                       <OrderFulfillmentReceiveGoods
                         fulfillment={fulfillment}
                         goodsReturnCallback={goodsReturnCallback}
@@ -967,14 +865,9 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
               initialValues={initialFormUpdateShipment}
               form={form}
               onFinishFailed={({ errorFields }: any) => {
-                const element: any = document.getElementById(
-                  errorFields[0].name.join(""),
-                );
+                const element: any = document.getElementById(errorFields[0].name.join(""));
                 element?.focus();
-                const y =
-                  element?.getBoundingClientRect()?.top +
-                  window.pageYOffset +
-                  -250;
+                const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
                 window.scrollTo({ top: y, behavior: "smooth" });
               }}
               onFinish={onFinishUpdateFulFillment}
@@ -988,9 +881,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 items={OrderDetail?.items}
                 isCancelValidateDelivery={false}
                 totalAmountCustomerNeedToPay={customerNeedToPayValue}
-                setShippingFeeInformedToCustomer={
-                  props.setShippingFeeInformedCustomer
-                }
+                setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
                 onSelectShipment={setShipmentMethod}
                 thirdPL={thirdPL}
                 setThirdPL={setThirdPL}

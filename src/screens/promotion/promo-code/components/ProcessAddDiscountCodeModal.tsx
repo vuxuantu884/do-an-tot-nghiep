@@ -16,7 +16,7 @@ type ProgressImportCustomerModalType = {
 };
 
 const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
-  props: ProgressImportCustomerModalType
+  props: ProgressImportCustomerModalType,
 ) => {
   const { visible, isProcessing, onOk, progressData, progressPercent } = props;
 
@@ -25,9 +25,9 @@ const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
 
   useEffect(() => {
     if (progressData?.message) {
-    const errorList = progressData?.message.slice(0).split("\n");
-    const checkErrorList = errorList.filter((item: any) => item !== "")
-    setErrorData(checkErrorList);
+      const errorList = progressData?.message.slice(0).split("\n");
+      const checkErrorList = errorList.filter((item: any) => item !== "");
+      setErrorData(checkErrorList);
     }
   }, [progressData?.message]);
 
@@ -38,12 +38,11 @@ const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
   const onCancelProgressModal = () => {
     setIsVisibleExitProcessModal(true);
   };
-  
+
   const onOkExitProgressModal = () => {
     setIsVisibleExitProcessModal(false);
     onOk && onOk();
-  }
-
+  };
 
   return (
     <>
@@ -59,16 +58,15 @@ const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
         maskClosable={false}
         footer={
           <StyledModalFooter>
-            {isProcessing ?
-              <Button danger onClick={onCancelProgressModal}>Hủy</Button>
-              : <div />
-            }
+            {isProcessing ? (
+              <Button danger onClick={onCancelProgressModal}>
+                Hủy
+              </Button>
+            ) : (
+              <div />
+            )}
 
-            <Button
-              type="primary"
-              onClick={onOkProgressModal}
-              loading={isProcessing}
-              >
+            <Button type="primary" onClick={onOkProgressModal} loading={isProcessing}>
               Xác nhận
             </Button>
           </StyledModalFooter>
@@ -80,52 +78,60 @@ const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
               <div>
                 <div>Tổng cộng</div>
                 <div className="total-count">
-                  {isNullOrUndefined(progressData?.total) ? "--" :
+                  {isNullOrUndefined(progressData?.total) ? (
+                    "--"
+                  ) : (
                     <NumberFormat
                       value={progressData?.total}
                       displayType={"text"}
                       thousandSeparator={true}
                     />
-                  }
+                  )}
                 </div>
               </div>
 
               <div>
                 <div>Đã xử lý</div>
-                <div style={{fontWeight: "bold"}}>
-                  {isNullOrUndefined(progressData?.processed) ? "--" :
+                <div style={{ fontWeight: "bold" }}>
+                  {isNullOrUndefined(progressData?.processed) ? (
+                    "--"
+                  ) : (
                     <NumberFormat
                       value={progressData?.processed}
                       displayType={"text"}
                       thousandSeparator={true}
                     />
-                  }
+                  )}
                 </div>
               </div>
 
               <div>
                 <div>Thành công</div>
                 <div className="total-updated">
-                  {isNullOrUndefined(progressData?.success) ? "--" :
+                  {isNullOrUndefined(progressData?.success) ? (
+                    "--"
+                  ) : (
                     <NumberFormat
                       value={progressData?.success}
                       displayType={"text"}
                       thousandSeparator={true}
                     />
-                  }
+                  )}
                 </div>
               </div>
 
               <div>
                 <div>Lỗi</div>
                 <div className="total-error">
-                  {isNullOrUndefined(progressData?.error) ? "--" :
+                  {isNullOrUndefined(progressData?.error) ? (
+                    "--"
+                  ) : (
                     <NumberFormat
                       value={progressData?.error}
                       displayType={"text"}
                       thousandSeparator={true}
                     />
-                  }
+                  )}
                 </div>
               </div>
             </div>
@@ -138,29 +144,30 @@ const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
             />
           </div>
 
-          {errorData.length ?
+          {errorData.length ? (
             <div className="error-orders">
               <div className="title">Chi tiết lỗi:</div>
               <div className="error_message">
                 <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
                   <ul style={{ color: "#E24343" }}>
                     {errorData.map((error, index) => (
-                        <li key={index} style={{ marginBottom: "5px"}}>
-                          <span style={{fontWeight: 500}}>{error.split(":")[0]}</span>
-                          <span>:</span>
-                          <span>{error.split(":")[1]}</span>
-                        </li>
+                      <li key={index} style={{ marginBottom: "5px" }}>
+                        <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
+                        <span>:</span>
+                        <span>{error.split(":")[1]}</span>
+                      </li>
                     ))}
                   </ul>
                 </div>
               </div>
             </div>
-            : <div />
-          }
+          ) : (
+            <div />
+          )}
         </StyledProgressDownloadModal>
       </Modal>
 
-      {isVisibleExitProcessModal &&
+      {isVisibleExitProcessModal && (
         <Modal
           width="600px"
           centered
@@ -175,7 +182,9 @@ const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
           <div style={{ display: "flex", alignItems: "center" }}>
             <img src={DeleteIcon} alt="" />
             <div style={{ marginLeft: 15 }}>
-              <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy thêm mới mã giảm giá không?</strong>
+              <strong style={{ fontSize: 16 }}>
+                Bạn có chắc chắn muốn hủy thêm mới mã giảm giá không?
+              </strong>
               <div style={{ fontSize: 14 }}>
                 <div>Hệ thống sẽ dừng việc thêm mới mã giảm giá.</div>
                 <div>Các mã đã được tạo thành công sẽ hiển thị trong danh sách mã giảm giá."</div>
@@ -183,7 +192,7 @@ const ProcessAddDiscountCodeModal: React.FC<ProgressImportCustomerModalType> = (
             </div>
           </div>
         </Modal>
-      }
+      )}
     </>
   );
 };

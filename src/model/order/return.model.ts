@@ -7,7 +7,7 @@ export interface ReturnModel {
   account_code: string;
   code_order: string;
   code_order_return: string;
-  customer:string;
+  customer: string;
   created_by: string;
   created_date: string;
   created_name: string;
@@ -18,8 +18,8 @@ export interface ReturnModel {
   id: number;
   order_id: number;
   payment_status: string;
-  reason:string;
-  return_reason?:ReasonReturn;
+  reason: string;
+  return_reason?: ReasonReturn;
   reason_id: number;
   receive_date: string | null;
   received: boolean;
@@ -35,69 +35,69 @@ export interface ReturnModel {
   items: Array<OrderLineItemResponse>;
   note: string;
   customer_note: string;
-  payments?:OrderPaymentResponse[]|null;
-  channel?:string|null;
-  channel_id?:number|null;
+  payments?: OrderPaymentResponse[] | null;
+  channel?: string | null;
+  channel_id?: number | null;
 }
 
 export interface ReturnSearchQuery {
   page: number;
   limit: number;
-  sort_type: string|null;
-  sort_column: string|null;
-  search_term: string|null;
-  created_on_min: string|null;
-  created_on_max: string|null;
+  sort_type: string | null;
+  sort_column: string | null;
+  search_term: string | null;
+  created_on_min: string | null;
+  created_on_max: string | null;
   // created_on_predefined: string|null;
-  received_on_min: string|null;
-  received_on_max: string|null;
-  received_predefined: string|null;
+  received_on_min: string | null;
+  received_on_max: string | null;
+  received_predefined: string | null;
   payment_status: [];
   assignee_code: [];
-  price_min: number|null;
-  price_max: number|null;
-  store_ids: [],
+  price_min: number | null;
+  price_max: number | null;
+  store_ids: [];
   is_received: [];
   assignee_codes: [];
   account_codes: [];
   reason_ids: [];
-  is_online?: boolean|null;
+  is_online?: boolean | null;
   source_ids: [];
   channel_codes: [];
   marketer_codes: [];
-  coordinator_codes?:[];
-  searched_product?:string|null;
+  coordinator_codes?: [];
+  searched_product?: string | null;
 }
 
-export interface ReasonReturn{
+export interface ReasonReturn {
   id: number;
   code: string;
   name: string;
-  sub_reasons:any[];
+  sub_reasons: any[];
 }
 
 export interface ReturnCalculateRefundModel {
-  money_refund: number; 
-  point_refund: number; 
+  money_refund: number;
+  point_refund: number;
 }
 
 export interface RefundModel {
-  moneyRefund: number; 
-  pointRefund: number; 
+  moneyRefund: number;
+  pointRefund: number;
 }
 
 export interface RefundTransactionModel {
   change_point: number;
   customer_id: number;
-  expired_date: string|null;
+  expired_date: string | null;
   money_point: number;
-  note: string|null;
+  note: string | null;
   order_id: number;
-  reason: null
-  reference_code: null
-  status: string|null;
+  reason: null;
+  reference_code: null;
+  status: string | null;
   sub_order_id: number;
-  type: string|null;
+  type: string | null;
 }
 
 export interface CalculateMoneyRefundRequestModel {
@@ -105,7 +105,7 @@ export interface CalculateMoneyRefundRequestModel {
     order_line_id: number | null | undefined;
     sku: string;
     quantity: number;
-  }[]
+  }[];
 }
 
 export type CalculateMoneyRefundResponseModel = number;

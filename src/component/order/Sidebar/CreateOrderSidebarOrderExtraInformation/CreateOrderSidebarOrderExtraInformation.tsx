@@ -11,9 +11,7 @@ type PropTypes = {
   isReturn?: boolean;
 };
 
-function CreateOrderSidebarOrderExtraInformation(
-  props: PropTypes,
-): JSX.Element {
+function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element {
   const { onChangeTag, tags, isExchange, isReturn } = props;
 
   const moreTextIfIsReturn = useMemo(() => {
@@ -30,10 +28,7 @@ function CreateOrderSidebarOrderExtraInformation(
 
   return (
     <StyledComponent>
-      <Form.Item
-        name="customer_note"
-        label={`Ghi chú của khách ${moreTextIfIsReturn || ""}`}
-      >
+      <Form.Item name="customer_note" label={`Ghi chú của khách ${moreTextIfIsReturn || ""}`}>
         <Input.TextArea
           placeholder="Điền ghi chú"
           //maxLength={500}

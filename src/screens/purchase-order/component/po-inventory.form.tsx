@@ -2,14 +2,21 @@ import { Button, Card, Form, Input, Space, Tag } from "antd";
 import dashboardIcon from "assets/icon/dashboard.svg";
 import importIcon from "assets/icon/import-card.svg";
 import {
-  ApprovalPoProcumentAction, ConfirmPoProcumentAction, PoProcumentCreateAction, PoProcumentDeleteAction, PoProcumentUpdateAction
+  ApprovalPoProcumentAction,
+  ConfirmPoProcumentAction,
+  PoProcumentCreateAction,
+  PoProcumentDeleteAction,
+  PoProcumentUpdateAction,
 } from "domain/actions/po/po-procument.action";
 import { PoUpdateAction } from "domain/actions/po/po.action";
 import { StoreResponse } from "model/core/store.model";
 import { POField } from "model/purchase-order/po-field";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
+import {
+  PurchaseProcument,
+  PurchaseProcurementViewDraft,
+} from "model/purchase-order/purchase-procument";
 import { Moment } from "moment";
 import React, { lazy, useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -18,10 +25,10 @@ import { showSuccess } from "utils/ToastUtils";
 import POInventoryView from "./po-inventory/po-inventory.view";
 import POInventoryDraft from "./po-inventory/POInventoryDraft";
 
-const ProcumentConfirmModal = lazy(() => import("../modal/procument-confirm.modal"))
-const ProcumentInventoryModal = lazy(() => import("../modal/procument-inventory.modal"))
-const ProcumentModal = lazy(() => import("../modal/procument.modal"))
-const POEditDraftProcurementModal = lazy(() => import("../modal/POEditDraftProcurementModal"))
+const ProcumentConfirmModal = lazy(() => import("../modal/procument-confirm.modal"));
+const ProcumentInventoryModal = lazy(() => import("../modal/procument-inventory.modal"));
+const ProcumentModal = lazy(() => import("../modal/procument.modal"));
+const POEditDraftProcurementModal = lazy(() => import("../modal/POEditDraftProcurementModal"));
 
 export type POInventoryFormProps = {
   loadDetail?: (poId: number, isLoading: boolean, isSuggest: boolean) => void;
@@ -60,9 +67,7 @@ const TAB = [
   },
 ];
 
-const POInventoryForm: React.FC<POInventoryFormProps> = (
-  props: POInventoryFormProps
-) => {
+const POInventoryForm: React.FC<POInventoryFormProps> = (props: POInventoryFormProps) => {
   const {
     stores,
     status,
@@ -73,7 +78,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
     formMain,
     isShowStatusTag,
     loadDetail,
-    isEditDetail
+    isEditDetail,
   } = props;
 
   const [activeTab, setActiveTab] = useState(TAB[0].id);
@@ -81,18 +86,16 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
   const [visible, setVisible] = useState(false);
   const [visibleEditProcurement, setVisibleEditProcurement] = useState(false);
   const [visibleDraft, setVisibleDraft] = useState(false);
-  const procumentCodeRef = useRef('');
+  const procumentCodeRef = useRef("");
   const [visibleConfirm, setVisibleConfirm] = useState(false);
   const [loaddingCreate, setLoadingCreate] = useState(false);
   const [loadingConfirm, setLoadingConfirm] = useState(false);
   const [loadingRecive, setLoadingRecive] = useState(false);
   const [poItems, setPOItem] = useState<Array<PurchaseOrderLineItem>>([]);
   const [draft, setDraft] = useState<PurchaseProcument | null>(null);
-  const [procumentDraft, setProcumentDraft] =
-    useState<PurchaseProcument | null>(null);
+  const [procumentDraft, setProcumentDraft] = useState<PurchaseProcument | null>(null);
   const [procuments, setProcuments] = useState<Array<PurchaseProcurementViewDraft>>([]);
-  const [procumentInventory, setProcumentInventory] =
-    useState<PurchaseProcument | null>(null);
+  const [procumentInventory, setProcumentInventory] = useState<PurchaseProcument | null>(null);
   const [storeExpect, setStoreExpect] = useState<number>(-1);
   const [isEditProcument, setEditProcument] = useState<boolean>(false);
   const [loadingEditDraft, setLoadingEditDraft] = useState<boolean>(false);
@@ -108,7 +111,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
-    [isEditProcument, onAddProcumentSuccess]
+    [isEditProcument, onAddProcumentSuccess],
   );
 
   const onAddProcument = useCallback(
@@ -117,46 +120,38 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         if (!poData) return;
         setLoadingCreate(true);
         if (isEditProcument) {
-          dispatch(
-            PoProcumentUpdateAction(
-              idNumber,
-              value.id,
-              value,
-              onAddProcumentCallback
-            )
-          );
+          dispatch(PoProcumentUpdateAction(idNumber, value.id, value, onAddProcumentCallback));
         } else {
-          dispatch(
-            PoProcumentCreateAction(idNumber, value, onAddProcumentCallback)
-          );
+          dispatch(PoProcumentCreateAction(idNumber, value, onAddProcumentCallback));
         }
       }
     },
-    [idNumber, poData, isEditProcument, dispatch, onAddProcumentCallback]
+    [idNumber, poData, isEditProcument, dispatch, onAddProcumentCallback],
   );
 
-  const onDeleteProcumentCallback = useCallback((result) => {
-    if (result !== null) {
-      setLoadingCreate(false);
-      showSuccess("Huỷ phiếu nháp thành công");
-      setVisible(false);
-      setVisibleDraft(false);
-      setVisibleConfirm(false);
-      onAddProcumentSuccess && onAddProcumentSuccess(false);
-    }
-  }, [onAddProcumentSuccess]);
+  const onDeleteProcumentCallback = useCallback(
+    (result) => {
+      if (result !== null) {
+        setLoadingCreate(false);
+        showSuccess("Huỷ phiếu nháp thành công");
+        setVisible(false);
+        setVisibleDraft(false);
+        setVisibleConfirm(false);
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
+      }
+    },
+    [onAddProcumentSuccess],
+  );
 
   const onDeleteProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
         if (!poData) return;
         setLoadingCreate(true);
-        dispatch(
-          PoProcumentDeleteAction(idNumber, value.id, onDeleteProcumentCallback)
-        );
+        dispatch(PoProcumentDeleteAction(idNumber, value.id, onDeleteProcumentCallback));
       }
     },
-    [dispatch, idNumber, onDeleteProcumentCallback, poData]
+    [dispatch, idNumber, onDeleteProcumentCallback, poData],
   );
 
   const onConfirmProcumentCallback = useCallback(
@@ -169,7 +164,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
-    [onAddProcumentSuccess]
+    [onAddProcumentSuccess],
   );
 
   const onConfirmProcument = useCallback(
@@ -177,18 +172,11 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
       if (idNumber && value.id) {
         if (!poData) return;
         setLoadingConfirm(true);
-        console.log('onConfirmProcument', value);
-        dispatch(
-          ApprovalPoProcumentAction(
-            idNumber,
-            value.id,
-            value,
-            onConfirmProcumentCallback
-          )
-        );
+        console.log("onConfirmProcument", value);
+        dispatch(ApprovalPoProcumentAction(idNumber, value.id, value, onConfirmProcumentCallback));
       }
     },
-    [dispatch, idNumber, onConfirmProcumentCallback, poData]
+    [dispatch, idNumber, onConfirmProcumentCallback, poData],
   );
 
   const onReciveProcumentCallback = useCallback(
@@ -202,33 +190,29 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         onAddProcumentSuccess && onAddProcumentSuccess(false);
       }
     },
-    [onAddProcumentSuccess]
+    [onAddProcumentSuccess],
   );
 
-  const onUpdateCall = useCallback((result) => {
-    setLoadingEditDraft(false);
-    if (result !== null) {
-      setVisibleEditProcurement(false);
-      onAddProcumentSuccess && onAddProcumentSuccess(false);
-    }
-  }, [onAddProcumentSuccess])
+  const onUpdateCall = useCallback(
+    (result) => {
+      setLoadingEditDraft(false);
+      if (result !== null) {
+        setVisibleEditProcurement(false);
+        onAddProcumentSuccess && onAddProcumentSuccess(false);
+      }
+    },
+    [onAddProcumentSuccess],
+  );
 
   const onReciveProcument = useCallback(
     (value: PurchaseProcument) => {
       if (idNumber && value.id) {
         if (!poData) return;
         setLoadingRecive(true);
-        dispatch(
-          ConfirmPoProcumentAction(
-            idNumber,
-            value.id,
-            value,
-            onReciveProcumentCallback
-          )
-        );
+        dispatch(ConfirmPoProcumentAction(idNumber, value.id, value, onReciveProcumentCallback));
       }
     },
-    [dispatch, idNumber, onReciveProcumentCallback, poData]
+    [dispatch, idNumber, onReciveProcumentCallback, poData],
   );
 
   useEffect(() => {
@@ -268,24 +252,22 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
               dotClassName += " danger";
             }
             if (status === ProcumentStatus.DRAFT) {
-              return <Space>
-                <div className="d-flex">
-                  <span className="title-card">NHẬP KHO</span>
-                </div>{" "}
-              </Space>
+              return (
+                <Space>
+                  <div className="d-flex">
+                    <span className="title-card">NHẬP KHO</span>
+                  </div>{" "}
+                </Space>
+              );
             }
 
             return (
               <Space>
-                {isShowStatusTag && (
-                  <div className={dotClassName} style={{ fontSize: 8 }} />
-                )}
+                {isShowStatusTag && <div className={dotClassName} style={{ fontSize: 8 }} />}
                 <div className="d-flex">
                   <span className="title-card">NHẬP KHO</span>
                 </div>{" "}
-                {isShowStatusTag && (
-                  <Tag className={className}>{statusName}</Tag>
-                )}
+                {isShowStatusTag && <Tag className={className}>{statusName}</Tag>}
               </Space>
             );
           }}
@@ -296,23 +278,26 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
           noStyle
           shouldUpdate={(prev, current) =>
             prev[POField.line_items] !== current[POField.line_items] ||
-            prev[POField.expect_store_id] !==
-            current[POField.expect_store_id] ||
+            prev[POField.expect_store_id] !== current[POField.expect_store_id] ||
             prev[POField.receive_status] !== current[POField.receive_status]
           }
         >
           {({ getFieldValue }) => {
             const expect_store_id: number = getFieldValue(POField.expect_store_id);
             const line_items: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items);
-            const procurements: Array<PurchaseProcurementViewDraft> = getFieldValue(POField.procurements) || [];
+            const procurements: Array<PurchaseProcurementViewDraft> =
+              getFieldValue(POField.procurements) || [];
 
-            if (((status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) && props.isEdit)) {
+            if (
+              (status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) &&
+              props.isEdit
+            ) {
               return (
                 <Button
                   onClick={() => {
                     setEditProcument(false);
                     setStoreExpect(expect_store_id);
-                    setPOItem(line_items)
+                    setPOItem(line_items);
                     setVisibleEditProcurement(true);
                     setProcuments(procurements);
                   }}
@@ -327,7 +312,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 </Button>
               );
             } else {
-              return null
+              return null;
             }
 
             // return (
@@ -364,12 +349,8 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         <Input />
       </Form.Item>
       <div>
-        {((status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL)) ? (
-          <POInventoryDraft
-            formMain={formMain}
-            isEdit={props.isEdit}
-            stores={stores}
-          />
+        {status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL ? (
+          <POInventoryDraft formMain={formMain} isEdit={props.isEdit} stores={stores} />
         ) : (
           <POInventoryView
             form={formMain}
@@ -392,9 +373,13 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setProcumentDraft(value);
                 setVisibleDraft(true);
               }
-              procumentCodeRef.current = procumentCode || '';
+              procumentCodeRef.current = procumentCode || "";
             }}
-            confirmInventory={(value: PurchaseProcument, isEdit: boolean, procumentCode?: string) => {
+            confirmInventory={(
+              value: PurchaseProcument,
+              isEdit: boolean,
+              procumentCode?: string,
+            ) => {
               setEditProcument(isEdit);
               let line_items = formMain.getFieldValue(POField.line_items);
               setPOItem(line_items);
@@ -405,7 +390,7 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
                 setProcumentInventory(value);
                 setVisibleConfirm(true);
               }
-              procumentCodeRef.current = procumentCode || '';
+              procumentCodeRef.current = procumentCode || "";
             }}
             isEditDetail={isEditDetail}
             receiveStatus={poData ? poData.receive_status : undefined}
@@ -413,99 +398,91 @@ const POInventoryForm: React.FC<POInventoryFormProps> = (
         )}
       </div>
 
-      {
-        visible && (
-          <ProcumentModal
-            onCancle={() => {
-              setVisible(false);
-            }}
-            isEdit={isEditProcument}
-            loading={loaddingCreate}
-            stores={stores}
-            poData={poData}
-            now={now}
-            visible={visible}
-            items={poItems}
-            item={draft}
-            defaultStore={storeExpect}
-            onOk={(value: PurchaseProcument) => {
-              onAddProcument(value);
-              setActiveTab(TAB[3].id);
-            }}
-            onDelete={onDeleteProcument}
-            procumentCode={procumentCodeRef.current}
-          />
-        )
-      }
-      {
-        visibleDraft && (
-          <ProcumentConfirmModal
-            isEdit={isEditProcument}
-            items={poItems}
-            stores={stores}
-            poData={poData}
-            procumentCode={procumentCodeRef.current}
-            now={now}
-            visible={visibleDraft}
-            item={procumentDraft}
-            onOk={(value: PurchaseProcument) => {
-              onConfirmProcument(value);
-              setActiveTab(TAB[2].id);
-            }}
-            onDelete={onDeleteProcument}
-            loading={loadingConfirm}
-            defaultStore={storeExpect}
-            onCancel={() => {
-              setVisibleDraft(false);
-            }}
-          />
-        )
-      }
-      {
-        visibleConfirm && (
-          <ProcumentInventoryModal
-            loadDetail={loadDetail}
-            isEdit={isEditProcument}
-            items={poItems}
-            stores={stores}
-            now={now}
-            visible={visibleConfirm}
-            poData={poData}
-            item={procumentInventory}
-            onOk={(value: PurchaseProcument) => {
-              onReciveProcument(value);
-              setActiveTab(TAB[1].id);
-            }}
-            onDelete={onDeleteProcument}
-            loading={loadingRecive}
-            defaultStore={storeExpect}
-            procumentCode={procumentCodeRef.current}
-            onCancel={() => {
-              setVisibleConfirm(false);
-            }}
-          />
-        )
-      }
-      {
-        visibleEditProcurement && (
-          <POEditDraftProcurementModal
-            stores={stores}
-            visible={visibleEditProcurement}
-            onCancel={() => setVisibleEditProcurement(false)}
-            onOk={(value: Array<PurchaseProcurementViewDraft>) => {
-              setLoadingEditDraft(true);
-              let data = formMain.getFieldsValue(true);
-              let dataClone = { ...data, procurements: value }
-              if (idNumber) {
-                dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
-              }
-            }}
-            lineItems={poItems}
-            dataSource={procuments}
-            confirmLoading={loadingEditDraft}
-          />
-        )
-      }
+      {visible && (
+        <ProcumentModal
+          onCancle={() => {
+            setVisible(false);
+          }}
+          isEdit={isEditProcument}
+          loading={loaddingCreate}
+          stores={stores}
+          poData={poData}
+          now={now}
+          visible={visible}
+          items={poItems}
+          item={draft}
+          defaultStore={storeExpect}
+          onOk={(value: PurchaseProcument) => {
+            onAddProcument(value);
+            setActiveTab(TAB[3].id);
+          }}
+          onDelete={onDeleteProcument}
+          procumentCode={procumentCodeRef.current}
+        />
+      )}
+      {visibleDraft && (
+        <ProcumentConfirmModal
+          isEdit={isEditProcument}
+          items={poItems}
+          stores={stores}
+          poData={poData}
+          procumentCode={procumentCodeRef.current}
+          now={now}
+          visible={visibleDraft}
+          item={procumentDraft}
+          onOk={(value: PurchaseProcument) => {
+            onConfirmProcument(value);
+            setActiveTab(TAB[2].id);
+          }}
+          onDelete={onDeleteProcument}
+          loading={loadingConfirm}
+          defaultStore={storeExpect}
+          onCancel={() => {
+            setVisibleDraft(false);
+          }}
+        />
+      )}
+      {visibleConfirm && (
+        <ProcumentInventoryModal
+          loadDetail={loadDetail}
+          isEdit={isEditProcument}
+          items={poItems}
+          stores={stores}
+          now={now}
+          visible={visibleConfirm}
+          poData={poData}
+          item={procumentInventory}
+          onOk={(value: PurchaseProcument) => {
+            onReciveProcument(value);
+            setActiveTab(TAB[1].id);
+          }}
+          onDelete={onDeleteProcument}
+          loading={loadingRecive}
+          defaultStore={storeExpect}
+          procumentCode={procumentCodeRef.current}
+          onCancel={() => {
+            setVisibleConfirm(false);
+          }}
+        />
+      )}
+      {visibleEditProcurement && (
+        <POEditDraftProcurementModal
+          stores={stores}
+          visible={visibleEditProcurement}
+          onCancel={() => setVisibleEditProcurement(false)}
+          onOk={(value: Array<PurchaseProcurementViewDraft>) => {
+            setLoadingEditDraft(true);
+            let data = formMain.getFieldsValue(true);
+            let dataClone = { ...data, procurements: value };
+            if (idNumber) {
+              dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+            }
+          }}
+          lineItems={poItems}
+          dataSource={procuments}
+          confirmLoading={loadingEditDraft}
+        />
+      )}
     </Card>
   );
 };

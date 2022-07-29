@@ -11,11 +11,7 @@ import {
   StoreBankAccountNumberModel,
   StoreBankAccountNumbersQueryModel,
 } from "model/order/order.model";
-import {
-  RefundTransactionModel,
-  ReturnModel,
-  ReturnSearchQuery,
-} from "model/order/return.model";
+import { RefundTransactionModel, ReturnModel, ReturnSearchQuery } from "model/order/return.model";
 import { ShipmentModel, ShipmentSearchQuery } from "model/order/shipment.model";
 import {
   ConfirmDraftOrderRequest,
@@ -59,16 +55,11 @@ import {
   VTPFeeResponse,
 } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {
-  SourceEcommerceResponse,
-  SourceResponse,
-} from "model/response/order/source.response";
+import { SourceEcommerceResponse, SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
 import { generateQuery } from "utils/AppUtils";
 
-export const getDetailOrderApi = (
-  orderId: any,
-): Promise<BaseResponse<OrderResponse>> => {
+export const getDetailOrderApi = (orderId: any): Promise<BaseResponse<OrderResponse>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/${orderId}`);
 };
 
@@ -93,9 +84,7 @@ export const getShipmentApi = (
   return BaseAxios.get(`${ApiConfig.ORDER}/shipments?${queryString}`);
 };
 
-export const getReturnApi = (
-  query: ReturnSearchQuery,
-): Promise<BaseResponse<ReturnModel>> => {
+export const getReturnApi = (query: ReturnSearchQuery): Promise<BaseResponse<ReturnModel>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns?${queryString}`);
 };
@@ -108,15 +97,11 @@ export const getAllSources = (): Promise<BaseResponse<SourceResponse[]>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/sources/listing`);
 };
 
-export const getPaymentMethod = (): Promise<
-  BaseResponse<Array<PaymentMethodResponse>>
-> => {
+export const getPaymentMethod = (): Promise<BaseResponse<Array<PaymentMethodResponse>>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/paymentMethods`);
 };
 
-export const orderPostApi = (
-  request: OrderRequest,
-): Promise<BaseResponse<OrderResponse>> => {
+export const orderPostApi = (request: OrderRequest): Promise<BaseResponse<OrderResponse>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/orders`, request);
 };
 
@@ -148,15 +133,10 @@ export const getInfoDeliveryVTP = (
 export const getInfoDeliveryFees = (
   request: GetFeesRequest,
 ): Promise<BaseResponse<VTPFeeResponse>> => {
-  return BaseAxios.post(
-    `${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/fees`,
-    request,
-  );
+  return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/fees`, request);
 };
 
-export const getOrderDetail = (
-  id: string,
-): Promise<BaseResponse<OrderResponse>> => {
+export const getOrderDetail = (id: string): Promise<BaseResponse<OrderResponse>> => {
   let link = `${ApiConfig.ORDER}/orders/${id}`;
   return BaseAxios.get(link);
 };
@@ -193,12 +173,8 @@ export const updatePayment = (
   return BaseAxios.put(link, request);
 };
 
-export const getDeliverieServices = (): Promise<
-  BaseResponse<Array<DeliveryServiceResponse>>
-> => {
-  return BaseAxios.get(
-    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/services`,
-  );
+export const getDeliverieServices = (): Promise<BaseResponse<Array<DeliveryServiceResponse>>> => {
+  return BaseAxios.get(`${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/services`);
 };
 
 export const getDeliveryTransportTypesService = (
@@ -242,10 +218,7 @@ export const createDeliveryMappedStoreService = (
 export const updateDeliveryConnectService = (
   params: updateConfigReQuestModel,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/update-config`,
-    params,
-  );
+  return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/delivery-services/update-config`, params);
 };
 
 /**
@@ -259,9 +232,7 @@ export const getSourcesWithParamsService = (
   return BaseAxios.get(`${ApiConfig.CORE}/sources?${queryString}`);
 };
 
-export const getListSourcesCompaniesService = (): Promise<
-  BaseResponse<SourceResponse>
-> => {
+export const getListSourcesCompaniesService = (): Promise<BaseResponse<SourceResponse>> => {
   return BaseAxios.get(`${ApiConfig.CONTENT}/companies`);
 };
 
@@ -305,9 +276,7 @@ export const getFulFillmentDetailAction = (
 export const getTrackingLogFulFillment = (
   fulfillment_code: string,
 ): Promise<BaseResponse<Array<TrackingLogFulfillmentResponse>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/shipping/${fulfillment_code}/tracking-log`,
-  );
+  return BaseAxios.get(`${ApiConfig.ORDER}/shipping/${fulfillment_code}/tracking-log`);
 };
 
 // tracking_log: Lấy ra tracking_log_error của fulfillment
@@ -352,27 +321,19 @@ export const setSubStatusService = (
   );
 };
 
-export const getChannelApi = (): Promise<
-  BaseResponse<Array<ChannelResponse>>
-> => {
+export const getChannelApi = (): Promise<BaseResponse<Array<ChannelResponse>>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/channels`);
 };
 
-export const getSourceApi = (): Promise<
-  BaseResponse<Array<ChannelResponse>>
-> => {
+export const getSourceApi = (): Promise<BaseResponse<Array<ChannelResponse>>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/sources`);
 };
 
-export const getChannelTypeApi = (): Promise<
-  BaseResponse<Array<ChannelTypeModel>>
-> => {
+export const getChannelTypeApi = (): Promise<BaseResponse<Array<ChannelTypeModel>>> => {
   return BaseAxios.get(`${ApiConfig.CORE}/channels/types`);
 };
 
-export const createChannelService = (
-  params: ChannelModel,
-): Promise<BaseResponse<any>> => {
+export const createChannelService = (params: ChannelModel): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/channels`, params);
 };
 
@@ -383,9 +344,7 @@ export const editChannelService = (
   return BaseAxios.put(`${ApiConfig.CORE}/channels/${channelId}`, params);
 };
 
-export const deleteChannelService = (
-  channelId: number,
-): Promise<BaseResponse<any>> => {
+export const deleteChannelService = (channelId: number): Promise<BaseResponse<any>> => {
   return BaseAxios.delete(`${ApiConfig.CORE}/channels/${channelId}`);
 };
 
@@ -418,17 +377,13 @@ export const getFulfillmentsApi = (
   return BaseAxios.get(link);
 };
 
-export const getFulfillmentsPackedApi = (
-  query: any,
-): Promise<BaseResponse<any>> => {
+export const getFulfillmentsPackedApi = (query: any): Promise<BaseResponse<any>> => {
   const queryString = generateQuery(query);
   const link = `${ApiConfig.ORDER}/fulfillments/packed?${queryString}`;
   return BaseAxios.get(link);
 };
 
-export const putFulfillmentsPackApi = (
-  request: any,
-): Promise<BaseResponse<any>> => {
+export const putFulfillmentsPackApi = (request: any): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.ORDER}/fulfillments/pack`;
   return BaseAxios.put(url, request);
 };
@@ -440,10 +395,7 @@ export const confirmDraftOrderService = (
   orderId: number,
   params: ConfirmDraftOrderRequest,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.ORDER}/orders/${orderId}/finalized`,
-    params,
-  );
+  return BaseAxios.post(`${ApiConfig.ORDER}/orders/${orderId}/finalized`, params);
 };
 
 /**
@@ -452,18 +404,13 @@ export const confirmDraftOrderService = (
 export const createShippingOrderService = (
   params: CreateShippingOrderRequest,
 ): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`,
-    params,
-  );
+  return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-orders/create`, params);
 };
 
 /**
  * tách đơn
  */
-export const splitOrderService = (
-  params: SplitOrderRequest,
-): Promise<BaseResponse<any>> => {
+export const splitOrderService = (params: SplitOrderRequest): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/orders/split`, params);
 };
 /**
@@ -475,9 +422,7 @@ export const getSourcesEcommerceService = (): Promise<
   return BaseAxios.get(`${ApiConfig.ORDER}/sources/ecommerce`);
 };
 
-export const getChannelsService = (
-  typeId: number,
-): Promise<BaseResponse<ChannelResponse[]>> => {
+export const getChannelsService = (typeId: number): Promise<BaseResponse<ChannelResponse[]>> => {
   let link = `${ApiConfig.CORE}/channels`;
   if (typeId !== null) link = `${ApiConfig.CORE}/channels?type_id=${typeId}`;
   return BaseAxios.get(link);
@@ -490,9 +435,7 @@ export const changeOrderStatusToPickedService = (
 ): Promise<BaseResponse<any>> => {
   const orderFulfillmentIdsTexts = orderFulfillmentIds.map((id) => `ids=${id}`);
   const params = orderFulfillmentIdsTexts.join("&");
-  return BaseAxios.put(
-    `${ApiConfig.ORDER}/fulfillments/status/picked?${params}`,
-  );
+  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/status/picked?${params}`);
 };
 
 /**
@@ -504,9 +447,7 @@ export const changeMultiOrderStatus = (
 ): Promise<BaseResponse<any>> => {
   const orderIdTexts = orderIds.map((id) => `ids=${id}`);
   const params = orderIdTexts.join("&");
-  return BaseAxios.put(
-    `${ApiConfig.ORDER}/fulfillments/status/${type}?${params}`,
-  );
+  return BaseAxios.put(`${ApiConfig.ORDER}/fulfillments/status/${type}?${params}`);
 };
 
 export const updateOrderPartialService = (
@@ -531,9 +472,7 @@ export const getPrintOrderReturnContentService = (
     ids: orderIds,
     type,
   });
-  return BaseAxios.get(
-    `${ApiConfig.ORDER}/orders/returns/print_forms?${params}`,
-  );
+  return BaseAxios.get(`${ApiConfig.ORDER}/orders/returns/print_forms?${params}`);
 };
 
 /**
@@ -551,9 +490,7 @@ export const getRefundInformationService = (
 /**
  * xóa đơn hàng
  */
-export const deleteOrderService = (
-  ids: number[],
-): Promise<BaseResponse<any>> => {
+export const deleteOrderService = (ids: number[]): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.ORDER}/orders?ids=${ids}`;
   return BaseAxios.delete(link);
 };
@@ -598,18 +535,12 @@ export const deleteOrderBillDetailService = (
   return BaseAxios.delete(`${ApiConfig.ORDER}/bill/${orderId}`);
 };
 
-export const cancelMomoTransactionService = (
-  paymentId: number,
-): Promise<BaseResponse<any>> => {
+export const cancelMomoTransactionService = (paymentId: number): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.ORDER}/payments/${paymentId}/cancel`);
 };
 
-export const retryMomoTransactionService = (
-  paymentId: number,
-): Promise<BaseResponse<any>> => {
-  return BaseAxios.post(
-    `${ApiConfig.ORDER}/payments/${paymentId}/retry-make-payment`,
-  );
+export const retryMomoTransactionService = (paymentId: number): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.ORDER}/payments/${paymentId}/retry-make-payment`);
 };
 
 export const updateMomoTransactionStatusService = (

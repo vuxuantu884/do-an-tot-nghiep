@@ -5,27 +5,24 @@ import { VariantImage } from "model/product/product.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { RcFile, UploadFile } from "antd/lib/upload/interface";
-import "./index.scss"
+import "./index.scss";
 import { useDispatch } from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import { producImagetUploadApi } from "service/product/product.service";
 import { HttpStatus } from "config/http-status.config";
 
-
 type ModalPickAvatarProps = {
   visible: boolean;
   variantImages: Array<VariantImage>;
   onCancel: () => void;
-  onOk: (imageId: number|undefined,isReload?: boolean) => void;
-  productId: number| undefined
+  onOk: (imageId: number | undefined, isReload?: boolean) => void;
+  productId: number | undefined;
 };
 
-const ModalUploadImages: React.FC<ModalPickAvatarProps> = (
-  props: ModalPickAvatarProps
-) => {
+const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvatarProps) => {
   const dispatch = useDispatch();
-  const { visible, variantImages, productId,onCancel, onOk } = props;
-  const [selected, setSelected] = useState<number|undefined>(-1);
+  const { visible, variantImages, productId, onCancel, onOk } = props;
+  const [selected, setSelected] = useState<number | undefined>(-1);
   const [fireLists, setFireLists] = useState<Array<UploadFile>>([]);
   const [loadingConfirm, setLoadingConfirm] = useState<boolean>(false);
 
@@ -39,23 +36,30 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (
     if (fireLists && fireLists.length > 0) {
       let files: Array<File> = [];
       for (let i = 0; i < fireLists.length; i++) {
-        const e:any = fireLists[i].originFileObj as Blob;
+        const e: any = fireLists[i].originFileObj as Blob;
         files.push(e);
       }
       setLoadingConfirm(true);
-      const res = await callApiNative({isShowLoading: false}, dispatch, producImagetUploadApi, files ,"variant", productId);
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        producImagetUploadApi,
+        files,
+        "variant",
+        productId,
+      );
       setLoadingConfirm(false);
-      
+
       if (!res || res.code !== HttpStatus.SUCCESS) {
         if (res.errors && res.errors.length > 0) {
           res.errors.forEach((e: string) => showError(e));
           return;
         }
         showSuccess("Thêm ảnh thành công");
-        isReload= true;
+        isReload = true;
       }
     }
-    onOk(selected,isReload); 
+    onOk(selected, isReload);
     setFireLists([]);
   }, [fireLists, dispatch, productId, onOk, selected]);
   const avatar = useMemo(() => {
@@ -75,7 +79,7 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (
     return isJpgOrPng && isLt2M ? true : Upload.LIST_IGNORE;
   }, []);
 
-  const onAddFiles = useCallback((info) => {  
+  const onAddFiles = useCallback((info) => {
     setFireLists(info.fileList);
   }, []);
 
@@ -105,19 +109,19 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (
             {avatar ? <img src={avatar} alt="" /> : <img src={variantdefault} alt="" />}
           </div>
           <Upload
-           style={{width: "100%"}}
-           multiple
-           fileList={fireLists}
-           beforeUpload={beforeUpload}
-           onChange={(info) => {
-            onAddFiles(info);}}
-           className="image-product"
-           listType="text" 
-           customRequest={(options) => {
-          }}
-         >
-           <Button icon={<UploadOutlined />}>Thêm ảnh</Button>
-         </Upload>
+            style={{ width: "100%" }}
+            multiple
+            fileList={fireLists}
+            beforeUpload={beforeUpload}
+            onChange={(info) => {
+              onAddFiles(info);
+            }}
+            className="image-product"
+            listType="text"
+            customRequest={(options) => {}}
+          >
+            <Button icon={<UploadOutlined />}>Thêm ảnh</Button>
+          </Upload>
         </Col>
         <Col span={24} md={17}>
           <div className="avatar-list">

@@ -1,8 +1,6 @@
-import { DepartmentResponse } from 'model/account/department.model';
-import React from 'react';
-import { 
-  TreeSelect
-} from "antd";
+import { DepartmentResponse } from "model/account/department.model";
+import React from "react";
+import { TreeSelect } from "antd";
 
 const TreeDepartment = (item: DepartmentResponse) => {
   return (

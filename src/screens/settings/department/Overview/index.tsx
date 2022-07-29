@@ -19,7 +19,7 @@ const DepartmentOverviewScreen: React.FC = () => {
   const [isShowFirstLv, setIsShowFirstLv] = useState<boolean>(false);
 
   const backAction = () => {
-    history.push(`${UrlConfig.DEPARTMENT}`)
+    history.push(`${UrlConfig.DEPARTMENT}`);
   };
 
   useEffect(() => {
@@ -48,7 +48,6 @@ const DepartmentOverviewScreen: React.FC = () => {
 
     const selectedKeyFiltered = selectedKeys.filter((i: any) => i.id === id);
 
-
     return selectedKeyFiltered.length > 0;
   };
 
@@ -60,11 +59,14 @@ const DepartmentOverviewScreen: React.FC = () => {
       newSelectedKeys = newSelectedKeys.filter((i: any) => i.level < level);
     } else {
       newSelectedKeys = newSelectedKeys.filter((i) => i.level < level);
-      newSelectedKeys = [...newSelectedKeys, {
-        id: key,
-        parentId,
-        level,
-      }];
+      newSelectedKeys = [
+        ...newSelectedKeys,
+        {
+          id: key,
+          parentId,
+          level,
+        },
+      ];
     }
 
     setSelectedKeys(newSelectedKeys);
@@ -92,47 +94,55 @@ const DepartmentOverviewScreen: React.FC = () => {
     >
       <Card title="Sơ đồ tổ chức phòng ban công ty thời trang số 1 Việt Nam">
         <div className="department-tree">
-          <div className={`level-one ${isShowFirstLv ? 'active' : ''}`}>
+          <div className={`level-one ${isShowFirstLv ? "active" : ""}`}>
             <div className="center level-text fixed-header">Cấp 1</div>
             <div className="department-tree-level" onClick={() => setIsShowFirstLv(!isShowFirstLv)}>
               <div className="text-left">YODY</div>
-              <img className="icon-right" src={isShowFirstLv ? ArrowRight : ArrowRightGray} alt="" />
+              <img
+                className="icon-right"
+                src={isShowFirstLv ? ArrowRight : ArrowRightGray}
+                alt=""
+              />
             </div>
           </div>
-          {isShowFirstLv && Object.keys(departments).map((i: any) => {
-            return (
-              <div className="other-level">
-                <div className="center level-text fixed-header">Cấp {Number(i) + 2}</div>
-                {departments[i].map((d: any) => {
-                  return (
-                    <div className={`cursor-p department-tree-level ${isExistEl(d.id)
-                    || isExistEl(d.parent?.id) ? `${isExistEl(d.id) ? "active" : ""}` : d.level !== 0 ? "d-none" : ""}`}
-                         onClick={() => goToDepartmentDetail(d.id)}
-                    >
-                      <div className="text-left">{d.name}</div>
-                      {d.isHaveChild && (
-                        <img
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            d.isHaveChild && changeSelectedKeys(d.id, d.parent?.id, d.level);
-                          }}
-                          className="icon-right"
-                          src={isExistEl(d.id) ? ArrowRight : ArrowRightGray}
-                          alt=""
-                        />
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-            );
-          })}
+          {isShowFirstLv &&
+            Object.keys(departments).map((i: any) => {
+              return (
+                <div className="other-level">
+                  <div className="center level-text fixed-header">Cấp {Number(i) + 2}</div>
+                  {departments[i].map((d: any) => {
+                    return (
+                      <div
+                        className={`cursor-p department-tree-level ${
+                          isExistEl(d.id) || isExistEl(d.parent?.id)
+                            ? `${isExistEl(d.id) ? "active" : ""}`
+                            : d.level !== 0
+                            ? "d-none"
+                            : ""
+                        }`}
+                        onClick={() => goToDepartmentDetail(d.id)}
+                      >
+                        <div className="text-left">{d.name}</div>
+                        {d.isHaveChild && (
+                          <img
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              d.isHaveChild && changeSelectedKeys(d.id, d.parent?.id, d.level);
+                            }}
+                            className="icon-right"
+                            src={isExistEl(d.id) ? ArrowRight : ArrowRightGray}
+                            alt=""
+                          />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
         </div>
       </Card>
-      <BottomBarContainer
-        back="Quay lại trang danh sách"
-        backAction={backAction}
-      />
+      <BottomBarContainer back="Quay lại trang danh sách" backAction={backAction} />
     </ContentContainer>
   );
 };

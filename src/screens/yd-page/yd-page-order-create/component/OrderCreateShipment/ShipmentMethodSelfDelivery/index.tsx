@@ -11,7 +11,7 @@ import {
   formatCurrency,
   handleFetchApiError,
   isFetchApiSuccessful,
-  replaceFormatString
+  replaceFormatString,
 } from "utils/AppUtils";
 import { SHIPPING_TYPE } from "utils/Constants";
 import { StyledComponent } from "./styles";
@@ -41,20 +41,16 @@ function ShipmentMethodSelfDelivery(props: PropType) {
   } = props;
 
   const [is4h, setIs4h] = useState(false);
-  const [typeDelivery, setTypeDelivery] = useState('employee');
+  const [typeDelivery, setTypeDelivery] = useState("employee");
 
   const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
-  const [assigneeAccountData, setYodyAccountData] = useState<Array<AccountResponse>>(
-    []
-  );
+  const [assigneeAccountData, setYodyAccountData] = useState<Array<AccountResponse>>([]);
   const [initValueYodyCode, setInitValueYodyCode] = useState("");
-  const [initYodyAccountData, setInitYodyAccountData] = useState<
-    Array<AccountResponse>
-    >([]);
+  const [initYodyAccountData, setInitYodyAccountData] = useState<Array<AccountResponse>>([]);
 
   const dispatch = useDispatch();
   useEffect(() => {
-    if(!storeId) {
+    if (!storeId) {
       return;
     }
     searchAccountPublicApi({
@@ -65,22 +61,28 @@ function ShipmentMethodSelfDelivery(props: PropType) {
           setStoreAccountData(response.data.items);
           setInitYodyAccountData(response.data.items);
         } else {
-          handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+          handleFetchApiError(response, "Danh sách tài khoản", dispatch);
         }
       })
       .catch((error) => {
         console.log("error", error);
-      })
-  }, [dispatch, storeId])
+      });
+  }, [dispatch, storeId]);
 
-  const onChange = useCallback((e) => {
-    if(setIs4h)setIs4h(e.target.checked);
-  }, [setIs4h]);
+  const onChange = useCallback(
+    (e) => {
+      if (setIs4h) setIs4h(e.target.checked);
+    },
+    [setIs4h],
+  );
 
-  const onChangeType = useCallback((e) => {
-    setTypeDelivery(e.target.value);
-    form?.setFieldsValue({shipper_code: undefined});
-  }, [form]);
+  const onChangeType = useCallback(
+    (e) => {
+      setTypeDelivery(e.target.value);
+      form?.setFieldsValue({ shipper_code: undefined });
+    },
+    [form],
+  );
 
   useEffect(() => {
     const pushCurrentValueToDataAccount = (fieldName: string) => {
@@ -101,7 +103,7 @@ function ShipmentMethodSelfDelivery(props: PropType) {
           })
             .then((response) => {
               if (isFetchApiSuccessful(response)) {
-                if(response.data.items.length === 0) {
+                if (response.data.items.length === 0) {
                   return;
                 }
                 if (storeAccountData.length > 0) {
@@ -117,13 +119,12 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                   }
                 }
               } else {
-                handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+                handleFetchApiError(response, "Danh sách tài khoản", dispatch);
               }
             })
             .catch((error) => {
               console.log("error", error);
             });
-
         }
       }
     };
@@ -131,10 +132,10 @@ function ShipmentMethodSelfDelivery(props: PropType) {
   }, [dispatch, form, storeAccountData]);
 
   useEffect(() => {
-    if(thirdPL?.service === SHIPPING_TYPE.DELIVERY_4H) {
-      setIs4h(true)
+    if (thirdPL?.service === SHIPPING_TYPE.DELIVERY_4H) {
+      setIs4h(true);
     }
-  }, [thirdPL?.service])
+  }, [thirdPL?.service]);
 
   useEffect(() => {
     setThirdPL({
@@ -145,8 +146,8 @@ function ShipmentMethodSelfDelivery(props: PropType) {
       delivery_transport_type: "",
       service: is4h ? SHIPPING_TYPE.DELIVERY_4H : "",
       shipping_fee_paid_to_three_pls: thirdPL?.shipping_fee_paid_to_three_pls || null,
-    })
-  }, [is4h, setThirdPL, thirdPL?.shipping_fee_paid_to_three_pls, typeDelivery])
+    });
+  }, [is4h, setThirdPL, thirdPL?.shipping_fee_paid_to_three_pls, typeDelivery]);
 
   // handle scroll page
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -188,12 +189,13 @@ function ShipmentMethodSelfDelivery(props: PropType) {
   }, [isDropdownVisible]);
   // end handle scroll page
 
-
   return (
     <StyledComponent>
       <div className="yd-page-self-delivery-shipment">
         <Row className="options">
-          <Checkbox value={is4h} checked={is4h}  onChange={onChange} className="shipment4h">Đơn giao 4H</Checkbox>
+          <Checkbox value={is4h} checked={is4h} onChange={onChange} className="shipment4h">
+            Đơn giao 4H
+          </Checkbox>
           <Radio.Group value={typeDelivery} onChange={onChangeType} className="delivery-type">
             <Radio value="employee">NV YODY</Radio>
             <Radio value="external_shipper">Đối tác khác</Radio>
@@ -201,83 +203,75 @@ function ShipmentMethodSelfDelivery(props: PropType) {
         </Row>
 
         <Row gutter={20} style={{ marginTop: 10 }}>
-          <Col span={12} style={{padding: "0 5px 0 10px"}}>
+          <Col span={12} style={{ padding: "0 5px 0 10px" }}>
             <Form.Item
-              label={typeDelivery === 'employee' ? "Nhân viên Yody" : "Đối tác khác"}
+              label={typeDelivery === "employee" ? "Nhân viên Yody" : "Đối tác khác"}
               name="shipper_code"
               rules={
                 // khi lưu nháp không validate
                 !isCancelValidateDelivery
                   ? [
-                    {
-                      required: true,
-                      message: "Vui lòng chọn đối tác giao hàng",
-                    },
-                  ]
+                      {
+                        required: true,
+                        message: "Vui lòng chọn đối tác giao hàng",
+                      },
+                    ]
                   : undefined
               }
             >
-              {typeDelivery === 'employee' ?
-                (
-                  <AccountCustomSearchSelect
-                    placeholder="Họ tên hoặc mã NV"
-                    initValue={initValueYodyCode}
-                    dataToSelect={assigneeAccountData}
-                    setDataToSelect={setYodyAccountData}
-                    initDataToSelect={initYodyAccountData}
-                    disabled={levelOrder > 3}
-                    getPopupContainer={(trigger: any) => trigger.parentElement}
-                    onFocus={onInputSelectFocus}
-                    onBlur={onInputSelectBlur}
-                    onPopupScroll={handleOnSelectPopupScroll}
-                    onMouseLeave={handleOnMouseLeaveSelect}
-                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                  />
-                )
-                :
-                (
-                  <CustomSelect
-                    className="select-with-search"
-                    showSearch
-                    notFoundContent="Không tìm thấy kết quả"
-                    style={{width: "100%"}}
-                    placeholder="Đối tác giao hàng"
-                    getPopupContainer={(trigger: any) => trigger.parentElement}
-                    onFocus={onInputSelectFocus}
-                    onBlur={onInputSelectBlur}
-                    onPopupScroll={handleOnSelectPopupScroll}
-                    onMouseLeave={handleOnMouseLeaveSelect}
-                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
-                    filterOption={(input, option) => {
-                      if (option) {
-                        return (
-                          option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                        );
-                      }
-                      return false;
-                    }}
-                    disabled={levelOrder > 3}
-                  >
-                    {listExternalShippers?.map((item: any, index: number) => (
-                      <CustomSelect.Option
-                        style={{width: "100%"}}
-                        key={index.toString()}
-                        value={item.code}
-                      >
-                        {`${item.name} - ${item.phone}`}
-                      </CustomSelect.Option>
-                    ))}
-                  </CustomSelect>
-                )
-              }
+              {typeDelivery === "employee" ? (
+                <AccountCustomSearchSelect
+                  placeholder="Họ tên hoặc mã NV"
+                  initValue={initValueYodyCode}
+                  dataToSelect={assigneeAccountData}
+                  setDataToSelect={setYodyAccountData}
+                  initDataToSelect={initYodyAccountData}
+                  disabled={levelOrder > 3}
+                  getPopupContainer={(trigger: any) => trigger.parentElement}
+                  onFocus={onInputSelectFocus}
+                  onBlur={onInputSelectBlur}
+                  onPopupScroll={handleOnSelectPopupScroll}
+                  onMouseLeave={handleOnMouseLeaveSelect}
+                  onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                />
+              ) : (
+                <CustomSelect
+                  className="select-with-search"
+                  showSearch
+                  notFoundContent="Không tìm thấy kết quả"
+                  style={{ width: "100%" }}
+                  placeholder="Đối tác giao hàng"
+                  getPopupContainer={(trigger: any) => trigger.parentElement}
+                  onFocus={onInputSelectFocus}
+                  onBlur={onInputSelectBlur}
+                  onPopupScroll={handleOnSelectPopupScroll}
+                  onMouseLeave={handleOnMouseLeaveSelect}
+                  onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                  filterOption={(input, option) => {
+                    if (option) {
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
+                    }
+                    return false;
+                  }}
+                  disabled={levelOrder > 3}
+                >
+                  {listExternalShippers?.map((item: any, index: number) => (
+                    <CustomSelect.Option
+                      style={{ width: "100%" }}
+                      key={index.toString()}
+                      value={item.code}
+                    >
+                      {`${item.name} - ${item.phone}`}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              )}
             </Form.Item>
           </Col>
 
-          <Col span={12} style={{padding: "0 10px 0 5px"}}>
+          <Col span={12} style={{ padding: "0 10px 0 5px" }}>
             {/* {paymentMethod === PaymentMethodOption.COD && ( */}
-            <Form.Item
-              label="Tiền thu hộ"
-            >
+            <Form.Item label="Tiền thu hộ">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
@@ -302,11 +296,8 @@ function ShipmentMethodSelfDelivery(props: PropType) {
         </Row>
 
         <Row gutter={20} style={{ marginTop: 10 }}>
-          <Col span={12} style={{padding: "0 5px 0 10px"}}>
-            <Form.Item
-              name="shipping_fee_paid_to_three_pls"
-              label="Phí ship trả đối tác"
-            >
+          <Col span={12} style={{ padding: "0 5px 0 10px" }}>
+            <Form.Item name="shipping_fee_paid_to_three_pls" label="Phí ship trả đối tác">
               <NumberInput
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
@@ -320,17 +311,16 @@ function ShipmentMethodSelfDelivery(props: PropType) {
                 minLength={0}
                 disabled={levelOrder > 3}
                 onChange={(value) => {
-                  if(thirdPL) {
+                  if (thirdPL) {
                     setThirdPL({
                       ...thirdPL,
                       shipping_fee_paid_to_three_pls: value || null,
-                    })
+                    });
                   }
                 }}
               />
             </Form.Item>
           </Col>
-
         </Row>
 
         {renderButtonCreateActionHtml && renderButtonCreateActionHtml()}

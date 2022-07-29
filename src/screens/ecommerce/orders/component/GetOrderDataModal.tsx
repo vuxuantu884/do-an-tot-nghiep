@@ -3,7 +3,6 @@ import { useDispatch } from "react-redux";
 import { Button, Form, Input, Modal, Radio, RadioChangeEvent, Select, Tooltip } from "antd";
 import moment from "moment";
 
-
 import {
   getShopEcommerceList,
   postEcommerceOrderAction,
@@ -21,7 +20,6 @@ import CustomDatePicker from "../../../../component/custom/new-date-picker.custo
 import { SwapRightOutlined } from "@ant-design/icons";
 import { changeFormatDay } from "utils/DateUtils";
 
-
 type GetOrderDataModalType = {
   visible: boolean;
   onOk: (data: any) => void;
@@ -30,10 +28,7 @@ type GetOrderDataModalType = {
 
 const { Option } = Select;
 
-
-const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
-  props: GetOrderDataModalType
-) => {
+const GetOrderDataModal: React.FC<GetOrderDataModalType> = (props: GetOrderDataModalType) => {
   const { visible, onOk, onCancel } = props;
   const dispatch = useDispatch();
 
@@ -72,7 +67,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
       icon: tikiIcon,
       id: 3,
       isActive: false,
-      key: "tiki"
+      key: "tiki",
     },
     {
       title: "Sàn Tiktok",
@@ -85,21 +80,20 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
 
   //handle down orders follow order ids
   const [downloadType, setDownloadType] = useState<Number | null>(1);
-  const [getIdOrderEcommerce, setIdOrderEcommerce] = useState<any>()
+  const [getIdOrderEcommerce, setIdOrderEcommerce] = useState<any>();
 
   const onInputChange = useCallback((v: ChangeEvent<HTMLInputElement>) => {
-    setIdOrderEcommerce(v.target.value)
-
-  }, [])
+    setIdOrderEcommerce(v.target.value);
+  }, []);
 
   const selectDownloadType = useCallback((e: RadioChangeEvent) => {
     setDownloadType(e.target.value);
-  }, [])
+  }, []);
 
   const getEcommerceIcon = (ecommerce_id: number) => {
-    const ecommerce = ecommerceList.find(item => item.id === ecommerce_id);
+    const ecommerce = ecommerceList.find((item) => item.id === ecommerce_id);
     return ecommerce?.icon;
-  }
+  };
 
   const updateEcommerceShopList = useCallback((result) => {
     setIsEcommerceSelected(true);
@@ -110,21 +104,21 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     setShopIdSelected(null);
     setIsEcommerceSelected(false);
     dispatch(getShopEcommerceList({ ecommerce_id: ecommerceId }, updateEcommerceShopList));
-  }
+  };
 
   const selectEcommerce = (item: any) => {
-    setActivatedBtn(item)
+    setActivatedBtn(item);
     setEcommerceSelected(item && item.id);
     getShopEcommerce(item && item.id);
   };
 
   const selectShopEcommerce = (shop_id: any) => {
     setShopIdSelected(shop_id);
-  }
+  };
 
   const onClearShop = () => {
     setShopIdSelected(null);
-  }
+  };
 
   //handle select date
 
@@ -133,23 +127,23 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
   const [endDate, setEndDate] = useState<any>(null);
   const [checkDateStartAndDayEnd, setCheckDateStartAndDayEnd] = useState(false);
 
-
   const convertStartDateToTimestamp = (date: any) => {
-    if (!date) return
+    if (!date) return;
     const myDate = date && date.split("-");
     let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
     return moment(new Date(newDate)).unix();
-  }
+  };
 
   const convertEndDateToTimestamp = (date: any) => {
-    if (!date) return
+    if (!date) return;
     const myDate = date && date.split("-");
     const today = new Date();
     let time = "23:59:59";
 
-    if ((Number(myDate[0]) === Number(today.getDate())) &&
-      (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
-      (Number(myDate[2]) === Number(today.getFullYear()))
+    if (
+      Number(myDate[0]) === Number(today.getDate()) &&
+      Number(myDate[1]) === Number(today.getMonth()) + 1 &&
+      Number(myDate[2]) === Number(today.getFullYear())
     ) {
       time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
     }
@@ -157,112 +151,110 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     const newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
     const dateTime = newDate + " " + time;
     return moment(new Date(dateTime)).unix();
-  }
+  };
 
-  const onChangeDate = useCallback(
-    () => {
-      let value: any = {};
-      value = formDownloadOrder?.getFieldsValue(["date_from", "date_to"])
+  const onChangeDate = useCallback(() => {
+    let value: any = {};
+    value = formDownloadOrder?.getFieldsValue(["date_from", "date_to"]);
 
-      const convertDateStartToString = value["date_from"] && value["date_from"].toString()
-      const convertDateEndToString = value["date_to"] && value["date_to"].toString()
+    const convertDateStartToString = value["date_from"] && value["date_from"].toString();
+    const convertDateEndToString = value["date_to"] && value["date_to"].toString();
 
-      const dateStartDayChangeFormat = changeFormatDay(convertDateStartToString)
-      const dateEndDayChangeFormat = changeFormatDay(convertDateEndToString)
+    const dateStartDayChangeFormat = changeFormatDay(convertDateStartToString);
+    const dateEndDayChangeFormat = changeFormatDay(convertDateEndToString);
 
-      const date_from = new Date(dateStartDayChangeFormat);
-      const date_to = new Date(dateEndDayChangeFormat)
+    const date_from = new Date(dateStartDayChangeFormat);
+    const date_to = new Date(dateEndDayChangeFormat);
 
-      const convertDateStartTimeStamp = convertStartDateToTimestamp(convertDateStartToString)
-      const convertDateEndTimeStamp = convertEndDateToTimestamp(convertDateEndToString)
+    const convertDateStartTimeStamp = convertStartDateToTimestamp(convertDateStartToString);
+    const convertDateEndTimeStamp = convertEndDateToTimestamp(convertDateEndToString);
 
+    setStartDate(convertDateStartTimeStamp);
+    setEndDate(convertDateEndTimeStamp);
 
-      setStartDate(convertDateStartTimeStamp)
-      setEndDate(convertDateEndTimeStamp)
+    const compareDate = date_from.getTime() - date_to.getTime();
+    const differentDays = compareDate / (1000 * 60 * 60 * 24);
 
-      const compareDate = date_from.getTime() - date_to.getTime()
-      const differentDays = compareDate / (1000 * 60 * 60 * 24)
+    if (value["date_from"] && value["date_to"]) {
+      setCheckDateStartAndDayEnd(true);
+    } else {
+      setCheckDateStartAndDayEnd(false);
+    }
 
-      if (value["date_from"] && value["date_to"]) {
-        setCheckDateStartAndDayEnd(true)
-      } else {
-        setCheckDateStartAndDayEnd(false)
-      }
+    const getDateFrom = date_from.getTime();
+    const getDateTo = date_to.getTime();
 
-
-      const getDateFrom = date_from.getTime()
-      const getDateTo = date_to.getTime()
-
-      if (getDateFrom > getDateTo) {
-        formDownloadOrder?.setFields([
-          {
-            name: "date_from",
-            errors: ['Ngày từ phải nhỏ hơn ngày đến'],
-          },
-          {
-            name: "date_to",
-            errors: [''],
-          },
-        ])
-        setCheckDateStartAndDayEnd(false)
-      } else if (Math.abs(differentDays) > 15) {
-        formDownloadOrder?.setFields([
-          {
-            name: "date_from",
-            errors: [''],
-          },
-          {
-            name: "date_to",
-            errors: ['Thời gian tải dữ liệu không vượt quá 15 ngày'],
-          },
-        ])
-        setCheckDateStartAndDayEnd(false)
-
-      } else {
-        formDownloadOrder?.setFields([
-          {
-            name: "date_from",
-            errors: undefined,
-          },
-          {
-            name: "date_to",
-            errors: undefined,
-          },
-        ])
-      }
-    }, [formDownloadOrder]);
+    if (getDateFrom > getDateTo) {
+      formDownloadOrder?.setFields([
+        {
+          name: "date_from",
+          errors: ["Ngày từ phải nhỏ hơn ngày đến"],
+        },
+        {
+          name: "date_to",
+          errors: [""],
+        },
+      ]);
+      setCheckDateStartAndDayEnd(false);
+    } else if (Math.abs(differentDays) > 15) {
+      formDownloadOrder?.setFields([
+        {
+          name: "date_from",
+          errors: [""],
+        },
+        {
+          name: "date_to",
+          errors: ["Thời gian tải dữ liệu không vượt quá 15 ngày"],
+        },
+      ]);
+      setCheckDateStartAndDayEnd(false);
+    } else {
+      formDownloadOrder?.setFields([
+        {
+          name: "date_from",
+          errors: undefined,
+        },
+        {
+          name: "date_to",
+          errors: undefined,
+        },
+      ]);
+    }
+  }, [formDownloadOrder]);
 
   //end handle select date
 
-
-  const updateEcommerceOrderList = useCallback((data) => {
-    setIsLoading(false);
-    onOk(data);
-  }, [onOk]);
+  const updateEcommerceOrderList = useCallback(
+    (data) => {
+      setIsLoading(false);
+      onOk(data);
+    },
+    [onOk],
+  );
 
   const handleDownloadEcommerceOrders = useCallback(() => {
-
     const params = {
       ecommerce_id: ecommerceSelected,
       shop_id: shopIdSelected,
       update_time_from: startDate,
       update_time_to: endDate,
-    }
+    };
 
     const listOrderId: Array<any> = [];
 
     // eslint-disable-next-line array-callback-return
-    getIdOrderEcommerce && getIdOrderEcommerce?.split(',').map((orderId: any) => {
-      listOrderId.push({
-        ecommerce_id: ecommerceSelected,
-        shop_id: shopIdSelected,
-        order_sn: orderId.trim()
-      })
-    })
+    getIdOrderEcommerce &&
+      getIdOrderEcommerce?.split(",").map((orderId: any) => {
+        listOrderId.push({
+          ecommerce_id: ecommerceSelected,
+          shop_id: shopIdSelected,
+          order_sn: orderId.trim(),
+        });
+      });
 
     const paramsDownloadOrder = {
-      order_list: listOrderId
-    }
+      order_list: listOrderId,
+    };
 
     setIsLoading(true);
 
@@ -273,35 +265,40 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, downloadType, ecommerceSelected, getIdOrderEcommerce, shopIdSelected, startDate, endDate])
+  }, [
+    dispatch,
+    downloadType,
+    ecommerceSelected,
+    getIdOrderEcommerce,
+    shopIdSelected,
+    startDate,
+    endDate,
+  ]);
 
   const handleDownloadOrderCalendar = () => {
-    setIdOrderEcommerce("")
-  }
+    setIdOrderEcommerce("");
+  };
 
   const handleDownloadOrderId = () => {
     formDownloadOrder.setFieldsValue({
       date_from: "",
-      date_to: ""
-    })
-  }
+      date_to: "",
+    });
+  };
 
   const isDisableOkButton = () => {
-    if (shopIdSelected && checkDateStartAndDayEnd) return false
-    return !(shopIdSelected && getIdOrderEcommerce)
-
-  }
+    if (shopIdSelected && checkDateStartAndDayEnd) return false;
+    return !(shopIdSelected && getIdOrderEcommerce);
+  };
 
   const cancelGetOrderModal = () => {
-    setActivatedBtn(
-      {
-        title: "",
-        icon: "",
-        id: 0,
-        isActive: "",
-        key: ""
-      }
-    );
+    setActivatedBtn({
+      title: "",
+      icon: "",
+      id: 0,
+      isActive: "",
+      key: "",
+    });
     setEcommerceSelected(null);
     setIsEcommerceSelected(false);
     onCancel();
@@ -323,10 +320,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
       confirmLoading={isLoading}
     >
       <StyledDownloadOrderData>
-        <Form
-          form={formDownloadOrder}
-          layout="vertical"
-        >
+        <Form form={formDownloadOrder} layout="vertical">
           <div className="ecommerce-list">
             {ecommerceList.map((item) => (
               <Button
@@ -338,28 +332,27 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
                 disabled={isLoading}
               >
                 {item.title}
-                {item.id === activatedBtn?.id &&
+                {item.id === activatedBtn?.id && (
                   <img src={successIcon} className="icon-active-button" alt="" />
-                }
+                )}
               </Button>
             ))}
           </div>
 
           <Form.Item
-            label={<b>Lựa chọn gian hàng <span style={{ color: 'red' }}>*</span></b>}
-          >
-            {!isEcommerceSelected &&
-              <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
-                <Select
-                  showSearch
-                  placeholder="Chọn gian hàng"
-                  allowClear
-                  disabled={true}
-                />
-              </Tooltip>
+            label={
+              <b>
+                Lựa chọn gian hàng <span style={{ color: "red" }}>*</span>
+              </b>
             }
+          >
+            {!isEcommerceSelected && (
+              <Tooltip title="Yêu cầu chọn sàn" color="#1890ff">
+                <Select showSearch placeholder="Chọn gian hàng" allowClear disabled={true} />
+              </Tooltip>
+            )}
 
-            {isEcommerceSelected &&
+            {isEcommerceSelected && (
               <Select
                 placeholder="Chọn gian hàng"
                 allowClear
@@ -371,9 +364,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
                 filterOption={(input, option) => {
                   if (option) {
                     const shopName = option.children && option.children[1];
-                    return (
-                      shopName?.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                    );
+                    return shopName?.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                   }
                   return false;
                 }}
@@ -388,10 +379,9 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
                       />
                       {shop.name}
                     </Option>
-                  ))
-                }
+                  ))}
               </Select>
-            }
+            )}
           </Form.Item>
 
           {/*<Form.Item label={<b>Thời gian <span style={{ color: 'red' }}>*</span></b>}>*/}
@@ -407,7 +397,11 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
           {/*    onOpenChange={onOpenChange}*/}
           {/*  />*/}
           {/*</Form.Item>*/}
-          <Radio.Group style={{ width: "100%" }} onChange={(v: RadioChangeEvent) => selectDownloadType(v)} defaultValue={downloadType}>
+          <Radio.Group
+            style={{ width: "100%" }}
+            onChange={(v: RadioChangeEvent) => selectDownloadType(v)}
+            defaultValue={downloadType}
+          >
             <Radio value={1} style={{ marginBottom: 12 }} onClick={handleDownloadOrderCalendar}>
               Tải đơn hàng theo thời gian cập nhật
             </Radio>
@@ -437,7 +431,7 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
               </div>
 
               <Form.Item>
-                <div style={{ marginTop: '10px' }}>
+                <div style={{ marginTop: "10px" }}>
                   Lưu ý: Thời gian tải dữ liệu không vượt quá <b>15 ngày</b>
                 </div>
               </Form.Item>
@@ -447,20 +441,19 @@ const GetOrderDataModal: React.FC<GetOrderDataModalType> = (
               Tải đơn hàng theo ID
             </Radio>
 
-            <Input placeholder={"Nhập ID Đơn hàng"}
+            <Input
+              placeholder={"Nhập ID Đơn hàng"}
               onInput={onInputChange}
               disabled={downloadType !== 2}
               value={getIdOrderEcommerce}
             />
 
-
             <Form.Item>
-              <div style={{ marginTop: '10px' }}>
+              <div style={{ marginTop: "10px" }}>
                 Lưu ý: Mỗi ID đơn hàng cách nhau bằng <b>dấu phẩy</b>
               </div>
             </Form.Item>
           </Radio.Group>
-
         </Form>
       </StyledDownloadOrderData>
     </Modal>

@@ -1,15 +1,15 @@
-import {Button} from "antd";
-import {actionFetchPrintFormByOrderIds} from "domain/actions/printer/printer.action";
+import { Button } from "antd";
+import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
 import purify from "dompurify";
-import {OrderSettingsModel} from "model/other/order/order-model";
-import {FulFillmentResponse} from "model/response/order/order.response";
-import React, {useEffect, useRef, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useReactToPrint} from "react-to-print";
-import {FulFillmentStatus} from "utils/Constants";
-import {LIST_PRINTER_TYPES} from "utils/Printer.constants";
+import { OrderSettingsModel } from "model/other/order/order-model";
+import { FulFillmentResponse } from "model/response/order/order.response";
+import React, { useEffect, useRef, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useReactToPrint } from "react-to-print";
+import { FulFillmentStatus } from "utils/Constants";
+import { LIST_PRINTER_TYPES } from "utils/Printer.constants";
 import IconPrint from "./images/iconPrint.svg";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 type PropTypes = {
   fulfillment: FulFillmentResponse | null | undefined;
@@ -19,7 +19,7 @@ type PropTypes = {
 };
 
 function PrintShippingLabel(props: PropTypes): JSX.Element {
-  const {fulfillment, orderId, onPrint} = props;
+  const { fulfillment, orderId, onPrint } = props;
   const dispatch = useDispatch();
   const [printContent, setPrintContent] = useState("");
   const printerContentHtml = () => {
@@ -66,8 +66,8 @@ function PrintShippingLabel(props: PropTypes): JSX.Element {
         isShow = false;
       }
     }
-    return isShow; 
-  }; 
+    return isShow;
+  };
 
   const renderHtml = (text: string) => {
     if (text === "") {
@@ -136,7 +136,7 @@ function PrintShippingLabel(props: PropTypes): JSX.Element {
                   let result = textResponse.replaceAll("<p></p>", "");
                   setPrintContent(result);
                   handlePrint();
-                })
+                }),
               );
             }}
           >
@@ -145,7 +145,7 @@ function PrintShippingLabel(props: PropTypes): JSX.Element {
               ? "In phiếu xuất kho"
               : "In phiếu giao hàng"}
           </Button>
-          <div style={{display: "none"}}>
+          <div style={{ display: "none" }}>
             <div className="printContent333" ref={printElementRef}>
               <div
                 dangerouslySetInnerHTML={{
@@ -159,6 +159,6 @@ function PrintShippingLabel(props: PropTypes): JSX.Element {
       )}
     </StyledComponent>
   );
-};
+}
 
 export default PrintShippingLabel;

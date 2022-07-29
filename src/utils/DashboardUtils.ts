@@ -2,17 +2,29 @@ import { DASHBOARD_CONFIG } from "config/dashboard";
 import { STAFF_POSITION_LIST } from "config/dashboard/filter-config";
 import { PAGE_SIZE } from "config/dashboard/product-list-config";
 import { DashboardProductList, DashboardShowMyData } from "model/dashboard/dashboard.model";
-import { AnalyticDataQuery, AnalyticQueryMany, AnalyticSampleQuery, FIELD_FORMAT } from "model/report/analytics.model";
+import {
+  AnalyticDataQuery,
+  AnalyticQueryMany,
+  AnalyticSampleQuery,
+  FIELD_FORMAT,
+} from "model/report/analytics.model";
 import { Dispatch } from "redux";
-import { executeAnalyticsQueryService, executeManyAnalyticsQueryService, searchVariantsSimpleService } from "service/report/analytics.service";
+import {
+  executeAnalyticsQueryService,
+  executeManyAnalyticsQueryService,
+  searchVariantsSimpleService,
+} from "service/report/analytics.service";
 import { callApiNative } from "./ApiUtils";
 import { generateRQuery } from "./ReportUtils";
 
-export const currencyAbbreviation = (value: number, format: FIELD_FORMAT | string = FIELD_FORMAT.Price) => {
+export const currencyAbbreviation = (
+  value: number,
+  format: FIELD_FORMAT | string = FIELD_FORMAT.Price,
+) => {
   const { Price } = FIELD_FORMAT;
   switch (format) {
     case Price:
-      if (typeof value !== 'number') {
+      if (typeof value !== "number") {
         return value;
       }
       const absValue = Math.abs(value);
@@ -30,11 +42,13 @@ export const currencyAbbreviation = (value: number, format: FIELD_FORMAT | strin
     default:
       return value.toString();
   }
-
 };
 
-export const setDepartmentQuery = (departmentIdList: Array<number | string>, department: string = "pos_location_name") => {
-  let condition: any = []
+export const setDepartmentQuery = (
+  departmentIdList: Array<number | string>,
+  department: string = "pos_location_name",
+) => {
+  let condition: any = [];
   if (departmentIdList.length > 0) {
     // convert [1,2,3] to [1,",",2,",",3]
     departmentIdList.forEach((item, index) => {
@@ -42,30 +56,42 @@ export const setDepartmentQuery = (departmentIdList: Array<number | string>, dep
       if (index !== departmentIdList.length - 1) {
         condition.push(",");
       }
-    })
-
+    });
   }
   const operator = departmentIdList.length > 1 ? "IN" : "==";
   return [[department, operator, ...condition]];
-}
+};
 
-export const getDataManyQueryDashboard = async (dispatch: Dispatch<any>, showMyData: DashboardShowMyData, deparmentIdList: Array<string | number>, queries: AnalyticSampleQuery[]): Promise<AnalyticDataQuery[]> => {
+export const getDataManyQueryDashboard = async (
+  dispatch: Dispatch<any>,
+  showMyData: DashboardShowMyData,
+  deparmentIdList: Array<string | number>,
+  queries: AnalyticSampleQuery[],
+): Promise<AnalyticDataQuery[]> => {
   const params: AnalyticQueryMany = { q: [], options: [] };
 
   const { condition, isSeeMyData, myCode } = showMyData;
   // Data từ bộ lọc bộ phận
-  const locationCondition = deparmentIdList ? setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField) : [];
+  const locationCondition = deparmentIdList
+    ? setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField)
+    : [];
   // Data từ bộ lọc xem dữ liệu của tôi
-  const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
+  const userCondition =
+    condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
 
   const conditions = [...locationCondition, userCondition];
 
   queries.forEach((item: AnalyticSampleQuery) => {
     if (!deparmentIdList.length && item.query.conditions) {
-      item.query.conditions = item.query.conditions.filter(item => item && item[0] !== 'pos_location_id')
+      item.query.conditions = item.query.conditions.filter(
+        (item) => item && item[0] !== "pos_location_id",
+      );
     }
-    item.query.conditions = (deparmentIdList.length || (condition && isSeeMyData && myCode)) ? [] : (item.query.conditions || []);
-    // lọc theo cửa hàng 
+    item.query.conditions =
+      deparmentIdList.length || (condition && isSeeMyData && myCode)
+        ? []
+        : item.query.conditions || [];
+    // lọc theo cửa hàng
     if (!Array(item.query.conditions)) {
       item.query.conditions = [];
     }
@@ -75,52 +101,86 @@ export const getDataManyQueryDashboard = async (dispatch: Dispatch<any>, showMyD
     const q = generateRQuery(item.query);
     params.q.push(q);
     params.options.push(item.options || "");
-  })
+  });
 
-  const data: AnalyticDataQuery[] = await callApiNative({ notifyAction: "HIDE_ALL" }, dispatch, executeManyAnalyticsQueryService, params);
+  const data: AnalyticDataQuery[] = await callApiNative(
+    { notifyAction: "HIDE_ALL" },
+    dispatch,
+    executeManyAnalyticsQueryService,
+    params,
+  );
   return data;
-}
+};
 
 /**
  * vì executeManyAnalyticsQueryService() chưa dùng được options( api chưa hỗ trợ ) nên dùng tạm fn này, sau khi fix thì xóa
- * @param dispatch 
- * @param showMyData 
- * @param deparmentIdList 
- * @param queries 
- * @returns 
+ * @param dispatch
+ * @param showMyData
+ * @param deparmentIdList
+ * @param queries
+ * @returns
  */
-export const getDataOneQueryDashboard = async (dispatch: Dispatch<any>, showMyData: DashboardShowMyData, deparmentIdList: Array<string | number>, queries: AnalyticSampleQuery): Promise<AnalyticDataQuery> => {
+export const getDataOneQueryDashboard = async (
+  dispatch: Dispatch<any>,
+  showMyData: DashboardShowMyData,
+  deparmentIdList: Array<string | number>,
+  queries: AnalyticSampleQuery,
+): Promise<AnalyticDataQuery> => {
   const { condition, isSeeMyData, myCode } = showMyData;
   if (queries.query.conditions) {
-    queries.query.conditions = queries.query.conditions.filter(item => item && item[0] !== 'pos_location_id' && !STAFF_POSITION_LIST.map(staffPosition => staffPosition.value).includes(item[0]))
+    queries.query.conditions = queries.query.conditions.filter(
+      (item) =>
+        item &&
+        item[0] !== "pos_location_id" &&
+        !STAFF_POSITION_LIST.map((staffPosition) => staffPosition.value).includes(item[0]),
+    );
   }
-  
-  queries.query.conditions = (queries.query.conditions || []);
+
+  queries.query.conditions = queries.query.conditions || [];
   // Data từ bộ lọc bộ phận
-  const locationCondition = deparmentIdList ? setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField) : [];
+  const locationCondition = deparmentIdList
+    ? setDepartmentQuery(deparmentIdList, DASHBOARD_CONFIG.locationQueryField)
+    : [];
   // Data từ bộ lọc xem dữ liệu của tôi
-  const userCondition = condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
+  const userCondition =
+    condition && isSeeMyData && myCode ? [showMyData.condition, "==", myCode] : [];
   const conditions = [...locationCondition, userCondition];
 
   queries.query.conditions = [...queries.query.conditions, ...conditions];
   const q = generateRQuery(queries.query);
-  const data: AnalyticDataQuery = await callApiNative({ notifyAction: "HIDE_ALL" }, dispatch, executeAnalyticsQueryService, { q, options: queries.options });
+  const data: AnalyticDataQuery = await callApiNative(
+    { notifyAction: "HIDE_ALL" },
+    dispatch,
+    executeAnalyticsQueryService,
+    { q, options: queries.options },
+  );
 
   return data;
-}
+};
 
-export const mapOnHandByVariantSkusIntoProducts = async (productList: DashboardProductList[], dispatch: any, page: number, deparmentIdList?: Array<string | number>) => { 
+export const mapOnHandByVariantSkusIntoProducts = async (
+  productList: DashboardProductList[],
+  dispatch: any,
+  page: number,
+  deparmentIdList?: Array<string | number>,
+) => {
   const result = [...productList];
-  
-  const skus = result.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE).map((item: any) => item.variantSku).join(',');
-  const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsSimpleService, { skus, store_ids: deparmentIdList?.length ? deparmentIdList.map(item => `${item}`).join(',') : null });
+
+  const skus = result
+    .slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+    .map((item: any) => item.variantSku)
+    .join(",");
+  const res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsSimpleService, {
+    skus,
+    store_ids: deparmentIdList?.length ? deparmentIdList.map((item) => `${item}`).join(",") : null,
+  });
   if (res) {
-      res.items.forEach((item: any) => {
-          const idx = result.findIndex((product: any) => product.variantSku === item.sku);
-          if (idx !== -1) {
-              result[idx].onHand = item.on_hand;
-          }
-      })
+    res.items.forEach((item: any) => {
+      const idx = result.findIndex((product: any) => product.variantSku === item.sku);
+      if (idx !== -1) {
+        result[idx].onHand = item.on_hand;
+      }
+    });
   }
   return result;
-}
+};

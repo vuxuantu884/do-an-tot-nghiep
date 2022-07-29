@@ -3,10 +3,14 @@ import { InventoryTransferPermission } from "config/permissions/inventory-transf
 import React from "react";
 import UrlConfig, { InventoryTabUrl } from "../../config/url.config";
 import { RouteMenu } from "../../model/other";
-import { InventoryDefectsPermission } from './../../config/permissions/inventory-defects.permission';
-import { StockInOutOthersPermission } from 'config/permissions/stock-in-out.permission';
-const ListInventoryDefect = React.lazy(() => import("screens/inventory-defects/ListInventoryDefect"));
-const InventoryDefectCreate = React.lazy(() => import("screens/inventory-defects/CreateInventoryDefects"));
+import { InventoryDefectsPermission } from "./../../config/permissions/inventory-defects.permission";
+import { StockInOutOthersPermission } from "config/permissions/stock-in-out.permission";
+const ListInventoryDefect = React.lazy(
+  () => import("screens/inventory-defects/ListInventoryDefect"),
+);
+const InventoryDefectCreate = React.lazy(
+  () => import("screens/inventory-defects/CreateInventoryDefects"),
+);
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
 const DetailTicket = React.lazy(() => import("screens/inventory/DetailTicket/index"));
 const UpdateTicket = React.lazy(() => import("screens/inventory/UpdateTicket"));
@@ -17,21 +21,29 @@ const RequestTicket = React.lazy(() => import("screens/inventory/RequestTicket/i
 const ImportInventoryScreen = React.lazy(() => import("screens/inventory/ImportInventory/index"));
 
 //STOCK IN OUT
-const StockInOutOtherScreen = React.lazy(() => import("screens/stock-in-out-products"))
-const StockInOtherCreate = React.lazy(() => import ("screens/stock-in-out-products/StockInOtherCreate"))
-const StockOutOtherCreate = React.lazy(() => import ("screens/stock-in-out-products/StockOutOtherCreate"))
-const StockInOutDetail = React.lazy(() => import ("screens/stock-in-out-products/StockInOutDetail"))
+const StockInOutOtherScreen = React.lazy(() => import("screens/stock-in-out-products"));
+const StockInOtherCreate = React.lazy(
+  () => import("screens/stock-in-out-products/StockInOtherCreate"),
+);
+const StockOutOtherCreate = React.lazy(
+  () => import("screens/stock-in-out-products/StockOutOtherCreate"),
+);
+const StockInOutDetail = React.lazy(() => import("screens/stock-in-out-products/StockInOutDetail"));
 
 //Kiểm kê, DUOCNC 20211021
 
-const ListInventoryAdjustment = React.lazy(() => import("screens/inventory-adjustment/ListInventoryAdjustment"));
-const CreateInventoryAdjustment = React.lazy(() => import("screens/inventory-adjustment/CreateInventoryAdjustment"));
-const DetailInvetoryAdjustment = React.lazy( () => import("screens/inventory-adjustment/DetailInvetoryAdjustment"));
+const ListInventoryAdjustment = React.lazy(
+  () => import("screens/inventory-adjustment/ListInventoryAdjustment"),
+);
+const CreateInventoryAdjustment = React.lazy(
+  () => import("screens/inventory-adjustment/CreateInventoryAdjustment"),
+);
+const DetailInvetoryAdjustment = React.lazy(
+  () => import("screens/inventory-adjustment/DetailInvetoryAdjustment"),
+);
 
 //Inventory
-const InventoryScreen = React.lazy(
-  () => import("screens/products/inventory")
-);
+const InventoryScreen = React.lazy(() => import("screens/products/inventory"));
 
 export const inventory: Array<RouteMenu> = [
   {
@@ -43,32 +55,34 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu24",
     isShow: true,
     header: null,
-    subMenu: [{
-      path: `${InventoryTabUrl.DETAIL}`,
-      exact: true,
-      title: "Tồn khon",
-      icon: "icon-dot",
-      component: InventoryScreen,
-      // key: "submenu24",
-      key: "submenu24_1",
-      isShow: true,
-      header: null,
-      subMenu: [],
-    },
-    {
-      path: `${InventoryTabUrl.HISTORIES}`,
-      exact: true,
-      title: "Tồn kho",
-      icon: "icon-dot",
-      component: InventoryScreen,
-      // key: "submenu24",
-      key: "submenu24_2",
-      isShow: true,
-      header: null,
-      subMenu: [],
-    },],
+    subMenu: [
+      {
+        path: `${InventoryTabUrl.DETAIL}`,
+        exact: true,
+        title: "Tồn khon",
+        icon: "icon-dot",
+        component: InventoryScreen,
+        // key: "submenu24",
+        key: "submenu24_1",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${InventoryTabUrl.HISTORIES}`,
+        exact: true,
+        title: "Tồn kho",
+        icon: "icon-dot",
+        component: InventoryScreen,
+        // key: "submenu24",
+        key: "submenu24_2",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
   },
-  
+
   {
     path: UrlConfig.INVENTORY_TRANSFERS,
     exact: true,
@@ -78,7 +92,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu31",
     isShow: true,
     header: null,
-    permissions:[InventoryTransferPermission.read],
+    permissions: [InventoryTransferPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.INVENTORY_TRANSFERS}/confirmed`,
@@ -89,7 +103,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.read],
+        permissions: [InventoryTransferPermission.read],
         subMenu: [],
       },
       {
@@ -101,7 +115,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.read],
+        permissions: [InventoryTransferPermission.read],
         subMenu: [],
       },
       {
@@ -113,7 +127,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.read],
+        permissions: [InventoryTransferPermission.read],
         subMenu: [],
       },
       {
@@ -125,7 +139,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.read],
+        permissions: [InventoryTransferPermission.read],
         subMenu: [],
       },
       {
@@ -137,7 +151,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.read],
+        permissions: [InventoryTransferPermission.read],
         subMenu: [],
       },
       {
@@ -149,7 +163,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.create],
+        permissions: [InventoryTransferPermission.create],
         subMenu: [],
       },
       {
@@ -173,7 +187,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.read],
+        permissions: [InventoryTransferPermission.read],
         subMenu: [],
       },
       {
@@ -185,7 +199,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.update],
+        permissions: [InventoryTransferPermission.update],
         subMenu: [],
       },
       {
@@ -197,7 +211,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.clone],
+        permissions: [InventoryTransferPermission.clone],
         subMenu: [],
       },
       {
@@ -209,7 +223,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.import, InventoryTransferPermission.create],
+        permissions: [InventoryTransferPermission.import, InventoryTransferPermission.create],
         subMenu: [],
       },
       {
@@ -221,7 +235,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryTransferPermission.import, InventoryTransferPermission.create],
+        permissions: [InventoryTransferPermission.import, InventoryTransferPermission.create],
         subMenu: [],
       },
     ],
@@ -235,7 +249,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu33",
     isShow: true,
     header: null,
-    permissions:[InventoryAdjustmentPermission.read],
+    permissions: [InventoryAdjustmentPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.INVENTORY_ADJUSTMENTS}/create`,
@@ -246,7 +260,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu33",
         isShow: true,
         header: null,
-        permissions:[InventoryAdjustmentPermission.create],
+        permissions: [InventoryAdjustmentPermission.create],
         subMenu: [],
       },
       {
@@ -258,7 +272,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu31",
         isShow: true,
         header: null,
-        permissions:[InventoryAdjustmentPermission.read],
+        permissions: [InventoryAdjustmentPermission.read],
         subMenu: [],
       },
     ],
@@ -272,7 +286,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu34",
     isShow: true,
     header: null,
-    permissions:[InventoryDefectsPermission.read],
+    permissions: [InventoryDefectsPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.INVENTORY_DEFECTS}/create`,
@@ -283,7 +297,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu34",
         isShow: true,
         header: null,
-        permissions:[InventoryDefectsPermission.create],
+        permissions: [InventoryDefectsPermission.create],
         subMenu: [],
       },
     ],
@@ -297,7 +311,7 @@ export const inventory: Array<RouteMenu> = [
     key: "submenu35",
     isShow: true,
     header: null,
-    permissions:[StockInOutOthersPermission.read],
+    permissions: [StockInOutOthersPermission.read],
     subMenu: [
       {
         path: `${UrlConfig.STOCK_IN_OUT_OTHERS}/create-stock-in`,
@@ -308,7 +322,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu35",
         isShow: true,
         header: null,
-        permissions:[StockInOutOthersPermission.create],
+        permissions: [StockInOutOthersPermission.create],
         subMenu: [],
       },
       {
@@ -320,7 +334,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu35",
         isShow: true,
         header: null,
-        permissions:[StockInOutOthersPermission.create],
+        permissions: [StockInOutOthersPermission.create],
         subMenu: [],
       },
       {
@@ -332,7 +346,7 @@ export const inventory: Array<RouteMenu> = [
         key: "submenu35",
         isShow: true,
         header: null,
-        permissions:[StockInOutOthersPermission.read],
+        permissions: [StockInOutOthersPermission.read],
         subMenu: [],
       },
     ],

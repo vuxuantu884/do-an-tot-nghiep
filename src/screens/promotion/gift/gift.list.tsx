@@ -1,6 +1,6 @@
 import UrlConfig from "config/url.config";
-import React, {ReactElement} from "react";
-import {Redirect} from "react-router";
+import React, { ReactElement } from "react";
+import { Redirect } from "react-router";
 
 // interface Props {}
 

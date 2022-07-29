@@ -34,11 +34,11 @@ function ActionHistoryModal(props: PropType) {
       let htmlInner = doc.getElementsByTagName("body")[0].innerHTML;
       return (
         <div
-    className="orderDetails"
-    dangerouslySetInnerHTML={{
-      __html: purify.sanitize(htmlInner),
-    }}
-    />
+          className="orderDetails"
+          dangerouslySetInnerHTML={{
+            __html: purify.sanitize(htmlInner),
+          }}
+        />
       );
     }
     return value;
@@ -154,12 +154,8 @@ function ActionHistoryModal(props: PropType) {
     if (actionId) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
-          let detailToTextBefore = convertActionLogDetailToText(
-            response.before?.data
-          );
-          let detailToTextCurrent = convertActionLogDetailToText(
-            response.current?.data
-          );
+          let detailToTextBefore = convertActionLogDetailToText(response.before?.data);
+          let detailToTextCurrent = convertActionLogDetailToText(response.current?.data);
           setSingleLogDetail([
             {
               key: "1",
@@ -198,7 +194,7 @@ function ActionHistoryModal(props: PropType) {
               current: response.current?.device || "",
             },
           ]);
-        })
+        }),
       );
     }
   }, [actionId, dispatch]);

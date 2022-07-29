@@ -1,16 +1,18 @@
 import { Input, Form, Select } from "antd";
-import React, {useCallback, useEffect, useMemo, useRef} from "react";
-import {useDispatch} from "react-redux";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import { useDispatch } from "react-redux";
 
-import {WardResponse} from "model/content/ward.model";
+import { WardResponse } from "model/content/ward.model";
 
-import {
-  WardGetByDistrictAction
-} from "domain/actions/content/content.action";
+import { WardGetByDistrictAction } from "domain/actions/content/content.action";
 
 import "screens/yd-page/yd-page-customer/customer.scss";
-import {StyledCustomerAreaInfo} from "screens/yd-page/StyledYDpageAdmin";
-import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
+import { StyledCustomerAreaInfo } from "screens/yd-page/StyledYDpageAdmin";
+import {
+  findWard,
+  handleDelayActionWhenInsertTextInSearchInput,
+  handleFindArea,
+} from "utils/AppUtils";
 
 const { Option } = Select;
 
@@ -23,7 +25,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
     isDisable,
     newCustomerInfo,
     setNewCustomerInfo,
-		updateNewCustomerInfo,
+    updateNewCustomerInfo,
   } = props;
 
   const dispatch = useDispatch();
@@ -52,11 +54,11 @@ const YDpageCustomerAreaInfo = (props: any) => {
       value.ward_id = null;
       form.setFieldsValue(value);
 
-			const tempNewCustomerInfo = {...newCustomerInfo};
-			tempNewCustomerInfo["city_id"] = area?.city_id;
-			tempNewCustomerInfo["district_id"] = districtIdValue;
-			tempNewCustomerInfo["ward_id"] = null;
-			setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+      const tempNewCustomerInfo = { ...newCustomerInfo };
+      tempNewCustomerInfo["city_id"] = area?.city_id;
+      tempNewCustomerInfo["district_id"] = districtIdValue;
+      tempNewCustomerInfo["ward_id"] = null;
+      setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
     }
   };
 
@@ -68,11 +70,11 @@ const YDpageCustomerAreaInfo = (props: any) => {
     value.ward_id = null;
     form.setFieldsValue(value);
 
-		const tempNewCustomerInfo = {...newCustomerInfo};
-		tempNewCustomerInfo["city_id"] = null;
-		tempNewCustomerInfo["district_id"] = null;
-		tempNewCustomerInfo["ward_id"] = null;
-		setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+    const tempNewCustomerInfo = { ...newCustomerInfo };
+    tempNewCustomerInfo["city_id"] = null;
+    tempNewCustomerInfo["district_id"] = null;
+    tempNewCustomerInfo["ward_id"] = null;
+    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
 
   const handleClearWard = () => {
@@ -81,13 +83,13 @@ const YDpageCustomerAreaInfo = (props: any) => {
     value.ward = "";
     form.setFieldsValue(value);
 
-		const tempNewCustomerInfo = {...newCustomerInfo};
-		tempNewCustomerInfo["ward_id"] = null;
-		setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
+    const tempNewCustomerInfo = { ...newCustomerInfo };
+    tempNewCustomerInfo["ward_id"] = null;
+    setNewCustomerInfo && setNewCustomerInfo(tempNewCustomerInfo);
   };
 
   const handleBlurAddress = (value: any) => {
-    form.setFieldsValue({ "full_address": value.trim() })
+    form.setFieldsValue({ full_address: value.trim() });
 
     const formValues = formRef.current?.getFieldsValue();
     const tempNewCustomerInfo = {
@@ -96,34 +98,38 @@ const YDpageCustomerAreaInfo = (props: any) => {
       full_address: value.trim(),
     };
     setNewCustomerInfo(tempNewCustomerInfo);
-  }
+  };
 
   useEffect(() => {
     if (districtId) {
       setLoadingWardList(true);
-      dispatch(WardGetByDistrictAction(Number(districtId), (wardResponse) => {
-        setWardList(wardResponse);
-        setLoadingWardList(false);
-      }));
+      dispatch(
+        WardGetByDistrictAction(Number(districtId), (wardResponse) => {
+          setWardList(wardResponse);
+          setLoadingWardList(false);
+        }),
+      );
     } else {
       setWardList([]);
     }
   }, [dispatch, districtId]);
 
   // handle autofill address
-  const fullAddressRef = useRef()
+  const fullAddressRef = useRef();
   const newAreas = useMemo(() => {
     return areaList.map((area: any) => {
       return {
         ...area,
-        city_name_normalize: area.city_name.normalize("NFD")
+        city_name_normalize: area.city_name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
           .toLowerCase()
           .replace("tinh ", "")
           .replace("tp. ", ""),
-        district_name_normalize: area.name.normalize("NFD")
+        district_name_normalize: area.name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
@@ -132,71 +138,77 @@ const YDpageCustomerAreaInfo = (props: any) => {
           .replace("huyen ", "")
           // .replace("thanh pho ", "")
           .replace("thi xa ", ""),
-      }
-    })
+      };
+    });
   }, [areaList]);
 
   const getWards = useCallback(
     (value: number) => {
       if (value) {
-        dispatch(WardGetByDistrictAction(value, (data) => {
-          const value = formRef.current?.getFieldValue("full_address");
-          if (value) {
-            const newValue = value.toLowerCase();
+        dispatch(
+          WardGetByDistrictAction(value, (data) => {
+            const value = formRef.current?.getFieldValue("full_address");
+            if (value) {
+              const newValue = value.toLowerCase();
 
-            const newWards = data.map((ward: any) => {
-              return {
-                ...ward,
-                ward_name_normalize: ward.name.normalize("NFD")
-                  .replace(/[\u0300-\u036f]/g, "")
-                  .replace(/đ/g, "d")
-                  .replace(/Đ/g, "D")
-                  .toLowerCase()
-                  .replace("phuong ", "")
-                  .replace("xa ", ""),
-              }
-            });
-            let district = document.getElementsByClassName("YDpageCustomerInputDistrictCreateCustomer")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
-            const foundWard = findWard(district, newWards, newValue);
-            formRef.current?.setFieldsValue({
-              ward_id: foundWard ? foundWard.id : null,
-            })
+              const newWards = data.map((ward: any) => {
+                return {
+                  ...ward,
+                  ward_name_normalize: ward.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .toLowerCase()
+                    .replace("phuong ", "")
+                    .replace("xa ", ""),
+                };
+              });
+              let district =
+                document
+                  .getElementsByClassName("YDpageCustomerInputDistrictCreateCustomer")[0]
+                  .textContent?.replace("Vui lòng chọn khu vực", "") || "";
+              const foundWard = findWard(district, newWards, newValue);
+              formRef.current?.setFieldsValue({
+                ward_id: foundWard ? foundWard.id : null,
+              });
 
-            // updateNewCustomerInfo("ward_id", foundWard ? foundWard.id : null,);
-          }
-          setWardList(data);
-        }));
+              // updateNewCustomerInfo("ward_id", foundWard ? foundWard.id : null,);
+            }
+            setWardList(data);
+          }),
+        );
       }
     },
-    [dispatch, formRef]
+    [dispatch, formRef],
   );
 
-  const checkAddress = useCallback((value) => {
-    const findArea = handleFindArea(value, newAreas);
-    if (findArea) {
-      if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
-        formRef.current?.setFieldsValue({
-          city_id: findArea.city_id,
-          district_id: findArea.id,
-          ward_id: null
-        })
-        getWards(findArea.id);
+  const checkAddress = useCallback(
+    (value) => {
+      const findArea = handleFindArea(value, newAreas);
+      if (findArea) {
+        if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+          formRef.current?.setFieldsValue({
+            city_id: findArea.city_id,
+            district_id: findArea.id,
+            ward_id: null,
+          });
+          getWards(findArea.id);
+        }
       }
-    }
-  }, [formRef, getWards, newAreas]);
+    },
+    [formRef, getWards, newAreas],
+  );
   // end handle autofill address
 
-  return(
+  return (
     <StyledCustomerAreaInfo>
       <div className="customer-area-info">
         <Form.Item label="city" name="city_id" hidden>
           <Input />
         </Form.Item>
 
-        <Form.Item
-          name="district_id"
-          className="YDpageCustomerInputDistrictCreateCustomer"
-        >
+        <Form.Item name="district_id" className="YDpageCustomerInputDistrictCreateCustomer">
           <Select
             showSearch
             disabled={isDisable}
@@ -215,9 +227,7 @@ const YDpageCustomerAreaInfo = (props: any) => {
           </Select>
         </Form.Item>
 
-        <Form.Item
-          name="ward_id"
-        >
+        <Form.Item name="ward_id">
           <Select
             showSearch
             disabled={isDisable || loadingWardList}
@@ -237,23 +247,27 @@ const YDpageCustomerAreaInfo = (props: any) => {
           </Select>
         </Form.Item>
 
-        <Form.Item
-          name="full_address"
-        >
+        <Form.Item name="full_address">
           <Input
             maxLength={500}
             placeholder={"Địa chỉ"}
             allowClear
             onBlur={(value) => handleBlurAddress(value.target.value)}
             disabled={isDisable}
-            onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
-              checkAddress(e.target.value)
-            },500)}
+            onChange={(e) =>
+              handleDelayActionWhenInsertTextInSearchInput(
+                fullAddressRef,
+                () => {
+                  checkAddress(e.target.value);
+                },
+                500,
+              )
+            }
           />
         </Form.Item>
       </div>
     </StyledCustomerAreaInfo>
   );
-}
+};
 
-export default YDpageCustomerAreaInfo
+export default YDpageCustomerAreaInfo;

@@ -1,8 +1,7 @@
 import React from "react";
-import { Modal,} from "antd";
+import { Modal } from "antd";
 
 import DeleteIcon from "assets/icon/ydDeleteIcon.svg";
-
 
 type ExitDownloadProductsModalType = {
   visible: boolean;
@@ -10,12 +9,10 @@ type ExitDownloadProductsModalType = {
   onCancel: () => void;
 };
 
-
 const ExitDownloadProductsModal: React.FC<ExitDownloadProductsModalType> = (
-  props: ExitDownloadProductsModalType
+  props: ExitDownloadProductsModalType,
 ) => {
   const { visible, onOk, onCancel } = props;
-
 
   return (
     <Modal
@@ -33,11 +30,13 @@ const ExitDownloadProductsModal: React.FC<ExitDownloadProductsModalType> = (
         <img src={DeleteIcon} alt="" />
         <div style={{ marginLeft: 15 }}>
           <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải sản phẩm về không?</strong>
-          <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải sản phẩm về, các sản phẩm đã tải thành công sẽ được hiển thị ở màn hình "Tất cả sản phẩm"</div>
+          <div style={{ fontSize: 14 }}>
+            Hệ thống sẽ dừng việc tải sản phẩm về, các sản phẩm đã tải thành công sẽ được hiển thị ở
+            màn hình "Tất cả sản phẩm"
+          </div>
         </div>
       </div>
     </Modal>
-    
   );
 };
 

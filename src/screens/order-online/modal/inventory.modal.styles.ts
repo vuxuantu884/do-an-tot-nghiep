@@ -10,6 +10,6 @@ export const StyledComponent = styled.div`
   }
   .tableElementSticky {
     position: sticky;
-    z-index: 9899
+    z-index: 9899;
   }
 `;

@@ -11,45 +11,40 @@ type PropTypes = {
 };
 
 function OrderBillRequestDetailModal(props: PropTypes) {
-  const {
-    isVisibleOrderBillRequestDetailModal,
-    handleOk,
-    handleCancel,
-    orderDetail,
-  } = props;
+  const { isVisibleOrderBillRequestDetailModal, handleOk, handleCancel, orderDetail } = props;
 
   const billingAddress = orderDetail?.billing_address;
 
   const billExportInformation = [
     {
       title: "Tên đơn vị mua hàng",
-      value: billingAddress?.buyer
+      value: billingAddress?.buyer,
     },
     {
       title: "Mã số thuế",
-      value: billingAddress?.tax_code
+      value: billingAddress?.tax_code,
     },
     {
       title: "Địa chỉ xuất hóa đơn",
-      value: billingAddress?.full_address
+      value: billingAddress?.full_address,
     },
     {
       title: "Người đại diện theo pháp luật",
-      value: billingAddress?.name
+      value: billingAddress?.name,
     },
     {
       title: "Email nhận hóa đơn điện tử",
-      value: billingAddress?.email
+      value: billingAddress?.email,
     },
     {
       title: "Ghi chú",
-      value: billingAddress?.note
+      value: billingAddress?.note,
     },
     {
       title: "Hợp đồng",
-      value: billingAddress?.contract ? "Có hợp đồng" : "Không có hợp đồng"
+      value: billingAddress?.contract ? "Có hợp đồng" : "Không có hợp đồng",
     },
-  ]
+  ];
 
   return (
     <Modal
@@ -73,9 +68,11 @@ function OrderBillRequestDetailModal(props: PropTypes) {
                   <Col span={8}>
                     <div className="label">{single.title}:</div>
                   </Col>
-                  <Col span={16}><strong>{single.value || "-"}</strong></Col>
+                  <Col span={16}>
+                    <strong>{single.value || "-"}</strong>
+                  </Col>
                 </Row>
-              )
+              );
             })}
           </React.Fragment>
         ) : (

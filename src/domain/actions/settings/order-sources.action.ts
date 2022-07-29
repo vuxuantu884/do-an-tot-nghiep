@@ -7,7 +7,7 @@ import {
 
 export const actionFetchListOrderSources = (
   queryParams = {},
-  handleData: (data: OrderSourceResponseModel) => void
+  handleData: (data: OrderSourceResponseModel) => void,
 ) => {
   return {
     type: SETTING_TYPES.orderSources.listData,
@@ -19,7 +19,7 @@ export const actionFetchListOrderSources = (
 };
 
 export const actionFetchListOrderSourceCompanies = (
-  handleData: (data: OrderSourceCompanyModel[]) => void
+  handleData: (data: OrderSourceCompanyModel[]) => void,
 ) => {
   return {
     type: SETTING_TYPES.orderSources.listSourceCompany,
@@ -29,10 +29,7 @@ export const actionFetchListOrderSourceCompanies = (
   };
 };
 
-export const actionAddOrderSource = (
-  item: OrderSourceModel,
-  handleData: () => void
-) => {
+export const actionAddOrderSource = (item: OrderSourceModel, handleData: () => void) => {
   return {
     type: SETTING_TYPES.orderSources.create,
     payload: {
@@ -45,7 +42,7 @@ export const actionAddOrderSource = (
 export const actionEditOrderSource = (
   id: number,
   item: OrderSourceModel,
-  handleData: () => void
+  handleData: () => void,
 ) => {
   return {
     type: SETTING_TYPES.orderSources.edit,

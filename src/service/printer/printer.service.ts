@@ -15,7 +15,7 @@ interface PrintParams extends BaseQuery {
 }
 
 export const getListPrinterService = (
-  queryParams: BaseQuery
+  queryParams: BaseQuery,
 ): Promise<BaseResponse<PrinterResponseModel>> => {
   const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.CORE}/print-template?${queryString}`);
@@ -23,14 +23,14 @@ export const getListPrinterService = (
 
 export const getPrinterDetailService = (
   id: number,
-  queryParams: PrintParams = {}
+  queryParams: PrintParams = {},
 ): Promise<BaseResponse<PrinterResponseModel>> => {
   const queryString = generateQuery(queryParams);
   return BaseAxios.get(`${ApiConfig.CORE}/print-template/${id}?${queryString}`);
 };
 
 export const createPrinterService = (
-  formValue: BasePrinterModel
+  formValue: BasePrinterModel,
 ): Promise<BaseResponse<PrinterResponseModel>> => {
   return BaseAxios.post(`${ApiConfig.CORE}/print-template`, formValue);
 };
@@ -39,13 +39,13 @@ export const getListPrinterVariablesService = (): Promise<
   BaseResponse<PrinterVariableResponseModel>
 > => {
   return BaseAxios.get(
-    `${ApiConfig.CONTENT}/common/enums?fields=PRINT_SIZE,PRINT_ORDER_VARIABLE,PRINT_STORE_VARIABLE,PRINT_PRODUCT_VARIABLE,PRINT_SHIPMENT_VARIABLE,PRINT_PURCHASE_ORDER,PRINT_GOODS_RECEIPT_VARIABLE`
+    `${ApiConfig.CONTENT}/common/enums?fields=PRINT_SIZE,PRINT_ORDER_VARIABLE,PRINT_STORE_VARIABLE,PRINT_PRODUCT_VARIABLE,PRINT_SHIPMENT_VARIABLE,PRINT_PURCHASE_ORDER,PRINT_GOODS_RECEIPT_VARIABLE`,
   );
 };
 
 export const getPrintFormByOrderIdsService = (
   ids: string[],
-  type: string
+  type: string,
 ): Promise<BaseResponse<PrinterVariableResponseModel>> => {
   const queryParams = {
     ids,
@@ -57,20 +57,22 @@ export const getPrintFormByOrderIdsService = (
 
 export const getPrintTicketIdsService = (
   ids: string[],
-  type: string
+  type: string,
 ): Promise<Array<PrinterInventoryTransferResponseModel>> => {
   const queryParams = {
     ids,
     type,
   };
   const queryString = generateQuery(queryParams);
-  
-  return BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/print_forms?${queryString}`);
+
+  return BaseAxios.get(
+    `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/print_forms?${queryString}`,
+  );
 };
 
 export const updatePrinterService = (
   formValue: BasePrinterModel,
-  id: number
+  id: number,
 ): Promise<BaseResponse<PrinterResponseModel>> => {
   return BaseAxios.put(`${ApiConfig.CORE}/print-template/${id}`, formValue);
 };

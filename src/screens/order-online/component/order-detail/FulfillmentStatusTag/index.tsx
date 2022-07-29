@@ -96,7 +96,7 @@ function FulfillmentStatusTag(props: PropTypes) {
   };
 
   const getStatusTagWithShipping = () => {
-    if(fulfillment?.return_status === FulFillmentReturnStatus.RETURNING) {
+    if (fulfillment?.return_status === FulFillmentReturnStatus.RETURNING) {
       return {
         name: "Hủy đơn giao - Chưa nhận hàng",
         status: FulFillmentStatus.CANCELLED,
@@ -109,7 +109,7 @@ function FulfillmentStatusTag(props: PropTypes) {
   };
 
   const getStatusTagWithShipped = () => {
-    if(fulfillment?.return_status === FulFillmentReturnStatus.RETURNED) {
+    if (fulfillment?.return_status === FulFillmentReturnStatus.RETURNED) {
       return {
         name: "Hủy đơn giao - Đã nhận hàng",
         status: FulFillmentStatus.CANCELLED,

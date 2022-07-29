@@ -2,13 +2,13 @@ import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
 export const nameQuantityWidth = 300;
 const quantityWidth = 60;
-const massWidth=100;
+const massWidth = 100;
 const priceWidth = 100;
 const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
   th {
-		text-align: center !important;
+    text-align: center !important;
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantity {
@@ -21,11 +21,11 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
   }
-	.productNameQuantity,
-	.productNameQuantity .items .item,
-	.productNameQuantity .items {
-		width: ${nameQuantityWidth}px;
-	}
+  .productNameQuantity,
+  .productNameQuantity .items .item,
+  .productNameQuantity .items {
+    width: ${nameQuantityWidth}px;
+  }
   .productNameWidth {
     width: ${nameWidth}px;
   }
@@ -33,7 +33,7 @@ export const StyledComponent = styled.div`
     width: ${quantityWidth}px;
     text-align: center;
   }
-  .massWidth{
+  .massWidth {
     width: ${massWidth}px;
     text-align: center;
   }
@@ -63,7 +63,7 @@ export const StyledComponent = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      position:relative;
+      position: relative;
       &:before {
         content: "";
         display: block;
@@ -76,12 +76,12 @@ export const StyledComponent = styled.div`
         background-color: ${borderColor};
       }
     }
-    .mass{
+    .mass {
       white-space: nowrap;
       display: flex;
       align-items: center;
       justify-content: center;
-      position:relative;
+      position: relative;
       &:before {
         content: "";
         display: block;
@@ -100,7 +100,7 @@ export const StyledComponent = styled.div`
       align-items: center;
       justify-content: center;
       &:before {
-       // content: "";
+        // content: "";
         display: block;
         width: 1px;
         position: absolute;
@@ -111,12 +111,12 @@ export const StyledComponent = styled.div`
         background-color: ${borderColor};
       }
     }
-		.productNameText {
-			overflow: hidden;
-			text-overflow: ellipsis;
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-		}
+    .productNameText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
   }
 `;

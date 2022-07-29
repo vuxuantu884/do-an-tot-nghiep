@@ -14,30 +14,17 @@ interface IProps extends SelectProps<any> {
 const { Option, OptGroup } = ANTSelect;
 
 const CustomSelect = (props: IProps) => {
-  const {
-    suffix,
-    style,
-    className,
-    containerClassName,
-    containerStyle,
-    ...rest
-  } = props;
+  const { suffix, style, className, containerClassName, containerStyle, ...rest } = props;
 
   return (
     <div
-      className={classNames(
-        "custom-select",
-        className,
-        suffix && "custom-select-has-suffix"
-      )}
+      className={classNames("custom-select", className, suffix && "custom-select-has-suffix")}
       style={style}
     >
       <ANTSelect
         className={containerClassName}
         style={containerStyle}
-        filterOption={(input, option) =>
-          fullTextSearch(input, option?.children)
-          }
+        filterOption={(input, option) => fullTextSearch(input, option?.children)}
         {...rest}
       />
       {suffix && <div className="custom-select-suffix">{suffix}</div>}

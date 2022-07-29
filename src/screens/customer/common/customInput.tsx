@@ -14,14 +14,17 @@ function CustomInput(props: any) {
     type,
     upperCase,
     restFormItem,
-    className
+    className,
   } = props;
 
   const [value, setValue] = useState<string>("");
 
-  const handleChange = useCallback((v: any) => {
-    setValue(upperCase ? v.toUpperCase() : v);
-  }, [upperCase]);
+  const handleChange = useCallback(
+    (v: any) => {
+      setValue(upperCase ? v.toUpperCase() : v);
+    },
+    [upperCase],
+  );
 
   const handleBlur = (v: any) => {
     setValue(v.trim());
@@ -41,7 +44,7 @@ function CustomInput(props: any) {
     >
       {type === "textarea" ? (
         <Input.TextArea
-          style={{minHeight: 130}}
+          style={{ minHeight: 130 }}
           disabled={disabled}
           maxLength={maxLength}
           placeholder={`${placeholder}`}

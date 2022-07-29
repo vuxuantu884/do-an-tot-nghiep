@@ -33,7 +33,7 @@ const StorePermissions = {
 
 const PrintPermissions = {
   READ: `${prints_templates}_read`,
-  CREATE: `${prints_templates}_create`,    
+  CREATE: `${prints_templates}_create`,
 };
 
 const AuthPermissions = {
@@ -43,4 +43,10 @@ const AuthPermissions = {
   DELETE: `${auth_settings}_delete`,
 };
 
-export {SourcePermissions, ChannelPermissions, StorePermissions, PrintPermissions, AuthPermissions};
+export {
+  SourcePermissions,
+  ChannelPermissions,
+  StorePermissions,
+  PrintPermissions,
+  AuthPermissions,
+};

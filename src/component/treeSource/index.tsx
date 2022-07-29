@@ -34,7 +34,10 @@ const TreeSource = (props: Props) => {
       return map;
     };
 
-    const groupByLevel4 = (list: Array<SourceResponse>, keyGetter: (store: SourceResponse) => any) => {
+    const groupByLevel4 = (
+      list: Array<SourceResponse>,
+      keyGetter: (store: SourceResponse) => any,
+    ) => {
       const map = new Map();
       list.forEach((item) => {
         if (item.department_h4) {
@@ -52,14 +55,20 @@ const TreeSource = (props: Props) => {
       return map;
     };
 
-    const grouped: any = listSource !== undefined ? groupBy(listSource, (source: SourceResponse) => source[KEY_MAP_STORE_LEVEL_3]) : [];
-    const newSource = _.filter([...grouped], source => source[0]);
-    setNoDepartmentStores(_.filter(listSource, source => !source[KEY_MAP_STORE_LEVEL_3]));
+    const grouped: any =
+      listSource !== undefined
+        ? groupBy(listSource, (source: SourceResponse) => source[KEY_MAP_STORE_LEVEL_3])
+        : [];
+    const newSource = _.filter([...grouped], (source) => source[0]);
+    setNoDepartmentStores(_.filter(listSource, (source) => !source[KEY_MAP_STORE_LEVEL_3]));
 
     newSource.forEach((item) => {
       if (item[1].length > 0) {
-        const grouped: any = listSource !== undefined ? groupByLevel4(item[1], (source: SourceResponse) => source[KEY_MAP_STORE_LEVEL_4]) : [];
-        const newSourcesLevel4 = _.filter([...grouped], source => source[0]);
+        const grouped: any =
+          listSource !== undefined
+            ? groupByLevel4(item[1], (source: SourceResponse) => source[KEY_MAP_STORE_LEVEL_4])
+            : [];
+        const newSourcesLevel4 = _.filter([...grouped], (source) => source[0]);
         if (newSourcesLevel4.length > 0) item[1] = newSourcesLevel4;
       }
     });
@@ -84,13 +93,15 @@ const TreeSource = (props: Props) => {
       {...restProps}
       filterTreeNode={(textSearch: any, item: any) => {
         return fullTextSearch(textSearch, item?.title);
-      }}>
+      }}
+    >
       {source?.map((departmentItem: any) => {
         return (
           <TreeSelect.TreeNode
             key={departmentItem[0]}
             value={departmentItem[0]}
-            title={departmentItem[0]}>
+            title={departmentItem[0]}
+          >
             <React.Fragment>
               {departmentItem[1].map((storeItem: any) => {
                 return storeItem[1][0].name === storeItem[0] ? (
@@ -128,6 +139,6 @@ const TreeSource = (props: Props) => {
   );
 };
 TreeSource.defaultProps = {
-  placeholder: "Chọn nguồn đơn hàng"
-}
+  placeholder: "Chọn nguồn đơn hàng",
+};
 export default TreeSource;

@@ -1,4 +1,3 @@
-
 export interface LoyaltyPoint {
   customer_id: number | null;
   loyalty_level_id: number | null;

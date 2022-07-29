@@ -7,6 +7,6 @@ export const StyledComponent = styled.div`
     padding: 6px 10px;
   }
   .full {
-    width: 100%
+    width: 100%;
   }
-`
+`;

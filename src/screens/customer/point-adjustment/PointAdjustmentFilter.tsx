@@ -1,28 +1,20 @@
 import React, { useCallback, useMemo, useState, useEffect } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Tag,
-} from "antd";
+import { Button, Form, Input, Select, Tag } from "antd";
 
 import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.request";
 
 import search from "assets/img/search.svg";
 import { StyledPointAdjustment } from "screens/customer/point-adjustment/StyledPointAdjustment";
-import {
-  searchAccountPublicApi,
-} from "service/accounts/account.service";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { useDispatch } from "react-redux";
 import rightArrow from "assets/icon/right-arrow.svg";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
 import moment from "moment";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
-import {AccountResponse} from "model/account/account.model";
-import {PageResponse} from "model/base/base-metadata.response";
-import {searchAccountPublicAction} from "domain/actions/account/account.action";
+import { AccountResponse } from "model/account/account.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 
 type PointAdjustmentFilterProps = {
   params: PointAdjustmentListRequest;
@@ -45,15 +37,10 @@ const POINT_ADJUSTMENT_REASON = [
   "Khác",
 ];
 
-
 const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
-  props: PointAdjustmentFilterProps
+  props: PointAdjustmentFilterProps,
 ) => {
-  const {
-    params,
-    isLoading,
-    onFilter,
-  } = props;
+  const { params, isLoading, onFilter } = props;
 
   const [formFilter] = Form.useForm();
 
@@ -67,12 +54,8 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   let initialValues = useMemo(() => {
     return {
       ...params,
-      reasons: Array.isArray(params.reasons)
-        ? params.reasons
-        : [params.reasons],
-      emps: Array.isArray(params.emps)
-        ? params.emps
-        : [params.emps]
+      reasons: Array.isArray(params.reasons) ? params.reasons : [params.reasons],
+      emps: Array.isArray(params.emps) ? params.emps : [params.emps],
     };
   }, [params]);
 
@@ -84,8 +67,8 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       list.push({
         key: "term",
         name: "Tên hoặc mã phiếu điều chỉnh",
-        value: initialValues.term
-      })
+        value: initialValues.term,
+      });
     }
 
     if (initialValues.reasons?.length) {
@@ -103,12 +86,12 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
     if (initialValues.emps?.length) {
       let empsList = "";
       initialValues.emps.forEach((emp: any) => {
-        const account = accountDataFiltered?.find((item: any) => item.code?.toString() === emp?.toString());
-        empsList = account
-          ? empsList + account.code + " - " + account.full_name + "; "
-          : empsList;
+        const account = accountDataFiltered?.find(
+          (item: any) => item.code?.toString() === emp?.toString(),
+        );
+        empsList = account ? empsList + account.code + " - " + account.full_name + "; " : empsList;
       });
-      
+
       list.push({
         key: "emps",
         name: "Người điều chỉnh",
@@ -120,8 +103,8 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       list.push({
         key: "from",
         name: "Từ ngày",
-        value: initialValues.from
-      })
+        value: initialValues.from,
+      });
     }
 
     if (initialValues.to) {
@@ -129,9 +112,8 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
         key: "to",
         name: "Đến ngày",
         value: initialValues.to,
-      })
+      });
     }
-    
 
     return list;
   }, [
@@ -148,18 +130,18 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       e.preventDefault();
       switch (tag.key) {
         case "term":
-          onFilter && onFilter({ ...params, term: null })
+          onFilter && onFilter({ ...params, term: null });
           break;
         case "reasons":
           onFilter && onFilter({ ...params, reasons: [] });
           formFilter?.setFieldsValue({ reasons: [] });
           break;
         case "from":
-          onFilter && onFilter({ ...params, from: null })
+          onFilter && onFilter({ ...params, from: null });
           break;
         case "to":
-        onFilter && onFilter({ ...params, to: null })
-        break;
+          onFilter && onFilter({ ...params, to: null });
+          break;
         case "emps":
           onFilter && onFilter({ ...params, emps: [] });
           formFilter?.setFieldsValue({ emps: [] });
@@ -168,19 +150,21 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
           break;
       }
     },
-    [formFilter, onFilter, params]
+    [formFilter, onFilter, params],
   );
   // end handle tag filter
 
   // get init account
   useEffect(() => {
-    dispatch(searchAccountPublicAction({ limit: 30 }, (data: PageResponse<AccountResponse> | false) => {
-      if (!data) {
-        return;
-      }
-      setInitAccount(data.items);
-      setAccountData(data.items);
-    }));
+    dispatch(
+      searchAccountPublicAction({ limit: 30 }, (data: PageResponse<AccountResponse> | false) => {
+        if (!data) {
+          return;
+        }
+        setInitAccount(data.items);
+        setAccountData(data.items);
+      }),
+    );
   }, [dispatch]);
 
   // handle account by filter param
@@ -192,9 +176,8 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
         setAccountDataFiltered(response.data.items);
       });
     }
-  }, [])
+  }, []);
   // end handle account by filter param
-
 
   useEffect(() => {
     formFilter.setFieldsValue({
@@ -203,43 +186,46 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
       from: params.from,
       to: params.to,
       emps: params.emps,
-    })
+    });
 
     getAccountDataFiltered(params?.emps);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [getAccountDataFiltered, params]);
 
-  const onChangeDate = useCallback(
-    () => {
-      let value: any;
-      value = formFilter?.getFieldsValue(["from", "to"])
-      if (value["from"] && value["to"] && (+moment(value["to"], 'DD-MM-YYYY') < + moment(value["from"], 'DD-MM-YYYY'))) {
-        formFilter?.setFields([
-          {
-            name: "from",
-            errors: [''],
-          },
-          {
-            name: "to",
-            errors: ['Ngày kết thúc không được nhỏ hơn ngày bắt đầu'],
-          },
-        ])
+  const onChangeDate = useCallback(() => {
+    let value: any;
+    value = formFilter?.getFieldsValue(["from", "to"]);
+    if (
+      value["from"] &&
+      value["to"] &&
+      +moment(value["to"], "DD-MM-YYYY") < +moment(value["from"], "DD-MM-YYYY")
+    ) {
+      formFilter?.setFields([
+        {
+          name: "from",
+          errors: [""],
+        },
+        {
+          name: "to",
+          errors: ["Ngày kết thúc không được nhỏ hơn ngày bắt đầu"],
+        },
+      ]);
 
-        setDisableFilterAdjustment(true)
-      } else {
-        formFilter?.setFields([
-          {
-            name: "from",
-            errors: undefined,
-          },
-          {
-            name: "to",
-            errors: undefined,
-          },
-        ])
-        setDisableFilterAdjustment(false)
-      }
-    }, [formFilter]);
+      setDisableFilterAdjustment(true);
+    } else {
+      formFilter?.setFields([
+        {
+          name: "from",
+          errors: undefined,
+        },
+        {
+          name: "to",
+          errors: undefined,
+        },
+      ]);
+      setDisableFilterAdjustment(false);
+    }
+  }, [formFilter]);
 
   // handle scroll page
   const [isDropdownVisible, setIsDropdownVisible] = useState(false);
@@ -281,16 +267,10 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
   }, [isDropdownVisible]);
   // end handle scroll page
 
-
   return (
     <StyledPointAdjustment>
       <div className="filter">
-        <Form
-          form={formFilter}
-          onFinish={onFilter}
-          initialValues={initialValues}
-          layout="inline"
-        >
+        <Form form={formFilter} onFinish={onFilter} initialValues={initialValues} layout="inline">
           <Item name="term" className="search-input">
             <Input
               disabled={isLoading}
@@ -351,33 +331,32 @@ const PointAdjustmentFilter: React.FC<PointAdjustmentFilterProps> = (
           </Item>
 
           <Item name="from" className="check-validate-adjustment">
-              <CustomDatePicker
-                format="DD-MM-YYYY"
-                placeholder="Từ ngày"
-                style={{ width: "100%", borderRadius: 0 }}
-                onChange={() => onChangeDate()}
-                getPopupContainer={(trigger: any) => trigger.parentElement}
-              />
+            <CustomDatePicker
+              format="DD-MM-YYYY"
+              placeholder="Từ ngày"
+              style={{ width: "100%", borderRadius: 0 }}
+              onChange={() => onChangeDate()}
+              getPopupContainer={(trigger: any) => trigger.parentElement}
+            />
           </Item>
 
-          <span className="form-adjustment-arrow-icon"> <img src={rightArrow} alt="" style={{marginRight: "10px"}}/> </span>
+          <span className="form-adjustment-arrow-icon">
+            {" "}
+            <img src={rightArrow} alt="" style={{ marginRight: "10px" }} />{" "}
+          </span>
 
           <Item name="to" className="check-validate-adjustment">
-              <CustomDatePicker
-                format="DD-MM-YYYY"
-                placeholder="Đến ngày"
-                style={{ width: "100%", borderRadius: 0 }}
-                onChange={() => onChangeDate()}
-                getPopupContainer={(trigger: any) => trigger.parentElement}
-              />
+            <CustomDatePicker
+              format="DD-MM-YYYY"
+              placeholder="Đến ngày"
+              style={{ width: "100%", borderRadius: 0 }}
+              onChange={() => onChangeDate()}
+              getPopupContainer={(trigger: any) => trigger.parentElement}
+            />
           </Item>
 
           <Item style={{ marginRight: 0 }}>
-            <Button
-              type="primary"
-              htmlType="submit"
-              disabled={isDisableFilterAdjustment}
-            >
+            <Button type="primary" htmlType="submit" disabled={isDisableFilterAdjustment}>
               Lọc
             </Button>
           </Item>

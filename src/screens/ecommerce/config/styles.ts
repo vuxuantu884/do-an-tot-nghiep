@@ -3,8 +3,8 @@ import styled from "styled-components";
 export const StyledComponent = styled.div`
   .connect-ecommerce-dropdown {
     &:hover {
-      border-color: #2A2A86;
-      color: #2A2A86;
+      border-color: #2a2a86;
+      color: #2a2a86;
     }
   }
 `;

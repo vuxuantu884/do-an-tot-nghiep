@@ -1,44 +1,42 @@
-import {Image} from "antd";
+import { Image } from "antd";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-import {MenuAction} from "component/table/ActionButton";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { MenuAction } from "component/table/ActionButton";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
-import {ProductPermission} from "config/permissions/product.permission";
+import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig, { ProductTabUrl } from "config/url.config";
-import {hideLoading, showLoading} from "domain/actions/loading.action";
-import {getCategoryRequestAction} from "domain/actions/product/category.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import {
   productWrapperDeleteAction,
   searchProductWrapperRequestAction,
 } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
-import {PageResponse} from "model/base/base-metadata.response";
-import {CategoryResponse, CategoryView} from "model/product/category.model";
+import { PageResponse } from "model/base/base-metadata.response";
+import { CategoryResponse, CategoryView } from "model/product/category.model";
 import {
   ProductResponse,
   ProductWrapperResponse,
   ProductWrapperSearchQuery,
   VariantResponse,
 } from "model/product/product.model";
-import {RootReducerType} from "model/reducers/RootReducerType";
-import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {useDispatch, useSelector} from "react-redux";
-import {Link, useHistory} from "react-router-dom";
+import { RootReducerType } from "model/reducers/RootReducerType";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
 import ProductWrapperFilter from "screens/products/product/filter/ProductWrapperFilter";
-import {convertCategory, formatCurrencyForProduct, generateQuery} from "utils/AppUtils";
-import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
-import {ConvertUtcToLocalDate} from "utils/DateUtils";
-import {showInfo, showSuccess} from "utils/ToastUtils";
+import { convertCategory, formatCurrencyForProduct, generateQuery } from "utils/AppUtils";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import { showInfo, showSuccess } from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 import { StyledComponent } from "../style";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { CollectionCreateRequest } from "model/product/collection.model";
 import { callApiNative } from "utils/ApiUtils";
-import { productWrapperPutApi } from 'service/product/product.service';
-import{
-  searchProductWrapperApi,
-} from "service/product/product.service";
+import { productWrapperPutApi } from "service/product/product.service";
+import { searchProductWrapperApi } from "service/product/product.service";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 
@@ -58,9 +56,7 @@ const TabProductWrapper: React.FC = () => {
 
   const [tableLoading, setTableLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
-  const goods = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.goods
-  );
+  const goods = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.goods);
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
 
   const [selected, setSelected] = useState<Array<ProductResponse>>([]);
@@ -75,7 +71,7 @@ const TabProductWrapper: React.FC = () => {
     items: [],
   });
 
-  const actionsDefault: Array<MenuAction> = useMemo(()=>{
+  const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
     return [
       {
@@ -85,20 +81,20 @@ const TabProductWrapper: React.FC = () => {
       {
         id: ACTIONS_INDEX.ACTIVE,
         name: "Đang hoạt động",
-        disabled: disabled
+        disabled: disabled,
       },
       {
         id: ACTIONS_INDEX.INACTIVE,
         name: "Ngừng hoạt động",
-        disabled: disabled
+        disabled: disabled,
       },
       {
         id: ACTIONS_INDEX.DELETE,
         name: "Xóa sản phẩm",
-        disabled: disabled
+        disabled: disabled,
       },
     ];
-  },[selected]);
+  }, [selected]);
 
   const dataQuery = useMemo(() => getQueryParams(query), [query]);
 
@@ -120,11 +116,15 @@ const TabProductWrapper: React.FC = () => {
         });
         return (
           <>
-            {url ? <Image width={40} height={40} placeholder="Xem" src={url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={url} />}
+            {url ? (
+              <Image width={40} height={40} placeholder="Xem" src={url ?? ""} />
+            ) : (
+              <ImageProduct disabled={true} onClick={undefined} path={url} />
+            )}
           </>
         );
       },
-      key: 'image',
+      key: "image",
       visible: true,
     },
     {
@@ -137,7 +137,9 @@ const TabProductWrapper: React.FC = () => {
             <div>
               <Link to={`${UrlConfig.PRODUCT}/${i.id}`}>{value}</Link>
             </div>
-            <div><TextEllipsis value={i.name} line={1} /></div>
+            <div>
+              <TextEllipsis value={i.name} line={1} />
+            </div>
           </>
         );
       },
@@ -163,7 +165,9 @@ const TabProductWrapper: React.FC = () => {
       align: "right",
       visible: true,
       width: 120,
-      render: (value: number) => <div> {value!==null?formatCurrencyForProduct(value):"0"}</div>,
+      render: (value: number) => (
+        <div> {value !== null ? formatCurrencyForProduct(value) : "0"}</div>
+      ),
     },
     {
       align: "right",
@@ -172,7 +176,9 @@ const TabProductWrapper: React.FC = () => {
       key: "available",
       visible: true,
       width: 100,
-      render: (value: number) => <div> {value!==null?formatCurrencyForProduct(value):"0"}</div>,
+      render: (value: number) => (
+        <div> {value !== null ? formatCurrencyForProduct(value) : "0"}</div>
+      ),
     },
     {
       title: "Trạng thái",
@@ -192,25 +198,26 @@ const TabProductWrapper: React.FC = () => {
       align: "left",
       dataIndex: "created_date",
       key: "created_date",
-      render: (value) => value!==null?ConvertUtcToLocalDate(value, "DD/MM/YYYY"):"---",
+      render: (value) => (value !== null ? ConvertUtcToLocalDate(value, "DD/MM/YYYY") : "---"),
       width: 110,
       visible: true,
     },
     {
       title: "Nhà thiết kế",
       visible: false,
-      key: 'designer',
+      key: "designer",
       render: (record: ProductWrapperResponse) => {
-        return(
+        return (
           <div>
-             {
-              (record?.designer) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.designer_code}`}>
-                  {record?.designer}
-                </Link>  :"---"
-            }
+            {record?.designer !== null ? (
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.designer_code}`}>
+                {record?.designer}
+              </Link>
+            ) : (
+              "---"
+            )}
           </div>
-        )
+        );
       },
     },
     {
@@ -218,16 +225,17 @@ const TabProductWrapper: React.FC = () => {
       key: "merchandiser",
       visible: false,
       render: (record: ProductWrapperResponse) => {
-        return(
+        return (
           <div>
-             {
-              (record?.merchandiser) !==null?
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${record?.merchandiser_code}`}>
-                  {record?.merchandiser}
-                </Link>  :"---"
-            }
+            {record?.merchandiser !== null ? (
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${record?.merchandiser_code}`}>
+                {record?.merchandiser}
+              </Link>
+            ) : (
+              "---"
+            )}
           </div>
-        )
+        );
       },
     },
     {
@@ -248,13 +256,20 @@ const TabProductWrapper: React.FC = () => {
       key: "material",
       visible: false,
     },
-  ]
+  ];
 
-  const [columns, setColumn] = 
-  useState<Array<ICustomTableColumType<ProductResponse>>>(defaultColumn);
-  
-  const {tableColumnConfigs, onSaveConfigTableColumn} = useHandleFilterColumns(COLUMN_CONFIG_TYPE.COLUMN_PRODUCT);
-  useSetTableColumns(COLUMN_CONFIG_TYPE.COLUMN_PRODUCT, tableColumnConfigs, defaultColumn, setColumn);
+  const [columns, setColumn] =
+    useState<Array<ICustomTableColumType<ProductResponse>>>(defaultColumn);
+
+  const { tableColumnConfigs, onSaveConfigTableColumn } = useHandleFilterColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_PRODUCT,
+  );
+  useSetTableColumns(
+    COLUMN_CONFIG_TYPE.COLUMN_PRODUCT,
+    tableColumnConfigs,
+    defaultColumn,
+    setColumn,
+  );
 
   const [canDeleteParentProduct] = useAuthorization({
     acceptPermissions: [ProductPermission.delete],
@@ -271,7 +286,6 @@ const TabProductWrapper: React.FC = () => {
       return canUpdateParentProduct;
     }
     return item.id === ACTIONS_INDEX.EXPORT_EXCEL;
-
   });
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
@@ -279,13 +293,16 @@ const TabProductWrapper: React.FC = () => {
     setListCategory(temp);
   }, []);
 
-  const setSearchResult = useCallback((result: PageResponse<ProductResponse> | false) => {
-    dispatch(hideLoading());
-    setTableLoading(false);
-    if (!!result) {
-      setData(result);
-    }
-  }, [dispatch]);
+  const setSearchResult = useCallback(
+    (result: PageResponse<ProductResponse> | false) => {
+      dispatch(hideLoading());
+      setTableLoading(false);
+      if (!!result) {
+        setData(result);
+      }
+    },
+    [dispatch],
+  );
 
   const setSearchResultDelete = useCallback((result: PageResponse<ProductResponse> | false) => {
     if (!!result) {
@@ -295,53 +312,62 @@ const TabProductWrapper: React.FC = () => {
 
   const onPageChange = useCallback(
     (page, size) => {
-      let newParams = {...params, page, limit: size};
+      let newParams = { ...params, page, limit: size };
       setParams(newParams);
       let queryParam = generateQuery(newParams);
       history.push(`${UrlConfig.PRODUCT}${history.location.hash}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const onFilter = useCallback(
     (values) => {
-      let {info} = values;
+      let { info } = values;
 
       values.info = info && info.trim();
-      let newPrams = { ...params, ...{
+      let newPrams = {
+        ...params,
+        ...{
           ...values,
-          info: values.info ? values.info : values.info === '' ? null : params.info
-        }, page: 1 };
+          info: values.info ? values.info : values.info === "" ? null : params.info,
+        },
+        page: 1,
+      };
       setParams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.replace(`${ProductTabUrl.PRODUCTS}?${queryParam}`);
     },
-    [params, history]
+    [params, history],
   );
 
-  const onDeleteSuccess = useCallback((res: any) => {
-    if (res) {
-      showSuccess("Xóa sản phẩm thành công");
-      setSelected([]);
-      dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
-    }
-    dispatch(hideLoading());
-    setTableLoading(false);
-  }, [dispatch, setSearchResultDelete, params]);
+  const onDeleteSuccess = useCallback(
+    (res: any) => {
+      if (res) {
+        showSuccess("Xóa sản phẩm thành công");
+        setSelected([]);
+        dispatch(searchProductWrapperRequestAction(params, setSearchResultDelete));
+      }
+      dispatch(hideLoading());
+      setTableLoading(false);
+    },
+    [dispatch, setSearchResultDelete, params],
+  );
 
-  const onAcitveSuccess = useCallback(async ()=>{
+  const onAcitveSuccess = useCallback(async () => {
     setSelected([]);
     setRowKey([]);
-    const res = await callApiNative({isShowLoading: false},dispatch, searchProductWrapperApi,params);
+    const res = await callApiNative(
+      { isShowLoading: false },
+      dispatch,
+      searchProductWrapperApi,
+      params,
+    );
     if (res) {
       setSearchResult(res);
     }
-  },[dispatch, params, setSearchResult]);
+  }, [dispatch, params, setSearchResult]);
 
   const onActive = useCallback(
     async (selected: any, type: string) => {
@@ -349,56 +375,62 @@ const TabProductWrapper: React.FC = () => {
         let element = {
           ...selected[index],
           status: type,
-        }
+        };
 
         if (element.collections) {
-          element.collections = element.collections.map((e: CollectionCreateRequest)=>e.code);
+          element.collections = element.collections.map((e: CollectionCreateRequest) => e.code);
         }
 
         if (!element.id) {
           return;
         }
-        const res = await callApiNative({isShowLoading: true},dispatch, productWrapperPutApi,element.id, element);
+        const res = await callApiNative(
+          { isShowLoading: true },
+          dispatch,
+          productWrapperPutApi,
+          element.id,
+          element,
+        );
         let isError = false;
         if (!res) {
-          isError= true;
+          isError = true;
         }
-        if (index === selected.length-1 ) {
+        if (index === selected.length - 1) {
           !isError && showSuccess("Cập nhật dữ liệu thành công");
           onAcitveSuccess();
         }
       }
     },
-    [dispatch, onAcitveSuccess]
+    [dispatch, onAcitveSuccess],
   );
 
   const onMenuClick = useCallback(
     (index: number) => {
       switch (index) {
         case ACTIONS_INDEX.ACTIVE:
-          onActive(selected,"active");
+          onActive(selected, "active");
           break;
         case ACTIONS_INDEX.INACTIVE:
-          onActive(selected,"inactive");
+          onActive(selected, "inactive");
           break;
         case ACTIONS_INDEX.DELETE:
           setConfirmDelete(true);
           break;
-       case ACTIONS_INDEX.EXPORT_EXCEL:
+        case ACTIONS_INDEX.EXPORT_EXCEL:
           showInfo("Tính năng đang phát triển");
           break;
         case 3:
           break;
       }
     },
-    [onActive, selected]
+    [onActive, selected],
   );
 
   const onSelect = useCallback((selectedRow: Array<ProductResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
 
@@ -430,8 +462,8 @@ const TabProductWrapper: React.FC = () => {
         isRowSelection
         isLoading={tableLoading}
         onSelectedChange={onSelect}
-        scroll={{x: 1200}}
-        sticky={{offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE}}
+        scroll={{ x: 1200 }}
+        sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
         pagination={{
           pageSize: data.metadata.limit,
           total: data.metadata.total,

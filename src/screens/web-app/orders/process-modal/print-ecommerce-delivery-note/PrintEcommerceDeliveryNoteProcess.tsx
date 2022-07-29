@@ -4,7 +4,7 @@ import { Button, Modal, Progress } from "antd";
 import NumberFormat from "react-number-format";
 import { isNullOrUndefined } from "utils/AppUtils";
 import { StyledProgressDownloadModal, StyledModalFooter } from "screens/web-app/common/commonStyle";
-import {showError} from "utils/ToastUtils";
+import { showError } from "utils/ToastUtils";
 
 type PrintEcommerceDeliveryNoteProcessType = {
   visible: boolean;
@@ -15,16 +15,16 @@ type PrintEcommerceDeliveryNoteProcessType = {
   processPercent: number;
 };
 
-
 const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProcessType> = (
-  props: PrintEcommerceDeliveryNoteProcessType
+  props: PrintEcommerceDeliveryNoteProcessType,
 ) => {
   const { visible, isProcessing, onOk, onCancel, processData, processPercent } = props;
   const [errorData, setErrorData] = useState<Array<any>>([]);
   const [processingCount, setProcessingCount] = useState<any>(null);
 
   useEffect(() => {
-    if (!isNullOrUndefined(processData?.total) &&
+    if (
+      !isNullOrUndefined(processData?.total) &&
       !isNullOrUndefined(processData?.total_created) &&
       !isNullOrUndefined(processData?.total_error)
     ) {
@@ -48,10 +48,9 @@ const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProc
     if (processData?.total_created) {
       onOk && onOk();
     } else {
-      showError("Chưa tạo được phiếu giao hàng. Vui lòng kiểm tra lại.")
+      showError("Chưa tạo được phiếu giao hàng. Vui lòng kiểm tra lại.");
     }
-  }
-
+  };
 
   return (
     <Modal
@@ -70,11 +69,7 @@ const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProc
             Hủy
           </Button>
 
-          <Button
-            type="primary"
-            onClick={handleOnClickOk}
-            loading={isProcessing}
-          >
+          <Button type="primary" onClick={handleOnClickOk} loading={isProcessing}>
             In
           </Button>
         </StyledModalFooter>
@@ -86,56 +81,60 @@ const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProc
             <div>
               <div>Tổng cộng</div>
               <div className="total-count">
-                {isNullOrUndefined(processData?.total) ?
-                  "--" :
+                {isNullOrUndefined(processData?.total) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={processData?.total}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
 
             <div>
               <div>Đang xử lý</div>
               <div className="total-created">
-                {isNullOrUndefined(processingCount) ?
-                  "--" :
+                {isNullOrUndefined(processingCount) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={processingCount}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
 
             <div>
               <div>Đã xử lý</div>
               <div className="total-updated">
-                {isNullOrUndefined(processData?.total_created) ?
-                  "--" :
+                {isNullOrUndefined(processData?.total_created) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={processData?.total_created}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
 
             <div>
               <div>Lỗi</div>
               <div className="total-error">
-                {isNullOrUndefined(processData?.total_error) ?
-                  "--" :
+                {isNullOrUndefined(processData?.total_error) ? (
+                  "--"
+                ) : (
                   <NumberFormat
                     value={processData?.total_error}
                     displayType={"text"}
                     thousandSeparator={true}
                   />
-                }
+                )}
               </div>
             </div>
           </div>
@@ -148,15 +147,15 @@ const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProc
           />
         </div>
 
-        {errorData.length ?
+        {errorData.length ? (
           <div className="error-orders">
             <div className="title">Chi tiết lỗi:</div>
             <div className="error_message">
               <div style={{ backgroundColor: "#F5F5F5", padding: "20px 30px" }}>
                 <ul style={{ color: "#E24343" }}>
                   {errorData.map((error, index) => (
-                    <li key={index} style={{ marginBottom: "5px"}}>
-                      <span style={{fontWeight: 500}}>{error.split(":")[0]}</span>
+                    <li key={index} style={{ marginBottom: "5px" }}>
+                      <span style={{ fontWeight: 500 }}>{error.split(":")[0]}</span>
                       <span>:</span>
                       <span>{error.split(":")[1]}</span>
                     </li>
@@ -165,8 +164,9 @@ const PrintEcommerceDeliveryNoteProcess: React.FC<PrintEcommerceDeliveryNoteProc
               </div>
             </div>
           </div>
-          : <div />
-        }
+        ) : (
+          <div />
+        )}
       </StyledProgressDownloadModal>
     </Modal>
   );

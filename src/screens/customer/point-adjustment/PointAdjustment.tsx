@@ -1,27 +1,25 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { Link, useHistory, useLocation } from 'react-router-dom';
-import { Button, Card } from 'antd';
+import { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link, useHistory, useLocation } from "react-router-dom";
+import { Button, Card } from "antd";
 
-import UrlConfig from 'config/url.config';
-import CustomTable, { ICustomTableColumType } from 'component/table/CustomTable';
-import { PageResponse } from 'model/base/base-metadata.response';
-import { PointAdjustmentListRequest } from 'model/request/loyalty/loyalty.request';
-import { getPointAdjustmentListAction } from 'domain/actions/loyalty/loyalty.action';
-import { LoyaltyPermission } from 'config/permissions/loyalty.permission';
-import PointAdjustmentFilter from 'screens/customer/point-adjustment/PointAdjustmentFilter';
-import ContentContainer from 'component/container/content.container';
+import UrlConfig from "config/url.config";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import { PageResponse } from "model/base/base-metadata.response";
+import { PointAdjustmentListRequest } from "model/request/loyalty/loyalty.request";
+import { getPointAdjustmentListAction } from "domain/actions/loyalty/loyalty.action";
+import { LoyaltyPermission } from "config/permissions/loyalty.permission";
+import PointAdjustmentFilter from "screens/customer/point-adjustment/PointAdjustmentFilter";
+import ContentContainer from "component/container/content.container";
 
-import { StyledPointAdjustment } from 'screens/customer/point-adjustment/StyledPointAdjustment';
+import { StyledPointAdjustment } from "screens/customer/point-adjustment/StyledPointAdjustment";
 import mathPlusIcon from "assets/icon/math-plus.svg";
-import { ConvertUtcToLocalDate } from 'utils/DateUtils';
-import NumberFormat from 'react-number-format';
-import useAuthorization from 'hook/useAuthorization';
-import { generateQuery } from 'utils/AppUtils';
-import { getQueryParamsFromQueryString } from 'utils/useQuery';
+import { ConvertUtcToLocalDate } from "utils/DateUtils";
+import NumberFormat from "react-number-format";
+import useAuthorization from "hook/useAuthorization";
+import { generateQuery } from "utils/AppUtils";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
 import queryString from "query-string";
-
-
 
 const initParams: PointAdjustmentListRequest = {
   page: 1,
@@ -36,21 +34,16 @@ const initParams: PointAdjustmentListRequest = {
 
 const createPointAdjustmentPermission = [LoyaltyPermission.points_update];
 
-
 const PointAdjustment = () => {
+  const history = useHistory();
+  const location = useLocation();
 
-  const history = useHistory()
-  const location = useLocation()
-
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   const [allowCreatePointAdjustment] = useAuthorization({
     acceptPermissions: createPointAdjustmentPermission,
     not: false,
   });
-
 
   const [pointAdjustmentData, setPointAdjustmentData] = useState<PageResponse<any>>({
     metadata: {
@@ -65,42 +58,41 @@ const PointAdjustment = () => {
     {
       title: "STT",
       align: "center",
-      render: (value: any, item: any, index: number) =>
-        <div>{(pointAdjustmentData.metadata.page - 1) * pointAdjustmentData.metadata.limit + index + 1}</div>,
-      width: "5%"
+      render: (value: any, item: any, index: number) => (
+        <div>
+          {(pointAdjustmentData.metadata.page - 1) * pointAdjustmentData.metadata.limit + index + 1}
+        </div>
+      ),
+      width: "5%",
     },
     {
       title: "Mã phiếu",
       dataIndex: "id",
       width: 150,
       render: (value: string, item: any) => {
-        return (
-          <Link to={`${UrlConfig.CUSTOMER2}-adjustments/${item.id}`}>{item.code}</Link>
-        )
-      }
+        return <Link to={`${UrlConfig.CUSTOMER2}-adjustments/${item.id}`}>{item.code}</Link>;
+      },
     },
     {
       title: "Tên phiếu điều chỉnh",
       dataIndex: "name",
       width: "15%",
       render: (value: string, item: any) => {
-        return (
-          <Link to={`${UrlConfig.CUSTOMER2}-adjustments/${item.id}`}>{item.name}</Link>
-        )
-      }
+        return <Link to={`${UrlConfig.CUSTOMER2}-adjustments/${item.id}`}>{item.name}</Link>;
+      },
     },
     {
       title: "Số KH",
       width: 70,
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
-          {item.customers?.length &&
+          {item.customers?.length && (
             <NumberFormat
               value={item.customers?.length}
               displayType={"text"}
               thousandSeparator={true}
             />
-          }
+          )}
         </div>
       ),
     },
@@ -111,20 +103,20 @@ const PointAdjustment = () => {
       align: "center",
       render: (value: any, row: any, index: any) => {
         let adjustmentType;
-        switch(value) {
+        switch (value) {
           case "ADD_POINT":
-            adjustmentType = "Tặng điểm"
+            adjustmentType = "Tặng điểm";
             break;
           case "SUBTRACT_POINT":
-            adjustmentType = "Trừ điểm"
+            adjustmentType = "Trừ điểm";
             break;
           case "ADD_MONEY":
-            adjustmentType = "Tặng tiền"
+            adjustmentType = "Tặng tiền";
             break;
           case "SUBTRACT_MONEY":
-            adjustmentType = "Trừ tiền"
+            adjustmentType = "Trừ tiền";
             break;
-      }
+        }
         return <span>{adjustmentType}</span>;
       },
     },
@@ -135,27 +127,24 @@ const PointAdjustment = () => {
       align: "center",
       render: (value: any, item: any) => (
         <div style={{ textAlign: "right" }}>
-          {value &&
-            <NumberFormat
-            value={value}
-            displayType={"text"}
-            thousandSeparator={true}
-            />
-          }
+          {value && <NumberFormat value={value} displayType={"text"} thousandSeparator={true} />}
         </div>
       ),
     },
     {
       title: "Lý do điều chỉnh",
       dataIndex: "reason",
-      width: "12%"
+      width: "12%",
     },
     {
       title: "Người điều chỉnh",
       dataIndex: "created_by",
       width: "15%",
       render: (value: any, item: any) => (
-        <div>{value ? value + " - " : ""}{item.created_name ? item.created_name : ""}</div>
+        <div>
+          {value ? value + " - " : ""}
+          {item.created_name ? item.created_name : ""}
+        </div>
       ),
     },
     {
@@ -171,39 +160,37 @@ const PointAdjustment = () => {
       title: "Ghi chú",
       dataIndex: "note",
       render: (value: any, item: any) => {
-        return (
-            <div>{value ? value : ""}</div>
-        )
-      }
+        return <div>{value ? value : ""}</div>;
+      },
     },
-  ]
-  const dispatch = useDispatch()
+  ];
+  const dispatch = useDispatch();
 
-  const [params, setParams] = useState<PointAdjustmentListRequest>({ ...initParams });
+  const [params, setParams] = useState<PointAdjustmentListRequest>({
+    ...initParams,
+  });
   const [isLoading, setIsLoading] = useState(false);
 
   const onFilter = useCallback(
     (values) => {
-      const filterParams = { ...params,...values };
-      const currentParam = generateQuery(params)
-      const queryParam = generateQuery(filterParams)
+      const filterParams = { ...params, ...values };
+      const currentParam = generateQuery(params);
+      const queryParam = generateQuery(filterParams);
       if (currentParam !== queryParam) {
-        history.push(`${location.pathname}?${queryParam}`)
+        history.push(`${location.pathname}?${queryParam}`);
       }
-
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
-
 
   const onPageChange = useCallback(
     (page, limit) => {
       let newPrams = { ...params, page, limit };
       let queryParam = generateQuery(newPrams);
-			history.push(`${location.pathname}?${queryParam}`);
+      history.push(`${location.pathname}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const updatePointAdjustmentData = useCallback((data: any) => {
@@ -211,31 +198,33 @@ const PointAdjustment = () => {
     if (!!data) {
       setPointAdjustmentData(data);
     }
-  }, [])
+  }, []);
 
   const getPointAdjustmentList = (params: PointAdjustmentListRequest) => {
     setIsLoading(true);
 
-    const convertReasonsToArr : any[] = Array.isArray(params.reasons) ? params.reasons : [params.reasons];
+    const convertReasonsToArr: any[] = Array.isArray(params.reasons)
+      ? params.reasons
+      : [params.reasons];
     const convertEmployeesToArr: any[] = Array.isArray(params.emps) ? params.emps : [params.emps];
 
     const newParams = {
-      ...params, 
+      ...params,
       reasons: convertReasonsToArr,
       emps: convertEmployeesToArr,
-    }
+    };
 
     dispatch(getPointAdjustmentListAction(newParams, updatePointAdjustmentData));
-  }
+  };
 
   useEffect(() => {
     let dataQuery: PointAdjustmentListRequest = {
       ...initParams,
       ...getQueryParamsFromQueryString(queryParamsParsed),
     };
-    setParams(dataQuery)
-    getPointAdjustmentList(dataQuery)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    setParams(dataQuery);
+    getPointAdjustmentList(dataQuery);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
 
   return (
@@ -244,7 +233,7 @@ const PointAdjustment = () => {
         title="Phiếu điều chỉnh"
         extra={
           <>
-            {allowCreatePointAdjustment &&
+            {allowCreatePointAdjustment && (
               <Link to={`${UrlConfig.CUSTOMER2}-adjustments/create`}>
                 <Button
                   className="ant-btn-outline ant-btn-primary"
@@ -254,17 +243,13 @@ const PointAdjustment = () => {
                   Thêm mới phiếu điều chỉnh
                 </Button>
               </Link>
-            }
+            )}
           </>
         }
       >
         <Card>
-          <PointAdjustmentFilter
-            isLoading={isLoading}
-            params={params}
-            onFilter={onFilter}
-          />
-          
+          <PointAdjustmentFilter isLoading={isLoading} params={params} onFilter={onFilter} />
+
           <CustomTable
             bordered
             isLoading={isLoading}
@@ -286,7 +271,7 @@ const PointAdjustment = () => {
         </Card>
       </ContentContainer>
     </StyledPointAdjustment>
-  )
-}
+  );
+};
 
 export default PointAdjustment;

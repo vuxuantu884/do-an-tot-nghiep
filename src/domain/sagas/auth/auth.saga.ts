@@ -2,9 +2,13 @@ import { delay, put, takeLatest } from "@redux-saga/core/effects";
 import { YodyAction } from "base/base.action";
 import BaseResponse from "base/base.response";
 import { HttpStatus } from "config/http-status.config";
-import { logoutSuccessAction, loginSuccessAction, unauthorizedSuccessAction } from "domain/actions/auth/auth.action";
+import {
+  logoutSuccessAction,
+  loginSuccessAction,
+  unauthorizedSuccessAction,
+} from "domain/actions/auth/auth.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { AuthType } from 'domain/types/auth.type';
+import { AuthType } from "domain/types/auth.type";
 import { AuthenRequest } from "model/auth/roles.model";
 import { LoginResponse } from "model/account/account.model";
 import { call } from "redux-saga/effects";
@@ -13,7 +17,7 @@ import { removeToken, setToken } from "utils/LocalStorageUtils";
 import { showError } from "utils/ToastUtils";
 
 function* loginSaga(action: YodyAction) {
-  let {username, password, setLoading} = action.payload;
+  let { username, password, setLoading } = action.payload;
   try {
     let request: AuthenRequest = {
       user_name: username,
@@ -22,7 +26,7 @@ function* loginSaga(action: YodyAction) {
     setLoading(true);
     let response: BaseResponse<LoginResponse> = yield call(loginApi, request);
     setLoading(false);
-    switch(response.code) {
+    switch (response.code) {
       case HttpStatus.SUCCESS:
         setToken(response.data.access_token);
         yield put(loginSuccessAction());
@@ -47,16 +51,16 @@ function* logoutSaga(action: YodyAction) {
   yield removeToken();
   yield delay(1000);
   yield put(hideLoading());
-  yield put(logoutSuccessAction())
+  yield put(logoutSuccessAction());
 }
 
 function* unauthorizeSaga() {
   yield removeToken();
-  yield put(unauthorizedSuccessAction())
+  yield put(unauthorizedSuccessAction());
 }
 
 export function* authSaga() {
-  yield takeLatest(AuthType.LOGIN_REQUEST, loginSaga)
-  yield takeLatest(AuthType.LOGOUT_REQUEST, logoutSaga)
-  yield takeLatest(AuthType.UNAUTHORIZED_REQUEST, unauthorizeSaga)
+  yield takeLatest(AuthType.LOGIN_REQUEST, loginSaga);
+  yield takeLatest(AuthType.LOGOUT_REQUEST, logoutSaga);
+  yield takeLatest(AuthType.UNAUTHORIZED_REQUEST, unauthorizeSaga);
 }

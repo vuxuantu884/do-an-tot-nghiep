@@ -12,25 +12,28 @@ interface HistoryProductFilterProps {
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onShowColumnSetting?: () => void;
-  onFinish: (value: ProductHistoryQuery) => void
+  onFinish: (value: ProductHistoryQuery) => void;
 }
 
 const { Item } = Form;
 
 const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
-  props: HistoryProductFilterProps
+  props: HistoryProductFilterProps,
 ) => {
   const { actions, onMenuClick, onShowColumnSetting, onFinish } = props;
   const onActionClick = useCallback(
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
-  const onSubmit = useCallback((value: ProductHistoryQuery) => {
-    onFinish(value);
-  }, [onFinish])
+  const onSubmit = useCallback(
+    (value: ProductHistoryQuery) => {
+      onFinish(value);
+    },
+    [onFinish],
+  );
 
   return (
     <StyledComponent>
@@ -45,10 +48,10 @@ const HistoryProductFilter: React.FC<HistoryProductFilterProps> = (
               />
             </Item>
             <Item name="from_action_date" className="date">
-              <CustomDatePicker placeholder="Thời gian từ" style={{width: '100%'}} />
+              <CustomDatePicker placeholder="Thời gian từ" style={{ width: "100%" }} />
             </Item>
             <Item name="to_action_date" className="date">
-              <CustomDatePicker placeholder="Thời gian dến" style={{width: '100%'}} />
+              <CustomDatePicker placeholder="Thời gian dến" style={{ width: "100%" }} />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">

@@ -28,7 +28,8 @@ const BaseSelectPagination = ({ onChange, page, totalPage, menu }: BaseSelectPag
               key={btn.key}
               disabled={btn.disabled}
               onClick={btn.onClick}
-              style={{ width: 30, height: 30, padding: 0, lineHeight: "20px" }}>
+              style={{ width: 30, height: 30, padding: 0, lineHeight: "20px" }}
+            >
               {btn.arrowComponent}
             </Button>
           ))}

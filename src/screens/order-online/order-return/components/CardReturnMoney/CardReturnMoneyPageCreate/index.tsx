@@ -12,15 +12,15 @@ import ReturnMoneySelect from "../ReturnMoneySelect";
 type PropTypes = {
   listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentRequest[];
-	totalAmountOrder: number;
+  totalAmountOrder: number;
   totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
   isDisablePostPayment: boolean;
   isOrderReturnFromPOS: boolean;
   returnMoneyType?: string;
-	returnOrderInformation: {
-		totalAmountReturn: number;
-	};
+  returnOrderInformation: {
+    totalAmountReturn: number;
+  };
   shipmentMethod: number;
   paymentMethod: number;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
@@ -34,7 +34,7 @@ type PropTypes = {
 /**
  * input: listPaymentMethod, returnMoneyType
  * output: setReturnMoneyType
- * 
+ *
  * ghi chú: hiện tại ko cho hoàn tiền sau
  */
 function CardReturnMoneyPageCreate(props: PropTypes) {
@@ -43,8 +43,8 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
     payments,
     totalAmountCustomerNeedToPay,
     returnMoneyType,
-		totalAmountOrder,
-		isDisablePostPayment,
+    totalAmountOrder,
+    isDisablePostPayment,
     shipmentMethod,
     paymentMethod,
     returnOrderInformation,
@@ -57,12 +57,12 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
   } = props;
 
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
-  
-  const dispatch = useDispatch()
+
+  const dispatch = useDispatch();
 
   const isReturnMoneyToCustomer =
     totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
-// console.log('listPaymentMethods', listPaymentMethods)
+  // console.log('listPaymentMethods', listPaymentMethods)
   const renderWhenReturnMoneyToCustomer = () => {
     return (
       <div className="create-order-payment">
@@ -111,7 +111,7 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
           loyaltyRate={loyaltyRate}
           isDisablePostPayment={isDisablePostPayment}
           listPaymentMethod={listPaymentMethods}
-          isOrderReturnFromPOS = {isOrderReturnFromPOS}
+          isOrderReturnFromPOS={isOrderReturnFromPOS}
         />
       </React.Fragment>
     );
@@ -130,9 +130,7 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
   }, [dispatch]);
 
   return (
-    <Card title={isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán"}>
-      {renderIfIsExchange()}
-    </Card>
+    <Card title={isReturnMoneyToCustomer ? "Hoàn tiền" : "Thanh toán"}>{renderIfIsExchange()}</Card>
   );
 }
 

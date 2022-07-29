@@ -19,8 +19,6 @@ import { POPaymentConditionsFormStyled } from "./styles";
 const { Option } = Select;
 const POCreatePaymentModal = lazy(() => import("../../modal/POCreatePayment"));
 
-
-
 type POPaymentConditionsFormProps = {
   listPayment: Array<PoPaymentConditions>;
   isEdit: Boolean;
@@ -36,7 +34,7 @@ export const TYPE_PAYMENTS = {
   EDIT_IN_DRAFT: "EDIT_IN_DRAFT",
 };
 const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
-  props: POPaymentConditionsFormProps
+  props: POPaymentConditionsFormProps,
 ) => {
   const { isEdit, formMain, poDataPayments, formMainEdit, isEditDetail, poData } = props;
 
@@ -152,14 +150,16 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                   display: "flex",
                 }}
                 icon={<AiOutlinePlus size={16} />}
-                className="create-button-custom ant-btn-outline fixed-button">
+                className="create-button-custom ant-btn-outline fixed-button"
+              >
                 Tạo thanh toán
               </Button>
             )
-          }>
+          }
+        >
           <div>
             <StyledRow>
-              <Col span={6} style={{ paddingRight: "0px", minWidth: "290px", }}>
+              <Col span={6} style={{ paddingRight: "0px", minWidth: "290px" }}>
                 <Form.Item label="Điều khoản thanh toán">
                   <Input.Group className="ip-group" compact>
                     <Form.Item name="payment_condition_id" noStyle>
@@ -173,7 +173,8 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                       <Select
                         className="selector-group"
                         defaultActiveFirstOption
-                        style={{ width: "30%" }}>
+                        style={{ width: "30%" }}
+                      >
                         {date_unit?.map((item) => (
                           <Option key={item.value} value={item.value}>
                             {item.name}
@@ -267,11 +268,13 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
               }}
               icon={<AiOutlinePlus size={16} />}
               type="primary"
-              className="create-button-custom ant-btn-outline fixed-button">
+              className="create-button-custom ant-btn-outline fixed-button"
+            >
               Tạo thanh toán
             </Button>
           )
-        }>
+        }
+      >
         <div className="padding-20">
           {!isEditDetail && isEditPaymentCondition ? (
             <>
@@ -288,9 +291,12 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                         <Form.Item
                           noStyle
                           shouldUpdate={(prev, current) =>
-                            prev[POField.payment_condition_id] !== current[POField.payment_condition_id] ||
-                            prev[POField.payment_condition_name] !== current[POField.payment_condition_name]
-                          }>
+                            prev[POField.payment_condition_id] !==
+                              current[POField.payment_condition_id] ||
+                            prev[POField.payment_condition_name] !==
+                              current[POField.payment_condition_name]
+                          }
+                        >
                           {({ getFieldValue }) => {
                             const payment_condition_name =
                               (getFieldValue(POField.payment_condition_id) || "") +
@@ -316,7 +322,8 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                         noStyle
                         shouldUpdate={(prev, current) =>
                           prev[POField.payment_note] !== current[POField.payment_note]
-                        }>
+                        }
+                      >
                         {({ getFieldValue }) => {
                           let payment_note = getFieldValue(POField.payment_note);
                           return payment_note;
@@ -327,7 +334,6 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                 </Col>
               </Row>
             </>
-
           ) : (
             <>
               <StyledRow>
@@ -345,7 +351,8 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
                         <Select
                           className="selector-group"
                           defaultActiveFirstOption
-                          style={{ width: "30%" }}>
+                          style={{ width: "30%" }}
+                        >
                           {date_unit?.map((item) => (
                             <Option key={item.value} value={item.value}>
                               {item.name}
@@ -421,12 +428,12 @@ const POPaymentConditionsForm: React.FC<POPaymentConditionsFormProps> = (
 };
 
 const StyledRow = styled(Row)`
-.ant-select.selector-group.ant-select-single.ant-select-show-arrow {
-  width: 85px !important;
-}
-.ant-form-item-control {
-  height: 38px !important;
-}
+  .ant-select.selector-group.ant-select-single.ant-select-show-arrow {
+    width: 85px !important;
+  }
+  .ant-form-item-control {
+    height: 38px !important;
+  }
 `;
 
 export default POPaymentConditionsForm;

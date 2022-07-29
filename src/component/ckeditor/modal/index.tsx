@@ -1,9 +1,5 @@
 import { Button, Col, Input, Modal, Row, Table } from "antd";
-import {
-  EditorModalType,
-  keywordsModel,
-  listKeywordsModel,
-} from "model/editor/editor.model";
+import { EditorModalType, keywordsModel, listKeywordsModel } from "model/editor/editor.model";
 import React, { useEffect, useState } from "react";
 import { useRef } from "react";
 import { fullTextSearch } from "utils/StringUtils";
@@ -11,9 +7,7 @@ import { StyledComponent } from "./styles";
 
 function EditorModal(props: EditorModalType) {
   const { isModalVisible, handleCancel, listKeywords, insertKeyword } = props;
-  const [listKeywordShow, setListKeywordShow] = useState<listKeywordsModel[]>(
-    []
-  );
+  const [listKeywordShow, setListKeywordShow] = useState<listKeywordsModel[]>([]);
   const searchInputRef = useRef<Input>(null);
 
   const renderModalTitle = () => {
@@ -47,10 +41,7 @@ function EditorModal(props: EditorModalType) {
           cloneList.map((single) => {
             if (single.list) {
               single.list.map((single1) => {
-                if (
-                  fullTextSearch(value, single1.name) ||
-                  fullTextSearch(value, single1.value)
-                ) {
+                if (fullTextSearch(value, single1.name) || fullTextSearch(value, single1.value)) {
                   single1.isShow = true;
                 } else {
                   single1.isShow = false;
@@ -142,13 +133,9 @@ function EditorModal(props: EditorModalType) {
       secondPart: cloneArr.splice(-middleIndex),
     };
   };
-  const renderSingleSectionListKeyword = (
-    singleListKeyword: listKeywordsModel
-  ) => {
+  const renderSingleSectionListKeyword = (singleListKeyword: listKeywordsModel) => {
     if (singleListKeyword.list) {
-      let objDividedToTwoEqualPart = divideArrayKeywordToTwoEqualPart(
-        singleListKeyword.list
-      );
+      let objDividedToTwoEqualPart = divideArrayKeywordToTwoEqualPart(singleListKeyword.list);
       const { firstPart, secondPart } = objDividedToTwoEqualPart;
       return (
         <div className="singleList">
@@ -200,15 +187,13 @@ function EditorModal(props: EditorModalType) {
             listKeywordShow.length > 0 &&
             listKeywordShow.map((singleListKeyWord, index) => {
               return (
-                <section key={index}>
-                  {renderSingleSectionListKeyword(singleListKeyWord)}
-                </section>
+                <section key={index}>{renderSingleSectionListKeyword(singleListKeyWord)}</section>
               );
             })}
         </div>
       </StyledComponent>
     </Modal>
   );
-};
+}
 
 export default EditorModal;

@@ -8,7 +8,10 @@ import {
 import React, { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import InventoryAdjustmentFilters from "../components/InventoryAdjustmentFilter";
-import { InventoryAdjustmentDetailItem, InventoryAdjustmentSearchQuery } from "model/inventoryadjustment";
+import {
+  InventoryAdjustmentDetailItem,
+  InventoryAdjustmentSearchQuery,
+} from "model/inventoryadjustment";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { PageResponse } from "model/base/base-metadata.response";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -140,7 +143,7 @@ const InventoryAdjustment: React.FC = () => {
       setPrintContent(result);
       handlePrint && handlePrint();
     },
-    [handlePrint]
+    [handlePrint],
   );
 
   const ActionComponent = () => {
@@ -165,10 +168,7 @@ const InventoryAdjustment: React.FC = () => {
       width: 150,
       render: (value: string, row: InventoryAdjustmentDetailItem) => (
         <>
-          <Link
-            to={`${UrlConfig.INVENTORY_ADJUSTMENTS}/${row.id}`}
-            style={{ fontWeight: 500 }}
-          >
+          <Link to={`${UrlConfig.INVENTORY_ADJUSTMENTS}/${row.id}`} style={{ fontWeight: 500 }}>
             {value}
           </Link>
           <br />
@@ -184,7 +184,13 @@ const InventoryAdjustment: React.FC = () => {
                   setInventoryIdSelected(row.id);
                 }}
                 className="btn-report"
-                icon={<img className="icon-report" src={InventoryReportIcon} alt="inventory-report-icon" />}
+                icon={
+                  <img
+                    className="icon-report"
+                    src={InventoryReportIcon}
+                    alt="inventory-report-icon"
+                  />
+                }
               >
                 Xem báo cáo kiểm
               </Button>
@@ -200,7 +206,7 @@ const InventoryAdjustment: React.FC = () => {
       visible: true,
       align: "right",
       render: (value: number) => {
-        return formatCurrency(value,".");
+        return formatCurrency(value, ".");
       },
     },
     {
@@ -210,7 +216,7 @@ const InventoryAdjustment: React.FC = () => {
       visible: true,
       align: "right",
       render: (value: number) => {
-        return formatCurrency(value,".");
+        return formatCurrency(value, ".");
       },
     },
     {
@@ -219,15 +225,17 @@ const InventoryAdjustment: React.FC = () => {
       align: "center",
       visible: true,
       render: (item: InventoryAdjustmentDetailItem) => {
-        return (<div className="ellipses-text">
-          {!item.total_excess || item.total_excess === 0 ? null : (
-            <div style={{color: "#27AE60"}}>+{formatCurrency(item.total_excess,".")}</div>
-          )}
-          {item.total_excess && item.total_missing ? <Space>/</Space> : null}
-          {!item.total_missing || item.total_missing === 0 ? null : (
-            <div style={{color: "red"}}>{formatCurrency(item.total_missing,".")}</div>
-          )}
-        </div>);
+        return (
+          <div className="ellipses-text">
+            {!item.total_excess || item.total_excess === 0 ? null : (
+              <div style={{ color: "#27AE60" }}>+{formatCurrency(item.total_excess, ".")}</div>
+            )}
+            {item.total_excess && item.total_missing ? <Space>/</Space> : null}
+            {!item.total_missing || item.total_missing === 0 ? null : (
+              <div style={{ color: "red" }}>{formatCurrency(item.total_missing, ".")}</div>
+            )}
+          </div>
+        );
       },
     },
     {
@@ -275,9 +283,7 @@ const InventoryAdjustment: React.FC = () => {
       dataIndex: "audit_type",
       render: (item: string) => {
         let text = "Một phần";
-        const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find(
-          (e) => e.value === item
-        );
+        const auditType = INVENTORY_ADJUSTMENT_AUDIT_TYPE_ARRAY.find((e) => e.value === item);
         if (auditType && item === auditType?.value) {
           text = auditType.name;
         }
@@ -295,14 +301,16 @@ const InventoryAdjustment: React.FC = () => {
       render: (item: InventoryAdjustmentDetailItem) => {
         return (
           <div>
-          {item.created_name ? <div>
-                <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}>
+            {item.created_name ? (
+              <div>
+                <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_name}`}>
                   {item.created_name}
                 </Link>
-            </div> : ""}
-            <div>
-            {item.created_by ?? ""}
-            </div>
+              </div>
+            ) : (
+              ""
+            )}
+            <div>{item.created_by ?? ""}</div>
           </div>
         );
       },
@@ -321,12 +329,8 @@ const InventoryAdjustment: React.FC = () => {
       render: (item: InventoryAdjustmentDetailItem) => {
         return (
           <div>
-            <div>
-              {item.adjusted_code ?? ""}
-            </div>
-            <div>
-              {item.adjusted_by ?? ""}
-            </div>
+            <div>{item.adjusted_code ?? ""}</div>
+            <div>{item.adjusted_by ?? ""}</div>
             <div>{ConvertUtcToLocalDate(item.adjusted_date, DATE_FORMAT.DDMMYYY)}</div>
           </div>
         );
@@ -340,14 +344,14 @@ const InventoryAdjustment: React.FC = () => {
       width: "220px",
       render: (item: string, row: InventoryAdjustmentDetailItem) => {
         return (
-          <div className={item ? 'note': ''}>
+          <div className={item ? "note" : ""}>
             {item}
             <FormOutlined
               onClick={() => {
                 setItemData(row);
                 setIsModalVisibleNote(true);
               }}
-              className={item ? 'note-icon' : ''}
+              className={item ? "note-icon" : ""}
             />
           </div>
         );
@@ -410,7 +414,6 @@ const InventoryAdjustment: React.FC = () => {
     return () => clearInterval(getFileInterval);
   }, [listExportFile, checkExportFile, statusExport]);
 
-
   const [columns, setColumn] =
     useState<Array<ICustomTableColumType<InventoryAdjustmentDetailItem>>>(defaultColumns);
 
@@ -423,17 +426,14 @@ const InventoryAdjustment: React.FC = () => {
     (page, size) => {
       params.page = page;
       params.limit = size;
-      setPrams({...params});
+      setPrams({ ...params });
       let queryParam = generateQuery(params);
       history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
     },
-    [params, history]
+    [params, history],
   );
 
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const setSearchResult = useCallback(
     (result: PageResponse<Array<InventoryAdjustmentDetailItem>> | false) => {
@@ -443,7 +443,7 @@ const InventoryAdjustment: React.FC = () => {
         setTableLoading(false);
       }
     },
-    []
+    [],
   );
 
   const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
@@ -451,37 +451,29 @@ const InventoryAdjustment: React.FC = () => {
       return;
     }
     setAccounts((account) => {
-      return [
-        ...account,
-        ...data.items,
-      ]
+      return [...account, ...data.items];
     });
   }, []);
 
   const onFilter = useCallback(
     (values) => {
       setTableLoading(true);
-      let newPrams = {...params, ...values, page: 1};
+      let newPrams = { ...params, ...values, page: 1 };
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const printTicketAction = useCallback(
-    () => {
-      let params = {
-        ids: selectedRowKeys,
-      };
+  const printTicketAction = useCallback(() => {
+    let params = {
+      ids: selectedRowKeys,
+    };
 
-      const queryParam = generateQuery(params);
-      dispatch(
-        InventoryAdjustmentGetPrintContentAction(queryParam, printContentCallback)
-      );
-    },
-    [dispatch, printContentCallback, selectedRowKeys]
-  );
+    const queryParam = generateQuery(params);
+    dispatch(InventoryAdjustmentGetPrintContentAction(queryParam, printContentCallback));
+  }, [dispatch, printContentCallback, selectedRowKeys]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -491,8 +483,8 @@ const InventoryAdjustment: React.FC = () => {
           break;
         case ACTIONS_INDEX.EXPORT:
           if (selectedRowKeys.length > 1) {
-            showError('Chỉ chọn 1 phiếu');
-          } else if (selectedRowKeys.length === 1 ){
+            showError("Chỉ chọn 1 phiếu");
+          } else if (selectedRowKeys.length === 1) {
             setShowExportModal(true);
             onExport();
           } else {
@@ -503,7 +495,7 @@ const InventoryAdjustment: React.FC = () => {
           break;
       }
     },
-    [onExport, printTicketAction, selectedRowKeys]
+    [onExport, printTicketAction, selectedRowKeys],
   );
 
   const onClearFilter = useCallback(() => {
@@ -512,24 +504,21 @@ const InventoryAdjustment: React.FC = () => {
     history.push(`${UrlConfig.INVENTORY_ADJUSTMENTS}?${queryParam}`);
   }, [history]);
 
-  const onSelectedChange = useCallback(
-    (selectedRow: Array<InventoryAdjustmentDetailItem>) => {
-      const selectedRowKeys = selectedRow.map((row) => row.id);
-      setSelectedRowKeys(selectedRowKeys);
+  const onSelectedChange = useCallback((selectedRow: Array<InventoryAdjustmentDetailItem>) => {
+    const selectedRowKeys = selectedRow.map((row) => row.id);
+    setSelectedRowKeys(selectedRowKeys);
 
-      setSelected(
-        selectedRow.filter(function (el) {
-          return el !== undefined;
-        })
-      );
-    },
-    []
-  );
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      }),
+    );
+  }, []);
 
   //get store
   useEffect(() => {
     dispatch(searchAccountPublicAction({ page: 1 }, setDataAccounts));
-    dispatch(inventoryGetSenderStoreAction({status: "active", simple: true}, setStores));
+    dispatch(inventoryGetSenderStoreAction({ status: "active", simple: true }, setStores));
   }, [dispatch, setDataAccounts]);
 
   //get list
@@ -551,10 +540,7 @@ const InventoryAdjustment: React.FC = () => {
           onClearFilter={() => onClearFilter()}
           setAccounts={(data) => {
             setAccounts((account) => {
-              return [
-                ...data,
-                ...account,
-              ]
+              return [...data, ...account];
             });
           }}
         />
@@ -563,8 +549,8 @@ const InventoryAdjustment: React.FC = () => {
           bordered
           isRowSelection
           isLoading={tableLoading}
-          scroll={{x: "max-content"}}
-          sticky={{offsetScroll: 5, offsetHeader: 55}}
+          scroll={{ x: "max-content" }}
+          sticky={{ offsetScroll: 5, offsetHeader: 55 }}
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -642,7 +628,7 @@ const InventoryAdjustment: React.FC = () => {
                       setItemData(undefined);
                       if (result) showSuccess(`Cập nhật ${itemData?.code} thành công`);
                       dispatch(getListInventoryAdjustmentAction(params, setSearchResult));
-                    })
+                    }),
                   );
                 }
               }}
@@ -655,7 +641,7 @@ const InventoryAdjustment: React.FC = () => {
                 <TextArea
                   maxLength={250}
                   onChange={(e) => {
-                    formNote.setFieldsValue({note: e.target.value});
+                    formNote.setFieldsValue({ note: e.target.value });
                   }}
                   defaultValue={itemData?.note}
                   rows={4}

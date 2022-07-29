@@ -1,8 +1,8 @@
 /**
  * Read carefully, this is the dashboard screen.
  * Data trong dashboard được quản lý tập trung tại context của dashboard
- * Việc request api được xử lý trong các hook: dashboard/hooks 
- * Lý do dùng cách này để quản lý lượng request api sao cho phù hợp bởi đặc thù của dashboard là sử dụng lại các câu query của báo cáo 
+ * Việc request api được xử lý trong các hook: dashboard/hooks
+ * Lý do dùng cách này để quản lý lượng request api sao cho phù hợp bởi đặc thù của dashboard là sử dụng lại các câu query của báo cáo
  * Đối với mỗi component thì có thể sử dụng 1 hoặc nhiều câu query để lấy dữ liệu, tuy nhiên cần tính toán xem có gom các câu query lại thành 1 câu query không
  * VD : Doanh thu online, offline, trả hàng được gom lại thành 1 câu query để giảm thời gian load dữ liệu
  * Ngoài ra cách tổ chức này sẽ support nhu cầu thay vị trí các component trong tương lai
@@ -33,7 +33,6 @@ const Dashboard = () => {
     <DashboardContainer>
       <Greeting />
       <DashboardFilter />
-
       <BusinessResult />
       <Card title="BẢNG THI ĐUA">
         <Row className="rank-container">
@@ -44,7 +43,8 @@ const Dashboard = () => {
             <RankHorizontalChart data={topSale.get(TOP_CHARTS_KEY.TOP_SHOP_SALES) || []} />
           </Col>
           <Col xs={24} md={8} className="department-rank">
-            <RankHorizontalChart data={topSale.get(TOP_CHARTS_KEY.TOP_DEPARTMENT_SALES) || []}
+            <RankHorizontalChart
+              data={topSale.get(TOP_CHARTS_KEY.TOP_DEPARTMENT_SALES) || []}
               title="Bảng thi đua giữa các bộ phận"
               subTitle="Top 5 bộ phận có doanh thu cao nhất"
             />
@@ -52,7 +52,6 @@ const Dashboard = () => {
         </Row>
         <div className="padding-20" />
       </Card>
-
       <ProductDashboard /> {/* DOANH THU THEO NHÓM SẢN PHẨM */}
     </DashboardContainer>
   );
@@ -60,10 +59,10 @@ const Dashboard = () => {
 
 const DashboardWithProvider = (props: any) => {
   return (
-    <DashboardPrivider >
+    <DashboardPrivider>
       <Dashboard {...props} />
     </DashboardPrivider>
   );
-}
+};
 
 export default DashboardWithProvider;

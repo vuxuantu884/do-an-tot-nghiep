@@ -4,75 +4,48 @@ import { RouteMenu } from "model/other";
 import React from "react";
 import ImportFileProducts from "screens/products/import-products";
 
-const ColorUpdateScreen = React.lazy(
-  () => import("screens/products/color/color-update.screen")
-);
-const Category = React.lazy(
-  () => import("screens/products/category/category-list.screen")
-);
+const ColorUpdateScreen = React.lazy(() => import("screens/products/color/color-update.screen"));
+const Category = React.lazy(() => import("screens/products/category/category-list.screen"));
 const ProductCreateScreen = React.lazy(
-  () => import("screens/products/product/ProductCreateScreen")
+  () => import("screens/products/product/ProductCreateScreen"),
 );
-const ColorListScreen = React.lazy(
-  () => import("screens/products/color/color-list.screen")
-);
+const ColorListScreen = React.lazy(() => import("screens/products/color/color-list.screen"));
 const MaterialDetail = React.lazy(
-  () => import("screens/products/materials/material-detail.screen")
+  () => import("screens/products/materials/material-detail.screen"),
 );
-const ListMaterial = React.lazy(
-  () => import("screens/products/materials/materials-list.screen")
-);
-const AddMaterial = React.lazy(
-  () => import("screens/products/materials/material-add.screen")
-);
+const ListMaterial = React.lazy(() => import("screens/products/materials/materials-list.screen"));
+const AddMaterial = React.lazy(() => import("screens/products/materials/material-add.screen"));
 const UpdateMaterial = React.lazy(
-  () => import("screens/products/materials/material-update.screen")
+  () => import("screens/products/materials/material-update.screen"),
 );
 const SizeListScreen = React.lazy(() => import("screens/products/size/size-list.screen"));
-const SizeCreateScreen = React.lazy(
-  () => import("screens/products/size/size-create.screen")
-);
-const SizeUpdateScreen = React.lazy(
-  () => import("screens/products/size/size-update.screen")
-);
+const SizeCreateScreen = React.lazy(() => import("screens/products/size/size-create.screen"));
+const SizeUpdateScreen = React.lazy(() => import("screens/products/size/size-update.screen"));
 
+const AddCategory = React.lazy(() => import("screens/products/category/category-add.screen"));
+const UpdateCategory = React.lazy(() => import("screens/products/category/category-update.screen"));
 
-const AddCategory = React.lazy(
-  () => import("screens/products/category/category-add.screen")
-);
-const UpdateCategory = React.lazy(
-  () => import("screens/products/category/category-update.screen")
-);
-
-const ColorCreateScreen = React.lazy(
-  () => import("screens/products/color/color-create.screen")
-);
+const ColorCreateScreen = React.lazy(() => import("screens/products/color/color-create.screen"));
 
 //Product
 const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
 const ProductDetailScreen = React.lazy(
-  () => import("screens/products/product/ProductDetailScreen")
+  () => import("screens/products/product/ProductDetailScreen"),
 );
 const ProductUpdateScreen = React.lazy(
-  () => import("screens/products/product/ProductUpdateScreen")
+  () => import("screens/products/product/ProductUpdateScreen"),
 );
 const ProductImportScreen = React.lazy(
-  () => import("screens/products/product/ProductImportScreen")
+  () => import("screens/products/product/ProductImportScreen"),
 );
 const ProductBarcodeScreen = React.lazy(
-  () => import("screens/products/product/BarcodeProductScreen")
+  () => import("screens/products/product/BarcodeProductScreen"),
 );
 
 //product Collection
-const Collection = React.lazy(
-  () => import("screens/products/collection")
-);
-const CollectionAdd = React.lazy(
-  () => import("screens/products/collection/create")
-);
-const CollectionUpdate = React.lazy(
-  () => import("screens/products/collection/update")
-);
+const Collection = React.lazy(() => import("screens/products/collection"));
+const CollectionAdd = React.lazy(() => import("screens/products/collection/create"));
+const CollectionUpdate = React.lazy(() => import("screens/products/collection/update"));
 
 const product: Array<RouteMenu> = [
   {
@@ -238,7 +211,7 @@ const product: Array<RouteMenu> = [
     key: "submenu2201",
     isShow: true,
     header: null,
-    subMenu: []
+    subMenu: [],
   },
   {
     path: "submenu23",
@@ -360,9 +333,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2322",
             isShow: true,
             header: null,
-            permissions: [
-              ProductPermission.materials_read,
-            ],
+            permissions: [ProductPermission.materials_read],
             subMenu: [],
           },
           {
@@ -374,10 +345,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2322",
             isShow: true,
             header: null,
-            permissions: [
-              ProductPermission.materials_update,
-              ProductPermission.materials_read,
-            ],
+            permissions: [ProductPermission.materials_update, ProductPermission.materials_read],
             subMenu: [],
           },
         ],
@@ -428,10 +396,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2312",
             isShow: true,
             header: null,
-            permissions: [
-              ProductPermission.categories_read,
-              ProductPermission.categories_update,
-            ],
+            permissions: [ProductPermission.categories_read, ProductPermission.categories_update],
             subMenu: [],
             pathIgnore: ["create"],
           },
@@ -469,10 +434,7 @@ const product: Array<RouteMenu> = [
             key: "submenu2352",
             isShow: true,
             header: null,
-            permissions: [
-              ProductPermission.collections_read,
-              ProductPermission.collections_update,
-            ],
+            permissions: [ProductPermission.collections_read, ProductPermission.collections_update],
             subMenu: [],
             pathIgnore: ["create"],
           },
@@ -480,7 +442,6 @@ const product: Array<RouteMenu> = [
       },
     ],
   },
-
 ];
 
 export default product;

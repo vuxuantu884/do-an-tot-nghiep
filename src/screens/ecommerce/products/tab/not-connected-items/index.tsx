@@ -31,10 +31,7 @@ import { fullTextSearch } from "utils/StringUtils";
 
 import { ProductEcommerceQuery, RequestExportExcelQuery } from "model/query/ecommerce.query";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 
 import {
   getShopEcommerceList,
@@ -79,7 +76,7 @@ import _, { debounce } from "lodash";
 const productsDeletePermission = [EcommerceProductPermission.products_delete];
 const productsConnectPermission = [EcommerceProductPermission.products_update];
 let connectedYodyProductsRequest: object;
-let suggestVariants = window.localStorage.getItem("suggest")
+let suggestVariants = window.localStorage.getItem("suggest");
 
 type NotConnectedItemsPropsType = {
   isReloadPage: boolean;
@@ -90,9 +87,11 @@ type NotConnectedItemsPropsType = {
 const EXPORT_PRODUCT_OPTION = {
   SELECTED: "selected",
   FILTERED: "filtered",
-}
+};
 
-const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConnectedItemsPropsType) => {
+const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (
+  props: NotConnectedItemsPropsType,
+) => {
   const [formAdvance] = Form.useForm();
   const dispatch = useDispatch();
   const history = useHistory();
@@ -125,7 +124,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [idsItemSelected, setIdsItemSelected] = useState<Array<any>>([]);
   const [isVisibleConcatenateByExcelModal, setIsVisibleConcatenateByExcelModal] = useState(false);
 
-
   //export file excel
   const [isShowExportExcelModal, setIsShowExportExcelModal] = useState(false);
   const [exportProcessId, setExportProcessId] = useState<any>(null);
@@ -134,7 +132,6 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const [exportProcessPercent, setExportProcessPercent] = useState<number>(0);
 
   const [exportProductType, setExportProductType] = useState<string>("");
-
 
   const [ecommerceIdSelected, setEcommerceIdSelected] = useState<number | null>(null);
   const [ecommerceShopList, setEcommerceShopList] = useState<Array<any>>([]);
@@ -158,7 +155,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       connected_date_from: null,
       connected_date_to: null,
     }),
-    []
+    [],
   );
 
   const [query, setQuery] = useState<ProductEcommerceQuery>({
@@ -172,12 +169,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     sku_or_name_ecommerce: null,
     connected_date_from: null,
     connected_date_to: null,
-    suggest: suggestVariants
+    suggest: suggestVariants,
   });
 
-  const queryParamsParsed: { [key: string]: string | (string | null)[] | null; } = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: {
+    [key: string]: string | (string | null)[] | null;
+  } = queryString.parse(location.search);
 
   const updateVariantData = useCallback((result: PageResponse<any> | false) => {
     setIsLoading(false);
@@ -186,13 +183,16 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     }
   }, []);
 
-  const getEcommerceProduct = useCallback((queryRequest: any) => {
-    if (queryRequest) {
-      window.scrollTo(0, 0);
-      setIsLoading(true);
-      dispatch(getProductEcommerceList(queryRequest, updateVariantData));
-    }
-  }, [dispatch, updateVariantData]);
+  const getEcommerceProduct = useCallback(
+    (queryRequest: any) => {
+      if (queryRequest) {
+        window.scrollTo(0, 0);
+        setIsLoading(true);
+        dispatch(getProductEcommerceList(queryRequest, updateVariantData));
+      }
+    },
+    [dispatch, updateVariantData],
+  );
 
   const handleSuggestItem = () => {
     if (window.localStorage.getItem("suggest")) {
@@ -203,11 +203,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     let dataQuery: ProductEcommerceQuery = {
       ...initialFormValues,
       ...getQueryParamsFromQueryString(queryParamsParsed),
-      suggest: window.localStorage.getItem("suggest")
+      suggest: window.localStorage.getItem("suggest"),
     };
     getEcommerceProduct(dataQuery);
     window.location.reload();
-  }
+  };
 
   useEffect(() => {
     if (isReloadPage) {
@@ -234,7 +234,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           showSuccess("Xóa sản phẩm thành công");
           reloadPage();
         }
-      })
+      }),
     );
   };
   //end handle delete item
@@ -248,7 +248,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   const RenderProductColumn = (
     ecommerceItem: any,
     copyConnectItemList: any,
-    updateConnectItemList: any
+    updateConnectItemList: any,
   ) => {
     const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -263,29 +263,29 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     const [isSaving, setIsSaving] = useState(false);
     const [isVisibleConfirmConnectModal, setIsVisibleConfirmConnectModal] = useState(false);
     const [isShowResultConnectionModal, setIsShowResultConnectionModal] = useState(false);
-    const [resultConnectionData,] = useState<any>({
+    const [resultConnectionData] = useState<any>({
       total: 0,
       success_total: 0,
       error_total: 0,
-      error_list: []
+      error_list: [],
     });
 
     const [productSelected, setProductSelected] = useState<any>(
-      ecommerceItem?.core_sku ?
-        {
-          core_variant: ecommerceItem.core_variant,
-          core_variant_id: ecommerceItem.core_variant_id,
-          variant_barcode: ecommerceItem.variant_barcode,
-          core_sku: ecommerceItem.core_sku,
-          variant_prices: null,
-          core_price: ecommerceItem.core_price,
-          id: ecommerceItem.id,
-          core_product_id: ecommerceItem.core_product_id,
-        }
-        : null
+      ecommerceItem?.core_sku
+        ? {
+            core_variant: ecommerceItem.core_variant,
+            core_variant_id: ecommerceItem.core_variant_id,
+            variant_barcode: ecommerceItem.variant_barcode,
+            core_sku: ecommerceItem.core_sku,
+            variant_prices: null,
+            core_price: ecommerceItem.core_price,
+            id: ecommerceItem.id,
+            core_product_id: ecommerceItem.core_product_id,
+          }
+        : null,
     );
 
-    const isExist = copyConnectItemList?.find((item: any) => item.id === ecommerceItem.id)
+    const isExist = copyConnectItemList?.find((item: any) => item.id === ecommerceItem.id);
     if (productSelected && !isExist) {
       const connectItem = {
         id: ecommerceItem.id,
@@ -321,9 +321,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
     // handle save single connected Yody product
     const saveConnectYodyProduct = () => {
-      const newConnectItemList = copyConnectItemList && copyConnectItemList.filter((item: any) => {
-        return item.core_variant_id !== productSelected.core_variant_id;
-      });
+      const newConnectItemList =
+        copyConnectItemList &&
+        copyConnectItemList.filter((item: any) => {
+          return item.core_variant_id !== productSelected.core_variant_id;
+        });
 
       const connectProductSelected = {
         id: productSelected.id,
@@ -342,9 +344,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       };
 
       setIsSaving(true);
-      dispatch(
-        putConnectEcommerceItem(request, updateNotConnectedProductList)
-      );
+      dispatch(putConnectEcommerceItem(request, updateNotConnectedProductList));
     };
 
     const handleSaveConnectYodyProduct = () => {
@@ -386,7 +386,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       status: "active",
     };
 
-    const [resultSearchVariant, setResultSearchVariant] = React.useState<Array<VariantResponse>>([]);
+    const [resultSearchVariant, setResultSearchVariant] = React.useState<Array<VariantResponse>>(
+      [],
+    );
 
     const updateProductResult = (result: any) => {
       setIsSearching(false);
@@ -405,7 +407,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         setIsSearching(true);
         setResultSearchVariant([]);
         dispatch(
-          searchVariantsOrderRequestAction(initQueryVariant, updateProductResult, handleErrorSearchProduct)
+          searchVariantsOrderRequestAction(
+            initQueryVariant,
+            updateProductResult,
+            handleErrorSearchProduct,
+          ),
         );
       }
     };
@@ -486,14 +492,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
     const convertResultSearchVariant = useMemo(() => {
       let options: any[] = [];
-      resultSearchVariant?.forEach(
-        (item: VariantResponse) => {
-          options.push({
-            label: renderSearchVariant(item),
-            value: item.id,
-          });
-        }
-      );
+      resultSearchVariant?.forEach((item: VariantResponse) => {
+        options.push({
+          label: renderSearchVariant(item),
+          value: item.id,
+        });
+      });
       return options;
     }, [resultSearchVariant]);
 
@@ -545,16 +549,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
               <li>
                 <b>Giá bán: </b>
                 <span>
-                  {productSelected.variant_prices ?
-                    findPrice(productSelected.variant_prices, AppConfig.currency)
-                    : formatCurrency(productSelected.core_price)
-                  }
+                  {productSelected.variant_prices
+                    ? findPrice(productSelected.variant_prices, AppConfig.currency)
+                    : formatCurrency(productSelected.core_price)}
                   <span className="item-price-unit">đ</span>
                 </span>
               </li>
             </ul>
 
-            {allowProductsConnect &&
+            {allowProductsConnect && (
               <div className="yody-product-button">
                 <Button
                   type="primary"
@@ -572,11 +575,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                   Huỷ
                 </Button>
               </div>
-            }
+            )}
           </div>
         )}
 
-        {isVisibleConfirmConnectModal &&
+        {isVisibleConfirmConnectModal && (
           <ConfirmConnectProductModal
             isVisible={isVisibleConfirmConnectModal}
             isLoading={isSaving}
@@ -584,7 +587,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
             okConfirmConnectModal={saveConnectYodyProduct}
             cancelConfirmConnectModal={cancelConfirmConnectModal}
           />
-        }
+        )}
 
         <ResultConnectProductModal
           visible={isShowResultConnectionModal}
@@ -608,13 +611,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       align: "center",
       width: "70px",
       render: (item: any) => {
-        return (
-          <img
-            src={item.ecommerce_image_url}
-            style={{ height: "40px" }}
-            alt=""
-          />
-        );
+        return <img src={item.ecommerce_image_url} style={{ height: "40px" }} alt="" />;
       },
     },
     {
@@ -625,7 +622,9 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <div>
             <div>{item.ecommerce_sku}</div>
             <div style={{ color: "#737373" }}>{item.ecommerce_product_id}</div>
-            <div style={{ color: "#737373", fontStyle: "italic" }}>({item.ecommerce_variant_id})</div>
+            <div style={{ color: "#737373", fontStyle: "italic" }}>
+              ({item.ecommerce_variant_id})
+            </div>
             <div style={{ color: "#2a2a86", fontWeight: 500 }}>({item.shop})</div>
           </div>
         );
@@ -643,16 +642,13 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       align: "center",
       width: "10%",
       render: (item: any) => {
-        return (
-          <span>
-            {item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}
-          </span>
-        );
+        return <span>{item.ecommerce_price ? formatCurrency(item.ecommerce_price) : "-"}</span>;
       },
     },
     {
       title: "Sản phẩm (Unicorn)",
-      render: (item: any) => RenderProductColumn(item, [...tempConnectItemList], updateConnectItemList)
+      render: (item: any) =>
+        RenderProductColumn(item, [...tempConnectItemList], updateConnectItemList),
     },
     {
       title: "Ghép nối",
@@ -673,9 +669,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   useEffect(() => {
     if (allowProductsDelete) {
       let newColumns = _.cloneDeep(columns);
-      newColumns.push(
-        ConnectedItemActionColumn(handleDeleteItem)
-      )
+      newColumns.push(ConnectedItemActionColumn(handleDeleteItem));
       setColumns(newColumns);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -684,9 +678,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   let initialValues = useMemo(() => {
     return {
       ...query,
-      shop_ids: Array.isArray(query.shop_ids)
-        ? query.shop_ids
-        : [query.shop_ids],
+      shop_ids: Array.isArray(query.shop_ids) ? query.shop_ids : [query.shop_ids],
     };
   }, [query]);
 
@@ -704,12 +696,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     if (initialValues.shop_ids.length) {
       let shopNameList = "";
       initialValues.shop_ids.forEach((shopId: any) => {
-        const findStatus = ecommerceShopList?.find(
-          (item) => +item.id === +shopId
-        );
-        shopNameList = findStatus
-          ? shopNameList + findStatus.name + "; "
-          : shopNameList;
+        const findStatus = ecommerceShopList?.find((item) => +item.id === +shopId);
+        shopNameList = findStatus ? shopNameList + findStatus.name + "; " : shopNameList;
       });
       list.push({
         key: "shop_ids",
@@ -722,7 +710,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       list.push({
         key: "sku_or_name_ecommerce",
         name: "Sku, tên sản phẩm sàn",
-        value: initialValues.sku_or_name_ecommerce
+        value: initialValues.sku_or_name_ecommerce,
       });
     }
 
@@ -745,38 +733,36 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         case "shop_ids":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{ [tag.key]: [] }
+            ...{ [tag.key]: [] },
           };
           break;
         case "ecommerce_id":
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{ [tag.key]: [], shop_ids: [] }
+            ...{ [tag.key]: [], shop_ids: [] },
           };
           break;
         default:
           dataQuery = {
             ...getQueryParamsFromQueryString(queryParamsParsed),
-            ...{ [tag.key]: null }
+            ...{ [tag.key]: null },
           };
           break;
       }
 
       let queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
-
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query, formAdvance]
+    [query, formAdvance],
   );
-
 
   const onFinish = (value: ProductEcommerceQuery) => {
     let newParams: ProductEcommerceQuery = {
       ...initialFormValues,
       ...getQueryParamsFromQueryString(queryParamsParsed),
-      ...value
-    }
+      ...value,
+    };
     const queryParam = generateQuery(newParams);
     const currentParam = generateQuery(query);
     if (currentParam === queryParam) {
@@ -792,14 +778,14 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     let dataQuery: ProductEcommerceQuery = {
       ...initialFormValues,
       ...getQueryParamsFromQueryString(queryParamsParsed),
-      suggest: window.localStorage.getItem("suggest")
+      suggest: window.localStorage.getItem("suggest"),
     };
-    setFilterValueByQueryParam(dataQuery)
+    setFilterValueByQueryParam(dataQuery);
     setQuery(dataQuery);
     getEcommerceProduct(dataQuery);
     window.scrollTo(0, 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, location.search])
+  }, [dispatch, location.search]);
 
   const setFilterValueByQueryParam = (dataquery: ProductEcommerceQuery) => {
     let checkEcommerceShop = Array.isArray(dataquery.shop_ids)
@@ -811,16 +797,19 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     if (dataquery.ecommerce_id === null) {
       removeEcommerce();
     } else if (dataquery.ecommerce_id in [1, 2, 3, 4, 5, 6]) {
-      formAdvance.setFieldsValue({ ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id })
+      formAdvance.setFieldsValue({
+        ecommerce_id: ECOMMERCE_LIST[dataquery.ecommerce_id - 1].ecommerce_id,
+      });
       if (dataquery.shop_ids !== null) {
-        formAdvance.setFieldsValue({ shop_ids: checkEcommerceShop.map(item => item.toString()) })
+        formAdvance.setFieldsValue({
+          shop_ids: checkEcommerceShop.map((item) => item.toString()),
+        });
       }
-
     } else {
-      formAdvance.setFieldsValue({ ecommerce_id: null })
+      formAdvance.setFieldsValue({ ecommerce_id: null });
       removeEcommerce();
     }
-  }
+  };
 
   const onPageChange = React.useCallback(
     (page, limit) => {
@@ -829,12 +818,12 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         ...getQueryParamsFromQueryString(queryParamsParsed),
         page: page,
         limit: limit,
-      }
+      };
       const queryParam = generateQuery(dataQuery);
       history.push(`${location.pathname}?${queryParam}`);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [query]
+    [query],
   );
   // get ecommerce shop list
   const updateEcommerceShopList = React.useCallback((result) => {
@@ -853,20 +842,15 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
   }, []);
 
   const getEcommerceShop = (ecommerceId: any) => {
-    dispatch(
-      getShopEcommerceList(
-        { ecommerce_id: ecommerceId },
-        updateEcommerceShopList
-      )
-    );
-  }
+    dispatch(getShopEcommerceList({ ecommerce_id: ecommerceId }, updateEcommerceShopList));
+  };
   // end get ecommerce shop list
 
   //handle select ecommerce
   const handleSelectEcommerce = (ecommerceId: any) => {
     if (ecommerceId !== ecommerceIdSelected) {
       formAdvance?.setFieldsValue({
-        shop_ids: []
+        shop_ids: [],
       });
 
       setEcommerceIdSelected(ecommerceId);
@@ -901,9 +885,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
   const connectedYodyProducts = () => {
     setIsLoading(true);
-    dispatch(
-      putConnectEcommerceItem(connectedYodyProductsRequest, updateProductList)
-    );
+    dispatch(putConnectEcommerceItem(connectedYodyProductsRequest, updateProductList));
   };
 
   const handleConnectedYodyProducts = () => {
@@ -924,9 +906,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       isSaveAble = false;
     } else {
       connectItemList.forEach((item) => {
-        const itemMatch = tempSelectedRow.find(
-          (rowData) => rowData.id === item.id
-        );
+        const itemMatch = tempSelectedRow.find((rowData) => rowData.id === item.id);
         if (itemMatch) {
           yodyProductConnectCheck.push(item);
           if (itemMatch.ecommerce_price !== item.core_price) {
@@ -939,9 +919,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       });
 
       tempSelectedRow.forEach((rowData) => {
-        const rowMatch = yodyProductConnectCheck.find(
-          (item) => item.id === rowData.id
-        );
+        const rowMatch = yodyProductConnectCheck.find((item) => item.id === rowData.id);
         if (!rowMatch) {
           notMatchSelectedRow.push(rowData);
         }
@@ -976,14 +954,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     setSelectedRow(newSelectedRow);
   }, []);
 
-
-
-
   //handle export file
   const resetExportProductProcess = () => {
     setExportProcessId(null);
     setExportProcessPercent(0);
-  }
+  };
 
   const handleExportExcelProduct = () => {
     const itemSelected: any[] = [];
@@ -994,17 +969,17 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     }
 
     setIdsItemSelected(itemSelected);
-    setIsShowExportExcelModal(true)
-  }
+    setIsShowExportExcelModal(true);
+  };
 
   const cancelExportExcelProductModal = () => {
     setIsShowExportExcelModal(false);
     setExportProductType("");
-  }
+  };
 
   const onCancelProgressModal = () => {
     setIsVisibleExitProcessModal(true);
-  }
+  };
 
   const okExportExcelProduct = () => {
     const RequestExportExcel: RequestExportExcelQuery = {
@@ -1013,7 +988,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       category_id: null,
       core_variant_id: null,
       variant_ids: exportProductType === EXPORT_PRODUCT_OPTION.SELECTED ? idsItemSelected : [],
-    }
+    };
 
     if (exportProductType === EXPORT_PRODUCT_OPTION.FILTERED) {
       const queryParam = { ...query };
@@ -1030,7 +1005,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
     exportFileProduct(RequestExportExcel)
       .then((response) => {
         if (response.code === HttpStatus.SUCCESS) {
-          setExportProcessId(response.data.process_id)
+          setExportProcessId(response.data.process_id);
           setIsVisibleProgressModal(true);
           cancelExportExcelProductModal();
         }
@@ -1040,36 +1015,39 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       });
 
     setExportProgress(0);
-  }
+  };
 
   const checkExportFile = useCallback(() => {
     let getProgressPromises: Promise<BaseResponse<any>> = getFileProduct(exportProcessId);
 
-    Promise.all([getProgressPromises]).then((responses) => {
-      responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS) {
-          if (response.data && response.data.finish) {
-            if (response.data.api_error) {
-              setExportProcessPercent(0);
-              showError(`${response.data.api_error}`);
+    Promise.all([getProgressPromises])
+      .then((responses) => {
+        responses.forEach((response) => {
+          if (response.code === HttpStatus.SUCCESS) {
+            if (response.data && response.data.finish) {
+              if (response.data.api_error) {
+                setExportProcessPercent(0);
+                showError(`${response.data.api_error}`);
+              } else {
+                if (response.data.url) {
+                  setExportProcessPercent(100);
+                  showSuccess("Xuất file dữ liệu sản phẩm thành công!");
+                  window.open(response.data.url);
+                }
+              }
+              setExportProcessId(null);
+              setIsVisibleProgressModal(false);
             } else {
-              if (response.data.url) {
-                setExportProcessPercent(100);
-                showSuccess("Xuất file dữ liệu sản phẩm thành công!");
-                window.open(response.data.url);
+              if (response.data.total > 0) {
+                const percent = Math.floor(
+                  (response.data.total_success / response.data.total) * 100,
+                );
+                setExportProcessPercent(percent >= 100 ? 99 : percent);
               }
             }
-            setExportProcessId(null);
-            setIsVisibleProgressModal(false);
-          } else {
-            if (response.data.total > 0) {
-              const percent = Math.floor(response.data.total_success / response.data.total * 100);
-              setExportProcessPercent(percent >= 100 ? 99 : percent);
-            }
           }
-        }
-      });
-    })
+        });
+      })
       .catch(() => {
         showError("Có lỗi xảy ra, vui lòng thử lại sau");
       });
@@ -1095,7 +1073,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
   const onCancelExitProcessModal = () => {
     setIsVisibleExitProcessModal(false);
-  }
+  };
 
   const onOkExitProcessModal = () => {
     resetExportProductProcess();
@@ -1107,7 +1085,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           if (responseData) {
             showSuccess(responseData);
           }
-        })
+        }),
       );
     }
   };
@@ -1134,27 +1112,27 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
 
   const handleConcatenateByExcel = () => {
     setIsVisibleConcatenateByExcelModal(true);
-  }
+  };
 
   const onOkConcatenateByExcel = () => {
     setIsVisibleConcatenateByExcelModal(false);
-  }
+  };
 
   const onCancelConcatenateByExcel = () => {
     setIsVisibleConcatenateByExcelModal(false);
-  }
+  };
 
   const setTitleSuggest = () => {
-    return window.localStorage.getItem("suggest") ? "Bỏ gợi ý ghép nối" : "Gợi ý ghép nối"
-  }
+    return window.localStorage.getItem("suggest") ? "Bỏ gợi ý ghép nối" : "Gợi ý ghép nối";
+  };
 
   const actionList = (
     <Menu>
-      {allowProductsDelete &&
+      {allowProductsDelete && (
         <Menu.Item key="1" onClick={handleDeleteItemsSelected} disabled={isDisableAction()}>
           <span>Xóa sản phẩm lấy về</span>
         </Menu.Item>
-      }
+      )}
       <Menu.Item
         key="export"
         onClick={handleExportExcelProduct}
@@ -1169,8 +1147,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
         <span>Ghép nối bằng excel</span>
       </Menu.Item>
     </Menu>
-  )
-
+  );
 
   return (
     <StyledComponent>
@@ -1179,11 +1156,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <div className="filter not-connected-items-filter">
             <Form form={formAdvance} onFinish={onFinish} initialValues={initialFormValues}>
               <div className="action-dropdown">
-                <Dropdown
-                  overlay={actionList}
-                  trigger={["click"]}
-                  disabled={isLoading}
-                >
+                <Dropdown overlay={actionList} trigger={["click"]} disabled={isLoading}>
                   <Button className="action-button">
                     <div style={{ marginRight: 10 }}>Thao tác</div>
                     <DownOutlined />
@@ -1191,23 +1164,18 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                 </Dropdown>
               </div>
 
-              <Form.Item
-                name="ecommerce_id"
-                className="select-channel-dropdown">
+              <Form.Item name="ecommerce_id" className="select-channel-dropdown">
                 <Select
                   disabled={isLoading}
                   placeholder="Chọn sàn"
                   allowClear
                   onSelect={(value) => handleSelectEcommerce(value)}
-                  onClear={removeEcommerce}>
+                  onClear={removeEcommerce}
+                >
                   {ECOMMERCE_LIST?.map((item: any) => (
                     <Select.Option key={item.ecommerce_id} value={item.ecommerce_id}>
                       <div>
-                        <img
-                          src={item.icon}
-                          alt={item.id}
-                          style={{ marginRight: "10px" }}
-                        />
+                        <img src={item.icon} alt={item.id} style={{ marginRight: "10px" }} />
                         <span>{item.title}</span>
                       </div>
                     </Select.Option>
@@ -1215,11 +1183,8 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                 </Select>
               </Form.Item>
 
-              <Form.Item
-                className="select-store-dropdown"
-                name="shop_ids"
-              >
-                {ecommerceIdSelected ?
+              <Form.Item className="select-store-dropdown" name="shop_ids">
+                {ecommerceIdSelected ? (
                   <TreeSelect
                     placeholder="Chọn gian hàng"
                     treeDefaultExpandAll
@@ -1253,15 +1218,11 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
                       />
                     ))}
                   </TreeSelect>
-                  :
+                ) : (
                   <Tooltip title="Yêu cầu chọn sàn" color={"gold"}>
-                    <Select
-                      showSearch
-                      disabled={true}
-                      placeholder="Chọn gian hàng"
-                    />
+                    <Select showSearch disabled={true} placeholder="Chọn gian hàng" />
                   </Tooltip>
-                }
+                )}
               </Form.Item>
 
               <Form.Item name="sku_or_name_ecommerce" className="search-ecommerce-product">
@@ -1289,13 +1250,20 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
               </div>
             </Form>
             <div className="order-filter-tags">
-              {filters && filters.map((filter: any, index: any) => {
-                return (
-                  <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>{filter.name}: {filter.value}</Tag>
-                )
-              })}
+              {filters &&
+                filters.map((filter: any, index: any) => {
+                  return (
+                    <Tag
+                      key={index}
+                      className="tag"
+                      closable
+                      onClose={(e) => onCloseTag(e, filter)}
+                    >
+                      {filter.name}: {filter.value}
+                    </Tag>
+                  );
+                })}
             </div>
-
           </div>
         </StyledProductFilter>
 
@@ -1320,7 +1288,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           rowKey={(data) => data.id}
         />
 
-        {allowProductsConnect &&
+        {allowProductsConnect && (
           <Button
             style={{ margin: "20px 0" }}
             type="primary"
@@ -1332,11 +1300,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           >
             Lưu các cặp đã chọn
           </Button>
-        }
-
+        )}
       </Card>
 
-      {isVisibleConfirmConnectItemsModal &&
+      {isVisibleConfirmConnectItemsModal && (
         <ConfirmConnectProductModal
           isVisible={isVisibleConfirmConnectItemsModal}
           isLoading={isLoading}
@@ -1344,10 +1311,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           okConfirmConnectModal={connectedYodyProducts}
           cancelConfirmConnectModal={() => setIsVisibleConfirmConnectItemsModal(false)}
         />
-      }
+      )}
 
       {/* Import customer file */}
-      {isVisibleConcatenateByExcelModal &&
+      {isVisibleConcatenateByExcelModal && (
         <ConcatenateByExcel
           title="Ghép nối sản phẩm"
           visible={isVisibleConcatenateByExcelModal}
@@ -1357,7 +1324,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           onCancelConcatenateByExcel={onCancelConcatenateByExcel}
           onOkConcatenateByExcel={onOkConcatenateByExcel}
         />
-      }
+      )}
 
       {/*<ResultConnectProductModal*/}
       {/*  visible={isShowResultConnectProductModal}*/}
@@ -1403,10 +1370,7 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
       >
         <Radio.Group onChange={onChangeExportProductOption} value={exportProductType}>
           <Space direction="vertical">
-            <Radio
-              value={EXPORT_PRODUCT_OPTION.SELECTED}
-              disabled={selectedRow.length <= 0}
-            >
+            <Radio value={EXPORT_PRODUCT_OPTION.SELECTED} disabled={selectedRow.length <= 0}>
               Tải sản phẩm đã chọn
             </Radio>
             <Radio value={EXPORT_PRODUCT_OPTION.FILTERED}>
@@ -1427,11 +1391,10 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <Button key="cancel" danger onClick={onCancelProgressModal}>
             Thoát
           </Button>,
-        ]}>
+        ]}
+      >
         <div style={{ textAlign: "center" }}>
-          <div style={{ marginBottom: 15 }}>
-            Đang tạo file, vui lòng đợi trong giây lát
-          </div>
+          <div style={{ marginBottom: 15 }}>Đang tạo file, vui lòng đợi trong giây lát</div>
           <Progress
             type="circle"
             strokeColor={{
@@ -1458,16 +1421,16 @@ const NotConnectedItems: React.FC<NotConnectedItemsPropsType> = (props: NotConne
           <img src={DeleteIcon} alt="" />
           <div style={{ marginLeft: 15 }}>
             <strong style={{ fontSize: 16 }}>Bạn có chắc chắn muốn hủy tải sản phẩm không?</strong>
-            <div style={{ fontSize: 14 }}>Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.</div>
+            <div style={{ fontSize: 14 }}>
+              Hệ thống sẽ dừng việc tải sản phẩm, bạn vẫn có thể tải lại sau nếu muốn.
+            </div>
           </div>
         </div>
       </Modal>
 
       {/* Import customer file */}
-
     </StyledComponent>
   );
 };
 
 export default NotConnectedItems;
-

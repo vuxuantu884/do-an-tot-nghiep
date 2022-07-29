@@ -13,7 +13,7 @@ import {
   EntityName,
   entityNames,
   LocalStorageKey,
-  LoyaltyLevel
+  LoyaltyLevel,
 } from "model/report";
 import moment from "moment";
 import { useEffect, useLayoutEffect, useState } from "react";
@@ -22,7 +22,7 @@ import { useEffectOnce } from "react-use";
 import TreeStore from "screens/products/inventory/filter/TreeStore";
 import {
   getCustomerPhoneSMSCounters,
-  updateCustomerPhoneSMSCounters
+  updateCustomerPhoneSMSCounters,
 } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
@@ -49,7 +49,7 @@ function CustomerPhoneSMSCounters() {
   const [isFilter, setIsFilter] = useState<boolean>(true);
 
   const myStores: any = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
 
   const currentYear = moment().year();
@@ -90,7 +90,7 @@ function CustomerPhoneSMSCounters() {
         const storeIds = localStorage.getItem(LocalStorageKey.CustomerPhoneSMSCountersStore);
         if (storeIds && JSON.parse(storeIds).length) {
           const validatedStoreIds = JSON.parse(storeIds).filter(
-            (storeId: number) => stores.findIndex((item) => item.id === +storeId) !== -1
+            (storeId: number) => stores.findIndex((item) => item.id === +storeId) !== -1,
           );
           form.setFieldsValue({
             [CustomerPhoneSMSCountersFilter.StoreIds]: validatedStoreIds,
@@ -104,7 +104,7 @@ function CustomerPhoneSMSCounters() {
         }
         setLoading(false);
         setStores(stores);
-      })
+      }),
     );
   }, [dispatch, form, myStores]);
 
@@ -141,7 +141,7 @@ function CustomerPhoneSMSCounters() {
         { isShowError: true },
         dispatch,
         getCustomerPhoneSMSCounters,
-        params
+        params,
       );
       if (customerCounters) {
         const dataMapper = stores
@@ -161,7 +161,7 @@ function CustomerPhoneSMSCounters() {
                     .add(i, "days")
                     .format("DD")}`]: 0,
                 };
-              }
+              },
             ).reduce((result, item) => {
               return { ...result, ...item };
             }, {});
@@ -179,7 +179,7 @@ function CustomerPhoneSMSCounters() {
         Array.from(
           { length: moment(`${year}-${month}`, "YYYY-M").daysInMonth() },
           (x, i) =>
-            `${moment(`${year}-${month}`, "YYYY-M").startOf("month").add(i, "days").format("DD")}`
+            `${moment(`${year}-${month}`, "YYYY-M").startOf("month").add(i, "days").format("DD")}`,
         ).forEach((day: string) => {
           const column = {
             title: day,
@@ -233,7 +233,7 @@ function CustomerPhoneSMSCounters() {
             store[key] = +event.target.value;
           }
           return store;
-        })
+        }),
       );
     }
   }, 150);
@@ -241,11 +241,13 @@ function CustomerPhoneSMSCounters() {
   const handleUpdateCustomerCounters = async (storeId: any) => {
     const { entityName, loyaltyLevel, dataSource } = form.getFieldsValue();
     if (dataSource === DataSource.StoreData) {
-      showError('Vui lòng chuyển nguồn dữ liệu sang Dữ liệu của tôi để thực hiện chức năng Cập nhật');
+      showError(
+        "Vui lòng chuyển nguồn dữ liệu sang Dữ liệu của tôi để thực hiện chức năng Cập nhật",
+      );
       return;
     }
     if (!loyaltyLevel) {
-      showError('Vui lòng chọn hạng khách hàng để thực hiện chức năng Cập nhật');
+      showError("Vui lòng chọn hạng khách hàng để thực hiện chức năng Cập nhật");
       return;
     }
     const params =
@@ -262,15 +264,15 @@ function CustomerPhoneSMSCounters() {
           reported_name: myAccount?.full_name,
           entity_name: entityName,
           loyalty_level: loyaltyLevel,
-        }
+        },
       );
       if (response) {
         showSuccess(
-          `Cập nhật lượng ${entityName === EntityName.SMS ? "SMS" : "cuộc gọi"} thành công`
+          `Cập nhật lượng ${entityName === EntityName.SMS ? "SMS" : "cuộc gọi"} thành công`,
         );
       } else {
         showError(
-          `Cập nhật lượng ${entityName === EntityName.SMS ? "SMS" : "cuộc gọi"} không thành công`
+          `Cập nhật lượng ${entityName === EntityName.SMS ? "SMS" : "cuộc gọi"} không thành công`,
         );
       }
     }
@@ -279,7 +281,11 @@ function CustomerPhoneSMSCounters() {
   const currentDay = document.querySelector(".current-day");
   useLayoutEffect(() => {
     if (currentDay) {
-      currentDay.scrollIntoView({ block: "center", behavior: "auto", inline: "center" });
+      currentDay.scrollIntoView({
+        block: "center",
+        behavior: "auto",
+        inline: "center",
+      });
     }
   }, [currentDay]);
 
@@ -294,18 +300,21 @@ function CustomerPhoneSMSCounters() {
             path: UrlConfig.KEY_DRIVER_OFFLINE,
           },
           { name: "Nhập số lượng cuộc gọi đi/SMS đi tin" },
-        ]}>
+        ]}
+      >
         <Form
           form={form}
           name="filter-block"
           initialValues={initialFilterValues}
-          className="customer-counters-wrapper">
+          className="customer-counters-wrapper"
+        >
           <Card bodyStyle={{ paddingBottom: 0, paddingTop: 0 }} title="Bộ lọc">
             <div className="filter-container d-flex justify-content-start align-items-end py-3">
               <Form.Item
                 name={CustomerPhoneSMSCountersFilter.StoreIds}
                 className="input-width filter-item"
-                help={false}>
+                help={false}
+              >
                 <TreeStore
                   form={form}
                   name={CustomerPhoneSMSCountersFilter.StoreIds}
@@ -316,7 +325,8 @@ function CustomerPhoneSMSCounters() {
               <Form.Item
                 name={CustomerPhoneSMSCountersFilter.Month}
                 className="input-width filter-item"
-                help={false}>
+                help={false}
+              >
                 <Select placeholder="Chọn tháng">
                   {["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"].map(
                     (month) => {
@@ -325,14 +335,15 @@ function CustomerPhoneSMSCounters() {
                           Tháng {month}
                         </Select.Option>
                       );
-                    }
+                    },
                   )}
                 </Select>
               </Form.Item>
               <Form.Item
                 name={CustomerPhoneSMSCountersFilter.Year}
                 className="input-width filter-item"
-                help={false}>
+                help={false}
+              >
                 <Select placeholder="Chọn năm">
                   {yearList.map((year) => {
                     return (
@@ -346,7 +357,8 @@ function CustomerPhoneSMSCounters() {
               <Form.Item
                 name={CustomerPhoneSMSCountersFilter.EntityName}
                 className="input-width filter-item"
-                help={false}>
+                help={false}
+              >
                 <Select placeholder="Cuộc gọi/SMS">
                   {entityNames.map((entityName) => {
                     return (
@@ -360,7 +372,8 @@ function CustomerPhoneSMSCounters() {
               <Form.Item
                 name={CustomerPhoneSMSCountersFilter.LoyaltyLevel}
                 className="input-width filter-item"
-                help={false}>
+                help={false}
+              >
                 <Select allowClear placeholder="Hạng khách hàng">
                   {loyaltyLevels.map((loyaltyLevel) => {
                     return (
@@ -374,7 +387,8 @@ function CustomerPhoneSMSCounters() {
               <Form.Item
                 name={CustomerPhoneSMSCountersFilter.DataSource}
                 className="input-width filter-item"
-                help={false}>
+                help={false}
+              >
                 <Select placeholder="Nguồn dữ liệu">
                   {dataSources.map((dataSource) => {
                     return (
@@ -394,7 +408,8 @@ function CustomerPhoneSMSCounters() {
           </Card>
           <Card
             title="Bảng số lượng khách hàng đến các cửa hàng"
-            headStyle={{ padding: "8px 20px" }}>
+            headStyle={{ padding: "8px 20px" }}
+          >
             {customerPhoneSMSCounters && (
               <Table
                 dataSource={customerPhoneSMSCounters}
@@ -403,7 +418,8 @@ function CustomerPhoneSMSCounters() {
                 sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
                 pagination={{ defaultPageSize: 30, showSizeChanger: false }}
                 bordered={true}
-                className="customer-counters-table">
+                className="customer-counters-table"
+              >
                 {columns.map((item: any, index: number) => {
                   return (
                     <Table.Column<any>
@@ -416,10 +432,11 @@ function CustomerPhoneSMSCounters() {
                               ? item.isToday
                                 ? "Hôm nay"
                                 : `${item.title}/${form.getFieldValue(
-                                    CustomerPhoneSMSCountersFilter.Month
+                                    CustomerPhoneSMSCountersFilter.Month,
                                   )}/${form.getFieldValue(CustomerPhoneSMSCountersFilter.Year)}`
                               : item.title
-                          }>
+                          }
+                        >
                           <span className={item.isToday ? "text-primary" : ""}>{item.title}</span>
                         </Tooltip>
                       }
@@ -439,7 +456,8 @@ function CustomerPhoneSMSCounters() {
                               type="primary"
                               className="px-1"
                               size="small"
-                              onClick={() => handleUpdateCustomerCounters(record.store_id)}>
+                              onClick={() => handleUpdateCustomerCounters(record.store_id)}
+                            >
                               Cập nhật
                             </Button>
                           ) : (

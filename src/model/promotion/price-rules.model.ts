@@ -11,7 +11,7 @@ export enum PriceRuleMethod {
 }
 
 export enum PriceRuleType {
-  AUTOMATIC= "AUTOMATIC", // Tự động
+  AUTOMATIC = "AUTOMATIC", // Tự động
   MANUAL = "MANUAL", // Thủ công
 }
 
@@ -35,7 +35,7 @@ export enum CustomerSelectionOption {
 /**
  *Dùng trong điều kiện khuyến mãi theo thời gian
  */
- export enum WeekDays {
+export enum WeekDays {
   SUN = "SUN",
   MON = "MON",
   TUE = "TUE",
@@ -44,7 +44,6 @@ export enum CustomerSelectionOption {
   FRI = "FRI",
   SAT = "SAT",
 }
-
 
 // interface
 
@@ -120,7 +119,7 @@ export interface EntilementFormModel {
   entitled_variant_ids: Array<number>;
   prerequisite_quantity_ranges: Array<EntitleRange>;
   prerequisite_variant_ids?: Array<number>;
-  selectedProducts?: Array<ProductEntitlements>;// dùng trong local, không dùng để gửi lên server
+  selectedProducts?: Array<ProductEntitlements>; // dùng trong local, không dùng để gửi lên server
 }
 
 export interface EntitleRange {
@@ -138,7 +137,6 @@ export type IgnoreVariant = {
   ignoreVariantId: number;
   ignoreVariantSku: string;
 };
-
 
 export interface DiscountCode {
   id: number;
@@ -204,4 +202,3 @@ export interface PriceRule extends BaseObject {
   usage_limit?: number;
   usage_limit_per_customer?: number;
 }
-

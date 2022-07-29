@@ -11,7 +11,7 @@ export const ListTicketStylesWrapper = styled.div`
     padding: 16px 0;
 
     a {
-      color: rgba(0,0,0,.85);
+      color: rgba(0, 0, 0, 0.85);
     }
   }
   .ant-tabs-tab-active {

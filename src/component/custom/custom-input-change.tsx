@@ -13,17 +13,15 @@ interface CustomInputChangeProps {
 }
 
 const InputStyle = styled.div`
-  .ant-input-number-handler-wrap{
+  .ant-input-number-handler-wrap {
     display: none;
   }
-  .ant-input-number-input{
+  .ant-input-number-input {
     text-align: right;
   }
-`
+`;
 
-const CustomInputChange: React.FC<CustomInputChangeProps> = (
-  props: CustomInputChangeProps
-) => {
+const CustomInputChange: React.FC<CustomInputChangeProps> = (props: CustomInputChangeProps) => {
   const { remainPayment = 0, value, onChange, totalPayment } = props;
   const [selected, setSelected] = useState(MoneyType.PERCENT);
   const [data, setData] = useState<number>(0);
@@ -37,16 +35,20 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
   const handleChangeInput = (value: number | null) => {
     let money = value || 0;
     if (typeof value === "number") {
-      if (selected === MoneyType.PERCENT && typeof remainPayment === "number" && remainPayment > 0) {
-        money = (value * totalPayment) / 100
+      if (
+        selected === MoneyType.PERCENT &&
+        typeof remainPayment === "number" &&
+        remainPayment > 0
+      ) {
+        money = (value * totalPayment) / 100;
       } else if (selected === MoneyType.PERCENT) {
-        money = 0
+        money = 0;
       }
     }
 
     onChange?.(money);
     setData(value || 0);
-  }
+  };
 
   const getMaxInput = () => {
     if (selected === MoneyType.PERCENT && remainPayment > 0 && totalPayment > 0) {
@@ -56,7 +58,7 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
     } else {
       return 0;
     }
-  }
+  };
 
   const getMoneyLabel = () => {
     let label: number | string = 0;
@@ -68,7 +70,7 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
     }
 
     return label;
-  }
+  };
 
   return (
     <InputStyle>
@@ -88,15 +90,15 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
           <Select.Option value={MoneyType.MONEY}>₫</Select.Option>
         </Select>
         <InputNumber<number>
-          style={{ textAlign: 'right', width: '100%' }}
+          style={{ textAlign: "right", width: "100%" }}
           placeholder={props.placeholder}
           min={0}
           onChange={(e) => {
             handleChangeInput(e);
           }}
           formatter={(value?: number) => formatCurrency(value || 0)}
-          parser={(value?: string) => {  
-            let parseValue = 0        
+          parser={(value?: string) => {
+            let parseValue = 0;
             if (value) {
               parseValue = parseLocaleNumber(value);
             }
@@ -106,12 +108,9 @@ const CustomInputChange: React.FC<CustomInputChangeProps> = (
           value={data}
         />
       </Input.Group>
-      <div style={{ textAlign: 'right', marginRight: 15 }}>
-        <Typography.Text type="danger">
-          {getMoneyLabel()}
-        </Typography.Text>
+      <div style={{ textAlign: "right", marginRight: 15 }}>
+        <Typography.Text type="danger">{getMoneyLabel()}</Typography.Text>
       </div>
-
     </InputStyle>
   );
 };

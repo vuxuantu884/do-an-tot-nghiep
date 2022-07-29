@@ -31,14 +31,17 @@ export function ErrorFallback({ error, resetErrorBoundary }: any) {
     () => {
       setCoutdown((count) => count - DELAY);
     },
-    countdown === 0 ? null : DELAY
+    countdown === 0 ? null : DELAY,
   );
 
   if (errorLoadChunk) {
     return (
       <ErrorWrapper>
         <img src={UpdateVersionImage} alt={""} />
-        <h1>Hệ thống đang có bản cập nhật mới, bạn vui lòng đợi trong giây lát! {countdown ? <span className="countdown">{countdown/1000}s</span> : null}</h1>
+        <h1>
+          Hệ thống đang có bản cập nhật mới, bạn vui lòng đợi trong giây lát!{" "}
+          {countdown ? <span className="countdown">{countdown / 1000}s</span> : null}
+        </h1>
         <Button onClick={window.location.reload}>Thử lại!</Button>
       </ErrorWrapper>
     );

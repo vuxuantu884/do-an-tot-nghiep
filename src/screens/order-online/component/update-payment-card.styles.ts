@@ -1,16 +1,16 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-z-index: 88;
-.disabled-cancel {
-  color: rgba(0,0,0,.25);
-  border-color: #d9d9d9;
-  background: #f5f5f5;
-  text-shadow: none;
-  box-shadow: none;
-}
-.order-cod-payment-footer {
-	margin-top: 15px;
+  z-index: 88;
+  .disabled-cancel {
+    color: rgba(0, 0, 0, 0.25);
+    border-color: #d9d9d9;
+    background: #f5f5f5;
+    text-shadow: none;
+    box-shadow: none;
+  }
+  .order-cod-payment-footer {
+    margin-top: 15px;
     border-radius: 5px;
     border: 1px solid #2a2a86;
     height: 54px;

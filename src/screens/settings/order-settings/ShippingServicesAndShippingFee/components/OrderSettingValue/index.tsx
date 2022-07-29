@@ -64,7 +64,7 @@ function OrderSettingValue(props: PropTypes) {
                       if (value) {
                         return Promise.resolve();
                       }
-                      return Promise.reject(new Error('Vui lòng nhập giá trị lớn hơn 0!'));
+                      return Promise.reject(new Error("Vui lòng nhập giá trị lớn hơn 0!"));
                     },
                   }),
                 ]}

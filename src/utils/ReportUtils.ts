@@ -2,7 +2,13 @@ import { YodyAction } from "base/base.action";
 import { AppConfig } from "config/app.config";
 import { TIME_GROUP_BY } from "config/report";
 import { AccountStoreResponse } from "model/account/account.model";
-import { AnalyticConditions, AnalyticCube, AnalyticGroupUrl, AnalyticMetadata, AnalyticQuery } from "model/report/analytics.model";
+import {
+  AnalyticConditions,
+  AnalyticCube,
+  AnalyticGroupUrl,
+  AnalyticMetadata,
+  AnalyticQuery,
+} from "model/report/analytics.model";
 import moment from "moment";
 import { Dispatch } from "react";
 import { executeAnalyticsQueryService } from "../service/report/analytics.service";
@@ -195,7 +201,7 @@ export const getPropertiesKey = (childrenKey: string, metadata: AnalyticMetadata
     return Object.keys(metadata.properties).find((perentKey) => {
       // get perent value
       const perentValue = Object.keys(
-        Object.values(metadata.properties)[Object.keys(metadata.properties).indexOf(perentKey)]
+        Object.values(metadata.properties)[Object.keys(metadata.properties).indexOf(perentKey)],
       );
       return perentValue.includes(childrenKey);
     });
@@ -219,9 +225,9 @@ export const getPropertiesValue = (childrenKey: string[], metadata: AnalyticMeta
 
 export const exportReportToExcel = async (
   dispatch: Dispatch<YodyAction>,
-  params: { q: string, options?: string },
+  params: { q: string; options?: string },
   name: string = "Báo cáo",
-  format: "xls" = "xls"
+  format: "xls" = "xls",
 ) => {
   const { q, options } = params;
   const response = await callApiNative(
@@ -234,7 +240,7 @@ export const exportReportToExcel = async (
         "Content-Type": "application/vnd.openxmlformatsofficedocument.spreadsheetml.sheet",
       },
       responseType: "arraybuffer",
-    }
+    },
   );
   if (response) {
     console.log(typeof response);
@@ -245,9 +251,9 @@ export const exportReportToExcel = async (
     a.download = name + ".xls";
     a.click();
     window.URL.revokeObjectURL(url);
-    showSuccess('Xuất báo cáo thành công');
+    showSuccess("Xuất báo cáo thành công");
   } else {
-    showError('Xuất báo cáo thất bại. Vui lòng thử lại sau!');
+    showError("Xuất báo cáo thất bại. Vui lòng thử lại sau!");
   }
 };
 
@@ -269,59 +275,74 @@ export const removeSpacesAndEnterCharacters = (str: string) => {
   }
 };
 
-export const getChartQuery = (queryObject: AnalyticQuery, chartColumnSelected: string[]): string => {
-
+export const getChartQuery = (
+  queryObject: AnalyticQuery,
+  chartColumnSelected: string[],
+): string => {
   if (!queryObject || chartColumnSelected.length === 0) {
-    return '';
+    return "";
   }
 
   const { conditions } = queryObject;
   let mapperConditions;
   if (conditions?.length) {
-    mapperConditions = conditions.map(condition => {
-      if (condition.findIndex(item => item === 'IN') !== -1) {
-        condition = [...condition.slice(0, 2), ...(condition.slice(2).map((item, index) => !(item === ',' && condition.slice(2)[index + 1]?.length > 1) ? encodeURIComponent(item) : item).join("").split(",").map((item: string) => decodeURIComponent(`'${item}'`)).join(","))].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`))
+    mapperConditions = conditions.map((condition) => {
+      if (condition.findIndex((item) => item === "IN") !== -1) {
+        condition = [
+          ...condition.slice(0, 2),
+          ...condition
+            .slice(2)
+            .map((item, index) =>
+              !(item === "," && condition.slice(2)[index + 1]?.length > 1)
+                ? encodeURIComponent(item)
+                : item,
+            )
+            .join("")
+            .split(",")
+            .map((item: string) => decodeURIComponent(`'${item}'`))
+            .join(","),
+        ].filter((item, i, conditionArr) => !(item === conditionArr[i + 1] && item === `'`));
       }
       return condition;
-    })
+    });
   }
   const params: AnalyticQuery = {
     ...queryObject,
-    columns: chartColumnSelected.map(item => {
-      return { field: item }
+    columns: chartColumnSelected.map((item) => {
+      return { field: item };
     }),
-    conditions: mapperConditions ? mapperConditions : conditions
+    conditions: mapperConditions ? mapperConditions : conditions,
   } as AnalyticQuery;
   const query = generateRQuery(params);
 
   return query;
-}
+};
 
 /**
  * Show toast error dành cho báo cáo (môi trường uat không có báo nên nên không show toast)
- * @param errorMsg 
+ * @param errorMsg
  */
 export const showErrorReport = (errorMsg: React.ReactNode) => {
   if (AppConfig.ENV !== "UAT") {
     showError(errorMsg);
   }
-}
+};
 
 export const formatDataToSetUrl = (data: string, field: string) => {
   let formattedData = data;
   if (field === "order_return_code") {
-    if (data.includes('!')) {
-      formattedData = data.replace('!', '%21');
+    if (data.includes("!")) {
+      formattedData = data.replace("!", "%21");
     } else {
-      formattedData = (+data.toString().replace(/\D/g, '')).toString();
+      formattedData = (+data.toString().replace(/\D/g, "")).toString();
     }
   }
   return encodeURIComponent(formattedData);
-}
+};
 
 export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
   const { Sales, Payments, Costs, OfflineSales } = AnalyticCube;
-  const url = '/analytics/'
+  const url = "/analytics/";
   switch (cube) {
     case Sales:
       return `${url}${AnalyticGroupUrl.Sales}`;
@@ -334,7 +355,7 @@ export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
     default:
       return `${url}${AnalyticGroupUrl.OfflineSales}`;
   }
-}
+};
 
 export const getPermissionViewCustomizeReport = (permissions: string[], cube: AnalyticCube) => {
   const { Sales, Payments, Costs, OfflineSales, Customers } = AnalyticCube;
@@ -354,10 +375,10 @@ export const getPermissionViewCustomizeReport = (permissions: string[], cube: An
       permission = `${permission}costs`;
       break;
     default:
-      permission = '0';
+      permission = "0";
       break;
   }
-  return permissions.includes(permission) ? '1' : '0';
+  return permissions.includes(permission) ? "1" : "0";
 };
 
 export const getReportGroup = (reportUrlString: string) => {
@@ -372,18 +393,24 @@ export const getReportGroup = (reportUrlString: string) => {
     case Customers:
       return AnalyticCube.Customers;
     default:
-      return '';
+      return "";
   }
-}
+};
 
-export const getNoPermissionStores = (filterStores: string[], myStores: AccountStoreResponse[] | undefined): string[] => {
+export const getNoPermissionStores = (
+  filterStores: string[],
+  myStores: AccountStoreResponse[] | undefined,
+): string[] => {
   return filterStores.reduce((res: string[], storeItem: string) => {
     if (storeItem) {
-      const myStoreIdx = myStores && myStores.length ? myStores.findIndex(item => item.store && item.store.trim() === storeItem.trim()) : 1;
+      const myStoreIdx =
+        myStores && myStores.length
+          ? myStores.findIndex((item) => item.store && item.store.trim() === storeItem.trim())
+          : 1;
       if (myStoreIdx === -1) {
         return [...res, storeItem];
       }
     }
     return res;
   }, []);
-}
+};

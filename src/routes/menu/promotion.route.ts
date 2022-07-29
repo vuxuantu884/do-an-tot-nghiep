@@ -1,40 +1,34 @@
-import {PromoPermistion} from "config/permissions/promotion.permisssion";
+import { PromoPermistion } from "config/permissions/promotion.permisssion";
 import UrlConfig from "config/url.config";
-import {RouteMenu} from "model/other";
+import { RouteMenu } from "model/other";
 import React from "react";
 
 const accumulate = React.lazy(() => import("screens/promotion/loyalty/accumulate/index"));
 const loyaltyPage = React.lazy(() => import("screens/promotion/loyalty/index"));
 const loyaltyAccumulateDetail = React.lazy(
-  () => import("screens/promotion/loyalty/accumulate/detail")
+  () => import("screens/promotion/loyalty/accumulate/detail"),
 );
 const discountPage = React.lazy(() => import("screens/promotion/discount/discount-list"));
 const priceRulesPage = React.lazy(() => import("screens/promotion/promo-code"));
 const createDiscountPage = React.lazy(
-  () => import("screens/promotion/discount/create-v2/discount-create-v2")
+  () => import("screens/promotion/discount/create-v2/discount-create-v2"),
 );
 const detailDiscountPage = React.lazy(
-  () => import("screens/promotion/discount/detail/discount.detail")
+  () => import("screens/promotion/discount/detail/discount.detail"),
 );
 const DiscountUpdate = React.lazy(
-  () => import("screens/promotion/discount/update/discount.update")
+  () => import("screens/promotion/discount/update/discount.update"),
 );
-const DiscountReplicate = React.lazy(() => import("screens/promotion/discount/replicate/discount.replicate"));
-
-const promoCodeDetail = React.lazy(
-  () => import("screens/promotion/promo-code/promo-code.detail")
-);
-const promoCodeList = React.lazy(
-  () => import("screens/promotion/promo-code/promo-code.list")
+const DiscountReplicate = React.lazy(
+  () => import("screens/promotion/discount/replicate/discount.replicate"),
 );
 
-const PromoCodeUpdate = React.lazy( 
-  () => import("screens/promotion/issue/update/issue-update")
-);
+const promoCodeDetail = React.lazy(() => import("screens/promotion/promo-code/promo-code.detail"));
+const promoCodeList = React.lazy(() => import("screens/promotion/promo-code/promo-code.list"));
 
-const CreatePromoCodePage = React.lazy(
-  () => import("screens/promotion/issue/create/issue-create")
-);
+const PromoCodeUpdate = React.lazy(() => import("screens/promotion/issue/update/issue-update"));
+
+const CreatePromoCodePage = React.lazy(() => import("screens/promotion/issue/create/issue-create"));
 // const GiftCreate = React.lazy(() => import("screens/promotion/gift/gift.create"));
 // const GiftList = React.lazy(() => import("screens/promotion/gift/gift.list"));
 

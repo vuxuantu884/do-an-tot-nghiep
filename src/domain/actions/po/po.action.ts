@@ -1,20 +1,20 @@
 import { POProgressResult, PurchaseOrderQuery } from "model/purchase-order/purchase-order.model";
 import { POConfig, POLogHistory, POType } from "domain/types/purchase-order.type";
 import BaseAction from "base/base.action";
-import {
-  PurchaseOrder,
-  PurchaseOrderPrint,
-} from "model/purchase-order/purchase-order.model";
+import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase-order.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import BaseResponse from "base/base.response";
 import { ImportProcument } from "model/purchase-order/purchase-procument";
 import { ImportResponse } from "model/other/files/export-model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
-import { ActionLogDetailResponse, PurchaseOrderActionLogResponse } from "model/response/po/action-log.response";
+import {
+  ActionLogDetailResponse,
+  PurchaseOrderActionLogResponse,
+} from "model/response/po/action-log.response";
 
 export const POGetActionLogDetail = (
   id: number,
-  handleData: (data: ActionLogDetailResponse) => void
+  handleData: (data: ActionLogDetailResponse) => void,
 ) => {
   return {
     type: POType.GET_ACTION_LOG_DETAILS,
@@ -27,7 +27,7 @@ export const POGetActionLogDetail = (
 
 export const POGetPurchaseOrderActionLogs = (
   id: number,
-  handleData: (data: PurchaseOrderActionLogResponse[]) => void
+  handleData: (data: PurchaseOrderActionLogResponse[]) => void,
 ) => {
   return {
     type: POType.GET_PURCHASE_ORDER_ACTION_LOGS,
@@ -41,7 +41,7 @@ export const POGetPurchaseOrderActionLogs = (
 export const POGetPrintContentAction = (
   id: number,
   printType: string,
-  updatePrintCallback: (result: Array<PurchaseOrderPrint>) => void
+  updatePrintCallback: (result: Array<PurchaseOrderPrint>) => void,
 ) => {
   return BaseAction(POType.GET_PRINT_CONTENT, {
     id,
@@ -51,7 +51,7 @@ export const POGetPrintContentAction = (
 };
 export const PoCreateAction = (
   request: PurchaseOrder | null,
-  createCallback: (result: PurchaseOrder) => void
+  createCallback: (result: PurchaseOrder) => void,
 ) => {
   return BaseAction(POType.CREATE_PO_REQUEST, {
     request,
@@ -60,7 +60,7 @@ export const PoCreateAction = (
 };
 export const PoUpdateFinancialStatusAction = (
   id: number,
-  updateCallback: (result: PurchaseOrder | null) => void
+  updateCallback: (result: PurchaseOrder | null) => void,
 ) => {
   return BaseAction(POType.UPDATE_PO_FINANCIAL_STATUS_REQUEST, {
     id,
@@ -71,7 +71,7 @@ export const PoUpdateFinancialStatusAction = (
 export const PoUpdateAction = (
   id: number,
   request: PurchaseOrder | null,
-  updateCallback: (result: PurchaseOrder | null) => void
+  updateCallback: (result: PurchaseOrder | null) => void,
 ) => {
   return BaseAction(POType.UPDATE_PO_REQUEST, {
     id,
@@ -82,7 +82,7 @@ export const PoUpdateAction = (
 export const PoUpdateNoteAction = (
   id: number,
   request: Pick<PurchaseOrder, "note" | "supplier_note"> | null,
-  updateCallback: (result: PurchaseOrder | null) => void
+  updateCallback: (result: PurchaseOrder | null) => void,
 ) => {
   return BaseAction(POType.UPDATE_NOTE_PO_REQUEST, {
     id,
@@ -90,16 +90,13 @@ export const PoUpdateNoteAction = (
     updateCallback,
   });
 };
-export const PoDetailAction = (
-  id: number,
-  setData: (data: PurchaseOrder | null) => void
-) => {
+export const PoDetailAction = (id: number, setData: (data: PurchaseOrder | null) => void) => {
   return BaseAction(POType.DETAIL_PO_REQUEST, { id, setData });
 };
 
 export const PoSearchAction = (
   query: PurchaseOrderQuery,
-  setData: (data: PageResponse<PurchaseOrder> | false) => void
+  setData: (data: PageResponse<PurchaseOrder> | false) => void,
 ) => {
   return BaseAction(POType.SEARCH_PO_REQUEST, {
     query,
@@ -107,10 +104,7 @@ export const PoSearchAction = (
   });
 };
 
-export const PODeleteAction = (
-  ids: string,
-  deleteCallback: (result: POProgressResult) => void
-) => {
+export const PODeleteAction = (ids: string, deleteCallback: (result: POProgressResult) => void) => {
   return BaseAction(POType.DELETE_PO_REQUEST, {
     ids,
     deleteCallback,
@@ -120,7 +114,7 @@ export const PODeleteAction = (
 export const POReturnAction = (
   id: number,
   request: PurchaseOrder | null,
-  returnCallback: (result: any | null) => void
+  returnCallback: (result: any | null) => void,
 ) => {
   return BaseAction(POType.RETURN_PO_REQUEST, {
     id,
@@ -131,7 +125,7 @@ export const POReturnAction = (
 
 export const POCancelAction = (
   id: number,
-  cancelCallback: (result: PurchaseOrder | null) => void
+  cancelCallback: (result: PurchaseOrder | null) => void,
 ) => {
   return BaseAction(POType.CANCEL_PO_REQUEST, {
     id,
@@ -141,68 +135,68 @@ export const POCancelAction = (
 
 export const exportPOAction = (
   params: ImportProcument,
-  onResult: (result: BaseResponse<ImportResponse>|false) => void
+  onResult: (result: BaseResponse<ImportResponse> | false) => void,
 ) => {
   return BaseAction(POType.EXPORT_PO, {
     params,
-    onResult
+    onResult,
   });
 };
 
 export const getConfigPoAction = (
   code: string,
-  onResult: (result: BaseResponse<Array<FilterConfig>>) => void
+  onResult: (result: BaseResponse<Array<FilterConfig>>) => void,
 ) => {
   return BaseAction(POConfig.GET_PO_CONFIG, {
     code,
-    onResult
+    onResult,
   });
 };
 export const createConfigPoAction = (
   request: FilterConfigRequest,
-  onResult?: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void,
 ) => {
   return BaseAction(POConfig.CREATE_PO_CONFIG, {
     request,
-    onResult
+    onResult,
   });
 };
 export const updateConfigPoAction = (
   request: FilterConfigRequest,
-  onResult?: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void,
 ) => {
   return BaseAction(POConfig.UPDATE_PO_CONFIG, {
     request,
-    onResult
+    onResult,
   });
 };
 
 export const deleteConfigPoAction = (
   id: number,
-  onResult: (result: BaseResponse<FilterConfig>) => void
+  onResult: (result: BaseResponse<FilterConfig>) => void,
 ) => {
   return BaseAction(POConfig.DELETE_PO_CONFIG, {
     id,
-    onResult
+    onResult,
   });
 };
 
 export const getLogDetailPOHistory = (
   id: number,
-  setData: (result: BaseResponse<PurchaseOrder>) => void
+  setData: (result: BaseResponse<PurchaseOrder>) => void,
 ) => {
   return BaseAction(POLogHistory.GET_LOG_DETAIL_PO, {
     id,
-    setData
+    setData,
   });
 };
 
 export const getLogPOHistory = (
   code: string,
-  setData: (result: BaseResponse<PurchaseOrder>) => void
+  setData: (result: BaseResponse<PurchaseOrder>) => void,
 ) => {
   return BaseAction(POLogHistory.GET_LOG_PO, {
     code,
-    setData
+    setData,
   });
 };

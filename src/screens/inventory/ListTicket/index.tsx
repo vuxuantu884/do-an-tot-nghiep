@@ -1,4 +1,4 @@
-import {Button, Card, Row, Space, Tabs } from "antd";
+import { Button, Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import UrlConfig, { InventoryTransferTabUrl } from "config/url.config";
@@ -27,14 +27,14 @@ import ExportImportTab from "./ListTicketTab/ExportImportTransfer";
 const { TabPane } = Tabs;
 
 const InventoryListScreen: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<string>('');
+  const [activeTab, setActiveTab] = useState<string>("");
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const history = useHistory();
-  const {path} = useRouteMatch();
+  const { path } = useRouteMatch();
   const dispatch = useDispatch();
-  const [vExportTransfer,setVExportTransfer] = useState(false);
-  const [vExportDetailTransfer,setVExportDetailTransfer] = useState(false);
+  const [vExportTransfer, setVExportTransfer] = useState(false);
+  const [vExportDetailTransfer, setVExportDetailTransfer] = useState(false);
 
   useEffect(() => {
     if (path) {
@@ -42,11 +42,9 @@ const InventoryListScreen: React.FC = () => {
     }
   }, [path]);
 
-  const location = useLocation()
+  const location = useLocation();
 
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   const getAccounts = async (codes: string) => {
     const initSelectedResponse = await callApiNative(
@@ -54,17 +52,14 @@ const InventoryListScreen: React.FC = () => {
       dispatch,
       searchAccountPublicApi,
       {
-        codes
-      }
+        codes,
+      },
     );
 
     setAccounts((accounts) => {
-      return [
-        ...initSelectedResponse.items,
-        ...accounts
-      ];
+      return [...initSelectedResponse.items, ...accounts];
     });
-  }
+  };
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
@@ -75,43 +70,41 @@ const InventoryListScreen: React.FC = () => {
       }
       setAccounts(data.items);
 
-      let codes = '';
+      let codes = "";
 
       if (queryParamsParsed.created_by) {
-        codes = queryParamsParsed.created_by
+        codes = queryParamsParsed.created_by;
       }
       if (queryParamsParsed.updated_by) {
-        codes = codes + ',' + queryParamsParsed.updated_by
+        codes = codes + "," + queryParamsParsed.updated_by;
       }
       if (queryParamsParsed.received_by) {
-        codes = codes + ',' + queryParamsParsed.received_by
+        codes = codes + "," + queryParamsParsed.received_by;
       }
       if (queryParamsParsed.transfer_by) {
-        codes = codes + ',' + queryParamsParsed.transfer_by
+        codes = codes + "," + queryParamsParsed.transfer_by;
       }
       if (queryParamsParsed.cancel_by) {
-        codes = codes + ',' + queryParamsParsed.cancel_by
+        codes = codes + "," + queryParamsParsed.cancel_by;
       }
 
       getAccounts(codes).then();
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
   useEffect(() => {
     dispatch(searchAccountPublicAction({}, setDataAccounts));
-    dispatch(
-      inventoryGetSenderStoreAction(
-        { status: "active", simple: true },
-        setStores
-      )
-    );
+    dispatch(inventoryGetSenderStoreAction({ status: "active", simple: true }, setStores));
   }, [dispatch, setDataAccounts]);
 
   const renderExtraContainer = () => {
-    if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER || activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE
-      || activeTab === InventoryTransferTabUrl.LIST) {
+    if (
+      activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER ||
+      activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE ||
+      activeTab === InventoryTransferTabUrl.LIST
+    ) {
       return (
         <Row>
           <Space>
@@ -119,7 +112,9 @@ const InventoryListScreen: React.FC = () => {
               className="light"
               size="large"
               icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => { setVExportTransfer(true) }}
+              onClick={() => {
+                setVExportTransfer(true);
+              }}
             >
               Xuất file danh sách
             </Button>
@@ -127,7 +122,9 @@ const InventoryListScreen: React.FC = () => {
               className="light"
               size="large"
               icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-              onClick={() => { setVExportDetailTransfer(true) }}
+              onClick={() => {
+                setVExportDetailTransfer(true);
+              }}
             >
               Xuất file chi tiết
             </Button>
@@ -136,9 +133,7 @@ const InventoryListScreen: React.FC = () => {
                 className="light"
                 size="large"
                 icon={<img src={importIcon} style={{ marginRight: 8 }} alt="" />}
-                onClick={() =>
-                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`)
-                }
+                onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}/import`)}
                 type="ghost"
               >
                 Nhập file
@@ -152,22 +147,24 @@ const InventoryListScreen: React.FC = () => {
             </AuthWrapper>
           </Space>
         </Row>
-      )
+      );
     } else if (activeTab === InventoryTransferTabUrl.LIST_EXPORT_IMPORT) {
       return (
         <Button
           className="light"
           size="large"
           icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
-          onClick={() => { setVExportDetailTransfer(true) }}
+          onClick={() => {
+            setVExportDetailTransfer(true);
+          }}
         >
           Xuất file chi tiết
         </Button>
-      )
+      );
     } else {
-      return ""
+      return "";
     }
-  }
+  };
 
   return (
     <ListTicketStylesWrapper>
@@ -184,59 +181,65 @@ const InventoryListScreen: React.FC = () => {
         extra={renderExtraContainer()}
       >
         <Card>
-          <Tabs
-            style={{ overflow: "initial" }}
-            activeKey={activeTab}
-          >
-            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST}>Danh sách phiếu</Link>} key={InventoryTransferTabUrl.LIST}>
+          <Tabs style={{ overflow: "initial" }} activeKey={activeTab}>
+            <TabPane
+              tab={<Link to={InventoryTransferTabUrl.LIST}>Danh sách phiếu</Link>}
+              key={InventoryTransferTabUrl.LIST}
+            >
               {activeTab === InventoryTransferTabUrl.LIST && (
                 <InventoryTransferTab
                   activeTab={activeTab}
-                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
-                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  vExportTransfer={vExportTransfer}
+                  setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer}
+                  setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
                   accountStores={userReducer.account?.account_stores}
-                  setAccounts={(value) => setAccounts([
-                    ...value,
-                    ...accounts
-                  ])}
+                  setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
               )}
             </TabPane>
-            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>Chuyển đi</Link>} key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>
+            <TabPane
+              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}>Chuyển đi</Link>}
+              key={InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER}
+            >
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER && (
                 <InventoryTransferTab
                   activeTab={activeTab}
-                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
-                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  vExportTransfer={vExportTransfer}
+                  setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer}
+                  setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
                   accountStores={userReducer.account?.account_stores}
-                  setAccounts={(value) => setAccounts([
-                    ...value,
-                    ...accounts
-                  ])}
+                  setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
               )}
             </TabPane>
-            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>Chuyển đến</Link>} key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>
+            <TabPane
+              tab={<Link to={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}>Chuyển đến</Link>}
+              key={InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE}
+            >
               {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE && (
                 <InventoryTransferTab
                   activeTab={activeTab}
-                  vExportTransfer={vExportTransfer} setVExportTransfer={setVExportTransfer}
-                  vExportDetailTransfer={vExportDetailTransfer} setVExportDetailTransfer={setVExportDetailTransfer}
+                  vExportTransfer={vExportTransfer}
+                  setVExportTransfer={setVExportTransfer}
+                  vExportDetailTransfer={vExportDetailTransfer}
+                  setVExportDetailTransfer={setVExportDetailTransfer}
                   stores={stores}
                   accounts={accounts}
                   accountStores={userReducer.account?.account_stores}
-                  setAccounts={(value) => setAccounts([
-                    ...value,
-                    ...accounts
-                  ])}
+                  setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
               )}
             </TabPane>
-            <TabPane tab={<Link to={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}>Sản phẩm chuyển kho</Link>} key={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}>
+            <TabPane
+              tab={<Link to={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}>Sản phẩm chuyển kho</Link>}
+              key={InventoryTransferTabUrl.LIST_EXPORT_IMPORT}
+            >
               {activeTab === InventoryTransferTabUrl.LIST_EXPORT_IMPORT && (
                 <ExportImportTab
                   activeTab={activeTab}
@@ -245,22 +248,19 @@ const InventoryListScreen: React.FC = () => {
                   vExportDetailTransfer={vExportDetailTransfer}
                   setVExportDetailTransfer={setVExportDetailTransfer}
                   accountStores={userReducer.account?.account_stores}
-                  setAccounts={(value) => setAccounts([
-                    ...value,
-                    ...accounts
-                  ])}
+                  setAccounts={(value) => setAccounts([...value, ...accounts])}
                 />
               )}
             </TabPane>
-            <TabPane tab={<Link to={InventoryTransferTabUrl.HISTORIES}>Lịch sử phiếu</Link>} key={InventoryTransferTabUrl.HISTORIES}>
+            <TabPane
+              tab={<Link to={InventoryTransferTabUrl.HISTORIES}>Lịch sử phiếu</Link>}
+              key={InventoryTransferTabUrl.HISTORIES}
+            >
               <HistoryInventoryTransferTab
                 stores={stores}
                 accounts={accounts}
                 accountStores={userReducer.account?.account_stores}
-                setAccounts={(value) => setAccounts([
-                  ...value,
-                  ...accounts
-                ])}
+                setAccounts={(value) => setAccounts([...value, ...accounts])}
               />
             </TabPane>
           </Tabs>

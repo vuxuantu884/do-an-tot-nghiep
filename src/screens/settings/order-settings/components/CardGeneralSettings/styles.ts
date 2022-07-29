@@ -11,7 +11,7 @@ export const StyledComponent = styled.div`
     margin-right: 15px;
   }
   .ant-radio-group,
-	.ant-checkbox-group {
+  .ant-checkbox-group {
     .single:not(:last-child) {
       margin-bottom: 10px;
     }
@@ -31,5 +31,4 @@ export const StyledComponent = styled.div`
     width: 330px;
     max-width: 100%;
   }
-  
 `;

@@ -1,7 +1,7 @@
-import {Checkbox, Col, Form, Input, Modal, Row} from "antd";
-import {SupplierContact, SupplierContactResposne} from "model/core/supplier.model";
-import {useCallback, useEffect} from "react";
-import {RegUtil} from "utils/RegUtils";
+import { Checkbox, Col, Form, Input, Modal, Row } from "antd";
+import { SupplierContact, SupplierContactResposne } from "model/core/supplier.model";
+import { useCallback, useEffect } from "react";
+import { RegUtil } from "utils/RegUtils";
 
 type SupplierContactModalProps = {
   visible: boolean;
@@ -12,15 +12,15 @@ type SupplierContactModalProps = {
 };
 
 const SupplierContactModal: React.FC<SupplierContactModalProps> = (
-  props: SupplierContactModalProps
+  props: SupplierContactModalProps,
 ) => {
-  const {visible, onCancle, data, onSave, confirmLoading} = props;
+  const { visible, onCancle, data, onSave, confirmLoading } = props;
   const [form] = Form.useForm();
   const onFinish = useCallback(
     (value: SupplierContact) => {
       onSave(value.id, value);
     },
-    [onSave]
+    [onSave],
   );
   useEffect(() => {
     if (visible && form) {
@@ -79,10 +79,7 @@ const SupplierContactModal: React.FC<SupplierContactModalProps> = (
             </Form.Item>
           </Col>
           <Col span={12}>
-            <Form.Item
-              name="position"
-              label="Chức vụ"
-            >
+            <Form.Item name="position" label="Chức vụ">
               <Input placeholder="Nhập chức vụ" maxLength={255} />
             </Form.Item>
           </Col>

@@ -14,42 +14,45 @@ type ExportModalProps = {
   selected?: boolean;
 };
 
-const ExportModal: React.FC<ExportModalProps> = (
-  props: ExportModalProps
-) => {
-  const { visible, onCancel, onOk, type, total, exportProgress, statusExport, selected = false } = props;
+const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
+  const {
+    visible,
+    onCancel,
+    onOk,
+    type,
+    total,
+    exportProgress,
+    statusExport,
+    selected = false,
+  } = props;
   // statusExport: 1 not export, 2 exporting, 3 export success, 4 export error
-  const text = useMemo(
-    () => {
-      switch (type) { 
-        case "orders":
-          return "đơn hàng"
-        case "shipments":
-          return "đơn giao hàng"
-        case "returns":
-          return "đơn trả hàng"
-        default: break
-      }
-    },
-    [type]
-  );
-  const text1 = useMemo(
-    () => {
-      switch (type) { 
-        case "orders":
-          return "Đơn hàng"
-        case "shipments":
-          return "Đơn giao hàng"
-        case "returns":
-          return "Đơn trả hàng"
-        default: break
-      }
-    },
-    [type]
-  );
+  const text = useMemo(() => {
+    switch (type) {
+      case "orders":
+        return "đơn hàng";
+      case "shipments":
+        return "đơn giao hàng";
+      case "returns":
+        return "đơn trả hàng";
+      default:
+        break;
+    }
+  }, [type]);
+  const text1 = useMemo(() => {
+    switch (type) {
+      case "orders":
+        return "Đơn hàng";
+      case "shipments":
+        return "Đơn giao hàng";
+      case "returns":
+        return "Đơn trả hàng";
+      default:
+        break;
+    }
+  }, [type]);
   // const fields = useMemo(
   //   () => {
-  //     switch (type) { 
+  //     switch (type) {
   //       case "orders":
   //         return fields_order
   //       case "shipments":
@@ -69,7 +72,7 @@ const ExportModal: React.FC<ExportModalProps> = (
   //   return i.value
   // }));
   const [editFields, setEditFields] = useState(false);
-  
+
   return (
     <Modal
       onCancel={onCancel}
@@ -79,13 +82,18 @@ const ExportModal: React.FC<ExportModalProps> = (
       // okText="Xuất file"
       // cancelText="Thoát"
       title={[
-        <span style={{fontWeight: 600, fontSize: 16}}>
-          {editFields && <span style={{ color: '#2a2a86', marginRight: '10px'}}><ArrowLeftOutlined onClick={() => setEditFields(false)}/></span>}
+        <span style={{ fontWeight: 600, fontSize: 16 }}>
+          {editFields && (
+            <span style={{ color: "#2a2a86", marginRight: "10px" }}>
+              <ArrowLeftOutlined onClick={() => setEditFields(false)} />
+            </span>
+          )}
           Xuất file danh sách {text}
-        </span>
+        </span>,
       ]}
       footer={[
-        <Button key="ok"
+        <Button
+          key="ok"
           onClick={() => onOk(optionExport, typeExport)}
           disabled={statusExport !== 1}
           loading={statusExport === 2}
@@ -100,22 +108,29 @@ const ExportModal: React.FC<ExportModalProps> = (
         >
           Thoát
         </Button>,
-        
       ]}
       width={600}
     >
       {!editFields && statusExport === 1 && (
-      <div>
-        <p style={{ fontWeight: 500}}>Giới hạn kết quả xuất</p>
-        <Radio.Group name="radiogroup" defaultValue={selected ? 3 : 1} onChange={(e) => setOptionExport(e.target.value)}>
-          <Space direction="vertical">
-            <Radio value={1}>Tất cả {text}</Radio>
-            <Radio value={2}>{text1} trên trang này</Radio>
-            <Radio value={3} disabled={!selected}>Các {text} được chọn</Radio>
-            <Radio value={4}>{total} {text} phù hợp với điều kiện tìm kiếm hiện tại</Radio>
-          </Space>
-        </Radio.Group>
-        {/* <p style={{ fontWeight: 500}}>Loại file xuất</p>
+        <div>
+          <p style={{ fontWeight: 500 }}>Giới hạn kết quả xuất</p>
+          <Radio.Group
+            name="radiogroup"
+            defaultValue={selected ? 3 : 1}
+            onChange={(e) => setOptionExport(e.target.value)}
+          >
+            <Space direction="vertical">
+              <Radio value={1}>Tất cả {text}</Radio>
+              <Radio value={2}>{text1} trên trang này</Radio>
+              <Radio value={3} disabled={!selected}>
+                Các {text} được chọn
+              </Radio>
+              <Radio value={4}>
+                {total} {text} phù hợp với điều kiện tìm kiếm hiện tại
+              </Radio>
+            </Space>
+          </Radio.Group>
+          {/* <p style={{ fontWeight: 500}}>Loại file xuất</p>
         <Radio.Group name="radiogroup1" defaultValue={1} onChange={(e) => setTypeExport(e.target.value)}>
           <Space direction="vertical">
             <Radio value={1}>File tổng quan theo {text}</Radio>
@@ -125,7 +140,7 @@ const ExportModal: React.FC<ExportModalProps> = (
         <div>
         <Button type="link" style={{ padding: 0 }} onClick={() => setEditFields(true)}>Tuỳ chọn trường hiển thị</Button>
         </div> */}
-      </div>
+        </div>
       )}
       {/* {editFields && statusExport === 1 && (
         <Checkbox.Group
@@ -152,22 +167,24 @@ const ExportModal: React.FC<ExportModalProps> = (
         // />
       )} */}
       {statusExport !== 1 && (
-      <Row style={{ justifyContent: 'center'}}>
-        {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
-        {statusExport === 3 && <p>Đã tạo file thành công</p>}
-        {statusExport === 4 && <p>Đã có lỗi xảy ra!!!</p>}
-        <Row style={{ justifyContent: 'center', width: '100%'}}><Progress
-          type="circle"
-          strokeColor={{
-            '0%': '#108ee9',
-            '100%': '#87d068',
-          }}
-          percent={exportProgress}
-        /></Row>
-      </Row>)}
+        <Row style={{ justifyContent: "center" }}>
+          {statusExport === 2 && <p>Đang tạo file, vui lòng đợi trong giây lát</p>}
+          {statusExport === 3 && <p>Đã tạo file thành công</p>}
+          {statusExport === 4 && <p>Đã có lỗi xảy ra!!!</p>}
+          <Row style={{ justifyContent: "center", width: "100%" }}>
+            <Progress
+              type="circle"
+              strokeColor={{
+                "0%": "#108ee9",
+                "100%": "#87d068",
+              }}
+              percent={exportProgress}
+            />
+          </Row>
+        </Row>
+      )}
     </Modal>
   );
 };
 
 export default ExportModal;
-

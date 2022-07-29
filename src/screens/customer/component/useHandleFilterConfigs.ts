@@ -26,9 +26,7 @@ function useHandleFilterConfigs(
   const [configId, setConfigId] = useState<number>();
   const [countForceFetch, setCountForceFetch] = useState<number>(0);
   const dispatch = useDispatch();
-  const userReducer = useSelector(
-    (state: RootReducerType) => state.userReducer,
-  );
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const handleCreateFilter = useCallback(
     (request: FilterConfigRequest) => {
@@ -91,9 +89,7 @@ function useHandleFilterConfigs(
         request.json_content = json_content;
 
         if (request.id && request.id !== null) {
-          const config = filterConfigs.find(
-            (e) => e.id.toString() === request.id.toString(),
-          );
+          const config = filterConfigs.find((e) => e.id.toString() === request.id.toString());
           if (filterConfigs && config) {
             request.name = config.name;
           }
@@ -103,13 +99,7 @@ function useHandleFilterConfigs(
         }
       }
     },
-    [
-      filterParams,
-      filterType,
-      filterConfigs,
-      handleUpdateFilter,
-      handleCreateFilter,
-    ],
+    [filterParams, filterType, filterConfigs, handleUpdateFilter, handleCreateFilter],
   );
 
   const onSelectFilterConfig = useCallback(
@@ -135,9 +125,7 @@ function useHandleFilterConfigs(
       getFilterConfigService(account.code).then((response) => {
         if (isFetchApiSuccessful(response)) {
           if (response && response.data && response.data.length > 0) {
-            const configFilters = response.data.filter(
-              (e) => e.type === filterType,
-            );
+            const configFilters = response.data.filter((e) => e.type === filterType);
             setFilterConfigs(configFilters);
           } else {
             setFilterConfigs([]);

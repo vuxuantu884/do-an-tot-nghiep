@@ -9,26 +9,16 @@ type PoSupplierInfoProps = {
   onEdit?: () => void;
   field: "billing_address" | "supplier_address";
 };
-const POSupplierAddress = ({
-  getFieldValue,
-  field,
-  onEdit,
-}: PoSupplierInfoProps) => {
+const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps) => {
   let address = getFieldValue(field);
   const fullAddressRef = useRef(null);
   const [isOverFlown, setIsOverFlown] = useState(false);
 
   const addressTransform = useMemo(() => {
     return (
-      <span
-        className="text-truncate-1"
-        style={{ flex: 1 }}
-        ref={fullAddressRef}
-      >
+      <span className="text-truncate-1" style={{ flex: 1 }} ref={fullAddressRef}>
         {address.full_address ? `${address.full_address}` : ""}
-        {address.full_address && address.ward
-          ? `, ${address.ward}`
-          : address.ward}
+        {address.full_address && address.ward ? `, ${address.ward}` : address.ward}
         {address.district ? `, ${address.district}` : ""}
         {address.city ? `, ${address.city}` : ""}
         {address.country ? `, ${address.country}` : ""}
@@ -37,10 +27,7 @@ const POSupplierAddress = ({
   }, [address]);
 
   function checkOverFlown(element: HTMLElement) {
-    return (
-      element.scrollHeight > element.clientHeight ||
-      element.scrollWidth > element.clientWidth
-    );
+    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
   }
 
   useEffect(() => {
@@ -67,11 +54,7 @@ const POSupplierAddress = ({
           </Col>
           <Col span={12}>
             <Row align="middle">
-              <IconLocationOutlined
-                width={16}
-                height={16}
-                style={{ marginRight: 10 }}
-              />
+              <IconLocationOutlined width={16} height={16} style={{ marginRight: 10 }} />
               {isOverFlown ? (
                 <Tooltip
                   placement="topLeft"

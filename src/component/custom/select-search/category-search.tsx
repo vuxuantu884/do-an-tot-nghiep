@@ -74,11 +74,11 @@ function CategorySelect({
               setIsLoading(false);
               setCategoryList(temps);
             }
-          })
+          }),
         );
       }
     },
-    [dispatch, getFlatCategory, querySearch]
+    [dispatch, getFlatCategory, querySearch],
   );
 
   useEffect(() => {
@@ -96,7 +96,7 @@ function CategorySelect({
     handleChangeAccountSearch("");
     // }
     // }, [handleChangeAccountSearch, querySearch?.query, mode, defaultValue, form, name]);
-  }, [handleChangeAccountSearch])
+  }, [handleChangeAccountSearch]);
   return (
     <Form.Item label={label} name={name} rules={rules} {...restFormProps}>
       <Select

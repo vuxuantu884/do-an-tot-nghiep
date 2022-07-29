@@ -1,55 +1,55 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {useDispatch} from "react-redux";
-import {useHistory} from "react-router-dom";
-import {Button, Card, Form, TreeSelect, Space, Switch} from "antd";
+import React, { useCallback, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
+import { useHistory } from "react-router-dom";
+import { Button, Card, Form, TreeSelect, Space, Switch } from "antd";
 import TextArea from "antd/es/input/TextArea";
 
 import BottomBarContainer from "component/container/bottom-bar.container";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import useFetchStores from "hook/useFetchStores";
-import {strForSearch} from "utils/StringUtils";
+import { strForSearch } from "utils/StringUtils";
 import {
   configSmsMessageAction,
   getSmsConfigAction,
 } from "domain/actions/settings/sms-settings.action";
-import {showSuccess} from "utils/ToastUtils";
-import {SMS_CONFIG_PERMISSIONS} from "config/permissions/sms-config.permission";
+import { showSuccess } from "utils/ToastUtils";
+import { SMS_CONFIG_PERMISSIONS } from "config/permissions/sms-config.permission";
 import useAuthorization from "hook/useAuthorization";
-import {StyledSmsConfigMessage} from "screens/settings/sms/styles";
+import { StyledSmsConfigMessage } from "screens/settings/sms/styles";
 
 const KEY_WORD_LIST = [
   {
     name: "ID cửa hàng",
     key: "store_id",
-    value: "{store_id}"
+    value: "{store_id}",
   },
   {
     name: "Tên cửa hàng",
     key: "store_name",
-    value: "{store_name}"
+    value: "{store_name}",
   },
   {
     name: "Tên khách hàng",
     key: "customer_name",
-    value: "{customer_name}"
+    value: "{customer_name}",
   },
   {
     name: "Số điện thoại khách hàng",
     key: "customer_phone",
-    value: "{customer_phone}"
+    value: "{customer_phone}",
   },
   {
     name: "Điểm tích lũy hiện tại",
     key: "point",
-    value: "{point}"
+    value: "{point}",
   },
   {
     name: "Điểm sử dụng",
     key: "change_point",
-    value: "{change_point}"
+    value: "{change_point}",
   },
-]
+];
 
 const { SHOW_PARENT } = TreeSelect;
 
@@ -74,51 +74,54 @@ const SmsOrderRetail: React.FC = () => {
 
   useEffect(() => {
     if (publicStoreData) {
-      const newStoreList = publicStoreData.map(item => {
-        return (
-          {
-            title: item.name,
-            key: item.id,
-            value: item.id,
-          }
-        )
+      const newStoreList = publicStoreData.map((item) => {
+        return {
+          title: item.name,
+          key: item.id,
+          value: item.id,
+        };
       });
 
       const treeData = [
         {
           title: `Chọn tất cả (${newStoreList?.length})`,
-          value: 'all',
-          key: 'all',
+          value: "all",
+          key: "all",
           children: newStoreList,
-        }
-      ]
+        },
+      ];
       setStoreList(treeData);
 
-      const newStoreIdList = publicStoreData.map(item => item.id);
+      const newStoreIdList = publicStoreData.map((item) => item.id);
       setPublicStoreIdList(newStoreIdList);
     }
   }, [publicStoreData]);
 
-  const handleSmsConfigData = useCallback((data: any) => {
-    if (data) {
-      const messages = JSON.parse(data.messages);
-      setMessageStatus(data.retail_offline_msg_status === "ACTIVE");
+  const handleSmsConfigData = useCallback(
+    (data: any) => {
+      if (data) {
+        const messages = JSON.parse(data.messages);
+        setMessageStatus(data.retail_offline_msg_status === "ACTIVE");
 
-      const unsentStoreList = data.unsent_sms_store_ids?.split(",");
-      let sentStoreList = publicStoreIdList;
-      for (let i = 0 ; i < unsentStoreList?.length; i++) {
-        sentStoreList = sentStoreList.filter((id: any) => id.toString() !== unsentStoreList[i].toString());
+        const unsentStoreList = data.unsent_sms_store_ids?.split(",");
+        let sentStoreList = publicStoreIdList;
+        for (let i = 0; i < unsentStoreList?.length; i++) {
+          sentStoreList = sentStoreList.filter(
+            (id: any) => id.toString() !== unsentStoreList[i].toString(),
+          );
+        }
+
+        const initFormValue = {
+          sent_sms_store_ids: sentStoreList,
+          retail_offline_message: messages?.retail_offline_message,
+          retail_offline_msg_status: data.retail_offline_msg_status,
+        };
+        setInitValue(initFormValue);
+        form.setFieldsValue(initFormValue);
       }
-
-      const initFormValue = {
-        sent_sms_store_ids: sentStoreList,
-        retail_offline_message: messages?.retail_offline_message,
-        retail_offline_msg_status: data.retail_offline_msg_status,
-      };
-      setInitValue(initFormValue);
-      form.setFieldsValue(initFormValue);
-    }
-  }, [form, publicStoreIdList]);
+    },
+    [form, publicStoreIdList],
+  );
 
   useEffect(() => {
     if (publicStoreIdList?.length) {
@@ -133,21 +136,26 @@ const SmsOrderRetail: React.FC = () => {
     let cursorPosition = textArea?.selectionStart;
     addTextAtCursorPosition(textArea, cursorPosition, text, fieldName);
     updateCursorPosition(cursorPosition, text, textArea);
-  }
+  };
 
-  const addTextAtCursorPosition = (textArea: any, cursorPosition: any, text: any, fieldName: any) => {
-    let front = (textArea.value).substring(0, cursorPosition);
-    let back = (textArea.value).substring(cursorPosition, textArea.value.length);
+  const addTextAtCursorPosition = (
+    textArea: any,
+    cursorPosition: any,
+    text: any,
+    fieldName: any,
+  ) => {
+    let front = textArea.value.substring(0, cursorPosition);
+    let back = textArea.value.substring(cursorPosition, textArea.value.length);
     textArea.value = front + text + back;
-    form.setFieldsValue({[fieldName]: textArea.value});
-  }
+    form.setFieldsValue({ [fieldName]: textArea.value });
+  };
 
   const updateCursorPosition = (cursorPosition: any, text: any, textArea: any) => {
     cursorPosition = cursorPosition + text.length;
     textArea.selectionStart = cursorPosition;
     textArea.selectionEnd = cursorPosition;
     textArea.focus();
-  }
+  };
 
   const handleInsertKeyword = (text: string) => {
     addTextAtCaret("retail_offline_message_id", text, "retail_offline_message");
@@ -158,7 +166,7 @@ const SmsOrderRetail: React.FC = () => {
   const handleSubmitForm = (value: any) => {
     let unsentStoreList = publicStoreIdList;
     if (value.sent_sms_store_ids && value.sent_sms_store_ids[0] !== "all") {
-      for (let i = 0 ; i< value.sent_sms_store_ids.length; i++) {
+      for (let i = 0; i < value.sent_sms_store_ids.length; i++) {
         unsentStoreList = unsentStoreList.filter((id: any) => id !== value.sent_sms_store_ids[i]);
       }
     } else {
@@ -167,17 +175,18 @@ const SmsOrderRetail: React.FC = () => {
 
     const requestParams = {
       unsent_sms_store_ids: unsentStoreList.toString(),
-      messages:
-        {
-          retail_offline_message: value.retail_offline_message.trim()
-        },
-      retail_offline_msg_status: messageStatus ? "ACTIVE" : "INACTIVE"
-    }
+      messages: {
+        retail_offline_message: value.retail_offline_message.trim(),
+      },
+      retail_offline_msg_status: messageStatus ? "ACTIVE" : "INACTIVE",
+    };
 
-    dispatch(configSmsMessageAction(requestParams, () => {
-      backAction();
-      showSuccess("Cấu hình SMS phát sinh hóa đơn bán lẻ thành công!");
-    }));
+    dispatch(
+      configSmsMessageAction(requestParams, () => {
+        backAction();
+        showSuccess("Cấu hình SMS phát sinh hóa đơn bán lẻ thành công!");
+      }),
+    );
   };
 
   const onCancel = () => {
@@ -188,7 +197,6 @@ const SmsOrderRetail: React.FC = () => {
   const backAction = () => {
     history.push(UrlConfig.SMS_SETTINGS);
   };
-
 
   return (
     <ContentContainer
@@ -236,10 +244,7 @@ const SmsOrderRetail: React.FC = () => {
                 {messageStatus ? <span>Hoạt động</span> : <span>Không hoạt động</span>}
               </Form.Item>
 
-              <Form.Item
-                name="sent_sms_store_ids"
-                label={<b>Cửa hàng áp dụng</b>}
-              >
+              <Form.Item name="sent_sms_store_ids" label={<b>Cửa hàng áp dụng</b>}>
                 <TreeSelect
                   maxTagCount="responsive"
                   disabled={!allowUpdateSms}
@@ -260,9 +265,7 @@ const SmsOrderRetail: React.FC = () => {
                 />
               </Form.Item>
 
-              <Form.Item
-                name={"retail_offline_message"}
-                label={<b>Nội dung</b>}>
+              <Form.Item name={"retail_offline_message"} label={<b>Nội dung</b>}>
                 <TextArea
                   id={"retail_offline_message_id"}
                   allowClear
@@ -276,16 +279,18 @@ const SmsOrderRetail: React.FC = () => {
             <BottomBarContainer
               back="Quay lại"
               backAction={backAction}
-              rightComponent={allowUpdateSms &&
-                <Space>
-                  <Button style={{ marginRight: 15 }} onClick={onCancel}>
-                    {"Hủy"}
-                  </Button>
+              rightComponent={
+                allowUpdateSms && (
+                  <Space>
+                    <Button style={{ marginRight: 15 }} onClick={onCancel}>
+                      {"Hủy"}
+                    </Button>
 
-                  <Button  htmlType="submit" type="primary">
-                    {"Lưu lại"}
-                  </Button>
-                </Space>
+                    <Button htmlType="submit" type="primary">
+                      {"Lưu lại"}
+                    </Button>
+                  </Space>
+                )
               }
             />
           </Form>
@@ -294,7 +299,10 @@ const SmsOrderRetail: React.FC = () => {
             {KEY_WORD_LIST?.map((keyWord) => {
               return (
                 <div className="key-word-item" key={keyWord.value}>
-                  <div><strong>{keyWord.value}</strong> : <span style={{color: "#75757B"}}>{keyWord.name}</span></div>
+                  <div>
+                    <strong>{keyWord.value}</strong> :{" "}
+                    <span style={{ color: "#75757B" }}>{keyWord.name}</span>
+                  </div>
                   <Button
                     className="insert-button"
                     onClick={() => handleInsertKeyword(keyWord.value)}
@@ -306,7 +314,6 @@ const SmsOrderRetail: React.FC = () => {
               );
             })}
           </Card>
-
         </div>
       </StyledSmsConfigMessage>
     </ContentContainer>

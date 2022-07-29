@@ -14,10 +14,7 @@ export interface CreateShippingServiceConfigReQuestModel {
 }
 
 export interface CreateShippingServiceConfigReQuestFormModel
-  extends Omit<
-    CreateShippingServiceConfigReQuestModel,
-    "start_date" | "end_date"
-  > {
+  extends Omit<CreateShippingServiceConfigReQuestModel, "start_date" | "end_date"> {
   start_date: moment.Moment | null;
   end_date: moment.Moment | null;
 }
@@ -28,6 +25,6 @@ export interface OrderConfigRequestModel {
   allow_choose_item: boolean;
   order_config_action: string;
   order_config_print_id: number;
-  hide_gift:boolean;
-  hide_bonus_item:boolean;
+  hide_gift: boolean;
+  hide_bonus_item: boolean;
 }

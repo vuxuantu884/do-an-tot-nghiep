@@ -5,7 +5,7 @@ export const StyledComponent = styled.div`
   .options {
     margin: 8px 0 24px 0;
     .shipment4h {
-      color: #E24343;
+      color: #e24343;
       font-weight: 700;
       margin-right: 100px;
     }

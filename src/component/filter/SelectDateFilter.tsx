@@ -12,19 +12,10 @@ type SelectDateFilterProps = {
   endDate: any;
 };
 
-const SelectDateFilter: React.FC<SelectDateFilterProps> = (
-  props: SelectDateFilterProps
-) => {
-  const {
-    clickOptionDate,
-    onChangeRangeDate,
-    dateType,
-    dateSelected,
-    startDate,
-    endDate,
-  } = props;
+const SelectDateFilter: React.FC<SelectDateFilterProps> = (props: SelectDateFilterProps) => {
+  const { clickOptionDate, onChangeRangeDate, dateType, dateSelected, startDate, endDate } = props;
 
-  const startDateValue = startDate ? moment(startDate).add(7, 'h'): null;
+  const startDateValue = startDate ? moment(startDate).add(7, "h") : null;
   const endDateValue = endDate ? moment(endDate) : null;
 
   return (
@@ -52,7 +43,7 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
             Tuần này
           </Button>
         </div>
-        
+
         <div className="date-option">
           <Button
             onClick={() => clickOptionDate(dateType, "lastWeek")}
@@ -67,7 +58,7 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
           >
             Tháng này
           </Button>
-          
+
           <Button
             onClick={() => clickOptionDate(dateType, "lastMonth")}
             className={dateSelected === "lastMonth" ? "active-btn" : ""}
@@ -85,11 +76,8 @@ const SelectDateFilter: React.FC<SelectDateFilterProps> = (
           format="DD-MM-YYYY"
           style={{ width: "100%" }}
           value={[startDateValue, endDateValue]}
-          onChange={(date, dateString) =>
-            onChangeRangeDate(date, dateString, dateType)
-          }
+          onChange={(date, dateString) => onChangeRangeDate(date, dateString, dateType)}
         />
-        
       </div>
     </StyledSelectDateFilter>
   );

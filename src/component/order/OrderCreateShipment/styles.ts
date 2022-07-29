@@ -74,7 +74,7 @@ export const StyledComponent = styled.div`
         color: ${primaryColor};
       }
     }
-    .anticon{
+    .anticon {
       padding-right: 8px;
       display: inline-block;
       color: inherit;

@@ -5,7 +5,7 @@ import { CSSProperties, useCallback } from "react";
 import { RegUtil } from "utils/RegUtils";
 
 interface NumberInputProps {
-  id?: string
+  id?: string;
   value?: number | string;
   isFloat?: boolean;
   onChange?: (v: number | null) => void;
@@ -54,9 +54,9 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     disabled = false,
     step,
     isChangeAfterBlur = true,
-    size
+    size,
   } = props;
-  const [data, setData] = useState<string>('');
+  const [data, setData] = useState<string>("");
   const onChangeText = useCallback(
     (e) => {
       let newValue: string = e.target.value;
@@ -69,7 +69,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       if (isFloat) {
         if (RegUtil.FLOATREG.test(valueS)) {
           setData(valueS);
-          if (valueS[valueS.length - 1] !== '.') {
+          if (valueS[valueS.length - 1] !== ".") {
             onChange && onChange(parseFloat(valueS));
           }
           return;
@@ -81,7 +81,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
         return;
       }
     },
-    [format, isFloat, onChange, replace]
+    [format, isFloat, onChange, replace],
   );
   const onBlurEvent = useCallback(
     (e) => {
@@ -97,7 +97,8 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
           onChange && onChange(props.max);
         } else {
           onChange &&
-            valueTemp && isChangeAfterBlur &&
+            valueTemp &&
+            isChangeAfterBlur &&
             onChange(parseFloat(valueTemp.replace(/0*(\d+)/, "$1")));
         }
       } else {
@@ -107,10 +108,10 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       }
       onBlur && onBlur(e);
     },
-    [onBlur, onChange, props, value, isChangeAfterBlur]
+    [onBlur, onChange, props, value, isChangeAfterBlur],
   );
   useEffect(() => {
-    setData(value !== null && value !== undefined && value !== '' ? value.toString() : '');
+    setData(value !== null && value !== undefined && value !== "" ? value.toString() : "");
   }, [value]);
 
   return (
@@ -120,7 +121,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       className={className}
       placeholder={placeholder}
       value={format ? format(data) : data}
-      style={{ textAlign: 'right', ...style }}
+      style={{ textAlign: "right", ...style }}
       onBlur={onBlurEvent}
       onKeyPress={onKeyPress}
       onChange={onChangeText}

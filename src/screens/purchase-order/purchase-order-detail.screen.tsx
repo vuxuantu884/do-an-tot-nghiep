@@ -15,11 +15,7 @@ import {
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
-import {
-  POCancelAction,
-  PoDetailAction,
-  PoUpdateAction,
-} from "domain/actions/po/po.action";
+import { POCancelAction, PoDetailAction, PoUpdateAction } from "domain/actions/po/po.action";
 import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
@@ -49,15 +45,7 @@ import {
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
-import React, {
-  lazy,
-  useCallback,
-  useContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { useReactToPrint } from "react-to-print";
@@ -97,9 +85,7 @@ import PurchaseOrderProvider, {
   PurchaseOrderCreateContext,
 } from "./provider/purchase-order.provider";
 
-const ModalDeleteConfirm = lazy(
-  () => import("component/modal/ModalDeleteConfirm"),
-);
+const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
 const ModalExport = lazy(() => import("./modal/ModalExport"));
 
 const ActionMenu = {
@@ -159,16 +145,15 @@ const PODetailScreen: React.FC = () => {
   const history = useHistory();
   const [formMain] = Form.useForm();
 
-  const [visiblePaymentModal, setVisiblePaymentModal] =
-    useState<boolean>(false);
+  const [visiblePaymentModal, setVisiblePaymentModal] = useState<boolean>(false);
   const [isError, setError] = useState(false);
   const [status, setStatus] = useState<string>(initPurchaseOrder.status);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
-  const [listPaymentConditions, setListPaymentConditions] = useState<
-    Array<PoPaymentConditions>
-  >([]);
+  const [listPaymentConditions, setListPaymentConditions] = useState<Array<PoPaymentConditions>>(
+    [],
+  );
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [printContent, setPrintContent] = useState<string>("");
   const [printContentReturn, setPrintContentReturn] = useState<string>("");
@@ -180,8 +165,7 @@ const PODetailScreen: React.FC = () => {
   const [showExportModal, setShowExportModal] = useState<boolean>(false);
   // const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
   const [activePanel, setActivePanel] = useState<string | string[]>();
-  const [isShowWarningPriceModal, setShowWarningPriceModal] =
-    useState<boolean>(false);
+  const [isShowWarningPriceModal, setShowWarningPriceModal] = useState<boolean>(false);
   const [canCancelPO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.cancel],
   });
@@ -212,21 +196,15 @@ const PODetailScreen: React.FC = () => {
     documentTitle: "Đơn trả hàng nhà cung cấp",
   });
 
-  const printContentCallback = useCallback(
-    (printContent: Array<PurchaseOrderPrint>) => {
-      if (!printContent || printContent.length === 0) return;
-      setPrintContent(printContent[0].html_content);
-    },
-    [],
-  );
+  const printContentCallback = useCallback((printContent: Array<PurchaseOrderPrint>) => {
+    if (!printContent || printContent.length === 0) return;
+    setPrintContent(printContent[0].html_content);
+  }, []);
 
-  const printContentReturnCallback = useCallback(
-    (printContent: PurchaseOrderPrint) => {
-      if (!printContent) return;
-      setPrintContentReturn(printContent.html_content);
-    },
-    [],
-  );
+  const printContentReturnCallback = useCallback((printContent: PurchaseOrderPrint) => {
+    if (!printContent) return;
+    setPrintContentReturn(printContent.html_content);
+  }, []);
 
   const onDetail = useCallback(
     (result: PurchaseOrder | null) => {
@@ -240,9 +218,7 @@ const PODetailScreen: React.FC = () => {
           ...result,
           procurements: [...procurements],
         });
-        let closingDate = result.ap_closing_date
-          ? moment(result.ap_closing_date)
-          : null;
+        let closingDate = result.ap_closing_date ? moment(result.ap_closing_date) : null;
         if (
           !closingDate &&
           result.status === POStatus.STORED &&
@@ -273,9 +249,7 @@ const PODetailScreen: React.FC = () => {
 
   const onStoreResult = useCallback((result: Array<StoreResponse>) => {
     if (result) {
-      const storeTotals = result.filter((e) =>
-        e.name?.toLocaleLowerCase().includes("kho tổng"),
-      );
+      const storeTotals = result.filter((e) => e.name?.toLocaleLowerCase().includes("kho tổng"));
 
       let res = _.uniqBy([...storeTotals, ...result], "name");
       setListStore(res);
@@ -308,22 +282,18 @@ const PODetailScreen: React.FC = () => {
         if (!value.payment_condition_id && value.payment_condition_name) {
           throw new Error("Đơn vị thời gian công nợ không được để trống");
         }
-        const gridLineItems: PurchaseOrderLineItem[] =
-          combineLineItemToSubmitData(
-            poLineItemGridValue,
-            poLineItemGridChema,
-            taxRate,
-          );
+        const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(
+          poLineItemGridValue,
+          poLineItemGridChema,
+          taxRate,
+        );
         const supplementLineItems =
-          value?.line_items?.filter(
-            (e) => e.type === POLineItemType.SUPPLEMENT,
-          ) || [];
+          value?.line_items?.filter((e) => e.type === POLineItemType.SUPPLEMENT) || [];
         value.line_items = [...gridLineItems, ...supplementLineItems];
       } else if (purchaseOrder?.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
-        const y =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
         throw new Error("Vui lòng thêm sản phẩm");
       }
@@ -336,8 +306,7 @@ const PODetailScreen: React.FC = () => {
         value?.procurements,
         ProcurementLineItemField.expect_receipt_date,
       );
-      const procurementsAll: Array<PurchaseProcument[]> =
-        Object.values(procurementsFilter);
+      const procurementsAll: Array<PurchaseProcument[]> = Object.values(procurementsFilter);
       procurementsAll.forEach((procurementAll) => {
         if (
           !procurementAll
@@ -366,10 +335,7 @@ const PODetailScreen: React.FC = () => {
         }
       });
 
-      const untaxed_amount = getUntaxedAmountByLineItemType(
-        value.line_items,
-        POLoadType.ALL,
-      );
+      const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
       value.untaxed_amount = untaxed_amount;
       value.tax_lines = [
         {
@@ -377,15 +343,9 @@ const PODetailScreen: React.FC = () => {
           amount: Math.round((untaxed_amount * taxRate) / 100),
         },
       ];
-      value.trade_discount_amount = POUtils.getTotalDiscount(
-        formMain,
-        untaxed_amount,
-      );
+      value.trade_discount_amount = POUtils.getTotalDiscount(formMain, untaxed_amount);
       const total_after_tax = POUtils.getTotalAfterTax(formMain);
-      value.payment_discount_amount = POUtils.getTotalDiscount(
-        formMain,
-        total_after_tax,
-      );
+      value.payment_discount_amount = POUtils.getTotalDiscount(formMain, total_after_tax);
       value.total = Math.round(
         value.line_items.reduce((prev: number, cur: PurchaseOrderLineItem) => {
           const untaxAmount = cur.quantity * cur.price;
@@ -402,8 +362,7 @@ const PODetailScreen: React.FC = () => {
             ...procurement,
             procurement_items: [
               ...procurement.procurement_items.map((procurementItem) => {
-                if (typeof procurementItem.id === "string")
-                  delete procurementItem.id;
+                if (typeof procurementItem.id === "string") delete procurementItem.id;
                 return {
                   ...procurementItem,
                 };
@@ -518,12 +477,7 @@ const PODetailScreen: React.FC = () => {
         handlePrintReturn && handlePrintReturn();
       }
     },
-    [
-      dispatch,
-      handlePrintReturn,
-      purchaseOrder?.id,
-      printContentReturnCallback,
-    ],
+    [dispatch, handlePrintReturn, purchaseOrder?.id, printContentReturnCallback],
   );
 
   const onMenuPrint = (index: number) => {
@@ -561,14 +515,7 @@ const PODetailScreen: React.FC = () => {
         listDistrict: listDistrict,
       });
     }
-  }, [
-    history,
-    id,
-    listCountries,
-    listDistrict,
-    purchaseOrder,
-    setVisiblePaymentModal,
-  ]);
+  }, [history, id, listCountries, listDistrict, purchaseOrder, setVisiblePaymentModal]);
 
   const handleExport = useCallback(() => {
     dispatch(showLoading());
@@ -602,8 +549,7 @@ const PODetailScreen: React.FC = () => {
 
     const imgWidth = pageWidth;
     const rate = 1.8; // mò ra
-    const imgHeight =
-      (value.offsetHeight * (value.offsetWidth / canvasFormWidth)) / rate;
+    const imgHeight = (value.offsetHeight * (value.offsetWidth / canvasFormWidth)) / rate;
 
     var heightLeft = imgHeight;
     var position = 0;
@@ -642,11 +588,7 @@ const PODetailScreen: React.FC = () => {
     ];
     if (!purchaseOrder) return [];
     const poStatus = purchaseOrder.status;
-    if (
-      poStatus &&
-      [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) &&
-      canCancelPO
-    ) {
+    if (poStatus && [POStatus.FINALIZED, POStatus.DRAFT].includes(poStatus) && canCancelPO) {
       menuActions.push({
         id: ActionMenu.DELETE,
         name: "Hủy",
@@ -669,12 +611,9 @@ const PODetailScreen: React.FC = () => {
       });
     }
     if (
-      [
-        POStatus.FINALIZED,
-        POStatus.STORED,
-        POStatus.COMPLETED,
-        POStatus.FINISHED,
-      ].includes(poStatus)
+      [POStatus.FINALIZED, POStatus.STORED, POStatus.COMPLETED, POStatus.FINISHED].includes(
+        poStatus,
+      )
     ) {
       menuActions.unshift({
         id: ActionMenu.PRINTING_STAMP,
@@ -756,11 +695,7 @@ const PODetailScreen: React.FC = () => {
       // case: chưa duyệt => check tất cả sp có giá nhỏ hơn 1000đ trong line item
       if (status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) {
         const lineItems: any[] = isGridMode
-          ? combineLineItemToSubmitData(
-              poLineItemGridValue,
-              poLineItemGridChema,
-              taxRate,
-            )
+          ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
           : formMain.getFieldsValue()[POField.line_items];
         if (!lineItems.every((item) => item.price)) {
           setIsEditDetail(true);
@@ -768,9 +703,7 @@ const PODetailScreen: React.FC = () => {
             "Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công",
           );
         }
-        if (
-          checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)
-        ) {
+        if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
           setShowWarningPriceModal(true);
           return;
         }
@@ -779,18 +712,11 @@ const PODetailScreen: React.FC = () => {
         purchaseOrder.receive_status !== ProcumentStatus.FINISHED
       ) {
         //case: đã duyệt - trước kết thúc nhập kho: chỉ check những sản phẩm bổ sung được thêm mới vào có giá nhỏ hơn 1000đ
-        const formLineItems: PurchaseOrderLineItem[] = formMain.getFieldValue([
-          POField.line_items,
-        ]);
+        const formLineItems: PurchaseOrderLineItem[] = formMain.getFieldValue([POField.line_items]);
         const newSupplementItems = formLineItems.filter(
           (item) => item.type === POLineItemType.SUPPLEMENT && !item.id,
         );
-        if (
-          checkImportPriceLowByLineItem(
-            MIN_IMPORT_PRICE_WARNING,
-            newSupplementItems,
-          )
-        ) {
+        if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, newSupplementItems)) {
           setShowWarningPriceModal(true);
           return;
         }
@@ -829,9 +755,7 @@ const PODetailScreen: React.FC = () => {
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
                 <Button
                   type="primary"
-                  onClick={() =>
-                    handleChangeStatusPO(POStatus.WAITING_APPROVAL)
-                  }
+                  onClick={() => handleChangeStatusPO(POStatus.WAITING_APPROVAL)}
                   className="create-button-custom"
                 >
                   {isEditDetail ? "Lưu và chờ duyệt" : "Chờ duyệt"}
@@ -860,9 +784,7 @@ const PODetailScreen: React.FC = () => {
                   {isEditDetail ? "Lưu" : "Chỉnh sửa"}
                 </Button>
               </AuthWrapper>
-              <AuthWrapper
-                acceptPermissions={[PurchaseOrderPermission.approve]}
-              >
+              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
                 <Button
                   type="primary"
                   onClick={() => handleChangeStatusPO(POStatus.FINALIZED)}
@@ -902,11 +824,7 @@ const PODetailScreen: React.FC = () => {
 
     return (
       <>
-        <div
-          id="bottomRight"
-          className="page-filter"
-          style={{ marginRight: -14 }}
-        >
+        <div id="bottomRight" className="page-filter" style={{ marginRight: -14 }}>
           <Space direction="horizontal" id="bottomRight">
             <Button
               type="default"
@@ -1062,12 +980,9 @@ const PODetailScreen: React.FC = () => {
         onFinishFailed={({ errorFields }: any) => {
           dispatch(hideLoading());
           statusAction.current = "";
-          const element: any = document.getElementById(
-            errorFields[0].name.join("_"),
-          );
+          const element: any = document.getElementById(errorFields[0].name.join("_"));
           element?.focus();
-          const y =
-            element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+          const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
           window.scrollTo({ top: y, behavior: "smooth" });
         }}
         onFinish={onFinish}
@@ -1135,10 +1050,7 @@ const PODetailScreen: React.FC = () => {
                 activeKey={activePanel}
                 onChange={(key: string | string[]) => setActivePanel(key)}
               >
-                <Collapse.Panel
-                  header="SẢN PHẨM BỔ SUNG"
-                  key={SUPPLEMENT_PANEL_KEY}
-                >
+                <Collapse.Panel header="SẢN PHẨM BỔ SUNG" key={SUPPLEMENT_PANEL_KEY}>
                   <POProductFormOld
                     isEdit={isEditDetail}
                     formMain={formMain}
@@ -1202,9 +1114,7 @@ const PODetailScreen: React.FC = () => {
         <BottomBarContainer
           back={false}
           leftComponent={
-            <React.Fragment>
-              {purchaseOrder && <POStep poData={purchaseOrder} />}
-            </React.Fragment>
+            <React.Fragment>{purchaseOrder && <POStep poData={purchaseOrder} />}</React.Fragment>
           }
           height={55}
           rightComponent={<RightAction />}

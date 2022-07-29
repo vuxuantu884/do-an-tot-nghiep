@@ -11,14 +11,12 @@ function CustomerCareHistory(props: any) {
 
   const [adjustPoint, setAdjustPoint] = useState<any>();
 
-  const setAdjustPointData = React.useCallback(
-    (data: any | false) => {
-      if (!data) {
-        return;
-      }
-      setAdjustPoint(data);
-    },[]
-  );
+  const setAdjustPointData = React.useCallback((data: any | false) => {
+    if (!data) {
+      return;
+    }
+    setAdjustPoint(data);
+  }, []);
 
   useEffect(() => {
     if (customer?.id) {
@@ -26,7 +24,6 @@ function CustomerCareHistory(props: any) {
     }
   }, [dispatch, customer, setAdjustPointData]);
 
-  
   const [columns] = useState<any>([
     {
       title: "STT",
@@ -48,20 +45,20 @@ function CustomerCareHistory(props: any) {
       width: "12%",
       render: (value: any, row: any, index: any) => {
         let adjustmentType;
-        switch(value) {
+        switch (value) {
           case "ADD_POINT":
-            adjustmentType = "Tặng điểm"
+            adjustmentType = "Tặng điểm";
             break;
           case "SUBTRACT_POINT":
-            adjustmentType = "Trừ điểm"
+            adjustmentType = "Trừ điểm";
             break;
           case "ADD_MONEY":
-            adjustmentType = "Tặng tiền"
+            adjustmentType = "Tặng tiền";
             break;
           case "SUBTRACT_MONEY":
-            adjustmentType = "Trừ tiền"
+            adjustmentType = "Trừ tiền";
             break;
-      }
+        }
         return <span>{adjustmentType}</span>;
       },
     },
@@ -70,7 +67,7 @@ function CustomerCareHistory(props: any) {
       dataIndex: "value_change",
       width: 110,
       render: (value: any, row: any, index: any) => {
-        const pointValue = value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".")
+        const pointValue = value?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
         return <span>{pointValue}</span>;
       },
     },
@@ -84,7 +81,10 @@ function CustomerCareHistory(props: any) {
       dataIndex: "created_by",
       width: "15%",
       render: (value: any, item: any) => (
-        <div>{value ? value + " - " : ""}{item.created_name ? item.created_name : ""}</div>
+        <div>
+          {value ? value + " - " : ""}
+          {item.created_name ? item.created_name : ""}
+        </div>
       ),
     },
     {
@@ -100,12 +100,10 @@ function CustomerCareHistory(props: any) {
       dataIndex: "note",
       visible: true,
       render: (value: any) => {
-        return (
-          <div>{value ? value : ""}</div>
-        )
-      }
-    }
-  ]);  
+        return <div>{value ? value : ""}</div>;
+      },
+    },
+  ]);
 
   return (
     <CustomTable

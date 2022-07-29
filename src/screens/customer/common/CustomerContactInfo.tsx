@@ -14,20 +14,26 @@ function CustomerContactInfo(props: any) {
 
   const [isCollapseActive, setCollapseActive] = React.useState<boolean>(true);
 
-  const handleChangeName = useCallback((v: any) => {
-    setContactName(v.trim());
-    if (v === "" && contactPhone === "") setContactPhone(undefined);
-  }, [contactPhone])
+  const handleChangeName = useCallback(
+    (v: any) => {
+      setContactName(v.trim());
+      if (v === "" && contactPhone === "") setContactPhone(undefined);
+    },
+    [contactPhone],
+  );
 
   const handleBlurName = (v: any) => {
     setContactName(v.trim());
     form?.setFieldsValue({ contact_name: contactName });
   };
-  const handleChangePhone = useCallback((v: any) => {
-    setContactPhone(v);
-    if (v === "" && contactName === "") setContactName(undefined);
-  }, [contactName]);
-  
+  const handleChangePhone = useCallback(
+    (v: any) => {
+      setContactPhone(v);
+      if (v === "" && contactName === "") setContactName(undefined);
+    },
+    [contactName],
+  );
+
   React.useEffect(() => {
     form.setFieldsValue({ contact_name: contactName });
   }, [contactName, form, handleChangeName]);
@@ -47,19 +53,13 @@ function CustomerContactInfo(props: any) {
         expandIconPosition="right"
         activeKey={[isCollapseActive ? "1" : ""]}
       >
-        <Panel
-          header={
-            <span className="card-title">THÔNG TIN LIÊN HỆ</span>
-          }
-          key="1"
-        >
+        <Panel header={<span className="card-title">THÔNG TIN LIÊN HỆ</span>} key="1">
           <Form.Item
             label={<b>Họ và tên:</b>}
             name="contact_name"
             rules={[
               {
-                required:
-                  contactPhone || contactEmail || contactNote ? true : false,
+                required: contactPhone || contactEmail || contactNote ? true : false,
                 message: "Vui lòng nhập họ tên khách hàng",
               },
             ]}
@@ -79,8 +79,7 @@ function CustomerContactInfo(props: any) {
               name="contact_phone"
               rules={[
                 {
-                  required:
-                    contactName || contactEmail || contactNote ? true : false,
+                  required: contactName || contactEmail || contactNote ? true : false,
                   message: "Vui lòng nhập số điện thoại",
                 },
                 {
@@ -124,11 +123,7 @@ function CustomerContactInfo(props: any) {
             </Form.Item>
           </div>
 
-          <Form.Item
-            label={<b>Ghi chú:</b>}
-            name="contact_note"
-            className="contact-note"
-          >
+          <Form.Item label={<b>Ghi chú:</b>} name="contact_note" className="contact-note">
             <Input.TextArea
               disabled={isLoading}
               maxLength={500}

@@ -63,12 +63,8 @@ import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
 import PurchaseOrderProvider from "./provider/purchase-order.provider";
 
-const POProductFormOld = React.lazy(
-  () => import("./component/po-product.form"),
-);
-const POProductFormNew = React.lazy(
-  () => import("./component/po-product-form-grid"),
-);
+const POProductFormOld = React.lazy(() => import("./component/po-product.form"));
+const POProductFormNew = React.lazy(() => import("./component/po-product-form-grid"));
 
 export type DataSourceType = {
   totalPrice: number;
@@ -139,14 +135,13 @@ const POCreateScreen: React.FC = () => {
   const [formInitial] = useState(initPurchaseOrder);
 
   const [statusAction, setStatusAction] = useState<string>("");
-  const [listPaymentConditions, setListPaymentConditions] = useState<
-    Array<PoPaymentConditions>
-  >([]);
+  const [listPaymentConditions, setListPaymentConditions] = useState<Array<PoPaymentConditions>>(
+    [],
+  );
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setListDistrict] = useState<Array<DistrictResponse>>([]);
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
-  const [isShowWarningPriceModal, setIsShowWarningPriceModal] =
-    useState<boolean>(false);
+  const [isShowWarningPriceModal, setIsShowWarningPriceModal] = useState<boolean>(false);
   //context
   const {
     taxRate,
@@ -165,9 +160,7 @@ const POCreateScreen: React.FC = () => {
   } = useContext(PurchaseOrderCreateContext);
 
   //reducer
-  const myAccountCode = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.code,
-  );
+  const myAccountCode = useSelector((state: RootReducerType) => state.userReducer.account?.code);
 
   const createCallback = useCallback(
     (result: PurchaseOrder) => {
@@ -201,14 +194,10 @@ const POCreateScreen: React.FC = () => {
           value.procurements,
         );
         value.procurements = newProcurement;
-      } else if (
-        Array.isArray(value.line_items) &&
-        value.line_items.length === 0
-      ) {
+      } else if (Array.isArray(value.line_items) && value.line_items.length === 0) {
         let element: any = document.getElementById("#product_search");
         element?.focus();
-        const y =
-          element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+        const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
         window.scrollTo({ top: y, behavior: "smooth" });
         throw new Error("Vui lòng thêm sản phẩm");
       }
@@ -218,10 +207,7 @@ const POCreateScreen: React.FC = () => {
         throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
 
-      const untaxed_amount = getUntaxedAmountByLineItemType(
-        value.line_items,
-        POLoadType.ALL,
-      );
+      const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
       value.untaxed_amount = untaxed_amount;
       value.tax_lines = [
         {
@@ -229,15 +215,9 @@ const POCreateScreen: React.FC = () => {
           amount: Math.round((untaxed_amount * taxRate) / 100),
         },
       ];
-      value.trade_discount_amount = POUtils.getTotalDiscount(
-        formMain,
-        untaxed_amount,
-      );
+      value.trade_discount_amount = POUtils.getTotalDiscount(formMain, untaxed_amount);
       const total_after_tax = POUtils.getTotalAfterTax(formMain);
-      value.payment_discount_amount = POUtils.getTotalDiscount(
-        formMain,
-        total_after_tax,
-      );
+      value.payment_discount_amount = POUtils.getTotalDiscount(formMain, total_after_tax);
       value.total = Math.round(
         value.line_items.reduce((prev: number, cur: PurchaseOrderLineItem) => {
           const untaxAmount = cur.quantity * cur.price;
@@ -248,14 +228,9 @@ const POCreateScreen: React.FC = () => {
         const procurement_items = procurementTableData
           .filter((item) => item?.quantity)
           .map((data) => {
-            const index = data.expectedDate.findIndex(
-              (item) => item.date === expect.date,
-            );
+            const index = data.expectedDate.findIndex((item) => item.date === expect.date);
             if (index >= 0) {
-              const totalQuantity = data.expectedDate.reduce(
-                (acc, ele) => acc + ele.value,
-                0,
-              );
+              const totalQuantity = data.expectedDate.reduce((acc, ele) => acc + ele.value, 0);
               if (totalQuantity > (data?.quantity || 0)) {
                 throw new Error(
                   `Số lượng hàng về dự kiến sản phẩm ${data.sku} nhiều hơn số lượng đặt hàng`,
@@ -282,9 +257,7 @@ const POCreateScreen: React.FC = () => {
           });
 
         const expect_receipt_date = expect.date.includes("/")
-          ? ConvertDateToUtc(
-              moment(expect.date, "DD/MM/YYYY").format("MM-DD-YYYY"),
-            )
+          ? ConvertDateToUtc(moment(expect.date, "DD/MM/YYYY").format("MM-DD-YYYY"))
           : ConvertDateToUtc(moment(expect.date).format("MM-DD-YYYY"));
         return {
           actived_by: "",
@@ -333,16 +306,10 @@ const POCreateScreen: React.FC = () => {
     setStatusAction(status);
     try {
       const lineItems: any[] = isGridMode
-        ? combineLineItemToSubmitData(
-            poLineItemGridValue,
-            poLineItemGridChema,
-            taxRate,
-          )
+        ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
         : formMain.getFieldsValue()[POField.line_items];
       if (!lineItems?.every((item) => item.price)) {
-        throw new Error(
-          "Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công",
-        );
+        throw new Error("Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công");
       }
       if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
         setIsShowWarningPriceModal(true);
@@ -382,11 +349,9 @@ const POCreateScreen: React.FC = () => {
               setPoLineItemGridValue,
               setTaxRate,
             );
-            const line_items = data.line_items.map(
-              (item: PurchaseOrderLineItem) => {
-                return { ...item, receipt_quantity: 0, planned_quantity: 0 };
-              },
-            );
+            const line_items = data.line_items.map((item: PurchaseOrderLineItem) => {
+              return { ...item, receipt_quantity: 0, planned_quantity: 0 };
+            });
             const procurements = [data.procurements[0]];
             procurements?.forEach((pro: any) => {
               pro.code = null;
@@ -422,8 +387,7 @@ const POCreateScreen: React.FC = () => {
               POProcumentField.expect_receipt_date,
             );
             const expectedDate = Object.keys(procurementsGroupByExpectedDate);
-            const procurementAll =
-              Object.values(procurementsGroupByExpectedDate) || [];
+            const procurementAll = Object.values(procurementsGroupByExpectedDate) || [];
             const dataExpectedDate: POExpectedDate[] = expectedDate.map(
               (date, indexProcurements) => {
                 const expect_receipt_date = moment(date).format("DD/MM/YYYY");
@@ -431,53 +395,43 @@ const POCreateScreen: React.FC = () => {
                   ["expectedDate" + indexProcurements]: expect_receipt_date,
                 });
                 if (procurementAll.length > 0 && procurementAll[0].length > 0) {
-                  procurementAll[0][0].procurement_items.forEach(
-                    (procurementItem) => {
-                      const indexDataSourceGrid = dataSourceGrid.findIndex(
-                        (item) =>
-                          item.variant_id === procurementItem.variant_id,
-                      );
-                      const indexLineItem = data.line_items.findIndex(
-                        (item) =>
-                          item.variant_id === procurementItem.variant_id,
-                      );
-                      const totalQuantity = data.procurements
-                        .filter((item) => item.expect_receipt_date === date)
-                        .reduce(
-                          (acc, item) => acc.concat(item.procurement_items),
-                          [] as PurchaseProcumentLineItem[],
-                        )
-                        .filter(
-                          (item) =>
-                            item.variant_id === procurementItem.variant_id,
-                        )
-                        .reduce(
-                          (total, element) => total + element.quantity,
-                          0,
-                        );
+                  procurementAll[0][0].procurement_items.forEach((procurementItem) => {
+                    const indexDataSourceGrid = dataSourceGrid.findIndex(
+                      (item) => item.variant_id === procurementItem.variant_id,
+                    );
+                    const indexLineItem = data.line_items.findIndex(
+                      (item) => item.variant_id === procurementItem.variant_id,
+                    );
+                    const totalQuantity = data.procurements
+                      .filter((item) => item.expect_receipt_date === date)
+                      .reduce(
+                        (acc, item) => acc.concat(item.procurement_items),
+                        [] as PurchaseProcumentLineItem[],
+                      )
+                      .filter((item) => item.variant_id === procurementItem.variant_id)
+                      .reduce((total, element) => total + element.quantity, 0);
 
-                      if (indexDataSourceGrid === -1) {
-                        const expectedDate: POExpectedDate = {
-                          date: expect_receipt_date,
-                          value: totalQuantity,
-                        };
-                        dataSourceGrid.push({
-                          ...(procurementItem as any),
-                          expectedDate: [expectedDate],
-                          quantity: data.line_items[indexLineItem].quantity,
-                        });
-                      } else {
-                        const expectedDate: POExpectedDate = {
-                          date: expect_receipt_date,
-                          value: totalQuantity,
-                        };
-                        dataSourceGrid[indexDataSourceGrid].expectedDate = [
-                          ...dataSourceGrid[indexDataSourceGrid].expectedDate,
-                          expectedDate,
-                        ];
-                      }
-                    },
-                  );
+                    if (indexDataSourceGrid === -1) {
+                      const expectedDate: POExpectedDate = {
+                        date: expect_receipt_date,
+                        value: totalQuantity,
+                      };
+                      dataSourceGrid.push({
+                        ...(procurementItem as any),
+                        expectedDate: [expectedDate],
+                        quantity: data.line_items[indexLineItem].quantity,
+                      });
+                    } else {
+                      const expectedDate: POExpectedDate = {
+                        date: expect_receipt_date,
+                        value: totalQuantity,
+                      };
+                      dataSourceGrid[indexDataSourceGrid].expectedDate = [
+                        ...dataSourceGrid[indexDataSourceGrid].expectedDate,
+                        expectedDate,
+                      ];
+                    }
+                  });
                 }
                 return {
                   date: expect_receipt_date,
@@ -561,11 +515,7 @@ const POCreateScreen: React.FC = () => {
           </Col>
         </Row>
         <div style={{ width: "100%" }}>
-          <PoProductContainer
-            isEditMode={true}
-            isDisableSwitch={false}
-            form={formMain}
-          >
+          <PoProductContainer isEditMode={true} isDisableSwitch={false} form={formMain}>
             {isGridMode ? (
               <POProductFormNew formMain={formMain} isEditMode={true} />
             ) : (

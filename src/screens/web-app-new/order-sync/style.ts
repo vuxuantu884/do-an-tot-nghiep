@@ -13,7 +13,6 @@ export const OrderSyncStyle = styled.div`
       padding: 20px;
     }
   }
-
 `;
 export const StyledDownloadOrderData = styled.div`
   .ecommerce-list {
@@ -54,7 +53,7 @@ export const OrderSyncFilterStyle = styled.div`
       }
     }
   }
-  
+
   .default-filter {
     display: flex;
     overflow-x: auto;
@@ -108,7 +107,7 @@ export const OrderSyncFilterStyle = styled.div`
     }
   }
 
-  .threedot-button{
+  .threedot-button {
     padding-left: 15px;
   }
 
@@ -121,7 +120,7 @@ export const OrderSyncFilterStyle = styled.div`
   .select-web-app {
     width: 200px;
     min-width: 160px;
-     margin-right: 15px;
+    margin-right: 15px;
   }
 `;
 export const OrderSyncBaseFilterStyle = styled.div`
@@ -156,8 +155,8 @@ export const OrderSyncBaseFilterStyle = styled.div`
 `;
 export const StyledStatus = styled.div`
   .green-status {
-    background: #F0FCF5;
-    color: #27AE60;
+    background: #f0fcf5;
+    color: #27ae60;
     border-radius: 100px;
     padding: 5px 15px;
     margin: 0 auto;
@@ -165,15 +164,15 @@ export const StyledStatus = styled.div`
 
   .red-status {
     background: rgba(226, 67, 67, 0.1);
-    color: #E24343;
+    color: #e24343;
     border-radius: 100px;
     padding: 5px 15px;
     margin: 0 auto;
   }
-  
+
   .yellow-status {
-    background: #FFFAF0;
-    color: #FCAF17;
+    background: #fffaf0;
+    color: #fcaf17;
     border-radius: 100px;
     padding: 5px 15px;
     margin: 0 auto;
@@ -181,7 +180,7 @@ export const StyledStatus = styled.div`
 
   .blue-status {
     background: rgba(42, 42, 134, 0.1);
-    color: #2A2A86;
+    color: #2a2a86;
     border-radius: 100px;
     padding: 5px 15px;
     margin: 0 auto;
@@ -209,15 +208,15 @@ export const StyledProgressDownloadModal = styled.div`
       }
       .total-created {
         font-weight: 700;
-        color: #FCAF17;
+        color: #fcaf17;
       }
       .total-updated {
         font-weight: 700;
-        color: #27AE60;
+        color: #27ae60;
       }
       .total-error {
         font-weight: 700;
-        color: #E24343;
+        color: #e24343;
       }
     }
   }

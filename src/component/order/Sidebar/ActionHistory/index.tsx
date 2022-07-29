@@ -93,24 +93,24 @@ function ActionHistory(props: PropType) {
     const separator = " -> ";
     let result = "";
     if (!status_before && !status_after) {
-      return "-"
+      return "-";
     } else {
       const arr = [status_before, status_after];
-      const filterArr = arr.filter(single => single); // lọc khác null
+      const filterArr = arr.filter((single) => single); // lọc khác null
       result = filterArr.join(separator);
       return result;
     }
   };
 
   useEffect(() => {
-    if(!orderId) {
+    if (!orderId) {
       return;
     }
     if (orderId || reload) {
       dispatch(
         actionGetOrderActionLogs(orderId, (response: OrderActionLogResponse[]) => {
           setActionLog(response);
-        })
+        }),
       );
     }
   }, [dispatch, orderId, countChangeSubStatus, reload]);
@@ -120,60 +120,60 @@ function ActionHistory(props: PropType) {
       <Card title={renderCardTitle()}>
         {actionLog &&
           actionLog.length > 0 &&
-          actionLog.sort((a, b) =>(moment(b.updated_date).diff(moment(a.updated_date)))).map((singleActionHistory, index) => {
-            if(!singleActionHistory.action) {
-              return null
-            }
-            return (
-              <div
-                className="singleActionHistory"
-                key={index}
-                onClick={() => {
-                  showModal(singleActionHistory.id);
-                }}
-              >
-                <Row className="" gutter={15}>
-                  <Col span={12}>
-                    <div className="singleActionHistory__info">
-                      {singleActionHistory?.store && (
-                        <h4 className="singleActionHistory__store">
-                          <span title="Kho hàng">{singleActionHistory?.store}</span>
-                        </h4>
-                      )}
+          actionLog
+            .sort((a, b) => moment(b.updated_date).diff(moment(a.updated_date)))
+            .map((singleActionHistory, index) => {
+              if (!singleActionHistory.action) {
+                return null;
+              }
+              return (
+                <div
+                  className="singleActionHistory"
+                  key={index}
+                  onClick={() => {
+                    showModal(singleActionHistory.id);
+                  }}
+                >
+                  <Row className="" gutter={15}>
+                    <Col span={12}>
+                      <div className="singleActionHistory__info">
+                        {singleActionHistory?.store && (
+                          <h4 className="singleActionHistory__store">
+                            <span title="Kho hàng">{singleActionHistory?.store}</span>
+                          </h4>
+                        )}
 
-                      {singleActionHistory?.updated_by && singleActionHistory?.updated_name && (
-                        <h4 className="singleActionHistory__title">
-                          {singleActionHistory?.updated_by} - {singleActionHistory?.updated_name}
-                        </h4>
-                      )}
-                      {singleActionHistory?.updated_date && (
-                        <div className="singleActionHistory__date">
-                          {moment(singleActionHistory?.updated_date).format(
-                            DATE_FORMAT.fullDate
-                          )}
-                        </div>
-                      )}
-                    </div>
-                  </Col>
-                  <Col span={12}>
-                    <div className="singleActionHistory__status">
-                      {singleActionHistory?.action && (
-                        <h4 className="singleActionHistory__mainStatus">
-                          {renderSingleActionLogTitle(singleActionHistory?.action)}
-                        </h4>
-                      )}
-                      <div className="singleActionHistory__subStatus">
-                        {renderSingleSubStatus(
-                          singleActionHistory?.status_before,
-                          singleActionHistory?.status_after
+                        {singleActionHistory?.updated_by && singleActionHistory?.updated_name && (
+                          <h4 className="singleActionHistory__title">
+                            {singleActionHistory?.updated_by} - {singleActionHistory?.updated_name}
+                          </h4>
+                        )}
+                        {singleActionHistory?.updated_date && (
+                          <div className="singleActionHistory__date">
+                            {moment(singleActionHistory?.updated_date).format(DATE_FORMAT.fullDate)}
+                          </div>
                         )}
                       </div>
-                    </div>
-                  </Col>
-                </Row>
-              </div>
-            );
-          })}
+                    </Col>
+                    <Col span={12}>
+                      <div className="singleActionHistory__status">
+                        {singleActionHistory?.action && (
+                          <h4 className="singleActionHistory__mainStatus">
+                            {renderSingleActionLogTitle(singleActionHistory?.action)}
+                          </h4>
+                        )}
+                        <div className="singleActionHistory__subStatus">
+                          {renderSingleSubStatus(
+                            singleActionHistory?.status_before,
+                            singleActionHistory?.status_after,
+                          )}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                </div>
+              );
+            })}
       </Card>
       <ActionHistoryModal
         isModalVisible={isModalVisible}

@@ -3,7 +3,6 @@ export const isExistInArr = (arr: string[], el: string) => {
   return arrFiltered.length > 0;
 };
 
-
 export const ConvertDatesLabel = (arr: string[], keys: string[]): string[] => {
   Object.keys(arr).forEach((key: any) => arr[key] === undefined && delete arr[key]);
 

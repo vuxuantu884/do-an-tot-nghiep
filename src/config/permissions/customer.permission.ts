@@ -9,18 +9,18 @@ export const CustomerListPermission = {
   customers_create: "customers_create",
   customers_update: "customers_update",
   customers_export: "customers_export",
-}
+};
 
 export const CustomerGroupPermission = {
   groups_read: `${Customers}_groups_read`,
   groups_create: `${Customers}_groups_create`,
   groups_update: `${Customers}_groups_update`,
   groups_delete: `${Customers}_groups_delete`,
-}
+};
 
 export const CustomerLevelPermission = {
   levels_read: `${Customers}_levels_read`,
   levels_create: `${Customers}_levels_create`,
   levels_update: `${Customers}_levels_update`,
   levels_delete: `${Customers}_levels_delete`,
-}
+};

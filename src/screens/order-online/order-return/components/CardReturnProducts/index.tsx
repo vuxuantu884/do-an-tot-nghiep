@@ -7,9 +7,10 @@ import {
   Col,
   Input,
   Popover,
-
-  Row, Select, Table,
-  Tooltip
+  Row,
+  Select,
+  Table,
+  Tooltip,
 } from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import { RefSelectProps } from "antd/lib/select";
@@ -32,7 +33,7 @@ import {
   getProductDiscountPerOrder,
   getProductDiscountPerProduct,
   getReturnPricePerOrder,
-  getTotalQuantity
+  getTotalQuantity,
 } from "utils/AppUtils";
 import { STORE_TYPE } from "utils/Constants";
 import { StyledComponent } from "./styles";
@@ -255,7 +256,7 @@ function CardReturnProducts(props: PropTypes) {
         return (
           <div className="yody-pos-varian-name">
             {formatCurrency(
-              Math.round((value.price - discountPerProduct - discountPerOrder) * value.quantity)
+              Math.round((value.price - discountPerProduct - discountPerOrder) * value.quantity),
             )}
           </div>
         );
@@ -301,8 +302,11 @@ function CardReturnProducts(props: PropTypes) {
   const storeIdLogin = useGetStoreIdFromLocalStorage();
 
   const dataCanAccess = useMemo(() => {
-    let newData: Array<StoreResponse> = listStores.filter((store) => store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER
-      && store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE)
+    let newData: Array<StoreResponse> = listStores.filter(
+      (store) =>
+        store.type.toLocaleLowerCase() !== STORE_TYPE.DISTRIBUTION_CENTER &&
+        store.type.toLocaleLowerCase() !== STORE_TYPE.STOCKPILE,
+    );
     // set giá trị mặc định của cửa hàng là cửa hàng có thể truy cập đầu tiên, nếu đã có ở local storage thì ưu tiên lấy, nếu chưa chọn cửa hàng (update đơn hàng không set cửa hàng đầu tiên)
     if (newData && newData[0]?.id) {
       if (!storeReturn) {
@@ -447,8 +451,8 @@ function CardReturnProducts(props: PropTypes) {
         <Row className="boxPayment" gutter={24}>
           <Col xs={24} lg={11}>
             <Row className="payment-row" justify="space-between">
-                (*) Chú ý: có thể tính toán lệch một hai đồng do làm tròn
-              </Row>
+              (*) Chú ý: có thể tính toán lệch một hai đồng do làm tròn
+            </Row>
           </Col>
           <Col xs={24} lg={2}></Col>
           <Col xs={24} lg={10}>

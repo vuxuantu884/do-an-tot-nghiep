@@ -13,7 +13,12 @@ import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
-import { createConfigInventoryAction, deleteConfigInventoryAction, getConfigInventoryAction, updateConfigInventoryAction } from "domain/actions/inventory/inventory.action";
+import {
+  createConfigInventoryAction,
+  deleteConfigInventoryAction,
+  getConfigInventoryAction,
+  updateConfigInventoryAction,
+} from "domain/actions/inventory/inventory.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -24,7 +29,7 @@ import {
   AllInventoryMappingField,
   AvdAllFilter,
   AvdInventoryFilter,
-  InventoryQueryField
+  InventoryQueryField,
 } from "model/inventory/field";
 import { modalActionType } from "model/modal/modal.model";
 import { FilterConfig, FilterConfigRequest } from "model/other";
@@ -38,8 +43,8 @@ import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
 import FormSaveFilter from "./components/FormSaveFilter";
 import TreeStore from "./TreeStore";
-import { generateQuery} from "utils/AppUtils";
-import {useHistory} from "react-router-dom";
+import { generateQuery } from "utils/AppUtils";
+import { useHistory } from "react-router-dom";
 import { InventoryTabUrl } from "config/url.config";
 import CollectionSearchPaging from "component/custom/select-search/collection-select-paging";
 import HashTag from "component/custom/hashtag";
@@ -63,14 +68,14 @@ export interface InventoryFilterProps {
   onFilter?: (values: InventoryQuery) => void;
   onClearFilter?: () => void;
   openColumn: () => void;
-  onChangeKeySearch: (value: string,filters: any) => void;
+  onChangeKeySearch: (value: string, filters: any) => void;
 }
 
 const ArrRemain = [
-  {key: "total_stock",value:"Còn tồn"},
-  {key: "available",value:"Còn có thể bán"},
-  {key: "on_hand",value:"Còn tồn trong kho"},
-]
+  { key: "total_stock", value: "Còn tồn" },
+  { key: "available", value: "Còn có thể bán" },
+  { key: "on_hand", value: "Còn tồn trong kho" },
+];
 
 const { Item } = Form;
 
@@ -92,18 +97,11 @@ function tagRender(props: any) {
   );
 }
 
-const AllInventoryFilter: React.FC<InventoryFilterProps> = (
-  props: InventoryFilterProps
-) => {
-  const {
-    params,
-    listStore,
-    onFilter,
-    openColumn,
-  } = props;
+const AllInventoryFilter: React.FC<InventoryFilterProps> = (props: InventoryFilterProps) => {
+  const { params, listStore, onFilter, openColumn } = props;
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const {account} = userReducer;
+  const { account } = userReducer;
   const [lstConfigFilter, setLstConfigFilter] = useState<Array<FilterConfig>>();
   const [formBaseFilter] = Form.useForm();
   const [formAdvanceFilter] = Form.useForm();
@@ -112,7 +110,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   const dispatch = useDispatch();
   const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [tagAcitve, setTagActive] = useState<number|null>();
+  const [tagAcitve, setTagActive] = useState<number | null>();
   const [configId, setConfigId] = useState<number>();
   const [lstCollection, setLstCollection] = useState<Array<CollectionResponse>>([]);
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
@@ -121,152 +119,125 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, []);
 
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
-  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-  const [products, setProducts] = useState<PageResponse<ProductResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-  const [variants, setVariants] = useState<PageResponse<VariantSku3Response>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
+  const [accounts, setAccounts] = useState<PageResponse<AccountResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
+  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
+  const [products, setProducts] = useState<PageResponse<ProductResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
+  const [variants, setVariants] = useState<PageResponse<VariantSku3Response>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
   const history = useHistory();
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
   const setDataCollection = useCallback((data: PageResponse<CollectionResponse>) => {
     setLstCollection(data.items);
   }, []);
 
-  const setDataAccounts = useCallback(
-    (data: PageResponse<AccountResponse> | false) => {
-      if (!data) return;
-      setAccounts((accounts) => {
-        return {
-          ...accounts,
-          items: [
-            ...accounts.items,
-            ...data.items
-          ],
-          metadata: data.metadata,
-        }
-      });
-    },
-    []
-  );
+  const setDataAccounts = useCallback((data: PageResponse<AccountResponse> | false) => {
+    if (!data) return;
+    setAccounts((accounts) => {
+      return {
+        ...accounts,
+        items: [...accounts.items, ...data.items],
+        metadata: data.metadata,
+      };
+    });
+  }, []);
 
-  const setDataSizes = useCallback(
-    (data: PageResponse<SizeResponse>) => {
-      if (!data) {
-        return false;
-      }
-      setSizes((sizes) => {
-        return {
-          ...sizes,
-          items: [
-            ...sizes.items,
-            ...data.items
-          ],
-          metadata: data.metadata,
-        }
-      });
-    },
-    []
-  );
+  const setDataSizes = useCallback((data: PageResponse<SizeResponse>) => {
+    if (!data) {
+      return false;
+    }
+    setSizes((sizes) => {
+      return {
+        ...sizes,
+        items: [...sizes.items, ...data.items],
+        metadata: data.metadata,
+      };
+    });
+  }, []);
 
-  const setDataProducts = useCallback(
-    (data: PageResponse<ProductResponse>|false) => {
-      if (!data) {
-        return false;
-      }
-      setProducts((products) => {
-        return {
-          ...products,
-          items: [
-            ...products.items,
-            ...data.items
-          ],
-          metadata: data.metadata,
-        }
-      });
-    },
-    []
-  );
+  const setDataProducts = useCallback((data: PageResponse<ProductResponse> | false) => {
+    if (!data) {
+      return false;
+    }
+    setProducts((products) => {
+      return {
+        ...products,
+        items: [...products.items, ...data.items],
+        metadata: data.metadata,
+      };
+    });
+  }, []);
 
-  const setDataVariants = useCallback((data: PageResponse<VariantSku3Response>|false) => {
+  const setDataVariants = useCallback((data: PageResponse<VariantSku3Response> | false) => {
     if (!data) {
       return false;
     }
     setVariants((variants) => {
       return {
         ...variants,
-        items: [
-          ...variants.items,
-          ...data.items
-        ],
+        items: [...variants.items, ...data.items],
         metadata: data.metadata,
-      }
+      };
     });
-  },[])
+  }, []);
 
-  const getAccounts = useCallback((code: string, page: number) => {
-    dispatch(
-      searchAccountPublicAction(
-        { codes: code, page: page },
-        setDataAccounts
-      )
-    );
-  }, [dispatch, setDataAccounts]);
+  const getAccounts = useCallback(
+    (code: string, page: number) => {
+      dispatch(searchAccountPublicAction({ codes: code, page: page }, setDataAccounts));
+    },
+    [dispatch, setDataAccounts],
+  );
 
-  const getCollections = useCallback((code: string, page: number) => {
-    dispatch(
-      getCollectionRequestAction(
-        { codes: code, page: page },
-        setDataCollection
-      )
-    );
-  }, [dispatch, setDataCollection]);
+  const getCollections = useCallback(
+    (code: string, page: number) => {
+      dispatch(getCollectionRequestAction({ codes: code, page: page }, setDataCollection));
+    },
+    [dispatch, setDataCollection],
+  );
 
-  const getSizes = useCallback((ids: string, page: number) => {
-    dispatch(
-      sizeSearchAction(
-        { ids: ids, page: page},
-        (res)=>{
+  const getSizes = useCallback(
+    (ids: string, page: number) => {
+      dispatch(
+        sizeSearchAction({ ids: ids, page: page }, (res) => {
           setDataSizes(res);
-        }
-      )
-    );
-  }, [dispatch, setDataSizes]);
+        }),
+      );
+    },
+    [dispatch, setDataSizes],
+  );
 
-  const getProducts = useCallback((codes: string, page: number) => {
-    dispatch(
-      searchProductWrapperRequestAction(
-        { codes: codes, page: page},
-        (res)=>{
+  const getProducts = useCallback(
+    (codes: string, page: number) => {
+      dispatch(
+        searchProductWrapperRequestAction({ codes: codes, page: page }, (res) => {
           setDataProducts(res);
-        }
-      )
-    );
-  }, [dispatch, setDataProducts]);
+        }),
+      );
+    },
+    [dispatch, setDataProducts],
+  );
 
-  const getVariantSku3 = useCallback(async (codes: string, page: number) => {
-    await callApiNative({isShowLoading: false},dispatch,searchVariantSku3Api,{ codes: codes, page: page}).then((res)=>{
-      setDataVariants(res);
-    });
-  }, [dispatch, setDataVariants]);
+  const getVariantSku3 = useCallback(
+    async (codes: string, page: number) => {
+      await callApiNative({ isShowLoading: false }, dispatch, searchVariantSku3Api, {
+        codes: codes,
+        page: page,
+      }).then((res) => {
+        setDataVariants(res);
+      });
+    },
+    [dispatch, setDataVariants],
+  );
 
   useEffect(() => {
     const {
@@ -276,75 +247,97 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
       collections,
       sizes,
       products,
-      variants
+      variants,
     } = params;
 
     const filter = {
       ...params,
-      sizes: sizes ? Array.isArray(sizes) ? sizes.map((i: string) => Number(i)) : [Number(sizes)] : [],
-      store_ids: store_ids ? Array.isArray(store_ids) ? store_ids.map((i: string) => Number(i)) : [Number(store_ids)] : [],
+      sizes: sizes
+        ? Array.isArray(sizes)
+          ? sizes.map((i: string) => Number(i))
+          : [Number(sizes)]
+        : [],
+      store_ids: store_ids
+        ? Array.isArray(store_ids)
+          ? store_ids.map((i: string) => Number(i))
+          : [Number(store_ids)]
+        : [],
     };
 
     let codes = null;
 
-    if (designer_codes && designer_codes !== '') {
+    if (designer_codes && designer_codes !== "") {
       codes = designer_codes;
     }
 
-    if (merchandiser_codes && merchandiser_codes !== '') {
-      codes = designer_codes && designer_codes !== '' ? codes + ',' + merchandiser_codes : merchandiser_codes;
+    if (merchandiser_codes && merchandiser_codes !== "") {
+      codes =
+        designer_codes && designer_codes !== ""
+          ? codes + "," + merchandiser_codes
+          : merchandiser_codes;
     }
 
     if (codes) {
-      getAccounts(codes, 1)
+      getAccounts(codes, 1);
     }
 
-    if (sizes && sizes !== '') getSizes(sizes, 1);
-    if (products && products !== '') getProducts(products, 1);
-    if (variants && variants !== '') getVariantSku3(variants, 1);
+    if (sizes && sizes !== "") getSizes(sizes, 1);
+    if (products && products !== "") getProducts(products, 1);
+    if (variants && variants !== "") getVariantSku3(variants, 1);
 
     if (collections) {
-      getCollections(collections, 1)
+      getCollections(collections, 1);
     }
 
     formAdvanceFilter.setFieldsValue(filter);
     formBaseFilter.setFieldsValue(filter);
     setAdvanceFilters(filter);
 
-    if (!designer_codes || designer_codes.length === 0) formAdvanceFilter.resetFields(['designer_codes']);
-    if (!merchandiser_codes || merchandiser_codes.length === 0) formAdvanceFilter.resetFields(['merchandiser_codes']);
-    if (!collections || collections.length === 0) formAdvanceFilter.resetFields(['collections']);
-    if (!sizes || sizes.length === 0) formAdvanceFilter.resetFields(['sizes']);
+    if (!designer_codes || designer_codes.length === 0)
+      formAdvanceFilter.resetFields(["designer_codes"]);
+    if (!merchandiser_codes || merchandiser_codes.length === 0)
+      formAdvanceFilter.resetFields(["merchandiser_codes"]);
+    if (!collections || collections.length === 0) formAdvanceFilter.resetFields(["collections"]);
+    if (!sizes || sizes.length === 0) formAdvanceFilter.resetFields(["sizes"]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [params]);
 
-  const FilterList = useCallback(({ filters, resetField, listCategory, listCountry, listStore, accounts,sizes,lstCollection}: any) => {
-    let filtersKeys = Object.keys(filters);
-    let renderTxt: any = null;
+  const FilterList = useCallback(
+    ({
+      filters,
+      resetField,
+      listCategory,
+      listCountry,
+      listStore,
+      accounts,
+      sizes,
+      lstCollection,
+    }: any) => {
+      let filtersKeys = Object.keys(filters);
+      let renderTxt: any = null;
 
-    return (
-      <div style={{wordBreak: 'break-word'}}>
-        {filtersKeys.map((filterKey) => {
+      return (
+        <div style={{ wordBreak: "break-word" }}>
+          {filtersKeys.map((filterKey) => {
+            let value = filters[filterKey];
 
-          let value = filters[filterKey];
+            if (!value && value !== 0) return null;
+            if (value && Array.isArray(value) && value.length === 0) return null;
+            if (!AllInventoryMappingField[filterKey]) return null;
 
-          if (!value && value !==0) return null;
-          if (value && Array.isArray(value) && value.length === 0) return null;
-          if (!AllInventoryMappingField[filterKey]) return null;
+            let newValues = Array.isArray(value) ? value : [value];
 
-          let newValues = Array.isArray(value) ? value : [value];
+            switch (filterKey) {
+              case AvdAllFilter.category:
+              case AvdAllFilter.category_ids:
+                let categoryTag = "";
+                newValues.forEach((item: number) => {
+                  const category = listCategory?.find((e: any) => e.id === Number(item));
 
-          switch (filterKey) {
-            case AvdAllFilter.category:
-            case AvdAllFilter.category_ids:
-              let categoryTag = "";
-              newValues.forEach((item: number) => {
-                const category = listCategory?.find((e: any) => e.id === Number(item));
-
-                categoryTag = category ? categoryTag + category.name + "; " : categoryTag;
-              });
-              renderTxt = `${AllInventoryMappingField[filterKey]} : ${categoryTag}`;
-              break
+                  categoryTag = category ? categoryTag + category.name + "; " : categoryTag;
+                });
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${categoryTag}`;
+                break;
               case AvdAllFilter.made_in_ids:
                 let madeinTag = "";
                 newValues.forEach((item: number) => {
@@ -353,7 +346,7 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   madeinTag = madein ? madeinTag + madein.name + "; " : madeinTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${madeinTag}`;
-                break
+                break;
               case AvdAllFilter.collections:
                 let collectionTag = "";
                 newValues.forEach((item: string) => {
@@ -362,75 +355,79 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   collectionTag = colection ? collectionTag + colection.name + "; " : collectionTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${collectionTag}`;
-                break
+                break;
               case AvdAllFilter.designer_codes:
                 let designerTag = "";
                 newValues.forEach((item: string) => {
                   const designer = accounts.items?.find((e: any) => e.code === item);
 
-                  designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
+                  designerTag = designer ? designerTag + designer.full_name + "; " : designerTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${designerTag}`;
-                break
+                break;
               case AvdAllFilter.merchandiser_codes:
                 let merchandiserTag = "";
                 newValues.forEach((item: string) => {
                   const win = accounts.items?.find((e: any) => e.code === item);
 
-                  merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
+                  merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${merchandiserTag}`;
-                break
+                break;
               case AvdAllFilter.store_ids:
                 let storeTag = "";
                 newValues.forEach((item: number) => {
                   const store = listStore?.find((e: any) => e.id === Number(item));
 
-                  storeTag = store ? storeTag + store.name + "; " : storeTag
+                  storeTag = store ? storeTag + store.name + "; " : storeTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${storeTag}`;
-              break
-            case AvdAllFilter.sizes:
+                break;
+              case AvdAllFilter.sizes:
                 let sizesTag = "";
                 newValues.forEach((item: number) => {
                   const size = sizes.items?.find((e: any) => e.id === Number(item));
-                  
-                  sizesTag = size ? sizesTag + size.code + "; " : sizesTag
+
+                  sizesTag = size ? sizesTag + size.code + "; " : sizesTag;
                 });
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${sizesTag}`;
-              break
-            case AvdAllFilter.variant_sku7:
+                break;
+              case AvdAllFilter.variant_sku7:
                 renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
-              break
-            case AvdAllFilter.variant_sku3:
-              renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
-            break
-            case AvdAllFilter.tags:
-              renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
-            break
-            case AvdAllFilter.from_price:
+                break;
+              case AvdAllFilter.variant_sku3:
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
+                break;
+              case AvdAllFilter.tags:
+                renderTxt = `${AllInventoryMappingField[filterKey]} : ${newValues.toString()}`;
+                break;
+              case AvdAllFilter.from_price:
                 renderTxt = `Giá bán từ: ${formatCurrencyForProduct(filters.from_price)}`;
-              break
-            case AvdAllFilter.to_price:
+                break;
+              case AvdAllFilter.to_price:
                 renderTxt = `Giá bán đến: ${formatCurrencyForProduct(filters.to_price)}`;
-              break
-            default:
-              break;
-          }
+                break;
+              default:
+                break;
+            }
 
-          return (
-            <Tag
-              onClose={() => resetField(filterKey)}
-              key={filterKey}
-              className="fade"
-              closable
-              style={{ marginBottom: 20, whiteSpace: 'unset' }}
-            ><TextShowMore>{`${renderTxt}`}</TextShowMore></Tag>
-          );
-        })}
-      </div>
-    );
-  },[]);
+            return (
+              <Tag
+                onClose={() => resetField(filterKey)}
+                key={filterKey}
+                className="fade"
+                closable
+                style={{ marginBottom: 20, whiteSpace: "unset" }}
+              >
+                <TextShowMore>{`${renderTxt}`}</TextShowMore>
+              </Tag>
+            );
+          })}
+        </div>
+      );
+    },
+    [],
+  );
 
   const openFilter = useCallback(() => {
     setVisible(true);
@@ -445,72 +442,69 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
     setShowModalSaveFilter(true);
   }, []);
 
-  const getConfigInventory = useCallback(()=>{
+  const getConfigInventory = useCallback(() => {
     if (account && account.code) {
       dispatch(
-        getConfigInventoryAction(
-           account.code,
-          (res)=>{
-           if (res) {
-             if (res.data && res.data.length > 0) {
-              const configFilters = res.data.filter(e=>e.type === FILTER_CONFIG_TYPE.FILTER_INVENTORY);
+        getConfigInventoryAction(account.code, (res) => {
+          if (res) {
+            if (res.data && res.data.length > 0) {
+              const configFilters = res.data.filter(
+                (e) => e.type === FILTER_CONFIG_TYPE.FILTER_INVENTORY,
+              );
               setLstConfigFilter(configFilters);
-             }else{
+            } else {
               setLstConfigFilter([]);
-             }
-           }
+            }
           }
-        )
+        }),
       );
     }
-  },[account, dispatch])
+  }, [account, dispatch]);
 
-  const onResult = useCallback((res: BaseResponse<FilterConfig>) =>{
-    if (res) {
-      showSuccess(`Lưu bộ lọc thành công`);
-      setShowModalSaveFilter(false);
-      getConfigInventory();
-    }
-  },[getConfigInventory]);
-
-  const onSaveFilter = useCallback((request: FilterConfigRequest) => {
-    if (request) {
-      let json_content = JSON.stringify(
-        formAdvanceFilter.getFieldsValue(),
-        function(k, v) { return v === undefined ? null : v; }
-      );
-      request.type = FILTER_CONFIG_TYPE.FILTER_INVENTORY;
-      request.json_content = json_content;
-
-      if (request.id) {
-        const config = lstConfigFilter?.find(e=>e.id.toString() === request.id.toString());
-        if (lstConfigFilter && config) {
-          request.name = config.name;
-        }
-        dispatch(updateConfigInventoryAction(request,onResult));
-      }else{
-        dispatch(createConfigInventoryAction(request ,onResult));
+  const onResult = useCallback(
+    (res: BaseResponse<FilterConfig>) => {
+      if (res) {
+        showSuccess(`Lưu bộ lọc thành công`);
+        setShowModalSaveFilter(false);
+        getConfigInventory();
       }
-    }
-
-  }, [dispatch,formAdvanceFilter, onResult, lstConfigFilter]);
-
-  const onBaseFinish = useCallback(
-    () => {
-      let data = formBaseFilter.getFieldsValue(true);
-      onFilter && onFilter(data);
     },
-    [formBaseFilter, onFilter]
+    [getConfigInventory],
   );
 
-  const onAdvanceFinish = useCallback(
-    () => {
-      let data = formAdvanceFilter.getFieldsValue(true);
+  const onSaveFilter = useCallback(
+    (request: FilterConfigRequest) => {
+      if (request) {
+        let json_content = JSON.stringify(formAdvanceFilter.getFieldsValue(), function (k, v) {
+          return v === undefined ? null : v;
+        });
+        request.type = FILTER_CONFIG_TYPE.FILTER_INVENTORY;
+        request.json_content = json_content;
 
-      onFilter && onFilter(data);
+        if (request.id) {
+          const config = lstConfigFilter?.find((e) => e.id.toString() === request.id.toString());
+          if (lstConfigFilter && config) {
+            request.name = config.name;
+          }
+          dispatch(updateConfigInventoryAction(request, onResult));
+        } else {
+          dispatch(createConfigInventoryAction(request, onResult));
+        }
+      }
     },
-    [formAdvanceFilter, onFilter]
+    [dispatch, formAdvanceFilter, onResult, lstConfigFilter],
   );
+
+  const onBaseFinish = useCallback(() => {
+    let data = formBaseFilter.getFieldsValue(true);
+    onFilter && onFilter(data);
+  }, [formBaseFilter, onFilter]);
+
+  const onAdvanceFinish = useCallback(() => {
+    let data = formAdvanceFilter.getFieldsValue(true);
+
+    onFilter && onFilter(data);
+  }, [formAdvanceFilter, onFilter]);
 
   const onFilterClick = useCallback(() => {
     setVisible(false);
@@ -531,108 +525,139 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
         };
       }
       formBaseFilter.setFieldsValue({
-        ...newFieldsValue
+        ...newFieldsValue,
       });
       formAdvanceFilter.setFieldsValue({
-        ...newFieldsValue
+        ...newFieldsValue,
       });
       formBaseFilter.submit();
     },
-    [formBaseFilter, formAdvanceFilter]
+    [formBaseFilter, formAdvanceFilter],
   );
 
   const customWidth = () => {
-		if (window.innerWidth >= 1600) {
-			return 1400
-		} else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
-			return 1000
-		} else {
-			return 800
-		}
-	}
+    if (window.innerWidth >= 1600) {
+      return 1400;
+    } else if (window.innerWidth < 1600 && window.innerWidth >= 1200) {
+      return 1000;
+    } else {
+      return 800;
+    }
+  };
 
-  const onSelectFilterConfig = useCallback((index: number, id: number)=>{
+  const onSelectFilterConfig = useCallback(
+    (index: number, id: number) => {
       setTagActive(index);
-      const filterConfig = lstConfigFilter?.find(e=>e.id === id);
+      const filterConfig = lstConfigFilter?.find((e) => e.id === id);
       if (filterConfig) {
         let json_content = JSON.parse(filterConfig.json_content);
 
-        Object.keys(json_content).forEach(function(key) {
+        Object.keys(json_content).forEach(function (key) {
           if (json_content[key] == null) json_content[key] = undefined;
         }, json_content);
         formAdvanceFilter.setFieldsValue(json_content);
       }
-  },[lstConfigFilter, formAdvanceFilter]);
+    },
+    [lstConfigFilter, formAdvanceFilter],
+  );
 
-  const onCloseFilterConfig = useCallback(()=>{
+  const onCloseFilterConfig = useCallback(() => {
     setTagActive(null);
-  },[]);
+  }, []);
 
-  const onResultDeleteConfig = useCallback((res: BaseResponse<FilterConfig>)=>{
-    if (res) {
-      showSuccess(`Xóa bộ lọc thành công`);
-      setIsShowConfirmDelete(false);
-      getConfigInventory();
-    }
-  },[getConfigInventory])
+  const onResultDeleteConfig = useCallback(
+    (res: BaseResponse<FilterConfig>) => {
+      if (res) {
+        showSuccess(`Xóa bộ lọc thành công`);
+        setIsShowConfirmDelete(false);
+        getConfigInventory();
+      }
+    },
+    [getConfigInventory],
+  );
 
-  const onMenuDeleteConfigFilter =useCallback(()=>{
+  const onMenuDeleteConfigFilter = useCallback(() => {
     if (configId) {
-      dispatch(deleteConfigInventoryAction(configId,onResultDeleteConfig));
+      dispatch(deleteConfigInventoryAction(configId, onResultDeleteConfig));
     }
-  },[dispatch ,configId, onResultDeleteConfig]);
+  }, [dispatch, configId, onResultDeleteConfig]);
 
-  const FilterConfigCom = (props: any)=>{
+  const FilterConfigCom = (props: any) => {
     return (
-      <span style={{marginRight: 20, display: "inline-flex"}}>
-          <Tag onClick={() => {
-              onSelectFilterConfig(props.index, props.id);
-              }} style={{cursor: "pointer", backgroundColor: tagAcitve === props.index ? primaryColor: '',
-                    color: tagAcitve === props.index ? "white": ''}} key={props.index} icon={<StarOutlined />}
-                    closeIcon={<CloseOutlined className={tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"} />} closable={true} onClose={(e)=>{
-                      e.preventDefault();
-                      setConfigId(props.id);
-                      setIsShowConfirmDelete(true);
-                    }}>
-              {props.name}
-            </Tag>
+      <span style={{ marginRight: 20, display: "inline-flex" }}>
+        <Tag
+          onClick={() => {
+            onSelectFilterConfig(props.index, props.id);
+          }}
+          style={{
+            cursor: "pointer",
+            backgroundColor: tagAcitve === props.index ? primaryColor : "",
+            color: tagAcitve === props.index ? "white" : "",
+          }}
+          key={props.index}
+          icon={<StarOutlined />}
+          closeIcon={
+            <CloseOutlined
+              className={
+                tagAcitve === props.index ? "ant-tag-close-icon" : "ant-tag-close-icon-black"
+              }
+            />
+          }
+          closable={true}
+          onClose={(e) => {
+            e.preventDefault();
+            setConfigId(props.id);
+            setIsShowConfirmDelete(true);
+          }}
+        >
+          {props.name}
+        </Tag>
       </span>
-    )
-  }
+    );
+  };
 
   const onResetFilter = useCallback(() => {
     let fields = formAdvanceFilter.getFieldsValue(true);
     for (let key in fields) {
-      if(fields[key] instanceof Array) {
+      if (fields[key] instanceof Array) {
         fields[key] = [];
       } else {
         fields[key] = undefined;
       }
     }
     formAdvanceFilter.setFieldsValue(fields);
-    formAdvanceFilter.resetFields(['merchandiser_codes, designer_codes']);
+    formAdvanceFilter.resetFields(["merchandiser_codes, designer_codes"]);
     formAdvanceFilter.submit();
     setVisible(false);
     onCloseFilterConfig();
   }, [formAdvanceFilter, onCloseFilterConfig]);
 
-  const onChangeStore = useCallback((e:Array<number>)=>{
-    if (e) {
-      let newParams = {...params, store_ids: e.length === 0 ? undefined : e.toString()};
-      let queryParam = generateQuery({...newParams});
+  const onChangeStore = useCallback(
+    (e: Array<number>) => {
+      if (e) {
+        let newParams = {
+          ...params,
+          store_ids: e.length === 0 ? undefined : e.toString(),
+        };
+        let queryParam = generateQuery({ ...newParams });
 
-      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
-    }
-  },[history, params]);
+        history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+      }
+    },
+    [history, params],
+  );
 
-  const onChangeRemain = useCallback((e: string)=>{
-    if (e) {
-      let newParams = {...params, remain: e};
-      let queryParam = generateQuery({...newParams});
+  const onChangeRemain = useCallback(
+    (e: string) => {
+      if (e) {
+        let newParams = { ...params, remain: e };
+        let queryParam = generateQuery({ ...newParams });
 
-      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
-    }
-  },[history, params])
+        history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+      }
+    },
+    [history, params],
+  );
 
   useEffect(() => {
     setAdvanceFilters({ ...params });
@@ -645,24 +670,165 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
   }, [params, dispatch, getConfigInventory, setDataCategory, setDataCollection]);
 
   return (
-      <div className="inventory-filter">
+    <div className="inventory-filter">
+      <Form
+        onFinish={onBaseFinish}
+        initialValues={advanceFilters}
+        form={formBaseFilter}
+        name={"baseInventory"}
+        layout="inline"
+      >
+        <FilterWrapper>
+          <Item name="info" className="search">
+            <Input
+              prefix={<img src={search} alt="" />}
+              style={{ width: "100%" }}
+              placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+              allowClear
+            />
+          </Item>
+          <Item name="remain" style={{ minWidth: 250 }}>
+            <CustomSelect
+              showSearch
+              allowClear
+              showArrow
+              placeholder="Chọn trạng thái tồn"
+              style={{ width: "100%" }}
+              optionFilterProp="children"
+              getPopupContainer={(trigger) => trigger.parentNode}
+              onChange={onChangeRemain}
+              maxTagCount="responsive"
+            >
+              {ArrRemain?.map((item) => (
+                <CustomSelect.Option key={item.key} value={item.key}>
+                  {item.value}
+                </CustomSelect.Option>
+              ))}
+            </CustomSelect>
+          </Item>
+          <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 300 }}>
+            <TreeStore
+              form={formBaseFilter}
+              name={InventoryQueryField.store_ids}
+              placeholder="Chọn cửa hàng"
+              listStore={listStore}
+              onChange={onChangeStore}
+            />
+          </Item>
+          <Item>
+            <Button type="primary" htmlType="submit">
+              Lọc
+            </Button>
+          </Item>
+          <Item>
+            <Button icon={<FilterOutlined />} onClick={openFilter}>
+              Thêm bộ lọc
+            </Button>
+          </Item>
+          <Item>
+            <ButtonSetting onClick={openColumn} />
+          </Item>
+        </FilterWrapper>
+      </Form>
+      <FilterList
+        accounts={accounts}
+        filters={advanceFilters}
+        resetField={resetField}
+        listCategory={listCategory}
+        listCountry={listCountry}
+        listStore={listStore}
+        sizes={sizes}
+        variants={variants}
+        products={products}
+        lstCollection={lstCollection}
+      />
+      <BaseFilter
+        onClearFilter={onResetFilter}
+        onFilter={onFilterClick}
+        onCancel={onCancelFilter}
+        visible={visible}
+        width={customWidth()}
+        className="order-filter-drawer"
+        allowSave={true}
+        onSaveFilter={onShowSaveFilter}
+      >
         <Form
-          onFinish={onBaseFinish}
-          initialValues={advanceFilters}
-          form={formBaseFilter}
-          name={"baseInventory"}
-          layout="inline"
+          name={`avdHistoryInventory`}
+          onFinish={onAdvanceFinish}
+          layout="vertical"
+          form={formAdvanceFilter}
         >
-          <FilterWrapper>
-            <Item name="info" className="search">
-              <Input
-                prefix={<img src={search} alt="" />}
-                style={{width: "100%"}}
-                placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
-                allowClear
-              />
-            </Item>
-            <Item name="remain" style={{ minWidth: 250 }}>
+          {/* filters tag */}
+          {lstConfigFilter && lstConfigFilter.length > 0 && (
+            <Row>
+              <Item>
+                <Col span={24} className="tag-filter">
+                  {lstConfigFilter?.map((e, index) => {
+                    return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />;
+                  })}
+                </Col>
+              </Item>
+            </Row>
+          )}
+          <Row gutter={25}>
+            <Col span={16}>
+              <Item name={AvdInventoryFilter.info} className="search">
+                <Input
+                  allowClear
+                  prefix={<img src={search} alt="" />}
+                  style={{ width: "100%" }}
+                  placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
+                />
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.store_ids} className="store">
+                <TreeStore
+                  form={formBaseFilter}
+                  name={InventoryQueryField.store_ids}
+                  placeholder="Chọn cửa hàng"
+                  listStore={listStore}
+                  onChange={onChangeStore}
+                />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={25}>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.made_in_ids} label="Xuất xứ">
+                <CustomSelect
+                  showSearch
+                  optionFilterProp="children"
+                  showArrow
+                  placeholder="Chọn xuất xứ"
+                  mode="multiple"
+                  allowClear
+                  tagRender={tagRender}
+                  notFoundContent="Không tìm thấy kết quả"
+                  maxTagCount="responsive"
+                >
+                  {listCountry?.map((item) => (
+                    <CustomSelect.Option key={item.id} value={String(item.id)}>
+                      {item.name}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.designer_codes} label="Nhà thiết kế">
+                <AccountSearchPaging mode="multiple" placeholder="Chọn nhà thiết kế" />
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.merchandiser_codes} label="Merchandiser">
+                <AccountSearchPaging mode="multiple" placeholder="Chọn Merchandiser" />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={25}>
+            <Col span={8}>
+              <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
                 <CustomSelect
                   showSearch
                   allowClear
@@ -671,287 +837,140 @@ const AllInventoryFilter: React.FC<InventoryFilterProps> = (
                   style={{ width: "100%" }}
                   optionFilterProp="children"
                   getPopupContainer={(trigger) => trigger.parentNode}
-                  onChange={onChangeRemain}
-                  maxTagCount="responsive">
+                  maxTagCount="responsive"
+                >
                   {ArrRemain?.map((item) => (
                     <CustomSelect.Option key={item.key} value={item.key}>
                       {item.value}
                     </CustomSelect.Option>
                   ))}
                 </CustomSelect>
-            </Item>
-            <Item name={InventoryQueryField.store_ids} className="store" style={{ minWidth: 300 }}>
-              <TreeStore
-                form={formBaseFilter}
-                name={InventoryQueryField.store_ids}
-                placeholder="Chọn cửa hàng"
-                listStore={listStore}
-                onChange={onChangeStore}
-              />
-            </Item>
-            <Item>
-              <Button type="primary" htmlType="submit">
-                Lọc
-              </Button>
-            </Item>
-            <Item>
-                <Button icon={<FilterOutlined />} onClick={openFilter}>
-                  Thêm bộ lọc
-                </Button>
-            </Item>
-            <Item>
-              <ButtonSetting onClick={openColumn} />
-            </Item>
-          </FilterWrapper>
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
+                <CustomSelect
+                  showSearch
+                  optionFilterProp="children"
+                  showArrow
+                  placeholder="Chọn danh mục"
+                  mode="multiple"
+                  allowClear
+                  tagRender={tagRender}
+                  notFoundContent="Không tìm thấy kết quả"
+                  maxTagCount="responsive"
+                >
+                  {listCategory?.map((item) => (
+                    <CustomSelect.Option key={item.id} value={String(item.id)}>
+                      {item.name}
+                    </CustomSelect.Option>
+                  ))}
+                </CustomSelect>
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item label="Giá bán">
+                <Input.Group compact style={{ height: 38 }}>
+                  <Item hidden={true} name="variant_prices"></Item>
+                  <Item
+                    name="from_price"
+                    style={{
+                      width: "45%",
+                      textAlign: "center",
+                      marginBottom: 0,
+                    }}
+                  >
+                    <InputNumber
+                      className="price_min"
+                      placeholder="Từ"
+                      formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                      min="0"
+                      max="100000000"
+                    />
+                  </Item>
+                  <div className="site-input-split">~</div>
+                  <Item
+                    name="to_price"
+                    style={{
+                      width: "45%",
+                      textAlign: "center",
+                      marginBottom: 0,
+                    }}
+                  >
+                    <InputNumber
+                      className="site-input-right price_max"
+                      placeholder="Đến"
+                      formatter={(value) => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ",")}
+                      min="0"
+                      max="1000000000"
+                    />
+                  </Item>
+                </Input.Group>
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={25}>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.collections} label="Nhóm hàng">
+                <CollectionSearchPaging mode="multiple" placeholder="Chọn chọn nhóm hàng" />
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.sizes} label="Kích thước">
+                <SizeSearchSelect mode="multiple" />
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item
+                tooltip={{
+                  title: "Tìm kiếm sản phẩm theo tags",
+                  icon: <InfoCircleOutlined />,
+                }}
+                name="tags"
+                label="Từ khóa"
+              >
+                <HashTag />
+              </Item>
+            </Col>
+          </Row>
+          <Row gutter={25}>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.variant_sku3} label="Mã 3">
+                <VariantSku3SearchPaging mode="multiple" />
+              </Item>
+            </Col>
+            <Col span={8}>
+              <Item name={AvdInventoryFilter.variant_sku7} label="Mã 7">
+                <ProductSearchPaging mode="multiple" />
+              </Item>
+            </Col>
+          </Row>
         </Form>
-        <FilterList
-          accounts={accounts}
-          filters={advanceFilters}
-          resetField={resetField}
-          listCategory={listCategory}
-          listCountry={listCountry}
-          listStore={listStore}
-          sizes={sizes}
-          variants={variants}
-          products={products}
-          lstCollection={lstCollection}
-        />
-        <BaseFilter
-          onClearFilter={onResetFilter}
-          onFilter={onFilterClick}
-          onCancel={onCancelFilter}
-          visible={visible}
-          width={customWidth()}
-          className="order-filter-drawer"
-          allowSave={true}
-          onSaveFilter={onShowSaveFilter}
-        >
-          <Form
-            name={`avdHistoryInventory`}
-            onFinish={onAdvanceFinish}
-            layout="vertical"
-            form={formAdvanceFilter}
-          >
-              {/* filters tag */}
-              {
-                (lstConfigFilter && lstConfigFilter.length > 0) &&
-                <Row>
-                  <Item>
-                    <Col span={24} className="tag-filter">
-                      {
-                        lstConfigFilter?.map((e, index)=>{
-                          return <FilterConfigCom key={index} id={e.id} index={index} name={e.name} />
-                        })
-                      }
-                    </Col>
-                  </Item>
-               </Row>
-              }
-              <Row gutter={25}>
-                <Col span={16}>
-                  <Item name={AvdInventoryFilter.info} className="search">
-                    <Input
-                      allowClear
-                      prefix={<img src={search} alt="" />}
-                      style={{width: "100%"}}
-                      placeholder="Tìm kiếm sản phẩm theo Tên, Mã vạch, SKU"
-                    />
-                  </Item>
-                </Col>
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.store_ids} className="store">
-                    <TreeStore
-                        form={formBaseFilter}
-                        name={InventoryQueryField.store_ids}
-                        placeholder="Chọn cửa hàng"
-                        listStore={listStore}
-                        onChange={onChangeStore}
-                      />
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={25}>
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.made_in_ids} label="Xuất xứ">
-                    <CustomSelect
-                        showSearch
-                        optionFilterProp="children"
-                        showArrow
-                        placeholder="Chọn xuất xứ"
-                        mode="multiple"
-                        allowClear
-                        tagRender={tagRender}
-                        notFoundContent="Không tìm thấy kết quả"
-                        maxTagCount="responsive"
-                      >
-                        {listCountry?.map((item) => (
-                          <CustomSelect.Option key={item.id} value={String(item.id)}>
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.designer_codes} label="Nhà thiết kế">
-                    <AccountSearchPaging
-                      mode="multiple"
-                      placeholder="Chọn nhà thiết kế"
-                    />
-                  </Item>
-                </Col>
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.merchandiser_codes} label="Merchandiser">
-                    <AccountSearchPaging
-                      mode="multiple"
-                      placeholder="Chọn Merchandiser"
-                    />
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={25}>
-                <Col span={8}>
-                  <Item name="remain" style={{ minWidth: 250 }} label="Trạng thái tồn">
-                    <CustomSelect
-                      showSearch
-                      allowClear
-                      showArrow
-                      placeholder="Chọn trạng thái tồn"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {ArrRemain?.map((item) => (
-                        <CustomSelect.Option key={item.key} value={item.key}>
-                          {item.value}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.category_ids} label="Danh mục">
-                    <CustomSelect
-                          showSearch
-                          optionFilterProp="children"
-                          showArrow
-                          placeholder="Chọn danh mục"
-                          mode="multiple"
-                          allowClear
-                          tagRender={tagRender}
-                          notFoundContent="Không tìm thấy kết quả"
-                          maxTagCount="responsive"
-                        >
-                          {listCategory?.map((item) => (
-                            <CustomSelect.Option key={item.id} value={String(item.id)}>
-                              {item.name}
-                            </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                  </Item>
-                </Col>
-                <Col span={8}>
-                  <Item label="Giá bán">
-                      <Input.Group compact style={{height: 38}}>
-                        <Item hidden={true} name="variant_prices">
-                        </Item>
-                        <Item name="from_price" style={{ width: '45%', textAlign: 'center',marginBottom: 0 }}>
-                          <InputNumber
-                            className="price_min"
-                            placeholder="Từ"
-                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            min="0"
-                            max="100000000"
-                          />
-                        </Item>
-                        <div
-                          className="site-input-split"
-                        >~</div>
-                        <Item name="to_price" style={{ width: '45%', textAlign: 'center',marginBottom: 0 }}>
-                          <InputNumber
-                            className="site-input-right price_max"
-                            placeholder="Đến"
-                            formatter={value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')}
-                            min="0"
-                            max="1000000000"
-                          />
-                        </Item>
-                      </Input.Group>
-                    </Item>
-                </Col>
-              </Row>
-              <Row gutter={25}>
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.collections} label="Nhóm hàng">
-                    <CollectionSearchPaging
-                        mode="multiple"
-                        placeholder="Chọn chọn nhóm hàng"
-                    />
-                  </Item>
-                </Col>
-                <Col span={8}>
-                  <Item
-                      name={AvdInventoryFilter.sizes}
-                      label="Kích thước"
-                    >
-                      <SizeSearchSelect
-                        mode="multiple"
-                      />
-                  </Item>
-                </Col>
-                <Col span={8}>
-                  <Item
-                      tooltip={{
-                        title: "Tìm kiếm sản phẩm theo tags",
-                        icon: <InfoCircleOutlined />,
-                      }}
-                      name="tags"
-                      label="Từ khóa"
-                    >
-                      <HashTag />
-                  </Item>
-                </Col>
-              </Row>
-              <Row gutter={25}>
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.variant_sku3} label="Mã 3">
-                    <VariantSku3SearchPaging
-                        mode="multiple"
-                    />
-                  </Item>
-                </Col>   
-                <Col span={8}>
-                  <Item name={AvdInventoryFilter.variant_sku7} label="Mã 7">
-                    <ProductSearchPaging
-                        mode="multiple"
-                    />
-                  </Item>
-                </Col>      
-              </Row>
-          </Form>
-        </BaseFilter>
-        <CustomModal
-          createText="Lưu lại"
-          updateText="Lưu lại"
-          visible={showModalSaveFilter}
-          onCreate={(formValues)=>{onSaveFilter(formValues)}}
-          onEdit={()=>{}}
-          onDelete={()=>{}}
-          onCancel={() => setShowModalSaveFilter(false)}
-          modalAction={modalAction}
-          lstConfigFilter={lstConfigFilter}
-          componentForm={FormSaveFilter}
-          formItem={null}
-          modalTypeText="bộ lọc"
-        />
-        <ModalDeleteConfirm
-          visible={isShowConfirmDelete}
-          onOk={onMenuDeleteConfigFilter}
-          onCancel={() => setIsShowConfirmDelete(false)}
-          title="Xác nhận"
-          subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
-        />
-      </div>
+      </BaseFilter>
+      <CustomModal
+        createText="Lưu lại"
+        updateText="Lưu lại"
+        visible={showModalSaveFilter}
+        onCreate={(formValues) => {
+          onSaveFilter(formValues);
+        }}
+        onEdit={() => {}}
+        onDelete={() => {}}
+        onCancel={() => setShowModalSaveFilter(false)}
+        modalAction={modalAction}
+        lstConfigFilter={lstConfigFilter}
+        componentForm={FormSaveFilter}
+        formItem={null}
+        modalTypeText="bộ lọc"
+      />
+      <ModalDeleteConfirm
+        visible={isShowConfirmDelete}
+        onOk={onMenuDeleteConfigFilter}
+        onCancel={() => setIsShowConfirmDelete(false)}
+        title="Xác nhận"
+        subTitle={"Bạn có chắc muốn xóa bộ lọc này?"}
+      />
+    </div>
   );
 };
 export default AllInventoryFilter;

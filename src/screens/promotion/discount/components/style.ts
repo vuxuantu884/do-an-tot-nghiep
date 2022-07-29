@@ -3,7 +3,7 @@ import styled from "styled-components";
 export const StyledComponent = styled.div`
   .discount-filter {
     .page-filter {
-			padding: 0;
+      padding: 0;
       &-right {
         margin-left: 16px;
         width: 100%;
@@ -23,13 +23,13 @@ export const StyledComponent = styled.div`
       }
     }
     .ant-form-item:last-child {
-            margin: 0 0px;
-          }
+      margin: 0 0px;
+    }
 
     .search-variant {
-			min-width: 200px;
-			width: 25%;
-		}
+      min-width: 200px;
+      width: 25%;
+    }
   }
 
   .order-filter-tags .ant-tag.tag {
@@ -40,7 +40,7 @@ export const StyledComponent = styled.div`
   }
 
   .filter-tags {
-		margin-top: 20px;
+    margin-top: 20px;
     .ant-tag {
       margin-top: 0;
     }
@@ -51,5 +51,4 @@ export const StyledComponent = styled.div`
       white-space: normal;
     }
   }
-  
 `;

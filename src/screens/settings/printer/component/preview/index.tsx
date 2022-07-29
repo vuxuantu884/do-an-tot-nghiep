@@ -1,9 +1,6 @@
 import { Button, Tooltip } from "antd";
 import purify from "dompurify";
-import {
-  PrintPreviewModel,
-  productKeywordsModel,
-} from "model/editor/editor.model";
+import { PrintPreviewModel, productKeywordsModel } from "model/editor/editor.model";
 import React, { useEffect, useRef, useState } from "react";
 import ReactToPrint from "react-to-print";
 import IconEdit from "./images/iconEdit.svg";
@@ -21,10 +18,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
     onChangeShowEditor,
   } = props;
   const printElementRef = useRef(null);
-  const checkIfStringContainsOneInArray = (
-    text: string,
-    arr: productKeywordsModel[]
-  ) => {
+  const checkIfStringContainsOneInArray = (text: string, arr: productKeywordsModel[]) => {
     let result = false;
     arr.find((single) => {
       if (text.includes(single.value)) {
@@ -54,10 +48,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                 if (singleListKeywords && singleListKeywords[j].preview_value) {
                   let singleExample = singleListKeywords[j].preview_value;
                   if (singleExample) {
-                    resultText = resultText.replaceAll(
-                      singleListKeywords[j].value,
-                      singleExample
-                    );
+                    resultText = resultText.replaceAll(singleListKeywords[j].value, singleExample);
                   }
                 }
               }
@@ -70,7 +61,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
       const docFromCkEditor = new DOMParser().parseFromString(
         resultText,
         // "text/xml"
-        "text/html"
+        "text/html",
       );
 
       if (docFromCkEditor) {
@@ -92,8 +83,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             let trElements = tBodyElements[0].getElementsByTagName("tr");
             if (!trElements) return "";
             const trLength = trElements.length;
-            let productsChange =
-              listProductKeywords.list[0].preview_value_format;
+            let productsChange = listProductKeywords.list[0].preview_value_format;
             let numberOfProducts = productsChange?.length;
 
             if (!numberOfProducts) {
@@ -105,23 +95,18 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
             for (let i = 0; i < trLength; i++) {
               let resultTextReplacedArray: string[] = [];
               let eachRow = trElements[i].outerHTML;
-              if (
-                checkIfStringContainsOneInArray(
-                  eachRow,
-                  listProductKeywords.list
-                )
-              ) {
+              if (checkIfStringContainsOneInArray(eachRow, listProductKeywords.list)) {
                 for (let j = 0; j < numberOfProducts; j++) {
                   resultTextReplacedArray[j] = eachRow;
                   for (let k = 0; k < listProductKeywords.list.length; k++) {
                     let textToReplaced = listProductKeywords.list[k].value;
-                    let previewValueFormat =
-                      listProductKeywords.list[k]?.preview_value_format;
+                    let previewValueFormat = listProductKeywords.list[k]?.preview_value_format;
                     if (previewValueFormat) {
                       let textReplaced = previewValueFormat[j];
-                      resultTextReplacedArray[j] = resultTextReplacedArray[
-                        j
-                      ].replaceAll(textToReplaced, textReplaced);
+                      resultTextReplacedArray[j] = resultTextReplacedArray[j].replaceAll(
+                        textToReplaced,
+                        textReplaced,
+                      );
                     }
                   }
                 }
@@ -163,9 +148,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
    * case url has param print=true,  print only one time
    */
   useEffect(() => {
-    let buttonPrintElement = document.getElementsByClassName(
-      "button__print"
-    )[0] as HTMLElement;
+    let buttonPrintElement = document.getElementsByClassName("button__print")[0] as HTMLElement;
     if (isPrint && htmlContent && !hasAlreadyPrint) {
       buttonPrintElement.click();
       setHasAlreadyPrint(true);
@@ -192,11 +175,7 @@ const Preview: React.FC<PrintPreviewModel> = (props: PrintPreviewModel) => {
                 trigger={() => (
                   <Button className="button__print">
                     <div className="icon">
-                      <img
-                        src={IconPrintHover}
-                        alt=""
-                        className="icon--hover"
-                      />
+                      <img src={IconPrintHover} alt="" className="icon--hover" />
                     </div>
                     In thử
                   </Button>

@@ -1,8 +1,6 @@
 import styled from "styled-components";
 import { borderColor } from "utils/global-styles/variables";
 
-
-
 export const nameQuantityWidth = 280;
 const quantityWidth = 60;
 const massWidth = 100;
@@ -34,14 +32,13 @@ export const StyledComponent = styled.div`
     transition: all 0.2s;
   }
   th {
-		text-align: center !important;
+    text-align: center !important;
   }
   .ant-table-cell.customer-column,
   .ant-table-cell.productNameQuantity {
     padding: 0 !important;
-    .items .item{
+    .items .item {
       padding: 0 10px;
-
     }
   }
   td {
@@ -60,7 +57,7 @@ export const StyledComponent = styled.div`
     width: ${quantityWidth}px;
     text-align: center;
   }
-  .massWidth{
+  .massWidth {
     width: ${massWidth}px;
     text-align: center;
   }
@@ -90,7 +87,7 @@ export const StyledComponent = styled.div`
       display: flex;
       align-items: center;
       justify-content: center;
-      position:relative;
+      position: relative;
       &:before {
         content: "";
         display: block;
@@ -103,12 +100,12 @@ export const StyledComponent = styled.div`
         background-color: ${borderColor};
       }
     }
-    .mass{
+    .mass {
       white-space: nowrap;
       display: flex;
       align-items: center;
       justify-content: center;
-      position:relative;
+      position: relative;
       &:before {
         content: "";
         display: block;
@@ -127,7 +124,7 @@ export const StyledComponent = styled.div`
       align-items: center;
       justify-content: center;
       &:before {
-       // content: "";
+        // content: "";
         display: block;
         width: 1px;
         position: absolute;
@@ -138,12 +135,12 @@ export const StyledComponent = styled.div`
         background-color: ${borderColor};
       }
     }
-		.productNameText {
-			overflow: hidden;
-			text-overflow: ellipsis;
-			display: -webkit-box;
-			-webkit-line-clamp: 2;
-			-webkit-box-orient: vertical;
-		}
+    .productNameText {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+    }
   }
 `;

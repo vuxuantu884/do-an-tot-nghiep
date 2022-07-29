@@ -1,7 +1,11 @@
 import { Card } from "antd";
 import { MenuAction } from "component/table/ActionButton";
 import { PageResponse } from "model/base/base-metadata.response";
-import { SupplierResponse, SupplierQuery, SupplierContactResposne } from "model/core/supplier.model";
+import {
+  SupplierResponse,
+  SupplierQuery,
+  SupplierContactResposne,
+} from "model/core/supplier.model";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
@@ -13,10 +17,7 @@ import CustomTable, { ICustomTableColumType } from "component/table/CustomTable"
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import ButtonCreate from "component/header/ButtonCreate";
-import {
-  SupplierDeleteAction,
-  SupplierSearchAction,
-} from "domain/actions/core/supplier.action";
+import { SupplierDeleteAction, SupplierSearchAction } from "domain/actions/core/supplier.action";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { showSuccess, showWarning } from "utils/ToastUtils";
@@ -90,11 +91,9 @@ const ListSupplierScreen: React.FC = () => {
     });
   }, [allowDeleteSup]);
 
-  const scorecard = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
-  );
+  const scorecard = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.scorecard);
   const listSupplierType = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type,
   );
   let dataQuery: SupplierQuery = { ...initQuery, ...getQueryParams(query) };
   let [params, setPrams] = useState<SupplierQuery>(dataQuery);
@@ -125,7 +124,7 @@ const ListSupplierScreen: React.FC = () => {
       dataIndex: "name",
       visible: true,
       render: (value: string, item: SupplierResponse) => {
-        return <TextEllipsis value={value} line={2} />
+        return <TextEllipsis value={value} line={2} />;
       },
     },
     {
@@ -138,7 +137,7 @@ const ListSupplierScreen: React.FC = () => {
           if (contacts.length > 0) {
             return contacts[0].phone;
           }
-          return '';
+          return "";
         }
         return contacts[index].phone;
       },
@@ -148,16 +147,19 @@ const ListSupplierScreen: React.FC = () => {
       title: "Merchandiser",
       width: 200,
       dataIndex: "pic",
-      render: (_, item: SupplierResponse) => (
-        item.pic ? <div>
+      render: (_, item: SupplierResponse) =>
+        item.pic ? (
           <div>
-            {item.pic_code}
+            <div>{item.pic_code}</div>
+            <div>
+              <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.pic_code}`}>
+                {item.pic}
+              </Link>
+            </div>
           </div>
-          <div>
-            <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.pic_code}`}>{item.pic}</Link>
-          </div>
-        </div> : "---"
-      ),
+        ) : (
+          "---"
+        ),
       visible: true,
     },
     {
@@ -165,9 +167,7 @@ const ListSupplierScreen: React.FC = () => {
       title: "Trạng thái",
       dataIndex: "status_name",
       render: (value: string, item: SupplierResponse) => (
-        <div className={item.status === "active" ? "text-success" : "text-error"}>
-          {value}
-        </div>
+        <div className={item.status === "active" ? "text-success" : "text-error"}>{value}</div>
       ),
       visible: true,
     },
@@ -176,9 +176,7 @@ const ListSupplierScreen: React.FC = () => {
       title: "Nhóm hàng",
       dataIndex: "collection",
       visible: true,
-      render: (_, item) => (
-        <span>{item?.collection?.name}</span>
-      )
+      render: (_, item) => <span>{item?.collection?.name}</span>,
     },
     {
       width: 100,
@@ -225,20 +223,15 @@ const ListSupplierScreen: React.FC = () => {
       visible: true,
     },
   ]);
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
   const onSelect = useCallback((selectedRow: Array<SupplierResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
-
-
 
   const onPageChange = useCallback(
     (page, size) => {
@@ -248,16 +241,13 @@ const ListSupplierScreen: React.FC = () => {
       setPrams({ ...params });
       history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
-  const searchSupplierCallback = useCallback(
-    (listResult: PageResponse<SupplierResponse>) => {
-      setTableLoading(false);
-      setData(listResult);
-    },
-    []
-  );
+  const searchSupplierCallback = useCallback((listResult: PageResponse<SupplierResponse>) => {
+    setTableLoading(false);
+    setData(listResult);
+  }, []);
 
   const deleteCallback = useCallback(() => {
     selected.splice(0, selected.length);
@@ -268,7 +258,7 @@ const ListSupplierScreen: React.FC = () => {
 
   const onDelete = useCallback(() => {
     if (selected && selected.length > 0) {
-      selected.forEach(e => {
+      selected.forEach((e) => {
         dispatch(SupplierDeleteAction(e.id, deleteCallback));
       });
     }
@@ -280,23 +270,26 @@ const ListSupplierScreen: React.FC = () => {
       let queryParam = generateQuery(newPrams);
       history.replace(`${UrlConfig.SUPPLIERS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
-  const onMenuClick = useCallback((index: number) => {
-    switch (index) {
-      case ACTIONS_INDEX.DELETE:
-        if (selected.length === 0) {
-          showWarning("Vui lòng chọn nhà cung cấp cần xóa");
-          return;
-        }
-        setConfirmDelete(true);
-        break;
-    }
-  }, [selected]);
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ACTIONS_INDEX.DELETE:
+          if (selected.length === 0) {
+            showWarning("Vui lòng chọn nhà cung cấp cần xóa");
+            return;
+          }
+          setConfirmDelete(true);
+          break;
+      }
+    },
+    [selected],
+  );
 
   useEffectOnce(() => {
     dispatch(DistrictGetByCountryAction(DefaultCountry, setListDistrict));
-  })
+  });
 
   useEffect(() => {
     setTableLoading(true);
@@ -322,10 +315,7 @@ const ListSupplierScreen: React.FC = () => {
           ]}
           extra={
             allowCreateSup ? (
-              <ButtonCreate
-                child="Thêm nhà cung cấp"
-                path={`${UrlConfig.SUPPLIERS}/create`}
-              />
+              <ButtonCreate child="Thêm nhà cung cấp" path={`${UrlConfig.SUPPLIERS}/create`} />
             ) : null
           }
         >
@@ -342,7 +332,6 @@ const ListSupplierScreen: React.FC = () => {
               initValue={initQuery}
               listSupplierType={listSupplierType}
               onClickOpen={() => setShowSettingColumn(true)}
-
             />
             <CustomTable
               className="small-padding"
@@ -356,7 +345,10 @@ const ListSupplierScreen: React.FC = () => {
                 onShowSizeChange: onPageChange,
               }}
               scroll={{ x: "max-content" }}
-              sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
+              sticky={{
+                offsetScroll: 5,
+                offsetHeader: OFFSET_HEADER_UNDER_NAVBAR,
+              }}
               isLoading={tableLoading}
               showColumnSetting={true}
               onShowColumnSetting={() => setShowSettingColumn(true)}

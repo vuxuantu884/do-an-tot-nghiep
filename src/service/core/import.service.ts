@@ -2,7 +2,7 @@ import BaseResponse from "base/base.response";
 import BaseAxios from "base/base.axios";
 import { ApiConfig } from "config/api.config";
 
-const uploadFileApi= (
+const uploadFileApi = (
   files: File[] | undefined,
   folder: string,
 ): Promise<BaseResponse<string[]>> => {
@@ -19,7 +19,6 @@ const uploadFileApi= (
     },
   };
   return BaseAxios.post(url, formData, config);
-}
+};
 
-
-export { uploadFileApi};
+export { uploadFileApi };

@@ -19,16 +19,15 @@ type PropTypes = {
   }[];
 };
 
-function CancelOrderModal (props: PropTypes)  {
-  const { visible, orderCode, onCancel, onOk, reasons } =
-    props;
-    const otherReasonId = "1";
-    const dispatch = useDispatch();
-    const [reasonID, setReasonID] = useState<string | undefined>(undefined);
-    const [reason, setReason] = useState<string | undefined>(undefined);
-    const [reasonSub, setReasonSub] = useState<string | undefined>(undefined);
-    const [reasonSubs, setReasonSubs] = useState<OrderReturnReasonDetailModel[]>([]);
-    const [reasonOtherDescription, setReasonOtherDescription] = useState<string>("");
+function CancelOrderModal(props: PropTypes) {
+  const { visible, orderCode, onCancel, onOk, reasons } = props;
+  const otherReasonId = "1";
+  const dispatch = useDispatch();
+  const [reasonID, setReasonID] = useState<string | undefined>(undefined);
+  const [reason, setReason] = useState<string | undefined>(undefined);
+  const [reasonSub, setReasonSub] = useState<string | undefined>(undefined);
+  const [reasonSubs, setReasonSubs] = useState<OrderReturnReasonDetailModel[]>([]);
+  const [reasonOtherDescription, setReasonOtherDescription] = useState<string>("");
 
   const onChangeReason = useCallback((value) => {
     setReason(value);
@@ -36,7 +35,7 @@ function CancelOrderModal (props: PropTypes)  {
       setReasonSubs([]);
       setReasonID(undefined);
     }
-    setReasonSub(undefined)
+    setReasonSub(undefined);
   }, []);
 
   const focusElementById = (id: string) => {
@@ -44,26 +43,31 @@ function CancelOrderModal (props: PropTypes)  {
     element?.focus();
   };
 
-  const onSubmit = (reasonID: string|undefined, reasonSub: string|undefined, reasonOtherDescription: string, type?: string) => {
-    if(!reasonID) {
+  const onSubmit = (
+    reasonID: string | undefined,
+    reasonSub: string | undefined,
+    reasonOtherDescription: string,
+    type?: string,
+  ) => {
+    if (!reasonID) {
       showError("Vui lòng chọn lý do!");
       const element = document.getElementById("selectFulfillmentCancelReasonId");
-      element?.focus()
+      element?.focus();
     } else {
       const handleSuccess = () => {
         onOk(reasonID, reasonSub || "", reasonOtherDescription);
-        setReason(undefined)
-        setReasonSub(undefined)
+        setReason(undefined);
+        setReasonSub(undefined);
       };
-      if(reasonID === otherReasonId) {
-        if(!reasonOtherDescription) {
+      if (reasonID === otherReasonId) {
+        if (!reasonOtherDescription) {
           showError("Vui lòng nhập lý do khác!");
           focusElementById("cancelOrderOtherReasonDescriptionId");
         } else {
           handleSuccess();
         }
       } else {
-        if(!reasonSub) {
+        if (!reasonSub) {
           showError("Vui lòng nhập chi tiết lý do!");
           focusElementById("cancelOrderSelectSubReasonId");
         } else {
@@ -86,15 +90,15 @@ function CancelOrderModal (props: PropTypes)  {
       });
     }
   }, [dispatch, reason]);
-  
+
   return (
     <Modal
       title={`Huỷ đơn hàng ${orderCode}`}
       onCancel={(e) => {
         onCancel(e);
         setReason(undefined);
-        setReasonSub(undefined)
-        setReasonOtherDescription("")
+        setReasonSub(undefined);
+        setReasonOtherDescription("");
       }}
       onOk={() => onSubmit(reasonID, reasonSub, reasonOtherDescription)}
       visible={visible}
@@ -104,7 +108,7 @@ function CancelOrderModal (props: PropTypes)  {
       width={600}
     >
       <div>
-      <Form.Item label="Chọn lý do" labelCol={{ span: 6 }} style={{ alignItems: "center" }}>
+        <Form.Item label="Chọn lý do" labelCol={{ span: 6 }} style={{ alignItems: "center" }}>
           <CustomSelect
             allowClear
             showSearch
@@ -130,7 +134,8 @@ function CancelOrderModal (props: PropTypes)  {
           <Form.Item
             label="Chọn lý do chi tiết"
             labelCol={{ span: 6 }}
-            style={{ alignItems: "center" }}>
+            style={{ alignItems: "center" }}
+          >
             <CustomSelect
               allowClear
               showSearch
@@ -146,11 +151,12 @@ function CancelOrderModal (props: PropTypes)  {
               value={reasonSub}
               id="cancelOrderSelectSubReasonId"
             >
-              {reasonSubs && reasonSubs.map((reasonSub: any) => (
-                <CustomSelect.Option key={reasonSub.id} value={reasonSub.id.toString()}>
-                  {reasonSub.name}
-                </CustomSelect.Option>
-              ))}
+              {reasonSubs &&
+                reasonSubs.map((reasonSub: any) => (
+                  <CustomSelect.Option key={reasonSub.id} value={reasonSub.id.toString()}>
+                    {reasonSub.name}
+                  </CustomSelect.Option>
+                ))}
             </CustomSelect>
           </Form.Item>
         ) : (
@@ -167,6 +173,6 @@ function CancelOrderModal (props: PropTypes)  {
       </div>
     </Modal>
   );
-};
+}
 
 export default CancelOrderModal;

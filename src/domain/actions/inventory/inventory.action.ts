@@ -1,7 +1,7 @@
 import BaseAction from "base/base.action";
 import BaseResponse from "base/base.response";
-import {InventoryConfigType, InventoryType} from "domain/types/inventory.type";
-import {PageResponse} from "model/base/base-metadata.response";
+import { InventoryConfigType, InventoryType } from "domain/types/inventory.type";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
   HistoryInventoryQuery,
@@ -15,35 +15,35 @@ import LoadingType from "../../types/loading.type";
 
 const inventoryGetListAction = (
   query: InventoryQuery,
-  onResult: (data: PageResponse<AllInventoryResponse> | false) => void
+  onResult: (data: PageResponse<AllInventoryResponse> | false) => void,
 ) => {
-  return BaseAction(InventoryType.GET, {query, onResult});
+  return BaseAction(InventoryType.GET, { query, onResult });
 };
 const inventoryByVariantAction = (
   query: InventoryVariantListQuery,
-  onResult: (data: Array<AllInventoryResponse>) => void
+  onResult: (data: Array<AllInventoryResponse>) => void,
 ) => {
-  return BaseAction(InventoryType.GET_BY_VARIANTS, {query, onResult});
+  return BaseAction(InventoryType.GET_BY_VARIANTS, { query, onResult });
 };
 
 const inventoryGetDetailAction = (
   query: InventoryQuery,
-  onResult: (data: PageResponse<InventoryResponse> | false) => void
+  onResult: (data: PageResponse<InventoryResponse> | false) => void,
 ) => {
-  return BaseAction(InventoryType.GET_DETAIL, {query, onResult});
+  return BaseAction(InventoryType.GET_DETAIL, { query, onResult });
 };
 
 const inventoryGetHistoryAction = (
   query: HistoryInventoryQuery,
-  onResult: (data: PageResponse<HistoryInventoryResponse> | false) => void
+  onResult: (data: PageResponse<HistoryInventoryResponse> | false) => void,
 ) => {
-  return BaseAction(InventoryType.GET_HISTORY, {query, onResult});
+  return BaseAction(InventoryType.GET_HISTORY, { query, onResult });
 };
 
 const inventoryGetDetailVariantIdsSaga = (
   variant_id: Number[],
   store_id: Number | null,
-  setData: (data: Array<InventoryResponse> | null) => void
+  setData: (data: Array<InventoryResponse> | null) => void,
 ) => {
   return BaseAction(InventoryType.GET_DETAIL_lIST_VARIANT, {
     variant_id,
@@ -55,7 +55,7 @@ const inventoryGetDetailVariantIdsSaga = (
 const inventoryGetDetailVariantIdsExt = (
   variant_id: Number[],
   store_id: Number | null,
-  setData: (data: Array<InventoryResponse> | null) => void
+  setData: (data: Array<InventoryResponse> | null) => void,
 ) => {
   return BaseAction(InventoryType.GET_DETAIL_lIST_VARIANT_EXT, {
     variant_id,
@@ -66,45 +66,45 @@ const inventoryGetDetailVariantIdsExt = (
 
 const getConfigInventoryAction = (
   code: string,
-  onResult: (result: BaseResponse<Array<FilterConfig>>) => void
+  onResult: (result: BaseResponse<Array<FilterConfig>>) => void,
 ) => {
   return BaseAction(InventoryConfigType.GET_INVENTORY_CONFIG, {
     code,
-    onResult
+    onResult,
   });
 };
 const createConfigInventoryAction = (
   request: FilterConfigRequest,
-  onResult?: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void,
 ) => {
   return BaseAction(InventoryConfigType.CREATE_INVENTORY_CONFIG, {
     request,
-    onResult
+    onResult,
   });
 };
 const updateConfigInventoryAction = (
   request: FilterConfigRequest,
-  onResult?: (result: BaseResponse<FilterConfig>) => void
+  onResult?: (result: BaseResponse<FilterConfig>) => void,
 ) => {
   return BaseAction(InventoryConfigType.UPDATE_INVENTORY_CONFIG, {
     request,
-    onResult
+    onResult,
   });
 };
 
 const deleteConfigInventoryAction = (
   id: number,
-  onResult: (result: BaseResponse<FilterConfig>) => void
+  onResult: (result: BaseResponse<FilterConfig>) => void,
 ) => {
   return BaseAction(InventoryConfigType.DELETE_INVENTORY_CONFIG, {
     id,
-    onResult
+    onResult,
   });
 };
 
 const changeIsContinueCreateImport = (payload: any) => {
   return BaseAction(InventoryType.CHANGE_IS_CONTINUE_CREATE_IMPORT, payload);
-}
+};
 
 export {
   inventoryGetListAction,
@@ -117,5 +117,5 @@ export {
   createConfigInventoryAction,
   updateConfigInventoryAction,
   deleteConfigInventoryAction,
-  changeIsContinueCreateImport
+  changeIsContinueCreateImport,
 };

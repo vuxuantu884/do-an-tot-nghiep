@@ -24,7 +24,7 @@ function* poProcumentCreateSaga(action: YodyAction) {
     let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
       createPurchaseProcumentService,
       poId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -53,7 +53,7 @@ function* poProcumentUpdateSaga(action: YodyAction) {
       updatePurchaseProcumentService,
       poId,
       procumentId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -82,7 +82,7 @@ function* approvalPoProcumentUpdateSaga(action: YodyAction) {
       approvalPurchaseProcumentService,
       poId,
       procumentId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -111,7 +111,7 @@ function* confirmPoProcumentConfirmSaga(action: YodyAction) {
       confirmPoProcumentService,
       poId,
       procumentId,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -136,10 +136,7 @@ function* confirmPoProcumentConfirmSaga(action: YodyAction) {
 function* poProcumentFinishSaga(action: YodyAction) {
   const { poId, updateCallback } = action.payload;
   try {
-    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
-      updateStatusPO,
-      poId,
-    );
+    let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(updateStatusPO, poId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         updateCallback(response.data);
@@ -164,7 +161,7 @@ function* poProcumentDeleteSaga(action: YodyAction) {
     let response: BaseResponse<BaseResponse<PurchaseProcument>> = yield call(
       deletePurchaseProcumentService,
       poId,
-      procumentId
+      procumentId,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -213,10 +210,7 @@ function* searchProcurementSaga(action: YodyAction) {
 function* importProcumentSaga(action: YodyAction) {
   const { params, onResult } = action.payload;
   try {
-    let response: BaseResponse<any> = yield call(
-      importProcumentApi,
-      params,
-    );
+    let response: BaseResponse<any> = yield call(importProcumentApi, params);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onResult(response.data);
@@ -236,30 +230,12 @@ function* importProcumentSaga(action: YodyAction) {
 }
 
 export function* poProcumentSaga() {
-  yield takeLatest(
-    POProcumentType.CREATE_PO_PROCUMENT_REQUEST,
-    poProcumentCreateSaga
-  );
-  yield takeLatest(
-    POProcumentType.UPDATE_PO_PROCUMENT_REQUEST,
-    poProcumentUpdateSaga
-  );
-  yield takeLatest(
-    POProcumentType.FINNISH_PO_PROCUMENT_REQUEST,
-    poProcumentFinishSaga
-  );
-  yield takeLatest(
-    POProcumentType.DELETE_PO_PROCUMENT_REQUEST,
-    poProcumentDeleteSaga
-  );
-  yield takeEvery(
-    POProcumentType.SEARCH_PROCUREMENT,
-    searchProcurementSaga
-  );
-  yield takeEvery(
-    POProcumentType.IMPORT_PROCUMENT,
-    importProcumentSaga
-  );
+  yield takeLatest(POProcumentType.CREATE_PO_PROCUMENT_REQUEST, poProcumentCreateSaga);
+  yield takeLatest(POProcumentType.UPDATE_PO_PROCUMENT_REQUEST, poProcumentUpdateSaga);
+  yield takeLatest(POProcumentType.FINNISH_PO_PROCUMENT_REQUEST, poProcumentFinishSaga);
+  yield takeLatest(POProcumentType.DELETE_PO_PROCUMENT_REQUEST, poProcumentDeleteSaga);
+  yield takeEvery(POProcumentType.SEARCH_PROCUREMENT, searchProcurementSaga);
+  yield takeEvery(POProcumentType.IMPORT_PROCUMENT, importProcumentSaga);
   yield takeEvery(POProcumentType.APROVAL_PROCUMENT, approvalPoProcumentUpdateSaga);
   yield takeEvery(POProcumentType.CONFIRM_PROCUMENT, confirmPoProcumentConfirmSaga);
 }

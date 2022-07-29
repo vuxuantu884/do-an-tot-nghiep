@@ -10,7 +10,7 @@ import { StyledComponent } from "./styles";
 import {
   ConfirmPoProcumentAction,
   PoProcumentDeleteAction,
-  POSearchProcurement
+  POSearchProcurement,
 } from "domain/actions/po/po-procument.action";
 import { PoDetailAction } from "domain/actions/po/po.action";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -20,7 +20,7 @@ import {
   ProcurementConfirm,
   ProcurementQuery,
   PurchaseProcument,
-  PurchaseProcumentLineItem
+  PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import { Fragment, ReactNode, useCallback, useEffect, useMemo, useState } from "react";
@@ -58,30 +58,26 @@ const TabCurrent: React.FC = () => {
   });
 
   const [selectedProcurement, setSelectedProcurement] = useState<PurchaseProcument>(
-    {} as PurchaseProcument
+    {} as PurchaseProcument,
   );
-  const [purchaseOrderItem, setPurchaseOrderItem] = useState<PurchaseOrder>(
-    {} as PurchaseOrder
-  );
+  const [purchaseOrderItem, setPurchaseOrderItem] = useState<PurchaseOrder>({} as PurchaseOrder);
   const [isVisibleReceiveModal, setIsVisibleReceiveModal] = useState<boolean>(false);
   const [isLoadingReceive, setIsLoadingReceive] = useState<boolean>(false);
-  const [showLoadingBeforeShowModal, setShowLoadingBeforeShowModal] =
-    useState<number>(-1);
+  const [showLoadingBeforeShowModal, setShowLoadingBeforeShowModal] = useState<number>(-1);
 
   const [selected, setSelected] = useState<Array<PurchaseProcument>>([]);
   const [showWarConfirm, setShowWarConfirm] = useState<boolean>(false);
-  const [contentWarning,setContentWarning] = useState<ReactNode>();
+  const [contentWarning, setContentWarning] = useState<ReactNode>();
   const [showConfirm, setShowConfirm] = useState<boolean>(false);
-  const [listProcurement, setListProcurement] =
-  useState<Array<PurchaseProcument>>();
-  const actions: Array<MenuAction> = useMemo(()=>{
+  const [listProcurement, setListProcurement] = useState<Array<PurchaseProcument>>();
+  const actions: Array<MenuAction> = useMemo(() => {
     return [
-     {
-       id: ACTIONS_INDEX.CONFIRM_MULTI,
-       name: "Xác nhận nhanh",
-     },
-   ]
-   },[]);
+      {
+        id: ACTIONS_INDEX.CONFIRM_MULTI,
+        name: "Xác nhận nhanh",
+      },
+    ];
+  }, []);
 
   const today = new Date();
   const [params, setParams] = useState<ProcurementQuery>({});
@@ -93,7 +89,7 @@ const TabCurrent: React.FC = () => {
       status: ProcumentStatus.NOT_RECEIVED,
       expect_receipt_to: getEndOfDay(today),
       ...getQueryParams(search),
-    }
+    };
     setLoading(true);
     dispatch(
       POSearchProcurement(newParams, (result) => {
@@ -101,7 +97,7 @@ const TabCurrent: React.FC = () => {
         if (result) {
           setData(result);
         }
-      })
+      }),
     );
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -111,11 +107,9 @@ const TabCurrent: React.FC = () => {
       params.page = page;
       params.limit = size;
       setParams({ ...params });
-      history.replace(
-        `${UrlConfig.PROCUREMENT}/today?${generateQuery(params)}`
-      );
+      history.replace(`${UrlConfig.PROCUREMENT}/today?${generateQuery(params)}`);
     },
-    [history, params]
+    [history, params],
   );
 
   const onDetail = useCallback((result: PurchaseOrder | null) => {
@@ -128,23 +122,23 @@ const TabCurrent: React.FC = () => {
     (id: number) => {
       dispatch(PoDetailAction(id, onDetail));
     },
-    [dispatch, onDetail]
+    [dispatch, onDetail],
   );
   const onDeleteProcument = useCallback(
     (poId: number, procurementId: number) => {
       if (poId && procurementId) {
         dispatch(
           PoProcumentDeleteAction(poId, procurementId, () => {
-            search()
+            search();
             setShowLoadingBeforeShowModal(-1);
             setIsLoadingReceive(false);
             setIsVisibleReceiveModal(false);
             showSuccess("Xoá phiếu nhập kho thành công");
-          })
+          }),
         );
       }
     },
-    [dispatch, search]
+    [dispatch, search],
   );
 
   const confirmResult = useCallback(() => {
@@ -153,38 +147,33 @@ const TabCurrent: React.FC = () => {
     setIsVisibleReceiveModal(false);
     showSuccess("Xác nhận phiếu nhập kho thành công");
     search();
-  },[search]);
+  }, [search]);
 
   const onReciveProcument = useCallback(
     (poId: number, purchaseProcument: PurchaseProcument) => {
       if (purchaseProcument && poId) {
         setIsLoadingReceive(true);
         dispatch(
-          ConfirmPoProcumentAction(
-            poId,
-            purchaseProcument.id,
-            purchaseProcument,
-            confirmResult
-          )
+          ConfirmPoProcumentAction(poId, purchaseProcument.id, purchaseProcument, confirmResult),
         );
       }
     },
-    [dispatch, confirmResult]
+    [dispatch, confirmResult],
   );
 
-  const checkConfirmProcurement = useCallback(()=>{
+  const checkConfirmProcurement = useCallback(() => {
     let pass = true;
     let listProcurementCode = "";
 
     for (let index = 0; index < selected.length; index++) {
       const element = selected[index];
       if (element.status !== ProcumentStatus.NOT_RECEIVED) {
-        listProcurementCode +=`${element.code},`;
+        listProcurementCode += `${element.code},`;
         pass = false;
       }
     }
     if (!pass) {
-      setContentWarning(()=>ProcurementListWarning(listProcurementCode));
+      setContentWarning(() => ProcurementListWarning(listProcurementCode));
       setShowWarConfirm(true);
       return false;
     }
@@ -192,33 +181,39 @@ const TabCurrent: React.FC = () => {
       const element = selected[index];
       const firstElement = selected[0];
       listProcurementCode = firstElement.code;
-      if (firstElement.purchase_order.supplier_id !== element.purchase_order.supplier_id
-          || ConvertUtcToLocalDate(firstElement.stock_in_date,DATE_FORMAT.DDMMYYY) !== ConvertUtcToLocalDate(element.stock_in_date,DATE_FORMAT.DDMMYYY)
-          || firstElement.store_id !== element.store_id) {
-            listProcurementCode +=`, ${element.code},`;
-         pass = false;
+      if (
+        firstElement.purchase_order.supplier_id !== element.purchase_order.supplier_id ||
+        ConvertUtcToLocalDate(firstElement.stock_in_date, DATE_FORMAT.DDMMYYY) !==
+          ConvertUtcToLocalDate(element.stock_in_date, DATE_FORMAT.DDMMYYY) ||
+        firstElement.store_id !== element.store_id
+      ) {
+        listProcurementCode += `, ${element.code},`;
+        pass = false;
       }
     }
     if (!pass) {
-      setContentWarning(()=>ProcurementListWarning(listProcurementCode));
+      setContentWarning(() => ProcurementListWarning(listProcurementCode));
       setShowWarConfirm(true);
       return false;
     }
     setListProcurement(selected);
     setShowConfirm(true);
-  },[selected]);
+  }, [selected]);
 
-  const onMenuClick = useCallback((index: number) => {
-    switch (index) {
-      case ACTIONS_INDEX.CONFIRM_MULTI:
-        checkConfirmProcurement();
-        break;
-      default:
-        break;
-    }
-  }, [checkConfirmProcurement]);
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ACTIONS_INDEX.CONFIRM_MULTI:
+          checkConfirmProcurement();
+          break;
+        default:
+          break;
+      }
+    },
+    [checkConfirmProcurement],
+  );
 
-  const ActionComponent = useCallback(()=>{
+  const ActionComponent = useCallback(() => {
     let Compoment = () => <span>Mã nhập kho</span>;
     if (selected?.length > 1) {
       Compoment = () => (
@@ -228,12 +223,12 @@ const TabCurrent: React.FC = () => {
       );
     }
     return <Compoment />;
-},[selected, actions, onMenuClick]);
+  }, [selected, actions, onMenuClick]);
 
-  const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = useMemo(()=> {
+  const defaultColumns: Array<ICustomTableColumType<PurchaseProcument>> = useMemo(() => {
     return [
       {
-        title: <ActionComponent/>,
+        title: <ActionComponent />,
         dataIndex: "code",
         render: (value) => value,
       },
@@ -244,11 +239,7 @@ const TabCurrent: React.FC = () => {
         width: 150,
         visible: true,
         render: (value) => {
-          return (
-            <Link to={`${UrlConfig.PURCHASE_ORDERS}/${value.id}`}>
-              {value.code}
-            </Link>
-          );
+          return <Link to={`${UrlConfig.PURCHASE_ORDERS}/${value.id}`}>{value.code}</Link>;
         },
       },
       {
@@ -258,7 +249,7 @@ const TabCurrent: React.FC = () => {
         width: 120,
         visible: true,
         render: (value) => {
-          return (value?.reference)
+          return value?.reference;
         },
       },
       {
@@ -274,8 +265,8 @@ const TabCurrent: React.FC = () => {
             >
               {value?.supplier}
             </Link>
-          )
-        }
+          );
+        },
       },
       {
         title: "Kho nhận hàng dự kiến",
@@ -286,17 +277,14 @@ const TabCurrent: React.FC = () => {
         title: "Ngày nhận hàng dự kiến",
         dataIndex: "expect_receipt_date",
         visible: true,
-        render: (value) =>
-          ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+        render: (value) => ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
         width: 200,
       },
       {
         title: "Hành động",
         dataIndex: "purchase_order",
         render: (value, record: PurchaseProcument, index) => (
-          <AuthWrapper
-            acceptPermissions={[PurchaseOrderPermission.procurements_confirm]}
-          >
+          <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_confirm]}>
             <Button
               onClick={() => {
                 setShowLoadingBeforeShowModal(index);
@@ -305,34 +293,24 @@ const TabCurrent: React.FC = () => {
                 loadDetail(record.purchase_order.id);
               }}
             >
-              {showLoadingBeforeShowModal === index ? (
-                <LoadingOutlined />
-              ) : (
-                <Fragment />
-              )}{" "}
-              Nhận hàng
+              {showLoadingBeforeShowModal === index ? <LoadingOutlined /> : <Fragment />} Nhận hàng
             </Button>
           </AuthWrapper>
         ),
       },
-    ]
-  },[ActionComponent,loadDetail, showLoadingBeforeShowModal]);
+    ];
+  }, [ActionComponent, loadDetail, showLoadingBeforeShowModal]);
 
-  const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<PurchaseProcument>>
-  >(defaultColumns);
+  const [columns, setColumns] =
+    useState<Array<ICustomTableColumType<PurchaseProcument>>>(defaultColumns);
 
-  const onSelectedChange = useCallback(
-    (selectedRow: Array<PurchaseProcument>) => {
-
-      setSelected(
-        selectedRow.filter(function (el) {
-          return el !== undefined;
-        })
-      );
-    },
-    []
-  );
+  const onSelectedChange = useCallback((selectedRow: Array<PurchaseProcument>) => {
+    setSelected(
+      selectedRow.filter(function (el) {
+        return el !== undefined;
+      }),
+    );
+  }, []);
 
   const onReciveMuiltiProcumentCallback = useCallback(
     (value: boolean) => {
@@ -343,24 +321,29 @@ const TabCurrent: React.FC = () => {
         search();
       }
     },
-    [search]
+    [search],
   );
 
   const onReciveMultiProcument = useCallback(
     async (value: Array<PurchaseProcumentLineItem>) => {
-       if (listProcurement) {
-         const PrucurementConfirm = {
-           procurement_items: value,
-           refer_ids: listProcurement.map(e=>e.id)
-         } as ProcurementConfirm;
-         const res  = await callApiNative({isShowLoading: false},dispatch, confirmProcumentsMerge,PrucurementConfirm);
-         if (res) {
-           onReciveMuiltiProcumentCallback(true);
-         }
-       }
-     },
-     [listProcurement,dispatch, onReciveMuiltiProcumentCallback]
-   );
+      if (listProcurement) {
+        const PrucurementConfirm = {
+          procurement_items: value,
+          refer_ids: listProcurement.map((e) => e.id),
+        } as ProcurementConfirm;
+        const res = await callApiNative(
+          { isShowLoading: false },
+          dispatch,
+          confirmProcumentsMerge,
+          PrucurementConfirm,
+        );
+        if (res) {
+          onReciveMuiltiProcumentCallback(true);
+        }
+      }
+    },
+    [listProcurement, dispatch, onReciveMuiltiProcumentCallback],
+  );
 
   useEffect(() => {
     setColumns(defaultColumns);
@@ -372,7 +355,7 @@ const TabCurrent: React.FC = () => {
 
   const query = useQuery();
   let paramsUrl: any = useMemo(() => {
-    return {...getQueryParams(query)}
+    return { ...getQueryParams(query) };
   }, [query]);
 
   return (
@@ -381,7 +364,7 @@ const TabCurrent: React.FC = () => {
         <TabCurrentFilter paramsUrl={paramsUrl} />
         <CustomTable
           isRowSelection
-          selectedRowKey={selected.map(e=>e.id)}
+          selectedRowKey={selected.map((e) => e.id)}
           isLoading={loading}
           dataSource={data.items}
           sticky={{ offsetScroll: 5, offsetHeader: 109 }}
@@ -403,7 +386,7 @@ const TabCurrent: React.FC = () => {
           isEdit={false}
           items={purchaseOrderItem.line_items}
           stores={[] as Array<StoreResponse>}
-          procumentCode={''}
+          procumentCode={""}
           poData={purchaseOrderItem}
           now={moment(purchaseOrderItem.created_date)}
           visible={isVisibleReceiveModal && showLoadingBeforeShowModal === -1}
@@ -421,7 +404,7 @@ const TabCurrent: React.FC = () => {
 
         {/* Xác nhận nhập */}
         <ProducmentInventoryMultiModal
-          title={`Xác nhận nhập kho ${listProcurement?.map(e=> e.code).toString()}`}
+          title={`Xác nhận nhập kho ${listProcurement?.map((e) => e.code).toString()}`}
           visible={showConfirm}
           listProcurement={listProcurement}
           onOk={(value: Array<PurchaseProcumentLineItem>) => {
@@ -434,10 +417,10 @@ const TabCurrent: React.FC = () => {
         />
 
         <ModalConfirm
-          onCancel={(()=>{
+          onCancel={() => {
             setShowWarConfirm(false);
-          })}
-          onOk={()=>{
+          }}
+          onOk={() => {
             setSelected([]);
             setShowWarConfirm(false);
           }}

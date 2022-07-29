@@ -7,7 +7,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import React, { ReactElement, useCallback, useEffect } from "react";
 import { useDispatch } from "react-redux";
 
-const {Option} = Select;
+const { Option } = Select;
 interface Props extends FormItemProps {
   form?: FormInstance;
   label?: string | boolean;
@@ -50,34 +50,31 @@ function AccountSelect({
   const [accountList, setAccountList] = React.useState<{
     items: Array<AccountResponse>;
     isLoading: boolean;
-  }>({items: [], isLoading: false});
+  }>({ items: [], isLoading: false });
 
   const handleChangeAccountSearch = useCallback(
     (key: string, codes?: string[]) => {
       if (queryAccount) {
         setAccountList((prev) => {
-          return {items: prev?.items || [], isLoading: true};
+          return { items: prev?.items || [], isLoading: true };
         });
 
         const query = _.cloneDeep(queryAccount);
         query.condition = key;
         query.codes = codes;
         dispatch(
-          searchAccountPublicAction(
-            query,
-            (response: PageResponse<AccountResponse>) => {
-              if (response) {
-                setAccountList({
-                  items: response.items,
-                  isLoading: false,
-                });
-              }
+          searchAccountPublicAction(query, (response: PageResponse<AccountResponse>) => {
+            if (response) {
+              setAccountList({
+                items: response.items,
+                isLoading: false,
+              });
             }
-          )
+          }),
         );
       }
     },
-    [dispatch, queryAccount]
+    [dispatch, queryAccount],
   );
   const onSearchAccount = debounce((key: string) => {
     handleChangeAccountSearch(key);
@@ -104,7 +101,7 @@ function AccountSelect({
       label={label}
       name={name}
       rules={rules}
-      labelCol={{span: 24, offset: 0}}
+      labelCol={{ span: 24, offset: 0 }}
       {...restFormProps}
     >
       <Select

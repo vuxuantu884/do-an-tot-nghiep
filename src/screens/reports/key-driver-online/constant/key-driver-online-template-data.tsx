@@ -249,9 +249,4 @@ export const keyDriverOnlineTemplateData = [
   },
 ];
 
-export const ASM_LIST = [
-  "CN THE SUN",
-  "CN THE MOON",
-  "CN THE LIGHT",
-  "CN THE VICTOR",
-];
+export const ASM_LIST = ["CN THE SUN", "CN THE MOON", "CN THE LIGHT", "CN THE VICTOR"];

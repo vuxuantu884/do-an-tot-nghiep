@@ -1,9 +1,4 @@
-import React, {
-  FC,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import React, { FC, useCallback, useEffect, useState } from "react";
 import { ImportStatusWrapper, StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
@@ -17,7 +12,10 @@ import {
   Space,
   Upload,
   Typography,
-  List, Modal, Progress, Radio,
+  List,
+  Modal,
+  Progress,
+  Radio,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import TextArea from "antd/es/input/TextArea";
@@ -25,12 +23,8 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import excelIcon from "assets/icon/icon-excel.svg";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  inventoryGetSenderStoreAction,
-} from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {
-  Store,
-} from "model/inventory/transfer";
+import { inventoryGetSenderStoreAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import { Store } from "model/inventory/transfer";
 
 import { useHistory, useParams } from "react-router";
 import { InventoryParams } from "../DetailTicket";
@@ -49,37 +43,32 @@ const { Text } = Typography;
 const UpdateTicket: FC = () => {
   const [form] = Form.useForm();
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
+  const [isStatusModalVisible, setIsStatusModalVisible] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
   const [dataProcess, setDataProcess] = useState<ImportResponse>();
   const [fileId, setFileId] = useState<string | null>(null);
   const [data, setData] = useState<any>(null);
-  const [createType, setCreateType] = useState<string>('CREATE');
+  const [createType, setCreateType] = useState<string>("CREATE");
   const [dataUploadError, setDataUploadError] = useState<any>(null);
   const dispatch = useDispatch();
   const history = useHistory();
 
   const onResult = useCallback(
-    () => {
-
-    },
+    () => {},
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    []
+    [],
   );
 
-  const dataFileExcel = ['https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_327a5d28-35ad-4bd1-a78f-1a7e34a53645_original.xls',
-  'https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_d51d5a2c-0470-4ff4-854b-afa19e709ff9_original.xlsx']
+  const dataFileExcel = [
+    "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_327a5d28-35ad-4bd1-a78f-1a7e34a53645_original.xls",
+    "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_d51d5a2c-0470-4ff4-854b-afa19e709ff9_original.xlsx",
+  ];
 
   // get store
   useEffect(() => {
-    dispatch(
-      inventoryGetSenderStoreAction(
-        { status: "active", simple: true },
-        setStores
-      )
-    );
+    dispatch(inventoryGetSenderStoreAction({ status: "active", simple: true }, setStores));
   }, [dispatch, idNumber, onResult]);
 
   // validate
@@ -98,18 +87,23 @@ const UpdateTicket: FC = () => {
   };
 
   const checkImportFile = () => {
-    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then((res: any) => {
-      if (!res.data) return;
-      setData(res.data);
-      setDataProcess(res.data.process);
+    BaseAxios.get(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import/${fileId}`).then(
+      (res: any) => {
+        if (!res.data) return;
+        setData(res.data);
+        setDataProcess(res.data.process);
 
-      const newDataUpdateError = !res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors;
-      downloadErrorDetail(newDataUpdateError)
-      setDataUploadError(newDataUpdateError)
-      if (res.data.status !== 'FINISH') return;
-      setFileId(null);
-    });
-  }
+        const newDataUpdateError =
+          !res.data.errors || (res.data.errors && res.data.errors.length === 0)
+            ? null
+            : res.data.errors;
+        downloadErrorDetail(newDataUpdateError);
+        setDataUploadError(newDataUpdateError);
+        if (res.data.status !== "FINISH") return;
+        setFileId(null);
+      },
+    );
+  };
 
   useEffect(() => {
     if (!fileId) return;
@@ -119,61 +113,70 @@ const UpdateTicket: FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [fileId]);
 
-  const onFinish = useCallback((data: any) => {
-    if (!data.fileUpload || data.fileUpload.length === 0) {
-      setIsLoading(false);
-      return;
-    }
-    setIsLoading(true);
-    if (stores) {
-      stores.forEach((store) => {
-        if (store.id === Number(data.from_store_id)) {
-          data.storeTransfer = {
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-        if (store.id === Number(data.to_store_id)) {
-          data.storeReceive = {
-            store_id: store.id,
-            hotline: store.hotline,
-            address: store.address,
-            name: store.name,
-            code: store.code,
-          };
-        }
-      });
-    }
-    data.fileUpload = data.fileUpload[0].originFileObj;
-    delete data.from_store_id;
-    delete data.to_store_id;
-
-    const formData = new FormData();
-    formData.append('fileUpload', data.fileUpload);
-    formData.append('isTransferRequest', JSON.stringify(createType === 'REQUEST'));
-    if (data.storeTransfer) formData.append('storeTransfer', JSON.stringify(data.storeTransfer));
-    formData.append('storeReceive', JSON.stringify(data.storeReceive));
-    formData.append('note', data.note ? data.note : '');
-
-    BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData).then((res: any) => {
-      if (res) {
-        setFileId(res.data);
-        setIsStatusModalVisible(true);
-        setDataProcess(res.process);
-        const newDataUpdateError = !res.data.errors || (res.data.errors && res.data.errors.length === 0) ? null : res.data.errors;
-        downloadErrorDetail(newDataUpdateError)
-        setDataUploadError(newDataUpdateError)
+  const onFinish = useCallback(
+    (data: any) => {
+      if (!data.fileUpload || data.fileUpload.length === 0) {
+        setIsLoading(false);
+        return;
       }
-    }).catch( err => {
-      showError(err);
-    })
+      setIsLoading(true);
+      if (stores) {
+        stores.forEach((store) => {
+          if (store.id === Number(data.from_store_id)) {
+            data.storeTransfer = {
+              store_id: store.id,
+              hotline: store.hotline,
+              address: store.address,
+              name: store.name,
+              code: store.code,
+            };
+          }
+          if (store.id === Number(data.to_store_id)) {
+            data.storeReceive = {
+              store_id: store.id,
+              hotline: store.hotline,
+              address: store.address,
+              name: store.name,
+              code: store.code,
+            };
+          }
+        });
+      }
+      data.fileUpload = data.fileUpload[0].originFileObj;
+      delete data.from_store_id;
+      delete data.to_store_id;
 
-  },[createType, stores]);
+      const formData = new FormData();
+      formData.append("fileUpload", data.fileUpload);
+      formData.append("isTransferRequest", JSON.stringify(createType === "REQUEST"));
+      if (data.storeTransfer) formData.append("storeTransfer", JSON.stringify(data.storeTransfer));
+      formData.append("storeReceive", JSON.stringify(data.storeReceive));
+      formData.append("note", data.note ? data.note : "");
 
-  const myStores :any= useSelector((state: RootReducerType) => state.userReducer.account?.account_stores);
+      BaseAxios.post(`${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/import`, formData)
+        .then((res: any) => {
+          if (res) {
+            setFileId(res.data);
+            setIsStatusModalVisible(true);
+            setDataProcess(res.process);
+            const newDataUpdateError =
+              !res.data.errors || (res.data.errors && res.data.errors.length === 0)
+                ? null
+                : res.data.errors;
+            downloadErrorDetail(newDataUpdateError);
+            setDataUploadError(newDataUpdateError);
+          }
+        })
+        .catch((err) => {
+          showError(err);
+        });
+    },
+    [createType, stores],
+  );
+
+  const myStores: any = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
 
   useEffect(() => {
     if (stores.length === 0) return;
@@ -181,7 +184,7 @@ const UpdateTicket: FC = () => {
       stores.forEach((element) => {
         if (element.id === myStores[0].store_id) {
           form.setFieldsValue({
-            from_store_id: element.id
+            from_store_id: element.id,
           });
         }
       });
@@ -198,18 +201,21 @@ const UpdateTicket: FC = () => {
 
   const downloadErrorDetail = (dataUploadError: any) => {
     if (!dataUploadError) return;
-    let newDataUploadError = '';
+    let newDataUploadError = "";
 
     dataUploadError.forEach((item: any) => {
-      newDataUploadError = newDataUploadError + item + '\n';
-    })
-    const downloadableLink = document.createElement('a');
-    downloadableLink.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(newDataUploadError));
+      newDataUploadError = newDataUploadError + item + "\n";
+    });
+    const downloadableLink = document.createElement("a");
+    downloadableLink.setAttribute(
+      "href",
+      "data:text/plain;charset=utf-8," + encodeURIComponent(newDataUploadError),
+    );
     downloadableLink.download = "Log.txt";
     document.body.appendChild(downloadableLink);
     downloadableLink.click();
     document.body.removeChild(downloadableLink);
-  }
+  };
 
   return (
     <StyledWrapper>
@@ -229,302 +235,340 @@ const UpdateTicket: FC = () => {
           },
         ]}
       >
-          <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
-            <Row gutter={24}>
-              <Col span={18}>
-                <Card
-                  title="Hướng dẫn Nhập file"
-                  bordered={false}
-                >
-                  <div className="guide">
-                    <div>
-                      <span>Bước 1:</span> <span><b>Chọn kho gửi và kho nhận.</b></span>
-                    </div>
-                    <div>
-                      <span>Bước 2:</span> <span><b>Tải file mẫu, điền mã sản phẩm và số lượng.</b></span>
-                    </div>
-                    <div>
-                      <span>Bước 3:</span> <span><b>Upload file excel đã điền và xác nhận phiếu chuyển kho.</b></span>
-                    </div>
+        <Form form={form} onFinish={onFinish} scrollToFirstError={true}>
+          <Row gutter={24}>
+            <Col span={18}>
+              <Card title="Hướng dẫn Nhập file" bordered={false}>
+                <div className="guide">
+                  <div>
+                    <span>Bước 1:</span>{" "}
+                    <span>
+                      <b>Chọn kho gửi và kho nhận.</b>
+                    </span>
                   </div>
-                </Card>
-                <Card
-                  title="Thông tin nhập file"
-                  bordered={false}
-                  className={"inventory-selectors"}
-                >
-                  <Row gutter={24}>
-                    <Col span={24}>
-                      <Radio.Group value={createType} onChange={(e) => setCreateType(e.target.value)}>
-                        <Radio value="CREATE">
-                          Tạo phiếu
-                        </Radio>
-                        <Radio value="REQUEST">
-                          Tạo yêu cầu
-                        </Radio>
-                      </Radio.Group>
-                    </Col>
-                  </Row>
-                  <Row gutter={24}>
-                    <Col span={12}>
-                      <Form.Item
-                        name="from_store_id"
-                        label={<b>Kho gửi</b>}
-                        rules={createType === 'CREATE' ? [
-                          {
-                            required: true,
-                            message: "Vui lòng chọn kho gửi",
-                          },
-                          {
-                            validator: validateStore,
-                          },
-                        ] : []}
-                        labelCol={{ span: 24, offset: 0 }}
-                      >
-                        {myStores.length > 0 && createType === 'CREATE' ? (
-                          <MyStoreSelect placeholder="Chọn kho gửi" optionFilterProp="children"/>
-                        ) : (
-                          <Select
-                            placeholder="Chọn kho gửi"
-                            showArrow
-                            showSearch
-                            optionFilterProp="children"
-                            filterOption={(input: String, option: any) => {
-                              if (option.props.value) {
-                                return strForSearch(option.props.children).includes(strForSearch(input));
-                              }
-
-                              return false;
-                            }}
-                          >
-                            {stores.map((item, index) => (
-                              <Option
-                                key={"store_id" + index}
-                                value={item.id.toString()}
-                              >
-                                {item.name}
-                              </Option>
-                            ))}
-                          </Select>
-                        )}
-                      </Form.Item>
-                    </Col>
-                    <Col span={12}>
-                      <Form.Item
-                        name="to_store_id"
-                        label={<b>Kho nhận</b>}
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn kho nhận",
-                          },
-                          {
-                            validator: validateStore,
-                          },
-                        ]}
-                        labelCol={{ span: 24, offset: 0 }}
-                      >
-                        {myStores.length > 0 && createType === 'REQUEST' ? (
-                          <MyStoreSelect placeholder="Chọn kho nhận" optionFilterProp="children"/>
-                        ) : (
-                          <Select
-                            placeholder="Chọn kho nhận"
-                            showArrow
-                            showSearch
-                            optionFilterProp="children"
-                            filterOption={(input: String, option: any) => {
-                              if (option.props.value) {
-                                return strForSearch(option.props.children).includes(strForSearch(input));
-                              }
-
-                              return false;
-                            }}
-                          >
-                            {stores.map((item, index) => (
-                              <Option
-                                key={"store_id" + index}
-                                value={item.id.toString()}
-                              >
-                                {item.name}
-                              </Option>
-                            ))}
-                          </Select>
-                        )}
-                      </Form.Item>
-                    </Col>
-                  </Row>
-                  <Row>
+                  <div>
+                    <span>Bước 2:</span>{" "}
+                    <span>
+                      <b>Tải file mẫu, điền mã sản phẩm và số lượng.</b>
+                    </span>
+                  </div>
+                  <div>
+                    <span>Bước 3:</span>{" "}
+                    <span>
+                      <b>Upload file excel đã điền và xác nhận phiếu chuyển kho.</b>
+                    </span>
+                  </div>
+                </div>
+              </Card>
+              <Card title="Thông tin nhập file" bordered={false} className={"inventory-selectors"}>
+                <Row gutter={24}>
+                  <Col span={24}>
+                    <Radio.Group value={createType} onChange={(e) => setCreateType(e.target.value)}>
+                      <Radio value="CREATE">Tạo phiếu</Radio>
+                      <Radio value="REQUEST">Tạo yêu cầu</Radio>
+                    </Radio.Group>
+                  </Col>
+                </Row>
+                <Row gutter={24}>
+                  <Col span={12}>
                     <Form.Item
+                      name="from_store_id"
+                      label={<b>Kho gửi</b>}
+                      rules={
+                        createType === "CREATE"
+                          ? [
+                              {
+                                required: true,
+                                message: "Vui lòng chọn kho gửi",
+                              },
+                              {
+                                validator: validateStore,
+                              },
+                            ]
+                          : []
+                      }
                       labelCol={{ span: 24, offset: 0 }}
-                      label={<b>File excel:</b>}
-                      colon={false}
-                      name="fileUpload"
-                      getValueFromEvent={normFile}
                     >
-                      <Upload
-                        beforeUpload={() => false}
-                      >
-                        <Button icon={<UploadOutlined />}>Chọn file</Button>
-                      </Upload>
+                      {myStores.length > 0 && createType === "CREATE" ? (
+                        <MyStoreSelect placeholder="Chọn kho gửi" optionFilterProp="children" />
+                      ) : (
+                        <Select
+                          placeholder="Chọn kho gửi"
+                          showArrow
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(
+                                strForSearch(input),
+                              );
+                            }
+
+                            return false;
+                          }}
+                        >
+                          {stores.map((item, index) => (
+                            <Option key={"store_id" + index} value={item.id.toString()}>
+                              {item.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      )}
                     </Form.Item>
-                  </Row>
-                </Card>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item
+                      name="to_store_id"
+                      label={<b>Kho nhận</b>}
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn kho nhận",
+                        },
+                        {
+                          validator: validateStore,
+                        },
+                      ]}
+                      labelCol={{ span: 24, offset: 0 }}
+                    >
+                      {myStores.length > 0 && createType === "REQUEST" ? (
+                        <MyStoreSelect placeholder="Chọn kho nhận" optionFilterProp="children" />
+                      ) : (
+                        <Select
+                          placeholder="Chọn kho nhận"
+                          showArrow
+                          showSearch
+                          optionFilterProp="children"
+                          filterOption={(input: String, option: any) => {
+                            if (option.props.value) {
+                              return strForSearch(option.props.children).includes(
+                                strForSearch(input),
+                              );
+                            }
+
+                            return false;
+                          }}
+                        >
+                          {stores.map((item, index) => (
+                            <Option key={"store_id" + index} value={item.id.toString()}>
+                              {item.name}
+                            </Option>
+                          ))}
+                        </Select>
+                      )}
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row>
+                  <Form.Item
+                    labelCol={{ span: 24, offset: 0 }}
+                    label={<b>File excel:</b>}
+                    colon={false}
+                    name="fileUpload"
+                    getValueFromEvent={normFile}
+                  >
+                    <Upload beforeUpload={() => false}>
+                      <Button icon={<UploadOutlined />}>Chọn file</Button>
+                    </Upload>
+                  </Form.Item>
+                </Row>
+              </Card>
+            </Col>
+            <Col span={6}>
+              <Card title={"Link file Excel mẫu"} bordered={false} className={"inventory-note"}>
+                <List>
+                  <List.Item>
+                    <Typography.Text>
+                      {" "}
+                      <img src={excelIcon} alt="" />{" "}
+                      <a href={dataFileExcel[0]} download="Import_Transfer">
+                        Ấn để tải xuống (excel 2003)
+                      </a>{" "}
+                    </Typography.Text>
+                  </List.Item>
+                  <List.Item>
+                    <Typography.Text>
+                      {" "}
+                      <img src={excelIcon} alt="" />{" "}
+                      <a href={dataFileExcel[1]} download="Import_Transfer">
+                        Ấn để tải xuống (excel 2007)
+                      </a>{" "}
+                    </Typography.Text>
+                  </List.Item>
+                </List>
+              </Card>
+              <Card title={"GHI CHÚ"} bordered={false} className={"inventory-note"}>
+                <Form.Item
+                  name={"note"}
+                  label={<b>Ghi chú nội bộ:</b>}
+                  colon={false}
+                  labelCol={{ span: 24, offset: 0 }}
+                >
+                  <TextArea maxLength={250} placeholder=" " autoSize={{ minRows: 4, maxRows: 6 }} />
+                </Form.Item>
+              </Card>
+            </Col>
+          </Row>
+          <BottomBarContainer
+            leftComponent={
+              <div
+                style={{ cursor: "pointer" }}
+                onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)}
+              >
+                <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
+                {"Quay lại danh sách"}
+              </div>
+            }
+            rightComponent={
+              <Space>
+                <Button>Huỷ</Button>
+                <Button htmlType={"submit"} type="primary" disabled={isLoading} loading={isLoading}>
+                  Nhập file
+                </Button>
+              </Space>
+            }
+          />
+        </Form>
+      </ContentContainer>
+      {isStatusModalVisible && (
+        <Modal
+          title="Nhập file"
+          centered
+          onCancel={() => {
+            setIsStatusModalVisible(false);
+            setIsLoading(false);
+          }}
+          visible={isStatusModalVisible}
+          footer={
+            createType === "CREATE"
+              ? [
+                  <Button
+                    key="back"
+                    onClick={() => {
+                      setIsStatusModalVisible(false);
+                      setIsLoading(false);
+                    }}
+                  >
+                    Huỷ
+                  </Button>,
+                  <Button
+                    disabled={!!dataUploadError || data?.status !== "FINISH"}
+                    type="primary"
+                    onClick={() => {
+                      history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, data.data);
+                    }}
+                  >
+                    Xác nhận
+                  </Button>,
+                  <Button
+                    disabled={!!dataUploadError || data?.status !== "FINISH"}
+                    type="primary"
+                    onClick={() => {
+                      dispatch({
+                        type: InventoryType.CHANGE_IS_CONTINUE_CREATE_IMPORT,
+                        payload: {
+                          isContinueCreateImport: true,
+                        },
+                      });
+                      history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
+                        data: data.data,
+                        isFastCreate: true,
+                      });
+                    }}
+                  >
+                    Tạo và xác nhận
+                  </Button>,
+                ]
+              : [
+                  <Button
+                    key="back"
+                    onClick={() => {
+                      setIsStatusModalVisible(false);
+                    }}
+                  >
+                    Huỷ
+                  </Button>,
+                  <Button
+                    disabled={!!dataUploadError || data?.status !== "FINISH"}
+                    type="primary"
+                    onClick={() => {
+                      history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
+                        data: data.data,
+                        isCreateRequest: true,
+                      });
+                    }}
+                  >
+                    Yêu cầu
+                  </Button>,
+                ]
+          }
+        >
+          <ImportStatusWrapper>
+            <Row className="status">
+              <Col span={6}>
+                <div>
+                  <Text>Tổng cộng</Text>
+                </div>
+                <div>
+                  <b>{dataProcess?.total_process}</b>
+                </div>
               </Col>
               <Col span={6}>
-                <Card
-                  title={"Link file Excel mẫu"}
-                  bordered={false}
-                  className={"inventory-note"}
-                >
-                  <List>
-                    <List.Item>
-                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[0]} download="Import_Transfer">Ấn để tải xuống (excel 2003)</a> </Typography.Text>
-                    </List.Item>
-                    <List.Item>
-                      <Typography.Text> <img src={excelIcon} alt="" /> <a href={dataFileExcel[1]} download="Import_Transfer">Ấn để tải xuống (excel 2007)</a> </Typography.Text>
-                    </List.Item>
-                  </List>
-                </Card>
-                <Card
-                  title={"GHI CHÚ"}
-                  bordered={false}
-                  className={"inventory-note"}
-                >
-                  <Form.Item
-                    name={"note"}
-                    label={<b>Ghi chú nội bộ:</b>}
-                    colon={false}
-                    labelCol={{ span: 24, offset: 0 }}
-                  >
-                    <TextArea
-                      maxLength={250}
-                      placeholder=" "
-                      autoSize={{ minRows: 4, maxRows: 6 }}
-                    />
-                  </Form.Item>
-                </Card>
+                <div>
+                  <Text>Đã xử lí</Text>
+                </div>
+                <div>
+                  <b>{dataProcess?.processed}</b>
+                </div>
               </Col>
-            </Row>
-            <BottomBarContainer
-              leftComponent = {
-                <div
-                  style={{ cursor: "pointer" }}
-                  onClick={() => history.push(`${UrlConfig.INVENTORY_TRANSFERS}`)}
-                >
-                  <img style={{ marginRight: "10px" }} src={arrowLeft} alt="" />
-                  {"Quay lại danh sách"}
+              <Col span={6}>
+                <div>
+                  <Text>Thành công</Text>
                 </div>
-              }
-              rightComponent={
-                <Space>
-                  <Button >Huỷ</Button>
-                  <Button
-                    htmlType={"submit"}
-                    type="primary"
-                    disabled={isLoading}
-                    loading={isLoading}
-                  >
-                    Nhập file
-                  </Button>
-                </Space>
-              }
-            />
-          </Form>
-      </ContentContainer>
-      {
-        isStatusModalVisible && (
-          <Modal
-            title="Nhập file"
-            centered
-            onCancel={() => {setIsStatusModalVisible(false); setIsLoading(false);}}
-            visible={isStatusModalVisible}
-            footer={createType === 'CREATE' ? [
-              <Button key="back" onClick={() => {setIsStatusModalVisible(false); setIsLoading(false);}}>
-                Huỷ
-              </Button>,
-              <Button
-                disabled={!!dataUploadError || data?.status !== 'FINISH'}
-                type="primary"
-                onClick={() => {
-                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, data.data);
-                }}>
-                Xác nhận
-              </Button>,
-              <Button
-                disabled={!!dataUploadError || data?.status !== 'FINISH'}
-                type="primary"
-                onClick={() => {
-                  dispatch({
-                    type: InventoryType.CHANGE_IS_CONTINUE_CREATE_IMPORT,
-                    payload: {
-                      isContinueCreateImport: true
-                    }
-                  });
-                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
-                    data: data.data,
-                    isFastCreate: true
-                  });
-                }}>
-                Tạo và xác nhận
-              </Button>,
-            ] : [
-              <Button key="back" onClick={() => {setIsStatusModalVisible(false)}}>
-                Huỷ
-              </Button>,
-              <Button
-                disabled={!!dataUploadError || data?.status !== 'FINISH'}
-                type="primary"
-                onClick={() => {
-                  history.push(`${UrlConfig.INVENTORY_TRANSFERS}/createImport`, {
-                    data: data.data,
-                    isCreateRequest: true
-                  });
-                }}>
-                Yêu cầu
-              </Button>,
-            ]}
-          >
-            <ImportStatusWrapper>
-              <Row className="status">
-                <Col span={6}>
-                  <div><Text>Tổng cộng</Text></div>
-                  <div><b>{dataProcess?.total_process}</b></div>
-                </Col>
-                <Col span={6}>
-                  <div><Text>Đã xử lí</Text></div>
-                  <div><b>{dataProcess?.processed}</b></div>
-                </Col>
-                <Col span={6}>
-                  <div><Text>Thành công</Text></div>
-                  <div><Text type="success"><b>{dataProcess?.success}</b></Text></div>
-                </Col>
-                <Col span={6}>
-                  <div>Lỗi</div>
-                  <div><Text type="danger"><b>{dataProcess?.error}</b></Text></div>
-                </Col>
+                <div>
+                  <Text type="success">
+                    <b>{dataProcess?.success}</b>
+                  </Text>
+                </div>
+              </Col>
+              <Col span={6}>
+                <div>Lỗi</div>
+                <div>
+                  <Text type="danger">
+                    <b>{dataProcess?.error}</b>
+                  </Text>
+                </div>
+              </Col>
 
-                <Row className="status">
-                  <Progress percent={dataProcess?.percent} />
-                </Row>
+              <Row className="status">
+                <Progress percent={dataProcess?.percent} />
               </Row>
-              <Row className="import-info">
-                <div className="title"><b>Chi tiết: </b></div>
-                <div className="content">
-                  <ul>
-                    {
-                      dataUploadError ? (
-                        <li><span className="danger">&#8226;</span><Text type="danger">Nhập file thất bại</Text></li>
-                      ) : (
-                        <li><span className="success">&#8226;</span><Text type="success">{data?.status === 'FINISH' ? 'Thành công' : 'Đang xử lý...'}</Text></li>
-                      )
-                    }
-                  </ul>
-                </div>
-              </Row>
-            </ImportStatusWrapper>
-          </Modal>
-        )
-      }
+            </Row>
+            <Row className="import-info">
+              <div className="title">
+                <b>Chi tiết: </b>
+              </div>
+              <div className="content">
+                <ul>
+                  {dataUploadError ? (
+                    <li>
+                      <span className="danger">&#8226;</span>
+                      <Text type="danger">Nhập file thất bại</Text>
+                    </li>
+                  ) : (
+                    <li>
+                      <span className="success">&#8226;</span>
+                      <Text type="success">
+                        {data?.status === "FINISH" ? "Thành công" : "Đang xử lý..."}
+                      </Text>
+                    </li>
+                  )}
+                </ul>
+              </div>
+            </Row>
+          </ImportStatusWrapper>
+        </Modal>
+      )}
     </StyledWrapper>
   );
 };

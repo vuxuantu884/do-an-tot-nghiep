@@ -1,5 +1,5 @@
 import xCloseBtn from "assets/icon/X_close.svg";
-import {useState} from "react";
+import { useState } from "react";
 
 type PropType = {
   tags?: string;
@@ -7,7 +7,7 @@ type PropType = {
 };
 
 function CustomInputTags(props: PropType) {
-  const {tags, onChangeTag} = props;
+  const { tags, onChangeTag } = props;
   const [inputValue, setInputValue] = useState<string>("");
   const [border, setBorder] = useState<boolean>(false);
   let tagsArr = tags ? tags.split(",") : [];
@@ -40,7 +40,7 @@ function CustomInputTags(props: PropType) {
       onFocus={() => setBorder(true)}
       onBlur={() => setBorder(false)}
       className="orders-screen-custom-tags"
-      style={border ? {border: "1px solid #2a2a86"} : {border: "1px solid #d9d9d9"}}
+      style={border ? { border: "1px solid #2a2a86" } : { border: "1px solid #d9d9d9" }}
     >
       {tagsArr &&
         tagsArr?.length > 0 &&

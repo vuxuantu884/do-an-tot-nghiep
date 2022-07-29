@@ -1,4 +1,4 @@
-import {  Button, Modal, Tooltip } from "antd";
+import { Button, Modal, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { getCustomerOrderHistoryAction } from "domain/actions/customer/customer.action";
@@ -23,14 +23,12 @@ type HistoryPurchaseModalProps = {
 };
 
 const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
-  props: HistoryPurchaseModalProps
+  props: HistoryPurchaseModalProps,
 ) => {
   const { visible, customerID, onOk, onClick } = props;
   const dispatch = useDispatch();
   const [tableLoading, setTableLoading] = useState(false);
-  const [orderHistoryData, setOrderHistoryData] = useState<
-    PageResponse<OrderModel>
-  >({
+  const [orderHistoryData, setOrderHistoryData] = useState<PageResponse<OrderModel>>({
     metadata: {
       limit: 10,
       page: 1,
@@ -39,8 +37,8 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
     items: [],
   });
 
-  const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> =
-    React.useMemo(() => [
+  const columnsOrderHistory: Array<ICustomTableColumType<OrderModel>> = React.useMemo(
+    () => [
       {
         title: "ID đơn hàng",
         dataIndex: "code",
@@ -51,22 +49,18 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
         render: (value: string, item: any) => {
           return (
             <div>
-              {
-                !item.code_order_return
-                ?  
+              {!item.code_order_return ? (
                 <Link to={`${UrlConfig.ORDER}/${item.id}`} target="_blank">
                   {value}
                 </Link>
-                :
+              ) : (
                 <Link to={`${UrlConfig.ORDERS_RETURN}/${item.id}`} target="_blank">
-                {value}
+                  {value}
                 </Link>
-              }
+              )}
               <div style={{ fontSize: "12px", color: "#666666" }}>
                 <div>
-                  {moment(item.created_date).format(
-                    DATE_FORMAT.HHmm_DDMMYYYY
-                  )}
+                  {moment(item.created_date).format(DATE_FORMAT.HHmm_DDMMYYYY)}
                   <Tooltip title="Cửa hàng">
                     <div>{item.store}</div>
                   </Tooltip>
@@ -74,18 +68,14 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
                 {item.source && (
                   <div style={{ fontSize: "12px" }}>
                     <strong style={{ color: "#000000" }}>Nguồn: </strong>
-                    <span
-                      style={{ color: "#222222", wordBreak: "break-all" }}>
-                      {item.source}
-                    </span>
+                    <span style={{ color: "#222222", wordBreak: "break-all" }}>{item.source}</span>
                   </div>
                 )}
                 {/* {renderReturn(item)} */}
               </div>
-              {
-                item.code_order_return !== undefined
-                && <span style={{ color: "red" }}>Trả hàng</span>
-              }
+              {item.code_order_return !== undefined && (
+                <span style={{ color: "red" }}>Trả hàng</span>
+              )}
             </div>
           );
         },
@@ -121,7 +111,8 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
                       <div className="inner">
                         <Link
                           target="_blank"
-                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}>
+                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                        >
                           {item.sku}
                         </Link>
                         <br />
@@ -131,18 +122,27 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
                       </div>
                     </div>
                     <div className="quantity quantityWidth">
-                      <NumberFormat
-                        value={formatNumber(item.quantity)}
-                        displayType={"text"}
-                      />
+                      <NumberFormat value={formatNumber(item.quantity)} displayType={"text"} />
                     </div>
                     <div className="price priceWidth">
-                    <Tooltip title={record.status !== "finished" ? "Sản phẩm chưa được bán hoặc đã đổi trả" : "Thêm sản phẩm bảo hành"}>
+                      <Tooltip
+                        title={
+                          record.status !== "finished"
+                            ? "Sản phẩm chưa được bán hoặc đã đổi trả"
+                            : "Thêm sản phẩm bảo hành"
+                        }
+                      >
                         <Button
                           icon={<AiOutlinePlusCircle size={24} />}
                           type="link"
                           disabled={record.status !== "finished"}
-                          onClick={() => onClick({...item, finished_on: record.finished_on, finalized_on: record.finalized_on })}
+                          onClick={() =>
+                            onClick({
+                              ...item,
+                              finished_on: record.finished_on,
+                              finalized_on: record.finalized_on,
+                            })
+                          }
                         />
                       </Tooltip>
                     </div>
@@ -156,32 +156,41 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
         align: "center",
         width: 500,
       },
-    ], [onClick]
+    ],
+    [onClick],
   );
 
   const onPageChange = useCallback(
     (page, limit) => {
-      dispatch(getCustomerOrderHistoryAction({
-        customer_id: customerID,
-        page,
-        limit,
-      }, (data) => {
-        setTableLoading(false);
-        if (data) {
-          setOrderHistoryData(data);
-        }
-      },));
+      dispatch(
+        getCustomerOrderHistoryAction(
+          {
+            customer_id: customerID,
+            page,
+            limit,
+          },
+          (data) => {
+            setTableLoading(false);
+            if (data) {
+              setOrderHistoryData(data);
+            }
+          },
+        ),
+      );
     },
-    [customerID, dispatch]
+    [customerID, dispatch],
   );
 
   useEffect(() => {
-    customerID && dispatch(getCustomerOrderHistoryAction({ customer_id: customerID }, (data) => {
-      setTableLoading(false);
-      if (data) {
-        setOrderHistoryData(data);
-      }
-    },));
+    customerID &&
+      dispatch(
+        getCustomerOrderHistoryAction({ customer_id: customerID }, (data) => {
+          setTableLoading(false);
+          if (data) {
+            setOrderHistoryData(data);
+          }
+        }),
+      );
   }, [customerID, dispatch]);
 
   return (
@@ -190,19 +199,11 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
       onCancel={() => onOk()}
       centered
       closable
-      title={[
-        <span style={{fontWeight: 600, fontSize: 16}}>
-          Lịch sử mua hàng
-        </span>
-      ]}
+      title={[<span style={{ fontWeight: 600, fontSize: 16 }}>Lịch sử mua hàng</span>]}
       footer={[
-        <Button key="ok"
-          type="primary"
-          onClick={() => onOk()}
-        >
+        <Button key="ok" type="primary" onClick={() => onOk()}>
           Đóng
         </Button>,
-        
       ]}
       width={750}
     >
@@ -229,4 +230,3 @@ const HistoryPurchaseModal: React.FC<HistoryPurchaseModalProps> = (
 };
 
 export default HistoryPurchaseModal;
-

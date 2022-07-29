@@ -4,35 +4,25 @@ import { ApiConfig } from "config/api.config";
 import { FilterConfig, FilterConfigRequest } from "model/other";
 
 export const createFilterConfigService = (
-  request: FilterConfigRequest
+  request: FilterConfigRequest,
 ): Promise<BaseResponse<FilterConfig>> => {
-  return BaseAxios.post(
-    `${ApiConfig.CORE}/config`,
-      request
-  );
+  return BaseAxios.post(`${ApiConfig.CORE}/config`, request);
 };
 
 export const updateFilterConfigService = (
-  request: FilterConfigRequest
+  request: FilterConfigRequest,
 ): Promise<BaseResponse<FilterConfig>> => {
-  return BaseAxios.post(
-    `${ApiConfig.CORE}/config`,
-      request
-  );
+  return BaseAxios.post(`${ApiConfig.CORE}/config`, request);
 };
 
 export const getFilterConfigService = (
-  userCode: string
+  userCode: string,
 ): Promise<BaseResponse<Array<FilterConfig>>> => {
-  return BaseAxios.get(
-    `${ApiConfig.CORE}/config/${userCode}`,
-  );
+  return BaseAxios.get(`${ApiConfig.CORE}/config/${userCode}`);
 };
 
 export const deleteFilterConfigService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<Array<FilterConfig>>> => {
-  return BaseAxios.delete(
-    `${ApiConfig.CORE}/config/${id}`,
-  );
+  return BaseAxios.delete(`${ApiConfig.CORE}/config/${id}`);
 };

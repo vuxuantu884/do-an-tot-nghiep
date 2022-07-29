@@ -10,11 +10,11 @@ import {
 } from "model/query/web-app.query";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
 import { generateQuery } from "utils/AppUtils";
-import {EcommerceCreateLogistic} from "../../model/ecommerce/ecommerce.model";
+import { EcommerceCreateLogistic } from "../../model/ecommerce/ecommerce.model";
 
 // config sync and setting screen
 const webAppCreateConfigApi = (
-  request: WebAppConfigRequest
+  request: WebAppConfigRequest,
 ): Promise<BaseResponse<WebAppResponse>> => {
   let link = `${ApiConfig.WEB_APP}/shops`;
   return BaseAxios.post(link, request);
@@ -22,37 +22,29 @@ const webAppCreateConfigApi = (
 
 const webAppUpdateConfigApi = (
   id: number,
-  EcommerceConfig: WebAppConfigRequest
+  EcommerceConfig: WebAppConfigRequest,
 ): Promise<BaseResponse<WebAppResponse>> => {
   let link = `${ApiConfig.WEB_APP}/shops/${id}`;
   return BaseAxios.put(link, EcommerceConfig);
 };
 
-const webAppGetByIdApi = (
-  id: number
-): Promise<BaseResponse<WebAppResponse>> => {
+const webAppGetByIdApi = (id: number): Promise<BaseResponse<WebAppResponse>> => {
   let link = `${ApiConfig.WEB_APP}/shops/${id}`;
   return BaseAxios.get(link);
 };
 
-const webAppDeleteApi = (
-  id: number
-): Promise<BaseResponse<WebAppResponse>> => {
+const webAppDeleteApi = (id: number): Promise<BaseResponse<WebAppResponse>> => {
   let link = `${ApiConfig.WEB_APP}/shops/${id}`;
   return BaseAxios.delete(link);
 };
 // end
 // config sync connect screen
-const webAppConnectSyncApi = (
-  webAppId: number
-): Promise<BaseResponse<String>> => {
+const webAppConnectSyncApi = (webAppId: number): Promise<BaseResponse<String>> => {
   let link = `${ApiConfig.WEB_APP}/shops/connect/${webAppId}`;
   return BaseAxios.get(link);
 };
 
-const webAppGetConfigInfoApi = (
-  params: any
-): Promise<BaseResponse<WebAppResponse>> => {
+const webAppGetConfigInfoApi = (params: any): Promise<BaseResponse<WebAppResponse>> => {
   let link = `${ApiConfig.WEB_APP}/shops/info?${params}`;
   return BaseAxios.get(link);
 };
@@ -70,7 +62,7 @@ const webAppGetShopApi = (query: any) => {
 };
 
 const webAppDownloadProductApi = (
-  requestBody: WebAppPostProductQuery
+  requestBody: WebAppPostProductQuery,
 ): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.WEB_APP}/variants`;
   return BaseAxios.post(link, requestBody);
@@ -88,15 +80,13 @@ const webAppDisconnectProductApi = (ids: any) => {
 };
 
 const webAppSyncStockProductApi = (
-  requestBody: WebAppRequestSyncStockQuery
+  requestBody: WebAppRequestSyncStockQuery,
 ): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.WEB_APP}/variants/stock-sync`;
   return BaseAxios.post(link, requestBody);
 };
 
-const webAppSyncOrderApi = (
-  requestBody: any
-): Promise<BaseResponse<any>> => {
+const webAppSyncOrderApi = (requestBody: any): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.WEB_APP}/orders/retry-download`;
   return BaseAxios.post(link, requestBody);
 };
@@ -113,17 +103,13 @@ const webAppPutConnectProductApi = (requestBody: any) => {
 };
 
 //ecommerce order api
-const webAppDownloadOrderApi = (
-  requestBody: WebAppPostOrderQuery
-): Promise<BaseResponse<any>> => {
+const webAppDownloadOrderApi = (requestBody: WebAppPostOrderQuery): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.WEB_APP}/orders`;
   return BaseAxios.post(link, requestBody);
 };
 
 //get progress download ecommerce orders
-const getProgressDownloadEcommerceApi = (
-  process_id: any
-): Promise<BaseResponse<any>> => {
+const getProgressDownloadEcommerceApi = (process_id: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.WEB_APP}/orders/download-process/${process_id}`;
   return BaseAxios.get(requestUrl);
 };
@@ -135,68 +121,58 @@ const webAppGetOrderMappingListApi = (query: any) => {
   return BaseAxios.get(link);
 };
 
-const webAppGetStoreAddressApi = (query : any) => {
+const webAppGetStoreAddressApi = (query: any) => {
   let params = generateQuery(query);
   let link = `${ApiConfig.WEB_APP}/logistic/store-address?${params}`;
   return BaseAxios.get(link);
-}
+};
 
-const webAppCreateLogisticApi = (requestBody : EcommerceCreateLogistic) => {
+const webAppCreateLogisticApi = (requestBody: EcommerceCreateLogistic) => {
   let link = `${ApiConfig.WEB_APP}/logistic/shipping-order`;
   return BaseAxios.post(link, requestBody);
-}
-
+};
 
 export const webAppConcatenateByExcelApi = (formData: FormData) => {
   return BaseAxios.post(`${ApiConfig.WEB_APP}/import-export/variants-import`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });
-}
+};
 
 // get web app jobs api
-export const getWebAppJobsApi = (
-  process_id: any
-): Promise<BaseResponse<any>> => {
-const requestUrl = `${ApiConfig.WEB_APP}/jobs/${process_id}`;
-return BaseAxios.get(requestUrl);
+export const getWebAppJobsApi = (process_id: any): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.WEB_APP}/jobs/${process_id}`;
+  return BaseAxios.get(requestUrl);
 };
 
 //exit web app jobs api
 export const webAppExitJobsApi = (
-  query: WebAppExitProgressDownloadQuery
+  query: WebAppExitProgressDownloadQuery,
 ): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.WEB_APP}/jobs/${query.processId}`;
   return BaseAxios.put(requestUrl);
 };
 
 // get web app delivery note
-export const webAppGetPrintForm = (
-    requestBody: any
-): Promise<BaseResponse<any>> => {
+export const webAppGetPrintForm = (requestBody: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.WEB_APP}/orders/print-forms`;
   return BaseAxios.post(requestUrl, requestBody);
 };
 
 //get info shopify
-const webAppGetInfoShopify = (
-  reqrequestBody: any
-): Promise<BaseResponse<any>> => {
+const webAppGetInfoShopify = (reqrequestBody: any): Promise<BaseResponse<any>> => {
   const params = generateQuery(reqrequestBody);
   const requestUrl = `${ApiConfig.WEB_APP}/shopify/shops/web-store?${params}`;
   return BaseAxios.get(requestUrl);
-}
-const webAppCreateShopify = (
-  reqrequestBody: any
-): Promise<BaseResponse<any>> => {
+};
+const webAppCreateShopify = (reqrequestBody: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.WEB_APP}/shopify/shops`;
-  return BaseAxios.post(requestUrl,reqrequestBody);
-}
+  return BaseAxios.post(requestUrl, reqrequestBody);
+};
 
 //get source list
-const webAppGetSourceList = (reqrequestBody: any) : Promise<BaseResponse<any>> => {
+const webAppGetSourceList = (reqrequestBody: any): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.WEB_APP}/shop_source/sources`);
-}
-
+};
 
 export {
   webAppCreateConfigApi,
@@ -221,5 +197,5 @@ export {
   webAppCreateLogisticApi,
   webAppGetInfoShopify,
   webAppCreateShopify,
-  webAppGetSourceList
+  webAppGetSourceList,
 };

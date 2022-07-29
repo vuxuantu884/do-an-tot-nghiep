@@ -1,26 +1,23 @@
-import {call, put, takeLatest} from '@redux-saga/core/effects';
-import {YodyAction} from 'base/base.action';
-import BaseResponse from 'base/base.response';
-import {HttpStatus} from 'config/http-status.config';
-import {unauthorizedAction} from 'domain/actions/auth/auth.action';
-import {CategoryType} from 'domain/types/product.type';
-import {CategoryResponse} from 'model/product/category.model';
+import { call, put, takeLatest } from "@redux-saga/core/effects";
+import { YodyAction } from "base/base.action";
+import BaseResponse from "base/base.response";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
+import { CategoryType } from "domain/types/product.type";
+import { CategoryResponse } from "model/product/category.model";
 import {
   createCategoryApi,
   getCategoryApi,
   categoryDetailApi,
   updateCategoryApi,
   categoryDeleteApi,
-} from 'service/product/category.service';
-import {showError} from 'utils/ToastUtils';
+} from "service/product/category.service";
+import { showError } from "utils/ToastUtils";
 
 function* getCategorySaga(action: YodyAction) {
-  const {query, setData} = action.payload;
+  const { query, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<CategoryResponse>> = yield call(
-      getCategoryApi,
-      query
-    );
+    let response: BaseResponse<Array<CategoryResponse>> = yield call(getCategoryApi, query);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -34,17 +31,14 @@ function* getCategorySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* createCategorySaga(action: YodyAction) {
-  const {request, onCreateSuccess} = action.payload;
+  const { request, onCreateSuccess } = action.payload;
   try {
-    let response: BaseResponse<CategoryResponse> = yield call(
-      createCategoryApi,
-      request
-    );
+    let response: BaseResponse<CategoryResponse> = yield call(createCategoryApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         onCreateSuccess(response.data);
@@ -57,17 +51,14 @@ function* createCategorySaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* categoryDetailSaga(action: YodyAction) {
-  const {id, setData} = action.payload;
+  const { id, setData } = action.payload;
   try {
-    let response: BaseResponse<CategoryResponse> = yield call(
-      categoryDetailApi,
-      id
-    );
+    let response: BaseResponse<CategoryResponse> = yield call(categoryDetailApi, id);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -84,18 +75,14 @@ function* categoryDetailSaga(action: YodyAction) {
     }
   } catch (error) {
     setData(false);
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* categoryUpdateSaga(action: YodyAction) {
-  const {id, request, onUpdateSuccess} = action.payload;
+  const { id, request, onUpdateSuccess } = action.payload;
   try {
-    let response: BaseResponse<CategoryResponse> = yield call(
-      updateCategoryApi,
-      id,
-      request
-    );
+    let response: BaseResponse<CategoryResponse> = yield call(updateCategoryApi, id, request);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -109,12 +96,12 @@ function* categoryUpdateSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
 function* categoryDeleteSaga(action: YodyAction) {
-  const {id, onDeleteSuccess} = action.payload;
+  const { id, onDeleteSuccess } = action.payload;
   try {
     let response: BaseResponse<string> = yield call(categoryDeleteApi, id);
 
@@ -130,7 +117,7 @@ function* categoryDeleteSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    showError('Có lỗi vui lòng thử lại sau');
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 

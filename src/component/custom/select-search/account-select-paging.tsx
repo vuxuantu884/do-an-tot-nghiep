@@ -37,7 +37,16 @@ SelectSearch.defaultProps = {
 };
 
 function SelectSearch(contentProps: SelectContentProps) {
-  const { id: name, value, mode, fixedQuery, key, isFilter, isGetName, ...selectProps } = contentProps;
+  const {
+    id: name,
+    value,
+    mode,
+    fixedQuery,
+    key,
+    isFilter,
+    isGetName,
+    ...selectProps
+  } = contentProps;
 
   const dispatch = useDispatch();
   const [isSearching, setIsSearching] = React.useState(false);
@@ -61,17 +70,20 @@ function SelectSearch(contentProps: SelectContentProps) {
           setData(response);
         }
         setIsSearching(false);
-      })
+      }),
     );
   };
 
   useEffect(() => {
-    if(contentProps.defaultValue) {
-      const user: any =  { code: contentProps?.defaultValue, full_name: contentProps?.merchandiser }
-      setData({...data, items: [user, ...data.items]})
+    if (contentProps.defaultValue) {
+      const user: any = {
+        code: contentProps?.defaultValue,
+        full_name: contentProps?.merchandiser,
+      };
+      setData({ ...data, items: [user, ...data.items] });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [contentProps.defaultValue])
+  }, [contentProps.defaultValue]);
 
   /**
    * Option cho trang 1
@@ -82,16 +94,20 @@ function SelectSearch(contentProps: SelectContentProps) {
         { isShowError: true },
         dispatch,
         searchAccountPublicApi,
-        { ...fixedQuery, page: 1, limit: 30 }
+        { ...fixedQuery, page: 1, limit: 30 },
       );
-      const currentUser = { id: userReducer.account?.id, code: userReducer.account?.code, full_name: userReducer.account?.full_name }
-      const findUser = response?.items.find((item: any) => item.code === userReducer.account?.code)
+      const currentUser = {
+        id: userReducer.account?.id,
+        code: userReducer.account?.code,
+        full_name: userReducer.account?.full_name,
+      };
+      const findUser = response?.items.find((item: any) => item.code === userReducer.account?.code);
 
-      let items: any[]
-      if(findUser) {
-        items = response?.items
+      let items: any[];
+      if (findUser) {
+        items = response?.items;
       } else {
-        items = [currentUser, ...response?.items]
+        items = [currentUser, ...response?.items];
       }
       setDefaultOptons(items);
       setData({ ...response, items });
@@ -123,7 +139,7 @@ function SelectSearch(contentProps: SelectContentProps) {
           {
             codes: isFilter ? JSON.parse(initCodes).code : initCodes,
             ...fixedQuery,
-          }
+          },
         );
 
         let totalItems: AccountResponse[] = [];
@@ -155,15 +171,22 @@ function SelectSearch(contentProps: SelectContentProps) {
       onPageChange={(key: string, page: number) => {
         handleSearch({ condition: key.trim(), page: page });
       }}
-      filterOption={() => true}//lấy kết quả từ server
+      filterOption={() => true} //lấy kết quả từ server
       {...selectProps}
       value={contentProps.defaultValue || value}
-      >
+    >
       {data?.items?.map((item) => (
-        <SelectPagingV2.Option key={item.code + name} value={isFilter || isGetName ? JSON.stringify({
-          code: item.code,
-          name: item.full_name
-        }) : item.code}>
+        <SelectPagingV2.Option
+          key={item.code + name}
+          value={
+            isFilter || isGetName
+              ? JSON.stringify({
+                  code: item.code,
+                  name: item.full_name,
+                })
+              : item.code
+          }
+        >
           {`${item.code} - ${item.full_name}`}
         </SelectPagingV2.Option>
       ))}

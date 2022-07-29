@@ -78,9 +78,7 @@ function SyncProductModal({
         <div className="render-shop-list">
           {ecommerceShopList?.map((item: any) => (
             <div key={item.id} className="shop-name">
-              <Checkbox
-                onChange={(e) => onCheckedChange(item, e)}
-                checked={item.isSelected}>
+              <Checkbox onChange={(e) => onCheckedChange(item, e)} checked={item.isSelected}>
                 <span className="check-box-name">
                   <span>
                     <img
@@ -90,9 +88,7 @@ function SyncProductModal({
                     />
                   </span>
                   <Tooltip title={item.name} color="#1890ff" placement="right">
-                    <span
-                      className="name"
-                      style={isNewFilter ? { width: 270 } : { width: 90 }}>
+                    <span className="name" style={isNewFilter ? { width: 270 } : { width: 90 }}>
                       {item.name}
                     </span>
                   </Tooltip>
@@ -102,9 +98,7 @@ function SyncProductModal({
           ))}
 
           {ecommerceShopList.length === 0 && (
-            <div style={{ color: "#737373", padding: 10 }}>
-              Không có dữ liệu
-            </div>
+            <div style={{ color: "#737373", padding: 10 }}>Không có dữ liệu</div>
           )}
         </div>
       </StyledProductFilter>
@@ -160,9 +154,9 @@ function SyncProductModal({
       onCancel={handleCancelSyncModal}
       onOk={handleOkSyncModal}
       okButtonProps={{
-        disabled:
-          isCheckedRadioNormal === true || shopIdSelected.length ? false : true,
-      }}>
+        disabled: isCheckedRadioNormal === true || shopIdSelected.length ? false : true,
+      }}
+    >
       <StyledComponentSyncStock>
         <Radio.Group onChange={onChangeSyncOption} value={syncStockType}>
           <Space direction="vertical">
@@ -178,7 +172,8 @@ function SyncProductModal({
           <Form>
             <Form.Item
               className="select-store-dropdown select-store-dropdown-sync-stock"
-              label={<span>Chọn gian hàng</span>}>
+              label={<span>Chọn gian hàng</span>}
+            >
               <Select
                 placeholder={getPlaceholderSelectShop()}
                 dropdownRender={() => renderShopList(true)}

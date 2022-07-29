@@ -8,23 +8,13 @@ import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  OrderItemModel
-} from "model/other/order/order-model";
-import {
-  VariantResponse,
-  VariantSearchQuery
-} from "model/product/product.model";
+import { OrderItemModel } from "model/other/order/order-model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { OrderLineItemRequest } from "model/request/order.request";
 import React, { createRef, useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
-import {
-  findAvatar,
-  findPrice,
-  findPriceInVariant,
-  findTaxInVariant
-} from "utils/AppUtils";
+import { findAvatar, findPrice, findPriceInVariant, findTaxInVariant } from "utils/AppUtils";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -39,7 +29,7 @@ const initQuery: VariantSearchQuery = {
   limit: 10,
   page: 1,
   saleable: true,
-	active: true,
+  active: true,
 };
 export interface AddGiftRef {
   setGifts: (items: Array<OrderLineItemRequest>) => void;
@@ -74,31 +64,27 @@ const renderSearch = (item: VariantResponse) => {
         </span>
         <span style={{ color: "#95A1AC" }} className="text t-right p-4">
           Có thể bán:
-					<span
-						style={{
-							color:
-								(item.available === null ? 0 : item.available) > 0
-									? "#2A2A86"
-									: "rgba(226, 67, 67, 1)",
-						}}
-					>
-						{` ${item.available === null ? 0 : item.available}`}
-					</span>
+          <span
+            style={{
+              color:
+                (item.available === null ? 0 : item.available) > 0
+                  ? "#2A2A86"
+                  : "rgba(226, 67, 67, 1)",
+            }}
+          >
+            {` ${item.available === null ? 0 : item.available}`}
+          </span>
         </span>
       </div>
     </div>
   );
 };
 
-const AddGiftModal: React.FC<AddGiftModalProps> = (
-  props: AddGiftModalProps
-) => {
-  const { visible, onCancel, onOk,storeId } = props;
+const AddGiftModal: React.FC<AddGiftModalProps> = (props: AddGiftModalProps) => {
+  const { visible, onCancel, onOk, storeId } = props;
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
-  const [resultSearch, setResultSearch] = useState<
-    PageResponse<VariantResponse>
-  >({
+  const [resultSearch, setResultSearch] = useState<PageResponse<VariantResponse>>({
     metadata: {
       limit: 0,
       page: 1,
@@ -112,14 +98,14 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       props.items.splice(index, 1);
       props.onUpdateData(props.items);
     },
-    [props]
+    [props],
   );
   const update = useCallback(
     (index: number, value: number) => {
       props.items[index].quantity = value;
       props.onUpdateData(props.items);
     },
-    [props]
+    [props],
   );
 
   const columns = [
@@ -128,12 +114,12 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       render: (a: OrderItemModel, item: any, index: number) => (
         <div>
           <div className="yody-pos-sku">
-          <Link
-                  target="_blank"
-                  to={`${UrlConfig.PRODUCT}/${a.product_id}/variants/${a.variant_id}`}
-                >
-                  {a.sku}
-                </Link>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${a.product_id}/variants/${a.variant_id}`}
+            >
+              {a.sku}
+            </Link>
           </div>
           <Badge status="default" text={a.variant} style={{ marginLeft: 7 }} />
         </div>
@@ -189,10 +175,10 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     (value) => {
       setKeysearch(value);
       initQuery.info = value;
-      initQuery.store_ids=storeId;
+      initQuery.store_ids = storeId;
       dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
     },
-    [dispatch,storeId]
+    [dispatch, storeId],
   );
 
   const convertResultSearch = useMemo(() => {
@@ -218,7 +204,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       variant: variant.name,
       variant_barcode: variant.barcode,
       product_type: variant.product.product_type,
-      product_code:variant.product_code||"",
+      product_code: variant.product_code || "",
       quantity: 1,
       price: price,
       amount: price,
@@ -242,7 +228,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       show_note: false,
       gifts: [],
       position: undefined,
-      available:variant.available
+      available: variant.available,
     };
     return orderLine;
   }, []);
@@ -272,7 +258,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       props.onUpdateData(_items);
       setKeysearch("");
     },
-    [props, resultSearch.items, createItem]
+    [props, resultSearch.items, createItem],
     // autoCompleteRef, dispatch, resultSearch
   );
 
@@ -291,9 +277,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       className="saleorder-product-modal"
     >
       <AutoComplete
-        notFoundContent={
-          keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
-        }
+        notFoundContent={keysearch.length >= 3 ? "Không tìm thấy sản phẩm" : undefined}
         value={keysearch}
         ref={autoCompleteRef}
         onSelect={onVariantSelect}

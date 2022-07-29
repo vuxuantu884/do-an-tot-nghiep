@@ -12,10 +12,10 @@ export const StyledCardList = styled.div`
     div:not(:last-child) {
       margin-right: 15px;
     }
-		
-		.ant-form-item {
-			margin-bottom: 0;
-		}
+
+    .ant-form-item {
+      margin-bottom: 0;
+    }
   }
 
   .filter-tags {

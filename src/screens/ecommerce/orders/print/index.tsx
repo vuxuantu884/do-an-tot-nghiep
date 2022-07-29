@@ -25,9 +25,7 @@ function EcommercePrint(props: PropType) {
   const [printContent, setPrintContent] = useState("");
   const dispatch = useDispatch();
   const printElementRef = useRef(null);
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer,
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const query = useQuery();
   // const queryIds = query.getAll("ids[]");
   const queryIds: any = query.get("ids")?.split(",") || null;
@@ -46,9 +44,7 @@ function EcommercePrint(props: PropType) {
     },
   });
 
-  const handlePrintIfGetData = (
-    response: BaseResponse<PrintFormByOrderIdsResponseModel>,
-  ) => {
+  const handlePrintIfGetData = (response: BaseResponse<PrintFormByOrderIdsResponseModel>) => {
     if (!response || response.data?.length === 0) {
       return null;
     }
@@ -67,16 +63,14 @@ function EcommercePrint(props: PropType) {
     dispatch(showLoading());
     if (queryPrintType && queryPrintType === printType.shipment) {
       if (queryIds && queryIds.length > 0) {
-        getEcommerceOrdersPrintFormService(queryIds, queryPrintType).then(
-          (response) => {
-            if (isFetchApiSuccessful(response)) {
-              handlePrintIfGetData(response);
-            } else {
-              handleFetchApiError(response, "In phiếu giao hàng", dispatch);
-            }
-            dispatch(hideLoading());
-          },
-        );
+        getEcommerceOrdersPrintFormService(queryIds, queryPrintType).then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            handlePrintIfGetData(response);
+          } else {
+            handleFetchApiError(response, "In phiếu giao hàng", dispatch);
+          }
+          dispatch(hideLoading());
+        });
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

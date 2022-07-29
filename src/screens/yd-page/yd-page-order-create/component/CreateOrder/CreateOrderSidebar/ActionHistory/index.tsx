@@ -81,14 +81,14 @@ function ActionHistory(props: PropType) {
   };
 
   useEffect(() => {
-    if(!orderId) {
+    if (!orderId) {
       return;
     }
     if (orderId || reload) {
       dispatch(
         actionGetOrderActionLogs(orderId, (response: OrderActionLogResponse[]) => {
           setActionLog(response);
-        })
+        }),
       );
     }
   }, [dispatch, orderId, countChangeSubStatus, reload]);
@@ -117,9 +117,7 @@ function ActionHistory(props: PropType) {
                       )}
                       {singleActionHistory?.updated_date && (
                         <div className="singleActionHistory__date">
-                          {moment(singleActionHistory?.updated_date).format(
-                            "HH:mm DD/MM/YYYY"
-                          )}
+                          {moment(singleActionHistory?.updated_date).format("HH:mm DD/MM/YYYY")}
                         </div>
                       )}
                     </div>
@@ -134,7 +132,7 @@ function ActionHistory(props: PropType) {
                       <div className="singleActionHistory__subStatus">
                         {renderSingleSubStatus(
                           singleActionHistory?.status_before,
-                          singleActionHistory?.status_after
+                          singleActionHistory?.status_after,
                         )}
                       </div>
                     </div>

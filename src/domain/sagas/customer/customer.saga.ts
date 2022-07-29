@@ -31,9 +31,9 @@ import {
   getCustomerActivityLogApi,
   getCustomerActivityLogDetailApi,
 } from "service/customer/customer.service";
-import {showError} from "utils/ToastUtils";
+import { showError } from "utils/ToastUtils";
 import { isFetchApiSuccessful } from "utils/AppUtils";
-import {callApiSaga} from "utils/ApiUtils";
+import { callApiSaga } from "utils/ApiUtils";
 import { CustomerType } from "domain/types/customer.type";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
 import { fetchApiErrorAction } from "domain/actions/app.action";
@@ -45,7 +45,7 @@ function* onKeySearchCustomerChange(action: YodyAction) {
     if (query.request.length >= 3) {
       const response: BaseResponse<PageResponse<CustomerResponse>> = yield call(
         getCustomers,
-        query
+        query,
       );
       switch (response.code) {
         case HttpStatus.SUCCESS:
@@ -70,13 +70,13 @@ function* onKeySearchCustomerChangeSo(action: YodyAction) {
     if (query.request.length >= 3) {
       const response: BaseResponse<PageResponse<CustomerResponse>> = yield call(
         getCustomersSo,
-        query
+        query,
       );
-			if (isFetchApiSuccessful(response)) {
-				setData(response.data.items);
-			} else {
-				yield put(fetchApiErrorAction(response, "Tìm kiếm khách hàng"));
-			}
+      if (isFetchApiSuccessful(response)) {
+        setData(response.data.items);
+      } else {
+        yield put(fetchApiErrorAction(response, "Tìm kiếm khách hàng"));
+      }
     }
   } catch (error) {
     showError("Có lỗi khi tìm kiếm khách hàng! Vui lòng thử lại sau!");
@@ -87,10 +87,7 @@ function* getCustomerList(action: YodyAction) {
   const { query, setData } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      getCustomers,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(getCustomers, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -115,10 +112,7 @@ function* getCustomerByPhone(action: YodyAction) {
   const { query, setData } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<CustomerResponse> = yield call(
-      getCustomers,
-      query
-    );
+    const response: BaseResponse<CustomerResponse> = yield call(getCustomers, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -143,10 +137,7 @@ function* CustomerDetail(action: YodyAction) {
   const { id, setData } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<CustomerResponse> = yield call(
-      getDetailCustomer,
-      id
-    );
+    const response: BaseResponse<CustomerResponse> = yield call(getDetailCustomer, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -170,7 +161,7 @@ function* getCustomerOrderHistorySaga(action: YodyAction) {
   const { queryParams, callback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<any> = yield call( getCustomerOrderHistoryApi, queryParams );
+    const response: BaseResponse<any> = yield call(getCustomerOrderHistoryApi, queryParams);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -182,7 +173,8 @@ function* getCustomerOrderHistorySaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {} finally {
+  } catch (error) {
+  } finally {
     yield put(hideLoading());
   }
 }
@@ -192,7 +184,7 @@ function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
   const { customer_id, callback } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<any> = yield call( getCustomerOrderReturnHistoryApi, customer_id );
+    const response: BaseResponse<any> = yield call(getCustomerOrderReturnHistoryApi, customer_id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -204,7 +196,8 @@ function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
         response.errors.forEach((e) => showError(e));
         break;
     }
-  } catch (error) {} finally {
+  } catch (error) {
+  } finally {
     yield put(hideLoading());
   }
 }
@@ -212,27 +205,30 @@ function* getCustomerOrderReturnHistorySaga(action: YodyAction) {
 // get customer's activity log
 function* getCustomerActivityLogSaga(action: YodyAction) {
   const { queryParams, callback } = action.payload;
-  yield callApiSaga({notifyAction: "SHOW_ALL"}, callback, getCustomerActivityLogApi, queryParams);
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, getCustomerActivityLogApi, queryParams);
 }
 
 // get customer's activity log detail
 function* getCustomerActivityLogDetailSaga(action: YodyAction) {
   const { log_id, callback } = action.payload;
-  yield callApiSaga({notifyAction: "SHOW_ALL"}, callback, getCustomerActivityLogDetailApi, log_id);
+  yield callApiSaga(
+    { notifyAction: "SHOW_ALL" },
+    callback,
+    getCustomerActivityLogDetailApi,
+    log_id,
+  );
 }
 
 function* CustomerGroups(action: YodyAction) {
   const { setData } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<CustomerResponse> = yield call(
-      getCustomerGroups
-    );
-		if (isFetchApiSuccessful(response)) {
-			setData(response.data);
-		} else {
-			yield put(fetchApiErrorAction(response, "Danh sách nhóm khách hàng"));
-		}
+    const response: BaseResponse<CustomerResponse> = yield call(getCustomerGroups);
+    if (isFetchApiSuccessful(response)) {
+      setData(response.data);
+    } else {
+      yield put(fetchApiErrorAction(response, "Danh sách nhóm khách hàng"));
+    }
   } catch (error) {
     showError("Có lỗi khi lấy danh sách nhóm khách hàng. Vui lòng thử lại sau!");
   } finally {
@@ -244,9 +240,7 @@ function* CustomerLevels(action: YodyAction) {
   const { setData } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<CustomerResponse> = yield call(
-      getCustomerLevels
-    );
+    const response: BaseResponse<CustomerResponse> = yield call(getCustomerLevels);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -269,9 +263,7 @@ function* CustomerTypes(action: YodyAction) {
   const { setData } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<CustomerResponse> = yield call(
-      getCustomerTypes
-    );
+    const response: BaseResponse<CustomerResponse> = yield call(getCustomerTypes);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -343,12 +335,7 @@ function* UpdateCustomer(action: YodyAction) {
 function* UpdateBillingAddress(action: YodyAction) {
   const { customerId, id, address, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      updateBillingAddress,
-      id,
-      customerId,
-      address
-    );
+    const response: BaseResponse<any> = yield call(updateBillingAddress, id, customerId, address);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -370,11 +357,7 @@ function* UpdateBillingAddress(action: YodyAction) {
 function* CreateBillingAddress(action: YodyAction) {
   const { customerId, address, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      createBillingAddress,
-      customerId,
-      address
-    );
+    const response: BaseResponse<any> = yield call(createBillingAddress, customerId, address);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -396,12 +379,7 @@ function* CreateBillingAddress(action: YodyAction) {
 function* UpdateShippingAddress(action: YodyAction) {
   const { customerId, id, address, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      updateShippingAddress,
-      id,
-      customerId,
-      address
-    );
+    const response: BaseResponse<any> = yield call(updateShippingAddress, id, customerId, address);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -423,12 +401,7 @@ function* UpdateShippingAddress(action: YodyAction) {
 function* UpdateNote(action: YodyAction) {
   const { customerId, id, note, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      updateNote,
-      id,
-      customerId,
-      note
-    );
+    const response: BaseResponse<any> = yield call(updateNote, id, customerId, note);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -450,11 +423,7 @@ function* UpdateNote(action: YodyAction) {
 function* CreateNote(action: YodyAction) {
   const { customerId, note, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      createNote,
-      customerId,
-      note
-    );
+    const response: BaseResponse<any> = yield call(createNote, customerId, note);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -476,11 +445,7 @@ function* CreateNote(action: YodyAction) {
 function* CreateShippingAddress(action: YodyAction) {
   const { customerId, address, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      createShippingAddress,
-      customerId,
-      address
-    );
+    const response: BaseResponse<any> = yield call(createShippingAddress, customerId, address);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -502,12 +467,7 @@ function* CreateShippingAddress(action: YodyAction) {
 function* UpdateContact(action: YodyAction) {
   const { customerId, id, contact, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      updateContact,
-      id,
-      customerId,
-      contact
-    );
+    const response: BaseResponse<any> = yield call(updateContact, id, customerId, contact);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -529,11 +489,7 @@ function* UpdateContact(action: YodyAction) {
 function* CreateContact(action: YodyAction) {
   const { customerId, contact, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      createContact,
-      customerId,
-      contact
-    );
+    const response: BaseResponse<any> = yield call(createContact, customerId, contact);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data);
@@ -555,11 +511,7 @@ function* CreateContact(action: YodyAction) {
 function* DeleteBillingAddress(action: YodyAction) {
   const { customerId, id, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      deleteBillingAddress,
-      id,
-      customerId
-    );
+    const response: BaseResponse<any> = yield call(deleteBillingAddress, id, customerId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data || "OK");
@@ -581,11 +533,7 @@ function* DeleteBillingAddress(action: YodyAction) {
 function* DeleteContact(action: YodyAction) {
   const { customerId, id, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      deleteContact,
-      id,
-      customerId
-    );
+    const response: BaseResponse<any> = yield call(deleteContact, id, customerId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data || "OK");
@@ -607,11 +555,7 @@ function* DeleteContact(action: YodyAction) {
 function* DeleteShippingAddress(action: YodyAction) {
   const { customerId, id, setResult } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(
-      deleteShippingAddress,
-      id,
-      customerId
-    );
+    const response: BaseResponse<any> = yield call(deleteShippingAddress, id, customerId);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setResult(response.data || "OK");
@@ -670,12 +614,8 @@ function* importCustomerSaga(action: YodyAction) {
   }
 }
 
-
 export default function* customerSagas() {
-  yield takeLatest(
-    CustomerType.KEY_SEARCH_CUSTOMER_CHANGE,
-    onKeySearchCustomerChange
-  );
+  yield takeLatest(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE, onKeySearchCustomerChange);
   yield takeLatest(CustomerType.KEY_SEARCH_CUSTOMER_CHANGE_SO, onKeySearchCustomerChangeSo);
   yield takeLatest(CustomerType.CUSTOMER_LIST, getCustomerList);
 

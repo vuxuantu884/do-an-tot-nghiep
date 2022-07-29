@@ -10,10 +10,10 @@ export const StyledComponent = styled.div`
     height: 41px;
     width: 184px;
   }
-  .ant-form-item{
+  .ant-form-item {
     margin-bottom: 6px !important;
   }
-  
+
   .delivery-method-item {
     display: flex;
     justify-content: space-between;

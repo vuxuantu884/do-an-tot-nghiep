@@ -1,15 +1,28 @@
-import { CustomerNote, CustomerRequest } from '../../model/request/customer.request';
-import {CustomerResponse, ExportCustomerResponse} from 'model/response/customer/customer.response';
-import { PageResponse } from 'model/base/base-metadata.response';
-import { generateQuery } from 'utils/AppUtils';
-import {CustomerSearchQuery, ExportCustomerRequest, ImportCustomerQuery} from 'model/query/customer.query';
+import { CustomerNote, CustomerRequest } from "../../model/request/customer.request";
+import {
+  CustomerResponse,
+  ExportCustomerResponse,
+} from "model/response/customer/customer.response";
+import { PageResponse } from "model/base/base-metadata.response";
+import { generateQuery } from "utils/AppUtils";
+import {
+  CustomerSearchQuery,
+  ExportCustomerRequest,
+  ImportCustomerQuery,
+} from "model/query/customer.query";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
-import { CustomerBillingAddress, CustomerContact, CustomerShippingAddress } from 'model/request/customer.request';
+import {
+  CustomerBillingAddress,
+  CustomerContact,
+  CustomerShippingAddress,
+} from "model/request/customer.request";
 import { ExportResponse } from "model/other/files/export-model";
 
-export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<PageResponse<CustomerResponse>>> => {
+export const getCustomers = (
+  query: CustomerSearchQuery,
+): Promise<BaseResponse<PageResponse<CustomerResponse>>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.CUSTOMER}/customers?${params}`;
   return BaseAxios.get(link);
@@ -17,19 +30,19 @@ export const getCustomers = (query : CustomerSearchQuery): Promise<BaseResponse<
 
 //customer export file
 export const exportCustomerFile = (
-  params: ExportCustomerRequest
+  params: ExportCustomerRequest,
 ): Promise<BaseResponse<ExportResponse>> => {
   return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/export`, params);
 };
 
 // export jobs
-export const getCustomerFile = (
-  code: string
-): Promise<BaseResponse<ExportCustomerResponse>> => {
+export const getCustomerFile = (code: string): Promise<BaseResponse<ExportCustomerResponse>> => {
   return BaseAxios.get(`${ApiConfig.CUSTOMER}/jobs/${code}`);
 };
 
-export const getCustomersSo = (query : CustomerSearchQuery): Promise<BaseResponse<CustomerResponse>> => {
+export const getCustomersSo = (
+  query: CustomerSearchQuery,
+): Promise<BaseResponse<CustomerResponse>> => {
   let params = generateQuery(query);
   let link = `${ApiConfig.CUSTOMER}/customers?${params}`;
   return BaseAxios.get(link);
@@ -48,14 +61,16 @@ export const getCustomerOrderHistoryApi = (queryParams: any): Promise<BaseRespon
     page: queryParams.page,
     variant_ids: queryParams.variant_ids,
     customer_id: null,
-  }
+  };
   const params = generateQuery(query);
   const link = `${ApiConfig.CUSTOMER}/customers/${queryParams.customer_id}/order-histories?${params}`;
   return BaseAxios.get(link);
 };
 
 // get custommer's order return history
-export const getCustomerOrderReturnHistoryApi = (customer_id: number): Promise<BaseResponse<any>> => {
+export const getCustomerOrderReturnHistoryApi = (
+  customer_id: number,
+): Promise<BaseResponse<any>> => {
   let link = `${ApiConfig.CUSTOMER}/customers/${customer_id}/order-return-histories`;
   return BaseAxios.get(link);
 };
@@ -65,7 +80,7 @@ export const getCustomerActivityLogApi = (queryParams: any): Promise<BaseRespons
   const query = {
     limit: queryParams.limit,
     page: queryParams.page,
-  }
+  };
   const params = generateQuery(query);
   const link = `${ApiConfig.CUSTOMER}/customers/${queryParams.customer_id}/logs?${params}`;
   return BaseAxios.get(link);
@@ -92,7 +107,10 @@ export const getCustomerLevels = (): Promise<BaseResponse<any>> => {
   return BaseAxios.get(link);
 };
 
-export const createShippingAddress = (customerId: number, address: CustomerShippingAddress): Promise<BaseResponse<any>> => {
+export const createShippingAddress = (
+  customerId: number,
+  address: CustomerShippingAddress,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/shipping-address`;
   return BaseAxios.post(url, address);
 };
@@ -102,32 +120,54 @@ export const createNote = (customerId: number, note: CustomerNote): Promise<Base
   return BaseAxios.post(url, note);
 };
 
-export const updateShippingAddress = (id: number, customerId: number, address: CustomerShippingAddress): Promise<BaseResponse<any>> => {
+export const updateShippingAddress = (
+  id: number,
+  customerId: number,
+  address: CustomerShippingAddress,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/shipping-address/${id}`;
   return BaseAxios.put(url, address);
 };
 
-export const updateNote = (id: number, customerId: number, note: CustomerNote): Promise<BaseResponse<any>> => {
+export const updateNote = (
+  id: number,
+  customerId: number,
+  note: CustomerNote,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/notes/${id}`;
   return BaseAxios.put(url, note);
 };
 
-export const createBillingAddress = (customerId: number, address: CustomerBillingAddress): Promise<BaseResponse<any>> => {
+export const createBillingAddress = (
+  customerId: number,
+  address: CustomerBillingAddress,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/billing-address`;
   return BaseAxios.post(url, address);
 };
 
-export const updateBillingAddress = (id: number, customerId: number, address: CustomerBillingAddress): Promise<BaseResponse<any>> => {
+export const updateBillingAddress = (
+  id: number,
+  customerId: number,
+  address: CustomerBillingAddress,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/billing-address/${id}`;
   return BaseAxios.put(url, address);
 };
 
-export const createContact = (customerId: number, contact: CustomerContact): Promise<BaseResponse<any>> => {
+export const createContact = (
+  customerId: number,
+  contact: CustomerContact,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/contacts`;
   return BaseAxios.post(url, contact);
 };
 
-export const updateContact = (id: number, customerId: number, contact: CustomerContact): Promise<BaseResponse<any>> => {
+export const updateContact = (
+  id: number,
+  customerId: number,
+  contact: CustomerContact,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/contacts/${id}`;
   return BaseAxios.put(url, contact);
 };
@@ -137,7 +177,10 @@ export const createCustomer = (customer: CustomerRequest): Promise<BaseResponse<
   return BaseAxios.post(url, customer);
 };
 
-export const updateCustomer = (id: number,request: CustomerRequest): Promise<BaseResponse<any>> => {
+export const updateCustomer = (
+  id: number,
+  request: CustomerRequest,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${id}`;
   return BaseAxios.put(url, request);
 };
@@ -147,7 +190,10 @@ export const deleteContact = (id: number, customerId: number): Promise<BaseRespo
   return BaseAxios.delete(url);
 };
 
-export const deleteShippingAddress = (id: number, customerId: number): Promise<BaseResponse<any>> => {
+export const deleteShippingAddress = (
+  id: number,
+  customerId: number,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/shipping-address/${id}`;
   return BaseAxios.delete(url);
 };
@@ -157,7 +203,10 @@ export const deleteNote = (id: number, customerId: number): Promise<BaseResponse
   return BaseAxios.delete(url);
 };
 
-export const deleteBillingAddress = (id: number, customerId: number): Promise<BaseResponse<any>> => {
+export const deleteBillingAddress = (
+  id: number,
+  customerId: number,
+): Promise<BaseResponse<any>> => {
   let url = `${ApiConfig.CUSTOMER}/customers/${customerId}/billing-address/${id}`;
   return BaseAxios.delete(url);
 };
@@ -169,12 +218,10 @@ export const importCustomerService = (queryParams: ImportCustomerQuery) => {
   return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/import`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });
-}
+};
 
 //get progress import customer
-export const getProgressImportCustomerApi = (
-    process_code: any
-): Promise<BaseResponse<any>> => {
+export const getProgressImportCustomerApi = (process_code: any): Promise<BaseResponse<any>> => {
   const requestUrl = `${ApiConfig.CUSTOMER}/jobs/${process_code}`;
   return BaseAxios.get(requestUrl);
 };

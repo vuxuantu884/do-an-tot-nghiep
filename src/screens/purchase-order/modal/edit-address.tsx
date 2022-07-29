@@ -36,7 +36,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
       setListWard(results);
       setloadWard(false);
     },
-    [formAddress]
+    [formAddress],
   );
   const onChangeDistrict = useCallback(
     (value: number) => {
@@ -60,7 +60,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
       }
       dispatch(WardGetByDistrictAction(value, getListWardCallback));
     },
-    [dispatch, formAddress, getListWardCallback, listDistrict]
+    [dispatch, formAddress, getListWardCallback, listDistrict],
   );
   const onChangeWard = useCallback(
     (value: number) => {
@@ -76,7 +76,7 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
         });
       }
     },
-    [formAddress, listWard]
+    [formAddress, listWard],
   );
 
   const onAddressFormFinish = (values: PurchaseAddress) => onOk(values);
@@ -101,7 +101,8 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
       className="update-customer-modal"
       onOk={() => formAddress.submit()}
       width={700}
-      onCancel={onCancel}>
+      onCancel={onCancel}
+    >
       <Form layout="vertical" form={formAddress} scrollToFirstError onFinish={onAddressFormFinish}>
         <Row gutter={24}>
           <Col xs={24} lg={12}>
@@ -119,7 +120,8 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
                   pattern: RegUtil.PHONE,
                   message: "Số điện thoại chưa đúng định dạng",
                 },
-              ]}>
+              ]}
+            >
               <Input placeholder=" Số điện thoại" maxLength={255} />
             </Item>
           </Col>
@@ -132,7 +134,8 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
                 placeholder="Chọn quốc gia"
                 allowClear
                 optionFilterProp="children"
-                disabled>
+                disabled
+              >
                 {listCountry?.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}
@@ -149,7 +152,8 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
                 className="selector"
                 placeholder="Chọn khu vực"
                 allowClear
-                optionFilterProp="children">
+                optionFilterProp="children"
+              >
                 {listDistrict?.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.city_name} - {item.name}
@@ -179,7 +183,8 @@ const EditAddressModal: React.FC<EditAddressModalProps> = (props: EditAddressMod
                 placeholder="Chọn phường xã"
                 allowClear
                 optionFilterProp="children"
-                loading={loadWard}>
+                loading={loadWard}
+              >
                 {listWard?.map((item) => (
                   <Option key={item.id} value={item.id}>
                     {item.name}

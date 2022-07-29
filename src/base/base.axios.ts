@@ -16,7 +16,11 @@ export function getAxiosBase(config: AxiosRequestConfig) {
   BaseAxios.interceptors.request.use(
     function (request: AxiosRequestConfig) {
       // thêm version git commit để check xem user có update code mới nhất ko
-      request.headers['X-Client-Git-Version'] = `${process.env.REACT_APP_GIT_COMMIT_HASH ? process.env.REACT_APP_GIT_COMMIT_HASH : "no-git-commit-hash"}`
+      request.headers["X-Client-Git-Version"] = `${
+        process.env.REACT_APP_GIT_COMMIT_HASH
+          ? process.env.REACT_APP_GIT_COMMIT_HASH
+          : "no-git-commit-hash"
+      }`;
       const token = getToken();
       if (token != null) {
         request.headers["Authorization"] = `Bearer ${token}`;
@@ -30,12 +34,11 @@ export function getAxiosBase(config: AxiosRequestConfig) {
     },
     function (error) {
       AppConfig.runMode === "development" && console.error(error);
-    }
+    },
   );
 
   BaseAxios.interceptors.response.use(
     function (response: AxiosResponse) {
-
       /**
        * Thông báo lỗi
        */
@@ -45,15 +48,19 @@ export function getAxiosBase(config: AxiosRequestConfig) {
           return response;
         case HttpStatus.BAD_GATEWAY:
           showError(
-            "Hệ thống đang gián đoạn, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời."
+            "Hệ thống đang gián đoạn, vui lòng thử lại sau 5 phút hoặc liên hệ với IT để được hỗ trợ kịp thời.",
           );
           return response;
         case HttpStatus.UNAUTHORIZED:
-        /**
-         * Record api 401 để check lỗi tự đăng xuất
-         */
+          /**
+           * Record api 401 để check lỗi tự đăng xuất
+           */
           localStorage.removeItem(ACCESS_TOKEN);
-          let returnUrl = encodeURIComponent(`${window.location.pathname.slice(6, window.location.pathname.length)}${window.location.search}`);
+          let returnUrl = encodeURIComponent(
+            `${window.location.pathname.slice(6, window.location.pathname.length)}${
+              window.location.search
+            }`,
+          );
           window.location.replace(`/admin/login?returnUrl=${returnUrl}`);
           console.warn("Lỗi xác thực: \n", response?.config);
           return response;
@@ -65,13 +72,13 @@ export function getAxiosBase(config: AxiosRequestConfig) {
     },
     function (error) {
       /**
-      * Record api 401 để check lỗi tự đăng xuất
-      */
+       * Record api 401 để check lỗi tự đăng xuất
+       */
       if (error?.response?.status === 401) {
         console.warn("Lỗi xác thực: \n", error?.response?.config);
       }
       return Promise.reject(error);
-    }
+    },
   );
   return BaseAxios;
 }

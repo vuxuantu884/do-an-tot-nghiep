@@ -8,12 +8,10 @@ type ModalPickAvatarProps = {
   visible: boolean;
   variantImages: Array<VariantImage>;
   onCancel: () => void;
-  onOk: (imageId: number,isReload?: boolean) => void;
+  onOk: (imageId: number, isReload?: boolean) => void;
 };
 
-const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (
-  props: ModalPickAvatarProps
-) => {
+const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (props: ModalPickAvatarProps) => {
   const { visible, variantImages, onCancel, onOk } = props;
   const [selected, setSelected] = useState<number>(-1);
 
@@ -22,7 +20,7 @@ const ModalPickAvatar: React.FC<ModalPickAvatarProps> = (
   }, [onCancel]);
 
   const onOkClick = useCallback(() => {
-    onOk(selected,false);
+    onOk(selected, false);
   }, [onOk, selected]);
 
   const avatar = useMemo(() => {

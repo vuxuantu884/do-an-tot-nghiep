@@ -25,13 +25,11 @@ import TreeStore from "screens/products/inventory/filter/TreeStore";
 const { Item } = Form;
 
 function TabCurrentFilter(props: ProcurementFilterProps) {
-  const {
-    paramsUrl,
-  } = props;
+  const { paramsUrl } = props;
   const history = useHistory();
   const dispatch = useDispatch();
   const [allSupplier, setAllSupplier] = useState<Array<SupplierResponse>>();
-  const {array: paramsArray, set: setParamsArray, remove, prevArray} = useArray([])
+  const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([]);
   const [stores, setStores] = useState<Array<StoreResponse>>([] as Array<StoreResponse>);
 
   const [formBase] = useForm();
@@ -41,63 +39,82 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
   };
 
   useEffect(() => {
-    const {...rest} = paramsUrl;
+    const { ...rest } = paramsUrl;
 
-    const formatted = formatFieldTag(rest, {...ProcurementFilterBasicName})
+    const formatted = formatFieldTag(rest, { ...ProcurementFilterBasicName });
     const transformParams = formatted.map((item) => {
       switch (item.keyId) {
         case ProcurementFilterBasicEnum.suppliers:
-          if(isArray(item.valueId)) {
-            const filterSupplier = allSupplier?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
-            if(filterSupplier)
-              return {...item, valueName: filterSupplier?.map((item: any) => item.name).toString()}
+          if (isArray(item.valueId)) {
+            const filterSupplier = allSupplier?.filter((elem) =>
+              item.valueId.find((id: number) => +elem.id === +id),
+            );
+            if (filterSupplier)
+              return {
+                ...item,
+                valueName: filterSupplier?.map((item: any) => item.name).toString(),
+              };
           }
-          const findSupplier = allSupplier?.find(supplier => +supplier.id === +item.valueId)
-          return {...item, valueName: findSupplier?.name}
+          const findSupplier = allSupplier?.find((supplier) => +supplier.id === +item.valueId);
+          return { ...item, valueName: findSupplier?.name };
         case ProcurementFilterBasicEnum.content:
-          return {...item, valueName: item.valueId.toString()}
+          return { ...item, valueName: item.valueId.toString() };
         case ProcurementFilterBasicEnum.store_ids:
           if (isArray(item.valueId)) {
-            const filterStore = stores?.filter((elem) => item.valueId.find((id: number) => +elem.id === +id));
+            const filterStore = stores?.filter((elem) =>
+              item.valueId.find((id: number) => +elem.id === +id),
+            );
             if (filterStore)
-              return { ...item, valueName: filterStore?.map((item: any) => item.name).toString() }
+              return {
+                ...item,
+                valueName: filterStore?.map((item: any) => item.name).toString(),
+              };
           }
-          const findStore = stores.find((el => el.id === parseInt(item.valueId)))
+          const findStore = stores.find((el) => el.id === parseInt(item.valueId));
           return { ...item, valueName: findStore?.name };
         default:
-          return item
+          return item;
       }
-    })
-    setParamsArray(transformParams)
+    });
+    setParamsArray(transformParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paramsUrl, JSON.stringify(allSupplier), JSON.stringify(stores), setParamsArray])
+  }, [paramsUrl, JSON.stringify(allSupplier), JSON.stringify(stores), setParamsArray]);
 
-  const onRemoveStatus = useCallback((index: number) => {
-    remove(index)
-  }, [remove])
+  const onRemoveStatus = useCallback(
+    (index: number) => {
+      remove(index);
+    },
+    [remove],
+  );
 
   //watch remove tag
   useEffect(() => {
     (async () => {
-      if(paramsArray.length < (prevArray?.length || 0)) {
-        let newParams = transformParamsToObject(paramsArray)
-        await history.push(`${history.location.pathname}?${generateQuery(newParams)}`)
+      if (paramsArray.length < (prevArray?.length || 0)) {
+        let newParams = transformParamsToObject(paramsArray);
+        await history.push(`${history.location.pathname}?${generateQuery(newParams)}`);
       }
     })();
-  }, [paramsArray, history, prevArray])
+  }, [paramsArray, history, prevArray]);
 
   const getSupplierByCode = async (ids: string) => {
-    const res = await callApiNative({isShowLoading: false}, dispatch, supplierGetApi, {
+    const res = await callApiNative({ isShowLoading: false }, dispatch, supplierGetApi, {
       ids,
     });
     if (res) setAllSupplier(res.items);
-  }
+  };
 
   useEffect(() => {
     formBase.setFieldsValue({
-      [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers?.toString()?.split(',').map((x: string) => parseInt(x)),
+      [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers
+        ?.toString()
+        ?.split(",")
+        .map((x: string) => parseInt(x)),
       [ProcurementFilterBasicEnum.content]: paramsUrl.content,
-      [ProcurementFilterBasicEnum.store_ids]: paramsUrl.stores?.toString()?.split(',').map((x: string) => parseInt(x)),
+      [ProcurementFilterBasicEnum.store_ids]: paramsUrl.stores
+        ?.toString()
+        ?.split(",")
+        .map((x: string) => parseInt(x)),
     });
 
     if (paramsUrl.suppliers) {
@@ -109,15 +126,16 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
 
   useEffect(() => {
     const getStores = async () => {
-      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, { status: "active", simple: true })
+      const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
+        status: "active",
+        simple: true,
+      });
       if (res) {
-        setStores(res)
+        setStores(res);
       }
-    }
-    getStores()
-  }, [dispatch])
-
-
+    };
+    getStores();
+  }, [dispatch]);
 
   return (
     <Form.Provider>
@@ -130,7 +148,11 @@ function TabCurrentFilter(props: ProcurementFilterProps) {
               placeholder="Tìm kiếm theo mã phiếu nhập kho, mã đơn hàng, mã tham chiếu"
             />
           </Item>
-          <Item name={ProcurementFilterBasicEnum.store_ids} className="stores" style={{ minWidth: 250 }}>
+          <Item
+            name={ProcurementFilterBasicEnum.store_ids}
+            className="stores"
+            style={{ minWidth: 250 }}
+          >
             <TreeStore
               form={formBase}
               name={ProcurementFilterBasicEnum.store_ids}

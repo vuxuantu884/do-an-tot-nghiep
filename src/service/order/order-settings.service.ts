@@ -25,7 +25,7 @@ export const getIsAllowToSellWhenNotAvailableStockService = (): Promise<
 };
 
 export const configureIsAllowToSellWhenNotAvailableStockService = (
-  sellable_inventory: boolean
+  sellable_inventory: boolean,
 ): Promise<BaseResponse<string>> => {
   let params = {
     sellable_inventory,
@@ -33,9 +33,7 @@ export const configureIsAllowToSellWhenNotAvailableStockService = (
   return BaseAxios.put(`${ApiConfig.ORDER}/orders-config`, params);
 };
 
-export const getOrderConfigService = (): Promise<
-  BaseResponse<OrderConfigResponseModel>
-> => {
+export const getOrderConfigService = (): Promise<BaseResponse<OrderConfigResponseModel>> => {
   return BaseAxios.get(`${ApiConfig.ORDER}/orders-config`);
   // return BaseAxios.get(`https://uat.api.yody.io/unicorn/order-service/orders-config`);
 };
@@ -53,7 +51,7 @@ export const getOrderConfigActionService = (): Promise<
 };
 
 export const editOrderConfigActionService = (
-  params: OrderConfigRequestModel
+  params: OrderConfigRequestModel,
 ): Promise<BaseResponse<any>> => {
   return BaseAxios.put(`${ApiConfig.ORDER}/orders-config`, params);
 };
@@ -69,26 +67,26 @@ export const getListShippingServiceConfigService = (): Promise<
 };
 
 export const createListShippingServiceConfigService = (
-  params: CreateShippingServiceConfigReQuestModel
+  params: CreateShippingServiceConfigReQuestModel,
 ): Promise<BaseResponse<ShippingServiceConfigResponseModel[]>> => {
   return BaseAxios.post(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config`, params);
 };
 
 export const getShippingServiceConfigDetailService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
   return BaseAxios.get(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}`);
 };
 
 export const updateShippingServiceConfigService = (
   id: number,
-  params: CreateShippingServiceConfigReQuestModel
+  params: CreateShippingServiceConfigReQuestModel,
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
   return BaseAxios.put(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}`, params);
 };
 
 export const deleteShippingServiceConfigService = (
-  id: number
+  id: number,
 ): Promise<BaseResponse<ShippingServiceConfigDetailResponseModel>> => {
   return BaseAxios.delete(`${ApiConfig.LOGISTIC_GATEWAY}/shipping-service-config/${id}`);
 };

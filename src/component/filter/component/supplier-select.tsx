@@ -1,15 +1,15 @@
-import {Form, FormItemProps, Select} from "antd";
-import {FormInstance} from "antd/es/form/Form";
-import _, {debounce} from "lodash";
+import { Form, FormItemProps, Select } from "antd";
+import { FormInstance } from "antd/es/form/Form";
+import _, { debounce } from "lodash";
 import { SupplierResponse, SupplierQuery } from "model/core/supplier.model";
 import React, { ReactElement, useCallback, useEffect, useMemo } from "react";
-import {useDispatch} from "react-redux";
+import { useDispatch } from "react-redux";
 import { callApiNative } from "utils/ApiUtils";
 import { supplierGetApi } from "service/core/supplier.service";
 import CustomSelect from "component/custom/select.custom";
 import { getQueryParams, useQuery } from "../../../utils/useQuery";
 
-const {Option} = Select;
+const { Option } = Select;
 interface Props extends FormItemProps {
   form?: FormInstance;
   label?: string | boolean;
@@ -54,31 +54,31 @@ function SupplierSelect({
   const [lstSupplier, setLstSupplier] = React.useState<{
     items: Array<SupplierResponse>;
     isLoading: boolean;
-  }>({items: [], isLoading: false});
+  }>({ items: [], isLoading: false });
 
   const handleChangeSupplierSearch = useCallback(
-   async (key: string, codes?: string[]) => {
+    async (key: string, codes?: string[]) => {
       if (querySupplier) {
         setLstSupplier((prev) => {
-          return {items: prev?.items || [], isLoading: true};
+          return { items: prev?.items || [], isLoading: true };
         });
 
         const query = _.cloneDeep(querySupplier);
         query.condition = key;
         query.codes = codes;
 
-        const res = await callApiNative({isShowLoading: false}, dispatch,supplierGetApi,query);
+        const res = await callApiNative({ isShowLoading: false }, dispatch, supplierGetApi, query);
         if (res) {
           setLstSupplier(() => {
             return {
               items: res.items,
               isLoading: false,
-            }
+            };
           });
         }
       }
     },
-    [dispatch, querySupplier]
+    [dispatch, querySupplier],
   );
   const onSearchSupplier = debounce((key: string) => {
     handleChangeSupplierSearch(key);
@@ -86,25 +86,22 @@ function SupplierSelect({
 
   const query = useQuery();
   let paramsUrl: any = useMemo(() => {
-    return {...getQueryParams(query)}
+    return { ...getQueryParams(query) };
   }, [query]);
 
   const getSupplierByCode = async (ids: string) => {
-    const res = await callApiNative({isShowLoading: false}, dispatch, supplierGetApi, {
+    const res = await callApiNative({ isShowLoading: false }, dispatch, supplierGetApi, {
       ids,
     });
     if (res) {
       setLstSupplier((lstSupplier) => {
         return {
-          items: [
-            ...res.items,
-            ...lstSupplier.items
-          ],
+          items: [...res.items, ...lstSupplier.items],
           isLoading: false,
-        }
+        };
       });
     }
-  }
+  };
 
   useEffect(() => {
     if (paramsUrl.suppliers) {
@@ -143,7 +140,7 @@ function SupplierSelect({
       label={label}
       name={name}
       rules={rules}
-      labelCol={{span: 24, offset: 0}}
+      labelCol={{ span: 24, offset: 0 }}
       {...restFormProps}
     >
       <CustomSelect
@@ -160,15 +157,23 @@ function SupplierSelect({
         defaultValue={defaultValue}
         notFoundContent="Không có dữ liệu"
         filterOption={(input, option: any) => {
-          return option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0 || option?.key.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
+          return (
+            option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0 ||
+            option?.key.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
+          );
         }}
       >
         {lstSupplier?.items?.map((supplier) => {
           return (
-            <Option key={`${supplier.id}-${supplier.code}-${supplier.phone}-${supplier.contacts.map((i) => i.phone).join(',')}`} value={supplier[key || "id"]}>
+            <Option
+              key={`${supplier.id}-${supplier.code}-${supplier.phone}-${supplier.contacts
+                .map((i) => i.phone)
+                .join(",")}`}
+              value={supplier[key || "id"]}
+            >
               {supplier.name}
             </Option>
-          )
+          );
         })}
       </CustomSelect>
     </Form.Item>

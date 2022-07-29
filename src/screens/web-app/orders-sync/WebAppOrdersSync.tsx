@@ -14,18 +14,17 @@ import {
   downloadWebAppOrderAction,
   exitWebAppJobsAction,
   getWebAppShopList,
-  syncWebAppOrderAction
+  syncWebAppOrderAction,
 } from "domain/actions/web-app/web-app.actions";
 import BaseResponse from "base/base.response";
 import { getProgressDownloadEcommerceApi } from "service/web-app/web-app.service";
 
 import ConflictDownloadModal from "screens/web-app/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/web-app/orders/component/ExitDownloadOrdersModal";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { useDispatch } from "react-redux";
 import { isNullOrUndefined } from "utils/AppUtils";
 import UrlConfig from "config/url.config";
-
 
 const ordersDownloadPermission = [EcommerceOrderPermission.orders_download];
 
@@ -45,10 +44,12 @@ const WebAppOrdersSync: React.FC = () => {
 
   useEffect(() => {
     setIsLoading(true);
-    dispatch(getWebAppShopList({}, (responseData) => {
-      setIsLoading(false);
-      setWebAppShopList(responseData);
-    }));
+    dispatch(
+      getWebAppShopList({}, (responseData) => {
+        setIsLoading(false);
+        setWebAppShopList(responseData);
+      }),
+    );
   }, [dispatch]);
 
   // handle get order
@@ -89,7 +90,8 @@ const WebAppOrdersSync: React.FC = () => {
   // handle progress download orders
   const [isVisibleConflictModal, setIsVisibleConflictModal] = useState<boolean>(false);
   const [isVisibleProgressModal, setIsVisibleProgressModal] = useState<boolean>(false);
-  const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] = useState<boolean>(false);
+  const [isVisibleExitDownloadOrdersModal, setIsVisibleExitDownloadOrdersModal] =
+    useState<boolean>(false);
   const [processId, setProcessId] = useState(null);
   const [progressPercent, setProgressPercent] = useState<number>(0);
   const [progressData, setProgressData] = useState(null);
@@ -99,28 +101,28 @@ const WebAppOrdersSync: React.FC = () => {
     setProcessId(null);
     setProgressPercent(0);
     setProgressData(null);
-  }
+  };
 
   const closeConflictDownloadModal = () => {
     setIsVisibleConflictModal(false);
-  }
+  };
 
   // handle progress download orders modal
   const onCancelProgressDownloadOrder = () => {
     setIsVisibleExitDownloadOrdersModal(true);
-  }
+  };
 
   const onOKProgressDownloadOrder = () => {
     resetProgress();
     reloadPage();
     setIsVisibleProgressModal(false);
-  }
+  };
   // end
 
   // handle exit download orders modal
   const onCancelExitDownloadOrdersModal = () => {
     setIsVisibleExitDownloadOrdersModal(false);
-  }
+  };
 
   const onOkExitDownloadOrdersModal = () => {
     resetProgress();
@@ -131,33 +133,39 @@ const WebAppOrdersSync: React.FC = () => {
           setIsVisibleExitDownloadOrdersModal(false);
           onOKProgressDownloadOrder();
         }
-      })
+      }),
     );
-  }
+  };
   // end
 
   const getProgress = useCallback(() => {
-    let getProgressPromises: Promise<BaseResponse<any>> = getProgressDownloadEcommerceApi(processId);
+    let getProgressPromises: Promise<BaseResponse<any>> =
+      getProgressDownloadEcommerceApi(processId);
 
     Promise.all([getProgressPromises]).then((responses) => {
       responses.forEach((response) => {
-        if (response.code === HttpStatus.SUCCESS && response.data &&  !isNullOrUndefined(response.data.total)) {
+        if (
+          response.code === HttpStatus.SUCCESS &&
+          response.data &&
+          !isNullOrUndefined(response.data.total)
+        ) {
           const processData = response.data;
           setProgressData(processData);
-          const progressCount = processData.total_created + processData.total_updated + processData.total_error;
+          const progressCount =
+            processData.total_created + processData.total_updated + processData.total_error;
           if (processData.finish) {
             setProgressPercent(100);
             setProcessId(null);
             setIsDownloading(false);
-            if (!processData.api_error){
+            if (!processData.api_error) {
               showSuccess("Hoàn thành tải đơn hàng");
-            }else {
+            } else {
               resetProgress();
               setIsVisibleProgressModal(false);
               showError(processData.api_error);
             }
           } else {
-            const percent = Math.floor(progressCount / processData.total * 100);
+            const percent = Math.floor((progressCount / processData.total) * 100);
             setProgressPercent(percent);
           }
         }
@@ -171,11 +179,11 @@ const WebAppOrdersSync: React.FC = () => {
     }
 
     getProgress();
-    
+
     const getFileInterval = setInterval(getProgress, 3000);
     return () => clearInterval(getFileInterval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [getProgress,]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getProgress]);
   // end progress download orders
 
   const [rowDataFilter, setRowDataFilter] = useState([]);
@@ -206,10 +214,10 @@ const WebAppOrdersSync: React.FC = () => {
               setIsDownloading(true);
             }
           }
-        })
+        }),
       );
     }
-  }, [dispatch, rowDataFilter])
+  }, [dispatch, rowDataFilter]);
 
   const handleSingleDownloadOrder = (rowData: any) => {
     const requestSyncStockOrder = {
@@ -233,10 +241,10 @@ const WebAppOrdersSync: React.FC = () => {
             setIsDownloading(true);
           }
         }
-      })
+      }),
     );
-  }
-  
+  };
+
   return (
     <OrdersMappingStyled>
       <ContentContainer
@@ -252,7 +260,7 @@ const WebAppOrdersSync: React.FC = () => {
         ]}
         extra={
           <>
-            {allowOrdersDownload &&
+            {allowOrdersDownload && (
               <Button
                 onClick={openGetOrderModal}
                 className="ant-btn-outline ant-btn-primary"
@@ -261,7 +269,7 @@ const WebAppOrdersSync: React.FC = () => {
               >
                 Tải đơn hàng về
               </Button>
-            }
+            )}
           </>
         }
       >
@@ -282,7 +290,7 @@ const WebAppOrdersSync: React.FC = () => {
           />
         )}
 
-        {isVisibleProgressModal &&
+        {isVisibleProgressModal && (
           <ProgressDownloadOrdersModal
             visible={isVisibleProgressModal}
             onCancel={onCancelProgressDownloadOrder}
@@ -291,25 +299,24 @@ const WebAppOrdersSync: React.FC = () => {
             progressPercent={progressPercent}
             isDownloading={isDownloading}
           />
-        }
+        )}
 
-        {isVisibleConflictModal &&
+        {isVisibleConflictModal && (
           <ConflictDownloadModal
             visible={isVisibleConflictModal}
             onCancel={closeConflictDownloadModal}
             onOk={closeConflictDownloadModal}
           />
-        }
+        )}
 
-        {isVisibleExitDownloadOrdersModal &&
+        {isVisibleExitDownloadOrdersModal && (
           <ExitDownloadOrdersModal
             visible={isVisibleExitDownloadOrdersModal}
             onCancel={onCancelExitDownloadOrdersModal}
             onOk={onOkExitDownloadOrdersModal}
             pageTitle={"Đồng bộ đơn hàng"}
           />
-        }
-
+        )}
       </ContentContainer>
     </OrdersMappingStyled>
   );

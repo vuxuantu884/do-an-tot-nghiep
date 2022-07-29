@@ -75,14 +75,14 @@ function GeneralConditionForm({
           <span>
             Thời gian áp dụng <span className="required-field">*</span>
           </span>
-        }>
+        }
+      >
         <Row gutter={6}>
           <Col span={12}>
             <Form.Item
               name="starts_date"
-              rules={[
-                { required: true, message: "Vui lòng chọn thời gian áp dụng" },
-              ]}>
+              rules={[{ required: true, message: "Vui lòng chọn thời gian áp dụng" }]}
+            >
               <DatePicker
                 style={{ width: "100%" }}
                 placeholder="Từ ngày"
@@ -103,7 +103,7 @@ function GeneralConditionForm({
                         minute: 0,
                         second: 0,
                         millisecond: 0,
-                      })
+                      }),
                     ) ||
                     (form.getFieldValue("ends_date")
                       ? currentDate.valueOf() > form.getFieldValue("ends_date")
@@ -126,9 +126,7 @@ function GeneralConditionForm({
                   return (
                     currentDate.isBefore(moment()) ||
                     (form.getFieldValue("starts_date") &&
-                      currentDate.isBefore(
-                        moment(form.getFieldValue("starts_date"))
-                      ))
+                      currentDate.isBefore(moment(form.getFieldValue("starts_date"))))
                   );
                 }}
                 showNow={false}
@@ -148,19 +146,15 @@ function GeneralConditionForm({
         {showTimeAdvance ? (
           <Row gutter={12}>
             <Col span={24}>
-              <Form.Item
-                label={<b>Chỉ áp dụng trong các khung giờ:</b>}
-                name="prerequisite_time">
-                <TimeRangePicker
-                  placeholder={["Từ", "Đến"]}
-                  style={{ width: "100%" }}
-                />
+              <Form.Item label={<b>Chỉ áp dụng trong các khung giờ:</b>} name="prerequisite_time">
+                <TimeRangePicker placeholder={["Từ", "Đến"]} style={{ width: "100%" }} />
               </Form.Item>
             </Col>
             <Col span={24}>
               <Form.Item
                 label={<b>Chỉ áp dụng các ngày trong tuần:</b>}
-                name="prerequisite_weekdays">
+                name="prerequisite_weekdays"
+              >
                 <Select placeholder="Chọn ngày" mode="multiple">
                   {dayOfWeekOptions.map((item) => (
                     <Option key={item.value} value={item.value}>
@@ -174,7 +168,8 @@ function GeneralConditionForm({
               <Form.Item
                 label={<b>Chỉ áp dụng các ngày trong tháng:</b>}
                 name="prerequisite_days"
-                style={{ marginBottom: "5px" }}>
+                style={{ marginBottom: "5px" }}
+              >
                 <Select placeholder="Chọn ngày" mode="multiple">
                   {getDayOptions().map((day) => (
                     <Option value={day.key} key={day.value}>
@@ -197,7 +192,8 @@ function GeneralConditionForm({
                   required: !allStore,
                   message: "Vui lòng chọn cửa hàng áp dụng",
                 },
-              ]}>
+              ]}
+            >
               <TreeStore
                 form={form}
                 name="prerequisite_store_ids"
@@ -233,7 +229,8 @@ function GeneralConditionForm({
                   required: !allChannel,
                   message: "Vui lòng chọn kênh bán hàng áp dụng",
                 },
-              ]}>
+              ]}
+            >
               <Select
                 disabled={allChannel}
                 placeholder="Chọn kênh bán hàng"
@@ -242,10 +239,9 @@ function GeneralConditionForm({
                 showSearch
                 allowClear
                 filterOption={(input, option) =>
-                  option?.children
-                    .toLowerCase()
-                    .indexOf(input.toLowerCase().trim()) >= 0
-                }>
+                  option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
+                }
+              >
                 {listChannel?.map((channel: any) => (
                   <Option value={channel.name} key={channel.name}>
                     {channel.name}
@@ -279,7 +275,8 @@ function GeneralConditionForm({
                   required: !allSource,
                   message: "Vui lòng chọn nguồn bán hàng áp dụng",
                 },
-              ]}>
+              ]}
+            >
               <TreeSource
                 form={form}
                 name="prerequisite_order_source_ids"

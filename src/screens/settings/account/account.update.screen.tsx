@@ -12,7 +12,7 @@ import {
   Select,
   Space,
   Switch,
-  TreeSelect
+  TreeSelect,
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -34,10 +34,7 @@ import {
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
-import {
-  AccountRequest,
-  AccountResponse,
-} from "model/account/account.model";
+import { AccountRequest, AccountResponse } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
@@ -78,11 +75,9 @@ const AccountUpdateScreen: React.FC = () => {
   const history = useHistory();
 
   const listAccountStatus = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.account_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.account_status,
   );
-  const listGender = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.gender
-  );
+  const listGender = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.gender);
   const idNumber = useRef<number>(0);
 
   //State
@@ -117,7 +112,7 @@ const AccountUpdateScreen: React.FC = () => {
         status: checked ? "active" : "inactive",
       });
     },
-    [formRef]
+    [formRef],
   );
 
   const onSelectDistrict = useCallback(
@@ -136,26 +131,26 @@ const AccountUpdateScreen: React.FC = () => {
         });
       }
     },
-    [cityViews, formRef]
+    [cityViews, formRef],
   );
 
   const onUpdateSuccess = useCallback(
     (data: AccountResponse) => {
       dispatch(hideLoading());
-      showSuccess("Cập nhật thành công")
+      showSuccess("Cập nhật thành công");
       history.push(UrlConfig.ACCOUNTS + "/" + userCode);
     },
-    [history, userCode, dispatch]
+    [history, userCode, dispatch],
   );
 
   const onFinish = useCallback(
     (values: AccountRequest) => {
       if (idNumber.current !== 0) {
-        dispatch(showLoading())
+        dispatch(showLoading());
         dispatch(AccountUpdateAction(idNumber.current, values, onUpdateSuccess));
       }
     },
-    [dispatch, onUpdateSuccess]
+    [dispatch, onUpdateSuccess],
   );
   const setAccount = useCallback((data: AccountResponse) => {
     let ids: Array<number> = [];
@@ -167,7 +162,7 @@ const AccountUpdateScreen: React.FC = () => {
     data.store_ids = [...ids];
     setStatus(data.status);
     setAccountDetail(data);
-    console.log("setAccountDetail",data)
+    console.log("setAccountDetail", data);
     idNumber.current = data.id;
   }, []);
   //End callback
@@ -196,8 +191,7 @@ const AccountUpdateScreen: React.FC = () => {
           history.goBack();
         },
         title: "Bạn có muốn quay lại?",
-        subTitle:
-          "Sau khi quay lại thay đổi sẽ không được lưu.",
+        subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
       });
     } else {
       history.goBack();
@@ -210,7 +204,7 @@ const AccountUpdateScreen: React.FC = () => {
         if (result) {
           setDepartmentTree(result);
         }
-      })
+      }),
     );
     dispatch(PositionGetListAction(setPosition));
     dispatch(RoleGetListAction(initRoleQuery, setRole));
@@ -244,12 +238,7 @@ const AccountUpdateScreen: React.FC = () => {
         },
       ]}
     >
-      <Form
-        ref={formRef}
-        layout="vertical"
-        onFinish={onFinish}
-        initialValues={accountDetail}
-      >
+      <Form ref={formRef} layout="vertical" onFinish={onFinish} initialValues={accountDetail}>
         <Card
           title="Thông tin cơ bản"
           extra={
@@ -302,11 +291,7 @@ const AccountUpdateScreen: React.FC = () => {
               >
                 <Radio.Group className="ip-radio">
                   {listGender?.map((item) => (
-                    <Radio
-                      className="ip-radio-item"
-                      value={item.value}
-                      key={item.value}
-                    >
+                    <Radio className="ip-radio-item" value={item.value} key={item.value}>
                       {item.name}
                     </Radio>
                   ))}
@@ -321,12 +306,7 @@ const AccountUpdateScreen: React.FC = () => {
                 name="user_name"
                 rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
               >
-                <Input
-                  className="r-5"
-                  placeholder="Nhập tên đăng nhập"
-                  size="large"
-                  disabled
-                />
+                <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" disabled />
               </Item>
             </Col>
 
@@ -348,9 +328,7 @@ const AccountUpdateScreen: React.FC = () => {
                   placeholder="Nhập mật khẩu"
                   allowClear
                   autoComplete="new-password"
-                  iconRender={(visible) =>
-                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                  }
+                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                 />
               </Item>
             </Col>
@@ -376,9 +354,7 @@ const AccountUpdateScreen: React.FC = () => {
                   placeholder="Nhập lại mật khẩu"
                   allowClear
                   autoComplete="new-password"
-                  iconRender={(visible) =>
-                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                  }
+                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                 />
               </Form.Item>
             </Col>
@@ -400,7 +376,7 @@ const AccountUpdateScreen: React.FC = () => {
               </Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
-              <Form.Item name="store_ids" style={{minWidth: 220}} label="Chọn cửa hàng">
+              <Form.Item name="store_ids" style={{ minWidth: 220 }} label="Chọn cửa hàng">
                 <TreeStore
                   name="store_ids"
                   placeholder="Chọn cửa hàng"
@@ -415,7 +391,7 @@ const AccountUpdateScreen: React.FC = () => {
               <Item
                 label="Ngày sinh"
                 name="birthday"
-              // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
+                // rules={[{ required: true, message: "Vui lòng nhập ngày sinh" }]}
               >
                 <CustomDatepicker style={{ width: "100%" }} placeholder="20/01/2021" />
               </Item>
@@ -498,112 +474,109 @@ const AccountUpdateScreen: React.FC = () => {
           </Row>
         </Card>
 
-        <Card title="Thông tin công việc" bodyStyle={{padding:0}}>
-            <div className="padding-20">
-              <Form.List name="account_jobs"  rules={[{
-                validator: (rule, value, callback) => {
-                  if (value.length === 0) {
-                    showError("Vui lòng chọn công việc");
-                    callback("Vui lòng chọn công việc");
-                  } else {
-                    callback();
-                  }
+        <Card title="Thông tin công việc" bodyStyle={{ padding: 0 }}>
+          <div className="padding-20">
+            <Form.List
+              name="account_jobs"
+              rules={[
+                {
+                  validator: (rule, value, callback) => {
+                    if (value.length === 0) {
+                      showError("Vui lòng chọn công việc");
+                      callback("Vui lòng chọn công việc");
+                    } else {
+                      callback();
+                    }
+                  },
                 },
-              }]}>
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, fieldKey, ...restField }, index) => (
-                      <Row key={key} gutter={16}>
+              ]}
+            >
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, fieldKey, ...restField }, index) => (
+                    <Row key={key} gutter={16}>
+                      <Item hidden noStyle name={[name, "id"]} fieldKey={[fieldKey, "id"]}>
+                        <Input hidden />
+                      </Item>
+                      <Item hidden noStyle name={[name, "code"]} fieldKey={[fieldKey, "code"]}>
+                        <Input hidden />
+                      </Item>
+                      <Item
+                        hidden
+                        noStyle
+                        name={[name, "account_id"]}
+                        fieldKey={[fieldKey, "account_id"]}
+                      >
+                        <Input hidden />
+                      </Item>
+                      <Col md={8}>
                         <Item
-                          hidden
-                          noStyle
-                          name={[name, "id"]}
-                          fieldKey={[fieldKey, "id"]}
+                          label="Phòng ban"
+                          name={[name, "department_id"]}
+                          fieldKey={[fieldKey, "department_id"]}
+                          rules={[
+                            {
+                              required: true,
+                              message: "Vui lòng chọn bộ phận",
+                            },
+                          ]}
                         >
-                          <Input hidden />
-                        </Item>
-                        <Item
-                          hidden
-                          noStyle
-                          name={[name, "code"]}
-                          fieldKey={[fieldKey, "code"]}
-                        >
-                          <Input hidden />
-                        </Item>
-                        <Item
-                          hidden
-                          noStyle
-                          name={[name, "account_id"]}
-                          fieldKey={[fieldKey, "account_id"]}
-                        >
-                          <Input hidden />
-                        </Item>
-                        <Col md={8}>
-                          <Item
-                            label="Phòng ban"
-                            name={[name, "department_id"]}
-                            fieldKey={[fieldKey, "department_id"]}
-                            rules={[{ required: true, message: "Vui lòng chọn bộ phận" }]}
+                          <TreeSelect
+                            placeholder="Chọn phòng ban"
+                            treeDefaultExpandAll
+                            className="selector"
+                            allowClear
+                            showSearch
+                            treeNodeFilterProp="title"
                           >
-                            <TreeSelect
-                              placeholder="Chọn phòng ban"
-                              treeDefaultExpandAll
-                              className="selector"
-                              allowClear
-                              showSearch
-                              treeNodeFilterProp='title'
-                            >
-                              {listDepartmentTree?.map((item, index) => (
-                                <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-                              ))}
-                            </TreeSelect>
-                          </Item>
-                        </Col>
-                        <Col md={8}>
-                          <Item
-                            name={[name, "position_id"]}
-                            fieldKey={[fieldKey, "position_id"]}
-                            label="Vị trí"
+                            {listDepartmentTree?.map((item, index) => (
+                              <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+                            ))}
+                          </TreeSelect>
+                        </Item>
+                      </Col>
+                      <Col md={8}>
+                        <Item
+                          name={[name, "position_id"]}
+                          fieldKey={[fieldKey, "position_id"]}
+                          label="Vị trí"
+                        >
+                          <Select
+                            placeholder="Chọn vị trí"
+                            allowClear
+                            showArrow
+                            showSearch
+                            optionFilterProp="children"
+                            style={{ width: "100%" }}
                           >
-                            <Select
-                              placeholder="Chọn vị trí"
-                              allowClear
-                              showArrow
-                              showSearch
-                              optionFilterProp="children"
-                              style={{ width: "100%" }}
-                            >
-                              {listPosition?.map((item) => (
-                                <Option key={item.id} value={item.id}>
-                                  {item.name}
-                                </Option>
-                              ))}
-                            </Select>
-                          </Item>
+                            {listPosition?.map((item) => (
+                              <Option key={item.id} value={item.id}>
+                                {item.name}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Item>
+                      </Col>
+                      {fields.length > 1 && (
+                        <Col md={4} style={{ display: "flex", alignItems: "center" }}>
+                          <Button onClick={() => remove(name)} icon={<DeleteOutlined />} />
                         </Col>
-                        {fields.length > 1 && (
-                          <Col md={4} style={{ display: "flex", alignItems: "center" }}>
-                            <Button
-                              onClick={() => remove(name)}
-                              icon={<DeleteOutlined />}
-                            />
-                          </Col>
-                        )}
-                      </Row>
-                    ))}
-                    <Button
-                      type="link"
-                      className="padding-0"
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                    >
-                      Thêm mới
-                    </Button>
-                  </>
-                )}
-              </Form.List>
-            </div>
-          </Card>
+                      )}
+                    </Row>
+                  ))}
+                  <Button
+                    type="link"
+                    className="padding-0"
+                    onClick={() => add()}
+                    icon={<PlusOutlined />}
+                  >
+                    Thêm mới
+                  </Button>
+                </>
+              )}
+            </Form.List>
+          </div>
+        </Card>
         {/* </Collapse> */}
         <BottomBarContainer
           back="Quay lại"

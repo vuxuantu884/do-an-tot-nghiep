@@ -10,22 +10,15 @@ type ConfirmConnectProductModalProps = {
   cancelConfirmConnectModal: () => void;
 };
 
-
 const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
-  props: ConfirmConnectProductModalProps
+  props: ConfirmConnectProductModalProps,
 ) => {
-  
-  const {
-    isVisible,
-    isLoading,
-    dataSource,
-    okConfirmConnectModal,
-    cancelConfirmConnectModal,
-  } = props;
+  const { isVisible, isLoading, dataSource, okConfirmConnectModal, cancelConfirmConnectModal } =
+    props;
 
   const onOk = () => {
     okConfirmConnectModal();
-  }
+  };
 
   const onCancel = () => {
     cancelConfirmConnectModal();
@@ -38,9 +31,7 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
       width: "13%",
       key: "1",
       render: (l: any, v: any, i: any) => {
-        return (
-          <div>{i + 1}</div>
-        );
+        return <div>{i + 1}</div>;
       },
     },
     {
@@ -53,7 +44,7 @@ const ConfirmConnectProductModal: React.FC<ConfirmConnectProductModalProps> = (
           </div>
         );
       },
-    }
+    },
   ]);
 
   return (

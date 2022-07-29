@@ -48,7 +48,9 @@ export const FormConfigs: FormFieldType = {
               message: "Vui lòng nhập tên nhà cung cấp",
             },
           ],
-          onChange: (e)=>{e.target.value.toUpperCase()}
+          onChange: (e) => {
+            e.target.value.toUpperCase();
+          },
         },
         {
           name: FormFields.scorecard,
@@ -239,9 +241,7 @@ export const FormConfigs: FormFieldType = {
           type: "input",
           componentType: ComponentType.Input,
           maxLength: 225,
-          rules: [
-            { required: true, message: "Vui lòng nhập số điện thoại" },
-          ],
+          rules: [{ required: true, message: "Vui lòng nhập số điện thoại" }],
         },
       ],
       [

@@ -1,8 +1,8 @@
 import BaseAction from "base/base.action";
 import BaseResponse from "base/base.response";
-import {InventoryType} from "domain/types/inventory.type";
-import {PageResponse} from "model/base/base-metadata.response";
-import {StoreResponse} from "model/core/store.model";
+import { InventoryType } from "domain/types/inventory.type";
+import { PageResponse } from "model/base/base-metadata.response";
+import { StoreResponse } from "model/core/store.model";
 import { InventoryQuery } from "model/inventory";
 import {
   InventoryAdjustmentDetailItem,
@@ -11,25 +11,28 @@ import {
   StoreStatus,
 } from "model/inventoryadjustment";
 import { VariantResponse } from "model/product/product.model";
-import {PrinterInventoryTransferResponseModel} from "model/response/printer.response";
+import { PrinterInventoryTransferResponseModel } from "model/response/printer.response";
 
 const inventoryGetSenderStoreAction = (
   queryParams: StoreStatus,
-  onResult: (data: Array<StoreResponse>) => void
+  onResult: (data: Array<StoreResponse>) => void,
 ) => {
-  return BaseAction(InventoryType.GET_STORE, {queryParams, onResult});
+  return BaseAction(InventoryType.GET_STORE, { queryParams, onResult });
 };
 
 const getListInventoryAdjustmentAction = (
   queryParams: InventoryAdjustmentSearchQuery,
-  onResult: (data: PageResponse<Array<InventoryAdjustmentDetailItem>> | false) => void
+  onResult: (data: PageResponse<Array<InventoryAdjustmentDetailItem>> | false) => void,
 ) => {
-  return BaseAction(InventoryType.GET_LIST_INVENTORY_ADJUSTMENT, {queryParams, onResult});
+  return BaseAction(InventoryType.GET_LIST_INVENTORY_ADJUSTMENT, {
+    queryParams,
+    onResult,
+  });
 };
 
 const getDetailInventoryAdjustmentAction = (
   id: number,
-  onResult: (result: BaseResponse<InventoryAdjustmentDetailItem> | false) => void
+  onResult: (result: BaseResponse<InventoryAdjustmentDetailItem> | false) => void,
 ) => {
   return BaseAction(InventoryType.GET_DETAIL_INVENTORY_ADJUSTMENT, {
     id,
@@ -39,7 +42,7 @@ const getDetailInventoryAdjustmentAction = (
 
 const createInventoryAdjustmentAction = (
   data: Partial<InventoryAdjustmentDetailItem>,
-  onResult: (data: InventoryAdjustmentDetailItem) => void
+  onResult: (data: InventoryAdjustmentDetailItem) => void,
 ) => {
   return BaseAction(InventoryType.CREATE_INVENTORY_ADJUSTMENT, {
     data,
@@ -65,7 +68,7 @@ const updateReasonItemOnlineInventoryAction = (
   id: number,
   lineId: number,
   data: Partial<LineItemAdjustment>,
-  onResult: (data: LineItemAdjustment) => void
+  onResult: (data: LineItemAdjustment) => void,
 ) => {
   return BaseAction(InventoryType.UPDATE_REASON_ITEM_ONLINE_INVENTORY, {
     id,
@@ -77,7 +80,7 @@ const updateReasonItemOnlineInventoryAction = (
 
 const updateOnlineInventoryAction = (
   id: number,
-  onResult: (data: Array<StoreResponse>) => void
+  onResult: (data: Array<StoreResponse>) => void,
 ) => {
   return BaseAction(InventoryType.UPDATE_ONLINE_INVENTORY, {
     id,
@@ -85,10 +88,7 @@ const updateOnlineInventoryAction = (
   });
 };
 
-const adjustInventoryAction = (
-  id: number,
-  onResult: (data: Array<StoreResponse>) => void
-) => {
+const adjustInventoryAction = (id: number, onResult: (data: Array<StoreResponse>) => void) => {
   return BaseAction(InventoryType.UPDATE_ADJUSTMENT_INVENTORY, {
     id,
     onResult,
@@ -96,7 +96,7 @@ const adjustInventoryAction = (
 };
 const InventoryAdjustmentGetPrintContentAction = (
   queryPrint: string,
-  onResult: (result: Array<PrinterInventoryTransferResponseModel>) => void
+  onResult: (result: Array<PrinterInventoryTransferResponseModel>) => void,
 ) => {
   return BaseAction(InventoryType.PRINT_ADJUSTMENT_INVENTORY, {
     queryPrint,
@@ -107,7 +107,7 @@ const InventoryAdjustmentGetPrintContentAction = (
 const getLinesItemAdjustmentAction = (
   id: number,
   queryString: string | null,
-  onResult: (data: PageResponse<LineItemAdjustment> | false) => void
+  onResult: (data: PageResponse<LineItemAdjustment> | false) => void,
 ) => {
   return BaseAction(InventoryType.GET_LINES_ITEM_ADJUSTMENT, {
     id,
@@ -119,7 +119,7 @@ const getLinesItemAdjustmentAction = (
 const updateInventoryAdjustmentAction = (
   id: number,
   data: Partial<InventoryAdjustmentDetailItem>,
-  onResult: (data: InventoryAdjustmentDetailItem) => void
+  onResult: (data: InventoryAdjustmentDetailItem) => void,
 ) => {
   return BaseAction(InventoryType.UPDATE_ADJUSTMENT, {
     id,
@@ -130,11 +130,11 @@ const updateInventoryAdjustmentAction = (
 
 const getVariantHasOnHandByStoreAction = (
   query: InventoryQuery,
-  onResult: (result: PageResponse<VariantResponse>) => void
+  onResult: (result: PageResponse<VariantResponse>) => void,
 ) => {
   return BaseAction(InventoryType.GET_VARIANT_HAS_ON_HAND_BY_STORE, {
     query,
-    onResult
+    onResult,
   });
 };
 
@@ -150,5 +150,5 @@ export {
   getLinesItemAdjustmentAction,
   updateInventoryAdjustmentAction,
   getVariantHasOnHandByStoreAction,
-  updateReasonItemOnlineInventoryAction
+  updateReasonItemOnlineInventoryAction,
 };

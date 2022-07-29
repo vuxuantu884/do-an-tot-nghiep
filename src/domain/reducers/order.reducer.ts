@@ -1,7 +1,6 @@
 import { YodyAction } from "base/base.action";
 import { OrderType } from "domain/types/order.type";
 
-
 const initialState = {
   orderStore: {
     storeDetail: null,
@@ -19,7 +18,7 @@ const initialState = {
   isLoadingDiscount: false,
   orderPayment: {
     isAlreadyChanged: false,
-  }
+  },
 };
 
 const orderReducer = (state = initialState, action: YodyAction) => {
@@ -31,7 +30,7 @@ const orderReducer = (state = initialState, action: YodyAction) => {
         orderStore: {
           ...state.orderStore,
           storeDetail: payload.storeDetail,
-        }
+        },
       };
     case OrderType.GET_BANK_ACCOUNT_NUMBERS:
       return {
@@ -39,7 +38,7 @@ const orderReducer = (state = initialState, action: YodyAction) => {
         orderStore: {
           ...state.orderStore,
           storeBankAccountNumbers: payload.storeBankAccountNumbers,
-        }
+        },
       };
     case OrderType.CHANGE_SELECTED_STORE_BANK_ACCOUNT:
       return {
@@ -47,37 +46,37 @@ const orderReducer = (state = initialState, action: YodyAction) => {
         orderStore: {
           ...state.orderStore,
           selectedStoreBankAccount: payload.selectedStoreBankAccount,
-        }
+        },
       };
     case OrderType.SET_IS_SHOULD_SET_DEFAULT_BANK_ACCOUNT:
-    return {
-      ...state,
-      orderStore: {
-        ...state.orderStore,
-        isShouldSetDefaultStoreBankAccount: payload.isShouldSetDefaultStoreBankAccount,
-      }
-    };
+      return {
+        ...state,
+        orderStore: {
+          ...state.orderStore,
+          isShouldSetDefaultStoreBankAccount: payload.isShouldSetDefaultStoreBankAccount,
+        },
+      };
     case OrderType.SET_IS_EXPORT_BILL:
       return {
         ...state,
         orderDetail: {
           ...state.orderDetail,
           isExportBill: payload.isExportBill,
-        }
+        },
       };
     case OrderType.CHANGE_ORDER_CUSTOMER:
       return {
         ...state,
         orderDetail: {
           ...state.orderDetail,
-          orderCustomer: payload.orderCustomer
-        }
+          orderCustomer: payload.orderCustomer,
+        },
       };
 
     case OrderType.CHANGE_SHIPPING_SERVICE_CONFIG:
       return {
         ...state,
-        shippingServiceConfig: payload.shippingServiceConfig
+        shippingServiceConfig: payload.shippingServiceConfig,
       };
 
     case OrderType.CHANGE_ORDER_LINE_ITEMS:
@@ -85,8 +84,8 @@ const orderReducer = (state = initialState, action: YodyAction) => {
         ...state,
         orderDetail: {
           ...state.orderDetail,
-          orderLineItems: payload.orderLineItems
-        }
+          orderLineItems: payload.orderLineItems,
+        },
       };
 
     case OrderType.CHANGE_ORDER_THIRD_PL:
@@ -94,8 +93,8 @@ const orderReducer = (state = initialState, action: YodyAction) => {
         ...state,
         orderDetail: {
           ...state.orderDetail,
-          thirdPL: payload.thirdPL
-        }
+          thirdPL: payload.thirdPL,
+        },
       };
 
     case OrderType.CHANGE_IS_LOADING_DISCOUNT:
@@ -109,7 +108,7 @@ const orderReducer = (state = initialState, action: YodyAction) => {
         ...state,
         orderPayment: {
           isAlreadyChanged: payload.isAlreadyChangedPayment,
-        }
+        },
       };
 
     default:

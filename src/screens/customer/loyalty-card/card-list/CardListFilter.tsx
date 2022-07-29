@@ -1,11 +1,5 @@
 import { useCallback, useMemo, useState } from "react";
-import {
-  Button,
-  Form,
-  Input,
-  Select,
-  Tag,
-} from "antd";
+import { Button, Form, Input, Select, Tag } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
 import moment from "moment";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
@@ -17,7 +11,6 @@ import { GetOrdersMappingQuery } from "model/query/ecommerce.query";
 
 import search from "assets/img/search.svg";
 import { StyledCardList } from "screens/customer/loyalty-card/card-list/StyledCardList";
-
 
 type CardListFilterProps = {
   params: CustomerCardListRequest;
@@ -33,30 +26,21 @@ const { Option } = Select;
 
 const CARD_STATUS_LIST = [
   {
-    title: 'Đã được gán',
-    value: 'ASSIGNED'
+    title: "Đã được gán",
+    value: "ASSIGNED",
   },
   {
-    title: 'Kích hoạt',
-    value: 'ACTIVE'
+    title: "Kích hoạt",
+    value: "ACTIVE",
   },
   {
-    title: 'Đã khóa',
-    value: 'INACTIVE'
-  }
+    title: "Đã khóa",
+    value: "INACTIVE",
+  },
 ];
 
-const CardListFilter: React.FC<CardListFilterProps> = (
-  props: CardListFilterProps
-) => {
-  const {
-    params,
-    initParams,
-    isLoading,
-    cardReleaseList,
-    onClearFilter,
-    onFilter,
-  } = props;
+const CardListFilter: React.FC<CardListFilterProps> = (props: CardListFilterProps) => {
+  const { params, initParams, isLoading, cardReleaseList, onClearFilter, onFilter } = props;
 
   const [formFilter] = Form.useForm();
 
@@ -65,20 +49,15 @@ const CardListFilter: React.FC<CardListFilterProps> = (
   let initialValues = useMemo(() => {
     return {
       ...params,
-      release_ids: Array.isArray(params.release_ids)
-        ? params.release_ids
-        : [params.release_ids],
-      statuses: Array.isArray(params.statuses)
-        ? params.statuses
-        : [params.statuses],
-      
+      release_ids: Array.isArray(params.release_ids) ? params.release_ids : [params.release_ids],
+      statuses: Array.isArray(params.statuses) ? params.statuses : [params.statuses],
     };
   }, [params]);
 
   // handle select date
   const [assignedDateClick, setAssignedDateClick] = useState("");
-  const [fromAssignedDate , setFromAssignedDate ] = useState<any>(initialValues.from_assigned_date );
-  const [toAssignedDate , setToAssignedDate ] = useState<any>(initialValues.to_assigned_date);
+  const [fromAssignedDate, setFromAssignedDate] = useState<any>(initialValues.from_assigned_date);
+  const [toAssignedDate, setToAssignedDate] = useState<any>(initialValues.to_assigned_date);
 
   const clickOptionDate = useCallback(
     (type, value) => {
@@ -118,19 +97,19 @@ const CardListFilter: React.FC<CardListFilterProps> = (
         case "assigned_date":
           if (assignedDateClick === value) {
             setAssignedDateClick("");
-            setFromAssignedDate (null);
-            setToAssignedDate (null);
+            setFromAssignedDate(null);
+            setToAssignedDate(null);
           } else {
             setAssignedDateClick(value);
-            setFromAssignedDate (startDateValue);
-            setToAssignedDate (endDateValue);
+            setFromAssignedDate(startDateValue);
+            setToAssignedDate(endDateValue);
           }
           break;
         default:
           break;
       }
     },
-    [assignedDateClick]
+    [assignedDateClick],
   );
 
   // handle select RangPicker
@@ -142,9 +121,9 @@ const CardListFilter: React.FC<CardListFilterProps> = (
     const day = dateArray[0];
     const month = dateArray[1];
     const year = dateArray[2];
-    const newDate = new Date(month + '-' + day + '-' + year);
+    const newDate = new Date(month + "-" + day + "-" + year);
     return moment(newDate).startOf("day");
-  }
+  };
 
   const setLocalEndDate = (dateString: string) => {
     if (!dateString) {
@@ -154,9 +133,9 @@ const CardListFilter: React.FC<CardListFilterProps> = (
     const day = dateArray[0];
     const month = dateArray[1];
     const year = dateArray[2];
-    const newDate = new Date(month + '-' + day + '-' + year);
+    const newDate = new Date(month + "-" + day + "-" + year);
     return moment(newDate).endOf("day");
-  }
+  };
 
   const onChangeRangeDate = useCallback((dates, dateString, type) => {
     switch (type) {
@@ -164,8 +143,8 @@ const CardListFilter: React.FC<CardListFilterProps> = (
         setAssignedDateClick("");
         const startDate = setLocalStartDate(dateString[0]);
         const endDate = setLocalEndDate(dateString[1]);
-        setFromAssignedDate (startDate);
-        setToAssignedDate (endDate);
+        setFromAssignedDate(startDate);
+        setToAssignedDate(endDate);
         break;
       default:
         break;
@@ -174,16 +153,19 @@ const CardListFilter: React.FC<CardListFilterProps> = (
   // end handle select RangPicker
   // end handle select date
 
-
   // handle tag filter
   let filters = useMemo(() => {
     let list = [];
 
     if (initialValues.from_assigned_date || initialValues.to_assigned_date) {
       let textAssignedDate =
-        (initialValues.from_assigned_date ? ConvertUtcToLocalDate(initialValues.from_assigned_date, "DD/MM/YYYY") : "??") +
+        (initialValues.from_assigned_date
+          ? ConvertUtcToLocalDate(initialValues.from_assigned_date, "DD/MM/YYYY")
+          : "??") +
         " ~ " +
-        (initialValues.to_assigned_date ? ConvertUtcToLocalDate(initialValues.to_assigned_date, "DD/MM/YYYY") : "??");
+        (initialValues.to_assigned_date
+          ? ConvertUtcToLocalDate(initialValues.to_assigned_date, "DD/MM/YYYY")
+          : "??");
       list.push({
         key: "assigned_date",
         name: "Ngày gán",
@@ -195,9 +177,7 @@ const CardListFilter: React.FC<CardListFilterProps> = (
       let cardStatusList = "";
       initialValues.statuses.forEach((statusValue: any) => {
         const foundItem = CARD_STATUS_LIST?.find((item) => item.value === statusValue);
-        cardStatusList = foundItem
-          ? cardStatusList + foundItem.title + "; "
-          : cardStatusList;
+        cardStatusList = foundItem ? cardStatusList + foundItem.title + "; " : cardStatusList;
       });
       list.push({
         key: "statuses",
@@ -205,7 +185,7 @@ const CardListFilter: React.FC<CardListFilterProps> = (
         value: cardStatusList,
       });
     }
-    
+
     if (initialValues.release_ids.length) {
       let cardReleaseFilter = "";
       initialValues.release_ids.forEach((releaseId) => {
@@ -222,7 +202,13 @@ const CardListFilter: React.FC<CardListFilterProps> = (
     }
 
     return list;
-  }, [cardReleaseList, initialValues.from_assigned_date, initialValues.release_ids, initialValues.statuses, initialValues.to_assigned_date]);
+  }, [
+    cardReleaseList,
+    initialValues.from_assigned_date,
+    initialValues.release_ids,
+    initialValues.statuses,
+    initialValues.to_assigned_date,
+  ]);
 
   const onCloseTag = useCallback(
     (e, tag) => {
@@ -230,9 +216,14 @@ const CardListFilter: React.FC<CardListFilterProps> = (
       switch (tag.key) {
         case "assigned_date":
           setAssignedDateClick("");
-          setFromAssignedDate (null);
-          setToAssignedDate (null);
-          onFilter && onFilter({ ...params, from_assigned_date: null, to_assigned_date: null });
+          setFromAssignedDate(null);
+          setToAssignedDate(null);
+          onFilter &&
+            onFilter({
+              ...params,
+              from_assigned_date: null,
+              to_assigned_date: null,
+            });
           break;
         case "statuses":
           onFilter && onFilter({ ...params, statuses: [] });
@@ -246,7 +237,7 @@ const CardListFilter: React.FC<CardListFilterProps> = (
           break;
       }
     },
-    [formFilter, onFilter, params]
+    [formFilter, onFilter, params],
   );
   // end handle tag filter
 
@@ -267,8 +258,8 @@ const CardListFilter: React.FC<CardListFilterProps> = (
   //clear base filter
   const onClearAssignedDate = () => {
     setAssignedDateClick("");
-    setFromAssignedDate (null);
-    setToAssignedDate (null);
+    setFromAssignedDate(null);
+    setToAssignedDate(null);
   };
 
   const onClearBaseFilter = useCallback(() => {
@@ -283,15 +274,14 @@ const CardListFilter: React.FC<CardListFilterProps> = (
     (values) => {
       const formValues = {
         ...values,
-        from_assigned_date: fromAssignedDate ,
-        to_assigned_date: toAssignedDate ,
+        from_assigned_date: fromAssignedDate,
+        to_assigned_date: toAssignedDate,
       };
-      
+
       onFilter && onFilter(formValues);
     },
-    [fromAssignedDate, toAssignedDate, onFilter]
+    [fromAssignedDate, toAssignedDate, onFilter],
   );
-
 
   return (
     <StyledCardList>
@@ -316,21 +306,13 @@ const CardListFilter: React.FC<CardListFilterProps> = (
           </Item>
 
           <Item>
-            <Button
-              type="primary"
-              htmlType="submit" 
-              disabled={isLoading}
-            >
+            <Button type="primary" htmlType="submit" disabled={isLoading}>
               Lọc
             </Button>
           </Item>
 
           <Item>
-            <Button
-              icon={<FilterOutlined />}
-              onClick={openBaseFilter}
-              disabled={isLoading}
-            >
+            <Button icon={<FilterOutlined />} onClick={openBaseFilter} disabled={isLoading}>
               Thêm bộ lọc
             </Button>
           </Item>
@@ -343,12 +325,7 @@ const CardListFilter: React.FC<CardListFilterProps> = (
           visible={visibleBaseFilter}
           width={500}
         >
-          <Form
-            form={formFilter}
-            onFinish={onFinish}
-            initialValues={params}
-            layout="vertical"
-          >
+          <Form form={formFilter} onFinish={onFinish} initialValues={params} layout="vertical">
             <Form.Item label={<b>Ngày gán</b>}>
               <SelectDateFilter
                 clickOptionDate={clickOptionDate}
@@ -360,13 +337,10 @@ const CardListFilter: React.FC<CardListFilterProps> = (
               />
             </Form.Item>
 
-            <Form.Item
-              label={<b>Trạng thái</b>}
-              name="statuses"
-            >
+            <Form.Item label={<b>Trạng thái</b>} name="statuses">
               <Select
                 mode="multiple"
-                maxTagCount='responsive'
+                maxTagCount="responsive"
                 showArrow
                 allowClear
                 placeholder="Chọn trạng thái"
@@ -381,13 +355,10 @@ const CardListFilter: React.FC<CardListFilterProps> = (
               </Select>
             </Form.Item>
 
-            <Form.Item
-              label={<b>Đợt phát hành</b>}
-              name="release_ids"
-            >
+            <Form.Item label={<b>Đợt phát hành</b>} name="release_ids">
               <Select
                 mode="multiple"
-                maxTagCount='responsive'
+                maxTagCount="responsive"
                 showArrow
                 allowClear
                 placeholder="Chọn đợt phát hành"

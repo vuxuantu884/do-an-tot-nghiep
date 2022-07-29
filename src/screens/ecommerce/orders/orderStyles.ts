@@ -1,6 +1,6 @@
 import styled from "styled-components";
-import {borderColor, primaryColor} from "utils/global-styles/variables";
-import {StyledComponent} from "screens/order-online/component/OrderList/ListTable/OrdersTable.styles";
+import { borderColor, primaryColor } from "utils/global-styles/variables";
+import { StyledComponent } from "screens/order-online/component/OrderList/ListTable/OrdersTable.styles";
 export const nameQuantityWidth = 300;
 // const quantityWidth = 50;
 // const priceWidth = 85;
@@ -10,17 +10,17 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
   .ant-table-thead > tr > th {
     border-right: 1px solid #ddd !important;
   }
-  .ant-table-body>table>tbody>tr>td {
+  .ant-table-body > table > tbody > tr > td {
     border-right: 1px solid #ddd !important;
   }
-	
-	.custom-table {
-		.custom-table-pagination {
-			.ant-col-12 {
-				flex: unset;
-			}
+
+  .custom-table {
+    .custom-table-pagination {
+      .ant-col-12 {
+        flex: unset;
+      }
     }
-	}
+  }
   .product-and-quantity {
     padding: 0 !important;
   }
@@ -47,8 +47,8 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
   .priceWidth {
     width: 25%;
     text-align: center;
-		justify-content: flex-end;
-		padding: 0 10px;
+    justify-content: flex-end;
+    padding: 0 10px;
   }
 
   .item-custom-td {
@@ -60,52 +60,52 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
     }
 
     .product {
-      width: 60% ;
+      width: 60%;
       padding: 10px;
     }
   }
 
-   .quantity,
-    .priceWidth {
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      &:before {
-        content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: -999px;
-        bottom: -999px;
-        left: 0;
-        background-color: ${borderColor};
-      }
+  .quantity,
+  .priceWidth {
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    &:before {
+      content: "";
+      display: block;
+      width: 1px;
+      position: absolute;
+      z-index: 1;
+      top: -999px;
+      bottom: -999px;
+      left: 0;
+      background-color: ${borderColor};
+    }
+  }
+
+  .price {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    &:before {
+      // content: "";
+      display: block;
+      width: 1px;
+      position: absolute;
+      z-index: 1;
+      top: -999px;
+      bottom: -999px;
+      left: 0;
+      background-color: ${borderColor};
     }
 
-    .price {
-      align-items: flex-end;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      &:before {
-        // content: "";
-        display: block;
-        width: 1px;
-        position: absolute;
-        z-index: 1;
-        top: -999px;
-        bottom:-999px;
-        left: 0;
-        background-color: ${borderColor};
-      }
-
-      &-title {
-        align-items: unset;
-      }
+    &-title {
+      align-items: unset;
     }
+  }
 
   .ecommerce-order-list {
     .cell-items {
@@ -127,13 +127,14 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
   }
 
   th.ant-table-cell {
-    &.orderStatus, &.notes {
+    &.orderStatus,
+    &.notes {
       padding-left: 10px !important;
     }
   }
 
   .confirmed-status {
-    background-color: #52D276;
+    background-color: #52d276;
   }
 
   .waiting-status {
@@ -145,58 +146,57 @@ export const StyledComponentEcommerceOrder = styled(StyledComponent)`
   }
 
   .cancel-order-status {
-    background-color: #E24343;
+    background-color: #e24343;
   }
 
   .picking-status {
-    background-color: #C98D17;
+    background-color: #c98d17;
   }
 
   .collect-status {
-    background-color: #FCAF17;
+    background-color: #fcaf17;
   }
 
   .delivery-status {
-    background-color: #00897B;
+    background-color: #00897b;
   }
 
   .change-warehouse-status {
-    background-color: #8D6E63;
+    background-color: #8d6e63;
   }
 
   .rest-status {
     background-color: #2a2a86;
   }
-
 `;
 
 export const StyledOrderFilter = styled.div`
   .order-filter {
     overflow-x: auto;
     margin-bottom: 5px;
-		
-		.order-filter-container {
+
+    .order-filter-container {
       display: flex;
       flex-direction: column;
       width: 100%;
       .ant-input-affix-wrapper {
-				padding-right: 5px;
+        padding-right: 5px;
         .ant-input {
-					padding-left: 10px;
-					padding-right: 0;
-				}
-			}
-			
-			.first-line {
-				display: flex;
-			}
-			.input-search-tracking_codes {
+          padding-left: 10px;
+          padding-right: 0;
+        }
+      }
+
+      .first-line {
+        display: flex;
+      }
+      .input-search-tracking_codes {
         width: 300px;
         min-width: 250px;
         margin: 10px auto;
-			}
-		}
-		
+      }
+    }
+
     .ant-form {
       display: flex;
       .ant-form-item {
@@ -252,7 +252,7 @@ export const StyledOrderFilter = styled.div`
     width: 200px;
     margin-right: 10px;
   }
-  
+
   .setting-button {
     display: flex;
     justify-content: center;
@@ -340,7 +340,6 @@ export const StyledDownloadOrderData = styled.div`
       padding: 0 5px;
     }
   }
-  
 `;
 
 export const StyledEcommerceOrderBaseFilter = styled.div`
@@ -401,7 +400,6 @@ export const StyledUpdateConnectionModal = styled.div`
 `;
 
 export const StyledLogisticConfirmModal = styled.div`
-  .ant-modal-content{
-    
+  .ant-modal-content {
   }
 `;

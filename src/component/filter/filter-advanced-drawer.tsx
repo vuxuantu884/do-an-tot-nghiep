@@ -7,7 +7,7 @@ type FilterAdvancedDrawerProps = DrawerProps & {
   children?: ReactNode;
   onSubmit?: () => void;
   onClearFilter?: () => void;
-  fullWith?: boolean
+  fullWith?: boolean;
 };
 
 const FilterAdvancedDrawer = ({
@@ -35,7 +35,8 @@ const FilterAdvancedDrawer = ({
               <Button
                 onClick={onClearFilter}
                 style={{ color: "#E24343" }}
-                icon={<DeleteOutlined />}>
+                icon={<DeleteOutlined />}
+              >
                 Xóa bộ lọc
               </Button>
               <Button type="primary" htmlType="submit" onClick={onSubmit}>
@@ -44,8 +45,9 @@ const FilterAdvancedDrawer = ({
             </Space>
           </Row>
         }
-        {...props}>
-          {children} 
+        {...props}
+      >
+        {children}
       </DrawerContainer>
     </>
   );

@@ -9,7 +9,7 @@ import { ConvertUtcToLocalDate } from "utils/DateUtils";
 interface IProps {
   data: PageResponse<HistoryInventoryResponse>;
   onChange: (page: number, pageSize?: number) => void;
-  loadingHis?: boolean
+  loadingHis?: boolean;
 }
 enum DocumentType {
   PURCHASE_ORDER = "purchase_order",
@@ -30,7 +30,7 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
         return UrlConfig.ORDERS_RETURN;
       case DocumentType.PURCHASE_ORDER:
       case DocumentType.RETURN_PO:
-        return UrlConfig.PURCHASE_ORDERS; 
+        return UrlConfig.PURCHASE_ORDERS;
       case DocumentType.INVENTORY_TRANSFER:
         return UrlConfig.INVENTORY_TRANSFERS;
       default:
@@ -60,51 +60,52 @@ const TabProductHistory: React.FC<IProps> = (props: IProps) => {
               if (record.document_type === DocumentType.RETURN_ORDER) {
                 id = record.document_id;
               }
-              
+
               return (
                 <div>
-                  <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>
-                    {value}
-                  </Link>
+                  <Link to={`${getUrlByDocumentType(record.document_type)}/${id}`}>{value}</Link>
                 </div>
               );
             },
           },
           {
-            title: 'Thao tác',
+            title: "Thao tác",
             dataIndex: "action",
-            align: 'left',
+            align: "left",
           },
           {
             title: "Thời gian",
             dataIndex: "transaction_date",
             render: (value) => ConvertUtcToLocalDate(value),
-            align: 'left',
-            width: 120
+            align: "left",
+            width: 120,
           },
           {
             title: "SL Thay đổi",
             dataIndex: "quantity",
-            align: 'center',
-            render: (value)=> parseInt(value) >0 ? `+${formatCurrencyForProduct(value)}` : formatCurrencyForProduct(value) 
+            align: "center",
+            render: (value) =>
+              parseInt(value) > 0
+                ? `+${formatCurrencyForProduct(value)}`
+                : formatCurrencyForProduct(value),
           },
           {
             title: "Tồn trong kho",
             dataIndex: "on_hand",
-            align: 'center',
-            render: (value)=>{
+            align: "center",
+            render: (value) => {
               return formatCurrencyForProduct(value);
-            }
+            },
           },
           {
             title: "Kho hàng",
             dataIndex: "store",
-            align: 'center',
+            align: "center",
           },
           {
-            align: 'center',
-            title: 'Người sửa',
-            dataIndex: 'updated_by',
+            align: "center",
+            title: "Người sửa",
+            dataIndex: "updated_by",
           },
         ]}
       />

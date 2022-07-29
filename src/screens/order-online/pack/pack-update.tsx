@@ -1,14 +1,5 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import {
-  Card,
-  Col,
-  Row,
-  Space,
-  Form,
-  Input,
-  Button,
-  FormInstance,
-} from "antd";
+import { Card, Col, Row, Space, Form, Input, Button, FormInstance } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ContentContainer from "component/container/content.container";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
@@ -47,8 +38,8 @@ const resultPagingDefault: ResultPaging = {
   lastPage: 1,
   perPage: 30,
   total: 0,
-  result: []
-}
+  result: [],
+};
 
 var barcode = "";
 
@@ -71,7 +62,7 @@ const PackUpdate: React.FC = () => {
   const [selectedRowOrderId, setSelectedRowOrderId] = useState<number[]>([]);
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: resultPagingDefault.currentPage,
-    perPage: resultPagingDefault.perPage
+    perPage: resultPagingDefault.perPage,
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
@@ -82,7 +73,7 @@ const PackUpdate: React.FC = () => {
       icon: <DeleteOutlined />,
       color: selectedRowKeys.length === 0 ? "rgba(0,0,0,.25)" : "#E24343",
       //disabled: selectedRowKeys.length === 0
-      disabled: false
+      disabled: false,
     },
   ];
 
@@ -91,11 +82,11 @@ const PackUpdate: React.FC = () => {
     const storeId = packDetail?.store_id;
     if (storeId) {
       result.push({
-        id: storeId
-      })
+        id: storeId,
+      });
     }
     return result;
-  }, [packDetail?.store_id])
+  }, [packDetail?.store_id]);
 
   useEffect(() => {
     if (PackId) {
@@ -119,18 +110,19 @@ const PackUpdate: React.FC = () => {
         ship_price = itemOrder?.shipping_fee_informed_to_customer || 0;
         total_price = (fulfillments && fulfillments.total) || 0;
 
-        fulfillments && fulfillments.items.forEach((itemProduct) => {
-          product.push({
-            sku: itemProduct.sku,
-            product_id: itemProduct.product_id,
-            product: itemProduct.product,
-            variant_id: itemProduct.variant_id,
-            variant: itemProduct.variant,
-            variant_barcode: itemProduct.variant_barcode,
-            quantity: itemProduct.quantity,
-            price: itemProduct.price
+        fulfillments &&
+          fulfillments.items.forEach((itemProduct) => {
+            product.push({
+              sku: itemProduct.sku,
+              product_id: itemProduct.product_id,
+              product: itemProduct.product,
+              variant_id: itemProduct.variant_id,
+              variant: itemProduct.variant,
+              variant_barcode: itemProduct.variant_barcode,
+              quantity: itemProduct.quantity,
+              price: itemProduct.price,
+            });
           });
-        })
         //}
 
         let resultItem: GoodsReceiptsInfoOrderModel = {
@@ -143,7 +135,9 @@ const PackUpdate: React.FC = () => {
           customer_phone: itemOrder.shipping_address
             ? itemOrder.shipping_address.phone
             : "không có dữ liệu",
-          customer_address: itemOrder.shipping_address ? itemOrder.shipping_address.full_address : "không có dữ liệu",
+          customer_address: itemOrder.shipping_address
+            ? itemOrder.shipping_address.full_address
+            : "không có dữ liệu",
           product: product,
           ship_price: ship_price,
           total_price: total_price,
@@ -155,22 +149,25 @@ const PackUpdate: React.FC = () => {
     }
   }, [packDetail]);
 
-  const onSelectedChange = (selectedRow: GoodsReceiptsInfoOrderModel[], selected?: boolean, changeRow?: any[]) => {
+  const onSelectedChange = (
+    selectedRow: GoodsReceiptsInfoOrderModel[],
+    selected?: boolean,
+    changeRow?: any[],
+  ) => {
     let selectedRowKeysCopy: number[] = [...selectedRowKeys];
     let selectedRowOrderIdCopy: number[] = [...selectedRowOrderId];
-    let selectedRowCodeCopy: string[] = [...selectedRowCode]
+    let selectedRowCodeCopy: string[] = [...selectedRowCode];
 
     if (selected === true) {
       changeRow?.forEach((data, index) => {
-        let indexItem = selectedRowKeys.findIndex((p) => p === data.key)
+        let indexItem = selectedRowKeys.findIndex((p) => p === data.key);
         if (indexItem === -1) {
           selectedRowKeysCopy.push(data.key);
           selectedRowOrderIdCopy.push(data.order_id);
           selectedRowCodeCopy.push(data.fulfillment_code);
         }
-      })
-    }
-    else {
+      });
+    } else {
       selectedRowKeys.forEach((data, index) => {
         let indexItem = changeRow?.findIndex((p) => p.key === data);
 
@@ -180,7 +177,7 @@ const PackUpdate: React.FC = () => {
           selectedRowOrderIdCopy.splice(i, 1);
           selectedRowCodeCopy.splice(i, 1);
         }
-      })
+      });
     }
 
     setSelectedRowOrderId([...selectedRowOrderIdCopy]);
@@ -206,20 +203,19 @@ const PackUpdate: React.FC = () => {
           dispatch(
             deleteOrdergoodsReceips(orderIds, receitpsId, (success?: boolean) => {
               success && dispatch(getByIdGoodsReceipts(PackId, setPackDetail));
-            })
+            }),
           );
           setSelectedRowKeys([]);
           setSelectedRowCode([]);
-          setSelectedRowOrderId([])
+          setSelectedRowOrderId([]);
           break;
       }
     },
-    [PackId, dispatch, packDetail, selectedRowOrderId]
+    [PackId, dispatch, packDetail, selectedRowOrderId],
   );
 
   const handleSubmit = useCallback(
     (value: any) => {
-
       if (!packDetail) return;
 
       const orderIdElement: any = document.getElementById("order_id");
@@ -240,7 +236,6 @@ const PackUpdate: React.FC = () => {
       }
       let codes: string[] = [];
 
-
       if (packDetail && packDetail.orders && packDetail.orders.length > 0) {
         packDetail?.orders?.forEach((orderItem) => {
           let fulfillments = orderItem.fulfillments;
@@ -250,18 +245,19 @@ const PackUpdate: React.FC = () => {
            */
           if (!isFulfillmentPacked(fulfillment) && packDetail.receipt_type_id === 1) {
             success = false;
-            showModalError(`Không thể cập nhật biên bản, Đơn hàng ${orderItem?.code} không ở trạng thái đã đóng gói`);
+            showModalError(
+              `Không thể cập nhật biên bản, Đơn hàng ${orderItem?.code} không ở trạng thái đã đóng gói`,
+            );
           }
 
           if (success) {
-            if (fulfillment?.code && order_id !== fulfillment?.code)
-              codes.push(fulfillment?.code);
+            if (fulfillment?.code && order_id !== fulfillment?.code) codes.push(fulfillment?.code);
             else {
               success = false;
               showModalError(`Đơn hàng ${fulfillment?.code} đã có trong biên bản`);
             }
           }
-        })
+        });
 
         if (packDetail.orders?.length !== codes.length && success) {
           showModalError("Không thể cập nhật biên bản do mất đơn hàng");
@@ -287,11 +283,11 @@ const PackUpdate: React.FC = () => {
             }
 
             orderIdElement?.select();
-          })
+          }),
         );
       }
     },
-    [dispatch, packDetail, searchOrderForm]
+    [dispatch, packDetail, searchOrderForm],
   );
 
   const columns: Array<ICustomTableColumType<GoodsReceiptsInfoOrderModel>> = [
@@ -398,54 +394,55 @@ const PackUpdate: React.FC = () => {
     },
   ];
 
-  const eventBarcodeOrder = useCallback((event: KeyboardEvent) => {
-    if (event.target instanceof HTMLBodyElement) {
-      if (event.key !== "Enter") {
-        barcode += event.key.toUpperCase();
-      }
-      else {
-        if (!packDetail) return;
+  const eventBarcodeOrder = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barcode += event.key.toUpperCase();
+        } else {
+          if (!packDetail) return;
 
-        let indexOrder = packDetail?.orders?.findIndex((p) => p.code === barcode);
-        if (indexOrder !== -1) {
-          showWarning("Đơn hàng đã tồn tại trong biên bản");
-          return;
-        }
-
-        let codes: string[] = [];
-
-        packDetail?.orders?.forEach((item) => {
-          if (item.fulfillments && item.fulfillments.length > 0) {
-            let indexFFM = item.fulfillments.length - 1;
-            let FFMCode: string | null = item.fulfillments[indexFFM].code;
-            FFMCode && codes.push(FFMCode);
+          let indexOrder = packDetail?.orders?.findIndex((p) => p.code === barcode);
+          if (indexOrder !== -1) {
+            showWarning("Đơn hàng đã tồn tại trong biên bản");
+            return;
           }
-        });
 
-        if (codes.indexOf(barcode) === -1) {
-          codes = insertCustomIndexArray([...codes], 0, barcode);
-          let id = packDetail?.id ? packDetail?.id : 0;
-          let param: any = {
-            ...packDetail,
-            codes: codes,
-          };
+          let codes: string[] = [];
 
-          dispatch(
-            updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
-              if (data) {
-                setPackDetail(data);
-                showSuccess("Thêm đơn hàng vào biên bản thành công");
-              }
-            })
-          );
+          packDetail?.orders?.forEach((item) => {
+            if (item.fulfillments && item.fulfillments.length > 0) {
+              let indexFFM = item.fulfillments.length - 1;
+              let FFMCode: string | null = item.fulfillments[indexFFM].code;
+              FFMCode && codes.push(FFMCode);
+            }
+          });
+
+          if (codes.indexOf(barcode) === -1) {
+            codes = insertCustomIndexArray([...codes], 0, barcode);
+            let id = packDetail?.id ? packDetail?.id : 0;
+            let param: any = {
+              ...packDetail,
+              codes: codes,
+            };
+
+            dispatch(
+              updateGoodsReceipts(id, param, (data: GoodsReceiptsResponse) => {
+                if (data) {
+                  setPackDetail(data);
+                  showSuccess("Thêm đơn hàng vào biên bản thành công");
+                }
+              }),
+            );
+          } else {
+            showWarning(`${barcode} đã có trong biên bản!`);
+          }
+          barcode = "";
         }
-        else {
-          showWarning(`${barcode} đã có trong biên bản!`);
-        }
-        barcode = "";
       }
-    }
-  }, [dispatch, packDetail]);
+    },
+    [dispatch, packDetail],
+  );
 
   useEffect(() => {
     const orderIdElement: any = document.getElementById("order_id");
@@ -457,18 +454,20 @@ const PackUpdate: React.FC = () => {
     window.addEventListener("keypress", eventBarcodeOrder);
     return () => {
       window.removeEventListener("keypress", eventBarcodeOrder);
-    }
+    };
   }, [eventBarcodeOrder]);
 
   useEffect(() => {
-    if (!goodsReceiptsInfoOrderModel || (goodsReceiptsInfoOrderModel && goodsReceiptsInfoOrderModel.length <= 0)) {
-      setResultPaging(resultPagingDefault)
-    }
-    else {
-      let result = flatDataPaging(goodsReceiptsInfoOrderModel, pagingParam)
+    if (
+      !goodsReceiptsInfoOrderModel ||
+      (goodsReceiptsInfoOrderModel && goodsReceiptsInfoOrderModel.length <= 0)
+    ) {
+      setResultPaging(resultPagingDefault);
+    } else {
+      let result = flatDataPaging(goodsReceiptsInfoOrderModel, pagingParam);
       setResultPaging(result);
     }
-  }, [goodsReceiptsInfoOrderModel, pagingParam])
+  }, [goodsReceiptsInfoOrderModel, pagingParam]);
 
   return (
     <StyledComponent>
@@ -486,7 +485,7 @@ const PackUpdate: React.FC = () => {
           },
           {
             name: `Biên bản bàn giao ${PackId}`,
-            path: `${UrlConfig.DELIVERY_RECORDS}/${PackId}`
+            path: `${UrlConfig.DELIVERY_RECORDS}/${PackId}`,
           },
           {
             name: "Thêm đơn hàng",
@@ -507,9 +506,7 @@ const PackUpdate: React.FC = () => {
             <Col md={6}>
               <Space>
                 <span className="t1-color">Ngày:</span>
-                <span className="t1">
-                  {moment(packDetail?.updated_date).format("DD/MM/YYYY")}
-                </span>
+                <span className="t1">{moment(packDetail?.updated_date).format("DD/MM/YYYY")}</span>
                 <span className="t1">{packDetail?.orders?.length} đơn</span>
               </Space>
             </Col>
@@ -555,10 +552,10 @@ const PackUpdate: React.FC = () => {
           </Row>
         </Card>
 
-        <Card title="Thông tin biên bản bàn giao" className="pack-info-update-card"
-          extra={
-            <ButtonWarningHandover stores={stores} isHiddenCreate={true} />
-          }
+        <Card
+          title="Thông tin biên bản bàn giao"
+          className="pack-info-update-card"
+          extra={<ButtonWarningHandover stores={stores} isHiddenCreate={true} />}
         >
           <div className="order-filter">
             <div className="page-filter" style={{ padding: "0px 0px 20px 0px" }}>
@@ -568,7 +565,11 @@ const PackUpdate: React.FC = () => {
                 </div>
                 <div
                   className="page-filter-right"
-                  style={{ width: "88%", display: "flex", justifyContent: "flex-end" }}
+                  style={{
+                    width: "88%",
+                    display: "flex",
+                    justifyContent: "flex-end",
+                  }}
                 >
                   <Form
                     layout="inline"
@@ -608,13 +609,15 @@ const PackUpdate: React.FC = () => {
               showSizeChanger: true,
               onChange: (page, size) => {
                 // console.log("size", size)
-                setPagingParam({ perPage: size || 10, currentPage: page })
+                setPagingParam({ perPage: size || 10, currentPage: page });
               },
               onShowSizeChange: (page, size) => {
-                setPagingParam({ perPage: size || 10, currentPage: page })
+                setPagingParam({ perPage: size || 10, currentPage: page });
               },
             }}
-            onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+            onSelectedChange={(selectedRows, selected, changeRow) =>
+              onSelectedChange(selectedRows, selected, changeRow)
+            }
             selectedRowKey={selectedRowKeys}
             dataSource={resultPaging.result}
             columns={columns}

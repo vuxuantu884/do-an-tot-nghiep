@@ -1,17 +1,6 @@
-import {
-  Button,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Tag,
-  Space,
-  Menu,
-  Dropdown,
-} from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag, Space, Menu, Dropdown } from "antd";
 
-import {MenuAction} from "component/table/ActionButton";
+import { MenuAction } from "component/table/ActionButton";
 import React, {
   createRef,
   useCallback,
@@ -23,11 +12,11 @@ import React, {
 } from "react";
 import BaseFilter from "./base.filter";
 import search from "assets/img/search.svg";
-import {SettingOutlined, FilterOutlined, DownOutlined} from "@ant-design/icons";
+import { SettingOutlined, FilterOutlined, DownOutlined } from "@ant-design/icons";
 import "./order.filter.scss";
 import CustomSelect from "component/custom/select.custom";
-import {OrderPackContext} from "contexts/order-pack/order-pack-context";
-import {GoodsReceiptsSearchQuery} from "model/query/goods-receipts.query";
+import { OrderPackContext } from "contexts/order-pack/order-pack-context";
+import { GoodsReceiptsSearchQuery } from "model/query/goods-receipts.query";
 import UrlConfig from "config/url.config";
 import { Link } from "react-router-dom";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
@@ -49,7 +38,7 @@ type ReturnFilterProps = {
   deliveryServices: DeliveryServiceResponse[];
 };
 
-const {Item} = Form;
+const { Item } = Form;
 
 const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
   const {
@@ -63,7 +52,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     deliveryServices,
   } = props;
 
-  const userReducer = useSelector((state:RootReducerType)=>state.userReducer);
+  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
   const orderPackContextData = useContext(OrderPackContext);
   const listStores = orderPackContextData.listStores;
   const listChannels = orderPackContextData.listChannels;
@@ -93,7 +82,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
 
   const onCloseTag = useCallback(
@@ -101,30 +90,29 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       e.preventDefault();
       setRerender(false);
       switch (tag.key) {
-        
         case "store":
-          onFilter && onFilter({...params, store_ids: undefined});
+          onFilter && onFilter({ ...params, store_ids: undefined });
           break;
 
         case "delivery_service_ids":
-          onFilter && onFilter({...params, delivery_service_ids: undefined});
+          onFilter && onFilter({ ...params, delivery_service_ids: undefined });
           break;
         case "ecommerce_ids":
-          onFilter && onFilter({...params, ecommerce_ids: undefined});
+          onFilter && onFilter({ ...params, ecommerce_ids: undefined });
           break;
         case "good_receipt_type_ids":
-          onFilter && onFilter({...params, good_receipt_type_ids: undefined});
+          onFilter && onFilter({ ...params, good_receipt_type_ids: undefined });
           break;
         case "created":
           setCreatedClick("");
-          onFilter && onFilter({...params, from_date: null, to_date: null});
+          onFilter && onFilter({ ...params, from_date: null, to_date: null });
           break;
 
         default:
           break;
       }
     },
-    [onFilter, params]
+    [onFilter, params],
   );
 
   const [createdClick, setCreatedClick] = useState("");
@@ -132,10 +120,26 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
   const initialValues = useMemo(() => {
     return {
       ...params,
-       ecommerce_ids: params.ecommerce_ids?(Array.isArray(params.ecommerce_ids) ? params.ecommerce_ids : [params.ecommerce_ids]):[],
-       delivery_service_ids:params.delivery_service_ids?( Array.isArray(params.delivery_service_ids) ? params.delivery_service_ids : [params.delivery_service_ids]):[],
-       good_receipt_type_ids: params.good_receipt_type_ids?(Array.isArray(params.good_receipt_type_ids) ? params.good_receipt_type_ids : [params.good_receipt_type_ids]):[],
-       store_ids: params.store_ids?(Array.isArray(params.store_ids) ? params.store_ids : [params.store_ids]):[],
+      ecommerce_ids: params.ecommerce_ids
+        ? Array.isArray(params.ecommerce_ids)
+          ? params.ecommerce_ids
+          : [params.ecommerce_ids]
+        : [],
+      delivery_service_ids: params.delivery_service_ids
+        ? Array.isArray(params.delivery_service_ids)
+          ? params.delivery_service_ids
+          : [params.delivery_service_ids]
+        : [],
+      good_receipt_type_ids: params.good_receipt_type_ids
+        ? Array.isArray(params.good_receipt_type_ids)
+          ? params.good_receipt_type_ids
+          : [params.good_receipt_type_ids]
+        : [],
+      store_ids: params.store_ids
+        ? Array.isArray(params.store_ids)
+          ? params.store_ids
+          : [params.store_ids]
+        : [],
     };
   }, [params]);
 
@@ -164,34 +168,32 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         setRerender(false);
       }
     },
-    [formRef, onFilter]
+    [formRef, onFilter],
   );
 
   let filters = useMemo(() => {
     let list = [];
     const splitCharacter = ", ";
     const renderSplitCharacter = (index: number, mappedArray: any[]) => {
-			let result = null;
-			if (index !== mappedArray.length - 1) {
-				result = (
-					<React.Fragment>
-						{splitCharacter}
-					</React.Fragment>
-				)
-			}
-			return result;
-		};
+      let result = null;
+      if (index !== mappedArray.length - 1) {
+        result = <React.Fragment>{splitCharacter}</React.Fragment>;
+      }
+      return result;
+    };
 
-    if (initialValues.store_ids && initialValues.store_ids.length>0) {
-      let mappedStores = listStores?.filter((store) => initialValues.store_ids?.some((single) => single?.toString() === store.id.toString()))
+    if (initialValues.store_ids && initialValues.store_ids.length > 0) {
+      let mappedStores = listStores?.filter((store) =>
+        initialValues.store_ids?.some((single) => single?.toString() === store.id.toString()),
+      );
 
-      let textStores=mappedStores.map((single, index)=>{
+      let textStores = mappedStores.map((single, index) => {
         return (
           <Link to={`${UrlConfig.STORE}/${single.code}`} target="_blank" key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappedStores)}
           </Link>
-        )
+        );
       });
 
       list.push({
@@ -201,16 +203,20 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
       });
     }
 
-    if (initialValues.delivery_service_ids&&initialValues.delivery_service_ids?.length>0) {
-      let mappeDeliveryService = listThirdPartyLogistics?.filter((store) => initialValues.delivery_service_ids?.some((single) => single?.toString() === store.id.toString()))
+    if (initialValues.delivery_service_ids && initialValues.delivery_service_ids?.length > 0) {
+      let mappeDeliveryService = listThirdPartyLogistics?.filter((store) =>
+        initialValues.delivery_service_ids?.some(
+          (single) => single?.toString() === store.id.toString(),
+        ),
+      );
 
-      let textStores=mappeDeliveryService.map((single, index)=>{
+      let textStores = mappeDeliveryService.map((single, index) => {
         return (
           <span key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappeDeliveryService)}
           </span>
-        )
+        );
       });
 
       list.push({
@@ -221,15 +227,17 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     }
 
     if (initialValues.ecommerce_ids?.length) {
-      let mappeEcomerceId = listChannels?.filter((change) => initialValues.ecommerce_ids?.some((single) => single?.toString() === change.id.toString()))
+      let mappeEcomerceId = listChannels?.filter((change) =>
+        initialValues.ecommerce_ids?.some((single) => single?.toString() === change.id.toString()),
+      );
 
-      let textStores=mappeEcomerceId.map((single, index)=>{
+      let textStores = mappeEcomerceId.map((single, index) => {
         return (
           <span key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappeEcomerceId)}
           </span>
-        )
+        );
       });
 
       list.push({
@@ -240,15 +248,19 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     }
 
     if (initialValues.good_receipt_type_ids?.length) {
-      let mappeGoodReceiptTypeId = listGoodsReceiptsType?.filter((change) => initialValues.good_receipt_type_ids?.some((single) => single?.toString() === change.id.toString()))
+      let mappeGoodReceiptTypeId = listGoodsReceiptsType?.filter((change) =>
+        initialValues.good_receipt_type_ids?.some(
+          (single) => single?.toString() === change.id.toString(),
+        ),
+      );
 
-      let textStores=mappeGoodReceiptTypeId.map((single, index)=>{
+      let textStores = mappeGoodReceiptTypeId.map((single, index) => {
         return (
           <span key={single.code}>
             {single.code} - {single.name}
             {renderSplitCharacter(index, mappeGoodReceiptTypeId)}
           </span>
-        )
+        );
       });
 
       list.push({
@@ -298,14 +310,10 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
     if (listStores && listStores.length > 0) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
         newData = listStores.filter((store) =>
-          haveAccess(
-            store.id,
-            userReducer.account ? userReducer.account.account_stores : []
-          )
+          haveAccess(store.id, userReducer.account ? userReducer.account.account_stores : []),
         );
         setListStoresDataCanAccess(newData);
-      }
-      else {
+      } else {
         // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
         setListStoresDataCanAccess(listStores);
       }
@@ -315,12 +323,12 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
   return (
     <div>
       <div className="order-filter">
-        <div className="page-filter" style={{ paddingTop: 0}}>
+        <div className="page-filter" style={{ paddingTop: 0 }}>
           <div className="page-filter-heading">
-            <div className="page-filter-left" style={{width: "10%"}}>
+            <div className="page-filter-left" style={{ width: "10%" }}>
               <Space size={12}>
                 <Dropdown
-                  overlayStyle={{minWidth: "10rem"}}
+                  overlayStyle={{ minWidth: "10rem" }}
                   overlay={
                     <Menu>
                       {actions &&
@@ -330,7 +338,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                             key={item.id}
                             onClick={() => onActionClick && onActionClick(item.id)}
                             icon={item.icon}
-                            style={{color: item.color}}
+                            style={{ color: item.color }}
                           >
                             {item.name}
                           </Menu.Item>
@@ -339,15 +347,14 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                   }
                   trigger={["click"]}
                 >
-                  <Button value="small"  className="action-button">
-                    <div style={{marginRight: 10}}>Thao tác </div>
+                  <Button value="small" className="action-button">
+                    <div style={{ marginRight: 10 }}>Thao tác </div>
                     <DownOutlined />
                   </Button>
                 </Dropdown>
               </Space>
-              
             </div>
-            <div className="page-filter-right" style={{width: "90%"}}>
+            <div className="page-filter-right" style={{ width: "90%" }}>
               <Space size={12}>
                 <Form
                   onFinish={onFinish}
@@ -355,7 +362,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                   initialValues={initialValues}
                   layout="inline"
                 >
-                  <Item name="ids" style={{width: "32%"}}>
+                  <Item name="ids" style={{ width: "32%" }}>
                     <NumberInput
                       prefix={<img src={search} alt="" />}
                       placeholder="ID Biên bản bàn giao"
@@ -367,7 +374,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                     />
                   </Item>
 
-                  <Item name="order_codes" style={{width: "32%"}}>
+                  <Item name="order_codes" style={{ width: "32%" }}>
                     <Input
                       prefix={<img src={search} alt="" />}
                       placeholder="ID đơn hàng/Mã vận đơn"
@@ -389,10 +396,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       Thêm bộ lọc
                     </Button>
                   </Item>
-                  <Button
-                    icon={<SettingOutlined />}
-                    onClick={onShowColumnSetting}
-                  ></Button>
+                  <Button icon={<SettingOutlined />} onClick={onShowColumnSetting}></Button>
                 </Form>
               </Space>
             </div>
@@ -408,12 +412,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
           width={widthScreen()}
         >
           {rerender && (
-            <Form
-              onFinish={onFinish}
-              ref={formRef}
-              initialValues={initialValues}
-              layout="vertical"
-            >
+            <Form onFinish={onFinish} ref={formRef} initialValues={initialValues} layout="vertical">
               <Row gutter={20}>
                 <Col span={24}>
                   <p>Kho cửa hàng</p>
@@ -456,7 +455,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       showSearch
                       placeholder="Chọn hãng vận chuyển"
                       notFoundContent="Không tìm thấy kết quả"
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       optionFilterProp="children"
                       maxTagCount="responsive"
                       showArrow
@@ -480,7 +479,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       showSearch
                       placeholder="Chọn loại biên bản"
                       notFoundContent="Không tìm thấy kết quả"
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       optionFilterProp="children"
                       maxTagCount="responsive"
                       showArrow
@@ -504,7 +503,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       showSearch
                       placeholder="Chọn kiểu biên bản"
                       notFoundContent="Không tìm thấy kết quả"
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       optionFilterProp="children"
                       maxTagCount="responsive"
                       showArrow

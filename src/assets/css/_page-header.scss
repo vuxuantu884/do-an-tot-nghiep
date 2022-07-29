@@ -1,18 +1,18 @@
 // @import "variable";
-.page-header{
+.page-header {
   height: 90px;
   top: 0;
   right: 0;
   left: 255px;
   background: $background-color;
   padding: 18px 0px;
-  transition: all .1s;
+  transition: all 0.1s;
 
-  &-heading{
+  &-heading {
     display: flex;
     justify-content: space-between;
 
-    &-title{
+    &-title {
       font-size: 20px;
       margin-bottom: 4px;
       font-weight: bold;
@@ -20,17 +20,17 @@
       overflow: hidden;
     }
 
-    &-left{
+    &-left {
       width: 100%;
-      .ant-breadcrumb{
-        span{
-          .breadcrumb_hover:hover{
+      .ant-breadcrumb {
+        span {
+          .breadcrumb_hover:hover {
             color: $primary-color;
           }
-          .ant-breadcrumb-link{
+          .ant-breadcrumb-link {
             word-break: break-all;
             color: #222247;
-              a{
+            a {
               color: #222247;
             }
 
@@ -41,8 +41,9 @@
             //   }
             // }
           }
-          &:last-child{
-            .ant-breadcrumb-link, a{
+          &:last-child {
+            .ant-breadcrumb-link,
+            a {
               color: #222222;
             }
           }
@@ -50,7 +51,7 @@
       }
     }
 
-    &-extra{
+    &-extra {
       display: flex;
       align-items: center;
     }

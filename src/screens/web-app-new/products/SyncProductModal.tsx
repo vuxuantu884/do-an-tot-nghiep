@@ -14,7 +14,7 @@ type SyncProductModalProps = {
   onCancel: () => void;
   onOk: (item: any, shop_ids: number[]) => void;
   isDisabled?: boolean;
-}
+};
 
 const SyncProductModal = (props: SyncProductModalProps) => {
   const { width, visible, title, okText, cancelText, onCancel, onOk, isDisabled } = props;
@@ -71,13 +71,9 @@ const SyncProductModal = (props: SyncProductModalProps) => {
         <div className="render-shop-list">
           {ecommerceShopList?.map((item: any) => (
             <div key={item.id} className="shop-name">
-              <Checkbox
-                onChange={(e) => handleCheckedChange(item, e)}
-                checked={item.isSelected}>
+              <Checkbox onChange={(e) => handleCheckedChange(item, e)} checked={item.isSelected}>
                 <span className="check-box-name">
-                  <span
-                    className="name"
-                    style={isNewFilter ? { width: 270 } : { width: 90 }}>
+                  <span className="name" style={isNewFilter ? { width: 270 } : { width: 90 }}>
                     {item.name}
                   </span>
                 </span>
@@ -86,9 +82,7 @@ const SyncProductModal = (props: SyncProductModalProps) => {
           ))}
 
           {ecommerceShopList.length === 0 && (
-            <div style={{ color: "#737373", padding: 10 }}>
-              Không có dữ liệu
-            </div>
+            <div style={{ color: "#737373", padding: 10 }}>Không có dữ liệu</div>
           )}
         </div>
       </StyledProductFilter>
@@ -144,9 +138,9 @@ const SyncProductModal = (props: SyncProductModalProps) => {
       onCancel={handleCancelSyncModal}
       onOk={handleOkSyncModal}
       okButtonProps={{
-        disabled:
-          isCheckedRadioNormal === true || shopIdSelected.length ? false : true,
-      }}>
+        disabled: isCheckedRadioNormal === true || shopIdSelected.length ? false : true,
+      }}
+    >
       <StyledComponentSyncStock>
         <Radio.Group onChange={onChangeSyncOption} value={syncStockType}>
           <Space direction="vertical">
@@ -162,7 +156,8 @@ const SyncProductModal = (props: SyncProductModalProps) => {
           <Form>
             <Form.Item
               className="select-store-dropdown select-store-dropdown-sync-stock"
-              label={<span>Chọn gian hàng</span>}>
+              label={<span>Chọn gian hàng</span>}
+            >
               <Select
                 placeholder={getPlaceholderSelectShop()}
                 dropdownRender={() => renderShopList(true)}
@@ -173,5 +168,5 @@ const SyncProductModal = (props: SyncProductModalProps) => {
       </StyledComponentSyncStock>
     </Modal>
   );
-}
+};
 export default SyncProductModal;

@@ -174,9 +174,7 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
       cancelText="Hủy"
       onOk={onOkClick}
       // confirmLoading={loading}
-      title={
-        <ModalTitle mode={mode} onClick={() => setMode(allMode.DEFAULT)} />
-      }
+      title={<ModalTitle mode={mode} onClick={() => setMode(allMode.DEFAULT)} />}
       okText="Xuất file"
     >
       <Form
@@ -195,9 +193,7 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
                     <Radio value="a">Tất cả đơn nhập hàng</Radio>
                     <Radio value="b">Đơn nhập hàng trên trang này</Radio>
                     <Radio value="c">Các đơn nhập hàng được chọn</Radio>
-                    <Radio value="d">
-                      34 đơn nhập hàng phù hợp với kết quả tìm kiếm hiện tại
-                    </Radio>
+                    <Radio value="d">34 đơn nhập hàng phù hợp với kết quả tìm kiếm hiện tại</Radio>
                   </Space>
                 </Radio.Group>
               </Form.Item>
@@ -223,9 +219,7 @@ const ExportModal: React.FC<ExportModalProps> = (props: ExportModalProps) => {
           {mode === allMode.CUSTOM && (
             <Fragment>
               <Checkbox.Group style={{ width: "100%" }}>
-                <Checkbox value={customFields[0].value}>
-                  {customFields[0].name}
-                </Checkbox>
+                <Checkbox value={customFields[0].value}>{customFields[0].name}</Checkbox>
                 {customFields.map((field, index) => {
                   if (index === 0) return null;
                   if (index % 3 === 1)

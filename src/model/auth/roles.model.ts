@@ -15,7 +15,6 @@ export interface RoleResponse extends RoleAuthorize {}
 
 export interface RoleSearchQuery extends BaseQuery {
   name?: string;
-
 }
 
 export interface AuthenRequest {

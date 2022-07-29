@@ -8,4 +8,3 @@ export const SuppliersPermissions = {
   UPDATE: `${suppliers}_update`,
   DELETE: `${suppliers}_delete`,
 };
-

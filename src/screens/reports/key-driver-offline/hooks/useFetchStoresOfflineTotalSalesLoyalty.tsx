@@ -15,49 +15,37 @@ import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 
 function useFetchStoresOfflineTotalSalesLoyalty() {
   const dispatch = useDispatch();
-  const { setData, selectedStores, selectedAsm } = useContext(
-    KDOfflineStoresContext,
-  );
+  const { setData, selectedStores, selectedAsm } = useContext(KDOfflineStoresContext);
 
-  const [
-    isFetchingStoresOfflineTotalSalesLoyalty,
-    setIsFetchingStoresOfflineTotalSalesLoyalty,
-  ] = useState<boolean | undefined>();
+  const [isFetchingStoresOfflineTotalSalesLoyalty, setIsFetchingStoresOfflineTotalSalesLoyalty] =
+    useState<boolean | undefined>();
 
-  const findKeyDriverAndUpdateValue = useCallback(
-    (data: any, asmData: any, columnKey: string) => {
-      let customersCount: any = [];
-      findKeyDriver(data, KeyDriverField.CustomersCount, customersCount);
-      customersCount = customersCount[0];
-      const asmName = nonAccentVietnameseKD(asmData["pos_location_name"]);
-      if (asmName) {
-        customersCount[`${asmName}_${columnKey}`] =
-          asmData[KeyDriverField.CustomersCount];
-        if (columnKey === "accumulatedMonth") {
-          customersCount[`${asmName}_targetMonth`] = calculateTargetMonth(
-            customersCount[`${asmName}_accumulatedMonth`],
-          );
-        }
+  const findKeyDriverAndUpdateValue = useCallback((data: any, asmData: any, columnKey: string) => {
+    let customersCount: any = [];
+    findKeyDriver(data, KeyDriverField.CustomersCount, customersCount);
+    customersCount = customersCount[0];
+    const asmName = nonAccentVietnameseKD(asmData["pos_location_name"]);
+    if (asmName) {
+      customersCount[`${asmName}_${columnKey}`] = asmData[KeyDriverField.CustomersCount];
+      if (columnKey === "accumulatedMonth") {
+        customersCount[`${asmName}_targetMonth`] = calculateTargetMonth(
+          customersCount[`${asmName}_accumulatedMonth`],
+        );
       }
-      if (customersCount.children?.length) {
-        customersCount.children.forEach((item: any) => {
-          if (
-            Object.keys(asmData).findIndex(
-              (itemKey) => item.key === itemKey,
-            ) !== -1
-          ) {
-            item[`${asmName}_${columnKey}`] = asmData[item.key];
-            if (columnKey === "accumulatedMonth") {
-              item[`${asmName}_targetMonth`] = calculateTargetMonth(
-                item[`${asmName}_accumulatedMonth`],
-              );
-            }
+    }
+    if (customersCount.children?.length) {
+      customersCount.children.forEach((item: any) => {
+        if (Object.keys(asmData).findIndex((itemKey) => item.key === itemKey) !== -1) {
+          item[`${asmName}_${columnKey}`] = asmData[item.key];
+          if (columnKey === "accumulatedMonth") {
+            item[`${asmName}_targetMonth`] = calculateTargetMonth(
+              item[`${asmName}_accumulatedMonth`],
+            );
           }
-        });
-      }
-    },
-    [],
-  );
+        }
+      });
+    }
+  }, []);
 
   const refetchStoresOfflineTotalSalesLoyalty = useCallback(() => {
     const fetchStoresOfflineTotalSalesLoyalty = async () => {
@@ -78,17 +66,12 @@ function useFetchStoresOfflineTotalSalesLoyalty() {
       );
       const monthApi =
         moment().date() > 1
-          ? callApiNative(
-              { notifyAction: "SHOW_ALL" },
-              dispatch,
-              getKDOfflineTotalSalesLoyalty,
-              {
-                from: START_OF_MONTH,
-                to: YESTERDAY,
-                posLocationNames: selectedStores,
-                departmentLv2s: selectedAsm,
-              },
-            )
+          ? callApiNative({ notifyAction: "SHOW_ALL" }, dispatch, getKDOfflineTotalSalesLoyalty, {
+              from: START_OF_MONTH,
+              to: YESTERDAY,
+              posLocationNames: selectedStores,
+              departmentLv2s: selectedAsm,
+            })
           : Promise.resolve(0);
 
       await Promise.all([dayApi, monthApi]).then(([resDay, resMonth]) => {
@@ -141,13 +124,7 @@ function useFetchStoresOfflineTotalSalesLoyalty() {
       setIsFetchingStoresOfflineTotalSalesLoyalty(false);
     };
     fetchStoresOfflineTotalSalesLoyalty();
-  }, [
-    dispatch,
-    findKeyDriverAndUpdateValue,
-    selectedAsm,
-    selectedStores,
-    setData,
-  ]);
+  }, [dispatch, findKeyDriverAndUpdateValue, selectedAsm, selectedStores, setData]);
 
   useEffect(() => {
     refetchStoresOfflineTotalSalesLoyalty();

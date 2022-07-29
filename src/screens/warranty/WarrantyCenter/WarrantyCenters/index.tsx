@@ -97,7 +97,7 @@ function WarrantyCenters(props: PropTypes) {
     initQuery,
     location,
     countForceFetchData,
-    setQuery
+    setQuery,
   );
 
   let { warrantyCenters, metadata } = getWarrantyCenters;
@@ -120,7 +120,7 @@ function WarrantyCenters(props: PropTypes) {
         disabled: selectedRowKeys.length ? false : true,
       },
     ],
-    [ACTION_ID.delete, selectedRowKeys.length]
+    [ACTION_ID.delete, selectedRowKeys.length],
   );
 
   const onSelectedChange = (selectedRow: WarrantyCenterModel[]) => {
@@ -132,7 +132,7 @@ function WarrantyCenters(props: PropTypes) {
 
   const handleOkPhoneModal = useCallback(
     (values) => {
-      if(!rowSelected.current?.record.id) {
+      if (!rowSelected.current?.record.id) {
         return;
       }
       setIsPhoneModalVisible(false);
@@ -160,12 +160,12 @@ function WarrantyCenters(props: PropTypes) {
           dispatch(hideLoading());
         });
     },
-    [data, dispatch]
+    [data, dispatch],
   );
 
   const handleOkAddressModal = useCallback(
     (values: any) => {
-      if(!rowSelected.current?.record.id) {
+      if (!rowSelected.current?.record.id) {
         return;
       }
       setIsAddressModalVisible(false);
@@ -193,12 +193,12 @@ function WarrantyCenters(props: PropTypes) {
           dispatch(hideLoading());
         });
     },
-    [data, dispatch]
+    [data, dispatch],
   );
 
   const handleOkCityDistrictModal = useCallback(
     (values: any) => {
-      if(!rowSelected.current?.record.id) {
+      if (!rowSelected.current?.record.id) {
         return;
       }
       setIsCityDistrictModalVisible(false);
@@ -228,7 +228,7 @@ function WarrantyCenters(props: PropTypes) {
             handleFetchApiError(
               response,
               "Cập nhật số tỉnh/tp, quận/huyện trung tâm bảo hành",
-              dispatch
+              dispatch,
             );
           }
         })
@@ -236,7 +236,7 @@ function WarrantyCenters(props: PropTypes) {
           dispatch(hideLoading());
         });
     },
-    [cities, data, dispatch, districts]
+    [cities, data, dispatch, districts],
   );
 
   const handleDeleteSingle = () => {
@@ -302,7 +302,7 @@ function WarrantyCenters(props: PropTypes) {
           setConfirmDeleteSubTitle(
             <React.Fragment>
               Bạn có chắc chắn muốn xóa các <strong>Trung tâm bảo hành</strong> đã chọn ?
-            </React.Fragment>
+            </React.Fragment>,
           );
           setIsDeleteConfirmModalVisible(true);
           break;
@@ -311,7 +311,7 @@ function WarrantyCenters(props: PropTypes) {
           break;
       }
     },
-    [ACTION_ID.delete]
+    [ACTION_ID.delete],
   );
 
   const onPageChange = useCallback(
@@ -323,7 +323,7 @@ function WarrantyCenters(props: PropTypes) {
       history.push(`${location.pathname}?${queryParam}`);
       goToTopPage();
     },
-    [history, location.pathname, query]
+    [history, location.pathname, query],
   );
 
   const forceFetchData = useCallback(() => {
@@ -355,7 +355,7 @@ function WarrantyCenters(props: PropTypes) {
       // setSelectedRowKeys([]);
       // setSelectedRowCodes([]);
     },
-    [forceFetchData, history, location.pathname, query]
+    [forceFetchData, history, location.pathname, query],
   );
 
   const initColumns: ICustomTableColumType<WarrantyCenterModel>[] = useMemo(() => {
@@ -543,7 +543,7 @@ function WarrantyCenters(props: PropTypes) {
                         <React.Fragment>
                           Bạn có chắc chắn muốn xóa: <strong>Trung tâm bảo hành</strong> có tên{" "}
                           <strong>{`"${record.name}"`}</strong> ?
-                        </React.Fragment>
+                        </React.Fragment>,
                       );
                       setIsDeleteConfirmModalVisible(true);
                     }}

@@ -37,7 +37,7 @@ function ActionHistoryModal(props: PropType) {
         }}
       ></div>
     );
-}
+  };
 
   const ACTION_LOG_SHORTEN_COLUMN = [
     {
@@ -96,11 +96,10 @@ function ActionHistoryModal(props: PropType) {
     if (actionId) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
-          let detailToTextBefore = convertActionLogDetailToText(
-            response.before?.data, dateFormat
-          );
+          let detailToTextBefore = convertActionLogDetailToText(response.before?.data, dateFormat);
           let detailToTextCurrent = convertActionLogDetailToText(
-            response.current?.data, dateFormat
+            response.current?.data,
+            dateFormat,
           );
           setSingleLogDetail([
             {
@@ -140,7 +139,7 @@ function ActionHistoryModal(props: PropType) {
               current: response.current?.device || "",
             },
           ]);
-        })
+        }),
       );
     }
   }, [actionId, dispatch]);

@@ -33,5 +33,4 @@ export const StyledComponent = styled.div`
       justify-content: space-evenly;
     }
   }
-  
 `;

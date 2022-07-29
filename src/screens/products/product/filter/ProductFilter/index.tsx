@@ -20,7 +20,7 @@ import { ColorResponse } from "model/product/color.model";
 import {
   keysDateFilter,
   SearchVariantField,
-  SearchVariantMapping
+  SearchVariantMapping,
 } from "model/product/product-mapping";
 import { VariantSearchQuery } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
@@ -28,11 +28,16 @@ import moment from "moment";
 import React, { createRef, useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { ConvertDatesLabel, isExistInArr } from "utils/ConvertDatesLabel";
-import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import {
+  DATE_FORMAT,
+  formatDateFilter,
+  getEndOfDayCommon,
+  getStartOfDayCommon,
+} from "utils/DateUtils";
 import { StyledComponent } from "./style";
 import BaseSelect from "../../../../../component/base/BaseSelect/BaseSelect";
 import BaseSelectMerchans from "../../../../../component/base/BaseSelect/BaseSelectMerchans";
-import {useFetchMerchans} from "../../../../../hook/useFetchMerchans";
+import { useFetchMerchans } from "../../../../../hook/useFetchMerchans";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 
 type ProductFilterProps = {
@@ -47,8 +52,8 @@ type ProductFilterProps = {
   allowReadSuppiers?: boolean;
 };
 
-const {Item} = Form;
-const {Option} = Select;
+const { Item } = Form;
+const { Option } = Select;
 
 function tagRender(props: any) {
   const { label, closable, onClose } = props;
@@ -82,92 +87,100 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     onClickOpen,
     actions,
     onMenuClick,
-    allowReadSuppiers
+    allowReadSuppiers,
   } = props;
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans();
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
 
   const [visible, setVisible] = useState(false);
-  const [dateClick, setDateClick] = useState('');
+  const [dateClick, setDateClick] = useState("");
   let [advanceFilters, setAdvanceFilters] = useState<any>({});
 
-  const [lstSize, setLstSize] = useState<PageResponse<SizeResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
+  const [lstSize, setLstSize] = useState<PageResponse<SizeResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
 
-  const [colors, setColors] = useState<PageResponse<ColorResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
+  const [colors, setColors] = useState<PageResponse<ColorResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
 
-  const [mainColors, setMainColors] = useState<PageResponse<ColorResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
+  const [mainColors, setMainColors] = useState<PageResponse<ColorResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
 
   const [suppliers, setSupplier] = useState<PageResponse<SupplierResponse>>({
     items: [],
-    metadata: { limit: 20, page: 1, total: 0 }
+    metadata: { limit: 20, page: 1, total: 0 },
   });
 
-  const getSuppliers = useCallback((key: string, page: number) => {
-      dispatch(SupplierSearchAction({ ids: key, page: page }, (data: PageResponse<SupplierResponse>) => {
-      setSupplier((suppliers) => {
-        return {
-          ...suppliers,
-          items: [
-            ...suppliers.items,
-            ...data.items
-          ],
-          metadata: data.metadata,
-        }
-      });
-    }));
-  }, [dispatch]);
+  const getSuppliers = useCallback(
+    (key: string, page: number) => {
+      dispatch(
+        SupplierSearchAction({ ids: key, page: page }, (data: PageResponse<SupplierResponse>) => {
+          setSupplier((suppliers) => {
+            return {
+              ...suppliers,
+              items: [...suppliers.items, ...data.items],
+              metadata: data.metadata,
+            };
+          });
+        }),
+      );
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
-    const {
-      designers,
-      merchandisers,
-      sizes,
-      colors,
-      main_colors,
-      brands,
-      made_ins,
-      suppliers
-    } = params;
+    const { designers, merchandisers, sizes, colors, main_colors, brands, made_ins, suppliers } =
+      params;
 
     const filter = {
       ...params,
       from_created_date: formatDateFilter(params.from_created_date),
       to_created_date: formatDateFilter(params.to_created_date),
-      sizes: sizes ? Array.isArray(sizes) ? sizes.map((i: string) => Number(i)) : [Number(sizes)] : [],
-      colors: colors ? Array.isArray(colors) ? colors.map((i: string) => Number(i)) : [Number(colors)] : [],
-      main_colors: main_colors ? Array.isArray(main_colors) ? main_colors.map((i: string) => Number(i)) : [Number(main_colors)] : [],
-      brands: brands ? Array.isArray(brands) ? brands : [brands] : [],
-      made_ins: made_ins ? Array.isArray(made_ins) ? made_ins.map((i: string) => Number(i)) : [made_ins] : [],
-      suppliers: suppliers ? Array.isArray(suppliers) ? suppliers.map((i: string) => Number(i)) : [Number(suppliers)] : [],
+      sizes: sizes
+        ? Array.isArray(sizes)
+          ? sizes.map((i: string) => Number(i))
+          : [Number(sizes)]
+        : [],
+      colors: colors
+        ? Array.isArray(colors)
+          ? colors.map((i: string) => Number(i))
+          : [Number(colors)]
+        : [],
+      main_colors: main_colors
+        ? Array.isArray(main_colors)
+          ? main_colors.map((i: string) => Number(i))
+          : [Number(main_colors)]
+        : [],
+      brands: brands ? (Array.isArray(brands) ? brands : [brands]) : [],
+      made_ins: made_ins
+        ? Array.isArray(made_ins)
+          ? made_ins.map((i: string) => Number(i))
+          : [made_ins]
+        : [],
+      suppliers: suppliers
+        ? Array.isArray(suppliers)
+          ? suppliers.map((i: string) => Number(i))
+          : [Number(suppliers)]
+        : [],
     };
-    console.log('suppliers',suppliers);
-    
-    if (suppliers && suppliers !== '') getSuppliers(suppliers, 1);
+    console.log("suppliers", suppliers);
+
+    if (suppliers && suppliers !== "") getSuppliers(suppliers, 1);
     setTimeout(() => {
-      if (sizes && sizes !== '') getSizes(sizes, 1);
+      if (sizes && sizes !== "") getSizes(sizes, 1);
     }, 0);
-    if (colors && colors !== '') getColors(colors, 1, true, false);
-    if (main_colors && main_colors !== '') getColors(main_colors, 1, false, true);
+    if (colors && colors !== "") getColors(colors, 1, true, false);
+    if (main_colors && main_colors !== "") getColors(main_colors, 1, false, true);
 
     formAvd.setFieldsValue(filter);
     setAdvanceFilters(filter);
 
-    if (!designers || designers.length === 0) formAvd.resetFields(['designers']);
-    if (!merchandisers || merchandisers.length === 0) formAvd.resetFields(['merchandisers']);
+    if (!designers || designers.length === 0) formAvd.resetFields(["designers"]);
+    if (!merchandisers || merchandisers.length === 0) formAvd.resetFields(["merchandisers"]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formAvd, params]);
 
@@ -175,7 +188,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     (values: VariantSearchQuery) => {
       onFilter && onFilter(values);
     },
-    [onFilter]
+    [onFilter],
   );
 
   const onFinishAvd = useCallback(
@@ -187,7 +200,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
 
       onFilter && onFilter(values);
     },
-    [form, onFilter]
+    [form, onFilter],
   );
 
   const onFilterClick = useCallback(() => {
@@ -214,7 +227,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
       formAvd.resetFields([field]);
       formAvd.submit();
     },
-    [formAvd]
+    [formAvd],
   );
 
   const setDataColors = useCallback(
@@ -226,64 +239,53 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         setColors((colors) => {
           return {
             ...colors,
-            items: [
-              ...colors.items,
-              ...data.items
-            ],
+            items: [...colors.items, ...data.items],
             metadata: data.metadata,
-          }
+          };
         });
       }
       if (isMainColors) {
         setMainColors((mainColors) => {
           return {
             ...mainColors,
-            items: [
-              ...mainColors.items,
-              ...data.items
-            ],
+            items: [...mainColors.items, ...data.items],
             metadata: data.metadata,
-          }
+          };
         });
       }
     },
-    []
+    [],
   );
 
-  const getColors = useCallback((code: string, page: number, isColor: boolean, isMainColor: boolean) => {
-    dispatch(
-      getColorAction(
-        { ids: code, page: page, is_main_color: isMainColor ? 1: 0 },
-        (res)=>{
+  const getColors = useCallback(
+    (code: string, page: number, isColor: boolean, isMainColor: boolean) => {
+      dispatch(
+        getColorAction({ ids: code, page: page, is_main_color: isMainColor ? 1 : 0 }, (res) => {
           setDataColors(res, isColor, isMainColor);
-        }
-      )
-    );
-  }, [dispatch, setDataColors]);
+        }),
+      );
+    },
+    [dispatch, setDataColors],
+  );
 
   const setDataSizes = useCallback((res: PageResponse<SizeResponse>) => {
     if (res) {
       setLstSize((lstSize) => {
         return {
           ...lstSize,
-          items: [
-            ...lstSize.items,
-            ...res.items
-          ],
+          items: [...lstSize.items, ...res.items],
           metadata: res.metadata,
-        }
+        };
       });
     }
-  },[]);
+  }, []);
 
-  const getSizes = useCallback((code: string, page: number)=>{
-    dispatch(
-      sizeSearchAction(
-        { ids: code, page: page },
-        setDataSizes
-      )
-    );
-  },[dispatch, setDataSizes]);
+  const getSizes = useCallback(
+    (code: string, page: number) => {
+      dispatch(sizeSearchAction({ ids: code, page: page }, setDataSizes));
+    },
+    [dispatch, setDataSizes],
+  );
 
   return (
     <StyledComponent>
@@ -291,9 +293,15 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         <Form onFinish={onFinish} form={form} initialValues={params} layout="inline">
           <CustomFilter onMenuClick={onMenuClick} menu={actions}>
             <Item name="info" className="search">
-              <Input onChange={(e) => formAvd.setFieldsValue({
-                info: e.target.value
-              })} prefix={<img src={search} alt="" />} placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm" />
+              <Input
+                onChange={(e) =>
+                  formAvd.setFieldsValue({
+                    info: e.target.value,
+                  })
+                }
+                prefix={<img src={search} alt="" />}
+                placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm"
+              />
             </Item>
             <Item>
               <Button type="primary" htmlType="submit">
@@ -330,16 +338,15 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
           visible={visible}
           width={700}
         >
-          <Form
-            onFinish={onFinishAvd}
-            form={formAvd}
-            ref={formRef}
-            layout="vertical"
-          >
+          <Form onFinish={onFinishAvd} form={formAvd} ref={formRef} layout="vertical">
             <Row>
               <Col span={24}>
                 <Item name="info" className="search">
-                  <Input className="w-100" prefix={<img src={search} alt="" />} placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm" />
+                  <Input
+                    className="w-100"
+                    prefix={<img src={search} alt="" />}
+                    placeholder="Tìm kiếm theo Tên/Mã/Barcode sản phẩm"
+                  />
                 </Item>
               </Col>
             </Row>
@@ -366,22 +373,32 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     break;
                   case SearchVariantField.designers:
                     component = (
-                      <BaseSelectMerchans {...{merchans, fetchMerchans, isLoadingMerchans}} mode={"multiple"} placeholder="Chọn thiết kế"/>
+                      <BaseSelectMerchans
+                        {...{ merchans, fetchMerchans, isLoadingMerchans }}
+                        mode={"multiple"}
+                        placeholder="Chọn thiết kế"
+                      />
                     );
                     break;
                   case SearchVariantField.merchandisers:
                     component = (
-                      <BaseSelectMerchans {...{merchans, fetchMerchans, isLoadingMerchans}} mode={"multiple"} placeholder="Chọn merchandiser"/>
+                      <BaseSelectMerchans
+                        {...{ merchans, fetchMerchans, isLoadingMerchans }}
+                        mode={"multiple"}
+                        placeholder="Chọn merchandiser"
+                      />
                     );
                     break;
                   case SearchVariantField.created_date:
-                    component = <CustomFilterDatePicker
-                      fieldNameFrom="from_created_date"
-                      fieldNameTo="to_created_date"
-                      activeButton={dateClick}
-                      setActiveButton={setDateClick}
-                      formRef={formRef}
-                    />;
+                    component = (
+                      <CustomFilterDatePicker
+                        fieldNameFrom="from_created_date"
+                        fieldNameTo="to_created_date"
+                        activeButton={dateClick}
+                        setActiveButton={setDateClick}
+                        formRef={formRef}
+                      />
+                    );
                     break;
                   case SearchVariantField.sizes:
                     component = (
@@ -396,8 +413,10 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     component = (
                       <ColorSearchSelect
                         mode="multiple"
-                        fixedQuery={{is_main_color:0}}
-                        onSelect={(key, option) =>{getColors(option?.id || key, 1,true,false)}}
+                        fixedQuery={{ is_main_color: 0 }}
+                        onSelect={(key, option) => {
+                          getColors(option?.id || key, 1, true, false);
+                        }}
                       /> // để tạm onslect để lấy key hiển thị ra filter list
                     );
                     break;
@@ -405,9 +424,11 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     component = (
                       <ColorSearchSelect
                         mode="multiple"
-                        fixedQuery={{is_main_color:1}}
+                        fixedQuery={{ is_main_color: 1 }}
                         placeholder="Chọn màu sắc chủ đạo"
-                        onSelect={(key, option) =>{getColors(option?.id || key, 1,false, true)}}
+                        onSelect={(key, option) => {
+                          getColors(option?.id || key, 1, false, true);
+                        }}
                       />
                       // để tạm onslect để lấy key hiển thị ra filter list
                     );
@@ -418,7 +439,9 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                         <SupplierSearchSelect
                           mode="multiple"
                           placeholder="Chọn nhà cung cấp"
-                          onSelect={(key, option) =>{getSuppliers(key, 1)}}
+                          onSelect={(key, option) => {
+                            getSuppliers(key, 1);
+                          }}
                         />
                       );
                     }
@@ -427,13 +450,19 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     component = (
                       <CustomSelectOne
                         span={12}
-                        data={{true: "Cho phép bán", false: "Ngừng bán"}}
+                        data={{ true: "Cho phép bán", false: "Ngừng bán" }}
                       />
                     );
                     break;
                   case SearchVariantField.brands:
                     component = (
-                      <Select mode="multiple" showSearch optionFilterProp="children" allowClear placeholder="Chọn thương hiệu">
+                      <Select
+                        mode="multiple"
+                        showSearch
+                        optionFilterProp="children"
+                        allowClear
+                        placeholder="Chọn thương hiệu"
+                      >
                         {listBrands?.map((item) => (
                           <Select.Option key={item.value} value={item.value}>
                             {item.name}
@@ -443,21 +472,20 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                     );
                     break;
                   case SearchVariantField.is_exist_images:
-                    component = (
-                      <CustomSelectOne
-                        span={12}
-                        data={{true: "Có", false: "Không"}}
-                      />
-                    );
+                    component = <CustomSelectOne span={12} data={{ true: "Có", false: "Không" }} />;
                     break;
                 }
 
                 return (
                   <React.Fragment key={key}>
-                  {component ? <Col span={12}>
-                    <div className="font-weight-500">{SearchVariantMapping[key]}</div>
-                    <Item name={key}>{component}</Item>
-                  </Col> : <React.Fragment/>}
+                    {component ? (
+                      <Col span={12}>
+                        <div className="font-weight-500">{SearchVariantMapping[key]}</div>
+                        <Item name={key}>{component}</Item>
+                      </Col>
+                    ) : (
+                      <React.Fragment />
+                    )}
                   </React.Fragment>
                 );
               })}
@@ -479,9 +507,9 @@ const FilterList = ({
   lstSize,
   mainColors,
   colors,
-  suppliers
+  suppliers,
 }: any) => {
-  const newFilters = {...filters};
+  const newFilters = { ...filters };
   let filtersKeys = Object.keys(newFilters);
   let renderTxt: any = null;
   const newKeys = ConvertDatesLabel(newFilters, keysDateFilter);
@@ -499,8 +527,16 @@ const FilterList = ({
         switch (filterKey) {
           case SearchVariantField.created_date:
             renderTxt = `${SearchVariantMapping[filterKey]} 
-            : ${filters[`from_${filterKey}`] ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'} 
-            ~ ${filters[`to_${filterKey}`] ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY) : '??'}`
+            : ${
+              filters[`from_${filterKey}`]
+                ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
+                : "??"
+            } 
+            ~ ${
+              filters[`to_${filterKey}`]
+                ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
+                : "??"
+            }`;
             break;
           case SearchVariantField.colors:
             let colorTag = "";
@@ -516,7 +552,7 @@ const FilterList = ({
             newValues.forEach((item: string) => {
               const mainColor = mainColors.items?.find((e: any) => e.id === Number(item));
 
-              mainColorTag = mainColor ? mainColorTag + mainColor.name + "; " : mainColorTag
+              mainColorTag = mainColor ? mainColorTag + mainColor.name + "; " : mainColorTag;
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${mainColorTag}`;
             break;
@@ -525,7 +561,7 @@ const FilterList = ({
             newValues.forEach((item: string) => {
               const supplier = suppliers.items?.find((e: any) => e.id === Number(item));
 
-              supplierTag = supplier ? supplierTag + supplier.name + "; " : supplierTag
+              supplierTag = supplier ? supplierTag + supplier.name + "; " : supplierTag;
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${supplierTag}`;
             break;
@@ -534,7 +570,7 @@ const FilterList = ({
             newValues.forEach((item: string) => {
               const size = lstSize.items?.find((e: any) => e.id === Number(item));
 
-              sizeTag = size ? sizeTag + size.code + "; " : sizeTag
+              sizeTag = size ? sizeTag + size.code + "; " : sizeTag;
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${sizeTag}`;
             break;
@@ -543,7 +579,7 @@ const FilterList = ({
             newValues.forEach((item: string) => {
               const win = wins.items?.find((e: any) => e.code === item);
 
-              merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag
+              merchandiserTag = win ? merchandiserTag + win.full_name + "; " : merchandiserTag;
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${merchandiserTag}`;
             break;
@@ -552,19 +588,19 @@ const FilterList = ({
             newValues.forEach((item: string) => {
               const designer = designers.items?.find((e: any) => e.code === item);
 
-              designerTag = designer ? designerTag + designer.full_name + "; " : designerTag
+              designerTag = designer ? designerTag + designer.full_name + "; " : designerTag;
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${designerTag}`;
-            break
+            break;
           case SearchVariantField.made_ins:
             if (!listCountries) return null;
             let madeInTag = "";
             newValues.forEach((item: string) => {
               const madeIn = listCountries.find((e: any) => e.id === Number(item));
-              madeInTag = madeIn ? madeInTag + madeIn.name + "; " : madeInTag
+              madeInTag = madeIn ? madeInTag + madeIn.name + "; " : madeInTag;
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${madeInTag}`;
-            break
+            break;
           case SearchVariantField.saleable:
             renderTxt = `${SearchVariantMapping[filterKey]} : ${
               value === "true" ? "Cho phép bán" : "Ngừng bán"
@@ -575,14 +611,12 @@ const FilterList = ({
             newValues.forEach((item: string) => {
               const brand = listBrands.find((e: any) => e.value === item);
 
-              brandTag = brand ? brandTag + brand.name + "; " : brandTag
+              brandTag = brand ? brandTag + brand.name + "; " : brandTag;
             });
             renderTxt = `${SearchVariantMapping[filterKey]} : ${brandTag}`;
             break;
           case SearchVariantField.is_exist_images:
-          renderTxt = `${SearchVariantMapping[filterKey]} : ${
-            value === "true" ? "Có" : "Không"
-          }`;
+            renderTxt = `${SearchVariantMapping[filterKey]} : ${value === "true" ? "Có" : "Không"}`;
             break;
         }
         return (
@@ -593,7 +627,7 @@ const FilterList = ({
                 resetField("to_created_date");
                 return;
               }
-              resetField(filterKey)
+              resetField(filterKey);
             }}
             key={filterKey}
             className="fade margin-bottom-20"

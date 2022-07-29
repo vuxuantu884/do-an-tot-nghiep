@@ -1,12 +1,12 @@
-import React, {useCallback, useEffect, useState} from "react";
-import {Button, Checkbox, Col, Divider, Modal, Progress, Radio, Row, Space, Tooltip} from "antd";
-import {showError, showSuccess} from "utils/ToastUtils";
+import React, { useCallback, useEffect, useState } from "react";
+import { Button, Checkbox, Col, Divider, Modal, Progress, Radio, Row, Space, Tooltip } from "antd";
+import { showError, showSuccess } from "utils/ToastUtils";
 
-import {generateQuery} from "utils/AppUtils";
-import {HttpStatus} from "config/http-status.config";
-import {exportFile, getFile} from "service/other/export.service";
+import { generateQuery } from "utils/AppUtils";
+import { HttpStatus } from "config/http-status.config";
+import { exportFile, getFile } from "service/other/export.service";
 
-import {ExportCustomerModalStyled} from "screens/customer/export-file/ExportCustomerStyled";
+import { ExportCustomerModalStyled } from "screens/customer/export-file/ExportCustomerStyled";
 import _ from "lodash";
 
 type ExportCustomerFileType = {
@@ -16,10 +16,7 @@ type ExportCustomerFileType = {
   params: any;
 };
 
-
-const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
-  props: ExportCustomerFileType
-) => {
+const ExportCustomerFile: React.FC<ExportCustomerFileType> = (props: ExportCustomerFileType) => {
   const { cancelExportModal, isVisibleExportModal, customerData, params } = props;
 
   // handle export file
@@ -30,14 +27,14 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   const [exportItemNumber, setExportItemNumber] = useState<number>(0);
   const [isExporting, setIsExporting] = useState(false);
   const [isVisibleExportWarningModal, setIsVisibleExportWarningModal] = useState(false);
-  
+
   const onChangeExportPageOption = (e: any) => {
     setExportPageAll(e.target.value);
   };
 
   const okExportModal = () => {
-    let newParams = {...params};
-    newParams.search_type = undefined;  //remove search_type param
+    let newParams = { ...params };
+    newParams.search_type = undefined; //remove search_type param
     if (exportPageAll) {
       newParams.limit = customerData?.metadata?.total;
       newParams.page = undefined;
@@ -51,9 +48,13 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
       setIsExporting(true);
       const exportParams = generateQuery(newParams);
 
-      const defaultHiddenFields = "remain_amount_to_level_up,average_order_value,number_of_days_without_purchase,description";
+      const defaultHiddenFields =
+        "remain_amount_to_level_up,average_order_value,number_of_days_without_purchase,description";
       const notSelectColumnList = columnListOption.filter((item: any) => item.isSelected === false);
-      const hiddenFields = defaultHiddenFields + "," + notSelectColumnList.map((column: any) => column.value)?.toString();
+      const hiddenFields =
+        defaultHiddenFields +
+        "," +
+        notSelectColumnList.map((column: any) => column.value)?.toString();
 
       exportFile({
         conditions: exportParams,
@@ -67,7 +68,9 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
             handleCancelExportModal();
             setExportCodeList([...exportCodeList, response.data.code]);
           } else {
-            showError(`${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`);
+            showError(
+              `${response.message ? response.message : "Có lỗi xảy ra, vui lòng thử lại sau"}`,
+            );
           }
         })
         .catch(() => {
@@ -95,7 +98,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
     setExportProgress(0);
     setExportCodeList([]);
     setExportItemNumber(0);
-  }
+  };
 
   const onCancelProgressModal = useCallback(() => {
     resetProgress();
@@ -146,52 +149,116 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
 
   //handle select column export
   const columnListOptionDefault = [
-    {name: "Mã khách hàng", value: "code", isSelected: false},
-    {name: "Tên khách hàng", value: "full_name", isSelected: false},
-    {name: "Số điện thoại", value: "phone", isSelected: false},
-    {name: "Giới tính", value: "gender", isSelected: false},
-    {name: "Nhóm khách hàng", value: "customer_group", isSelected: false},
-    {name: "Email", value: "email", isSelected: false},
-    {name: "Loại khách hàng", value: "customer_type", isSelected: false},
-    {name: "Nhân viên phụ trách", value: "responsible_staff", isSelected: false},
-    {name: "Hạng thẻ", value: "customer_level", isSelected: false},
-    {name: "Ngày sinh", value: "birthday", isSelected: false},
-    {name: "Ngày cưới", value: "wedding_date", isSelected: false},
-    {name: "Website/Facebook", value: "website", isSelected: false},
-    {name: "Ngày kích hoạt thẻ", value: "assigned_date", isSelected: false},
-    {name: "Cửa hàng kích hoạt", value: "assigned_store", isSelected: false},
-    {name: "Mã số thẻ", value: "card_number", isSelected: false},
-    {name: "Đơn vị", value: "company", isSelected: false},
-    {name: "Điểm hiện tại", value: "point", isSelected: false},
-    {name: "Tiền tích lũy", value: "total_paid_amount", isSelected: false},
-    {name: "Số đơn trả", value: "total_returned_order", isSelected: false},
-    {name: "Tổng giá trị đơn trả", value: "total_refunded_amount", isSelected: false},
-    {name: "Tổng đơn hàng", value: "total_finished_order", isSelected: false},
-    {name: "Ngày mua đầu", value: "first_order_time", isSelected: false},
-    {name: "Ngày mua đầu (online)", value: "first_order_time_online", isSelected: false},
-    {name: "Ngày mua đầu (offline)", value: "first_order_time_offline", isSelected: false},
-    {name: "Ngày mua cuối", value: "last_order_time", isSelected: false},
-    {name: "Ngày mua cuối (online)", value: "last_order_time_online", isSelected: false},
-    {name: "Ngày mua cuối (offline)", value: "last_order_time_offline", isSelected: false},
-    {name: "Cửa hàng mua đầu", value: "store_of_first_order_offline", isSelected: false, tooltip: "Cửa hàng mua offline đầu của KH"},
-    {name: "Cửa hàng mua cuối", value: "store_of_last_order_offline", isSelected: false, tooltip: "Cửa hàng mua offline cuối của KH"},
-    {name: "Nguồn mua đầu", value: "source_of_first_order_online", isSelected: false, tooltip: "Nguồn mua online đầu của KH"},
-    {name: "Nơi mua đầu", value: "first_order_place", isSelected: false, tooltip: "Cửa hàng mua offline hoặc Nguồn mua online đầu của KH"},
-    {name: "Nơi mua cuối", value: "last_order_place", isSelected: false, tooltip: "Cửa hàng mua offline hoặc Nguồn mua online cuối của KH"},
-    {name: "Nguồn mua cuối", value: "source_of_last_order_online", isSelected: false, tooltip: "Nguồn mua online cuối của KH"},
-    {name: "Loại mua đầu", value: "first_order_type", isSelected: false, tooltip: "Loại mua đầu: online hoặc offline"},
-    {name: "Loại mua cuối", value: "last_order_type", isSelected: false, tooltip: "Loại mua cuối: online hoặc offline"},
-    {name: "Tỉnh/Thành phố", value: "city", isSelected: false},
-    {name: "Quận/Huyện", value: "district", isSelected: false},
-    {name: "Xã/Phường", value: "ward", isSelected: false},
-    {name: "Địa chỉ", value: "full_address", isSelected: false},
+    { name: "Mã khách hàng", value: "code", isSelected: false },
+    { name: "Tên khách hàng", value: "full_name", isSelected: false },
+    { name: "Số điện thoại", value: "phone", isSelected: false },
+    { name: "Giới tính", value: "gender", isSelected: false },
+    { name: "Nhóm khách hàng", value: "customer_group", isSelected: false },
+    { name: "Email", value: "email", isSelected: false },
+    { name: "Loại khách hàng", value: "customer_type", isSelected: false },
+    {
+      name: "Nhân viên phụ trách",
+      value: "responsible_staff",
+      isSelected: false,
+    },
+    { name: "Hạng thẻ", value: "customer_level", isSelected: false },
+    { name: "Ngày sinh", value: "birthday", isSelected: false },
+    { name: "Ngày cưới", value: "wedding_date", isSelected: false },
+    { name: "Website/Facebook", value: "website", isSelected: false },
+    { name: "Ngày kích hoạt thẻ", value: "assigned_date", isSelected: false },
+    { name: "Cửa hàng kích hoạt", value: "assigned_store", isSelected: false },
+    { name: "Mã số thẻ", value: "card_number", isSelected: false },
+    { name: "Đơn vị", value: "company", isSelected: false },
+    { name: "Điểm hiện tại", value: "point", isSelected: false },
+    { name: "Tiền tích lũy", value: "total_paid_amount", isSelected: false },
+    { name: "Số đơn trả", value: "total_returned_order", isSelected: false },
+    {
+      name: "Tổng giá trị đơn trả",
+      value: "total_refunded_amount",
+      isSelected: false,
+    },
+    { name: "Tổng đơn hàng", value: "total_finished_order", isSelected: false },
+    { name: "Ngày mua đầu", value: "first_order_time", isSelected: false },
+    {
+      name: "Ngày mua đầu (online)",
+      value: "first_order_time_online",
+      isSelected: false,
+    },
+    {
+      name: "Ngày mua đầu (offline)",
+      value: "first_order_time_offline",
+      isSelected: false,
+    },
+    { name: "Ngày mua cuối", value: "last_order_time", isSelected: false },
+    {
+      name: "Ngày mua cuối (online)",
+      value: "last_order_time_online",
+      isSelected: false,
+    },
+    {
+      name: "Ngày mua cuối (offline)",
+      value: "last_order_time_offline",
+      isSelected: false,
+    },
+    {
+      name: "Cửa hàng mua đầu",
+      value: "store_of_first_order_offline",
+      isSelected: false,
+      tooltip: "Cửa hàng mua offline đầu của KH",
+    },
+    {
+      name: "Cửa hàng mua cuối",
+      value: "store_of_last_order_offline",
+      isSelected: false,
+      tooltip: "Cửa hàng mua offline cuối của KH",
+    },
+    {
+      name: "Nguồn mua đầu",
+      value: "source_of_first_order_online",
+      isSelected: false,
+      tooltip: "Nguồn mua online đầu của KH",
+    },
+    {
+      name: "Nơi mua đầu",
+      value: "first_order_place",
+      isSelected: false,
+      tooltip: "Cửa hàng mua offline hoặc Nguồn mua online đầu của KH",
+    },
+    {
+      name: "Nơi mua cuối",
+      value: "last_order_place",
+      isSelected: false,
+      tooltip: "Cửa hàng mua offline hoặc Nguồn mua online cuối của KH",
+    },
+    {
+      name: "Nguồn mua cuối",
+      value: "source_of_last_order_online",
+      isSelected: false,
+      tooltip: "Nguồn mua online cuối của KH",
+    },
+    {
+      name: "Loại mua đầu",
+      value: "first_order_type",
+      isSelected: false,
+      tooltip: "Loại mua đầu: online hoặc offline",
+    },
+    {
+      name: "Loại mua cuối",
+      value: "last_order_type",
+      isSelected: false,
+      tooltip: "Loại mua cuối: online hoặc offline",
+    },
+    { name: "Tỉnh/Thành phố", value: "city", isSelected: false },
+    { name: "Quận/Huyện", value: "district", isSelected: false },
+    { name: "Xã/Phường", value: "ward", isSelected: false },
+    { name: "Địa chỉ", value: "full_address", isSelected: false },
   ];
 
   const [columnListOption, setColumnListOption] = useState<any>(columnListOptionDefault);
   const [columnSelectedList, setColumnSelectedList] = useState<Array<string>>([]);
 
   const onSelectAllColumn = (e: any) => {
-    let columnListOptionClone = _.cloneDeep(columnListOption)
+    let columnListOptionClone = _.cloneDeep(columnListOption);
     let newColumnSelectedList: Array<any> = [];
     columnListOptionClone.forEach((column: any) => {
       column.isSelected = e.target?.checked;
@@ -207,7 +274,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   };
 
   const onChangeColumnSelect = (e: any, column: any, index: number) => {
-    let newColumnListOption = _.cloneDeep(columnListOption)
+    let newColumnListOption = _.cloneDeep(columnListOption);
     if (newColumnListOption && newColumnListOption[index]) {
       newColumnListOption[index].isSelected = e.target?.checked;
     }
@@ -238,11 +305,10 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
   };
   //end handle select column export
 
-
   return (
     <div>
       {/* Export customer data */}
-      {isVisibleExportModal &&
+      {isVisibleExportModal && (
         <Modal
           width="600px"
           visible={isVisibleExportModal}
@@ -252,28 +318,42 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           onCancel={handleCancelExportModal}
           onOk={onOkExportModal}
           okButtonProps={{
-            disabled: (!columnSelectedList.length),
-            loading: isExporting
+            disabled: !columnSelectedList.length,
+            loading: isExporting,
           }}
-          maskClosable={false}>
+          maskClosable={false}
+        >
           <ExportCustomerModalStyled>
             <div className="export-customer-modal">
               <div>
-                <i><strong>Lưu ý:</strong> Vui lòng xuất dữ liệu dưới <strong>40.000</strong> bản ghi để đảm bảo quá trình xuất dữ liệu thành công.</i>
+                <i>
+                  <strong>Lưu ý:</strong> Vui lòng xuất dữ liệu dưới <strong>40.000</strong> bản ghi
+                  để đảm bảo quá trình xuất dữ liệu thành công.
+                </i>
               </div>
-              <Divider style={{margin: "10px 0"}} />
+              <Divider style={{ margin: "10px 0" }} />
 
               <div>
-                <div><strong>Chọn trang</strong></div>
-                <Radio.Group onChange={onChangeExportPageOption} value={exportPageAll} className="radio-group">
+                <div>
+                  <strong>Chọn trang</strong>
+                </div>
+                <Radio.Group
+                  onChange={onChangeExportPageOption}
+                  value={exportPageAll}
+                  className="radio-group"
+                >
                   <Space className="radio-option">
-                    <Radio value={true} key="all-page">Tất cả các trang</Radio>
-                    <Radio value={false} key="current-page">Trang hiện tại</Radio>
+                    <Radio value={true} key="all-page">
+                      Tất cả các trang
+                    </Radio>
+                    <Radio value={false} key="current-page">
+                      Trang hiện tại
+                    </Radio>
                   </Space>
                 </Radio.Group>
               </div>
 
-              <div style={{ marginTop: 20}}>
+              <div style={{ marginTop: 20 }}>
                 <div style={{ fontWeight: "bold" }}>Chọn cột</div>
                 <Row style={{ marginTop: 10 }}>
                   <Col key="all" span={24} style={{ marginBottom: 10 }}>
@@ -282,27 +362,29 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
                       indeterminate={indeterminate}
                       onChange={(e) => onSelectAllColumn(e)}
                     >
-                      <span style={{ fontWeight: 500}}>Chọn tất cả</span>
+                      <span style={{ fontWeight: 500 }}>Chọn tất cả</span>
                     </Checkbox>
                   </Col>
 
                   {columnListOption?.map((column: any, index: number) => (
                     <Col key={column.value} span={8} style={{ marginBottom: 10 }}>
-                      {column.tooltip ?
+                      {column.tooltip ? (
                         <Tooltip title={column.tooltip} color={"blue"}>
                           <Checkbox
                             onChange={(e) => onChangeColumnSelect(e, column, index)}
-                            checked={column.isSelected}>
+                            checked={column.isSelected}
+                          >
                             {column.name}
                           </Checkbox>
                         </Tooltip>
-                        :
+                      ) : (
                         <Checkbox
                           onChange={(e) => onChangeColumnSelect(e, column, index)}
-                          checked={column.isSelected}>
+                          checked={column.isSelected}
+                        >
                           {column.name}
                         </Checkbox>
-                      }
+                      )}
                     </Col>
                   ))}
                 </Row>
@@ -310,9 +392,9 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
             </div>
           </ExportCustomerModalStyled>
         </Modal>
-      }
+      )}
 
-      {isVisibleExportWarningModal &&
+      {isVisibleExportWarningModal && (
         <Modal
           width="600px"
           visible={isVisibleExportWarningModal}
@@ -324,17 +406,21 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           footer={[
             <Button type="primary" onClick={() => setIsVisibleExportWarningModal(false)}>
               Đồng ý
-            </Button>
-          ]}>
+            </Button>,
+          ]}
+        >
           <div>
-            <div>Số lượng khách hàng vượt quá <b>40.000</b> bản ghi sẽ ảnh hưởng đến quá trình xuất dữ liệu khách hàng trên Unicorn.</div>
+            <div>
+              Số lượng khách hàng vượt quá <b>40.000</b> bản ghi sẽ ảnh hưởng đến quá trình xuất dữ
+              liệu khách hàng trên Unicorn.
+            </div>
             <div>Bạn vui lòng sử dụng bộ lọc để tách nhỏ file dữ liệu hiện tại.</div>
           </div>
         </Modal>
-      }
+      )}
 
       {/* Progress export customer data */}
-      {isVisibleProgressModal &&
+      {isVisibleProgressModal && (
         <Modal
           onCancel={onCancelProgressModal}
           visible={isVisibleProgressModal}
@@ -344,24 +430,27 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
           maskClosable={false}
           footer={[
             <>
-              {exportProgress < 100 ?
+              {exportProgress < 100 ? (
                 <Button key="cancel-process-modal" danger onClick={onCancelProgressModal}>
                   Thoát
                 </Button>
-                :
+              ) : (
                 <Button key="confirm-process-modal" type="primary" onClick={onCancelProgressModal}>
                   Xác nhận
                 </Button>
-              }
-            </>
-          ]}>
+              )}
+            </>,
+          ]}
+        >
           <div style={{ textAlign: "center" }}>
             <div style={{ marginBottom: 15 }}>
-              {exportProgress < 100 ?
+              {exportProgress < 100 ? (
                 <span>Đang tạo file, vui lòng đợi trong giây lát...</span>
-                :
-                <span style={{ color: "#27AE60" }}>Đã xuất file dữ liệu khách hàng thành công!</span>
-              }
+              ) : (
+                <span style={{ color: "#27AE60" }}>
+                  Đã xuất file dữ liệu khách hàng thành công!
+                </span>
+              )}
             </div>
             <Progress
               type="circle"
@@ -373,7 +462,7 @@ const ExportCustomerFile: React.FC<ExportCustomerFileType> = (
             />
           </div>
         </Modal>
-      }
+      )}
     </div>
   );
 };

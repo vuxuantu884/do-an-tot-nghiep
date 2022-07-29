@@ -1,27 +1,24 @@
-.custom-select{
+.custom-select {
   position: relative;
 
-  .ant-select{
+  .ant-select {
     width: 100%;
   }
 
-  &-has-suffix{
-
-    
-    .ant-select-selector{
+  &-has-suffix {
+    .ant-select-selector {
       padding-right: 50px;
-      
-      & > .ant-select-selection-search{
+
+      & > .ant-select-selection-search {
         right: 50px;
       }
-      
     }
-    .ant-select-arrow{
+    .ant-select-arrow {
       right: 45px;
     }
   }
 
-  &-suffix{
+  &-suffix {
     position: absolute;
     width: 38px;
     height: 38px;

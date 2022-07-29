@@ -5,7 +5,7 @@ import React, { useCallback } from "react";
 import { StyledComponent } from "./styles";
 
 type PropType = {
-  orderReturnReasonResponse: OrderReasonModel|null;
+  orderReturnReasonResponse: OrderReasonModel | null;
   form: FormInstance<any>;
 };
 
@@ -16,36 +16,33 @@ type PropType = {
 function OrderReturnReason(props: PropType): React.ReactElement {
   // const OTHER_REASON_ID = 1;
   // const {orderReturnReasonResponse, form} = props;
-  const {orderReturnReasonResponse} = props;
+  const { orderReturnReasonResponse } = props;
   // console.log('orderReturnReasonResponse', orderReturnReasonResponse)
   // const [reasonSubID, setReasonSubID] = useState<number | undefined>(undefined);
   // const [reasonID, setReasonID] = useState<number | undefined>(undefined);
   // const [reasonSubs, setReasonSubs] = useState<any[]>([]);
 
-  const onChangeReasonID = useCallback(
-    (value) => {
-      // if (!value) {
-      //   return;
-      // }
-			// if(+value!==OTHER_REASON_ID) {
-			// 	form.setFieldsValue({reason: null});
-			// }
-      // form.setFieldsValue({sub_reason_id: null});
-      // setReasonID(+value);
-      // // const reasonDetails = listOrderReturnReason.find(
-      // //   (reason: any) => reason.id === value
-      // // );
-      // const reasonDetails = listOrderReturnReason
-      // if (reasonDetails && reasonDetails?.sub_reasons?.length) {
-      //   setReasonSubID(reasonDetails.sub_reasons[0].id);
-      //   setReasonSubs(reasonDetails.sub_reasons);
-      // } else {
-      //   setReasonSubID(undefined);
-      //   setReasonSubs([]);
-      // }
-    },
-    []
-  );
+  const onChangeReasonID = useCallback((value) => {
+    // if (!value) {
+    //   return;
+    // }
+    // if(+value!==OTHER_REASON_ID) {
+    // 	form.setFieldsValue({reason: null});
+    // }
+    // form.setFieldsValue({sub_reason_id: null});
+    // setReasonID(+value);
+    // // const reasonDetails = listOrderReturnReason.find(
+    // //   (reason: any) => reason.id === value
+    // // );
+    // const reasonDetails = listOrderReturnReason
+    // if (reasonDetails && reasonDetails?.sub_reasons?.length) {
+    //   setReasonSubID(reasonDetails.sub_reasons[0].id);
+    //   setReasonSubs(reasonDetails.sub_reasons);
+    // } else {
+    //   setReasonSubID(undefined);
+    //   setReasonSubs([]);
+    // }
+  }, []);
 
   const renderSubReason = () => {
     return;
@@ -108,11 +105,11 @@ function OrderReturnReason(props: PropType): React.ReactElement {
       >
         <Form.Item
           name="sub_reason_id"
-          rules={[{required: true, message: "Vui lòng chọn lý do đổi trả hàng!"}]}
+          rules={[{ required: true, message: "Vui lòng chọn lý do đổi trả hàng!" }]}
         >
           <CustomSelect
             showSearch
-            style={{width: "100%"}}
+            style={{ width: "100%" }}
             placeholder="Chọn lý do đổi trả hàng"
             allowClear
             optionFilterProp="children"

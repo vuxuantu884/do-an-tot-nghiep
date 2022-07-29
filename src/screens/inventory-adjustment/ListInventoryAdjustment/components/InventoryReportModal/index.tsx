@@ -13,11 +13,11 @@ export interface ModalInventoryReportProps {
   subTitle?: string | React.ReactNode;
   bgIcon?: string;
   inventoryId: number | null;
-  loading?: boolean,
+  loading?: boolean;
 }
 
 export interface DataInventoryReport {
-  excess: number,
+  excess: number;
   label: string;
   missing: number;
   ratio: number;
@@ -53,33 +53,21 @@ const InventoryReportModal: React.FC<ModalInventoryReportProps> = (
       title: "",
       dataIndex: "label",
       render: (value) => {
-        return (
-          <div>
-            {convertLabel(value)}
-          </div>
-        );
+        return <div>{convertLabel(value)}</div>;
       },
     },
     {
       title: "Tồn trong kho",
       dataIndex: "on_hand",
       render: (value) => {
-        return (
-          <div>
-            {formatCurrency(value)}
-          </div>
-        );
+        return <div>{formatCurrency(value)}</div>;
       },
     },
     {
       title: "Số kiểm",
       dataIndex: "real_on_hand",
       render: (value) => {
-        return (
-          <div>
-            {formatCurrency(value)}
-          </div>
-        );
+        return <div>{formatCurrency(value)}</div>;
       },
     },
     {
@@ -88,9 +76,7 @@ const InventoryReportModal: React.FC<ModalInventoryReportProps> = (
       render: (value, record) => {
         return (
           <div>
-            <span className="text-success">
-              {formatCurrency(record.excess)}
-            </span>/
+            <span className="text-success">{formatCurrency(record.excess)}</span>/
             <span className="text-error">{formatCurrency(record.missing)}</span>
           </div>
         );
@@ -100,10 +86,8 @@ const InventoryReportModal: React.FC<ModalInventoryReportProps> = (
       title: "Tỉ lệ thừa thiếu",
       dataIndex: "excess",
       render: (value, record) => {
-        return (
-          <div>{record.ratio ? `${record.ratio}%` : ''}</div>
-        )
-      }
+        return <div>{record.ratio ? `${record.ratio}%` : ""}</div>;
+      },
     },
   ];
 
@@ -138,12 +122,7 @@ const InventoryReportModal: React.FC<ModalInventoryReportProps> = (
       onCancel={onCancel}
     >
       <div className="modal-report-container">
-        <Table
-          loading={loading}
-          columns={columns}
-          dataSource={data}
-          pagination={false}
-        />
+        <Table loading={loading} columns={columns} dataSource={data} pagination={false} />
       </div>
     </Modal>
   );

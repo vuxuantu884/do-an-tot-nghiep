@@ -1,19 +1,18 @@
 import styled from "styled-components";
 import { primaryColor, successColor } from "utils/global-styles/variables";
 
-
 export const AllOrdersMappingStyled = styled.div`
-	.core-sub-status {
+  .core-sub-status {
     color: #fff;
     border-radius: 100px;
     padding: 5px 15px;
     margin: 0 auto;
-	}
+  }
   .coordinator_confirmed {
-    background: #52D276;
+    background: #52d276;
   }
   .awaiting_coordinator_confirmation {
-    background: #FCAF17;
+    background: #fcaf17;
   }
   .awaiting_saler_confirmation {
     background: #106227;
@@ -22,25 +21,25 @@ export const AllOrdersMappingStyled = styled.div`
     background: #106227;
   }
   .second_call_attempt {
-    background: #00897B;
+    background: #00897b;
   }
   .third_call_attempt {
-    background: #E8770A;
+    background: #e8770a;
   }
   .merchandise_packed {
-    background: #E8770A;
+    background: #e8770a;
   }
   .shipping {
-    background: #00897B;
+    background: #00897b;
   }
   .awaiting_shipper {
     background: #106227;
   }
   .merchandise_picking {
-    background: #C98D17;
+    background: #c98d17;
   }
   .returned {
-    background: #52D276;
+    background: #52d276;
   }
   .fourHour_delivery {
     background: ${primaryColor};
@@ -49,35 +48,35 @@ export const AllOrdersMappingStyled = styled.div`
     background: ${successColor};
   }
   .order_return {
-    background: #FCAF17;
+    background: #fcaf17;
   }
   .coordinator_confirming {
-    background: #E8770A ;
+    background: #e8770a;
   }
   .returning {
-    background: #E8770A ;
+    background: #e8770a;
   }
   .awaiting_coordinator_confirmation {
-    background: #FCAF17;
+    background: #fcaf17;
   }
   .require_warehouse_change {
-    background: #8D6E63;
+    background: #8d6e63;
   }
   .cancelled {
-    background: #E24343;
+    background: #e24343;
   }
   .delivery_service_cancelled {
-    background: #E24343;
+    background: #e24343;
   }
   .out_of_stock {
-    background: #E24343;
+    background: #e24343;
   }
   .system_cancelled {
-    background: #E24343;
+    background: #e24343;
   }
 
   .customer_cancelled {
-    background-color: #E24343 !important;
+    background-color: #e24343 !important;
   }
 `;
 
@@ -92,7 +91,7 @@ export const AllOrdersMappingFilterStyled = styled.div`
       }
     }
   }
-  
+
   .default-filter {
     display: flex;
     overflow-x: auto;
@@ -175,14 +174,13 @@ export const StyledBaseFilter = styled.div`
         background-color: #f5f5f5;
       }
       .ant-btn:hover {
-        border-color: #2A2A86;
+        border-color: #2a2a86;
       }
       .active-btn {
-        color: #FFFFFF;
+        color: #ffffff;
         border-color: rgba(42, 42, 134, 0.1);
-        background-color: #2A2A86;
+        background-color: #2a2a86;
       }
     }
-
   }
 `;

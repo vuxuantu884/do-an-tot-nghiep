@@ -91,34 +91,40 @@ function OrderFulfillmentActionButton(props: PropTypes) {
               {!isOrderFromPOS(OrderDetailAllFulfillment) ? (
                 <React.Fragment>
                   <Link
-                    to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}>
+                    to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=online`}
+                  >
                     <Button
                       type="primary"
                       style={{ margin: "0 10px", padding: "0 25px" }}
                       className="create-button-custom ant-btn-outline fixed-button"
-                      disabled={!isPassed}>
+                      disabled={!isPassed}
+                    >
                       Trả lại chuyển hàng
                     </Button>
                   </Link>
                   <Link
-                    to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}>
+                    to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+                  >
                     <Button
                       type="primary"
                       style={{ margin: "0 10px", padding: "0 25px" }}
                       className="create-button-custom ant-btn-outline fixed-button"
-                      disabled={!isPassed}>
+                      disabled={!isPassed}
+                    >
                       Trả lại tại quầy
                     </Button>
                   </Link>
                 </React.Fragment>
               ) : (
                 <Link
-                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}>
+                  to={`${UrlConfig.ORDERS_RETURN}/create?orderID=${OrderDetailAllFulfillment?.id}&type=offline`}
+                >
                   <Button
                     type="primary"
                     style={{ padding: "0 25px" }}
                     className="create-button-custom ant-btn-outline fixed-button"
-                    disabled={!isPassed}>
+                    disabled={!isPassed}
+                  >
                     Đổi trả hàng
                   </Button>
                 </Link>
@@ -139,7 +145,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
           type="primary"
           style={{ margin: "0 10px", padding: "0 25px" }}
           className="create-button-custom ant-btn-outline fixed-button"
-          disabled>
+          disabled
+        >
           Đơn hàng đã đổi trả hàng hết!
         </Button>
       );
@@ -160,7 +167,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
           // color: "#737373",
           border: "1px solid #E5E5E5",
           padding: "0 25px",
-        }}>
+        }}
+      >
         {sortedFulfillments[0]?.shipment?.delivery_service_provider_type ===
         ShipmentMethod.PICK_AT_STORE
           ? "Hủy"
@@ -188,7 +196,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
               id="btn-go-to-pack"
               onClick={onOkShippingConfirm}
               loading={updateShipment}
-              disabled={cancelShipment || !allowCreatePicked}>
+              disabled={cancelShipment || !allowCreatePicked}
+            >
               Nhặt hàng
             </Button>
           );
@@ -200,7 +209,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={onOkShippingConfirm}
               loading={updateShipment}
-              disabled={cancelShipment || !(allowCreatePicked || allowCreatePacked)}>
+              disabled={cancelShipment || !(allowCreatePicked || allowCreatePacked)}
+            >
               Nhặt hàng & đóng gói
             </Button>
           );
@@ -214,7 +224,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
             style={{ marginLeft: "10px" }}
             onClick={onOkShippingConfirm}
             loading={updateShipment}
-            disabled={cancelShipment || !allowCreatePacked}>
+            disabled={cancelShipment || !allowCreatePacked}
+          >
             Đóng gói
           </Button>
         );
@@ -234,7 +245,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => setIsVisibleShippingConfirm(true)}
               loading={updateShipment}
-              disabled={cancelShipment || !allowCreateShipping}>
+              disabled={cancelShipment || !allowCreateShipping}
+            >
               Xuất kho
             </Button>
           );
@@ -246,7 +258,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
               className="create-button-custom ant-btn-outline fixed-button"
               onClick={() => setIsVisibleShippedConfirm(true)}
               loading={updateShipment}
-              disabled={cancelShipment || !allowCreateShipping}>
+              disabled={cancelShipment || !allowCreateShipping}
+            >
               Xuất kho & giao hàng
             </Button>
           );
@@ -267,7 +280,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
             className="create-button-custom ant-btn-outline fixed-button"
             onClick={() => setIsVisibleShippedConfirm(true)}
             loading={updateShipment}
-            disabled={cancelShipment}>
+            disabled={cancelShipment}
+          >
             Đã giao hàng
           </Button>
         );
@@ -307,7 +321,8 @@ function OrderFulfillmentActionButton(props: PropTypes) {
             }}
             onClick={ShowShipping}
             loading={updateShipment}
-            disabled={checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment)}>
+            disabled={checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment)}
+          >
             Giao hàng
           </Button>
         )}

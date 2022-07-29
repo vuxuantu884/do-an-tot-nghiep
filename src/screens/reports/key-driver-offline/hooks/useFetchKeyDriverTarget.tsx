@@ -29,7 +29,7 @@ function useFetchKeyDriverTarget() {
         }
       });
     },
-    []
+    [],
   );
 
   const findKDProductAndUpdateValue = useCallback(
@@ -42,18 +42,18 @@ function useFetchKeyDriverTarget() {
           } else {
             data.children.push({
               key: keyDriver,
-              [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value
+              [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value,
             });
           }
         } else {
           data.children.push({
             key: keyDriver,
-            [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value
+            [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value,
           });
         }
       });
     },
-    []
+    [],
   );
 
   const refetch = useCallback(() => {
@@ -72,40 +72,46 @@ function useFetchKeyDriverTarget() {
       }
 
       setData((prev: any) => {
-        res.filter((item: any) => ["COMPANY", ...ASM_LIST.map(asmItem => nonAccentVietnameseKD(asmItem))].includes(item.department)).forEach((item: any) => {
-          const { department } = item;
-          const kdTotalSalesTarget = Object.keys(item.data).reduce((res0, key: string) => {
-            if (!key.includes(KDGroup.SKU3)) {
-              res0 = { ...res0, [key]: item.data[key] };
-            }
-            return res0;
-          }, {});
-          const kdProductTarget = Object.keys(item.data).reduce((res1, key: string) => {
-            if (key.includes(KDGroup.SKU3)) {
-              res1 = { ...res1, [key]: item.data[key] };
-            }
-            return res1;
-          }, {});
-          
-          ["COMPANY", ...ASM_LIST].forEach(asm => {
-            const asmKey = nonAccentVietnameseKD(asm);
-            if (department === asmKey) {
-              findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "month");
-              findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
-            }
+        res
+          .filter((item: any) =>
+            ["COMPANY", ...ASM_LIST.map((asmItem) => nonAccentVietnameseKD(asmItem))].includes(
+              item.department,
+            ),
+          )
+          .forEach((item: any) => {
+            const { department } = item;
+            const kdTotalSalesTarget = Object.keys(item.data).reduce((res0, key: string) => {
+              if (!key.includes(KDGroup.SKU3)) {
+                res0 = { ...res0, [key]: item.data[key] };
+              }
+              return res0;
+            }, {});
+            const kdProductTarget = Object.keys(item.data).reduce((res1, key: string) => {
+              if (key.includes(KDGroup.SKU3)) {
+                res1 = { ...res1, [key]: item.data[key] };
+              }
+              return res1;
+            }, {});
+
+            ["COMPANY", ...ASM_LIST].forEach((asm) => {
+              const asmKey = nonAccentVietnameseKD(asm);
+              if (department === asmKey) {
+                findKeyDriverAndUpdateValue(prev[0], kdTotalSalesTarget, asmKey, "month");
+                findKDProductAndUpdateValue(prev[1], kdProductTarget, asmKey, "month");
+              }
+            });
           });
-        });
         return [...prev];
       });
-      
+
       setIsFetchingKeyDriverTarget(false);
     };
     fetchKeyDriverTarget();
   }, [dispatch, findKDProductAndUpdateValue, findKeyDriverAndUpdateValue, setData]);
 
   useEffect(() => {
-    refetch()
-  }, [refetch])
+    refetch();
+  }, [refetch]);
 
   return { isFetchingKeyDriverTarget, refetch };
 }

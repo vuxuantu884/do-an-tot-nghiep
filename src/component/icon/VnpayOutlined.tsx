@@ -56,7 +56,8 @@ const VnPayOutline = (props: VnPayProps) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "flex-start",
-      }}></Icon>
+      }}
+    ></Icon>
   );
 };
 

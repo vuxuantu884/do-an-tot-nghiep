@@ -1,14 +1,4 @@
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-  Space
-} from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row, Select, Space } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
@@ -35,8 +25,8 @@ const SizeCreateScreen: React.FC = () => {
     (values: SizeCreateRequest) => {
       dispatch(sizeCreateAction(values, onSuccess));
     },
-    [dispatch, onSuccess]
-  ); 
+    [dispatch, onSuccess],
+  );
 
   const setCategory = useCallback((data: Array<CategoryResponse>) => {
     let newData = convertCategory(data);
@@ -47,7 +37,7 @@ const SizeCreateScreen: React.FC = () => {
     dispatch(getCategoryRequestAction({}, setCategory));
     return () => {};
   }, [dispatch, setCategory]);
-  
+
   return (
     <ContentContainer
       title="Thêm mới kích cỡ"
@@ -76,19 +66,12 @@ const SizeCreateScreen: React.FC = () => {
             <Col span={24} lg={8} md={12} sm={24}>
               <Form.Item
                 className="form-group form-group-with-search"
-                rules={[
-                  { required: true, message: "Vui lòng nhập kích cỡ" },                
-                ]}
+                rules={[{ required: true, message: "Vui lòng nhập kích cỡ" }]}
                 label="Kích cỡ"
                 name="code"
                 normalize={(value) => (value || "").toUpperCase()}
               >
-                <Input
-                  className="r-5"
-                  maxLength={3}
-                  placeholder="Nhập kích cỡ"
-                  size="large"
-                />
+                <Input className="r-5" maxLength={3} placeholder="Nhập kích cỡ" size="large" />
               </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>
@@ -119,7 +102,7 @@ const SizeCreateScreen: React.FC = () => {
               </Form.Item>
             </Col>
           </Row>
-        </Card> 
+        </Card>
         <BottomBarContainer
           back={"Quay lại danh sách"}
           rightComponent={
@@ -129,7 +112,7 @@ const SizeCreateScreen: React.FC = () => {
               </Button>
             </Space>
           }
-        /> 
+        />
       </Form>
     </ContentContainer>
   );

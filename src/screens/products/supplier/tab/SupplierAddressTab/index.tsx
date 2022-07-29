@@ -11,9 +11,7 @@ type SupplierAddressTabProps = {
   onDelete: (addressId: number) => void;
 };
 
-const SupplierAddressTab: React.FC<SupplierAddressTabProps> = (
-  props: SupplierAddressTabProps
-) => {
+const SupplierAddressTab: React.FC<SupplierAddressTabProps> = (props: SupplierAddressTabProps) => {
   const { data, loading, onDetail, onDefault, onDelete } = props;
   return (
     <CustomTable
@@ -41,43 +39,54 @@ const SupplierAddressTab: React.FC<SupplierAddressTabProps> = (
           dataIndex: "address",
         },
         {
-          title: <div style={{ textAlign: 'center' }}>Thao tác</div>,
+          title: <div style={{ textAlign: "center" }}>Thao tác</div>,
           dataIndex: "id",
           render: (value: number, record: SupplierAddressResposne, index: number) => {
             const menu = (
-              <Menu onClick={(info) => {
-                switch (info.key) {
-                  case '1':
-                    let supplier: SupplierAddress = {
-                      ...record,
-                      is_default: true
-                    };
-                    onDefault && onDefault(value, supplier);
-                    break;
-                  case '2':
-                    onDetail(record);
-                    break;
-                  case '3':
-                    onDelete(value);
-                    break;
-                }
-              }} >
-                <Menu.Item disabled={record.is_default} key="1">Đặt làm địa chỉ mặc định</Menu.Item>
+              <Menu
+                onClick={(info) => {
+                  switch (info.key) {
+                    case "1":
+                      let supplier: SupplierAddress = {
+                        ...record,
+                        is_default: true,
+                      };
+                      onDefault && onDefault(value, supplier);
+                      break;
+                    case "2":
+                      onDetail(record);
+                      break;
+                    case "3":
+                      onDelete(value);
+                      break;
+                  }
+                }}
+              >
+                <Menu.Item disabled={record.is_default} key="1">
+                  Đặt làm địa chỉ mặc định
+                </Menu.Item>
                 <Menu.Item key="2">Chỉnh sửa</Menu.Item>
-                <Menu.Item disabled={data.length <= 1} key="3">Xóa</Menu.Item>
+                <Menu.Item disabled={data.length <= 1} key="3">
+                  Xóa
+                </Menu.Item>
               </Menu>
             );
             return (
               <div
                 style={{
                   display: "flex",
-                  alignItems: 'center',
-                  justifyContent: 'center'
+                  alignItems: "center",
+                  justifyContent: "center",
                 }}
               >
                 <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
                   <Button
-                    style={{ width: 30, height: 30, lineHeight: '20px', padding: 0 }}
+                    style={{
+                      width: 30,
+                      height: 30,
+                      lineHeight: "20px",
+                      padding: 0,
+                    }}
                     icon={<img src={threeDot} alt=""></img>}
                     onClick={(e) => {
                       e.stopPropagation();

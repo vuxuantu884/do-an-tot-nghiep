@@ -1,7 +1,4 @@
-import {
-  Button, Form, FormInstance,
-  Input, Modal
-} from "antd";
+import { Button, Form, FormInstance, Input, Modal } from "antd";
 import React, { createRef, useEffect, useState } from "react";
 
 type PropType = {
@@ -12,7 +9,7 @@ type PropType = {
   coupon?: string;
 };
 
-function PickCouponModal(props: PropType){
+function PickCouponModal(props: PropType) {
   const { visible, onCancelCouponModal, onOkCouponModal, couponInputText } = props;
   const [_coupon, setCoupon] = useState<string>(couponInputText || "");
 
@@ -32,23 +29,23 @@ function PickCouponModal(props: PropType){
   };
 
   useEffect(() => {
-    if(couponInputText !==undefined) {
-			setCoupon(couponInputText)
-		}
-  }, [couponInputText])
+    if (couponInputText !== undefined) {
+      setCoupon(couponInputText);
+    }
+  }, [couponInputText]);
 
   useEffect(() => {
-    if(visible) {
+    if (visible) {
       let element = document.getElementById("inputCouponModal");
       element?.focus();
     }
-  }, [visible])
+  }, [visible]);
 
   return (
     <Modal
       title="Mã giảm giá"
       onCancel={(e) => {
-        onCancelCouponModal(e)
+        onCancelCouponModal(e);
       }}
       centered
       visible={visible}
@@ -59,11 +56,7 @@ function PickCouponModal(props: PropType){
         </Button>,
       ]}
     >
-      <Form
-        ref={formRef}
-        layout="vertical"
-        onKeyPress={(e) => handleEnterToSubmit(e.which)}
-      >
+      <Form ref={formRef} layout="vertical" onKeyPress={(e) => handleEnterToSubmit(e.which)}>
         <Input
           id="inputCouponModal"
           placeholder="Mã giảm giá"
@@ -75,6 +68,6 @@ function PickCouponModal(props: PropType){
       </Form>
     </Modal>
   );
-};
+}
 
 export default PickCouponModal;

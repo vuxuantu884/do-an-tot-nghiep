@@ -17,9 +17,7 @@ type FormValueType = {
   display_order?: string;
 };
 
-const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
-  props: CustomModalFormModel
-) => {
+const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
   const { modalAction, formItem, form, visible } = props;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   const initialFormValue: FormValueType =
@@ -44,10 +42,10 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
           note: "",
           display_order: undefined,
         };
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
+  const LIST_STATUS = bootstrapReducer.data?.order_main_status.filter(
+    (single) => single.value !== "splitted",
   );
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status.filter(single => single.value !== "splitted");
 
   useEffect(() => {
     form.resetFields();
@@ -64,11 +62,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
         <Row gutter={20}>
           <Col span={12}>
             <Form.Item name="company_id" label="company_id" hidden>
-              <Input
-                type="number"
-                placeholder="company_id"
-                style={{ width: "100%" }}
-              />
+              <Input type="number" placeholder="company_id" style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item name="company" label="company" hidden>
               <Input placeholder="company" style={{ width: "100%" }} />
@@ -84,10 +78,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
                 { max: 255, message: "Không được nhập quá 255 ký tự!" },
               ]}
             >
-              <Input
-                placeholder="Nhập tên trạng thái"
-                style={{ width: "100%" }}
-              />
+              <Input placeholder="Nhập tên trạng thái" style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="code"
@@ -100,10 +91,7 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
                 { max: 255, message: "Không được nhập quá 255 ký tự!" },
               ]}
             >
-              <Input
-                placeholder="Nhập code trạng thái"
-                style={{ width: "100%" }}
-              />
+              <Input placeholder="Nhập code trạng thái" style={{ width: "100%" }} />
             </Form.Item>
             <Form.Item
               name="display_order"
@@ -134,21 +122,14 @@ const FormOrderProcessingStatus: React.FC<CustomModalFormModel> = (
                 {LIST_STATUS &&
                   LIST_STATUS.map((singleStatus) => {
                     return (
-                      <Select.Option
-                        value={singleStatus.value}
-                        key={singleStatus.value}
-                      >
+                      <Select.Option value={singleStatus.value} key={singleStatus.value}>
                         {singleStatus.name}
                       </Select.Option>
                     );
                   })}
               </Select>
             </Form.Item>
-            <Form.Item
-              name="active"
-              valuePropName="checked"
-              style={{ marginBottom: 10 }}
-            >
+            <Form.Item name="active" valuePropName="checked" style={{ marginBottom: 10 }}>
               <Checkbox>Áp dụng </Checkbox>
             </Form.Item>
           </Col>

@@ -27,7 +27,7 @@ type cancelFulfillmentModalProps = {
   }[];
 };
 
-function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
+function CancelFulfillmentModal(props: cancelFulfillmentModalProps) {
   const {
     shipping,
     visible,
@@ -57,7 +57,7 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
       setReasonSubs([]);
       setReasonID(undefined);
     }
-    setReasonSub(undefined)
+    setReasonSub(undefined);
   }, []);
 
   const focusElementById = (id: string) => {
@@ -65,31 +65,36 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
     element?.focus();
   };
 
-  const onSubmit = (reasonID: string|undefined, reasonSub: string|undefined, reasonOtherDescription: string, type?: string) => {
+  const onSubmit = (
+    reasonID: string | undefined,
+    reasonSub: string | undefined,
+    reasonOtherDescription: string,
+    type?: string,
+  ) => {
     // console.log('reason', reason)
-    if(!reasonID) {
+    if (!reasonID) {
       showError("Vui lòng chọn lý do!");
       const element = document.getElementById("selectFulfillmentCancelReasonId");
-      element?.focus()
+      element?.focus();
     } else {
       const handleSuccess = () => {
-        if(type === onOkAndMoreType) {
+        if (type === onOkAndMoreType) {
           onOkAndMore(reasonID, reasonSub || "", reasonOtherDescription);
         } else {
           onOk(reasonID, reasonSub || "", reasonOtherDescription);
         }
-        setReason(undefined)
-        setReasonSub(undefined)
+        setReason(undefined);
+        setReasonSub(undefined);
       };
-      if(reasonID === otherReasonId) {
-        if(!reasonOtherDescription) {
+      if (reasonID === otherReasonId) {
+        if (!reasonOtherDescription) {
           showError("Vui lòng nhập lý do khác!");
           focusElementById("cancelFulfillmentOtherReasonDescriptionId");
         } else {
           handleSuccess();
         }
       } else {
-        if(!reasonSub) {
+        if (!reasonSub) {
           showError("Vui lòng nhập chi tiết lý do!");
           focusElementById("selectFulfillmentCancelSubReasonId");
         } else {
@@ -118,8 +123,8 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
       onCancel={(e) => {
         onCancel(e);
         setReason(undefined);
-        setReasonSub(undefined)
-        setReasonOtherDescription("")
+        setReasonSub(undefined);
+        setReasonOtherDescription("");
       }}
       // onOk={onOk}
       visible={visible}
@@ -150,7 +155,8 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
           onClick={() => {
             onSubmit(reasonID, reasonSub, reasonOtherDescription);
           }}
-          loading={isCanceling}>
+          loading={isCanceling}
+        >
           {okText}
         </Button>,
         <Button
@@ -161,10 +167,12 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
             // console.log('reasonID', reasonID)
             // console.log('reasonSub', reasonSub)
             onSubmit(reasonID, reasonSub, reasonOtherDescription, onOkAndMoreType);
-          }}>
+          }}
+        >
           Hủy giao và nhận lại hàng
         </Button>,
-      ]}>
+      ]}
+    >
       <div style={{ padding: "24px" }}>
         <Form.Item label="Chọn lý do" labelCol={{ span: 6 }} style={{ alignItems: "center" }}>
           <CustomSelect
@@ -192,7 +200,8 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
           <Form.Item
             label="Chọn lý do chi tiết"
             labelCol={{ span: 6 }}
-            style={{ alignItems: "center" }}>
+            style={{ alignItems: "center" }}
+          >
             <CustomSelect
               allowClear
               showSearch
@@ -208,11 +217,12 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
               value={reasonSub}
               id="selectFulfillmentCancelSubReasonId"
             >
-              {reasonSubs && reasonSubs.map((reasonSub: any) => (
-                <CustomSelect.Option key={reasonSub.id} value={reasonSub.id.toString()}>
-                  {reasonSub.name}
-                </CustomSelect.Option>
-              ))}
+              {reasonSubs &&
+                reasonSubs.map((reasonSub: any) => (
+                  <CustomSelect.Option key={reasonSub.id} value={reasonSub.id.toString()}>
+                    {reasonSub.name}
+                  </CustomSelect.Option>
+                ))}
             </CustomSelect>
           </Form.Item>
         ) : (
@@ -229,6 +239,6 @@ function CancelFulfillmentModal(props: cancelFulfillmentModalProps)  {
       </div>
     </Modal>
   );
-};
+}
 
 export default CancelFulfillmentModal;

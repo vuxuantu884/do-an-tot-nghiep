@@ -1,17 +1,13 @@
-import {Modal, Button, Image, Upload, Tooltip, Checkbox, Spin} from 'antd';
-import {
-  UploadOutlined,
-  CloseCircleOutlined,
-  LoadingOutlined,
-} from '@ant-design/icons';
-import {ReactElement, useCallback, useEffect, useState} from 'react';
-import {RcFile, UploadFile} from 'antd/lib/upload/interface';
-import noImage from 'assets/img/no-image.png';
-import {VariantImage} from 'model/product/product.model';
-import {showError, showWarning} from 'utils/ToastUtils';
-import {useDispatch} from 'react-redux';
-import {productUploadAction} from 'domain/actions/product/products.action';
-import {ProductUploadModel} from 'model/product/product-upload.model';
+import { Modal, Button, Image, Upload, Tooltip, Checkbox, Spin } from "antd";
+import { UploadOutlined, CloseCircleOutlined, LoadingOutlined } from "@ant-design/icons";
+import { ReactElement, useCallback, useEffect, useState } from "react";
+import { RcFile, UploadFile } from "antd/lib/upload/interface";
+import noImage from "assets/img/no-image.png";
+import { VariantImage } from "model/product/product.model";
+import { showError, showWarning } from "utils/ToastUtils";
+import { useDispatch } from "react-redux";
+import { productUploadAction } from "domain/actions/product/products.action";
+import { ProductUploadModel } from "model/product/product-upload.model";
 
 export interface VariantImageModel {
   variant_id?: number;
@@ -27,23 +23,21 @@ type UploadImageModalProp = {
   variant?: VariantImageModel | null;
 };
 
-const {Dragger} = Upload;
+const { Dragger } = Upload;
 
-const UploadImageModal: React.FC<UploadImageModalProp> = (
-  props: UploadImageModalProp
-) => {
+const UploadImageModal: React.FC<UploadImageModalProp> = (props: UploadImageModalProp) => {
   const dispatch = useDispatch();
-  const {visible, onCancel, onSave, variant} = props;
+  const { visible, onCancel, onSave, variant } = props;
   const [filedList, setFileList] = useState<Array<UploadFile>>([]);
   const [avatar, setAvatar] = useState<number>(-1);
   const beforeUpload = useCallback((file: RcFile) => {
-    const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+    const isJpgOrPng = file.type === "image/jpeg" || file.type === "image/png";
     if (!isJpgOrPng) {
-      showWarning('Vui lòng chọn đúng định dạng file JPG, PNG');
+      showWarning("Vui lòng chọn đúng định dạng file JPG, PNG");
     }
     const isLt2M = file.size / 1024 / 1024 < 5;
     if (!isLt2M) {
-      showWarning('Cần chọn ảnh nhỏ hơn 5mb');
+      showWarning("Cần chọn ảnh nhỏ hơn 5mb");
     }
     return isJpgOrPng && isLt2M ? true : Upload.LIST_IGNORE;
   }, []);
@@ -52,25 +46,21 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
       let newVariantImage = variant ? [...variant.variant_images] : [];
       console.log(variant?.variant_images);
       variant?.variant_images.forEach((item, indexItem) => {
-        let index = filedList.findIndex(
-          (file) => file.uid === item.image_id?.toString()
-        );
+        let index = filedList.findIndex((file) => file.uid === item.image_id?.toString());
         if (index === -1) {
           newVariantImage.splice(indexItem, 1);
         }
       });
 
-      console.log('newVariantImage', newVariantImage)
-      console.log('filedList', filedList)
+      console.log("newVariantImage", newVariantImage);
+      console.log("filedList", filedList);
 
       filedList.forEach((file) => {
-        let index = newVariantImage.findIndex(
-          (item) => file.uid === item.image_id?.toString()
-        );
+        let index = newVariantImage.findIndex((item) => file.uid === item.image_id?.toString());
         if (index === -1) {
           newVariantImage.push({
             variant_id: variant?.variant_id,
-            url: file.url ? file.url : '',
+            url: file.url ? file.url : "",
             image_id: parseInt(file.name),
             position: null,
             product_avatar: false,
@@ -80,15 +70,15 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
       });
 
       newVariantImage.map((item, index) => {
-        if(avatar === index) {
+        if (avatar === index) {
           item.variant_avatar = true;
         } else {
           item.variant_avatar = false;
         }
         return item;
-      })
-      
-      console.log('final', newVariantImage)
+      });
+
+      console.log("final", newVariantImage);
       onSave(newVariantImage);
     }
   }, [avatar, filedList, onSave, variant]);
@@ -108,7 +98,7 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
             uid: item.image_id.toString(),
             name: item.image_id.toString(),
             url: item.url,
-            status: 'done',
+            status: "done",
           });
         });
         setFileList(arr);
@@ -144,11 +134,8 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
         <div className="upload-image">
           <div className="upload-image-left">
             <div className="upload-image-result">
-              { console.log('avatar',filedList[avatar], 'index', avatar,'filedList', filedList )
-              
-              }
+              {console.log("avatar", filedList[avatar], "index", avatar, "filedList", filedList)}
               {avatar !== -1 && filedList[avatar] ? (
-                
                 <Image src={filedList[avatar].url} preview={false} />
               ) : (
                 <div className="upload-image-result-noimg">
@@ -200,8 +187,8 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
                           showError("Upload ảnh không thành công");
                         }
                         setFileList([...filedList]);
-                      }
-                    )
+                      },
+                    ),
                   );
                 }
               }}
@@ -223,16 +210,15 @@ const UploadImageModal: React.FC<UploadImageModalProp> = (
                 }
 
                 setAvatar(currentAvatarId);
-               
+
                 setFileList([...filedList]);
               }}
-
               beforeUpload={beforeUpload}
               itemRender={(
                 originNode: ReactElement,
                 file: UploadFile,
                 fileList: UploadFile[],
-                actions
+                actions,
               ) => {
                 let index = fileList.findIndex((item) => item.uid === file.uid);
                 return (

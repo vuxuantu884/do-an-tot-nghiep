@@ -10,19 +10,25 @@ function CustomInputContact(props: any) {
   const [contactEmail, setContactEmail] = React.useState<string>();
   const [contactNote, setContactNote] = React.useState<string>();
 
-  const handleChangeName = useCallback((v: any) => {
-    setContactName(v.trim());
-    if (v === "" && contactPhone === "") setContactPhone(undefined);
-  }, [contactPhone])
+  const handleChangeName = useCallback(
+    (v: any) => {
+      setContactName(v.trim());
+      if (v === "" && contactPhone === "") setContactPhone(undefined);
+    },
+    [contactPhone],
+  );
 
   const handleBlurName = (v: any) => {
     setContactName(v.trim());
     form?.setFieldsValue({ contact_name: contactName });
   };
-  const handleChangePhone = useCallback((v: any) => {
-    setContactPhone(v);
-    if (v === "" && contactName === "") setContactName(undefined);
-  },[contactName]);
+  const handleChangePhone = useCallback(
+    (v: any) => {
+      setContactPhone(v);
+      if (v === "" && contactName === "") setContactName(undefined);
+    },
+    [contactName],
+  );
   React.useEffect(() => {
     form.setFieldsValue({ contact_name: contactName });
   }, [contactName, form, handleChangeName]);
@@ -39,8 +45,7 @@ function CustomInputContact(props: any) {
           name="contact_name"
           rules={[
             {
-              required:
-                contactPhone || contactEmail || contactNote ? true : false,
+              required: contactPhone || contactEmail || contactNote ? true : false,
               message: "Vui lòng nhập họ tên khách hàng",
             },
           ]}
@@ -59,8 +64,7 @@ function CustomInputContact(props: any) {
           name="contact_phone"
           rules={[
             {
-              required:
-                contactName || contactEmail || contactNote ? true : false,
+              required: contactName || contactEmail || contactNote ? true : false,
               message: "Vui lòng nhập số điện thoại",
             },
             {

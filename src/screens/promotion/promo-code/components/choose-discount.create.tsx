@@ -1,7 +1,7 @@
 import { Checkbox, Col, Form, Input, InputNumber, Row, Select } from "antd";
 import { FormInstance } from "antd/es/form/Form";
 import React, { useLayoutEffect, useState } from "react";
-import {formatCurrency, replaceFormatString} from "utils/AppUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
 import "../promo-code.scss";
 interface Props {
@@ -16,13 +16,12 @@ const ChooseDiscount = (props: Props) => {
 
   const [isUnlimitUsageState, setIsUnlimitUsageState] = useState(false);
 
-  const [isUnlimitUsagePerCustomerState, setIsUnlimitUsagePerCustomerState] =
-    useState(true);
+  const [isUnlimitUsagePerCustomerState, setIsUnlimitUsagePerCustomerState] = useState(true);
 
   useLayoutEffect(() => {
     setIsUnlimitUsageState(typeof isUnlimitUsage === "boolean" ? isUnlimitUsage : false);
     setIsUnlimitUsagePerCustomerState(
-      typeof isUnlimitUsagePerUser === "boolean" ? isUnlimitUsagePerUser : true
+      typeof isUnlimitUsagePerUser === "boolean" ? isUnlimitUsagePerUser : true,
     );
     typeUnitProps && setTypeUnit(typeUnitProps);
   }, [isUnlimitUsage, isUnlimitUsagePerUser, typeUnitProps]);
@@ -33,7 +32,7 @@ const ChooseDiscount = (props: Props) => {
         {/* Giá trị khuyến mại */}
         <Col span={12}>
           <Form.Item required label="Giá trị khuyến mại:">
-            <Input.Group compact >
+            <Input.Group compact>
               <Form.Item
                 rules={[
                   {
@@ -45,7 +44,7 @@ const ChooseDiscount = (props: Props) => {
                 noStyle
               >
                 <NumberInput
-                  style={{borderRadius: "0px", width: "calc(100% - 70px)" }}
+                  style={{ borderRadius: "0px", width: "calc(100% - 70px)" }}
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
                   placeholder="Nhập giá trị chiết khấu"
@@ -96,7 +95,7 @@ const ChooseDiscount = (props: Props) => {
               minLength={0}
               min={0}
               disabled={isUnlimitUsageState}
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
             />
           </Form.Item>
         </Col>
@@ -117,19 +116,15 @@ const ChooseDiscount = (props: Props) => {
         </Col>
       </Row>
       <Row gutter={30}>
-  
         {/* Mỗi khách được sử dụng tối đa */}
         <Col span={19}>
-          <Form.Item
-            name="usage_limit_per_customer"
-            label="Mỗi khách được sử dụng tối đa:"
-          >
+          <Form.Item name="usage_limit_per_customer" label="Mỗi khách được sử dụng tối đa:">
             <InputNumber
               maxLength={11}
               minLength={0}
               min={0}
               disabled={isUnlimitUsagePerCustomerState}
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
             />
           </Form.Item>
         </Col>

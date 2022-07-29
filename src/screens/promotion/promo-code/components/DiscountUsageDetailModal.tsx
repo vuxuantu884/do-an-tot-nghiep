@@ -1,8 +1,8 @@
 import React from "react";
-import {Button, Modal} from "antd";
-import {Link} from "react-router-dom";
-import {DiscountUsageDetailResponse} from "model/promotion/price-rules.model";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import { Button, Modal } from "antd";
+import { Link } from "react-router-dom";
+import { DiscountUsageDetailResponse } from "model/promotion/price-rules.model";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 
 type ModalDeleteConfirmProps = {
@@ -11,7 +11,9 @@ type ModalDeleteConfirmProps = {
   discountUsageDetailList: Array<DiscountUsageDetailResponse>;
 };
 
-const DiscountUsageDetailModal: React.FC<ModalDeleteConfirmProps> = (props: ModalDeleteConfirmProps) => {
+const DiscountUsageDetailModal: React.FC<ModalDeleteConfirmProps> = (
+  props: ModalDeleteConfirmProps,
+) => {
   const { visible, onCloseModal, discountUsageDetailList } = props;
 
   const columns: Array<ICustomTableColumType<any>> = [
@@ -20,9 +22,7 @@ const DiscountUsageDetailModal: React.FC<ModalDeleteConfirmProps> = (props: Moda
       align: "center",
       width: 70,
       render: (value: any, item: any, index: any) => {
-        return (
-          <div>{index + 1}</div>
-        );
+        return <div>{index + 1}</div>;
       },
     },
     {
@@ -32,7 +32,9 @@ const DiscountUsageDetailModal: React.FC<ModalDeleteConfirmProps> = (props: Moda
       width: 130,
       render: (value: string, item: any) => {
         return (
-          <Link to={`${UrlConfig.CUSTOMER}/${item.customer_id}`} target="_blank">{value}</Link>
+          <Link to={`${UrlConfig.CUSTOMER}/${item.customer_id}`} target="_blank">
+            {value}
+          </Link>
         );
       },
     },
@@ -48,7 +50,9 @@ const DiscountUsageDetailModal: React.FC<ModalDeleteConfirmProps> = (props: Moda
       align: "left",
       render: (value: string, item: any) => {
         return (
-          <Link to={`${UrlConfig.ORDER}/${item.order_id}`} target="_blank">{value}</Link>
+          <Link to={`${UrlConfig.ORDER}/${item.order_id}`} target="_blank">
+            {value}
+          </Link>
         );
       },
     },
@@ -63,7 +67,7 @@ const DiscountUsageDetailModal: React.FC<ModalDeleteConfirmProps> = (props: Moda
       footer={[
         <Button key="close" type="primary" onClick={onCloseModal}>
           Đóng
-        </Button>
+        </Button>,
       ]}
     >
       <div>

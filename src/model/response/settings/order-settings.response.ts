@@ -9,8 +9,8 @@ export interface OrderConfigResponseModel extends BaseObject {
   };
   for_all_order: boolean;
   allow_choose_item: boolean;
-  hide_gift:boolean;
-  hide_bonus_item:boolean;
+  hide_gift: boolean;
+  hide_bonus_item: boolean;
 }
 
 export interface OrderConfigPrintResponseModel extends BaseObject {
@@ -22,8 +22,7 @@ export interface OrderConfigActionOrderPreviewResponseModel extends BaseObject {
   id: number;
   name: string;
 }
-export interface IsAllowToSellWhenNotAvailableStockResponseModel
-  extends BaseObject {
+export interface IsAllowToSellWhenNotAvailableStockResponseModel extends BaseObject {
   sellable_inventory: boolean;
 }
 
@@ -48,7 +47,7 @@ export interface ShippingServiceConfigDetailResponseModel {
       city_name: string;
       transport_fee: number;
       city_id: number;
-    }
+    },
   ];
   transport_types: [
     {
@@ -58,6 +57,6 @@ export interface ShippingServiceConfigDetailResponseModel {
       external_service_code: string;
       name: string;
       status: string;
-    }
+    },
   ];
 }

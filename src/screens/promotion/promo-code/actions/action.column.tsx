@@ -9,7 +9,9 @@ import { Link } from "react-router-dom";
 import { StyledDropDown, StyledMenu } from "./styles";
 
 const ActionColumnIssue = () => {
-  const [allowActiveActionBtn] = useAuthorization({acceptPermissions: [PromoPermistion.UPDATE]});
+  const [allowActiveActionBtn] = useAuthorization({
+    acceptPermissions: [PromoPermistion.UPDATE],
+  });
   const _actionColumn = {
     title: "",
     visible: true,
@@ -19,20 +21,20 @@ const ActionColumnIssue = () => {
     render: (id: any) => {
       const menu = (
         <StyledMenu>
-        <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
-        <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
-          <Menu.Item key="0">
-            <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${id}`}>
-            <Button
-              icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
-              type="text"
-            >
-              Chỉnh sửa
-            </Button>
-            </Link>
-          </Menu.Item>
-        </AuthWrapper>
-        </Menu>
+          <Menu className="yody-line-item-action-menu saleorders-product-dropdown">
+            <AuthWrapper acceptPermissions={[PromoPermistion.UPDATE]}>
+              <Menu.Item key="0">
+                <Link to={`${UrlConfig.PROMOTION}${UrlConfig.PROMO_CODE}/${id}`}>
+                  <Button
+                    icon={<img style={{ marginRight: 12 }} alt="" src={editIcon} />}
+                    type="text"
+                  >
+                    Chỉnh sửa
+                  </Button>
+                </Link>
+              </Menu.Item>
+            </AuthWrapper>
+          </Menu>
         </StyledMenu>
       );
       return (
@@ -58,7 +60,7 @@ const ActionColumnIssue = () => {
               <Button
                 type="text"
                 className="p-0 ant-btn-custom"
-                icon={<img src={threeDot} alt="" style={{verticalAlign: 'super'}}/>}
+                icon={<img src={threeDot} alt="" style={{ verticalAlign: "super" }} />}
               ></Button>
             </Dropdown>
           </div>

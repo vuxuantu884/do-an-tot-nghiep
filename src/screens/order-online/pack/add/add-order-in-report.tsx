@@ -35,21 +35,19 @@ const resultPagingDefault: ResultPaging = {
   lastPage: 1,
   perPage: 5,
   total: 0,
-  result: []
-}
+  result: [],
+};
 
-const AddOrderInReport: React.FC<AddOrderInReportProps> = (
-  props: AddOrderInReportProps
-) => {
-  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef,  goodsReceiptForm, stores } = props;
+const AddOrderInReport: React.FC<AddOrderInReportProps> = (props: AddOrderInReportProps) => {
+  const { menu, orderListResponse, handleAddOrder, formSearchOrderRef, goodsReceiptForm, stores } =
+    props;
 
   //const [orderResponse, setOrderResponse] = useState<OrderResponse>();
-  const [packOrderProductList, setPackOrderProductList] =
-    useState<GoodsReceiptsInfoOrderModel[]>();
+  const [packOrderProductList, setPackOrderProductList] = useState<GoodsReceiptsInfoOrderModel[]>();
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: resultPagingDefault.currentPage,
-    perPage: resultPagingDefault.perPage
+    perPage: resultPagingDefault.perPage,
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
@@ -58,15 +56,16 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
   const addReportHandOverContextData = useContext(AddReportHandOverContext);
   const setOrderListResponse = addReportHandOverContextData?.setOrderListResponse;
 
-  const handSubmit = useCallback((value: any) => {
-    if (value.search_term && value.search_term.length > 0) {
-      handleAddOrder(value.search_term?.toUpperCase());
-    }
-    else {
-      showWarning("Vui lòng nhập mã đơn hàng");
-    }
-  }, [handleAddOrder])
-
+  const handSubmit = useCallback(
+    (value: any) => {
+      if (value.search_term && value.search_term.length > 0) {
+        handleAddOrder(value.search_term?.toUpperCase());
+      } else {
+        showWarning("Vui lòng nhập mã đơn hàng");
+      }
+    },
+    [handleAddOrder],
+  );
 
   const onMenuClickExt = useCallback(
     (index: number) => {
@@ -82,7 +81,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             if (indexOrder !== -1) {
               orderListResponseCopy.splice(indexOrder, 1);
             }
-          })
+          });
           setOrderListResponse([...orderListResponseCopy]);
           setSelectedRowKeys([]);
           break;
@@ -90,7 +89,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           break;
       }
     },
-    [selectedRowKeys, orderListResponse, setOrderListResponse]
+    [selectedRowKeys, orderListResponse, setOrderListResponse],
   );
 
   useEffect(() => {
@@ -120,9 +119,9 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               variant: itemProduct.variant,
               variant_barcode: itemProduct.variant_barcode,
               quantity: itemProduct.quantity,
-              price: itemProduct.price
+              price: itemProduct.price,
             });
-          })
+          });
 
           let resultItem: GoodsReceiptsInfoOrderModel = {
             key: index,
@@ -151,7 +150,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       width: "60px",
       align: "center",
       render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
-        return (<>{l.key + 1}</>);
+        return <>{l.key + 1}</>;
       },
     },
     {
@@ -159,7 +158,11 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       align: "center",
       render: (l: GoodsReceiptsInfoOrderModel, item: any, index: number) => {
         return (
-          <Link target="_blank" to={`${UrlConfig.ORDER}/${l.order_id}`} style={{ whiteSpace: "nowrap" }}>
+          <Link
+            target="_blank"
+            to={`${UrlConfig.ORDER}/${l.order_id}`}
+            style={{ whiteSpace: "nowrap" }}
+          >
             {l.order_code}
           </Link>
         );
@@ -169,7 +172,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       title: "Người nhận",
       dataIndex: "customer_name",
       key: "customer_name",
-      align: "center"
+      align: "center",
     },
 
     {
@@ -232,19 +235,22 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
       render: (value) => formatCurrency(value),
     },
   ];
-  
-  const onSelectedChange = (selectedRow: GoodsReceiptsInfoOrderModel[], selected?: boolean, changeRow?: any[]) => {
+
+  const onSelectedChange = (
+    selectedRow: GoodsReceiptsInfoOrderModel[],
+    selected?: boolean,
+    changeRow?: any[],
+  ) => {
     let selectedRowKeysCopy: string[] = [...selectedRowKeys];
 
     if (selected === true) {
       changeRow?.forEach((data, index) => {
-        let indexItem = selectedRowKeys.findIndex((p) => p === data.order_code)
+        let indexItem = selectedRowKeys.findIndex((p) => p === data.order_code);
         if (indexItem === -1) {
           selectedRowKeysCopy.push(data.order_code);
         }
-      })
-    }
-    else {
+      });
+    } else {
       selectedRowKeys.forEach((data, index) => {
         let indexItem = changeRow?.findIndex((p) => p.order_code === data);
 
@@ -252,7 +258,7 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
           let i = selectedRowKeysCopy.findIndex((p) => p === data);
           selectedRowKeysCopy.splice(i, 1);
         }
-      })
+      });
     }
 
     // console.log("selectedRowKeysCopy",selectedRowKeysCopy)
@@ -261,29 +267,27 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
 
   useEffect(() => {
     if (!packOrderProductList || (packOrderProductList && packOrderProductList.length <= 0)) {
-      setResultPaging(resultPagingDefault)
-    }
-    else {
-      let result = flatDataPaging(packOrderProductList, pagingParam)
+      setResultPaging(resultPagingDefault);
+    } else {
+      let result = flatDataPaging(packOrderProductList, pagingParam);
       setResultPaging(result);
     }
-  }, [packOrderProductList, pagingParam])
+  }, [packOrderProductList, pagingParam]);
 
   return (
-    <Card title={
-      <React.Fragment>
-        <div style={{ display: "flex" }}>
-          Danh sách đơn hàng trong biên bản
-          <div style={{ color: dangerColor, paddingLeft: 7 }}>
-            ({packOrderProductList ? packOrderProductList.length : 0})
+    <Card
+      title={
+        <React.Fragment>
+          <div style={{ display: "flex" }}>
+            Danh sách đơn hàng trong biên bản
+            <div style={{ color: dangerColor, paddingLeft: 7 }}>
+              ({packOrderProductList ? packOrderProductList.length : 0})
+            </div>
           </div>
-        </div>
-      </React.Fragment>
-      } 
-      className="pack-card"
-      extra={
-        <ButtonWarningHandover stores={stores} isHiddenCreate={true}/>
+        </React.Fragment>
       }
+      className="pack-card"
+      extra={<ButtonWarningHandover stores={stores} isHiddenCreate={true} />}
     >
       <div className="order-filter yody-pack-row">
         <div className="page-filter">
@@ -325,13 +329,15 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
               showSizeChanger: true,
               onChange: (page, size) => {
                 // console.log("size", size)
-                setPagingParam({ perPage: size || 10, currentPage: page })
+                setPagingParam({ perPage: size || 10, currentPage: page });
               },
               onShowSizeChange: (page, size) => {
-                setPagingParam({ perPage: size || 10, currentPage: page })
+                setPagingParam({ perPage: size || 10, currentPage: page });
               },
             }}
-            onSelectedChange={(selectedRows, selected, changeRow) => onSelectedChange(selectedRows, selected, changeRow)}
+            onSelectedChange={(selectedRows, selected, changeRow) =>
+              onSelectedChange(selectedRows, selected, changeRow)
+            }
             selectedRowKey={selectedRowKeys}
             dataSource={resultPaging.result}
             columns={columns}
@@ -356,7 +362,6 @@ const AddOrderInReport: React.FC<AddOrderInReportProps> = (
             rowKey={(item) => item.order_code}
           /> */}
         </div>
-
       )}
     </Card>
   );

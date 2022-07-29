@@ -31,7 +31,7 @@ import {
   webAppExitJobsApi,
   webAppGetInfoShopify,
   webAppCreateShopify,
-  webAppGetSourceList
+  webAppGetSourceList,
 } from "service/web-app/web-app.service";
 import { showError } from "utils/ToastUtils";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
@@ -43,7 +43,7 @@ function* webAppConnectSaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(
       webAppConnectSyncApi,
-      webAppId
+      webAppId,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -68,7 +68,7 @@ function* webAppGetConfigInfoSaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(
       webAppGetConfigInfoApi,
-      params
+      params,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -93,7 +93,7 @@ function* webAppCreateConfigSaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(
       webAppCreateConfigApi,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -116,10 +116,7 @@ function* webAppCreateConfigSaga(action: YodyAction) {
 function* webAppGetByIdSaga(action: YodyAction) {
   let { id, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(
-      webAppGetByIdApi,
-      id
-    );
+    const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(webAppGetByIdApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -144,7 +141,7 @@ function* webAppUpdateConfigSaga(action: YodyAction) {
     const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(
       webAppUpdateConfigApi,
       id,
-      request
+      request,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -168,10 +165,7 @@ function* webAppUpdateConfigSaga(action: YodyAction) {
 function* webAppDeleteSaga(action: YodyAction) {
   let { id, setData } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(
-      webAppDeleteApi,
-      id
-    );
+    const response: BaseResponse<PageResponse<WebAppResponse>> = yield call(webAppDeleteApi, id);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -194,10 +188,7 @@ function* webAppGetVariantsSaga(action: YodyAction) {
   let { query, setData } = action.payload;
 
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppGetVariantsApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppGetVariantsApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -220,10 +211,7 @@ function* webAppGetShopSaga(action: YodyAction) {
   let { query, setData } = action.payload;
 
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppGetShopApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppGetShopApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -246,10 +234,7 @@ function* webAppDownloadProductSaga(action: YodyAction) {
   let { query, setData } = action.payload;
   yield put(showLoading());
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppDownloadProductApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppDownloadProductApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -274,10 +259,7 @@ function* webAppDeleteProductSaga(action: YodyAction) {
   let { ids, setData } = action.payload;
 
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppDeleteProductApi,
-      ids
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppDeleteProductApi, ids);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -300,10 +282,7 @@ function* webAppDisconnectProductSaga(action: YodyAction) {
   let { ids, setData } = action.payload;
 
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppDisconnectProductApi,
-      ids
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppDisconnectProductApi, ids);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -327,10 +306,7 @@ function* webAppSyncStockProductSaga(action: YodyAction) {
 
   yield put(showLoading());
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppSyncStockProductApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppSyncStockProductApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -356,10 +332,7 @@ function* webAppSyncOrderSaga(action: YodyAction) {
 
   yield put(showLoading());
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppSyncOrderApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppSyncOrderApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -384,10 +357,7 @@ function* webAppGetCategoryListSaga(action: YodyAction) {
   let { query, setData } = action.payload;
 
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppGetCategoryListApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppGetCategoryListApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -410,10 +380,7 @@ function* webAppPutConnectProductSaga(action: YodyAction) {
   let { query, setData } = action.payload;
 
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppPutConnectProductApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppPutConnectProductApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -437,10 +404,7 @@ function* webAppDownloadOrderSaga(action: YodyAction) {
   let { query, setData } = action.payload;
 
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-      webAppDownloadOrderApi,
-      query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppDownloadOrderApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -466,7 +430,7 @@ function* webAppGetOrderMappingListSaga(action: YodyAction) {
   try {
     const response: BaseResponse<PageResponse<any>> = yield call(
       webAppGetOrderMappingListApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -486,13 +450,10 @@ function* webAppGetOrderMappingListSaga(action: YodyAction) {
   }
 }
 
-function* webAppGetStoreAddressSaga(action: YodyAction){
+function* webAppGetStoreAddressSaga(action: YodyAction) {
   const { query, callback } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-        webAppGetStoreAddressApi,
-        query
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppGetStoreAddressApi, query);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -511,13 +472,10 @@ function* webAppGetStoreAddressSaga(action: YodyAction){
   }
 }
 
-function* webAppCreateLogisticOrder(action: YodyAction){
-  const { request , callback } = action.payload;
+function* webAppCreateLogisticOrder(action: YodyAction) {
+  const { request, callback } = action.payload;
   try {
-    const response: BaseResponse<PageResponse<any>> = yield call(
-        webAppCreateLogisticApi,
-        request
-    );
+    const response: BaseResponse<PageResponse<any>> = yield call(webAppCreateLogisticApi, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         callback(response.data);
@@ -578,10 +536,10 @@ function* webAppDownloadPrintForm(action: YodyAction) {
   }
 }
 
-function* webAppGetInfoShopifySaga(action: YodyAction){
+function* webAppGetInfoShopifySaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(webAppGetInfoShopify,request);
+    const response: BaseResponse<any> = yield call(webAppGetInfoShopify, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -594,18 +552,16 @@ function* webAppGetInfoShopifySaga(action: YodyAction){
         setData(false);
         break;
     }
-  }
-  catch (error){
+  } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
-  }
-  finally {
+  } finally {
     yield put(hideLoading());
   }
 }
-function* webAppCreateShopifySaga(action: YodyAction){
+function* webAppCreateShopifySaga(action: YodyAction) {
   const { request, setData } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(webAppCreateShopify,request);
+    const response: BaseResponse<any> = yield call(webAppCreateShopify, request);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -618,24 +574,22 @@ function* webAppCreateShopifySaga(action: YodyAction){
         setData(false);
         break;
     }
-  }
-  catch (error){
+  } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
-  }
-  finally {
+  } finally {
     yield put(hideLoading());
   }
 }
 function* webAppExitJobsSaga(action: YodyAction) {
   const { query, callback } = action.payload;
-  yield callApiSaga({isShowLoading:true}, callback, webAppExitJobsApi, query);
+  yield callApiSaga({ isShowLoading: true }, callback, webAppExitJobsApi, query);
 }
 
 //get source list
-function* webAppGetSourceListSaga(action: YodyAction){
+function* webAppGetSourceListSaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
-    const response: BaseResponse<any> = yield call(webAppGetSourceList,null);
+    const response: BaseResponse<any> = yield call(webAppGetSourceList, null);
     switch (response.code) {
       case HttpStatus.SUCCESS:
         setData(response.data);
@@ -648,11 +602,9 @@ function* webAppGetSourceListSaga(action: YodyAction){
         setData(false);
         break;
     }
-  }
-  catch (error){
+  } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
-  }
-  finally {
+  } finally {
     yield put(hideLoading());
   }
 }
@@ -674,13 +626,13 @@ export function* webAppSaga() {
   yield takeLatest(WebAppType.WEB_APP_SYNC_ORDER_REQUEST, webAppSyncOrderSaga);
   yield takeLatest(WebAppType.WEB_APP_PUT_CONNECT_PRODUCT_REQUEST, webAppPutConnectProductSaga);
   yield takeLatest(WebAppType.WEB_APP_DOWNLOAD_ORDER_REQUEST, webAppDownloadOrderSaga); //download web/app order
-  yield takeLatest(WebAppType.WEB_APP_GET_ORDER_SYNC_LIST_REQUEST, webAppGetOrderMappingListSaga);  //web app get order mapping list
-  yield takeLatest(WebAppType.WEB_APP_GET_STORE_ADDRESS, webAppGetStoreAddressSaga);   // get web app shop address
+  yield takeLatest(WebAppType.WEB_APP_GET_ORDER_SYNC_LIST_REQUEST, webAppGetOrderMappingListSaga); //web app get order mapping list
+  yield takeLatest(WebAppType.WEB_APP_GET_STORE_ADDRESS, webAppGetStoreAddressSaga); // get web app shop address
   yield takeLatest(WebAppType.WEB_APP_CREATE_LOGISTIC, webAppCreateLogisticOrder); // create web app shipping order
-  yield takeLatest(WebAppType.WEB_APP_CONCANATE_BY_EXCEL, webAppConcatenateByExcelSaga);  // concatenate By Excel
-  yield takeLatest(WebAppType.WEB_APP_DOWNLOAD_PRINT_FORM, webAppDownloadPrintForm);   // download web app print form
+  yield takeLatest(WebAppType.WEB_APP_CONCANATE_BY_EXCEL, webAppConcatenateByExcelSaga); // concatenate By Excel
+  yield takeLatest(WebAppType.WEB_APP_DOWNLOAD_PRINT_FORM, webAppDownloadPrintForm); // download web app print form
   yield takeLatest(WebAppType.WEB_APP_EXIT_JOBS, webAppExitJobsSaga); // exit web app jobs
-  yield takeLatest(WebAppType.WEB_APP_GET_INFO_SHOPIFY,webAppGetInfoShopifySaga); //get info shopify
-  yield takeLatest(WebAppType.WEB_APP_CRATE_SHOPIFY,webAppCreateShopifySaga); //create shopify
-  yield takeLatest(WebAppType.WEB_APP_GET_LIST_SOURCE_REQUEST,webAppGetSourceListSaga); //get source list
+  yield takeLatest(WebAppType.WEB_APP_GET_INFO_SHOPIFY, webAppGetInfoShopifySaga); //get info shopify
+  yield takeLatest(WebAppType.WEB_APP_CRATE_SHOPIFY, webAppCreateShopifySaga); //create shopify
+  yield takeLatest(WebAppType.WEB_APP_GET_LIST_SOURCE_REQUEST, webAppGetSourceListSaga); //get source list
 }

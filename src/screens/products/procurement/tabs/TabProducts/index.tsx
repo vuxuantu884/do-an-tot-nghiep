@@ -1,11 +1,12 @@
 import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 import { PageResponse } from "model/base/base-metadata.response";
-import { ProcurementItemsReceipt, PurchaseProcument } from "model/purchase-order/purchase-procument";
+import {
+  ProcurementItemsReceipt,
+  PurchaseProcument,
+} from "model/purchase-order/purchase-procument";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import CustomTable, {
-  ICustomTableColumType,
-} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import { formatCurrency, generateQuery, splitEllipsis } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT, formatDateTimeFilter } from "utils/DateUtils";
@@ -21,18 +22,18 @@ import { cloneDeep } from "lodash";
 import TabProductsFilter from "../../filter/TabProducts.filter";
 import { PhoneOutlined } from "@ant-design/icons";
 
-interface TabProductsProps { }
+interface TabProductsProps {}
 
 const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
-  const dispatch = useDispatch()
-  const history = useHistory()
+  const dispatch = useDispatch();
+  const history = useHistory();
   const query = useQuery();
 
   let paramsUrl: any = useMemo(() => {
-    return { ...getQueryParams(query) }
+    return { ...getQueryParams(query) };
   }, [query]);
 
-  const [loading, setLoading] = useState<boolean>(false)
+  const [loading, setLoading] = useState<boolean>(false);
   // let [paramsUrl, setParamsUrl] = useState<any>(dataQuery);
   const [data, setData] = useState<PageResponse<ProcurementItemsReceipt>>({
     metadata: {
@@ -49,27 +50,36 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
       setLoading(true);
       const newParams = {
         ...paramsUrl,
-        stock_in_date_from: paramsUrl.stock_in_date_from && formatDateTimeFilter(paramsUrl.stock_in_date_from, 'DD/MM/YYYY HH:mm')?.format(),
-        stock_in_date_to: paramsUrl.stock_in_date_to && formatDateTimeFilter(paramsUrl.stock_in_date_to, 'DD/MM/YYYY HH:mm')?.format(),
-      }
-      const response = await callApiNative({ isShowError: true }, dispatch, getListProcurementItemsReceipt, newParams)
+        stock_in_date_from:
+          paramsUrl.stock_in_date_from &&
+          formatDateTimeFilter(paramsUrl.stock_in_date_from, "DD/MM/YYYY HH:mm")?.format(),
+        stock_in_date_to:
+          paramsUrl.stock_in_date_to &&
+          formatDateTimeFilter(paramsUrl.stock_in_date_to, "DD/MM/YYYY HH:mm")?.format(),
+      };
+      const response = await callApiNative(
+        { isShowError: true },
+        dispatch,
+        getListProcurementItemsReceipt,
+        newParams,
+      );
       if (response) {
-        setData(response)
+        setData(response);
         setLoading(false);
       }
-    }
+    };
     getListProcurementItems();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [history.location.search, dispatch]);
 
   const getTotalRealQuantity = useCallback((): string => {
-    let total = 0
-    const procurementItems = cloneDeep(data.items)
+    let total = 0;
+    const procurementItems = cloneDeep(data.items);
     procurementItems?.forEach((item: ProcurementItemsReceipt) => {
-      total += item.real_quantity
-    })
-    return formatCurrency(total, ".")
-  }, [data])
+      total += item.real_quantity;
+    });
+    return formatCurrency(total, ".");
+  }, [data]);
 
   const defaultColumns: Array<ICustomTableColumType<ProcurementItemsReceipt>> = useMemo(() => {
     return [
@@ -78,7 +88,7 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
         align: "center",
         dataIndex: "variant_image",
         width: 70,
-        fixed: 'left',
+        fixed: "left",
         render: (value: string) => {
           // let url = null;
           // value.variant_images?.forEach((item) => {
@@ -88,7 +98,11 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
           //   });
           return (
             <>
-              {value ? <Image width={40} height={40} placeholder="Xem" src={value ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={value} />}
+              {value ? (
+                <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
+              ) : (
+                <ImageProduct disabled={true} onClick={undefined} path={value} />
+              )}
             </>
           );
         },
@@ -101,26 +115,34 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
         visible: true,
         render: (value, record, index) => {
           if (record.variant && value) {
-            let strName = (record.variant.trim());
-            strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
-              : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
-                : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
+            let strName = record.variant.trim();
+            strName =
+              window.screen.width >= 1920
+                ? splitEllipsis(strName, 100, 30)
+                : window.screen.width >= 1600
+                ? (strName = splitEllipsis(strName, 60, 30))
+                : window.screen.width >= 1366
+                ? (strName = splitEllipsis(strName, 47, 30))
+                : strName;
             return (
               <>
                 <div>
-                  <Link to={{
-                    pathname: `${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`,
-                  }}
+                  <Link
+                    to={{
+                      pathname: `${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`,
+                    }}
                     target="_blank"
                   >
                     {value}
                   </Link>
                 </div>
-                <div><TextEllipsis value={strName} line={1} /></div>
+                <div>
+                  <TextEllipsis value={strName} line={1} />
+                </div>
               </>
-            )
+            );
           } else {
-            return ""
+            return "";
           }
         },
       },
@@ -129,13 +151,14 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
         dataIndex: "procurement",
         visible: true,
         render: (value, record, index) => {
-          if (!value) return ""
+          if (!value) return "";
           return (
             <>
               <div>
-                <Link to={{
-                  pathname: `${UrlConfig.PURCHASE_ORDERS}/${record.procurement?.purchase_order?.id}/procurements/${value.id}`,
-                }}
+                <Link
+                  to={{
+                    pathname: `${UrlConfig.PURCHASE_ORDERS}/${record.procurement?.purchase_order?.id}/procurements/${value.id}`,
+                  }}
                   target="_blank"
                 >
                   <b>{value.code}</b>
@@ -144,30 +167,31 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
               <div>
                 <div>
                   Ngày nhận:
-                  <div>{ConvertUtcToLocalDate(record.procurement?.stock_in_date, DATE_FORMAT.HHmm_DDMMYYYY)}</div>
+                  <div>
+                    {ConvertUtcToLocalDate(
+                      record.procurement?.stock_in_date,
+                      DATE_FORMAT.HHmm_DDMMYYYY,
+                    )}
+                  </div>
                 </div>
               </div>
             </>
-          )
+          );
         },
       },
       {
         title: "Kho nhận",
         dataIndex: "procurement",
-        align: 'center',
+        align: "center",
         render: (value, record, index) => {
-          return (
-            <>
-              {value.store}
-            </>
-          )
+          return <>{value.store}</>;
         },
         visible: true,
       },
       {
         title: "Nhà cung cấp",
         dataIndex: "procurement",
-        align: 'center',
+        align: "center",
         render: (value, record, index) => {
           return (
             <>
@@ -182,12 +206,16 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
                 <PhoneOutlined /> {value?.purchase_order?.phone}
               </div>
             </>
-          )
+          );
         },
         visible: true,
       },
       {
-        title: <div>SL thực nhận (<span style={{ color: "#2A2A86" }}>{getTotalRealQuantity()}</span>)</div>,
+        title: (
+          <div>
+            SL thực nhận (<span style={{ color: "#2A2A86" }}>{getTotalRealQuantity()}</span>)
+          </div>
+        ),
         align: "center",
         dataIndex: "real_quantity",
         visible: true,
@@ -198,29 +226,25 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
       {
         title: "Người nhận",
         dataIndex: "procurement",
-        align: 'center',
+        align: "center",
         visible: true,
         render: (value: PurchaseProcument, row) => {
           if (value && value.stock_in_by) {
-            const name = value.stock_in_by.split('-')
+            const name = value.stock_in_by.split("-");
             return (
               <>
                 <div>
-                  <Link
-                    to={`${UrlConfig.ACCOUNTS}/${name[0]}`}
-                    className="primary"
-                    target="_blank"
-                  >
+                  <Link to={`${UrlConfig.ACCOUNTS}/${name[0]}`} className="primary" target="_blank">
                     {name[0]}
                   </Link>
                 </div>
                 <b> {name[1]}</b>
               </>
-            )
+            );
           } else {
-            return ""
+            return "";
           }
-        }
+        },
       },
       {
         title: "Ghi chú",
@@ -228,31 +252,29 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
         dataIndex: "procurement",
         visible: true,
         render: (value, record) => {
-          return (value?.note)
+          return value?.note;
         },
       },
-    ]
+    ];
   }, [getTotalRealQuantity]);
 
-  const [columns, setColumns] = useState<
-    Array<ICustomTableColumType<ProcurementItemsReceipt>>
-  >(defaultColumns);
+  const [columns, setColumns] =
+    useState<Array<ICustomTableColumType<ProcurementItemsReceipt>>>(defaultColumns);
 
   useEffect(() => {
     setColumns(defaultColumns);
   }, [defaultColumns]);
 
-  const columnFinal = useMemo(() =>
-    columns.filter((item) => item.visible === true)
-    , [columns]);
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
 
-  const onPageChange = useCallback((page: number, size?: number) => {
-    paramsUrl.page = page;
-    paramsUrl.limit = size;
-    history.replace(
-      `${ProcurementTabUrl.PRODUCTS}?${generateQuery(paramsUrl)}`
-    );
-  }, [paramsUrl, history]);
+  const onPageChange = useCallback(
+    (page: number, size?: number) => {
+      paramsUrl.page = page;
+      paramsUrl.limit = size;
+      history.replace(`${ProcurementTabUrl.PRODUCTS}?${generateQuery(paramsUrl)}`);
+    },
+    [paramsUrl, history],
+  );
 
   return (
     <>
@@ -279,22 +301,20 @@ const TabProducts: React.FC<TabProductsProps> = (props: TabProductsProps) => {
           isShowPaginationAtHeader
           bordered
         />
-        {
-          showSettingColumn && (
-            <ModalSettingColumn
-              visible={showSettingColumn}
-              onCancel={() => setShowSettingColumn(false)}
-              onOk={(data) => {
-                setShowSettingColumn(false);
-                setColumns(data);
-              }}
-              data={columns}
-            />
-          )
-        }
+        {showSettingColumn && (
+          <ModalSettingColumn
+            visible={showSettingColumn}
+            onCancel={() => setShowSettingColumn(false)}
+            onOk={(data) => {
+              setShowSettingColumn(false);
+              setColumns(data);
+            }}
+            data={columns}
+          />
+        )}
       </div>
     </>
-  )
-}
+  );
+};
 
-export default TabProducts
+export default TabProducts;

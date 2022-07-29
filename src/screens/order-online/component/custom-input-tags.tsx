@@ -7,9 +7,7 @@ type CustomInputTagsProps = {
   isCloneOrder?: boolean;
 };
 
-const CustomeInputTags: React.FC<CustomInputTagsProps> = (
-  props: CustomInputTagsProps
-) => {
+const CustomeInputTags: React.FC<CustomInputTagsProps> = (props: CustomInputTagsProps) => {
   const { tags, isCloneOrder } = props;
   const [inputValue, setInputValue] = useState<string>("");
   const [border, setBorder] = useState<boolean>(false);
@@ -20,10 +18,7 @@ const CustomeInputTags: React.FC<CustomInputTagsProps> = (
   };
   const handleKeyDown = (e: any) => {
     let _tags = isCloneOrder && tagsArr ? [...tagsArr] : [];
-    if (
-      (e.which === 13 && inputValue !== "") ||
-      (e.which === 188 && inputValue !== "")
-    ) {
+    if ((e.which === 13 && inputValue !== "") || (e.which === 188 && inputValue !== "")) {
       _tags.push(inputValue);
       setInputValue("");
     }
@@ -44,11 +39,7 @@ const CustomeInputTags: React.FC<CustomInputTagsProps> = (
       onFocus={() => setBorder(true)}
       onBlur={() => setBorder(false)}
       className="orders-screen-custom-tags"
-      style={
-        border
-          ? { border: "1px solid #2a2a86" }
-          : { border: "1px solid #d9d9d9" }
-      }
+      style={border ? { border: "1px solid #2a2a86" } : { border: "1px solid #d9d9d9" }}
     >
       {tags &&
         tagsArr &&
@@ -56,11 +47,7 @@ const CustomeInputTags: React.FC<CustomInputTagsProps> = (
         tagsArr.map((tag, index) => (
           <div key={index}>
             <span>{tag}</span>
-            <img
-              alt=""
-              onClick={() => handleDelete(index)}
-              src={xCloseBtn}
-            ></img>
+            <img alt="" onClick={() => handleDelete(index)} src={xCloseBtn}></img>
           </div>
         ))}
 

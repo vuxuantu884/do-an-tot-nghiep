@@ -98,26 +98,22 @@ const MaterialDetail: React.FC = () => {
           });
         }
       });
-
     });
     setCareLabels(careLabels);
   }, [data, data?.care_labels]);
 
-  const onUpdate = useCallback(
-    (material: MaterialResponse | false) => {
-      if (!!material) {
-        setData(material);
-        showSuccess("Cập nhật trạng thái thành công.");
-      }
-    },
-    []
-  );
+  const onUpdate = useCallback((material: MaterialResponse | false) => {
+    if (!!material) {
+      setData(material);
+      showSuccess("Cập nhật trạng thái thành công.");
+    }
+  }, []);
 
   const updateStatus = (e: any) => {
     const newValue: any = {
       description: data?.description,
-      status: e ? 'active' : 'inactive'
-    }
+      status: e ? "active" : "inactive",
+    };
     dispatch(updateMaterialOtherAction(id, newValue, onUpdate));
   };
 
@@ -159,83 +155,115 @@ const MaterialDetail: React.FC = () => {
         <React.Fragment>
           <Row gutter={24}>
             <Col span={24} md={16}>
-              <Card
-                title="Thông tin chất liệu"
-              >
+              <Card title="Thông tin chất liệu">
                 <Row gutter={50} className="mb-10">
                   <Col span={24} md={12}>
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>ID chất liệu:</Col>
+                      <Col className="title" span={8}>
+                        ID chất liệu:
+                      </Col>
                       <Col span={16}>
                         <div className="content">{data.code}</div>
                       </Col>
                     </Row>
 
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Mã chất liệu:</Col>
+                      <Col className="title" span={8}>
+                        Mã chất liệu:
+                      </Col>
                       <Col span={16}>
                         <div className="content">{data.fabric_code}</div>
                       </Col>
                     </Row>
 
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Tên chất liệu:</Col>
+                      <Col className="title" span={8}>
+                        Tên chất liệu:
+                      </Col>
                       <Col span={16}>
                         <div className="content">{data.name}</div>
                       </Col>
                     </Row>
 
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Khổ vải:</Col>
+                      <Col className="title" span={8}>
+                        Khổ vải:
+                      </Col>
                       <Col span={16}>
-                        <div className="content">{formatCurrency(data.fabric_size)} {data.fabric_size ? data.fabric_size_unit : ''}</div>
+                        <div className="content">
+                          {formatCurrency(data.fabric_size)}{" "}
+                          {data.fabric_size ? data.fabric_size_unit : ""}
+                        </div>
                       </Col>
                     </Row>
 
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Trọng lượng:</Col>
+                      <Col className="title" span={8}>
+                        Trọng lượng:
+                      </Col>
                       <Col span={16}>
-                        <div className="content">{formatCurrency(data.weight)} {data.weight ? data.weight_unit : ''}</div>
+                        <div className="content">
+                          {formatCurrency(data.weight)} {data.weight ? data.weight_unit : ""}
+                        </div>
                       </Col>
                     </Row>
 
                     <Row gutter={30}>
-                      <Col className="title" span={8}>Giá:</Col>
+                      <Col className="title" span={8}>
+                        Giá:
+                      </Col>
                       <Col span={16}>
-                        <div className="content">{formatCurrency(data.price)} {data.price ? data.price_unit : ''}{data.price_measure_unit ? `/${data.price_measure_unit}` : ''}</div>
+                        <div className="content">
+                          {formatCurrency(data.price)} {data.price ? data.price_unit : ""}
+                          {data.price_measure_unit ? `/${data.price_measure_unit}` : ""}
+                        </div>
                       </Col>
                     </Row>
                   </Col>
                   <Col span={24} md={12}>
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Nhà cung cấp:</Col>
+                      <Col className="title" span={8}>
+                        Nhà cung cấp:
+                      </Col>
                       <Col span={16}>
-                        {data.suppliers?.length && data.suppliers.map((i) => {
-                          return (
-                            <div>
-                              <Link className="font-weight-500" to={`${UrlConfig.SUPPLIERS}/${i.id}`}>{i.name}</Link>
-                            </div>
-                          );
-                        })}
+                        {data.suppliers?.length &&
+                          data.suppliers.map((i) => {
+                            return (
+                              <div>
+                                <Link
+                                  className="font-weight-500"
+                                  to={`${UrlConfig.SUPPLIERS}/${i.id}`}
+                                >
+                                  {i.name}
+                                </Link>
+                              </div>
+                            );
+                          })}
                       </Col>
                     </Row>
 
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Thành phần:</Col>
+                      <Col className="title" span={8}>
+                        Thành phần:
+                      </Col>
                       <Col span={16}>
                         <div className="content">{data.component}</div>
                       </Col>
                     </Row>
 
                     <Row gutter={30} className="margin-bottom-15">
-                      <Col className="title" span={8}>Thông tin bảo quản:</Col>
+                      <Col className="title" span={8}>
+                        Thông tin bảo quản:
+                      </Col>
                       <Col span={16}>
                         <div>
-                          <div>{careLabels.map((item: any) => (
-                            <Popover key={item.value} content={item.name}>
-                              <span className={`care-label ydl-${item.value}`} />
-                            </Popover>
-                          ))}</div>
+                          <div>
+                            {careLabels.map((item: any) => (
+                              <Popover key={item.value} content={item.name}>
+                                <span className={`care-label ydl-${item.value}`} />
+                              </Popover>
+                            ))}
+                          </div>
                         </div>
                       </Col>
                     </Row>
@@ -244,7 +272,9 @@ const MaterialDetail: React.FC = () => {
                 <Row gutter={50} className="margin-bottom-15 margin-top-20">
                   <Col span={24}>
                     <Row>
-                      <Col className="title" span={4}>Ưu điểm:</Col>
+                      <Col className="title" span={4}>
+                        Ưu điểm:
+                      </Col>
                       <Col span={20}>
                         <div
                           className="content-des"
@@ -259,7 +289,9 @@ const MaterialDetail: React.FC = () => {
                 <Row gutter={50} className="margin-bottom-15">
                   <Col span={24}>
                     <Row gutter={24}>
-                      <Col className="title" span={4}>Khuyến cáo:</Col>
+                      <Col className="title" span={4}>
+                        Khuyến cáo:
+                      </Col>
                       <Col span={20}>
                         <div
                           className="content-des"
@@ -274,7 +306,9 @@ const MaterialDetail: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24}>
                     <Row gutter={24}>
-                      <Col className="title" span={4}>Ứng dụng:</Col>
+                      <Col className="title" span={4}>
+                        Ứng dụng:
+                      </Col>
                       <Col span={20}>
                         <div
                           className="content-des"
@@ -290,16 +324,24 @@ const MaterialDetail: React.FC = () => {
             </Col>
             <Col span={24} md={8}>
               <Card title="Thông tin bổ sung" className="card">
-              <Row gutter={24} className="margin-bottom-20">
+                <Row gutter={24} className="margin-bottom-20">
                   <Col span={24} md={12} className="title">
                     <b>Trạng thái: </b>
-                    {data.status === "active"
-                    ? <span className="text-success">Sử dụng</span>
-                    : <span className="text-error">Ngừng sử dụng</span>}
+                    {data.status === "active" ? (
+                      <span className="text-success">Sử dụng</span>
+                    ) : (
+                      <span className="text-error">Ngừng sử dụng</span>
+                    )}
                   </Col>
                   <Col span={24} md={12} className="content">
-                  {canUpdateMaterials && <Switch size="small" style={{ marginTop: 3 }} checked={data.status === "active"}
-                          onChange={updateStatus} />}
+                    {canUpdateMaterials && (
+                      <Switch
+                        size="small"
+                        style={{ marginTop: 3 }}
+                        checked={data.status === "active"}
+                        onChange={updateStatus}
+                      />
+                    )}
                   </Col>
                 </Row>
                 <Row gutter={24} className="margin-bottom-15">
@@ -316,7 +358,10 @@ const MaterialDetail: React.FC = () => {
                     Người tạo:
                   </Col>
                   <Col span={24} md={12}>
-                    <Link className="font-weight-500" to={`${UrlConfig.ACCOUNTS}/${data.created_by}`}>
+                    <Link
+                      className="font-weight-500"
+                      to={`${UrlConfig.ACCOUNTS}/${data.created_by}`}
+                    >
                       {data.created_by} - {data.created_name}
                     </Link>
                   </Col>
@@ -336,7 +381,10 @@ const MaterialDetail: React.FC = () => {
                     Người sửa lần cuối:
                   </Col>
                   <Col span={24} md={12}>
-                    <Link className="font-weight-500" to={`${UrlConfig.ACCOUNTS}/${data.created_by}`}>
+                    <Link
+                      className="font-weight-500"
+                      to={`${UrlConfig.ACCOUNTS}/${data.created_by}`}
+                    >
                       {data.updated_by} - {data.updated_name}
                     </Link>
                   </Col>
@@ -353,30 +401,36 @@ const MaterialDetail: React.FC = () => {
 
                 <div className="font-weight-500">Hình ảnh</div>
                 <div className="images">
-                 <Image.PreviewGroup>
-                    {data?.images?.length > 0 && data.images.map((i) => {
-                      return (
-                        <div style={{ marginRight: 5 }}>
-                          <Image className="material-img" src={i} />
-                        </div>
-                      );
-                    })}
+                  <Image.PreviewGroup>
+                    {data?.images?.length > 0 &&
+                      data.images.map((i) => {
+                        return (
+                          <div style={{ marginRight: 5 }}>
+                            <Image className="material-img" src={i} />
+                          </div>
+                        );
+                      })}
                   </Image.PreviewGroup>
                 </div>
 
                 <div className="font-weight-500">Video</div>
                 <div className="videos">
-                  {data?.videos?.length > 0 && data.videos.map((i) => {
-                    return (
-                      <div className="video">
-                        <video
-                          onClick={() => openModalVideo(i)}
-                          style={{ width: 100, height: 100, cursor: "pointer" }}
-                          src={i}
-                        />
-                      </div>
-                    );
-                  })}
+                  {data?.videos?.length > 0 &&
+                    data.videos.map((i) => {
+                      return (
+                        <div className="video">
+                          <video
+                            onClick={() => openModalVideo(i)}
+                            style={{
+                              width: 100,
+                              height: 100,
+                              cursor: "pointer",
+                            }}
+                            src={i}
+                          />
+                        </div>
+                      );
+                    })}
                 </div>
               </Card>
             </Col>
@@ -391,15 +445,8 @@ const MaterialDetail: React.FC = () => {
             bodyStyle={{ padding: 0 }}
           >
             {/*@ts-ignore*/}
-            <Player
-              key={videoSelected}
-              ref={videoRef}
-              autoPlay
-            >
-              <source
-                src={videoSelected}
-                type="video/mp4"
-              />
+            <Player key={videoSelected} ref={videoRef} autoPlay>
+              <source src={videoSelected} type="video/mp4" />
             </Player>
           </Modal>
         </React.Fragment>

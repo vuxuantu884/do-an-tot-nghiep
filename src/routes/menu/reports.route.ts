@@ -13,20 +13,15 @@ const ReadTemplateAnalytics = React.lazy(
 const CustomerVisitors = React.lazy(
   () => import("screens/reports/analytics/shared/customer-visitors"),
 );
-const KeyDriverOffline = React.lazy(
-  () => import("screens/reports/key-driver-offline"),
-);
+const KeyDriverOffline = React.lazy(() => import("screens/reports/key-driver-offline"));
 const KeyDriverOfflineStore = React.lazy(
   () => import("screens/reports/key-driver-offline/key-driver-offline-store"),
 );
 const CustomerPhoneSMSCounters = React.lazy(
-  () =>
-    import("screens/reports/key-driver-offline/customer-phone-sms-counters"),
+  () => import("screens/reports/key-driver-offline/customer-phone-sms-counters"),
 );
 
-const KeyDriverOnline = React.lazy(
-  () => import("screens/reports/key-driver-online"),
-);
+const KeyDriverOnline = React.lazy(() => import("screens/reports/key-driver-online"));
 
 const reports: Array<RouteMenu> = [
   {

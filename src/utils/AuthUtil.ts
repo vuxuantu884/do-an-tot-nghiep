@@ -11,10 +11,10 @@ export const checkUserPermission = (
   acceptPermissions: Array<string> = [],
   currentPermissions: Array<string> = [],
   acceptStoreIds: Array<number> = [],
-  currentStoreIds: Array<AccountStoreResponse> = []
+  currentStoreIds: Array<AccountStoreResponse> = [],
 ): boolean => {
   // kiểm tra quyền truy cập của use nếu chưa có hoặc không chưa quyền nào => không cho truy cập
-  if(!Array.isArray(currentPermissions) || currentPermissions?.length === 0) {
+  if (!Array.isArray(currentPermissions) || currentPermissions?.length === 0) {
     return false;
   }
 
@@ -51,7 +51,7 @@ export const handleCheckedModule = (
   module: ModuleAuthorize,
   form: FormInstance<any>,
   checkedModules: string[],
-  setCheckedModules: (data: string[]) => void
+  setCheckedModules: (data: string[]) => void,
 ) => {
   const permissionsIdList = module.permissions.map((permission) => permission.id.toString());
   const permissionsCheckedByModule = form.getFieldsValue(permissionsIdList);
@@ -75,7 +75,7 @@ export const handleIndeterminateModule = (
   module: ModuleAuthorize,
   form: FormInstance<any>,
   indeterminateModules: string[],
-  setIndeterminateModules: (data: string[]) => void
+  setIndeterminateModules: (data: string[]) => void,
 ) => {
   const permissionsIdList = module.permissions.map((permission) => permission.id.toString());
   const permissionsCheckedByModule = form.getFieldsValue(permissionsIdList);
@@ -110,7 +110,7 @@ export const onChangeModule = (
   setIndeterminateModules: (data: string[]) => void,
   allModullData: PageResponse<ModuleAuthorize> | undefined,
   activePanel: string | string[],
-  setActivePanel: (data: string | string[]) => void
+  setActivePanel: (data: string | string[]) => void,
 ) => {
   e.stopPropagation();
   const { checked } = e.target;

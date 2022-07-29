@@ -1,34 +1,14 @@
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  FormInstance,
-  Input,
-  Row,
-  Select,
-  TreeSelect,
-} from "antd";
+import { Button, Card, Col, Form, FormInstance, Input, Row, Select, TreeSelect } from "antd";
 import {
   categoryDetailAction,
   categoryUpdateAction,
   getCategoryRequestAction,
 } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
-import {
-  CategoryUpdateRequest,
-  CategoryResponse,
-} from "model/product/category.model";
+import { CategoryUpdateRequest, CategoryResponse } from "model/product/category.model";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { RegUtil } from "utils/RegUtils";
@@ -52,9 +32,7 @@ const CategoryUpdate: React.FC = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const formRef = createRef<FormInstance>();
-  const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer,
-  );
+  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
   const [categories, setCategories] = useState<Array<CategoryResponse>>([]);
   const [detail, setDetail] = useState<CategoryResponse | null>(null);
   const [isError, setError] = useState<boolean>(false);
@@ -151,12 +129,7 @@ const CategoryUpdate: React.FC = () => {
       ]}
     >
       {detail !== null && (
-        <Form
-          ref={formRef}
-          onFinish={onFinish}
-          initialValues={detail}
-          layout="vertical"
-        >
+        <Form ref={formRef} onFinish={onFinish} initialValues={detail} layout="vertical">
           <Card title="Thông tin cơ bản">
             <Row gutter={50}>
               <Col span={24} lg={8} md={12} sm={24}>
@@ -223,9 +196,7 @@ const CategoryUpdate: React.FC = () => {
               <Col span={24} lg={8} md={12} sm={24}>
                 <Form.Item name="parent_id" label="Danh mục cha">
                   <TreeSelect
-                    placeholder={
-                      categories.find((item) => item.id === detail.id)?.name
-                    }
+                    placeholder={categories.find((item) => item.id === detail.id)?.name}
                     treeNodeFilterProp="title"
                     showSearch
                     allowClear
@@ -233,9 +204,7 @@ const CategoryUpdate: React.FC = () => {
                   >
                     <TreeNode value={-1} title="Danh mục cha" />
                     {categories.map((item, index) => (
-                      <React.Fragment key={index}>
-                        {TreeCategory(item, idNumber)}
-                      </React.Fragment>
+                      <React.Fragment key={index}>{TreeCategory(item, idNumber)}</React.Fragment>
                     ))}
                   </TreeSelect>
                 </Form.Item>
@@ -246,9 +215,7 @@ const CategoryUpdate: React.FC = () => {
             back={"Quay lại danh sách"}
             backAction={backAction}
             rightComponent={
-              <AuthWrapper
-                acceptPermissions={[ProductPermission.categories_update]}
-              >
+              <AuthWrapper acceptPermissions={[ProductPermission.categories_update]}>
                 <Button loading={loading} htmlType="submit" type="primary">
                   Lưu lại
                 </Button>
@@ -272,9 +239,7 @@ const TreeCategory = (item: CategoryResponse, id: number) => {
       {item.children.length > 0 && (
         <React.Fragment>
           {item.children.map((item, index) => (
-            <React.Fragment key={index}>
-              {TreeCategory(item, id)}
-            </React.Fragment>
+            <React.Fragment key={index}>{TreeCategory(item, id)}</React.Fragment>
           ))}
         </React.Fragment>
       )}

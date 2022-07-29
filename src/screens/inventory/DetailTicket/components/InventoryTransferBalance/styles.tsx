@@ -1,8 +1,6 @@
 import styled from "styled-components";
 
-export const StyledWrapper = styled.div`
-
-`;
+export const StyledWrapper = styled.div``;
 
 export const ModalWrapper = styled.div`
   .product-item-image {
@@ -23,7 +21,7 @@ export const ModalWrapper = styled.div`
   width: 100%;
 
   h2 > span {
-    color: #2A2A86;
+    color: #2a2a86;
   }
 
   .date-info {
@@ -48,7 +46,7 @@ export const ModalWrapper = styled.div`
       height: 100px;
       display: block;
       padding: 10px 20px;
-      border: 1px solid #E5E5E5;
+      border: 1px solid #e5e5e5;
     }
   }
 `;

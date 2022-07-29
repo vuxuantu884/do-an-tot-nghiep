@@ -1,14 +1,14 @@
-import { Card, FormInstance, Image } from 'antd'
-import { ColumnsType } from 'antd/lib/table';
-import CustomTable from 'component/table/CustomTable';
-import { PurchaseOrderLineItem } from 'model/purchase-order/purchase-item.model';
-import React from 'react'
-import {  formatCurrency } from 'utils/AppUtils';
-import { Link } from 'react-router-dom';
-import UrlConfig from 'config/url.config';
-import ImageProduct from 'screens/products/product/component/image-product.component';
-import NumberInput from 'component/custom/number-input.custom';
-import { PurchaseProcumentLineItemManual } from 'model/purchase-order/purchase-procument';
+import { Card, FormInstance, Image } from "antd";
+import { ColumnsType } from "antd/lib/table";
+import CustomTable from "component/table/CustomTable";
+import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import React from "react";
+import { formatCurrency } from "utils/AppUtils";
+import { Link } from "react-router-dom";
+import UrlConfig from "config/url.config";
+import ImageProduct from "screens/products/product/component/image-product.component";
+import NumberInput from "component/custom/number-input.custom";
+import { PurchaseProcumentLineItemManual } from "model/purchase-order/purchase-procument";
 
 interface LineItemsProps {
   formMain: FormInstance;
@@ -17,7 +17,7 @@ interface LineItemsProps {
 }
 
 const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
-  const { onQuantityChange, procurement_items } = props
+  const { onQuantityChange, procurement_items } = props;
 
   const getTotalQuantity = (): string => {
     let total = 0;
@@ -26,7 +26,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
     });
 
     return formatCurrency(total);
-  }
+  };
 
   const getTotalReceivedQuantity = (): string => {
     let total = 0;
@@ -35,7 +35,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
     });
 
     return formatCurrency(total);
-  }
+  };
 
   const getTotalRealQuantity = (): string => {
     let total = 0;
@@ -44,15 +44,14 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
     });
 
     return formatCurrency(total);
-  }
+  };
 
   const columns: ColumnsType<any> = [
     {
       title: "STT",
       align: "center",
       width: "40px",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) =>
-        index + 1,
+      render: (value: string, record: PurchaseOrderLineItem, index: number) => index + 1,
     },
     {
       title: "Ảnh",
@@ -60,10 +59,12 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
       align: "center",
       dataIndex: "variant_images",
       render: (value: string | null) => {
-        return (
-          value ? <Image width={40} height={40} placeholder="Xem" src={value ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={value} />
-        )
-      }
+        return value ? (
+          <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
+        ) : (
+          <ImageProduct disabled={true} onClick={undefined} path={value} />
+        );
+      },
     },
     {
       title: "Sản phẩm",
@@ -90,39 +91,51 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
       ),
     },
     {
-      title: <div>
-        <div>SL đặt hàng
-          (<span style={{ color: "#2A2A86" }} className="text-center">
-            {getTotalQuantity()}
-          </span>)
+      title: (
+        <div>
+          <div>
+            SL đặt hàng (
+            <span style={{ color: "#2A2A86" }} className="text-center">
+              {getTotalQuantity()}
+            </span>
+            )
+          </div>
         </div>
-      </div>,
+      ),
       width: 100,
       align: "center",
       dataIndex: "quantity",
       render: (value, row, index) => value ?? 0,
     },
     {
-      title: <div>
-        <div>SL đã nhận
-          (<span style={{ color: "#2A2A86" }} className="text-center">
-            {getTotalReceivedQuantity()}
-          </span>)
+      title: (
+        <div>
+          <div>
+            SL đã nhận (
+            <span style={{ color: "#2A2A86" }} className="text-center">
+              {getTotalReceivedQuantity()}
+            </span>
+            )
+          </div>
         </div>
-      </div>,
+      ),
       width: 100,
       align: "center",
       dataIndex: "receipt_quantity",
       render: (value, row, index) => value ?? 0,
     },
     {
-      title: <div>
-        <div>SL thực nhận (<span style={{ color: "#2A2A86" }} className="text-center">
-          {getTotalRealQuantity()}
-        </span>)
-
+      title: (
+        <div>
+          <div>
+            SL thực nhận (
+            <span style={{ color: "#2A2A86" }} className="text-center">
+              {getTotalRealQuantity()}
+            </span>
+            )
+          </div>
         </div>
-      </div>,
+      ),
       width: 100,
       align: "center",
       dataIndex: "fake_real_quantity",
@@ -134,28 +147,26 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
           value={value}
           onChange={(quantity: number | null) => {
             if (quantity === null) {
-              quantity = 0
+              quantity = 0;
             }
             if (quantity > 1000000) {
-              quantity = 1000000
+              quantity = 1000000;
             }
             onQuantityChange(quantity, index);
-            getTotalRealQuantity()
+            getTotalRealQuantity();
           }}
           format={(value: string) => {
             if (Number(value) > 1000000) {
-              return formatCurrency("1000000")
+              return formatCurrency("1000000");
             }
-            return formatCurrency(value ? value : 0, '')
+            return formatCurrency(value ? value : 0, "");
           }}
         />
       ),
     },
   ];
   return (
-    <Card
-      title="THÔNG TIN SẢN PHẨM"
-    >
+    <Card title="THÔNG TIN SẢN PHẨM">
       <CustomTable
         scroll={{ x: "max-content" }}
         className="inventory-table"
@@ -168,7 +179,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
         sticky
         footer={() =>
           procurement_items.length > 0 ? (
-            <div style={{ background: '#f5f5f5' }} className="row-footer-custom">
+            <div style={{ background: "#f5f5f5" }} className="row-footer-custom">
               <div
                 className="yody-foot-total-text"
                 style={{
@@ -220,7 +231,7 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
         }
       />
     </Card>
-  )
-}
+  );
+};
 
-export default LineItems
+export default LineItems;

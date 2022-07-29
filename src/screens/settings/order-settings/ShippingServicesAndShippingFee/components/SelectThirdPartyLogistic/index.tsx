@@ -37,8 +37,7 @@ function SelectThirdPartyLogistic(props: PropType) {
       }
     }
     form.setFieldsValue({
-      external_service_transport_type_ids:
-        list_external_service_transport_type_ids,
+      external_service_transport_type_ids: list_external_service_transport_type_ids,
     });
   };
 
@@ -74,7 +73,7 @@ function SelectThirdPartyLogistic(props: PropType) {
                         // random key to re-render
                         key={Math.random()}
                         defaultChecked={list_external_service_transport_type_ids.includes(
-                          singleType.id
+                          singleType.id,
                         )}
                       >
                         {singleType.name}

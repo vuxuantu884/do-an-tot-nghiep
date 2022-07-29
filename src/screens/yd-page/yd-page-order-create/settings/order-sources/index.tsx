@@ -16,13 +16,13 @@ import {
   actionAddOrderSource,
   actionDeleteOrderSource,
   actionEditOrderSource,
-  actionFetchListOrderSources
+  actionFetchListOrderSources,
 } from "domain/actions/settings/order-sources.action";
 import { DepartmentResponse } from "model/account/department.model";
 import { modalActionType } from "model/modal/modal.model";
 import {
   OrderSourceModel,
-  OrderSourceResponseModel
+  OrderSourceResponseModel,
 } from "model/response/order/order-source.response";
 import queryString from "query-string";
 import React, { useCallback, useEffect, useState } from "react";
@@ -30,9 +30,7 @@ import { useDispatch } from "react-redux";
 import { withRouter } from "react-router";
 import { useHistory } from "react-router-dom";
 import { getDepartmentAllApi } from "service/accounts/account.service";
-import {
-  deleteMultiOrderSourceService
-} from "service/order/order.service";
+import { deleteMultiOrderSourceService } from "service/order/order.service";
 import { convertDepartment, generateQuery } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import iconChecked from "./images/iconChecked.svg";
@@ -48,7 +46,7 @@ type PropsType = {
 };
 
 function OrderSources(props: PropsType) {
-  const {location} = props;
+  const { location } = props;
   const queryParamsParsed: any = queryString.parse(location.search);
   const ACTIONS_INDEX = {
     EXPORT: 1,
@@ -69,8 +67,9 @@ function OrderSources(props: PropsType) {
   const [listOrderSources, setListOrderSources] = useState<OrderSourceModel[]>([]);
   const [total, setTotal] = useState(0);
   const [modalAction, setModalAction] = useState<modalActionType>("create");
-  const [modalSingleOrderSource, setModalSingleOrderSource] =
-    useState<OrderSourceModel | null>(null);
+  const [modalSingleOrderSource, setModalSingleOrderSource] = useState<OrderSourceModel | null>(
+    null,
+  );
 
   const [form] = Form.useForm();
 
@@ -200,7 +199,7 @@ function OrderSources(props: PropsType) {
       history.replace(`${UrlConfig.ORDER_SOURCES}?${queryParam}`);
       window.scrollTo(0, 0);
     },
-    [history, queryParams]
+    [history, queryParams],
   );
 
   const handleDeleteMultiOrderSource = () => {
@@ -246,7 +245,7 @@ function OrderSources(props: PropsType) {
           setIsShowConfirmDelete(true);
       }
     },
-    [ACTIONS_INDEX.DELETE]
+    [ACTIONS_INDEX.DELETE],
   );
 
   const actions: Array<MenuAction> = [
@@ -315,7 +314,7 @@ function OrderSources(props: PropsType) {
       actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
         setListOrderSources(data.items);
         setTotal(data.metadata.total);
-      })
+      }),
     );
     setTableLoading(false);
   }, [dispatch, queryParams]);
@@ -330,12 +329,12 @@ function OrderSources(props: PropsType) {
   };
 
   const handleFormOrderSourceFormatFormValues = (
-    formValues: OrderSourceModel
+    formValues: OrderSourceModel,
   ): OrderSourceModel => {
     return {
       ...formValues,
       // code: formValues.code.toUpperCase(),
-      code: formValues.code? formValues.code: undefined,
+      code: formValues.code ? formValues.code : undefined,
     };
   };
 
@@ -345,7 +344,7 @@ function OrderSources(props: PropsType) {
         actionAddOrderSource(handleFormOrderSourceFormatFormValues(formValues), () => {
           setIsShowModalOrderSource(false);
           gotoFirstPage();
-        })
+        }),
       );
     },
     edit: (formValues: OrderSourceModel) => {
@@ -356,15 +355,12 @@ function OrderSources(props: PropsType) {
             handleFormOrderSourceFormatFormValues(formValues),
             () => {
               dispatch(
-                actionFetchListOrderSources(
-                  queryParams,
-                  (data: OrderSourceResponseModel) => {
-                    setListOrderSources(data.items);
-                  }
-                )
+                actionFetchListOrderSources(queryParams, (data: OrderSourceResponseModel) => {
+                  setListOrderSources(data.items);
+                }),
               );
-            }
-          )
+            },
+          ),
         );
         setIsShowModalOrderSource(false);
       }
@@ -375,7 +371,7 @@ function OrderSources(props: PropsType) {
           actionDeleteOrderSource(modalSingleOrderSource.id, () => {
             setIsShowModalOrderSource(false);
             gotoFirstPage();
-          })
+          }),
         );
       }
     },
@@ -391,16 +387,10 @@ function OrderSources(props: PropsType) {
   useEffect(() => {
     const valuesFromParams: formValuesType = {
       name: queryParamsParsed.name || undefined,
-      department_id: queryParamsParsed.department_id
-        ? +queryParamsParsed.department_id
-        : undefined,
+      department_id: queryParamsParsed.department_id ? +queryParamsParsed.department_id : undefined,
     };
     form.setFieldsValue(valuesFromParams);
-  }, [
-    form,
-    queryParamsParsed.department_id,
-    queryParamsParsed.name,
-  ]);
+  }, [form, queryParamsParsed.department_id, queryParamsParsed.name]);
 
   useEffect(() => {
     setQueryParams({
@@ -468,17 +458,14 @@ function OrderSources(props: PropsType) {
               layout="inline"
               form={form}
             >
-              <Form.Item name="name" style={{width: 245, maxWidth: "100%"}}>
-                <Input
-                  prefix={<img src={search} alt="" />}
-                  placeholder="Nguồn đơn hàng"
-                />
+              <Form.Item name="name" style={{ width: 245, maxWidth: "100%" }}>
+                <Input prefix={<img src={search} alt="" />} placeholder="Nguồn đơn hàng" />
               </Form.Item>
-              <Form.Item name="department_id" style={{width: 305, maxWidth: "100%"}}>
+              <Form.Item name="department_id" style={{ width: 305, maxWidth: "100%" }}>
                 <Select
                   showSearch
                   allowClear
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   placeholder="Phòng ban"
                   optionFilterProp="children"
                   filterOption={(input, option) =>
@@ -492,12 +479,10 @@ function OrderSources(props: PropsType) {
                         <Select.Option value={single.id} key={single.id}>
                           <span
                             className="hideInSelect"
-                            style={{paddingLeft: +18 * single.level}}
+                            style={{ paddingLeft: +18 * single.level }}
                           ></span>
                           {single?.parent?.name && (
-                            <span className="hideInDropdown">
-                              {single?.parent?.name} -{" "}
-                            </span>
+                            <span className="hideInDropdown">{single?.parent?.name} - </span>
                           )}
                           <span>{single.name}</span>
                         </Select.Option>
@@ -505,7 +490,7 @@ function OrderSources(props: PropsType) {
                     })}
                 </Select>
               </Form.Item>
-              <Form.Item style={{marginRight: 0}}>
+              <Form.Item style={{ marginRight: 0 }}>
                 <Button type="primary" htmlType="submit">
                   Lọc
                 </Button>
@@ -535,7 +520,7 @@ function OrderSources(props: PropsType) {
                 onClick: () => {
                   setModalAction("edit");
                   setModalSingleOrderSource(record);
-                    setIsShowModalOrderSource(true);
+                  setIsShowModalOrderSource(true);
                 },
               };
             }}
@@ -550,12 +535,8 @@ function OrderSources(props: PropsType) {
         />
         <CustomModal
           visible={isShowModalOrderSource}
-          onCreate={(formValues: OrderSourceModel) =>
-            handleFormOrderSource.create(formValues)
-          }
-          onEdit={(formValues: OrderSourceModel) =>
-            handleFormOrderSource.edit(formValues)
-          }
+          onCreate={(formValues: OrderSourceModel) => handleFormOrderSource.create(formValues)}
+          onEdit={(formValues: OrderSourceModel) => handleFormOrderSource.edit(formValues)}
           onDelete={() => handleFormOrderSource.delete()}
           onCancel={() => setIsShowModalOrderSource(false)}
           modalAction={modalAction}
@@ -563,7 +544,7 @@ function OrderSources(props: PropsType) {
           formItem={modalSingleOrderSource}
           deletedItemTitle={modalSingleOrderSource?.name}
           modalTypeText="Nguồn đơn hàng"
-          moreFormArguments={{listDepartments}}
+          moreFormArguments={{ listDepartments }}
         />
       </ContentContainer>
     </StyledComponent>

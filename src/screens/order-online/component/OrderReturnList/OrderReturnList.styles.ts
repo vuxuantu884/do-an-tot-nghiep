@@ -1,4 +1,3 @@
-
 import styled from "styled-components";
 import { borderColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 let nameQuantityWidth = 200;
@@ -12,7 +11,7 @@ export const StyledComponent = styled.div`
   .orderSource {
     margin-bottom: 9px;
     margin-left: -1.7px;
-	}
+  }
   .order-options {
     border-bottom: 1px solid #5252;
     .ant-radio-group {
@@ -43,7 +42,7 @@ export const StyledComponent = styled.div`
   .page-filter {
     padding-top: 0;
   }
-  .order-list{
+  .order-list {
     .productNameQuantityPrice {
       width: ${nameQuantityWidth}px;
       padding: 5px 0px !important;
@@ -58,7 +57,7 @@ export const StyledComponent = styled.div`
       justify-content: space-between;
     }
     .productNameWidth {
-      width: 60% ;
+      width: 60%;
     }
 
     th {
@@ -78,7 +77,7 @@ export const StyledComponent = styled.div`
       white-space: nowrap;
       display: flex;
       align-items: center;
-			justify-content: flex-end;
+      justify-content: flex-end;
       &:before {
         // content: "";
         display: block;
@@ -86,7 +85,7 @@ export const StyledComponent = styled.div`
         position: absolute;
         z-index: 1;
         top: -999px;
-        bottom:-999px;
+        bottom: -999px;
         left: 0;
         background-color: ${borderColor};
       }
@@ -100,38 +99,38 @@ export const StyledComponent = styled.div`
     .text-center {
       text-align: center;
       .icon-partial {
-          display: inline-block;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          border-color: #2a2a86;
-          border-width: 1px;
-          border-style: solid;
-          background-image: linear-gradient(to right, #2a2a86 50%, #ffffff 50%);
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border-color: #2a2a86;
+        border-width: 1px;
+        border-style: solid;
+        background-image: linear-gradient(to right, #2a2a86 50%, #ffffff 50%);
       }
       .icon-full {
-          display: inline-block;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          border-color: #2a2a86;
-          border-width: 1px;
-          border-style: solid;
-          background-color: #2a2a86;
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border-color: #2a2a86;
+        border-width: 1px;
+        border-style: solid;
+        background-color: #2a2a86;
       }
       .icon-blank {
-          display: inline-block;
-          width: 12px;
-          height: 12px;
-          border-radius: 50%;
-          border-color: #2a2a86;
-          border-width: 1px;
-          border-style: solid;
-          background-color: #ffffff;
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        border-color: #2a2a86;
+        border-width: 1px;
+        border-style: solid;
+        background-color: #ffffff;
       }
     }
 
-    .text-left{
+    .text-left {
       text-align: left;
     }
 
@@ -147,7 +146,7 @@ export const StyledComponent = styled.div`
         height: 100%;
         display: flex;
         align-items: center;
-        a{
+        a {
           font-weight: 500;
         }
       }
@@ -187,7 +186,7 @@ export const StyledComponent = styled.div`
           position: absolute;
           z-index: 1;
           top: -999px;
-          bottom:-999px;
+          bottom: -999px;
           left: 0;
           background-color: ${borderColor};
         }
@@ -211,70 +210,70 @@ export const StyledComponent = styled.div`
   .orderId {
     .noWrap {
       white-space: nowrap;
-      .order-id-title{
+      .order-id-title {
         font-weight: 500;
       }
     }
     .single {
       margin-top: 2px;
     }
-    .single-lg{
+    .single-lg {
       margin-top: 10px;
     }
   }
 
-  .total-amount{
-    &-black{
+  .total-amount {
+    &-black {
       font-weight: 600;
       color: #222222;
     }
-    .item-discount{
-      color:#E24343
+    .item-discount {
+      color: #e24343;
     }
   }
 
-  .point-refund{
-    .item-point{
-      color:#FCAF17;
+  .point-refund {
+    .item-point {
+      color: #fcaf17;
       font-weight: 600;
       padding-left: 5px;
     }
   }
 
-  .received{
-    &-success{
-      color: #27AE60;
+  .received {
+    &-success {
+      color: #27ae60;
       font-weight: 600;
     }
-    &-danger{
-      color: #E24343;
+    &-danger {
+      color: #e24343;
       font-weight: 600;
     }
   }
 
-  .refund-amount{
-    &-success{
-      color: #27AE60;
+  .refund-amount {
+    &-success {
+      color: #27ae60;
       font-weight: 600;
     }
-    &-danger{
-      color: #E24343;
+    &-danger {
+      color: #e24343;
       font-weight: 600;
     }
-    &-warning{
-      color: #FCAF17;
+    &-warning {
+      color: #fcaf17;
       font-weight: 600;
     }
   }
 
   .code_order_return {
-      .noWrap {
-        white-space: nowrap;
-      }
-      .single {
-        margin-top: 2px;
-      }
+    .noWrap {
+      white-space: nowrap;
     }
+    .single {
+      margin-top: 2px;
+    }
+  }
   .textSmall {
     font-size: 0.86em;
     line-height: 1.25;
@@ -294,27 +293,27 @@ export const StyledComponent = styled.div`
     }
   }
   .orderNotes {
-		.inner {
-			height: 100%;
-		}
-		.single {
-			height: 50%;
-			display: flex;
-			padding: 10px 10px;
-			align-items: center;
-			&:not(:last-child) {
-				border-bottom: 1px solid ${borderColor};
-			}
-			.wrapper {
-				display: flex;
-			}
-			svg {
-				position: relative;
-				top: 3px;
-			}
-		}
-	}
-  .item-title{
+    .inner {
+      height: 100%;
+    }
+    .single {
+      height: 50%;
+      display: flex;
+      padding: 10px 10px;
+      align-items: center;
+      &:not(:last-child) {
+        border-bottom: 1px solid ${borderColor};
+      }
+      .wrapper {
+        display: flex;
+      }
+      svg {
+        position: relative;
+        top: 3px;
+      }
+    }
+  }
+  .item-title {
     color: #222222;
     font-weight: 500;
   }

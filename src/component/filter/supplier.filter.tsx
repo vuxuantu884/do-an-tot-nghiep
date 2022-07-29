@@ -12,16 +12,8 @@ import { getCollectionRequestAction } from "../../domain/actions/product/collect
 import { useDispatch } from "react-redux";
 import useEffectOnce from "react-use/lib/useEffectOnce";
 import BaseFilterResult from "../base/BaseFilterResult";
-import {
-  FieldMapping,
-  SupplierEnum,
-  SupplierFilterProps,
-} from "./interfaces/supplier";
-import {
-  formatFieldTag,
-  generateQuery,
-  transformParamsToObject,
-} from "../../utils/AppUtils";
+import { FieldMapping, SupplierEnum, SupplierFilterProps } from "./interfaces/supplier";
+import { formatFieldTag, generateQuery, transformParamsToObject } from "../../utils/AppUtils";
 import { useArray } from "../../hook/useArray";
 import { useHistory } from "react-router";
 import UrlConfig from "../../config/url.config";
@@ -35,9 +27,7 @@ import ButtonSetting from "component/table/ButtonSetting";
 const { Item } = Form;
 const { Option } = Select;
 
-const SupplierFilter: React.FC<SupplierFilterProps> = (
-  props: SupplierFilterProps,
-) => {
+const SupplierFilter: React.FC<SupplierFilterProps> = (props: SupplierFilterProps) => {
   const {
     onFilter,
     params,
@@ -56,9 +46,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
   const [visible, setVisible] = useState(false);
   const [formBasic] = Form.useForm();
   const [formAdvance] = Form.useForm();
-  const [collections, setCollections] = useState<
-    PageResponse<CollectionResponse>
-  >({
+  const [collections, setCollections] = useState<PageResponse<CollectionResponse>>({
     metadata: {
       limit: 10,
       page: 1,
@@ -66,15 +54,9 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     },
     items: [],
   });
-  const [isSearchingCollections, setIsSearchingCollections] =
-    React.useState(false);
+  const [isSearchingCollections, setIsSearchingCollections] = React.useState(false);
   const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
-  const {
-    array: paramsArray,
-    set: setParamsArray,
-    remove,
-    prevArray,
-  } = useArray([]);
+  const { array: paramsArray, set: setParamsArray, remove, prevArray } = useArray([]);
 
   const onFinish = (values: SupplierQuery) => {
     onFilter && onFilter({ ...values, condition: values.condition?.trim() });
@@ -147,25 +129,19 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
         case SupplierEnum.status:
           return {
             ...item,
-            valueName:
-              item.valueId === "inactive"
-                ? "Ngừng hoạt động"
-                : "Đang hoạt động",
+            valueName: item.valueId === "inactive" ? "Ngừng hoạt động" : "Đang hoạt động",
           };
         case SupplierEnum.type:
           return {
             ...item,
-            valueName:
-              item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân",
+            valueName: item.valueId === "enterprise" ? "Doanh nghiệp" : "Cá nhân",
           };
         case SupplierEnum.condition:
           return { ...item, valueName: item.valueId };
         case SupplierEnum.merchandiser:
           return { ...item, valueName: item.valueId.toString() };
         case SupplierEnum.district_id:
-          const findDistrict = listDistrict?.find(
-            (district) => +district.id === +item.valueId,
-          );
+          const findDistrict = listDistrict?.find((district) => +district.id === +item.valueId);
           return { ...item, valueName: findDistrict?.name };
         case SupplierEnum.scorecard:
           return { ...item, valueName: item.valueId };
@@ -180,12 +156,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
     });
     setParamsArray(newParams);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    params,
-    JSON.stringify(listDistrict),
-    JSON.stringify(collections),
-    setParamsArray,
-  ]);
+  }, [params, JSON.stringify(listDistrict), JSON.stringify(collections), setParamsArray]);
 
   useEffect(() => {
     //Xóa tag
@@ -199,12 +170,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
   return (
     <div className="custom-filter">
       <CustomFilter onMenuClick={onActionClick} menu={actions}>
-        <Form
-          onFinish={onFinish}
-          initialValues={params}
-          form={formBasic}
-          layout="inline"
-        >
+        <Form onFinish={onFinish} initialValues={params} form={formBasic} layout="inline">
           <Item
             name="condition"
             style={{ flex: 1 }}
@@ -245,12 +211,7 @@ const SupplierFilter: React.FC<SupplierFilterProps> = (
         visible={visible}
         width={396}
       >
-        <Form
-          form={formAdvance}
-          onFinish={onFinish}
-          initialValues={params}
-          layout="vertical"
-        >
+        <Form form={formAdvance} onFinish={onFinish} initialValues={params} layout="vertical">
           <Item name="status" label="Trạng thái">
             <CustomSelectOne span={12} data={getStatusObjFromEnum()} />
           </Item>

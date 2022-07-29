@@ -7,20 +7,20 @@ import { ShippingServiceConfigDetailResponseModel } from "model/response/setting
 
 export interface OrderReducerType {
   orderStore: {
-    storeDetail: StoreResponse | null,
-    storeBankAccountNumbers: StoreBankAccountNumberModel[],
-    selectedStoreBankAccount: string |null,
-    isShouldSetDefaultStoreBankAccount: boolean,
-  },
+    storeDetail: StoreResponse | null;
+    storeBankAccountNumbers: StoreBankAccountNumberModel[];
+    selectedStoreBankAccount: string | null;
+    isShouldSetDefaultStoreBankAccount: boolean;
+  };
   shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
   orderDetail: {
     orderCustomer: CustomerResponse | null;
     orderLineItems: OrderLineItemRequest[];
     thirdPL: thirdPLModel | null;
-    isExportBill: boolean,
-  },
+    isExportBill: boolean;
+  };
   isLoadingDiscount: boolean;
   orderPayment: {
     isAlreadyChanged: boolean;
-  }
+  };
 }

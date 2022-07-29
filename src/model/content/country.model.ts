@@ -2,7 +2,7 @@ import { BaseObject } from "model/base/base.response";
 
 export interface CountryResponse extends BaseObject {
   value?: number;
-  name: string
+  name: string;
 }
 
 export interface RegionResponse extends BaseObject {

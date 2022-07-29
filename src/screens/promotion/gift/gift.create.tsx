@@ -1,19 +1,8 @@
-import {
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  InputNumber,
-  Row,
-  Select,
-  Space,
-  Switch,
-} from "antd";
+import { Button, Card, Col, Form, Input, InputNumber, Row, Select, Space, Switch } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
-import React, {ReactElement, useState} from "react";
+import React, { ReactElement, useState } from "react";
 import { priorityOptions } from "../constants";
 import GeneralConditionForm from "../shared/general-condition.form";
 
@@ -70,7 +59,7 @@ export default function GiftCreate(props: Props): ReactElement {
                         message: "Tên khuyến mại không vượt quá 255 ký tự",
                       },
                     ]}
-                    labelCol={{span: 24, offset: 0}}
+                    labelCol={{ span: 24, offset: 0 }}
                   >
                     <Input placeholder="Nhập tên khuyến mại" maxLength={255} />
                   </Form.Item>
@@ -89,13 +78,9 @@ export default function GiftCreate(props: Props): ReactElement {
                         message: "Mã khuyến mại sai định dạng",
                       },
                     ]}
-                    labelCol={{span: 24, offset: 0}}
+                    labelCol={{ span: 24, offset: 0 }}
                   >
-                    <Input
-                      placeholder="Mã khuyến mại tạo tự động"
-                      maxLength={20}
-                      disabled
-                    />
+                    <Input placeholder="Mã khuyến mại tạo tự động" maxLength={20} disabled />
                   </Form.Item>
                 </Col>
                 <Col span={12}>
@@ -110,11 +95,11 @@ export default function GiftCreate(props: Props): ReactElement {
                             message: "Vui lòng nhập số lượng áp dụng",
                           },
                         ]}
-                        labelCol={{span: 24, offset: 0}}
+                        labelCol={{ span: 24, offset: 0 }}
                       >
                         <InputNumber
                           disabled={unlimitedUsage}
-                          style={{width: "100%"}}
+                          style={{ width: "100%" }}
                           placeholder="Nhập số lượng khuyến mại"
                           min={0}
                           maxLength={6}
@@ -126,7 +111,7 @@ export default function GiftCreate(props: Props): ReactElement {
                         label=" "
                         name="usage_limit"
                         colon={false}
-                        labelCol={{span: 24, offset: 0}}
+                        labelCol={{ span: 24, offset: 0 }}
                       >
                         <Space>
                           <Switch
@@ -149,7 +134,7 @@ export default function GiftCreate(props: Props): ReactElement {
                       <Form.Item
                         label={<b>Mức độ ưu tiên:</b>}
                         name="priority"
-                        labelCol={{span: 24, offset: 0}}
+                        labelCol={{ span: 24, offset: 0 }}
                       >
                         <Select placeholder="Chọn mức độ ưu tiên">
                           {priorityOptions.map((item) => (
@@ -172,10 +157,10 @@ export default function GiftCreate(props: Props): ReactElement {
                         message: "Mô tả khuyến mại không vượt quá 500 ký tự",
                       },
                     ]}
-                    labelCol={{span: 24, offset: 0}}
+                    labelCol={{ span: 24, offset: 0 }}
                   >
                     <Input.TextArea
-                      style={{minHeight: 145}}
+                      style={{ minHeight: 145 }}
                       placeholder="Nhập mô tả cho khuyến mại"
                       maxLength={500}
                     />

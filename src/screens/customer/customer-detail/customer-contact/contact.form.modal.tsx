@@ -15,9 +15,7 @@ type FormValueType = {
   website?: string;
 };
 
-const FormCustomerContact: React.FC<CustomModalFormModel> = (
-  props: CustomModalFormModel
-) => {
+const FormCustomerContact: React.FC<CustomModalFormModel> = (props: CustomModalFormModel) => {
   const { modalAction, formItem, form } = props;
   const isCreateForm = modalAction === CONSTANTS.MODAL_ACTION_TYPE.create;
   // const DEFAULT_COMPANY = {
@@ -111,11 +109,7 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
                   },
                 ]}
               >
-                <Input
-                  placeholder="Nhập Email"
-                  style={{ width: "100%" }}
-                  maxLength={255}
-                />
+                <Input placeholder="Nhập Email" style={{ width: "100%" }} maxLength={255} />
               </Form.Item>
             </Col>
           </Row>
@@ -124,22 +118,14 @@ const FormCustomerContact: React.FC<CustomModalFormModel> = (
             label={<span className="fw-500">Chức vụ/phòng ban:</span>}
             rules={[]}
           >
-            <Input
-              maxLength={255}
-              placeholder="Nhập chức vụ/phòng ban"
-              style={{ width: "100%" }}
-            />
+            <Input maxLength={255} placeholder="Nhập chức vụ/phòng ban" style={{ width: "100%" }} />
           </Form.Item>
           <Form.Item
             name="note"
             label={<span className="fw-500">Ghi chú:</span>}
             rules={[{ max: 500, message: "Không được nhập quá 500 ký tự!" }]}
           >
-            <Input.TextArea
-              rows={5}
-              maxLength={255}
-              placeholder="Nhập ghi chú"
-            />
+            <Input.TextArea rows={5} maxLength={255} placeholder="Nhập ghi chú" />
           </Form.Item>
         </Col>
       </Row>

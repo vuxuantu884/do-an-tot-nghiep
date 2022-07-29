@@ -6,13 +6,13 @@ export const StyledComponent = styled.div`
     padding: 0;
   }
   .button-pick-many {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      column-gap: 5px;
-      background-color: white;
-      color: #222222;
-      border: 1px solid ${borderColor};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    column-gap: 5px;
+    background-color: white;
+    color: #222222;
+    border: 1px solid ${borderColor};
   }
   .avatar {
     width: 45px;

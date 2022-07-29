@@ -2,11 +2,15 @@ import { KDGroup } from "model/report";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
-import { calculateTargetMonth, getDataManyQueryKeyDriverOffline, nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import {
+  calculateTargetMonth,
+  getDataManyQueryKeyDriverOffline,
+  nonAccentVietnameseKD,
+} from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import {
   PRODUCT_TOTAL_SALES_DAY_QUERY,
-  PRODUCT_TOTAL_SALES_MONTH_QUERY
+  PRODUCT_TOTAL_SALES_MONTH_QUERY,
 } from "../config/key-driver-offline-asm-config";
 import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider";
 
@@ -23,7 +27,7 @@ function useFetchProductTotalSales() {
       if (item[0]) {
         const idx = res.findIndex((companyItem: any[]) => companyItem[0] === item[0]);
         if (idx !== -1) {
-          res[idx][2] += item[2]; 
+          res[idx][2] += item[2];
         } else {
           res.push([item[0], "COMPANY", item[2]]);
         }
@@ -41,7 +45,7 @@ function useFetchProductTotalSales() {
         dispatch,
         moment().date() > 1
           ? [PRODUCT_TOTAL_SALES_DAY_QUERY, PRODUCT_TOTAL_SALES_MONTH_QUERY]
-          : [PRODUCT_TOTAL_SALES_DAY_QUERY]
+          : [PRODUCT_TOTAL_SALES_DAY_QUERY],
       );
 
       if (!res?.length) {
@@ -64,10 +68,10 @@ function useFetchProductTotalSales() {
               childrenProduct.push({
                 key: itemKey,
                 name: item[0],
-                [`${nonAccentVietnameseKD(item[1])}_actualDay`]: item[2]
-              })
+                [`${nonAccentVietnameseKD(item[1])}_actualDay`]: item[2],
+              });
             }
-          } 
+          }
         });
         if (res[1]?.result) {
           const { data: resMonthData } = res[1].result;
@@ -78,17 +82,19 @@ function useFetchProductTotalSales() {
               const idx = childrenProduct.findIndex((product: any) => product?.key === itemKey);
               if (idx !== -1) {
                 childrenProduct[idx].name = item[0];
-                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`] = item[2];
-                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] = calculateTargetMonth(item[2]);
+                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`] =
+                  item[2];
+                childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] =
+                  calculateTargetMonth(item[2]);
               } else {
                 childrenProduct.push({
                   key: itemKey,
                   name: item[0],
                   [`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`]: item[2],
                   [`${nonAccentVietnameseKD(item[1])}_targetMonth`]: calculateTargetMonth(item[2]),
-                })
+                });
               }
-            } 
+            }
           });
         }
         productTotalSales.children = childrenProduct;

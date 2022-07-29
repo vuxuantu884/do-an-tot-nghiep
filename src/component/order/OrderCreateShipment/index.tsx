@@ -1,14 +1,4 @@
-import {
-  Button,
-  Checkbox,
-  Col,
-  DatePicker,
-  Form,
-  FormInstance,
-  Row,
-  Select,
-  Space
-} from "antd";
+import { Button, Checkbox, Col, DatePicker, Form, FormInstance, Row, Select, Space } from "antd";
 import DeliverPartnerOutline from "component/icon/DeliverPartnerOutline";
 import PickAtStoreOutline from "component/icon/PickAtStoreOutline";
 import SelfDeliverOutline from "component/icon/SelfDeliverOutline";
@@ -21,15 +11,25 @@ import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { DeliveryServiceResponse, EcommerceDeliveryResponse, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import {
+  DeliveryServiceResponse,
+  EcommerceDeliveryResponse,
+  OrderResponse,
+  StoreCustomResponse,
+} from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
-  ShippingServiceConfigDetailResponseModel
+  ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { getShippingAddressDefault, handleCalculateShippingFeeApplyOrderSetting, isOrderFinishedOrCancel, SumWeight } from "utils/AppUtils";
+import {
+  getShippingAddressDefault,
+  handleCalculateShippingFeeApplyOrderSetting,
+  isOrderFinishedOrCancel,
+  SumWeight,
+} from "utils/AppUtils";
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
@@ -58,7 +58,7 @@ type PropTypes = {
   totalAmountCustomerNeedToPay?: number;
   form: FormInstance<any>;
   thirdPL?: thirdPLModel;
-	shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
+  shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
   isShowButtonCreateShipment?: boolean;
   onSelectShipment: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
@@ -67,11 +67,11 @@ type PropTypes = {
   creating?: boolean;
   isOrderReturnFromPOS?: boolean;
   handleCancelCreateShipment?: () => void;
-  ecommerceShipment? : EcommerceDeliveryResponse | null;
+  ecommerceShipment?: EcommerceDeliveryResponse | null;
   isEcommerceOrder?: boolean;
   isOrderUpdate?: boolean;
-	OrderDetail?: OrderResponse | null;
-	orderConfig:  OrderConfigResponseModel | null;
+  OrderDetail?: OrderResponse | null;
+  orderConfig: OrderConfigResponseModel | null;
   payments?: OrderPaymentRequest[];
 };
 
@@ -107,7 +107,7 @@ type PropTypes = {
  * handleCreateShipment: xử lý khi click nút tạo đơn giao hàng trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  *
  * creating: loading status create
- * 
+ *
  * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
 function OrderCreateShipment(props: PropTypes) {
@@ -123,8 +123,8 @@ function OrderCreateShipment(props: PropTypes) {
     isCancelValidateDelivery,
     thirdPL,
     isShowButtonCreateShipment = false,
-		shippingServiceConfig,
-		orderConfig,
+    shippingServiceConfig,
+    orderConfig,
     setThirdPL,
     onSelectShipment,
     setShippingFeeInformedToCustomer,
@@ -143,24 +143,25 @@ function OrderCreateShipment(props: PropTypes) {
   const shippingAddress = useMemo(() => {
     const address = customer?.shipping_addresses.find((item) => {
       return item.default;
-    })
-    if(address) {
-      return address
+    });
+    if (address) {
+      return address;
     } else {
-      return null
+      return null;
     }
-  }, [customer?.shipping_addresses])
+  }, [customer?.shipping_addresses]);
 
   const dispatch = useDispatch();
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const [addressError, setAddressError] = useState<string>("");
-  const [listExternalShippers, setListExternalShippers] = useState<Array<DeliverPartnerResponse> | null>(null);
+  const [listExternalShippers, setListExternalShippers] =
+    useState<Array<DeliverPartnerResponse> | null>(null);
   const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 
   const ShipMethodOnChange = (value: number) => {
     onSelectShipment(value);
     // setShippingFeeInformedToCustomer(0);
-    if(value === ShipmentMethodOption.DELIVER_PARTNER) {
+    if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setThirdPL({
         delivery_service_provider_code: "",
         delivery_service_provider_id: null,
@@ -174,7 +175,7 @@ function OrderCreateShipment(props: PropTypes) {
   };
 
   const shipping_requirements = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement
+    (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement,
   );
 
   const shipmentButton: Array<ShipmentButtonType> = [
@@ -203,24 +204,25 @@ function OrderCreateShipment(props: PropTypes) {
       isDisabled: isOrderReturnFromPOS,
     },
   ];
-const checkIfDisableSelectShipment = () => {
-  return isOrderFinishedOrCancel(OrderDetail) || 
-    (payments?.some(payment => {
-      return (
-        checkIfMomoPayment(payment) && 
-        payment.paid_amount > 0 && 
-        !checkIfExpiredOrCancelledPayment(payment)
-      )
-    })
-  )
-};
+  const checkIfDisableSelectShipment = () => {
+    return (
+      isOrderFinishedOrCancel(OrderDetail) ||
+      payments?.some((payment) => {
+        return (
+          checkIfMomoPayment(payment) &&
+          payment.paid_amount > 0 &&
+          !checkIfExpiredOrCancelledPayment(payment)
+        );
+      })
+    );
+  };
 
   const renderShipmentTabHeader = () => {
     return (
       <React.Fragment>
         {shipmentButton.map((button) => {
           let icon = null;
-          let color= shipmentMethod === button.value ? primaryColor: undefined;
+          let color = shipmentMethod === button.value ? primaryColor : undefined;
           switch (button.value) {
             case ShipmentMethodOption.DELIVER_PARTNER:
               icon = <DeliverPartnerOutline color={color} />;
@@ -231,10 +233,11 @@ const checkIfDisableSelectShipment = () => {
             case ShipmentMethodOption.PICK_AT_STORE:
               icon = <PickAtStoreOutline color={color} />;
               break;
-            case ShipmentMethodOption.DELIVER_LATER: 
+            case ShipmentMethodOption.DELIVER_LATER:
               icon = <WallClockOutline color={color} />;
               break;
-            default: break;
+            default:
+              break;
           }
           return (
             <div key={button.value}>
@@ -244,10 +247,15 @@ const checkIfDisableSelectShipment = () => {
                   key={button.value}
                   style={checkIfDisableSelectShipment() ? { pointerEvents: "none" } : undefined}
                   onClick={() => {
-                    levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value)
+                    levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value);
                     if (items?.length && items?.length > 0 && button.value === 2) {
-                      handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderPrice, shippingServiceConfig,
-                        undefined, form, setShippingFeeInformedToCustomer
+                      handleCalculateShippingFeeApplyOrderSetting(
+                        shippingAddress?.city_id,
+                        orderPrice,
+                        shippingServiceConfig,
+                        undefined,
+                        form,
+                        setShippingFeeInformedToCustomer,
                       );
                     }
                   }}
@@ -270,7 +278,7 @@ const checkIfDisableSelectShipment = () => {
                 </div>
               )}
             </div>
-          )
+          );
         })}
       </React.Fragment>
     );
@@ -279,11 +287,11 @@ const checkIfDisableSelectShipment = () => {
   const renderButtonCreateActionHtml = () => {
     if (isShowButtonCreateShipment) {
       return (
-        <div style={{marginTop: 20}}>
+        <div style={{ marginTop: 20 }}>
           <Button
             type="primary"
             className="create-button-custom 88"
-            style={{float: "right"}}
+            style={{ float: "right" }}
             onClick={() => {
               handleCreateShipment && handleCreateShipment();
             }}
@@ -296,7 +304,7 @@ const checkIfDisableSelectShipment = () => {
             onClick={() => {
               handleCancelCreateShipment && handleCancelCreateShipment();
             }}
-            style={{float: "right"}}
+            style={{ float: "right" }}
             disabled={creating}
           >
             Hủy
@@ -314,10 +322,17 @@ const checkIfDisableSelectShipment = () => {
       (getShippingAddressDefault(customer)?.city_id ||
         getShippingAddressDefault(customer)?.district_id) &&
       getShippingAddressDefault(customer)?.ward_id &&
-      getShippingAddressDefault(customer)?.full_address && items && items?.length > 0
+      getShippingAddressDefault(customer)?.full_address &&
+      items &&
+      items?.length > 0
     ) {
-      if (!((storeDetail.city_id || storeDetail.district_id) &&
-          storeDetail.ward_id && storeDetail.address)) {
+      if (
+        !(
+          (storeDetail.city_id || storeDetail.district_id) &&
+          storeDetail.ward_id &&
+          storeDetail.address
+        )
+      ) {
         setAddressError("Thiếu thông tin địa chỉ cửa hàng!");
         return;
       }
@@ -353,7 +368,7 @@ const checkIfDisableSelectShipment = () => {
     } else {
       setAddressError("Thiếu thông tin địa chỉ chi tiết khách hàng!");
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [customer, dispatch, items, storeDetail]);
 
   useEffect(() => {
@@ -368,16 +383,18 @@ const checkIfDisableSelectShipment = () => {
    * Chọn yêu cầu xem hàng
    */
   useEffect(() => {
-    if (orderConfig && !form.getFieldValue('requirements')) {
+    if (orderConfig && !form.getFieldValue("requirements")) {
       if (orderConfig.for_all_order) {
         form?.setFieldsValue({
           requirements: orderConfig.order_config_action,
         });
       } else {
-				form?.setFieldsValue({
-          requirements: shipping_requirements?.find(requirement => requirement.value === SHIPPING_REQUIREMENT.default)?.value,
+        form?.setFieldsValue({
+          requirements: shipping_requirements?.find(
+            (requirement) => requirement.value === SHIPPING_REQUIREMENT.default,
+          )?.value,
         });
-			}
+      }
     }
   }, [form, orderConfig, shipping_requirements]);
 
@@ -385,13 +402,13 @@ const checkIfDisableSelectShipment = () => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setDeliveryServices(response);
-      })
+      }),
     );
   }, [dispatch]);
 
   return (
     <StyledComponent>
-      {isEcommerceOrder &&
+      {isEcommerceOrder && (
         <ShipmentMethodEcommerce
           ecommerceShipment={ecommerceShipment}
           OrderDetail={OrderDetail}
@@ -400,9 +417,9 @@ const checkIfDisableSelectShipment = () => {
           isLoading={creating}
           isOrderUpdate={isOrderUpdate}
         />
-      }
+      )}
 
-      {(!isEcommerceOrder)&&
+      {!isEcommerceOrder && (
         <div className="orders-shipment">
           <Row gutter={24}>
             <Col md={9}>
@@ -410,18 +427,23 @@ const checkIfDisableSelectShipment = () => {
               <Form.Item name="dating_ship">
                 <DatePicker
                   format={dateFormat}
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   className="r-5 w-100 ip-search"
                   placeholder={DATE_FORMAT.DDMMYYY}
                   disabledDate={(current: any) => moment().add(-1, "days") >= current}
-                  disabled = {isOrderFinishedOrCancel(OrderDetail)}
+                  disabled={isOrderFinishedOrCancel(OrderDetail)}
                 />
               </Form.Item>
             </Col>
 
             <Col md={6}>
               <Form.Item name="office_time" valuePropName="checked">
-                <Checkbox  style={{marginTop: "8px"}} disabled = {isOrderFinishedOrCancel(OrderDetail)}>Giờ hành chính</Checkbox>
+                <Checkbox
+                  style={{ marginTop: "8px" }}
+                  disabled={isOrderFinishedOrCancel(OrderDetail)}
+                >
+                  Giờ hành chính
+                </Checkbox>
               </Form.Item>
             </Col>
             <Col md={9}>
@@ -432,21 +454,19 @@ const checkIfDisableSelectShipment = () => {
                   showSearch
                   showArrow
                   notFoundContent="Không tìm thấy kết quả"
-                  style={{width: "100%"}}
+                  style={{ width: "100%" }}
                   placeholder="Chọn yêu cầu"
                   disabled={orderConfig?.for_all_order || isOrderFinishedOrCancel(OrderDetail)}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children.toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
                 >
                   {shipping_requirements?.map((item, index) => (
                     <Select.Option
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       key={index.toString()}
                       value={item.value}
                     >
@@ -463,8 +483,8 @@ const checkIfDisableSelectShipment = () => {
               className="saleorder_shipment_method_btn 2"
               style={
                 shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                  ? {border: "none"}
-                  : {borderBottom: "1px solid #2A2A86"}
+                  ? { border: "none" }
+                  : { borderBottom: "1px solid #2A2A86" }
               }
             >
               <Space size={10} align="start">
@@ -475,9 +495,7 @@ const checkIfDisableSelectShipment = () => {
           <div
             className="saleorder_shipment_method_content"
             style={
-              shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
-                ? {marginTop: 15}
-                : undefined
+              shipmentMethod !== ShipmentMethodOption.DELIVER_LATER ? { marginTop: 15 } : undefined
             }
           >
             {/*--- Chuyển hãng vận chuyển ----*/}
@@ -523,7 +541,7 @@ const checkIfDisableSelectShipment = () => {
             )}
           </div>
         </div>
-      }
+      )}
     </StyledComponent>
   );
 }

@@ -1,4 +1,9 @@
-import { Loading3QuartersOutlined, MinusCircleOutlined, PlusCircleOutlined, UnorderedListOutlined } from "@ant-design/icons";
+import {
+  Loading3QuartersOutlined,
+  MinusCircleOutlined,
+  PlusCircleOutlined,
+  UnorderedListOutlined,
+} from "@ant-design/icons";
 import { Button, Card, Col, Image, Modal, Popover, Row, Spin, Switch, Tabs, Tag } from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
@@ -9,12 +14,9 @@ import { ProductPermission } from "config/permissions/product.permission";
 import UrlConfig from "config/url.config";
 import {
   inventoryGetDetailAction,
-  inventoryGetHistoryAction
+  inventoryGetHistoryAction,
 } from "domain/actions/inventory/inventory.action";
-import {
-  productGetDetail,
-  productUpdateAction
-} from "domain/actions/product/products.action";
+import { productGetDetail, productUpdateAction } from "domain/actions/product/products.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { HistoryInventoryResponse, InventoryResponse } from "model/inventory";
 import { CollectionCreateRequest } from "model/product/collection.model";
@@ -35,7 +37,7 @@ import TabProductHistory from "../tab/TabProductHistory";
 import TabProductInventory from "../tab/TabProductInventory";
 import { StyledComponent } from "./styles";
 import useAuthorization from "hook/useAuthorization";
-import './/index.scss'
+import ".//index.scss";
 
 export interface ProductParams {
   id: string;
@@ -43,18 +45,18 @@ export interface ProductParams {
 }
 
 enum TabName {
-  HISTORY = '#historyTab',
-  INVENTORY = '#inventoryTab'
+  HISTORY = "#historyTab",
+  INVENTORY = "#inventoryTab",
 }
 const ProductDetailScreen: React.FC = () => {
   const { TabPane } = Tabs;
   const history = useHistory();
   const dispatch = useDispatch();
   const location = useLocation();
-  const {hash} = location;
+  const { hash } = location;
 
   const tabRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab]= useState<string>("1")
+  const [activeTab, setActiveTab] = useState<string>("1");
   const { id, variantId } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -66,12 +68,10 @@ const ProductDetailScreen: React.FC = () => {
   const [nav1, setNav1] = useState<Slider | null>();
   const [nav2, setNav2] = useState<Slider | null>();
   const [data, setData] = useState<ProductResponse | null>(null);
-  const [visibleDes,setVisibleDes] = useState<boolean>(false);
-  const [loadingHis,setLoadingHis] = useState<boolean>(false);
-  const [loadingInventories,setLoadingInventories] = useState<boolean>(false);
-  const [dataInventory, setDataInventory] = useState<
-    PageResponse<InventoryResponse>
-  >({
+  const [visibleDes, setVisibleDes] = useState<boolean>(false);
+  const [loadingHis, setLoadingHis] = useState<boolean>(false);
+  const [loadingInventories, setLoadingInventories] = useState<boolean>(false);
+  const [dataInventory, setDataInventory] = useState<PageResponse<InventoryResponse>>({
     items: [],
     metadata: {
       limit: 30,
@@ -79,9 +79,7 @@ const ProductDetailScreen: React.FC = () => {
       total: 0,
     },
   });
-  const [dataHistory, setDataHistory] = useState<
-    PageResponse<HistoryInventoryResponse>
-  >({
+  const [dataHistory, setDataHistory] = useState<PageResponse<HistoryInventoryResponse>>({
     items: [],
     metadata: {
       limit: 30,
@@ -94,11 +92,11 @@ const ProductDetailScreen: React.FC = () => {
     acceptPermissions: [ProductPermission.update_saleable],
   });
 
-  const onEdit =() => {
-    if(variantId){
+  const onEdit = () => {
+    if (variantId) {
       // redirect to edit this variantId
       history.push(`${UrlConfig.PRODUCT}/${idNumber}/variants/${variantId}/update`);
-    }else{
+    } else {
       // redirect to edit this product
       history.push(`${UrlConfig.PRODUCT}/${idNumber}/update`);
     }
@@ -120,16 +118,20 @@ const ProductDetailScreen: React.FC = () => {
   }, [active, data]);
 
   const productStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.product_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_status,
   );
 
   const renderSize = () => {
-    const dimensionList: Array<number|string> = [currentVariant?.length || 0, currentVariant?.width || 0, currentVariant?.height || 0];
-    
+    const dimensionList: Array<number | string> = [
+      currentVariant?.length || 0,
+      currentVariant?.width || 0,
+      currentVariant?.height || 0,
+    ];
+
     let dimension = "";
-    if(currentVariant?.length || currentVariant?.width || currentVariant?.height){
-    dimension = dimensionList.join(" x ");
-      if(currentVariant?.length_unit){
+    if (currentVariant?.length || currentVariant?.width || currentVariant?.height) {
+      dimension = dimensionList.join(" x ");
+      if (currentVariant?.length_unit) {
         dimension += ` ${currentVariant.length_unit}`;
       }
     }
@@ -148,14 +150,16 @@ const ProductDetailScreen: React.FC = () => {
 
   const update = useCallback(
     (product: ProductResponse) => {
-      let productRequest: any = {...product};
+      let productRequest: any = { ...product };
       setLoadingVariant(true);
       if (productRequest.collections) {
-        productRequest.collections = productRequest.collections.map((e: CollectionCreateRequest)=>e.code);
-      }  
+        productRequest.collections = productRequest.collections.map(
+          (e: CollectionCreateRequest) => e.code,
+        );
+      }
       dispatch(productUpdateAction(idNumber, productRequest, onResultUpdate));
     },
-    [dispatch, idNumber, onResultUpdate]
+    [dispatch, idNumber, onResultUpdate],
   );
 
   const productAvatar = useMemo(() => {
@@ -170,8 +174,8 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     const newSelected = data?.care_labels ? data?.care_labels.split(";") : [];
-    console.log('newSelected', newSelected);
-    let careLabels: any[] = []
+    console.log("newSelected", newSelected);
+    let careLabels: any[] = [];
     newSelected.forEach((value: string) => {
       careInformation.washing.forEach((item: any) => {
         if (value === item.value) {
@@ -179,7 +183,7 @@ const ProductDetailScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
 
@@ -189,7 +193,7 @@ const ProductDetailScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
       careInformation.ironing.forEach((item: any) => {
@@ -198,7 +202,7 @@ const ProductDetailScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
       careInformation.drying.forEach((item: any) => {
@@ -207,7 +211,7 @@ const ProductDetailScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
       careInformation.professionalCare.forEach((item: any) => {
@@ -216,11 +220,10 @@ const ProductDetailScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
-      
-    })
+    });
     setCareLabels(careLabels);
   }, [data?.care_labels]);
 
@@ -237,16 +240,14 @@ const ProductDetailScreen: React.FC = () => {
         update(data);
       }
     },
-    [data, update]
+    [data, update],
   );
 
   const statusValue = useMemo(() => {
     if (!productStatusList) {
       return "";
     }
-    let index = productStatusList?.findIndex(
-      (item) => item.value === data?.status
-    );
+    let index = productStatusList?.findIndex((item) => item.value === data?.status);
     if (index !== -1) {
       return productStatusList?.[index].name;
     }
@@ -259,13 +260,13 @@ const ProductDetailScreen: React.FC = () => {
         data?.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
             item.saleable = false;
-          } 
+          }
         });
         data.variants = getFirstProductAvatarByVariantResponse(data.variants);
         update(data);
       }
     },
-    [data, update]
+    [data, update],
   );
 
   const onUpdateSaleable = useCallback((data1) => {
@@ -286,16 +287,16 @@ const ProductDetailScreen: React.FC = () => {
         if (e) request.variants[active].status = "active"; //CO-3415
         request.variants = getFirstProductAvatarByVariantResponse(data.variants);
         if (data.collections) {
-          request.collections = data.collections.map((e: CollectionCreateRequest)=>e.code);
-        }  
+          request.collections = data.collections.map((e: CollectionCreateRequest) => e.code);
+        }
         dispatch(productUpdateAction(idNumber, request, onUpdateSaleable));
       }
     },
-    [active, data, dispatch, idNumber, onUpdateSaleable]
+    [active, data, dispatch, idNumber, onUpdateSaleable],
   );
 
   const onResultDetail = useCallback((result) => {
-    setLoadingInventories(false);  
+    setLoadingInventories(false);
     if (!result) {
     } else {
       setDataInventory(result);
@@ -303,7 +304,7 @@ const ProductDetailScreen: React.FC = () => {
   }, []);
 
   const onResultInventoryHistory = useCallback((result) => {
-    setLoadingHis(false);  
+    setLoadingHis(false);
     if (!result) {
     } else {
       setDataHistory(result);
@@ -317,13 +318,13 @@ const ProductDetailScreen: React.FC = () => {
         setLoadingInventories(true);
         dispatch(
           inventoryGetDetailAction(
-            { variant_id: variantSelect, page: page,limit: 500 },
-            onResultDetail
-          )
+            { variant_id: variantSelect, page: page, limit: 500 },
+            onResultDetail,
+          ),
         );
       }
     },
-    [active, data, dispatch, onResultDetail]
+    [active, data, dispatch, onResultDetail],
   );
 
   const onChangeDataHistory = useCallback(
@@ -333,13 +334,13 @@ const ProductDetailScreen: React.FC = () => {
         setLoadingHis(true);
         dispatch(
           inventoryGetHistoryAction(
-            { variant_id: variantSelect, page: page,limit: 300 },
-            onResultInventoryHistory
-          )
-        );  
+            { variant_id: variantSelect, page: page, limit: 300 },
+            onResultInventoryHistory,
+          ),
+        );
       }
     },
-    [active, data, dispatch, onResultInventoryHistory]
+    [active, data, dispatch, onResultInventoryHistory],
   );
 
   useEffect(() => {
@@ -350,50 +351,38 @@ const ProductDetailScreen: React.FC = () => {
   useEffect(() => {
     if (data && data?.variants.length > 0) {
       let variantSelect = data.variants[active].id;
-      setLoadingHis(true);setLoadingInventories(true);  
-      dispatch(
-        inventoryGetDetailAction({ variant_id: variantSelect,limit: 500 }, onResultDetail)
-      );
+      setLoadingHis(true);
+      setLoadingInventories(true);
+      dispatch(inventoryGetDetailAction({ variant_id: variantSelect, limit: 500 }, onResultDetail));
       dispatch(
         inventoryGetHistoryAction(
-          { variant_id: variantSelect,limit: 300 },
-          onResultInventoryHistory
-        )
+          { variant_id: variantSelect, limit: 300 },
+          onResultInventoryHistory,
+        ),
       );
     }
-  }, [
-    active,
-    data,
-    dispatch,
-    onResult,
-    onResultDetail,
-    onResultInventoryHistory,
-  ]);
+  }, [active, data, dispatch, onResult, onResultDetail, onResultInventoryHistory]);
   useEffect(() => {
     if (variantId && data) {
-      let index = data.variants.findIndex(
-        (item) => item.id.toString() === variantId
-      );
+      let index = data.variants.findIndex((item) => item.id.toString() === variantId);
       if (index !== -1) {
         setActive(index);
       }
     }
   }, [data, variantId]);
-const tab= document.getElementById("tab");
-  useLayoutEffect(() => { 
+  const tab = document.getElementById("tab");
+  useLayoutEffect(() => {
+    if (hash === TabName.INVENTORY) {
+      setActiveTab(TabName.INVENTORY);
+    }
 
-     if (hash === TabName.INVENTORY) {
-       setActiveTab(TabName.INVENTORY);
-     }
+    if (hash === TabName.HISTORY) {
+      setActiveTab(TabName.HISTORY);
+    }
 
-     if (hash === TabName.HISTORY) {
-       setActiveTab(TabName.HISTORY);
-     }
-
-     if (tabRef.current && hash) {
-       tabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
-     } 
-
+    if (tabRef.current && hash) {
+      tabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
   }, [tabRef, hash, tab]);
 
   return (
@@ -429,135 +418,150 @@ const tab= document.getElementById("tab");
                   extra={
                     <div className="extra-cards status">
                       <b>Trạng thái:</b>
-                      
-                        <Switch
-                          style={{marginLeft: 10}}
-                          checked={data.status === "active"}
-                          onChange={(checked) => {
-                            let newData: any = {...data};
-                            newData.status = checked ? "active" : "inactive";
-                            newData.variants.forEach((item: VariantResponse) => {
-                              item.status = checked ? "active" : "inactive";
-                              if (!checked) {
-                                item.saleable = checked;
+
+                      <Switch
+                        style={{ marginLeft: 10 }}
+                        checked={data.status === "active"}
+                        onChange={(checked) => {
+                          let newData: any = { ...data };
+                          newData.status = checked ? "active" : "inactive";
+                          newData.variants.forEach((item: VariantResponse) => {
+                            item.status = checked ? "active" : "inactive";
+                            if (!checked) {
+                              item.saleable = checked;
+                            }
+                          });
+                          newData.variants = getFirstProductAvatarByVariantResponse(
+                            newData.variants,
+                          );
+                          if (newData.collections) {
+                            newData.collections = newData.collections.map(
+                              (e: CollectionCreateRequest) => e.code,
+                            );
+                          }
+
+                          setLoadingSwitch(true);
+                          dispatch(
+                            productUpdateAction(idNumber, newData, (result) => {
+                              setLoadingSwitch(false);
+                              if (result) {
+                                setData(result);
+                                showSuccess("Cập nhật trạng thái thành công");
                               }
-                            });
-                            newData.variants = getFirstProductAvatarByVariantResponse(
-                              newData.variants
-                            );
-                            if (newData.collections) {
-                              newData.collections = newData.collections.map((e: CollectionCreateRequest)=>e.code);
-                            }  
-                      
-                            setLoadingSwitch(true);
-                            dispatch(
-                              productUpdateAction(idNumber, newData, (result) => {
-                                setLoadingSwitch(false);
-                                if (result) {
-                                  setData(result);
-                                  showSuccess("Cập nhật trạng thái thành công");
-                                }
-                              })
-                            );
-                          }}
-                          className="ant-switch-success"
-                          defaultChecked
-                        />
-                      
+                            }),
+                          );
+                        }}
+                        className="ant-switch-success"
+                        defaultChecked
+                      />
+
                       <label
-                        style={{marginLeft: 10}}
-                        className={
-                          data.status === "active" ? "text-success" : "text-error"
-                        }
+                        style={{ marginLeft: 10 }}
+                        className={data.status === "active" ? "text-success" : "text-error"}
                       >
                         {statusValue}
                       </label>
                       {loadingSwitch && (
                         <div className="loading-view">
                           <Spin
-                            indicator={
-                              <Loading3QuartersOutlined style={{fontSize: 28}} spin />
-                            }
+                            indicator={<Loading3QuartersOutlined style={{ fontSize: 28 }} spin />}
                           />
                         </div>
                       )}
                     </div>
                   }
                 >
-                    <Row gutter={50}>
-                      <Col span={24} md={12}>
-                        <RowDetail title="Danh mục" value={data.category} />
-                        <RowDetail title="Mã sản phẩm" value={data.code} />
-                        <RowDetail title="Thương hiệu" value={data.brand} />
-                        <RowDetail title="Chất liệu" value={data.material} />
-                      </Col>
-                      <Col span={24} md={12}>
-                        <RowDetail title="Ngành hàng" value={data.goods_name} />
-                        <RowDetail title="Tên sản phẩm" value={data.name} />
-                        <RowDetail title="Xuất xứ" value={data.made_in} />
-                        <RowDetail title="Đơn vị" value={data.unit_name} />
-                      </Col>
-                    </Row>
-                    <Row gutter={50}>
-                      <Col span={24} md={12}>
-                        <div className="row-detail">
-                          <div className="row-detail-left title">Từ khóa</div>
-                          <div className="dot data">:</div>
-                          <div className="row-detail-right data">{data.tags?.split(",")?.map((keyword)=>{
-                            return <Tag key={keyword}>{keyword}</Tag>
-                          })}</div>
+                  <Row gutter={50}>
+                    <Col span={24} md={12}>
+                      <RowDetail title="Danh mục" value={data.category} />
+                      <RowDetail title="Mã sản phẩm" value={data.code} />
+                      <RowDetail title="Thương hiệu" value={data.brand} />
+                      <RowDetail title="Chất liệu" value={data.material} />
+                    </Col>
+                    <Col span={24} md={12}>
+                      <RowDetail title="Ngành hàng" value={data.goods_name} />
+                      <RowDetail title="Tên sản phẩm" value={data.name} />
+                      <RowDetail title="Xuất xứ" value={data.made_in} />
+                      <RowDetail title="Đơn vị" value={data.unit_name} />
+                    </Col>
+                  </Row>
+                  <Row gutter={50}>
+                    <Col span={24} md={12}>
+                      <div className="row-detail">
+                        <div className="row-detail-left title">Từ khóa</div>
+                        <div className="dot data">:</div>
+                        <div className="row-detail-right data">
+                          {data.tags?.split(",")?.map((keyword) => {
+                            return <Tag key={keyword}>{keyword}</Tag>;
+                          })}
                         </div>
-                      </Col>
-                      <Col span={24} md={12}>
-                        <div className="row-detail">
-                          <div className="row-detail-left title">Nhóm hàng</div>
-                          <div className="dot data">:</div>
-                          <div className="row-detail-right data">{data.collections?.map((e)=>{
-                            return e.name;
-                          }).toString()}</div>
+                      </div>
+                    </Col>
+                    <Col span={24} md={12}>
+                      <div className="row-detail">
+                        <div className="row-detail-left title">Nhóm hàng</div>
+                        <div className="dot data">:</div>
+                        <div className="row-detail-right data">
+                          {data.collections
+                            ?.map((e) => {
+                              return e.name;
+                            })
+                            .toString()}
                         </div>
-                      </Col>
-                    </Row>
-                    <Row gutter={50}>
-                      <Col span={24} md={12}>
-                        <div className="row-detail">
-                            <div className="row-detail-left title">Thông tin bảo quản</div>
-                            <div className="dot data">:</div>
-                            <div className="row-detail-right data">{careLabels.map((item: any) => (
-                              <Popover key={item.value} content={item.name}>
-                                <span className={`care-label ydl-${item.value}`}></span>
-                              </Popover>
-                            ))}</div>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={50}>
+                    <Col span={24} md={12}>
+                      <div className="row-detail">
+                        <div className="row-detail-left title">Thông tin bảo quản</div>
+                        <div className="dot data">:</div>
+                        <div className="row-detail-right data">
+                          {careLabels.map((item: any) => (
+                            <Popover key={item.value} content={item.name}>
+                              <span className={`care-label ydl-${item.value}`}></span>
+                            </Popover>
+                          ))}
+                        </div>
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={50}>
+                    <Col span={24} md={5}>
+                      <div className="title" style={{ color: "#666666" }}>
+                        Mô tả
+                      </div>
+                    </Col>
+                  </Row>
+                  <Row gutter={50}>
+                    <Col span={24} md={24}>
+                      {data.description ? (
+                        <div style={{ position: "relative" }}>
+                          <div
+                            dangerouslySetInnerHTML={{
+                              __html: data.description,
+                            }}
+                            className="data-content"
+                          ></div>
+                          <div
+                            className="devvn_readmore_taxonomy_flatsome devvn_readmore_taxonomy_flatsome_show"
+                            style={{ display: "block" }}
+                          >
+                            <Button
+                              className="button-show-more"
+                              onClick={() => {
+                                setVisibleDes(true);
+                              }}
+                            >
+                              Xem thêm
+                            </Button>
                           </div>
-                        </Col>
-                    </Row>
-                    <Row gutter={50}>
-                      <Col span={24} md={5}>
-                        <div className="title" style={{color: "#666666"}}>
-                          Mô tả
                         </div>
-                      </Col>
-                    </Row>
-                    <Row gutter={50}>
-                      <Col span={24} md={24}>
-                        {data.description ? ( 
-                        <div style={{position: "relative"}}>
-                           <div 
-                             dangerouslySetInnerHTML={{
-                               __html: data.description,
-                             }} 
-                             className="data-content"
-                           > 
-                           </div> 
-                             <div className="devvn_readmore_taxonomy_flatsome devvn_readmore_taxonomy_flatsome_show" style={{display: "block"}}>
-                             <Button className="button-show-more" onClick={()=>{setVisibleDes(true)}}>Xem thêm</Button>
-                           </div> 
-                        </div>
-                        ) : (
-                          <div className="data-empty">Không có mô tả</div>
-                        )}
-                      </Col>
-                    </Row>
+                      ) : (
+                        <div className="data-empty">Không có mô tả</div>
+                      )}
+                    </Col>
+                  </Row>
                 </Card>
               </Col>
               <Col span={24} md={6}>
@@ -567,190 +571,173 @@ const tab= document.getElementById("tab");
                   </div>
                 </Card>
                 <Card title="Phòng win" className="card">
-                    <RowDetail title="Merchandiser " value={<>
-                      <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${data.merchandiser_code}`}> 
-                        {data.merchandiser} 
-                      </Link>  
-                    </>} />
-                    <RowDetail title="Thiết kế" value={<>
-                      <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${data.designer_code}`}> 
-                        {data.designer} 
-                      </Link>  
-                    </>} />
+                  <RowDetail
+                    title="Merchandiser "
+                    value={
+                      <>
+                        <Link
+                          target="_blank"
+                          to={`${UrlConfig.ACCOUNTS}/${data.merchandiser_code}`}
+                        >
+                          {data.merchandiser}
+                        </Link>
+                      </>
+                    }
+                  />
+                  <RowDetail
+                    title="Thiết kế"
+                    value={
+                      <>
+                        <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${data.designer_code}`}>
+                          {data.designer}
+                        </Link>
+                      </>
+                    }
+                  />
                 </Card>
               </Col>
             </Row>
             <AuthWrapper acceptPermissions={[ProductPermission.read_variant]}>
-            <Row gutter={24}>
-              <Col span={24}>
-                <Card className="card">
-                  <Row className="card-container">
-                    <Col className="left" span={24} md={7}>
-                      <VariantList
-                        disabledAction={data.status === "inactive"}
-                        onAllowSale={onAllowSale}
-                        onStopSale={onStopSale}
-                        value={data.variants}
-                        active={active}
-                        setActive={(active) => {
-                          history.replace(
-                            `${UrlConfig.PRODUCT}/${idNumber}${UrlConfig.VARIANTS}/${data.variants[active].id}`
-                          );
-                        }}
-                        loading={loadingVariant}
-                        productData={data}
-                        canUpdateSaleable={canUpdateSaleable}
-                      />
-                    </Col>
+              <Row gutter={24}>
+                <Col span={24}>
+                  <Card className="card">
+                    <Row className="card-container">
+                      <Col className="left" span={24} md={7}>
+                        <VariantList
+                          disabledAction={data.status === "inactive"}
+                          onAllowSale={onAllowSale}
+                          onStopSale={onStopSale}
+                          value={data.variants}
+                          active={active}
+                          setActive={(active) => {
+                            history.replace(
+                              `${UrlConfig.PRODUCT}/${idNumber}${UrlConfig.VARIANTS}/${data.variants[active].id}`,
+                            );
+                          }}
+                          loading={loadingVariant}
+                          productData={data}
+                          canUpdateSaleable={canUpdateSaleable}
+                        />
+                      </Col>
 
-                    <Col className="right" span={24} md={17}>
-                      {currentVariant !== null && (
-                        <React.Fragment>
-                          <div className="header-view">
-                            <div className="header-view-left">
-                              <b>THÔNG TIN PHIÊN BẢN</b>
-                            </div>
-                            <div className="header-view-right">
-                              {canUpdateSaleable && <Switch
-                                  onChange={onChangeChecked}
-                                  className="ant-switch-success"
-                                  disabled={data.status === "inactive"}
-                                  checked={currentVariant.saleable}
-                                />}
-                             
-                              <label className="label-switch">
-                                {currentVariant.saleable
-                                  ? "Cho phép bán"
-                                  : "Không cho phép bán"}
-                              </label>
-                            </div>
-                          </div>
-                          <div className="container-view">
-                            <Row>
-                              <Col span={24} md={14}>
-                                <RowDetail
-                                  title="Mã vạch"
-                                  value={currentVariant.barcode}
-                                />
-                                <RowDetail
-                                  title="Mã sản phẩm"
-                                  value={currentVariant.sku}
-                                />
-                                <RowDetail
-                                  title="Tên sản phẩm"
-                                  value={currentVariant.name}
-                                />
-                                <RowDetail title="Màu sắc" value={currentVariant.color} />
-                                <RowDetail title="Size" value={currentVariant.size} />
-                                <RowDetail
-                                  title="Kích thước (Dài, Rộng, Cao) "
-                                  value={renderSize()}
-                                />
-                                <RowDetail
-                                  title="Khối lượng"
-                                  value={`${currentVariant.weight} ${currentVariant.weight_unit} `}
-                                />
-                                <RowDetail
-                                  title="Nhà cung cấp"
-                                  value={currentVariant.supplier}
-                                />
-                              </Col>
-                              <Col className="view-right" span={24} md={10}>
-                                <div className="image-view">
-                                  {currentVariant.variant_images?.length === 0 ? (
-                                    <img
-                                      className="item-default"
-                                      src={variantdefault}
-                                      alt=""
-                                    />
-                                  ) : (
-                                    <React.Fragment>
-                                      {currentVariant.variant_images?.length === 1 ? (
-                                        <Image
-                                          src={currentVariant.variant_images[0].url}
-                                          alt=""
-                                        />
-                                      ) : (
-                                        <React.Fragment>
-                                          <Slider
-                                            asNavFor={nav2 ? nav2 : undefined}
-                                            ref={(slider1) => setNav1(slider1)}
-                                            infinite={true}
-                                            slidesToShow={1}
-                                            slidesToScroll={1}
-                                            arrows={false}
-                                            className={classNames("image-slider")}
-                                          >
-                                            {currentVariant.variant_images?.map(
-                                              (item, index) => (
-                                                <Image
-                                                  key={index}
-                                                  src={item.url}
-                                                  alt=""
-                                                />
-                                              )
-                                            )}
-                                          </Slider>
-                                          <Slider
-                                            asNavFor={nav1 ? nav1 : undefined}
-                                            ref={(slider2) => setNav2(slider2)}
-                                            infinite={true}
-                                            slidesToShow={
-                                              currentVariant.variant_images?.length < 3
-                                                ? currentVariant.variant_images.length
-                                                : 3
-                                            }
-                                            slidesToScroll={1}
-                                            arrows={true}
-                                            focusOnSelect={true}
-                                            className={classNames(
-                                              "image-thumbnail",
-                                              currentVariant.variant_images?.length ===
-                                                2 && "image-2"
-                                            )}
-                                          >
-                                            {currentVariant.variant_images?.map(
-                                              (item, index) => (
-                                                <img key={index} src={item.url} alt="" />
-                                              )
-                                            )}
-                                          </Slider>
-                                        </React.Fragment>
-                                      )}
-                                    </React.Fragment>
-                                  )}
-                                </div>
-                              </Col>
-                            </Row>
-                            {loadingVariantUpdate && (
-                              <div className="loading-view">
-                                <Spin
-                                  indicator={
-                                    <Loading3QuartersOutlined
-                                      style={{fontSize: 28}}
-                                      spin
-                                    />
-                                  }
-                                />
+                      <Col className="right" span={24} md={17}>
+                        {currentVariant !== null && (
+                          <React.Fragment>
+                            <div className="header-view">
+                              <div className="header-view-left">
+                                <b>THÔNG TIN PHIÊN BẢN</b>
                               </div>
-                            )}
-                          </div>
-                        </React.Fragment>
-                      )}
-                    </Col>
-                  </Row>
-                </Card>
-              </Col>
-            </Row>
+                              <div className="header-view-right">
+                                {canUpdateSaleable && (
+                                  <Switch
+                                    onChange={onChangeChecked}
+                                    className="ant-switch-success"
+                                    disabled={data.status === "inactive"}
+                                    checked={currentVariant.saleable}
+                                  />
+                                )}
+
+                                <label className="label-switch">
+                                  {currentVariant.saleable ? "Cho phép bán" : "Không cho phép bán"}
+                                </label>
+                              </div>
+                            </div>
+                            <div className="container-view">
+                              <Row>
+                                <Col span={24} md={14}>
+                                  <RowDetail title="Mã vạch" value={currentVariant.barcode} />
+                                  <RowDetail title="Mã sản phẩm" value={currentVariant.sku} />
+                                  <RowDetail title="Tên sản phẩm" value={currentVariant.name} />
+                                  <RowDetail title="Màu sắc" value={currentVariant.color} />
+                                  <RowDetail title="Size" value={currentVariant.size} />
+                                  <RowDetail
+                                    title="Kích thước (Dài, Rộng, Cao) "
+                                    value={renderSize()}
+                                  />
+                                  <RowDetail
+                                    title="Khối lượng"
+                                    value={`${currentVariant.weight} ${currentVariant.weight_unit} `}
+                                  />
+                                  <RowDetail title="Nhà cung cấp" value={currentVariant.supplier} />
+                                </Col>
+                                <Col className="view-right" span={24} md={10}>
+                                  <div className="image-view">
+                                    {currentVariant.variant_images?.length === 0 ? (
+                                      <img className="item-default" src={variantdefault} alt="" />
+                                    ) : (
+                                      <React.Fragment>
+                                        {currentVariant.variant_images?.length === 1 ? (
+                                          <Image
+                                            src={currentVariant.variant_images[0].url}
+                                            alt=""
+                                          />
+                                        ) : (
+                                          <React.Fragment>
+                                            <Slider
+                                              asNavFor={nav2 ? nav2 : undefined}
+                                              ref={(slider1) => setNav1(slider1)}
+                                              infinite={true}
+                                              slidesToShow={1}
+                                              slidesToScroll={1}
+                                              arrows={false}
+                                              className={classNames("image-slider")}
+                                            >
+                                              {currentVariant.variant_images?.map((item, index) => (
+                                                <Image key={index} src={item.url} alt="" />
+                                              ))}
+                                            </Slider>
+                                            <Slider
+                                              asNavFor={nav1 ? nav1 : undefined}
+                                              ref={(slider2) => setNav2(slider2)}
+                                              infinite={true}
+                                              slidesToShow={
+                                                currentVariant.variant_images?.length < 3
+                                                  ? currentVariant.variant_images.length
+                                                  : 3
+                                              }
+                                              slidesToScroll={1}
+                                              arrows={true}
+                                              focusOnSelect={true}
+                                              className={classNames(
+                                                "image-thumbnail",
+                                                currentVariant.variant_images?.length === 2 &&
+                                                  "image-2",
+                                              )}
+                                            >
+                                              {currentVariant.variant_images?.map((item, index) => (
+                                                <img key={index} src={item.url} alt="" />
+                                              ))}
+                                            </Slider>
+                                          </React.Fragment>
+                                        )}
+                                      </React.Fragment>
+                                    )}
+                                  </div>
+                                </Col>
+                              </Row>
+                              {loadingVariantUpdate && (
+                                <div className="loading-view">
+                                  <Spin
+                                    indicator={
+                                      <Loading3QuartersOutlined style={{ fontSize: 28 }} spin />
+                                    }
+                                  />
+                                </div>
+                              )}
+                            </div>
+                          </React.Fragment>
+                        )}
+                      </Col>
+                    </Row>
+                  </Card>
+                </Col>
+              </Row>
             </AuthWrapper>
             <Row gutter={24}>
               <Col span={24}>
                 <div id="tab" ref={tabRef}>
                   <Card className="card">
-                    <Tabs
-                      style={{overflow: "initial"}}
-                      defaultActiveKey={activeTab}
-                    >
+                    <Tabs style={{ overflow: "initial" }} defaultActiveKey={activeTab}>
                       <Tabs.TabPane tab="Danh sách tồn kho" key={TabName.INVENTORY}>
                         <TabProductInventory
                           loadingInventories={loadingInventories}
@@ -775,57 +762,72 @@ const tab= document.getElementById("tab");
               title="Mô tả sản phẩm"
               visible={visibleDes}
               width="95%"
-              onCancel={()=>{setVisibleDes(false)}}
-              footer={<>
-                <Button type="primary" onClick={()=>{setVisibleDes(false)}}>
-                  Đóng
-                </Button>
-              </>}
+              onCancel={() => {
+                setVisibleDes(false);
+              }}
+              footer={
+                <>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      setVisibleDes(false);
+                    }}
+                  >
+                    Đóng
+                  </Button>
+                </>
+              }
             >
               <div className="des-content">
-              <Tabs defaultActiveKey="1">
-                <TabPane
-                  tab={
-                    <span>
-                      <UnorderedListOutlined />
-                      Thành phần
-                    </span>
-                  }
-                  key="1"
-                >
-                  {data?.component}
-                </TabPane>
-                <TabPane
-                  tab={
-                    <span>
-                      <PlusCircleOutlined />
-                      Ưu điểm
-                    </span>
-                  }
-                  key="2"
-                >
-                  {data.advantages && <div 
-                    dangerouslySetInnerHTML={{
-                      __html: data.advantages,
-                    }} 
-                    className="data-content" ></div>}
-                </TabPane>
-                <TabPane
-                  tab={
-                    <span>
-                      <MinusCircleOutlined />
-                      Khuyến cáo
-                    </span>
-                  }
-                  key="3"
-                >
-                  {data.defect && <div 
-                    dangerouslySetInnerHTML={{
-                      __html: data.defect,
-                    }} 
-                    className="data-content" ></div>}
-                </TabPane>
-              </Tabs>
+                <Tabs defaultActiveKey="1">
+                  <TabPane
+                    tab={
+                      <span>
+                        <UnorderedListOutlined />
+                        Thành phần
+                      </span>
+                    }
+                    key="1"
+                  >
+                    {data?.component}
+                  </TabPane>
+                  <TabPane
+                    tab={
+                      <span>
+                        <PlusCircleOutlined />
+                        Ưu điểm
+                      </span>
+                    }
+                    key="2"
+                  >
+                    {data.advantages && (
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: data.advantages,
+                        }}
+                        className="data-content"
+                      ></div>
+                    )}
+                  </TabPane>
+                  <TabPane
+                    tab={
+                      <span>
+                        <MinusCircleOutlined />
+                        Khuyến cáo
+                      </span>
+                    }
+                    key="3"
+                  >
+                    {data.defect && (
+                      <div
+                        dangerouslySetInnerHTML={{
+                          __html: data.defect,
+                        }}
+                        className="data-content"
+                      ></div>
+                    )}
+                  </TabPane>
+                </Tabs>
               </div>
             </Modal>
           </React.Fragment>
@@ -837,7 +839,7 @@ const tab= document.getElementById("tab");
               <Button onClick={onEdit}>Sửa sản phẩm</Button>
             </AuthWrapper>
           }
-        /> 
+        />
       </ContentContainer>
     </StyledComponent>
   );

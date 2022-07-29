@@ -3,9 +3,7 @@ export const AppConfig = {
   runMode: process.env.NODE_ENV, // development (npm start), production (npm run build), test (npm run test)
   baseUrl: process.env.REACT_APP_BASE_URL || "http://localhost:3004",
   baseApi: process.env.REACT_APP_BASE_API,
-  timeOut: process.env.REACT_APP_TIME_OUT
-    ? parseInt(process.env.REACT_APP_TIME_OUT)
-    : 20000,
+  timeOut: process.env.REACT_APP_TIME_OUT ? parseInt(process.env.REACT_APP_TIME_OUT) : 20000,
   ydPageUrl: process.env.REACT_APP_YDPAGE_URL,
   currency: "VND",
   price_type: "retail_price",

@@ -16,12 +16,16 @@ type PropTypes = ModalProps & {
 };
 
 function ModalWarrantyCenterAddress(props: PropTypes) {
-  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, record, ...rest } = props;
+  const { onCancel, onOk, form, handleOk, handleCancel, initialFormValues, record, ...rest } =
+    props;
 
   return (
-    <Modal 
-    title={`Cập nhật địa chỉ trung tâm "${record?.name}"`}
-    onCancel={handleCancel} onOk={handleOk} {...rest}>
+    <Modal
+      title={`Cập nhật địa chỉ trung tâm "${record?.name}"`}
+      onCancel={handleCancel}
+      onOk={handleOk}
+      {...rest}
+    >
       <Form form={form} layout="horizontal" initialValues={initialFormValues}>
         <Form.Item
           labelAlign={"left"}

@@ -13,7 +13,7 @@ import {
   AccountSearchAction,
   AccountUpdateAction,
   DepartmentGetListAction,
-  PositionGetListAction
+  PositionGetListAction,
 } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
@@ -21,7 +21,7 @@ import useAuthorization from "hook/useAuthorization";
 import {
   AccountResponse,
   AccountSearchQuery,
-  AccountStoreResponse
+  AccountStoreResponse,
 } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
@@ -56,7 +56,6 @@ const initQuery: AccountSearchQuery = {
   info: "",
   code: "",
 };
-
 
 const ListAccountScreen: React.FC = () => {
   const query = useQuery();
@@ -119,7 +118,7 @@ const ListAccountScreen: React.FC = () => {
       setPrams({ ...params });
       history.replace(`${UrlConfig.ACCOUNTS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
   const onFilter = useCallback(
     (values) => {
@@ -128,7 +127,7 @@ const ListAccountScreen: React.FC = () => {
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.ACCOUNTS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
   const onClearFilter = () => {
@@ -136,18 +135,15 @@ const ListAccountScreen: React.FC = () => {
     setPrams(newPrams);
     let queryParam = generateQuery(newPrams);
     history.push(`${UrlConfig.ACCOUNTS}?${queryParam}`);
-  }
+  };
 
-  const setSearchResult = useCallback(
-    (listResult: PageResponse<AccountResponse> | false) => {
-      if (!listResult) {
-        return;
-      }
-      setTableLoading(false);
-      setData(listResult);
-    },
-    []
-  );
+  const setSearchResult = useCallback((listResult: PageResponse<AccountResponse> | false) => {
+    if (!listResult) {
+      return;
+    }
+    setTableLoading(false);
+    setData(listResult);
+  }, []);
   const deleteCallback = useCallback(
     (result: boolean) => {
       if (result) {
@@ -157,7 +153,7 @@ const ListAccountScreen: React.FC = () => {
         dispatch(AccountSearchAction(params, setSearchResult));
       }
     },
-    [dispatch, params, setSearchResult]
+    [dispatch, params, setSearchResult],
   );
 
   const onMenuClick = useCallback(
@@ -171,14 +167,14 @@ const ListAccountScreen: React.FC = () => {
         }
       }
     },
-    [accountSelected, deleteCallback, dispatch]
+    [accountSelected, deleteCallback, dispatch],
   );
 
   const AcctionCompoent = useChangeHeaderToAction(
     "Mã nhân viên",
     accountSelected.length === 1,
     onMenuClick,
-    actions
+    actions,
   );
 
   const defaultColumns: Array<ICustomTableColumType<AccountResponse>> = [
@@ -255,18 +251,25 @@ const ListAccountScreen: React.FC = () => {
           className="ant-switch-success"
           defaultChecked={value === "active"}
           onChange={(checked) => {
-            const storeIds: number[] = row.account_stores.reduce((acc: Array<number>, item: AccountStoreResponse) => {
-              if (item.store_id) {
-                acc.push(item.store_id);
-              }
-              return acc;
-            }, []);
+            const storeIds: number[] = row.account_stores.reduce(
+              (acc: Array<number>, item: AccountStoreResponse) => {
+                if (item.store_id) {
+                  acc.push(item.store_id);
+                }
+                return acc;
+              },
+              [],
+            );
             dispatch(
               AccountUpdateAction(
                 row.id,
-                { ...row, store_ids: storeIds, status: checked ? "active" : "inactive" },
-                () => { }
-              )
+                {
+                  ...row,
+                  store_ids: storeIds,
+                  status: checked ? "active" : "inactive",
+                },
+                () => {},
+              ),
             );
           }}
         />
@@ -287,11 +290,13 @@ const ListAccountScreen: React.FC = () => {
   }, [accountSelected]);
 
   useEffect(() => {
-    dispatch(DepartmentGetListAction((response: DepartmentResponse[]) => {
-      if (response) {
-        setDepartment(response);
-      }
-    }));
+    dispatch(
+      DepartmentGetListAction((response: DepartmentResponse[]) => {
+        if (response) {
+          setDepartment(response);
+        }
+      }),
+    );
     dispatch(PositionGetListAction(setPosition));
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
@@ -301,7 +306,6 @@ const ListAccountScreen: React.FC = () => {
     dispatch(AccountSearchAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
   return (
-
     <ContentContainer
       title="Quản lý người dùng"
       breadcrumb={[
@@ -321,9 +325,8 @@ const ListAccountScreen: React.FC = () => {
                 className="light"
                 size="large"
                 icon={<img src={uploadIcon} style={{ marginRight: 8 }} alt="" />}
-                onClick={() =>
-                  history.push(`${UrlConfig.ACCOUNTS}/import`)
-                }>
+                onClick={() => history.push(`${UrlConfig.ACCOUNTS}/import`)}
+              >
                 Nhập file
               </Button>
             </AuthWrapper>
@@ -368,8 +371,10 @@ const ListAccountScreen: React.FC = () => {
           />
         </Card>
         <ImportExcel
-          onCancel={() => { setIsImport(false) }}
-          onOk={() => { }}
+          onCancel={() => {
+            setIsImport(false);
+          }}
+          onOk={() => {}}
           title="Nhập file người dùng"
           visible={isImport}
         />
@@ -384,7 +389,6 @@ const ListAccountScreen: React.FC = () => {
           data={columns}
         />
       </SearchContainer>
-
     </ContentContainer>
   );
 };

@@ -7,7 +7,6 @@ import { ICustomTableColumType } from "./CustomTable";
 import Undo from "assets/icon/undo.svg";
 import "./modal-setting-column.scss";
 
-
 const ReactDragListView = require("react-drag-listview/lib/index");
 
 export interface YodyColumn {}
@@ -20,9 +19,7 @@ type ModalSettingColumnType = {
   data: Array<ICustomTableColumType<any>>;
 };
 
-const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
-  props: ModalSettingColumnType
-) => {
+const ModalSettingColumn: React.FC<ModalSettingColumnType> = (props: ModalSettingColumnType) => {
   const { visible, isSetDefaultColumn, onOk, onCancel, data } = props;
 
   const [columns, setColumn] = useState<Array<ICustomTableColumType<any>>>([]);
@@ -38,16 +35,16 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       items.splice(toIndex, 0, item);
       setColumn(items);
     },
-    [columns]
+    [columns],
   );
 
   const checkSelectAll = (columns: any) => {
     let isCheckSelectAll = true;
-    columns.forEach((column: { visible: boolean; }) => {
+    columns.forEach((column: { visible: boolean }) => {
       if (column.visible === false) {
         isCheckSelectAll = false;
       }
-    })
+    });
 
     setIsSelectAll(isCheckSelectAll);
   };
@@ -60,49 +57,46 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       setColumn(items);
       checkSelectAll(items);
     },
-    [columns]
+    [columns],
   );
 
-  const setDefaultColumn = useCallback(
-    () => {
-      const defautlColumns = [...columns];
-      defautlColumns.forEach(column => {
-        column.visible = true;
-      })
+  const setDefaultColumn = useCallback(() => {
+    const defautlColumns = [...columns];
+    defautlColumns.forEach((column) => {
+      column.visible = true;
+    });
 
-      setColumn(defautlColumns);
-      onOk(defautlColumns)
-    },
-    [columns, onOk]
-  );
+    setColumn(defautlColumns);
+    onOk(defautlColumns);
+  }, [columns, onOk]);
 
-  const onCancelSetColumn = useCallback(
-    () => {
-      setColumn(data);
-      onCancel && onCancel();
-    },
-    [data, onCancel]
-  );
+  const onCancelSetColumn = useCallback(() => {
+    setColumn(data);
+    onCancel && onCancel();
+  }, [data, onCancel]);
 
   const onSelectAllChange = (e: any) => {
-    const { checked } = e.target
+    const { checked } = e.target;
     const copyColumns = [...columns];
 
     copyColumns.forEach((item, index) => {
-      copyColumns[index] = { ...copyColumns[index], visible: item.fixed ? true : checked };
-    })
+      copyColumns[index] = {
+        ...copyColumns[index],
+        visible: item.fixed ? true : checked,
+      };
+    });
 
     setIsSelectAll(checked);
     setColumn(copyColumns);
-  }
+  };
 
-  const okButtonDisable  = () => {
+  const okButtonDisable = () => {
     let columnChecked = columns.filter((column) => {
       return column.visible === true;
     });
 
-    return (columnChecked.length === 0);
-  }
+    return columnChecked.length === 0;
+  };
 
   useEffect(() => {
     setColumn(data);
@@ -114,32 +108,45 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
       title="Cài đặt ẩn hiện cột"
       closable={false}
       visible={visible}
-			onCancel={onCancel}
-      footer={
-        [
-          <div
-            key="footer-button-list"
-            style={{
-              display: "flex",
-              justifyContent: isSetDefaultColumn ? "space-between" : "flex-end"
-            }}
-          >
-            { isSetDefaultColumn &&
-              <Button key="return_default" icon={<img src={Undo} style={{ marginRight: 5 }} alt=""/>}  onClick={setDefaultColumn}>
-                Quay về mặc định
-              </Button>
-            }
+      onCancel={onCancel}
+      footer={[
+        <div
+          key="footer-button-list"
+          style={{
+            display: "flex",
+            justifyContent: isSetDefaultColumn ? "space-between" : "flex-end",
+          }}
+        >
+          {isSetDefaultColumn && (
+            <Button
+              key="return_default"
+              icon={<img src={Undo} style={{ marginRight: 5 }} alt="" />}
+              onClick={setDefaultColumn}
+            >
+              Quay về mặc định
+            </Button>
+          )}
 
-            <div>
-              <Button key="on_cancel" onClick={onCancelSetColumn}>Huỷ</Button>
-              <Button key="on_ok"  type="primary" disabled={okButtonDisable()} onClick={() => onOk && onOk(columns)}>Lưu</Button>
-            </div>
+          <div>
+            <Button key="on_cancel" onClick={onCancelSetColumn}>
+              Huỷ
+            </Button>
+            <Button
+              key="on_ok"
+              type="primary"
+              disabled={okButtonDisable()}
+              onClick={() => onOk && onOk(columns)}
+            >
+              Lưu
+            </Button>
           </div>
-        ]
-      }
+        </div>,
+      ]}
     >
       <p>Kéo thả chuột để lựa chọn cột theo trình tự bạn mong muốn.</p>
-      {columns.filter(item => item.fixed).length > 0 && <p>Bạn không thể thay đổi các cột đã được cố định.</p>}
+      {columns.filter((item) => item.fixed).length > 0 && (
+        <p>Bạn không thể thay đổi các cột đã được cố định.</p>
+      )}
       <ReactCustomScrollbars style={{ height: "300px" }} autoHide>
         <ReactDragListView
           onDragEnd={onDrag}
@@ -147,7 +154,13 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
           handleSelector="li.ant-list-item.draggble-setting-column"
         >
           <List.Item className={"draggble"} key="select-all">
-            <Checkbox  key="checkbox-select-all" checked={isSelectAll} onChange={(e) => onSelectAllChange(e)}>Chọn tất cả</Checkbox>
+            <Checkbox
+              key="checkbox-select-all"
+              checked={isSelectAll}
+              onChange={(e) => onSelectAllChange(e)}
+            >
+              Chọn tất cả
+            </Checkbox>
           </List.Item>
           <List
             dataSource={columns}
@@ -180,7 +193,15 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
                   disabled={Boolean(item.fixed)}
                 >
                   {item.titleCustom ?? item.title}
-                  <span style={{ color: '#2a2a86', fontWeight: 500, marginLeft: '30px' }}>{item.fixed ? 'Cố định' : ''}</span>
+                  <span
+                    style={{
+                      color: "#2a2a86",
+                      fontWeight: 500,
+                      marginLeft: "30px",
+                    }}
+                  >
+                    {item.fixed ? "Cố định" : ""}
+                  </span>
                 </Checkbox>
               </List.Item>
             )}
@@ -192,5 +213,3 @@ const ModalSettingColumn: React.FC<ModalSettingColumnType> = (
 };
 
 export default ModalSettingColumn;
-
-

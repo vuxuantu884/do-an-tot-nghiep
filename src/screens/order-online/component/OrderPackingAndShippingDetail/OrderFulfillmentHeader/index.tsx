@@ -1,10 +1,7 @@
 import { Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import { OrderSettingsModel } from "model/other/order/order-model";
-import {
-  FulFillmentResponse,
-  OrderResponse
-} from "model/response/order/order.response";
+import { FulFillmentResponse, OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
 import React from "react";
 import FulfillmentStatusTag from "screens/order-online/component/order-detail/FulfillmentStatusTag";
@@ -59,10 +56,7 @@ function OrderFulfillmentHeader(props: PropTypes) {
       FulFillmentStatus.SHIPPING,
       FulFillmentStatus.SHIPPED,
     ];
-    return (
-      notPrintStatusArr.includes(fulfillment.status) ||
-      checkIfFulfillmentAtStore()
-    );
+    return notPrintStatusArr.includes(fulfillment.status) || checkIfFulfillmentAtStore();
   };
 
   const renderFulfillmentShippingPrint = () => {
@@ -84,9 +78,7 @@ function OrderFulfillmentHeader(props: PropTypes) {
         <span>
           <span className="fulfillmentHeaderDateLabel">Ngày huỷ:</span>
           <span className="fulfillmentHeaderDateValue">
-            {fulfillment.cancel_date
-              ? moment(fulfillment.cancel_date).format(dateFormat)
-              : ""}
+            {fulfillment.cancel_date ? moment(fulfillment.cancel_date).format(dateFormat) : ""}
           </span>
         </span>
       );
@@ -109,10 +101,10 @@ function OrderFulfillmentHeader(props: PropTypes) {
           <div className="buttonCopy">
             <Tooltip title="Sao chép mã vận đơn">
               <img
-                onClick={(e) =>{
-                  copyTextToClipboard(e, fulfillment.code)
-                  showSuccess("Đã copy mã vận đơn!");}
-                }
+                onClick={(e) => {
+                  copyTextToClipboard(e, fulfillment.code);
+                  showSuccess("Đã copy mã vận đơn!");
+                }}
                 src={copyFileBtn}
                 alt=""
                 style={{ width: 23 }}
@@ -122,9 +114,7 @@ function OrderFulfillmentHeader(props: PropTypes) {
           <FulfillmentStatusTag fulfillment={fulfillment} />
           {renderFulfillmentShippingPrint()}
         </div>
-        <div className="saleorder-header-content__date">
-          {renderFulfillmentDate()}
-        </div>
+        <div className="saleorder-header-content__date">{renderFulfillmentDate()}</div>
       </div>
     </StyledComponent>
   );

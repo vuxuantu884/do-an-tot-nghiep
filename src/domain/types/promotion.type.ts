@@ -32,4 +32,4 @@ const PromoCodeType = {
 const PriceRuleType = {
   CREATE_PRICE_RULE: "CREATE_PRICE_RULE",
 };
-export {DiscountType, PromoCodeType, PriceRuleType};
+export { DiscountType, PromoCodeType, PriceRuleType };

@@ -8,7 +8,7 @@ import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import {
   CountryGetAllAction,
-  DistrictGetByCountryAction
+  DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import { SupplierCreateAction, SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
@@ -69,7 +69,7 @@ const initRequest: SupplierCreateRequest = {
       phone: "",
       website: "",
       supplier_id: null,
-      position: ""
+      position: "",
     },
   ],
   payments: [
@@ -89,19 +89,15 @@ const CreateSupplierScreen: React.FC = () => {
   const [formSupplier] = Form.useForm();
   const history = useHistory();
   const supplier_type = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type,
   );
   const scorecards = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
+    (state: RootReducerType) => state.bootstrapReducer.data?.scorecard,
   );
-  const date_unit = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.date_unit
-  );
-  const moq_unit = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.moq_unit
-  );
+  const date_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.date_unit);
+  const moq_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.moq_unit);
   const supplier_status = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status,
   );
   // const account = useSelector(
   //   (state: RootReducerType) => state.userReducer?.account
@@ -128,7 +124,6 @@ const CreateSupplierScreen: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
 
-
   const params: CollectionQuery = useParams() as CollectionQuery;
 
   const onChangeStatus = useCallback(
@@ -138,7 +133,7 @@ const CreateSupplierScreen: React.FC = () => {
         status: checked ? "active" : "inactive",
       });
     },
-    [formSupplier]
+    [formSupplier],
   );
 
   const onSelectDistrict = useCallback(
@@ -157,7 +152,7 @@ const CreateSupplierScreen: React.FC = () => {
         });
       }
     },
-    [formSupplier, listDistrict]
+    [formSupplier, listDistrict],
   );
 
   const onCreateSuccess = useCallback(
@@ -167,25 +162,25 @@ const CreateSupplierScreen: React.FC = () => {
 
       history.push(`${UrlConfig.SUPPLIERS}`);
     },
-    [history]
+    [history],
   );
   const onFinish = useCallback(
     (values: SupplierCreateRequest) => {
-      const {name, phone, fax, email, website, position} = values.contacts[0]
-      const { name: nameBankAccount, brand, number, beneficiary} = values.payments[0]
+      const { name, phone, fax, email, website, position } = values.contacts[0];
+      const { name: nameBankAccount, brand, number, beneficiary } = values.payments[0];
 
       //Không tạo địa chỉ liên hệ nếu không nhập trường nào
-      if(!name && !position && !phone && !fax && !email && !website) {
-        values.contacts = []
+      if (!name && !position && !phone && !fax && !email && !website) {
+        values.contacts = [];
       }
       //Không tạo thông tin thanh toán nếu không nhập trường nào
-      if(!nameBankAccount && !brand && !number && !beneficiary) {
-        values.payments = []
+      if (!nameBankAccount && !brand && !number && !beneficiary) {
+        values.payments = [];
       }
       setIsSubmitting(true);
       dispatch(SupplierCreateAction(values, onCreateSuccess));
     },
-    [dispatch, onCreateSuccess]
+    [dispatch, onCreateSuccess],
   );
   //End callback
   //Memo
@@ -205,14 +200,19 @@ const CreateSupplierScreen: React.FC = () => {
   const onGetSuccess = useCallback((results: PageResponse<CollectionResponse>) => {
     if (results && results.items) {
       setData(results);
-      setIsSearchingGroupProducts(false)
+      setIsSearchingGroupProducts(false);
     }
   }, []);
 
   const onSearchGroupProducts = (values: any) => {
-    setIsSearchingGroupProducts(true)
-    dispatch(getCollectionRequestAction({...params, ...values, limit: data.metadata.limit}, onGetSuccess));
-  }
+    setIsSearchingGroupProducts(true);
+    dispatch(
+      getCollectionRequestAction(
+        { ...params, ...values, limit: data.metadata.limit },
+        onGetSuccess,
+      ),
+    );
+  };
 
   const validatePhone = (rule: any, value: any, callback: any): void => {
     if (value) {
@@ -223,8 +223,8 @@ const CreateSupplierScreen: React.FC = () => {
           if (supplier?.phone === value) {
             callback(`Số điện thoại đã tồn tại`);
           }
-          return
-        })
+          return;
+        });
         callback();
       }
     } else {
@@ -238,13 +238,15 @@ const CreateSupplierScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(getCollectionRequestAction({ ...params, limit: data.metadata.limit }, onGetSuccess));
-    dispatch(SupplierSearchAction({limit: 200 },(response: PageResponse<SupplierResponse>)=> {
-      if(response){
-      setListSupplier(response.items)
-    } else {
-      setListSupplier([]);
-    }
-    }))
+    dispatch(
+      SupplierSearchAction({ limit: 200 }, (response: PageResponse<SupplierResponse>) => {
+        if (response) {
+          setListSupplier(response.items);
+        } else {
+          setListSupplier([]);
+        }
+      }),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps,
   }, [dispatch, onGetSuccess, params]);
 
@@ -408,23 +410,20 @@ const CreateSupplierScreen: React.FC = () => {
                     name="phone"
                     label="Số điện thoại"
                     rules={[
-                      { required: true, message: "Vui lòng nhập số điện thoại" },
+                      {
+                        required: true,
+                        message: "Vui lòng nhập số điện thoại",
+                      },
                       {
                         validator: validatePhone,
-                      }
+                      },
                     ]}
                   >
-                    <Input
-                      placeholder="Nhập số điện thoại"
-                      maxLength={255}
-                    />
+                    <Input placeholder="Nhập số điện thoại" maxLength={255} />
                   </Item>
                 </Col>
                 <Col span={12}>
-                  <Item
-                    name="group_product"
-                    label="Nhóm hàng"
-                  >
+                  <Item name="group_product" label="Nhóm hàng">
                     <SelectSearchPaging
                       data={data.items}
                       onSearch={onSearchGroupProducts}
@@ -469,9 +468,7 @@ const CreateSupplierScreen: React.FC = () => {
                             <Item label="Khu vực" name={[name, "district_id"]}>
                               <Select
                                 showSearch
-                                onSelect={(value: number) =>
-                                  onSelectDistrict(name, value)
-                                }
+                                onSelect={(value: number) => onSelectDistrict(name, value)}
                                 className="selector"
                                 placeholder="Chọn khu vực"
                                 optionFilterProp="children"
@@ -516,11 +513,7 @@ const CreateSupplierScreen: React.FC = () => {
                   <Item label="Số lượng đặt hàng tối thiểu">
                     <Input.Group className="ip-group" compact>
                       <Item name="moq" noStyle>
-                        <NumberInput
-                          placeholder="Nhập số lượng"
-                          isFloat
-                          style={{ width: "70%" }}
-                        />
+                        <NumberInput placeholder="Nhập số lượng" isFloat style={{ width: "70%" }} />
                       </Item>
                       <Item name="moq_unit" noStyle>
                         <Select className="selector-group" style={{ width: "30%" }}>
@@ -590,23 +583,14 @@ const CreateSupplierScreen: React.FC = () => {
                         <Row>
                           <Col span={24}>
                             <Item name={[name, "name"]} label="Tên người liên hệ">
-                              <Input
-                                placeholder="Nhập tên người liên hệ"
-                                maxLength={255}
-                              />
+                              <Input placeholder="Nhập tên người liên hệ" maxLength={255} />
                             </Item>
                           </Col>
                         </Row>
                         <Row>
                           <Col span={24}>
-                            <Item
-                              name={[name, "position"]}
-                              label="Chức vụ"
-                            >
-                              <Input
-                                placeholder="Nhập chức vụ"
-                                maxLength={255}
-                              />
+                            <Item name={[name, "position"]} label="Chức vụ">
+                              <Input placeholder="Nhập chức vụ" maxLength={255} />
                             </Item>
                           </Col>
                         </Row>
@@ -618,23 +602,17 @@ const CreateSupplierScreen: React.FC = () => {
                               rules={[
                                 {
                                   validator: validatePhone,
-                                }
+                                },
                               ]}
                             >
-                              <Input
-                                placeholder="Nhập số điện thoại liên hệ"
-                                maxLength={255}
-                              />
+                              <Input placeholder="Nhập số điện thoại liên hệ" maxLength={255} />
                             </Item>
                           </Col>
                         </Row>
                         <Row>
                           <Col span={24}>
                             <Item name={[name, "fax"]} label="Fax">
-                              <Input
-                                placeholder="Nhập số fax liên hệ"
-                                maxLength={255}
-                              />
+                              <Input placeholder="Nhập số fax liên hệ" maxLength={255} />
                             </Item>
                           </Col>
                         </Row>

@@ -1,4 +1,4 @@
-import { Col, Form, Row} from "antd";
+import { Col, Form, Row } from "antd";
 import { CustomModalFormModel } from "model/modal/modal.model";
 import React from "react";
 import * as CONSTANTS from "utils/Constants";
@@ -9,7 +9,7 @@ type FormValueType = {
 };
 
 const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
-  props: CustomModalFormModel
+  props: CustomModalFormModel,
 ) => {
   const { modalAction, formItem, form, visible } = props;
 
@@ -34,27 +34,27 @@ const FormCustomerShippingAddress: React.FC<CustomModalFormModel> = (
   }, [form, formItem, visible]);
 
   return (
-      <Form
-        form={form}
-        name="form-order-processing-status"
-        layout="vertical"
-        initialValues={initialFormValue}
-      >
-        <Row gutter={20}>
-          <Col span={24}>
-            <CustomInput
-              type="textarea"
-              name="content"
-              label="Ghi chú:"
-              form={form}
-              message="Vui lòng nhập ghi chú"
-              placeholder="Nhập ghi chú"
-              isRequired={true}
-              maxLength={255}
-            />
-          </Col>
-        </Row>
-      </Form>
+    <Form
+      form={form}
+      name="form-order-processing-status"
+      layout="vertical"
+      initialValues={initialFormValue}
+    >
+      <Row gutter={20}>
+        <Col span={24}>
+          <CustomInput
+            type="textarea"
+            name="content"
+            label="Ghi chú:"
+            form={form}
+            message="Vui lòng nhập ghi chú"
+            placeholder="Nhập ghi chú"
+            isRequired={true}
+            maxLength={255}
+          />
+        </Col>
+      </Row>
+    </Form>
   );
 };
 

@@ -24,7 +24,7 @@ function ReturnBottomBar(props: PropType) {
   } = props;
 
   const isLoadingDiscount = useSelector(
-    (state: RootReducerType) => state.orderReducer.isLoadingDiscount
+    (state: RootReducerType) => state.orderReducer.isLoadingDiscount,
   );
 
   return (
@@ -86,7 +86,6 @@ function ReturnBottomBar(props: PropType) {
               </Button>
             </React.Fragment>
           )}
-          
         </div>
       </div>
     </StyledComponent>

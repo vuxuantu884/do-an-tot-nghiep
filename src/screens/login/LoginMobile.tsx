@@ -33,15 +33,23 @@ export const LoginMobile = (props: IProps) => {
             className="login-form"
             layout="vertical"
             initialValues={{ username: "", password: "" }}
-            onFinish={onFinish}>
+            onFinish={onFinish}
+          >
             <Form.Item
               className="row-form"
               label="Tên đăng nhập"
               name="username"
               rules={[
-                { required: true, message: "Tên đăng nhập không được bỏ trống" },
-                { pattern: /^[a-zA-Z0-9]{4,20}$/, message: "Tên đăng nhập sai định dạng" },
-              ]}>
+                {
+                  required: true,
+                  message: "Tên đăng nhập không được bỏ trống",
+                },
+                {
+                  pattern: /^[a-zA-Z0-9]{4,20}$/,
+                  message: "Tên đăng nhập sai định dạng",
+                },
+              ]}
+            >
               <Input
                 className="username"
                 prefix={<UserOutlined style={{ color: "#c5c5c5", marginRight: 8 }} />}
@@ -55,7 +63,8 @@ export const LoginMobile = (props: IProps) => {
               className="row-form"
               label="Mật khẩu"
               name="password"
-              rules={[{ required: true, message: "Mật khẩu không được bỏ trống" }]}>
+              rules={[{ required: true, message: "Mật khẩu không được bỏ trống" }]}
+            >
               <Input.Password
                 prefix={<LockOutlined style={{ color: "#c5c5c5", marginRight: 8 }} />}
                 disabled={loading}
@@ -76,7 +85,8 @@ export const LoginMobile = (props: IProps) => {
                 size="large"
                 type="primary"
                 htmlType="submit"
-                className="login-form-button">
+                className="login-form-button"
+              >
                 Đăng nhập
               </Button>
             </Form.Item>
@@ -121,114 +131,113 @@ export const LoginMobile = (props: IProps) => {
 };
 
 const StyledLoginMobile = styled.div`
-min-height: 100vh;
-position: relative;
-display: flex;
-flex-direction: column;
-.container-header {
-  text-align: center;
-  padding: 12px 0;
-  background: #000349;
-}
-.header {
+  min-height: 100vh;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  .container-header {
+    text-align: center;
+    padding: 12px 0;
+    background: #000349;
+  }
+  .header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: center;
+    img {
+      width: 80px;
+    }
+  }
+  .yody-hello {
+    text-align: center;
+    font-family: "utm-aptima";
+    font-style: normal;
+    font-weight: 700;
+    font-size: 24px;
+    line-height: 35px;
+    color: #ffffff;
+  }
+  .login {
+    width: 65%;
+    margin: 0 auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-color: #fff;
+    padding: 20px 40px;
+    -webkit-border-radius: 4px;
+    -moz-border-radius: 4px;
+    border-radius: 4px;
+    @media screen and (max-width: 768px) {
+      width: 80%;
+    }
+    @media screen and (max-width: 500px) {
+      width: 450px;
+    }
+
+    @media screen and (max-width: 450px) {
+      width: 100%;
+      padding: 10px 20px;
+    }
+
+    .forget-password {
+      margin: -12px auto !important;
       display: flex;
+      justify-content: space-between;
       align-items: center;
-      gap: 12px;
-      justify-content: center;
-      img {
-        width: 80px;
+      .quen-mk {
+        color: #5656a2;
+        cursor: pointer;
       }
     }
-    .yody-hello {
-      text-align:center;
-      font-family: 'utm-aptima';
-      font-style: normal;
-      font-weight: 700;
-      font-size: 24px;
-      line-height: 35px;
-      color: #FFFFFF;
-    }
-    .login{
-        width: 65%;
-        margin: 0 auto;
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      background-color: #fff;
-      padding: 20px 40px;
-      -webkit-border-radius: 4px;
-      -moz-border-radius: 4px;
-      border-radius: 4px;
-      @media screen and (max-width: 768px){
-          width:80%;
+    .login-form {
+      margin-top: 20px;
+      .row-form {
+        margin-top: 10px;
       }
-      @media screen and (max-width: 500px){
-          width: 450px;
-    }
-
-    @media screen and (max-width: 450px){
-          width: 100%;
-          padding: 10px 20px;
-    }
-
-      .forget-password {
-        margin: -12px auto !important;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        .quen-mk {
-          color: #5656A2;
-          cursor: pointer;
+      label {
+        ::before {
+          content: "";
+        }
+        ::after {
+          display: inline-block;
+          margin-right: 4px;
+          color: #ff4d4f;
+          font-size: 14px;
+          font-family: "Inner";
+          line-height: 1;
+          content: "*";
         }
       }
-      .login-form {
-        margin-top: 20px;
-        .row-form {
-          margin-top: 10px;
-        }
-        label {
-          ::before {
-            content: '';
-          }
-          ::after {
-            display: inline-block;
-            margin-right: 4px;
-            color: #ff4d4f;
-            font-size: 14px;
-            font-family: 'Inner';
-            line-height: 1;
-            content: "*";
-          }
-        }
-      }
-      .login-form-button {
-        margin-top: 20px;
-        width: 100%;
-      }
-      .login-title {
-        text-align: center;
-      }
-      .username.ant-input-affix-wrapper{
-        padding-right: 0 !important;
-      }
+    }
+    .login-form-button {
+      margin-top: 20px;
+      width: 100%;
+    }
+    .login-title {
+      text-align: center;
+    }
+    .username.ant-input-affix-wrapper {
+      padding-right: 0 !important;
+    }
   }
   .login-bottom {
     bottom: 16px;
     width: 65%;
-    margin:0 auto !important;
-    padding: 20px 40px ;
-    @media screen and (max-width: 768px){
-          width:80%;
-      }
-      @media screen and (max-width: 500px){
-          width: 450px;
+    margin: 0 auto !important;
+    padding: 20px 40px;
+    @media screen and (max-width: 768px) {
+      width: 80%;
+    }
+    @media screen and (max-width: 500px) {
+      width: 450px;
     }
 
-    @media screen and (max-width: 450px){
-          width: 100%;
-          padding: 10px 20px;
-
+    @media screen and (max-width: 450px) {
+      width: 100%;
+      padding: 10px 20px;
     }
   }
   .hotline-info {
@@ -237,17 +246,17 @@ flex-direction: column;
     font-size: 16px;
     .hotline-group {
       display: flex;
-    flex-direction: column;
+      flex-direction: column;
     }
     .phone-number {
-    font-weight: bold;
-    &:hover {
+      font-weight: bold;
+      &:hover {
         cursor: pointer;
         text-decoration: underline;
       }
     }
     a {
-      color:#000000;
+      color: #000000;
     }
   }
 `;

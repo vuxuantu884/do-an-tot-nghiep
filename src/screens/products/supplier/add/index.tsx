@@ -20,10 +20,10 @@ const CreateSupplierScreen: React.FC = () => {
   const [form] = Form.useForm();
   const dispatch = useDispatch();
   const history = useHistory();
-  
+
   useEffect(() => {
-    form.resetFields()
-  },[form])
+    form.resetFields();
+  }, [form]);
 
   const [allowCreateSup] = useAuthorization({
     acceptPermissions: [SuppliersPermissions.CREATE],
@@ -68,13 +68,15 @@ const CreateSupplierScreen: React.FC = () => {
         {
           name: "Thêm mới",
         },
-      ]}>
+      ]}
+    >
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
         initialValues={initialSupplierForm}
-        scrollToFirstError>
+        scrollToFirstError
+      >
         <Row gutter={20}>
           <Col span={16}>
             <SupplierBasicInfo form={form} formFields={FormConfigs.INFO} />

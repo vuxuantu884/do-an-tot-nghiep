@@ -16,7 +16,7 @@
     justify-content: center;
     border-radius: 50%;
   }
-  &-right{
+  &-right {
     justify-content: center;
     display: flex;
     flex-direction: column;
@@ -34,19 +34,19 @@
   }
 }
 
-.ant-modal-confirm-content{
-  .yody-modal-confirm-list-code{
+.ant-modal-confirm-content {
+  .yody-modal-confirm-list-code {
     display: flex;
     line-height: 5px;
     overflow: hidden;
     white-space: nowrap;
     padding-top: 7px;
-    .yody-modal-confirm-item-code{
-        margin-left:10px;
-        font-weight:500;
+    .yody-modal-confirm-item-code {
+      margin-left: 10px;
+      font-weight: 500;
     }
   }
-  .yody-modal-warning{
+  .yody-modal-warning {
     text-align: justify;
     color: rgb(255, 77, 79);
   }

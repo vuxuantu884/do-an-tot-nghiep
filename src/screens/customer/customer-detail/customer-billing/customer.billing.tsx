@@ -22,18 +22,19 @@ import actionColumn from "../../common/action.column";
 import { modalActionType } from "model/modal/modal.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 
-
 type CustomerBillingInfoProps = {
-    customer: CustomerResponse | undefined,
-    customerDetailState: string,
-    modalAction: modalActionType ,
-    isShowModalBilling: boolean,
-    allowUpdateCustomer: boolean,
-    setModalAction: (value: modalActionType) => void,
-    setIsShowModalBilling: (value: boolean) => void,
-}
+  customer: CustomerResponse | undefined;
+  customerDetailState: string;
+  modalAction: modalActionType;
+  isShowModalBilling: boolean;
+  allowUpdateCustomer: boolean;
+  setModalAction: (value: modalActionType) => void;
+  setIsShowModalBilling: (value: boolean) => void;
+};
 
-const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: CustomerBillingInfoProps) => {
+const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (
+  props: CustomerBillingInfoProps,
+) => {
   const {
     customer,
     customerDetailState,
@@ -45,14 +46,12 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
   } = props;
   const dispatch = useDispatch();
   const history = useHistory();
-  const billingColumnFinal = () =>
-    billingColumns.filter((item) => item.visible === true);
+  const billingColumnFinal = () => billingColumns.filter((item) => item.visible === true);
   const [modalSingleBillingAddress, setModalBillingAddress] =
     React.useState<CustomerBillingAddress>();
 
   // billing columns
-  const [isVisibleBillingModal, setIsVisibleBillingModal] =
-    React.useState<boolean>(false);
+  const [isVisibleBillingModal, setIsVisibleBillingModal] = React.useState<boolean>(false);
 
   const handleBillingEdit = () => {
     setIsShowModalBilling(true);
@@ -115,13 +114,11 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
       render: (value, row, index) => {
         return (
           <div>
-            <div style={{ color: "#666666" }}>
-              {`${row.full_address ? row.full_address : ""}`}
-            </div>
+            <div style={{ color: "#666666" }}>{`${row.full_address ? row.full_address : ""}`}</div>
             <div style={{ color: "#222222" }}>
-              {`${row.ward ? row.ward : ""}${
-                row.district ? " - " + row.district : ""
-              }${row.city ? " - " + row.city : ""}`}
+              {`${row.ward ? row.ward : ""}${row.district ? " - " + row.district : ""}${
+                row.city ? " - " + row.city : ""
+              }`}
             </div>
           </div>
         );
@@ -145,28 +142,23 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
     },
     actionColumn(handleBillingEdit, handleBillingDelete, customerDetailState),
   ];
-  
+
   const handleBillingDefault = (value: any, item: any) => {
     let _item = { ...item };
     if (_item.default === true) return showError("Không thể bỏ mặc định");
     _item.is_default = value.target.checked;
     if (customer)
       dispatch(
-        UpdateBillingAddress(
-          _item.id,
-          customer.id,
-          _item,
-          (data: billingAddress) => {
-            gotoFirstPage(customer.id);
-            if (data) {
-              data.default
-                ? showSuccess("Đặt mặc định thành công")
-                : showSuccess("Bỏ mặc định thành công");
-            } else {
-              showError("Đặt mặc định thất bại");
-            }
+        UpdateBillingAddress(_item.id, customer.id, _item, (data: billingAddress) => {
+          gotoFirstPage(customer.id);
+          if (data) {
+            data.default
+              ? showSuccess("Đặt mặc định thành công")
+              : showSuccess("Bỏ mặc định thành công");
+          } else {
+            showError("Đặt mặc định thất bại");
           }
-        )
+        }),
       );
   };
   // handle billing
@@ -179,17 +171,13 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
       }
       if (customer)
         dispatch(
-          CreateBillingAddress(
-            customer.id,
-            formValue,
-            (data: billingAddress) => {
-              setIsShowModalBilling(false);
-              gotoFirstPage(customer.id);
-              data
-                ? showSuccess("Thêm mới địa chỉ thành công")
-                : showError("Thêm mới địa chỉ thất bại");
-            }
-          )
+          CreateBillingAddress(customer.id, formValue, (data: billingAddress) => {
+            setIsShowModalBilling(false);
+            gotoFirstPage(customer.id);
+            data
+              ? showSuccess("Thêm mới địa chỉ thành công")
+              : showError("Thêm mới địa chỉ thất bại");
+          }),
         );
     },
     edit: (formValue: CustomerBillingAddress) => {
@@ -207,8 +195,8 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
                 data
                   ? showSuccess("Cập nhật địa chỉ thành công")
                   : showError("Cập nhật địa chỉ thất bại");
-              }
-            )
+              },
+            ),
           );
       }
     },
@@ -222,11 +210,9 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
               (data: billingAddress) => {
                 setIsShowModalBilling(false);
                 gotoFirstPage(customer.id);
-                data
-                  ? showSuccess("Xóa địa chỉ thành công")
-                  : showError("Xóa địa chỉ thất bại");
-              }
-            )
+                data ? showSuccess("Xóa địa chỉ thành công") : showError("Xóa địa chỉ thất bại");
+              },
+            ),
           );
       }
     },
@@ -279,9 +265,7 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
           onCreate={(formValue: CustomerBillingAddress) =>
             handleBillingAddressForm.create(formValue)
           }
-          onEdit={(formValue: CustomerBillingAddress) =>
-            handleBillingAddressForm.edit(formValue)
-          }
+          onEdit={(formValue: CustomerBillingAddress) => handleBillingAddressForm.edit(formValue)}
           onDelete={() => handleBillingAddressForm.delete()}
           onCancel={() => setIsShowModalBilling(false)}
           modalAction={modalAction}
@@ -303,6 +287,6 @@ const CustomerBillingInfo: React.FC<CustomerBillingInfoProps> = (props: Customer
       />
     </Row>
   );
-}
+};
 
 export default CustomerBillingInfo;

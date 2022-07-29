@@ -19,15 +19,13 @@ import ModalConfirm, { ModalConfirmProps } from "component/modal/ModalConfirm";
 import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import UrlConfig from "config/url.config";
 import {
-  SupplierDetailAction, SupplierSearchAction,
-  SupplierUpdateAction
+  SupplierDetailAction,
+  SupplierSearchAction,
+  SupplierUpdateAction,
 } from "domain/actions/core/supplier.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
-import {
-  SupplierResponse,
-  SupplierUpdateRequest
-} from "model/core/supplier.model";
+import { SupplierResponse, SupplierUpdateRequest } from "model/core/supplier.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -63,19 +61,15 @@ const UpdateSupplierScreen: React.FC = () => {
   const [isSearchingGroupProducts, setIsSearchingGroupProducts] = React.useState(false);
 
   const supplier_type = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type,
   );
   const scorecards = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.scorecard
+    (state: RootReducerType) => state.bootstrapReducer.data?.scorecard,
   );
-  const date_unit = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.date_unit
-  );
-  const moq_unit = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.moq_unit
-  );
+  const date_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.date_unit);
+  const moq_unit = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.moq_unit);
   const supplier_status = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.supplier_status,
   );
 
   //State
@@ -91,7 +85,7 @@ const UpdateSupplierScreen: React.FC = () => {
       total: 0,
     },
     items: [],
-  })
+  });
 
   const [type, setType] = useState("personal");
 
@@ -111,7 +105,7 @@ const UpdateSupplierScreen: React.FC = () => {
         status: checked ? "active" : "inactive",
       });
     },
-    [formRef]
+    [formRef],
   );
 
   const onUpdateSuccess = (response: SupplierResponse | false) => {
@@ -123,7 +117,10 @@ const UpdateSupplierScreen: React.FC = () => {
   };
 
   const onFinish = (values: SupplierUpdateRequest) => {
-    const newValues = { ...values, phone: values.phone || supplier?.phone || '' }
+    const newValues = {
+      ...values,
+      phone: values.phone || supplier?.phone || "",
+    };
 
     setLoading(true);
     dispatch(SupplierUpdateAction(idNumber, newValues, onUpdateSuccess));
@@ -175,8 +172,8 @@ const UpdateSupplierScreen: React.FC = () => {
       value,
       callback,
       phoneCurrent: supplier?.phone,
-      phoneList: listSupplier
-    })
+      phoneList: listSupplier,
+    });
   };
 
   const onGetSuccess = (results: PageResponse<CollectionResponse>) => {
@@ -189,7 +186,10 @@ const UpdateSupplierScreen: React.FC = () => {
   const onSearchGroupProducts = (values: any) => {
     setIsSearchingGroupProducts(true);
     dispatch(
-      getCollectionRequestAction({ ...params, ...values, limit: groupProducts.metadata.limit }, onGetSuccess)
+      getCollectionRequestAction(
+        { ...params, ...values, limit: groupProducts.metadata.limit },
+        onGetSuccess,
+      ),
     );
   };
 
@@ -199,17 +199,19 @@ const UpdateSupplierScreen: React.FC = () => {
       setLoadingData(true);
       if (!Number.isNaN(idNumber)) {
         dispatch(SupplierDetailAction(idNumber, setSupplierDetail));
-        dispatch(getCollectionRequestAction(params, onGetSuccess))
+        dispatch(getCollectionRequestAction(params, onGetSuccess));
       }
     }
     isFirstLoad.current = false;
-    dispatch(SupplierSearchAction({ limit: 200 }, (response: PageResponse<SupplierResponse>) => {
-      if (response) {
-        setListSupplier(response.items)
-      } else {
-        setListSupplier([]);
-      }
-    }))
+    dispatch(
+      SupplierSearchAction({ limit: 200 }, (response: PageResponse<SupplierResponse>) => {
+        if (response) {
+          setListSupplier(response.items);
+        } else {
+          setListSupplier([]);
+        }
+      }),
+    );
   }, [dispatch, idNumber, setSupplierDetail, params]);
 
   return (
@@ -228,7 +230,7 @@ const UpdateSupplierScreen: React.FC = () => {
         },
         {
           name: supplier ? supplier.code : "",
-          path: `${UrlConfig.SUPPLIERS}/${supplier?.id}`
+          path: `${UrlConfig.SUPPLIERS}/${supplier?.id}`,
         },
         {
           name: "Sửa thông tin",
@@ -274,9 +276,7 @@ const UpdateSupplierScreen: React.FC = () => {
                       className="ant-switch-success"
                       checked={status === "active"}
                     />
-                    <label
-                      className={status === "active" ? "text-success" : "text-error"}
-                    >
+                    <label className={status === "active" ? "text-success" : "text-error"}>
                       {statusValue}
                     </label>
                     <Item noStyle name="status" hidden>
@@ -347,18 +347,18 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={12}>
                     <Form.Item
-                        label="SĐT nhà cung cấp"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng nhập SĐT nhà cung cấp",
-                          },
-                          {
-                            validator: validatePhone
-                          }
-                        ]}
-                        name="phone"
-                      >
+                      label="SĐT nhà cung cấp"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập SĐT nhà cung cấp",
+                        },
+                        {
+                          validator: validatePhone,
+                        },
+                      ]}
+                      name="phone"
+                    >
                       <Input placeholder="Nhập SĐT nhà cung cấp" maxLength={255} />
                     </Form.Item>
                   </Col>
@@ -384,31 +384,32 @@ const UpdateSupplierScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={12}>
                     <Form.Item
-                        label="Merchandiser"
-                        rules={[
-                          {
-                            required: true,
-                            message: "Vui lòng chọn Merchandiser",
-                          },
-                        ]}
-                        name="pic_code"
-                      >
-                        <AccountSearchPaging placeholder="Chọn Merchandiser" />
-                      </Form.Item>
+                      label="Merchandiser"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn Merchandiser",
+                        },
+                      ]}
+                      name="pic_code"
+                    >
+                      <AccountSearchPaging placeholder="Chọn Merchandiser" />
+                    </Form.Item>
                   </Col>
                   {/*TODO: Waiting response api*/}
                   <Col span={12}>
-                    <Item
-                      name="collection_id"
-                      label="Nhóm hàng"
-                    >
+                    <Item name="collection_id" label="Nhóm hàng">
                       <SelectSearchPaging
                         data={groupProducts?.items || []}
                         onSearch={onSearchGroupProducts}
                         isLoading={isSearchingGroupProducts}
                         metadata={groupProducts?.metadata}
                         defaultValue={supplier?.collection_id}
-                        onSelect={(item) => formRef.current?.setFieldsValue({ collection_id: item.value })}
+                        onSelect={(item) =>
+                          formRef.current?.setFieldsValue({
+                            collection_id: item.value,
+                          })
+                        }
                         optionKeyValue="id"
                         optionKeyName="name"
                         placeholder="Nhập nhóm hàng"

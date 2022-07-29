@@ -29,32 +29,31 @@ export const StyledSmsConfigMessage = styled.div`
   .sms-config-message {
     display: flex;
     justify-content: space-between;
-		.edit-content {
-			width: 65%;
-			margin-right: 20px;
-			.action-status {
+    .edit-content {
+      width: 65%;
+      margin-right: 20px;
+      .action-status {
         flex-direction: row;
         align-items: center;
         .ant-form-item-label {
-					padding: 0;
-				}
-				.switch-button {
-					margin: 0 10px;
-				}
-			}
-		}
-		.key-word-list {
-			flex-grow: 1;
-			.key-word-item {
+          padding: 0;
+        }
+        .switch-button {
+          margin: 0 10px;
+        }
+      }
+    }
+    .key-word-list {
+      flex-grow: 1;
+      .key-word-item {
         display: flex;
         justify-content: space-between;
-				margin-bottom: 10px;
-				.insert-button {
-					height: 32px;
-					line-height: 32px;
-				}
-			}
-		}
+        margin-bottom: 10px;
+        .insert-button {
+          height: 32px;
+          line-height: 32px;
+        }
+      }
+    }
   }
 `;
-

@@ -7,14 +7,9 @@ import { Row, Col, Form, Select, Button } from "antd";
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse, AccountSearchQuery } from "model/account/account.model";
 import { WebAppResponse } from "model/response/web-app/ecommerce.response";
-import {
-  WebAppConfigRequest,
-  WebAppShopInventoryDto,
-} from "model/query/web-app.query";
+import { WebAppConfigRequest, WebAppShopInventoryDto } from "model/query/web-app.query";
 
-import {
-  webAppUpdateConfigAction
-} from "domain/actions/web-app/web-app.actions";
+import { webAppUpdateConfigAction } from "domain/actions/web-app/web-app.actions";
 import CustomInput from "screens/customer/common/customInput";
 
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -23,13 +18,16 @@ import { EcommerceConfigPermission } from "config/permissions/ecommerce.permissi
 import useAuthorization from "hook/useAuthorization";
 import disconnectIcon from "assets/icon/e-disconnect.svg";
 import saveIcon from "assets/icon/e-save-config.svg";
-import {ECOMMERCE_ICON, getWebAppById} from "screens/web-app/common/commonAction";
+import { ECOMMERCE_ICON, getWebAppById } from "screens/web-app/common/commonAction";
 import { StyledConfig } from "screens/web-app/config/config-shop/StyledConfigShop";
 import { debounce } from "lodash";
 import { AccountSearchAction } from "domain/actions/account/account.action";
 import { PageResponse } from "model/base/base-metadata.response";
 import { actionFetchListOrderSources } from "domain/actions/settings/order-sources.action";
-import { OrderSourceModel, OrderSourceResponseModel } from "model/response/order/order-source.response";
+import {
+  OrderSourceModel,
+  OrderSourceResponseModel,
+} from "model/response/order/order-source.response";
 import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 
 const { Option } = Select;
@@ -40,7 +38,7 @@ const shopsDeletePermission = [EcommerceConfigPermission.shops_delete];
 
 const initQueryAccount: AccountSearchQuery = {
   info: "",
-  status: "active"
+  status: "active",
 };
 
 type ConfigShopProps = {
@@ -49,14 +47,8 @@ type ConfigShopProps = {
   id: string;
 };
 
-const ConfigShop: React.FC<ConfigShopProps> = (
-  props: ConfigShopProps
-) => {
-  const {
-    shopList,
-    showDeleteModal,
-    id
-  } = props;
+const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
+  const { shopList, showDeleteModal, id } = props;
 
   const dispatch = useDispatch();
   const [configDetail, setConfigDetail] = useState<WebAppResponse | undefined>(undefined);
@@ -64,7 +56,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
   const [storeList, setStoreList] = useState<Array<StoreResponse>>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [form] = Form.useForm();
-  
+
   const [allowShopsUpdate] = useAuthorization({
     acceptPermissions: shopsUpdatePermission,
     not: false,
@@ -78,29 +70,31 @@ const ConfigShop: React.FC<ConfigShopProps> = (
 
   //shop
   useEffect(() => {
-    if(shopList && shopList.length > 0){
+    if (shopList && shopList.length > 0) {
       const shopInfo = shopList.find((a) => a.id === parseFloat(id));
-      if(shopInfo){
+      if (shopInfo) {
         setConfigDetail(shopInfo);
       }
     }
-  }, [id,shopList]);
+  }, [id, shopList]);
   const handleShopChange = (id: number) => {
-    if(shopList && shopList.length > 0){
+    if (shopList && shopList.length > 0) {
       const shopInfo = shopList.find((a) => a.id === id);
-      if(shopInfo){
+      if (shopInfo) {
         setConfigDetail(shopInfo);
       }
     }
-  }
+  };
 
   //get store list
   useEffect(() => {
-    dispatch(getListStoresSimpleAction((stores) => {
-      setStoreList(stores);
-    }))
+    dispatch(
+      getListStoresSimpleAction((stores) => {
+        setStoreList(stores);
+      }),
+    );
     // eslint-disable-next-line react-hooks/exhaustive-deps
-   },[])
+  }, []);
 
   //get account list
   useEffect(() => {
@@ -111,13 +105,13 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     setAccountList([]);
     initQueryAccount.info = searchValue;
     dispatch(AccountSearchAction(initQueryAccount, updateAccountData));
-  }
+  };
   const updateAccountData = (response: PageResponse<AccountResponse> | false) => {
     if (response) {
       setAccountList(response.items);
     }
-  }
-  
+  };
+
   //get source list
   useEffect(() => {
     handleSearchingSource("");
@@ -127,11 +121,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     if (response) {
       setSourceList(response.items);
     }
-  }
+  };
   const handleSearchingSource = debounce((value: string) => {
-    dispatch(
-      actionFetchListOrderSources({name: value} , updateSourceData)
-    );
+    dispatch(actionFetchListOrderSources({ name: value }, updateSourceData));
   }, 800);
 
   //save
@@ -140,23 +132,22 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     if (result) {
       showSuccess("Cập nhật cấu hình thành công");
     }
-  }
+  };
   const handleConfigSetting = (value: WebAppConfigRequest) => {
     if (configDetail) {
       let request = {
         ...configDetail,
         ...value,
         inventories: inventories,
-        assign_account: accountList?.find((item) => item.code === value.assign_account_code)?.full_name || "",
+        assign_account:
+          accountList?.find((item) => item.code === value.assign_account_code)?.full_name || "",
         source: sourceList?.find((item) => item.id === value.source_id)?.name || "",
         store: storeList?.find((item) => item.id === value.store_id)?.name || "",
       };
       setIsLoading(true);
-      dispatch(
-        webAppUpdateConfigAction(request.id, request, callbackUpdateConfigSetting)
-      );
+      dispatch(webAppUpdateConfigAction(request.id, request, callbackUpdateConfigSetting));
     }
-  }
+  };
   const handleDisconnectEcommerce = () => {
     if (configDetail) showDeleteModal(configDetail);
   };
@@ -189,7 +180,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         product_sync: configDetail.product_sync,
         inventory_sync: configDetail.inventory_sync,
         store: configDetail.store,
-        source_id:configDetail.source_id ? configDetail.source_id.split(",").map((item: any) => parseFloat(item)) : [], 
+        source_id: configDetail.source_id
+          ? configDetail.source_id.split(",").map((item: any) => parseFloat(item))
+          : [],
         inventories: _inventories?.map((item: any) => item.store_id),
       });
     } else {
@@ -200,10 +193,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
 
   const convertToCapitalizedString = () => {
     if (configDetail) {
-      return (
-        configDetail.ecommerce?.charAt(0).toUpperCase() +
-        configDetail.ecommerce?.slice(1)
-      );
+      return configDetail.ecommerce?.charAt(0).toUpperCase() + configDetail.ecommerce?.slice(1);
     }
   };
 
@@ -231,22 +221,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   disabled={!allowShopsUpdate}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children[1]
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children[1].toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
                 >
                   {shopList &&
                     shopList?.map((item: any) => (
-                      <CustomSelect.Option
-                        style={{ width: "100%" }}
-                        key={item.id}
-                        value={item.id}
-                      >
+                      <CustomSelect.Option style={{ width: "100%" }} key={item.id} value={item.id}>
                         {
                           <img
                             style={{ marginRight: 8, paddingBottom: 4 }}
@@ -283,14 +265,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                     <span className="fw-500">: {configDetail?.id || "---"}</span>
                   </Col>
                 </Row>
-                {configDetail?.email &&
+                {configDetail?.email && (
                   <Row>
                     <Col span={5}>Email</Col>
                     <Col span={19}>
                       <span className="fw-500">: {configDetail.email}</span>
                     </Col>
                   </Row>
-                }
+                )}
               </div>
             </Col>
           </Row>
@@ -300,8 +282,8 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               <ul className="description">
                 <li>
                   <span style={{ padding: "0 10px" }}>
-                    Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân
-                    biệt các gian hàng với nhau
+                    Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt các gian hàng
+                    với nhau
                   </span>
                 </li>
               </ul>
@@ -321,24 +303,16 @@ const ConfigShop: React.FC<ConfigShopProps> = (
           </Row>
           <Row gutter={24}>
             <Col span={12}>
-              <span className="description-name">
-                Cấu hình nhân viên, cửa hàng
-              </span>
+              <span className="description-name">Cấu hình nhân viên, cửa hàng</span>
               <ul className="description">
                 <li>
-                  <span>
-                    Chọn cửa hàng để ghi nhận doanh số và trừ tốn kho tại cửa hàng.
-                  </span>
+                  <span>Chọn cửa hàng để ghi nhận doanh số và trừ tốn kho tại cửa hàng.</span>
                 </li>
                 <li>
-                  <span>
-                    Chọn nhân viên bán hàng để ghi nhận doanh số và nhân viên phụ trách.
-                  </span>
+                  <span>Chọn nhân viên bán hàng để ghi nhận doanh số và nhân viên phụ trách.</span>
                 </li>
                 <li>
-                  <span>
-                    Chọn nguồn đơn hàng để ghi nhận nguồn cho đơn hàng khi tải đơn về.
-                  </span>
+                  <span>Chọn nguồn đơn hàng để ghi nhận nguồn cho đơn hàng khi tải đơn về.</span>
                 </li>
               </ul>
             </Col>
@@ -362,11 +336,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 >
                   {storeList &&
                     storeList?.map((item, index) => (
-                      <Option
-                        style={{ width: "100%" }}
-                        key={index.toString()}
-                        value={item.id}
-                      >
+                      <Option style={{ width: "100%" }} key={index.toString()} value={item.id}>
                         {item.name}
                       </Option>
                     ))}
@@ -420,13 +390,13 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   optionFilterProp="children"
                   onSearch={(value) => handleSearchingSource(value.trim() || "")}
                   onClear={() => handleSearchingSource("")}
-                  notFoundContent= "Không có dữ liệu"
+                  notFoundContent="Không có dữ liệu"
                 >
                   {sourceList?.map((source: any) => (
-                      <Option key={source.id} value={source.id}>
-                        {`${source.name}`}
-                      </Option>
-                    ))}
+                    <Option key={source.id} value={source.id}>
+                      {`${source.name}`}
+                    </Option>
+                  ))}
                 </Select>
               </Form.Item>
             </Col>
@@ -437,15 +407,15 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               <ul className="description">
                 <li>
                   <span>
-                    Chọn kho để đồng bộ tồn từ admin lên shop của bạn, có thể chọn
-                    nhiều kho, tồn sẽ là tổng các kho.{" "}
+                    Chọn kho để đồng bộ tồn từ admin lên shop của bạn, có thể chọn nhiều kho, tồn sẽ
+                    là tổng các kho.{" "}
                   </span>
                 </li>
                 <li>
                   <span>
-                    Chọn kiểu đồng bộ tồn kho tự động nghĩa là khi có bất kỳ thay
-                    đổi tồn từ các kho đã chọn thì sẽ được đồng bộ realtime lên
-                    shop (trừ các trường hợp lỗi hoặc flashsale).
+                    Chọn kiểu đồng bộ tồn kho tự động nghĩa là khi có bất kỳ thay đổi tồn từ các kho
+                    đã chọn thì sẽ được đồng bộ realtime lên shop (trừ các trường hợp lỗi hoặc
+                    flashsale).
                   </span>
                 </li>
               </ul>
@@ -465,7 +435,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   disabled={!configDetail || !allowShopsUpdate}
                   onChange={handleStoreChange}
                   mode="multiple"
-                  maxTagCount='responsive'
+                  maxTagCount="responsive"
                   className="dropdown-rule"
                   showArrow
                   showSearch
@@ -511,15 +481,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               <ul className="description">
                 <li>
                   <span>
-                    Kiểu đồng bộ đơn hàng để xác định khi có đơn hàng mới sẽ được
-                    tải về "Tự động" hay "Thủ công".{" "}
+                    Kiểu đồng bộ đơn hàng để xác định khi có đơn hàng mới sẽ được tải về "Tự động"
+                    hay "Thủ công".{" "}
                   </span>
                 </li>
                 <li>
                   <span>
-                    Kiểu đồng bộ sản phẩm khi tải đơn là hệ thống sẽ đợi người
-                    dùng ghép nối hết sản phẩm mới trong đơn hàng rồi mới tạo đơn
-                    hàng trên hệ thống.
+                    Kiểu đồng bộ sản phẩm khi tải đơn là hệ thống sẽ đợi người dùng ghép nối hết sản
+                    phẩm mới trong đơn hàng rồi mới tạo đơn hàng trên hệ thống.
                   </span>
                 </li>
               </ul>
@@ -565,7 +534,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
             </Col>
           </Row>
           <div className="config-setting-footer">
-            {(configDetail && allowShopsDelete) ?
+            {configDetail && allowShopsDelete ? (
               <Button
                 className="delete-shop-btn"
                 icon={<img src={disconnectIcon} alt="" />}
@@ -575,10 +544,11 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               >
                 Xóa gian hàng
               </Button>
-              : <div/>
-            }
+            ) : (
+              <div />
+            )}
 
-            {allowShopsUpdate &&
+            {allowShopsUpdate && (
               <Button
                 type="primary"
                 htmlType="submit"
@@ -587,16 +557,16 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               >
                 {configDetail ? "Lưu cấu hình" : "Tạo cấu hình"}
               </Button>
-            }
+            )}
           </div>
         </Form>
       </StyledConfig>
-    )
-  }
+    );
+  };
 
   return (
     <AuthWrapper acceptPermissions={shopsReadPermission} passThrough>
-      {(allowed: boolean ) => (allowed ? renderComponent() : <NoPermission/>)}
+      {(allowed: boolean) => (allowed ? renderComponent() : <NoPermission />)}
     </AuthWrapper>
   );
 };

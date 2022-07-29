@@ -1,18 +1,14 @@
-
 import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { showSuccess } from "utils/ToastUtils";
 import { useHistory } from "react-router-dom";
 import CustomSelect from "component/custom/select.custom";
-import {Button, Col, Form, Row, Select, Spin} from "antd";
+import { Button, Col, Form, Row, Select, Spin } from "antd";
 
 import { StoreResponse } from "model/core/store.model";
 import { AccountResponse } from "model/account/account.model";
 import { EcommerceResponse } from "model/response/ecommerce/ecommerce.response";
-import {
-  EcommerceRequest,
-  EcommerceShopInventoryDto,
-} from "model/request/ecommerce.request";
+import { EcommerceRequest, EcommerceShopInventoryDto } from "model/request/ecommerce.request";
 import {
   ecommerceConfigUpdateAction,
   ecommerceConfigCreateAction,
@@ -56,9 +52,7 @@ type ConfigShopProps = {
   showDeleteModal: (value: EcommerceResponse) => void;
 };
 
-const ConfigShop: React.FC<ConfigShopProps> = (
-  props: ConfigShopProps
-) => {
+const ConfigShop: React.FC<ConfigShopProps> = (props: ConfigShopProps) => {
   const {
     listStores,
     form,
@@ -89,7 +83,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
   });
 
   // handle account
-  const [initAssigneeAccountData, setInitAssigneeAccountData] = useState<Array<AccountResponse>>([]);
+  const [initAssigneeAccountData, setInitAssigneeAccountData] = useState<Array<AccountResponse>>(
+    [],
+  );
   const [initValueAssigneeCode, setInitValueAssigneeCode] = useState("");
   const [assigneeAccountData, setAssigneeAccountData] = useState<Array<AccountResponse>>([]);
 
@@ -98,7 +94,11 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       return;
     }
 
-    const pushCurrentValueToDataAccount = (fieldName: string, fieldNameValue: any, storeAccountData: AccountResponse[]) => {
+    const pushCurrentValueToDataAccount = (
+      fieldName: string,
+      fieldNameValue: any,
+      storeAccountData: AccountResponse[],
+    ) => {
       if (fieldNameValue) {
         switch (fieldName) {
           case "assign_account_code":
@@ -110,7 +110,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         if (storeAccountData.some((single) => single.code === fieldNameValue)) {
           setAssigneeAccountData(storeAccountData);
         } else {
-          searchAccountPublicApi({condition: fieldNameValue})
+          searchAccountPublicApi({ condition: fieldNameValue })
             .then((response) => {
               if (isFetchApiSuccessful(response)) {
                 if (response.data.items.length === 0) {
@@ -126,7 +126,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                     break;
                 }
               } else {
-                handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+                handleFetchApiError(response, "Danh sách tài khoản", dispatch);
               }
             })
             .catch((error) => {
@@ -136,19 +136,23 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       }
     };
 
-    searchAccountPublicApi({store_ids: [configDetail?.store_id]})
+    searchAccountPublicApi({ store_ids: [configDetail?.store_id] })
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
           setInitAssigneeAccountData(response.data.items);
-          pushCurrentValueToDataAccount("assign_account_code", configDetail.assign_account_code, response.data.items);
+          pushCurrentValueToDataAccount(
+            "assign_account_code",
+            configDetail.assign_account_code,
+            response.data.items,
+          );
         } else {
-          handleFetchApiError(response, "Danh sách tài khoản", dispatch)
+          handleFetchApiError(response, "Danh sách tài khoản", dispatch);
         }
       })
       .catch((error) => {
         console.log("error", error);
-      })
-  }, [configDetail?.assign_account_code, configDetail?.store_id, dispatch])
+      });
+  }, [configDetail?.assign_account_code, configDetail?.store_id, dispatch]);
   // end handle search account
 
   // handle source
@@ -160,27 +164,23 @@ const ConfigShop: React.FC<ConfigShopProps> = (
     setSourceList(initSourceList);
   }, [initSourceList]);
 
-  const updateSourceData = useCallback(
-    (response: PageResponse<any>) => {
-      setSourceSearching(false);
-      if (response) {
-        setSourceList(response.items);
-      }
-    },
-    []
-  );
+  const updateSourceData = useCallback((response: PageResponse<any>) => {
+    setSourceSearching(false);
+    if (response) {
+      setSourceList(response.items);
+    }
+  }, []);
 
   const handleSearchingSource = useCallback(
     (searchValue: string) => {
       if (searchValue) {
         setSourceSearching(true);
-        dispatch(
-          actionFetchListOrderSources({name: searchValue}, updateSourceData)
-        );
+        dispatch(actionFetchListOrderSources({ name: searchValue }, updateSourceData));
       } else {
         handleSetInitSourceList();
       }
-    }, [dispatch, handleSetInitSourceList, updateSourceData]
+    },
+    [dispatch, handleSetInitSourceList, updateSourceData],
   );
 
   const onSearchSource = debounce((value: string) => {
@@ -195,31 +195,35 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         page: 1,
         limit: 1000,
         active: true,
-      }
+      };
       await getSourcesWithParamsService(query).then((responseSource) => {
         if (isFetchApiSuccessful(responseSource)) {
           sourceList = responseSource.data.items;
         } else {
-          handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch)
+          handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch);
         }
-      })
+      });
       return sourceList;
     };
 
     const addSourceIntoInitSourceList = async (sourceList: any) => {
       let newInitSourceList: SourceResponse[] = sourceList;
 
-      if (configDetail?.source_id && sourceList?.length && !sourceList.find((item: any) => item.id === configDetail?.source_id)) {
+      if (
+        configDetail?.source_id &&
+        sourceList?.length &&
+        !sourceList.find((item: any) => item.id === configDetail?.source_id)
+      ) {
         const query: SourceSearchQuery = {
           ids: [configDetail?.source_id],
-        }
+        };
         await getSourcesWithParamsService(query).then((responseSource) => {
           if (isFetchApiSuccessful(responseSource)) {
             newInitSourceList = responseSource.data.items.concat(sourceList);
           } else {
-            handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch)
+            handleFetchApiError(responseSource, "Nguồn đơn hàng", dispatch);
           }
-        })
+        });
       }
       return newInitSourceList;
     };
@@ -239,9 +243,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
 
   useEffect(() => {
     if (configFromEcommerce) {
-      const _existConfig = configData?.find(
-        (item) => item.id === configFromEcommerce.id
-      );
+      const _existConfig = configData?.find((item) => item.id === configFromEcommerce.id);
       if (_existConfig) {
         setConfigDetail(_existConfig);
       } else {
@@ -274,7 +276,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         reloadConfigData();
       }
     },
-    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
+    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce],
   );
 
   const handleCreateConfigCallback = React.useCallback(
@@ -289,36 +291,30 @@ const ConfigShop: React.FC<ConfigShopProps> = (
         reloadConfigData();
       }
     },
-    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce]
+    [history, reloadConfigData, setConfigToView, setConfigFromEcommerce],
   );
 
   const handleConfigSetting = React.useCallback(
     (value: EcommerceRequest) => {
       if (configDetail) {
         const id = configDetail?.id;
-        const _isExist =
-          configData && configData?.some((item) => item.id === id);
+        const _isExist = configData && configData?.some((item) => item.id === id);
         let request = {
           ...configDetail,
           ...value,
           inventories: inventories,
           assign_account:
-            assigneeAccountData?.find((item) => item.code === value.assign_account_code)?.full_name || "",
-          source:
-            sourceList?.find((item) => item.id === value.source_id)?.name || "",
-          store:
-            listStores?.find((item) => item.id === value.store_id)?.name || "",
+            assigneeAccountData?.find((item) => item.code === value.assign_account_code)
+              ?.full_name || "",
+          source: sourceList?.find((item) => item.id === value.source_id)?.name || "",
+          store: listStores?.find((item) => item.id === value.store_id)?.name || "",
         };
 
         setIsLoading(true);
         if (_isExist) {
-          dispatch(
-            ecommerceConfigUpdateAction(id, request, handleConfigCallback)
-          );
+          dispatch(ecommerceConfigUpdateAction(id, request, handleConfigCallback));
         } else {
-          dispatch(
-            ecommerceConfigCreateAction(request, handleCreateConfigCallback)
-          );
+          dispatch(ecommerceConfigCreateAction(request, handleCreateConfigCallback));
         }
       }
     },
@@ -332,7 +328,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       configData,
       sourceList,
       listStores,
-    ]
+    ],
   );
   const handleDisconnectEcommerce = () => {
     if (configDetail) showDeleteModal(configDetail);
@@ -354,9 +350,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
 
   React.useEffect(() => {
     if (configDetail) {
-      const _inventories = configDetail.inventories?.filter(
-        (item: any) => !item.deleted
-      );
+      const _inventories = configDetail.inventories?.filter((item: any) => !item.deleted);
       setInventories(_inventories);
       form.setFieldsValue({
         id: configDetail.id,
@@ -382,15 +376,12 @@ const ConfigShop: React.FC<ConfigShopProps> = (
       const data = _configData?.find((item) => item.id === id);
       setConfigToView(data);
     },
-    [configData, setConfigToView]
+    [configData, setConfigToView],
   );
 
   const convertToCapitalizedString = () => {
     if (configDetail) {
-      return (
-        configDetail.ecommerce?.charAt(0).toUpperCase() +
-        configDetail.ecommerce?.slice(1)
-      );
+      return configDetail.ecommerce?.charAt(0).toUpperCase() + configDetail.ecommerce?.slice(1);
     }
   };
 
@@ -418,24 +409,20 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   disabled={!allowShopsUpdate}
                   filterOption={(input, option) => {
                     if (option) {
-                      return (
-                        option.children[1]
-                          .toLowerCase()
-                          .indexOf(input.toLowerCase()) >= 0
-                      );
+                      return option.children[1].toLowerCase().indexOf(input.toLowerCase()) >= 0;
                     }
                     return false;
                   }}
                 >
                   {configFromEcommerce ? (
                     <CustomSelect.Option
-                      style={{width: "100%"}}
+                      style={{ width: "100%" }}
                       key={configFromEcommerce.id}
                       value={configFromEcommerce.id}
                     >
                       {
                         <img
-                          style={{marginRight: 8, paddingBottom: 4}}
+                          style={{ marginRight: 8, paddingBottom: 4 }}
                           src={ECOMMERCE_ICON[configFromEcommerce.ecommerce.toLowerCase()]}
                           alt=""
                         />
@@ -445,14 +432,10 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   ) : (
                     configData &&
                     configData?.map((item: any) => (
-                      <CustomSelect.Option
-                        style={{width: "100%"}}
-                        key={item.id}
-                        value={item.id}
-                      >
+                      <CustomSelect.Option style={{ width: "100%" }} key={item.id} value={item.id}>
                         {
                           <img
-                            style={{marginRight: 8, paddingBottom: 4}}
+                            style={{ marginRight: 8, paddingBottom: 4 }}
                             src={ECOMMERCE_ICON[item.ecommerce.toLowerCase()]}
                             alt=""
                           />
@@ -476,25 +459,23 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 <Row>
                   <Col span={5}>Tên Shop</Col>
                   <Col span={19}>
-                    <span className="fw-500">
-                      : {configDetail?.ecommerce_shop || "---"}
-                    </span>
+                    <span className="fw-500">: {configDetail?.ecommerce_shop || "---"}</span>
                   </Col>
                 </Row>
                 <Row>
                   <Col span={5}>ID Shop</Col>
                   <Col span={19}>
-                    <span className="fw-500">: {configDetail?.id || '---'}</span>
+                    <span className="fw-500">: {configDetail?.id || "---"}</span>
                   </Col>
                 </Row>
-                {configDetail?.email &&
+                {configDetail?.email && (
                   <Row>
                     <Col span={5}>Email</Col>
                     <Col span={19}>
                       <span className="fw-500">: {configDetail.email}</span>
                     </Col>
                   </Row>
-                }
+                )}
               </div>
             </Col>
           </Row>
@@ -503,9 +484,9 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               <span className="description-name">Đặt tên gian hàng</span>
               <ul className="description">
                 <li>
-                  <span style={{padding: "0 10px"}}>
-                    Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân
-                    biệt các gian hàng với nhau
+                  <span style={{ padding: "0 10px" }}>
+                    Tên viết tắt của gian hàng trên Yody giúp nhận biết và phân biệt các gian hàng
+                    với nhau
                   </span>
                 </li>
               </ul>
@@ -525,24 +506,16 @@ const ConfigShop: React.FC<ConfigShopProps> = (
           </Row>
           <Row gutter={24}>
             <Col span={12}>
-              <span className="description-name">
-                Cấu hình nhân viên, cửa hàng
-              </span>
+              <span className="description-name">Cấu hình nhân viên, cửa hàng</span>
               <ul className="description">
                 <li>
-                  <span>
-                    Chọn cửa hàng để ghi nhận doanh số và trừ tốn kho tại cửa hàng.
-                  </span>
+                  <span>Chọn cửa hàng để ghi nhận doanh số và trừ tốn kho tại cửa hàng.</span>
                 </li>
                 <li>
-                  <span>
-                    Chọn nhân viên bán hàng để ghi nhận doanh số và nhân viên phụ trách.
-                  </span>
+                  <span>Chọn nhân viên bán hàng để ghi nhận doanh số và nhân viên phụ trách.</span>
                 </li>
                 <li>
-                  <span>
-                    Chọn nguồn đơn hàng để ghi nhận nguồn cho đơn hàng khi tải đơn về.
-                  </span>
+                  <span>Chọn nguồn đơn hàng để ghi nhận nguồn cho đơn hàng khi tải đơn về.</span>
                 </li>
               </ul>
             </Col>
@@ -567,21 +540,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                 >
                   {listStores &&
                     listStores?.map((item, index) => (
-                      <Option
-                        style={{width: "100%"}}
-                        key={index.toString()}
-                        value={item.id}
-                      >
+                      <Option style={{ width: "100%" }} key={index.toString()} value={item.id}>
                         {item.name}
                       </Option>
                     ))}
                 </Select>
               </Form.Item>
 
-              <Form.Item
-                label="Nhân viên bán hàng"
-                name="assign_account_code"
-              >
+              <Form.Item label="Nhân viên bán hàng" name="assign_account_code">
                 <AccountCustomSearchSelect
                   disabled={!configDetail || !allowShopsUpdate}
                   placeholder="Tìm theo họ tên hoặc mã nhân viên"
@@ -611,7 +577,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   onSearch={(value) => onSearchSource(value.trim())}
                   loading={sourceSearching}
                   onClear={handleSetInitSourceList}
-                  notFoundContent={sourceSearching ? <Spin size="small"/> : "Không có dữ liệu"}
+                  notFoundContent={sourceSearching ? <Spin size="small" /> : "Không có dữ liệu"}
                 >
                   {sourceList?.map((source: any) => (
                     <Option key={source.id} value={source.id}>
@@ -628,15 +594,15 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               <ul className="description">
                 <li>
                   <span>
-                    Chọn kho để đồng bộ tồn từ admin lên shop của bạn, có thể chọn
-                    nhiều kho, tồn sẽ là tổng các kho.{" "}
+                    Chọn kho để đồng bộ tồn từ admin lên shop của bạn, có thể chọn nhiều kho, tồn sẽ
+                    là tổng các kho.{" "}
                   </span>
                 </li>
                 <li>
                   <span>
-                    Chọn kiểu đồng bộ tồn kho tự động nghĩa là khi có bất kỳ thay
-                    đổi tồn từ các kho đã chọn thì sẽ được đồng bộ realtime lên
-                    shop (trừ các trường hợp lỗi hoặc flashsale).
+                    Chọn kiểu đồng bộ tồn kho tự động nghĩa là khi có bất kỳ thay đổi tồn từ các kho
+                    đã chọn thì sẽ được đồng bộ realtime lên shop (trừ các trường hợp lỗi hoặc
+                    flashsale).
                   </span>
                 </li>
               </ul>
@@ -656,7 +622,7 @@ const ConfigShop: React.FC<ConfigShopProps> = (
                   disabled={!configDetail || !allowShopsUpdate}
                   onChange={handleStoreChange}
                   mode="multiple"
-                  maxTagCount='responsive'
+                  maxTagCount="responsive"
                   className="dropdown-rule"
                   showArrow
                   showSearch
@@ -702,15 +668,14 @@ const ConfigShop: React.FC<ConfigShopProps> = (
               <ul className="description">
                 <li>
                   <span>
-                    Kiểu đồng bộ đơn hàng để xác định khi có đơn hàng mới sẽ được
-                    tải về "Tự động" hay "Thủ công".{" "}
+                    Kiểu đồng bộ đơn hàng để xác định khi có đơn hàng mới sẽ được tải về "Tự động"
+                    hay "Thủ công".{" "}
                   </span>
                 </li>
                 <li>
                   <span>
-                    Kiểu đồng bộ sản phẩm khi tải đơn là hệ thống sẽ đợi người
-                    dùng ghép nối hết sản phẩm mới trong đơn hàng rồi mới tạo đơn
-                    hàng trên hệ thống.
+                    Kiểu đồng bộ sản phẩm khi tải đơn là hệ thống sẽ đợi người dùng ghép nối hết sản
+                    phẩm mới trong đơn hàng rồi mới tạo đơn hàng trên hệ thống.
                   </span>
                 </li>
               </ul>
@@ -756,38 +721,39 @@ const ConfigShop: React.FC<ConfigShopProps> = (
             </Col>
           </Row>
           <div className="config-setting-footer">
-            {(isConfigExist && allowShopsDelete) ?
+            {isConfigExist && allowShopsDelete ? (
               <Button
                 className="delete-shop-btn"
-                icon={<img src={disconnectIcon} alt=""/>}
+                icon={<img src={disconnectIcon} alt="" />}
                 type="ghost"
                 onClick={() => handleDisconnectEcommerce()}
                 disabled={isLoading}
               >
                 Xóa gian hàng
               </Button>
-              : <div/>
-            }
+            ) : (
+              <div />
+            )}
 
-            {allowShopsUpdate &&
+            {allowShopsUpdate && (
               <Button
                 type="primary"
                 htmlType="submit"
                 disabled={!configDetail || isLoading}
-                icon={<img src={saveIcon} alt=""/>}
+                icon={<img src={saveIcon} alt="" />}
               >
                 {isConfigExist ? "Lưu cấu hình" : "Tạo cấu hình"}
               </Button>
-            }
+            )}
           </div>
         </Form>
       </StyledConfig>
-    )
-  }
+    );
+  };
 
   return (
     <AuthWrapper acceptPermissions={shopsReadPermission} passThrough>
-      {(allowed: boolean) => (allowed ? renderComponent() : <NoPermission/>)}
+      {(allowed: boolean) => (allowed ? renderComponent() : <NoPermission />)}
     </AuthWrapper>
   );
 };

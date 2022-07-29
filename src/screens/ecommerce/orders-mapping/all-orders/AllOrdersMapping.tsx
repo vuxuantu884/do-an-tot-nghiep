@@ -4,9 +4,7 @@ import stopIcon from "assets/icon/Stop.svg";
 import CustomTable from "component/table/CustomTable";
 import { EcommerceProductPermission } from "config/permissions/ecommerce.permission";
 import UrlConfig from "config/url.config";
-import {
-  getOrderMappingListAction
-} from "domain/actions/ecommerce/ecommerce.actions";
+import { getOrderMappingListAction } from "domain/actions/ecommerce/ecommerce.actions";
 import useAuthorization from "hook/useAuthorization";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { AccountResponse } from "model/account/account.model";
@@ -22,7 +20,8 @@ import {
   getIconByEcommerceId,
   LAZADA_ORDER_STATUS_LIST,
   SHOPEE_ORDER_STATUS_LIST,
-  TIKI_ORDER_STATUS_LIST, TIKTOK_ORDER_STATUS_LIST
+  TIKI_ORDER_STATUS_LIST,
+  TIKTOK_ORDER_STATUS_LIST,
 } from "screens/ecommerce/common/commonAction";
 import TableRowAction from "screens/ecommerce/common/TableRowAction";
 import { AllOrdersMappingStyled } from "screens/ecommerce/orders-mapping/all-orders/AllOrdersMappingStyled";
@@ -31,8 +30,6 @@ import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
 import "./AllOrdersMapping.scss";
-
-
 
 const initQuery: GetOrdersMappingQuery = {
   page: 1,
@@ -51,30 +48,29 @@ const initQuery: GetOrdersMappingQuery = {
 type AllOrdersMappingProps = {
   isReloadPage: boolean;
   setRowDataFilter: (x: any) => void;
-  handleDownloadSelectedOrders: (x: any) => void
-  handleSingleDownloadOrder: (x: any) => void
+  handleDownloadSelectedOrders: (x: any) => void;
+  handleSingleDownloadOrder: (x: any) => void;
 };
 
-const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
-  props: AllOrdersMappingProps
-) => {
-  const history = useHistory()
-  const location = useLocation()
+const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (props: AllOrdersMappingProps) => {
+  const history = useHistory();
+  const location = useLocation();
   const dispatch = useDispatch();
-  const { isReloadPage, setRowDataFilter, handleDownloadSelectedOrders, handleSingleDownloadOrder } = props;
+  const {
+    isReloadPage,
+    setRowDataFilter,
+    handleDownloadSelectedOrders,
+    handleSingleDownloadOrder,
+  } = props;
   const [selectedRowKeys, setSelectedRowKeys] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   useState<Array<AccountResponse>>();
   const [params, setPrams] = useState<GetOrdersMappingQuery>(initQuery);
-  const productsUpdateStockPermission = [
-    EcommerceProductPermission.products_update_stock,
-  ];
+  const productsUpdateStockPermission = [EcommerceProductPermission.products_update_stock];
 
   const subStatuses = useGetOrderSubStatuses();
 
-  const queryParamsParsed: any = queryString.parse(
-    location.search
-  );
+  const queryParamsParsed: any = queryString.parse(location.search);
 
   const [allowProductsUpdateStock] = useAuthorization({
     acceptPermissions: productsUpdateStockPermission,
@@ -102,7 +98,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         <div>{dateCreate}</div>
         <div>{hourCreate}</div>
       </div>
-    )
+    );
   };
 
   const tableRowActionList = useMemo(() => {
@@ -119,25 +115,25 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     switch (item?.ecommerce_id?.toString()) {
       case ECOMMERCE_ID.SHOPEE.toString():
         const shopeeStatus: any = SHOPEE_ORDER_STATUS_LIST.find(
-          (status) => status.value === status_value?.toUpperCase()
+          (status) => status.value === status_value?.toUpperCase(),
         );
         ecommerceStatus = shopeeStatus?.name;
         break;
       case ECOMMERCE_ID.LAZADA.toString():
         const lazadaStatus: any = LAZADA_ORDER_STATUS_LIST.find(
-          (status) => status.value === status_value?.toUpperCase()
+          (status) => status.value === status_value?.toUpperCase(),
         );
         ecommerceStatus = lazadaStatus?.name;
         break;
       case ECOMMERCE_ID.TIKI.toString():
         const tikiStatus: any = TIKI_ORDER_STATUS_LIST.find(
-          (status) => status.value?.toUpperCase() === status_value?.toUpperCase()
+          (status) => status.value?.toUpperCase() === status_value?.toUpperCase(),
         );
         ecommerceStatus = tikiStatus?.name;
         break;
       case "4":
         const tikTokStatus: any = TIKTOK_ORDER_STATUS_LIST.find(
-          (status) => status.value === status_value.toUpperCase()
+          (status) => status.value === status_value.toUpperCase(),
         );
         ecommerceStatus = tikTokStatus?.name;
         break;
@@ -145,8 +141,8 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         ecommerceStatus = status_value;
     }
 
-    return <div>{ecommerceStatus}</div>
-  }
+    return <div>{ecommerceStatus}</div>;
+  };
 
   const columns: any = useMemo(() => {
     return [
@@ -166,9 +162,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         dataIndex: "ecommerce_order_status",
         key: "ecommerce_order_status",
         width: "160px",
-        render: (status_value: string, item: any) => (
-          showEcommerceOrderStatus(status_value, item)
-        ),
+        render: (status_value: string, item: any) => showEcommerceOrderStatus(status_value, item),
       },
       {
         title: "ID đơn (Unicorn)",
@@ -192,11 +186,9 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
             status = {
               code: "cancelled",
               sub_status: "Đã hủy",
-            }
+            };
           }
-          return (
-            <div className={`core-sub-status ${status?.code}`}>{status?.sub_status}</div>
-          );
+          return <div className={`core-sub-status ${status?.code}`}>{status?.sub_status}</div>;
         },
       },
       {
@@ -208,9 +200,11 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         render: (value: any) => {
           return (
             <div>
-              {value === "connected" ? <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
-                : <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-              }
+              {value === "connected" ? (
+                <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
+              ) : (
+                <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
+              )}
             </div>
           );
         },
@@ -224,9 +218,11 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         render: (value: any) => {
           return (
             <div>
-              {value === "connected" ? <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
-                : <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
-              }
+              {value === "connected" ? (
+                <img src={checkIcon} alt="Thành công" style={{ marginRight: 8, width: "18px" }} />
+              ) : (
+                <img src={stopIcon} alt="Thất bại" style={{ marginRight: 8, width: "18px" }} />
+              )}
             </div>
           );
         },
@@ -249,7 +245,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
               <span className="name">{item.shop}</span>
             </Tooltip>
           </div>
-
         ),
       },
       {
@@ -262,7 +257,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
           <div style={{ textAlign: "left" }}>
             <div>{convertDateTimeFormat(item.ecommerce_created_date)}</div>
           </div>
-
         ),
       },
       {
@@ -272,23 +266,24 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
         align: "center",
         width: "250px",
         render: (value: any) => {
-          return (
-            <div style={{ textAlign: "left" }}>{value}</div>
-          );
+          return <div style={{ textAlign: "left" }}>{value}</div>;
         },
       },
       TableRowAction(tableRowActionList),
     ];
   }, [subStatuses, tableRowActionList]);
 
-  const onSelectTableRow = useCallback((selectedRow) => {
-    const newSelectedRow = selectedRow.filter((row: any) => {
-      return row !== undefined;
-    });
-    const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
-    setSelectedRowKeys(selectedRowIds);
-    setRowDataFilter(newSelectedRow);
-  }, [setRowDataFilter]);
+  const onSelectTableRow = useCallback(
+    (selectedRow) => {
+      const newSelectedRow = selectedRow.filter((row: any) => {
+        return row !== undefined;
+      });
+      const selectedRowIds = newSelectedRow.map((row: any) => row?.id);
+      setSelectedRowKeys(selectedRowIds);
+      setRowDataFilter(newSelectedRow);
+    },
+    [setRowDataFilter],
+  );
 
   const onPageChange = useCallback(
     (page, limit) => {
@@ -296,7 +291,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       const queryParam = generateQuery(newParams);
       history.push(`${location.pathname}?${queryParam}`);
     },
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const onFilter = useCallback(
@@ -314,7 +309,7 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [history, location.pathname, params]
+    [history, location.pathname, params],
   );
 
   const onClearFilter = useCallback(() => {
@@ -322,26 +317,26 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     history.push(`${location.pathname}?${queryParam}`);
   }, [history, location.pathname]);
 
-  const setSearchResult = useCallback(
-    (result: PageResponse<OrderModel> | false) => {
-      setIsLoading(false);
-      if (!!result) {
-        setData(result);
-      }
-    },
-    []
-  );
+  const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
+    setIsLoading(false);
+    if (!!result) {
+      setData(result);
+    }
+  }, []);
 
-  const getOrderMappingList = useCallback((queryParams) => {
-    window.scrollTo(0, 0);
-    setIsLoading(true);
-    dispatch(
-      getOrderMappingListAction(queryParams, (result) => {
-        setIsLoading(false);
-        setSearchResult(result);
-      })
-    );
-  }, [dispatch, setSearchResult]);
+  const getOrderMappingList = useCallback(
+    (queryParams) => {
+      window.scrollTo(0, 0);
+      setIsLoading(true);
+      dispatch(
+        getOrderMappingListAction(queryParams, (result) => {
+          setIsLoading(false);
+          setSearchResult(result);
+        }),
+      );
+    },
+    [dispatch, setSearchResult],
+  );
 
   // reload page
   useEffect(() => {
@@ -361,7 +356,6 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
     getOrderMappingList(dataQuery);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, location.search]);
-
 
   return (
     <AllOrdersMappingStyled>
@@ -389,13 +383,13 @@ const AllOrdersMapping: React.FC<AllOrdersMappingProps> = (
             isLoading
               ? false
               : {
-                pageSize: data.metadata.limit,
-                total: data.metadata.total,
-                current: data.metadata.page,
-                showSizeChanger: true,
-                onChange: onPageChange,
-                onShowSizeChange: onPageChange,
-              }
+                  pageSize: data.metadata.limit,
+                  total: data.metadata.total,
+                  current: data.metadata.page,
+                  showSizeChanger: true,
+                  onChange: onPageChange,
+                  onShowSizeChange: onPageChange,
+                }
           }
           onSelectedChange={onSelectTableRow}
           dataSource={data.items}

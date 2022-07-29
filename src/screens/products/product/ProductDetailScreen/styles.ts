@@ -111,7 +111,7 @@ export const StyledComponent = styled.div`
   .care-title {
     margin-bottom: 10px;
     color: #666666;
-  } 
+  }
   .care-label {
     font-size: 28px;
     vertical-align: -0.125em;
@@ -138,49 +138,53 @@ export const StyledComponent = styled.div`
     }
     .data {
       color: #222222;
-      font-weight:500;
+      font-weight: 500;
     }
-    .row-detail-right{
+    .row-detail-right {
       word-wrap: break-word;
     }
-    .row-detail-right .ant-tag{
-      margin-top: 0; 
+    .row-detail-right .ant-tag {
+      margin-top: 0;
       font-size: 14px;
     }
 
     .button-plus {
-      border: 1px solid #E5E5E5;
-      background: #FFFFFF;
+      border: 1px solid #e5e5e5;
+      background: #ffffff;
       color: #757575;
       .anticon {
         vertical-align: 0.125em;
       }
-    } 
+    }
   }
   .devvn_readmore_taxonomy_flatsome {
-        text-align: center;
-        cursor: pointer;
-        position: absolute;
-        z-index: 10;
-        bottom: -2px;    
-        margin-right: auto;
-        width: 100%;
-        background: #fff;
-    }
-    .devvn_readmore_taxonomy_flatsome:before {
-        height: 55px;
-        margin-top: -45px;
-        content: "";
-        background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
-        background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-        background: linear-gradient(to bottom, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%);
-        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff00', endColorstr='#ffffff',GradientType=0 );
-        display: block;
-    }
-    .devvn_readmore_taxonomy_flatsome .button-show-more {
-        color: #180973;
-        display: block;
-        border-color: #180973;
-        margin:auto ;
-    }
+    text-align: center;
+    cursor: pointer;
+    position: absolute;
+    z-index: 10;
+    bottom: -2px;
+    margin-right: auto;
+    width: 100%;
+    background: #fff;
+  }
+  .devvn_readmore_taxonomy_flatsome:before {
+    height: 55px;
+    margin-top: -45px;
+    content: "";
+    background: -moz-linear-gradient(top, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    background: -webkit-linear-gradient(
+      top,
+      rgba(255, 255, 255, 0) 0%,
+      rgba(255, 255, 255, 1) 100%
+    );
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff00', endColorstr='#ffffff',GradientType=0 );
+    display: block;
+  }
+  .devvn_readmore_taxonomy_flatsome .button-show-more {
+    color: #180973;
+    display: block;
+    border-color: #180973;
+    margin: auto;
+  }
 `;

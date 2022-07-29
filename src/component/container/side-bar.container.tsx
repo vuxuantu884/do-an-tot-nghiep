@@ -13,9 +13,7 @@ type SidebarContainerProps = {
   collapsed: boolean;
 };
 const { Sider } = Layout;
-const SidebarContainer: React.FC<SidebarContainerProps> = (
-  props: SidebarContainerProps,
-) => {
+const SidebarContainer: React.FC<SidebarContainerProps> = (props: SidebarContainerProps) => {
   const { collapsed } = props;
   const currentRoles: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer?.permissions,
@@ -30,12 +28,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
   const routeMatched = getPath(menu, matchPatch);
 
   return (
-    <Sider
-      collapsed={collapsed}
-      collapsedWidth={52}
-      width={240}
-      style={{ zIndex: 2 }}
-    >
+    <Sider collapsed={collapsed} collapsedWidth={52} width={240} style={{ zIndex: 2 }}>
       <Scrollbars autoHide>
         <Menu
           defaultOpenKeys={collapsed ? [] : routeMatched}
@@ -53,10 +46,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                     key={route.key}
                   >
                     {route.subMenu.map((item) => {
-                      if (
-                        item.subMenu.length > 0 &&
-                        item.showMenuThird === true
-                      ) {
+                      if (item.subMenu.length > 0 && item.showMenuThird === true) {
                         return (
                           checkPermission(item.permissions) && (
                             <Menu.SubMenu
@@ -89,10 +79,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                                   }
                                   key={item2.key}
                                 >
-                                  <Link
-                                    title={item2.subTitle || item2.title}
-                                    to={item2.path}
-                                  >
+                                  <Link title={item2.subTitle || item2.title} to={item2.path}>
                                     {item2.title}
                                   </Link>
                                 </Menu.Item>
@@ -119,18 +106,11 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                             key={item.key}
                           >
                             {!item.fullUrl ? (
-                              <Link
-                                to={item.path}
-                                title={item.subTitle || item.title}
-                              >
+                              <Link to={item.path} title={item.subTitle || item.title}>
                                 {item.title}
                               </Link>
                             ) : (
-                              <a
-                                href={item.fullUrl}
-                                target="_blank"
-                                rel="noreferrer"
-                              >
+                              <a href={item.fullUrl} target="_blank" rel="noreferrer">
                                 {item.title}
                               </a>
                             )}
@@ -169,11 +149,7 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (
                   icon={<i className={route.icon} style={{ fontSize: 18 }} />}
                   key={route.key}
                 >
-                  {route.isShow ? (
-                    <Link to={route.path}>{route.title}</Link>
-                  ) : (
-                    route.title
-                  )}
+                  {route.isShow ? <Link to={route.path}>{route.title}</Link> : route.title}
                 </Menu.Item>
               )
             );

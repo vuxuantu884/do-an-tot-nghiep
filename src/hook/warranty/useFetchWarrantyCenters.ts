@@ -11,7 +11,7 @@ function useFetchWarrantyCenters(
   initQuery: GetWarrantyCentersParamModel,
   location: any,
   countForceFetchData: number,
-  setQuery: (data: GetWarrantyCentersParamModel) => void
+  setQuery: (data: GetWarrantyCentersParamModel) => void,
 ) {
   const [warrantyCenters, setWarrantyCenters] = useState<Array<WarrantyCenterModel>>([]);
   const [metadata, setMetaData] = useState({

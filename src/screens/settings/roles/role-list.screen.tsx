@@ -64,7 +64,7 @@ const RoleListScreen = () => {
         return (
           <span>
             {record.updated_name}
-            <br /> {value} 
+            <br /> {value}
           </span>
         );
       },
@@ -84,10 +84,7 @@ const RoleListScreen = () => {
     setLoading(false);
     setData(data);
   }, []);
-  const columnFinal = useMemo(
-    () => columns.filter((item) => item.visible === true),
-    [columns]
-  );
+  const columnFinal = useMemo(() => columns.filter((item) => item.visible === true), [columns]);
   const columnsChild = [
     {
       dataIndex: "name",
@@ -135,7 +132,7 @@ const RoleListScreen = () => {
             isLoading={loading}
             pagination={false}
             showColumnSetting
-            sticky={{offsetHeader: OFFSET_HEADER_UNDER_NAVBAR}}
+            sticky={{ offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
             onShowColumnSetting={() => setShowSettingColumn(true)}
             dataSource={data.items}
             columns={columnFinal}
@@ -148,7 +145,7 @@ const RoleListScreen = () => {
                 }
                 return (
                   <div
-                    style={{cursor: "pointer"}}
+                    style={{ cursor: "pointer" }}
                     onClick={(event) => props.onExpand(props.record, event)}
                   >
                     {icon}

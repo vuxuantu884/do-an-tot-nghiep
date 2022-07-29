@@ -1,21 +1,11 @@
-import {
-  Card,
-  Col,
-  DatePicker,
-  Form,
-  FormInstance,
-  Row,
-  Select,
-  Space,
-  Switch,
-} from "antd";
+import { Card, Col, DatePicker, Form, FormInstance, Row, Select, Space, Switch } from "antd";
 import AccountSearchSelect from "component/custom/select-search/account-select";
 import { CustomerGroups } from "domain/actions/customer/customer.action";
 import { LoyaltyRankSearch } from "domain/actions/loyalty/rank/loyalty-rank.action";
 import _ from "lodash";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Gender } from "model/promotion/price-rules.model";
-import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response"; 
+import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
 import React, { ReactElement, useCallback, useEffect, useMemo } from "react";
 import { useDispatch } from "react-redux";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -69,24 +59,20 @@ export default function CustomerFilter(props: Props): ReactElement {
       Object.values(CustomerFilterField).map((field) => ({
         name: field,
         errors: [],
-      }))
+      })),
     );
   }, [form]);
 
   const validateAll = (rule: any, value: any, callback: any) => {
-    const customerFields = _.cloneDeep(
-      form.getFieldsValue(Object.values(CustomerFilterField))
-    );
+    const customerFields = _.cloneDeep(form.getFieldsValue(Object.values(CustomerFilterField)));
 
     delete customerFields[CustomerFilterField.customer_selection];
-    if (
-      Object.values(customerFields).every((field: any) => !field || field?.length === 0)
-    ) {
+    if (Object.values(customerFields).every((field: any) => !field || field?.length === 0)) {
       form.setFields(
         Object.values(CustomerFilterField).map((field) => ({
           name: field,
           errors: ["Vui lòng chọn ít nhất 1 điều kiện"],
-        }))
+        })),
       );
       callback("Vui lòng chọn ít nhất 1 điều kiện");
     } else {
@@ -108,10 +94,9 @@ export default function CustomerFilter(props: Props): ReactElement {
         [CustomerFilterField.prerequisite_customer_group_ids]: undefined,
         [CustomerFilterField.prerequisite_customer_loyalty_level_ids]: undefined,
         [CustomerFilterField.prerequisite_assignee_codes]: undefined,
-      })
+      });
     }
   };
-
 
   useEffect(() => {
     setCheckedAll(typeof isAllCustomer === "boolean" ? isAllCustomer : true);
@@ -122,18 +107,12 @@ export default function CustomerFilter(props: Props): ReactElement {
     dispatch(
       LoyaltyRankSearch({}, (data: PageResponse<LoyaltyRankResponse>) => {
         setRankingList(data.items);
-      })
+      }),
     );
   }, [dispatch]);
 
   return (
-    <Card
-      title={
-        <span>
-          Đối tượng khách hàng áp dụng 
-        </span>
-      }
-    >
+    <Card title={<span>Đối tượng khách hàng áp dụng</span>}>
       {/* Đối tượng khách hàng áp dụng: */}
       <Row gutter={12}>
         <Col span={24}>
@@ -207,11 +186,9 @@ export default function CustomerFilter(props: Props): ReactElement {
                         const cur = currentDate.set({
                           hour: 12,
                         });
-                        const endDay = form
-                          .getFieldValue(CustomerFilterField.ends_birthday)
-                          ?.set({
-                            hour: 0,
-                          });
+                        const endDay = form.getFieldValue(CustomerFilterField.ends_birthday)?.set({
+                          hour: 0,
+                        });
                         return cur > endDay;
                       }}
                     />
@@ -236,11 +213,9 @@ export default function CustomerFilter(props: Props): ReactElement {
                         const cur = currentDate.set({
                           hour: 0,
                         });
-                        const start = form
-                          .getFieldValue(CustomerFilterField.starts_birthday)
-                          ?.set({
-                            hour: 12,
-                          });
+                        const start = form.getFieldValue(CustomerFilterField.starts_birthday)?.set({
+                          hour: 12,
+                        });
                         return start > cur;
                       }}
                     />
@@ -342,8 +317,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   allowClear
                   mode="multiple"
                   filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
-                    0
+                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
                   }
                 >
                   {groups.map((group) => (
@@ -372,8 +346,7 @@ export default function CustomerFilter(props: Props): ReactElement {
                   showSearch
                   allowClear
                   filterOption={(input, option) =>
-                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >=
-                    0
+                    option?.children.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0
                   }
                 >
                   {rankFiltered.map((type) => (

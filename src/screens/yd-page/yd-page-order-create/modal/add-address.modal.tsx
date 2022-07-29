@@ -1,7 +1,7 @@
-import React, {createRef, useCallback, useMemo, useRef} from "react";
-import {useDispatch} from "react-redux";
-import {Col, Input, Modal, Row, Select, Form, FormInstance} from "antd";
-import {EnvironmentOutlined} from "@ant-design/icons";
+import React, { createRef, useCallback, useMemo, useRef } from "react";
+import { useDispatch } from "react-redux";
+import { Col, Input, Modal, Row, Select, Form, FormInstance } from "antd";
+import { EnvironmentOutlined } from "@ant-design/icons";
 
 import {
   CountryGetAllAction,
@@ -12,16 +12,20 @@ import {
   getCustomerDetailAction,
   UpdateShippingAddress,
 } from "domain/actions/customer/customer.action";
-import {CustomerShippingAddress, YDpageCustomerRequest} from "model/request/customer.request";
-import {CustomerResponse} from "model/response/customer/customer.response";
-import {ShippingAddress} from "model/response/order/order.response";
-import {RegUtil} from "utils/RegUtils";
-import {showError, showSuccess} from "utils/ToastUtils";
+import { CustomerShippingAddress, YDpageCustomerRequest } from "model/request/customer.request";
+import { CustomerResponse } from "model/response/customer/customer.response";
+import { ShippingAddress } from "model/response/order/order.response";
+import { RegUtil } from "utils/RegUtils";
+import { showError, showSuccess } from "utils/ToastUtils";
 import * as CONSTANTS from "utils/Constants";
-import {WardResponse} from "model/content/ward.model";
-import {CountryResponse} from "model/content/country.model";
-import {modalActionType} from "model/modal/modal.model";
-import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
+import { WardResponse } from "model/content/ward.model";
+import { CountryResponse } from "model/content/country.model";
+import { modalActionType } from "model/modal/modal.model";
+import {
+  findWard,
+  handleDelayActionWhenInsertTextInSearchInput,
+  handleFindArea,
+} from "utils/AppUtils";
 
 type AddAddressModalProps = {
   areaList: Array<any>;
@@ -32,7 +36,7 @@ type AddAddressModalProps = {
   modalAction: modalActionType;
   onCancel: () => void;
   onOk: () => void;
-	newCustomerInfo?: YDpageCustomerRequest;
+  newCustomerInfo?: YDpageCustomerRequest;
 };
 
 type FormValueType = {
@@ -159,14 +163,16 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
     return areaList.map((area: any) => {
       return {
         ...area,
-        city_name_normalize: area.city_name.normalize("NFD")
+        city_name_normalize: area.city_name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
           .toLowerCase()
           .replace("tinh ", "")
           .replace("tp. ", ""),
-        district_name_normalize: area.name.normalize("NFD")
+        district_name_normalize: area.name
+          .normalize("NFD")
           .replace(/[\u0300-\u036f]/g, "")
           .replace(/đ/g, "d")
           .replace(/Đ/g, "D")
@@ -175,56 +181,71 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
           .replace("huyen ", "")
           // .replace("thanh pho ", "")
           .replace("thi xa ", ""),
-      }
-    })
+      };
+    });
   }, [areaList]);
 
-  const getWards = useCallback((districtId: number) => {
-    if (districtId) {
-      dispatch(WardGetByDistrictAction(districtId, (data) => {
-        const value = formRef.current?.getFieldValue("full_address");
-        if (value) {
-          const newValue = value.toLowerCase().replace("tỉnh ", "").normalize("NFD")
-            .replace(/[\u0300-\u036f]/g, "")
-            .replace(/đ/g, "d")
-            .replace(/Đ/g, "D")
-
-          const newWards = data.map((ward: any) => {
-            return {
-              ...ward,
-              ward_name_normalize: ward.name.normalize("NFD")
+  const getWards = useCallback(
+    (districtId: number) => {
+      if (districtId) {
+        dispatch(
+          WardGetByDistrictAction(districtId, (data) => {
+            const value = formRef.current?.getFieldValue("full_address");
+            if (value) {
+              const newValue = value
+                .toLowerCase()
+                .replace("tỉnh ", "")
+                .normalize("NFD")
                 .replace(/[\u0300-\u036f]/g, "")
                 .replace(/đ/g, "d")
-                .replace(/Đ/g, "D")
-                .toLowerCase()
-                .replace("phuong ", "")
-                .replace("xa ", ""),
-            }
-          });
-          let district = document.getElementsByClassName("YDpageInputDistrictCreateAddress")[0].textContent?.replace("Vui lòng chọn khu vực", "") || "";
-          const foundWard = findWard(district, newWards, newValue);
-          formRef.current?.setFieldsValue({
-            ward_id: foundWard ? foundWard.id : null,
-          })
-        }
-        setWards(data);
-      }));
-    }
-  }, [dispatch, formRef, setWards]);
+                .replace(/Đ/g, "D");
 
-  const checkAddress = useCallback((value) => {
-    const findArea = handleFindArea(value, newAreas);
-    if (findArea) {
-      if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
-        formRef.current?.setFieldsValue({
-          city_id: findArea.city_id,
-          district_id: findArea.id,
-          ward_id: null
-        })
-        getWards(findArea.id);
+              const newWards = data.map((ward: any) => {
+                return {
+                  ...ward,
+                  ward_name_normalize: ward.name
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "D")
+                    .toLowerCase()
+                    .replace("phuong ", "")
+                    .replace("xa ", ""),
+                };
+              });
+              let district =
+                document
+                  .getElementsByClassName("YDpageInputDistrictCreateAddress")[0]
+                  .textContent?.replace("Vui lòng chọn khu vực", "") || "";
+              const foundWard = findWard(district, newWards, newValue);
+              formRef.current?.setFieldsValue({
+                ward_id: foundWard ? foundWard.id : null,
+              });
+            }
+            setWards(data);
+          }),
+        );
       }
-    }
-  }, [formRef, getWards, newAreas]);
+    },
+    [dispatch, formRef, setWards],
+  );
+
+  const checkAddress = useCallback(
+    (value) => {
+      const findArea = handleFindArea(value, newAreas);
+      if (findArea) {
+        if (formRef.current?.getFieldValue("district_id") !== findArea.id) {
+          formRef.current?.setFieldsValue({
+            city_id: findArea.city_id,
+            district_id: findArea.id,
+            ward_id: null,
+          });
+          getWards(findArea.id);
+        }
+      }
+    },
+    [formRef, getWards, newAreas],
+  );
   // end handle autofill address
 
   const handleSubmit = useCallback(
@@ -233,24 +254,19 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
         if (customer && formItem) {
           value.is_default = value.default;
           dispatch(
-            UpdateShippingAddress(
-              value.id,
-              customer.id,
-              value,
-              (data: ShippingAddress) => {
-                if (data) {
-                  dispatch(
-                    getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
-                      handleChangeCustomer(datas);
-                    })
-                  );
-                  onCancel();
-                  showSuccess("Cập nhật địa chỉ thành công");
-                } else {
-                  showError("Cập nhật địa chỉ thất bại");
-                }
+            UpdateShippingAddress(value.id, customer.id, value, (data: ShippingAddress) => {
+              if (data) {
+                dispatch(
+                  getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
+                    handleChangeCustomer(datas);
+                  }),
+                );
+                onCancel();
+                showSuccess("Cập nhật địa chỉ thành công");
+              } else {
+                showError("Cập nhật địa chỉ thất bại");
               }
-            )
+            }),
           );
         }
       } else {
@@ -262,19 +278,19 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
                 dispatch(
                   getCustomerDetailAction(customer.id, (datas: CustomerResponse) => {
                     handleChangeCustomer(datas);
-                  })
+                  }),
                 );
                 onCancel();
                 showSuccess("Thêm địa chỉ thành công");
               } else {
                 showError("Thêm địa chỉ thất bại");
               }
-            })
+            }),
           );
         }
       }
     },
-    [dispatch, onCancel, handleChangeCustomer, isCreateForm, formItem, customer]
+    [dispatch, onCancel, handleChangeCustomer, isCreateForm, formItem, customer],
   );
 
   return (
@@ -300,11 +316,11 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
             <Form.Item
               name="name"
               // label={<b>Họ tên người nhận:</b>}
-              rules={[{required: true, message: "Vui lòng nhập họ tên người nhận"}]}
+              rules={[{ required: true, message: "Vui lòng nhập họ tên người nhận" }]}
             >
               <Input
                 placeholder="Nhập họ tên người nhận"
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 maxLength={255}
               />
             </Form.Item>
@@ -326,7 +342,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
             >
               <Input
                 placeholder="Nhập số điện thoại"
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 minLength={9}
                 maxLength={15}
               />
@@ -397,7 +413,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
             >
               <Input
                 placeholder="Nhập địa chỉ chi tiết"
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 maxLength={255}
               />
             </Form.Item>
@@ -440,13 +456,19 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
             >
               <Input
                 placeholder="Nhập địa chỉ chi tiết"
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 maxLength={255}
                 allowClear
                 prefix={<EnvironmentOutlined style={{ color: "#71767B" }} />}
-                onChange={(e) => handleDelayActionWhenInsertTextInSearchInput(fullAddressRef, () => {
-                  checkAddress(e.target.value)
-                },500)}
+                onChange={(e) =>
+                  handleDelayActionWhenInsertTextInSearchInput(
+                    fullAddressRef,
+                    () => {
+                      checkAddress(e.target.value);
+                    },
+                    500,
+                  )
+                }
               />
             </Form.Item>
             <Form.Item name="default" hidden></Form.Item>

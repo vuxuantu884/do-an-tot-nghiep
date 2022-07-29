@@ -1,16 +1,19 @@
 import CustomPagination from "component/table/CustomPagination";
-import CustomTable, {ICustomTableColumType} from "component/table/CustomTable";
+import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import TextEllipsis from "component/table/TextEllipsis";
-import {AppConfig} from "config/app.config";
+import { AppConfig } from "config/app.config";
 import { HttpStatus } from "config/http-status.config";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
 import { unauthorizedAction } from "domain/actions/auth/auth.action";
-import {inventoryByVariantAction, updateConfigInventoryAction} from "domain/actions/inventory/inventory.action";
+import {
+  inventoryByVariantAction,
+  updateConfigInventoryAction,
+} from "domain/actions/inventory/inventory.action";
 import { hideLoading } from "domain/actions/loading.action";
 import { HeaderSummary } from "hook/filter/HeaderSummary";
 import _ from "lodash";
-import {PageResponse} from "model/base/base-metadata.response";
+import { PageResponse } from "model/base/base-metadata.response";
 import {
   AllInventoryResponse,
   InventoryResponse,
@@ -18,19 +21,19 @@ import {
 } from "model/inventory";
 import { InventoryColumnField } from "model/inventory/field";
 import { FilterConfig, FilterConfigRequest } from "model/other";
-import {VariantResponse, VariantSearchQuery} from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
-import {HiChevronDoubleRight, HiOutlineChevronDoubleDown} from "react-icons/hi";
-import {useDispatch, useSelector} from "react-redux";
-import {Link, useHistory} from "react-router-dom";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { HiChevronDoubleRight, HiOutlineChevronDoubleDown } from "react-icons/hi";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory } from "react-router-dom";
 import { getInventoryConfigService } from "service/inventory";
-import {formatCurrencyForProduct, generateQuery, Products, splitEllipsis} from "utils/AppUtils";
-import {COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE} from "utils/Constants";
+import { formatCurrencyForProduct, generateQuery, Products, splitEllipsis } from "utils/AppUtils";
+import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import AllInventoryFilter from "../filter/all.filter";
-import "./index.scss"
+import "./index.scss";
 import InventoryExport from "../component/InventoryExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import { exportFileV2, getFileV2 } from "service/other/import.inventory.service";
@@ -59,9 +62,9 @@ enum EInventoryStatus {
 }
 
 type ConfigColumnInventory = {
-  Columns: Array<ICustomTableColumType<InventoryResponse>>,
-  ColumnDrill: Array<ICustomTableColumType<InventoryResponse>>
-}
+  Columns: Array<ICustomTableColumType<InventoryResponse>>;
+  ColumnDrill: Array<ICustomTableColumType<InventoryResponse>>;
+};
 
 export interface SummaryInventory {
   Sum_Total: number | 0;
@@ -77,9 +80,17 @@ export interface SummaryInventory {
 }
 
 const AllTab: React.FC<any> = (props) => {
-  const { stores,showExportModal,setShowExportModal,setVExportInventory,vExportInventory,setConditionFilter,setStoreIds} = props;
+  const {
+    stores,
+    showExportModal,
+    setShowExportModal,
+    setVExportInventory,
+    vExportInventory,
+    setConditionFilter,
+    setStoreIds,
+  } = props;
   const history = useHistory();
-  const pageSizeOptions: Array<string> =["50","100"];
+  const pageSizeOptions: Array<string> = ["50", "100"];
   const [objSummaryTable, setObjSummaryTable] = useState<SummaryInventory>();
 
   const query = useQuery();
@@ -100,12 +111,12 @@ const AllTab: React.FC<any> = (props) => {
   });
 
   const [expandRow, setExpandRow] = useState<Array<number> | undefined>();
-  const [inventiryVariant, setInventiryVariant] = useState<
-    Map<number, AllInventoryResponse[]>
-  >(new Map());
+  const [inventiryVariant, setInventiryVariant] = useState<Map<number, AllInventoryResponse[]>>(
+    new Map(),
+  );
 
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
-  const {account} = userReducer;
+  const { account } = userReducer;
   const [lstConfig, setLstConfig] = useState<Array<FilterConfig>>([]);
   const [selected, setSelected] = useState<Array<InventoryResponse>>([]);
   const [listExportFile, setListExportFile] = useState<Array<string>>([]);
@@ -114,458 +125,684 @@ const AllTab: React.FC<any> = (props) => {
   const [statusExport, setStatusExport] = useState<number>(0);
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
   const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
-  const [loading,setLoading]=useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
-  const goDocument = useCallback((inventoryStatus: string,sku: string,variantName: string,store_id?:number)=>{
-    let linkDocument ="";
-    let store_ids = undefined;
-    if (store_id) {
-      store_ids = store_id;
-    }
-    if (!store_id && params && params.store_ids) {
-      store_ids = params.store_ids;
-    }
-    
-    switch (inventoryStatus) {
-      case EInventoryStatus.COMMITTED:
-        linkDocument =`${UrlConfig.ORDER}?page=1&limit=30&is_online=true&sub_status_code=awaiting_shipper%2Cmerchandise_packed%2Cmerchandise_picking%2Ccoordinator_confirmed%2Ccoordinator_confirming%2Cawaiting_saler_confirmation%2Cawaiting_coordinator_confirmation%2Cfirst_call_attempt%2Csecond_call_attempt%2Cthird_call_attempt%2Crequire_warehouse_change&channel_codes=FB%2CWEBSITE%2CMOBILE_APP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM%2CTIKTOK
-        ${store_ids ? `&store_ids=${store_ids}`: ''}&searched_product=${variantName}`;
-        break;
-      case EInventoryStatus.IN_COMING:
-        linkDocument =`${UrlConfig.PROCUREMENT}/products?page=1&limit=30
-        ${store_ids ? `&stores=${store_ids}`: ''}&content=${sku}`;
-        break;
-      case EInventoryStatus.ON_HOLD:
-        linkDocument =`${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}`: ''}&condition=${sku}&status=confirmed`;
+  const goDocument = useCallback(
+    (inventoryStatus: string, sku: string, variantName: string, store_id?: number) => {
+      let linkDocument = "";
+      let store_ids = undefined;
+      if (store_id) {
+        store_ids = store_id;
+      }
+      if (!store_id && params && params.store_ids) {
+        store_ids = params.store_ids;
+      }
+
+      switch (inventoryStatus) {
+        case EInventoryStatus.COMMITTED:
+          linkDocument = `${
+            UrlConfig.ORDER
+          }?page=1&limit=30&is_online=true&sub_status_code=awaiting_shipper%2Cmerchandise_packed%2Cmerchandise_picking%2Ccoordinator_confirmed%2Ccoordinator_confirming%2Cawaiting_saler_confirmation%2Cawaiting_coordinator_confirmation%2Cfirst_call_attempt%2Csecond_call_attempt%2Cthird_call_attempt%2Crequire_warehouse_change&channel_codes=FB%2CWEBSITE%2CMOBILE_APP%2CLANDING_PAGE%2CADMIN%2CWEB%2CZALO%2CINSTAGRAM%2CTIKTOK
+        ${store_ids ? `&store_ids=${store_ids}` : ""}&searched_product=${variantName}`;
           break;
-      case EInventoryStatus.ON_WAY:
-        linkDocument =`${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&from_store_id=${store_ids}`: ''}&condition=${sku}&status=transferring`;
+        case EInventoryStatus.IN_COMING:
+          linkDocument = `${UrlConfig.PROCUREMENT}/products?page=1&limit=30
+        ${store_ids ? `&stores=${store_ids}` : ""}&content=${sku}`;
           break;
-      case EInventoryStatus.TRANSFERRING:
-        linkDocument =`${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
-        ${store_ids ? `&to_store_id=${store_ids}`: ''}&condition=${sku}&status=transferring`;
+        case EInventoryStatus.ON_HOLD:
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${sku}&status=confirmed`;
           break;
-      default:
-        break;
-    }
-    return linkDocument;
-  },[params])
+        case EInventoryStatus.ON_WAY:
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&from_store_id=${store_ids}` : ""}&condition=${sku}&status=transferring`;
+          break;
+        case EInventoryStatus.TRANSFERRING:
+          linkDocument = `${UrlConfig.INVENTORY_TRANSFERS}?page=1&limit=30&simple=true
+        ${store_ids ? `&to_store_id=${store_ids}` : ""}&condition=${sku}&status=transferring`;
+          break;
+        default:
+          break;
+      }
+      return linkDocument;
+    },
+    [params],
+  );
 
   const onPageChange = useCallback(
     (page, size) => {
       params.page = page;
       params.limit = size;
       let queryParam = generateQuery(params);
-      setPrams({...params});
+      setPrams({ ...params });
       history.push(`${UrlConfig.INVENTORY}${history.location.hash}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
 
   const onFilter = useCallback(
     (values) => {
-      const newValues = {...values,info: values.info?.trim()}
-      const newPrams = {...params, ...newValues, page: 1};
+      const newValues = { ...values, info: values.info?.trim() };
+      const newPrams = { ...params, ...newValues, page: 1 };
       setConditionFilter(newPrams.info);
       setStoreIds(newPrams.store_ids);
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
-      
+
       history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
     },
-    [history, params, setConditionFilter, setStoreIds]
+    [history, params, setConditionFilter, setStoreIds],
   );
 
-  const onSortASC = useCallback((sortColumn: string)=>{
-      const newPrams = {...params, sort_type: "asc",sort_column: sortColumn};
+  const onSortASC = useCallback(
+    (sortColumn: string) => {
+      const newPrams = { ...params, sort_type: "asc", sort_column: sortColumn };
       onFilter(newPrams);
-  },[onFilter, params]);
+    },
+    [onFilter, params],
+  );
 
-  const onSortDESC = useCallback((sortColumn: string)=>{
-    const newPrams = {...params, sort_type: "desc",sort_column: sortColumn};
-    onFilter(newPrams);
-  },[params, onFilter]);
+  const onSortDESC = useCallback(
+    (sortColumn: string) => {
+      const newPrams = {
+        ...params,
+        sort_type: "desc",
+        sort_column: sortColumn,
+      };
+      onFilter(newPrams);
+    },
+    [params, onFilter],
+  );
 
-  const ellipName = (str: string|undefined)=>{
+  const ellipName = (str: string | undefined) => {
     if (!str) {
       return "";
     }
-    let strName = (str.trim());
-        strName = window.screen.width >= 1920 ? splitEllipsis(strName, 100, 30)
-          : window.screen.width >= 1600 ? strName = splitEllipsis(strName, 60, 30)
-            : window.screen.width >= 1366 ? strName = splitEllipsis(strName, 47, 30) : strName;
-    return strName
-  }
+    let strName = str.trim();
+    strName =
+      window.screen.width >= 1920
+        ? splitEllipsis(strName, 100, 30)
+        : window.screen.width >= 1600
+        ? (strName = splitEllipsis(strName, 60, 30))
+        : window.screen.width >= 1366
+        ? (strName = splitEllipsis(strName, 47, 30))
+        : strName;
+    return strName;
+  };
 
-  const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
+  const defaultColumns: Array<ICustomTableColumType<InventoryResponse>> = useMemo(() => {
     return [
-       {
-         title: "Sản phẩm",
-         visible: true,
-         dataIndex: "sku",
-         align: "left",
-         fixed: "left",
-         className: "column-product",
-         render: (value, record, index) => {
+      {
+        title: "Sản phẩm",
+        visible: true,
+        dataIndex: "sku",
+        align: "left",
+        fixed: "left",
+        className: "column-product",
+        render: (value, record, index) => {
           let strName = ellipName(record.name);
           let image = Products.findAvatar(record.variant_images);
-           return (
-             <div className="image-product">
-              {image ? <Image width={40} height={40} placeholder="Xem" src={image.url ?? ""} /> : <ImageProduct disabled={true} onClick={undefined} path={image} />}
+          return (
+            <div className="image-product">
+              {image ? (
+                <Image width={40} height={40} placeholder="Xem" src={image.url ?? ""} />
+              ) : (
+                <ImageProduct disabled={true} onClick={undefined} path={image} />
+              )}
               <div className="product-name">
-                 <div>
-                 <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
-                     {record.sku}
-                   </Link>
-                 </div>
-                 <div>
-                   <TextEllipsis value={strName} line={1} />
-                 </div>
-             </div>
-             </div>
-             )
-         }
-       },
-       {
+                <div>
+                  <Link to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.id}`}>
+                    {record.sku}
+                  </Link>
+                </div>
+                <div>
+                  <TextEllipsis value={strName} line={1} />
+                </div>
+              </div>
+            </div>
+          );
+        },
+      },
+      {
         title: "Giá bán",
-         titleCustom: "Giá bán",
-         visible: true,
-         dataIndex: "variant_prices",
-         align: "center",
-         width: 110,
-         fixed: true,
-         render: (value) => {
-           let price = Products.findPrice(value, AppConfig.currency);
-           return formatCurrencyForProduct(price ? price.retail_price : 0);
-         },
-       },
-       {
-         title: "Danh mục",
-         titleCustom: "Danh mục",
-         visible: false,
-         dataIndex: "category",
-         align: "left",
-         width: 100,
-         render: (value, row) => {
-           return <div>{row.product?.category}</div>
-         },
-       },
-       {
-         title: HeaderSummary(objSummaryTable?.Sum_Total,"Tổng tồn",
-                              InventoryColumnField.total_stock,
-                              (sortColumn:string)=>{onSortASC(sortColumn)},
-                              (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Tổng tồn",
-         visible: true,
-         dataIndex: `total_stock`,
-         align: "center",
-         width: 110,
-         render: (value,record) => {
-           return <div> {value ? formatCurrencyForProduct(record.total_stock): ""}</div>;
-         },
-       },
-       {
-        title: HeaderSummary(objSummaryTable?.Sum_On_hand,"Tồn trong kho",
-                            InventoryColumnField.on_hand,
-                            (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Tồn trong kho",
-         visible: true,
-         dataIndex: `on_hand`,
-         align: "center",
-         width: 110,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       },
-       {
-        title: HeaderSummary(objSummaryTable?.Sum_Available,"Có thể bán",
-                      InventoryColumnField.available,
-                      (sortColumn:string)=>{onSortASC(sortColumn)},
-                      (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Có thể bán",
-         visible: true,
-         dataIndex: `available`,
-         align: "center",
-         width: 110,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       },
-       {
-        title: HeaderSummary(objSummaryTable?.Sum_Committed,"Đang giao dịch",
-                            InventoryColumnField.committed,
-                            (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Đang giao dịch",
-         visible: true,
-         dataIndex: `committed`,
-         align: "center",
-         width: 110,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,record.sku,record.name)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },
-       {
-        title: HeaderSummary(objSummaryTable?.Sum_On_hold,"Tạm giữ",
-                          InventoryColumnField.on_hold,
-                          (sortColumn:string)=>{onSortASC(sortColumn)},
-                          (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Tạm giữ",
-         visible: true,
-         dataIndex: `on_hold`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,record.sku,record.name)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-        title: HeaderSummary(objSummaryTable?.Sum_Defect,"Hàng lỗi",
-                          InventoryColumnField.defect,
-                          (sortColumn:string)=>{onSortASC(sortColumn)},
-                          (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Hàng lỗi",
-         visible: true,
-         dataIndex: `defect`,
-         align: "center",
-         width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       },{
-        title: HeaderSummary(objSummaryTable?.Sum_In_coming,"Chờ nhập",
-                            InventoryColumnField.in_coming,
-                            (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Chờ nhập",
-         visible: true,
-         dataIndex: `in_coming`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,record.sku,record.name)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-        title: HeaderSummary(objSummaryTable?.Sum_Transferring,"Chuyển đến",
-                            InventoryColumnField.transferring,
-                            (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Chuyển đến",
-         visible: true,
-         dataIndex: `transferring`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,record.sku,record.name)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-        title: HeaderSummary(objSummaryTable?.Sum_On_way,"Chuyển đi",
-                            InventoryColumnField.on_way,
-                            (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Chuyển đi",
-         visible: true,
-         dataIndex: `on_way`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,record.sku,record.name)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-        title: HeaderSummary(objSummaryTable?.Sum_Shipping,"Đang giao",
-                            InventoryColumnField.shipping,
-                            (sortColumn:string)=>{onSortASC(sortColumn)},
-                            (sortColumn:string)=>{onSortDESC(sortColumn)}),
-         titleCustom: "Đang giao",
-         visible: true,
-         dataIndex: `shipping`,
-         align: "center",
-         width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       }
-     ]
-   },[objSummaryTable, onSortDESC, onSortASC,goDocument]);   
+        titleCustom: "Giá bán",
+        visible: true,
+        dataIndex: "variant_prices",
+        align: "center",
+        width: 110,
+        fixed: true,
+        render: (value) => {
+          let price = Products.findPrice(value, AppConfig.currency);
+          return formatCurrencyForProduct(price ? price.retail_price : 0);
+        },
+      },
+      {
+        title: "Danh mục",
+        titleCustom: "Danh mục",
+        visible: false,
+        dataIndex: "category",
+        align: "left",
+        width: 100,
+        render: (value, row) => {
+          return <div>{row.product?.category}</div>;
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_Total,
+          "Tổng tồn",
+          InventoryColumnField.total_stock,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Tổng tồn",
+        visible: true,
+        dataIndex: `total_stock`,
+        align: "center",
+        width: 110,
+        render: (value, record) => {
+          return <div> {value ? formatCurrencyForProduct(record.total_stock) : ""}</div>;
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_On_hand,
+          "Tồn trong kho",
+          InventoryColumnField.on_hand,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Tồn trong kho",
+        visible: true,
+        dataIndex: `on_hand`,
+        align: "center",
+        width: 110,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_Available,
+          "Có thể bán",
+          InventoryColumnField.available,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Có thể bán",
+        visible: true,
+        dataIndex: `available`,
+        align: "center",
+        width: 110,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_Committed,
+          "Đang giao dịch",
+          InventoryColumnField.committed,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Đang giao dịch",
+        visible: true,
+        dataIndex: `committed`,
+        align: "center",
+        width: 110,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(EInventoryStatus.COMMITTED, record.sku, record.name)}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_On_hold,
+          "Tạm giữ",
+          InventoryColumnField.on_hold,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Tạm giữ",
+        visible: true,
+        dataIndex: `on_hold`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(EInventoryStatus.ON_HOLD, record.sku, record.name)}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_Defect,
+          "Hàng lỗi",
+          InventoryColumnField.defect,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Hàng lỗi",
+        visible: true,
+        dataIndex: `defect`,
+        align: "center",
+        width: 80,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_In_coming,
+          "Chờ nhập",
+          InventoryColumnField.in_coming,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Chờ nhập",
+        visible: true,
+        dataIndex: `in_coming`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(EInventoryStatus.IN_COMING, record.sku, record.name)}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_Transferring,
+          "Chuyển đến",
+          InventoryColumnField.transferring,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Chuyển đến",
+        visible: true,
+        dataIndex: `transferring`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(EInventoryStatus.TRANSFERRING, record.sku, record.name)}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_On_way,
+          "Chuyển đi",
+          InventoryColumnField.on_way,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Chuyển đi",
+        visible: true,
+        dataIndex: `on_way`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(EInventoryStatus.ON_WAY, record.sku, record.name)}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: HeaderSummary(
+          objSummaryTable?.Sum_Shipping,
+          "Đang giao",
+          InventoryColumnField.shipping,
+          (sortColumn: string) => {
+            onSortASC(sortColumn);
+          },
+          (sortColumn: string) => {
+            onSortDESC(sortColumn);
+          },
+        ),
+        titleCustom: "Đang giao",
+        visible: true,
+        dataIndex: `shipping`,
+        align: "center",
+        width: 80,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+    ];
+  }, [objSummaryTable, onSortDESC, onSortASC, goDocument]);
 
-   const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(()=>{
-     return [
+  const defaultColumnsDrill: Array<ICustomTableColumType<InventoryResponse>> = useMemo(() => {
+    return [
       {
         title: "",
         fixed: true,
         width: 50,
-        max: 50
+        max: 50,
       },
-       {
-         title: "Kho hàng",
-         dataIndex: "store_id",
-         fixed: true,
-         render (value) {
-           return storeRef.current.get(value);
-         },
-       },{
-         dataIndex: "variant_prices",
-         align: "center",
-         width: 110,
-         fixed: true,
-         render: (value) => {
-           return <></>;
-         },
-       },
-       {
-         title: "Tổng tồn",
-         dataIndex: `total_stock`,
-         align: "center",
-         width: 110,
-         render: (value,record) => {
-           return <div> {value ? formatCurrencyForProduct(record.total_stock): ""}</div>;
-         },
-       },
-       {
-         title: "Tồn trong kho",
-         dataIndex: `on_hand`,
-         align: "center",
-         width: 110,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       },
-       {
-         title: "Có thể bán",
-         dataIndex: `available`,
-         align: "center",
-         width: 110,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       },
-       {
-         title: "Đang giao dịch",
-         dataIndex: `committed`,
-         align: "center",
-         width: 110, 
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.COMMITTED,varaintSku,varaintName,record.store_id)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },
-       {
-         title: "Tạm giữ",
-         dataIndex: `on_hold`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.ON_HOLD,varaintSku,varaintName,record.store_id)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-         title: "Hàng lỗi",
-         dataIndex: `defect`,
-         align: "center",
-         width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       },{
-         title: "Chờ nhập",
-         dataIndex: `in_coming`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.IN_COMING,varaintSku,varaintName,record.store_id)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-         title: "Chuyển đến",
-         dataIndex: `transferring`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.TRANSFERRING,varaintSku,varaintName,record.store_id)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-         title: "Chuyển đi",
-         dataIndex: `on_way`,
-         align: "center",
-         width: 80,
-         render: (value: number,record: InventoryResponse) => {
-          return <div> {value ? 
-              <Link target="_blank" to={goDocument(EInventoryStatus.ON_WAY,varaintSku,varaintName,record.store_id)}>
-                     {formatCurrencyForProduct(value)}
-              </Link>
-            : ""}</div>;
-         },
-       },{
-         title: "Đang giao",
-         dataIndex: `shipping`,
-         align: "center",
-         width: 80,
-         render: (value) => {
-          return <div> {value ? formatCurrencyForProduct(value): ""}</div>;
-         },
-       }
-     ]
-   },[goDocument]);
+      {
+        title: "Kho hàng",
+        dataIndex: "store_id",
+        fixed: true,
+        render(value) {
+          return storeRef.current.get(value);
+        },
+      },
+      {
+        dataIndex: "variant_prices",
+        align: "center",
+        width: 110,
+        fixed: true,
+        render: (value) => {
+          return <></>;
+        },
+      },
+      {
+        title: "Tổng tồn",
+        dataIndex: `total_stock`,
+        align: "center",
+        width: 110,
+        render: (value, record) => {
+          return <div> {value ? formatCurrencyForProduct(record.total_stock) : ""}</div>;
+        },
+      },
+      {
+        title: "Tồn trong kho",
+        dataIndex: `on_hand`,
+        align: "center",
+        width: 110,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+      {
+        title: "Có thể bán",
+        dataIndex: `available`,
+        align: "center",
+        width: 110,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+      {
+        title: "Đang giao dịch",
+        dataIndex: `committed`,
+        align: "center",
+        width: 110,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(
+                    EInventoryStatus.COMMITTED,
+                    varaintSku,
+                    varaintName,
+                    record.store_id,
+                  )}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: "Tạm giữ",
+        dataIndex: `on_hold`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(
+                    EInventoryStatus.ON_HOLD,
+                    varaintSku,
+                    varaintName,
+                    record.store_id,
+                  )}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: "Hàng lỗi",
+        dataIndex: `defect`,
+        align: "center",
+        width: 80,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+      {
+        title: "Chờ nhập",
+        dataIndex: `in_coming`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(
+                    EInventoryStatus.IN_COMING,
+                    varaintSku,
+                    varaintName,
+                    record.store_id,
+                  )}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: "Chuyển đến",
+        dataIndex: `transferring`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(
+                    EInventoryStatus.TRANSFERRING,
+                    varaintSku,
+                    varaintName,
+                    record.store_id,
+                  )}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: "Chuyển đi",
+        dataIndex: `on_way`,
+        align: "center",
+        width: 80,
+        render: (value: number, record: InventoryResponse) => {
+          return (
+            <div>
+              {" "}
+              {value ? (
+                <Link
+                  target="_blank"
+                  to={goDocument(EInventoryStatus.ON_WAY, varaintSku, varaintName, record.store_id)}
+                >
+                  {formatCurrencyForProduct(value)}
+                </Link>
+              ) : (
+                ""
+              )}
+            </div>
+          );
+        },
+      },
+      {
+        title: "Đang giao",
+        dataIndex: `shipping`,
+        align: "center",
+        width: 80,
+        render: (value) => {
+          return <div> {value ? formatCurrencyForProduct(value) : ""}</div>;
+        },
+      },
+    ];
+  }, [goDocument]);
 
-  let [columns, setColumns] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumns);
-  const [columnsDrill, setColumnsDrill] = useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumnsDrill);
+  let [columns, setColumns] =
+    useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumns);
+  const [columnsDrill, setColumnsDrill] =
+    useState<Array<ICustomTableColumType<InventoryResponse>>>(defaultColumnsDrill);
 
   const openColumn = useCallback(() => {
     setShowSettingColumn(true);
   }, []);
 
-  const sumTable = (items: Array<VariantResponse> | Array<InventoryResponse>)=>{
+  const sumTable = (items: Array<VariantResponse> | Array<InventoryResponse>) => {
     let objSum: SummaryInventory = {
-      Sum_Total:  0,
+      Sum_Total: 0,
       Sum_On_hand: 0,
       Sum_Available: 0,
       Sum_Committed: 0,
       Sum_On_hold: 0,
       Sum_Defect: 0,
       Sum_In_coming: 0,
-      Sum_Transferring:0,
+      Sum_Transferring: 0,
       Sum_On_way: 0,
       Sum_Shipping: 0,
     };
 
-    items.forEach((e)=>{
-      if (e === undefined)
-          return;
+    items.forEach((e) => {
+      if (e === undefined) return;
 
       objSum.Sum_On_hand += e.on_hand ?? 0;
       objSum.Sum_Available += e.available ?? 0;
@@ -580,24 +817,22 @@ const AllTab: React.FC<any> = (props) => {
     });
 
     return objSum;
-  }
+  };
 
   const onSelect = useCallback((selectedRow: Array<InventoryResponse>) => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
 
-      if (selectedRow && selectedRow.length > 0) {
+    if (selectedRow && selectedRow.length > 0) {
+      const objSum = sumTable(selectedRow);
 
-        const objSum =  sumTable(selectedRow);
-
-        setObjSummaryTable({...objSum});
-      }else{
-        setObjSummaryTable({...{}as SummaryInventory });
-      }
-
+      setObjSummaryTable({ ...objSum });
+    } else {
+      setObjSummaryTable({ ...({} as SummaryInventory) });
+    }
   }, []);
 
   const onResult = useCallback((result: PageResponse<VariantResponse> | false) => {
@@ -607,21 +842,17 @@ const AllTab: React.FC<any> = (props) => {
       setData(result);
       setExpandRow([]);
       if (result.items && result.items.length > 0) {
+        const objSum = sumTable(result.items);
 
-       const objSum =  sumTable(result.items);
-
-        setObjSummaryTable({...objSum});
-      }else{
-        setObjSummaryTable({...{}as SummaryInventory });
+        setObjSummaryTable({ ...objSum });
+      } else {
+        setObjSummaryTable({ ...({} as SummaryInventory) });
       }
     }
   }, []);
   const columnsFinal = useMemo(() => columns.filter((item) => item.visible), [columns]);
 
-  const onSaveInventory = (
-    result: Array<AllInventoryResponse>,
-    variant_ids: Array<number>
-  ) => {
+  const onSaveInventory = (result: Array<AllInventoryResponse>, variant_ids: Array<number>) => {
     if (Array.isArray(result) && variant_ids[0]) {
       const tempMap = new Map(inventiryVariant);
       tempMap.set(variant_ids[0], result);
@@ -629,51 +860,53 @@ const AllTab: React.FC<any> = (props) => {
     }
   };
 
-  const fetchInventoryByVariant = useCallback((
-    variant_ids: Array<number>,
-    store_ids: Array<number>
-  ) => {
-    
-    const request: InventoryVariantListQuery = JSON.parse(
-      JSON.stringify({variant_ids, store_ids, is_detail: true})
-    );
-    if (params && params.remain) {
-      request.remain = params.remain;
-    }
-    
-    dispatch(
-      inventoryByVariantAction(request, (result) => onSaveInventory(result, variant_ids))
-    );
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  },[dispatch, params]);
+  const fetchInventoryByVariant = useCallback(
+    (variant_ids: Array<number>, store_ids: Array<number>) => {
+      const request: InventoryVariantListQuery = JSON.parse(
+        JSON.stringify({ variant_ids, store_ids, is_detail: true }),
+      );
+      if (params && params.remain) {
+        request.remain = params.remain;
+      }
 
-  const debouncedSearch = React.useMemo(() =>
-    _.debounce((keyword: string,filters: any) => {
-      
-      const newValues = {...params,info: keyword?.trim(),...filters}
-      const newPrams = {...params, ...newValues, page: 1};
-      setPrams(newPrams);
-      let queryParam = generateQuery(newPrams);
-      history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
-    }, 300),
-    [params,history]
-  )
+      dispatch(inventoryByVariantAction(request, (result) => onSaveInventory(result, variant_ids)));
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [dispatch, params],
+  );
+
+  const debouncedSearch = React.useMemo(
+    () =>
+      _.debounce((keyword: string, filters: any) => {
+        const newValues = { ...params, info: keyword?.trim(), ...filters };
+        const newPrams = { ...params, ...newValues, page: 1 };
+        setPrams(newPrams);
+        let queryParam = generateQuery(newPrams);
+        history.push(`${InventoryTabUrl.ALL}?${queryParam}`);
+      }, 300),
+    [params, history],
+  );
 
   const onChangeKeySearch = useCallback(
     (keyword: string, filters: any) => {
-      debouncedSearch(keyword,filters)
+      debouncedSearch(keyword, filters);
     },
-    [debouncedSearch]
-  )
+    [debouncedSearch],
+  );
 
   useEffect(() => {
-    const getInventories =async ()=>{
-      const temps = {...params, limit: params.limit ?? 50};
+    const getInventories = async () => {
+      const temps = { ...params, limit: params.limit ?? 50 };
       delete temps.status;
       setLoading(true);
-      const res = await callApiNative({isShowLoading: false},dispatch,searchVariantsInventoriesApi,temps);
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        searchVariantsInventoriesApi,
+        temps,
+      );
       onResult(res);
-    }
+    };
     getInventories();
   }, [dispatch, onResult, params]);
 
@@ -686,7 +919,7 @@ const AllTab: React.FC<any> = (props) => {
     }
   }, [stores]);
 
-  const getConfigColumnInventory = useCallback(()=>{
+  const getConfigColumnInventory = useCallback(() => {
     if (account && account.code) {
       getInventoryConfigService(account.code)
         .then((res) => {
@@ -695,32 +928,36 @@ const AllTab: React.FC<any> = (props) => {
               if (res) {
                 setLstConfig(res.data);
                 if (res.data && res.data.length > 0) {
-                  const userConfigColumn = res.data.filter(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY);
-                  const userConfig=   userConfigColumn.reduce((p, c) => p.id > c.id ? p : c);
-                   if (userConfig){
-                       let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
+                  const userConfigColumn = res.data.filter(
+                    (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
+                  );
+                  const userConfig = userConfigColumn.reduce((p, c) => (p.id > c.id ? p : c));
+                  if (userConfig) {
+                    let cf = JSON.parse(userConfig.json_content) as ConfigColumnInventory;
 
-                       cf.Columns.forEach(e => {
-                         const column = defaultColumns.find(p=>p.dataIndex === e.dataIndex);
-                         if (column) {
-                          e.render = column.render;
-                          e.title = column.title;
-                          e.titleCustom = column.titleCustom;
-                         }
-                       });
-                       cf.ColumnDrill.forEach(e => {
-                         const columnDrill = defaultColumnsDrill.find(p=>p.dataIndex === e.dataIndex);
-                         if (columnDrill) {
-                          e.render = columnDrill.render;
-                          e.title = columnDrill.title;
-                          e.titleCustom = columnDrill.titleCustom;
-                         }
-                       });
-                       setColumns(cf.Columns);
-                       setColumnsDrill(cf.ColumnDrill);
-                   }
+                    cf.Columns.forEach((e) => {
+                      const column = defaultColumns.find((p) => p.dataIndex === e.dataIndex);
+                      if (column) {
+                        e.render = column.render;
+                        e.title = column.title;
+                        e.titleCustom = column.titleCustom;
+                      }
+                    });
+                    cf.ColumnDrill.forEach((e) => {
+                      const columnDrill = defaultColumnsDrill.find(
+                        (p) => p.dataIndex === e.dataIndex,
+                      );
+                      if (columnDrill) {
+                        e.render = columnDrill.render;
+                        e.title = columnDrill.title;
+                        e.titleCustom = columnDrill.titleCustom;
+                      }
+                    });
+                    setColumns(cf.Columns);
+                    setColumnsDrill(cf.ColumnDrill);
+                  }
                 }
-               }
+              }
               break;
             case HttpStatus.UNAUTHORIZED:
               dispatch(unauthorizedAction());
@@ -737,49 +974,58 @@ const AllTab: React.FC<any> = (props) => {
           dispatch(hideLoading());
         });
     }
-  },[account, dispatch, defaultColumns, defaultColumnsDrill]);
+  }, [account, dispatch, defaultColumns, defaultColumnsDrill]);
 
-  const onSaveConfigColumn = useCallback((data: Array<ICustomTableColumType<InventoryResponse>>, dataDrill: Array<ICustomTableColumType<InventoryResponse>>) => {
-    let config = lstConfig.find(e=>e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY) as FilterConfigRequest;
-    if (!config) config = {} as FilterConfigRequest;
+  const onSaveConfigColumn = useCallback(
+    (
+      data: Array<ICustomTableColumType<InventoryResponse>>,
+      dataDrill: Array<ICustomTableColumType<InventoryResponse>>,
+    ) => {
+      let config = lstConfig.find(
+        (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_INVENTORY,
+      ) as FilterConfigRequest;
+      if (!config) config = {} as FilterConfigRequest;
 
-    const configRequest = {
-      Columns: data,
-      ColumnDrill: dataDrill
-    } as ConfigColumnInventory;
+      const configRequest = {
+        Columns: data,
+        ColumnDrill: dataDrill,
+      } as ConfigColumnInventory;
 
-    const json_content = JSON.stringify(configRequest);
-    config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
-    config.json_content = json_content;
-    config.name= `${account?.code}_config_column_inventory`;
-    dispatch(updateConfigInventoryAction(config));
+      const json_content = JSON.stringify(configRequest);
+      config.type = COLUMN_CONFIG_TYPE.COLUMN_INVENTORY;
+      config.json_content = json_content;
+      config.name = `${account?.code}_config_column_inventory`;
+      dispatch(updateConfigInventoryAction(config));
+    },
+    [dispatch, account?.code, lstConfig],
+  );
 
-  }, [dispatch,account?.code, lstConfig]);
+  const getConditions = useCallback(
+    (type: string) => {
+      let conditions = {};
+      switch (type) {
+        case TYPE_EXPORT.selected:
+          let variant_ids = selected.map((e) => e.id).toString();
+          const store_ids = params.store_ids;
 
-  const getConditions = useCallback((type: string) => {
-    let conditions = {};
-    switch (type) {
-      case TYPE_EXPORT.selected:
-        let variant_ids = selected.map(e=>e.id).toString();
-        const store_ids =  params.store_ids;  
+          conditions = { store_ids: store_ids, variant_ids: variant_ids };
 
-        conditions = {store_ids: store_ids,
-          variant_ids:variant_ids};
-          
-        break;
-      case TYPE_EXPORT.page:
-        conditions = {...params,
-          limit: params.limit,
-          page: params.page ?? 1};
-        break;
-      case TYPE_EXPORT.all:
-        conditions = {...params
-          ,page:undefined
-          ,limit:undefined};
-        break;
-    }
-    return conditions;
-  },[params,selected])
+          break;
+        case TYPE_EXPORT.page:
+          conditions = {
+            ...params,
+            limit: params.limit,
+            page: params.page ?? 1,
+          };
+          break;
+        case TYPE_EXPORT.all:
+          conditions = { ...params, page: undefined, limit: undefined };
+          break;
+      }
+      return conditions;
+    },
+    [params, selected],
+  );
 
   const actionExport = {
     Ok: async (typeExport: string) => {
@@ -789,8 +1035,8 @@ const AllTab: React.FC<any> = (props) => {
         setVExportInventory(false);
         return;
       }
-      const conditions =  getConditions(typeExport);
-      const queryParam = generateQuery({...conditions});
+      const conditions = getConditions(typeExport);
+      const queryParam = generateQuery({ ...conditions });
       exportFileV2({
         conditions: queryParam,
         type: "TYPE_EXPORT_INVENTORY_DETAIL",
@@ -815,35 +1061,38 @@ const AllTab: React.FC<any> = (props) => {
       setExportProgress(0);
       setStatusExport(0);
     },
-    OnExport: useCallback((typeExport: string)=>{
-      let objConditions = {
-        store_ids: params.store_ids?.toString(),
-        remain: params.remain
-      };
-      
-      let conditions:any =  getConditions(typeExport);
-      conditions.store_ids = objConditions.store_ids;
-      conditions.remain = objConditions.remain;
-      
-      const queryParam = generateQuery({...conditions});
-      
-      exportFileV2({
-        conditions: queryParam,
-        type: "TYPE_EXPORT_INVENTORY",
-      })
-        .then((response) => {
-          if (response.code === HttpStatus.SUCCESS) {
-            setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
-            showSuccess("Đã gửi yêu cầu xuất file");
-            setListExportFile([...listExportFile, response.data.code]);
-          }
+    OnExport: useCallback(
+      (typeExport: string) => {
+        let objConditions = {
+          store_ids: params.store_ids?.toString(),
+          remain: params.remain,
+        };
+
+        let conditions: any = getConditions(typeExport);
+        conditions.store_ids = objConditions.store_ids;
+        conditions.remain = objConditions.remain;
+
+        const queryParam = generateQuery({ ...conditions });
+
+        exportFileV2({
+          conditions: queryParam,
+          type: "TYPE_EXPORT_INVENTORY",
         })
-        .catch(() => {
-          setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
-          showError("Có lỗi xảy ra, vui lòng thử lại sau");
-        });
-    },[getConditions, listExportFile, params.remain, params.store_ids])
-  }
+          .then((response) => {
+            if (response.code === HttpStatus.SUCCESS) {
+              setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+              showSuccess("Đã gửi yêu cầu xuất file");
+              setListExportFile([...listExportFile, response.data.code]);
+            }
+          })
+          .catch(() => {
+            setStatusExport(STATUS_IMPORT_EXPORT.ERROR);
+            showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          });
+      },
+      [getConditions, listExportFile, params.remain, params.store_ids],
+    ),
+  };
 
   const checkExportFile = useCallback(() => {
     let getFilePromises = listExportFile.map((code) => {
@@ -853,7 +1102,10 @@ const AllTab: React.FC<any> = (props) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           if (response.data.total || response.data.total !== 0) {
-            const percent = Math.round(Number.parseFloat((response.data.num_of_record/response.data.total).toFixed(2))*100);
+            const percent = Math.round(
+              Number.parseFloat((response.data.num_of_record / response.data.total).toFixed(2)) *
+                100,
+            );
             setExportProgress(percent);
           }
           if (response.data && response.data.status === "FINISH") {
@@ -883,7 +1135,10 @@ const AllTab: React.FC<any> = (props) => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           if (response.data.total || response.data.total !== 0) {
-            const percent = Math.round(Number.parseFloat((response.data.num_of_record/response.data.total).toFixed(2))*100);
+            const percent = Math.round(
+              Number.parseFloat((response.data.num_of_record / response.data.total).toFixed(2)) *
+                100,
+            );
             setExportProgressDetail(percent);
           }
           if (response.data && response.data.status === "FINISH") {
@@ -921,13 +1176,13 @@ const AllTab: React.FC<any> = (props) => {
     return () => clearInterval(getFileInterval);
   }, [listExportFileDetail, checkExportFileDetail, statusExportDetail]);
 
-  useEffect(()=>{
+  useEffect(() => {
     getConfigColumnInventory();
-  },[getConfigColumnInventory]);
+  }, [getConfigColumnInventory]);
 
   useEffect(() => {
     setColumns(defaultColumns);
-  }, [params,defaultColumns, selected, objSummaryTable]);
+  }, [params, defaultColumns, selected, objSummaryTable]);
 
   return (
     <div>
@@ -938,8 +1193,8 @@ const AllTab: React.FC<any> = (props) => {
         actions={[]}
         onClearFilter={() => {}}
         listStore={stores}
-        onChangeKeySearch={(value: string,filters: any)=>{
-          onChangeKeySearch(value,filters);
+        onChangeKeySearch={(value: string, filters: any) => {
+          onChangeKeySearch(value, filters);
         }}
       />
       <CustomTable
@@ -947,8 +1202,8 @@ const AllTab: React.FC<any> = (props) => {
         className="small-padding"
         bordered
         dataSource={data.items}
-        scroll={{x: 1200}}
-        sticky={{ offsetHeader: OFFSET_HEADER_TABLE,offsetSummary: 10}}
+        scroll={{ x: 1200 }}
+        sticky={{ offsetHeader: OFFSET_HEADER_TABLE, offsetSummary: 10 }}
         expandedRowKeys={expandRow}
         onSelectedChange={onSelect}
         pagination={false}
@@ -960,7 +1215,7 @@ const AllTab: React.FC<any> = (props) => {
             }
             return (
               <div
-                style={{cursor: "pointer"}}
+                style={{ cursor: "pointer" }}
                 onClick={(event) => props.onExpand(props.record, event)}
               >
                 {icon}
@@ -972,18 +1227,16 @@ const AllTab: React.FC<any> = (props) => {
               setExpandRow([]);
               return;
             }
-            
+
             varaintName = record.name;
             varaintSku = record.sku;
             setExpandRow([record.id]);
-            let store_ids: any[] = params.store_ids
-              ? params.store_ids.toString().split(",")
-              : [];
+            let store_ids: any[] = params.store_ids ? params.store_ids.toString().split(",") : [];
 
             store_ids = store_ids.map((item) => parseInt(item));
             fetchInventoryByVariant([record.id], store_ids);
           },
-          
+
           expandedRowRender: (record: VariantResponse, index, indent, expanded) => {
             return (
               <CustomTable
@@ -1007,7 +1260,7 @@ const AllTab: React.FC<any> = (props) => {
           total: data.metadata.total,
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
-          pageSizeOptions: pageSizeOptions
+          pageSizeOptions: pageSizeOptions,
         }}
       />
       <ModalSettingColumn
@@ -1017,29 +1270,29 @@ const AllTab: React.FC<any> = (props) => {
         onOk={(data) => {
           setShowSettingColumn(false);
           setColumns(data);
-          let columnsInRow = data.filter(e=>e.visible === true && e.dataIndex !== "sku").map(
-            (item: ICustomTableColumType<InventoryResponse>)=>{
+          let columnsInRow = data
+            .filter((e) => e.visible === true && e.dataIndex !== "sku")
+            .map((item: ICustomTableColumType<InventoryResponse>) => {
               return {
                 title: item.title,
                 dataIndex: item.dataIndex,
                 align: item.align,
                 width: item.width,
                 fixed: item.fixed ?? false,
-                render: item.render
-              }
-            }
-          )
+                render: item.render,
+              };
+            });
           columnsInRow.unshift({
             title: "Kho hàng",
             dataIndex: "store_id",
-            align: 'left',
+            align: "left",
             fixed: true,
             width: "auto",
-            render (value) {
+            render(value) {
               return storeRef.current.get(value);
-            }
+            },
           });
-          columnsInRow.forEach((e)=>{
+          columnsInRow.forEach((e) => {
             if (e.dataIndex === "variant_prices" || e.dataIndex === "category") {
               e.render = undefined;
               e.title = "";
@@ -1051,22 +1304,22 @@ const AllTab: React.FC<any> = (props) => {
         }}
         data={defaultColumns}
       />
-       <InventoryExport
+      <InventoryExport
         onCancel={actionExport.Cancel}
         onOk={actionExport.Ok}
         visible={vExportInventory}
         exportProgressDetail={exportProgressDetail}
         statusExportDetail={statusExportDetail}
       />
-       {showExportModal && (
-         <InventoryExportModal
-           visible={showExportModal}
-           onCancel={actionExport.Cancel}
-           onOk={actionExport.OnExport}
-           exportProgress={exportProgress}
-           statusExport={statusExport}
-         />
-       )}
+      {showExportModal && (
+        <InventoryExportModal
+          visible={showExportModal}
+          onCancel={actionExport.Cancel}
+          onOk={actionExport.OnExport}
+          exportProgress={exportProgress}
+          statusExport={statusExport}
+        />
+      )}
     </div>
   );
 };
