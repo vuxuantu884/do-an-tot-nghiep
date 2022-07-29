@@ -593,10 +593,12 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       checkPaymentStatusToShow(props.OrderDetail) === 1 &&
       value.shipping_fee_informed_to_customer !== null
     ) {
-      value.cod =
-        props.OrderDetail.total +
-        value.shipping_fee_informed_to_customer -
-        getAmountPayment(props.OrderDetail.payments);
+      let cod = props.OrderDetail.total -
+      getAmountPayment(props.OrderDetail.payments);
+      if(cod < 0) {
+        cod = 0;
+      }
+      value.cod = cod;
       console.log("11");
     } else {
       if (takeHelperValue > 0) {
@@ -611,7 +613,8 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       value.cod = customerNeedToPayValue;
     }
 
-    console.log("value33", value);
+    // console.log("value33", value);
+    // return;
 
     FulFillmentRequest.shipment =
       isEcommerceOrder && ecommerceShipment ? ecommerceShipment : value;

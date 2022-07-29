@@ -299,7 +299,7 @@ function OrderFulfillmentActionButton(props: PropTypes) {
         {checkIfShowButtonShipping() && (
           <Button
             type="primary"
-            className="ant-btn-outline fixed-button text-right"
+            className="ant-btn-outline fixed-button text-right 555"
             style={{
               float: "right",
               padding: "0 25px",
