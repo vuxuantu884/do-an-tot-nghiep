@@ -721,7 +721,8 @@ const EcommerceOrders: React.FC = () => {
   };
   const renderTrackingCode = (fulfillments: FulFillmentResponse[]) => {
     const fulfillmentsHasShipment = fulfillments?.filter((item: any) => !!item.shipment);
-		const fulfillment = fulfillmentsHasShipment ? fulfillmentsHasShipment[0] : null;
+    const shipmentLength = fulfillmentsHasShipment?.length;
+		const fulfillment = shipmentLength > 0 ? fulfillmentsHasShipment[shipmentLength - 1] : null;
 
     return (
       <span>{getTrackingCodeFulfillment(fulfillment)}</span>
