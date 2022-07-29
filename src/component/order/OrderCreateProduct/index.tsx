@@ -1959,7 +1959,7 @@ function OrderCreateProduct(props: PropTypes) {
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
 		const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
-		if (_items.length > 0) {
+		if (_items.length > 0 && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE) {
 			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
 				transportService, form, setShippingFeeInformedToCustomer
 			);

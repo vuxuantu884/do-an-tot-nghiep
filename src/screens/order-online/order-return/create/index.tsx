@@ -359,9 +359,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
     return total;
   };
 
-  const totalAmountExchange = useMemo(() => {
-    return Math.round(getTotalPrice(listExchangeProducts));
-  }, [listExchangeProducts]);
+  const totalAmountExchange = Math.round(getTotalPrice(listExchangeProducts));
+
+  console.log('totalAmountExchange', totalAmountExchange)
 
   const totalAmountExchangePlusShippingFee = useMemo(() => {
     return (
