@@ -269,6 +269,9 @@ export const StyledComponent = styled.div.attrs((props:any) => {
     }
     .ant-select {
       margin-top: 5px;
+      &.ant-select-disabled {
+        opacity: 0.5;
+      }
       &.coordinator_confirmed {
         .ant-select-selector {
           background: #01b0f1 !important;

@@ -19,12 +19,12 @@ import {
 } from "antd";
 import { RefSelectProps } from "antd/lib/select";
 import giftIcon from "assets/icon/gift.svg";
-import imgDefault from "assets/icon/img-default.svg";
 import XCloseBtn from "assets/icon/X_close.svg";
 import arrowDownIcon from "assets/img/drow-down.svg";
 import BaseResponse from "base/base.response";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
+import SearchedVariant from "component/search-product/SearchedVariant";
 import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
@@ -77,7 +77,6 @@ import PickDiscountModal from "screens/order-online/modal/pick-discount.modal";
 import { applyDiscountService } from "service/promotion/discount/discount.service";
 import {
 	findAvatar,
-	findPrice,
 	findPriceInVariant,
 	findTaxInVariant,
 	formatCurrency,
@@ -630,80 +629,11 @@ function OrderCreateProduct(props: PropTypes) {
 		handleDelayCalculateWhenChangeOrderInput(lineItemDiscountInputTimeoutRef, _items, false);
 	};
 
-	// render
-
-	const renderSearchVariant = (item: VariantResponse) => {
-		let avatar = findAvatar(item.variant_images);
-		return (
-			<Row>
-				<Col
-					span={4}
-					style={{
-						alignItems: "center",
-						justifyContent: "center",
-						display: "flex",
-						padding: "4px 6px",
-					}}
-				>
-					<img
-						src={avatar === "" ? imgDefault : avatar}
-						alt="anh"
-						placeholder={imgDefault}
-						style={{ width: "50%", borderRadius: 5 }}
-					/>
-				</Col>
-				<Col span={14}>
-					<div style={{ padding: "5px 0" }}>
-						<span
-							className="searchDropdown__productTitle"
-							style={{ color: "#37394D" }}
-							title={item.name}
-						>
-							{item.name}
-						</span>
-						<div style={{ color: "#95A1AC" }}>{item.sku}</div>
-					</div>
-				</Col>
-				<Col span={6}>
-					<div style={{ textAlign: "right", padding: "0 20px" }}>
-						<div style={{ display: "inline-block", textAlign: "right" }}>
-							<Col style={{ color: "#222222" }}>
-								{`${findPrice(item.variant_prices, AppConfig.currency)} `}
-								<span
-									style={{
-										color: "#737373",
-										textDecoration: "underline",
-										textDecorationColor: "#737373",
-									}}
-								>
-									đ
-								</span>
-							</Col>
-							<div style={{ color: "#737373" }}>
-								Có thể bán:
-								<span
-									style={{
-										color:
-											(item.available === null ? 0 : item.available) > 0
-												? "#2A2A86"
-												: "rgba(226, 67, 67, 1)",
-									}}
-								>
-									{` ${item.available === null ? 0 : item.available}`}
-								</span>
-							</div>
-						</div>
-					</div>
-				</Col>
-			</Row>
-		);
-	};
-
 	const convertResultSearchVariant = useMemo(() => {
 		let options: any[] = [];
 		resultSearchVariant.items.forEach((item: VariantResponse, index: number) => {
 			options.push({
-				label: renderSearchVariant(item),
+				label: <SearchedVariant item={item}/>,
 				value: item.id ? item.id.toString() : "",
 			});
 		});
@@ -2029,7 +1959,7 @@ function OrderCreateProduct(props: PropTypes) {
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
 		const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
-		if (_items.length > 0 && shipmentMethod !== ShipmentMethodOption.DELIVER_LATER && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE) {
+		if (_items.length > 0 && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE) {
 			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
 				transportService, form, setShippingFeeInformedToCustomer
 			);

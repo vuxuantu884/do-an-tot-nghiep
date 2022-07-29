@@ -1,5 +1,6 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
 import {
+	Alert,
 	Card,
 	Col,
 	Collapse, Form,
@@ -87,7 +88,7 @@ import {
 	PaymentMethodOption, POS, ShipmentMethodOption, TaxTreatment
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { canCreateShipment, checkIfFulfillmentCancelled, checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasShipmentCod } from "utils/OrderUtils";
+import { canCreateShipment, checkIfFulfillmentCancelled, checkIfOrderCancelled, checkIfOrderHasNoPayment, checkIfOrderHasNotFinishPaymentMomo, checkIfOrderHasShipmentCod } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
@@ -100,6 +101,7 @@ import OrderFulfillmentCancelledShowDate from "./component/OrderPackingAndShippi
 import OrderFulfillmentDetail from "./component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
 import OrderFulfillmentShowFulfillment from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
 import OrderFulfillmentShowProduct from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
+import useHandleMomoCreateShipment from "./hooks/useHandleMomoCreateShipment";
 
 type PropTypes = {
 	id?: string;
@@ -153,6 +155,9 @@ export default function Order(props: PropTypes) {
 	const [officeTime, setOfficeTime] = useState<boolean>(false);
 	const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
 	const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+
+	const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
+	
 	const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
 		chonCuaHangTruocMoiChonSanPham: false,
 		cauHinhInNhieuLienHoaDon: 1,
@@ -1254,6 +1259,8 @@ export default function Order(props: PropTypes) {
   //   }
 	// };
 
+	useHandleMomoCreateShipment(setShipmentMethod, payments);
+
 	useEffect(() => {
 		formRef.current?.resetFields();
 		// eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1345,6 +1352,27 @@ export default function Order(props: PropTypes) {
 			window.removeEventListener("keydown", eventKeyBoardFunction);
 		}
 	}, [eventKeyBoardFunction])
+
+	if(checkIfOrderHasNotFinishPaymentMomo(OrderDetail)) {
+		return (
+			<Alert
+				message={
+					<React.Fragment>
+						<div style={{fontWeight:"500", fontSize:"15px", padding: "10px 0"}}>
+							<p>Lưu ý : Không thể điều phối đơn hàng khi chờ khách thanh toán qua ví điện tử</p>
+							<ul style={{ marginBottom: 0}}>
+								<li style={{marginBottom: 5}}>Thời hạn thanh toán là 24h kể từ thời điểm tạo đơn</li>
+								<li>Trong vòng 30 phút mà khách chưa thanh toán sale cần gọi hay nhắn tin cho khách để xác nhận thanh toán. Nếu khách hủy thanh toán qua ví bạn có thể bấm nút "Hủy giao dịch" để có thể điều phối đơn</li>
+							</ul>
+						</div>
+					</React.Fragment>
+				}
+				type="warning"
+				closable
+				style={{margin: "30px 0"}}
+			/>
+		)
+	}
 
 	return (
 		<React.Fragment>
@@ -1481,14 +1509,15 @@ export default function Order(props: PropTypes) {
 									) : (
 										<CardShowOrderPayments 
 											OrderDetail={OrderDetail}
+											setOrderDetail={setOrderDetail}
 											// disabledActions={disabledActions}
 											disabledActions={()=>{}}
 											// disabledBottomActions={disabledBottomActions}
 											disabledBottomActions={false}
 											form={form}
 											isDisablePostPayment={isDisablePostPayment}
-											// isShowPaymentPartialPayment={isShowPaymentPartialPayment}
-											isShowPaymentPartialPayment={false}
+											isShowPaymentPartialPayment={isShowPaymentPartialPayment}
+											// isShowPaymentPartialPayment={false}
 											// isVisibleUpdatePayment={isVisibleUpdatePayment}
 											isVisibleUpdatePayment={false}
 											// onPaymentSelect={onPaymentSelect}
@@ -1496,8 +1525,8 @@ export default function Order(props: PropTypes) {
 											paymentMethod={paymentMethod}
 											paymentMethods={listPaymentMethod}
 											setReload={setReload}
-											// setShowPaymentPartialPayment={setShowPaymentPartialPayment}
-											setShowPaymentPartialPayment={()=>{}}
+											setShowPaymentPartialPayment={setShowPaymentPartialPayment}
+											// setShowPaymentPartialPayment={()=>{}}
 											// setVisibleUpdatePayment={setVisibleUpdatePayment}
 											setVisibleUpdatePayment={()=>{}}
 											shipmentMethod={shipmentMethod}
@@ -1736,6 +1765,7 @@ export default function Order(props: PropTypes) {
 													isOrderUpdate={true}
 													isEcommerceOrder={isEcommerceOrder}
 													ecommerceShipment={ecommerceShipment}
+													payments={payments}
 												/>
 											)}
 									</Card>

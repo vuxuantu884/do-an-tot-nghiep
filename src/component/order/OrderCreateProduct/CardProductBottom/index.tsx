@@ -213,7 +213,7 @@ function CardProductBottom(props: PropType) {
 						<React.Fragment>
 							<Divider className="margin-top-5 margin-bottom-5" />
 							<Row className="payment-row" justify="space-between">
-								<strong className="font-size-text">Tổng tiền hàng mua:</strong>
+								<strong className="font-size-text 23">Tổng tiền hàng mua:</strong>
 								<strong>{totalAmountOrder && formatCurrency(totalAmountOrder)}</strong>
 							</Row>
 							<Row className="payment-row" justify="space-between">

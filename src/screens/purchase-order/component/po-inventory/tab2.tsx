@@ -1,4 +1,4 @@
-import {Form, Table } from "antd";
+import { Form, Table } from "antd";
 import { POField } from "model/purchase-order/po-field";
 import {
   POProcumentField,
@@ -17,7 +17,7 @@ import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
 import { Link } from "react-router-dom";
 
 type TabInventoryProps = {
-  poId?: number
+  poId?: number;
 };
 const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
   return (
@@ -29,13 +29,17 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
     >
       {({ getFieldValue }) => {
         let procurements: Array<PurchaseProcument> = getFieldValue(
-          POField.procurements
+          POField.procurements,
         );
+        // let items =
+        //   procurements !== undefined && procurements !== null
+        //     ? procurements.filter(
+        //       (item) => item.status === ProcumentStatus.RECEIVED
+        //     )
+        //     : [];
         let items =
           procurements !== undefined && procurements !== null
-            ? procurements.filter(
-                (item) => item.status === ProcumentStatus.RECEIVED
-              )
+            ? procurements
             : [];
         return (
           <Table
@@ -73,7 +77,9 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                   {record.procurement_items.map((item, index) => (
                     <div className="item">
                       <div className="item-info-wrap">
-                        <div className="item-col item-col-index">{index + 1}</div>
+                        <div className="item-col item-col-index">
+                          {index + 1}
+                        </div>
                         <div className="item-col item-col-img">
                           <div className="product-item-image">
                             <img
@@ -97,13 +103,17 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                         </div>
                       </div>
                       <div className="item-col item-col-number">
-                        {item.quantity}
+                        {item.accepted_quantity || 0}
                       </div>
                       <div
-                        style={{ color: "#27AE60", fontWeight: 700 }}
+                        style={{
+                          color: "#27AE60",
+                          fontWeight: 700,
+                          width: "120px",
+                        }}
                         className="item-col item-col-number"
                       >
-                        {item.real_quantity}
+                        {item.real_quantity || 0}
                       </div>
                       <div className="item-col item-col-empty" />
                     </div>
@@ -127,37 +137,43 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 ),
                 dataIndex: "code",
                 render: (value, item, index) => {
-                  return (props.poId &&
-                    <div>
-                      <Link to="#" onClick={() => {
-                        const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${props.poId}/procurements/${item.id}`
-                        const newWindow = window.open(url, '_blank', 'noopener,noreferrer')
-                        if (newWindow) newWindow.opener = null
-                      }}>{value}</Link>
-                    </div>)
+                  return (
+                    props.poId && (
+                      <div>
+                        <Link
+                          to="#"
+                          onClick={() => {
+                            const url = `${BASE_NAME_ROUTER}${UrlConfig.PURCHASE_ORDERS}/${props.poId}/procurements/${item.id}`;
+                            const newWindow = window.open(
+                              url,
+                              "_blank",
+                              "noopener,noreferrer",
+                            );
+                            if (newWindow) newWindow.opener = null;
+                          }}
+                        >
+                          {value}
+                        </Link>
+                      </div>
+                    )
+                  );
                 },
               },
               {
                 title: "Kho nhận hàng",
                 dataIndex: POProcumentField.store,
                 align: "left",
+                width: 110,
                 render: (value, item, index) => <div>{value}</div>,
-              },
-              {
-                title: "Ngày nhận hàng thực tế",
-                dataIndex: POProcumentField.stock_in_date,
-                align: "center",
-                render: (value: string, item, index: number) =>
-                  ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
               },
 
               {
                 align: "right",
-                width: 200,
                 title: "SL Nhận hàng được duyệt",
                 dataIndex: "procurement_items",
+                width: 180,
                 render: (value, item, index: number) =>
-                  formatCurrency(POUtils.totalQuantity(value),"."),
+                  formatCurrency(POUtils.totalAcceptedQuantity(value)),
               },
               {
                 align: "right",
@@ -166,16 +182,27 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 dataIndex: "procurement_items",
                 render: (value, item, index: number) => (
                   <div style={{ color: "#27AE60", fontWeight: 700 }}>
-                    {formatCurrency(POUtils.totalRealQuantityProcument(value),".")}
+                    {formatCurrency(
+                      POUtils.totalRealQuantityProcument(value),
+                      ".",
+                    )}
                   </div>
                 ),
               },
               {
-                title: "",
-                dataIndex: "procurement_items",
-                width: 40,
-                render: () => "",
+                title: "Ngày nhận hàng thực tế",
+                dataIndex: POProcumentField.stock_in_date,
+                align: "center",
+                width: 170,
+                render: (value: string, item, index: number) =>
+                  ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
               },
+              // {
+              //   title: "",
+              //   dataIndex: "procurement_items",
+              //   width: 40,
+              //   render: () => "",
+              // },
             ]}
           />
         );

@@ -97,7 +97,7 @@ const FixedAndQuantityGroup = (props: Props) => {
     },
   });
   const dataSourceForm: Array<ProductEntitlements> =
-    form.getFieldValue("entitlements")[name].selectedProducts;
+    form.getFieldValue("entitlements")[name]?.selectedProducts;
 
   const handlePageChange = (page: number, pageSize?: number) => {
     if (!pageSize) {
@@ -461,7 +461,7 @@ const FixedAndQuantityGroup = (props: Props) => {
               key={`${key}-product_search`}
               id="#product_search"
               dropdownClassName="product"
-              placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch, ..."
+              placeholder="Thêm sản phẩm theo tên, mã SKU, mã vạch, ..."
               onSearch={_.debounce(onSearchVariant, 300)}
               dropdownMatchSelectWidth={456}
               style={{ width: "100%" }}

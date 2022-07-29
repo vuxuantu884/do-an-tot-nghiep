@@ -2,9 +2,20 @@ import {
   ArrowLeftOutlined,
   FilterOutlined,
   SettingOutlined,
-  SwapRightOutlined
+  SwapRightOutlined,
 } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, InputNumber, Radio, Row, Switch, Tag } from "antd";
+import {
+  Button,
+  Col,
+  Form,
+  FormInstance,
+  Input,
+  InputNumber,
+  Radio,
+  Row,
+  Switch,
+  Tag,
+} from "antd";
 import { CheckboxChangeEvent } from "antd/lib/checkbox";
 import Select from "antd/lib/select";
 import search from "assets/img/search.svg";
@@ -23,11 +34,17 @@ import UrlConfig from "config/url.config";
 import { getListChannelRequest } from "domain/actions/order/order.action";
 import useHandleFilterConfigs from "hook/useHandleFilterConfigs";
 import { isEqual } from "lodash";
-import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
+import {
+  AccountResponse,
+  DeliverPartnerResponse,
+} from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
-import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
+import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -39,7 +56,7 @@ import React, {
   useEffect,
   useLayoutEffect,
   useMemo,
-  useState
+  useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
@@ -49,7 +66,10 @@ import { formatCurrency, replaceFormat } from "utils/AppUtils";
 import { FILTER_CONFIG_TYPE, POS } from "utils/Constants";
 import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 import { ORDER_TYPES } from "utils/Order.constants";
-import { formatDateTimeOrderFilter, getTimeFormatOrderFilterTag } from "utils/OrderUtils";
+import {
+  formatDateTimeOrderFilter,
+  getTimeFormatOrderFilterTag,
+} from "utils/OrderUtils";
 import TreeSource from "../treeSource";
 import BaseFilter from "./base.filter";
 import UserCustomFilterTag from "./UserCustomFilterTag";
@@ -97,7 +117,7 @@ const numberTagShorten = 2;
 //   saleable: true,
 // };
 
-var initialValueExchange={};
+var initialValueExchange = {};
 
 function OrdersFilter(props: PropTypes): JSX.Element {
   const {
@@ -134,20 +154,26 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const dispatch = useDispatch();
 
-  const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<string[]>([])
+  const [selectedSubStatusCodes, setSelectedSubStatusCodes] = useState<
+    string[]
+  >([]);
 
   const [services, setServices] = useState<any[]>([]);
+  const [isExpiresPayment, setIsExpiresPayment] = useState<boolean>();
 
-  const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
+  const bootstrapReducer = useSelector(
+    (state: RootReducerType) => state.bootstrapReducer,
+  );
 
   const status = bootstrapReducer.data?.order_main_status.filter(
-    (single) => single.value !== "splitted"
+    (single) => single.value !== "splitted",
   );
 
   useEffect(() => {
-    setSelectedSubStatusCodes(initSubStatus?.map(single => single.code) || []);
-  }, [initSubStatus])
-
+    setSelectedSubStatusCodes(
+      initSubStatus?.map((single) => single.code) || [],
+    );
+  }, [initSubStatus]);
 
   const [keySearchVariant, setKeySearchVariant] = useState("");
   // const [resultSearchVariant, setResultSearchVariant] = useState<PageResponse<VariantResponse>>({
@@ -215,7 +241,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       // {name: "Đang trả lại", value: "returning"},
       // {name: "Đã trả lại", value: "returned"}
     ],
-    []
+    [],
   );
   const paymentStatus = useMemo(
     () => [
@@ -224,7 +250,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       { name: "Đã trả một phần", value: "partial_paid" },
       { name: "Đang hoàn lại", value: "refunding" },
     ],
-    []
+    [],
   );
 
   const serviceType = useMemo(
@@ -242,7 +268,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         value: "shopee",
       },
     ],
-    []
+    [],
   );
 
   const serviceVariables = {
@@ -262,7 +288,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     },
   ];
 
-
   const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
 
   const formRef = createRef<FormInstance>();
@@ -270,39 +295,49 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   // const [optionsVariant, setOptionsVariant] = useState<{ label: string; value: string }[]>([]);
 
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
-  const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>([]);
+  const [assigneeFound, setAssigneeFound] = useState<Array<AccountResponse>>(
+    [],
+  );
   const [accountFound, setAccountFound] = useState<Array<AccountResponse>>([]);
-  const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>([]);
-  const [coordinatorFound, setCoordinatorFound] = useState<Array<AccountResponse>>([]);
+  const [marketerFound, setMarketerFound] = useState<Array<AccountResponse>>(
+    [],
+  );
+  const [coordinatorFound, setCoordinatorFound] = useState<
+    Array<AccountResponse>
+  >([]);
 
   const [isShowModalSaveFilter, setIsShowModalSaveFilter] = useState(false);
 
   // lưu bộ lọc
   const onShowSaveFilter = useCallback(() => {
     let values = formRef.current?.getFieldsValue();
-    console.log('values', values)
+    console.log("values", values);
     if (values) {
       values.services = services;
-      if (values.price_min && values.price_max ) {
+      if (values.price_min && values.price_max) {
         values = {
           ...values,
           price_min: values?.price_min,
           price_max: values?.price_max,
         };
       }
-
     }
-    setFormSearchValuesToSave(values)
+    setFormSearchValuesToSave(values);
     setIsShowModalSaveFilter(true);
   }, [formRef, services]);
 
-  const filterConfigType = orderType === ORDER_TYPES.offline ? FILTER_CONFIG_TYPE.orderOffline : FILTER_CONFIG_TYPE.orderOnline
+  const filterConfigType =
+    orderType === ORDER_TYPES.offline
+      ? FILTER_CONFIG_TYPE.orderOffline
+      : FILTER_CONFIG_TYPE.orderOnline;
 
-  const onHandleFilterTagSuccessCallback = (res: BaseResponse<FilterConfig>) => {
-    setTagActive(res.data.id)
+  const onHandleFilterTagSuccessCallback = (
+    res: BaseResponse<FilterConfig>,
+  ) => {
+    setTagActive(res.data.id);
   };
 
-  const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({})
+  const [formSearchValuesToSave, setFormSearchValuesToSave] = useState({});
 
   const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
 
@@ -319,17 +354,17 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     filterConfigType,
     formRef,
     {
-      ...formSearchValuesToSave
+      ...formSearchValuesToSave,
     },
     setTagActive,
-    onHandleFilterTagSuccessCallback
-  )
+    onHandleFilterTagSuccessCallback,
+  );
 
   const onChangeOrderOptions = useCallback(
     (e) => {
       onFilter && onFilter({ ...params, is_online: e.target.value });
     },
-    [onFilter, params]
+    [onFilter, params],
   );
 
   const onFilterClick = useCallback(() => {
@@ -349,9 +384,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     (index: number) => {
       onMenuClick && onMenuClick(index);
     },
-    [onMenuClick]
+    [onMenuClick],
   );
-
 
   useEffect(() => {
     if (
@@ -364,11 +398,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       params.affiliate
     ) {
       setVisibleUTM(true);
-    }
-    else {
+    } else {
       setVisibleUTM(false);
     }
-  }, [params.affiliate, params.utm_campaign, params.utm_content, params.utm_id, params.utm_medium, params.utm_source, params.utm_term, visible])
+  }, [
+    params.affiliate,
+    params.utm_campaign,
+    params.utm_content,
+    params.utm_id,
+    params.utm_medium,
+    params.utm_source,
+    params.utm_term,
+    visible,
+  ]);
 
   const onCloseTag = useCallback(
     (e, tag) => {
@@ -383,39 +425,71 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           break;
         case "issued":
           setIssuedClick("");
-          onFilter && onFilter({ ...params, issued_on_min: null, issued_on_max: null });
+          onFilter &&
+            onFilter({ ...params, issued_on_min: null, issued_on_max: null });
           break;
         case "finalized":
           setFinalizedClick("");
-          onFilter && onFilter({ ...params, finalized_on_min: null, finalized_on_max: null });
+          onFilter &&
+            onFilter({
+              ...params,
+              finalized_on_min: null,
+              finalized_on_max: null,
+            });
           break;
         case "completed":
           setCompletedClick("");
-          onFilter && onFilter({ ...params, completed_on_min: null, completed_on_max: null });
+          onFilter &&
+            onFilter({
+              ...params,
+              completed_on_min: null,
+              completed_on_max: null,
+            });
           break;
         case "cancelled":
           setCancelledClick("");
-          onFilter && onFilter({ ...params, cancelled_on_min: null, cancelled_on_max: null });
+          onFilter &&
+            onFilter({
+              ...params,
+              cancelled_on_min: null,
+              cancelled_on_max: null,
+            });
           break;
         case "expected":
           setExpectedClick("");
           onFilter &&
-            onFilter({ ...params, expected_receive_on_min: null, expected_receive_on_max: null });
+            onFilter({
+              ...params,
+              expected_receive_on_min: null,
+              expected_receive_on_max: null,
+            });
           break;
         case "returning":
           setExpectedClick("");
           onFilter &&
-            onFilter({ ...params, returning_date_min: null, returning_date_max: null });
+            onFilter({
+              ...params,
+              returning_date_min: null,
+              returning_date_max: null,
+            });
           break;
         case "returned":
           setExpectedClick("");
           onFilter &&
-            onFilter({ ...params, returned_date_min: null, returned_date_max: null });
+            onFilter({
+              ...params,
+              returned_date_min: null,
+              returned_date_max: null,
+            });
           break;
         case "exported_on":
           setExportedClick("");
           onFilter &&
-            onFilter({ ...params, exported_on_min: null, exported_on_max: null });
+            onFilter({
+              ...params,
+              exported_on_min: null,
+              exported_on_max: null,
+            });
           break;
         case "order_status":
           onFilter && onFilter({ ...params, order_status: [] });
@@ -516,13 +590,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         case "in_goods_receipt":
           onFilter && onFilter({ ...params, in_goods_receipt: undefined });
           break;
+        case "is_expired_payment":
+          onFilter && onFilter({ ...params, is_expired_payment: undefined });
+          break;
+        case "expired_at":
+          onFilter && onFilter({ ...params, expired_at: undefined });
+          break;
         default:
           break;
       }
       // const tags = filters.filter((tag: any) => tag.key !== key);
       // filters = tags
     },
-    [onFilter, params]
+    [onFilter, params],
   );
   const [issuedClick, setIssuedClick] = useState("");
   const [finalizedClick, setFinalizedClick] = useState("");
@@ -540,11 +620,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       if (params.discount_codes && params.discount_codes.length > 0) {
         let indexExt = params.discount_codes.length - 1;
         params.discount_codes.forEach((value, index) => {
-          if (indexExt === index)
-            textDiscount = textDiscount + value;
-          else
-            textDiscount = textDiscount + `${value}, `;
-        })
+          if (indexExt === index) textDiscount = textDiscount + value;
+          else textDiscount = textDiscount + `${value}, `;
+        });
       }
     } else {
       textDiscount = params.discount_codes || "";
@@ -552,8 +630,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     return {
       ...params,
-      store_ids: Array.isArray(params.store_ids) ? params.store_ids.map(i => Number(i)) : [Number(params.store_ids)],
-      source_ids: Array.isArray(params.source_ids) ? params.source_ids.map(i => Number(i)) : [Number(params.source_ids)],
+      store_ids: Array.isArray(params.store_ids)
+        ? params.store_ids.map((i) => Number(i))
+        : [Number(params.store_ids)],
+      source_ids: Array.isArray(params.source_ids)
+        ? params.source_ids.map((i) => Number(i))
+        : [Number(params.source_ids)],
       order_status: Array.isArray(params.order_status)
         ? params.order_status
         : [params.order_status],
@@ -579,8 +661,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         ? params.shipper_codes
         : [params.shipper_codes],
       tags: Array.isArray(params.tags) ? params.tags : [params.tags],
-      marketing_campaign: Array.isArray(params.marketing_campaign) ? params.marketing_campaign : [params.marketing_campaign],
-      variant_ids: Array.isArray(params.variant_ids) ? params.variant_ids : [params.variant_ids],
+      marketing_campaign: Array.isArray(params.marketing_campaign)
+        ? params.marketing_campaign
+        : [params.marketing_campaign],
+      variant_ids: Array.isArray(params.variant_ids)
+        ? params.variant_ids
+        : [params.variant_ids],
       assignee_codes: Array.isArray(params.assignee_codes)
         ? params.assignee_codes
         : [params.assignee_codes],
@@ -599,7 +685,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       delivery_types: Array.isArray(params.delivery_types)
         ? params.delivery_types
         : [params.delivery_types],
-      services: Array.isArray(params.services) ? params.services : [params.services],
+      services: Array.isArray(params.services)
+        ? params.services
+        : [params.services],
+      is_expired_payment:
+        params.is_expired_payment === "true" ? true : undefined,
 
       issued_on_min: formatDateFilter(params.issued_on_min || undefined),
       issued_on_max: formatDateFilter(params.issued_on_max || undefined),
@@ -611,14 +701,28 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       completed_on_max: formatDateFilter(params.completed_on_max || undefined),
       exported_on_min: formatDateFilter(params.exported_on_min || undefined),
       exported_on_max: formatDateFilter(params.exported_on_max || undefined),
-      expected_receive_on_min: formatDateFilter(params.expected_receive_on_min || undefined),
-      expected_receive_on_max: formatDateFilter(params.expected_receive_on_max || undefined),
-      returning_date_min: formatDateFilter(params.returning_date_min || undefined),
-      returning_date_max: formatDateFilter(params.returning_date_max || undefined),
-      returned_date_min: formatDateFilter(params.returned_date_min || undefined),
-      returned_date_max: formatDateFilter(params.returned_date_max || undefined),
+      expected_receive_on_min: formatDateFilter(
+        params.expected_receive_on_min || undefined,
+      ),
+      expected_receive_on_max: formatDateFilter(
+        params.expected_receive_on_max || undefined,
+      ),
+      returning_date_min: formatDateFilter(
+        params.returning_date_min || undefined,
+      ),
+      returning_date_max: formatDateFilter(
+        params.returning_date_max || undefined,
+      ),
+      returned_date_min: formatDateFilter(
+        params.returned_date_min || undefined,
+      ),
+      returned_date_max: formatDateFilter(
+        params.returned_date_max || undefined,
+      ),
       discount_codes: textDiscount,
-      in_goods_receipt:params.in_goods_receipt?(Number)(params.in_goods_receipt):undefined
+      in_goods_receipt: params.in_goods_receipt
+        ? Number(params.in_goods_receipt)
+        : undefined,
     };
   }, [params]);
 
@@ -664,84 +768,149 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     });
   }, [initialValues]);
 
-  const onFinish = useCallback(
-    () => {
-      let error = false;
-      formRef?.current
-        ?.getFieldsError([
-          "issued_on_min",
-          "issued_on_max",
-          "finalized_on_min",
-          "finalized_on_max",
-          "completed_on_min",
-          "completed_on_max",
-          "cancelled_on_min",
-          "cancelled_on_max",
-          "expected_receive_on_min",
-          "expected_receive_on_max",
-          "returning_date_min",
-          "returning_date_max",
-          "returned_date_min",
-          "returned_date_max",
-          "exported_on_min",
-          "exported_on_max",
-        ])
-        .forEach((field) => {
-          if (field.errors.length) {
-            error = true;
-          }
-        });
-      if (!error) {
-        const baseFilterValue = formRef?.current?.getFieldsValue();
-        const filterValue = formSearchRef.current?.getFieldsValue();
-        // console.log("filterValue",filterValue)
-        // console.log("baseFilterValue",baseFilterValue)
-        let values:any = undefined;
-        if(baseFilterValue){
-          values = {...baseFilterValue, ...filterValue};
-        }else{
-          values = {...initialValues, ...filterValue};
+  const onFinish = useCallback(() => {
+    let error = false;
+    formRef?.current
+      ?.getFieldsError([
+        "issued_on_min",
+        "issued_on_max",
+        "finalized_on_min",
+        "finalized_on_max",
+        "completed_on_min",
+        "completed_on_max",
+        "cancelled_on_min",
+        "cancelled_on_max",
+        "expected_receive_on_min",
+        "expected_receive_on_max",
+        "returning_date_min",
+        "returning_date_max",
+        "returned_date_min",
+        "returned_date_max",
+        "exported_on_min",
+        "exported_on_max",
+      ])
+      .forEach((field) => {
+        if (field.errors.length) {
+          error = true;
         }
-        setVisible(false);
-        values.services = services;
-        values.searched_product = keySearchVariant; // search sản phẩm, ko để trong form nên phải thêm trong values
-        if (values.price_min && values.price_max ) {
-          values = {
-            ...values,
-            price_min: values?.price_min,
-            price_max: values?.price_max,
-
-          };
-        }
-        values.issued_on_min = formatDateTimeOrderFilter(values.issued_on_min, dateFormat);
-        values.issued_on_max = formatDateTimeOrderFilter(values.issued_on_max, dateFormat);
-        values.finalized_on_min = formatDateTimeOrderFilter(values.finalized_on_min, dateFormat);
-        values.finalized_on_max = formatDateTimeOrderFilter(values.finalized_on_max, dateFormat);
-        values.cancelled_on_min = formatDateTimeOrderFilter(values.cancelled_on_min, dateFormat);
-        values.cancelled_on_max = formatDateTimeOrderFilter(values.cancelled_on_max, dateFormat);
-        values.completed_on_min = formatDateTimeOrderFilter(values.completed_on_min, dateFormat);
-        values.completed_on_max = formatDateTimeOrderFilter(values.completed_on_max, dateFormat);
-        values.exported_on_min = formatDateTimeOrderFilter(values.exported_on_min, dateFormat);
-        values.exported_on_max = formatDateTimeOrderFilter(values.exported_on_max, dateFormat);
-        values.expected_receive_on_min = formatDateTimeOrderFilter(values.expected_receive_on_min, dateFormat);
-        values.expected_receive_on_max = formatDateTimeOrderFilter(values.expected_receive_on_max, dateFormat);
-        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min, dateFormat);
-        values.returning_date_min = formatDateTimeOrderFilter(values.returning_date_min, dateFormat);
-        values.returning_date_max = formatDateTimeOrderFilter(values.returning_date_max, dateFormat);
-        values.returned_date_min = formatDateTimeOrderFilter(values.returned_date_min, dateFormat);
-        values.returned_date_max = formatDateTimeOrderFilter(values.returned_date_max, dateFormat);
-        // console.log('values', values);
-        // return;
-        let discount_codes = [];
-        if (values.discount_codes) {
-          discount_codes = values.discount_codes.split(",").map((p: string) => p?.trim());
-        }
-        onFilter && onFilter({ ...values, discount_codes: discount_codes });
-        setRerender(false);
+      });
+    if (!error) {
+      const baseFilterValue = formRef?.current?.getFieldsValue();
+      const filterValue = formSearchRef.current?.getFieldsValue();
+      // console.log("filterValue",filterValue)
+      // console.log("baseFilterValue",baseFilterValue)
+      let values: any = undefined;
+      if (baseFilterValue) {
+        values = { ...baseFilterValue, ...filterValue };
+      } else {
+        values = { ...initialValues, ...filterValue };
       }
-    },
-    [dateFormat, formRef, formSearchRef, initialValues, keySearchVariant, onFilter, services]
-  );
+      setVisible(false);
+      values.services = services;
+      values.searched_product = keySearchVariant; // search sản phẩm, ko để trong form nên phải thêm trong values
+      if (values.price_min && values.price_max) {
+        values = {
+          ...values,
+          price_min: values?.price_min,
+          price_max: values?.price_max,
+        };
+      }
+      values.issued_on_min = formatDateTimeOrderFilter(
+        values.issued_on_min,
+        dateFormat,
+      );
+      values.issued_on_max = formatDateTimeOrderFilter(
+        values.issued_on_max,
+        dateFormat,
+      );
+      values.finalized_on_min = formatDateTimeOrderFilter(
+        values.finalized_on_min,
+        dateFormat,
+      );
+      values.finalized_on_max = formatDateTimeOrderFilter(
+        values.finalized_on_max,
+        dateFormat,
+      );
+      values.cancelled_on_min = formatDateTimeOrderFilter(
+        values.cancelled_on_min,
+        dateFormat,
+      );
+      values.cancelled_on_max = formatDateTimeOrderFilter(
+        values.cancelled_on_max,
+        dateFormat,
+      );
+      values.completed_on_min = formatDateTimeOrderFilter(
+        values.completed_on_min,
+        dateFormat,
+      );
+      values.completed_on_max = formatDateTimeOrderFilter(
+        values.completed_on_max,
+        dateFormat,
+      );
+      values.exported_on_min = formatDateTimeOrderFilter(
+        values.exported_on_min,
+        dateFormat,
+      );
+      values.exported_on_max = formatDateTimeOrderFilter(
+        values.exported_on_max,
+        dateFormat,
+      );
+      values.expected_receive_on_min = formatDateTimeOrderFilter(
+        values.expected_receive_on_min,
+        dateFormat,
+      );
+      values.expected_receive_on_max = formatDateTimeOrderFilter(
+        values.expected_receive_on_max,
+        dateFormat,
+      );
+      values.returning_date_min = formatDateTimeOrderFilter(
+        values.returning_date_min,
+        dateFormat,
+      );
+      values.returning_date_min = formatDateTimeOrderFilter(
+        values.returning_date_min,
+        dateFormat,
+      );
+      values.returning_date_max = formatDateTimeOrderFilter(
+        values.returning_date_max,
+        dateFormat,
+      );
+      values.returned_date_min = formatDateTimeOrderFilter(
+        values.returned_date_min,
+        dateFormat,
+      );
+      values.returned_date_max = formatDateTimeOrderFilter(
+        values.returned_date_max,
+        dateFormat,
+      );
+      values.expired_at =
+        values.expired_at === 0 ? undefined : values.expired_at;
+      // console.log('values', values);
+      // return;
+      let discount_codes = [];
+      if (values.discount_codes) {
+        discount_codes = values.discount_codes
+          .split(",")
+          .map((p: string) => p?.trim());
+      }
+      onFilter &&
+        onFilter({
+          ...values,
+          discount_codes: discount_codes,
+          is_expired_payment: isExpiresPayment,
+        });
+      setRerender(false);
+    }
+  }, [
+    dateFormat,
+    formRef,
+    formSearchRef,
+    initialValues,
+    keySearchVariant,
+    onFilter,
+    services,
+    isExpiresPayment,
+  ]);
 
   let filters = useMemo(() => {
     const splitCharacter = ", ";
@@ -758,7 +927,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       type: string,
       isShortenText: boolean = true,
       isCanShortenText?: boolean,
-      countHidden: number = 0
+      countHidden: number = 0,
     ) => {
       if (!isCanShortenText) {
         return;
@@ -775,7 +944,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   isShorten: !filterTagFormatted[type]?.isShorten,
                 },
               });
-            }}>
+            }}
+          >
             <ArrowLeftOutlined />
           </span>
         );
@@ -793,7 +963,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     isShorten: !filterTagFormatted[type]?.isShorten,
                   },
                 });
-              }}>
+              }}
+            >
               {` (+${countHidden})`}
             </span>
           </React.Fragment>
@@ -808,7 +979,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       objectLink?: string,
       type?: string,
       isCanShortenText: boolean = false,
-      _isShortenText?: boolean
+      _isShortenText?: boolean,
     ) => {
       let result = null;
       if (!_mappedArray) {
@@ -816,14 +987,22 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       }
       let mappedArrayResult = _mappedArray;
       let countHidden = 0;
-      if (_mappedArray && _isShortenText && _mappedArray.length > numberTagShorten) {
+      if (
+        _mappedArray &&
+        _isShortenText &&
+        _mappedArray.length > numberTagShorten
+      ) {
         mappedArrayResult = _mappedArray.slice(0, numberTagShorten);
         countHidden = _mappedArray.length - numberTagShorten;
       }
       if (type === "assignee_codes") {
         result = mappedArrayResult.map((single, index) => {
           return (
-            <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${single.code}`}
+              target="_blank"
+              key={single.code}
+            >
               {single.code} - {single.full_name}
               {renderSplitCharacter(index, mappedArrayResult)}
             </Link>
@@ -832,7 +1011,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       } else if (type === "account_codes") {
         result = mappedArrayResult.map((single, index) => {
           return (
-            <Link to={`${UrlConfig.ACCOUNTS}/${single.code}`} target="_blank" key={single.code}>
+            <Link
+              to={`${UrlConfig.ACCOUNTS}/${single.code}`}
+              target="_blank"
+              key={single.code}
+            >
               {single.code} - {single.full_name}
               {renderSplitCharacter(index, mappedArrayResult)}
             </Link>
@@ -842,7 +1025,11 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         result = mappedArrayResult.map((single, index) => {
           if (objectLink && endPoint && single[objectLink]) {
             return (
-              <Link to={`${endPoint}/${single[objectLink]}`} target="_blank" key={single[keyValue]}>
+              <Link
+                to={`${endPoint}/${single[objectLink]}`}
+                target="_blank"
+                key={single[keyValue]}
+              >
                 {single[keyValue]}
                 {renderSplitCharacter(index, mappedArrayResult)}
               </Link>
@@ -862,17 +1049,25 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       return (
         <React.Fragment>
           {result}
-          {renderEndOfFilter(type, _isShortenText, isCanShortenText, countHidden)}
+          {renderEndOfFilter(
+            type,
+            _isShortenText,
+            isCanShortenText,
+            countHidden,
+          )}
         </React.Fragment>
       );
     };
 
     let list: ListFilterTagTypes[] = [];
-    if (filterTagFormatted?.store_ids?.data && filterTagFormatted.store_ids?.data?.length) {
+    if (
+      filterTagFormatted?.store_ids?.data &&
+      filterTagFormatted.store_ids?.data?.length
+    ) {
       let mappedStores = listStore?.filter((store) =>
         filterTagFormatted.store_ids.data?.some(
-          (single: number) => single === store.id
-        )
+          (single: number) => single === store.id,
+        ),
       );
       let text = getFilterString(
         mappedStores,
@@ -881,7 +1076,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         "id",
         "store_ids",
         filterTagFormatted.store_ids.isCanShorten,
-        filterTagFormatted.store_ids.isShorten
+        filterTagFormatted.store_ids.isShorten,
       );
       list.push({
         key: "store",
@@ -889,11 +1084,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         value: text,
       });
     }
-    if (filterTagFormatted?.source_ids?.data && filterTagFormatted.source_ids?.data?.length) {
+    if (
+      filterTagFormatted?.source_ids?.data &&
+      filterTagFormatted.source_ids?.data?.length
+    ) {
       let mappedSources = listSources?.filter((source) =>
         filterTagFormatted.source_ids.data?.some(
-          (single: number) => single === source.id
-        )
+          (single: number) => single === source.id,
+        ),
       );
       let text = getFilterString(
         mappedSources,
@@ -902,7 +1100,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         undefined,
         "source_ids",
         filterTagFormatted.source_ids.isCanShorten,
-        filterTagFormatted.source_ids.isShorten
+        filterTagFormatted.source_ids.isShorten,
       );
       list.push({
         key: "source",
@@ -913,9 +1111,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.issued_on_min || initialValues.issued_on_max) {
       let textOrderCreateDate =
-        (initialValues.issued_on_min ? getTimeFormatOrderFilterTag(initialValues.issued_on_min, dateFormat) : "??") +
+        (initialValues.issued_on_min
+          ? getTimeFormatOrderFilterTag(initialValues.issued_on_min, dateFormat)
+          : "??") +
         " ~ " +
-        (initialValues.issued_on_max ? getTimeFormatOrderFilterTag(initialValues.issued_on_max, dateFormat) : "??");
+        (initialValues.issued_on_max
+          ? getTimeFormatOrderFilterTag(initialValues.issued_on_max, dateFormat)
+          : "??");
       list.push({
         key: "issued",
         name: "Ngày tạo đơn",
@@ -925,9 +1127,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.finalized_on_min || initialValues.finalized_on_max) {
       let textOrderFinalizedDate =
-        (initialValues.finalized_on_min ? getTimeFormatOrderFilterTag(initialValues.finalized_on_min, dateFormat) : "??") +
+        (initialValues.finalized_on_min
+          ? getTimeFormatOrderFilterTag(
+              initialValues.finalized_on_min,
+              dateFormat,
+            )
+          : "??") +
         " ~ " +
-        (initialValues.finalized_on_max ? getTimeFormatOrderFilterTag(initialValues.finalized_on_max, dateFormat) : "??");
+        (initialValues.finalized_on_max
+          ? getTimeFormatOrderFilterTag(
+              initialValues.finalized_on_max,
+              dateFormat,
+            )
+          : "??");
       list.push({
         key: "finalized",
         name: "Ngày duyệt đơn",
@@ -936,9 +1148,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.completed_on_min || initialValues.completed_on_max) {
       let textOrderCompleteDate =
-        (initialValues.completed_on_min ? getTimeFormatOrderFilterTag(initialValues.completed_on_min, dateFormat) : "??") +
+        (initialValues.completed_on_min
+          ? getTimeFormatOrderFilterTag(
+              initialValues.completed_on_min,
+              dateFormat,
+            )
+          : "??") +
         " ~ " +
-        (initialValues.completed_on_max ? getTimeFormatOrderFilterTag(initialValues.completed_on_max, dateFormat) : "??");
+        (initialValues.completed_on_max
+          ? getTimeFormatOrderFilterTag(
+              initialValues.completed_on_max,
+              dateFormat,
+            )
+          : "??");
       list.push({
         key: "completed",
         name: "Ngày hoàn tất đơn",
@@ -947,9 +1169,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.cancelled_on_min || initialValues.cancelled_on_max) {
       let textOrderCancelDate =
-        (initialValues.cancelled_on_min ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_min, dateFormat) : "??") +
+        (initialValues.cancelled_on_min
+          ? getTimeFormatOrderFilterTag(
+              initialValues.cancelled_on_min,
+              dateFormat,
+            )
+          : "??") +
         " ~ " +
-        (initialValues.cancelled_on_max ? getTimeFormatOrderFilterTag(initialValues.cancelled_on_max, dateFormat) : "??");
+        (initialValues.cancelled_on_max
+          ? getTimeFormatOrderFilterTag(
+              initialValues.cancelled_on_max,
+              dateFormat,
+            )
+          : "??");
       list.push({
         key: "cancelled",
         name: "Ngày huỷ đơn",
@@ -957,11 +1189,24 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (initialValues.expected_receive_on_min || initialValues.expected_receive_on_max) {
+    if (
+      initialValues.expected_receive_on_min ||
+      initialValues.expected_receive_on_max
+    ) {
       let textExpectReceiveDate =
-        (initialValues.expected_receive_on_min ? getTimeFormatOrderFilterTag(initialValues.expected_receive_on_min, dateFormat) : "??") +
+        (initialValues.expected_receive_on_min
+          ? getTimeFormatOrderFilterTag(
+              initialValues.expected_receive_on_min,
+              dateFormat,
+            )
+          : "??") +
         " ~ " +
-        (initialValues.expected_receive_on_max ? getTimeFormatOrderFilterTag(initialValues.expected_receive_on_max, dateFormat) : "??");
+        (initialValues.expected_receive_on_max
+          ? getTimeFormatOrderFilterTag(
+              initialValues.expected_receive_on_max,
+              dateFormat,
+            )
+          : "??");
       list.push({
         key: "expected",
         name: "Ngày dự kiến nhận hàng",
@@ -971,9 +1216,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.returning_date_min || initialValues.returning_date_max) {
       let textExpectReceiveDate =
-        (initialValues.returning_date_min ? getTimeFormatOrderFilterTag(initialValues.returning_date_min, dateFormat) : "??") +
+        (initialValues.returning_date_min
+          ? getTimeFormatOrderFilterTag(
+              initialValues.returning_date_min,
+              dateFormat,
+            )
+          : "??") +
         " ~ " +
-        (initialValues.returning_date_max ? getTimeFormatOrderFilterTag(initialValues.returning_date_max, dateFormat) : "??");
+        (initialValues.returning_date_max
+          ? getTimeFormatOrderFilterTag(
+              initialValues.returning_date_max,
+              dateFormat,
+            )
+          : "??");
       list.push({
         key: "returning",
         name: "Ngày đang hoàn ",
@@ -983,9 +1238,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.returned_date_min || initialValues.returned_date_max) {
       let textExpectReceiveDate =
-        (initialValues.returned_date_min ? getTimeFormatOrderFilterTag(initialValues.returned_date_min, dateFormat) : "??") +
+        (initialValues.returned_date_min
+          ? getTimeFormatOrderFilterTag(
+              initialValues.returned_date_min,
+              dateFormat,
+            )
+          : "??") +
         " ~ " +
-        (initialValues.returned_date_max ? getTimeFormatOrderFilterTag(initialValues.returned_date_max, dateFormat) : "??");
+        (initialValues.returned_date_max
+          ? getTimeFormatOrderFilterTag(
+              initialValues.returned_date_max,
+              dateFormat,
+            )
+          : "??");
       list.push({
         key: "returned",
         name: "Ngày đã hoàn",
@@ -994,9 +1259,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.exported_on_min || initialValues.exported_on_max) {
       let textExportedOnDate =
-        (initialValues.exported_on_min ? getTimeFormatOrderFilterTag(initialValues.exported_on_min, dateFormat) : "??") +
+        (initialValues.exported_on_min
+          ? getTimeFormatOrderFilterTag(
+              initialValues.exported_on_min,
+              dateFormat,
+            )
+          : "??") +
         " ~ " +
-        (initialValues.exported_on_max ? getTimeFormatOrderFilterTag(initialValues.exported_on_max, dateFormat) : "??");
+        (initialValues.exported_on_max
+          ? getTimeFormatOrderFilterTag(
+              initialValues.exported_on_max,
+              dateFormat,
+            )
+          : "??");
       list.push({
         key: "exported_on",
         name: "Ngày giao hàng cho HVC",
@@ -1005,7 +1280,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.order_status.length) {
       let orderStatuses = status?.filter((status) =>
-        initialValues.order_status?.some((item) => item === status.value.toString())
+        initialValues.order_status?.some(
+          (item) => item === status.value.toString(),
+        ),
       );
       let text = getFilterString(
         orderStatuses,
@@ -1014,7 +1291,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         undefined,
         "order_status",
         filterTagFormatted.order_status.isCanShorten,
-        filterTagFormatted.order_status.isShorten
+        filterTagFormatted.order_status.isShorten,
       );
       list.push({
         key: "order_status",
@@ -1035,9 +1312,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         },
       ];
       let mappedReturnStatus = option?.filter((status) =>
-        initialValues.return_status?.some((item) => item === status.value.toString())
+        initialValues.return_status?.some(
+          (item) => item === status.value.toString(),
+        ),
       );
-      let text = getFilterString(mappedReturnStatus, "label", undefined, undefined);
+      let text = getFilterString(
+        mappedReturnStatus,
+        "label",
+        undefined,
+        undefined,
+      );
 
       list.push({
         key: "return_status",
@@ -1048,7 +1332,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.sub_status_code.length) {
       let mappedSubStatuses = subStatus?.filter((status) =>
-        initialValues.sub_status_code?.some((item) => item === status.code.toString())
+        initialValues.sub_status_code?.some(
+          (item) => item === status.code.toString(),
+        ),
       );
       let text = getFilterString(
         mappedSubStatuses,
@@ -1057,7 +1343,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         undefined,
         "sub_status_code",
         filterTagFormatted.sub_status_code.isCanShorten,
-        filterTagFormatted.sub_status_code.isShorten
+        filterTagFormatted.sub_status_code.isShorten,
       );
       list.push({
         key: "sub_status_code",
@@ -1067,9 +1353,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.fulfillment_status.length) {
       let mappedFulfillmentStatus = fulfillmentStatus?.filter((status) =>
-        initialValues.fulfillment_status?.some((item) => item === status.value.toString())
+        initialValues.fulfillment_status?.some(
+          (item) => item === status.value.toString(),
+        ),
       );
-      let text = getFilterString(mappedFulfillmentStatus, "name", undefined, undefined);
+      let text = getFilterString(
+        mappedFulfillmentStatus,
+        "name",
+        undefined,
+        undefined,
+      );
       list.push({
         key: "fulfillment_status",
         name: "Trạng thái giao hàng",
@@ -1079,9 +1372,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.payment_status.length) {
       let mappedPaymentStatuses = paymentStatus?.filter((status) =>
-        initialValues.payment_status?.some((item) => item === status.value.toString())
+        initialValues.payment_status?.some(
+          (item) => item === status.value.toString(),
+        ),
       );
-      let text = getFilterString(mappedPaymentStatuses, "name", undefined, undefined);
+      let text = getFilterString(
+        mappedPaymentStatuses,
+        "name",
+        undefined,
+        undefined,
+      );
       list.push({
         key: "payment_status",
         name: "Trạng thái thanh toán",
@@ -1106,7 +1406,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         "code",
         "assignee_codes",
         filterTagFormatted.assignee_codes.isCanShorten,
-        filterTagFormatted.assignee_codes.isShorten
+        filterTagFormatted.assignee_codes.isShorten,
       );
       list.push({
         key: "assignee_codes",
@@ -1118,7 +1418,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (initialValues.services.length > 0) {
       let text = "";
       for (let i = 0; i < services.length; i++) {
-        let selected = serviceListVariables.find((single) => single.value === services[i]);
+        let selected = serviceListVariables.find(
+          (single) => single.value === services[i],
+        );
         if (i < services.length - 1) {
           text = text + selected?.title + splitCharacter;
         } else {
@@ -1140,7 +1442,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         "code",
         "account_codes",
         filterTagFormatted.account_codes.isCanShorten,
-        filterTagFormatted.account_codes.isShorten
+        filterTagFormatted.account_codes.isShorten,
       );
       list.push({
         key: "account_codes",
@@ -1157,7 +1459,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         "code",
         "coordinator_codes",
         filterTagFormatted.coordinator_codes.isCanShorten,
-        filterTagFormatted.coordinator_codes.isShorten
+        filterTagFormatted.coordinator_codes.isShorten,
       );
       list.push({
         key: "coordinator_codes",
@@ -1174,7 +1476,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         "code",
         "marketer_codes",
         filterTagFormatted.marketer_codes.isCanShorten,
-        filterTagFormatted.marketer_codes.isShorten
+        filterTagFormatted.marketer_codes.isShorten,
       );
       list.push({
         key: "marketer_codes",
@@ -1201,9 +1503,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
     if (initialValues.payment_method_ids.length) {
       let mappedPaymentMethods = listPaymentMethod?.filter((paymentMethod) =>
-        initialValues.payment_method_ids?.some((item) => item === paymentMethod.id.toString())
+        initialValues.payment_method_ids?.some(
+          (item) => item === paymentMethod.id.toString(),
+        ),
       );
-      let text = getFilterString(mappedPaymentMethods, "name", undefined, undefined);
+      let text = getFilterString(
+        mappedPaymentMethods,
+        "name",
+        undefined,
+        undefined,
+      );
       list.push({
         key: "payment_method",
         name: "Phương thức thanh toán",
@@ -1212,9 +1521,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.delivery_types.length) {
       let mappedDeliverTypes = serviceType?.filter((deliverType) =>
-        initialValues.delivery_types?.some((item) => item === deliverType.value.toString())
+        initialValues.delivery_types?.some(
+          (item) => item === deliverType.value.toString(),
+        ),
       );
-      let text = getFilterString(mappedDeliverTypes, "name", undefined, undefined);
+      let text = getFilterString(
+        mappedDeliverTypes,
+        "name",
+        undefined,
+        undefined,
+      );
       list.push({
         key: "delivery_types",
         name: "Hình thức vận chuyển",
@@ -1222,12 +1538,18 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
     if (initialValues.delivery_provider_ids.length) {
-      let mappedDeliverProviderIds = deliveryService?.filter((deliveryServiceSingle) =>
-        initialValues.delivery_provider_ids?.some(
-          (item) => item === deliveryServiceSingle.id.toString()
-        )
+      let mappedDeliverProviderIds = deliveryService?.filter(
+        (deliveryServiceSingle) =>
+          initialValues.delivery_provider_ids?.some(
+            (item) => item === deliveryServiceSingle.id.toString(),
+          ),
       );
-      let text = getFilterString(mappedDeliverProviderIds, "name", undefined, undefined);
+      let text = getFilterString(
+        mappedDeliverProviderIds,
+        "name",
+        undefined,
+        undefined,
+      );
       list.push({
         key: "delivery_provider_ids",
         name: "Đơn vị vận chuyển",
@@ -1236,9 +1558,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     }
     if (initialValues.shipper_codes.length) {
       let mappedShippers = shippers?.filter((account) =>
-        initialValues.shipper_codes?.some((single) => single === account.code.toString())
+        initialValues.shipper_codes?.some(
+          (single) => single === account.code.toString(),
+        ),
       );
-      let text = getFilterString(mappedShippers, "name", UrlConfig.ACCOUNTS, "code");
+      let text = getFilterString(
+        mappedShippers,
+        "name",
+        UrlConfig.ACCOUNTS,
+        "code",
+      );
       list.push({
         key: "shipper_codes",
         name: "Đối tác giao hàng",
@@ -1246,9 +1575,17 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (initialValues.channel_codes.length && (!isEqual(initialValues.channel_codes, initChannelCodes || orderType !== ORDER_TYPES.online))) {
+    if (
+      initialValues.channel_codes.length &&
+      !isEqual(
+        initialValues.channel_codes,
+        initChannelCodes || orderType !== ORDER_TYPES.online,
+      )
+    ) {
       let mappedChannels = listChannel?.filter((channel) =>
-        initialValues.channel_codes?.some((single) => single === channel.code.toString())
+        initialValues.channel_codes?.some(
+          (single) => single === channel.code.toString(),
+        ),
       );
       let text = getFilterString(mappedChannels, "name", undefined, undefined);
       list.push({
@@ -1293,7 +1630,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       let textStatus = "";
       for (let i = 0; i < initialValues.marketing_campaign.length; i++) {
         if (i < initialValues.marketing_campaign.length - 1) {
-          textStatus = textStatus + initialValues.marketing_campaign[i] + splitCharacter;
+          textStatus =
+            textStatus + initialValues.marketing_campaign[i] + splitCharacter;
         } else {
           textStatus = textStatus + initialValues.marketing_campaign[i];
         }
@@ -1313,12 +1651,15 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       });
     }
 
-    if (initialValues.discount_codes && initialValues.discount_codes.length > 0) {
+    if (
+      initialValues.discount_codes &&
+      initialValues.discount_codes.length > 0
+    ) {
       list.push({
         key: "discount_codes",
         name: "Mã giảm giá",
-        value: <React.Fragment>{initialValues.discount_codes}</React.Fragment>
-      })
+        value: <React.Fragment>{initialValues.discount_codes}</React.Fragment>,
+      });
     }
 
     /**
@@ -1329,7 +1670,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         key: "utm_source",
         name: "UTM_Source",
         value: <React.Fragment>{initialValues.utm_source}</React.Fragment>,
-      })
+      });
     }
 
     if (initialValues.utm_medium && initialValues.utm_medium.length !== 0) {
@@ -1337,54 +1678,153 @@ function OrdersFilter(props: PropTypes): JSX.Element {
         key: "utm_medium",
         name: "UTM_Medium",
         value: <React.Fragment>{initialValues.utm_medium}</React.Fragment>,
-      })
+      });
     }
     if (initialValues.utm_content && initialValues.utm_content.length !== 0) {
       list.push({
         key: "utm_content",
         name: "UTM_content",
         value: <React.Fragment>{initialValues.utm_content}</React.Fragment>,
-      })
+      });
     }
     if (initialValues.utm_term && initialValues.utm_term.length !== 0) {
       list.push({
         key: "utm_term",
         name: "UTM_term",
         value: <React.Fragment>{initialValues.utm_term}</React.Fragment>,
-      })
+      });
     }
     if (initialValues.utm_id && initialValues.utm_id.length !== 0) {
       list.push({
         key: "utm_id",
         name: "UTM_id",
         value: <React.Fragment>{initialValues.utm_id}</React.Fragment>,
-      })
+      });
     }
     if (initialValues.utm_campaign && initialValues.utm_campaign.length !== 0) {
       list.push({
         key: "utm_campaign",
         name: "UTM_campagin",
         value: <React.Fragment>{initialValues.utm_campaign}</React.Fragment>,
-      })
+      });
     }
     if (initialValues.affiliate && initialValues.affiliate.length !== 0) {
       list.push({
         key: "affiliate",
         name: "Affiate code",
         value: <React.Fragment>{initialValues.affiliate}</React.Fragment>,
-      })
+      });
     }
 
-    if (initialValues?.in_goods_receipt === 0 || initialValues?.in_goods_receipt === 1) {
-      let textRecord = initialValues?.in_goods_receipt === 1 ? "Đã nằm trong biên bản" : initialValues?.in_goods_receipt===0? "Chưa nằm trong biên bản":"";
+    if (
+      initialValues?.in_goods_receipt === 0 ||
+      initialValues?.in_goods_receipt === 1
+    ) {
+      let textRecord =
+        initialValues?.in_goods_receipt === 1
+          ? "Đã nằm trong biên bản"
+          : initialValues?.in_goods_receipt === 0
+          ? "Chưa nằm trong biên bản"
+          : "";
       list.push({
         key: "in_goods_receipt",
         name: "Biên bản",
-        value: <React.Fragment>{textRecord}</React.Fragment>
-      })
+        value: <React.Fragment>{textRecord}</React.Fragment>,
+      });
+    }
+
+    if (initialValues?.expired_at && Number(initialValues.expired_at) !== 0) {
+      list.push({
+        key: "expired_at",
+        name: "Số phút chưa thanh toán ví điện tử",
+        value: <>{initialValues.expired_at} phút</>,
+      });
+    }
+
+    if (
+      initialValues?.is_expired_payment &&
+      initialValues?.is_expired_payment === true
+    ) {
+      list.push({
+        key: "is_expired_payment",
+        name: "thanh toán ví điện tử",
+        value: <React.Fragment>Hết hạn</React.Fragment>,
+      });
     }
     return list;
-  }, [filterTagFormatted, initialValues.issued_on_min, initialValues.issued_on_max, initialValues.finalized_on_min, initialValues.finalized_on_max, initialValues.completed_on_min, initialValues.completed_on_max, initialValues.cancelled_on_min, initialValues.cancelled_on_max, initialValues.expected_receive_on_min, initialValues.expected_receive_on_max, initialValues.returning_date_min, initialValues.returning_date_max, initialValues.returned_date_min, initialValues.returned_date_max, initialValues.exported_on_min, initialValues.exported_on_max, initialValues.order_status, initialValues.return_status, initialValues.sub_status_code, initialValues.fulfillment_status, initialValues.payment_status, initialValues.searched_product, initialValues.assignee_codes.length, initialValues.services.length, initialValues.account_codes.length, initialValues.coordinator_codes.length, initialValues.marketer_codes.length, initialValues.price_min, initialValues.price_max, initialValues.payment_method_ids, initialValues.delivery_types, initialValues.delivery_provider_ids, initialValues.shipper_codes, initialValues.channel_codes, initialValues.note, initialValues.customer_note, initialValues.tags, initialValues.marketing_campaign, initialValues.reference_code, initialValues.discount_codes, initialValues.utm_source, initialValues.utm_medium, initialValues.utm_content, initialValues.utm_term, initialValues.utm_id, initialValues.utm_campaign, initialValues.affiliate, initialValues?.in_goods_receipt, initChannelCodes, orderType, listStore, listSources, dateFormat, status, subStatus, fulfillmentStatus, paymentStatus, assigneeFound, services, serviceListVariables, accountFound, coordinatorFound, marketerFound, listPaymentMethod, serviceType, deliveryService, shippers, listChannel]);
+  }, [
+    filterTagFormatted,
+    initialValues.issued_on_min,
+    initialValues.issued_on_max,
+    initialValues.finalized_on_min,
+    initialValues.finalized_on_max,
+    initialValues.completed_on_min,
+    initialValues.completed_on_max,
+    initialValues.cancelled_on_min,
+    initialValues.cancelled_on_max,
+    initialValues.expected_receive_on_min,
+    initialValues.expected_receive_on_max,
+    initialValues.returning_date_min,
+    initialValues.returning_date_max,
+    initialValues.returned_date_min,
+    initialValues.returned_date_max,
+    initialValues.exported_on_min,
+    initialValues.exported_on_max,
+    initialValues.order_status,
+    initialValues.return_status,
+    initialValues.sub_status_code,
+    initialValues.fulfillment_status,
+    initialValues.payment_status,
+    initialValues.searched_product,
+    initialValues.assignee_codes.length,
+    initialValues.services.length,
+    initialValues.account_codes.length,
+    initialValues.coordinator_codes.length,
+    initialValues.marketer_codes.length,
+    initialValues.price_min,
+    initialValues.price_max,
+    initialValues.payment_method_ids,
+    initialValues.delivery_types,
+    initialValues.delivery_provider_ids,
+    initialValues.shipper_codes,
+    initialValues.channel_codes,
+    initialValues.note,
+    initialValues.customer_note,
+    initialValues.tags,
+    initialValues.marketing_campaign,
+    initialValues.reference_code,
+    initialValues.discount_codes,
+    initialValues.utm_source,
+    initialValues.utm_medium,
+    initialValues.utm_content,
+    initialValues.utm_term,
+    initialValues.utm_id,
+    initialValues.utm_campaign,
+    initialValues.affiliate,
+    initialValues?.in_goods_receipt,
+    initialValues.expired_at,
+    initialValues?.is_expired_payment,
+    initChannelCodes,
+    orderType,
+    listStore,
+    listSources,
+    dateFormat,
+    status,
+    subStatus,
+    fulfillmentStatus,
+    paymentStatus,
+    assigneeFound,
+    services,
+    serviceListVariables,
+    accountFound,
+    coordinatorFound,
+    marketerFound,
+    listPaymentMethod,
+    serviceType,
+    deliveryService,
+    shippers,
+    listChannel,
+  ]);
 
   const widthScreen = () => {
     if (window.innerWidth >= 1600) {
@@ -1410,7 +1850,9 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           }
           break;
         case serviceVariables.deliverStandard:
-          const index2 = cloneServices.indexOf(serviceVariables.deliverStandard);
+          const index2 = cloneServices.indexOf(
+            serviceVariables.deliverStandard,
+          );
           if (index2 > -1) {
             cloneServices.splice(index2, 1);
           } else {
@@ -1423,8 +1865,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       }
       setServices(cloneServices);
     },
-    [serviceVariables.deliver4h, serviceVariables.deliverStandard, services]
+    [serviceVariables.deliver4h, serviceVariables.deliverStandard, services],
   );
+
+  const handleExpiresPayment = useCallback(() => {
+    const isExpires = isExpiresPayment === true ? undefined : true;
+    console.log("isExpires", isExpires);
+    setIsExpiresPayment(isExpires);
+  }, [isExpiresPayment]);
 
   const handleClearFilterConfig = () => {
     setTagActive(undefined);
@@ -1456,18 +1904,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
 
   const renderTabHeader = () => {
     if (orderType === ORDER_TYPES.offline) {
-      return null
+      return null;
     }
     if (!isHideTab) {
       return (
         <div className="order-options">
-          <Radio.Group onChange={(e) => onChangeOrderOptions(e)} value={initialValues.is_online}>
+          <Radio.Group
+            onChange={(e) => onChangeOrderOptions(e)}
+            value={initialValues.is_online}
+          >
             <Radio.Button value={null}>Tất cả đơn hàng</Radio.Button>
             <Radio.Button value="true">Đơn hàng online</Radio.Button>
             <Radio.Button value="false">Đơn hàng offline</Radio.Button>
           </Radio.Group>
         </div>
-      )
+      );
     }
   };
 
@@ -1520,22 +1971,25 @@ function OrdersFilter(props: PropTypes): JSX.Element {
       sub_status_code: params.sub_status_code,
       search_product: params?.searched_product,
     });
-  // bỏ formSearchRef
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [params?.searched_product, params.search_term, params.sub_status_code, params.tracking_codes, params.variant_ids, initialValues]);
+    // bỏ formSearchRef
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    params?.searched_product,
+    params.search_term,
+    params.sub_status_code,
+    params.tracking_codes,
+    params.variant_ids,
+    initialValues,
+  ]);
 
   useEffect(() => {
-    formRef.current?.setFieldsValue(initialValues)
-  }, [formRef, initialValues])
-
-  useEffect(() => {
-    initialValueExchange={...params};
+    initialValueExchange = { ...params };
     if (params?.searched_product) {
       setKeySearchVariant(params?.searched_product);
     } else {
       setKeySearchVariant("");
     }
-  }, [params])
+  }, [params]);
 
   useEffect(() => {
     if (accounts) {
@@ -1548,10 +2002,13 @@ function OrdersFilter(props: PropTypes): JSX.Element {
     if (!channels || channels?.length === 0) {
       dispatch(getListChannelRequest(setListChannel));
     } else {
-      setListChannel(channels)
+      setListChannel(channels);
     }
   }, [channels, dispatch, initialValues.services]);
 
+  useEffect(() => {
+    setIsExpiresPayment(initialValues.is_expired_payment);
+  }, [initialValues.is_expired_payment]);
 
   const renderFilterTag = (filter: ListFilterTagTypes) => {
     if (filter.isExpand) {
@@ -1561,15 +2018,19 @@ function OrdersFilter(props: PropTypes): JSX.Element {
   };
 
   const onMenuDeleteConfigFilter = () => {
-    handleDeleteFilter(configId)
-    setIsShowConfirmDelete(false)
+    handleDeleteFilter(configId);
+    setIsShowConfirmDelete(false);
   };
 
-  const handleSelectProduct=useCallback((v?:VariantResponse)=>{
-    if(v){
-      onFilter && onFilter({ ...initialValueExchange, searched_product: v.sku });
-    }
-  },[onFilter])
+  const handleSelectProduct = useCallback(
+    (v?: VariantResponse) => {
+      if (v) {
+        onFilter &&
+          onFilter({ ...initialValueExchange, searched_product: v.sku });
+      }
+    },
+    [onFilter],
+  );
 
   return (
     <StyledComponent>
@@ -1580,7 +2041,8 @@ function OrdersFilter(props: PropTypes): JSX.Element {
             onFinish={onFinish}
             ref={formSearchRef}
             initialValues={initialValues}
-            layout="inline">
+            layout="inline"
+          >
             <div style={{ width: "100%" }}>
               <Row gutter={12}>
                 <Col span={orderType === ORDER_TYPES.offline ? 12 : 7}>
@@ -1613,21 +2075,26 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         onChangeAllSelect={(e: CheckboxChangeEvent) => {
                           if (e.target.checked) {
                             formSearchRef.current?.setFieldsValue({
-                              sub_status_code: selectedSubStatusCodes
-                            })
+                              sub_status_code: selectedSubStatusCodes,
+                            });
                           } else {
                             formSearchRef.current?.setFieldsValue({
-                              sub_status_code: undefined
-                            })
+                              sub_status_code: undefined,
+                            });
                           }
                         }}
                         getCurrentValue={() => {
-                          return formSearchRef.current?.getFieldValue("sub_status_code")
+                          return formSearchRef.current?.getFieldValue(
+                            "sub_status_code",
+                          );
                         }}
                         allValues={subStatus}
                       >
                         {subStatus?.map((item: any) => (
-                          <CustomSelect.Option key={item.id} value={item.code.toString()}>
+                          <CustomSelect.Option
+                            key={item.id}
+                            value={item.code.toString()}
+                          >
                             {item.sub_status}
                           </CustomSelect.Option>
                         ))}
@@ -1651,60 +2118,12 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   </Col>
                 )}
                 <Col span={orderType === ORDER_TYPES.offline ? 12 : 6}>
-                  {/* {rerenderSearchVariant && (
-                    <Item name="variant_ids" style={{marginRight: 0}}>
-                      <DebounceSelect
-                        mode="multiple"
-                        showArrow
-                        maxTagCount="responsive"
-                        placeholder="Chọn sản phẩm hoặc nhập sku"
-                        allowClear
-                        fetchOptions={searchVariants}
-                        optionsVariant={optionsVariant}
-                        style={{
-                          width: "100%",
-                        }}
-                      />
-                    </Item>
-                  )} */}
-                  {/* không để trong form item vì mỗi lần thay đổi sẽ render lại */}
-
                   <SearchProductComponent
-                     keySearch={keySearchVariant}
-                     setKeySearch={setKeySearchVariant}
-                     id="search_product"
-                     onSelect={handleSelectProduct}
-                  />
-                  {/* <AutoComplete
-                    notFoundContent={
-                      keySearchVariant.length >= 3 ? "Không tìm thấy sản phẩm" : undefined
-                    }
+                    keySearch={keySearchVariant}
+                    setKeySearch={setKeySearchVariant}
                     id="search_product"
-                    value={keySearchVariant}
-                    ref={autoCompleteRef}
-                    // onSelect={() =>{}}
-                    onSelect={onSearchVariantSelect}
-                    dropdownClassName="search-layout dropdown-search-header"
-                    dropdownMatchSelectWidth={500}
-                    className="w-100"
-                    onSearch={onChangeProductSearch}
-                    options={convertResultSearchVariant}
-                    maxLength={255}
-                    defaultActiveFirstOption
-                  >
-                    <Input
-                      size="middle"
-                      className="yody-search"
-                      placeholder="Tìm sản phẩm"
-                      prefix={
-                        isSearchingProducts ? (
-                          <LoadingOutlined style={{ color: "#2a2a86" }} />
-                        ) : (
-                          <img alt="" src={search} />
-                        )
-                      }
-                    />
-                  </AutoComplete> */}
+                    onSelect={handleSelectProduct}
+                  />
                 </Col>
               </Row>
             </div>
@@ -1715,7 +2134,10 @@ function OrdersFilter(props: PropTypes): JSX.Element {
               <Button icon={<FilterOutlined />} onClick={openFilter}>
                 Thêm bộ lọc
               </Button>
-              <Button icon={<SettingOutlined />} onClick={onShowColumnSetting} />
+              <Button
+                icon={<SettingOutlined />}
+                onClick={onShowColumnSetting}
+              />
             </div>
           </Form>
         </CustomFilter>
@@ -1728,10 +2150,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           className="order-filter-drawer"
           allowSave
           onSaveFilter={onShowSaveFilter}
-          width={widthScreen()}>
+          width={widthScreen()}
+        >
           {rerender && (
-            <Form onFinish={onFinish} ref={formRef} initialValues={initialValues} layout="vertical">
-              {(filterConfigs && filterConfigs.length > 0) &&
+            <Form
+              onFinish={onFinish}
+              ref={formRef}
+              initialValues={initialValues}
+              layout="vertical"
+            >
+              {filterConfigs && filterConfigs.length > 0 && (
                 <div style={{ marginBottom: 20 }}>
                   {filterConfigs?.map((e, index) => {
                     return (
@@ -1740,15 +2168,16 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                         tagId={e.id}
                         name={e.name}
                         onSelectFilterConfig={(tagId) => {
-                          onSelectFilterConfig(tagId)
+                          onSelectFilterConfig(tagId);
                         }}
                         setConfigId={setConfigId}
                         setIsShowConfirmDelete={setIsShowConfirmDelete}
-                        tagActive={tagActive} />
-                    )
+                        tagActive={tagActive}
+                      />
+                    );
                   })}
                 </div>
-              }
+              )}
               <Row gutter={20}>
                 <Col span={8} xxl={8}>
                   <Item name="store_ids" label="Kho cửa hàng">
@@ -1780,7 +2209,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     setActiveButton={setIssuedClick}
                     format={dateFormat}
                     formRef={formRef}
-                    showTime = {{format: timeFormat}}
+                    showTime={{ format: timeFormat }}
                   />
                 </Col>
                 <Col span={8} xxl={8}>
@@ -1795,12 +2224,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
+                      maxTagCount="responsive"
+                    >
                       {paymentStatus.map((item, index) => (
                         <CustomSelect.Option
                           style={{ width: "100%" }}
                           key={index.toString()}
-                          value={item.value.toString()}>
+                          value={item.value.toString()}
+                        >
                           {item.name}
                         </CustomSelect.Option>
                       ))}
@@ -1819,32 +2250,46 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       style={{ width: "100%" }}
                       optionFilterProp="children"
                       getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      <CustomSelect.Option style={{ width: "100%" }} key="1" value="returned">
+                      maxTagCount="responsive"
+                    >
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key="1"
+                        value="returned"
+                      >
                         Có đổi trả hàng
                       </CustomSelect.Option>
-                      <CustomSelect.Option style={{ width: "100%" }} key="2" value="unreturned">
+                      <CustomSelect.Option
+                        style={{ width: "100%" }}
+                        key="2"
+                        value="unreturned"
+                      >
                         Không đổi trả hàng
                       </CustomSelect.Option>
                     </CustomSelect>
                   </Item>
                 </Col>
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày xác nhận</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="finalized_on_min"
-                    fieldNameTo="finalized_on_max"
-                    activeButton={finalizedClick}
-                    setActiveButton={setFinalizedClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                    showTime = {{format: timeFormat}}
-                  />
-                </Col>}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày xác nhận</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="finalized_on_min"
+                      fieldNameTo="finalized_on_max"
+                      activeButton={finalizedClick}
+                      setActiveButton={setFinalizedClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
+                    />
+                  </Col>
+                )}
                 <Col span={8} xxl={8}>
-                  <Item name="payment_method_ids" label="Phương thức thanh toán">
+                  <Item
+                    name="payment_method_ids"
+                    label="Phương thức thanh toán"
+                  >
                     <CustomSelect
                       mode="multiple"
                       optionFilterProp="children"
@@ -1855,12 +2300,14 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       placeholder="Chọn phương thức thanh toán"
                       style={{ width: "100%" }}
                       getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
+                      maxTagCount="responsive"
+                    >
                       {listPaymentMethod.map((item, index) => (
                         <CustomSelect.Option
                           style={{ width: "100%" }}
                           key={index.toString()}
-                          value={item.id.toString()}>
+                          value={item.id.toString()}
+                        >
                           {item.name}
                         </CustomSelect.Option>
                       ))}
@@ -1880,33 +2327,37 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày huỷ đơn</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="cancelled_on_min"
-                    fieldNameTo="cancelled_on_max"
-                    activeButton={cancelledClick}
-                    setActiveButton={setCancelledClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                    showTime = {{format: timeFormat}}
-                  />
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="marketer_codes" label="Nhân viên marketing">
-                    <AccountCustomSearchSelect
-                      placeholder="Tìm theo họ tên hoặc mã nhân viên"
-                      dataToSelect={accountData}
-                      setDataToSelect={setAccountData}
-                      initDataToSelect={accounts}
-                      mode="multiple"
-                      getPopupContainer={(trigger: any) => trigger.parentNode}
-                      maxTagCount="responsive"
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày huỷ đơn</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="cancelled_on_min"
+                      fieldNameTo="cancelled_on_max"
+                      activeButton={cancelledClick}
+                      setActiveButton={setCancelledClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
                     />
-                  </Item>
-                </Col>}
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item name="marketer_codes" label="Nhân viên marketing">
+                      <AccountCustomSearchSelect
+                        placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                        dataToSelect={accountData}
+                        setDataToSelect={setAccountData}
+                        initDataToSelect={accounts}
+                        mode="multiple"
+                        getPopupContainer={(trigger: any) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      />
+                    </Item>
+                  </Col>
+                )}
                 <Col span={8} xxl={8}>
                   <Item name="assignee_codes" label="Nhân viên bán hàng">
                     <AccountCustomSearchSelect
@@ -1920,69 +2371,81 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày thành công</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="completed_on_min"
-                    fieldNameTo="completed_on_max"
-                    activeButton={completedClick}
-                    setActiveButton={setCompletedClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                    showTime = {{format: timeFormat}}
-                  />
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="delivery_types" label="Hình thức vận chuyển">
-                    <CustomSelect
-                      mode="multiple"
-                      allowClear
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      notFoundContent="Không tìm thấy kết quả"
-                      placeholder="Chọn hình thức vận chuyển"
-                      style={{ width: "100%" }}
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {/* <Option value="">Hình thức vận chuyển</Option> */}
-                      {serviceType?.map((item) => (
-                        <CustomSelect.Option key={item.value} value={item.value}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="coordinator_codes" label="Nhân viên điều phối">
-                    <AccountCustomSearchSelect
-                      placeholder="Tìm theo họ tên hoặc mã nhân viên"
-                      dataToSelect={accountData}
-                      setDataToSelect={setAccountData}
-                      initDataToSelect={accounts}
-                      mode="multiple"
-                      getPopupContainer={(trigger: any) => trigger.parentNode}
-                      maxTagCount="responsive"
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày thành công</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="completed_on_min"
+                      fieldNameTo="completed_on_max"
+                      activeButton={completedClick}
+                      setActiveButton={setCompletedClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
                     />
-                  </Item>
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày xuất kho</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="exported_on_min"
-                    fieldNameTo="exported_on_max"
-                    activeButton={exportedClick}
-                    setActiveButton={setExportedClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                    showTime = {{format: timeFormat}}
-                  />
-                </Col>}
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item name="delivery_types" label="Hình thức vận chuyển">
+                      <CustomSelect
+                        mode="multiple"
+                        allowClear
+                        optionFilterProp="children"
+                        showSearch
+                        showArrow
+                        notFoundContent="Không tìm thấy kết quả"
+                        placeholder="Chọn hình thức vận chuyển"
+                        style={{ width: "100%" }}
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      >
+                        {/* <Option value="">Hình thức vận chuyển</Option> */}
+                        {serviceType?.map((item) => (
+                          <CustomSelect.Option
+                            key={item.value}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item name="coordinator_codes" label="Nhân viên điều phối">
+                      <AccountCustomSearchSelect
+                        placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                        dataToSelect={accountData}
+                        setDataToSelect={setAccountData}
+                        initDataToSelect={accounts}
+                        mode="multiple"
+                        getPopupContainer={(trigger: any) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      />
+                    </Item>
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày xuất kho</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="exported_on_min"
+                      fieldNameTo="exported_on_max"
+                      activeButton={exportedClick}
+                      setActiveButton={setExportedClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
+                    />
+                  </Col>
+                )}
                 <Col span={8} xxl={8}>
                   <Item name="note" label="Ghi chú nội bộ">
                     <Input.TextArea
@@ -1999,93 +2462,115 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày dự kiến nhận hàng</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="expected_receive_on_min"
-                    fieldNameTo="expected_receive_on_max"
-                    activeButton={expectedClick}
-                    setActiveButton={setExpectedClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                    showTime = {{format: timeFormat}}
-                  />
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày đang hoàn</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="returning_date_min"
-                    fieldNameTo="returning_date_max"
-                    activeButton={expectedClick}
-                    setActiveButton={setExpectedClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                    showTime = {{format: timeFormat}}
-                  />
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <div className="ant-form-item-label">
-                    <label>Ngày đã hoàn</label>
-                  </div>
-                  <CustomFilterDatePicker
-                    fieldNameFrom="returned_date_min"
-                    fieldNameTo="returned_date_max"
-                    activeButton={expectedClick}
-                    setActiveButton={setExpectedClick}
-                    format={dateFormat}
-                    formRef={formRef}
-                    showTime = {{format: timeFormat}}
-                  />
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="fulfillment_status" label="Trạng thái giao hàng">
-                    <CustomSelect
-                      mode="multiple"
-                      showSearch
-                      allowClear
-                      showArrow
-                      placeholder="Chọn trạng thái giao hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {fulfillmentStatus.map((item, index) => (
-                        <CustomSelect.Option
-                          style={{ width: "100%" }}
-                          key={index.toString()}
-                          value={item.value.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="delivery_provider_ids" label="Đơn vị vận chuyển">
-                    <CustomSelect
-                      mode="multiple"
-                      showSearch
-                      allowClear
-                      showArrow
-                      placeholder="Chọn đơn vị vận chuyển"
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {deliveryService?.map((item) => (
-                        <CustomSelect.Option key={item.id} value={item.id.toString()}>
-                          {item.name}
-                        </CustomSelect.Option>
-                      ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày dự kiến nhận hàng</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="expected_receive_on_min"
+                      fieldNameTo="expected_receive_on_max"
+                      activeButton={expectedClick}
+                      setActiveButton={setExpectedClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
+                    />
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày đang hoàn</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="returning_date_min"
+                      fieldNameTo="returning_date_max"
+                      activeButton={expectedClick}
+                      setActiveButton={setExpectedClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
+                    />
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <div className="ant-form-item-label">
+                      <label>Ngày đã hoàn</label>
+                    </div>
+                    <CustomFilterDatePicker
+                      fieldNameFrom="returned_date_min"
+                      fieldNameTo="returned_date_max"
+                      activeButton={expectedClick}
+                      setActiveButton={setExpectedClick}
+                      format={dateFormat}
+                      formRef={formRef}
+                      showTime={{ format: timeFormat }}
+                    />
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item
+                      name="fulfillment_status"
+                      label="Trạng thái giao hàng"
+                    >
+                      <CustomSelect
+                        mode="multiple"
+                        showSearch
+                        allowClear
+                        showArrow
+                        placeholder="Chọn trạng thái giao hàng"
+                        notFoundContent="Không tìm thấy kết quả"
+                        style={{ width: "100%" }}
+                        optionFilterProp="children"
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      >
+                        {fulfillmentStatus.map((item, index) => (
+                          <CustomSelect.Option
+                            style={{ width: "100%" }}
+                            key={index.toString()}
+                            value={item.value.toString()}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item
+                      name="delivery_provider_ids"
+                      label="Đơn vị vận chuyển"
+                    >
+                      <CustomSelect
+                        mode="multiple"
+                        showSearch
+                        allowClear
+                        showArrow
+                        placeholder="Chọn đơn vị vận chuyển"
+                        notFoundContent="Không tìm thấy kết quả"
+                        style={{ width: "100%" }}
+                        optionFilterProp="children"
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      >
+                        {deliveryService?.map((item) => (
+                          <CustomSelect.Option
+                            key={item.id}
+                            value={item.id.toString()}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                )}
                 <Col span={8} xxl={8}>
                   <Item name="tags" label="Tags">
                     <CustomSelect
@@ -2099,28 +2584,34 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     />
                   </Item>
                 </Col>
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="shipper_codes" label="Đối tác giao hàng">
-                    <CustomSelect
-                      mode="multiple"
-                      showSearch
-                      allowClear
-                      showArrow
-                      placeholder="Chọn đối tác giao hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {shippers &&
-                        shippers.map((shipper) => (
-                          <CustomSelect.Option key={shipper.code} value={shipper.code}>
-                            {shipper.code} - {shipper.name}
-                          </CustomSelect.Option>
-                        ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item name="shipper_codes" label="Đối tác giao hàng">
+                      <CustomSelect
+                        mode="multiple"
+                        showSearch
+                        allowClear
+                        showArrow
+                        placeholder="Chọn đối tác giao hàng"
+                        notFoundContent="Không tìm thấy kết quả"
+                        style={{ width: "100%" }}
+                        optionFilterProp="children"
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      >
+                        {shippers &&
+                          shippers.map((shipper) => (
+                            <CustomSelect.Option
+                              key={shipper.code}
+                              value={shipper.code}
+                            >
+                              {shipper.code} - {shipper.name}
+                            </CustomSelect.Option>
+                          ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                )}
                 <Col span={8} xxl={8}>
                   <Item name="reference_code" label="Mã tham chiếu">
                     <Input placeholder="Tìm kiếm theo mã tham chiếu" />
@@ -2130,15 +2621,21 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   <div className="ant-form-item-label">
                     <label>Tổng tiền</label>
                   </div>
-                  <div className="date-range" style={{ display: "flex", alignItems: "center" }}>
-                    <Item name="price_min" style={{ width: "45%", marginBottom: 0 }}>
+                  <div
+                    className="date-range"
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    <Item
+                      name="price_min"
+                      style={{ width: "45%", marginBottom: 0 }}
+                    >
                       <InputNumber
                         className="price_min"
                         formatter={(value) => {
-                          return formatCurrency(value || 0)
+                          return formatCurrency(value || 0);
                         }}
-                        parser={(value:string|undefined) =>
-                          replaceFormat(value||"")
+                        parser={(value: string | undefined) =>
+                          replaceFormat(value || "")
                         }
                         min={0}
                         max={1000000000}
@@ -2147,17 +2644,23 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                       />
                     </Item>
 
-                    <div className="swap-right-icon" style={{ width: "10%", textAlign: "center" }}>
+                    <div
+                      className="swap-right-icon"
+                      style={{ width: "10%", textAlign: "center" }}
+                    >
                       <SwapRightOutlined />
                     </div>
-                    <Item name="price_max" style={{ width: "45%", marginBottom: 0 }}>
+                    <Item
+                      name="price_max"
+                      style={{ width: "45%", marginBottom: 0 }}
+                    >
                       <InputNumber
                         className="site-input-right price_max"
                         formatter={(value) => {
-                          return formatCurrency(value || 0)
+                          return formatCurrency(value || 0);
                         }}
-                        parser={(value:string|undefined) =>
-                          replaceFormat(value||"")
+                        parser={(value: string | undefined) =>
+                          replaceFormat(value || "")
                         }
                         placeholder="Đến"
                         min={0}
@@ -2167,123 +2670,201 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                     </Item>
                   </div>
                 </Col>
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item label="Đơn tự giao hàng">
-                    <div className="button-option-1">
-                      {serviceListVariables.map((single) => (
-                        <Button
-                          key={single.value}
-                          onClick={() => handleSelectServices(single.value)}
-                          className={services.includes(single.value) ? "active" : "deactive"}>
-                          {single.title}
-                        </Button>
-                      ))}
-                    </div>
-                  </Item>
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="channel_codes" label="Kênh bán hàng">
-                    <CustomSelect
-                      mode="multiple"
-                      showSearch
-                      allowClear
-                      showArrow
-                      placeholder="Chọn kênh bán hàng"
-                      notFoundContent="Không tìm thấy kết quả"
-                      style={{ width: "100%" }}
-                      optionFilterProp="children"
-                      getPopupContainer={(trigger) => trigger.parentNode}
-                      maxTagCount="responsive">
-                      {listChannel &&
-                        listChannel.map((channel) => (
-                          <CustomSelect.Option key={channel.code} value={channel.code}>
-                            {channel.code} - {channel.name}
-                          </CustomSelect.Option>
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item label="Đơn tự giao hàng">
+                      <div className="button-option-1">
+                        {serviceListVariables.map((single) => (
+                          <Button
+                            key={single.value}
+                            onClick={() => handleSelectServices(single.value)}
+                            className={
+                              services.includes(single.value)
+                                ? "active"
+                                : "deactive"
+                            }
+                          >
+                            {single.title}
+                          </Button>
                         ))}
-                    </CustomSelect>
-                  </Item>
-                </Col>}
-                {orderType === ORDER_TYPES.online && <Col span={8} xxl={8}>
-                  <Item name="marketing_campaign" label="Marketing Campaign">
-                    <CustomSelect
-                      mode="tags"
-                      optionFilterProp="children"
-                      showSearch
-                      showArrow
-                      allowClear
-                      placeholder="Điền 1 hoặc nhiều tag"
+                      </div>
+                    </Item>
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item name="channel_codes" label="Kênh bán hàng">
+                      <CustomSelect
+                        mode="multiple"
+                        showSearch
+                        allowClear
+                        showArrow
+                        placeholder="Chọn kênh bán hàng"
+                        notFoundContent="Không tìm thấy kết quả"
+                        style={{ width: "100%" }}
+                        optionFilterProp="children"
+                        getPopupContainer={(trigger) => trigger.parentNode}
+                        maxTagCount="responsive"
+                      >
+                        {listChannel &&
+                          listChannel.map((channel) => (
+                            <CustomSelect.Option
+                              key={channel.code}
+                              value={channel.code}
+                            >
+                              {channel.code} - {channel.name}
+                            </CustomSelect.Option>
+                          ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
+                )}
+                {orderType === ORDER_TYPES.online && (
+                  <Col span={8} xxl={8}>
+                    <Item name="marketing_campaign" label="Marketing Campaign">
+                      <CustomSelect
+                        mode="tags"
+                        optionFilterProp="children"
+                        showSearch
+                        showArrow
+                        allowClear
+                        placeholder="Điền 1 hoặc nhiều tag"
+                        style={{ width: "100%" }}
+                      />
+                    </Item>
+                  </Col>
+                )}
+                <Col span={8} xxl={8}>
+                  <Item name="discount_codes" label="Mã giảm giá">
+                    <Input
+                      placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)"
                       style={{ width: "100%" }}
                     />
                   </Item>
-                </Col>}
-                <Col span={8} xxl={8}>
-                  <Item name="discount_codes" label="Mã giảm giá">
-                    <Input placeholder="Nhập mã giảm giá (VD : YODY20K,YODY30K)" style={{ width: "100%" }} />
+                </Col>
+                <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
+                  <Item
+                    name="expired_at"
+                    label="Số phút chưa thanh toán ví điện tử:"
+                  >
+                    <InputNumber
+                      placeholder="Nhập số phút chưa thanh toán"
+                      style={{ width: "100%" }}
+                      min={0}
+                      formatter={(value) => {
+                        return Math.round(Number(value || 0)).toLocaleString();
+                      }}
+                    />
                   </Item>
                 </Col>
-              </Row>
-              <Row style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
-                <Col span={8} xxl={8}>
+                <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
+                  <Item label="Đơn hàng hết hạn thanh toán ví điện tử:">
+                    <div className="button-option-3">
+                      <Button
+                        onClick={() => handleExpiresPayment()}
+                        className={
+                          isExpiresPayment === true ? "active" : "deactive"
+                        }
+                      >
+                        Hết hạn thanh toán
+                      </Button>
+                    </div>
+                  </Item>
+                </Col>
+                <Col span={8} xxl={8} hidden={orderType !== ORDER_TYPES.online}>
                   <Item name="in_goods_receipt" label="Biên bản:">
                     <Select
                       placeholder="Tìm kiếm đơn có hoặc chưa trong biên bản"
                       style={{ width: "100%" }}
                       allowClear
                     >
-                      <Select.Option key={1} value={1}>Đã nằm trong biên bản</Select.Option>
-                      <Select.Option key={0} value={0}>Chưa nằm trong biên bản</Select.Option>
+                      <Select.Option key={1} value={1}>
+                        Đã nằm trong biên bản
+                      </Select.Option>
+                      <Select.Option key={0} value={0}>
+                        Chưa nằm trong biên bản
+                      </Select.Option>
                     </Select>
                   </Item>
                 </Col>
               </Row>
               {orderType === ORDER_TYPES.online && (
                 <React.Fragment>
-                  <Row style={{ display: "flex", alignItems: "center", marginBottom: "24px" }}>
+                  <Row
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      marginBottom: "24px",
+                    }}
+                  >
                     <Switch
                       size="small"
                       onChange={(value) => {
-                        setVisibleUTM(value)
+                        setVisibleUTM(value);
                       }}
                       checked={visibleUTM}
                     />
-                    <span style={{ paddingLeft: "10px", fontWeight: 500 }}>Đơn hàng Web/App</span>
+                    <span style={{ paddingLeft: "10px", fontWeight: 500 }}>
+                      Đơn hàng Web/App
+                    </span>
                   </Row>
                   {visibleUTM && (
                     <React.Fragment>
                       <Row gutter={20}>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_Source" name="utm_source">
-                            <Input placeholder="..." style={{ width: "100%" }} />
+                            <Input
+                              placeholder="..."
+                              style={{ width: "100%" }}
+                            />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_Medium" name="utm_medium">
-                            <Input placeholder="..." style={{ width: "100%" }} />
+                            <Input
+                              placeholder="..."
+                              style={{ width: "100%" }}
+                            />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_content" name="utm_content">
-                            <Input placeholder="..." style={{ width: "100%" }} />
+                            <Input
+                              placeholder="..."
+                              style={{ width: "100%" }}
+                            />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_term" name="utm_term">
-                            <Input placeholder="..." style={{ width: "100%" }} />
+                            <Input
+                              placeholder="..."
+                              style={{ width: "100%" }}
+                            />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_id" name="utm_id">
-                            <Input placeholder="..." style={{ width: "100%" }} />
+                            <Input
+                              placeholder="..."
+                              style={{ width: "100%" }}
+                            />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="UTM_campagin" name="utm_campaign">
-                            <Input placeholder="..." style={{ width: "100%" }} />
+                            <Input
+                              placeholder="..."
+                              style={{ width: "100%" }}
+                            />
                           </Item>
                         </Col>
                         <Col span={8} xxl={8}>
                           <Item label="Affiate code" name="affiliate">
-                            <Input placeholder="..." style={{ width: "100%" }} />
+                            <Input
+                              placeholder="..."
+                              style={{ width: "100%" }}
+                            />
                           </Item>
                         </Col>
                       </Row>
@@ -2291,7 +2872,6 @@ function OrdersFilter(props: PropTypes): JSX.Element {
                   )}
                 </React.Fragment>
               )}
-
             </Form>
           )}
         </BaseFilter>
@@ -2301,7 +2881,7 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           visible={isShowModalSaveFilter}
           onOk={(formValues) => {
             setIsShowModalSaveFilter(false);
-            onSaveFilter(formValues)
+            onSaveFilter(formValues);
           }}
           filterConfigs={filterConfigs}
         />
@@ -2310,22 +2890,29 @@ function OrdersFilter(props: PropTypes): JSX.Element {
           onOk={onMenuDeleteConfigFilter}
           onCancel={() => setIsShowConfirmDelete(false)}
           title="Xác nhận"
-          subTitle={(
-            <span>Bạn có chắc muốn xóa bộ lọc {" "}
+          subTitle={
+            <span>
+              Bạn có chắc muốn xóa bộ lọc{" "}
               <strong>
-                "{
-                  filterConfigs.find(single => single.id === configId)?.name || null
-                }"
+                "
+                {filterConfigs.find((single) => single.id === configId)?.name ||
+                  null}
+                "
               </strong>
             </span>
-          )}
+          }
         />
       </div>
       {filters && filters.length > 0 && (
         <div className="order-filter-tags">
           {filters.map((filter, index) => {
             return (
-              <Tag key={index} className="tag" closable onClose={(e) => onCloseTag(e, filter)}>
+              <Tag
+                key={index}
+                className="tag"
+                closable
+                onClose={(e) => onCloseTag(e, filter)}
+              >
                 <span className="tagLabel 3">{filter.name}:</span>
                 {renderFilterTag(filter)}
               </Tag>

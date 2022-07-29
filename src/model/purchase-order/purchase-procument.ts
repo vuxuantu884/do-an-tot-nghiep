@@ -2,7 +2,10 @@ import { BaseQuery } from "model/base/base.query";
 import { ParsedUrlQueryInput } from "querystring";
 import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
-import { PurchaseOrder } from "./purchase-order.model";
+import {
+  ProcurementPropertiesDate,
+  PurchaseOrder,
+} from "./purchase-order.model";
 
 export interface PurchaseProcument extends BaseObject {
   reference: string;
@@ -12,17 +15,48 @@ export interface PurchaseProcument extends BaseObject {
   purchase_order: PurchaseOrder;
   status: string;
   note: string;
-  actived_date: string|null;
-  actived_by: string|null;
-  activated_by: string|null;
-  stock_in_date: string|null;
-  stock_in_by: string|null;
+  actived_date: string | null;
+  actived_by: string | null;
+  activated_by: string | null;
+  stock_in_date: string | null;
+  stock_in_by: string | null;
   store?: string;
   is_cancelled?: boolean;
+  uuid?: string;
+  percent?: number;
+}
+export interface ProcurementItem {
+  accepted_quantity?: string;
+  amount?: string;
+  barcode?: string;
+  code: string;
+  created_by: string;
+  created_date: string;
+  created_name: string;
+  id: number;
+  line_item_id?: string;
+  note?: string;
+  ordered_quantity?: string;
+  planned_quantity?: string;
+  price?: string;
+  product_name?: string;
+  quantity: number;
+  real_quantity?: string;
+  retail_price: number;
+  sku: string;
+  updated_by: string;
+  updated_date: string;
+  updated_name: string;
+  variant?: string;
+  variant_id: number;
+  variant_image?: string;
+  vat?: string;
+  vat_rate?: string;
+  version: number;
 }
 export interface PurchaseProcurementViewDraft {
-  id?: number,
-  fake_id: number,
+  id?: number;
+  fake_id: number;
   reference?: string;
   store_id?: number;
   expect_receipt_date: string;
@@ -45,7 +79,7 @@ export interface PurchaseProcurementPOCreate {
 export interface PurchaseProcumentPOCreateLineItem {
   id?: number;
   code?: string;
-  barcode: string,
+  barcode: string;
   line_item_id?: number;
   sku: string;
   variant: string;
@@ -59,7 +93,7 @@ export interface PurchaseProcumentPOCreateLineItem {
 }
 
 export interface PurchaseProcumentLineItem {
-  id?: number;
+  id?: number | string;
   barcode: string;
   code?: string;
   line_item_id: number;
@@ -77,9 +111,16 @@ export interface PurchaseProcumentLineItem {
   price: number;
   product_name: string;
   amount?: number;
+  product_id?: number;
+  quantity_anh?: number;
+  quantity_tung?: number;
+  quantity_hieu?: number;
+  percent?: number;
+  uuid?: string;
 }
 
-export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {
+export interface PurchaseProcumentLineItemManual
+  extends PurchaseProcumentLineItem {
   fake_real_quantity: number;
   receipt_quantity: number;
   product_id?: number;
@@ -126,19 +167,19 @@ const POProcumentLineItemField = {
 };
 
 export interface ProcurementQuery extends BaseQuery, ParsedUrlQueryInput {
-  content?: number,
-  active_from?: any,
-  active_to?: any,
-  active_by?: string,
-  stock_in_from?: any,
-  stock_in_to?: any,
-  stock_in_by?: string,
-  merchandisers?: string,
-  status?: string,
-  stores?: string,
-  expect_receipt_from?: any,
-  expect_receipt_to?: any,
-  is_cancel?: boolean
+  content?: number;
+  active_from?: any;
+  active_to?: any;
+  active_by?: string;
+  stock_in_from?: any;
+  stock_in_to?: any;
+  stock_in_by?: string;
+  merchandisers?: string;
+  status?: string;
+  stores?: string;
+  expect_receipt_from?: any;
+  expect_receipt_to?: any;
+  is_cancel?: boolean;
 }
 
 export interface ImportProcument {
@@ -150,7 +191,7 @@ export interface ImportProcument {
 }
 export interface ProcurementConfirm {
   procurement_items: Array<PurchaseProcumentLineItem>;
-  refer_ids: Array<number>
+  refer_ids: Array<number>;
 }
 
 export interface ProcurementManual {
@@ -169,7 +210,7 @@ export type ProcurementCancel = {
   processed: number;
   success: number;
   errors: number;
-  message_errors: Array<string>
-}
+  message_errors: Array<string>;
+};
 
 export { POProcumentField, POProcumentLineItemField };

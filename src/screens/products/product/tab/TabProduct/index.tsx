@@ -48,6 +48,7 @@ import { exportFileV2, getFileV2 } from "service/other/import.inventory.service"
 import { HttpStatus } from "config/http-status.config";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 
 const ACTIONS_INDEX = {
   PRINT_BAR_CODE: 2,
@@ -111,6 +112,7 @@ const TabProduct: React.FC<any> = (props) => {
   const [statusExportDetail, setStatusExportDetail] = useState<number>(0);
   const [listExportFileDetail, setListExportFileDetail] = useState<Array<string>>([]);
   const [exportProgressDetail, setExportProgressDetail] = useState<number>(0);
+  const [allowReadSuppiers]= useAuthorization({acceptPermissions: [SuppliersPermissions.READ]});
 
   const actionsDefault: Array<MenuAction> = useMemo(() => {
     const disabled = !(selected && selected.length > 0);
@@ -650,6 +652,7 @@ const TabProduct: React.FC<any> = (props) => {
         listBrands={listBrands}
         listCountries={listCountry}
         onClickOpen={() => setShowSettingColumn(true)}
+        allowReadSuppiers={allowReadSuppiers}
       />
       <CustomTable
         className="small-padding"

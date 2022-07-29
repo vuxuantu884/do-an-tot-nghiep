@@ -1,15 +1,15 @@
-import {Col, Collapse, Divider, Form, Radio, Row, Space} from "antd";
+import { Col, Collapse, Divider, Form, Radio, Row, Space } from "antd";
 import Calculate from "assets/icon/caculate.svg";
 import OrderPayments from "component/order/OrderPayments";
-import {OrderPaymentRequest} from "model/request/order.request";
-import {LoyaltyRateResponse} from "model/response/loyalty/loyalty-rate.response";
+import { OrderPaymentRequest } from "model/request/order.request";
+import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import {useMemo} from "react";
-import {formatCurrency, getAmountPayment, isOrderFinishedOrCancel} from "utils/AppUtils";
-import {PaymentMethodOption, ShipmentMethodOption} from "utils/Constants";
+import { useMemo } from "react";
+import { formatCurrency, getAmountPayment, isOrderFinishedOrCancel } from "utils/AppUtils";
+import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
 import { yellowColor } from "utils/global-styles/variables";
-import {StyledComponent} from "./styles";
+import { StyledComponent } from "./styles";
 
 const {Panel} = Collapse;
 
@@ -84,6 +84,10 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
     return totalAmountOrder - totalAmountPayment;
   }, [totalAmountOrder, totalAmountPayment]);
 
+  console.log('totalAmountCustomerNeedToPay', totalAmountCustomerNeedToPay)
+  console.log('totalAmountPayment', totalAmountPayment)
+  console.log('totalAmountOrder', totalAmountOrder)
+
   return (
     <StyledComponent>
       <div className="create-order-payment ">
@@ -149,7 +153,7 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
           style={{marginTop: 18}}
         >
           <div style={{padding: "0 24px", maxWidth: "100%"}}>
-            <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
+            <Collapse className="orders-timeline 3" defaultActiveKey={["1"]} ghost>
               <Panel
                 className="orders-timeline-custom orders-dot-status"
                 header={
@@ -206,6 +210,7 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
                       levelOrder={levelOrder}
                       loyaltyRate={loyaltyRate}
                       listPaymentMethod={listPaymentMethod}
+                      orderDetail={orderDetail}
                     />
                   </Row>
                 </div>

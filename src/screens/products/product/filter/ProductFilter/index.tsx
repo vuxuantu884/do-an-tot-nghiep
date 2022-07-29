@@ -4,17 +4,14 @@ import search from "assets/img/search.svg";
 import CustomFilterDatePicker from "component/custom/filter-date-picker.custom";
 import ColorSearchSelect from "component/custom/select-search/color-select";
 import SizeSearchSelect from "component/custom/select-search/size-search";
-import SelectPaging from "component/custom/SelectPaging";
 import BaseFilter from "component/filter/base.filter";
 import CustomSelectOne from "component/filter/component/select-one.custom";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import CustomFilter from "component/table/custom.filter";
-import { SuppliersPermissions } from "config/permissions/supplier.permisssion";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getColorAction } from "domain/actions/product/color.action";
 import { sizeSearchAction } from "domain/actions/product/size.action";
-import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { CountryResponse } from "model/content/country.model";
@@ -36,6 +33,7 @@ import { StyledComponent } from "./style";
 import BaseSelect from "../../../../../component/base/BaseSelect/BaseSelect";
 import BaseSelectMerchans from "../../../../../component/base/BaseSelect/BaseSelectMerchans";
 import {useFetchMerchans} from "../../../../../hook/useFetchMerchans";
+import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 
 type ProductFilterProps = {
   params: any;
@@ -46,6 +44,7 @@ type ProductFilterProps = {
   onMenuClick?: (index: number) => void;
   onFilter?: (values: VariantSearchQuery) => void;
   onClickOpen?: () => void;
+  allowReadSuppiers?: boolean;
 };
 
 const {Item} = Form;
@@ -83,10 +82,9 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
     onClickOpen,
     actions,
     onMenuClick,
+    allowReadSuppiers
   } = props;
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
-
-  const [allowReadSuppiers]= useAuthorization({acceptPermissions: [SuppliersPermissions.READ]});
+  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans();
 
   const [visible, setVisible] = useState(false);
   const [dateClick, setDateClick] = useState('');
@@ -119,7 +117,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
   });
 
   const getSuppliers = useCallback((key: string, page: number) => {
-    if(allowReadSuppiers){
       dispatch(SupplierSearchAction({ ids: key, page: page }, (data: PageResponse<SupplierResponse>) => {
       setSupplier((suppliers) => {
         return {
@@ -132,8 +129,7 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
         }
       });
     }));
-    }
-  }, [dispatch, allowReadSuppiers]);
+  }, [dispatch]);
 
   useEffect(() => {
     const {
@@ -158,7 +154,8 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
       made_ins: made_ins ? Array.isArray(made_ins) ? made_ins.map((i: string) => Number(i)) : [made_ins] : [],
       suppliers: suppliers ? Array.isArray(suppliers) ? suppliers.map((i: string) => Number(i)) : [Number(suppliers)] : [],
     };
-
+    console.log('suppliers',suppliers);
+    
     if (suppliers && suppliers !== '') getSuppliers(suppliers, 1);
     setTimeout(() => {
       if (sizes && sizes !== '') getSizes(sizes, 1);
@@ -418,24 +415,11 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
                   case SearchVariantField.suppliers:
                     if (allowReadSuppiers) {
                       component = (
-                        <SelectPaging
-                          searchPlaceholder="Tìm kiếm nhà cung cấp"
-                          metadata={suppliers.metadata}
-                          showSearch={false}
-                          maxTagCount="responsive"
-                          allowClear
+                        <SupplierSearchSelect
                           mode="multiple"
                           placeholder="Chọn nhà cung cấp"
-                          onSearch={(key) => getSuppliers(key, 1)}
-                          onPageChange={(key, page) => getSuppliers(key, page)}
-                          onSelect={() => { }} // to disable onSearch when select item
-                        >
-                          {suppliers.items.map((item) => (
-                            <SelectPaging.Option key={item.id} value={item.id}>
-                              {item.name}
-                            </SelectPaging.Option>
-                          ))}
-                        </SelectPaging>
+                          onSelect={(key, option) =>{getSuppliers(key, 1)}}
+                        />
                       );
                     }
                     break;

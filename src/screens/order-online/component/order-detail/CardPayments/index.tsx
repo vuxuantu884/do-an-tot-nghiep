@@ -170,6 +170,8 @@ function CardPayments(props: CardPaymentsProps) {
   const totalAmountCustomerNeedToPay =
     createOrderContext?.price.totalAmountCustomerNeedToPay || (props.amount ? (props.amount - totalAmountPayment) : 0);
 
+    console.log('totalOrderAmountAfterDiscountAddShippingFee', totalOrderAmountAfterDiscountAddShippingFee)
+
   useEffect(() => {
     dispatch(PaymentMethodGetList(setListPaymentMethod));
   }, [dispatch]);
@@ -184,7 +186,7 @@ function CardPayments(props: CardPaymentsProps) {
   return (
     <StyledComponent>
       <Card title="THANH TOÁN">
-        <div className="create-order-payment 222">
+        <div className="create-order-payment 223">
           <Form.Item
             // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
             // required
@@ -247,7 +249,7 @@ function CardPayments(props: CardPaymentsProps) {
             style={{ marginTop: 18 }}
           >
             <div style={{ padding: "0 24px", maxWidth: "100%" }}>
-              <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
+              <Collapse className="orders-timeline 1" defaultActiveKey={["1"]} ghost>
                 <Panel
                   className="orders-timeline-custom orders-dot-status"
                   header={

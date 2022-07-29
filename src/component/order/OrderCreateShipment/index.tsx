@@ -1,13 +1,13 @@
 import {
-	Button,
-	Checkbox,
-	Col,
-	DatePicker,
-	Form,
-	FormInstance,
-	Row,
-	Select,
-	Space
+  Button,
+  Checkbox,
+  Col,
+  DatePicker,
+  Form,
+  FormInstance,
+  Row,
+  Select,
+  Space
 } from "antd";
 import DeliverPartnerOutline from "component/icon/DeliverPartnerOutline";
 import PickAtStoreOutline from "component/icon/PickAtStoreOutline";
@@ -19,12 +19,12 @@ import { DeliveryServicesGetList, getFeesAction } from "domain/actions/order/ord
 import { DeliverPartnerResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderLineItemRequest } from "model/request/order.request";
+import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { DeliveryServiceResponse, EcommerceDeliveryResponse, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
 import {
-	OrderConfigResponseModel,
-	ShippingServiceConfigDetailResponseModel
+  OrderConfigResponseModel,
+  ShippingServiceConfigDetailResponseModel
 } from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { useEffect, useMemo, useState } from "react";
@@ -33,6 +33,7 @@ import { getShippingAddressDefault, handleCalculateShippingFeeApplyOrderSetting,
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
+import { checkIfExpiredOrCancelledPayment, checkIfMomoPayment } from "utils/OrderUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -46,7 +47,7 @@ type ShipmentButtonType = {
   isDisabled?: boolean;
 };
 
-type PropType = {
+type PropTypes = {
   shipmentMethod: number;
   orderPrice?: number;
   storeDetail: StoreCustomResponse | undefined;
@@ -71,6 +72,7 @@ type PropType = {
   isOrderUpdate?: boolean;
 	OrderDetail?: OrderResponse | null;
 	orderConfig:  OrderConfigResponseModel | null;
+  payments?: OrderPaymentRequest[];
 };
 
 /**
@@ -108,7 +110,7 @@ type PropType = {
  * 
  * handleCancelCreateShipment: xử lý khi click nút hủy trong chi tiết đơn hàng khi tạo đơn hàng chọn giao hàng sau
  */
-function OrderCreateShipment(props: PropType) {
+function OrderCreateShipment(props: PropTypes) {
   const {
     customer,
     storeDetail,
@@ -134,6 +136,7 @@ function OrderCreateShipment(props: PropType) {
     isOrderUpdate,
     OrderDetail,
     isOrderReturnFromPOS,
+    payments,
   } = props;
   const dateFormat = "DD/MM/YYYY";
 
@@ -200,6 +203,17 @@ function OrderCreateShipment(props: PropType) {
       isDisabled: isOrderReturnFromPOS,
     },
   ];
+const checkIfDisableSelectShipment = () => {
+  return isOrderFinishedOrCancel(OrderDetail) || 
+    (payments?.some(payment => {
+      return (
+        checkIfMomoPayment(payment) && 
+        payment.paid_amount > 0 && 
+        !checkIfExpiredOrCancelledPayment(payment)
+      )
+    })
+  )
+};
 
   const renderShipmentTabHeader = () => {
     return (
@@ -228,7 +242,7 @@ function OrderCreateShipment(props: PropType) {
                 <div
                   className={`saleorder_shipment_button ${button.isDisabled ? "disabled" : ""}`}
                   key={button.value}
-                  style={isOrderFinishedOrCancel(OrderDetail) ? { pointerEvents: "none" } : undefined}
+                  style={checkIfDisableSelectShipment() ? { pointerEvents: "none" } : undefined}
                   onClick={() => {
                     levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value)
                     if (items?.length && items?.length > 0 && button.value === 2) {
@@ -245,11 +259,11 @@ function OrderCreateShipment(props: PropType) {
                 <div
                   className={
                     shipmentMethod === ShipmentMethodOption.DELIVER_LATER
-                      ? "saleorder_shipment_button border"
-                      : "saleorder_shipment_button active"
+                      ? "saleorder_shipment_button border 11"
+                      : "saleorder_shipment_button active 22"
                   }
                   key={button.value}
-                  style={isOrderFinishedOrCancel(OrderDetail) ? { pointerEvents: "none" } : undefined}
+                  style={checkIfDisableSelectShipment() ? { pointerEvents: "none" } : undefined}
                 >
                   {icon}
                   <span>{button.name}</span>
@@ -268,7 +282,7 @@ function OrderCreateShipment(props: PropType) {
         <div style={{marginTop: 20}}>
           <Button
             type="primary"
-            className="create-button-custom"
+            className="create-button-custom 88"
             style={{float: "right"}}
             onClick={() => {
               handleCreateShipment && handleCreateShipment();

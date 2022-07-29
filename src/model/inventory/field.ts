@@ -12,11 +12,15 @@ const AvdInventoryFilter = {
   made_in_ids: 'made_in_ids',
   designer_codes: 'designer_codes',
   merchandiser_codes: 'merchandiser_codes',
-  collection_codes: 'collection_codes',
+  collections: 'collections',
   category_ids: 'category_ids',
   variant_prices: 'variant_prices',
   from_price: 'from_price',
-  to_price: 'to_price'
+  to_price: 'to_price',
+  sizes: 'sizes',
+  colors: 'colors',
+  variant_sku7: 'variant_sku7',
+  variant_sku3: 'variant_sku3',
 }
 
 const BasicInventoryFilter = {
@@ -29,7 +33,7 @@ const InventoryMappingField = {
   [AvdInventoryFilter.made_in_ids]: 'Xuất xứ',
   [AvdInventoryFilter.designer_codes]: 'Thiết kế',
   [AvdInventoryFilter.merchandiser_codes]: 'Merchandiser',
-  [AvdInventoryFilter.collection_codes]: 'Nhóm hàng',
+  [AvdInventoryFilter.collections]: 'Nhóm hàng',
   [AvdInventoryFilter.category_ids]: 'Danh mục',
   [AvdInventoryFilter.variant_prices]: 'Giá bán',
   [AvdInventoryFilter.from_price]: 'Từ',
@@ -60,11 +64,16 @@ const AvdAllFilter = {
   made_in_ids: 'made_in_ids',
   designer_codes: 'designer_codes',
   merchandiser_codes: 'merchandiser_codes',
-  collection_codes: 'collection_codes',
+  collections: 'collections',
   category_ids: 'category_ids',
   variant_prices: 'variant_prices',
   from_price: 'from_price',
-  to_price: 'to_price'
+  to_price: 'to_price',
+  sizes: 'sizes',
+  tags: 'tags',
+  variant_sku3: 'variant_sku3',
+  variant_sku7: 'variant_sku7',
+  colors: 'colors'
 }
 
 const AllInventoryMappingField = {
@@ -73,11 +82,16 @@ const AllInventoryMappingField = {
   [AvdAllFilter.made_in_ids]: 'Xuất xứ',
   [AvdAllFilter.designer_codes]: 'Thiết kế',
   [AvdAllFilter.merchandiser_codes]: 'Merchandiser',
-  [AvdAllFilter.collection_codes]: 'Nhóm hàng',
+  [AvdAllFilter.collections]: 'Nhóm hàng',
   [AvdAllFilter.category_ids]: 'Danh mục',
   [AvdAllFilter.variant_prices]: 'Giá bán',
   [AvdAllFilter.from_price]: 'Từ',
   [AvdAllFilter.to_price]: 'Đến',
+  [AvdAllFilter.sizes]: 'Kích thước',
+  [AvdAllFilter.tags]: 'Tags',
+  [AvdAllFilter.variant_sku3]: 'Mã 3',
+  [AvdAllFilter.variant_sku7]: 'Mã 7',
+  [AvdAllFilter.colors]: 'Màu sắc',
 }
 
 const InventoryColumnField = {

@@ -382,26 +382,36 @@
     }
     .ant-collapse-item {
       position: relative;
-       &::after {
-         content: "";
-         position: absolute;
-         width: 14px;
-         height: 14px;
-         top: 16px;
-         left: -8px;
-         background-color: #27ae60;
-         border-radius: 50%;
-       }
-       &::before {
-         content: "";
-         position: absolute;
-         width: 2px;
-         // height: 100%;
-         background-color: #d9d9e4;
-         left: -2px;
-         top: -16px;
-         bottom: 5px;
-       }
+      &::after {
+        content: "";
+        position: absolute;
+        width: 14px;
+        height: 14px;
+        top: 16px;
+        left: -8px;
+        background-color: #27ae60;
+        border-radius: 50%;
+      }
+      &.warning-collapse {
+        &:after {
+          background-color: #fcaf17;
+        }
+      }
+      &.danger-collapse {
+        &:after {
+          background-color: $dangerColor;
+        }
+      }
+      &::before {
+        content: "";
+        position: absolute;
+        width: 2px;
+        // height: 100%;
+        background-color: #d9d9e4;
+        left: -2px;
+        top: -16px;
+        bottom: 5px;
+      }
       &:first-child {
         &::before {
           top: 6px;
@@ -410,6 +420,7 @@
       .ant-collapse-content-box {
         padding-top: 0 !important;
         padding-bottom: 0 !important;
+        padding-right: 0 !important;
       }
     }
     &-custom {
@@ -486,13 +497,8 @@
   padding: 0;
   min-height: 37px;
   .ant-input-group.ant-input-group-compact > .ant-cascader-picker:first-child .ant-input,
-  .ant-input-group.ant-input-group-compact
-  > .ant-select-auto-complete:first-child
-  .ant-input,
-  .ant-input-group.ant-input-group-compact
-  > .ant-select:first-child
-  > .ant-select-selector,
-
+  .ant-input-group.ant-input-group-compact > .ant-select-auto-complete:first-child .ant-input,
+  .ant-input-group.ant-input-group-compact > .ant-select:first-child > .ant-select-selector,
   .ant-input-group.ant-input-group-compact > :first-child {
     border-top-left-radius: 5px;
     border-bottom-left-radius: 5px;
@@ -917,8 +923,7 @@
     margin-right: 8px;
     width: 18px;
     height: 18px;
-    filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg) brightness(66%)
-    contrast(100%);
+    filter: invert(15%) sepia(39%) saturate(2000%) hue-rotate(200deg) brightness(66%) contrast(100%);
   }
   span {
     height: 18px;
@@ -1184,10 +1189,16 @@
     background: #ffff;
     border: 1px solid $border-color;
     border-radius: 3px;
+    &[disabled] {
+      opacity: 0.5;
+    }
     span {
       font-size: 14px;
       line-height: 18px;
       font-weight: 400;
+    }
+    &[disabled] {
+      opacity: 0.5;
     }
   }
   .ant-btn-primary {
@@ -1649,7 +1660,7 @@
       justify-content: space-between;
       width: 100%;
       .amount {
-        font-weight: 500;
+        font-weight: bold;
       }
       .date {
         color: #737373;
@@ -1667,7 +1678,8 @@
         width: 40%;
         display: flex;
         justify-content: flex-end;
-        span {
+        text-align: right;
+        > span {
           &:last-child {
             padding-left: 30px;
           }

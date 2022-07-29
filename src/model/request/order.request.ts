@@ -236,7 +236,7 @@ export interface OrderPaymentRequest {
   bank_account_id?: number;
   bank_account_number?:	string;
   bank_account_holder?:	string;
-
+  expired_at?: Date | null;
 }
 
 export interface UpdateOrderPaymentRequest {

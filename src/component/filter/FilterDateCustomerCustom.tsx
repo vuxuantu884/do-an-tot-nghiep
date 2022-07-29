@@ -1,12 +1,14 @@
-import React, {useMemo} from "react";
-import { Button, DatePicker } from "antd";
-import {  SettingOutlined } from "@ant-design/icons";
+import React, { useMemo } from "react";
+import { Button, DatePicker, Form } from "antd";
+import { SettingOutlined } from "@ant-design/icons";
 import { StyledSelectDateFilter } from "component/filter/StyledFilterComponent";
 import rightArrow from "assets/icon/right-arrow.svg";
-import {DATE_FORMAT, formatDateFilter} from "utils/DateUtils";
+import { DATE_FORMAT, formatDateFilter } from "utils/DateUtils";
 
 type SelectDateFilterProps = {
-  dateType: string
+  fieldNameFrom?: string;
+  fieldNameTo?: string;
+  dateType: string;
   clickOptionDate: (type: string, value: string) => void;
   dateSelected: string;
   startDate: any;
@@ -16,16 +18,18 @@ type SelectDateFilterProps = {
 };
 
 const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
-  props: SelectDateFilterProps
+  props: SelectDateFilterProps,
 ) => {
   const {
+    fieldNameFrom,
+    fieldNameTo,
     dateType,
     clickOptionDate,
     dateSelected,
     startDate,
     endDate,
     handleSelectDateStart,
-    handleSelectDateEnd
+    handleSelectDateEnd,
   } = props;
 
   const startDateValue = useMemo(() => {
@@ -91,33 +95,36 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
         </div>
 
         <div className="date-picker-styled">
-          <div className="date-picker-select">
-            <DatePicker
-              allowClear
-              placeholder="Ngày bắt đầu"
-              format={DATE_FORMAT.DD_MM_YYYY}
-              getPopupContainer={(trigger: any) => trigger.parentElement}
-              value={startDateValue}
-              onChange={handleSelectDateStart}
-            />
-          </div>
+          <Form.Item name={fieldNameFrom}>
+            <div className="date-picker-select">
+              <DatePicker
+                allowClear
+                placeholder="Ngày bắt đầu"
+                format={DATE_FORMAT.DD_MM_YYYY}
+                getPopupContainer={(trigger: any) => trigger.parentElement}
+                value={startDateValue}
+                onChange={handleSelectDateStart}
+              />
+            </div>
+          </Form.Item>
 
           <div style={{ padding: "0px 5px" }}>
             <img src={rightArrow} alt="" />
           </div>
 
-          <div className="date-picker-select">
-            <DatePicker
-              allowClear
-              placeholder="Ngày kết thúc"
-              format={DATE_FORMAT.DD_MM_YYYY}
-              getPopupContainer={(trigger: any) => trigger.parentElement}
-              value={endDateValue}
-              onChange={handleSelectDateEnd}
-            />
-          </div>
+          <Form.Item name={fieldNameTo}>
+            <div className="date-picker-select">
+              <DatePicker
+                allowClear
+                placeholder="Ngày kết thúc"
+                format={DATE_FORMAT.DD_MM_YYYY}
+                getPopupContainer={(trigger: any) => trigger.parentElement}
+                value={endDateValue}
+                onChange={handleSelectDateEnd}
+              />
+            </div>
+          </Form.Item>
         </div>
-
       </div>
     </StyledSelectDateFilter>
   );

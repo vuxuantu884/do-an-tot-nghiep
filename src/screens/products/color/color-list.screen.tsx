@@ -35,7 +35,7 @@ const actionDefault: Array<MenuAction> = [
   {
     id: 0,
     name: "Xóa",
-    icon:<DeleteOutlined />
+    icon: <DeleteOutlined />,
   },
 ];
 
@@ -78,6 +78,7 @@ const ColorListScreen: React.FC = () => {
         return <Link to={`colors/${item.id}`}>{value}</Link>;
       },
       visible: true,
+      width: 90,
     },
     {
       title: "Tên màu",
@@ -85,24 +86,61 @@ const ColorListScreen: React.FC = () => {
       visible: true,
     },
     {
+      title: "Số sản phẩm",
+      dataIndex: "total_variant",
+      visible: true,
+      width: 150,
+      align: "center",
+      render: (value: number, item: ColorResponse) => {
+        return (
+          value && (
+            <Link
+              target="_blank"
+              to={`${UrlConfig.VARIANTS}?colors=${item.id}`}
+            >
+              {value}
+            </Link>
+          )
+        );
+      },
+    },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      visible: true,
+      align: "center",
+      width: 150,
+      render: (value: string) => (
+        <div className={value === "active" ? "text-success" : "text-error"}>
+          {value === "active" ? "Hoạt động" : "Ngừng hoạt động"}
+        </div>
+      ),
+    },
+    {
       title: "Màu chủ đạo",
       dataIndex: "parent",
       visible: true,
+      width: 150,
     },
     {
       title: "Mã hex",
       dataIndex: "hex_code",
       render: (value: string) => (value !== null ? `#${value}` : ""),
       visible: true,
+      width: 120,
     },
     {
       title: "Ảnh màu",
       dataIndex: "image",
+      className: "image-product",
       render: (value: string) => {
         return !isUndefinedOrNull(value) && value !== "" ? (
           <Image
             width={40}
             src={value}
+            style={{fontSize: 10,
+              textAlign: "center"}}
             placeholder={<img alt="" src={imgDefault} />}
           />
         ) : (
@@ -110,31 +148,44 @@ const ColorListScreen: React.FC = () => {
         );
       },
       visible: true,
+      width: 150,
     },
     {
       title: "Người tạo",
       visible: true,
       render: (item: ColorResponse) => {
-        return item.created_name ?
-             <div>
-               <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
-             </div> :"---"
-       },
+        return item.created_name ? (
+          <div>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}
+            >
+              {item.created_name}
+            </Link>
+          </div>
+        ) : (
+          "---"
+        );
+      },
+      width: 200,
     },
     {
       title: "Ghi chú",
       dataIndex: "description",
       visible: false,
+      width: 120,
     },
   ]);
 
-  const [canDeleteColor] = useAuthorization({acceptPermissions: [ProductPermission.colors_delete]});
+  const [canDeleteColor] = useAuthorization({
+    acceptPermissions: [ProductPermission.colors_delete],
+  });
 
   const columnFinal = useMemo(
     () => columns.filter((item) => item.visible === true),
-    [columns]
+    [columns],
   );
-  
+
   const actions = useMemo(() => {
     return actionDefault.filter((item) => {
       if (item.id === 0) {
@@ -150,14 +201,14 @@ const ColorListScreen: React.FC = () => {
       setTableLoading(false);
       setData(listResult);
     },
-    []
+    [],
   );
   const onDeleteSuccess = useCallback(() => {
     selected.splice(0, selected.length);
     showSuccess("Xóa màu sắc thành công");
     setTableLoading(true);
     dispatch(
-      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback)
+      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback),
     );
   }, [dispatch, params, searchColorCallback, selected]);
 
@@ -177,51 +228,59 @@ const ColorListScreen: React.FC = () => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
   const onFinish = useCallback(
     (values: ColorSearchQuery) => {
-      let newPrams = { ...params, ...values,
-         info: values.info?.trim(),
-         hex_code: values.hex_code?.trim(),
-         page: 1 };
+      let newPrams = {
+        ...params,
+        ...values,
+        info: values.info?.trim(),
+        hex_code: values.hex_code?.trim(),
+        page: 1,
+      };
 
       setPrams(newPrams);
       let queryParam = generateQuery(newPrams);
       history.push(`${UrlConfig.COLORS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
   const onPageChange = useCallback(
     (page, size) => {
-      let newPrams = { ...params,
+      let newPrams = {
+        ...params,
         info: params.info?.trim(),
         hex_code: params.hex_code?.trim(),
-        page: page, 
-        limit: size };
-    
+        page: page,
+        limit: size,
+      };
+
       let queryParam = generateQuery(params);
       setPrams({ ...newPrams });
       history.replace(`${UrlConfig.COLORS}?${queryParam}`);
     },
-    [history, params]
+    [history, params],
   );
-  const onMenuClick = useCallback((index: number) => {
-    switch (index) {
-      case 0:
-        if (selected.length === 0) {
-          showWarning("Vui lòng chọn màu sắc cần xóa");
-          return;
-        }
-        setConfirmDelete(true);
-        break;
-    }
-  }, [selected]);
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case 0:
+          if (selected.length === 0) {
+            showWarning("Vui lòng chọn màu sắc cần xóa");
+            return;
+          }
+          setConfirmDelete(true);
+          break;
+      }
+    },
+    [selected],
+  );
 
   useEffect(() => {
     dispatch(
-      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback)
+      getColorAction({ ...params, is_main_color: 0 }, searchColorCallback),
     );
     setTableLoading(true);
     dispatch(getColorAction({ is_main_color: 1 }, setListMainColor));
@@ -245,7 +304,10 @@ const ColorListScreen: React.FC = () => {
       ]}
       extra={
         <AuthWrapper acceptPermissions={[ProductPermission.colors_create]}>
-          <ButtonCreate child="Thêm màu sắc" path={`${UrlConfig.COLORS}/create`} />
+          <ButtonCreate
+            child="Thêm màu sắc"
+            path={`${UrlConfig.COLORS}/create`}
+          />
         </AuthWrapper>
       }
     >
@@ -266,7 +328,7 @@ const ColorListScreen: React.FC = () => {
                 />
               </Form.Item>
               <Form.Item name="parent_id">
-                <Select placeholder="Chọn màu chủ đạo" style={{width: 200}}>
+                <Select placeholder="Chọn màu chủ đạo" style={{ width: 200 }}>
                   <Option value="">Chọn màu chủ đạo</Option>
                   {listMainColor.items.map((item) => (
                     <Option key={item.id} value={item.id}>
@@ -278,7 +340,7 @@ const ColorListScreen: React.FC = () => {
               <Form.Item name="hex_code">
                 <Input
                   prefix={<img src={search} alt="" />}
-                  style={{width: 200}}
+                  style={{ width: 200 }}
                   placeholder="Mã hex"
                 />
               </Form.Item>

@@ -29,6 +29,11 @@ const getStoreDetail = (
   return BaseAxios.get(link);
 };
 
+const getListAllStoreSimple = (): Promise<BaseResponse<Array<StoreResponse>>> => {
+  let link = `${ApiConfig.CORE}/stores/public?simple=true&limit=1000`;
+  return BaseAxios.get(link);
+};
+
 const getListStoreSimple = (): Promise<BaseResponse<Array<StoreResponse>>> => {
   let link = `${ApiConfig.CORE}/stores/simple`;
   return BaseAxios.get(link);
@@ -39,4 +44,4 @@ const getStoreSearchIdsApi=(ids:number[]):Promise<BaseResponse<PageResponse<Stor
   return BaseAxios.get(link);
 }
 
-export { getListStore, getStoreDetail, getListStoreSimple, getSearchListStore,getStoreSearchIdsApi };
+export { getListStore, getStoreDetail, getListAllStoreSimple, getListStoreSimple, getSearchListStore,getStoreSearchIdsApi };

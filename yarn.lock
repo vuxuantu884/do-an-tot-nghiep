@@ -3263,12 +3263,22 @@
   resolved "https://registry.yarnpkg.com/@types/trusted-types/-/trusted-types-2.0.2.tgz#fc25ad9943bcac11cceb8168db4f275e0e72e756"
   integrity sha512-F5DIZ36YVLE+PN+Zwws4kJogq47hNgX3Nx6WyDJ3kcplxyke3XIzB8uK5n/Lpm1HBsbGzd6nmGehL8cPekP+Tg==
 
+"@types/uuid@^8.3.4":
+  version "8.3.4"
+  resolved "https://registry.yarnpkg.com/@types/uuid/-/uuid-8.3.4.tgz#bd86a43617df0594787d38b735f55c805becf1bc"
+  integrity sha512-c/I8ZRb51j+pYGAu5CrFMRxqZ2ke4y2grEBO5AUjgSkSk+qT2Ea+OdWElz/OiMf5MNpn2b17kuVBwZLQJXzihw==
+
 "@types/video-react@^0.15.0":
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/@types/video-react/-/video-react-0.15.0.tgz#8c9dac03c37b362356f9d1f6ba44fdbed1329cb3"
   integrity sha512-ASFm9E3Gz7CFz1WcDURkHUnLjU7HqSIfb/foZvqWYZtxoJT0cqnzmDdkTYbYOPXNwI2fH6cPJxQzz5HmhD1C7Q==
   dependencies:
     "@types/react" "*"
+
+"@types/webpack-env@^1.17.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@types/webpack-env/-/webpack-env-1.17.0.tgz#f99ce359f1bfd87da90cc4a57cab0a18f34a48d0"
+  integrity sha512-eHSaNYEyxRA5IAG0Ym/yCyf86niZUIF/TpWKofQI/CVfh5HsMEUyfE2kwFxha4ow0s5g0LfISQxpDKjbRDrizw==
 
 "@types/ws@^8.5.1":
   version "8.5.3"

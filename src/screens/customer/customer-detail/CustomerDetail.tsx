@@ -14,7 +14,6 @@ import CustomerContactInfo from "./customer-contact/customer.contact";
 import CustomerShippingAddressInfo from "./customer-shipping/customer.shipping";
 import CustomerShippingInfo from "./customer-billing/customer.billing";
 import CustomerNoteInfo from "./customer-note/customer.note";
-import PurchaseHistory from "screens/customer/customer-detail/PurchaseHistory";
 import CustomerActivityLog from "screens/customer/customer-detail/CustomerActivityLog";
 import CustomerCareHistory from "screens/customer/customer-detail/CustomerCareHistory";
 
@@ -38,6 +37,7 @@ import { StyledCustomerDetail } from "screens/customer/customer-detail/customerD
 import {ODERS_PERMISSIONS} from "config/permissions/order.permission";
 import {RegionResponse} from "model/content/country.model";
 import {GetRegionAction} from "domain/actions/content/content.action";
+import CustomerOrderHistory from "./CustomerOrderHistory";
 
 
 const { TabPane } = Tabs;
@@ -506,7 +506,7 @@ const CustomerDetail = () => {
                   className="tabs-list"
                 >
                   <TabPane tab="Lịch sử mua hàng" key="history">
-                    <PurchaseHistory
+                    <CustomerOrderHistory
                       customer={customer}
                     />
                   </TabPane>

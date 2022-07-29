@@ -1,5 +1,5 @@
 import { BaseObject } from "model/base/base.response";
-import { BillingAddressResponseModel, FulFillmentResponse, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
+import { BillingAddressResponseModel, FulFillmentResponse, OrderBillResponseModel, OrderDiscountResponse, OrderLineItemResponse, OrderPaymentResponse, OrderResponse, OrderReturnModel, ShipmentResponse, ShippingAddress, TrackingLogFulfillmentResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import { ORDER_TYPES } from "utils/Order.constants";
 
@@ -122,6 +122,7 @@ export interface OrderModel extends BaseObject {
   total_quantity: number;
   goods_receipts?: GoodsReceiptsResponse[]|null;
   export_bill: boolean;
+  bill: OrderBillResponseModel|null;
 }
 
 export interface OrderSearchQuery {
@@ -200,6 +201,8 @@ export interface OrderSearchQuery {
   utm_campaign?:string|null;
   affiliate?:string|null;
   //
+  is_expired_payment?:boolean | string | null;
+  expired_at?:number | null;
 }
 
 export interface OrderSearchQueryModel {
@@ -334,4 +337,23 @@ export type CalculateVariantPointInOrderModel = {
 
 export interface OrderWithFulfillmentActiveModel extends OrderModel{
   fulfillment_active?:FulFillmentResponse;
+}
+
+export interface OrderHistorySearch {
+  search_product?:string|null;
+  search_term?:string|null;
+  store_ids?:number|number[]|null;
+  source_ids?:number|null;
+  customer_ids?:number|null;
+  is_online?:boolean|null;
+  order_status?:string|null;
+  sub_status_code?:string|null;
+  payment_status?:string|null;
+  account_codes?:string|null;
+  assignee_codes?:string|null;
+  note?:string|null;
+  sort_type?:string|null;
+  sort_column?:string|null;
+  page?:number;
+  limit?:number;
 }

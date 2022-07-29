@@ -6,9 +6,10 @@ import { StyledComponent } from "./styles";
 import iconReturn from "assets/icon/return.svg";
 import { OrderModel } from "model/order/order.model";
 import { isOrderFromPOS } from "utils/AppUtils";
+import { CustomerOrderHistoryResponse } from "model/response/order/order.response";
 
 type PropTypes = {
-  orderDetail: OrderModel;
+  orderDetail: OrderModel | CustomerOrderHistoryResponse;
 };
 
 function ButtonCreateOrderReturn(props: PropTypes): JSX.Element | null {

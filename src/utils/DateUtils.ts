@@ -1,11 +1,11 @@
-import moment, {Moment} from "moment";
+import moment, { Moment } from "moment";
 
 export const DATE_FORMAT = {
   DDMMYYY: "DD/MM/YYYY",
   DDMMYY_HHmm: "DD/MM/YYYY HH:mm",
   HHmm_DDMMYYYY: "HH:mm DD/MM/YYYY",
   DDMM: "DD/MM",
-	fullDate: "DD/MM/YY HH:mm",
+  fullDate: "DD/MM/YY HH:mm",
   YYYYMMDD: "YYYY-MM-DD",
   MMYYYY: "MM/YYYY",
   DD_MM_YYYY: "DD-MM-YYYY",
@@ -13,16 +13,17 @@ export const DATE_FORMAT = {
   DD_MM_YY_HHmmss: "DD-MM-YYYY HH:mm:ss",
   HH_MM_SS: "HH:mm:ss",
   HH_mm: "HH:mm",
+  MM_DD_YYYY: "MM-DD-YYYY",
 };
 
 export const ConvertUtcToLocalDate = (
   date?: Date | string | number | null,
-  format?: string
+  format?: string,
 ) => {
   if (date != null) {
     let localDate = moment.utc(date).toDate();
     let dateFormat = moment(localDate).format(
-      format ? format : DATE_FORMAT.fullDate
+      format ? format : DATE_FORMAT.fullDate,
     );
     return dateFormat;
   }
@@ -31,23 +32,27 @@ export const ConvertUtcToLocalDate = (
 
 export const ConvertTimestampToDate = (
   date?: string | number | null,
-  format?: string
+  format?: string,
 ) => {
   if (date != null) {
     let dateTimestamp = Number(date);
-    return moment(new Date(dateTimestamp * 1000)).format(format ? format : DATE_FORMAT.fullDate);
+    return moment(new Date(dateTimestamp * 1000)).format(
+      format ? format : DATE_FORMAT.fullDate,
+    );
   }
   return "";
 };
 
-export const getDateFromNow = (distance: number, unit: 'day' | 'month' | 'week'): Moment => {
+export const getDateFromNow = (
+  distance: number,
+  unit: "day" | "month" | "week",
+): Moment => {
   return moment().subtract(distance, unit);
 };
 
 export const ConvertDateToUtc = (date: Date | string | number | Moment) => {
   return moment(date).utc().format();
 };
-
 
 export const checkFixedDate = (from: any, to: any) => {
   let fixedDate = null;
@@ -111,75 +116,86 @@ export const checkFixedDate = (from: any, to: any) => {
 };
 
 export const getStartOfDay = (date: Date | string | number | Moment) => {
-  return  moment(date).startOf('day').format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z";
-}
+  return (
+    moment(date).startOf("day").format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z"
+  );
+};
 export const getEndOfDay = (date: Date | string | number | Moment) => {
-  return  moment(date).endOf('day').format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z";
-}
+  return (
+    moment(date).endOf("day").format(`YYYY-MM-DDTHH:mm:ss`).toString() + "Z"
+  );
+};
 
 export const getStartOfDayCommon = (date: Date | string | number | Moment) => {
-  if(!date) return
+  if (!date) return;
   return moment(date, DATE_FORMAT.DDMMYYY).startOf("day").utc(true);
-}
+};
 export const getEndOfDayCommon = (date: Date | string | number | Moment) => {
-  if(!date) return
+  if (!date) return;
   return moment(date, DATE_FORMAT.DDMMYYY).endOf("day").utc(true);
-}
+};
 
-export const formatDateFilter = (date: Date | string | number | Moment | undefined) => {
-  if(!date) return
-  return moment(date).utc(false)
-}
+export const formatDateFilter = (
+  date: Date | string | number | Moment | undefined,
+) => {
+  if (!date) return;
+  return moment(date).utc(false);
+};
 
-export const formatDateTimeFilter = (date: Date | string | number | Moment | undefined, format: string = '') => {
-  if(!date) return
-  return format !== '' ? moment(date, format).utc(true) : moment(date).utc(true)
-}
+export const formatDateTimeFilter = (
+  date: Date | string | number | Moment | undefined,
+  format: string = "",
+) => {
+  if (!date) return;
+  return format !== ""
+    ? moment(date, format).utc(true)
+    : moment(date).utc(true);
+};
 
 export const formatDateCommon = (date: Date, format?: string) => {
-  if(!date) return
-  return moment(date).format(format)
-}
+  if (!date) return;
+  return moment(date).format(format);
+};
 
 export const splitDateRange = (dateRange: any) => {
-  if(!dateRange) return { start: undefined, end: undefined}
-  const splitDate = dateRange.split(' ~ ')
-  const start = splitDate[0] || undefined
-  const end = splitDate[1] || undefined
-  return { start, end }
-}
-
+  if (!dateRange) return { start: undefined, end: undefined };
+  const splitDate = dateRange.split(" ~ ");
+  const start = splitDate[0] || undefined;
+  const end = splitDate[1] || undefined;
+  return { start, end };
+};
 
 export const changeFormatDay = (date: any) => {
-  if (!date) return
+  if (!date) return;
   const convertFormatDayStart = date.split("-").reverse();
   const restDayStart = convertFormatDayStart.slice(1);
   const getFirstElementDay = convertFormatDayStart.shift();
-  const startDayAfterChangeFormat = restDayStart.concat(getFirstElementDay).join("-")
-  return startDayAfterChangeFormat
-}
+  const startDayAfterChangeFormat = restDayStart
+    .concat(getFirstElementDay)
+    .join("-");
+  return startDayAfterChangeFormat;
+};
 const convertStartDateToTimestamp = (date: any) => {
   const myDate = date.split("/");
   let newDate = myDate[1] + "." + myDate[0] + "." + myDate[2] + " 00:00:00";
   return moment(new Date(newDate)).unix();
-}
+};
 const convertEndDateToTimestamp = (date: any) => {
   const myDate = date.split("/");
   const today = new Date();
   let time = "23:59:59";
 
-  if ((Number(myDate[0]) === Number(today.getDate())) &&
-    (Number(myDate[1]) === Number(today.getMonth()) + 1) &&
-    (Number(myDate[2]) === Number(today.getFullYear()))
+  if (
+    Number(myDate[0]) === Number(today.getDate()) &&
+    Number(myDate[1]) === Number(today.getMonth()) + 1 &&
+    Number(myDate[2]) === Number(today.getFullYear())
   ) {
-    time = today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
+    time =
+      today.getHours() + ":" + today.getMinutes() + ":" + today.getSeconds();
   }
 
   const newDate = myDate[1] + "." + myDate[0] + "." + myDate[2];
   const dateTime = newDate + " " + time;
   return moment(new Date(dateTime)).unix();
-}
-export {
-  convertStartDateToTimestamp,
-  convertEndDateToTimestamp
-}
+};
+export { convertStartDateToTimestamp, convertEndDateToTimestamp };

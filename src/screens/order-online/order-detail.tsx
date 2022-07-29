@@ -15,38 +15,60 @@ import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { getLoyaltyPoint, getLoyaltyUsage } from "domain/actions/loyalty/loyalty.action";
 import { actionSetIsReceivedOrderReturn } from "domain/actions/order/order-return.action";
 import {
-  cancelOrderRequest, changeOrderCustomerAction, changeSelectedStoreBankAccountAction, changeShippingServiceConfigAction, changeStoreDetailAction, confirmDraftOrderAction, getStoreBankAccountNumbersAction, orderConfigSaga, OrderDetailAction,
+  cancelOrderRequest,
+  changeOrderCustomerAction,
+  changeSelectedStoreBankAccountAction,
+  changeShippingServiceConfigAction,
+  changeStoreDetailAction,
+  confirmDraftOrderAction,
+  getStoreBankAccountNumbersAction,
+  orderConfigSaga,
+  OrderDetailAction,
   PaymentMethodGetList,
   updateOrderPartial,
-  UpdatePaymentAction
+  UpdatePaymentAction,
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { EcommerceId, EcommerceOrderList, EcommerceOrderStatus, EcommerceOrderStatusRequest } from "model/request/ecommerce.request";
 import {
-  UpdateOrderPaymentRequest
-} from "model/request/order.request";
+  EcommerceId,
+  EcommerceOrderList,
+  EcommerceOrderStatus,
+  EcommerceOrderStatusRequest,
+} from "model/request/ecommerce.request";
+import { UpdateOrderPaymentRequest } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { EcommerceChangeOrderStatusReponse } from "model/response/ecommerce/ecommerce.response";
 import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
-import { OrderReasonModel, OrderResponse, StoreCustomResponse } from "model/response/order/order.response";
+import {
+  OrderReasonModel,
+  OrderResponse,
+  StoreCustomResponse,
+} from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
-import { OrderConfigResponseModel, ShippingServiceConfigDetailResponseModel } from "model/response/settings/order-settings.response";
+import {
+  OrderConfigResponseModel,
+  ShippingServiceConfigDetailResponseModel,
+} from "model/response/settings/order-settings.response";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
-import { deleteOrderService, getOrderDetail, getStoreBankAccountNumbersService } from "service/order/order.service";
+import {
+  deleteOrderService,
+  getOrderDetail,
+  getStoreBankAccountNumbersService,
+} from "service/order/order.service";
 import {
   generateQuery,
   getAmountPayment,
   handleFetchApiError,
   isFetchApiSuccessful,
   isOrderFromPOS,
-  sortFulfillments
+  sortFulfillments,
 } from "utils/AppUtils";
 import {
   FulFillmentStatus,
@@ -54,26 +76,37 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   POS,
-  ShipmentMethodOption
+  ShipmentMethodOption,
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { isDeliveryOrderReturned } from "utils/OrderUtils";
+import {
+  checkIfExpiredOrCancelledPayment,
+  checkIfFinishedPayment,
+  checkIfMomoPayment,
+  checkIfOrderHasNotFinishPaymentMomo,
+  isDeliveryOrderReturned,
+} from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
-import { changeEcommerceOrderStatus, getEcommerceStoreAddress } from "../../domain/actions/ecommerce/ecommerce.actions";
-import { EcommerceAddressQuery, EcommerceStoreAddress } from "../../model/ecommerce/ecommerce.model";
+import {
+  changeEcommerceOrderStatus,
+  getEcommerceStoreAddress,
+} from "../../domain/actions/ecommerce/ecommerce.actions";
+import {
+  EcommerceAddressQuery,
+  EcommerceStoreAddress,
+} from "../../model/ecommerce/ecommerce.model";
 import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
 import OrderDetailBottomBar from "./component/order-detail/BottomBar";
 import CardReturnMoney from "./component/order-detail/CardReturnMoney";
 import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
 import UpdateCustomerCard from "./component/update-customer-card";
 import UpdateProductCard from "./component/update-product-card";
-import UpdateShipmentCard from "./component/update-shipment-card";
+import UpdateShipmentCard from "./component/UpdateShipmentCard";
 import CancelOrderModal from "./modal/cancel-order.modal";
 import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
 import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
 
-
-type PropType = {
+type PropTypes = {
   id?: string;
 };
 type OrderParam = {
@@ -81,10 +114,11 @@ type OrderParam = {
 };
 
 let numberReloadGetTrackingCodeGHTK = 1;
-let maxNumberReloadGetTrackingCodeGHTK = 10;
+let numberReloadGetMomoLink = 1;
+let maxNumberReload = 10;
 let isRequest = true;
 
-const OrderDetail = (props: PropType) => {
+const OrderDetail = (props: PropTypes) => {
   let { id } = useParams<OrderParam>();
   const history = useHistory();
   if (!id && props.id) {
@@ -109,29 +143,31 @@ const OrderDetail = (props: PropType) => {
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
 
   const showOrderDetailUtm = useMemo(() => {
-    return OrderDetail?.utm_tracking?.utm_campaign || OrderDetail?.utm_tracking?.utm_content
-      || OrderDetail?.utm_tracking?.utm_medium || OrderDetail?.utm_tracking?.utm_source
-      || OrderDetail?.utm_tracking?.utm_term || OrderDetail?.utm_tracking?.affiliate
+    return (
+      OrderDetail?.utm_tracking?.utm_campaign ||
+      OrderDetail?.utm_tracking?.utm_content ||
+      OrderDetail?.utm_tracking?.utm_medium ||
+      OrderDetail?.utm_tracking?.utm_source ||
+      OrderDetail?.utm_tracking?.utm_term ||
+      OrderDetail?.utm_tracking?.affiliate
+    );
   }, [OrderDetail]);
-  const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] =
-    useState<OrderResponse | null>(null);
+  const [OrderDetailAllFulfillment, setOrderDetailAllFulfillment] = useState<OrderResponse | null>(
+    null
+  );
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
-  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] =
-    useState<number>(0);
+  const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] = useState<number>(0);
   // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  const [listPaymentMethods, setListPaymentMethods] = useState<
-    Array<PaymentMethodResponse>
-  >([]);
+  const [listPaymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] = useState<
-  OrderReasonModel|null
-  >(null);
-  
+  const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] =
+    useState<OrderReasonModel | null>(null);
+
   const orderCancelFulfillmentReasonArr = [
     {
       title: "Khách hàng hủy",
@@ -149,20 +185,21 @@ const OrderDetail = (props: PropType) => {
       title: "Lý do khác ",
       value: "other",
     },
-  ]
+  ];
   // đổi hàng
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState<number>(0);
   // console.log('totalAmountReturnProducts', totalAmountReturnProducts)
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
 
-  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(isReceivedReturnProducts, OrderDetail)
+  const canCreateMoneyRefund = useCheckIfCanCreateMoneyRefund(
+    isReceivedReturnProducts,
+    OrderDetail
+  );
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<
-    Array<LoyaltyUsageResponse>
-  >([]);
+  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
   const [shippingServiceConfig, setShippingServiceConfig] = useState<
@@ -174,7 +211,7 @@ const OrderDetail = (props: PropType) => {
   const [isShowConfirmOrderButton, setIsShowConfirmOrderButton] = useState(false);
   const [subStatusCode, setSubStatusCode] = useState<string | undefined>(undefined);
 
-  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH)
+  const [returnPaymentMethodCode, setReturnPaymentMethodCode] = useState(PaymentMethodCode.CASH);
 
   const updateShipmentCardRef = useRef<any>();
 
@@ -204,16 +241,10 @@ const OrderDetail = (props: PropType) => {
           {
             payment_method_id: returnMoneyMethod.id,
             payment_method: returnMoneyMethod.name,
-            amount: -Math.abs(
-              customerNeedToPayValue -
-              totalPaid
-            ),
+            amount: -Math.abs(customerNeedToPayValue),
             reference: "",
             source: "",
-            paid_amount: -Math.abs(
-              customerNeedToPayValue -
-              totalPaid
-            ),
+            paid_amount: -Math.abs(customerNeedToPayValue),
             return_amount: 0.0,
             status: "paid",
             type: "",
@@ -258,7 +289,10 @@ const OrderDetail = (props: PropType) => {
   };
 
   const stepsStatusValue = useMemo(() => {
-    if(isDeliveryOrderReturned(OrderDetailAllFulfillment?.fulfillments) && OrderDetailAllFulfillment?.fulfillments) {
+    if (
+      isDeliveryOrderReturned(OrderDetailAllFulfillment?.fulfillments) &&
+      OrderDetailAllFulfillment?.fulfillments
+    ) {
       return FulFillmentStatus.CANCELLED;
     }
     if (OrderDetail?.status === OrderStatus.DRAFT) {
@@ -285,7 +319,7 @@ const OrderDetail = (props: PropType) => {
           OrderDetail.fulfillments.length > 0
         ) {
           const sortedFulfillments = OrderDetail?.fulfillments;
-          switch(sortedFulfillments[0]?.status) {
+          switch (sortedFulfillments[0]?.status) {
             case FulFillmentStatus.UNSHIPPED:
               return OrderStatus.FINALIZED;
             case FulFillmentStatus.PICKED:
@@ -296,7 +330,8 @@ const OrderDetail = (props: PropType) => {
               return FulFillmentStatus.SHIPPING;
             case FulFillmentStatus.SHIPPED:
               return FulFillmentStatus.SHIPPED;
-            default: return OrderStatus.FINALIZED;
+            default:
+              return OrderStatus.FINALIZED;
           }
         }
       }
@@ -306,47 +341,52 @@ const OrderDetail = (props: PropType) => {
     return "";
   }, [OrderDetail?.fulfillments, OrderDetail?.status, OrderDetailAllFulfillment?.fulfillments]);
 
-  const onGetDetailSuccess = useCallback((data: false | OrderResponse) => {
-    setLoadingData(false);
-    if (!data) {
-      setError(true);
-    } else {
-      const orderChannel = data.channel?.toLowerCase() || "";
-      isEcommerceOrder.current = ECOMMERCE_CHANNEL.includes(orderChannel);
-
-      let _data = {
-        ...data,
-        fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id),
-      };
-      _data.fulfillments = _data.fulfillments?.filter(
-        (f) =>
-          f.status !== FulFillmentStatus.CANCELLED &&
-          f.status !== FulFillmentStatus.RETURNED &&
-          f.status !== FulFillmentStatus.RETURNING
-      );
-
-      setOrderDetail(_data);
-      setShippingFeeInformedCustomer(_data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0);
-      form.setFieldsValue({shipping_fee_informed_to_customer: _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0})
-      setOrderDetailAllFulfillment(data);
-      setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
-      if (_data.sub_status_code) {
-        setSubStatusCode(_data.sub_status_code);
-      }
-      if (
-        _data.status === OrderStatus.DRAFT &&
-        _data.payments?.length === 0
-      ) {
-        setIsShowConfirmOrderButton(true);
+  const onGetDetailSuccess = useCallback(
+    (data: false | OrderResponse) => {
+      setLoadingData(false);
+      if (!data) {
+        setError(true);
       } else {
-        setIsShowConfirmOrderButton(false);
+        const orderChannel = data.channel?.toLowerCase() || "";
+        isEcommerceOrder.current = ECOMMERCE_CHANNEL.includes(orderChannel);
+
+        let _data = {
+          ...data,
+          fulfillments: data.fulfillments?.sort((a, b) => b.id - a.id),
+        };
+        _data.fulfillments = _data.fulfillments?.filter(
+          (f) =>
+            f.status !== FulFillmentStatus.CANCELLED &&
+            f.status !== FulFillmentStatus.RETURNED &&
+            f.status !== FulFillmentStatus.RETURNING
+        );
+
+        setOrderDetail(_data);
+        setShippingFeeInformedCustomer(
+          _data.shipping_fee_informed_to_customer ? _data.shipping_fee_informed_to_customer : 0
+        );
+        form.setFieldsValue({
+          shipping_fee_informed_to_customer: _data.shipping_fee_informed_to_customer
+            ? _data.shipping_fee_informed_to_customer
+            : 0,
+        });
+        setOrderDetailAllFulfillment(data);
+        setIsReceivedReturnProducts(_data.order_return_origin?.received ? true : false);
+        if (_data.sub_status_code) {
+          setSubStatusCode(_data.sub_status_code);
+        }
+        if (_data.status === OrderStatus.DRAFT && _data.payments?.length === 0) {
+          setIsShowConfirmOrderButton(true);
+        } else {
+          setIsShowConfirmOrderButton(false);
+        }
+        if (_data.order_return_origin?.total) {
+          setTotalAmountReturnProducts(_data.order_return_origin?.total);
+        }
       }
-      if (_data.order_return_origin?.total) {
-        setTotalAmountReturnProducts(_data.order_return_origin?.total);
-      }
-    }
-  }, [form]);
-  
+    },
+    [form]
+  );
 
   const handleUpdateSubStatus = () => {
     setCountChangeSubStatus(countChangeSubStatus + 1);
@@ -364,7 +404,7 @@ const OrderDetail = (props: PropType) => {
 
   const handleCancelOrder = useCallback(
     (reason_id: string, sub_reason_id: string, reason: string) => {
-      if(!OrderDetail?.id) {
+      if (!OrderDetail?.id) {
         return;
       }
       dispatch(
@@ -381,71 +421,89 @@ const OrderDetail = (props: PropType) => {
     [OrderDetail?.id, dispatch]
   );
 
-  const handleConfirmToEcommerce = () => {
-
-  }
+  const handleConfirmToEcommerce = () => {};
 
   const cancelPrepareGoodsModal = () => {
     setVisibleLogisticConfirmModal(false);
-  }
+  };
 
-  const [ecommerceStoreAddress, setEcommerceStoreAddress] = useState<Array<EcommerceStoreAddress>>([]);
+  const [ecommerceStoreAddress, setEcommerceStoreAddress] = useState<Array<EcommerceStoreAddress>>(
+    []
+  );
 
   const handleEcommerceStoreAddress = useCallback(() => {
     if (OrderDetail) {
-      const convertShopId: any = OrderDetail?.ecommerce_shop_id
+      const convertShopId: any = OrderDetail?.ecommerce_shop_id;
       const ecommerceAddressQuery: EcommerceAddressQuery = {
         order_sn: OrderDetail.reference_code,
         shop_id: convertShopId?.toString(),
-      }
+      };
       dispatch(getEcommerceStoreAddress(ecommerceAddressQuery, ecommerceStoreAddressCallback));
     }
-  }, [OrderDetail, dispatch])
-
-  const changeLazadaOrderStatus = useCallback((status: EcommerceOrderStatus) => {
-    let ecommerceOrderStatusRequest: EcommerceOrderStatusRequest = {
-      status: status,
-      ecommerce_id: EcommerceId.LAZADA,
-      items: []
-    };
-    let order_list: Array<EcommerceOrderList> = [];
-    if (OrderDetail && OrderDetail.reference_code && OrderDetail.ecommerce_shop_id) {
-      const convertShopId: any = OrderDetail?.ecommerce_shop_id
-      const orderRequest: EcommerceOrderList = {
-        order_sn: OrderDetail.reference_code,
-        shop_id: convertShopId?.toString(),
-      };
-      order_list.push(orderRequest);
-    }
-
-    ecommerceOrderStatusRequest.items = order_list;
-    dispatch(changeEcommerceOrderStatus(ecommerceOrderStatusRequest, (data: EcommerceChangeOrderStatusReponse) => {
-      if (data === null) {
-        let errorMessage = status === EcommerceOrderStatus.PACKED ? "Có lỗi xảy ra khi tạo gói hàng Lazada" : status === EcommerceOrderStatus.READY_TO_SHIP ? "Có lỗi xảy ra khi báo Lazada sẵn sàng giao" : "Có lỗi xảy ra khi chuyển trạng thái";
-        showError(errorMessage);
-      } else {
-        if (data.success_list && data.success_list.length > 0) {
-          let successMessage = status === EcommerceOrderStatus.PACKED ? "Tạo gói hàng Lazada thành công" : status === EcommerceOrderStatus.READY_TO_SHIP ? "Báo Lazada sẵn sàng giao thành công" : "Chuyển trạng thái thành công";
-          showSuccess(successMessage);
-        } else if (data.error_list && data.error_list.length > 0) {
-          showError(data.error_list[0].error_message);
-        } else {
-          showError("Có lỗi xảy ra");
-        }
-      }
-    }))
   }, [OrderDetail, dispatch]);
+
+  const changeLazadaOrderStatus = useCallback(
+    (status: EcommerceOrderStatus) => {
+      let ecommerceOrderStatusRequest: EcommerceOrderStatusRequest = {
+        status: status,
+        ecommerce_id: EcommerceId.LAZADA,
+        items: [],
+      };
+      let order_list: Array<EcommerceOrderList> = [];
+      if (OrderDetail && OrderDetail.reference_code && OrderDetail.ecommerce_shop_id) {
+        const convertShopId: any = OrderDetail?.ecommerce_shop_id;
+        const orderRequest: EcommerceOrderList = {
+          order_sn: OrderDetail.reference_code,
+          shop_id: convertShopId?.toString(),
+        };
+        order_list.push(orderRequest);
+      }
+
+      ecommerceOrderStatusRequest.items = order_list;
+      dispatch(
+        changeEcommerceOrderStatus(
+          ecommerceOrderStatusRequest,
+          (data: EcommerceChangeOrderStatusReponse) => {
+            if (data === null) {
+              let errorMessage =
+                status === EcommerceOrderStatus.PACKED
+                  ? "Có lỗi xảy ra khi tạo gói hàng Lazada"
+                  : status === EcommerceOrderStatus.READY_TO_SHIP
+                  ? "Có lỗi xảy ra khi báo Lazada sẵn sàng giao"
+                  : "Có lỗi xảy ra khi chuyển trạng thái";
+              showError(errorMessage);
+            } else {
+              if (data.success_list && data.success_list.length > 0) {
+                let successMessage =
+                  status === EcommerceOrderStatus.PACKED
+                    ? "Tạo gói hàng Lazada thành công"
+                    : status === EcommerceOrderStatus.READY_TO_SHIP
+                    ? "Báo Lazada sẵn sàng giao thành công"
+                    : "Chuyển trạng thái thành công";
+                showSuccess(successMessage);
+              } else if (data.error_list && data.error_list.length > 0) {
+                showError(data.error_list[0].error_message);
+              } else {
+                showError("Có lỗi xảy ra");
+              }
+            }
+          }
+        )
+      );
+    },
+    [OrderDetail, dispatch]
+  );
 
   const ecommerceStoreAddressCallback = (data: any) => {
     if (data) {
       setVisibleLogisticConfirmModal(true);
-      setEcommerceStoreAddress(data)
+      setEcommerceStoreAddress(data);
     }
-  }
+  };
 
   const cancelFulfillmentAndUpdateFromRef = useCallback(() => {
-    if(updateShipmentCardRef.current) {
-      updateShipmentCardRef.current.handleCancelFulfillmentAndUpdate()
+    if (updateShipmentCardRef.current) {
+      updateShipmentCardRef.current.handleCancelFulfillmentAndUpdate();
     }
   }, []);
 
@@ -472,13 +530,13 @@ const OrderDetail = (props: PropType) => {
             "print-type": "order",
             "print-dialog": true,
           };
-          if(OrderDetail?.order_return_origin?.id) {
+          if (OrderDetail?.order_return_origin?.id) {
             params = {
               action: "print",
               ids: [OrderDetail?.order_return_origin?.id],
               "print-type": "order_exchange",
               "print-dialog": true,
-            }
+            };
           }
           const queryParam = generateQuery(params);
           const printPreviewOrderUrl = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/print-preview?${queryParam}`;
@@ -493,7 +551,7 @@ const OrderDetail = (props: PropType) => {
         case "change_status_rts":
           changeLazadaOrderStatus(EcommerceOrderStatus.READY_TO_SHIP);
           break;
-        case "cancelFulfillmentAndUpdate": 
+        case "cancelFulfillmentAndUpdate":
           cancelFulfillmentAndUpdateFromRef();
           break;
         default:
@@ -527,15 +585,15 @@ const OrderDetail = (props: PropType) => {
   /**
    * xóa đơn
    */
-   const handleDeleteOrderClick = useCallback(() => {
+  const handleDeleteOrderClick = useCallback(() => {
     if (!OrderDetail) {
       showError("Có lỗi xảy ra, Không tìm thấy mã đơn trả");
       return;
     }
-  
+
     const deleteOrderComfirm = () => {
       let ids: number[] = [OrderDetail.id];
-  
+
       dispatch(showLoading());
       deleteOrderService(ids)
         .then((response) => {
@@ -558,7 +616,7 @@ const OrderDetail = (props: PropType) => {
           dispatch(hideLoading());
         });
     };
-  
+
     Modal.confirm({
       title: "Xác nhận xóa",
       icon: <ExclamationCircleOutlined />,
@@ -571,9 +629,8 @@ const OrderDetail = (props: PropType) => {
             </div>
           </div>
           <p style={{ textAlign: "justify", color: "#ff4d4f" }}>
-            Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá
-            luôn cả đơn trả liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá
-            đơn ở trạng thái Thành công
+            Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá luôn cả đơn trả
+            liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá đơn ở trạng thái Thành công
           </p>
         </React.Fragment>
       ),
@@ -584,43 +641,47 @@ const OrderDetail = (props: PropType) => {
     });
   }, [OrderDetail, dispatch, history]);
 
-  const handleStatusOrder=useCallback((data:OrderResponse|null)=>{
-    if(!OrderDetail || !data) return;
-    let orderDetailCopy= {...OrderDetail};
-    orderDetailCopy.sub_status=data.sub_status;
-    orderDetailCopy.sub_status_code=data.sub_status_code;
-    orderDetailCopy.sub_status_id=data.sub_status_id;
+  const handleStatusOrder = useCallback(
+    (data: OrderResponse | null) => {
+      if (!OrderDetail || !data) return;
+      let orderDetailCopy = { ...OrderDetail };
+      orderDetailCopy.sub_status = data.sub_status;
+      orderDetailCopy.sub_status_code = data.sub_status_code;
+      orderDetailCopy.sub_status_id = data.sub_status_id;
 
-    orderDetailCopy.sub_reason_id=data.sub_reason_id;
-    orderDetailCopy.sub_reason_name=data.sub_reason_name;
+      orderDetailCopy.sub_reason_id = data.sub_reason_id;
+      orderDetailCopy.sub_reason_name = data.sub_reason_name;
 
-    // console.log("orderDetailCopy",orderDetailCopy)
+      // console.log("orderDetailCopy",orderDetailCopy)
 
-    onGetDetailSuccess(orderDetailCopy)
-  },[OrderDetail,onGetDetailSuccess])
+      onGetDetailSuccess(orderDetailCopy);
+    },
+    [OrderDetail, onGetDetailSuccess]
+  );
 
   const [disabledBottomActions, setDisabledBottomActions] = useState(false);
 
-  const disabledActions = useCallback(
-    (type: string) => {
-      switch (type) {
-        case "shipment":
-          setShowPaymentPartialPayment(false);
-          setDisabledBottomActions(true);
-          break;
-        case "payment":
-          setVisibleShipping(false);
-          setDisabledBottomActions(true);
-          break;
-        case "none":
-          setDisabledBottomActions(false);
-          break;
-        default:
-          break;
-      }
-    },
-    []
-  );
+  const disabledActions = useCallback((type: string) => {
+    switch (type) {
+      case "shipment":
+        setShowPaymentPartialPayment(false);
+        setDisabledBottomActions(true);
+        break;
+      case "payment":
+        setVisibleShipping(false);
+        setDisabledBottomActions(true);
+        break;
+      case "none":
+        setDisabledBottomActions(false);
+        break;
+      default:
+        break;
+    }
+  }, []);
+
+  const createPaymentCallback = () => {
+    numberReloadGetMomoLink = 1;
+  };
 
   useEffect(() => {
     if (isFirstLoad.current || reload) {
@@ -642,46 +703,102 @@ const OrderDetail = (props: PropType) => {
     if (!OrderDetail?.fulfillments || OrderDetail.fulfillments.length === 0) {
       return;
     }
-    
+
     const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-    const trackingCode =  sortedFulfillments[0]?.shipment?.tracking_code;
-    const pushingStatus =  sortedFulfillments[0]?.shipment?.pushing_status;
-    let getTrackingCode = setInterval(()=> {
-      if (numberReloadGetTrackingCodeGHTK < maxNumberReloadGetTrackingCodeGHTK && isRequest && !trackingCode && stepsStatusValue === FulFillmentStatus.PACKED && pushingStatus !== "failed" && sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk") {
-        getOrderDetail(id).then(response => {
+    const trackingCode = sortedFulfillments[0]?.shipment?.tracking_code;
+    const pushingStatus = sortedFulfillments[0]?.shipment?.pushing_status;
+    let getTrackingCode = setInterval(() => {
+      if (
+        numberReloadGetTrackingCodeGHTK < maxNumberReload &&
+        isRequest &&
+        !trackingCode &&
+        stepsStatusValue === FulFillmentStatus.PACKED &&
+        pushingStatus !== "failed" &&
+        sortedFulfillments[0]?.shipment?.delivery_service_provider_code === "ghtk"
+      ) {
+        getOrderDetail(id).then((response) => {
           numberReloadGetTrackingCodeGHTK = numberReloadGetTrackingCodeGHTK + 1;
           const sortedFulfillments = sortFulfillments(response.data?.fulfillments);
           if (sortedFulfillments && sortedFulfillments[0]?.shipment?.tracking_code) {
             onGetDetailSuccess(response.data);
             isRequest = false;
-            showSuccess("Lấy mã vận đơn thành công!")
+            showSuccess("Lấy mã vận đơn thành công!");
             clearInterval(getTrackingCode);
           }
-        })
+        });
       } else {
         clearInterval(getTrackingCode);
       }
-    }, 2500)
+    }, 2500);
     return () => {
-      clearInterval(getTrackingCode)
+      clearInterval(getTrackingCode);
+    };
+  }, [OrderDetail?.fulfillments, id, onGetDetailSuccess, stepsStatusValue]);
+
+  // link momo: sẽ load lại để lấy link momo
+  useEffect(() => {
+    if (!OrderDetail?.payments || OrderDetail.payments.length === 0) {
+      return;
     }
-  }, [OrderDetail?.fulfillments, id, onGetDetailSuccess, stepsStatusValue])
+
+    const momoPayments = OrderDetail?.payments.filter((single) => checkIfMomoPayment(single));
+    if (!momoPayments || momoPayments?.length === 0) {
+      return;
+    }
+    let getMomoPaymentShortLinkUrl = setInterval(() => {
+      if (
+        numberReloadGetMomoLink < maxNumberReload &&
+        momoPayments.some(
+          (momoPayment) =>
+            !momoPayment.short_link &&
+            !checkIfExpiredOrCancelledPayment(momoPayment) &&
+            !checkIfFinishedPayment(momoPayment)
+        )
+      ) {
+        getOrderDetail(id).then((response) => {
+          numberReloadGetMomoLink = numberReloadGetMomoLink + 1;
+          if (!response?.data?.payments) {
+            return;
+          }
+          const momoPaymentsResponse = response.data?.payments.filter((single) =>
+            checkIfMomoPayment(single)
+          );
+          if (
+            !momoPaymentsResponse.some((single) => {
+              return !(checkIfExpiredOrCancelledPayment(single) || single.short_link);
+            })
+          ) {
+            onGetDetailSuccess(response.data);
+            showSuccess("Lấy link Momo thành công!");
+            clearInterval(getMomoPaymentShortLinkUrl);
+          }
+        });
+      } else {
+        clearInterval(getMomoPaymentShortLinkUrl);
+      }
+    }, 2500);
+    return () => {
+      clearInterval(getMomoPaymentShortLinkUrl);
+    };
+  }, [OrderDetail?.payments, id, onGetDetailSuccess]);
 
   useEffect(() => {
     dispatch(
       actionListConfigurationShippingServiceAndShippingFee((response) => {
         setShippingServiceConfig(response);
-        dispatch(changeShippingServiceConfigAction(response))
+        dispatch(changeShippingServiceConfigAction(response));
       })
     );
   }, [dispatch]);
 
   useEffect(() => {
     if (OrderDetail != null) {
-      dispatch(getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
-        setCustomerDetail(data);
-        dispatch(changeOrderCustomerAction(data));
-      }));
+      dispatch(
+        getCustomerDetailAction(OrderDetail?.customer_id, (data) => {
+          setCustomerDetail(data);
+          dispatch(changeOrderCustomerAction(data));
+        })
+      );
     }
   }, [dispatch, OrderDetail]);
 
@@ -699,28 +816,36 @@ const OrderDetail = (props: PropType) => {
 
   useEffect(() => {
     if (OrderDetail?.store_id != null) {
-      dispatch(StoreDetailAction(OrderDetail?.store_id, (data) => {
-        setStoreDetail(data);
-        dispatch(changeStoreDetailAction(data));
-      }));
+      dispatch(
+        StoreDetailAction(OrderDetail?.store_id, (data) => {
+          setStoreDetail(data);
+          dispatch(changeStoreDetailAction(data));
+        })
+      );
       getStoreBankAccountNumbersService({
-        store_ids: [OrderDetail?.store_id]
-      }).then((response) => {
-        if (isFetchApiSuccessful(response)) {
-          dispatch(getStoreBankAccountNumbersAction(response.data.items))
-          const selected = response.data.items.find(single => single.default && single.status);
-          if (selected) {
-            dispatch(changeSelectedStoreBankAccountAction(selected.account_number))
-          } else {
-            dispatch(changeSelectedStoreBankAccountAction(undefined))
-          }
-        } else {
-          dispatch(getStoreBankAccountNumbersAction([]))
-          handleFetchApiError(response, "Danh sách số tài khoản ngân hàng của cửa hàng", dispatch)
-        }
-      }).catch((error) => {
-        console.log('error', error)
+        store_ids: [OrderDetail?.store_id],
       })
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            dispatch(getStoreBankAccountNumbersAction(response.data.items));
+            const selected = response.data.items.find((single) => single.default && single.status);
+            if (selected) {
+              dispatch(changeSelectedStoreBankAccountAction(selected.account_number));
+            } else {
+              dispatch(changeSelectedStoreBankAccountAction(undefined));
+            }
+          } else {
+            dispatch(getStoreBankAccountNumbersAction([]));
+            handleFetchApiError(
+              response,
+              "Danh sách số tài khoản ngân hàng của cửa hàng",
+              dispatch
+            );
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
     }
   }, [dispatch, OrderDetail?.store_id]);
 
@@ -731,12 +856,21 @@ const OrderDetail = (props: PropType) => {
     });
   }, []);
 
-  // khách cần trả
-  const customerNeedToPayValue = useMemo(()=> {
-    return (OrderDetail?.total || 0);
-  }, [OrderDetail?.total]);
+  const totalPaid =
+    OrderDetailAllFulfillment?.payments && OrderDetailAllFulfillment?.payments?.length > 0
+      ? getAmountPayment(OrderDetailAllFulfillment.payments)
+      : 0;
 
-  const totalPaid = OrderDetail?.payments && OrderDetail?.payments?.length > 0 ? getAmountPayment(OrderDetail.payments) : 0;
+  // khách cần trả nguyên giá
+  const totalOrder = useMemo(() => {
+    return OrderDetailAllFulfillment?.total || 0;
+  }, [OrderDetailAllFulfillment?.total]);
+
+  // số tiền khách cần trả
+  const customerNeedToPayValue = totalOrder - totalPaid;
+
+  console.log("totalPaid", totalPaid);
+  console.log("totalOrder", totalOrder);
   // end
   const scroll = useCallback(() => {
     if (window.pageYOffset > 100) {
@@ -766,18 +900,17 @@ const OrderDetail = (props: PropType) => {
     (note, customer_note, orderID) => {
       let params: any = {
         note,
-        customer_note
+        customer_note,
       };
       dispatch(
-        updateOrderPartial(params, orderID, (success?:boolean) => {
-          if(success && OrderDetail)
-          {
-            let orderDetailCopy= {...OrderDetail};
-            orderDetailCopy.note=note;
-            orderDetailCopy.customer_note=customer_note;
+        updateOrderPartial(params, orderID, (success?: boolean) => {
+          if (success && OrderDetail) {
+            let orderDetailCopy = { ...OrderDetail };
+            orderDetailCopy.note = note;
+            orderDetailCopy.customer_note = customer_note;
             // console.log("orderDetailCopy",orderDetailCopy)
             setOrderDetail(orderDetailCopy);
-            showSuccess("Cập nhật ghi chú thành công")
+            showSuccess("Cập nhật ghi chú thành công");
           }
         })
       );
@@ -809,57 +942,64 @@ const OrderDetail = (props: PropType) => {
     );
   }, [dispatch]);
 
-  const eventKeyboardFunction=useCallback((event:KeyboardEvent)=>{
+  const eventKeyboardFunction = useCallback((event: KeyboardEvent) => {
     console.log(event.key);
-    if(event.key==="F9")
-    {
+    if (event.key === "F9") {
       event.preventDefault();
       event.stopPropagation();
     }
-    switch(event.key){
+    switch (event.key) {
       case "F9":
-        const btnOrderUpdateElement:any= document.getElementById("btn-order-edit");
+        const btnOrderUpdateElement: any = document.getElementById("btn-order-edit");
         btnOrderUpdateElement?.click();
         break;
-      default: break;
+      default:
+        break;
     }
-  },[])
+  }, []);
 
-  useEffect(()=>{
-    window.addEventListener("keydown",eventKeyboardFunction)
-    return ()=>{
-      window.removeEventListener("keydown",eventKeyboardFunction)
-    }
-  },[eventKeyboardFunction])
+  useEffect(() => {
+    window.addEventListener("keydown", eventKeyboardFunction);
+    return () => {
+      window.removeEventListener("keydown", eventKeyboardFunction);
+    };
+  }, [eventKeyboardFunction]);
+
+  useEffect(() => {
+    const resetCountReload = () => {
+      numberReloadGetTrackingCodeGHTK = 1;
+      numberReloadGetMomoLink = 1;
+    };
+    resetCountReload();
+  }, []);
 
   return (
     <ContentContainer
       isLoading={loadingData}
       isError={isError}
-      title= {
-        OrderDetail?.code
-        ? `Đơn hàng ${OrderDetail?.code}`
-        : "Đang tải dữ liệu..."
+      title={OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu..."}
+      breadcrumb={
+        OrderDetail
+          ? [
+              {
+                name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
+                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+              },
+              {
+                name: OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
+              },
+            ]
+          : undefined
       }
-      breadcrumb={OrderDetail ? [
-        {
-          name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
-          path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
-        },
-        {
-          name: `Danh sách đơn hàng ${ isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-          path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS :  UrlConfig.ORDER,
-        },
-        {
-          name: OrderDetail?.code
-            ? `Đơn hàng ${OrderDetail?.code}`
-            : "Đang tải dữ liệu...",
-        },
-      ]: undefined}
-      extra={isOrderFromPOS(OrderDetail) ? undefined :
-        <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
-      }
-    >
+      extra={
+        isOrderFromPOS(OrderDetail) ? undefined : (
+          <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
+        )
+      }>
       <div className="orders">
         <Form layout="vertical" initialValues={initialFormValue} form={form}>
           <Row gutter={24} style={{ marginBottom: "70px" }}>
@@ -878,9 +1018,7 @@ const OrderDetail = (props: PropType) => {
                 <CardShowReturnProducts
                   listReturnProducts={OrderDetail?.order_return_origin?.items}
                   pointUsing={OrderDetail.order_return_origin.point_refund}
-                  totalAmountReturnToCustomer={
-                    OrderDetail?.order_return_origin.money_amount
-                  }
+                  totalAmountReturnToCustomer={OrderDetail?.order_return_origin.money_amount}
                   OrderDetail={OrderDetail}
                 />
               )}
@@ -896,25 +1034,25 @@ const OrderDetail = (props: PropType) => {
               {/*--- end product ---*/}
 
               {/* ko hiển thị hoàn tiền ở chi tiết đơn đổi */}
-              {OrderDetail?.order_return_origin?.payment_status && OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid && false && (
+              {OrderDetail?.order_return_origin?.payment_status &&
+                OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid &&
+                false && (
                   <CardReturnMoney
                     listPaymentMethods={listPaymentMethods}
                     payments={[]}
-                    returnMoneyAmount={(
-                      customerNeedToPayValue -
-                      totalPaid
-                    )}
+                    returnMoneyAmount={customerNeedToPayValue}
                     isShowPaymentMethod={true}
-                    setIsShowPaymentMethod={() => { }}
+                    setIsShowPaymentMethod={() => {}}
                     handleReturnMoney={handleReturnMoney}
                     returnPaymentMethodCode={returnPaymentMethodCode}
                     setReturnPaymentMethodCode={setReturnPaymentMethodCode}
                     canCreateMoneyRefund={canCreateMoneyRefund}
                   />
                 )}
-              
-              <CardShowOrderPayments 
-                OrderDetail={OrderDetail}
+
+              <CardShowOrderPayments
+                OrderDetail={OrderDetailAllFulfillment}
+                setOrderDetail={setOrderDetailAllFulfillment}
                 disabledActions={disabledActions}
                 disabledBottomActions={disabledBottomActions}
                 form={form}
@@ -929,6 +1067,7 @@ const OrderDetail = (props: PropType) => {
                 setVisibleUpdatePayment={setVisibleUpdatePayment}
                 shipmentMethod={shipmentMethod}
                 stepsStatusValue={stepsStatusValue}
+                createPaymentCallback={createPaymentCallback}
               />
 
               {/*--- shipment ---*/}
@@ -948,7 +1087,7 @@ const OrderDetail = (props: PropType) => {
                 officeTime={officeTime}
                 shipmentMethod={shipmentMethod}
                 isVisibleShipping={isVisibleShipping}
-                OrderDetailAllFullfilment={OrderDetailAllFulfillment}
+                OrderDetailAllFulfillment={OrderDetailAllFulfillment}
                 orderSettings={orderSettings}
                 onReload={() => setReload(true)}
                 disabledActions={disabledActions}
@@ -969,32 +1108,75 @@ const OrderDetail = (props: PropType) => {
                   isDetailPage
                 />
               )}
-              {OrderDetailAllFulfillment?.fulfillments?.some((p)=>(p.status===FulFillmentStatus.SHIPPING && p.return_status===FulFillmentStatus.RETURNING) 
-              || (p.status===FulFillmentStatus.CANCELLED && p.return_status===FulFillmentStatus.RETURNED && p.status_before_cancellation===FulFillmentStatus.SHIPPING)) && (
-              <Alert
-                message={
-                  <React.Fragment>
-                    <div style={{lineHeight:"10px",fontWeight:"500", fontSize:"15px", padding: "10px 0"}}>
-                      <p>Lưu ý : Đối với đơn ở trạng thái đang hoàn</p>
-                      <ul style={{lineHeight:"18px", marginBottom: 0}}>
-                        <li>Nếu chọn nhận hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành Đã hoàn và cộng tồn đã hoàn cho các sản phẩm thuộc đơn hàng về kho</li>
-                        <li>Nếu chọn đã giao hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành công</li>
-                      </ul>
-                    </div>
-                  </React.Fragment>
-                }
-                type="warning"
-                closable
-              />
+              {OrderDetailAllFulfillment?.fulfillments?.some(
+                (p) =>
+                  (p.status === FulFillmentStatus.SHIPPING &&
+                    p.return_status === FulFillmentStatus.RETURNING) ||
+                  (p.status === FulFillmentStatus.CANCELLED &&
+                    p.return_status === FulFillmentStatus.RETURNED &&
+                    p.status_before_cancellation === FulFillmentStatus.SHIPPING)
+              ) && (
+                <Alert
+                  message={
+                    <React.Fragment>
+                      <div
+                        style={{
+                          lineHeight: "10px",
+                          fontWeight: "500",
+                          fontSize: "15px",
+                          padding: "10px 0",
+                        }}>
+                        <p>Lưu ý : Đối với đơn ở trạng thái đang hoàn</p>
+                        <ul style={{ lineHeight: "18px", marginBottom: 0 }}>
+                          <li>
+                            Nếu chọn nhận hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành Đã hoàn
+                            và cộng tồn đã hoàn cho các sản phẩm thuộc đơn hàng về kho
+                          </li>
+                          <li>
+                            Nếu chọn đã giao hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành công
+                          </li>
+                        </ul>
+                      </div>
+                    </React.Fragment>
+                  }
+                  type="warning"
+                  closable
+                />
               )}
-              
+
+              {checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment) && (
+                <Alert
+                  message={
+                    <React.Fragment>
+                      <div style={{ fontWeight: "500", fontSize: "15px", padding: "10px 0" }}>
+                        <p>
+                          Lưu ý : Không thể điều phối đơn hàng khi chờ khách thanh toán qua ví điện
+                          tử
+                        </p>
+                        <ul style={{ marginBottom: 0 }}>
+                          <li style={{ marginBottom: 5 }}>
+                            Thời hạn thanh toán là 24h kể từ thời điểm tạo đơn
+                          </li>
+                          <li>
+                            Trong vòng 30 phút mà khách chưa thanh toán sale cần gọi hay nhắn tin
+                            cho khách để xác nhận thanh toán. Nếu khách hủy thanh toán qua ví bạn có
+                            thể bấm nút "Hủy giao dịch" để có thể điều phối đơn
+                          </li>
+                        </ul>
+                      </div>
+                    </React.Fragment>
+                  }
+                  type="warning"
+                  closable
+                />
+              )}
             </Col>
 
             <Col md={6}>
               {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
               <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
               <SubStatusOrder
-                setOrderDetail= {handleStatusOrder}
+                setOrderDetail={handleStatusOrder}
                 subStatusCode={subStatusCode}
                 status={OrderDetail?.status}
                 orderId={OrderDetail?.id}
@@ -1002,15 +1184,13 @@ const OrderDetail = (props: PropType) => {
                 setReload={setReload}
                 OrderDetailAllFulfillment={OrderDetailAllFulfillment}
               />
-              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote}/>
+              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
               <ActionHistory
                 orderId={OrderDetail?.id}
                 countChangeSubStatus={countChangeSubStatus}
                 reload={reload}
               />
-              {customerDetail?.id && (
-                <SidebarOrderHistory customerId={customerDetail?.id} />
-              )}
+              {customerDetail?.id && <SidebarOrderHistory customerId={customerDetail?.id} />}
             </Col>
           </Row>
           <OrderDetailBottomBar

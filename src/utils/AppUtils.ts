@@ -37,6 +37,7 @@ import {
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
+  CustomerOrderHistoryResponse,
   FulFillmentResponse,
   OrderDiscountResponse,
   // DeliveryServiceResponse,
@@ -66,7 +67,11 @@ import {
 import { ConvertDateToUtc } from "./DateUtils";
 import { ORDER_SUB_STATUS } from "./Order.constants";
 import { ORDER_SETTINGS_STATUS } from "./OrderSettings.constants";
-import { checkIfFulfillmentCancelled } from "./OrderUtils";
+import {
+  checkIfExpiredOrCancelledPayment,
+  checkIfFinishedPayment,
+  checkIfFulfillmentCancelled,
+} from "./OrderUtils";
 import { RegUtil } from "./RegUtils";
 import { showError, showSuccess } from "./ToastUtils";
 
@@ -207,6 +212,7 @@ export const getArrCategory = (
     level: level,
     parent: parentTemp,
     name: i.name,
+    child_ids: i.child_ids,
   });
   if (i.children.length > 0) {
     i.children.forEach((i1) => {
@@ -744,10 +750,12 @@ export const getAmountPayment = (
   items: Array<OrderPaymentResponse | OrderPaymentRequest> | null,
 ) => {
   let value = 0;
-  if (items !== null) {
-    if (items.length > 0) {
-      items.forEach((a) => (value = value + a.paid_amount));
-    }
+  if (items && items.length > 0) {
+    items.forEach((a) => {
+      if (!checkIfExpiredOrCancelledPayment(a)) {
+        value = value + a.paid_amount;
+      }
+    });
   }
   return value;
 };
@@ -756,10 +764,10 @@ export const getAmountPaymentRequest = (
   items: Array<OrderPaymentRequest> | null,
 ) => {
   let value = 0;
-  if (items !== null) {
-    if (items.length > 0) {
-      items.forEach((a) => (value = value + a.paid_amount));
-    }
+  if (items && items.length > 0) {
+    items.forEach((a) => {
+      value = value + a.paid_amount;
+    });
   }
   return value;
 };
@@ -809,7 +817,9 @@ export const getOrderTotalPaymentAmount = (
 ) => {
   let total = 0;
   payments.forEach((a) => {
-    total = total + a.amount;
+    if (checkIfFinishedPayment(a)) {
+      total = total + a.amount;
+    }
   });
   return total;
 };
@@ -819,7 +829,9 @@ export const getOrderTotalPaymentAmountReturn = (
 ) => {
   let total = 0;
   payments.forEach((a) => {
-    total = total + a.paid_amount;
+    if (checkIfFinishedPayment(a)) {
+      total = total + a.paid_amount;
+    }
   });
   return total;
 };
@@ -843,12 +855,12 @@ export const getTotalQuantity = (items: Array<OrderLineItemResponse>) => {
 export const checkPaymentStatusToShow = (items: OrderResponse) => {
   //tính tổng đã thanh toán
   let value = 0;
-  if (items !== null) {
-    if (items.payments !== null) {
-      if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = value + a.paid_amount));
+  if (items && items?.payments && items.payments.length) {
+    items.payments.forEach((a) => {
+      if (checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount;
       }
-    }
+    });
   }
   if (items?.total <= value) {
     return 1; //đã thanh toán
@@ -863,12 +875,12 @@ export const checkPaymentStatusToShow = (items: OrderResponse) => {
 
 export const checkPaymentStatus = (payments: any, orderAmount: number) => {
   let value = 0;
-  if (payments !== null) {
-    if (payments !== null) {
-      if (payments.length > 0) {
-        payments.forEach((a: any) => (value = value + a.paid_amount));
+  if (payments && payments.length > 0) {
+    payments.forEach((a: any) => {
+      if (checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount;
       }
-    }
+    });
   }
   if (value >= orderAmount) {
     return 1; //đã thanh toán
@@ -902,12 +914,12 @@ export const SumCOD = (items: OrderResponse) => {
 export const checkPaymentAll = (items: OrderResponse) => {
   //tính tổng đã thanh toán
   let value = 0;
-  if (items !== null) {
-    if (items.payments !== null) {
-      if (items.payments.length > 0) {
-        items.payments.forEach((a) => (value = value + a.paid_amount));
+  if (items?.payments && items.payments.length > 0) {
+    items.payments.forEach((a) => {
+      if (checkIfFinishedPayment(a)) {
+        value = value + a.paid_amount;
       }
-    }
+    });
   }
 
   //tổng cod
@@ -1665,7 +1677,12 @@ export async function sortSources(
 }
 
 export const isOrderFromPOS = (
-  OrderDetail: OrderModel | OrderResponse | null | undefined,
+  OrderDetail:
+    | OrderModel
+    | OrderResponse
+    | CustomerOrderHistoryResponse
+    | null
+    | undefined,
 ) => {
   if (
     OrderDetail?.channel_id === POS.channel_id ||
@@ -1861,13 +1878,6 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
       const checkedShippingFeeConfig =
         singleOnTimeShippingServiceConfig.shipping_fee_configs.filter(
           (single) => {
-            if (isApplyAll) {
-              return checkIfPrice(
-                orderPrice,
-                single.from_price,
-                single.to_price,
-              );
-            }
             return (
               checkIfSameCity(
                 single.city_id,
@@ -1886,22 +1896,22 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     listCheckedShippingFeeConfig,
   );
 
+  let result = 0;
   // lấy số nhỏ nhất
   if (
     listCheckedShippingFeeConfigFlatten &&
     listCheckedShippingFeeConfigFlatten.length > 0
   ) {
-    let result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
+    result = listCheckedShippingFeeConfigFlatten[0].transport_fee;
     listCheckedShippingFeeConfigFlatten.forEach((single: any) => {
       if (single.transport_fee < result) {
         result = single.transport_fee;
       }
     });
-    form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
-    setShippingFeeInformedToCustomer &&
-      setShippingFeeInformedToCustomer(result);
-    showSuccess("Cập nhật phí ship báo khách thành công!");
   }
+  form?.setFieldsValue({ shipping_fee_informed_to_customer: result });
+  setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(result);
+  showSuccess("Phí ship đã được thay đổi!");
 };
 
 export const getCustomerShippingAddress = (customer: CustomerResponse) => {
@@ -2236,7 +2246,7 @@ export const formatCurrencyInputValue = (a: string) => {
 };
 
 export const checkIfOrderCanBeReturned = (
-  orderDetail: OrderResponse | OrderModel,
+  orderDetail: OrderResponse | OrderModel | CustomerOrderHistoryResponse,
 ) => {
   return (
     orderDetail.status === OrderStatus.FINISHED ||
@@ -2286,3 +2296,10 @@ export const insertCustomIndexArray = (
   index: number,
   newItem: any,
 ) => [...arr.slice(0, index), newItem, ...arr.slice(index)];
+
+export function toTitleCase(str: string) {
+  return str
+    .split(" ")
+    .map((item) => _.capitalize(item))
+    .join(" ");
+}

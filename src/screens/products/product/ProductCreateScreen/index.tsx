@@ -11,13 +11,16 @@ import {
   Checkbox,
   Col,
   Collapse,
-  Form, Image, Input,
+  Form,
+  Image,
+  Input,
   Popover,
   Row,
   Select,
   Space,
   Switch,
-  Table
+  Table,
+  TreeSelect,
 } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -33,8 +36,14 @@ import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { getColorAction } from "domain/actions/product/color.action";
-import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
-import { productCheckDuplicateCodeAction, productCreateAction } from "domain/actions/product/products.action";
+import {
+  detailMaterialAction,
+  materialSearchAll,
+} from "domain/actions/product/material.action";
+import {
+  productCheckDuplicateCodeAction,
+  productCreateAction,
+} from "domain/actions/product/products.action";
 import { sizeSearchAction } from "domain/actions/product/size.action";
 import { AccountResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -48,7 +57,7 @@ import {
   ProductRequestView,
   ProductResponse,
   VariantImage,
-  VariantRequestView
+  VariantRequestView,
 } from "model/product/product.model";
 import { SizeResponse } from "model/product/size.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -57,7 +66,7 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState
+  useState,
 } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
@@ -69,29 +78,31 @@ import {
   formatCurrencyForProduct,
   Products,
   replaceFormatString,
+  toTitleCase,
 } from "utils/AppUtils";
 import { ArrDefects, DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { RegUtil } from "utils/RegUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { careInformation } from "../component/CareInformation/care-value";
 import CareModal from "../component/CareInformation/CareModal";
 import ImageProduct from "../component/image-product.component";
 import ModalPickAvatar from "../component/ModalPickAvatar";
 import UploadImageModal, {
-  VariantImageModel
+  VariantImageModel,
 } from "../component/upload-image.modal";
 import { StyledComponent } from "./styles";
-import BaseSelectPaging from "../../../../component/base/BaseSelect/BaseSelectPaging";
-import BaseSelectMerchans from "../../../../component/base/BaseSelect/BaseSelectMerchans";
-import { useFetchMerchans } from "../../../../hook/useFetchMerchans";
-import BaseSelect from "../../../../component/base/BaseSelect/BaseSelect";
+import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
+import BaseSelectMerchans from "component/base/BaseSelect/BaseSelectMerchans";
+import { useFetchMerchans } from "hook/useFetchMerchans";
+import BaseSelect from "component/base/BaseSelect/BaseSelect";
+const { TreeNode } = TreeSelect;
 const { Item, List } = Form;
 const { Option } = Select;
 
 type Defect = {
-  code: string,
-  name:string
+  code: string;
+  name: string;
 };
 
 const initialRequest: ProductRequestView = {
@@ -137,8 +148,10 @@ const initialRequest: ProductRequestView = {
   defect: null,
 };
 
-const ProductCreateScreen: React.FC = () => { 
-  const userReducer = useSelector((state: RootReducerType) => state.userReducer);
+const ProductCreateScreen: React.FC = () => {
+  const userReducer = useSelector(
+    (state: RootReducerType) => state.userReducer,
+  );
   //Hook
   const dispatch = useDispatch();
   const history = useHistory();
@@ -146,25 +159,25 @@ const ProductCreateScreen: React.FC = () => {
   //end hook
   //init
   const goods = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.goods
+    (state: RootReducerType) => state.bootstrapReducer.data?.goods,
   );
   const brandList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.brand
+    (state: RootReducerType) => state.bootstrapReducer.data?.brand,
   );
   const productUnitList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.product_unit
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_unit,
   );
   const currencyList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.currency
+    (state: RootReducerType) => state.bootstrapReducer.data?.currency,
   );
   const lengthUnitList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.length_unit
+    (state: RootReducerType) => state.bootstrapReducer.data?.length_unit,
   );
   const weightUnitList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.weight_unit
+    (state: RootReducerType) => state.bootstrapReducer.data?.weight_unit,
   );
   const productStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.product_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.product_status,
   );
   const initialForm: ProductRequestView = {
     ...initialRequest,
@@ -183,38 +196,31 @@ const ProductCreateScreen: React.FC = () => {
         : null,
     product_type: "normal",
     brand: DEFAULT_COMPANY.company.toLocaleLowerCase(),
-    merchandiser_code: userReducer && userReducer.account ? userReducer.account.code : null
+    merchandiser_code:
+      userReducer && userReducer.account ? userReducer.account.code : null,
   };
   //end init
 
   //state
   const isLoadMaterData = useRef(false);
-  const [selectedGood, setSelectedGood] = useState<string | null>(
-    initialForm.goods
-  );
-  const [listCategory, setListCategory] = useState<Array<CategoryView>>([]);
-  const categoryFilter = useMemo(() => {
-    if (selectedGood === null) {
-      return listCategory;
-    }
-    return listCategory.filter((item) => item.goods === selectedGood);
-  }, [listCategory, selectedGood]);
+
+  const [listCategory, setListCategory] = useState<Array<CategoryResponse>>([]);
+  const [lstCategoryAll, setLstCategoryAll] = useState<Array<CategoryView>>([]);
+
   const [listCountry, setListCountry] = useState<Array<CountryResponse>>([]);
   const [listMaterial, setListMaterial] = useState<Array<MaterialResponse>>([]);
 
   const [suppliers, setSupplier] = useState<PageResponse<SupplierResponse>>({
     items: [],
-    metadata: { limit: 20, page: 1, total: 0 }
+    metadata: { limit: 20, page: 1, total: 0 },
   });
-  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
+  const [sizes, setSizes] = useState<PageResponse<SizeResponse>>({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
   const [colors, setColors] = useState<PageResponse<ColorResponse>>({
     items: [],
-    metadata: { limit: 20, page: 1, total: 0 }
+    metadata: { limit: 20, page: 1, total: 0 },
   });
   const [variants, setVariants] = useState<Array<VariantRequestView>>([]);
   const [colorSelected, setColorSelected] = useState<Array<ColorResponse>>([]);
@@ -236,23 +242,20 @@ const ProductCreateScreen: React.FC = () => {
   const [defects, setDefects] = useState<Array<Defect>>([]);
   const [careLabels, setCareLabels] = useState<any[]>([]);
   const [careLabelsString, setCareLabelsString] = useState("");
-  const [collections, setCollections] = useState<PageResponse<CollectionResponse>>(
-    {
-      items: [],
-      metadata: { limit: 20, page: 1, total: 0 }
-    }
-  );
-  const {fetchMerchans, merchans, isLoadingMerchans} = useFetchMerchans()
+  const [collections, setCollections] = useState<
+    PageResponse<CollectionResponse>
+  >({
+    items: [],
+    metadata: { limit: 20, page: 1, total: 0 },
+  });
+  const { fetchMerchans, merchans, isLoadingMerchans } = useFetchMerchans();
   //end category
   //end state
 
   const setDataCategory = useCallback((arr: Array<CategoryResponse>) => {
     let temp: Array<CategoryView> = convertCategory(arr);
-    setListCategory(temp);
-  }, []);
-
-  const onGoodsChange = useCallback((value: string) => {
-    setSelectedGood(value);
+    setLstCategoryAll(temp);
+    setListCategory(arr);
   }, []);
 
   const setDataAccounts = useCallback(
@@ -261,25 +264,37 @@ const ProductCreateScreen: React.FC = () => {
         return false;
       }
     },
-    []
+    [],
   );
 
   const onCategoryChange = useCallback(
-    (value: number) => {
-      // let categoryIndex = listCategory.findIndex((item) => item.id === value);
-      // if (categoryIndex !== -1) {
-      //   form.setFieldsValue({
-      //     code: listCategory[categoryIndex].code,
-      //   });
-      // }
+    (value: number, b, c) => {
+      const category = lstCategoryAll.find((item) => item.id === value);
+
+      if (category && category.child_ids === null) {
+        form.setFieldsValue({
+          code: category.code ?? "",
+          name: toTitleCase(category.name),
+        });
+      } else {
+        showWarning("Vui lòng chọn danh mục con");
+        form.setFieldsValue({
+          category_id: null,
+        });
+      }
     },
-    []
+    [form, lstCategoryAll],
   );
 
   const listVariantsFilter = useCallback(
     (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
-      let name = form.getFieldValue("name");
       let code = form.getFieldValue("code");
+      let name = form.getFieldValue("name");
+      name = toTitleCase(name);
+      form.setFieldsValue({
+        name: name,
+      });
+
       if (name && code) {
         let newVariants: Array<VariantRequestView> = [];
         if (colors.length > 0 && sizes.length > 0) {
@@ -324,7 +339,7 @@ const ProductCreateScreen: React.FC = () => {
               size: null,
               sku: `${code}-${i1.code}`,
               variant_images: [],
-              quantity: 0
+              quantity: 0,
             });
           });
         }
@@ -341,33 +356,11 @@ const ProductCreateScreen: React.FC = () => {
             variant_images: [],
           });
 
-        const arrDefectSpecial = ArrDefects.filter(e=>e.isSpecial===1);
+          const arrDefectSpecial = ArrDefects.filter((e) => e.isSpecial === 1);
 
-         for (let i = 0; i < arrDefectSpecial.length; i++) {
-           const e = arrDefectSpecial[i];
+          for (let i = 0; i < arrDefectSpecial.length; i++) {
+            const e = arrDefectSpecial[i];
 
-           newVariants.push({
-            name: `${name} - ${e.name}`,
-            color_id: null,
-            code: null,
-            color: null,
-            size_id: null,
-            size: null,
-            sku: `${code}-${e.code}`,
-            quantity: 0,
-            variant_images: [],
-            saleable: false,
-            defect_code: `${e.code}`,
-            type: 1
-          });
-         }
-
-         setDefects([...arrDefectSpecial]);
-        }
-
-        for (let i = 0; i < defects.length; i++) {
-          const e = defects[i];
-          if (!newVariants.find(v =>v.defect_code === e.code)) {
             newVariants.push({
               name: `${name} - ${e.name}`,
               color_id: null,
@@ -380,16 +373,40 @@ const ProductCreateScreen: React.FC = () => {
               variant_images: [],
               saleable: false,
               defect_code: `${e.code}`,
-              type: 1
+              type: 1,
+            });
+          }
+
+          setDefects([...arrDefectSpecial]);
+        }
+
+        for (let i = 0; i < defects.length; i++) {
+          const e = defects[i];
+          if (!newVariants.find((v) => v.defect_code === e.code)) {
+            newVariants.push({
+              name: `${name} - ${e.name}`,
+              color_id: null,
+              code: null,
+              color: null,
+              size_id: null,
+              size: null,
+              sku: `${code}-${e.code}`,
+              quantity: 0,
+              variant_images: [],
+              saleable: false,
+              defect_code: `${e.code}`,
+              type: 1,
             });
           }
         }
 
-        let uniqueObjArray = [...new Map(newVariants.map((item) => [item["sku"], item])).values()];
+        let uniqueObjArray = [
+          ...new Map(newVariants.map((item) => [item["sku"], item])).values(),
+        ];
         setVariants([...uniqueObjArray]);
       }
     },
-    [defects, form]
+    [defects, form],
   );
 
   const onCodeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -406,7 +423,7 @@ const ProductCreateScreen: React.FC = () => {
               },
             ]);
           }
-        })
+        }),
       );
   };
 
@@ -414,51 +431,75 @@ const ProductCreateScreen: React.FC = () => {
     listVariantsFilter(colorSelected, sizeSelected);
   }, [colorSelected, listVariantsFilter, sizeSelected]);
 
-  const onMaterialChange = useCallback((id: number) => {
-    if (changeDescription && id) {
-      dispatch(detailMaterialAction(id, (material) => {
-        handleChangeMaterial(material, form);
-        if (material && material.care_labels) {
-          setCareLabelsString(material.care_labels);
-        }else{
-          setCareLabelsString("");
-        }
-      }));
-    }
-  },[changeDescription, dispatch, form]);
+  const onMaterialChange = useCallback(
+    (id: number) => {
+      if (changeDescription && id) {
+        dispatch(
+          detailMaterialAction(id, (material) => {
+            handleChangeMaterial(material, form);
+            if (material && material.care_labels) {
+              setCareLabelsString(material.care_labels);
+            } else {
+              setCareLabelsString("");
+            }
+          }),
+        );
+      }
+    },
+    [changeDescription, dispatch, form],
+  );
 
   const onSizeSelected = useCallback(
     (value: number, objSize: any) => {
-      let size:string = "";
+      let size: string = "";
       if (objSize && objSize?.children) {
         size = objSize?.children.split(" ")[0];
       }
-      const newSize = {id: value, code: size } as SizeResponse;
-      let filter = [...variants.filter(e=>e.size !== null).map(e=>({id: e.size_id, code: e.size})), newSize] as Array<SizeResponse>;
+      const newSize = { id: value, code: size } as SizeResponse;
+      let filter = [
+        ...variants
+          .filter((e) => e.size !== null)
+          .map((e) => ({ id: e.size_id, code: e.size })),
+        newSize,
+      ] as Array<SizeResponse>;
 
       setSizeSelected([...filter]);
       listVariantsFilter(colorSelected, filter);
     },
-    [colorSelected, listVariantsFilter, variants]
+    [colorSelected, listVariantsFilter, variants],
   );
 
   const onColorSelected = useCallback(
-     async (value: number, objColor: any) => {
-      let colorCode:string = "";
+    async (value: number, objColor: any) => {
+      let colorCode: string = "";
       let colorName: string = "";
 
-      const res = await callApiNative({isShowLoading: false},dispatch,colorDetailApi,value);
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        colorDetailApi,
+        value,
+      );
       if (res) {
         colorCode = res.code;
-        colorName= res.name;
+        colorName = res.name;
       }
 
-      const newColor = { id: value, name: colorName, code: colorCode } as ColorResponse;
-      let filter = [...variants.filter(e=>e.color !== null).map((e: any) => ({ id: e.color_id,name: e.color, code: e.code })), newColor] as Array<ColorResponse>;
+      const newColor = {
+        id: value,
+        name: colorName,
+        code: colorCode,
+      } as ColorResponse;
+      let filter = [
+        ...variants
+          .filter((e) => e.color !== null)
+          .map((e: any) => ({ id: e.color_id, name: e.color, code: e.code })),
+        newColor,
+      ] as Array<ColorResponse>;
       setColorSelected([...filter]);
       listVariantsFilter(filter, sizeSelected);
     },
-    [listVariantsFilter, sizeSelected, variants, dispatch]
+    [listVariantsFilter, sizeSelected, variants, dispatch],
   );
 
   const statusValue = useMemo(() => {
@@ -482,14 +523,14 @@ const ProductCreateScreen: React.FC = () => {
 
   useEffect(() => {
     const newSelected = careLabelsString ? careLabelsString.split(";") : [];
-    let careLabels: any[] = []
+    let careLabels: any[] = [];
     newSelected.forEach((value: string) => {
       careInformation.washing.forEach((item: any) => {
         if (value === item.value) {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
 
@@ -498,7 +539,7 @@ const ProductCreateScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
       careInformation.ironing.forEach((item: any) => {
@@ -506,7 +547,7 @@ const ProductCreateScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
       careInformation.drying.forEach((item: any) => {
@@ -514,7 +555,7 @@ const ProductCreateScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
       careInformation.professionalCare.forEach((item: any) => {
@@ -522,11 +563,10 @@ const ProductCreateScreen: React.FC = () => {
           careLabels.push({
             ...item,
             active: true,
-          })
+          });
         }
       });
-
-    })
+    });
     setCareLabels(careLabels);
   }, [careLabelsString]);
 
@@ -538,7 +578,7 @@ const ProductCreateScreen: React.FC = () => {
         history.push(`${UrlConfig.PRODUCT}/${result.id}`);
       }
     },
-    [history]
+    [history],
   );
 
   const onClickUpload = useCallback(
@@ -550,7 +590,7 @@ const ProductCreateScreen: React.FC = () => {
       });
       setVisibleUpload(true);
     },
-    []
+    [],
   );
 
   const onFinish = useCallback(
@@ -560,15 +600,18 @@ const ProductCreateScreen: React.FC = () => {
       if (values.saleable) {
         variantsHasProductAvatar = getFirstProductAvatarCreate(variants);
       }
-      let request = Products.convertProductViewToRequest({
-        ...values,
-        description: form.getFieldValue("description"),
-        care_labels: careLabelsString,
-      }, variantsHasProductAvatar, status);
-      
+      let request = Products.convertProductViewToRequest(
+        {
+          ...values,
+          description: form.getFieldValue("description"),
+          care_labels: careLabelsString,
+        },
+        variantsHasProductAvatar,
+        status,
+      );
       dispatch(productCreateAction(request, createCallback));
     },
-    [createCallback, dispatch, careLabelsString, status, variants, form]
+    [createCallback, dispatch, careLabelsString, status, variants, form],
   );
 
   const onCancel = useCallback(() => {
@@ -621,7 +664,7 @@ const ProductCreateScreen: React.FC = () => {
       })
       .catch((error) => {
         const element: any = document.getElementById(
-          error.errorFields[0].name.join("")
+          error.errorFields[0].name.join(""),
         );
         element?.focus();
         const y =
@@ -649,16 +692,18 @@ const ProductCreateScreen: React.FC = () => {
   const deleteVariant = useCallback(
     (sku: string) => {
       let index = variants.findIndex((item) => item.sku === sku);
-      if (variants[index].defect_code && variants[index].defect_code !=="") {
+      if (variants[index].defect_code && variants[index].defect_code !== "") {
         let lstDefects = [...defects];
-        lstDefects = lstDefects.filter(e=>e.code !== variants[index].defect_code);
+        lstDefects = lstDefects.filter(
+          (e) => e.code !== variants[index].defect_code,
+        );
 
         setDefects([...lstDefects]);
       }
       variants.splice(index, 1);
       setVariants([...variants]);
     },
-    [defects, variants]
+    [defects, variants],
   );
 
   const onPickAvatar = useCallback(() => {
@@ -676,7 +721,6 @@ const ProductCreateScreen: React.FC = () => {
     });
     return avatar;
   }, [variants]);
-
 
   const getFirstProductAvatarCreate = (variants: Array<VariantRequestView>) => {
     let isFind = false;
@@ -697,8 +741,15 @@ const ProductCreateScreen: React.FC = () => {
       }
     });
 
-    if (!isFind && revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX]) {
-      revertVariants[variantAvatarIndex].variant_images[FIRST_VARIANT_IMAGE_INDEX].product_avatar = true;
+    if (
+      !isFind &&
+      revertVariants[variantAvatarIndex].variant_images[
+        FIRST_VARIANT_IMAGE_INDEX
+      ]
+    ) {
+      revertVariants[variantAvatarIndex].variant_images[
+        FIRST_VARIANT_IMAGE_INDEX
+      ].product_avatar = true;
     }
 
     return revertVariants.reverse();
@@ -716,77 +767,105 @@ const ProductCreateScreen: React.FC = () => {
       setVariants([...variants]);
       setVisiblePickAvatar(false);
     },
-    [variants]
+    [variants],
   );
 
-  const getColors = useCallback((info: string, page: number) => {
-    setColorLoading(true);
-    dispatch(getColorAction({ info: info, is_main_color: 0, page: page }, (res) => {
-      setColors(res)
-      setColorLoading(false);
-    }));
-  }, [dispatch]);
+  const getColors = useCallback(
+    (info: string, page: number) => {
+      setColorLoading(true);
+      dispatch(
+        getColorAction({ info: info, is_main_color: 0, page: page }, (res) => {
+          setColors(res);
+          setColorLoading(false);
+        }),
+      );
+    },
+    [dispatch],
+  );
 
-  const getSizes = useCallback((code: string, page: number) => {
-    setSizeLoading(true);
-    dispatch(sizeSearchAction({ code: code, page: page }, (res) => {
-      setSizes(res)
-      setSizeLoading(false);
-    }));
-  }, [dispatch]);
+  const getSizes = useCallback(
+    (code: string, page: number) => {
+      setSizeLoading(true);
+      dispatch(
+        sizeSearchAction({ code: code, page: page }, (res) => {
+          setSizes(res);
+          setSizeLoading(false);
+        }),
+      );
+    },
+    [dispatch],
+  );
 
-  const getSuppliers = useCallback((key: string, page: number) => {
-    setSupplierLoading(true);
-    dispatch(SupplierSearchAction({ condition: key, page: page }, (data: PageResponse<SupplierResponse>) => {
-      setSupplier(data);
-      setSupplierLoading(false);
-    }));
-  }, [dispatch]);
+  const getSuppliers = useCallback(
+    (key: string, page: number) => {
+      setSupplierLoading(true);
+      dispatch(
+        SupplierSearchAction(
+          { condition: key, page: page },
+          (data: PageResponse<SupplierResponse>) => {
+            setSupplier(data);
+            setSupplierLoading(false);
+          },
+        ),
+      );
+    },
+    [dispatch],
+  );
 
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
       dispatch(materialSearchAll(setListMaterial));
       dispatch(CountryGetAllAction(setListCountry));
-      getColors('', 1);
-      getSizes('', 1);
-      getSuppliers('', 1);
+      getColors("", 1);
+      getSizes("", 1);
+      getSuppliers("", 1);
     }
     isLoadMaterData.current = true;
-    return () => { };
-  }, [dispatch, getColors, getSizes, getSuppliers, setDataAccounts, setDataCategory]);
+    return () => {};
+  }, [
+    dispatch,
+    getColors,
+    getSizes,
+    getSuppliers,
+    setDataAccounts,
+    setDataCategory,
+  ]);
 
   useEffect(() => {
     form.setFieldsValue({ made_in_id: VietNamId });
-    form.setFieldsValue({ length_unit: 'cm' });
+    form.setFieldsValue({ length_unit: "cm" });
   }, [form]);
 
-  const getCollections = useCallback((code: string, page: number) => {
-    setCollectionLoading(true);
-    dispatch(
-      getCollectionRequestAction(
-        { condition: code, page: page},
-        (res) => {
+  const getCollections = useCallback(
+    (code: string, page: number) => {
+      setCollectionLoading(true);
+      dispatch(
+        getCollectionRequestAction({ condition: code, page: page }, (res) => {
           setCollections(res);
           setCollectionLoading(false);
-        }
-      )
-    );
-  }, [dispatch, setCollections]);
+        }),
+      );
+    },
+    [dispatch, setCollections],
+  );
 
-  const onChangeImportPrice = useCallback((e:any)=>{
-    let variant_prices = form.getFieldValue("variant_prices");
-    if (!variant_prices) return
-    variant_prices[0].cost_price = e *1.08;
-    
-     form.setFieldsValue({
+  const onChangeImportPrice = useCallback(
+    (e: any) => {
+      let variant_prices = form.getFieldValue("variant_prices");
+      if (!variant_prices) return;
+      variant_prices[0].cost_price = e * 1.08;
+
+      form.setFieldsValue({
         variant_prices: variant_prices,
-        });
-  },[form])
+      });
+    },
+    [form],
+  );
 
-  useEffect(()=>{
-    getCollections("",1);
-  },[getCollections]);
+  useEffect(() => {
+    getCollections("", 1);
+  }, [getCollections]);
 
   return (
     <Form
@@ -796,16 +875,16 @@ const ProductCreateScreen: React.FC = () => {
       layout="vertical"
     >
       <Item noStyle name="product_type" hidden>
-      <Input />
-      <Item noStyle name="component" hidden>
         <Input />
-      </Item>
-      <Item noStyle name="advantages" hidden>
-        <Input />
-      </Item>
-      <Item noStyle name="defect" hidden>
-        <Input />
-      </Item>
+        <Item noStyle name="component" hidden>
+          <Input />
+        </Item>
+        <Item noStyle name="advantages" hidden>
+          <Input />
+        </Item>
+        <Item noStyle name="defect" hidden>
+          <Input />
+        </Item>
       </Item>
       <StyledComponent>
         <ContentContainer
@@ -837,7 +916,7 @@ const ProductCreateScreen: React.FC = () => {
                         <Switch
                           onChange={(checked) => {
                             setStatus(checked ? "active" : "inactive");
-                            form.setFieldsValue({ saleable: checked })
+                            form.setFieldsValue({ saleable: checked });
                           }}
                           className="ant-switch-success"
                           defaultChecked
@@ -854,11 +933,61 @@ const ProductCreateScreen: React.FC = () => {
                   </Space>
                 }
               >
+                <Row gutter={50}></Row>
                 <Row gutter={50}>
-
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn danh mục",
+                        },
+                      ]}
+                      name="category_id"
+                      label="Danh mục"
+                    >
+                      <TreeSelect
+                        placeholder="Chọn danh mục"
+                        treeDefaultExpandAll
+                        treeNodeFilterProp="title"
+                        showSearch
+                        className="selector"
+                        onChange={onCategoryChange}
+                      >
+                        {listCategory.map((item, index) => (
+                          <React.Fragment key={index}>
+                            {TreeCategory(item)}
+                          </React.Fragment>
+                        ))}
+                      </TreeSelect>
+                    </Item>
+                  </Col>
+                  <Col span={24} md={12} sm={24}>
+                    <Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn ngành hàng",
+                        },
+                      ]}
+                      name="goods"
+                      label="Ngành hàng"
+                    >
+                      <CustomSelect placeholder="Chọn ngành hàng " disabled>
+                        {goods?.map((item) => (
+                          <CustomSelect.Option
+                            key={item.value}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
+                  </Col>
                 </Row>
                 <Row gutter={50}>
-                <Col span={24} md={12} sm={24}>
+                  <Col span={24} md={12} sm={24}>
                     <Item
                       rules={[
                         {
@@ -895,94 +1024,36 @@ const ProductCreateScreen: React.FC = () => {
                       rules={[
                         {
                           required: true,
-                          message: "Vui lòng chọn ngành hàng",
-                        },
-                      ]}
-
-                      name="goods"
-                      label="Ngành hàng"
-                    >
-                      <CustomSelect
-                        onChange={onGoodsChange}
-                        placeholder="Chọn ngành hàng "
-                      >
-                        {goods?.map((item) => (
-                          <CustomSelect.Option
-                            key={item.value}
-                            value={item.value}
-                          >
-                            {item.name}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Col>
-                </Row>
-                <Row gutter={50}>
-                  <Col span={24} md={12} sm={24}>
-                    <Item
-                      rules={[
-                        {
-                          required: true,
                           message: "Vui lòng nhập tên sản phẩm",
                         },
                         {
                           max: 255,
-                          message:
-                            "Tên sản phẩm không vượt quá 255 ký tự",
+                          message: "Tên sản phẩm không vượt quá 255 ký tự",
                         },
                       ]}
                       tooltip={{
-                        title:
-                          "Tên mã cha, không bao gồm màu sắc và kích cỡ",
+                        title: "Tên mã cha, không bao gồm màu sắc và kích cỡ",
                         icon: <InfoCircleOutlined />,
                       }}
                       name="name"
                       label="Tên sản phẩm"
                     >
                       <Input
+                        className=""
                         onChange={onNameChange}
                         maxLength={255}
                         placeholder="Nhập tên sản phẩm"
                       />
                     </Item>
                   </Col>
-                  <Col span={24} md={12} sm={24}>
-                    <Item
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn danh mục",
-                        },
-                      ]}
-                      name="category_id"
-                      label="Danh mục"
-                    >
-                      <CustomSelect
-                        optionFilterProp="children"
-                        showSearch
-                        onChange={onCategoryChange}
-                        placeholder="Chọn danh mục"
-                      >
-                        {categoryFilter.map((item) => (
-                          <CustomSelect.Option key={item.id} value={item.id}>
-                            {`${item.code} - ${item.name}`}
-                          </CustomSelect.Option>
-                        ))}
-                      </CustomSelect>
-                    </Item>
-                  </Col>
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item name="brand" label="Thương hiệu">
-                      <BaseSelect 
+                      <BaseSelect
                         data={brandList}
                         renderItem={(item) => (
-                          <Option
-                            key={item.value}
-                            value={item.value}
-                          >
+                          <Option key={item.value} value={item.value}>
                             {item.name}
                           </Option>
                         )}
@@ -1003,7 +1074,9 @@ const ProductCreateScreen: React.FC = () => {
                         placeholder="Chọn nhóm hàng"
                         mode="multiple"
                         loading={collectionLoading}
-                        fetchData={(query) => getCollections(query.condition || "", query.page || 1)}
+                        fetchData={(query) =>
+                          getCollections(query.condition || "", query.page || 1)
+                        }
                       />
                     </Item>
                   </Col>
@@ -1011,7 +1084,11 @@ const ProductCreateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
                     <Item name="material" hidden={true}></Item>
-                    <Item name="material_id" className="po-form" label="Chất liệu">
+                    <Item
+                      name="material_id"
+                      className="po-form"
+                      label="Chất liệu"
+                    >
                       <Select
                         showSearch
                         optionFilterProp="children"
@@ -1020,12 +1097,16 @@ const ProductCreateScreen: React.FC = () => {
                         allowClear
                       >
                         {listMaterial?.map((item) => (
-                          <CustomSelect.Option className="po-form" key={item.id} value={item.id}>
-                              {item.name} <span className="icon-dot" /> {item.fabric_code}
+                          <CustomSelect.Option
+                            className="po-form"
+                            key={item.id}
+                            value={item.id}
+                          >
+                            {item.name} <span className="icon-dot" />{" "}
+                            {item.fabric_code}
                           </CustomSelect.Option>
                         ))}
                       </Select>
-
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
@@ -1046,18 +1127,18 @@ const ProductCreateScreen: React.FC = () => {
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
-                      <Item name="unit" label="Đơn vị">
-                        <CustomSelect placeholder="Chọn đơn vị">
-                          {productUnitList?.map((item) => (
-                            <CustomSelect.Option
-                              key={item.value}
-                              value={item.value}
-                            >
-                              {item.name}
-                            </CustomSelect.Option>
-                          ))}
-                        </CustomSelect>
-                      </Item>
+                    <Item name="unit" label="Đơn vị">
+                      <CustomSelect placeholder="Chọn đơn vị">
+                        {productUnitList?.map((item) => (
+                          <CustomSelect.Option
+                            key={item.value}
+                            value={item.value}
+                          >
+                            {item.name}
+                          </CustomSelect.Option>
+                        ))}
+                      </CustomSelect>
+                    </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
                     <Item name="supplier_id" label="Nhà cung cấp">
@@ -1070,18 +1151,18 @@ const ProductCreateScreen: React.FC = () => {
                             {item.name}
                           </Option>
                         )}
-                        fetchData={(query) => getSuppliers(query?.condition || "", query.page || 1)}
-                        placeholder={'Chọn nhà cung cấp'}
+                        fetchData={(query) =>
+                          getSuppliers(query?.condition || "", query.page || 1)
+                        }
+                        placeholder={"Chọn nhà cung cấp"}
                       />
                     </Item>
                   </Col>
-                 {/* tuwf k */}
+                  {/* tuwf k */}
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} md={12} sm={24}>
-                    <Item
-                      label="Kích thước đóng gói (dài, rộng, cao)"
-                    >
+                    <Item label="Kích thước đóng gói (dài, rộng, cao)">
                       <Input.Group compact>
                         <Item name="length" noStyle>
                           <NumberInput
@@ -1126,11 +1207,7 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
-                    <Item
-                      required
-                      label="Khối lượng"
-
-                    >
+                    <Item required label="Khối lượng">
                       <Input.Group compact>
                         <Item
                           rules={[
@@ -1185,45 +1262,61 @@ const ProductCreateScreen: React.FC = () => {
                   <Col span={24} md={12} sm={24}>
                     <Item label="Thông tin bảo quản">
                       {careLabels.map((item: any) => (
-                          <Popover content={item.name}>
-                            <span className={`care-label ydl-${item.value}`}></span>
-                          </Popover>
-                        ))}
-                        <Button
-                          className={`button-plus`}
-                          icon={careLabelsString && careLabelsString.length > 0 ? <EditOutlined /> : <PlusOutlined />}
-                          onClick={() => setShowCareModal(true)}
-                        />
+                        <Popover content={item.name}>
+                          <span
+                            className={`care-label ydl-${item.value}`}
+                          ></span>
+                        </Popover>
+                      ))}
+                      <Button
+                        className={`button-plus`}
+                        icon={
+                          careLabelsString && careLabelsString.length > 0 ? (
+                            <EditOutlined />
+                          ) : (
+                            <PlusOutlined />
+                          )
+                        }
+                        onClick={() => setShowCareModal(true)}
+                      />
                     </Item>
                   </Col>
                 </Row>
                 <Row gutter={24}>
-                    <Col span={24}>
-                      <Collapse
-                        key="description"
-                        ghost
-                        expandIcon={({ isActive }) =>
-                          isActive ? <MinusOutlined /> : <PlusOutlined />
+                  <Col span={24}>
+                    <Collapse
+                      key="description"
+                      ghost
+                      expandIcon={({ isActive }) =>
+                        isActive ? <MinusOutlined /> : <PlusOutlined />
+                      }
+                      className="padding-0"
+                    >
+                      <Collapse.Panel
+                        header="Mô tả sản phẩm"
+                        key="prDes"
+                        className="custom-header"
+                        extra={
+                          <div>
+                            <Checkbox
+                              defaultChecked={true}
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => {
+                                setIsChangeDescription(
+                                  e.target.checked ? true : false,
+                                );
+                              }}
+                            >
+                              Lấy thông tin mô tả từ chất liệu
+                            </Checkbox>
+                          </div>
                         }
-                        className="padding-0"
                       >
-                        <Collapse.Panel
-                          header="Mô tả sản phẩm"
-                          key="prDes"
-                          className="custom-header"
-                          extra={
-                            <div>
-                              <Checkbox defaultChecked={true} onClick={e=>e.stopPropagation()} onChange={(e)=>{
-                                setIsChangeDescription(e.target.checked ? true: false)
-                                }}>Lấy thông tin mô tả từ chất liệu</Checkbox>
-                            </div>
-                          }
-                        >
-                          <Item name="description">
-                            <CustomEditor />
-                          </Item>
-                        </Collapse.Panel>
-                      </Collapse>
+                        <Item name="description">
+                          <CustomEditor />
+                        </Item>
+                      </Collapse.Panel>
+                    </Collapse>
                   </Col>
                 </Row>
               </Card>
@@ -1252,14 +1345,22 @@ const ProductCreateScreen: React.FC = () => {
                     icon: <InfoCircleOutlined />,
                   }}
                 >
-                  <BaseSelectMerchans {...{isLoadingMerchans, fetchMerchans, merchans}} />
+                  <BaseSelectMerchans
+                    {...{ isLoadingMerchans, fetchMerchans, merchans }}
+                  />
                 </Item>
                 <Item
                   name="designer_code"
                   label="Thiết kế"
-                  tooltip={{ title: " Chọn nhân viên thiết kế", icon: <InfoCircleOutlined /> }}
+                  tooltip={{
+                    title: " Chọn nhân viên thiết kế",
+                    icon: <InfoCircleOutlined />,
+                  }}
                 >
-                  <BaseSelectMerchans {...{isLoadingMerchans, fetchMerchans, merchans}} placeholder="Chọn thiết kế" />
+                  <BaseSelectMerchans
+                    {...{ isLoadingMerchans, fetchMerchans, merchans }}
+                    placeholder="Chọn thiết kế"
+                  />
                 </Item>
               </Card>
             </Col>
@@ -1287,16 +1388,17 @@ const ProductCreateScreen: React.FC = () => {
                                 tooltip={{
                                   title: (
                                     <div>
-                                      <b>Giá bán lẻ</b> là giá mà bạn sẽ bán
-                                      sản phẩm này cho những khách hàng đơn
-                                      lẻ..
+                                      <b>Giá bán lẻ</b> là giá mà bạn sẽ bán sản
+                                      phẩm này cho những khách hàng đơn lẻ..
                                     </div>
                                   ),
                                   icon: <InfoCircleOutlined />,
                                 }}
                               >
                                 <NumberInput
-                                  format={(a: string) => formatCurrencyForProduct(a,",")}
+                                  format={(a: string) =>
+                                    formatCurrencyForProduct(a, ",")
+                                  }
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1314,15 +1416,17 @@ const ProductCreateScreen: React.FC = () => {
                                   title: () => (
                                     <div>
                                       <b>Giá buôn</b> là giá mà bạn sẽ bán sản
-                                      phẩm này cho những khách hàng mua hàng
-                                      với số lượng lớn.
+                                      phẩm này cho những khách hàng mua hàng với
+                                      số lượng lớn.
                                     </div>
                                   ),
                                   icon: <InfoCircleOutlined />,
                                 }}
                               >
                                 <NumberInput
-                                  format={(a: string) => formatCurrencyForProduct(a,",")}
+                                  format={(a: string) =>
+                                    formatCurrencyForProduct(a, ",")
+                                  }
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1339,8 +1443,8 @@ const ProductCreateScreen: React.FC = () => {
                                 tooltip={{
                                   title: () => (
                                     <div>
-                                      <b>Giá nhập</b> là giá mà nhập sản phẩm
-                                      từ đơn mua hàng của nhà cung cấp.
+                                      <b>Giá nhập</b> là giá mà nhập sản phẩm từ
+                                      đơn mua hàng của nhà cung cấp.
                                     </div>
                                   ),
                                   icon: <InfoCircleOutlined />,
@@ -1348,7 +1452,9 @@ const ProductCreateScreen: React.FC = () => {
                               >
                                 <NumberInput
                                   maxLength={15}
-                                  format={(a: string) => formatCurrencyForProduct(a,",")}
+                                  format={(a: string) =>
+                                    formatCurrencyForProduct(a, ",")
+                                  }
                                   replace={(a: string) =>
                                     replaceFormatString(a)
                                   }
@@ -1366,11 +1472,10 @@ const ProductCreateScreen: React.FC = () => {
                                 tooltip={{
                                   title: () => (
                                     <div>
-                                      <b>Giá vốn</b> là tổng của những loại
-                                      chi phí để đưa hàng có mặt tại kho.
-                                      Chúng bao gồm giá mua của nhà cung cấp,
-                                      thuế giá trị gia tăng, chi phí vận
-                                      chuyển, bảo hiểm,...
+                                      <b>Giá vốn</b> là tổng của những loại chi
+                                      phí để đưa hàng có mặt tại kho. Chúng bao
+                                      gồm giá mua của nhà cung cấp, thuế giá trị
+                                      gia tăng, chi phí vận chuyển, bảo hiểm,...
                                     </div>
                                   ),
                                   icon: <InfoCircleOutlined />,
@@ -1445,7 +1550,7 @@ const ProductCreateScreen: React.FC = () => {
                               </Col>
                             )}
                           </Row>
-                        )
+                        ),
                       )}
                     </>
                   )}
@@ -1486,7 +1591,9 @@ const ProductCreateScreen: React.FC = () => {
                         placeholder="Chọn màu sắc"
                         notFoundContent={"Không có dữ liệu"}
                         mode="multiple"
-                        fetchData={(params) => getColors(params.condition || "", params.page || 1)}
+                        fetchData={(params) =>
+                          getColors(params.condition || "", params.page || 1)
+                        }
                       />
                     </Item>
                   </Col>
@@ -1497,10 +1604,7 @@ const ProductCreateScreen: React.FC = () => {
                         metadata={sizes.metadata}
                         data={sizes.items}
                         renderItem={(item) => (
-                          <Option
-                            key={item.code}
-                            value={item.id}
-                          >
+                          <Option key={item.code} value={item.id}>
                             {item.code}
                           </Option>
                         )}
@@ -1508,7 +1612,9 @@ const ProductCreateScreen: React.FC = () => {
                         placeholder="Chọn kích cỡ"
                         notFoundContent={"Không có dữ liệu"}
                         mode="multiple"
-                        fetchData={(params) => getSizes(params.condition || "", params.page || 1)}
+                        fetchData={(params) =>
+                          getSizes(params.condition || "", params.page || 1)
+                        }
                       />
                     </Item>
                   </Col>
@@ -1525,7 +1631,7 @@ const ProductCreateScreen: React.FC = () => {
                       render: (
                         images: Array<VariantImage>,
                         item: VariantRequestView,
-                        index: number
+                        index: number,
                       ) => {
                         let image = Products.findAvatar(images);
                         return (
@@ -1610,7 +1716,7 @@ const ProductCreateScreen: React.FC = () => {
             variant={variant}
             onSave={(variant_images) => {
               let index = variants.findIndex(
-                (item) => item.sku === variant?.sku
+                (item) => item.sku === variant?.sku,
               );
               if (index !== -1) {
                 variants[index].variant_images = variant_images;
@@ -1632,6 +1738,23 @@ const ProductCreateScreen: React.FC = () => {
         </ContentContainer>
       </StyledComponent>
     </Form>
+  );
+};
+
+const TreeCategory = (item: CategoryResponse) => {
+  return (
+    <TreeNode
+      value={item.id}
+      title={item.code ? `${item.code} - ${item.name}` : item.name}
+    >
+      {item.children.length > 0 && (
+        <React.Fragment>
+          {item.children.map((item, index) => (
+            <React.Fragment key={index}>{TreeCategory(item)}</React.Fragment>
+          ))}
+        </React.Fragment>
+      )}
+    </TreeNode>
   );
 };
 

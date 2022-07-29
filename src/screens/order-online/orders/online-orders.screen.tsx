@@ -95,6 +95,8 @@ function OrdersScreen(props: PropTypes) {
       searched_product: "",
       discount_code:[],
       in_goods_receipt:undefined,
+      is_expired_payment:null,
+      expired_at:null
     };
   }, [initChannelCodes]);
 

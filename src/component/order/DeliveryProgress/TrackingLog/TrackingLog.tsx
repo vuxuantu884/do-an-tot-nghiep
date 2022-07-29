@@ -6,7 +6,7 @@ import moment from "moment";
 import React from "react";
 import { copyTextToClipboard } from "utils/AppUtils";
 import { showSuccess } from "utils/ToastUtils";
-import { StyledComponent } from "./TrackingLog.styles";
+import { StyledComponent } from "./styles";
 
 type PropTypes = {
   trackingLogFulfillment: TrackingLogFulfillmentResponse[];
