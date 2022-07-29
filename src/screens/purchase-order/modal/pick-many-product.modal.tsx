@@ -21,7 +21,7 @@ type PickManyProductModalType = {
   selected: Array<any>;
   onSave: (result: Array<VariantResponse>) => void;
   storeID?: number;
-  emptyText?: string
+  emptyText?: string;
 };
 
 let initQuery = {
@@ -31,7 +31,7 @@ let initQuery = {
 };
 
 const PickManyProductModal: React.FC<PickManyProductModalType> = (
-  props: PickManyProductModalType
+  props: PickManyProductModalType,
 ) => {
   let initQueryHasStoreID = {
     status: "active",
@@ -44,7 +44,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
   const [data, setData] = useState<PageResponse<VariantResponse> | null>(null);
   const [selection, setSelection] = useState<Array<VariantResponse>>([]);
   const [query, setQuery] = useState<VariantSearchQuery>(
-    props.storeID ? initQueryHasStoreID : initQuery
+    props.storeID ? initQueryHasStoreID : initQuery,
   );
   const onResultSuccess = useCallback(
     (result: PageResponse<VariantResponse> | false) => {
@@ -52,24 +52,24 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
         setData(result);
       }
     },
-    []
+    [],
   );
   const onCheckedChange = useCallback(
     (checked, variantResponse: VariantResponse) => {
-      if (variantResponse && variantResponse.status === 'inactive') {
-        showError('Sản phẩm đã ngừng hoạt động')
-        return
+      if (variantResponse && variantResponse.status === "inactive") {
+        showError("Sản phẩm đã ngừng hoạt động");
+        return;
       }
       if (checked) {
         let index = selection.findIndex(
-          (item) => item.id === variantResponse.id
+          (item) => item.id === variantResponse.id,
         );
         if (index === -1) {
           selection.push(variantResponse);
         }
       } else {
         let index = selection.findIndex(
-          (item) => item.id === variantResponse.id
+          (item) => item.id === variantResponse.id,
         );
         if (index !== -1) {
           selection.splice(index, 1);
@@ -77,36 +77,43 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       }
       setSelection([...selection]);
     },
-    [selection]
+    [selection],
   );
   const onPageChange = useCallback(
     (page, size) => {
       setQuery({ ...query, page: page, limit: size });
     },
-    [query]
+    [query],
   );
 
   const fillAll = useCallback(
     (checked: boolean) => {
       if (checked) {
         if (data) setSelection([...selection, ...data?.items]);
-        if (data && data.items.some(el => el.status === 'inactive')) {
-          const variantsClone = [...data?.items]
-          const filterVariantsInactive = variantsClone.filter((el) => el.status !== 'inactive')
+        if (data && data.items.some((el) => el.status === "inactive")) {
+          const variantsClone = [...data?.items];
+          const filterVariantsInactive = variantsClone.filter(
+            (el) => el.status !== "inactive",
+          );
           setSelection([...selection, ...filterVariantsInactive]);
         }
       } else {
         setSelection([]);
       }
     },
-    [data, selection]
+    [data, selection],
   );
 
   useEffect(() => {
     if (props.storeID) {
       dispatch(inventoryGetVariantByStoreAction(query, onResultSuccess));
     } else {
-      dispatch(searchVariantsRequestAction({ ...query, sort_column: 'sku.keyword', sort_type: 'asc' }, onResultSuccess));
+      dispatch(
+        searchVariantsRequestAction(
+          { ...query, sort_column: "sku.keyword", sort_type: "asc" },
+          onResultSuccess,
+        ),
+      );
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, onResultSuccess, query]);
@@ -115,10 +122,13 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     if (props.visible) {
       setSelection([...props.selected]);
     }
+  }, [props.selected, props.visible]);
+
+  useEffect(() => {
     return () => {
       setSelection([]);
-    }
-  }, [props.selected, props.visible]);
+    };
+  }, []);
 
   const searchVariantDebounce = debounce((e) => {
     setQuery({ ...query, info: e.target.value });
@@ -126,11 +136,15 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
 
   const fillAllChecked = () => {
     if (data) {
-      const dataClone = [...data.items]
-      const filterVariantsInactive = dataClone.filter((el) => el.status !== 'inactive')
-      return filterVariantsInactive.every(item => selection.findIndex(s => s.id === item.id) > -1)
+      const dataClone = [...data.items];
+      const filterVariantsInactive = dataClone.filter(
+        (el) => el.status !== "inactive",
+      );
+      return filterVariantsInactive.every(
+        (item) => selection.findIndex((s) => s.id === item.id) > -1,
+      );
     }
-  }
+  };
 
   return (
     <Modal
@@ -184,7 +198,9 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
               <ProductItem
                 isTransfer={props.isTransfer}
                 checked={
-                  selection.findIndex((item1) => item.id === (item1.variant_id ?? item1.id)) !== -1
+                  selection.findIndex(
+                    (item1) => item.id === (item1.variant_id ?? item1.id),
+                  ) !== -1
                 }
                 showCheckBox={true}
                 data={item}

@@ -21,4 +21,43 @@ enum EnumJobStatus {
   processing = "PROCESSING",
 }
 
-export {EnumUploadStatus, EnumImportStatus, EnumJobStatus};
+enum EnumStore {
+  ANH,
+  TUNG,
+  HIEU,
+}
+
+enum EnumEnvironment {
+  DEV = "DEV",
+  UAT = "UAT",
+  PROD = "PROD",
+}
+
+enum EnumStoreAnh {
+  DEV = 363,
+  UAT = 198,
+  PROD = 17,
+}
+
+enum EnumStoreTung {
+  DEV = 364,
+  UAT = 197,
+  PROD = 16,
+}
+
+enum EnumStoreHieu {
+  DEV = 365,
+  UAT = 200,
+  PROD = 19,
+}
+
+export {
+  EnumUploadStatus,
+  EnumImportStatus,
+  EnumJobStatus,
+  EnumStore,
+  EnumEnvironment,
+  EnumStoreAnh,
+  EnumStoreTung,
+  EnumStoreHieu,
+};

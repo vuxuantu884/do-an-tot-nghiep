@@ -1,7 +1,24 @@
-import { Card, Input, Form, Button, Row, Divider, Col, FormInstance, Checkbox } from "antd";
+import {
+  Card,
+  Input,
+  Form,
+  Button,
+  Row,
+  Divider,
+  Col,
+  FormInstance,
+  Checkbox,
+} from "antd";
 
 import { MailFilled } from "@ant-design/icons";
-import React, { useCallback, useMemo, useState, lazy, useContext, useEffect } from "react";
+import React, {
+  useCallback,
+  useMemo,
+  useState,
+  lazy,
+  useContext,
+  useEffect,
+} from "react";
 import { useDispatch } from "react-redux";
 import { AiOutlineClose } from "react-icons/ai";
 import { SupplierSearchAction } from "domain/actions/core/supplier.action";
@@ -24,7 +41,7 @@ import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purc
 import { enumConvertDate } from "model/purchase-order/purchase-order.model";
 
 const SupplierAddModal = lazy(
-  () => import("screens/products/supplier/modal/supplier-add-modal.screen")
+  () => import("screens/products/supplier/modal/supplier-add-modal.screen"),
 );
 const EditAddressModal = lazy(() => import("../../modal/edit-address"));
 
@@ -38,7 +55,9 @@ type POSupplierFormProps = {
   hideExpand?: boolean;
   stepStatus?: string;
 };
-const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProps) => {
+const POSupplierForm: React.FC<POSupplierFormProps> = (
+  props: POSupplierFormProps,
+) => {
   const {
     formMain,
     listCountries,
@@ -48,16 +67,17 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     hideExpand,
     stepStatus,
   } = props;
-  const {
-    purchaseOrder,
-  } = useContext(PurchaseOrderCreateContext);
+  const { purchaseOrder } = useContext(PurchaseOrderCreateContext);
 
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [data, setData] = useState<Array<SupplierResponse>>([]);
   const dispatch = useDispatch();
   const [isVisibleAddressModal, setVisibleAddressModal] = useState(false);
-  const [isSendInvoice, setIsSendInvoice] = useState((!!hideExpand) || (!!purchaseOrder?.billing_address?.email));
-  const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] = useState(false);
+  const [isSendInvoice, setIsSendInvoice] = useState(
+    !!hideExpand || !!purchaseOrder?.billing_address?.email,
+  );
+  const [isVisibleSupplierAddModal, setVisibleSupplierAddModal] =
+    useState(false);
   const onResult = useCallback((result: PageResponse<SupplierResponse>) => {
     setLoadingSearch(false);
     setData(result.items);
@@ -67,16 +87,21 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
   const [isSelectSupplier, setIsSelectSupplier] = useState<boolean>(isEdit);
 
   useEffect(() => {
-    setIsSendInvoice((!!hideExpand) || (!!purchaseOrder?.billing_address?.email))
-  }, [purchaseOrder?.billing_address?.email, hideExpand])
+    setIsSendInvoice(!!hideExpand || !!purchaseOrder?.billing_address?.email);
+  }, [purchaseOrder?.billing_address?.email, hideExpand]);
 
   const debouncedSearchSupplier = React.useMemo(
     () =>
       _.debounce((keyword: string) => {
         setLoadingSearch(true);
-        dispatch(SupplierSearchAction({ condition: keyword.trim(), status: "active" }, onResult));
+        dispatch(
+          SupplierSearchAction(
+            { condition: keyword.trim(), status: "active" },
+            onResult,
+          ),
+        );
       }, 300),
-    [dispatch, onResult]
+    [dispatch, onResult],
   );
 
   const onChangeKeySearchSupplier = (keyword: string) => {
@@ -114,8 +139,11 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     const index = data.findIndex((item) => item.id === +value);
     const supplier = data[index];
     const supplierAddress = transformSupplier(supplier);
-    const condition = supplier.debt_time && supplier.debt_time_unit_name && supplier.debt_time + " " + supplier.debt_time_unit_name;
-    console.log(supplier.debt_time, supplier.debt_time_unit)
+    const condition =
+      supplier.debt_time &&
+      supplier.debt_time_unit_name &&
+      supplier.debt_time + " " + supplier.debt_time_unit_name;
+    console.log(supplier.debt_time, supplier.debt_time_unit);
     formMain.setFieldsValue({
       supplier_id: value,
       supplier: data[index].name,
@@ -190,14 +218,16 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
           <div className="d-flex">
             <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
           </div>
-        }>
+        }
+      >
         <div>
           <Form.Item name={POField.payment_condition_name} noStyle />
           <Form.Item
             shouldUpdate={(prevValues, curValues) =>
               prevValues.supplier_id !== curValues.supplier_id
             }
-            className="margin-bottom-0">
+            className="margin-bottom-0"
+          >
             {({ getFieldValue }) => {
               let supplier_id = getFieldValue("supplier_id");
               let status = getFieldValue("status");
@@ -212,16 +242,24 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                       to={`${UrlConfig.SUPPLIERS}/${supplier_id}`}
                       className="primary"
                       target="_blank"
-                      style={{ fontSize: "16px", marginRight: 10 }}>
+                      style={{ fontSize: "16px", marginRight: 10 }}
+                    >
                       {supplier}
                     </Link>
                     {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
                     {!isEdit && (!status || status === POStatus.DRAFT) && (
-                      <Button type="link" onClick={removeSupplier} style={{ display: "flex", alignItems: "center" }} icon={<AiOutlineClose />} />
+                      <Button
+                        htmlType="button"
+                        type="link"
+                        onClick={removeSupplier}
+                        style={{ display: "flex", alignItems: "center" }}
+                        icon={<AiOutlineClose />}
+                      />
                     )}
                   </Row>
                   <Divider style={{ marginBottom: 0 }} />
-                  {((isSelectSupplier && showBillingAddress) || supplier_id) && (
+                  {((isSelectSupplier && showBillingAddress) ||
+                    supplier_id) && (
                     <>
                       <Form.Item hidden name="supplier_id">
                         <Input />
@@ -241,7 +279,12 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                       <POSupplierAddress
                         getFieldValue={getFieldValue}
                         field="billing_address"
-                        onEdit={() => showEditAddressModal(billing_address, "billing_address")}
+                        onEdit={() =>
+                          showEditAddressModal(
+                            billing_address,
+                            "billing_address",
+                          )
+                        }
                       />
                       <Divider style={{ marginTop: 0 }} />
                       <div className="margin-top-bottom-10">
@@ -249,7 +292,8 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                           <Checkbox
                             className="checkbox-style"
                             checked={isSendInvoice}
-                            onChange={toggleSendInvoice}>
+                            onChange={toggleSendInvoice}
+                          >
                             Gửi hóa đơn
                           </Checkbox>
                         </Row>
@@ -261,13 +305,16 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                             getFieldValue={getFieldValue}
                             field="supplier_address"
                             onEdit={() =>
-                              showEditAddressModal(supplier_address, "supplier_address")
+                              showEditAddressModal(
+                                supplier_address,
+                                "supplier_address",
+                              )
                             }
                           />
                           <Divider style={{ marginTop: 0 }} />
                           {isEdit ||
-                            stepStatus === POStatus.COMPLETED ||
-                            stepStatus === POStatus.FINISHED ? (
+                          stepStatus === POStatus.COMPLETED ||
+                          stepStatus === POStatus.FINISHED ? (
                             <EmailWrap>
                               <MailFilled />
                               <span className="label">
@@ -283,17 +330,25 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                                     label={
                                       <label>
                                         <MailFilled />
-                                        <span className="label"> Email gửi hóa đơn</span>
+                                        <span className="label">
+                                          {" "}
+                                          Email gửi hóa đơn
+                                        </span>
                                       </label>
                                     }
                                     rules={[
                                       {
                                         required: true,
                                         pattern: RegUtil.EMAIL,
-                                        message: "Vui lòng nhập đúng định dạng email",
+                                        message:
+                                          "Vui lòng nhập đúng định dạng email",
                                       },
-                                    ]}>
-                                    <Input placeholder="Nhập email gửi hóa đơn" maxLength={255} />
+                                    ]}
+                                  >
+                                    <Input
+                                      placeholder="Nhập email gửi hóa đơn"
+                                      maxLength={255}
+                                    />
                                   </Form.Item>
                                 </Col>
                               </Row>
@@ -313,7 +368,8 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                         required: true,
                         message: "Vui lòng chọn nhà cung cấp",
                       },
-                    ]}>
+                    ]}
+                  >
                     <CustomAutoComplete
                       loading={loadingSearch}
                       dropdownClassName="supplier"
