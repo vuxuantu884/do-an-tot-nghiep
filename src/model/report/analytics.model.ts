@@ -201,27 +201,3 @@ export interface AnalyticSampleQuery {
 export interface PermissionViewReport {
   isPermission: "0" | "1" | "";
 }
-
-export interface KeyDriverOnlineDataSourceType {
-  key: string;
-  title: string;
-  method?: string;
-  hideInput?: boolean;
-  [key: string]: any; // giá trị hiển thị
-  children: KeyDriverOnlineDataSourceType[];
-}
-
-export interface MonthlyCounterParams {
-  entity_name: string;
-  entity_key: string;
-  year: number;
-  month: number;
-  department_lv1: string;
-  department_lv2?: string;
-  department_lv3?: string;
-  account_code?: string;
-  account_name?: string;
-  account_role?: string;
-  total?: number;
-  [key: string]: any;
-}

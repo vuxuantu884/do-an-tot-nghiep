@@ -37,8 +37,8 @@ export interface KeyDriverTarget {
 }
 
 export interface KeyDriverParams {
-  ['year.equals']: number;
-  ['month.equals']: number;
+  ["year.equals"]: number;
+  ["month.equals"]: number;
 }
 
 export interface KDOfflineTotalSalesParams {
@@ -49,41 +49,41 @@ export interface KDOfflineTotalSalesParams {
 }
 
 export enum KeyDriverField {
-  TotalSales = 'total_sales',
-  OfflineTotalSales = 'offline_total_sales',
-  AverageCustomerSpent = 'average_customer_spent',
-  AverageOrderValue = 'average_order_value',
-  Visitors = 'visitors',
-  ConvertionRate = 'convertion_rate',
-  CustomersCount = 'customers_count',
-  VipTotalSales = 'vip_total_sales',
-  NearVipTotalSales = 'near_vip_total_sales',
-  BirthdayTotalSales = 'birthday_total_sales',
-  CustomerGt90DaysTotalSales = 'customer_gt90_days_total_sales',
-  ShopperGt90DaysTotalSales = 'shopper_gt90_days_total_sales',
-  NewCustomerTotalSales= 'new_customer_total_sales',
-  OthersTotalSales = 'others_total_sales',
-  FacebookTotalSales = 'facebook_total_sales',
-  ZaloSotalSales = 'zalo_total_sales',
-  UniformTotalSales = 'uniform_total_sales',
-  UniformOnlineTotalSales = 'uniform_online_total_sales',
-  ProductTotalSales = 'product_total_sales',
+  TotalSales = "total_sales",
+  OfflineTotalSales = "offline_total_sales",
+  AverageCustomerSpent = "average_customer_spent",
+  AverageOrderValue = "average_order_value",
+  Visitors = "visitors",
+  ConvertionRate = "convertion_rate",
+  CustomersCount = "customers_count",
+  VipTotalSales = "vip_total_sales",
+  NearVipTotalSales = "near_vip_total_sales",
+  BirthdayTotalSales = "birthday_total_sales",
+  CustomerGt90DaysTotalSales = "customer_gt90_days_total_sales",
+  ShopperGt90DaysTotalSales = "shopper_gt90_days_total_sales",
+  NewCustomerTotalSales = "new_customer_total_sales",
+  OthersTotalSales = "others_total_sales",
+  FacebookTotalSales = "facebook_total_sales",
+  ZaloSotalSales = "zalo_total_sales",
+  UniformTotalSales = "uniform_total_sales",
+  UniformOnlineTotalSales = "uniform_online_total_sales",
+  ProductTotalSales = "product_total_sales",
 }
 
 export const ASM_LIST = [
-  'ASM Dương Sơn Tùng',
-  'ASM Nguyễn Văn Ánh',
-  'ASM Đỗ Quang Hiếu'
-]
+  "ASM Dương Sơn Tùng",
+  "ASM Nguyễn Văn Ánh",
+  "ASM Đỗ Quang Hiếu",
+];
 
 export enum CustomerPhoneSMSCountersFilter {
   StoreIds = "storeIds",
   Month = "month",
   Year = "year",
-  LoyaltyLevel = 'loyaltyLevel',
-  EntityName = 'entityName',
-  DataSource = 'dataSource',
-};
+  LoyaltyLevel = "loyaltyLevel",
+  EntityName = "entityName",
+  DataSource = "dataSource",
+}
 
 export enum EntityName {
   SMS = "sms",
@@ -91,9 +91,9 @@ export enum EntityName {
 }
 
 export enum LoyaltyLevel {
-  VipS = "VIP S", 
+  VipS = "VIP S",
   VipG = "VIP G",
-  VipR = "VIP R", 
+  VipR = "VIP R",
   VipD = "VIP D",
   CanVip = "Cận VIP",
   SieuVip = "SIÊU VIP",
@@ -101,7 +101,7 @@ export enum LoyaltyLevel {
   Customer = "CUSTOMER",
   Shopper = "SHOPPER",
   New = "NEW",
-  Others = "OTHERS"
+  Others = "OTHERS",
 }
 
 export enum DataSource {
@@ -111,24 +111,24 @@ export enum DataSource {
 
 export const entityNames = [
   {
-    name: 'Cuộc gọi',
-    value: EntityName.CALL
+    name: "Cuộc gọi",
+    value: EntityName.CALL,
   },
   {
-    name: 'SMS',
-    value: EntityName.SMS
-  }
+    name: "SMS",
+    value: EntityName.SMS,
+  },
 ];
 
 export const dataSources = [
   {
-    name: 'Dữ liệu của tôi',
-    value: DataSource.MyData
+    name: "Dữ liệu của tôi",
+    value: DataSource.MyData,
   },
   {
-    name: 'Dữ liệu toàn cửa hàng',
-    value: DataSource.StoreData
-  }
+    name: "Dữ liệu toàn cửa hàng",
+    value: DataSource.StoreData,
+  },
 ];
 
 export interface CustomerPhoneSMSCountersParams {
@@ -142,6 +142,37 @@ export interface CustomerPhoneSMSCountersParams {
 }
 
 export enum KDGroup {
-  TotalSales = '_TotalSales',
-  SKU3 = '_SKU3',
+  TotalSales = "_TotalSales",
+  SKU3 = "_SKU3",
+}
+
+export interface KeyDriverOnlineDataSourceType {
+  key: string;
+  title: string;
+  method?: string;
+  hideInput?: boolean;
+  [key: string]: any; // giá trị hiển thị
+  children: KeyDriverOnlineDataSourceType[];
+}
+
+export interface MonthlyCounterParams {
+  entity_name: string;
+  entity_key: string;
+  year: number;
+  month: number;
+  department_lv1: string;
+  department_lv2?: string;
+  department_lv3?: string;
+  account_code?: string;
+  account_name?: string;
+  account_role?: string;
+  total?: number;
+  [key: string]: any;
+}
+
+export interface KeyDriverOnlineParams {
+  date: string;
+  keyDriverGroupLv1: string;
+  departmentLv2: string | null;
+  departmentLv3: string | null;
 }
