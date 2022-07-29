@@ -43,7 +43,10 @@ import {CustomerResponse} from "model/response/customer/customer.response";
 import {LoyaltyPoint} from "model/response/loyalty/loyalty-points.response";
 import {OrderResponse} from "model/response/order/order.response";
 import {ApplyCouponResponseModel, SuggestDiscountResponseModel} from "model/response/order/promotion.response";
-import {OrderConfigResponseModel} from "model/response/settings/order-settings.response";
+import {
+	OrderConfigResponseModel,
+	ShippingServiceConfigDetailResponseModel
+} from "model/response/settings/order-settings.response";
 import React, {createRef, MutableRefObject, useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
@@ -89,6 +92,7 @@ import {
 import _ from "lodash";
 import {RootReducerType} from "../../../../../model/reducers/RootReducerType";
 import useGetStoreIdFromLocalStorage from "../../../../../hook/useGetStoreIdFromLocalStorage";
+import {CompareObject} from "utils/CompareObject";
 
 
 type PropType = {
@@ -127,6 +131,7 @@ type PropType = {
 		totalAmountExchangePlusShippingFee: number;
 	};
 	setShippingFeeInformedToCustomer?: (value: number | null) => void;
+	shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
 	countFinishingUpdateCustomer: number; // load xong api chi tiết KH và hạng KH
 	shipmentMethod: number;
 	// isExchange?: boolean;
@@ -222,6 +227,7 @@ function OrderCreateProduct(props: PropType) {
 		setCoupon,
 		setPromotion,
 		setShippingFeeInformedToCustomer,
+		shippingServiceConfig,
 		countFinishingUpdateCustomer,
 		isCreateReturn,
 		shipmentMethod,
@@ -231,10 +237,6 @@ function OrderCreateProduct(props: PropType) {
 		isCheckSplitLine,
 		setCheckSplitLine,
 	} = props;
-
-	const orderCustomer = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderCustomer);
-
-	const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
 
 	const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
 	const dispatch = useDispatch();
@@ -1895,6 +1897,22 @@ function OrderCreateProduct(props: PropType) {
 		}
 	};
 
+	/** Kiểm tra sản phẩm có thay đổi không => Chặn thông báo thay đổi phí ship thừa*/
+	let prevItem: Array<any> = [];
+	const checkIfItemChange = (currentItem: any) => {
+		if (currentItem.length !== prevItem.length) {
+			prevItem = currentItem;
+			return true;
+		}
+		for (let i = 0; i < currentItem.length; i++) {
+			if (!CompareObject(currentItem[i], prevItem[i])) {
+				prevItem = currentItem;
+				return true;
+			}
+		}
+		return false;
+	}
+
 	const calculateChangeMoney = (
 		_items: Array<OrderLineItemRequest>,
 		_promotion?: OrderDiscountRequest | null,
@@ -1942,11 +1960,15 @@ function OrderCreateProduct(props: PropType) {
 		fillCustomNote(_items);
 		dispatch(changeOrderLineItemsAction(_items));
 		const orderAmount = totalAmount(_items);
-		const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
-		if (_items.length > 0 && shipmentMethod !== ShipmentMethodOption.DELIVER_LATER && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE) {
-			handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
-				transportService, form, setShippingFeeInformedToCustomer
-			);
+		const shippingAddress = customer ? getCustomerShippingAddress(customer) : null;
+		if (_items.length > 0) {
+			if (shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && checkIfItemChange(_items)) {
+				handleCalculateShippingFeeApplyOrderSetting(shippingAddress?.city_id, orderAmount, shippingServiceConfig,
+					transportService, form, setShippingFeeInformedToCustomer
+				);
+			}
+		} else {
+			prevItem = _items;
 		}
 		setIsLineItemChanging(false);
 		setIsFinishedCalculateItem(true);

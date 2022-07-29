@@ -6,6 +6,7 @@ import { StoreDetailCustomAction } from "domain/actions/core/store.action";
 import { getCustomerDetailAction } from "domain/actions/customer/customer.action";
 
 import {
+  changeShippingServiceConfigAction,
   orderConfigSaga,
   orderCreateAction,
   // DeliveryServicesGetList,
@@ -43,6 +44,7 @@ import {
   getAmountPaymentRequest,
   getTotalAmount,
   getTotalAmountAfterDiscount,
+  // handleCalculateShippingFeeApplyOrderSetting,
   isNullOrUndefined,
   scrollAndFocusToDomElement,
   totalAmount,
@@ -73,7 +75,10 @@ import NoPermission from "screens/no-permission.screen";
 import { LoyaltyPoint } from "../../../model/response/loyalty/loyalty-points.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
-import { OrderConfigResponseModel } from "model/response/settings/order-settings.response";
+import {
+  OrderConfigResponseModel,
+  ShippingServiceConfigDetailResponseModel
+} from "model/response/settings/order-settings.response";
 import { inventoryGetDetailVariantIdsExt } from "domain/actions/inventory/inventory.action";
 import { YDpageCustomerRequest } from "model/request/customer.request";
 import { getLoyaltyPoint, getLoyaltyRate, getLoyaltyUsage } from "../../../domain/actions/loyalty/loyalty.action";
@@ -87,6 +92,9 @@ import useFetchStores from "hook/useFetchStores";
 import {dangerColor, yellowColor} from "utils/global-styles/variables";
 import NumberFormat from "react-number-format";
 import {AppConfig} from "config/app.config";
+import {
+  actionListConfigurationShippingServiceAndShippingFee
+} from "domain/actions/settings/order-settings.action";
 
 let typeButton = "";
 
@@ -142,6 +150,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     fbAdsId,
   } = props;
   const dispatch = useDispatch();
+
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [isSaveDraft, setIsSaveDraft] = useState(false);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
@@ -212,6 +221,10 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
+
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+    >([]);
 
   const listStores = useFetchStores();
 
@@ -1033,6 +1046,15 @@ export default function Order(props: OrdersCreatePermissionProps) {
   //   );
   // }, [dispatch]);
 
+  useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+        dispatch(changeShippingServiceConfigAction(response));
+      }),
+    );
+  }, [dispatch]);
+
   const checkPointFocus = useCallback(
     (value: any) => {
       let pointFocus = payments.find((p) => p.code === "point");
@@ -1436,6 +1458,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       setOrderSourceId={setOrderSourceId}
                       defaultSourceId={defaultSourceId}
                       form={form}
+                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                     />
                     <OrderCreateProduct
                       changeInfo={onChangeInfoProduct}
@@ -1446,6 +1469,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
                       storeId={storeId}
                       defaultStoreId={defaultStoreId}
                       shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
+                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                      shippingServiceConfig={shippingServiceConfig}
                       setItemGift={setItemGifts}
                       form={form}
                       items={items}
@@ -1501,6 +1526,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}
                         form={form}
+                        shippingServiceConfig={shippingServiceConfig}
                       />
                     </Card>
                   </Col>
