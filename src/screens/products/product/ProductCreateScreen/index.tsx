@@ -267,14 +267,24 @@ const ProductCreateScreen: React.FC = () => {
     [],
   );
 
-  const onCategoryChange = useCallback((value: number) => {
-    // let categoryIndex = listCategory.findIndex((item) => item.id === value);
-    // if (categoryIndex !== -1) {
-    //   form.setFieldsValue({
-    //     code: listCategory[categoryIndex].code,
-    //   });
-    // }
-  }, []);
+  const onCategoryChange = useCallback(
+    (value: number, b, c) => {
+      const category = lstCategoryAll.find((item) => item.id === value);
+
+      if (category && category.child_ids === null) {
+        form.setFieldsValue({
+          code: category.code ?? "",
+          name: toTitleCase(category.name),
+        });
+      } else {
+        showWarning("Vui lòng chọn danh mục con");
+        form.setFieldsValue({
+          category_id: null,
+        });
+      }
+    },
+    [form, lstCategoryAll],
+  );
 
   const listVariantsFilter = useCallback(
     (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
