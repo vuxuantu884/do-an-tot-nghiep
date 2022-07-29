@@ -51,7 +51,7 @@ import React, {
   useState,
 } from "react";
 import { AiOutlinePlusCircle } from "react-icons/ai";
-import { useDispatch } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import { Link } from "react-router-dom";
 import AddAddressModal from "screens/yd-page/yd-page-order-create/modal/add-address.modal";
 import SaveAndConfirmOrder from "screens/yd-page/yd-page-order-create/modal/save-confirm.modal";
@@ -62,9 +62,16 @@ import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.respo
 import UrlConfig from "config/url.config";
 import UpdateCustomer from "./UpdateCustomer";
 import CreateCustomer from "./CreateCustomer";
-import {formatCurrency, handleDelayActionWhenInsertTextInSearchInput} from "utils/AppUtils";
+import {
+  formatCurrency
+  , handleCalculateShippingFeeApplyOrderSetting,
+  handleDelayActionWhenInsertTextInSearchInput,
+  totalAmount,
+} from "utils/AppUtils";
 import { getSourcesWithParamsService } from "service/order/order.service";
 import { debounce } from "lodash";
+import {changeOrderCustomerAction} from "domain/actions/order/order.action";
+import {RootReducerType} from "model/reducers/RootReducerType";
 //#end region
 
 type CustomerCardProps = {
@@ -87,6 +94,7 @@ type CustomerCardProps = {
   setOrderSourceId?: (value: number) => void;
   defaultSourceId: number | null;
   form: FormInstance<any>;
+  setShippingFeeInformedToCustomer?: (value: number | null) => void;
 };
 
 //Add query for search Customer
@@ -126,9 +134,15 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setOrderSourceId,
     defaultSourceId,
     form,
+    setShippingFeeInformedToCustomer,
   } = props;
 
   const dispatch = useDispatch();
+
+  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
+
   const [isVisibleAddress, setVisibleAddress] = useState(false);
   const [isShowSearchCustomer, setVisibleSearchCustomer] = useState(false);
   const [searchCustomer, setSearchCustomer] = useState(false);
@@ -322,44 +336,41 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setBillingAddress(null)
     setVisibleCustomer(false);
     setVisibleSearchCustomer(true);
+
+    const orderAmount = totalAmount(orderLineItems);
+    handleCalculateShippingFeeApplyOrderSetting(null, orderAmount, shippingServiceConfig,
+      transportService, form, setShippingFeeInformedToCustomer
+    );
   };
 
   //#end region
 
   const SearchCustomerSelect = useCallback(
     (value) => {
-      const customer: CustomerResponse | undefined = resultSearch?.find(item => item.id.toString() === value)
-      if (customer) {
-        OkConfirmCustomerEdit();
-        setCustomer(customer);
-
-        //set Shipping Address
-        if (customer?.shipping_addresses) {
-          customer.shipping_addresses.forEach((item) => {
-            if (item.default) {
-              props.setShippingAddress(item);
+      let index: number;
+      index = resultSearch.findIndex(
+        (customerResponse: CustomerResponse) =>
+          customerResponse.id && customerResponse.id?.toString() === value?.toString()
+      );
+      if (index !== -1) {
+        dispatch(
+          getCustomerDetailAction(
+            resultSearch[index].id,
+            (customerDetail: CustomerResponse | null) => {
+              if (customerDetail) {
+                OkConfirmCustomerEdit();
+                setCustomer(customerDetail);
+                dispatch(changeOrderCustomerAction(customerDetail));
+              }
             }
-          });
-        } else {
-          props.setShippingAddress(null);
-        }
-
-        //set Billing Address
-        if (customer?.billing_addresses) {
-          customer.billing_addresses.forEach((item) => {
-            if (item.default) {
-              props.setBillingAddress(item);
-            }
-          });
-        } else {
-          props.setBillingAddress(null);
-        }
+          )
+        );
 
         if (autoCompleteRef && autoCompleteRef.current && autoCompleteRef.current.blur) {
           autoCompleteRef.current?.blur();
         }
         setKeySearchCustomer("");
-        // setDistrictId(customer?.district_id);
+        // if( setShippingAddressesSecondPhone)setShippingAddressesSecondPhone("");
       }
     },
     [autoCompleteRef, dispatch, resultSearch, customer]
@@ -761,6 +772,8 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
           ShowAddressModalEdit={ShowAddressModalEdit}
           showAddressModalDelete={showAddressModalDelete}
           ShowAddressModalAdd={ShowAddressModalAdd}
+          form={form}
+          setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
         />
       )}
 

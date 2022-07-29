@@ -29,13 +29,20 @@ import {
   ShippingAddress
 } from "model/response/customer/customer.response";
 import React, {createRef, useCallback, useEffect, useMemo, useRef, useState} from "react";
-import { useDispatch } from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import CustomerShippingAddressOrder from "screens/yd-page/yd-page-order-create/component/OrderCreateCustomer/customer-shipping";
 import { showError, showSuccess } from "utils/ToastUtils";
 import {RegUtil} from "utils/RegUtils";
 import InputPhoneNumber from "component/custom/InputPhoneNumber.custom";
 import {StyledComponent} from "./styles";
-import {findWard, handleDelayActionWhenInsertTextInSearchInput, handleFindArea} from "utils/AppUtils";
+import {
+  findWard,
+  handleCalculateShippingFeeApplyOrderSetting,
+  handleDelayActionWhenInsertTextInSearchInput,
+  handleFindArea,
+  totalAmount
+} from "utils/AppUtils";
+import {RootReducerType} from "model/reducers/RootReducerType";
 
 type UpdateCustomerProps = {
   areaList: any;
@@ -51,6 +58,8 @@ type UpdateCustomerProps = {
   ShowAddressModalEdit: () => void;
   showAddressModalDelete: () => void;
   ShowAddressModalAdd: () => void;
+  form: FormInstance<any>;
+  setShippingFeeInformedToCustomer?: (value: number | null) => void;
 };
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
@@ -65,9 +74,16 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     ShowAddressModalEdit,
     showAddressModalDelete,
     ShowAddressModalAdd,
+    form,
+    setShippingFeeInformedToCustomer,
   } = props;
 
   const dispatch = useDispatch();
+
+  const orderLineItems = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems);
+  const shippingServiceConfig = useSelector((state: RootReducerType) => state.orderReducer.shippingServiceConfig);
+  const transportService = useSelector((state: RootReducerType) => state.orderReducer.orderDetail.thirdPL?.service);
+
   const [shippingAddressForm] = Form.useForm();
   // const [customerForm] = Form.useForm();
   const formRef = createRef<FormInstance>();
@@ -256,8 +272,10 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                               })
                           );
 
-                          //if(data!==null) setShippingAddress(data);
-                          // setVisibleBtnUpdate(false);
+                          const orderAmount = totalAmount(orderLineItems);
+                          handleCalculateShippingFeeApplyOrderSetting(data.city_id, orderAmount, shippingServiceConfig,
+                            transportService, form, setShippingFeeInformedToCustomer
+                          );
                           showSuccess("Cập nhật địa chỉ giao hàng thành công");
                       } else {
                           showError("Cập nhật địa chỉ giao hàng thất bại");
@@ -292,6 +310,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       }
 
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, customer, areaList, shippingAddress, handleChangeCustomer]
   );
 
@@ -644,6 +663,8 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
 											handleSingleShippingAddress={setSingleShippingAddress}
 											handleShippingAddress={setShippingAddress}
 											setVisibleChangeAddress={setVisibleModalChangeAddress}
+                      form={form}
+                      setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
 										/>
 									</Modal>
                 </div>
