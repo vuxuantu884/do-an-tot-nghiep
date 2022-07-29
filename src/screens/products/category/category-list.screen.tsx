@@ -2,9 +2,7 @@ import { Button, Card, Form, Input, Select } from "antd";
 import { Link, useHistory } from "react-router-dom";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  categoryDeleteAction,
-} from "domain/actions/product/category.action";
+import { categoryDeleteAction } from "domain/actions/product/category.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import search from "assets/img/search.svg";
@@ -15,7 +13,11 @@ import { convertCategory, generateQuery } from "utils/AppUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons";
+import {
+  DeleteOutlined,
+  EditOutlined,
+  ExportOutlined,
+} from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
@@ -33,17 +35,17 @@ const actions: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
-    icon:<EditOutlined />
+    icon: <EditOutlined />,
   },
   {
     id: 2,
     name: "Xóa",
-    icon:<DeleteOutlined />
+    icon: <DeleteOutlined />,
   },
   {
     id: 3,
     name: "Export",
-    icon:<ExportOutlined />
+    icon: <ExportOutlined />,
   },
 ];
 
@@ -64,7 +66,7 @@ const Category = () => {
   const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(true);
   const bootstrapReducer = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer
+    (state: RootReducerType) => state.bootstrapReducer,
   );
   const goods = useMemo(() => {
     if (bootstrapReducer.data && bootstrapReducer.data.goods) {
@@ -79,7 +81,7 @@ const Category = () => {
       render: (text: string, item: CategoryView) => {
         return <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{text}</Link>;
       },
-    }, 
+    },
     {
       title: "Danh mục",
       dataIndex: "name",
@@ -102,7 +104,7 @@ const Category = () => {
               }}
             />
           )}
-          <span>{value}</span>
+          <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{value}</Link>
         </div>
       ),
     },
@@ -118,31 +120,44 @@ const Category = () => {
     {
       title: "Người tạo",
       render: (item: CategoryView) => {
-       return item.created_name ?
-            <div>
-              <Link target="_blank"  to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>{item.created_name}</Link>
-            </div> :"---"
+        return item.created_name ? (
+          <div>
+            <Link
+              target="_blank"
+              to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}
+            >
+              {item.created_name}
+            </Link>
+          </div>
+        ) : (
+          "---"
+        );
       },
     },
   ];
   const onFinish = useCallback(
     (values: CategoryQuery) => {
       let query = generateQuery(values);
-      
-      const newValues = {...values, query: values.query?.trim()};
+
+      const newValues = { ...values, query: values.query?.trim() };
       setPrams({ ...newValues });
       return history.replace(`${UrlConfig.CATEGORIES}?${query}`);
     },
-    [history]
+    [history],
   );
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
     setData(newData);
   }, []);
-  const onDeleteSuccess = useCallback(async() => {
+  const onDeleteSuccess = useCallback(async () => {
     setSelected([]);
     showSuccess("Xóa danh mục thành công");
-    const res  = await callApiNative({isShowLoading: false},dispatch,getCategoryApi,params);
+    const res = await callApiNative(
+      { isShowLoading: false },
+      dispatch,
+      getCategoryApi,
+      params,
+    );
     setLoading(false);
     if (res && res.data) {
       onGetSuccess(res.data);
@@ -170,7 +185,7 @@ const Category = () => {
         }
       }
     },
-    [selected, history]
+    [selected, history],
   );
 
   const [canDeleteVariants] = useAuthorization({
@@ -179,7 +194,7 @@ const Category = () => {
   const [canUpdateCategories] = useAuthorization({
     acceptPermissions: [ProductPermission.categories_update],
   });
-  
+
   const menuFilter = useMemo(() => {
     return actions.filter((item) => {
       if (item.id === 1) {
@@ -196,17 +211,22 @@ const Category = () => {
     setSelected(
       selectedRow.filter(function (el) {
         return el !== undefined;
-      })
+      }),
     );
   }, []);
 
-  const getData = useCallback(async ()=>{
-    const res  = await callApiNative({isShowLoading: false},dispatch,getCategoryApi,params);
+  const getData = useCallback(async () => {
+    const res = await callApiNative(
+      { isShowLoading: false },
+      dispatch,
+      getCategoryApi,
+      params,
+    );
     if (res) {
       onGetSuccess(res);
     }
     setLoading(false);
-  },[dispatch, onGetSuccess, params])
+  }, [dispatch, onGetSuccess, params]);
 
   useEffect(() => {
     setLoading(true);
@@ -232,7 +252,10 @@ const Category = () => {
       ]}
       extra={
         <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
-          <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
+          <ButtonCreate
+            child="Thêm danh mục"
+            path={`${UrlConfig.CATEGORIES}/create`}
+          />
         </AuthWrapper>
       }
     >
@@ -265,10 +288,10 @@ const Category = () => {
                 <Button htmlType="submit" type="primary">
                   Lọc
                 </Button>
-              </Item> 
+              </Item>
             </Form>
           </CustomFilter>
-        </div> 
+        </div>
         <CustomTable
           isRowSelection
           isLoading={loading}
