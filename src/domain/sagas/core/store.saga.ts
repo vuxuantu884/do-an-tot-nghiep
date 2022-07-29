@@ -1,4 +1,9 @@
-import { getListAllStoreSimple, getListStore, getListStoreSimple, getSearchListStore, getStoreSearchIdsApi } from "service/core/store.service";
+import {
+  getListStore,
+  getListStoreSimple,
+  getSearchListStore,
+  getStoreSearchIdsApi,
+} from "service/core/store.service";
 import BaseResponse from "base/base.response";
 import { YodyAction } from "base/base.action";
 import { showError } from "utils/ToastUtils";
@@ -25,30 +30,10 @@ function* storeGetAllSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
     let response: BaseResponse<Array<StoreResponse>> = yield call(getListStore);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    // showError("Có lỗi vui lòng thử lại sau");
-  }
-}
 
-function* storeGetListAllStoreSimpleAllSaga(action: YodyAction) {
-  let { setData } = action.payload;
-  try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(
-      getListAllStoreSimple
-    );
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log("response", response);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -59,7 +44,7 @@ function* storeGetListAllStoreSimpleAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    // showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -67,7 +52,7 @@ function* storeGetListStoreSimpleAllSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
     let response: BaseResponse<Array<StoreResponse>> = yield call(
-      getListStoreSimple
+      getListStoreSimple,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -90,7 +75,7 @@ function* storeSearchSaga(action: YodyAction) {
   try {
     let response: BaseResponse<PageResponse<StoreResponse>> = yield call(
       storeGetApi,
-      query
+      query,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -112,7 +97,7 @@ function* storeRanksaga(action: YodyAction) {
   const { setData } = action.payload;
   try {
     let response: BaseResponse<Array<StoreRankResponse>> = yield call(
-      storeRankGetApi
+      storeRankGetApi,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -135,7 +120,7 @@ function* storeCreateSaga(action: YodyAction) {
   try {
     let response: BaseResponse<StoreResponse> = yield call(
       storesPostApi,
-      request
+      request,
     );
 
     switch (response.code) {
@@ -163,7 +148,7 @@ function* storeUpdateSaga(action: YodyAction) {
     let response: BaseResponse<StoreResponse> = yield call(
       storesPutApi,
       id,
-      request
+      request,
     );
 
     switch (response.code) {
@@ -207,7 +192,7 @@ export function* storeDetailCustomSaga(action: YodyAction) {
   try {
     let response: BaseResponse<StoreCustomResponse> = yield call(
       storesDetailCustomApi,
-      id
+      id,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -227,72 +212,11 @@ export function* storeDetailCustomSaga(action: YodyAction) {
 }
 
 function* storeGetSearchSaga(action: YodyAction) {
-  let { name,setData } = action.payload;
+  let { name, setData } = action.payload;
   try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(getSearchListStore, name);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    // showError("Có lỗi vui lòng thử lại sau");
-  }
-}
-
-function* storeValidateSaga(action: YodyAction) {
-  let {data, setData } = action.payload;
-  try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(storeValidateApi, data);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(true);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        setData(response.errors)
-        break;
-    }
-  } catch (error) {
-    // showError("Có lỗi vui lòng thử lại sau");
-  }
-}
-
-function* storeGetTypeSaga(action: YodyAction) {
-  let { onSuccess } = action.payload;
-  try {
-    let response: BaseResponse<Array<StoreTypeRequest>> = yield call(storeGetTypeApi);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        onSuccess(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        onSuccess(response.errors)
-        break;
-    }
-  } catch (error) {
-    // showError("Có lỗi vui lòng thử lại sau");
-  }
-}
-
-
-function* getStoreSearchIdsSaga(action: YodyAction) {
-  let {storeids, setData} = action.payload;
-  try {
-    let response: BaseResponse<PageResponse<StoreResponse>> = yield call(
-      getStoreSearchIdsApi,
-      storeids
+    let response: BaseResponse<Array<StoreResponse>> = yield call(
+      getSearchListStore,
+      name,
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -310,17 +234,80 @@ function* getStoreSearchIdsSaga(action: YodyAction) {
   }
 }
 
+function* storeValidateSaga(action: YodyAction) {
+  let { data, setData } = action.payload;
+  try {
+    let response: BaseResponse<Array<StoreResponse>> = yield call(
+      storeValidateApi,
+      data,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(true);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        setData(response.errors);
+        break;
+    }
+  } catch (error) {
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* storeGetTypeSaga(action: YodyAction) {
+  let { onSuccess } = action.payload;
+  try {
+    let response: BaseResponse<Array<StoreTypeRequest>> = yield call(
+      storeGetTypeApi,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        onSuccess(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        onSuccess(response.errors);
+        break;
+    }
+  } catch (error) {
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getStoreSearchIdsSaga(action: YodyAction) {
+  let { storeids, setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<StoreResponse>> = yield call(
+      getStoreSearchIdsApi,
+      storeids,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
 
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.GET_SEARCH_STORE_REQUEST, storeGetSearchSaga);
   yield takeLatest(
-    StoreType.GET_LIST_ALL_STORE_REQUEST_SIMPLE,
-    storeGetListAllStoreSimpleAllSaga
-  );
-  yield takeLatest(
     StoreType.GET_LIST_STORE_REQUEST_SIMPLE,
-    storeGetListStoreSimpleAllSaga
+    storeGetListStoreSimpleAllSaga,
   );
   yield takeLatest(StoreType.STORE_SEARCH, storeSearchSaga);
   yield takeLatest(StoreType.STORE_RANK, storeRanksaga);

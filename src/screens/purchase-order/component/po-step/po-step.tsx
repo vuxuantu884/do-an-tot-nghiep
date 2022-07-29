@@ -3,7 +3,7 @@ import { Steps } from "antd";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { POStatus, ProcumentStatus } from "utils/Constants";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import "./po-step.style.scss"
+import "./po-step.style.scss";
 import { useEffect, useMemo, useState } from "react";
 
 const FINISHED_RECEIVING = "FINISHED_RECEIVING"; // trạng thái kết thúc nhập kho, trên PO không có trạng thái này, để đây để hiển thị trạng thái thôi
@@ -22,25 +22,25 @@ const statusToStep = {
 const STEP_LIST = [
   {
     title: "Đặt hàng",
-    step: POStatus.DRAFT
+    step: POStatus.DRAFT,
   },
   {
     title: "Chờ duyệt",
-    step: POStatus.WAITING_APPROVAL
+    step: POStatus.WAITING_APPROVAL,
   },
   {
     title: "Đã duyệt",
-    step: POStatus.FINALIZED
+    step: POStatus.FINALIZED,
   },
   {
     title: "Nhập kho",
-    step: POStatus.STORED
+    step: POStatus.STORED,
   },
   {
     title: "Kết thúc nhập",
-    step: FINISHED_RECEIVING
-  }
-]
+    step: FINISHED_RECEIVING,
+  },
+];
 export interface POStepProps {
   poData: PurchaseOrder | any;
 }
@@ -57,16 +57,22 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
     receipt_quantity,
     receive_status,
     receive_finished_date,
-    waiting_approval_date
+    waiting_approval_date,
   } = poData;
   const [stepStatusNumber, setStepStatusNumber] = useState<number>(0);
 
   const isFinishedReceiving = useMemo(() => {
-    return poStatus === POStatus.STORED && receive_status === ProcumentStatus.FINISHED;
+    return (
+      poStatus === POStatus.STORED &&
+      receive_status === ProcumentStatus.FINISHED
+    );
   }, [poStatus, receive_status]);
 
   const getDescription = (step: number) => {
-    const updatedProcurementDate = Array.isArray(procurements) && procurements.length > 0 ? procurements[procurements.length - 1].updated_date : null;
+    const updatedProcurementDate =
+      Array.isArray(procurements) && procurements.length > 0
+        ? procurements[procurements.length - 1].updated_date
+        : null;
 
     switch (step) {
       case statusToStep[POStatus.DRAFT]:
@@ -74,7 +80,10 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           return ConvertUtcToLocalDate(order_date);
         return null;
       case statusToStep[POStatus.WAITING_APPROVAL]:
-        if (stepStatusNumber >= statusToStep[POStatus.WAITING_APPROVAL] && waiting_approval_date) {
+        if (
+          stepStatusNumber >= statusToStep[POStatus.WAITING_APPROVAL] &&
+          waiting_approval_date
+        ) {
           return ConvertUtcToLocalDate(waiting_approval_date);
         } else {
           return null;
@@ -89,11 +98,18 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           return null;
         }
       case statusToStep[POStatus.STORED]:
-        if (stepStatusNumber >= statusToStep[POStatus.STORED] && updatedProcurementDate && receipt_quantity > 0)
+        if (
+          stepStatusNumber >= statusToStep[POStatus.STORED] &&
+          updatedProcurementDate &&
+          receipt_quantity > 0
+        )
           return ConvertUtcToLocalDate(updatedProcurementDate);
         return null;
       case statusToStep[FINISHED_RECEIVING]:
-        if (stepStatusNumber >= statusToStep[FINISHED_RECEIVING] && receive_finished_date)
+        if (
+          stepStatusNumber >= statusToStep[FINISHED_RECEIVING] &&
+          receive_finished_date
+        )
           return ConvertUtcToLocalDate(receive_finished_date);
         return null;
       default:
@@ -123,42 +139,41 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
   };
 
   const getClassName = (step: number) => {
-
     if (stepStatusNumber === statusToStep[POStatus.CANCELLED]) {
       switch (step) {
         case statusToStep[POStatus.DRAFT]:
-          return ''
+          return "";
         case statusToStep[POStatus.WAITING_APPROVAL]:
-          return waiting_approval_date ? '' : 'inactive'
+          return waiting_approval_date ? "" : "inactive";
         case statusToStep[POStatus.FINALIZED]:
           if (activated_date === null) {
-            return 'inactive'
+            return "inactive";
           } else {
-            return '';
+            return "";
           }
         case statusToStep[POStatus.STORED]:
           if (receipt_quantity > 0) {
-            return '';
+            return "";
           } else {
-            return 'inactive'
+            return "inactive";
           }
         case statusToStep[FINISHED_RECEIVING]:
-          return receive_finished_date ? '' : 'inactive'
+          return receive_finished_date ? "" : "inactive";
         default:
-          return '';
+          return "";
       }
     } else {
-      return '';
+      return "";
     }
   };
 
   useEffect(() => {
     if (isFinishedReceiving) {
-      setStepStatusNumber(statusToStep[FINISHED_RECEIVING])
+      setStepStatusNumber(statusToStep[FINISHED_RECEIVING]);
     } else {
-      setStepStatusNumber(statusToStep[poStatus])
+      setStepStatusNumber(statusToStep[poStatus]);
     }
-  }, [isFinishedReceiving, poStatus])
+  }, [isFinishedReceiving, poStatus]);
 
   return (
     <Steps
@@ -167,18 +182,28 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           {(status === "process" || status === "finish") && <CheckOutlined />}
         </div>
       )}
-      className="po-step"
+      className={
+        stepStatusNumber === statusToStep[POStatus.DRAFT]
+          ? "po-step daft"
+          : "po-step"
+      }
       size="small"
       current={stepStatusNumber}
     >
-      {STEP_LIST.map(({ step, title }, index) => <Steps.Step
-        key={index}
-        title={title}
-        description={getDescription(statusToStep[step])}
-        className={getClassName(statusToStep[step])}
-      />)}
+      {STEP_LIST.map(({ step, title }, index) => (
+        <Steps.Step
+          key={index}
+          title={title}
+          description={getDescription(statusToStep[step])}
+          className={getClassName(statusToStep[step])}
+        />
+      ))}
       <Steps.Step
-        className={statusToStep[poStatus] === statusToStep[POStatus.CANCELLED] ? "cancelled" : ""}
+        className={
+          statusToStep[poStatus] === statusToStep[POStatus.CANCELLED]
+            ? "cancelled"
+            : ""
+        }
         title={getLastStepName()}
         description={getDescription(statusToStep[POStatus.FINISHED])}
       />

@@ -1,24 +1,31 @@
 import { Col, Form, FormInstance, Row, Space } from "antd";
 import classNames from "classnames";
-import CustomDatePicker from "component/custom/date-picker.custom"
+import CustomDatePicker from "component/custom/date-picker.custom";
 import { POField } from "model/purchase-order/po-field";
-import { PurchaseProcument, PurchaseProcurementViewDraft } from "model/purchase-order/purchase-procument";
+import {
+  PurchaseProcument,
+  PurchaseProcurementViewDraft,
+} from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import React, { lazy, useCallback, useEffect, useState } from "react";
 import { ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import POProgressView from "../po-progress-view";
 
-const TabAll = lazy(() => import("./tab1"))
-const TabInvetory = lazy(() => import("./tab2"))
-const TabConfirmed = lazy(() => import("./tab3"))
-const TabDraft = lazy(() => import("./tab4"))
+const TabAll = lazy(() => import("./tab1"));
+const TabInvetory = lazy(() => import("./tab2"));
+const TabConfirmed = lazy(() => import("./tab3"));
+const TabDraft = lazy(() => import("./tab4"));
 
 type POInventoryViewProps = {
   id?: number;
   code?: string;
   onSuccess: () => void;
-  confirmDraft: (item: PurchaseProcument, isEdit: boolean, procumentCode: string) => void;
+  confirmDraft: (
+    item: PurchaseProcument,
+    isEdit: boolean,
+    procumentCode: string,
+  ) => void;
   confirmInventory: (item: PurchaseProcument, isEdit: boolean) => void;
   tabs: Array<any>;
   activeTab: number;
@@ -29,7 +36,7 @@ type POInventoryViewProps = {
 };
 
 const POInventoryView: React.FC<POInventoryViewProps> = (
-  props: POInventoryViewProps
+  props: POInventoryViewProps,
 ) => {
   const {
     confirmDraft,
@@ -60,26 +67,27 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           return <TabDraft confirmDraft={confirmDraft} />;
       }
     },
-    [code, confirmDraft, confirmInventory, onSuccess, poId]
+    [code, confirmDraft, confirmInventory, onSuccess, poId],
   );
 
   const getExpectReceiptDate = () => {
     const procument_items: Array<PurchaseProcument> = form.getFieldValue(
-      POField.procurements
+      POField.procurements,
     );
     if (procument_items?.length > 0 && procument_items[0]) {
-      return ConvertUtcToLocalDate(procument_items[0].expect_receipt_date, DATE_FORMAT.DDMMYYY)
+      return ConvertUtcToLocalDate(
+        procument_items[0].expect_receipt_date,
+        DATE_FORMAT.DDMMYYY,
+      );
     } else {
       return "-";
     }
-  }
+  };
 
   useEffect(() => {
-    let procurements: Array<PurchaseProcurementViewDraft> = form.getFieldValue(
-      POField.procurements
-    ) || [];
+    let procurements: Array<PurchaseProcurementViewDraft> =
+      form.getFieldValue(POField.procurements) || [];
     setProcumentView([...procurements]);
-
   }, [form]);
 
   return (
@@ -88,7 +96,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         noStyle
         shouldUpdate={(prev, current) =>
           prev[POField.planned_quantity] !==
-          current[POField.planned_quantity] &&
+            current[POField.planned_quantity] &&
           prev[POField.receipt_quantity] !== current[POField.receipt_quantity]
         }
       >
@@ -97,7 +105,11 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
           let receipt_quantity = getFieldValue(POField.receipt_quantity);
           return (
             <POProgressView
-              remainTitle={receipt_quantity - planned_quantity > 0 ? "SL NHẬP DƯ" : "SL CÒN LẠI"}
+              remainTitle={
+                receipt_quantity - planned_quantity > 0
+                  ? "SL NHẬP DƯ"
+                  : "SL CÒN LẠI"
+              }
               receivedTitle={"ĐÃ NHẬN"}
               received={receipt_quantity}
               total={planned_quantity}
@@ -116,7 +128,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
                 <div
                   className={classNames(
                     "po-inven-view-tab",
-                    activeTab === item.id && "active"
+                    activeTab === item.id && "active",
                   )}
                   key={item.id}
                 >
@@ -134,21 +146,35 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
             </Space>
           </Col>
           <Col style={{ marginLeft: "auto" }} span={5}>
-            <div >
-              {isEditDetail && receiveStatus && receiveStatus !== ProcumentStatus.FINISHED ? (
+            <div>
+              {isEditDetail &&
+              receiveStatus &&
+              receiveStatus !== ProcumentStatus.FINISHED ? (
                 <>
                   <Form.Item
-                    name={[POField.procurements, 0, POField.expect_receipt_date]}
+                    name={[
+                      POField.procurements,
+                      0,
+                      POField.expect_receipt_date,
+                    ]}
                   >
                     <CustomDatePicker
-                      value={procumentView.length > 0 && procumentView[0] ? procumentView[0].expect_receipt_date : undefined}
+                      value={
+                        procumentView.length > 0 && procumentView[0]
+                          ? procumentView[0].expect_receipt_date
+                          : undefined
+                      }
                       disableDate={(date) => date <= moment().startOf("days")}
                       format={DATE_FORMAT.DDMMYYY}
                       style={{ width: "100%" }}
                     />
                   </Form.Item>
-                </>) :
-                (<p style={{margin: 0}}>Ngày nhận dự kiến: <b>{getExpectReceiptDate()}</b></p>)}
+                </>
+              ) : (
+                <p style={{ margin: 0 }}>
+                  Ngày nhận dự kiến: <b>{getExpectReceiptDate()}</b>
+                </p>
+              )}
             </div>
           </Col>
         </div>
@@ -157,7 +183,7 @@ const POInventoryView: React.FC<POInventoryViewProps> = (
         <div
           className={classNames(
             "tab-content",
-            activeTab === item.id && "active"
+            activeTab === item.id && "active",
           )}
           key={item.id}
         >

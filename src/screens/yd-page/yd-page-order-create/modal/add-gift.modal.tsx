@@ -1,30 +1,28 @@
-import { Modal, Input, Table, Button, AutoComplete, Badge } from "antd";
-import XCloseBtn from "assets/icon/X_close.svg";
-import searchGift from "assets/icon/search.svg";
-import React, { createRef, useCallback, useMemo, useState } from "react";
+import { AutoComplete, Badge, Button, Input, Modal, Table } from "antd";
 import { RefSelectProps } from "antd/lib/select";
+import imgdefault from "assets/icon/img-default.svg";
+import searchGift from "assets/icon/search.svg";
+import XCloseBtn from "assets/icon/X_close.svg";
+import { AppConfig } from "config/app.config";
+import { Type } from "config/type.config";
+import UrlConfig from "config/url.config";
+import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
+import { PageResponse } from "model/base/base-metadata.response";
+import { OrderItemModel } from "model/other/order/order-model";
+import {
+  VariantResponse,
+  VariantSearchQuery,
+} from "model/product/product.model";
+import { OrderLineItemRequest } from "model/request/order.request";
+import React, { createRef, useCallback, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
 import {
   findAvatar,
   findPrice,
   findPriceInVariant,
   findTaxInVariant,
 } from "utils/AppUtils";
-import { AppConfig } from "config/app.config";
-import imgdefault from "assets/icon/img-default.svg";
-import { Type } from "config/type.config";
-import { Link } from "react-router-dom";
-import {
-  OrderItemModel,
-} from "model/other/order/order-model";
-import {
-  VariantResponse,
-  VariantSearchQuery,
-} from "model/product/product.model";
-import { PageResponse } from "model/base/base-metadata.response";
-import { searchVariantsOrderRequestAction } from "domain/actions/product/products.action";
-import { OrderLineItemRequest } from "model/request/order.request";
-import UrlConfig from "config/url.config";
 
 type AddGiftModalProps = {
   visible: boolean;
@@ -39,7 +37,7 @@ const initQuery: VariantSearchQuery = {
   limit: 10,
   page: 1,
   saleable: true,
-	active: true,
+  active: true,
 };
 export interface AddGiftRef {
   setGifts: (items: Array<OrderLineItemRequest>) => void;
@@ -74,7 +72,7 @@ const renderSearch = (item: VariantResponse) => {
         </span>
         <span style={{ color: "#95A1AC" }} className="text t-right p-4">
           Có thể bán:
-					<span
+          <span
             style={{
               color:
                 (item.available === null ? 0 : item.available) > 0
@@ -82,8 +80,8 @@ const renderSearch = (item: VariantResponse) => {
                   : "rgba(226, 67, 67, 1)",
             }}
           >
-						{` ${item.available === null ? 0 : item.available}`}
-					</span>
+            {` ${item.available === null ? 0 : item.available}`}
+          </span>
         </span>
       </div>
     </div>
@@ -91,14 +89,14 @@ const renderSearch = (item: VariantResponse) => {
 };
 
 const AddGiftModal: React.FC<AddGiftModalProps> = (
-  props: AddGiftModalProps
+  props: AddGiftModalProps,
 ) => {
   const { visible, onCancel, onOk, storeId } = props;
   const dispatch = useDispatch();
   const [keysearch, setKeysearch] = useState("");
   const [resultSearch, setResultSearch] = useState<
     PageResponse<VariantResponse>
-    >({
+  >({
     metadata: {
       limit: 0,
       page: 1,
@@ -112,14 +110,14 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       props.items.splice(index, 1);
       props.onUpdateData(props.items);
     },
-    [props]
+    [props],
   );
   const update = useCallback(
     (index: number, value: number) => {
       props.items[index].quantity = value;
       props.onUpdateData(props.items);
     },
-    [props]
+    [props],
   );
 
   const columns = [
@@ -192,10 +190,10 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
     (value) => {
       setKeysearch(value);
       initQuery.info = value;
-      initQuery.store_ids=storeId;
+      initQuery.store_ids = storeId;
       dispatch(searchVariantsOrderRequestAction(initQuery, setResultSearch));
     },
-    [dispatch,storeId]
+    [dispatch, storeId],
   );
 
   const convertResultSearch = useMemo(() => {
@@ -244,7 +242,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       show_note: false,
       gifts: [],
       position: undefined,
-      available:variant.available
+      available: variant.available,
     };
     return orderLine;
   }, []);
@@ -274,7 +272,7 @@ const AddGiftModal: React.FC<AddGiftModalProps> = (
       props.onUpdateData(_items);
       setKeysearch("");
     },
-    [props, resultSearch.items, createItem]
+    [props, resultSearch.items, createItem],
     // autoCompleteRef, dispatch, resultSearch
   );
 

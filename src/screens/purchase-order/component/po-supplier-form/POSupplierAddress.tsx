@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useRef, useState} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { Button, Col, Row, Tooltip } from "antd";
 import { EditOutlined, PhoneOutlined, UserOutlined } from "@ant-design/icons";
 import { IconLocationOutlined } from "../../../../component/icon/IconLocation";
@@ -9,16 +9,26 @@ type PoSupplierInfoProps = {
   onEdit?: () => void;
   field: "billing_address" | "supplier_address";
 };
-const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps) => {
+const POSupplierAddress = ({
+  getFieldValue,
+  field,
+  onEdit,
+}: PoSupplierInfoProps) => {
   let address = getFieldValue(field);
-  const fullAddressRef = useRef(null)
-  const [isOverFlown, setIsOverFlown] = useState(false)
+  const fullAddressRef = useRef(null);
+  const [isOverFlown, setIsOverFlown] = useState(false);
 
   const addressTransform = useMemo(() => {
     return (
-      <span className="text-truncate-1" style={{ flex: 1 }} ref={fullAddressRef}>
+      <span
+        className="text-truncate-1"
+        style={{ flex: 1 }}
+        ref={fullAddressRef}
+      >
         {address.full_address ? `${address.full_address}` : ""}
-        {address.full_address && address.ward ? `, ${address.ward}` : address.ward}
+        {address.full_address && address.ward
+          ? `, ${address.ward}`
+          : address.ward}
         {address.district ? `, ${address.district}` : ""}
         {address.city ? `, ${address.city}` : ""}
         {address.country ? `, ${address.country}` : ""}
@@ -27,20 +37,23 @@ const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps
   }, [address]);
 
   function checkOverFlown(element: HTMLElement) {
-    return element.scrollHeight > element.clientHeight || element.scrollWidth > element.clientWidth;
+    return (
+      element.scrollHeight > element.clientHeight ||
+      element.scrollWidth > element.clientWidth
+    );
   }
 
   useEffect(() => {
-    if(fullAddressRef.current) {
-      setIsOverFlown(checkOverFlown(fullAddressRef.current))
+    if (fullAddressRef.current) {
+      setIsOverFlown(checkOverFlown(fullAddressRef.current));
     }
-  }, [address])
+  }, [address]);
 
   return (
     <>
       <Row align="middle" justify={"space-between"}>
         <Row style={{ flex: 1 }}>
-          <Col span={5}>
+          <Col span={6}>
             <Row align="middle">
               <UserOutlined />
               <span style={{ marginLeft: 10 }}>{address.name}</span>
@@ -52,16 +65,24 @@ const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps
               <span style={{ marginLeft: 10 }}>{address.phone}</span>
             </Row>
           </Col>
-          <Col span={14}>
+          <Col span={12}>
             <Row align="middle">
-              <IconLocationOutlined width={16} height={16} style={{ marginRight: 10 }} />
-              {
-                isOverFlown ? (
-                  <Tooltip placement="topLeft" title={addressTransform} overlayStyle={{ maxWidth: 800 }}>
-                    {addressTransform}
-                  </Tooltip>
-                ) : addressTransform
-              }
+              <IconLocationOutlined
+                width={16}
+                height={16}
+                style={{ marginRight: 10 }}
+              />
+              {isOverFlown ? (
+                <Tooltip
+                  placement="topLeft"
+                  title={addressTransform}
+                  overlayStyle={{ maxWidth: 800 }}
+                >
+                  {addressTransform}
+                </Tooltip>
+              ) : (
+                addressTransform
+              )}
             </Row>
           </Col>
         </Row>
