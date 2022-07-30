@@ -102,10 +102,7 @@ const ProcurementDetailScreen: React.FC = () => {
 
   const onUpdateReceivedProcurement = async (note: string) => {
     if (poID && procurementData && prID) {
-      const data: PurchaseProcument = {
-        ...procurementData,
-        [POProcumentField.note]: note,
-      };
+      const data: PurchaseProcument = { ...procurementData, [POProcumentField.note]: note };
       const res = await callApiNative(
         { isShowError: true },
         dispatch,

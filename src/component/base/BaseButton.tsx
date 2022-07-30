@@ -19,7 +19,6 @@ function BaseButton<T extends ElementType = typeof Button>({
       <Component
         size={size}
         type={type}
-        htmlType="button"
         {...props}
         style={{ display: "flex", alignItems: "center", ...props.style }}
       >

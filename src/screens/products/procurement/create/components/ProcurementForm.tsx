@@ -430,28 +430,28 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
         footer={[
           <>
             {/* {statusImport === CON_STATUS_IMPORT.CREATE_JOB_SUCCESS && (
-						  <>
-							  <Button
-								  key="ok"
-								  type="primary"
-								  // onClick={onImportFile}
-							  >
-								  Xác nhận
-							  </Button>
-							  <Button
-								  key="cancel"
-								  type="primary"
-								  onClick={() => {
-									  setUploadStatus(undefined);
-									  setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
-									  setShowModal(false)
-									  setErrorMessage('')
-								  }}
-							  >
-								  Hủy
-							  </Button>
-						  </>
-					  )} */}
+						<>
+							<Button
+								key="ok"
+								type="primary"
+								// onClick={onImportFile}
+							>
+								Xác nhận
+							</Button>
+							<Button
+								key="cancel"
+								type="primary"
+								onClick={() => {
+									setUploadStatus(undefined);
+									setStatusImport(CON_STATUS_IMPORT.CHANGE_FILE);
+									setShowModal(false)
+									setErrorMessage('')
+								}}
+							>
+								Hủy
+							</Button>
+						</>
+					)} */}
             {(statusImport === CON_STATUS_IMPORT.JOB_FINISH ||
               statusImport === CON_STATUS_IMPORT.ERROR) && (
               <Button
@@ -473,9 +473,9 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
         <div>
           <Row justify={"center"}>
             {/* {!uploadStatus ?
-							  <div>
-								  <p>Bạn chắc chắn muốn tạo phiếu?</p>
-							  </div> : ""} */}
+							<div>
+								<p>Bạn chắc chắn muốn tạo phiếu?</p>
+							</div> : ""} */}
             {uploadStatus === EnumImportStatus.processing ? (
               <Col span={24}>
                 <Row justify={"center"}>

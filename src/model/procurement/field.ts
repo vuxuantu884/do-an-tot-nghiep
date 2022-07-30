@@ -8,7 +8,7 @@ const ProcurementField = {
   po_code: "po_code",
 };
 
-export const ProcurementLineItemField = {
+const ProcurementLineItemField = {
   code: "code",
   reference: "reference",
   store_id: "store_id",

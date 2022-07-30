@@ -323,10 +323,7 @@ const AdvanceFormItems = ({
           case filterFields.qc:
             collapseChildren = (
               <AccountSearchPaging
-                fixedQuery={{
-                  department_ids: [AppConfig.WIN_DEPARTMENT],
-                  status: "active",
-                }}
+                fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
                 tagRender={tagRender}
                 mode="multiple"
                 placeholder="Chọn 1 hoặc nhiều QC"
@@ -649,6 +646,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
   useEffect(() => {
+    console.log(params);
     setAdvanceFilters({
       ...params,
       status: params.status ? params.status : [],
