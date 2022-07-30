@@ -38,11 +38,11 @@ spec:
               port: 80
           resources:
             requests:
-              memory: "250Mi"
-              cpu: "0.25"
+              memory: "10Mi"
+              cpu: "0.001"
             limits:
-              memory: "500Mi"
-              cpu: "0.5"
+              memory: "50Mi"
+              cpu: "0.005"
           imagePullPolicy: Always
           lifecycle:
             preStop:
@@ -53,6 +53,13 @@ spec:
             - name: http
               containerPort: 80
       restartPolicy: Always
+      nodeSelector:
+        environment: "prod"
+      tolerations:
+      - effect: NoSchedule
+        key: env
+        operator: Equal
+        value: production
 ---
 apiVersion: v1
 kind: Service
