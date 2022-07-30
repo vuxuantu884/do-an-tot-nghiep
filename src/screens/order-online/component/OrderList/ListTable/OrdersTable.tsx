@@ -84,6 +84,7 @@ import {
   checkIfFulfillmentCancelled,
   checkIfOrderHasNotFinishedPaymentMomo,
   getLink,
+  getTotalAmountBeforeDiscount,
 } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -583,16 +584,6 @@ function OrdersTable(props: PropTypes) {
       .finally(() => {
         dispatch(hideLoading());
       });
-  };
-
-  const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
-    let total = 0;
-    items.forEach((a) => {
-      if (a.product_type === PRODUCT_TYPE.normal || PRODUCT_TYPE.combo) {
-        total = total + a.quantity * a.price;
-      }
-    });
-    return total;
   };
 
   const initColumnsDefault: ICustomTableColumTypeExtra = useMemo(() => {

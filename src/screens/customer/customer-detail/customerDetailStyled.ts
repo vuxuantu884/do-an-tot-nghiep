@@ -674,6 +674,14 @@ export const StyledPurchaseHistory = styled.div`
     background: #ccc;
     width: 160px;
   }
+  .original-price {
+    color: #666666;
+    text-decoration: line-through;
+  }
+  .discount {
+    color: ${dangerColor};
+    text-align: right;
+  }
 `;
 
 export const StyledActivityLog = styled.div`
