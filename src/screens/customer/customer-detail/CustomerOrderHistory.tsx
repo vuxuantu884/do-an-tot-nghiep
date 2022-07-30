@@ -39,6 +39,7 @@ import {
   getLink,
   getReturnMoneyStatusColor,
   getReturnMoneyStatusText,
+  getTotalAmountBeforeDiscount,
 } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
@@ -628,16 +629,19 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
                                   "%"
                                 }
                               >
-                                <div
-                                  style={{
-                                    color: dangerColor,
-                                    textAlign: "right",
-                                  }}
-                                >
+                                <div className="discount">
                                   {"-" + formatCurrency(item.discount_items[0]?.value)}
                                 </div>
                               </Tooltip>
-
+                              <Tooltip title="Khuyến mại sản phẩm (%)">
+                                <div className="discount">
+                                  {" "}
+                                  -{" "}
+                                  {Math.round((item.discount_items[0].value / item.price) * 10000) /
+                                    100}
+                                  %
+                                </div>
+                              </Tooltip>
                               <Tooltip title="Giá sau chiết khấu">
                                 <div
                                   style={{
@@ -675,7 +679,33 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
                 {/*Đơn hàng*/}
                 {!isOrderReturn && (
                   <React.Fragment>
-                    <Tooltip title="Tổng tiền">
+                    <div className="original-price">
+                      <Tooltip title="Tổng tiền khi sản phẩm còn nguyên giá">
+                        <span>{formatCurrency(getTotalAmountBeforeDiscount(record.items))}</span>
+                      </Tooltip>
+                    </div>
+                    <div>
+                      <Tooltip title="Tổng tiền">
+                        <strong>{formatCurrency(record.total || 0)}</strong>
+                      </Tooltip>
+                    </div>
+                    {record.total_discount ? (
+                      <div>
+                        <Tooltip title="Tổng tiền chiết khấu">
+                          <strong style={{ color: "#EF5B5B" }}>
+                            -{formatCurrency(record.total_discount)}
+                          </strong>
+                        </Tooltip>
+                      </div>
+                    ) : null}
+                    {record.shipping_fee_informed_to_customer ? (
+                      <div>
+                        <Tooltip title="Phí ship báo khách">
+                          {formatCurrency(record.shipping_fee_informed_to_customer)}
+                        </Tooltip>
+                      </div>
+                    ) : null}
+                    {/* <Tooltip title="Tổng tiền">
                       <NumberFormat
                         value={record.total_line_amount_after_line_discount}
                         className="foo"
@@ -717,7 +747,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
                           thousandSeparator={true}
                         />
                       </div>
-                    </Tooltip>
+                    </Tooltip> */}
                   </React.Fragment>
                 )}
 
@@ -751,7 +781,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           title: "Thanh toán",
           key: "payment_status",
           visible: true,
-          align: "left",
+          align: "right",
           width: 65,
           render: (record: CustomerOrderHistoryResponse) => {
             const isOrderReturn: boolean = record.code.search("SRN") !== -1 ? true : false;
