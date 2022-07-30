@@ -460,7 +460,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
     return (
       <Col lg={15} xxl={8} className="rowPayment__left">
         <Row align="middle" className="rowPaymentLeft__wrapper">
-          <b className="paymentTitle">{method.payment_method}:</b>
+          <b className="paymentTitle 32">{method.payment_method}:</b>
           {renderPointSpending(method, index)}
           {renderPaymentReference(method, index)}
         </Row>

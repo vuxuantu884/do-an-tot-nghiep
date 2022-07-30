@@ -317,11 +317,17 @@ export const FACEBOOK = {
   channel_code: "FB",
 };
 
+export const TIKTOK = {
+  channel_id: 20,
+  channel_code: "tiktok",
+};
+
 export const ECOMMERCE_CHANNEL_CODES = [
   TIKI.channel_code,
   LAZADA.channel_code,
   SENDO.channel_code,
   SHOPEE.channel_code,
+  TIKTOK.channel_code,
 ];
 
 export const SHIPPING_REQUIREMENT = {

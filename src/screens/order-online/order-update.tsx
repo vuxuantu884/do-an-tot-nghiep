@@ -906,7 +906,8 @@ export default function Order(props: PropTypes) {
                 let bankPaymentIndex = paymentsResult.findIndex(
                   (payment) => payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER,
                 );
-                if (bankPaymentIndex > -1) {
+                // sàn tài trợ cũng đang lấy PaymentMethodCode.BANK_TRANSFER, nên phải check name
+                if (bankPaymentIndex > -1 && paymentsResult[bankPaymentIndex].payment_method !== "Sàn Tài trợ") {
                   paymentsResult[bankPaymentIndex].paid_amount = 0;
                   paymentsResult[bankPaymentIndex].amount = 0;
                   paymentsResult[bankPaymentIndex].return_amount = 0;
@@ -996,9 +997,12 @@ export default function Order(props: PropTypes) {
   };
   // end handle for ecommerce order
 
+  console.log('OrderDetail', OrderDetail)
+
   const fetchData = () => {
     dispatch(
       OrderDetailAction(id, async (res) => {
+        console.log('res', res)
         const response = {
           ...res,
           // ffm des id

@@ -10,6 +10,7 @@ import moment, { Moment } from "moment";
 import { sortFulfillments } from "./AppUtils";
 import {
   DELIVERY_SERVICE_PROVIDER_CODE,
+  ECOMMERCE_CHANNEL_CODES,
   FulFillmentReturnStatus,
   FulFillmentStatus,
   PaymentMethodCode,
@@ -409,6 +410,12 @@ export const checkIfExpiredOrCancelledPayment = (
   );
 };
 
+export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string|null) => {
+  if(!orderChannelCode) {
+    return false
+  }
+  return ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(orderChannelCode.toLowerCase()
+)};
 export const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => {
