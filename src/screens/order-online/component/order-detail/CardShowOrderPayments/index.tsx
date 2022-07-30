@@ -189,7 +189,7 @@ function CardShowOrderPayments(props: PropTypes) {
       <div style={{ marginBottom: 20 }}>
         <Row>
           <Col span={8}>
-            <span className="text-field margin-right-40">Đã thanh toán:</span>
+            <span className="text-field margin-right-40 33">Đã thanh toán:</span>
             <b>{formatCurrency(getAmountPayment(OrderDetail.payments))}</b>
           </Col>
           <Col span={8}>
@@ -226,7 +226,7 @@ function CardShowOrderPayments(props: PropTypes) {
   const renderPaymentTitle = {
     main(payment: OrderPaymentResponse) {
       return (
-        <div className="paymentTitle">
+        <div className="paymentTitle 31">
           {payment.paid_amount < 0 ? "Hoàn tiền cho khách" : this.renderNotReturned(payment)}
           {renderPaymentPaidCodTag(payment)}
         </div>
@@ -486,6 +486,8 @@ function CardShowOrderPayments(props: PropTypes) {
     }
     return null;
   };
+
+  console.log('OrderDetail', OrderDetail)
 
   const renderPaymentDetailMain = (OrderDetail: OrderResponse) => {
     if (!OrderDetail?.payments) {

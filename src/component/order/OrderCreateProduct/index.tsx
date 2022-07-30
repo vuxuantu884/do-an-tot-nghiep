@@ -106,6 +106,7 @@ import {
   STORE_TYPE,
 } from "utils/Constants";
 import { DISCOUNT_VALUE_TYPE } from "utils/Order.constants";
+import { checkIfEcommerceByOrderChannelCode } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import CardProductBottom from "./CardProductBottom";
 import { StyledComponent } from "./styles";
@@ -368,8 +369,8 @@ function OrderCreateProduct(props: PropTypes) {
           }
         }),
       );
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [couponInputText, dispatch, isAutomaticDiscount, splitLine],
   );
 
@@ -416,8 +417,8 @@ function OrderCreateProduct(props: PropTypes) {
           }
         }
       }
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [handleSearchBarcode, items],
   );
 
@@ -1978,7 +1979,7 @@ function OrderCreateProduct(props: PropTypes) {
     dispatch(changeOrderLineItemsAction(_items));
     const orderAmount = totalAmount(_items);
     const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
-    if (_items.length > 0 && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE) {
+    if (_items.length > 0 && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && (!(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.updateOrder))) {
       handleCalculateShippingFeeApplyOrderSetting(
         shippingAddress?.city_id,
         orderAmount,
