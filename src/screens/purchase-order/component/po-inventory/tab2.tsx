@@ -21,13 +21,10 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
     >
       {({ getFieldValue }) => {
         let procurements: Array<PurchaseProcument> = getFieldValue(POField.procurements);
-        // let items =
-        //   procurements !== undefined && procurements !== null
-        //     ? procurements.filter(
-        //       (item) => item.status === ProcumentStatus.RECEIVED
-        //     )
-        //     : [];
-        let items = procurements !== undefined && procurements !== null ? procurements : [];
+        let items =
+          procurements !== undefined && procurements !== null
+            ? procurements.filter((item) => item.status === ProcumentStatus.RECEIVED)
+            : [];
         return (
           <Table
             locale={{
@@ -77,16 +74,12 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                           </div>
                         </div>
                       </div>
-                      <div className="item-col item-col-number">{item.accepted_quantity || 0}</div>
+                      <div className="item-col item-col-number">{item.quantity}</div>
                       <div
-                        style={{
-                          color: "#27AE60",
-                          fontWeight: 700,
-                          width: "120px",
-                        }}
+                        style={{ color: "#27AE60", fontWeight: 700 }}
                         className="item-col item-col-number"
                       >
-                        {item.real_quantity || 0}
+                        {item.real_quantity}
                       </div>
                       <div className="item-col item-col-empty" />
                     </div>
@@ -132,17 +125,23 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 title: "Kho nhận hàng",
                 dataIndex: POProcumentField.store,
                 align: "left",
-                width: 110,
                 render: (value, item, index) => <div>{value}</div>,
+              },
+              {
+                title: "Ngày nhận hàng thực tế",
+                dataIndex: POProcumentField.stock_in_date,
+                align: "center",
+                render: (value: string, item, index: number) =>
+                  ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
               },
 
               {
                 align: "right",
+                width: 200,
                 title: "SL Nhận hàng được duyệt",
                 dataIndex: "procurement_items",
-                width: 180,
                 render: (value, item, index: number) =>
-                  formatCurrency(POUtils.totalAcceptedQuantity(value)),
+                  formatCurrency(POUtils.totalQuantity(value), "."),
               },
               {
                 align: "right",
@@ -156,19 +155,11 @@ const TabInvetory: React.FC<TabInventoryProps> = (props: TabInventoryProps) => {
                 ),
               },
               {
-                title: "Ngày nhận hàng thực tế",
-                dataIndex: POProcumentField.stock_in_date,
-                align: "center",
-                width: 170,
-                render: (value: string, item, index: number) =>
-                  ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY),
+                title: "",
+                dataIndex: "procurement_items",
+                width: 40,
+                render: () => "",
               },
-              // {
-              //   title: "",
-              //   dataIndex: "procurement_items",
-              //   width: 40,
-              //   render: () => "",
-              // },
             ]}
           />
         );

@@ -1,4 +1,4 @@
-import { OrderPaymentRequest } from "model/request/order.request";
+import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import {
   FulFillmentResponse,
   OrderLineItemResponse,
@@ -13,6 +13,7 @@ import {
   FulFillmentReturnStatus,
   FulFillmentStatus,
   PaymentMethodCode,
+  PRODUCT_TYPE,
   ShipmentMethod,
   WEIGHT_UNIT,
 } from "./Constants";
@@ -406,4 +407,14 @@ export const checkIfExpiredOrCancelledPayment = (
     checkIfCancelledPayment(payment) ||
     (checkIfExpiredPayment(payment) && !checkIfFinishedPayment(payment))
   );
+};
+
+export const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
+  let total = 0;
+  items.forEach((a) => {
+    if (a.product_type === PRODUCT_TYPE.normal || PRODUCT_TYPE.combo) {
+      total = total + a.quantity * a.price;
+    }
+  });
+  return total;
 };

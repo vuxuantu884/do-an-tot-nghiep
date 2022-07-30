@@ -9,7 +9,6 @@ export const AppConfig = {
   price_type: "retail_price",
   import_price: "import_price",
   channel_id: 1,
-  VARIANT_TYPE_ERROR: 1,
   DEFAULT_PAYMENT: 1,
   WIN_DEPARTMENT: null,
   KD_DEPARTMENT_CODE: "KD",
@@ -25,12 +24,9 @@ export const AppConfig = {
    * sau khi dừng gõ 500ms thì mới gửi request  => hạn chế request tới server liên tục
    */
   TYPING_TIME_REQUEST: 500,
-  PROCUMENT_IMPORT_TEMPLATE_URL:
-    "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/Mau_file_nhap_kho.xlsx",
-  PO_EXPORT_TEMPLATE_URL:
-    "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_3914d806-813b-4978-bff0-7251b350b40f_original.xlsx",
+  PROCUMENT_IMPORT_TEMPLATE_URL: "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/Mau_file_nhap_kho.xlsx",
+  PO_EXPORT_TEMPLATE_URL: "https://yody-file.s3.ap-southeast-1.amazonaws.com/yody-file/stock-transfer_3914d806-813b-4978-bff0-7251b350b40f_original.xlsx",
   PO_EXPORT_URL: process.env.REACT_APP_PO_EXPORT_URL,
-  PRODUCT_EXPORT_TEMPLATE:
-    "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/template_export_product.xlsx",
+  PRODUCT_EXPORT_TEMPLATE: "https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/template_export_product.xlsx"
 };
 export const hotlineNumber = "0888 464 258";

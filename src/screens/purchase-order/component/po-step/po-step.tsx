@@ -166,7 +166,7 @@ const POStep: React.FC<POStepProps> = (props: POStepProps) => {
           {(status === "process" || status === "finish") && <CheckOutlined />}
         </div>
       )}
-      className={stepStatusNumber === statusToStep[POStatus.DRAFT] ? "po-step daft" : "po-step"}
+      className="po-step"
       size="small"
       current={stepStatusNumber}
     >

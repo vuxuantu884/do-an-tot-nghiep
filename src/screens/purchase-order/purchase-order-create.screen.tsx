@@ -14,7 +14,6 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import { PoCreateAction, PoDetailAction } from "domain/actions/po/po.action";
-import { groupBy } from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
@@ -25,15 +24,7 @@ import {
   POLoadType,
   PurchaseOrderLineItem,
 } from "model/purchase-order/purchase-item.model";
-import {
-  PODataSourceGrid,
-  POExpectedDate,
-  PurchaseOrder,
-} from "model/purchase-order/purchase-order.model";
-import {
-  POProcumentField,
-  PurchaseProcumentLineItem,
-} from "model/purchase-order/purchase-procument";
+import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
@@ -47,16 +38,16 @@ import { ProductResponse } from "../../model/product/product.model";
 import {
   checkImportPriceLowByLineItem,
   combineLineItemToSubmitData,
-  convertLineItemsToProcurementItems,
   fetchProductGridData,
   getUntaxedAmountByLineItemType,
   MIN_IMPORT_PRICE_WARNING,
   POUtils,
   validateLineItemQuantity,
+  convertLineItemsToProcurementItems,
 } from "../../utils/POUtils";
 import POInfoPO from "./component/po-info-po";
 import POInfoForm from "./component/po-info.form";
-import POInventoryFormCreate from "./component/po-inventory.form-create";
+import POInventoryForm from "./component/po-inventory.form";
 import PoProductContainer from "./component/po-product-form-grid/po-product-container";
 import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
@@ -152,11 +143,6 @@ const POCreateScreen: React.FC = () => {
     setPoLineItemGridChema,
     setPoLineItemGridValue,
     setTaxRate,
-    expectedDate,
-    procurementTableData,
-    setProcurementTableData,
-    setExpectedDate,
-    handleSortProcurements,
   } = useContext(PurchaseOrderCreateContext);
 
   //reducer
@@ -224,67 +210,8 @@ const POCreateScreen: React.FC = () => {
           return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100);
         }, 0),
       );
-      const procurements: any = expectedDate.map((expect) => {
-        const procurement_items = procurementTableData
-          .filter((item) => item?.quantity)
-          .map((data) => {
-            const index = data.expectedDate.findIndex((item) => item.date === expect.date);
-            if (index >= 0) {
-              const totalQuantity = data.expectedDate.reduce((acc, ele) => acc + ele.value, 0);
-              if (totalQuantity > (data?.quantity || 0)) {
-                throw new Error(
-                  `Số lượng hàng về dự kiến sản phẩm ${data.sku} nhiều hơn số lượng đặt hàng`,
-                );
-              }
-              return {
-                line_item_id: data?.line_item_id,
-                quantity: data.expectedDate[index].value,
-                ordered_quantity: data.expectedDate[index].value,
-                planned_quantity: data.expectedDate[index].value,
-                retail_price: data.retail_price,
-                size: "",
-                sku: data.sku,
-                product_id: data?.productId,
-                variant_id: data.variantId,
-                barcode: data.barcode,
-                variant_images: data.variant_image,
-                product_name: data.product,
-                variant: data.variant,
-                note: "",
-              };
-            }
-            return {};
-          });
+      const dataClone = { ...value, status: statusAction };
 
-        const expect_receipt_date = expect.date.includes("/")
-          ? ConvertDateToUtc(moment(expect.date, "DD/MM/YYYY").format("MM-DD-YYYY"))
-          : ConvertDateToUtc(moment(expect.date).format("MM-DD-YYYY"));
-        return {
-          actived_by: "",
-          actived_date: "",
-          expect_receipt_date: expect_receipt_date,
-          note: "",
-          reference: "",
-          status: POStatus.DRAFT,
-          stock_in_by: "",
-          stock_in_date: "",
-          is_cancelled: false,
-          store_id: Number(value?.store_id) || 144, //Kho tổng
-          procurement_items,
-        };
-      });
-      value.procurements = procurements;
-      const dataClone = {
-        ...value,
-        store_id: Number(value?.store_id),
-        status: statusAction,
-      };
-      // check số lượng của ngày dư kiến
-      procurements.forEach((element: any) => {
-        if (!element.procurement_items.some((item: any) => item.quantity)) {
-          throw new Error("Vui lòng nhập số lượng cho ít nhất 1 ngày dự kiến");
-        }
-      });
       dispatch(PoCreateAction(dataClone, createCallback));
     } catch (error: any) {
       showError(error.message);
@@ -379,78 +306,9 @@ const POCreateScreen: React.FC = () => {
               reference: null,
             };
             formMain.setFieldsValue(params);
-            // nhập data phần nhập kho
-            const dataSourceGrid: PODataSourceGrid[] = [];
-            data.procurements = handleSortProcurements(data.procurements);
-            const procurementsGroupByExpectedDate = groupBy(
-              data.procurements,
-              POProcumentField.expect_receipt_date,
-            );
-            const expectedDate = Object.keys(procurementsGroupByExpectedDate);
-            const procurementAll = Object.values(procurementsGroupByExpectedDate) || [];
-            const dataExpectedDate: POExpectedDate[] = expectedDate.map(
-              (date, indexProcurements) => {
-                const expect_receipt_date = moment(date).format("DD/MM/YYYY");
-                formMain?.setFieldsValue({
-                  ["expectedDate" + indexProcurements]: expect_receipt_date,
-                });
-                if (procurementAll.length > 0 && procurementAll[0].length > 0) {
-                  procurementAll[0][0].procurement_items.forEach((procurementItem) => {
-                    const indexDataSourceGrid = dataSourceGrid.findIndex(
-                      (item) => item.variant_id === procurementItem.variant_id,
-                    );
-                    const indexLineItem = data.line_items.findIndex(
-                      (item) => item.variant_id === procurementItem.variant_id,
-                    );
-                    const totalQuantity = data.procurements
-                      .filter((item) => item.expect_receipt_date === date)
-                      .reduce(
-                        (acc, item) => acc.concat(item.procurement_items),
-                        [] as PurchaseProcumentLineItem[],
-                      )
-                      .filter((item) => item.variant_id === procurementItem.variant_id)
-                      .reduce((total, element) => total + element.quantity, 0);
-
-                    if (indexDataSourceGrid === -1) {
-                      const expectedDate: POExpectedDate = {
-                        date: expect_receipt_date,
-                        value: totalQuantity,
-                      };
-                      dataSourceGrid.push({
-                        ...(procurementItem as any),
-                        expectedDate: [expectedDate],
-                        quantity: data.line_items[indexLineItem].quantity,
-                      });
-                    } else {
-                      const expectedDate: POExpectedDate = {
-                        date: expect_receipt_date,
-                        value: totalQuantity,
-                      };
-                      dataSourceGrid[indexDataSourceGrid].expectedDate = [
-                        ...dataSourceGrid[indexDataSourceGrid].expectedDate,
-                        expectedDate,
-                      ];
-                    }
-                  });
-                }
-                return {
-                  date: expect_receipt_date,
-                  value: 0,
-                };
-              },
-            );
-            setExpectedDate(dataExpectedDate);
-            setProcurementTableData(dataSourceGrid);
           }
         }),
       );
-    } else {
-      setExpectedDate([
-        {
-          date: "",
-          value: 0,
-        },
-      ]);
     }
   }, [
     poId,
@@ -460,7 +318,6 @@ const POCreateScreen: React.FC = () => {
     setPoLineItemGridValue,
     setTaxRate,
     setIsGridMode,
-    setProcurementTableData,
   ]);
 
   return (
@@ -526,7 +383,7 @@ const POCreateScreen: React.FC = () => {
               />
             )}
           </PoProductContainer>
-          <POInventoryFormCreate
+          <POInventoryForm
             isEdit={false}
             now={now}
             status={formMain.getFieldValue(POField.status)}
@@ -546,7 +403,6 @@ const POCreateScreen: React.FC = () => {
           rightComponent={
             <React.Fragment>
               <Button
-                htmlType="button"
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => history.push(UrlConfig.PURCHASE_ORDERS)}
               >
@@ -555,7 +411,6 @@ const POCreateScreen: React.FC = () => {
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
                 <Button
                   type="primary"
-                  htmlType="button"
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={() => createPurchaseOrder(POStatus.DRAFT)}
                   ghost
@@ -564,7 +419,6 @@ const POCreateScreen: React.FC = () => {
                 </Button>
                 <Button
                   type="primary"
-                  htmlType="button"
                   className="create-button-custom"
                   onClick={() => createPurchaseOrder(POStatus.WAITING_APPROVAL)}
                 >

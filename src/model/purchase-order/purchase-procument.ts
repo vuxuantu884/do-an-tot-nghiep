@@ -2,7 +2,7 @@ import { BaseQuery } from "model/base/base.query";
 import { ParsedUrlQueryInput } from "querystring";
 import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
-import { ProcurementPropertiesDate, PurchaseOrder } from "./purchase-order.model";
+import { PurchaseOrder } from "./purchase-order.model";
 
 export interface PurchaseProcument extends BaseObject {
   reference: string;
@@ -19,37 +19,6 @@ export interface PurchaseProcument extends BaseObject {
   stock_in_by: string | null;
   store?: string;
   is_cancelled?: boolean;
-  uuid?: string;
-  percent?: number;
-}
-export interface ProcurementItem {
-  accepted_quantity?: string;
-  amount?: string;
-  barcode?: string;
-  code: string;
-  created_by: string;
-  created_date: string;
-  created_name: string;
-  id: number;
-  line_item_id?: string;
-  note?: string;
-  ordered_quantity?: string;
-  planned_quantity?: string;
-  price?: string;
-  product_name?: string;
-  quantity: number;
-  real_quantity?: string;
-  retail_price: number;
-  sku: string;
-  updated_by: string;
-  updated_date: string;
-  updated_name: string;
-  variant?: string;
-  variant_id: number;
-  variant_image?: string;
-  vat?: string;
-  vat_rate?: string;
-  version: number;
 }
 export interface PurchaseProcurementViewDraft {
   id?: number;
@@ -90,7 +59,7 @@ export interface PurchaseProcumentPOCreateLineItem {
 }
 
 export interface PurchaseProcumentLineItem {
-  id?: number | string;
+  id?: number;
   barcode: string;
   code?: string;
   line_item_id: number;
@@ -108,12 +77,6 @@ export interface PurchaseProcumentLineItem {
   price: number;
   product_name: string;
   amount?: number;
-  product_id?: number;
-  quantity_anh?: number;
-  quantity_tung?: number;
-  quantity_hieu?: number;
-  percent?: number;
-  uuid?: string;
 }
 
 export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {

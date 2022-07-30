@@ -4,6 +4,7 @@ import { StoreResponse } from "model/core/store.model";
 import React, { useCallback, useEffect, useState } from "react";
 import { fullTextSearch } from "utils/StringUtils";
 import { SourceResponse } from "../../../../../model/response/order/source.response";
+import { TreeStoreStyle } from "../history-filter.style";
 interface Props extends TreeSelectProps<any> {
   form?: FormInstance;
   name: string;
@@ -111,109 +112,126 @@ const TreeStore = (props: Props) => {
   }, [listStore]);
 
   return (
-    <TreeSelect
-      showArrow
-      placeholder={placeholder}
-      treeDefaultExpandAll
-      showCheckedStrategy={TreeSelect.SHOW_CHILD}
-      className="selector"
-      allowClear
-      // multiple={false}
-      showSearch
-      treeCheckable
-      treeNodeFilterProp="title"
-      maxTagCount="responsive"
-      filterTreeNode={(textSearch: any, item: any) => {
-        return fullTextSearch(textSearch, item?.title);
-      }}
-      {...restProps}
-      onChange={(value, labelList, extra) => {
-        //check all
-        if (extra.triggerValue === KEY_ALL && extra.checked) {
-          const dataAll = getAllIdStore();
-          setSelectedValues(getAllIdStore());
+    <TreeStoreStyle>
+      <TreeSelect
+        showArrow
+        placeholder={placeholder}
+        treeDefaultExpandAll
+        showCheckedStrategy={TreeSelect.SHOW_CHILD}
+        className="selector"
+        allowClear
+        showSearch
+        multiple
+        treeCheckable
+        treeNodeFilterProp="title"
+        maxTagCount="responsive"
+        filterTreeNode={(textSearch: any, item: any) => {
+          return fullTextSearch(textSearch, item?.title);
+        }}
+        {...restProps}
+        onChange={(value, labelList, extra) => {
+          //check all
+          if (extra.triggerValue === KEY_ALL && extra.checked) {
+            const dataAll = getAllIdStore();
+            setSelectedValues(getAllIdStore());
+            const index = dataAll.findIndex((item: any) => item === KEY_ALL);
+            if (index >= 0) {
+              dataAll.splice(index, 1);
+            }
+            restProps?.onChange
+              ? restProps?.onChange(dataAll, labelList, extra)
+              : form?.setFieldsValue({ [name]: value });
+            return;
+          }
+          // delete all
+          if (extra.triggerValue === KEY_ALL && !extra.checked) {
+            setSelectedValues([]);
+            restProps?.onChange
+              ? restProps?.onChange([], labelList, extra)
+              : form?.setFieldsValue({ [name]: [] });
+            return;
+          }
+          if (value.length !== getAllIdStore().length) {
+            const index = value.findIndex((item: any) => item === KEY_ALL);
+            // KEY_ALL là value của check all
+            if (index >= 0) {
+              value.splice(index, 1);
+            }
+          }
+          if (value.length === getAllIdStore().length - 1 && !selectedValues.includes(KEY_ALL)) {
+            value.push(KEY_ALL);
+          }
+          setSelectedValues(value);
+          const dataAll = value;
           const index = dataAll.findIndex((item: any) => item === KEY_ALL);
+          // KEY_ALL là value của check all
           if (index >= 0) {
             dataAll.splice(index, 1);
           }
           restProps?.onChange
             ? restProps?.onChange(dataAll, labelList, extra)
-            : form?.setFieldsValue({ [name]: value });
-          return;
-        }
-        // delete all
-        if (extra.triggerValue === KEY_ALL && !extra.checked) {
-          setSelectedValues([]);
-          restProps?.onChange
-            ? restProps?.onChange([], labelList, extra)
-            : form?.setFieldsValue({ [name]: [] });
-          return;
-        }
-        if (value.length !== getAllIdStore().length) {
-          const index = value.findIndex((item: any) => item === KEY_ALL);
-          // KEY_ALL là value của check all
-          if (index >= 0) {
-            value.splice(index, 1);
-          }
-        }
-        if (value.length === getAllIdStore().length - 1 && !selectedValues.includes(KEY_ALL)) {
-          value.push(KEY_ALL);
-        }
-        setSelectedValues(value);
-        const dataAll = value;
-        const index = dataAll.findIndex((item: any) => item === KEY_ALL);
-        // KEY_ALL là value của check all
-        if (index >= 0) {
-          dataAll.splice(index, 1);
-        }
-        restProps?.onChange
-          ? restProps?.onChange(dataAll, labelList, extra)
-          : form?.setFieldsValue({ [name]: dataAll });
-      }}
-      value={selectedValues}
-    >
-      <TreeSelect.TreeNode key={KEY_ALL} value={KEY_ALL} title="Chọn tất cả" />
-      {stores?.map((departmentItem: any, index) => {
-        return (
+            : form?.setFieldsValue({ [name]: dataAll });
+        }}
+        value={selectedValues}
+      >
+        <TreeSelect.TreeNode key={KEY_ALL} value={KEY_ALL} title="Chọn tất cả" />
+        {stores?.map((departmentItem: any) => {
+          return (
+            <TreeSelect.TreeNode
+              key={departmentItem[0]}
+              value={departmentItem[0]}
+              title={departmentItem[0]}
+            >
+              <React.Fragment>
+                {departmentItem[1].map((storeItem: any) => {
+                  return storeItem[1][0].name === storeItem[0] ? (
+                    <TreeSelect.TreeNode
+                      key={storeItem[1][0].code}
+                      value={storeItem[1][0].id}
+                      title={
+                        <span className={storeItem.status === "inactive" ? "store-closed" : ""}>
+                          {storeItem.status === "inactive"
+                            ? `${storeItem[1][0].name} (CH đã đóng cửa)`
+                            : storeItem[1][0].name}
+                        </span>
+                      }
+                    />
+                  ) : (
+                    <TreeSelect.TreeNode
+                      key={storeItem[0]}
+                      value={storeItem[1][0][KEY_MAP_STORE_LEVEL_4]}
+                      title={storeItem[0]}
+                    >
+                      {storeItem[1].map((storeItemLevel4: StoreResponse) => {
+                        return (
+                          <TreeSelect.TreeNode
+                            key={storeItemLevel4.code}
+                            value={storeItemLevel4.id}
+                            title={storeItemLevel4.name}
+                          />
+                        );
+                      })}
+                    </TreeSelect.TreeNode>
+                  );
+                })}
+              </React.Fragment>
+            </TreeSelect.TreeNode>
+          );
+        })}
+        {noDepartmentStores?.map((storeItem: StoreResponse) => (
           <TreeSelect.TreeNode
-            key={departmentItem[0]}
-            value={departmentItem[0]}
-            title={departmentItem[0]}
-          >
-            <React.Fragment>
-              {departmentItem[1].map((storeItem: any) => {
-                return storeItem[1][0].name === storeItem[0] ? (
-                  <TreeSelect.TreeNode
-                    key={storeItem[1][0].code}
-                    value={storeItem[1][0].id}
-                    title={storeItem[1][0].name}
-                  />
-                ) : (
-                  <TreeSelect.TreeNode
-                    key={storeItem[0]}
-                    value={storeItem[1][0][KEY_MAP_STORE_LEVEL_4]}
-                    title={storeItem[0]}
-                  >
-                    {storeItem[1].map((storeItemLevel4: StoreResponse) => {
-                      return (
-                        <TreeSelect.TreeNode
-                          key={storeItemLevel4.code}
-                          value={storeItemLevel4.id}
-                          title={storeItemLevel4.name}
-                        />
-                      );
-                    })}
-                  </TreeSelect.TreeNode>
-                );
-              })}
-            </React.Fragment>
-          </TreeSelect.TreeNode>
-        );
-      })}
-      {noDepartmentStores?.map((storeItem: StoreResponse) => (
-        <TreeSelect.TreeNode key={storeItem.code} value={storeItem.id} title={storeItem.name} />
-      ))}
-    </TreeSelect>
+            key={storeItem.code}
+            value={storeItem.id}
+            title={
+              storeItem.status === "inactive"
+                ? `${storeItem.name} (CH đã đóng cửa)`
+                : storeItem.name
+            }
+            className={storeItem.status === "inactive" ? "store-closed" : ""}
+          />
+        ))}
+      </TreeSelect>
+    </TreeStoreStyle>
   );
 };
 TreeStore.defaultProps = {
