@@ -20,6 +20,7 @@ import {
   COLUMN_ORDER_LIST,
   convertDataToFlatTableKeyDriver,
   getAllDepartmentByAnalyticResult,
+  getBreadcrumbByLevel,
   getInputTargetId,
   handleFocusInput,
   handleMoveFocusInput,
@@ -44,7 +45,7 @@ const baseColumns: any = [
     fixed: "left",
     render: (text: string, record: any) => {
       return (
-        <Tooltip className="text-truncate-2 key-cell" title={record.method}>
+        <Tooltip className="text-truncate-2 key-cell padding-left-10" title={record.method}>
           {text?.toUpperCase()}
         </Tooltip>
       );
@@ -138,37 +139,41 @@ function KeyDriverOnline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const drillLevel = Number(record[`${departmentKey}_drilling_level`]);
-              const targetDrillingLevel = Number(record[`${departmentKey}_target_drilling_level`]);
+              const targetDrillingLevel = +record[`target_drilling_level`];
 
               return (
-                <InputNumber
-                  id={getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE)}
-                  defaultValue={text}
-                  disabled={drillLevel > targetDrillingLevel || !drillLevel || !targetDrillingLevel}
-                  onPressEnter={(e: any) => {
-                    const value = parseLocaleNumber(e.target.value);
-                    saveMonthTargetKeyDriver(
-                      { total: value },
-                      record,
-                      columnDrillingLevel,
-                      departmentKey,
-                      dispatch,
-                    );
-                    handleMoveFocusInput(
-                      index,
-                      columnIndex * 2,
-                      PREFIX_CELL_TABLE,
-                      KeyboardKey.ArrowDown,
-                    );
-                  }}
-                  onKeyDown={(e) => {
-                    const event = e;
-                    if (event.shiftKey) {
-                      handleMoveFocusInput(index, columnIndex * 2, PREFIX_CELL_TABLE, event.key);
+                <VerifyCell row={record} value={text}>
+                  <InputNumber
+                    id={getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE)}
+                    defaultValue={text}
+                    disabled={
+                      drillLevel > targetDrillingLevel || !drillLevel || !targetDrillingLevel
                     }
-                  }}
-                  {...inputTargetDefaultProps}
-                />
+                    onPressEnter={(e: any) => {
+                      const value = parseLocaleNumber(e.target.value);
+                      saveMonthTargetKeyDriver(
+                        { total: value },
+                        record,
+                        columnDrillingLevel,
+                        departmentKey,
+                        dispatch,
+                      );
+                      handleMoveFocusInput(
+                        index,
+                        columnIndex * 2,
+                        PREFIX_CELL_TABLE,
+                        KeyboardKey.ArrowDown,
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      const event = e;
+                      if (event.shiftKey) {
+                        handleMoveFocusInput(index, columnIndex * 2, PREFIX_CELL_TABLE, event.key);
+                      }
+                    }}
+                    {...inputTargetDefaultProps}
+                  />
+                </VerifyCell>
               );
             },
           },
@@ -222,46 +227,50 @@ function KeyDriverOnline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const drillLevel = +record[`${departmentKey}_drilling_level`];
-              const targetDrillingLevel = +record[`${departmentKey}_target_drilling_level`];
+              const targetDrillingLevel = +record[`target_drilling_level`];
               return (
-                <InputNumber
-                  id={getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE)}
-                  disabled={drillLevel > targetDrillingLevel || !drillLevel || !targetDrillingLevel}
-                  defaultValue={text}
-                  onPressEnter={(e: any) => {
-                    const value = parseLocaleNumber(e.target.value);
-                    let newTargetDay = Number(targetDay);
-                    const day =
-                      newTargetDay && newTargetDay > 0 && newTargetDay <= 31
-                        ? newTargetDay
-                        : moment().date();
-                    handleMoveFocusInput(
-                      index,
-                      columnIndex * 2 + 1,
-                      PREFIX_CELL_TABLE,
-                      KeyboardKey.ArrowDown,
-                    );
-                    saveMonthTargetKeyDriver(
-                      { [`day_${day}`]: value },
-                      record,
-                      columnDrillingLevel,
-                      departmentKey,
-                      dispatch,
-                    );
-                  }}
-                  onKeyDown={(e) => {
-                    const event = e;
-                    if (event.shiftKey) {
+                <VerifyCell row={record} value={text}>
+                  <InputNumber
+                    id={getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE)}
+                    disabled={
+                      drillLevel > targetDrillingLevel || !drillLevel || !targetDrillingLevel
+                    }
+                    defaultValue={text}
+                    onPressEnter={(e: any) => {
+                      const value = parseLocaleNumber(e.target.value);
+                      let newTargetDay = Number(targetDay);
+                      const day =
+                        newTargetDay && newTargetDay > 0 && newTargetDay <= 31
+                          ? newTargetDay
+                          : moment().date();
                       handleMoveFocusInput(
                         index,
                         columnIndex * 2 + 1,
                         PREFIX_CELL_TABLE,
-                        event.key,
+                        KeyboardKey.ArrowDown,
                       );
-                    }
-                  }}
-                  {...inputTargetDefaultProps}
-                />
+                      saveMonthTargetKeyDriver(
+                        { [`day_${day}`]: value },
+                        record,
+                        columnDrillingLevel,
+                        departmentKey,
+                        dispatch,
+                      );
+                    }}
+                    onKeyDown={(e) => {
+                      const event = e;
+                      if (event.shiftKey) {
+                        handleMoveFocusInput(
+                          index,
+                          columnIndex * 2 + 1,
+                          PREFIX_CELL_TABLE,
+                          event.key,
+                        );
+                      }
+                    }}
+                    {...inputTargetDefaultProps}
+                  />
+                </VerifyCell>
               );
             },
           },
@@ -376,7 +385,7 @@ function KeyDriverOnline() {
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Online"}
-      breadcrumb={[{ name: "Báo cáo" }, { name: "Báo cáo kết quả kinh doanh Online" }]}
+      breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
     >
       <KeyDriverOnlineStyle>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>

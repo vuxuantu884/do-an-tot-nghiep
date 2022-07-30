@@ -1,3 +1,5 @@
+import { BreadcrumbProps } from "component/container/breadcrumb.container";
+import UrlConfig from "config/url.config";
 import { uniqBy } from "lodash";
 import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import {
@@ -14,6 +16,7 @@ import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import queryString from "query-string";
 
 export const DRILLING_LEVEL = {
   COMPANY: 1,
@@ -76,6 +79,7 @@ export const convertDataToFlatTableKeyDriver = (
   const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
   const keyDriverDescriptionIndex = attributeOrdered.indexOf("key_driver_description");
   const drillingLevelIndex = attributeOrdered.indexOf("drilling_level");
+  const targetDrillingLevelIndex = attributeOrdered.indexOf("target_drilling_level");
 
   const data: KeyDriverOnlineDataSourceType[] = [];
 
@@ -93,6 +97,8 @@ export const convertDataToFlatTableKeyDriver = (
       objValue[nonAccentVietnamese(department) + "_" + attr] = row[attributeOrdered.indexOf(attr)];
     });
 
+    const targetDrillingLevel = Number(row[targetDrillingLevelIndex]);
+
     const otherValue = {} as any;
     attributeOrdered.forEach((attr) => {
       otherValue[nonAccentVietnamese(department) + "_" + attr] =
@@ -105,15 +111,21 @@ export const convertDataToFlatTableKeyDriver = (
         key: keyDriver,
         title: row[keyDriverTitleIndex],
         method: row[keyDriverDescriptionIndex],
+        target_drilling_level: targetDrillingLevel,
         ...objValue,
         ...otherValue,
       });
     } else {
-      data[data.length - 1] = {
-        ...data[data.length - 1],
+      const lastItem = data[data.length - 1];
+      if (typeof lastItem.target_drilling_level !== "number") {
+        lastItem.target_drilling_level = targetDrillingLevel;
+      }
+      const newRow = {
+        ...lastItem,
         ...objValue,
         ...otherValue,
       };
+      data[data.length - 1] = newRow;
     }
   });
   return data;
@@ -220,4 +232,33 @@ export const handleMoveFocusInput = (
 
 export const getInputTargetId = (row: number, column: number, prefix: string) => {
   return `${prefix}_row_${row}_column_${column}`;
+};
+
+export const getBreadcrumbByLevel = (
+  departmentLv2: string | null,
+  departmentLv3: string | null,
+) => {
+  const breadcrumb: BreadcrumbProps[] = [
+    {
+      name: "Tổng công ty",
+      path: UrlConfig.KEY_DRIVER_ONLINE,
+    },
+  ];
+
+  if (departmentLv2) {
+    breadcrumb.push({
+      name: departmentLv2,
+      path: `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify({ departmentLv2 })}`,
+    });
+  }
+  if (departmentLv2 && departmentLv3) {
+    breadcrumb.push({
+      name: departmentLv3,
+      path: `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify({
+        departmentLv2,
+        departmentLv3,
+      })}`,
+    });
+  }
+  return breadcrumb;
 };
