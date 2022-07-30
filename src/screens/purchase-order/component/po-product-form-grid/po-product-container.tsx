@@ -1,9 +1,6 @@
 import { Card, Form, FormInstance, Input, Radio, RadioChangeEvent, Select, Space } from "antd";
 import React, { ReactNode, useContext } from "react";
-import {
-  INITIAL_EXPECTED_DATE,
-  PurchaseOrderCreateContext,
-} from "screens/purchase-order/provider/purchase-order.provider";
+import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 import { AppConfig } from "../../../../config/app.config";
 import { POField } from "../../../../model/purchase-order/po-field";
 
@@ -14,26 +11,12 @@ type PoProductContainerProps = {
   form: FormInstance;
 };
 
-const PoProductContainer = ({
-  children,
-  isEditMode,
-  isDisableSwitch,
-  form,
-}: PoProductContainerProps) => {
-  const {
-    isGridMode,
-    setIsGridMode,
-    setPoLineItemGridChema,
-    setPoLineItemGridValue,
-    setProcurementTableData,
-    setExpectedDate,
-  } = useContext(PurchaseOrderCreateContext);
+const PoProductContainer = ({ children, isEditMode, isDisableSwitch, form }: PoProductContainerProps) => {
+  const { isGridMode, setIsGridMode, setPoLineItemGridChema, setPoLineItemGridValue } = useContext(PurchaseOrderCreateContext);
 
   const onChangeGridMode = (e: RadioChangeEvent) => {
     const isGrid = e.target.value;
     setIsGridMode(isGrid);
-    setProcurementTableData([]);
-    setExpectedDate(INITIAL_EXPECTED_DATE);
     if (isGrid) {
       setPoLineItemGridChema([]);
       setPoLineItemGridValue([]);
@@ -63,12 +46,14 @@ const PoProductContainer = ({
           {({ getFieldValue }) => {
             return (
               <Space size={20}>
-                {isEditMode && !isDisableSwitch && (
-                  <Radio.Group onChange={onChangeGridMode} value={isGridMode}>
-                    <Radio value={true}>Chọn 1 mã 7</Radio>
-                    <Radio value={false}>Chọn nhiều sản phẩm</Radio>
-                  </Radio.Group>
-                )}
+                {
+                  isEditMode && !isDisableSwitch && (
+                    <Radio.Group onChange={onChangeGridMode} value={isGridMode}>
+                      <Radio value={true}>Chọn 1 mã 7</Radio>
+                      <Radio value={false}>Chọn nhiều sản phẩm</Radio>
+                    </Radio.Group>
+                  )
+                }
                 <span>Chính sách giá:</span>
                 {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
                 {isEditMode ? (
@@ -91,8 +76,7 @@ const PoProductContainer = ({
             );
           }}
         </Form.Item>
-      }
-    >
+      }>
       {children}
     </Card>
   );

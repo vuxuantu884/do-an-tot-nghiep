@@ -110,13 +110,10 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     if (props.visible) {
       setSelection([...props.selected]);
     }
-  }, [props.selected, props.visible]);
-
-  useEffect(() => {
     return () => {
       setSelection([]);
     };
-  }, []);
+  }, [props.selected, props.visible]);
 
   const searchVariantDebounce = debounce((e) => {
     setQuery({ ...query, info: e.target.value });

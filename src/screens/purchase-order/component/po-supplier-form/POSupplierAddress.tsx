@@ -40,7 +40,7 @@ const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps
     <>
       <Row align="middle" justify={"space-between"}>
         <Row style={{ flex: 1 }}>
-          <Col span={6}>
+          <Col span={5}>
             <Row align="middle">
               <UserOutlined />
               <span style={{ marginLeft: 10 }}>{address.name}</span>
@@ -52,7 +52,7 @@ const POSupplierAddress = ({ getFieldValue, field, onEdit }: PoSupplierInfoProps
               <span style={{ marginLeft: 10 }}>{address.phone}</span>
             </Row>
           </Col>
-          <Col span={12}>
+          <Col span={14}>
             <Row align="middle">
               <IconLocationOutlined width={16} height={16} style={{ marginRight: 10 }} />
               {isOverFlown ? (

@@ -1,5 +1,3 @@
-import { VariantPricesResponse } from "model/product/product.model";
-
 export interface PurchaseOrderLineItem {
   id?: number;
   barcode: string;
@@ -32,10 +30,7 @@ export interface PurchaseOrderLineItem {
   receipt_quantity: number;
   planned_quantity: number;
   variant_detail?: any;
-  retail_price: number;
-  color_code?: string;
-  color: number;
-  variant_prices: Array<VariantPricesResponse>;
+  retail_price:number;
 }
 export interface PurchaseOrderLineReturnItem extends PurchaseOrderLineItem {
   quantity_return: number;
@@ -88,12 +83,12 @@ export interface PurchaseOrderLineItemDraft {
 }
 
 export enum POLoadType {
-  SUPPLEMENT = "SUPPLEMENT",
-  NOT_SUPPLEMENT = "NOT_SUPPLEMENT",
-  ALL = "ALL",
-}
+  SUPPLEMENT = 'SUPPLEMENT',
+  NOT_SUPPLEMENT = 'NOT_SUPPLEMENT',
+  ALL = 'ALL'
+};
 
 export enum POLineItemType {
-  NORMAL = "normal",
-  SUPPLEMENT = "supplement",
+  NORMAL = 'normal',
+  SUPPLEMENT = 'supplement',
 }

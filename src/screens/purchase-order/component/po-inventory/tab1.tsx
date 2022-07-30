@@ -1,6 +1,6 @@
 import { Button, Form, Table } from "antd";
 import { POField } from "model/purchase-order/po-field";
-import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import imgDefIcon from "assets/img/img-def.svg";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
@@ -34,15 +34,26 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
       }
     >
       {({ getFieldValue }) => {
-        const line_items: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items);
-        const procurements: Array<PurchaseProcument> = getFieldValue(POField.procurements);
-        const receive_status: string = getFieldValue(POField.receive_status);
-
-        const items =
+        let line_items: Array<PurchaseOrderLineItem> = getFieldValue(POField.line_items);
+        let procurements: Array<PurchaseProcument> = getFieldValue(POField.procurements);
+        let receive_status: string = getFieldValue(POField.receive_status);
+        let items =
           procurements !== undefined && procurements !== null
             ? procurements.filter((item) => item.status === ProcumentStatus.RECEIVED)
             : [];
-        const new_line_items: Array<PurchaseOrderLineItem> = line_items;
+        let new_line_items: Array<PurchaseOrderLineItem> = [];
+        line_items.forEach((item) => {
+          let index = new_line_items.findIndex((item1) => item1.sku === item.sku);
+          if (index === -1) {
+            new_line_items.push({ ...item });
+          } else {
+            new_line_items[index].quantity = new_line_items[index].quantity + item.quantity;
+            new_line_items[index].planned_quantity =
+              new_line_items[index].planned_quantity + item.planned_quantity;
+            new_line_items[index].receipt_quantity =
+              new_line_items[index].receipt_quantity + item.receipt_quantity;
+          }
+        });
         return (
           <div>
             <Table
@@ -51,18 +62,18 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
               rowClassName="product-table-row"
               dataSource={new_line_items}
               tableLayout="fixed"
-              // scroll={{ y: 250 }}
+              scroll={{ y: 250, x: 600 }}
               pagination={false}
               columns={[
                 {
                   title: "STT",
                   align: "center",
-                  width: 35,
+                  width: 60,
                   render: (value, record, index) => index + 1,
                 },
                 {
                   title: "Ảnh",
-                  width: 35,
+                  width: 60,
                   dataIndex: "variant_image",
                   render: (value) => (
                     <div className="product-item-image">
@@ -72,7 +83,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                 },
                 {
                   title: "Sản phẩm",
-                  width: 85,
+                  width: "90%",
                   className: "ant-col-info",
                   dataIndex: "variant",
                   render: (value: string, item: PurchaseOrderLineItem, index: number) => (
@@ -110,10 +121,10 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                       SL Đặt hàng
                     </div>
                   ),
-                  width: 80,
+                  width: 150,
                   dataIndex: "quantity",
                   render: (value, item, index) => (
-                    <div style={{ textAlign: "right" }}>{formatCurrency(value || 0, ".")}</div>
+                    <div style={{ textAlign: "right" }}>{formatCurrency(value, ".")}</div>
                   ),
                 },
                 {
@@ -129,7 +140,7 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                       SL đã nhận
                     </div>
                   ),
-                  width: 75,
+                  width: 150,
                   dataIndex: "receipt_quantity",
                   render: (value, item, index) => (
                     <div style={{ textAlign: "right" }}>
@@ -145,25 +156,23 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                         textAlign: "right",
                         flexDirection: "column",
                         display: "flex",
-                        color: "#E24343",
                       }}
                     >
                       SL còn lại
                     </div>
                   ),
-                  width: 75,
+                  width: 150,
                   dataIndex: "receipt_quantity",
                   render: (value, item, index) => (
-                    <div
-                      style={{
-                        textAlign: "right",
-                        color:
-                          item.quantity - (item.receipt_quantity || 0) > 0 ? "#E24343" : "#27AE60",
-                      }}
-                    >
-                      {formatCurrency(item.quantity - (item.receipt_quantity || 0), ".")}
+                    <div style={{ textAlign: "right" }}>
+                      {formatCurrency(item.quantity - item.receipt_quantity, ".")}
                     </div>
                   ),
+                },
+                {
+                  title: "",
+                  width: 40,
+                  render: (value: string, item, index: number) => "",
                 },
               ]}
               summary={(data) => {
@@ -176,19 +185,14 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
                         <div style={{ fontWeight: 700 }}>Tổng</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={1}>
-                        <div style={{ fontWeight: 700 }}>{formatCurrency(total || 0, ".")}</div>
+                        <div style={{ fontWeight: 700 }}>{formatCurrency(total, ".")}</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={2}>
-                        <div style={{ fontWeight: 700 }}>{formatCurrency(receipt || 0, ".")}</div>
+                        <div style={{ fontWeight: 700 }}>{formatCurrency(receipt, ".")}</div>
                       </Table.Summary.Cell>
                       <Table.Summary.Cell align="right" index={3}>
-                        <div
-                          style={{
-                            fontWeight: 700,
-                            color: total - receipt > 0 ? "#E24343" : "#27AE60",
-                          }}
-                        >
-                          {formatCurrency(total - receipt || 0, ".")}
+                        <div style={{ fontWeight: 700 }}>
+                          {formatCurrency(total - receipt, ".")}
                         </div>
                       </Table.Summary.Cell>
                     </Table.Summary.Row>
