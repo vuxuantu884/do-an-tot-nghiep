@@ -189,11 +189,11 @@ const TreeStore = (props: Props) => {
                       key={storeItem[1][0].code}
                       value={storeItem[1][0].id}
                       title={
-                        <span className={storeItem.status === "inactive" ? "store-closed" : ""}>
-                          {storeItem.status === "inactive"
-                            ? `${storeItem[1][0].name} (CH đã đóng cửa)`
-                            : storeItem[1][0].name}
-                        </span>
+                        // <span className={storeItem.status === "inactive" ? "store-closed" : ""}>
+                        storeItem.status === "inactive"
+                          ? `${storeItem[1][0].name} (CH đã đóng cửa)`
+                          : storeItem[1][0].name
+                        // </span>
                       }
                     />
                   ) : (
