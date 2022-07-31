@@ -1,9 +1,10 @@
 import useGetChannels from "hook/order/useGetChannels";
 import { OrderSearchQuery } from "model/order/order.model";
-import React, { useMemo } from "react";
+import { useMemo } from "react";
 import { withRouter } from "react-router-dom";
-import { ECOMMERCE_CHANNEL_CODES, POS } from "utils/Constants";
+import { POS } from "utils/Constants";
 import { ORDER_TYPES } from "utils/Order.constants";
+import { checkIfEcommerceByOrderChannelCode } from "utils/OrderUtils";
 import OrderList from "../component/OrderList/OrderList";
 
 type PropTypes = {
@@ -18,7 +19,7 @@ function OrdersScreen(props: PropTypes) {
     .map((single) => single.code)
     .filter((single) => {
       return (
-        !ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(single.toLowerCase()) &&
+        !checkIfEcommerceByOrderChannelCode(single) &&
         single.toLowerCase() !== POS.channel_code.toLowerCase()
       );
     });

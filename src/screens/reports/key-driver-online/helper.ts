@@ -1,6 +1,9 @@
+import { BreadcrumbProps } from "component/container/breadcrumb.container";
+import UrlConfig from "config/url.config";
 import { uniqBy } from "lodash";
 import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import {
+  AnalyticColumns,
   AnalyticDataQuery,
   AnalyticResult,
   ArrayAny,
@@ -14,6 +17,7 @@ import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import queryString from "query-string";
 
 export const DRILLING_LEVEL = {
   COMPANY: 1,
@@ -69,21 +73,31 @@ export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispat
 }
 
 export const convertDataToFlatTableKeyDriver = (
-  analyticResult: AnalyticResult,
+  analyticResult: any,
   attributeOrdered: string[],
 ) => {
-  const keyDriverIndex = attributeOrdered.indexOf("key_driver");
-  const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
-  const keyDriverDescriptionIndex = attributeOrdered.indexOf("key_driver_description");
-  const drillingLevelIndex = attributeOrdered.indexOf("drilling_level");
+  const keyDriverResult = analyticResult.result as AnalyticResult;
+  const keyDriverData = analyticResult.key_drivers as AnalyticResult;
+
+  const targetDrillingLevelIndex = keyDriverData.columns.findIndex(
+    (item: AnalyticColumns) => item.field === "target_drilling_level",
+  );
+  const keyDriverIndex = keyDriverData.columns.findIndex(
+    (item: AnalyticColumns) => item.field === "key_driver",
+  );
+
+  const keyDriverDataIndex = attributeOrdered.indexOf("key_driver");
+  const keyDriverTitleDataIndex = attributeOrdered.indexOf("key_driver_title");
+  const keyDriverDescriptionDataIndex = attributeOrdered.indexOf("key_driver_description");
+  const drillingLevelDataIndex = attributeOrdered.indexOf("drilling_level");
 
   const data: KeyDriverOnlineDataSourceType[] = [];
 
   let keyDriver = "";
-  analyticResult.data.forEach((row: Array<string>) => {
-    const currentKeyDriver = row[keyDriverIndex];
+  keyDriverResult.data.forEach((row: Array<string>) => {
+    const currentKeyDriver = row[keyDriverDataIndex];
 
-    const drillingLevel = Number(row[drillingLevelIndex]);
+    const drillingLevel = Number(row[drillingLevelDataIndex]);
     const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
 
     const department = nonAccentVietnamese(row[departmentLevelIndex]);
@@ -101,19 +115,30 @@ export const convertDataToFlatTableKeyDriver = (
 
     if (currentKeyDriver !== keyDriver) {
       keyDriver = currentKeyDriver;
+      const targetDrillingLevel = keyDriverData.data.find((item: Array<any>) => {
+        return item[keyDriverIndex] === keyDriver;
+      });
+      const currentTargetDrillingValue =
+        targetDrillingLevel && targetDrillingLevel?.length > 0
+          ? targetDrillingLevel[targetDrillingLevelIndex]
+          : null;
       data.push({
         key: keyDriver,
-        title: row[keyDriverTitleIndex],
-        method: row[keyDriverDescriptionIndex],
+        title: row[keyDriverTitleDataIndex],
+        method: row[keyDriverDescriptionDataIndex],
+        target_drilling_level: currentTargetDrillingValue,
         ...objValue,
         ...otherValue,
       });
     } else {
-      data[data.length - 1] = {
-        ...data[data.length - 1],
+      const lastItem = data[data.length - 1];
+
+      const newRow = {
+        ...lastItem,
         ...objValue,
         ...otherValue,
       };
+      data[data.length - 1] = newRow;
     }
   });
   return data;
@@ -220,4 +245,33 @@ export const handleMoveFocusInput = (
 
 export const getInputTargetId = (row: number, column: number, prefix: string) => {
   return `${prefix}_row_${row}_column_${column}`;
+};
+
+export const getBreadcrumbByLevel = (
+  departmentLv2: string | null,
+  departmentLv3: string | null,
+) => {
+  const breadcrumb: BreadcrumbProps[] = [
+    {
+      name: "TỔNG CÔNG TY",
+      path: UrlConfig.KEY_DRIVER_ONLINE,
+    },
+  ];
+
+  if (departmentLv2) {
+    breadcrumb.push({
+      name: departmentLv2,
+      path: `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify({ departmentLv2 })}`,
+    });
+  }
+  if (departmentLv2 && departmentLv3) {
+    breadcrumb.push({
+      name: departmentLv3,
+      path: `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify({
+        departmentLv2,
+        departmentLv3,
+      })}`,
+    });
+  }
+  return breadcrumb;
 };
