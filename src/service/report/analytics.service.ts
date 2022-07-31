@@ -6,7 +6,6 @@ import { ApiConfig } from "config/api.config";
 import { AppConfig } from "config/app.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantResponse } from "model/product/product.model";
-import { MonthlyCounterParams } from "model/report";
 import {
   AnalyticCustomize,
   AnalyticDataQuery,
@@ -126,8 +125,4 @@ export const searchVariantsSimpleService = (query: {
 }): Promise<BaseResponse<PageResponse<VariantResponse>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/variants/simple?${queryString}`);
-};
-
-export const onlineCounterService = (params: MonthlyCounterParams): Promise<BaseResponse<any>> => {
-  return BaseAxiosApi.post(`/monthly-counters`, params);
 };

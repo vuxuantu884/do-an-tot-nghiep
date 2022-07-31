@@ -12,13 +12,13 @@ import {
 } from "model/report";
 import moment from "moment";
 import { Dispatch } from "redux";
-import { onlineCounterService } from "service/report/analytics.service";
-import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
+import { getKeyDriverOnlineApi, onlineCounterService } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import queryString from "query-string";
 
+export const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Online";
 export const DRILLING_LEVEL = {
   COMPANY: 1,
   DEPARTMENT: 2,

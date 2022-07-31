@@ -603,3 +603,9 @@ label {
 .title {
   color: #666666;
 }
+
+.hide-control-input-number {
+  .ant-input-number-handler-wrap {
+    display: none;
+  }
+}
