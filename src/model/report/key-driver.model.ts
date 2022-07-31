@@ -151,7 +151,7 @@ export interface KeyDriverOnlineDataSourceType {
   children: KeyDriverOnlineDataSourceType[];
 }
 
-export interface MonthlyCounterParams {
+export interface MonthlyCounter {
   entity_name: string;
   entity_key: string;
   year: number;
@@ -172,3 +172,24 @@ export interface KeyDriverOnlineParams {
   departmentLv2: string | null;
   departmentLv3: string | null;
 }
+
+export interface KeyCounterParams {
+  "entityName.in": string[];
+  "year.equals": number;
+  "month.equals": number;
+  "departmentLv1.equals": string;
+  "departmentLv2.equals": string;
+  "departmentLv3.equals": string;
+}
+
+export type DepartmentLevelGroup = {
+  department_lv1: string;
+  department_lv2: string;
+  department_lv3: string;
+  department_lv4: string;
+  account_code: string;
+  account_name: string;
+  account_role: string;
+};
+
+export type DepartmentLevel4 = Omit<DepartmentLevelGroup, "department_lv2" | "department_lv3">;

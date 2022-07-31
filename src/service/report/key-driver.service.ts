@@ -6,9 +6,11 @@ import {
   AnalyticDataQuery,
   CustomerPhoneSMSCountersParams,
   KDOfflineTotalSalesParams,
+  KeyCounterParams,
   KeyDriverImportFileParams,
   KeyDriverOnlineParams,
   KeyDriverParams,
+  MonthlyCounter,
   UpdateKeyDriverParams,
 } from "model/report";
 
@@ -96,5 +98,19 @@ export const updateCustomerPhoneSMSCounters = (params: any): Promise<BaseRespons
 export const getKeyDriverOnlineApi = (
   params: KeyDriverOnlineParams,
 ): Promise<BaseResponse<Omit<AnalyticDataQuery, "query">>> => {
-  return BaseAxiosApi.get(`reports/query/key-drivers`, { params });
+  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/query/key-drivers`, { params });
+};
+
+export const getMetadataKeyDriverOnlineApi = (
+  params: KeyDriverOnlineParams,
+): Promise<BaseResponse<Omit<AnalyticDataQuery, "query">>> => {
+  return BaseAxiosApi.get(`${ApiConfig.ANALYTICS}/metadata/key-drivers`, { params });
+};
+
+export const onlineCounterService = (params: MonthlyCounter): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.post(`/monthly-counters`, params);
+};
+
+export const getOnlineCounterService = (params: KeyCounterParams): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`/monthly-counters`, { params });
 };

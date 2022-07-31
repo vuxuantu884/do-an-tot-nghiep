@@ -19,6 +19,7 @@ import { nonAccentVietnamese } from "utils/PromotionUtils";
 import {
   COLUMN_ORDER_LIST,
   convertDataToFlatTableKeyDriver,
+  DEFAULT_KEY_DRIVER_GROUP_LV_1,
   getAllDepartmentByAnalyticResult,
   getBreadcrumbByLevel,
   getInputTargetId,
@@ -56,7 +57,6 @@ const baseColumns: any = [
 
 const SHOP_LEVEL = 3;
 const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
-const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Online";
 
 const inputTargetDefaultProps: InputNumberProps<any> = {
   className: "input-number",
