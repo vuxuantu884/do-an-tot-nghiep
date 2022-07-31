@@ -898,7 +898,7 @@ export default function Order(props: PropTypes) {
           if (isFetchApiSuccessful(response)) {
             dispatch(getStoreBankAccountNumbersAction(response.data.items));
             const selected = response.data.items.find((single) => single.default && single.status);
-            if (isShouldSetDefaultStoreBankAccount) {
+            if (isShouldSetDefaultStoreBankAccount && checkIfShowCreatePayment()) {
               if (selected) {
                 dispatch(changeSelectedStoreBankAccountAction(selected.account_number));
               } else {
