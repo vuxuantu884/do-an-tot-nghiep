@@ -3,6 +3,7 @@ import UrlConfig from "config/url.config";
 import { uniqBy } from "lodash";
 import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import {
+  AnalyticColumns,
   AnalyticDataQuery,
   AnalyticResult,
   ArrayAny,
@@ -72,22 +73,31 @@ export async function fetchQuery(params: KeyDriverOnlineParams, dispatch: Dispat
 }
 
 export const convertDataToFlatTableKeyDriver = (
-  analyticResult: AnalyticResult,
+  analyticResult: any,
   attributeOrdered: string[],
 ) => {
-  const keyDriverIndex = attributeOrdered.indexOf("key_driver");
-  const keyDriverTitleIndex = attributeOrdered.indexOf("key_driver_title");
-  const keyDriverDescriptionIndex = attributeOrdered.indexOf("key_driver_description");
-  const drillingLevelIndex = attributeOrdered.indexOf("drilling_level");
-  const targetDrillingLevelIndex = attributeOrdered.indexOf("target_drilling_level");
+  const keyDriverResult = analyticResult.result as AnalyticResult;
+  const keyDriverData = analyticResult.key_drivers as AnalyticResult;
+
+  const targetDrillingLevelIndex = keyDriverData.columns.findIndex(
+    (item: AnalyticColumns) => item.field === "target_drilling_level",
+  );
+  const keyDriverIndex = keyDriverData.columns.findIndex(
+    (item: AnalyticColumns) => item.field === "key_driver",
+  );
+
+  const keyDriverDataIndex = attributeOrdered.indexOf("key_driver");
+  const keyDriverTitleDataIndex = attributeOrdered.indexOf("key_driver_title");
+  const keyDriverDescriptionDataIndex = attributeOrdered.indexOf("key_driver_description");
+  const drillingLevelDataIndex = attributeOrdered.indexOf("drilling_level");
 
   const data: KeyDriverOnlineDataSourceType[] = [];
 
   let keyDriver = "";
-  analyticResult.data.forEach((row: Array<string>) => {
-    const currentKeyDriver = row[keyDriverIndex];
+  keyDriverResult.data.forEach((row: Array<string>) => {
+    const currentKeyDriver = row[keyDriverDataIndex];
 
-    const drillingLevel = Number(row[drillingLevelIndex]);
+    const drillingLevel = Number(row[drillingLevelDataIndex]);
     const departmentLevelIndex = attributeOrdered.indexOf(`department_lv${drillingLevel}`);
 
     const department = nonAccentVietnamese(row[departmentLevelIndex]);
@@ -97,8 +107,6 @@ export const convertDataToFlatTableKeyDriver = (
       objValue[nonAccentVietnamese(department) + "_" + attr] = row[attributeOrdered.indexOf(attr)];
     });
 
-    const targetDrillingLevel = Number(row[targetDrillingLevelIndex]);
-
     const otherValue = {} as any;
     attributeOrdered.forEach((attr) => {
       otherValue[nonAccentVietnamese(department) + "_" + attr] =
@@ -107,19 +115,24 @@ export const convertDataToFlatTableKeyDriver = (
 
     if (currentKeyDriver !== keyDriver) {
       keyDriver = currentKeyDriver;
+      const targetDrillingLevel = keyDriverData.data.find((item: Array<any>) => {
+        return item[keyDriverIndex] === keyDriver;
+      });
+      const currentTargetDrillingValue =
+        targetDrillingLevel && targetDrillingLevel?.length > 0
+          ? targetDrillingLevel[targetDrillingLevelIndex]
+          : null;
       data.push({
         key: keyDriver,
-        title: row[keyDriverTitleIndex],
-        method: row[keyDriverDescriptionIndex],
-        target_drilling_level: targetDrillingLevel,
+        title: row[keyDriverTitleDataIndex],
+        method: row[keyDriverDescriptionDataIndex],
+        target_drilling_level: currentTargetDrillingValue,
         ...objValue,
         ...otherValue,
       });
     } else {
       const lastItem = data[data.length - 1];
-      if (typeof lastItem.target_drilling_level !== "number") {
-        lastItem.target_drilling_level = targetDrillingLevel;
-      }
+
       const newRow = {
         ...lastItem,
         ...objValue,
@@ -240,7 +253,7 @@ export const getBreadcrumbByLevel = (
 ) => {
   const breadcrumb: BreadcrumbProps[] = [
     {
-      name: "Tổng công ty",
+      name: "TỔNG CÔNG TY",
       path: UrlConfig.KEY_DRIVER_ONLINE,
     },
   ];
