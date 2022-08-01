@@ -410,13 +410,7 @@ const CustomerGeneralInfo = (props: any) => {
             initialValue={233}
             className="left-item"
           >
-            <Select
-              placeholder="Quốc gia"
-              disabled
-              showSearch
-              allowClear
-              optionFilterProp="children"
-            >
+            <Select placeholder="Quốc gia" showSearch allowClear optionFilterProp="children">
               {countries.map((country: any) => (
                 <Option key={country.id} value={country.id}>
                   {country.name + ` - ${country.code}`}
