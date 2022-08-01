@@ -68,6 +68,9 @@ export enum KeyDriverField {
   UniformTotalSales = "uniform_total_sales",
   UniformOnlineTotalSales = "uniform_online_total_sales",
   ProductTotalSales = "product_total_sales",
+  FacebookFollows = "facebook_follows",
+  PotentialCustomerCount = "potential_customer_count",
+  NewCustomersConversionRate = "new_customers_conversion_rate",
 }
 
 export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];
@@ -140,6 +143,17 @@ export interface CustomerPhoneSMSCountersParams {
 export enum KDGroup {
   TotalSales = "_TotalSales",
   SKU3 = "_SKU3",
+}
+
+export enum PotentialImportingForm {
+  Source = "source",
+  Store = "store",
+  FileUpload = "fileUpload",
+}
+
+export enum PotentialImportingSource {
+  REGIST = "REGIST",
+  BOUGHT = "BOUGHT",
 }
 
 export interface KeyDriverOnlineDataSourceType {

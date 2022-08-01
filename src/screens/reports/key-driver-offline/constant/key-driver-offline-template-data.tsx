@@ -110,7 +110,7 @@ export const keyDriverOfflineTemplateData = [
               {
                 key: "customer_gt90_days_total_sales",
                 name: "CUSTOMER",
-                method: "(KH mua 2 lần trở lên, > 90 ngày chưa mua, tích lũy > 500k)",
+                method: "(KH mua 2 lần trở lên, > 90 ngày chưa mua, 3TR > tích lũy >= 200k)",
                 children: [
                   {
                     key: "customer_sms",
@@ -127,7 +127,7 @@ export const keyDriverOfflineTemplateData = [
               {
                 key: "shopper_gt90_days_total_sales",
                 name: "SHOPER",
-                method: "(KH mua 1 lần, > 90 ngày, tích lũy > 200k)",
+                method: "(KH mua 1 lần, > 90 ngày chưa mua, 3TR > tích lũy >= 200k)",
                 children: [
                   {
                     key: "shoper_sms",
@@ -145,6 +145,18 @@ export const keyDriverOfflineTemplateData = [
                 key: "new_customer_total_sales",
                 name: "MỚI",
                 method: "(Là data mới toanh)",
+                children: [
+                  {
+                    key: KeyDriverField.PotentialCustomerCount,
+                    name: "DATA K/H TIỀM NĂNG",
+                    method: "",
+                  },
+                  {
+                    key: "new_customers_conversion_rate",
+                    name: "TỶ LỆ CHUYỂN ĐỔI",
+                    method: "",
+                  },
+                ],
               },
               {
                 key: "others_total_sales",
@@ -166,6 +178,10 @@ export const keyDriverOfflineTemplateData = [
       {
         key: "uniform_total_sales",
         name: "Doanh thu đơn đồng phục",
+      },
+      {
+        key: KeyDriverField.FacebookFollows,
+        name: "LƯỢT FOLLOW FANPAGE",
       },
       {
         key: KeyDriverField.UniformOnlineTotalSales,

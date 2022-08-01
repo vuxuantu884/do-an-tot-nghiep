@@ -236,8 +236,6 @@ export const PRODUCT_TOTAL_SALES_MONTH_QUERY: AnalyticSampleQuery = {
 };
 
 export const STORES_PRODUCT_TOTAL_SALES_DAY_QUERY = (asmName: string, stores: string[]) => {
-  console.log("dsadsa", ...stores.map((store) => `'${store}'`));
-
   return {
     query: {
       columns: [

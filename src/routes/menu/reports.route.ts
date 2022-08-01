@@ -26,6 +26,10 @@ const KeyDriverOnlineCounter = React.lazy(
   () => import("screens/reports/key-driver-online/key-counter"),
 );
 
+const PotentialImporting = React.lazy(
+  () => import("screens/reports/key-driver-offline/potential-importing"),
+);
+
 const reports: Array<RouteMenu> = [
   {
     path: `${UrlConfig.ANALYTIC_SALES_OFFLINE}`,
@@ -186,6 +190,17 @@ const reports: Array<RouteMenu> = [
             icon: "icon-dot",
             component: CustomerPhoneSMSCounters,
             key: "submenureport052",
+            isShow: true,
+            header: null,
+            subMenu: [],
+          },
+          {
+            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/potential-importing`,
+            exact: true,
+            title: "Nhập file khách hàng tiềm năng",
+            icon: "icon-dot",
+            component: PotentialImporting,
+            key: "submenureport053",
             isShow: true,
             header: null,
             subMenu: [],

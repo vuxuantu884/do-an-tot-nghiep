@@ -95,6 +95,22 @@ export const updateCustomerPhoneSMSCounters = (params: any): Promise<BaseRespons
   return BaseAxiosApi.post(`${ApiConfig.CUSTOMER_COUNTERS}`, params);
 };
 
+export const uploadPotentialRegistedFile = (params: any): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.post(`${ApiConfig.POTENTIAL_CUSTOMER_REGISTED}`, params);
+};
+
+export const uploadPotentialBoughtFile = (params: any): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.post(`${ApiConfig.POTENTIAL_CUSTOMER_BOUGHT}`, params);
+};
+
+export const getKDOfflineTotalSalesPotential = (
+  params: KDOfflineTotalSalesParams,
+): Promise<BaseResponse<any>> => {
+  return BaseAxiosApi.get(`${ApiConfig.OFFLINE_TOTAL_SALES_POTENTIAL}`, {
+    params,
+  });
+};
+
 export const getKeyDriverOnlineApi = (
   params: KeyDriverOnlineParams,
 ): Promise<BaseResponse<Omit<AnalyticDataQuery, "query">>> => {

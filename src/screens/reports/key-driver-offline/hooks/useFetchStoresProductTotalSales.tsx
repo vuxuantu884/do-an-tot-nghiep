@@ -53,15 +53,12 @@ function useFetchStoresProductTotalSales() {
             const idx = childrenProduct.findIndex((product: any) => product?.key === itemKey);
             if (idx !== -1) {
               childrenProduct[idx].name = item[0];
-              childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`] = item[2];
-              childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_targetMonth`] =
-                calculateTargetMonth(item[2]);
+              childrenProduct[idx][`${nonAccentVietnameseKD(item[1])}_actualDay`] = item[2];
             } else {
               childrenProduct.push({
                 key: itemKey,
                 name: item[0],
-                [`${nonAccentVietnameseKD(item[1])}_accumulatedMonth`]: item[2],
-                [`${nonAccentVietnameseKD(item[1])}_targetMonth`]: calculateTargetMonth(item[2]),
+                [`${nonAccentVietnameseKD(item[1])}_actualDay`]: item[2],
               });
             }
           }

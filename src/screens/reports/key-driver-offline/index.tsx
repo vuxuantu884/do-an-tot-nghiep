@@ -29,6 +29,7 @@ import useFetchKDOfflineTotalSales from "./hooks/useFetchKDOfflineTotalSales";
 import useFetchKeyDriverTarget from "./hooks/useFetchKeyDriverTarget";
 import useFetchOfflineOnlineTotalSales from "./hooks/useFetchOfflineOnlineTotalSales";
 import useFetchOfflineTotalSalesLoyalty from "./hooks/useFetchOfflineTotalSalesLoyalty";
+import useFetchOfflineTotalSalesPotential from "./hooks/useFetchOfflineTotalSalesPotential";
 import useFetchProductTotalSales from "./hooks/useFetchProductTotalSales";
 import { KeyDriverOfflineStyle } from "./index.style";
 import KeyDriverOfflineProvider, {
@@ -126,15 +127,16 @@ function KeyDriverOffline() {
   const { isFetchingCustomerVisitors } = useFetchCustomerVisitors();
   const { isFetchingOfflineOnlineTotalSales } = useFetchOfflineOnlineTotalSales();
   const { isFetchingProductTotalSales } = useFetchProductTotalSales();
+  const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential();
   const { data, targetMonth, setData } = useContext(KeyDriverOfflineContext);
   const dispatch = useDispatch();
 
   const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
       keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
-        ? (
-            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100
-          ).toFixed(1)
+        ? Math.floor(
+            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100,
+          )
         : "";
     }
   };
@@ -164,9 +166,7 @@ function KeyDriverOffline() {
   const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
       keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
-        ? (+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(
-            1,
-          )
+        ? Math.floor(+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100)
         : "";
     }
   };
@@ -215,7 +215,8 @@ function KeyDriverOffline() {
       isFetchingOfflineTotalSalesLoyalty === false &&
       isFetchingCustomerVisitors === false &&
       isFetchingOfflineOnlineTotalSales === false &&
-      isFetchingProductTotalSales === false
+      isFetchingProductTotalSales === false &&
+      isFetchingOfflineTotalSalesPotential === false
     ) {
       setData((prev: any[]) => {
         prev.forEach((item: any, index) => {
@@ -246,6 +247,7 @@ function KeyDriverOffline() {
     isFetchingKeyDriverTarget,
     isFetchingOfflineOnlineTotalSales,
     isFetchingOfflineTotalSalesLoyalty,
+    isFetchingOfflineTotalSalesPotential,
     isFetchingProductTotalSales,
     setData,
   ]);
@@ -325,7 +327,11 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_month`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return <CellInput value={text} record={record} type={departmentKey} time="month" />;
+            return record.key !== KeyDriverField.ProductTotalSales ? (
+              <CellInput value={text} record={record} type={departmentKey} time="month" />
+            ) : (
+              "-"
+            );
           },
         },
         {
@@ -335,7 +341,7 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_accumulatedMonth`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text
+            return text || text === 0
               ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                 ? `${text}%`
                 : formatCurrency(text)
@@ -349,7 +355,7 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_rateMonth`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? `${text}%` : "-";
+            return text || text === 0 ? `${text}%` : "-";
           },
         },
         {
@@ -359,7 +365,7 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_targetMonth`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text
+            return text || text === 0
               ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                 ? `${text}%`
                 : formatCurrency(text)
@@ -373,7 +379,7 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_day`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text
+            return text || text === 0
               ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                 ? `${text}%`
                 : formatCurrency(text)
@@ -388,7 +394,7 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_actualDay`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text
+            return text || text === 0
               ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                 ? `${text}%`
                 : formatCurrency(text)
@@ -402,7 +408,7 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_rateDay`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return text ? `${text}%` : "-";
+            return text || text === 0 ? `${text}%` : "-";
           },
         },
       ],

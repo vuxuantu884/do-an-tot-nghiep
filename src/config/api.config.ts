@@ -22,6 +22,9 @@ const ServiceNames = {
   KD_CUSTOMER_VISITORS_SERVICE: "customer-visitors/key-drivers/sum",
   KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE: "key-drivers/offline-uniform-online-total-sales",
   CUSTOMER_COUNTERS_SERVICE: "customer-counters",
+  POTENTIAL_CUSTOMER_REGISTED_SERVICE: "potential-customers/import-customer-registered-for-gift",
+  POTENTIAL_CUSTOMER_BOUGHT_SERVICE: "potential-customers/import-bought-potential-customers",
+  OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE: "potential-customers/count-by-asm",
 };
 
 const v1 = ``;
@@ -54,6 +57,9 @@ const ApiConfig = {
   KD_CUSTOMER_VISITORS: `${v1}/${ServiceNames.KD_CUSTOMER_VISITORS_SERVICE}`,
   KD_OFFLINE_ONLINE_TOTAL_SALES: `${v1}/${ServiceNames.KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE}`,
   CUSTOMER_COUNTERS: `${v1}/${ServiceNames.CUSTOMER_COUNTERS_SERVICE}`,
+  POTENTIAL_CUSTOMER_REGISTED: `${v1}/${ServiceNames.POTENTIAL_CUSTOMER_REGISTED_SERVICE}`,
+  POTENTIAL_CUSTOMER_BOUGHT: `${v1}/${ServiceNames.POTENTIAL_CUSTOMER_BOUGHT_SERVICE}`,
+  OFFLINE_TOTAL_SALES_POTENTIAL: `${v1}/${ServiceNames.OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE}`,
 };
 
 export { ApiConfig };
