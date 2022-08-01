@@ -62,6 +62,7 @@ const UrlConfig = {
   KEY_DRIVER_OFFLINE: `/key-driver-offline`,
   STOCK_IN_OUT_OTHERS: `/stock-in-out-others`,
   KEY_DRIVER_ONLINE: "/key-driver-online",
+  HANDOVER: `/handovers`,
 };
 
 export const ProductTabUrl = {

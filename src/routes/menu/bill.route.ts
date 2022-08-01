@@ -24,6 +24,17 @@ const ScreenReturnCreate = React.lazy(() => import("screens/order-online/order-r
 const ScreenReturnDetail = React.lazy(() => import("screens/order-online/order-return/[id]"));
 
 const YDPageAdmin = React.lazy(() => import("screens/yd-page"));
+//Handover
+const CreateHandoverScreeen = React.lazy(
+  () => import("screens/order-online/handover/create.screen"),
+);
+const HandoverScreen = React.lazy(() => import("screens/order-online/handover/list.screen"));
+const DetailHandoverScreen = React.lazy(
+  () => import("screens/order-online/handover/detail.screen"),
+);
+const UpdateHandoverScreen = React.lazy(
+  () => import("screens/order-online/handover/update.screen"),
+);
 
 const bill: Array<RouteMenu> = [
   {
@@ -210,6 +221,53 @@ const bill: Array<RouteMenu> = [
         icon: "icon-dot",
         component: PackUpdate,
         key: "submenu59",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
+    permissions: [ODERS_PERMISSIONS.READ_GOODS_RECEIPT],
+  },
+  {
+    path: UrlConfig.HANDOVER,
+    exact: true,
+    title: "Biên bản bàn giao(v2 thử nghiệm)",
+    icon: "icon-dot",
+    component: HandoverScreen,
+    key: "submenu58",
+    isShow: true,
+    header: null,
+    subMenu: [
+      {
+        path: `${UrlConfig.HANDOVER}/create`,
+        exact: true,
+        title: "Thêm mới biên bản bàn giao",
+        icon: "icon-dot",
+        component: CreateHandoverScreeen,
+        key: "submenu581",
+        isShow: true,
+        header: null,
+        subMenu: [],
+        permissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
+      },
+      {
+        path: `${UrlConfig.HANDOVER}/:id`,
+        exact: true,
+        title: "Chi tiết biên bản bàn giao",
+        icon: "icon-dot",
+        component: DetailHandoverScreen,
+        key: "submenu582",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.HANDOVER}/:id/update`,
+        exact: true,
+        title: "Cập nhật biên bản bàn giao",
+        icon: "icon-dot",
+        component: UpdateHandoverScreen,
+        key: "submenu583",
         isShow: true,
         header: null,
         subMenu: [],
