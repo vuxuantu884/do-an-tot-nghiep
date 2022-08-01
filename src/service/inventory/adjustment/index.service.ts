@@ -97,6 +97,16 @@ const getPrintTicketIdsService = (
   );
 };
 
+const getPrintProductService = (
+  id: number,
+  queryPrint: string
+): Promise<Array<PrinterInventoryTransferResponseModel>> => {
+  console.log('da')
+  return BaseAxios.get(
+    `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/print?${queryPrint}`
+  );
+};
+
 const getLinesItemAdjustmentApi = (
   id: number,
   queryString: string | null,
@@ -135,11 +145,11 @@ export {
   getLinesItemAdjustmentApi,
   updateInventorAdjustmentApi,
   getVariantHasOnHandByStoreApi,
-  deleteLineItem,
   addLineItem,
   getTotalOnHand,
   updateReasonItemOnlineInventoryApi,
   updateOnHandItemOnlineInventoryApi,
   cancelInventoryTicket,
+  getPrintProductService,
   getInventoryReportApi,
 };
