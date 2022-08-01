@@ -67,6 +67,7 @@ function YDPageAdmin() {
     queryString?.get("defaultStoreId") ? Number(queryString?.get("defaultStoreId")) : null,
   );
   const [fbAdsId] = React.useState<string>(queryString?.get("fbAdsId")?.toString() || "");
+  const [campaignId] = React.useState<string>(queryString?.get("campaignId")?.toString() || "");
 
   const [YDPageCustomerInfo, setYDPageCustomerInfo] = useState<YDPageCustomerResponse | null>();
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress | null>(null);
@@ -279,6 +280,7 @@ function YDPageAdmin() {
             defaultSourceId={defaultSourceId}
             defaultStoreId={defaultStoreId}
             fbAdsId={fbAdsId}
+            campaignId={campaignId}
             customerGroups={customerGroups}
             areaList={areaList}
             customer={customer}

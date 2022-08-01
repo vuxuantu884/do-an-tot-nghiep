@@ -431,9 +431,6 @@ label {
     display: none !important;
   }
 }
-.ant-menu-submenu-popup {
-  display: none !important;
-}
 
 .upload-bottom {
   width: 150px;
@@ -602,4 +599,10 @@ label {
 
 .title {
   color: #666666;
+}
+
+.hide-control-input-number {
+  .ant-input-number-handler-wrap {
+    display: none;
+  }
 }

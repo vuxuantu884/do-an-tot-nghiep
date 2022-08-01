@@ -22,6 +22,9 @@ const CustomerPhoneSMSCounters = React.lazy(
 );
 
 const KeyDriverOnline = React.lazy(() => import("screens/reports/key-driver-online"));
+const KeyDriverOnlineCounter = React.lazy(
+  () => import("screens/reports/key-driver-online/key-counter"),
+);
 
 const reports: Array<RouteMenu> = [
   {
@@ -196,6 +199,17 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: KeyDriverOnline,
         key: "menureport6",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.KEY_DRIVER_ONLINE}/key-counter`,
+        exact: true,
+        title: "Nhập kết quả kinh doanh online",
+        icon: "icon-dot",
+        component: KeyDriverOnlineCounter,
+        key: "menureport7",
         isShow: true,
         header: null,
         subMenu: [],
