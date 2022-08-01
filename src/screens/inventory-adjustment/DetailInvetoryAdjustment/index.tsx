@@ -37,6 +37,7 @@ import {
   getDetailInventoryAdjustmentAction,
   getLinesItemAdjustmentAction,
   InventoryAdjustmentGetPrintContentAction,
+  InventoryAdjustmentGetPrintProductAction,
   updateInventoryAdjustmentAction,
   updateOnlineInventoryAction,
 } from "domain/actions/inventory/inventory-adjustment.action";
@@ -78,6 +79,7 @@ import InventoryReportModal from "../ListInventoryAdjustment/components/Inventor
 import { primaryColor } from "utils/global-styles/variables";
 import ScanIcon from "assets/icon/scan.svg";
 import CloseCircleIcon from "assets/icon/close-circle.svg";
+import IconPrint from "assets/icon/printer-blue.svg";
 
 const { TabPane } = Tabs;
 
@@ -333,6 +335,16 @@ const DetailInventoryAdjustment: FC = () => {
       let textResponseFormatted = textResponse.join(pageBreak);
       //xóa thẻ p thừa
       let result = textResponseFormatted.replaceAll("<p></p>", "");
+      setPrintContent(result);
+      handlePrint && handlePrint();
+    },
+    [handlePrint],
+  );
+
+  const printContentProductCallback = useCallback(
+    (printContent) => {
+      const textResponse = `<div class="singleOrderPrint">` + printContent.html_content + "</div>";
+      let result = textResponse.replaceAll("<p></p>", "");
       setPrintContent(result);
       handlePrint && handlePrint();
     },
@@ -767,6 +779,14 @@ const DetailInventoryAdjustment: FC = () => {
     />
   );
 
+  const onPrintProductAction = (type: string) => {
+    if (data) {
+      dispatch(
+        InventoryAdjustmentGetPrintProductAction(`type=${type}`, data.id, printContentProductCallback)
+      );
+    }
+  }
+
   return (
     <StyledWrapper>
       <ContentContainer
@@ -1036,6 +1056,14 @@ const DetailInventoryAdjustment: FC = () => {
                                 />
                               }
                             />
+                            <Button
+                              onClick={() => onPrintProductAction('deviant')}
+                              type="primary"
+                              ghost
+                              style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                            >
+                              <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
+                            </Button>
                           </Input.Group>
                         </AuthWrapper>
                         {activeTab === "1" && (
@@ -1077,6 +1105,14 @@ const DetailInventoryAdjustment: FC = () => {
                                 />
                               }
                             />
+                            <Button
+                              onClick={() => onPrintProductAction('total')}
+                              type="primary"
+                              ghost
+                              style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
+                            >
+                              <img src={IconPrint} alt="" style={{ paddingRight: "10px" }} /> In danh sách
+                            </Button>
                           </Input.Group>
                         </AuthWrapper>
                         {activeTab === "2" && (
