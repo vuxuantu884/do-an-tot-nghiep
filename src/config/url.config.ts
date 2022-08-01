@@ -146,4 +146,7 @@ export const SHOPIFY_URL = {
   PRODUCTION: "https://yodyusa.myshopify.com/admin/orders",
 };
 
+export const REPORTS_URL = {
+  MARKETING: `${UrlConfig.ANALYTICS}/marketing`,
+};
 export default UrlConfig;

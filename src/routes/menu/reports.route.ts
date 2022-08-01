@@ -1,5 +1,5 @@
 import { ReportPermissions } from "config/permissions/report.permisstion";
-import UrlConfig from "config/url.config";
+import UrlConfig, { REPORTS_URL } from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
@@ -210,6 +210,30 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: KeyDriverOnlineCounter,
         key: "menureport7",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    path: REPORTS_URL.MARKETING,
+    exact: true,
+    title: "Báo cáo marketing",
+    icon: "icon-dot",
+    component: Analytics,
+    key: "menureport3",
+    isShow: true,
+    header: null,
+    permissions: [],
+    subMenu: [
+      {
+        path: `${REPORTS_URL.MARKETING}/:id`,
+        exact: true,
+        title: "Mẫu báo cáo marketing",
+        icon: "icon-dot",
+        component: ReadTemplateAnalytics,
+        key: "submenureport31",
         isShow: true,
         header: null,
         subMenu: [],

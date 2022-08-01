@@ -6,7 +6,7 @@ import ContentContainer from "component/container/content.container";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import { AppConfig } from "config/app.config";
 import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from "config/report/report-templates";
-import UrlConfig from "config/url.config";
+import UrlConfig, { REPORTS_URL } from "config/url.config";
 import _ from "lodash";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { AnalyticCube, FormFilterCustomReport } from "model/report/analytics.model";
@@ -143,6 +143,12 @@ function Analytics() {
     fetchCustomAnalytics();
   }, [dispatch, fetchCustomAnalytics]);
 
+  console.log(
+    REPORT_TEMPLATES.filter((item) => {
+      return item.alias.includes(REPORTS_URL.MARKETING);
+    }),
+    REPORT_TEMPLATES,
+  );
   return (
     <ContentContainer
       title={`Danh sách ${REPORT_NAMES[matchPath].toLocaleLowerCase()}`}
@@ -200,6 +206,16 @@ function Analytics() {
                 return item.alias.includes(matchPath);
               })}
               title="Báo cáo khách hàng"
+            ></ListAnalyticsBlock>
+          )}
+
+          {[REPORTS_URL.MARKETING].includes(matchPath) && (
+            <ListAnalyticsBlock
+              matchPath={matchPath}
+              data={REPORT_TEMPLATES.filter((item) => {
+                return item.alias.includes(matchPath);
+              })}
+              title="Báo cáo marketing"
             ></ListAnalyticsBlock>
           )}
 

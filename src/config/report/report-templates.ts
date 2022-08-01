@@ -7,7 +7,8 @@ import {
 } from "model/report/analytics.model";
 import moment from "moment";
 import { DATE_FORMAT } from "utils/DateUtils";
-import UrlConfig from "../url.config";
+import UrlConfig, { REPORTS_URL } from "../url.config";
+import { MARKETING_REPORT_TEMPLATES } from "./marketing-report-template";
 import { OFFLINE_REPORT_TEMPLATES } from "./offline-report-templates";
 import { ONLINE_REPORT_TEMPLATES } from "./online-report-templates";
 
@@ -18,6 +19,7 @@ export const REPORT_CUBES = {
   [UrlConfig.ANALYTIC_SALES_OFFLINE]: ["sales", "payments"],
   [UrlConfig.ANALYTIC_FINACE]: ["costs"],
   [UrlConfig.ANALYTIC_CUSTOMER]: ["sales", "payments"],
+  [REPORTS_URL.MARKETING]: [AnalyticCube.Insights],
 };
 
 export const REPORT_NAMES = {
@@ -25,6 +27,7 @@ export const REPORT_NAMES = {
   [UrlConfig.ANALYTIC_SALES_ONLINE]: "Báo cáo bán đơn hàng",
   [UrlConfig.ANALYTIC_FINACE]: "Báo cáo tài chính ",
   [UrlConfig.ANALYTIC_CUSTOMER]: "Báo cáo khách hàng",
+  [REPORTS_URL.MARKETING]: "Báo cáo marketing",
 };
 
 const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
@@ -213,6 +216,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     timeAtOption: TimeAtOptionValue.CompletedAt,
   },
   ...ONLINE_REPORT_TEMPLATES,
+  ...MARKETING_REPORT_TEMPLATES,
 ];
 
 //re-generate unique id
@@ -271,11 +275,24 @@ const CUSTOMIZE_TEMPLATE_CUSTOMER_FOR_CREATE: Array<AnalyticCustomizeTemplateFor
     }),
   );
 
+const CUSTOMIZE_TEMPLATE_MARKETING_FOR_CREATE: Array<AnalyticCustomizeTemplateForCreate> =
+  REPORT_TEMPLATES.filter((template) => template.alias.includes(REPORTS_URL.MARKETING)).map(
+    (item: AnalyticTemplateData) => ({
+      name: item.type + " " + item.name,
+      cube: item.cube,
+      query: item.query,
+      chartColumnSelected: item.chartColumnSelected,
+      timeAtOption: item.timeAtOption,
+      chart_query: item.chart_query,
+    }),
+  );
+
 export const CUSTOMIZE_TEMPLATE = {
   [UrlConfig.ANALYTIC_SALES_OFFLINE]: CUSTOMIZE_TEMPLATE_SALES_FOR_CREATE,
   [UrlConfig.ANALYTIC_SALES_ONLINE]: CUSTOMIZE_TEMPLATE_ONLINE_FOR_CREATE,
   [UrlConfig.ANALYTIC_FINACE]: CUSTOMIZE_TEMPLATE_FINANCE_FOR_CREATE,
   [UrlConfig.ANALYTIC_CUSTOMER]: CUSTOMIZE_TEMPLATE_CUSTOMER_FOR_CREATE,
+  [REPORTS_URL.MARKETING]: CUSTOMIZE_TEMPLATE_MARKETING_FOR_CREATE,
 };
 
 export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
@@ -313,6 +330,13 @@ export const ANALYTIC_TEMPLATE_GROUP: AnalyticTemplateGroup = {
       name: "Nhóm báo cáo khách hàng",
       cube: AnalyticCube.All,
       group: AnalyticCube.Customers,
+    },
+  ],
+  [REPORTS_URL.MARKETING]: [
+    {
+      name: "Nhóm báo cáo marketing",
+      cube: AnalyticCube.All,
+      group: AnalyticCube.Insights,
     },
   ],
 };
