@@ -22,6 +22,7 @@ const ServiceNames = {
   KD_CUSTOMER_VISITORS_SERVICE: "customer-visitors/key-drivers/sum",
   KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE: "key-drivers/offline-uniform-online-total-sales",
   CUSTOMER_COUNTERS_SERVICE: "customer-counters",
+  HANDOVER_SERVICE: "handover-service",
 };
 
 const v1 = ``;
@@ -54,6 +55,7 @@ const ApiConfig = {
   KD_CUSTOMER_VISITORS: `${v1}/${ServiceNames.KD_CUSTOMER_VISITORS_SERVICE}`,
   KD_OFFLINE_ONLINE_TOTAL_SALES: `${v1}/${ServiceNames.KD_OFFLINE_ONLINE_TOTAL_SALES_SERVICE}`,
   CUSTOMER_COUNTERS: `${v1}/${ServiceNames.CUSTOMER_COUNTERS_SERVICE}`,
+  HANDOVER: `${v1}/${ServiceNames.HANDOVER_SERVICE}`,
 };
 
 export { ApiConfig };
