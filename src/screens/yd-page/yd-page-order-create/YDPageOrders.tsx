@@ -118,6 +118,7 @@ type OrdersCreatePermissionProps = {
   defaultSourceId: number | null;
   defaultStoreId: number | null;
   fbAdsId: string;
+  campaignId: string;
   userId: string | null;
   levelOrder?: number;
   updateOrder?: boolean;
@@ -150,6 +151,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     defaultStoreId,
     defaultSourceId,
     fbAdsId,
+    campaignId
   } = props;
   const dispatch = useDispatch();
 
@@ -621,6 +623,8 @@ export default function Order(props: OrdersCreatePermissionProps) {
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
     values.tags = fbAdsId ? `ad_id: ${fbAdsId}` : "";
+    if (campaignId) values.tags = values.tags + values.tags != "" ? `,campaign_id: ${campaignId}` : `campaign_id: ${campaignId}`;
+    if (fbPageId) values.tags = values.tags != "" ? values.tags + `,page_id: ${fbPageId}` : `page_id: ${fbPageId}`;
     values.items = items.concat(itemGifts);
     values.discounts = lstDiscount;
     values.shipping_address = shippingAddress;
