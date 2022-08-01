@@ -28,6 +28,7 @@ import useFetchStoresKDOfflineTotalSales from "../hooks/useFetchStoresKDOfflineT
 import useFetchStoresKeyDriverTarget from "../hooks/useFetchStoresKeyDriverTarget";
 import useFetchStoresOfflineOnlineTotalSales from "../hooks/useFetchStoresOfflineOnlineTotalSales";
 import useFetchStoresOfflineTotalSalesLoyalty from "../hooks/useFetchStoresOfflineTotalSalesLoyalty";
+import useFetchStoresOfflineTotalSalesPotential from "../hooks/useFetchStoresOfflineTotalSalesPotential";
 import useFetchStoresProductTotalSales from "../hooks/useFetchStoresProductTotalSales";
 import { KeyDriverOfflineStyle } from "../index.style";
 import KDOfflineStoresProvider, {
@@ -125,6 +126,7 @@ function KeyDriverOfflineStore() {
   const { isFetchingStoresCustomerVisitors } = useFetchStoresCustomerVisitors();
   const { isFetchingStoresOfflineOnlineTotalSales } = useFetchStoresOfflineOnlineTotalSales();
   const { isFetchingStoresProductTotalSales } = useFetchStoresProductTotalSales();
+  const { isFetchingStoresOfflineTotalSalesPotential } = useFetchStoresOfflineTotalSalesPotential();
   const { data, targetMonth, setData, selectedAsm, selectedStores } =
     useContext(KDOfflineStoresContext);
   const dispatch = useDispatch();
@@ -200,7 +202,11 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return <CellInput value={text} record={record} type={departmentKey} time="month" />;
+              return record.key !== KeyDriverField.ProductTotalSales ? (
+                <CellInput value={text} record={record} type={departmentKey} time="month" />
+              ) : (
+                "-"
+              );
             },
           },
           {
@@ -210,7 +216,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_accumulatedMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text
+              return text || text === 0
                 ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
@@ -224,7 +230,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_rateMonth`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text ? `${text}%` : "-";
+              return text || text === 0 ? `${text}%` : "-";
             },
           },
           {
@@ -248,7 +254,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_day`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text
+              return text || text === 0
                 ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
@@ -263,7 +269,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_actualDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text
+              return text || text === 0
                 ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
@@ -277,7 +283,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_rateDay`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return text ? `${text}%` : "-";
+              return text || text === 0 ? `${text}%` : "-";
             },
           },
         ],
@@ -384,7 +390,8 @@ function KeyDriverOfflineStore() {
       isFetchingStoresOfflineTotalSalesLoyalty === false &&
       isFetchingStoresCustomerVisitors === false &&
       isFetchingStoresOfflineOnlineTotalSales === false &&
-      isFetchingStoresProductTotalSales === false
+      isFetchingStoresProductTotalSales === false &&
+      isFetchingStoresOfflineTotalSalesPotential === false
     ) {
       setLoadingPage(true);
       setData((prev: any) => {
@@ -419,6 +426,7 @@ function KeyDriverOfflineStore() {
     setData,
     selectedStores,
     isFetchingStoresProductTotalSales,
+    isFetchingStoresOfflineTotalSalesPotential,
   ]);
 
   const day = moment().format(DATE_FORMAT.DDMMYY_HHmm);

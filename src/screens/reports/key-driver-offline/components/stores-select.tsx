@@ -1,14 +1,16 @@
-import { SelectProps } from "antd";
+import { Select, SelectProps } from "antd";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { ReactElement, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import TreeStore from "screens/products/inventory/filter/TreeStore";
-import { nonAccentVietnamese } from "utils/PromotionUtils";
+import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import { strForSearch } from "utils/StringUtils";
 import { KDOfflineStoresContext } from "../provider/kd-offline-stores-provider";
 interface Props extends SelectProps<number> {
   asmName: string;
 }
+
+const { Option } = Select;
 
 StoresSelect.defaultProps = {};
 function StoresSelect(props: Props): ReactElement {
@@ -17,8 +19,12 @@ function StoresSelect(props: Props): ReactElement {
   const { setSelectedAsm, setSelectedStores } = useContext(KDOfflineStoresContext);
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
 
-  const handleOnChange = (values: number[], labelList: any[]) => {
-    setSelectedStores(labelList.length ? labelList : storesInAsm.map((item) => item.name));
+  const handleOnChange = (stores: string[]) => {
+    setSelectedStores(
+      stores.length
+        ? stores.map((item) => JSON.parse(item).name)
+        : storesInAsm.map((item) => item.name),
+    );
   };
 
   const storesInAsm: StoreResponse[] = useMemo(() => {
@@ -27,11 +33,11 @@ function StoresSelect(props: Props): ReactElement {
       if (
         !selectedAsmName &&
         item.department_h3 &&
-        nonAccentVietnamese(item.department_h3) === asmName
+        nonAccentVietnameseKD(item.department_h3) === asmName
       ) {
         selectedAsmName = item.department_h3;
       }
-      return item.department_h3 && nonAccentVietnamese(item.department_h3) === asmName;
+      return item.department_h3 && nonAccentVietnameseKD(item.department_h3) === asmName;
     });
     setTimeout(() => {
       if (stores.length) {
@@ -48,13 +54,27 @@ function StoresSelect(props: Props): ReactElement {
     dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
   return (
-    <TreeStore
-      listStore={storesInAsm}
-      name=""
-      style={{ width: "250px" }}
+    <Select
+      mode="multiple"
+      placeholder="Chọn cửa hàng"
+      showArrow
+      showSearch
+      optionFilterProp="children"
+      style={{ width: "100%" }}
+      filterOption={(input: String, option: any) => {
+        if (option.props.value) {
+          return strForSearch(option.props.children).includes(strForSearch(input));
+        }
+        return false;
+      }}
       onChange={handleOnChange}
-      placeholder={"Chọn bộ phận"}
-    />
+    >
+      {storesInAsm.map((item, index) => (
+        <Option key={"store_id" + index} value={JSON.stringify(item)}>
+          {item.name}
+        </Option>
+      ))}
+    </Select>
   );
 }
 
