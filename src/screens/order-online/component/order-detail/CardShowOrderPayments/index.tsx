@@ -22,7 +22,7 @@ import {
 import { FulFillmentStatus, OrderStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { yellowColor } from "utils/global-styles/variables";
-import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
+import { ORDER_PAYMENT_STATUS, ORDER_SUB_STATUS } from "utils/Order.constants";
 import {
   checkIfCancelledPayment,
   checkIfFinishedPayment,
@@ -487,7 +487,7 @@ function CardShowOrderPayments(props: PropTypes) {
     return null;
   };
 
-  console.log('OrderDetail', OrderDetail)
+  console.log("OrderDetail", OrderDetail);
 
   const renderPaymentDetailMain = (OrderDetail: OrderResponse) => {
     if (!OrderDetail?.payments) {
@@ -621,7 +621,9 @@ function CardShowOrderPayments(props: PropTypes) {
         OrderDetail.source_code !== POS.source_code &&
         (stepsStatusValue === OrderStatus.CANCELLED ||
           stepsStatusValue === FulFillmentStatus.SHIPPED ||
-          disabledBottomActions)
+          disabledBottomActions ||
+          OrderDetail.sub_status_code === ORDER_SUB_STATUS.returning ||
+          OrderDetail.sub_status_code === ORDER_SUB_STATUS.confirm_returned)
       );
     };
     if (!checkIfOrderHasPaidAllMoneyAmountIncludeCod(OrderDetail) && !isShowPaymentPartialPayment) {
