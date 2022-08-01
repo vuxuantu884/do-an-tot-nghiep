@@ -39,6 +39,7 @@ export enum AnalyticCube {
   All = "all",
   OfflineSales = "offline_sales",
   Customers = "customers",
+  Insights = "insights",
 }
 
 export enum AnalyticGroupUrl {
@@ -46,6 +47,15 @@ export enum AnalyticGroupUrl {
   Customers = "customers",
   Costs = "finance",
   OfflineSales = "sales-offline",
+  Marketing = "marketing",
+}
+
+export enum AnalyticGroup {
+  Marketing = "marketing",
+  Sales = "sales",
+  OfflineSales = "offline_sales",
+  Customers = "customers",
+  Costs = "costs",
 }
 
 export enum ColumnType {
