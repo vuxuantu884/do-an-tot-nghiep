@@ -58,8 +58,8 @@ function useFetchKDOfflineTotalSales() {
         }
       });
     });
-    companyData.average_order_value = companyData.total_orders
-      ? Math.round(companyData.offline_total_sales / companyData.total_orders)
+    companyData.average_order_value = companyData.offline_total_orders
+      ? Math.round(companyData.offline_total_sales / companyData.offline_total_orders)
       : 0;
 
     return companyData;

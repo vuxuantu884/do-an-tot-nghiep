@@ -1,5 +1,5 @@
 import { ReportPermissions } from "config/permissions/report.permisstion";
-import UrlConfig from "config/url.config";
+import UrlConfig, { REPORTS_URL } from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
 
@@ -24,6 +24,10 @@ const CustomerPhoneSMSCounters = React.lazy(
 const KeyDriverOnline = React.lazy(() => import("screens/reports/key-driver-online"));
 const KeyDriverOnlineCounter = React.lazy(
   () => import("screens/reports/key-driver-online/key-counter"),
+);
+
+const PotentialImporting = React.lazy(
+  () => import("screens/reports/key-driver-offline/potential-importing"),
 );
 
 const reports: Array<RouteMenu> = [
@@ -190,6 +194,17 @@ const reports: Array<RouteMenu> = [
             header: null,
             subMenu: [],
           },
+          {
+            path: `${UrlConfig.KEY_DRIVER_OFFLINE}/potential-importing`,
+            exact: true,
+            title: "Nhập file khách hàng tiềm năng",
+            icon: "icon-dot",
+            component: PotentialImporting,
+            key: "submenureport053",
+            isShow: true,
+            header: null,
+            subMenu: [],
+          },
         ],
       },
       {
@@ -210,6 +225,30 @@ const reports: Array<RouteMenu> = [
         icon: "icon-dot",
         component: KeyDriverOnlineCounter,
         key: "menureport7",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
+  },
+  {
+    path: REPORTS_URL.MARKETING,
+    exact: true,
+    title: "Báo cáo marketing",
+    icon: "icon-dot",
+    component: Analytics,
+    key: "menureport3",
+    isShow: true,
+    header: null,
+    permissions: [],
+    subMenu: [
+      {
+        path: `${REPORTS_URL.MARKETING}/:id`,
+        exact: true,
+        title: "Mẫu báo cáo marketing",
+        icon: "icon-dot",
+        component: ReadTemplateAnalytics,
+        key: "submenureport31",
         isShow: true,
         header: null,
         subMenu: [],

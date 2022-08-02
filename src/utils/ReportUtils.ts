@@ -5,6 +5,7 @@ import { AccountStoreResponse } from "model/account/account.model";
 import {
   AnalyticConditions,
   AnalyticCube,
+  AnalyticGroup,
   AnalyticGroupUrl,
   AnalyticMetadata,
   AnalyticQuery,
@@ -382,16 +383,18 @@ export const getPermissionViewCustomizeReport = (permissions: string[], cube: An
 };
 
 export const getReportGroup = (reportUrlString: string) => {
-  const { Sales, OfflineSales, Costs, Customers } = AnalyticGroupUrl;
+  const { Sales, OfflineSales, Costs, Customers, Marketing } = AnalyticGroupUrl;
   switch (reportUrlString) {
     case Sales:
-      return AnalyticCube.Sales;
+      return AnalyticGroup.Sales;
     case OfflineSales:
-      return AnalyticCube.OfflineSales;
+      return AnalyticGroup.OfflineSales;
     case Costs:
-      return AnalyticCube.Costs;
+      return AnalyticGroup.Costs;
     case Customers:
-      return AnalyticCube.Customers;
+      return AnalyticGroup.Customers;
+    case Marketing:
+      return AnalyticGroup.Marketing;
     default:
       return "";
   }
