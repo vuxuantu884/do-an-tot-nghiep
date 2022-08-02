@@ -101,7 +101,6 @@ const getPrintProductService = (
   id: number,
   queryPrint: string
 ): Promise<Array<PrinterInventoryTransferResponseModel>> => {
-  console.log('da')
   return BaseAxios.get(
     `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/print?${queryPrint}`
   );
