@@ -6,7 +6,7 @@ export interface OrderSubDto {
 
 export interface ShippmentDto {
   id: number;
-  delivery_service_provider_id: number | null ;
+  delivery_service_provider_id: number | null;
   delivery_service_provider_code: string | null;
   delivery_service_provider_name: string | null;
   delivery_transport_type: string | null;
@@ -47,11 +47,11 @@ export interface FulfillmentLineItemDto {
   variant_barcode: string;
   variant_id: number;
   weight: number;
-} 
-
+}
 
 export interface FulfillmentDto {
   id: number;
+  key: number;
   order_id: number;
   code: string;
   order: OrderSubDto;
