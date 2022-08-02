@@ -48,6 +48,7 @@ export const callApiSaga = function* <Fn extends (...args: any[]) => any, R exte
 
   try {
     const response: R = yield call(fn, ...args);
+    console.log(response)
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -69,7 +70,7 @@ export const callApiSaga = function* <Fn extends (...args: any[]) => any, R exte
         throw response.message;
 
       default:
-        throw response.message;
+        throw response.message ? response.message : response.errors.map((i: any) => i);
     }
   } catch (error: any) {
     console.log("error at", fn.name, error);
