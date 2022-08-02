@@ -104,6 +104,18 @@ const InventoryAdjustmentGetPrintContentAction = (
   });
 };
 
+const InventoryAdjustmentGetPrintProductAction = (
+  queryPrint: string,
+  id: number,
+  onResult: (result: Array<PrinterInventoryTransferResponseModel>) => void
+) => {
+  return BaseAction(InventoryType.PRINT_ADJUSTMENT_INVENTORY_PRODUCT, {
+    queryPrint,
+    id,
+    onResult,
+  });
+};
+
 const getLinesItemAdjustmentAction = (
   id: number,
   queryString: string | null,
@@ -150,5 +162,6 @@ export {
   getLinesItemAdjustmentAction,
   updateInventoryAdjustmentAction,
   getVariantHasOnHandByStoreAction,
+  InventoryAdjustmentGetPrintProductAction,
   updateReasonItemOnlineInventoryAction,
 };

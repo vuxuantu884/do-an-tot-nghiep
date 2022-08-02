@@ -328,6 +328,10 @@
       "value": "inventory_adjustment"
     },
     {
+      "name": "Mẫu in kiểm kho theo loại",
+      "value": "inventory_adjustment_by_type"
+    },
+    {
       "name": "Hoá đơn nhập hàng",
       "value": "purchase_order"
     },

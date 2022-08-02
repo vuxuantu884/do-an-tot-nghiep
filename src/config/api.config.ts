@@ -25,6 +25,7 @@ const ServiceNames = {
   POTENTIAL_CUSTOMER_REGISTED_SERVICE: "potential-customers/import-customer-registered-for-gift",
   POTENTIAL_CUSTOMER_BOUGHT_SERVICE: "potential-customers/import-bought-potential-customers",
   OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE: "potential-customers/count-by-asm",
+  HANDOVER_SERVICE: "handover-service",
 };
 
 const v1 = ``;
@@ -60,6 +61,7 @@ const ApiConfig = {
   POTENTIAL_CUSTOMER_REGISTED: `${v1}/${ServiceNames.POTENTIAL_CUSTOMER_REGISTED_SERVICE}`,
   POTENTIAL_CUSTOMER_BOUGHT: `${v1}/${ServiceNames.POTENTIAL_CUSTOMER_BOUGHT_SERVICE}`,
   OFFLINE_TOTAL_SALES_POTENTIAL: `${v1}/${ServiceNames.OFFLINE_TOTAL_SALES_POTENTIAL_SERVICE}`,
+  HANDOVER: `${v1}/${ServiceNames.HANDOVER_SERVICE}`,
 };
 
 export { ApiConfig };
