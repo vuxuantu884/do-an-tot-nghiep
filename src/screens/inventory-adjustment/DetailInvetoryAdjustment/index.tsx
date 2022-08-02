@@ -120,6 +120,7 @@ const DetailInventoryAdjustment: FC = () => {
   const [isLoading, setLoading] = useState<boolean>(false);
   const [isLoadingBtn, setIsLoadingBtn] = useState<boolean>(false);
   const [isLoadingBtnCancel, setIsLoadingBtnCancel] = useState<boolean>(false);
+  const [isLoadingBtnPrint, setIsLoadingBtnPrint] = useState<boolean>(false);
   const productSearchRef = createRef<CustomAutoComplete>();
 
   const { id } = useParams<InventoryParams>();
@@ -343,6 +344,7 @@ const DetailInventoryAdjustment: FC = () => {
 
   const printContentProductCallback = useCallback(
     (printContent) => {
+      setIsLoadingBtnPrint(false);
       const textResponse = `<div class="singleOrderPrint">` + printContent.html_content + "</div>";
       let result = textResponse.replaceAll("<p></p>", "");
       setPrintContent(result);
@@ -781,6 +783,7 @@ const DetailInventoryAdjustment: FC = () => {
 
   const onPrintProductAction = (type: string) => {
     if (data) {
+      setIsLoadingBtnPrint(true);
       dispatch(
         InventoryAdjustmentGetPrintProductAction(`type=${type}`, data.id, printContentProductCallback)
       );
@@ -1057,6 +1060,8 @@ const DetailInventoryAdjustment: FC = () => {
                               }
                             />
                             <Button
+                              loading={isLoadingBtnPrint}
+                              disabled={isLoadingBtnPrint}
                               onClick={() => onPrintProductAction('deviant')}
                               type="primary"
                               ghost
@@ -1106,6 +1111,8 @@ const DetailInventoryAdjustment: FC = () => {
                               }
                             />
                             <Button
+                              loading={isLoadingBtnPrint}
+                              disabled={isLoadingBtnPrint}
                               onClick={() => onPrintProductAction('total')}
                               type="primary"
                               ghost
