@@ -11,6 +11,7 @@ export const PurchaseOrderPermission = {
   print: `${PurchaseOrders}_print`,
   return: `${PurchaseOrders}_return`,
   approve: `${PurchaseOrders}_approve`,
+  update_import_price: `${PurchaseOrders}_update_import_price`,
 
   procurements_create: `${PurchaseOrders}_procurements_create`,
   procurements_delete: `${PurchaseOrders}_procurements_delete`,
