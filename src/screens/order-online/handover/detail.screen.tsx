@@ -18,6 +18,8 @@ import search from "assets/img/search.svg";
 import { useDispatch } from "react-redux";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import emptyProduct from "assets/icon/empty_products.svg";
+import { PagingParam, ResultPaging } from "model/paging";
+import { flatDataPaging } from "utils/Paging";
 
 type HandoverParams = {
   id: string;
@@ -37,10 +39,17 @@ export interface HandoverProductView {
   product_id: number;
 }
 
+const resultPagingDefault: ResultPaging = {
+  currentPage: 1,
+  lastPage: 1,
+  perPage: 5,
+  total: 0,
+  result: [],
+};
+
 const DetailHandoverScreen: React.FC = () => {
-  const dispath = useDispatch();
+  const dispatch = useDispatch();
   const history = useHistory();
-  const [page, setPage] = useState<number>(1);
   const [filterKey, setFilterKey] = useState<string>("");
   const [selected, setSelected] = useState<Array<string>>([]);
   const [handoverData, setHandoverData] = useState<DetailLoading<HandoverResponse>>({
@@ -48,13 +57,22 @@ const DetailHandoverScreen: React.FC = () => {
     data: null,
     isError: false,
   });
-  const [fulfilmentData, setFulfillmentData] = useState<DetailLoading<Array<FulfillmentDto>>>({
+  const [fulfillmentsData, setFulfillmentData] = useState<DetailLoading<Array<FulfillmentDto>>>({
     isLoad: false,
     data: null,
     isError: false,
   });
 
   const [isLoading, setLoading] = useState<boolean>(true);
+
+  const [pagingParam, setPagingParam] = useState<PagingParam>({
+    currentPage: resultPagingDefault.currentPage,
+    perPage: resultPagingDefault.perPage,
+  });
+  const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
+
+  console.log("resultPaging", resultPaging);
+
   let { id } = useParams<HandoverParams>();
   let handoverId = parseInt(id);
 
@@ -86,17 +104,34 @@ const DetailHandoverScreen: React.FC = () => {
     }
   }, [handoverData.isLoad, handoverId]);
 
-  const fulfilmentDto = useMemo(() => {
-    if (fulfilmentData.data == null) {
+  const fulfillmentsDto = useMemo(() => {
+    let result = [];
+    if (fulfillmentsData.data == null) {
       return [];
     }
     if (filterKey === "") {
-      return fulfilmentData.data;
+      result = fulfillmentsData.data;
     }
-    return fulfilmentData.data.filter((value) => {
+    result = fulfillmentsData.data.filter((value) => {
       return value.code.includes(filterKey) || value.order_code.includes(filterKey);
     });
-  }, [filterKey, fulfilmentData.data]);
+
+    return result.map((p, index) => {
+      return {
+        ...p,
+        key: index,
+      };
+    });
+  }, [filterKey, fulfillmentsData.data]);
+
+  useEffect(() => {
+    if (!fulfillmentsDto || (fulfillmentsDto && fulfillmentsDto.length <= 0)) {
+      setResultPaging(resultPagingDefault);
+    } else {
+      let result = flatDataPaging(fulfillmentsDto, pagingParam);
+      setResultPaging(result);
+    }
+  }, [fulfillmentsDto, pagingParam]);
 
   const onSelectedChange = useCallback(
     (selectedRow: Array<FulfillmentDto>) => {
@@ -127,7 +162,7 @@ const DetailHandoverScreen: React.FC = () => {
   };
 
   useEffect(() => {
-    if (handoverData.isLoad && !fulfilmentData.isLoad) {
+    if (handoverData.isLoad && !fulfillmentsData.isLoad) {
       let codes = handoverData.data?.orders.map((value) => value.fulfillment_code);
       if (codes === undefined || codes.length === 0) {
         setFulfillmentData({
@@ -139,14 +174,14 @@ const DetailHandoverScreen: React.FC = () => {
       }
       getFulfillments(codes);
     }
-  }, [fulfilmentData.isLoad, handoverData.data?.orders, handoverData.isLoad]);
+  }, [fulfillmentsData.isLoad, handoverData.data?.orders, handoverData.isLoad]);
 
   const print = useCallback(() => {}, []);
   const deleteOrder = useCallback(() => {
     if (selected === undefined || selected === null || selected.length === 0) {
       return;
     }
-    dispath(showLoading());
+    dispatch(showLoading());
     deleteOrderHandoverService(handoverId, selected)
       .then((response) => {
         if (isFetchApiSuccessful(response)) {
@@ -168,8 +203,8 @@ const DetailHandoverScreen: React.FC = () => {
         }
       })
       .catch(() => {})
-      .finally(() => dispath(hideLoading()));
-  }, [dispath, handoverData, handoverId, selected]);
+      .finally(() => dispatch(hideLoading()));
+  }, [dispatch, handoverData, handoverId, selected]);
 
   const onMenuClick = useCallback(
     (index: number) => {
@@ -187,8 +222,8 @@ const DetailHandoverScreen: React.FC = () => {
 
   const handoverProduct = useMemo(() => {
     let arrayProduct: Array<HandoverProductView> = [];
-    if (fulfilmentData.isLoad) {
-      fulfilmentData.data?.forEach((fulfillment) => {
+    if (fulfillmentsData.isLoad) {
+      fulfillmentsData.data?.forEach((fulfillment) => {
         fulfillment.items.forEach((product) => {
           let index = arrayProduct.findIndex((view) => view.variant_id === product.variant_id);
           if (index === -1) {
@@ -206,13 +241,13 @@ const DetailHandoverScreen: React.FC = () => {
       });
     }
     return arrayProduct;
-  }, [fulfilmentData.data, fulfilmentData.isLoad]);
+  }, [fulfillmentsData.data, fulfillmentsData.isLoad]);
 
   useEffect(() => {
-    if (fulfilmentData.isLoad && handoverData.isLoad) {
+    if (fulfillmentsData.isLoad && handoverData.isLoad) {
       setLoading(false);
     }
-  }, [fulfilmentData.isLoad, handoverData.isLoad]);
+  }, [fulfillmentsData.isLoad, handoverData.isLoad]);
 
   return (
     <DetailStyle>
@@ -244,7 +279,7 @@ const DetailHandoverScreen: React.FC = () => {
               <Col span={17}>
                 <DetailHandoverComponent data={handoverData.data} />
                 <Card className="order-list" title="Danh sách đơn hàng">
-                  {fulfilmentDto.length === 0 ? (
+                  {fulfillmentsDto.length === 0 ? (
                     <div className="empty-view">
                       <img src={emptyProduct} alt="empty product" />
                       <Button
@@ -297,14 +332,15 @@ const DetailHandoverScreen: React.FC = () => {
                         isRowSelection
                         bordered
                         selectedRowKey={selected}
-                        rowKey={(fullfillment: FulfillmentDto) => fullfillment.code}
-                        dataSource={fulfilmentDto}
+                        rowKey={(fulfillment: FulfillmentDto) => fulfillment.code}
+                        dataSource={resultPaging.result}
                         onSelectedChange={onSelectedChange}
                         columns={[
                           {
                             title: "STT",
-                            key: "stt",
-                            render: (value, record, index) => index + 1,
+                            key: "STT",
+                            dataIndex: "key",
+                            render: (value, record, index) => value + 1,
                             align: "center",
                             width: "60px",
                             fixed: "left",
@@ -410,11 +446,16 @@ const DetailHandoverScreen: React.FC = () => {
                           },
                         ]}
                         pagination={{
-                          pageSize: 10,
-                          total: fulfilmentDto.length,
-                          current: page,
-                          showSizeChanger: false,
-                          onChange: (page) => setPage(page),
+                          pageSize: resultPaging.perPage,
+                          total: resultPaging.total,
+                          current: resultPaging.currentPage,
+                          showSizeChanger: true,
+                          onChange: (page, size) => {
+                            setPagingParam({ perPage: size || 10, currentPage: page });
+                          },
+                          onShowSizeChange: (page, size) => {
+                            setPagingParam({ perPage: size || 10, currentPage: page });
+                          },
                         }}
                       />
                     </>
@@ -453,13 +494,13 @@ const DetailHandoverScreen: React.FC = () => {
           rightComponent={
             <Space>
               <Button
-                disabled={!fulfilmentData.data || fulfilmentData.data.length === 0}
+                disabled={!fulfillmentsData.data || fulfillmentsData.data.length === 0}
                 icon={<PrinterOutlined />}
               >
                 In biên bản rút gọn
               </Button>
               <Button
-                disabled={!fulfilmentData.data || fulfilmentData.data.length === 0}
+                disabled={!fulfillmentsData.data || fulfillmentsData.data.length === 0}
                 icon={<PrinterOutlined />}
               >
                 In biên bản đầy đủ
