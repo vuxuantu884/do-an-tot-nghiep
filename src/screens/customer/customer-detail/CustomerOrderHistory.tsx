@@ -399,6 +399,10 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
     [dispatch, onSuccessEditNote],
   );
 
+  const checkIfOrderReturn = (record: CustomerOrderHistoryResponse) => {
+    return record.order_id ? true : false;
+  };
+
   const columnsPurchaseHistory: Array<ICustomTableColumType<CustomerOrderHistoryResponse>> =
     useMemo(
       () => [
@@ -425,7 +429,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           className: "custom-shadow-td",
           width: 110,
           render: (item: CustomerOrderHistoryResponse) => {
-            const isOrderReturn: boolean = item.code.search("SRN") !== -1 ? true : false;
+            const isOrderReturn = checkIfOrderReturn(item);
             return (
               <div>
                 <div className="noWrap">
@@ -530,7 +534,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
                           </Link>
                         </Tooltip>
                       </div>
-                      <div className="textSmall" style={{ color: "red", fontWeight: "bold" }}>
+                      <div className="textSmall 5" style={{ color: "red", fontWeight: "bold" }}>
                         Trả hàng
                       </div>
                     </div>
@@ -672,8 +676,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           align: "right",
           width: 65,
           render: (record: CustomerOrderHistoryResponse) => {
-            const discountAmount = record.discounts && record.discounts[0]?.amount;
-            const isOrderReturn: boolean = record.code.search("SRN") !== -1 ? true : false;
+            const isOrderReturn = checkIfOrderReturn(record);
             return (
               <>
                 {/*Đơn hàng*/}
@@ -784,7 +787,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           align: "right",
           width: 65,
           render: (record: CustomerOrderHistoryResponse) => {
-            const isOrderReturn: boolean = record.code.search("SRN") !== -1 ? true : false;
+            const isOrderReturn = checkIfOrderReturn(record);
             return (
               <React.Fragment>
                 {/*Đơn hàng*/}
@@ -803,7 +806,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           align: "left",
           width: 60,
           render: (record: CustomerOrderHistoryResponse) => {
-            const isOrderReturn: boolean = record.code.search("SRN") !== -1 ? true : false;
+            const isOrderReturn = checkIfOrderReturn(record);
 
             return (
               <React.Fragment>
@@ -841,7 +844,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           key: "status",
           className: "orderStatus",
           render: (value: string, record: CustomerOrderHistoryResponse) => {
-            const isOrderReturn: boolean = record.code.search("SRN") !== -1 ? true : false;
+            const isOrderReturn = checkIfOrderReturn(record);
 
             if (!record || !status_order) {
               return null;
@@ -918,7 +921,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
           align: "left",
           width: 110,
           render: (record: CustomerOrderHistoryResponse) => {
-            const isOrderReturn: boolean = record.code.search("SRN") !== -1 ? true : false;
+            const isOrderReturn = checkIfOrderReturn(record);
             const orderReturnReason = record.return_reason?.name || record.reason?.name || ""; // cập nhật lại khi BE thay đổi theo SO
             return (
               <div className="orderNotes">
