@@ -315,8 +315,8 @@ function CardShowOrderPayments(props: PropTypes) {
   };
 
   const renderPaymentReference = (payment: OrderPaymentResponse) => {
-    if (payment.reference) {
-      return <span style={{ marginLeft: 12 }}>{payment.reference}</span>;
+    if (payment.reference && !payment.ref_transaction_code) {
+      return <span style={{ marginLeft: 0 }}>{payment.reference}</span>;
     }
     return null;
   };

@@ -33,7 +33,11 @@ import {
 import { ShipmentMethodOption, SHIPPING_REQUIREMENT } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
-import { checkIfExpiredOrCancelledPayment, checkIfMomoPayment } from "utils/OrderUtils";
+import {
+  checkIfExpiredOrCancelledPayment,
+  checkIfFinishedPayment,
+  checkIfMomoPayment,
+} from "utils/OrderUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodReceiveAtStore from "./ShipmentMethodReceiveAtStore";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
@@ -211,7 +215,8 @@ function OrderCreateShipment(props: PropTypes) {
         return (
           checkIfMomoPayment(payment) &&
           payment.paid_amount > 0 &&
-          !checkIfExpiredOrCancelledPayment(payment)
+          !checkIfExpiredOrCancelledPayment(payment) &&
+          !checkIfFinishedPayment(payment)
         );
       })
     );

@@ -176,7 +176,7 @@ const bill: Array<RouteMenu> = [
     icon: "icon-dot",
     component: PackSupportScreen,
     key: "submenu561",
-    isShow: true,
+    isShow: false,
     header: null,
     subMenu: [],
     permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
@@ -188,7 +188,7 @@ const bill: Array<RouteMenu> = [
     icon: "icon-dot",
     component: DeliveryRecordsScreen,
     key: "submenu562",
-    isShow: true,
+    isShow: false,
     header: null,
     subMenu: [
       {
@@ -235,7 +235,7 @@ const bill: Array<RouteMenu> = [
     icon: "icon-dot",
     component: HandoverScreen,
     key: "submenu58",
-    isShow: true,
+    isShow: false,
     header: null,
     subMenu: [
       {
