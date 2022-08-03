@@ -176,7 +176,7 @@ const bill: Array<RouteMenu> = [
     icon: "icon-dot",
     component: PackSupportScreen,
     key: "submenu561",
-    isShow: false,
+    isShow: true,
     header: null,
     subMenu: [],
     permissions: [ODERS_PERMISSIONS.SUPPORT_PACK],
