@@ -9,13 +9,10 @@ import { useDispatch } from "react-redux";
 import { fulfillmentSearchService } from "service/handover/ffm.service";
 import { validateHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
-import { showError, showSuccess } from "utils/ToastUtils";
-import {
-  FulfillmentStatusReturn,
-  FulfillmentStatusTransfer,
-  HandoverReturn,
-  HandoverTransfer,
-} from "../../handover.config";
+import { PUSHING_STATUS } from "utils/Constants";
+import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
+import { showError, showModalError, showSuccess } from "utils/ToastUtils";
+import { HandoverReturn, HandoverTransfer } from "../../handover.config";
 import HandoverTable from "../table/handover-table.component";
 import { StyledComponent } from "./styles";
 
@@ -82,12 +79,32 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
     }, 100);
   }, []);
 
+  const isFulfillmentReturningOrReturned = (fulfillment: FulfillmentDto) => {
+    if (
+      fulfillment.status === FulfillmentStatus.CANCELLED &&
+      fulfillment.return_status === FulfillmentStatus.RETURNED &&
+      fulfillment.status_before_cancellation === FulfillmentStatus.SHIPPING
+    ) {
+      return true; // là đơn đã hoàn
+    }
+
+    if (
+      fulfillment.status === FulfillmentStatus.SHIPPING &&
+      fulfillment.return_status === FulfillmentStatus.RETURNING
+    ) {
+      return true; // là đơn đang hoàn
+    }
+
+    return false;
+  };
+
   const onSearch = useCallback(
     async (
       id: number,
       store_id: number,
       type: string,
       delivery_service_provider_id: number,
+      channel_id,
       setFieldsValue: (value: any) => void,
       getFieldValue: (value: string) => any,
     ) => {
@@ -97,7 +114,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       setSearching(true);
       let validateStatus = await validate(type, id);
       if (!validateStatus) {
-        showError("Đơn hàng đã nằm trong biển bản khác");
+        showModalError("Đơn hàng đã nằm trong biển bản khác");
         toggleInput();
         return;
       }
@@ -105,41 +122,44 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             let { data } = response;
-            if (type === HandoverTransfer && data.status !== FulfillmentStatusTransfer) {
-              showError("Đơn hàng chưa được đóng gói");
+            if (type === HandoverTransfer && data.status !== FulfillmentStatus.PACKED) {
+              showModalError("Đơn hàng chưa được đóng gói");
               return;
             }
-            if (
-              type === HandoverReturn &&
-              (data.status !== FulfillmentStatusReturn || data.return_status !== "returning")
-            ) {
-              showError("Đơn hàng không ở trạng thái đang hoàn");
+            if (type === HandoverReturn && !isFulfillmentReturningOrReturned(data)) {
+              showModalError("Đơn hàng không ở trạng thái đang hoàn hoặc đã hoàn");
               return;
             }
             if (data.stock_location_id !== store_id) {
-              showError("Đơn hàng không thuộc kho đóng gói");
+              showModalError("Đơn hàng không thuộc kho đóng gói");
               return;
             }
             let delivery = -1;
             if (data.shipment.delivery_service_provider_id !== null) {
               delivery = data.shipment.delivery_service_provider_id;
             }
+
             if (delivery !== delivery_service_provider_id) {
-              showError("Đơn hàng không cùng hãng vận chuyển");
+              showModalError("Đơn hàng không cùng hãng vận chuyển");
               return;
             }
             if (
               delivery !== -1 &&
               type === HandoverTransfer &&
-              data.shipment.pushing_status !== "completed"
+              data.shipment.pushing_status !== PUSHING_STATUS.COMPLETED
             ) {
-              showError(`Đơn ${keySearch} đẩy sang hãng vận chuyển thất bại`);
+              showModalError(`Đơn ${keySearch} đẩy sang hãng vận chuyển thất bại`);
+              return;
+            }
+
+            if (channel_id !== -1 && channel_id !== data.order.channel_id) {
+              showModalError(`Đơn ${keySearch} không cùng biên bản sàn`);
               return;
             }
             let orders: Array<HandoverOrderRequest> = getFieldValue("orders");
             let index = orders.findIndex((value) => value.fulfillment_code === data.code);
             if (index !== -1) {
-              showError("Đơn hàng đã nằm trong biên bản");
+              showModalError("Đơn hàng đã nằm trong biên bản");
               return;
             }
             let order_display = getFieldValue("order_display");
@@ -235,6 +255,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                   const delivery_service_provider_id = getFieldValue(
                     "delivery_service_provider_id",
                   );
+                  const channel_id = getFieldValue("channel_id");
                   const disabled =
                     store_id === null ||
                     type === null ||
@@ -259,6 +280,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                             store_id,
                             type,
                             delivery_service_provider_id,
+                            channel_id,
                             setFieldsValue,
                             getFieldValue,
                           );
@@ -275,6 +297,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                             store_id,
                             type,
                             delivery_service_provider_id,
+                            channel_id,
                             setFieldsValue,
                             getFieldValue,
                           );
