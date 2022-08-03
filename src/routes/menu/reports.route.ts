@@ -233,6 +233,7 @@ const reports: Array<RouteMenu> = [
   },
   {
     path: REPORTS_URL.MARKETING,
+    permissions: [ReportPermissions.report_marketing],
     exact: true,
     title: "Báo cáo marketing",
     icon: "icon-dot",
@@ -240,10 +241,10 @@ const reports: Array<RouteMenu> = [
     key: "menureport3",
     isShow: true,
     header: null,
-    permissions: [],
     subMenu: [
       {
         path: `${REPORTS_URL.MARKETING}/:id`,
+        permissions: [ReportPermissions.report_marketing],
         exact: true,
         title: "Mẫu báo cáo marketing",
         icon: "icon-dot",

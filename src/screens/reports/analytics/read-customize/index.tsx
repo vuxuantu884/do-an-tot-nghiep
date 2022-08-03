@@ -11,6 +11,7 @@ import {
   AnalyticChartInfo,
   AnalyticCube,
   AnalyticCustomize,
+  AnalyticGroup,
   AnalyticQuery,
   AnnotationData,
   ChartTypeValue,
@@ -267,7 +268,7 @@ function CreateAnalytics() {
     if (report && report.query) {
       const isPermission = getPermissionViewCustomizeReport(
         allPermissions,
-        report.group as AnalyticCube,
+        report.group as AnalyticGroup,
       );
       setPermissionViewReport(() => {
         return { isPermission };
