@@ -2,6 +2,9 @@ export interface OrderSubDto {
   id: number;
   code: string;
   reference_code: string;
+  channel_id: number;
+  channel_code: string;
+  channel: string;
 }
 
 export interface ShippmentDto {
