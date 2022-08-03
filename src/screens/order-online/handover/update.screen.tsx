@@ -430,7 +430,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                 onUpdate={(request, orderDisplay) => {
                   onFinish(request, orderDisplay);
                 }}
-                onDelete={(codes, onSucces: () => void) => {
+                onDelete={(codes, onSuccess: () => void) => {
                   setIsLoading(true);
                   deleteOrderHandoverService(handoverId, codes)
                     .then((response) => {
@@ -447,7 +447,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                           orders: [...orders],
                           order_display: [...order_display]
                         });
-                        onSucces();
+                        onSuccess();
                       }
                     })
                     .catch()

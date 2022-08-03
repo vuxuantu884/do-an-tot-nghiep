@@ -434,7 +434,7 @@ const DetailHandoverScreen: React.FC = () => {
                             title: "Cước phí",
                             align: "center",
                             width: "100px",
-                            render: (data) =>
+                            render: (value, data, index) =>
                               formatCurrency(data.shipping_fee_informed_to_customer),
                           },
                           {
