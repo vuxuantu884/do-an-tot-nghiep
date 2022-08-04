@@ -56,6 +56,7 @@ export enum AnalyticGroup {
   OfflineSales = "offline_sales",
   Customers = "customers",
   Costs = "costs",
+  Payments = "payments",
 }
 
 export enum ColumnType {
