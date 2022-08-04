@@ -5,7 +5,8 @@ import React from "react";
 
 const OrderUpdate = React.lazy(() => import("screens/order-online/order-update"));
 const PackDetail = React.lazy(() => import("screens/order-online/pack/pack-detail"));
-const PackSupportScreen = React.lazy(() => import("screens/order-online/pack/pack.screen"));
+// const PackSupportScreen = React.lazy(() => import("screens/order-online/pack/pack.screen"));
+const PackageSupport = React.lazy(() => import("screens/package-support"));
 const DeliveryRecordsScreen = React.lazy(() => import("screens/order-online/records.screen"));
 const AddReportHandOver = React.lazy(() => import("screens/order-online/pack/pack-add"));
 const PackUpdate = React.lazy(() => import("screens/order-online/pack/pack-update"));
@@ -174,7 +175,7 @@ const bill: Array<RouteMenu> = [
     exact: true,
     title: "Hỗ trợ đóng gói",
     icon: "icon-dot",
-    component: PackSupportScreen,
+    component: PackageSupport,
     key: "submenu561",
     isShow: true,
     header: null,

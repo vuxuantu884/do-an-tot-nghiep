@@ -254,11 +254,11 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
         ),
       );
 
-      let textStores = mappeGoodReceiptTypeId.map((single, index) => {
+      let textStores = mappeGoodReceiptTypeId?.map((single, index) => {
         return (
           <span key={single.code}>
             {single.code} - {single.name}
-            {renderSplitCharacter(index, mappeGoodReceiptTypeId)}
+            {renderSplitCharacter(index, mappeGoodReceiptTypeId || [])}
           </span>
         );
       });
@@ -486,7 +486,7 @@ const PackFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => {
                       getPopupContainer={(trigger) => trigger.parentNode}
                       allowClear
                     >
-                      {listGoodsReceiptsType.map((reason) => (
+                      {listGoodsReceiptsType?.map((reason) => (
                         <CustomSelect.Option
                           key={reason.id.toString()}
                           value={reason.id.toString()}

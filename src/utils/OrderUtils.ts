@@ -176,6 +176,15 @@ export const canCreateShipment = (fulfillments?: FulFillmentResponse[] | null) =
   return createShipment;
 };
 
+export const getFulfillmentSingle = (
+  ffmCode: string,
+  fulfillments?: FulFillmentResponse[] | null | any,
+) => {
+  if (!fulfillments) return undefined; //không tìm thấy ffm
+
+  return fulfillments.find((p: any) => p.code === ffmCode);
+};
+
 export const getFulfillmentActive = (fulfillments?: FulFillmentResponse[] | null | any) => {
   if (!fulfillments) return undefined; //không tìm thấy ffm
 
@@ -410,12 +419,14 @@ export const checkIfExpiredOrCancelledPayment = (
   );
 };
 
-export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string|null) => {
-  if(!orderChannelCode) {
-    return false
+export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string | null) => {
+  if (!orderChannelCode) {
+    return false;
   }
-  return ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(orderChannelCode.toLowerCase()
-)};
+  return ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(
+    orderChannelCode.toLowerCase(),
+  );
+};
 export const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => {

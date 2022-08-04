@@ -31,6 +31,8 @@ export interface ShippmentDto {
   shipper_phone: string | null;
   pushing_status: string | null;
   shipping_fee_informed_to_customer: number | null;
+  pushing_note?: string | null;
+  delivery_service_note?: string | null;
 }
 
 export interface FulfillmentLineItemDto {
