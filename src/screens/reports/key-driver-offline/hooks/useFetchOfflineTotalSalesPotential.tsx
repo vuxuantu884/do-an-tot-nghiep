@@ -55,8 +55,8 @@ function useFetchOfflineTotalSalesPotential() {
     response.forEach((item: any) => {
       Object.keys(item).forEach((key) => {
         companyData[key] = companyData[key] || 0;
-        if (!["department_lv2"].includes(key)) {
-          companyData[key] += ASM_LIST.includes(item.department_lv2) ? item[key] : 0;
+        if (!["department_lv2_name"].includes(key)) {
+          companyData[key] += ASM_LIST.includes(item.department_lv2_name) ? item[key] : 0;
         }
       });
     });

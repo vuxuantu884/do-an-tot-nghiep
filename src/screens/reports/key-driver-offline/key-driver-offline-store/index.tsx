@@ -295,9 +295,9 @@ function KeyDriverOfflineStore() {
   const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
       keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
-        ? (
-            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100
-          ).toFixed(1)
+        ? Math.floor(
+            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100,
+          )
         : "";
     }
   };
@@ -323,9 +323,7 @@ function KeyDriverOfflineStore() {
   const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
     if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
       keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
-        ? (+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100).toFixed(
-            1,
-          )
+        ? Math.floor(+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100)
         : "";
     }
   };
@@ -439,7 +437,7 @@ function KeyDriverOfflineStore() {
           name: "Báo cáo kết quả kinh doanh Offline",
           path: `${UrlConfig.KEY_DRIVER_OFFLINE}`,
         },
-        { name: `Báo cáo kết quả kinh doanh Offline ${selectedAsm}` },
+        { name: `${selectedAsm}` },
       ]}
     >
       <KeyDriverOfflineStyle>
