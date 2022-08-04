@@ -256,7 +256,7 @@ function KeyDriverOnline() {
                         KeyboardKey.ArrowDown,
                       );
                       saveMonthTargetKeyDriver(
-                        { [`day${day}`]: value },
+                        { [`day${day.toString().padStart(2, "0")}`]: value },
                         record,
                         departmentDrillingLevel,
                         departmentKey,
