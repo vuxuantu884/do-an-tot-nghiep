@@ -377,9 +377,13 @@ function KeyDriverOnline() {
   );
 
   useEffect(() => {
-    console.log("date", date);
     if (keyDriverGroupLv1 && date) {
-      initTable(date, keyDriverGroupLv1, departmentLv2, departmentLv3);
+      initTable(
+        moment(date).format(DATE_FORMAT.YYYYMMDD),
+        keyDriverGroupLv1,
+        departmentLv2,
+        departmentLv3,
+      );
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
       history.push(
@@ -396,7 +400,7 @@ function KeyDriverOnline() {
     let date = form.getFieldsValue(true)["date"];
     let newDate = "";
     if (date) {
-      newDate = moment(date).format(DATE_FORMAT.YYYYMMDD);
+      newDate = moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD);
     } else {
       newDate = moment().format(DATE_FORMAT.YYYYMMDD);
     }
