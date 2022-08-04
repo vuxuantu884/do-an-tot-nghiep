@@ -100,6 +100,7 @@ export type StoreStatus = {
   page?: number;
   info?: string;
   store_ids?: number | null;
+  type?: string | null;
 };
 
 export type FileParam = {

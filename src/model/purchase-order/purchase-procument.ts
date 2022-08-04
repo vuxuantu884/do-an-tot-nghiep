@@ -1,6 +1,6 @@
 import { BaseQuery } from "model/base/base.query";
 import { ParsedUrlQueryInput } from "querystring";
-import { BaseObject } from "./../base/base.response";
+import { BaseObject } from "../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
 import { PurchaseOrder } from "./purchase-order.model";
 
@@ -16,6 +16,7 @@ export interface PurchaseProcument extends BaseObject {
   actived_by: string | null;
   activated_by: string | null;
   stock_in_date: string | null;
+  activated_date: string | null;
   stock_in_by: string | null;
   store?: string;
   is_cancelled?: boolean;
@@ -34,12 +35,6 @@ export interface PurchaseProcurementViewDraft {
   stock_in_date?: string;
   stock_in_by?: string;
   store?: string;
-}
-export interface PurchaseProcurementPOCreate {
-  store_id: string;
-  expect_receipt_date: string;
-  procurement_items: Array<PurchaseProcumentPOCreateLineItem>;
-  status: string;
 }
 
 export interface PurchaseProcumentPOCreateLineItem {
