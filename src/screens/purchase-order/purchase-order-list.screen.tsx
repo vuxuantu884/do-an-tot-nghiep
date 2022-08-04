@@ -2,7 +2,7 @@ import { Modal, Radio, Row, Space } from "antd";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { TagStatusType } from "component/tag/tag-status";
+import TagStatus, { TagStatusType } from "component/tag/tag-status";
 import { HttpStatus } from "config/http-status.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
@@ -29,8 +29,7 @@ import {
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
-import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import NumberFormat from "react-number-format";
+import React, { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { exportFile, getFile } from "service/other/export.service";
@@ -39,14 +38,8 @@ import {
   getPurchaseOrderConfigService,
   updatePurchaseOrderStatusWaitingApproval,
 } from "service/purchase-order/purchase-order.service";
-import { formatCurrency, generateQuery } from "utils/AppUtils";
-import {
-  COLUMN_CONFIG_TYPE,
-  PoPaymentStatus,
-  POStatus,
-  ProcumentStatus,
-  ArrPoStatus,
-} from "utils/Constants";
+import { generateQuery } from "utils/AppUtils";
+import { ArrPoStatus, COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -67,6 +60,13 @@ import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
 import { PrintTypePo } from "./helper";
 import POProgressModal from "./POProgressModal";
+
+import iconPo1 from "assets/icon/po-status-1.svg";
+import iconPo2 from "assets/icon/po-status-2.svg";
+import iconPo3 from "assets/icon/po-status-3.svg";
+import phoneIcon from "assets/icon/phone-2.svg";
+import NumberFormat from "react-number-format";
+import CustomPagination from "../../component/table/CustomPagination";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
 const ModalSettingColumn = lazy(() => import("component/table/ModalSettingColumn"));
@@ -97,6 +97,17 @@ const actionsDefault: Array<MenuAction> = [
     icon: <CloseCircleOutlined />,
   },
 ];
+
+const typeStatus: any = {
+  received: 'success',
+  not_received: 'warning'
+};
+
+const labelStatus: any = {
+  received: 'Kho đã nhận',
+  not_received: 'Đã chia hàng'
+};
+
 interface PurchaseOrderListScreenProps {
   showExportModal: boolean;
   setShowExportModal: (param: boolean) => void;
@@ -261,18 +272,30 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
   const defaultColumns: Array<ICustomTableColumType<PurchaseOrder>> = useMemo(() => {
     return [
       {
-        title: "ID đơn đặt hàng",
+        title: "Mã đơn đặt hàng",
         dataIndex: "code",
+        width: 150,
         render: (value: string, i: PurchaseOrder) => {
           return (
             <>
-              <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{ fontWeight: 500 }}>
+              <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{ fontWeight: 500, fontSize: 16 }}>
                 {value}
               </Link>
-              <br />
-              <span style={{ fontSize: "12px" }}>
-                Ngày tạo: {ConvertUtcToLocalDate(i.created_date, "DD/MM/yy hh:mm")}
-              </span>
+              <div className="fs-12 text-muted">
+                Ngày tạo: {ConvertUtcToLocalDate(i.created_date, "DD/MM/yy")}
+              </div>
+              <div className="fs-12 text-muted">
+                Ngày duyệt: {ConvertUtcToLocalDate(i.activated_date, "DD/MM/yy")}
+              </div>
+              <div>
+                <span style={{ color: "#222222" }}>Tổng SL SP: </span>
+                <span className="font-weight-500">{i.planned_quantity}</span>
+              </div>
+              <div>
+                <span
+                  className="text-muted">Mã tham chiếu</span>: <span
+                style={{ color: "#75757B", fontWeight: 500 }}>{i.reference}</span>
+              </div>
             </>
           );
         },
@@ -280,56 +303,86 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         fixed: "left",
       },
       {
-        title: "Mã tham chiếu",
-        dataIndex: "reference",
-        visible: true,
-        fixed: "left",
-      },
-      {
         title: "Nhà cung cấp",
         dataIndex: "supplier",
+        width: 120,
         visible: true,
-        render: (value, row) => {
+        render: (value, record) => {
           return (
-            <Link
-              to={`${UrlConfig.SUPPLIERS}/${row.supplier_id}`}
-              className="link-underline"
-              target="_blank"
-            >
-              {value}
-            </Link>
+            <div style={{ lineHeight: "18px" }}>
+              <div>
+                <Link
+                  style={{ fontWeight: 500 }}
+                  to={`${UrlConfig.SUPPLIERS}/${record.supplier_id}`}
+                  target="_blank"
+                >
+                  {record.supplier_code}
+                </Link>
+                <img src={phoneIcon} alt="phone" /> <span
+                className="text-muted fs-12">{record.phone}</span>
+              </div>
+              <div className="fs-12 font-weight-500" style={{ color: "#222222" }}>
+                {value}
+              </div>
+            </div>
           );
         },
       },
       {
-        title: "Merchandiser",
-        dataIndex: "merchandiser",
-        render: (value, row: PurchaseOrder) => {
-          if (!row || !row.merchandiser_code || !row.merchandiser) return "";
-          return (
-            <Link
-              to={`${UrlConfig.ACCOUNTS}/${row.merchandiser_code}`}
-              className="link-underline"
-              target="_blank"
-            >
-              {`${row.merchandiser_code} - ${row.merchandiser}`}
-            </Link>
-          );
-        },
-        visible: true,
-      },
-      {
-        title: "Trạng thái đơn",
-        width: 150,
+        title: "Trạng thái",
+        width: 160,
         dataIndex: "status",
-        align: "center",
         render: (value: string, record) => {
           let type = TagStatusType.normal;
           let icon = "";
           let isFinishedStored = false;
-          if (!value) {
-            return "";
+
+          let processIcon;
+          let textProcurementStatus: string;
+
+          switch (record.receive_status) {
+            case ProcumentStatus.NOT_RECEIVED:
+            case null:
+              processIcon = iconPo3;
+              textProcurementStatus = 'Chưa nhập kho';
+              break;
+            case ProcumentStatus.PARTIAL_RECEIVED:
+              textProcurementStatus = 'Nhập kho 1 phần';
+              processIcon = iconPo2;
+              break;
+            case ProcumentStatus.RECEIVED:
+            case ProcumentStatus.FINISHED:
+              processIcon = iconPo1;
+              textProcurementStatus = 'Đã nhập kho';
+              break;
+            default:
+              processIcon = iconPo3;
+              textProcurementStatus = 'Chưa nhập kho'
           }
+
+          let financeProcessIcon = undefined;
+          let textFinanceStatus = '';
+          switch (record.financial_status) {
+            case PoPaymentStatus.UNPAID:
+            case null:
+              financeProcessIcon = iconPo3;
+              textFinanceStatus = 'Chưa thanh toán';
+              break;
+            case PoPaymentStatus.PARTIAL_PAID:
+              financeProcessIcon = iconPo2;
+              textFinanceStatus = 'Thanh toán 1 phần';
+              break;
+            case PoPaymentStatus.PAID:
+            case PoPaymentStatus.FINISHED:
+              financeProcessIcon = iconPo1;
+              textFinanceStatus = 'Đã thanh toán';
+              break;
+            default:
+              processIcon = iconPo3;
+              textProcurementStatus = 'Chưa nhập kho';
+              break;
+          }
+
           switch (record.status) {
             case POStatus.FINALIZED:
               type = TagStatusType.primary;
@@ -375,103 +428,53 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               icon = statusDraft;
               break;
           }
-          return (
-            <TextStatus icon={icon} type={type}>
-              {isFinishedStored
-                ? "Kết thúc nhập kho"
-                : ArrPoStatus.find((e) => e.key === value)?.value}
-            </TextStatus>
-          );
+          return <div>
+            <TextStatus icon={icon}
+                        type={type}>{isFinishedStored ? "Kết thúc nhập kho" : ArrPoStatus.find(e => e.key === value)?.value}</TextStatus>
+            <div className="display-flex" style={{alignItems: 'center'}}>
+              <img src={processIcon} alt={textProcurementStatus}
+                   style={{marginRight: 5}}/><span>{textProcurementStatus}</span>
+            </div>
+            <div className="display-flex" style={{alignItems: 'center'}}>
+              <img src={financeProcessIcon} alt={textFinanceStatus}
+                   style={{marginRight: 5}}/><span>{textFinanceStatus}</span>
+            </div>
+          </div>;
         },
         visible: true,
       },
       {
-        title: "Nhập kho",
-        dataIndex: "receive_status",
-        align: "center",
-        render: (value: string) => {
-          let processIcon = null;
-
-          switch (value) {
-            case ProcumentStatus.NOT_RECEIVED:
-            case null:
-              processIcon = "icon-blank";
-              break;
-            case ProcumentStatus.PARTIAL_RECEIVED:
-              processIcon = "icon-partial";
-              break;
-            case ProcumentStatus.RECEIVED:
-            case ProcumentStatus.FINISHED:
-              processIcon = "icon-full";
-              break;
+        title: "Ngày nhận hàng dự kiến",
+        dataIndex: "procurements",
+        render: (value: Array<PurchaseProcument>) => {
+          if (value && value.length > 0) {
+            value.sort((a, b) =>
+              moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)),
+            )
           }
-          if (processIcon)
-            return (
-              <div className="text-center">
-                <div className={processIcon} />
-              </div>
-            );
-          return (
-            <div className="text-center">
-              <div className="icon-blank" />
-            </div>
-          );
+          return <div>
+            {value.map((i, idx) => idx % 3 === 0 && <div style={{display: 'flex', alignItems: 'center'}}>
+              <div style={{marginRight: 5}}>{ConvertUtcToLocalDate(i.expect_receipt_date, DATE_FORMAT.DDMMYYY)}</div>
+              {i.status !== "draft" && (
+                <div>{TagStatus({
+                  type: typeStatus[i.status],
+                  children: labelStatus[i.status],
+                })}</div>
+              )}
+            </div>)}
+          </div>;
         },
         visible: true,
-        width: 120,
+        width: 200,
       },
       {
         title: "Ngày chốt công nợ",
         dataIndex: "ap_closing_date",
-        width: 120,
+        width: 110,
         visible: true,
-        render: (date: string, row: PurchaseOrder) => {
+        render: (date: string) => {
           return date ? ConvertUtcToLocalDate(date, DATE_FORMAT.DDMMYYY) : "";
         },
-      },
-      {
-        title: "Thanh toán",
-        align: "center",
-        dataIndex: "financial_status",
-        render: (value: string) => {
-          let processIcon = null;
-          switch (value) {
-            case PoPaymentStatus.UNPAID:
-            case null:
-              processIcon = "icon-blank";
-              break;
-            case PoPaymentStatus.PARTIAL_PAID:
-              processIcon = "icon-partial";
-              break;
-            case PoPaymentStatus.PAID:
-            case PoPaymentStatus.FINISHED:
-              processIcon = "icon-full";
-              break;
-          }
-          if (processIcon)
-            return (
-              <div className="text-center">
-                <div className={processIcon} />
-              </div>
-            );
-          return (
-            <div className="text-center">
-              <div className="icon-blank" />
-            </div>
-          );
-        },
-        visible: true,
-        width: 100,
-      },
-      {
-        title: "Tổng SLSP",
-        width: 100,
-        dataIndex: "planned_quantity",
-        render: (value, row: PurchaseOrder) => {
-          return <div>{formatCurrency(value, ",")}</div>;
-        },
-        visible: true,
-        align: "right",
       },
       {
         title: "Tổng tiền",
@@ -488,78 +491,58 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         align: "right",
       },
       {
-        title: "QC",
-        dataIndex: "qc",
+        title: "Merchandiser",
+        dataIndex: "merchandiser",
         render: (value, row: PurchaseOrder) => {
-          if (!row || !row.qc_code || !row.qc) return;
           return (
-            <Link
-              to={`${UrlConfig.ACCOUNTS}/${row.qc_code}`}
-              className="link-underline"
-              target="_blank"
-            >
-              {`${row.qc_code} - ${row.qc}`}
-            </Link>
+            <div>
+              <div>
+                <Link
+                  to={`${UrlConfig.ACCOUNTS}/${row.merchandiser_code}`}
+                  className="link-underline"
+                  target="_blank"
+                >
+                  {row && row.merchandiser_code && row.merchandiser && (
+                    <span>
+                      {row.merchandiser_code} - {row.merchandiser}
+                      <span className="text-muted"> (Mer)</span>
+                    </span>
+                  )}
+                </Link>
+              </div>
+              <div>
+                <Link
+                  to={`${UrlConfig.ACCOUNTS}/${row.qc_code}`}
+                  className="link-underline"
+                  target="_blank"
+                >
+                  {row && row.qc_code && row.qc && (
+                    <span>
+                      {row.qc_code} - {row.qc}
+                      <span className="text-muted">(QC)</span>
+                    </span>
+                  )}
+                </Link>
+              </div>
+              <div>
+                <Link
+                  to={`${UrlConfig.ACCOUNTS}/${row.designer_code}`}
+                  className="link-underline"
+                  target="_blank"
+                >
+                  {row && row.designer_code && row.designer && (
+                    <span>
+                      {row.designer_code} - {row.designer}
+                      <span className="text-muted">(Thiết kế)</span>
+                    </span>
+                  )}
+                </Link>
+              </div>
+            </div>
           );
         },
+        width: 220,
         visible: true,
-      },
-      {
-        title: "Thiết kế",
-        dataIndex: "designer",
-        render: (value, row: PurchaseOrder) => {
-          if (!row || !row.designer_code || !row.designer) return;
-          return (
-            <Link
-              to={`${UrlConfig.ACCOUNTS}/${row.designer_code}`}
-              className="link-underline"
-              target="_blank"
-            >
-              {value}
-            </Link>
-          );
-        },
-        visible: true,
-      },
-      {
-        title: "Ngày duyệt đơn",
-        width: 120,
-        dataIndex: "activated_date",
-        render: (value: string) => {
-          return <div>{ConvertUtcToLocalDate(value, DATE_FORMAT.DDMMYYY)}</div>;
-        },
-        visible: true,
-      },
-      {
-        title: "Ngày nhận hàng dự kiến",
-        dataIndex: "procurements",
-        render: (value: Array<PurchaseProcument>) => {
-          let display = "";
-          if (value && value.length > 0) {
-            value.sort((a, b) => moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)));
-            display = ConvertUtcToLocalDate(
-              value[value.length - 1].expect_receipt_date,
-              DATE_FORMAT.DDMMYYY,
-            );
-          }
-          return <div>{display}</div>;
-        },
-        visible: true,
-        width: 120,
-      },
-      {
-        title: "Ngày hoàn thành đơn",
-        dataIndex: "completed_date",
-        render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-        visible: true,
-        width: 120,
-      },
-      {
-        title: "Ngày hủy đơn",
-        dataIndex: "cancelled_date",
-        render: (value: string) => <div>{ConvertUtcToLocalDate(value)}</div>,
-        visible: true,
-        width: 120,
       },
       {
         title: "Ghi chú nội bộ",
@@ -572,22 +555,20 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             </div>
           );
         },
+        width: 100,
       },
       {
         title: "Ghi chú nhà cung cấp",
         dataIndex: "supplier_note",
+        width: 100,
         visible: true,
         render: (value, item: PurchaseOrder) => {
           return (
             <div className="note">
-              <EditNote
-                note={value}
-                onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")}
-              />
+              <EditNote note={value} onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")} />
             </div>
           );
         },
-        width: 200,
       },
       {
         title: "Tag",
@@ -596,6 +577,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           return <div className="txt-muted">{value}</div>;
         },
         visible: true,
+        width: 80,
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -689,6 +671,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       dispatch(StoreGetListAction(setListStore));
     }
     isFirstLoad.current = false;
+    setTableLoading(true);
     dispatch(PoSearchAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
 
@@ -716,7 +699,6 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
 
   const onSaveConfigColumn = useCallback(
     (data: Array<ICustomTableColumType<PurchaseOrder>>) => {
-      console.log("data", data);
       let config = lstConfig.find(
         (e) => e.type === COLUMN_CONFIG_TYPE.COLUMN_PO,
       ) as FilterConfigRequest;
@@ -726,7 +708,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       config.type = COLUMN_CONFIG_TYPE.COLUMN_PO;
       config.json_content = json_content;
       config.name = `${account?.code}_config_column_po`;
-      if (config && config.id && config.id !== null) {
+      if (config && config.id) {
         dispatch(updateConfigPoAction(config));
       } else {
         dispatch(createConfigPoAction(config));
@@ -806,14 +788,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           onFilter={onFilter}
           listStore={listStore}
         />
-        <CustomTable
-          className="small-padding"
-          bordered
-          isRowSelection
-          isLoading={tableLoading}
-          showColumnSetting={true}
-          scroll={{ x: 3000 }}
-          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+        <CustomPagination
           pagination={{
             pageSize: data.metadata.limit,
             total: data.metadata.total,
@@ -822,6 +797,16 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             onChange: onPageChange,
             onShowSizeChange: onPageChange,
           }}
+        />
+        <CustomTable
+          className="small-padding"
+          bordered
+          isRowSelection
+          isLoading={tableLoading}
+          showColumnSetting={true}
+          scroll={{x: "max-content"}}
+          sticky={{ offsetScroll: 10, offsetHeader: 55 }}
+          pagination={false}
           onShowColumnSetting={() => setShowSettingColumn(true)}
           onSelectedChange={onSelect}
           dataSource={data.items}
