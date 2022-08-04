@@ -4,7 +4,10 @@ import { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { getKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { nonAccentVietnameseKD } from "utils/KeyDriverOfflineUtils";
+import {
+  findKDProductAndUpdateValueUtil,
+  nonAccentVietnameseKD,
+} from "utils/KeyDriverOfflineUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { ASM_LIST } from "../constant/key-driver-offline-template-data";
 import { KeyDriverOfflineContext } from "../provider/key-driver-offline-provider";
@@ -32,29 +35,7 @@ function useFetchKeyDriverTarget() {
     [],
   );
 
-  const findKDProductAndUpdateValue = useCallback(
-    (data: any, keyDriversTarget: any, asmName: string, targetTime: "month" | "day") => {
-      Object.keys(keyDriversTarget).forEach((keyDriver) => {
-        if (data.children?.length) {
-          const idx = data.children.findIndex((child: any) => child.key === keyDriver);
-          if (idx !== -1) {
-            data.children[idx][`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
-          } else {
-            data.children.push({
-              key: keyDriver,
-              [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value,
-            });
-          }
-        } else {
-          data.children.push({
-            key: keyDriver,
-            [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value,
-          });
-        }
-      });
-    },
-    [],
-  );
+  const findKDProductAndUpdateValue = useCallback(findKDProductAndUpdateValueUtil, []);
 
   const refetch = useCallback(() => {
     const fetchKeyDriverTarget = async () => {
