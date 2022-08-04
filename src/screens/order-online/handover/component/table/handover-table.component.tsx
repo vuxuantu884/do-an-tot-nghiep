@@ -1,7 +1,7 @@
 import CustomTable, { ICustomTablePaginationConfig } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { FulfillmentDto, FulfillmentLineItemDto } from "model/handover/fulfillment.dto";
-import { useCallback } from "react";
+import React, { useCallback } from "react";
 import { Link } from "react-router-dom";
 import { formatCurrency } from "utils/AppUtils";
 import { HandoverTableStyle } from "./handover-table.style";
@@ -47,16 +47,36 @@ const HandoverTable: React.FC<HandoverTableType> = (props: HandoverTableType) =>
             render: (value, record, index) => index + 1,
           },
           {
-            dataIndex: "code",
-            title: "ID",
+            title: "Mã đơn hàng",
             align: "center",
             render: (value, record) => (
-              <Link
-                target="_blank"
-                to={`${UrlConfig.ORDER}/${record.order ? record.order.id : record.order_id}`}
-              >
-                {value}
-              </Link>
+              <React.Fragment>
+                <div>
+                  <Link
+                    target="_blank"
+                    to={`${UrlConfig.ORDER}/${record.order ? record.order.id : record.order_id}`}
+                  >
+                    {record.order_code || record.order.code}
+                  </Link>
+                </div>
+              </React.Fragment>
+            ),
+          },
+          {
+            dataIndex: "code",
+            title: "Mã đơn giao",
+            align: "center",
+            render: (value, record) => (
+              <React.Fragment>
+                <div>
+                  <Link
+                    target="_blank"
+                    to={`${UrlConfig.ORDER}/${record.order ? record.order.id : record.order_id}`}
+                  >
+                    {value}
+                  </Link>
+                </div>
+              </React.Fragment>
             ),
           },
           {
