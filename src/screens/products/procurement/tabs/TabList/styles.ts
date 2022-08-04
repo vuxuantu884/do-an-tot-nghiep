@@ -15,7 +15,7 @@ export const StyledComponent = styled.div`
     }
   }
   .page-filter {
-    padding: 0px;
+    padding: 0;
   }
   .warning-confirm {
     word-break: break-word;
@@ -41,5 +41,11 @@ export const StyledComponent = styled.div`
       background: #f5f5f5;
       color: #666666;
     }
+  }
+  .fs-12 {
+    font-size: 12px;
+  }
+  .text-title {
+    color: #222222;
   }
 `;

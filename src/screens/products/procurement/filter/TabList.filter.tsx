@@ -146,6 +146,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
       const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
         status: "active",
         simple: true,
+        type: "distribution_center"
       });
       if (res) {
         setAllStore(res);
@@ -359,7 +360,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                 <Input
                   prefix={<img src={search} alt="" />}
                   allowClear
-                  placeholder="Tìm kiếm theo ID phiếu nhập kho, mã đơn đặt hàng, Mã tham chiếu"
+                  placeholder="Tìm kiếm theo mã PR, mã PO, mã SP"
                 />
               </Item>
               <Item
@@ -370,7 +371,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
                 <TreeStore
                   form={formBase}
                   name={ProcurementFilterBasicEnum.store_ids}
-                  placeholder="Chọn kho nhận"
+                  placeholder="Kho nhận"
                   listStore={allStore}
                 />
               </Item>
