@@ -426,7 +426,7 @@ const ProductDetailScreen: React.FC = () => {
                           let newData: any = { ...data };
                           newData.status = checked ? "active" : "inactive";
                           newData.variants.forEach((item: VariantResponse) => {
-                            item.status = checked ? "active" : "inactive";
+                            item.status = checked ? item.status : "inactive";
                             if (!checked) {
                               item.saleable = checked;
                             }

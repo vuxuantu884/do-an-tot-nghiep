@@ -896,12 +896,7 @@ const ProductDetailScreen: React.FC = () => {
                             onChange={(checked) => {
                               setStatus(checked ? "active" : "inactive");
                               let variants: Array<VariantResponse> = form.getFieldValue("variants");
-                              if (checked) {
-                                variants = [...variants];
-                                variants.forEach((item) => {
-                                  item.status = "active";
-                                });
-                              } else {
+                              if (!checked) {
                                 variants = [...variants];
                                 variants.forEach((item) => {
                                   item.status = "inactive";
