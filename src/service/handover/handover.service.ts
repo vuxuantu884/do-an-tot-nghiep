@@ -63,6 +63,13 @@ const deleteOrderHandoverService = (
   );
 };
 
+const printHandOverService = (
+  ids: number[] | number,
+  type: "simple" | "detail" | string,
+): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.HANDOVER}/handovers/print_forms?ids=${ids}&type=${type}`);
+};
+
 export {
   createHandoverService,
   validateHandoverService,
@@ -72,4 +79,5 @@ export {
   updateNoteHandoverService,
   updateHandoverService,
   deleteHandoverService,
+  printHandOverService,
 };
