@@ -72,11 +72,12 @@ interface Props {
   form: FormInstance;
   idNumber?: number;
   originalEntitlements?: any;
+  setGetIndexRemoveDiscount?: (item: any) => void;
 }
 
 const GroupDiscountList = (props: Props) => {
   const token = getToken() || "";
-  const { form, idNumber, originalEntitlements } = props;
+  const { form, idNumber, originalEntitlements, setGetIndexRemoveDiscount } = props;
   const dispatch = useDispatch();
   const [showImportModal, setShowImportModal] = useState<boolean>(false);
   const [entitlementsImported, setEntitlementsImported] = useState<
@@ -425,6 +426,7 @@ const GroupDiscountList = (props: Props) => {
 
           const removeEntitlementItem = (index: number) => {
             remove(index);
+            setGetIndexRemoveDiscount?.(index);
           };
 
           return (
