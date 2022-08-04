@@ -10,14 +10,20 @@ import { HandoverResponse } from "model/handover/handover.response";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory, useParams } from "react-router-dom";
 import { fulfillmentListService } from "service/handover/ffm.service";
-import { deleteOrderHandoverService, getHandoverService } from "service/handover/handover.service";
-import { formatCurrency, isFetchApiSuccessful } from "utils/AppUtils";
+import {
+  deleteOrderHandoverService,
+  getHandoverService,
+  printHandOverService,
+} from "service/handover/handover.service";
+import { formatCurrency, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import DetailHandoverComponent from "./component/detail/detail.component";
 import { DetailStyle } from "./detail.styles";
 import search from "assets/img/search.svg";
 import { useDispatch } from "react-redux";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import emptyProduct from "assets/icon/empty_products.svg";
+import PrintComponent from "component/print";
+import { showWarning } from "utils/ToastUtils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
 
@@ -30,6 +36,11 @@ interface DetailLoading<T> {
   isError: boolean;
   data: T | null;
 }
+
+const typePrint = {
+  simple: "simple",
+  detail: "detail",
+};
 
 export interface HandoverProductView {
   sku: string;
@@ -64,6 +75,7 @@ const DetailHandoverScreen: React.FC = () => {
   });
 
   const [isLoading, setLoading] = useState<boolean>(true);
+  const [htmlContent, setHtmlContent] = useState<string | string[]>("");
 
   const [pagingParam, setPagingParam] = useState<PagingParam>({
     currentPage: resultPagingDefault.currentPage,
@@ -243,11 +255,32 @@ const DetailHandoverScreen: React.FC = () => {
     return arrayProduct;
   }, [fulfillmentsData.data, fulfillmentsData.isLoad]);
 
+  const handlePrintPack = useCallback(
+    (type: string) => {
+      if (handoverId) {
+        setLoading(true);
+        printHandOverService(handoverId, type).then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            setLoading(false);
+            if (response.data) {
+              setHtmlContent(response.data[0].html_content);
+            }
+          } else {
+            handleFetchApiError(response, "In biên bản bàn giao", dispatch);
+          }
+        });
+      }
+    },
+    [dispatch, handoverId],
+  );
+
   useEffect(() => {
     if (fulfillmentsData.isLoad && handoverData.isLoad) {
       setLoading(false);
     }
   }, [fulfillmentsData.isLoad, handoverData.isLoad]);
+
+  console.log("htmlContent 111", htmlContent);
 
   return (
     <DetailStyle>
@@ -496,12 +529,18 @@ const DetailHandoverScreen: React.FC = () => {
               <Button
                 disabled={!fulfillmentsData.data || fulfillmentsData.data.length === 0}
                 icon={<PrinterOutlined />}
+                onClick={() => {
+                  handlePrintPack(typePrint.simple);
+                }}
               >
                 In biên bản rút gọn
               </Button>
               <Button
                 disabled={!fulfillmentsData.data || fulfillmentsData.data.length === 0}
                 icon={<PrinterOutlined />}
+                onClick={() => {
+                  showWarning("Đang bảo trì");
+                }}
               >
                 In biên bản đầy đủ
               </Button>
@@ -516,6 +555,7 @@ const DetailHandoverScreen: React.FC = () => {
             </Space>
           }
         />
+        <PrintComponent htmlContent={htmlContent} setHtmlContent={setHtmlContent} />
       </ContentContainer>
     </DetailStyle>
   );
