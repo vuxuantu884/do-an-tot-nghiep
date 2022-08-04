@@ -63,7 +63,12 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
     async (type: string, id: number | null) => {
       const response = await validateHandoverService(keySearch, type, id);
       if (isFetchApiSuccessful(response)) {
-        return true;
+        if (!response?.data?.success) {
+          showError(`Đơn giao ${keySearch} đã nằm trong biển bản ${response?.data?.code_handover}`);
+          return false;
+        } else {
+          return true;
+        }
       }
       return false;
     },
@@ -114,7 +119,6 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       setSearching(true);
       let validateStatus = await validate(type, id);
       if (!validateStatus) {
-        showModalError("Đơn hàng đã nằm trong biển bản khác");
         toggleInput();
         return;
       }
@@ -122,16 +126,49 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
         .then((response) => {
           if (isFetchApiSuccessful(response)) {
             let { data } = response;
+
+            let order_display = getFieldValue("order_display");
+
+            //kiểm tra hợp lệ các đơn đã trong biên bản ////////////////////////
+            if (order_display && order_display.length !== 0) {
+              if (type === HandoverTransfer) {
+                const fulfillmentStatusNotPacked = order_display.filter(
+                  (p: FulfillmentDto) => p.status !== FulfillmentStatus.PACKED,
+                );
+                if (fulfillmentStatusNotPacked && fulfillmentStatusNotPacked.length !== 0) {
+                  showModalError(
+                    `Đơn hàng ${fulfillmentStatusNotPacked[0].order_code} không ở trạng thái đóng gói`,
+                  );
+                  return;
+                }
+              }
+
+              if (type === HandoverReturn) {
+                const fulfillmentStatusNotReturn = order_display.filter(
+                  (p: FulfillmentDto) => !isFulfillmentReturningOrReturned(p),
+                );
+                if (fulfillmentStatusNotReturn && fulfillmentStatusNotReturn.length !== 0) {
+                  showModalError(
+                    `Đơn hàng ${fulfillmentStatusNotReturn[0].order_code} không ở trạng thái đang hoàn hoặc đã hoàn`,
+                  );
+                  return;
+                }
+              }
+            }
+            ////////////////////////////////////////////////////////////////////////////////////////////////
+
             if (type === HandoverTransfer && data.status !== FulfillmentStatus.PACKED) {
-              showModalError("Đơn hàng chưa được đóng gói");
+              showModalError(`Đơn hàng ${data.order.code} không ở trạng thái đóng gói`);
               return;
             }
             if (type === HandoverReturn && !isFulfillmentReturningOrReturned(data)) {
-              showModalError("Đơn hàng không ở trạng thái đang hoàn hoặc đã hoàn");
+              showModalError(
+                `Đơn hàng ${data.order.code} không ở trạng thái đang hoàn hoặc đã hoàn`,
+              );
               return;
             }
             if (data.stock_location_id !== store_id) {
-              showModalError("Đơn hàng không thuộc kho đóng gói");
+              showModalError(`Đơn hàng ${data.order.code} không thuộc kho đóng gói`);
               return;
             }
             let delivery = -1;
@@ -140,7 +177,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             }
 
             if (delivery !== delivery_service_provider_id) {
-              showModalError("Đơn hàng không cùng hãng vận chuyển");
+              showModalError(`Đơn hàng ${data.order.code} không cùng hãng vận chuyển`);
               return;
             }
             if (
@@ -148,21 +185,21 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
               type === HandoverTransfer &&
               data.shipment.pushing_status !== PUSHING_STATUS.COMPLETED
             ) {
-              showModalError(`Đơn ${keySearch} đẩy sang hãng vận chuyển thất bại`);
+              showModalError(`Đơn hàng ${data.order.code} đẩy sang hãng vận chuyển thất bại`);
               return;
             }
 
             if (channel_id !== -1 && channel_id !== data.order.channel_id) {
-              showModalError(`Đơn ${keySearch} không cùng biên bản sàn`);
+              showModalError(`Đơn hàng ${data.order.code} không cùng biên bản sàn`);
               return;
             }
             let orders: Array<HandoverOrderRequest> = getFieldValue("orders");
             let index = orders.findIndex((value) => value.fulfillment_code === data.code);
             if (index !== -1) {
-              showModalError("Đơn hàng đã nằm trong biên bản");
+              showModalError(`Đơn hàng ${data.order.code} đã nằm trong biên bản`);
               return;
             }
-            let order_display = getFieldValue("order_display");
+
             let newOrder: HandoverOrderRequest = {
               id: null,
               handover_id: id,
@@ -205,7 +242,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
     };
   }, [eventBarcodeOrder]);
   return (
-    <Card title="Danh sach đơn hàng trong biên bản">
+    <Card title="Danh sách đơn hàng trong biên bản">
       <StyledComponent>
         <div className="page-filter">
           <div className="page-filter-heading">
@@ -271,7 +308,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                         className="input-search"
                         style={{ width: "100%" }}
                         prefix={<img src={search} alt="" />}
-                        placeholder="ID đơn hàng/Mã vận đơn"
+                        placeholder="ID đơn giao/Mã vận đơn"
                         disabled={disabled}
                         onPressEnter={(e) => {
                           e.preventDefault();
