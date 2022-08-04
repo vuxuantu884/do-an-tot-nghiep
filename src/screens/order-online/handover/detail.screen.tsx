@@ -383,7 +383,19 @@ const DetailHandoverScreen: React.FC = () => {
                             key: "order_code",
                             dataIndex: "order_code",
                             render: (value, record, index) => (
-                              <Link to={`${UrlConfig.ORDER}/${record.order_id}`}>{value}</Link>
+                              <React.Fragment>
+                                <div>
+                                  <Link to={`${UrlConfig.ORDER}/${record.order_id}`}>{value}</Link>
+                                </div>
+                                <div>
+                                  <Link
+                                    to={`${UrlConfig.ORDER}/${record.order_id}`}
+                                    className="text-small"
+                                  >
+                                    {record.code}
+                                  </Link>
+                                </div>
+                              </React.Fragment>
                             ),
                             align: "center",
                             width: "130px",
@@ -512,7 +524,10 @@ const DetailHandoverScreen: React.FC = () => {
                         </Link>
                         <Space className="row-sku">
                           <div className="sku">{item.sku}</div>
-                          <div className="quantity">x{item.quantity}</div>
+                          <div className="quantity">
+                            x{` `}
+                            {item.quantity}
+                          </div>
                         </Space>
                       </div>
                     )}

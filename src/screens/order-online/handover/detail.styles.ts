@@ -1,12 +1,12 @@
-import styled from 'styled-components';
-import { borderColor } from 'utils/global-styles/variables';
+import styled from "styled-components";
+import { borderColor } from "utils/global-styles/variables";
 
 const DetailStyle = styled.div`
   .order-list {
     .empty-view {
       display: flex;
       flex-direction: column;
-      align-content: 'center';
+      align-content: "center";
       img {
         height: 100px;
       }
@@ -16,7 +16,12 @@ const DetailStyle = styled.div`
       }
     }
     th {
-		text-align: center !important;
+      text-align: center !important;
+    }
+
+    .text-small {
+      font-size: 12px;
+      font-style: italic;
     }
     .ant-table-cell.customer-column,
     .ant-table-cell.products {
@@ -28,9 +33,8 @@ const DetailStyle = styled.div`
         justify-content: space-between;
         &:not(:last-child) {
           border-bottom: 1px solid ${borderColor};
-        } 
+        }
       }
-      
     }
     .center {
       flex-direction: column;
@@ -62,4 +66,4 @@ const DetailStyle = styled.div`
   }
 `;
 
-export {DetailStyle};
+export { DetailStyle };
