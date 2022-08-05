@@ -24,6 +24,7 @@ export interface CategoryResponse extends BaseObject {
   goods_name: string;
   children: Array<CategoryResponse>;
   child_ids: string;
+  level: number;
 }
 
 export interface CategoryView extends BaseObject {

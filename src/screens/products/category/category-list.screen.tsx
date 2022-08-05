@@ -17,7 +17,7 @@ import { DeleteOutlined, EditOutlined, ExportOutlined } from "@ant-design/icons"
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import { showSuccess, showWarning } from "utils/ToastUtils";
-import { showLoading } from "domain/actions/loading.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
@@ -143,10 +143,12 @@ const Category = () => {
   const onDeleteSuccess = useCallback(async () => {
     setSelected([]);
     showSuccess("Xóa danh mục thành công");
+    dispatch(hideLoading());
+    setLoading(true);
     const res = await callApiNative({ isShowLoading: false }, dispatch, getCategoryApi, params);
     setLoading(false);
-    if (res && res.data) {
-      onGetSuccess(res.data);
+    if (res) {
+      onGetSuccess(res);
     }
   }, [dispatch, onGetSuccess, params]);
   const onMenuClick = useCallback(
