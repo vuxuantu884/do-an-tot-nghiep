@@ -1,18 +1,5 @@
 import { InfoCircleOutlined } from "@ant-design/icons";
-import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Collapse,
-  Form,
-  Input,
-  InputNumber,
-  Row,
-  Select,
-  Space,
-  TreeSelect,
-} from "antd";
+import { Button, Card, Col, Form, Input, InputNumber, Row, Select, Space, Switch, TreeSelect } from "antd";
 import StoreTooltip from "assets/icon/store-tooltip.png";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
@@ -28,12 +15,7 @@ import {
   DistrictGetByCountryAction,
   WardGetByDistrictAction,
 } from "domain/actions/content/content.action";
-import {
-  StoreCreateAction,
-  StoreGetTypeAction,
-  StoreRankAction,
-  // StoreValidateAction,
-} from "domain/actions/core/store.action";
+import { StoreCreateAction, StoreGetTypeAction, StoreRankAction } from "domain/actions/core/store.action";
 import { AccountResponse } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -42,19 +24,22 @@ import { DistrictResponse } from "model/content/district.model";
 import { WardResponse } from "model/content/ward.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { StoreCreateRequest, StoreResponse, StoreTypeRequest } from "model/core/store.model";
-import { RootReducerType } from "model/reducers/RootReducerType";
-// import {RuleObject, StoreValue} from "rc-field-form/lib/interface";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import TreeDepartment from "../department/component/TreeDepartment";
 import { strForSearch } from "utils/StringUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { Map } from "component/ggmap";
+import "./styles.scss";
+import copy from "copy-to-clipboard";
+
+const DefaultLocation = { lat: 21.0228161, lng: 105.8019439 };
+const API_KEY = "AIzaSyB6sGeWZ-0xWzRNGK0eCCdZW1CtzYTfJ0g";
 
 const { Item } = Form;
-const { Panel } = Collapse;
 const { Option } = Select;
 const DefaultCountry = 233;
 const initRequest: StoreCreateRequest = {
@@ -72,7 +57,7 @@ const initRequest: StoreCreateRequest = {
   status: "active",
   begin_date: null,
   latitude: null,
-  longtitude: null,
+  longitude: null,
   group_id: null,
   is_saleable: true,
   is_stocktaking: false,
@@ -93,16 +78,19 @@ const StoreCreateScreen: React.FC = () => {
   const [storeRanks, setStoreRank] = useState<Array<StoreRankResponse>>([]);
   const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const [lstDepartment, setLstDepartment] = useState<Array<DepartmentResponse>>();
-  const storeStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.store_status,
-  );
   const [formMain] = Form.useForm();
+
+  const [defaultLocation] = useState(DefaultLocation);
+  const [location, setLocation] = useState(defaultLocation);
 
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
   const [isShowModalConfirm, setIsShowModalConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [statusStore, setStatusStore] = useState("active");
+  const [isSaleable, setIsSaleable] = useState("active");
+  const [isStocktaking, setIsStocktaking] = useState("inactive");
 
   //EndState
 
@@ -142,9 +130,24 @@ const StoreCreateScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: StoreCreateRequest) => {
       setIsLoading(true);
-      dispatch(StoreCreateAction(values, onCreateSuccess));
+      let newData: any = { ...values };
+      const coordinates = newData.coordinates?.replaceAll(" ", "").split(",");
+
+      newData = {
+        ...newData,
+        status: statusStore,
+        is_saleable: isSaleable === "active",
+        is_stocktaking: isStocktaking === "active",
+        latitude: coordinates && coordinates.length > 0 ? coordinates[0] : "",
+        longitude: coordinates && coordinates.length > 0 ? coordinates[1] : "",
+      };
+
+      delete newData.coordinates;
+      delete newData.iframe;
+
+      dispatch(StoreCreateAction(newData, onCreateSuccess));
     },
-    [dispatch, onCreateSuccess],
+    [dispatch, isSaleable, isStocktaking, onCreateSuccess, statusStore],
   );
 
   const onResult = useCallback((data: PageResponse<AccountResponse> | false) => {
@@ -182,17 +185,50 @@ const StoreCreateScreen: React.FC = () => {
         AccountSearchAction(
           { department_ids: [AppConfig.WM_DEPARTMENT], status: "active" },
           onResult,
-        ),
+        )
       );
       dispatch(
-        departmentDetailAction(
-          AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : "",
-          onResDepartment,
-        ),
+        departmentDetailAction(AppConfig.BUSINESS_DEPARTMENT ? AppConfig.BUSINESS_DEPARTMENT : "", onResDepartment),
       );
     }
     firstload.current = true;
   }, [dispatch, onResult, onResDepartment]);
+
+  const onMarkerDrag = (coordinates: any) => {
+    const { latLng } = coordinates;
+
+    const iframe = `<iframe width="600" height="450" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" src={\`https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${latLng.lat()},${latLng.lng()}\`} />`;
+
+    setLocation({
+      lat: latLng.lat(),
+      lng: latLng.lng(),
+    });
+
+    formMain.setFieldsValue({
+      coordinates: `${latLng.lat()}, ${latLng.lng()}`,
+      link_google_map: `https://www.google.com/maps/search/?api=1&query=${latLng.lat()},${latLng.lng()}`,
+      iframe: iframe,
+    });
+  };
+
+  const selectPlace = (e: any) => {
+    const newLocation = JSON.parse(e?.value);
+
+    const iframe = `<iframe width="600" height="450" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" src={\`https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${newLocation.lat},${newLocation.lng}\`} />`;
+
+    setLocation({ ...newLocation });
+
+    formMain.setFieldsValue({
+      coordinates: `${newLocation.lat}, ${newLocation.lng}`,
+      link_google_map: `https://www.google.com/maps/search/?api=1&query=${newLocation.lat},${newLocation.lng}`,
+      iframe,
+    });
+  };
+
+  const copyCode = () => {
+    copy(formMain.getFieldValue("iframe"));
+    showSuccess("Đã sao chép!");
+  };
 
   return (
     <ContentContainer
@@ -212,7 +248,7 @@ const StoreCreateScreen: React.FC = () => {
       ]}
     >
       <Form form={formMain} layout="vertical" onFinish={onFinish} initialValues={initRequest}>
-        <Row gutter={20}>
+        <Row gutter={20} className="store-create-screen">
           <Col span={18}>
             <Card title="Thông tin cửa hàng">
               <Row gutter={50}>
@@ -412,82 +448,76 @@ const StoreCreateScreen: React.FC = () => {
                 </Col>
               </Row>
             </Card>
+
+            <Card title="Bản đồ định vị cửa hàng">
+              <Map
+                onSelect={selectPlace}
+                center={location}
+                styles={{ width: "100%", height: 478 }}
+                onMarkerDrag={onMarkerDrag}
+              />
+              <Row gutter={50} className="margin-top-20">
+                <Col span={12}>
+                  <Item label="Tọa độ (kinh độ, vĩ độ)" name="coordinates">
+                    <Input placeholder="Nhập tọa độ" maxLength={255} />
+                  </Item>
+                </Col>
+                <Col span={12}>
+                  <Item label="Link Google Map" name="link_google_map">
+                    <Input placeholder="Nhập Link Google Map" maxLength={255} />
+                  </Item>
+                </Col>
+                <Col span={24}>
+                  <div>
+                    <div>Mã nhúng bản đồ</div>
+                    <div className="copy-text right" onClick={() => copyCode()}>SAO CHÉP MÃ</div>
+                  </div>
+                  <Item name="iframe">
+                    <Input placeholder="<iframe..." />
+                  </Item>
+                </Col>
+              </Row>
+            </Card>
           </Col>
           <Col span={6}>
             <Card title="Thông tin tình trạng">
               <Row>
                 <Col span={24}>
-                  <Item
-                    name="status"
-                    rules={[{ required: true, message: "Vui lòng chọn trạng thái." }]}
-                    label="Trạng thái"
-                  >
-                    <Select
-                      onChange={(value) => {
-                        if (value === "inactive") {
-                          formMain.setFieldsValue({
-                            is_saleable: false,
-                          });
-                        }
-                      }}
-                    >
-                      {storeStatusList?.map((item) => (
-                        <Option key={item.value} value={item.value}>
-                          {item.name}
-                        </Option>
-                      ))}
-                    </Select>
-                  </Item>
+                  <div className="status-info">
+                    <div>Trạng thái: {statusStore === "active" ? <span className="success">Đang hoạt động</span> :
+                      <span className="danger">Ngừng hoạt động</span>}</div>
+                    <div className="right"><Switch checked={statusStore === "active"} onChange={(e) => {
+                      setStatusStore(e ? "active" : "inactive");
+                      if (!e) setIsSaleable("inactive");
+                    }} /></div>
+                  </div>
                 </Col>
               </Row>
               <Row>
-                <Item
-                  noStyle
-                  shouldUpdate={(prev, current) =>
-                    prev.is_saleable !== current.is_saleable || prev.status !== current.status
-                  }
-                >
-                  {({ getFieldValue }) => {
-                    let status = getFieldValue("status");
-                    return (
-                      <Item valuePropName="checked" name="is_saleable">
-                        <Checkbox disabled={status === "inactive"}>Cho phép bán</Checkbox>
-                      </Item>
-                    );
-                  }}
-                </Item>
+                <Col span={24}>
+                  <div className="status-info">
+                    <div>Cho phép bán:</div>
+                    <div className="right"><Switch checked={isSaleable === "active"} onChange={(e) => {
+                      setIsSaleable(e ? "active" : "inactive");
+                    }} /></div>
+                  </div>
+                </Col>
               </Row>
               <Row>
-                <Item
-                  noStyle
-                  shouldUpdate={(prev, current) =>
-                    prev.is_saleable !== current.is_saleable || prev.status !== current.status
-                  }
-                >
-                  {({ getFieldValue }) => {
-                    let status = getFieldValue("status");
-                    return (
-                      <Item valuePropName="checked" name="is_stocktaking">
-                        <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
-                      </Item>
-                    );
-                  }}
-                </Item>
+                <Col span={24}>
+                  <div className="status-info">
+                    <div>Đang kiểm kho:</div>
+                    <div className="right"><Switch checked={isStocktaking === "active"} onChange={(e) => {
+                      setIsStocktaking(e ? "active" : "inactive");
+                    }} /></div>
+                  </div>
+                </Col>
               </Row>
             </Card>
-          </Col>
-        </Row>
 
-        <Collapse
-          style={{ marginBottom: 50 }}
-          defaultActiveKey="1"
-          className="ant-collapse-card margin-top-20"
-          expandIconPosition="right"
-        >
-          <Panel key="1" header="Thông tin khác">
-            <div className="padding-20">
+            <Card title="Thông tin khác">
               <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
+                <Col span={24}>
                   <Item
                     tooltip={{
                       overlayStyle: {
@@ -518,11 +548,13 @@ const StoreCreateScreen: React.FC = () => {
                     </Select>
                   </Item>
                 </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
+                <Col span={24}>
                   <Item
                     label="Diện tích cửa hàng (m²)"
                     name="square"
-                    rules={[{ required: true, message: "Vui lòng nhập diện tích" }]}
+                    rules={[
+                      { required: true, message: "Vui lòng nhập diện tích" },
+                    ]}
                   >
                     <NumberInput
                       style={{ textAlign: "left" }}
@@ -532,7 +564,7 @@ const StoreCreateScreen: React.FC = () => {
                 </Col>
               </Row>
               <Row gutter={50}>
-                <Col span={24} lg={8} md={12} sm={24}>
+                <Col span={24}>
                   <Item
                     label="Ngày mở cửa"
                     tooltip={{
@@ -541,10 +573,21 @@ const StoreCreateScreen: React.FC = () => {
                     }}
                     name="begin_date"
                   >
-                    <CustomDatepicker style={{ width: "100%" }} placeholder="Chọn ngày mở cửa" />
+                    <CustomDatepicker
+                      style={{ width: "100%" }}
+                      placeholder="Chọn ngày mở cửa"
+                    />
                   </Item>
                 </Col>
-                <Col span={24} lg={8} md={12} sm={24}>
+                <Col span={24}>
+                  <Item
+                    label="Cửa hàng trưởng"
+                    name="store_manager_code"
+                  >
+                    <AccountSearchPaging placeholder="Chọn cửa hàng trưởng" />
+                  </Item>
+                </Col>
+                <Col span={24}>
                   <Item
                     label="VM phụ trách"
                     name="vm_code"
@@ -557,9 +600,10 @@ const StoreCreateScreen: React.FC = () => {
                   </Item>
                 </Col>
               </Row>
-            </div>
-          </Panel>
-        </Collapse>
+            </Card>
+          </Col>
+        </Row>
+
         <BottomBarContainer
           back={"Quay lại trang danh sách"}
           backAction={backAction}

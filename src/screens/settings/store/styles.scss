@@ -1,0 +1,44 @@
+.store-create-screen, .store-detail-screen, .store-detail-screen {
+  .status-info {
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .right {
+      margin-left: auto;
+    }
+  }
+
+  .success {
+    color: #52c41a;
+  }
+
+  .danger {
+    color: #ff4d4f;
+  }
+
+  .copy-text {
+    color: #2A2A86;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  .iframe {
+    color: #75757B;
+    background: #E5E5E5;
+    padding: 10px;
+    border: 1px solid #E5E5E5;
+    border-radius: 2px;
+    margin-bottom: 15px;
+  }
+
+  .title {
+    color: #666666;
+  }
+
+  .value {
+    color: #222222;
+    font-weight: 500;
+  }
+}

@@ -1,17 +1,4 @@
-import {
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Collapse,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  TreeSelect,
-  InputNumber,
-} from "antd";
+import { Button, Card, Col, Form, Input, InputNumber, Row, Select, Space, Switch, TreeSelect } from "antd";
 import StoreTooltip from "assets/icon/store-tooltip.png";
 import {
   CountryGetAllAction,
@@ -20,22 +7,21 @@ import {
 } from "domain/actions/content/content.action";
 import {
   StoreDetailAction,
-  StoreRankAction,
   StoreGetTypeAction,
+  StoreRankAction,
   StoreUpdateAction,
   StoreValidateAction,
 } from "domain/actions/core/store.action";
-import { StoreResponse, StoreUpdateRequest, StoreTypeRequest } from "model/core/store.model";
+import { StoreResponse, StoreTypeRequest, StoreUpdateRequest } from "model/core/store.model";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { useHistory } from "react-router";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { WardResponse } from "model/content/ward.model";
 import CustomDatepicker from "component/custom/date-picker.custom";
 import { useParams } from "react-router-dom";
-import { RootReducerType } from "model/reducers/RootReducerType";
 import ContentContainer from "component/container/content.container";
 import UrlConfig from "config/url.config";
 import { RegUtil } from "utils/RegUtils";
@@ -51,10 +37,15 @@ import { DepartmentResponse } from "model/account/department.model";
 import { departmentDetailAction } from "domain/actions/account/department.action";
 import { showSuccess } from "utils/ToastUtils";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
+import { Map } from "component/ggmap";
+import copy from "copy-to-clipboard";
+import "./styles.scss";
 
 const { Item } = Form;
 const { Option } = Select;
-const { Panel } = Collapse;
+
+const DefaultLocation = { lat: 21.0228161, lng: 105.8019439 };
+const API_KEY = "AIzaSyB6sGeWZ-0xWzRNGK0eCCdZW1CtzYTfJ0g";
 
 type StoreParam = {
   id: string;
@@ -81,14 +72,16 @@ const StoreUpdateScreen: React.FC = () => {
   const [loadingData, setLoadingData] = useState<boolean>(true);
   const [type, setType] = useState<Array<StoreTypeRequest>>([]);
   const [lstDepartment, setLstDepartment] = useState<Array<DepartmentResponse>>();
-  const storeStatusList = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.store_status,
-  );
   const firstload = useRef(true);
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
   const [dataOrigin, setDataOrigin] = useState<StoreUpdateRequest | null>(null);
+  const [defaultLocation] = useState(DefaultLocation);
+  const [location, setLocation] = useState(defaultLocation);
+  const [statusStore, setStatusStore] = useState("active");
+  const [isSaleable, setIsSaleable] = useState("active");
+  const [isStocktaking, setIsStocktaking] = useState("inactive");
 
   //EndState
   const onSelectDistrict = useCallback(
@@ -118,23 +111,46 @@ const StoreUpdateScreen: React.FC = () => {
   const onFinish = useCallback(
     (values: StoreUpdateRequest) => {
       setLoading(true);
-      dispatch(StoreUpdateAction(idNumber, values, onUpdateSuccess));
+      let newData: any = { ...values };
+      const coordinates = newData.coordinates?.replaceAll(" ", "").split(",");
+
+      newData = {
+        ...newData,
+        status: statusStore,
+        is_saleable: isSaleable === "active",
+        is_stocktaking: isStocktaking === "active",
+        latitude: coordinates.length > 0 ? coordinates[0] : "",
+        longitude: coordinates.length > 0 ? coordinates[1] : "",
+      };
+
+      delete newData.coordinates;
+      delete newData.iframe;
+
+      dispatch(StoreUpdateAction(idNumber, newData, onUpdateSuccess));
     },
-    [dispatch, idNumber, onUpdateSuccess],
+    [dispatch, idNumber, isSaleable, isStocktaking, onUpdateSuccess, statusStore],
   );
-  const setResult = useCallback(
-    (data: StoreResponse | false) => {
-      setLoadingData(false);
-      if (!data) {
-        setError(false);
-      } else {
-        setData(data);
-        formMain.setFieldsValue(data);
-        setDataOrigin(formMain.getFieldsValue());
+  const setResult = useCallback((data: StoreResponse | false) => {
+    setLoadingData(false);
+    if (!data) {
+      setError(false);
+    } else {
+      let newData: any = { ...data };
+
+      setIsSaleable(newData.is_saleable ? 'active' : 'inactive')
+      setIsStocktaking(newData.is_stocktaking ? "active" : "inactive");
+      setStatusStore(newData.status);
+
+      if (data.latitude && data.longitude && data.latitude !== '' && data.longitude !== '') {
+        newData.coordinates = `${data.latitude}, ${data.longitude}`;
+        newData.iframe = `<iframe width="600" height="450" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" src={\`https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${data.latitude},${data.longitude}\`} />`;
       }
-    },
-    [formMain],
-  );
+
+      setData(newData);
+      formMain.setFieldsValue(newData);
+      setDataOrigin(formMain.getFieldsValue());
+    }
+  }, [formMain]);
 
   const backAction = () => {
     if (JSON.stringify(formMain.getFieldsValue()) !== JSON.stringify(dataOrigin)) {
@@ -191,11 +207,49 @@ const StoreUpdateScreen: React.FC = () => {
     }
     firstload.current = true;
   }, [dispatch, idNumber, setResult, onResult, onResDepartment]);
+
   useEffect(() => {
     if (data !== null) {
       dispatch(WardGetByDistrictAction(data.district_id, setWards));
     }
   }, [data, dispatch]);
+
+  const onMarkerDrag = (coordinates: any) => {
+    const { latLng } = coordinates;
+
+    const iframe = `<iframe width="600" height="450" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" src={\`https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${latLng.lat()},${latLng.lng()}\`} />`;
+
+    setLocation({
+      lat: latLng.lat(),
+      lng: latLng.lng(),
+    });
+
+    formMain.setFieldsValue({
+      coordinates: `${latLng.lat()}, ${latLng.lng()}`,
+      link_google_map: `https://www.google.com/maps/search/?api=1&query=${latLng.lat()},${latLng.lng()}`,
+      iframe: iframe,
+    });
+  };
+
+  const selectPlace = (e: any) => {
+    const newLocation = JSON.parse(e?.value);
+
+    const iframe = `<iframe width="600" height="450" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" src={\`https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${newLocation.lat},${newLocation.lng}\`} />`;
+
+    setLocation({ ...newLocation });
+
+    formMain.setFieldsValue({
+      coordinates: `${newLocation.lat}, ${newLocation.lng}`,
+      link_google_map: `https://www.google.com/maps/search/?api=1&query=${newLocation.lat},${newLocation.lng}`,
+      iframe,
+    });
+  };
+
+  const copyCode = () => {
+    copy(formMain.getFieldValue("iframe"));
+    showSuccess("Đã sao chép!");
+  };
+
   return (
     <ContentContainer
       title={`Sửa cửa hàng ${data?.name}`}
@@ -217,25 +271,21 @@ const StoreUpdateScreen: React.FC = () => {
     >
       {data !== null && (
         <Form form={formMain} layout="vertical" initialValues={data} onFinish={onFinish}>
-          <Row gutter={20}>
+          <Row gutter={20} className="store-detail-screen">
             <Col span={18}>
-              <Card title="Thông tin cửa hàng">
+              <Card
+                title="Thông tin cửa hàng"
+              >
                 <Row gutter={50}>
                   <Item hidden noStyle name="version">
                     <Input />
                   </Item>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item
-                      normalize={(value) => value.trimStart()}
+                      normalize={value => value.trimStart()}
                       rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập tên cửa hàng",
-                        },
-                        {
-                          max: 255,
-                          message: "Tên cửa hàng không quá 255 kí tự",
-                        },
+                        { required: true, message: "Vui lòng nhập tên cửa hàng" },
+                        { max: 255, message: "Tên cửa hàng không quá 255 kí tự" },
                         {
                           pattern: RegUtil.STRINGUTF8,
                           message: "Tên danh mục không gồm kí tự đặc biệt",
@@ -247,17 +297,20 @@ const StoreUpdateScreen: React.FC = () => {
                       <Input
                         onChange={(e) => {
                           dispatch(
-                            StoreValidateAction({ id: idNumber, name: e.target.value }, (data) => {
-                              if (data instanceof Array) {
-                                formMain.setFields([
-                                  {
-                                    validating: false,
-                                    name: "name",
-                                    errors: data,
-                                  },
-                                ]);
-                              }
-                            }),
+                            StoreValidateAction(
+                              { id: idNumber, name: e.target.value },
+                              (data) => {
+                                if (data instanceof Array) {
+                                  formMain.setFields([
+                                    {
+                                      validating: false,
+                                      name: "name",
+                                      errors: data,
+                                    },
+                                  ]);
+                                }
+                              },
+                            ),
                           );
                         }}
                         maxLength={255}
@@ -375,12 +428,7 @@ const StoreUpdateScreen: React.FC = () => {
                 <Row gutter={50}>
                   <Col span={24} lg={8} md={12} sm={24}>
                     <Item
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn loại cửa hàng",
-                        },
-                      ]}
+                      rules={[{ required: true, message: "Vui lòng chọn loại cửa hàng" }]}
                       label="Phân loại"
                       name="type"
                     >
@@ -402,12 +450,7 @@ const StoreUpdateScreen: React.FC = () => {
                     <Item
                       label="Phòng ban tương ứng"
                       name="department_id"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn phòng ban tương ứng",
-                        },
-                      ]}
+                      rules={[{ required: true, message: "Vui lòng chọn phòng ban tương ứng" }]}
                     >
                       <TreeSelect
                         placeholder="Chọn phòng ban tương ứng"
@@ -424,12 +467,40 @@ const StoreUpdateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} lg={8} md={12} sm={24}>
-                    <Item name="reference_id" label="Mã tham chiếu">
-                      <InputNumber
-                        style={{ width: "100%" }}
-                        maxLength={10}
-                        placeholder="Nhập mã tham chiếu"
-                      />
+                    <Item
+                      name="reference_id"
+                      label="Mã tham chiếu"
+                    >
+                      <InputNumber style={{ width: "100%" }} maxLength={10} placeholder="Nhập mã tham chiếu" />
+                    </Item>
+                  </Col>
+                </Row>
+              </Card>
+              <Card title="Bản đồ định vị cửa hàng">
+                <Map
+                  onSelect={selectPlace}
+                  center={location}
+                  styles={{ width: "100%", height: 478 }}
+                  onMarkerDrag={onMarkerDrag}
+                />
+                <Row gutter={50} className="margin-top-20">
+                  <Col span={12}>
+                    <Item label="Tọa độ (kinh độ, vĩ độ)" name="coordinates">
+                      <Input placeholder="Nhập tọa độ" maxLength={255} />
+                    </Item>
+                  </Col>
+                  <Col span={12}>
+                    <Item label="Link Google Map" name="link_google_map">
+                      <Input placeholder="Nhập Link Google Map" maxLength={255} />
+                    </Item>
+                  </Col>
+                  <Col span={24}>
+                    <div className="status-info">
+                      <div>Mã nhúng bản đồ</div>
+                      <div className="copy-text right" onClick={() => copyCode()}>SAO CHÉP MÃ</div>
+                    </div>
+                    <Item name="iframe">
+                      <Input placeholder="<iframe..." />
                     </Item>
                   </Col>
                 </Row>
@@ -439,72 +510,41 @@ const StoreUpdateScreen: React.FC = () => {
               <Card title="Thông tin tình trạng">
                 <Row>
                   <Col span={24}>
-                    <Item name="status" label="Trạng thái">
-                      <Select
-                        onChange={(value) => {
-                          if (value === "inactive") {
-                            formMain.setFieldsValue({
-                              is_saleable: false,
-                            });
-                          }
-                        }}
-                      >
-                        {storeStatusList?.map((item) => (
-                          <Option key={item.value} value={item.value}>
-                            {item.name}
-                          </Option>
-                        ))}
-                      </Select>
-                    </Item>
+                    <div className="status-info">
+                      <div>Trạng thái: {statusStore === "active" ? <span className="success">Đang hoạt động</span> :
+                        <span className="danger">Ngừng hoạt động</span>}</div>
+                      <div className="right"><Switch checked={statusStore === "active"} onChange={(e) => {
+                        setStatusStore(e ? "active" : "inactive");
+                        if (!e) setIsSaleable("inactive");
+                      }} /></div>
+                    </div>
                   </Col>
                 </Row>
                 <Row>
-                  <Item
-                    noStyle
-                    shouldUpdate={(prev, current) =>
-                      prev.is_saleable !== current.is_saleable || prev.status !== current.status
-                    }
-                  >
-                    {({ getFieldValue }) => {
-                      let status = getFieldValue("status");
-                      return (
-                        <Item valuePropName="checked" name="is_saleable">
-                          <Checkbox disabled={status === "inactive"}>Cho phép bán</Checkbox>
-                        </Item>
-                      );
-                    }}
-                  </Item>
+                  <Col span={24}>
+                    <div className="status-info">
+                      <div>Cho phép bán:</div>
+                      <div className="right"><Switch checked={isSaleable === "active"} onChange={(e) => {
+                        setIsSaleable(e ? "active" : "inactive");
+                      }} /></div>
+                    </div>
+                  </Col>
                 </Row>
                 <Row>
-                  <Item
-                    noStyle
-                    shouldUpdate={(prev, current) =>
-                      prev.is_saleable !== current.is_saleable || prev.status !== current.status
-                    }
-                  >
-                    {({ getFieldValue }) => {
-                      let status = getFieldValue("status");
-                      return (
-                        <Item valuePropName="checked" name="is_stocktaking">
-                          <Checkbox disabled={status === "inactive"}>Đang kiểm kho</Checkbox>
-                        </Item>
-                      );
-                    }}
-                  </Item>
+                  <Col span={24}>
+                    <div className="status-info">
+                      <div>Đang kiểm kho:</div>
+                      <div className="right"><Switch checked={isStocktaking === "active"} onChange={(e) => {
+                        setIsStocktaking(e ? "active" : "inactive");
+                      }} /></div>
+                    </div>
+                  </Col>
                 </Row>
               </Card>
-            </Col>
-          </Row>
-          <Collapse
-            style={{ marginBottom: 50 }}
-            defaultActiveKey="1"
-            className="ant-collapse-card margin-top-20"
-            expandIconPosition="right"
-          >
-            <Panel key="1" header="Thông tin khác">
-              <div className="padding-20">
+
+              <Card title="Thông tin khác">
                 <Row gutter={50}>
-                  <Col span={24} lg={8} md={12} sm={24}>
+                  <Col span={24}>
                     <Item
                       tooltip={{
                         overlayStyle: {
@@ -523,7 +563,7 @@ const StoreUpdateScreen: React.FC = () => {
                         ),
                         icon: <InfoCircleOutlined />,
                       }}
-                      label="Hạng cửa hàng"
+                      label="Phân cấp"
                       name="rank"
                     >
                       <Select>
@@ -535,15 +575,12 @@ const StoreUpdateScreen: React.FC = () => {
                       </Select>
                     </Item>
                   </Col>
-                  <Col span={24} lg={8} md={12} sm={24}>
+                  <Col span={24}>
                     <Item
                       label="Diện tích cửa hàng (m²)"
                       name="square"
                       rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng nhập diện tích cửa hàng",
-                        },
+                        { required: true, message: "Vui lòng nhập diện tích cửa hàng" },
                       ]}
                     >
                       <Input placeholder="Nhập diện tích cửa hàng" />
@@ -551,7 +588,7 @@ const StoreUpdateScreen: React.FC = () => {
                   </Col>
                 </Row>
                 <Row gutter={50}>
-                  <Col span={24} lg={8} md={12} sm={24}>
+                  <Col span={24}>
                     <Item
                       label="Ngày mở cửa"
                       tooltip={{
@@ -559,10 +596,13 @@ const StoreUpdateScreen: React.FC = () => {
                       }}
                       name="begin_date"
                     >
-                      <CustomDatepicker style={{ width: "100%" }} placeholder="Chọn ngày mở cửa" />
+                      <CustomDatepicker
+                        style={{ width: "100%" }}
+                        placeholder="Chọn ngày mở cửa"
+                      />
                     </Item>
                   </Col>
-                  <Col span={24} lg={8} md={12} sm={24}>
+                  <Col span={24}>
                     <Item
                       label="VM phụ trách"
                       name="vm_code"
@@ -575,9 +615,9 @@ const StoreUpdateScreen: React.FC = () => {
                     </Item>
                   </Col>
                 </Row>
-              </div>
-            </Panel>
-          </Collapse>
+              </Card>
+            </Col>
+          </Row>
           <BottomBarContainer
             back={"Quay lại"}
             backAction={backAction}
