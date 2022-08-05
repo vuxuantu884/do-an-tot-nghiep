@@ -437,6 +437,13 @@ const DetailHandoverScreen: React.FC = () => {
                             },
                           },
                           {
+                            dataIndex: "sub_status",
+                            key: "sub_status",
+                            title: "Trạng thái",
+                            width: "130px",
+                            align: "center",
+                          },
+                          {
                             dataIndex: "items",
                             title: "SL",
                             width: "100px",
