@@ -1,6 +1,6 @@
-import styled  from 'styled-components';
+import styled from "styled-components";
 
-export const FulfilmentComponent = styled.div`
+export const StyledComponent = styled.div`
   .page-filter {
     padding: 0;
     &-left {
@@ -19,4 +19,4 @@ export const FulfilmentComponent = styled.div`
   .view-table {
     margin-top: 20px;
   }
-`
+`;

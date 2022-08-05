@@ -13,12 +13,11 @@ import { StoreResponse } from "model/core/store.model";
 import {
   POProcumentField,
   ProcurementCancel,
-  // ProcurementConfirm,
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
-import { useCallback, useEffect, useMemo, useState, lazy, useRef } from "react";
+import { lazy, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
 import { Link } from "react-router-dom";
@@ -59,17 +58,12 @@ import ProcurementExport from "../components/ProcurementExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import * as XLSX from "xlsx";
 import { ProcurementExportLineItemField } from "model/procurement/field";
-import {
-  CloseCircleOutlined,
-  DeleteOutlined,
-  PhoneOutlined,
-  PrinterOutlined,
-} from "@ant-design/icons";
+import { CloseCircleOutlined, DeleteOutlined, PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
 import EditNote from "screens/order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
-import statusDraft from "assets/icon/status-draft-new.svg";
+import statusDraft from "assets/icon/pr-draft.svg";
 import statusFinalized from "assets/icon/status-finalized-new.svg";
 import statusStored from "assets/icon/status-finished-new.svg";
 import statusCancelled from "assets/icon/status-cancelled-new.svg";
@@ -357,9 +351,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Mã phiếu nhập kho",
         dataIndex: "code",
         fixed: "left",
-        width: "17%",
+        width: "12%",
         visible: true,
-        render: (value, record, index) => {
+        render: (value, record) => {
           // Cải tiến UI chuyển từ modal sang chế độ view full screen
           let improveProcurementTemporary = true;
           return improveProcurementTemporary ? (
@@ -405,8 +399,8 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         title: "Nhà cung cấp",
         dataIndex: "purchase_order",
         visible: true,
-        width: "17%",
-        render: (value, record) => {
+        width: "14%",
+        render: (value) => {
           return (
             <div style={{ fontSize: 12 }}>
               <Link
@@ -414,38 +408,61 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                 className="link-underline"
                 target="_blank"
               >
-                {value?.supplier}
               </Link>
-              <div>
-                <PhoneOutlined /> {value?.phone}
-              </div>
+              {value?.supplier_code} <PhoneOutlined /> {value?.phone}
+              <div className="font-weight-500">{value?.supplier}</div>
               <div>
                 Merchandiser:{" "}
-                <Link
-                  to={`${UrlConfig.ACCOUNTS}/${value.merchandiser_code}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {`${value?.merchandiser_code} - ${value?.merchandiser}`}
-                </Link>
+                {value && value.merchandiser_code && value.merchandiser && (
+                  <Link
+                    to={`${UrlConfig.ACCOUNTS}/${value.merchandiser_code}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {`${value?.merchandiser_code} - ${value?.merchandiser}`}
+                  </Link>
+                )}
+              </div>
+              <div>
+                QC:{" "}
+                {value && value.qc && value.qc_code && (
+                  <Link
+                    to={`${UrlConfig.ACCOUNTS}/${value.qc_code}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {`${value?.qc_code} - ${value?.qc}`}
+                  </Link>
+                )}
               </div>
             </div>
           );
         },
       },
       {
-        title: "Kho nhập hàng",
+        title: "Kho nhận hàng",
         dataIndex: "store",
-        align: "center",
-        width: "10%",
-        render: (value, record, index) => {
+        width: "20%",
+        render: (value, record) => {
           return (
             <>
               {value}
-              <div>
-                Ngày nhập:
-                <div>{ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.HHmm_DDMMYYYY)}</div>
-              </div>
+              {
+                record.stock_in_date &&
+                <div>
+                  <span className="fs-12 text-muted">Ngày nhận: </span>
+                  <span
+                    className="fs-12 text-title">{ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
+                </div>
+              }
+              {
+                record.activated_date &&
+                <div>
+                  <span className="fs-12 text-muted">Ngày duyệt: </span>
+                  <span
+                    className="fs-12 text-title">{ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
+                </div>
+              }
             </>
           );
         },
@@ -453,22 +470,40 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         // width: 200,
       },
       {
-        title: "Người nhập",
+        title: "Người thao tác",
         dataIndex: "stock_in_by",
-        align: "center",
         visible: true,
-        width: "10%",
+        width: "15%",
         render: (value, row) => {
           if (value) {
-            const name = value.split("-");
+            const stockInByName = value.split("-");
+            const activedByName = row?.activated_by?.split("-");
             return (
               <>
                 <div>
-                  <Link to={`${UrlConfig.ACCOUNTS}/${name[0]}`} className="primary" target="_blank">
-                    {name[0]}
-                  </Link>
+                  <div className="fs-12 text-muted">Người duyệt:</div>
+                  {activedByName && (
+                    <Link
+                      to={`${UrlConfig.ACCOUNTS}/${activedByName[0]}`}
+                      className="primary"
+                      target="_blank"
+                    >
+                      {Array.isArray(activedByName) ? activedByName[0] : activedByName}
+                    </Link>
+                  )}
+                  <b> {Array.isArray(activedByName) && activedByName.length > 1 ? activedByName[1] : ""}</b>
                 </div>
-                <b> {name[1]}</b>
+                <div>
+                  <div className="fs-12 text-muted">Người nhận:</div>
+                  <Link
+                    to={`${UrlConfig.ACCOUNTS}/${stockInByName[0]}`}
+                    className="primary"
+                    target="_blank"
+                  >
+                    {stockInByName[0]}
+                  </Link>
+                  <b> {stockInByName[1]}</b>
+                </div>
               </>
             );
           } else {
@@ -528,9 +563,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       {
         title: (
           <div>
-            <div>Sản phẩm</div>
+            <div>SL được duyệt</div>
             <div>
-              (<span style={{ color: "#2A2A86" }}>{getTotalProcurementItems()}</span>)
+              (<span style={{ color: "#22222" }}>{getTotalProcurementItems()}</span>)
             </div>
           </div>
         ),
@@ -538,9 +573,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         width: "8%",
         dataIndex: "procurement_items",
         visible: true,
-        render: (value, record, index) => {
+        render: (value) => {
           let totalItems = value?.length ?? 0;
-          return <b>{formatCurrency(totalItems, ".")}</b>;
+          return <div className="font-weight-500 text-title">{formatCurrency(totalItems)}</div>;
         },
       },
       {
@@ -557,12 +592,12 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         dataIndex: "procurement_items",
         visible: true,
         width: "10%",
-        render: (value, record, index) => {
+        render: (value) => {
           let totalRealQuantity = 0;
           value.forEach((item: PurchaseProcumentLineItem) => {
             totalRealQuantity += item.real_quantity;
           });
-          return formatCurrency(totalRealQuantity, ".");
+          return <div className="font-weight-500 text-title">{formatCurrency(totalRealQuantity)}</div>;
         },
       },
       {
@@ -674,18 +709,18 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   }, []);
 
   const loadDetail = useCallback(
-    (id: number, isLoading, isSuggestDetail: boolean) => {
+    () => {
       dispatch(PoDetailAction(poId, onDetail));
     },
     [dispatch, poId, onDetail],
   );
 
   const onAddProcumentSuccess = useCallback(
-    (isSuggest) => {
-      loadDetail(poId, true, isSuggest);
+    () => {
+      loadDetail();
       setLoadingData((prevState) => !prevState);
     },
-    [poId, loadDetail],
+    [loadDetail],
   );
 
   const onPageChange = (page: number, size?: number) => {
@@ -699,7 +734,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       if (result !== null) {
         showSuccess("Huỷ phiếu nháp thành công");
         setVisibleDaft(false);
-        onAddProcumentSuccess && onAddProcumentSuccess(false);
+        onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
     [onAddProcumentSuccess],
@@ -721,7 +756,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       } else {
         showSuccess("Thêm phiếu nháp kho thành công");
         setVisibleDaft(false);
-        onAddProcumentSuccess && onAddProcumentSuccess(false);
+        onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
     [onAddProcumentSuccess],
@@ -744,7 +779,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
         showSuccess("Xác nhận nhập kho thành công");
         setLoadingRecive(false);
         setVisibleConfirm(false);
-        onAddProcumentSuccess && onAddProcumentSuccess(false);
+        onAddProcumentSuccess && onAddProcumentSuccess();
       }
     },
     [onAddProcumentSuccess],

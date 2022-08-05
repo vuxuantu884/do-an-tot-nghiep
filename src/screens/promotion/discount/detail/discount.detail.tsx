@@ -351,6 +351,13 @@ const PromotionDetailScreen: React.FC = () => {
   // end process export modal
   // end handle export file
 
+  const handleCalculatorTotalDiscount = () => {
+    let totalDiscount = 0;
+    dataDiscount!.entitlements.length > 0 &&
+      dataDiscount?.entitlements.map((item) => (totalDiscount += item.entitled_variant_ids.length));
+    return totalDiscount;
+  };
+
   return (
     <ContentContainer
       isError={error}
@@ -507,7 +514,7 @@ const PromotionDetailScreen: React.FC = () => {
                     }
                     isLoading={isLoadingVariantList}
                     pagination={{
-                      total: dataVariants.metadata?.total,
+                      total: handleCalculatorTotalDiscount(),
                       pageSize: dataVariants.metadata?.limit,
                       current: dataVariants.metadata?.page,
                       onChange: (page: number, limit?: number) => {

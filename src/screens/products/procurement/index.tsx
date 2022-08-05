@@ -17,7 +17,7 @@ import exportIcon from "assets/icon/export.svg";
 import { StyledComponent as ProcurementStyleWrapper } from "./styles";
 
 const { TabPane } = Tabs;
-const ProcurementScreen: React.FC<RouteComponentProps> = (props) => {
+const ProcurementScreen: React.FC<RouteComponentProps> = () => {
   const history = useHistory();
   const path = history.location.pathname;
 

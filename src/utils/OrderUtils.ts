@@ -18,6 +18,7 @@ import {
   ShipmentMethod,
   WEIGHT_UNIT,
 } from "./Constants";
+import { FulfillmentStatus } from "./FulfillmentStatus.constant";
 import {
   FulfillmentCancelStatus,
   OrderStatus,
@@ -176,6 +177,15 @@ export const canCreateShipment = (fulfillments?: FulFillmentResponse[] | null) =
   return createShipment;
 };
 
+export const getFulfillmentSingle = (
+  ffmCode: string,
+  fulfillments?: FulFillmentResponse[] | null | any,
+) => {
+  if (!fulfillments) return undefined; //không tìm thấy ffm
+
+  return fulfillments.find((p: any) => p.code === ffmCode);
+};
+
 export const getFulfillmentActive = (fulfillments?: FulFillmentResponse[] | null | any) => {
   if (!fulfillments) return undefined; //không tìm thấy ffm
 
@@ -313,12 +323,23 @@ export const getTimeFormatOrderFilter = (values: string, dateFormat: string = ""
  * @returns
  */
 export const isFulfillmentReturned = (fulfillment: FulFillmentResponse | any) => {
-  let isFulfillment =
+  return (
     fulfillment?.status === FulFillmentStatus.CANCELLED &&
     fulfillment?.return_status === FulFillmentStatus.RETURNED &&
-    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING;
+    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING
+  );
+};
 
-  return isFulfillment;
+/**
+ * kiểm tra là đơn hvc đang hoàn
+ * @param fulfillment
+ * @returns
+ */
+export const isFulfillmentReturning = (fulfillment: FulFillmentResponse | any) => {
+  return (
+    fulfillment.status === FulfillmentStatus.SHIPPING &&
+    fulfillment.return_status === FulfillmentStatus.RETURNING
+  );
 };
 
 export const checkIfMomoPayment = (payment: OrderPaymentRequest | OrderPaymentResponse) => {
@@ -410,12 +431,14 @@ export const checkIfExpiredOrCancelledPayment = (
   );
 };
 
-export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string|null) => {
-  if(!orderChannelCode) {
-    return false
+export const checkIfEcommerceByOrderChannelCode = (orderChannelCode?: string | null) => {
+  if (!orderChannelCode) {
+    return false;
   }
-  return ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(orderChannelCode.toLowerCase()
-)};
+  return ECOMMERCE_CHANNEL_CODES.map((code) => code.toLowerCase()).includes(
+    orderChannelCode.toLowerCase(),
+  );
+};
 export const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>) => {
   let total = 0;
   items.forEach((a) => {

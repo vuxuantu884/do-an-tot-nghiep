@@ -19,6 +19,7 @@ const DetailHandoverComponent: React.FC<DetailHandoverComponentProps> = (
             {title}
           </Col>
           <Col span={15} className="bold value">
+            {`: `}
             {view}
           </Col>
         </Row>
@@ -29,16 +30,16 @@ const DetailHandoverComponent: React.FC<DetailHandoverComponentProps> = (
     <DetailStyle>
       <Card title="THÔNG TIN BIÊN BẢN BÀN GIAO">
         <Row>
-          {rowDetail("Ngày:", moment(data.created_date).format("DD/MM/YYYY"))}
-          {rowDetail("Cửa hàng:", data.store)}
+          {rowDetail("Ngày", moment(data.created_date).format("DD/MM/YYYY"))}
+          {rowDetail("Cửa hàng", data.store)}
         </Row>
         <Row>
-          {rowDetail("Loại:", getDisplayHandoverType(data.type))}
+          {rowDetail("Loại", getDisplayHandoverType(data.type))}
           {rowDetail("Hãng vận chuyển:", data.delivery_service_provider)}
         </Row>
         <Row>
           {rowDetail("Số lượng đơn", data.total)}
-          {rowDetail("Biên bản sàn:", data.channel)}
+          {rowDetail("Biên bản sàn", data.channel)}
         </Row>
       </Card>
     </DetailStyle>

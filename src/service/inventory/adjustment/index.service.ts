@@ -29,11 +29,6 @@ const createInventorAdjustmentGetApi = (
   return BaseAxios.post(`${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment`, data);
 };
 
-const deleteLineItem = (adjustmentId: number, variantId: number): Promise<BaseResponse<string>> => {
-  let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/lines-item/${variantId}`;
-  return BaseAxios.delete(link);
-};
-
 const addLineItem = (adjustmentId: number, data: any): Promise<BaseResponse<string>> => {
   let link = `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${adjustmentId}/lines-item`;
   return BaseAxios.post(link, data);

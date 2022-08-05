@@ -1,3 +1,4 @@
+import { AppConfig } from "config/app.config";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
@@ -5,7 +6,8 @@ import React from "react";
 
 const OrderUpdate = React.lazy(() => import("screens/order-online/order-update"));
 const PackDetail = React.lazy(() => import("screens/order-online/pack/pack-detail"));
-const PackSupportScreen = React.lazy(() => import("screens/order-online/pack/pack.screen"));
+// const PackSupportScreen = React.lazy(() => import("screens/order-online/pack/pack.screen"));
+const PackageSupport = React.lazy(() => import("screens/package-support"));
 const DeliveryRecordsScreen = React.lazy(() => import("screens/order-online/records.screen"));
 const AddReportHandOver = React.lazy(() => import("screens/order-online/pack/pack-add"));
 const PackUpdate = React.lazy(() => import("screens/order-online/pack/pack-update"));
@@ -35,6 +37,8 @@ const DetailHandoverScreen = React.lazy(
 const UpdateHandoverScreen = React.lazy(
   () => import("screens/order-online/handover/update.screen"),
 );
+
+const isHiddenMenuEnvPro = AppConfig.ENV === "PROD" ? false : true;
 
 const bill: Array<RouteMenu> = [
   {
@@ -174,7 +178,7 @@ const bill: Array<RouteMenu> = [
     exact: true,
     title: "Hỗ trợ đóng gói",
     icon: "icon-dot",
-    component: PackSupportScreen,
+    component: PackageSupport,
     key: "submenu561",
     isShow: true,
     header: null,
@@ -184,11 +188,11 @@ const bill: Array<RouteMenu> = [
   {
     path: UrlConfig.DELIVERY_RECORDS,
     exact: true,
-    title: "Biên bản bàn giao",
+    title: "Biên bản bàn giao (v1)",
     icon: "icon-dot",
     component: DeliveryRecordsScreen,
     key: "submenu562",
-    isShow: false,
+    isShow: isHiddenMenuEnvPro,
     header: null,
     subMenu: [
       {
@@ -198,7 +202,7 @@ const bill: Array<RouteMenu> = [
         icon: "icon-dot",
         component: AddReportHandOver,
         key: "submenu57",
-        isShow: true,
+        isShow: isHiddenMenuEnvPro,
         header: null,
         subMenu: [],
         permissions: [ODERS_PERMISSIONS.CREATE_GOODS_RECEIPT],
@@ -210,7 +214,7 @@ const bill: Array<RouteMenu> = [
         icon: "icon-dot",
         component: PackDetail,
         key: "submenu58",
-        isShow: true,
+        isShow: isHiddenMenuEnvPro,
         header: null,
         subMenu: [],
       },
@@ -221,7 +225,7 @@ const bill: Array<RouteMenu> = [
         icon: "icon-dot",
         component: PackUpdate,
         key: "submenu59",
-        isShow: true,
+        isShow: isHiddenMenuEnvPro,
         header: null,
         subMenu: [],
       },
@@ -231,11 +235,11 @@ const bill: Array<RouteMenu> = [
   {
     path: UrlConfig.HANDOVER,
     exact: true,
-    title: "Biên bản bàn giao(v2 thử nghiệm)",
+    title: "Biên bản bàn giao",
     icon: "icon-dot",
     component: HandoverScreen,
     key: "submenu58",
-    isShow: false,
+    isShow: true,
     header: null,
     subMenu: [
       {

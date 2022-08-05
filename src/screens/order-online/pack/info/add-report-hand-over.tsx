@@ -23,7 +23,7 @@ import { FulFillmentStatus, PUSHING_STATUS, RECEIPT_TYPE, ShipmentMethod } from 
 import UrlConfig from "config/url.config";
 import { convertFromStringToDate, handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { getListOrderApi } from "service/order/order.service";
-import { isFulfillmentPacked } from "../pack-utils";
+import { isFulfillmentPacked } from "../../../../utils/PackUtils";
 import { formatDateTimeOrderFilter, getFulfillmentActive } from "utils/OrderUtils";
 import { OrderWithFulfillmentActiveModel } from "model/order/order.model";
 import { DATE_FORMAT } from "utils/DateUtils";
@@ -107,7 +107,7 @@ const AddReportHandOver: React.FC<Props> = (props: Props) => {
       let delivery_service_name = listThirdPartyLogistics.find(
         (data) => data.id === value.delivery_service_id,
       )?.name;
-      let receipt_type_name = listGoodsReceiptsType.find(
+      let receipt_type_name = listGoodsReceiptsType?.find(
         (data) => data.id === value.receipt_type_id,
       )?.name;
 

@@ -15,11 +15,10 @@ import { useHistory } from "react-router-dom";
 import { createHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
-import AddOrderBottombar from "../pack/add/add-order-bottombar";
 import { StyledComponent } from "../pack/styles";
+import AddOrderBottomBar from "./component/bottom-bar/add-order-bottom-bar";
 import FulfillmentComponent from "./component/fulfillment/fulfillment.component";
 import { HandoverTransfer, HandoverType } from "./handover.config";
-
 
 const CreateHandoverScreeen: React.FC<any> = (props: any) => {
   const history = useHistory();
@@ -31,23 +30,19 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
 
   const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
 
-  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>([]);
+  const [listThirdPartyLogistics, setListThirdPartyLogistics] = useState<DeliveryServiceResponse[]>(
+    [],
+  );
   const [listChannels, setListChannels] = useState<Array<ChannelsResponse>>([]);
-
-
 
   const dataCanAccess = useMemo(() => {
     let newData: Array<StoreResponse> = [];
     if (listStores && listStores != null) {
       if (userReducer.account?.account_stores && userReducer.account?.account_stores.length > 0) {
         newData = listStores.filter((store) =>
-          haveAccess(
-            store.id,
-            userReducer.account ? userReducer.account.account_stores : []
-          )
+          haveAccess(store.id, userReducer.account ? userReducer.account.account_stores : []),
         );
-      }
-      else {
+      } else {
         // trường hợp sửa đơn hàng mà account ko có quyền với cửa hàng đã chọn, thì vẫn hiển thị
         newData = listStores;
       }
@@ -59,15 +54,17 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
     dispatch(
       DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
         setListThirdPartyLogistics(response);
-      })
+      }),
     );
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getChannels(2, (data: ChannelsResponse[]) => {
-      setListChannels(data)
-    }))
-  }, [dispatch])
+    dispatch(
+      getChannels(2, (data: ChannelsResponse[]) => {
+        setListChannels(data);
+      }),
+    );
+  }, [dispatch]);
 
   useLayoutEffect(() => {
     dispatch(StoreGetListAction(setListStores));
@@ -77,24 +74,27 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
     goodsReceiptsForm.submit();
   }, [goodsReceiptsForm]);
 
-  const onFinish = useCallback((request: HandoverRequest) => {
-    setIsLoading(true);
-    createHandoverService(request)
-    .then((response: BaseResponse<HandoverResponse>)=> {
-      if(isFetchApiSuccessful(response)) {
-        let handover: HandoverResponse = response.data;
-        history.push(`${UrlConfig.HANDOVER}/${handover.id}`);
-      } else {
-        handleFetchApiError(response, "Tạo biên bản bàn giao", dispatch);
-      }
-    })
-    .catch((e) => {
-      showError("Có lỗi api tạo biên bản bàn giao")
-    })
-    .finally(() => {
-      setIsLoading(false);
-    }) 
-  }, [dispatch, history]);
+  const onFinish = useCallback(
+    (request: HandoverRequest) => {
+      setIsLoading(true);
+      createHandoverService(request)
+        .then((response: BaseResponse<HandoverResponse>) => {
+          if (isFetchApiSuccessful(response)) {
+            let handover: HandoverResponse = response.data;
+            history.push(`${UrlConfig.HANDOVER}/${handover.id}`);
+          } else {
+            handleFetchApiError(response, "Tạo biên bản bàn giao", dispatch);
+          }
+        })
+        .catch((e) => {
+          showError("Có lỗi api tạo biên bản bàn giao");
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
+    },
+    [dispatch, history],
+  );
 
   return (
     <ContentContainer
@@ -125,7 +125,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
           type: HandoverTransfer,
           delivery_service_provider_id: null,
           channel_id: -1,
-          note: '',
+          note: "",
           store_id: null,
           order_display: [],
         }}
@@ -135,9 +135,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
           <Card>
             <Form.Item
               noStyle
-              shouldUpdate={(prev, current) =>
-                prev["orders"] !== current["orders"]
-              }
+              shouldUpdate={(prev, current) => prev["orders"] !== current["orders"]}
             >
               {({ getFieldValue }) => {
                 const orders: Array<HandoverOrderRequest> = getFieldValue("orders");
@@ -193,8 +191,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                           style={{ width: "95%" }}
                           placeholder="Chọn hãng vận chuyển"
                           notFoundContent="Không tìm thấy kết quả"
-                          onChange={(value?: number) => {
-                          }}
+                          onChange={(value?: number) => {}}
                           filterOption={(input, option) => {
                             if (option) {
                               return (
@@ -205,7 +202,9 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                           }}
                           disabled={orders.length > 0 ? true : false}
                         >
-                          <Select.Option key={-1} value={-1}>Tự giao hàng</Select.Option>
+                          <Select.Option key={-1} value={-1}>
+                            Tự giao hàng
+                          </Select.Option>
                           {listThirdPartyLogistics.map((item, index) => (
                             <Select.Option key={index.toString()} value={item.id}>
                               {item.name}
@@ -228,8 +227,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                         <Select
                           style={{ width: "95%" }}
                           placeholder="Chọn loại biên bản"
-                          onChange={(value?: number) => {
-                          }}
+                          onChange={(value?: number) => {}}
                           disabled={orders.length > 0 ? true : false}
                         >
                           {HandoverType.map((item, index) => (
@@ -256,8 +254,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                           style={{ width: "98%" }}
                           placeholder="Chọn biên bản sàn"
                           notFoundContent="Không tìm thấy kết quả"
-                          onChange={(value?: number) => {
-                          }}
+                          onChange={(value?: number) => {}}
                           filterOption={(input, option) => {
                             if (option) {
                               return (
@@ -280,7 +277,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                       </Form.Item>
                     </Col>
                   </Row>
-                )
+                );
               }}
             </Form.Item>
             <Form.Item hidden name="orders">
@@ -291,7 +288,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
             </Form.Item>
           </Card>
           <FulfillmentComponent isLoading={isLoading} />
-          <AddOrderBottombar onOkPress={onOkPress} isLoading={isLoading} />
+          <AddOrderBottomBar onOkPress={onOkPress} isLoading={isLoading} />
         </StyledComponent>
       </Form>
     </ContentContainer>

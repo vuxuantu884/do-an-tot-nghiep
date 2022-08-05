@@ -2,6 +2,9 @@ export interface OrderSubDto {
   id: number;
   code: string;
   reference_code: string;
+  channel_id: number;
+  channel_code: string;
+  channel: string;
 }
 
 export interface ShippmentDto {
@@ -28,6 +31,8 @@ export interface ShippmentDto {
   shipper_phone: string | null;
   pushing_status: string | null;
   shipping_fee_informed_to_customer: number | null;
+  pushing_note?: string | null;
+  delivery_service_note?: string | null;
 }
 
 export interface FulfillmentLineItemDto {
@@ -82,4 +87,5 @@ export interface FulfillmentDto {
   total_line_amount_after_line_discount: number;
   total_quantity: number;
   total_tax: number | null;
+  sub_status?: string | null;
 }

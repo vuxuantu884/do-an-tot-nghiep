@@ -24,6 +24,7 @@ const SizeUpdateScreen = React.lazy(() => import("screens/products/size/size-upd
 
 const AddCategory = React.lazy(() => import("screens/products/category/category-add.screen"));
 const UpdateCategory = React.lazy(() => import("screens/products/category/category-update.screen"));
+const DetailCategory = React.lazy(() => import("screens/products/category/category-detail.screen"));
 
 const ColorCreateScreen = React.lazy(() => import("screens/products/color/color-create.screen"));
 
@@ -389,6 +390,18 @@ const product: Array<RouteMenu> = [
           },
           {
             path: `${UrlConfig.CATEGORIES}/:id`,
+            exact: true,
+            title: "Chi tiết danh mục",
+            icon: "icon-dot",
+            component: DetailCategory,
+            key: "submenu2313",
+            isShow: true,
+            header: null,
+            permissions: [ProductPermission.categories_read],
+            subMenu: [],
+          },
+          {
+            path: `${UrlConfig.CATEGORIES}/:id/update`,
             exact: true,
             title: "Sửa danh mục",
             icon: "icon-dot",

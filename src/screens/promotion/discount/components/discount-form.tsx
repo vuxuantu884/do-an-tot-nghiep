@@ -23,6 +23,7 @@ interface Props {
   unlimitedUsageProps: boolean;
   idNumber?: number;
   originalEntitlements?: any;
+  setGetIndexRemoveDiscount?: (index: any) => void;
 }
 
 function DiscountUpdateForm({
@@ -30,6 +31,7 @@ function DiscountUpdateForm({
   unlimitedUsageProps,
   idNumber,
   originalEntitlements,
+  setGetIndexRemoveDiscount,
 }: Props): ReactElement {
   const discountUpdateContext = useContext(DiscountContext);
 
@@ -175,6 +177,7 @@ function DiscountUpdateForm({
               form={form}
               idNumber={idNumber}
               originalEntitlements={originalEntitlements}
+              setGetIndexRemoveDiscount={setGetIndexRemoveDiscount}
             />
           )}
         </Row>

@@ -12,8 +12,8 @@ type OrderPackContextType = {
   setListStores: (value: Array<StoreResponse>) => void;
   listStoresDataCanAccess?: Array<StoreResponse>;
   setListStoresDataCanAccess?: (value: Array<StoreResponse>) => void;
-  listGoodsReceiptsType: Array<GoodsReceiptsTypeResponse>;
-  setListGoodsReceiptsType: (value: Array<GoodsReceiptsTypeResponse>) => void;
+  listGoodsReceiptsType?: Array<GoodsReceiptsTypeResponse>;
+  setListGoodsReceiptsType?: (value: Array<GoodsReceiptsTypeResponse>) => void;
   listChannels: Array<ChannelsResponse>;
   setListChannels: (value: Array<ChannelsResponse>) => void;
   singlePack: PackModel | null | undefined;

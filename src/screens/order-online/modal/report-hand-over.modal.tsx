@@ -143,7 +143,7 @@ const ReportHandOverModal: React.FC<ReportHandOverModalProps> = (
                     return false;
                   }}
                 >
-                  {listGoodsReceiptsType.map((item, index) => (
+                  {listGoodsReceiptsType?.map((item, index) => (
                     <Select.Option key={index.toString()} value={item.id}>
                       {item.name}
                     </Select.Option>

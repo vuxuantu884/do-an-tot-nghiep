@@ -135,6 +135,10 @@ import PrintEcommerceDeliveryNoteProcess from "screens/ecommerce/orders/process-
 import ReportPreparationShopeeProductModal from "./component/ReportPreparationShopeeProductModal";
 import PreparationShopeeProductModal from "./component/PreparationShopeeProductModal";
 import ConfirmPreparationShopeeProductModal from "./component/ConfirmPreparationShopeeProductModal";
+import shopeeIcon from "assets/icon/e-shopee.svg";
+import lazadaIcon from "assets/icon/e-lazada.svg";
+import tikiIcon from "assets/icon/e-tiki.svg";
+import tiktokIcon from "assets/icon/e-tiktok.svg";
 
 const BATCHING_SHIPPING_TYPE = {
   SELECTED: "SELECTED",
@@ -712,6 +716,21 @@ const EcommerceOrders: React.FC = () => {
     [listStore],
   );
 
+  const handleRenderChannelIcon = (record: OrderModel) => {
+    switch (record?.account?.toLowerCase()) {
+      case "sàn shopee":
+        return shopeeIcon;
+      case "sàn lazada":
+        return lazadaIcon;
+      case "sàn tiki":
+        return tikiIcon;
+      case "sàn tiktok":
+        return tiktokIcon;
+      default:
+        return "";
+    }
+  };
+
   const rowSelectionRenderCell = (
     checked: boolean,
     record: OrderModel,
@@ -757,6 +776,12 @@ const EcommerceOrders: React.FC = () => {
             <b>[Đ]</b>
           </div>
         ) : null}
+        <img
+          width={18}
+          height={18}
+          src={handleRenderChannelIcon(record)}
+          alt={record.account || ""}
+        />
       </React.Fragment>
     );
   };

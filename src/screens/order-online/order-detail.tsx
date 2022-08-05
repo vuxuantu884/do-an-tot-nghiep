@@ -30,6 +30,7 @@ import {
 } from "domain/actions/order/order.action";
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
+import { HandoverResponse } from "model/handover/handover.response";
 import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -57,6 +58,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
+import { searchHandoverService } from "service/handover/handover.service";
 import {
   deleteOrderService,
   getOrderDetail,
@@ -167,6 +169,8 @@ const OrderDetail = (props: PropTypes) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [orderCancelFulfillmentReasonResponse, setOrderCancelFulfillmentReasonResponse] =
     useState<OrderReasonModel | null>(null);
+
+  const [orderDetailHandover, setOrderDetailHandover] = useState<HandoverResponse[] | null>(null);
 
   const orderCancelFulfillmentReasonArr = [
     {
@@ -973,6 +977,23 @@ const OrderDetail = (props: PropTypes) => {
     resetCountReload();
   }, []);
 
+  useEffect(() => {
+    if (!OrderDetail?.code) {
+      return;
+    }
+    const order_codes = OrderDetail?.code;
+    const params = {
+      order_codes,
+    };
+    searchHandoverService(params).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        setOrderDetailHandover(response.data.items);
+      } else {
+        handleFetchApiError(response, "Chi tiết biên bản bàn giao", dispatch);
+      }
+    });
+  }, [OrderDetail?.code, dispatch]);
+
   return (
     <ContentContainer
       isLoading={loadingData}
@@ -1182,7 +1203,10 @@ const OrderDetail = (props: PropTypes) => {
 
             <Col md={6}>
               {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
-              <SidebarOrderDetailInformation OrderDetail={OrderDetail} />
+              <SidebarOrderDetailInformation
+                OrderDetail={OrderDetail}
+                orderDetailHandover={orderDetailHandover}
+              />
               <SubStatusOrder
                 setOrderDetail={handleStatusOrder}
                 subStatusCode={subStatusCode}

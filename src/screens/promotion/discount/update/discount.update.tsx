@@ -43,6 +43,7 @@ const DiscountUpdate = () => {
   const discountUpdateContext = useContext(DiscountContext);
   const { setDiscountMethod, setDiscountData, discountData } = discountUpdateContext;
 
+  const [getIndexRemoveDiscount, setGetIndexRemoveDiscount] = useState(null);
   const [originalEntitlements, setOriginalEntitlements] = useState<Array<any>>([]);
 
   const parseDataToForm = useCallback(
@@ -138,6 +139,9 @@ const DiscountUpdate = () => {
       setIsSubmitting(true);
       const body = transformData(values);
       body.id = idNumber;
+      if (getIndexRemoveDiscount) {
+        body.entitlements.splice(getIndexRemoveDiscount, 1);
+      }
       dispatch(updatePriceRuleByIdAction(body, updateCallback));
     } catch (error: any) {
       setIsSubmitting(false);
@@ -235,6 +239,7 @@ const DiscountUpdate = () => {
                 form={form}
                 idNumber={idNumber}
                 originalEntitlements={originalEntitlements}
+                setGetIndexRemoveDiscount={setGetIndexRemoveDiscount}
               />
             </Col>
             <Col span={6}>

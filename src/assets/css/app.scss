@@ -573,6 +573,10 @@ label {
   margin-bottom: 10px;
 }
 
+.mb-5 {
+    margin-bottom: 5px;
+}
+
 .mt-10 {
   margin-top: 10px;
 }
@@ -605,4 +609,8 @@ label {
   .ant-input-number-handler-wrap {
     display: none;
   }
+}
+
+.fs-12 {
+  font-size: 12px;
 }
