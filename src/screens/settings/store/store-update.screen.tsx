@@ -119,8 +119,8 @@ const StoreUpdateScreen: React.FC = () => {
         status: statusStore,
         is_saleable: isSaleable === "active",
         is_stocktaking: isStocktaking === "active",
-        latitude: coordinates.length > 0 ? coordinates[0] : "",
-        longitude: coordinates.length > 0 ? coordinates[1] : "",
+        latitude: coordinates && coordinates.length > 0 ? coordinates[0] : "",
+        longitude: coordinates && coordinates.length > 0 ? coordinates[1] : "",
       };
 
       delete newData.coordinates;
