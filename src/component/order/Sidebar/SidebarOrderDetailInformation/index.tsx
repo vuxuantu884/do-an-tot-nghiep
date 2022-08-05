@@ -1,6 +1,7 @@
 import { Card, Col, Row } from "antd";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER, SAPO_URL, SHOPIFY_URL } from "config/url.config";
+import { HandoverResponse } from "model/handover/handover.response";
 import { OrderResponse } from "model/response/order/order.response";
 import { GoodsReceiptsResponse } from "model/response/pack/pack.response";
 import React, { useEffect, useState } from "react";
@@ -13,10 +14,11 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {
   OrderDetail: OrderResponse | null;
+  orderDetailHandover?: HandoverResponse[] | null;
 };
 
 function SidebarOrderDetailInformation(props: PropTypes) {
-  const { OrderDetail } = props;
+  const { OrderDetail, orderDetailHandover } = props;
   const [createdByName, setCreatedByName] = useState("");
   const dispatch = useDispatch();
   const renderSplitOrder = () => {
@@ -157,6 +159,60 @@ function SidebarOrderDetailInformation(props: PropTypes) {
         ))}
       </React.Fragment>
     );
+  };
+
+  const renderOrderHandover = () => {
+    if (orderDetailHandover && orderDetailHandover[0]) {
+      const handovers = orderDetailHandover;
+      const transferHandovers = handovers.filter((handover) => handover.type === "TRANSFER");
+      const returnHandovers = handovers.filter((handover) => handover.type === "RETURN");
+      const renderHandoverLink = (list: HandoverResponse[]) => {
+        return list.map((single, index) => {
+          return (
+            <React.Fragment>
+              <Link target="_blank" to={`${UrlConfig.HANDOVER}/${single.id}`}>
+                {single.id}
+              </Link>
+              {index < list.length - 1 && ", "}
+            </React.Fragment>
+          );
+        });
+      };
+
+      const renderHandovers = (type: string) => {
+        let isTypeHandoverNotEmpty = false;
+        let handoverTitle = "";
+        let typeHandovers: HandoverResponse[] = [];
+        if (type === "TRANSFER") {
+          isTypeHandoverNotEmpty = transferHandovers.length > 0;
+          handoverTitle = "Biên bản chuyển đi";
+          typeHandovers = transferHandovers;
+        }
+        if (type === "RETURN") {
+          isTypeHandoverNotEmpty = returnHandovers.length > 0;
+          handoverTitle = "Biên bản HVC hoàn về";
+          typeHandovers = returnHandovers;
+        }
+        if (isTypeHandoverNotEmpty) {
+          return (
+            <Row gutter={5}>
+              <Col span={10}>{handoverTitle}:</Col>
+              <Col span={14}>
+                <span style={{ fontWeight: 500, color: "#222222" }} className="text-focus">
+                  {renderHandoverLink(typeHandovers)}
+                </span>
+              </Col>
+            </Row>
+          );
+        }
+      };
+      return (
+        <React.Fragment>
+          {renderHandovers("TRANSFER")}
+          {renderHandovers("RETURN")}
+        </React.Fragment>
+      );
+    }
   };
 
   return (
@@ -330,6 +386,7 @@ function SidebarOrderDetailInformation(props: PropTypes) {
           </Row>
         )}
         {renderSplitOrder()}
+        {renderOrderHandover()}
       </Card>
     </StyledComponent>
   );
