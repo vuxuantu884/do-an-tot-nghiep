@@ -84,8 +84,8 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
     </Menu>
   );
 
-  const linkToSupportPage = () => {
-    window.open(supportLink, "_blank");
+  const linkToGapo = () => {
+    window.open("https://www.gapowork.vn/group/unicorn", "_blank");
   };
 
   const callHotlineSupport = () => {
@@ -151,7 +151,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
                     </Tooltip>
                   </span>
                 </div>
-                <span className="support-link" onClick={linkToSupportPage}>
+                <span className="support-link" onClick={linkToGapo}>
                   <img style={{ marginRight: 5,width:20, height:20 }} src={gapoIcon} alt="gapo" />
                   {"Nhóm hỗ trợ Gapo »"}
                 </span>
