@@ -18,6 +18,7 @@ import {
   ShipmentMethod,
   WEIGHT_UNIT,
 } from "./Constants";
+import { FulfillmentStatus } from "./FulfillmentStatus.constant";
 import {
   FulfillmentCancelStatus,
   OrderStatus,
@@ -322,12 +323,23 @@ export const getTimeFormatOrderFilter = (values: string, dateFormat: string = ""
  * @returns
  */
 export const isFulfillmentReturned = (fulfillment: FulFillmentResponse | any) => {
-  let isFulfillment =
+  return (
     fulfillment?.status === FulFillmentStatus.CANCELLED &&
     fulfillment?.return_status === FulFillmentStatus.RETURNED &&
-    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING;
+    fulfillment?.status_before_cancellation === FulFillmentStatus.SHIPPING
+  );
+};
 
-  return isFulfillment;
+/**
+ * kiểm tra là đơn hvc đang hoàn
+ * @param fulfillment
+ * @returns
+ */
+export const isFulfillmentReturning = (fulfillment: FulFillmentResponse | any) => {
+  return (
+    fulfillment.status === FulfillmentStatus.SHIPPING &&
+    fulfillment.return_status === FulfillmentStatus.RETURNING
+  );
 };
 
 export const checkIfMomoPayment = (payment: OrderPaymentRequest | OrderPaymentResponse) => {

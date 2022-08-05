@@ -24,6 +24,7 @@ import {
 import { handleFetchApiError, haveAccess, isFetchApiSuccessful } from "utils/AppUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { StyledComponent } from "../pack/styles";
+import DetailHandoverComponent from "./component/detail/detail.component";
 import FulfillmentComponent from "./component/fulfillment/fulfillment.component";
 import { HandoverType } from "./handover.config";
 
@@ -37,7 +38,7 @@ interface DetailLoading<T> {
   data: T | null;
 }
 
-const CreateHandoverScreeen: React.FC<any> = (props: any) => {
+const CreateHandoverScreen: React.FC<any> = (props: any) => {
   const dispatch = useDispatch();
   const [goodsReceiptsForm] = Form.useForm();
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
@@ -272,7 +273,7 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
           }}
         >
           <StyledComponent>
-            <Card>
+            <Card hidden>
               <Form.Item
                 noStyle
                 shouldUpdate={(prev, current) => prev["orders"] !== current["orders"]}
@@ -431,6 +432,8 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
                 <Input />
               </Form.Item>
             </Card>
+            {handoverData.data && <DetailHandoverComponent data={handoverData.data} />}
+
             <FulfillmentComponent
               onUpdate={(request, orderDisplay) => {
                 onFinish(request, orderDisplay);
@@ -472,4 +475,4 @@ const CreateHandoverScreeen: React.FC<any> = (props: any) => {
   );
 };
 
-export default CreateHandoverScreeen;
+export default CreateHandoverScreen;

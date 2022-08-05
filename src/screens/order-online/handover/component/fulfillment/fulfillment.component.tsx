@@ -11,6 +11,7 @@ import { validateHandoverService } from "service/handover/handover.service";
 import { handleFetchApiError, isFetchApiSuccessful } from "utils/AppUtils";
 import { PUSHING_STATUS } from "utils/Constants";
 import { FulfillmentStatus } from "utils/FulfillmentStatus.constant";
+import { isFulfillmentReturned, isFulfillmentReturning } from "utils/OrderUtils";
 import { showError, showModalError, showSuccess } from "utils/ToastUtils";
 import { HandoverReturn, HandoverTransfer } from "../../handover.config";
 import HandoverTable from "../table/handover-table.component";
@@ -64,7 +65,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       const response = await validateHandoverService(keySearch, type, id);
       if (isFetchApiSuccessful(response)) {
         if (!response?.data?.success) {
-          showError(`Đơn giao ${keySearch} đã nằm trong biển bản ${response?.data?.code_handover}`);
+          showError(`Đơn giao ${keySearch} đã nằm trong biên bản ${response?.data?.code_handover}`);
           return false;
         } else {
           return true;
@@ -85,21 +86,9 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
   }, []);
 
   const isFulfillmentReturningOrReturned = (fulfillment: FulfillmentDto) => {
-    if (
-      fulfillment.status === FulfillmentStatus.CANCELLED &&
-      fulfillment.return_status === FulfillmentStatus.RETURNED &&
-      fulfillment.status_before_cancellation === FulfillmentStatus.SHIPPING
-    ) {
-      return true; // là đơn đã hoàn
+    if (isFulfillmentReturned(fulfillment) || isFulfillmentReturning(fulfillment)) {
+      return true;
     }
-
-    if (
-      fulfillment.status === FulfillmentStatus.SHIPPING &&
-      fulfillment.return_status === FulfillmentStatus.RETURNING
-    ) {
-      return true; // là đơn đang hoàn
-    }
-
     return false;
   };
 
@@ -349,6 +338,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             </div>
           </div>
         </div>
+
         <Item
           noStyle
           shouldUpdate={(prev, current) => prev["order_display"] !== current["order_display"]}
@@ -356,18 +346,21 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
           {({ getFieldValue }) => {
             const order_display: Array<FulfillmentDto> = getFieldValue("order_display");
             return (
-              <div className="view-table">
-                <HandoverTable
-                  isLoading={props.isLoading}
-                  pagination={false}
-                  selected={selected}
-                  setSelected={(selectedCallback: Array<FulfillmentDto>) => {
-                    let codes = selectedCallback.map((item) => item.code);
-                    setSelected(codes);
-                  }}
-                  data={order_display}
-                />
-              </div>
+              order_display &&
+              order_display.length !== 0 && (
+                <div className="view-table">
+                  <HandoverTable
+                    isLoading={props.isLoading}
+                    pagination={false}
+                    selected={selected}
+                    setSelected={(selectedCallback: Array<FulfillmentDto>) => {
+                      let codes = selectedCallback.map((item) => item.code);
+                      setSelected(codes);
+                    }}
+                    data={order_display}
+                  />
+                </div>
+              )
             );
           }}
         </Item>

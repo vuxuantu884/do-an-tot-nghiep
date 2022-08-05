@@ -12,6 +12,7 @@ import { PackModel, PackModelDefaultValue } from "model/pack/pack.model";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import { PagingParam, ResultPaging } from "model/paging";
 import { flatDataPaging } from "utils/Paging";
+import PopConfirmComponent from "./PopConfirm.component";
 
 const resultPagingDefault: ResultPaging = {
   currentPage: 1,
@@ -154,24 +155,29 @@ function PackListComponent() {
       width: "40px",
       render: (value, row: OrderResponseTable, index) => {
         return (
-          <div>
-            <Popconfirm
-              style={{ height: "20px" }}
-              //visible={visible}
-              onConfirm={() => {
-                row?.code && removeOrderPacked(row.code);
-              }}
-              title={"Bạn chắc chắn muốn xóa ?"}
-              okText="đồng ý"
-              cancelText="bỏ"
-              placement="leftTop"
-            >
-              <Button
-                icon={<DeleteOutlined style={{ color: "red" }} />}
-                style={{ width: 30, height: 30, padding: 0 }}
-              ></Button>
-            </Popconfirm>
-          </div>
+          <PopConfirmComponent
+            onConfirm={() => {
+              row?.code && removeOrderPacked(row.code);
+            }}
+          />
+          // <div>
+          //   <Popconfirm
+          //     style={{ height: "20px" }}
+          //     //visible={visible}
+          //     onConfirm={() => {
+          //       row?.code && removeOrderPacked(row.code);
+          //     }}
+          //     title={"Bạn chắc chắn muốn xóa ?"}
+          //     okText="đồng ý"
+          //     cancelText="bỏ"
+          //     placement="leftTop"
+          //   >
+          //     <Button
+          //       icon={<DeleteOutlined style={{ color: "red" }} />}
+          //       style={{ width: 30, height: 30, padding: 0 }}
+          //     ></Button>
+          //   </Popconfirm>
+          // </div>
         );
       },
     },
