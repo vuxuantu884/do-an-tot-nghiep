@@ -258,17 +258,19 @@ const DetailHandoverScreen: React.FC = () => {
   const handlePrintPack = useCallback(
     (type: string) => {
       if (handoverId) {
-        setLoading(true);
-        printHandOverService(handoverId, type).then((response) => {
-          if (isFetchApiSuccessful(response)) {
-            setLoading(false);
-            if (response.data) {
-              setHtmlContent(response.data[0].html_content);
+        dispatch(showLoading());
+        printHandOverService(handoverId, type)
+          .then((response) => {
+            if (isFetchApiSuccessful(response)) {
+              if (response.data) {
+                setHtmlContent(response.data[0].html_content);
+              }
+            } else {
+              handleFetchApiError(response, "In biên bản bàn giao", dispatch);
             }
-          } else {
-            handleFetchApiError(response, "In biên bản bàn giao", dispatch);
-          }
-        });
+          })
+          .catch((e) => console.log(e))
+          .finally(() => dispatch(hideLoading()));
       }
     },
     [dispatch, handoverId],
@@ -548,9 +550,9 @@ const DetailHandoverScreen: React.FC = () => {
                   handlePrintPack(typePrint.simple);
                 }}
               >
-                In biên bản rút gọn
+                In biên bản
               </Button>
-              <Button
+              {/* <Button
                 disabled={!fulfillmentsData.data || fulfillmentsData.data.length === 0}
                 icon={<PrinterOutlined />}
                 onClick={() => {
@@ -558,7 +560,7 @@ const DetailHandoverScreen: React.FC = () => {
                 }}
               >
                 In biên bản đầy đủ
-              </Button>
+              </Button> */}
               <Button
                 onClick={() => {
                   history.push(`${UrlConfig.HANDOVER}/${handoverId}/update`);
