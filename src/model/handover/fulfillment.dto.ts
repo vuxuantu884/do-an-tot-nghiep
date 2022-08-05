@@ -87,4 +87,5 @@ export interface FulfillmentDto {
   total_line_amount_after_line_discount: number;
   total_quantity: number;
   total_tax: number | null;
+  sub_status?: string | null;
 }
