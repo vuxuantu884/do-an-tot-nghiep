@@ -70,3 +70,15 @@ export const StyledComponent = styled.div`
     }
   }
 `;
+
+export const PopConfirmStyleComponent = styled.div`
+  button.ant-btn.ant-btn-icon-only.ant-btn-dangerous.btn-danger-remove-order {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding-top: 10px;
+  }
+`;

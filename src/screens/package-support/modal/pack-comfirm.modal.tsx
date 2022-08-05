@@ -1,5 +1,4 @@
-import { CloseOutlined } from "@ant-design/icons";
-import { Button, Modal, Popconfirm, Table } from "antd";
+import { Button, Modal, Table } from "antd";
 import UrlConfig from "config/url.config";
 import { OrderPackContext } from "contexts/order-pack/order-pack-context";
 import React, { useCallback, useContext, useEffect, useMemo, useState } from "react";
@@ -8,6 +7,7 @@ import { showModalSuccess } from "utils/ToastUtils";
 import { PackModelDefaultValue } from "model/pack/pack.model";
 import { setPackInfo } from "utils/LocalStorageUtils";
 import { FulfillmentDto } from "model/handover/fulfillment.dto";
+import PopConfirmComponent from "../component/PopConfirm.component";
 
 type Props = {
   isVisible?: boolean;
@@ -43,9 +43,6 @@ const PackConfirmModal = (props: Props) => {
 
   const fulfillmentData = useMemo(() => singlePack?.fulfillments || [], [singlePack]);
 
-  // console.log("singlePack", singlePack)
-  // console.log("orderPushFalseDelivery", orderPushFalseDelivery)
-
   const [data, setData] = useState<orderPushFalseDeliveryTable[]>([]);
 
   const handlePushFulfillment = useCallback((fulfillmentId: number) => {
@@ -58,20 +55,6 @@ const PackConfirmModal = (props: Props) => {
         </ul>
       </>,
     );
-    // dispatch(showLoading())
-    // dispatch(RePushFulFillmentAction(fulfillmentId, (data: any) => {
-    //     showModalSuccess(<>
-    //         <ul>
-    //             <li> Đã gửi yêu cầu đẩy đơn sang hãng vận chuyển</li>
-    //             <li> Kiểm tra lại sau 2 phút</li>
-    //         </ul>
-    //     </>);
-
-    //     dispatch(hideLoading())
-    // }, (error: boolean) => {
-    //     dispatch(hideLoading())
-    // }));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleRemoveFulfillment = useCallback(
@@ -197,21 +180,26 @@ const PackConfirmModal = (props: Props) => {
               title: "",
               width: 50,
               render: (value: any, record: orderPushFalseDeliveryTable, index: number) => (
-                <Popconfirm
-                  style={{ height: "20px" }}
+                <PopConfirmComponent
                   onConfirm={() => {
                     handleRemoveFulfillment(record.fulfillment_id);
                   }}
-                  title={"Bạn chắc chắn muốn xóa"}
-                  okText="đồng ý"
-                  cancelText="bỏ"
-                  placement="leftTop"
-                >
-                  <Button
-                    style={{ width: "30px", height: "30px", padding: 0 }}
-                    icon={<CloseOutlined />}
-                  />
-                </Popconfirm>
+                />
+                // <Popconfirm
+                //   style={{ height: "20px" }}
+                //   onConfirm={() => {
+                //     handleRemoveFulfillment(record.fulfillment_id);
+                //   }}
+                //   title={"Bạn chắc chắn muốn xóa"}
+                //   okText="Đồng ý"
+                //   cancelText="Bỏ"
+                //   placement="leftTop"
+                // >
+                //   <Button
+                //     style={{ width: "30px", height: "30px", padding: 0 }}
+                //     icon={<CloseOutlined />}
+                //   />
+                // </Popconfirm>
               ),
             },
           ]}

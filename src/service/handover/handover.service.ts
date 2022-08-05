@@ -13,7 +13,11 @@ const createHandoverService = (
   return BaseAxios.post(`${ApiConfig.HANDOVER}/handovers`, request);
 };
 
-const validateHandoverService = (code: string, type: string, id: number | null): Promise<any> => {
+const validateHandoverService = (
+  code: string,
+  type: string,
+  id: number | null,
+): Promise<BaseResponse<any>> => {
   let queryPath = `type=${type}`;
   if (id != null) {
     queryPath = `${queryPath}&id=${id}`;
