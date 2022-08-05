@@ -579,16 +579,16 @@ const HandoverScreen: React.FC = () => {
             actions={[
               {
                 id: 1,
-                name: "In biên bản rút gọn",
+                name: "In biên bản",
                 icon: <PrinterOutlined />,
                 disabled: selected.length === 0,
               },
-              {
-                id: 2,
-                name: "In biên bản đầy đủ",
-                icon: <PrinterOutlined />,
-                disabled: selected.length === 0,
-              },
+              // {
+              //   id: 2,
+              //   name: "In biên bản đầy đủ",
+              //   icon: <PrinterOutlined />,
+              //   disabled: selected.length === 0,
+              // },
               {
                 id: 3,
                 name: "Xóa biên bản",

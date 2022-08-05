@@ -1,4 +1,3 @@
-import { isArray } from "lodash";
 import React, { useEffect, useState } from "react";
 import { useReactToPrint } from "react-to-print";
 import { StyledComponent } from "./style";
