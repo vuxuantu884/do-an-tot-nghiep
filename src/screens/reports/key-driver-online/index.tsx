@@ -1,7 +1,17 @@
-import { Card, InputNumber, InputNumberProps, Table, Tooltip } from "antd";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Form,
+  InputNumber,
+  InputNumberProps,
+  Table,
+  Tooltip,
+} from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
+import CustomDatePicker from "component/custom/new-date-picker.custom";
 import UrlConfig from "config/url.config";
 import { KeyboardKey } from "model/other/keyboard/keyboard.model";
 import { AnalyticDataQuery, KeyDriverOnlineDataSourceType } from "model/report";
@@ -88,7 +98,7 @@ function KeyDriverOnline() {
   const history = useHistory();
   // get query from url
   const query = new URLSearchParams(useLocation().search);
-  const date = query.get("date") || moment().format(DATE_FORMAT.YYYYMMDD);
+  const date = query.get("date");
   const targetDay = query.get("day");
   const keyDriverGroupLv1 = query.get("keyDriverGroupLv1") || DEFAULT_KEY_DRIVER_GROUP_LV_1;
   const departmentLv2 = query.get("departmentLv2");
@@ -98,6 +108,7 @@ function KeyDriverOnline() {
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { data, setData } = useContext(KeyDriverOfflineContext);
   const dispatch = useDispatch();
+  const [form] = Form.useForm();
 
   const setObjectiveColumns = useCallback(
     (
@@ -245,7 +256,7 @@ function KeyDriverOnline() {
                         KeyboardKey.ArrowDown,
                       );
                       saveMonthTargetKeyDriver(
-                        { [`day${day}`]: value },
+                        { [`day${day.toString().padStart(2, "0")}`]: value },
                         record,
                         departmentDrillingLevel,
                         departmentKey,
@@ -312,71 +323,123 @@ function KeyDriverOnline() {
     ) => {
       setLoadingPage(true);
       let allDepartment: { groupedBy: string; drillingLevel: number }[] = [];
-
-      const response = await callApiNative({ isShowError: true }, dispatch, getKeyDriverOnlineApi, {
-        date,
-        keyDriverGroupLv1,
-        departmentLv2,
-        departmentLv3,
-      });
-
-      setData(convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST));
-      allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
-
-      const temp = [...baseColumns];
-
-      allDepartment.forEach(({ groupedBy, drillingLevel }, index: number) => {
-        let link = "";
-        if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
-          const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
-          const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
-          const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
-
-          const params = {
-            date: defaultDate,
-            keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
-            departmentLv2: columnDepartmentLv2,
-            departmentLv3: columnDepartmentLv3,
-          };
-
-          link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(params)}`;
-        }
-
-        temp.push(
-          setObjectiveColumns(
-            nonAccentVietnamese(groupedBy),
-            groupedBy.toUpperCase(),
-            index,
-            drillingLevel,
-            index === 0 ? "department-name--primary" : undefined,
-            link,
-          ),
+      try {
+        const response = await callApiNative(
+          { isShowError: true },
+          dispatch,
+          getKeyDriverOnlineApi,
+          {
+            date,
+            keyDriverGroupLv1,
+            departmentLv2,
+            departmentLv3,
+          },
         );
-      });
-      setFinalColumns(temp);
-      setLoadingPage(false);
+
+        setData(convertDataToFlatTableKeyDriver(response, COLUMN_ORDER_LIST));
+        allDepartment = getAllDepartmentByAnalyticResult(response.result.data, COLUMN_ORDER_LIST);
+
+        const temp = [...baseColumns];
+
+        allDepartment.forEach(({ groupedBy, drillingLevel }, index: number) => {
+          let link = "";
+          if (index !== 0 && drillingLevel <= SHOP_LEVEL) {
+            const defaultDate = date ? date : moment().format(DATE_FORMAT.YYYYMMDD);
+            const columnDepartmentLv2 = drillingLevel === 2 ? groupedBy : departmentLv2;
+            const columnDepartmentLv3 = drillingLevel === 3 ? groupedBy : departmentLv3;
+
+            const params = {
+              date: defaultDate,
+              keyDriverGroupLv1: DEFAULT_KEY_DRIVER_GROUP_LV_1,
+              departmentLv2: columnDepartmentLv2,
+              departmentLv3: columnDepartmentLv3,
+            };
+
+            link = `${UrlConfig.KEY_DRIVER_ONLINE}?${queryString.stringify(params)}`;
+          }
+
+          temp.push(
+            setObjectiveColumns(
+              nonAccentVietnamese(groupedBy),
+              groupedBy.toUpperCase(),
+              index,
+              drillingLevel,
+              index === 0 ? "department-name--primary" : undefined,
+              link,
+            ),
+          );
+        });
+        setFinalColumns(temp);
+        setLoadingPage(false);
+      } catch (error) {}
     },
     [dispatch, setData, setObjectiveColumns],
   );
 
   useEffect(() => {
     if (keyDriverGroupLv1 && date) {
-      initTable(date, keyDriverGroupLv1, departmentLv2, departmentLv3);
+      initTable(
+        moment(date).format(DATE_FORMAT.YYYYMMDD),
+        keyDriverGroupLv1,
+        departmentLv2,
+        departmentLv3,
+      );
     } else {
       const today = moment().format(DATE_FORMAT.YYYYMMDD);
       history.push(
-        `${UrlConfig.KEY_DRIVER_ONLINE}/?date=${today}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
+        `${UrlConfig.KEY_DRIVER_ONLINE}?date=${today}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
       );
     }
   }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3]);
 
-  const day = moment().format(DATE_FORMAT.DDMMYY_HHmm);
+  const day = date
+    ? moment(date).format(DATE_FORMAT.DDMMYYY)
+    : moment().format(DATE_FORMAT.DDMMYYY);
 
+  const onFinish = useCallback(() => {
+    let date = form.getFieldsValue(true)["date"];
+    let newDate = "";
+    if (date) {
+      newDate = moment(date, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.YYYYMMDD);
+    } else {
+      newDate = moment().format(DATE_FORMAT.YYYYMMDD);
+    }
+    history.push(
+      `${UrlConfig.KEY_DRIVER_ONLINE}?date=${newDate}&keyDriverGroupLv1=${DEFAULT_KEY_DRIVER_GROUP_LV_1}`,
+    );
+  }, [form, history]);
   return (
     <ContentContainer
       title={"Báo cáo kết quả kinh doanh Online"}
       breadcrumb={getBreadcrumbByLevel(departmentLv2, departmentLv3)}
     >
+      <Card>
+        <Form
+          onFinish={onFinish}
+          onFinishFailed={() => {}}
+          form={form}
+          name="report-form-base"
+          layout="inline"
+          initialValues={{
+            date: date
+              ? moment(date).format(DATE_FORMAT.DDMMYYY)
+              : moment().format(DATE_FORMAT.DDMMYYY),
+          }}
+        >
+          <Form.Item name="date" style={{ width: 300 }}>
+            <CustomDatePicker
+              format={DATE_FORMAT.DDMMYYY}
+              placeholder="Chọn ngày"
+              style={{ width: "100%" }}
+              onChange={() => onFinish()}
+              showToday={false}
+            />
+          </Form.Item>
+          {/* <Button htmlType="submit" type="primary" loading={loadingPage}>
+            Lọc
+          </Button> */}
+        </Form>
+      </Card>
       <KeyDriverOnlineStyle>
         <Card title={`BÁO CÁO NGÀY: ${day}`}>
           <Table

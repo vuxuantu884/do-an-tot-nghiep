@@ -186,3 +186,29 @@ export const nonAccentVietnameseKD = (str: string) => {
     .replaceAll(/\s/g, "")
     .replace(/[^a-zA-Z0-9 ]/g, "");
 };
+
+export const findKDProductAndUpdateValueUtil = (
+  data: any,
+  keyDriversTarget: any,
+  asmName: string,
+  targetTime: "month" | "day",
+) => {
+  Object.keys(keyDriversTarget).forEach((keyDriver) => {
+    if (data.children?.length) {
+      const idx = data.children.findIndex((child: any) => child.key === keyDriver);
+      if (idx !== -1) {
+        data.children[idx][`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
+      } else {
+        data.children.push({
+          key: keyDriver,
+          [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value,
+        });
+      }
+    } else {
+      data.children.push({
+        key: keyDriver,
+        [`${asmName}_${targetTime}`]: keyDriversTarget[keyDriver].value,
+      });
+    }
+  });
+};

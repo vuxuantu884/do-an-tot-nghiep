@@ -74,7 +74,7 @@ export const keyDriverOfflineTemplateData = [
                   {
                     key: "birthday_call_customers",
                     name: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
-                    method: "",
+                    method: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
                     children: [
                       {
                         key: "birthday_calls",
@@ -91,7 +91,7 @@ export const keyDriverOfflineTemplateData = [
                   {
                     key: "birthday_sms_customers",
                     name: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
-                    method: "",
+                    method: "SỐ LƯỢNG KHÁCH HÀNG MUA TỪ TỔNG ĐÀI",
                     children: [
                       {
                         key: "birthday_sms",
@@ -142,7 +142,7 @@ export const keyDriverOfflineTemplateData = [
                 ],
               },
               {
-                key: "new_customer_total_sales",
+                key: "new_total_sales",
                 name: "MỚI",
                 method: "(Là data mới toanh)",
                 children: [

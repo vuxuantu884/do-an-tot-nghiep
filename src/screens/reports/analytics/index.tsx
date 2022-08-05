@@ -9,7 +9,7 @@ import REPORT_TEMPLATES, { REPORT_CUBES, REPORT_NAMES } from "config/report/repo
 import UrlConfig, { REPORTS_URL } from "config/url.config";
 import _ from "lodash";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { AnalyticCube, FormFilterCustomReport } from "model/report/analytics.model";
+import { AnalyticCube, AnalyticGroup, FormFilterCustomReport } from "model/report/analytics.model";
 import { FormFinishInfo } from "rc-field-form/es/FormContext";
 import React, { useCallback, useEffect } from "react";
 import { AiOutlineEdit } from "react-icons/ai";
@@ -72,7 +72,7 @@ function Analytics() {
       response.analytics = response.analytics.filter((item: any) => {
         const { group } = item;
         return (
-          group && getPermissionViewCustomizeReport(allPermissions, group as AnalyticCube) === "1"
+          group && getPermissionViewCustomizeReport(allPermissions, group as AnalyticGroup) === "1"
         );
       });
       setAnalyticList(response.analytics);

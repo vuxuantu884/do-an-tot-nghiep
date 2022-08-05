@@ -358,10 +358,10 @@ export const setReportsCustomizeUrl = (cube: AnalyticCube) => {
   }
 };
 
-export const getPermissionViewCustomizeReport = (permissions: string[], cube: AnalyticCube) => {
-  const { Sales, Payments, Costs, OfflineSales, Customers } = AnalyticCube;
+export const getPermissionViewCustomizeReport = (permissions: string[], group: AnalyticGroup) => {
+  const { Sales, Payments, Costs, OfflineSales, Customers, Marketing } = AnalyticGroup;
   let permission = "reports_report_";
-  switch (cube) {
+  switch (group) {
     case Sales:
       permission = `${permission}sales`;
       break;
@@ -374,6 +374,9 @@ export const getPermissionViewCustomizeReport = (permissions: string[], cube: An
       break;
     case Costs:
       permission = `${permission}costs`;
+      break;
+    case Marketing:
+      permission = `${permission}${Marketing}`;
       break;
     default:
       permission = "0";
