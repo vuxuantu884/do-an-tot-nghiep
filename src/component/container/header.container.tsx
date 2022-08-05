@@ -15,6 +15,7 @@ import logoUat from "assets/img/yody-logo-uat.svg";
 import devEnvMarkup from "assets/img/dev-env-markup.png";
 import uatEnvMarkup from "assets/img/uat-env-markup.png";
 import hotlineIcon from "assets/icon/hotline.svg";
+import gapoIcon from "assets/img/gapo_icon.png";
 import { AppConfig } from "config/app.config";
 
 type HeaderContainerProps = {
@@ -151,7 +152,8 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
                   </span>
                 </div>
                 <span className="support-link" onClick={linkToSupportPage}>
-                  {"Hướng dẫn gửi yêu cầu »"}
+                  <img style={{ marginRight: 5,width:20, height:20 }} src={gapoIcon} alt="gapo" />
+                  {"Nhóm hỗ trợ Gapo »"}
                 </span>
               </>
             )}
