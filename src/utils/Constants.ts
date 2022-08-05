@@ -271,6 +271,7 @@ export const ADMIN_ORDER = {
 export const POS = {
   channel_id: 1,
   channel_code: "POS",
+  channel_name: "POS",
   source: "POS",
   source_id: 1,
   source_code: "POS",
