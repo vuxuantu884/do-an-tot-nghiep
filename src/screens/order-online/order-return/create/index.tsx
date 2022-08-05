@@ -1770,6 +1770,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   isExchange={isExchange}
                   shipmentMethod={shipmentMethod}
                   listStores={listStores}
+                  isReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
                 />
                 {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
                 {/* {!isExchange && ( */}

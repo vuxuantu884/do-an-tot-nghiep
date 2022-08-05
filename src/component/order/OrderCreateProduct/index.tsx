@@ -101,6 +101,7 @@ import {
   ACCOUNT_ROLE_ID,
   ADMIN_ORDER,
   MoneyType,
+  POS,
   PRODUCT_TYPE,
   ShipmentMethodOption,
   STORE_TYPE,
@@ -147,6 +148,7 @@ type PropTypes = {
   shipmentMethod: number;
   isExchange?: boolean;
   listStores: StoreResponse[];
+  isReturnOffline?: boolean;
 };
 
 var barcode = "";
@@ -236,6 +238,7 @@ function OrderCreateProduct(props: PropTypes) {
     shipmentMethod,
     listStores,
     isExchange,
+    isReturnOffline,
   } = props;
 
   // console.log('items', items)
@@ -1392,7 +1395,7 @@ function OrderCreateProduct(props: PropTypes) {
       birthday_date: customer?.birthday || null,
       wedding_date: customer?.wedding_date || null,
       store_id: form.getFieldValue("store_id"),
-      sales_channel_name: ADMIN_ORDER.channel_name,
+      sales_channel_name: isReturnOffline ? POS.source_name : ADMIN_ORDER.channel_name,
       order_source_id: form.getFieldValue("source_id"),
       assignee_code: customer?.responsible_staff_code || null,
       line_items: lineItemsConvert(items),
@@ -1501,7 +1504,7 @@ function OrderCreateProduct(props: PropTypes) {
         birthday_date: customer?.birthday || null,
         wedding_date: customer?.wedding_date || null,
         store_id: form.getFieldValue("store_id"),
-        sales_channel_name: ADMIN_ORDER.channel_name,
+        sales_channel_name: isReturnOffline ? POS.source_name : ADMIN_ORDER.channel_name,
         order_source_id: form.getFieldValue("source_id"),
         assignee_code: customer?.responsible_staff_code || null,
         line_items: lineItemsConvert(_items),
@@ -1979,7 +1982,11 @@ function OrderCreateProduct(props: PropTypes) {
     dispatch(changeOrderLineItemsAction(_items));
     const orderAmount = totalAmount(_items);
     const shippingAddress = orderCustomer ? getCustomerShippingAddress(orderCustomer) : null;
-    if (_items.length > 0 && shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE && (!(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.updateOrder))) {
+    if (
+      _items.length > 0 &&
+      shipmentMethod !== ShipmentMethodOption.PICK_AT_STORE &&
+      !(checkIfEcommerceByOrderChannelCode(orderDetail?.channel_code) && props.updateOrder)
+    ) {
       handleCalculateShippingFeeApplyOrderSetting(
         shippingAddress?.city_id,
         orderAmount,
