@@ -3,11 +3,21 @@ import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
 import { PageResponse } from "model/base/base-metadata.response";
 import { generateQuery } from "utils/AppUtils";
-import { StoreQuery, StoreTypeRequest } from "model/core/store.model";
+import { PlaceDetailQuery, PlaceQuery, StoreQuery, StoreTypeRequest } from "model/core/store.model";
 import { StoreRankResponse } from "model/core/store-rank.model";
 import { StoreResponse } from "model/core/store.model";
 import { StoreCreateRequest, StoreUpdateRequest } from "model/core/store.model";
 import { StoreCustomResponse } from "model/response/order/order.response";
+
+export const getPlaceApi = (params: PlaceQuery): Promise<any> => {
+  let url = `${ApiConfig.CORE}/stores/google/place?key=${params.key}&query=${params.query}`
+  return BaseAxios.get(url);
+}
+
+export const getPlaceDetailApi = (params: PlaceDetailQuery): Promise<any> => {
+  let url = `${ApiConfig.CORE}/stores/google/place/detail?key=${params.key}&place_id=${params.place_id}`
+  return BaseAxios.get(url);
+}
 
 export const storeGetApi = (
   query?: StoreQuery,
