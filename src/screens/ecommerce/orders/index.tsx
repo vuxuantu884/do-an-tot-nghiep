@@ -718,7 +718,7 @@ const EcommerceOrders: React.FC = () => {
 
   const handleRenderChannelIcon = (record: OrderModel) => {
     switch (record?.account) {
-      case "Sàn shopee":
+      case "Sàn Shopee":
         return shopeeIcon;
       case "Sàn Lazada":
         return lazadaIcon;
@@ -727,7 +727,7 @@ const EcommerceOrders: React.FC = () => {
       case "Sàn Tiktok":
         return tiktokIcon;
       default:
-        return '';
+        return "";
     }
   };
 
