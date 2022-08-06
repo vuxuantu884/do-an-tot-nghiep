@@ -31,7 +31,6 @@ import {
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import { HandoverResponse } from "model/handover/handover.response";
-import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   EcommerceId,
@@ -58,6 +57,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
+import CannotUpdateOrderWithWalletWarningInformation from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
 import { searchHandoverService } from "service/handover/handover.service";
 import {
   deleteOrderService,
@@ -163,7 +163,7 @@ const OrderDetail = (props: PropTypes) => {
   // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
-  const [listPaymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
+  const [paymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
   const [visibleCancelModal, setVisibleCancelModal] = useState<boolean>(false);
   const [visibleLogisticConfirmModal, setVisibleLogisticConfirmModal] = useState<boolean>(false);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -219,6 +219,26 @@ const OrderDetail = (props: PropTypes) => {
 
   const updateShipmentCardRef = useRef<any>();
 
+  /**
+   * tổng số tiền đã trả
+   */
+  const totalAmountPayment =
+    OrderDetail?.payments && OrderDetail?.payments?.length > 0
+      ? getAmountPayment(OrderDetail.payments)
+      : 0;
+
+  /**
+   * tổng giá trị đơn hàng
+   */
+  const totalOrderAmount = OrderDetail?.total || 0;
+
+  /**
+   * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
+   */
+  const totalAmountCustomerNeedToPay = useMemo(() => {
+    return totalOrderAmount - totalAmountPayment;
+  }, [totalOrderAmount, totalAmountPayment]);
+
   const onPaymentSelect = (paymentMethod: number) => {
     if (paymentMethod === 1) {
       setVisibleShipping(true);
@@ -237,7 +257,7 @@ const OrderDetail = (props: PropTypes) => {
       let formValue = form.getFieldsValue();
       let payments: UpdateOrderPaymentRequest[] = [];
       const formReturnMoney = formValue.returnMoneyField[0];
-      let returnMoneyMethod = listPaymentMethods.find((single) => {
+      let returnMoneyMethod = paymentMethods.find((single) => {
         return single.code === formReturnMoney.returnMoneyMethod;
       });
       if (returnMoneyMethod) {
@@ -275,11 +295,6 @@ const OrderDetail = (props: PropTypes) => {
   // };
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
-
-  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
-    chonCuaHangTruocMoiChonSanPham: false,
-    cauHinhInNhieuLienHoaDon: 1,
-  });
 
   const handleReceivedReturnProducts = () => {
     setIsReceivedReturnProducts(true);
@@ -853,13 +868,6 @@ const OrderDetail = (props: PropTypes) => {
     }
   }, [dispatch, OrderDetail?.store_id]);
 
-  useEffect(() => {
-    setOrderSettings({
-      chonCuaHangTruocMoiChonSanPham: true,
-      cauHinhInNhieuLienHoaDon: 3,
-    });
-  }, []);
-
   const totalPaid =
     OrderDetailAllFulfillment?.payments && OrderDetailAllFulfillment?.payments?.length > 0
       ? getAmountPayment(OrderDetailAllFulfillment.payments)
@@ -891,7 +899,7 @@ const OrderDetail = (props: PropTypes) => {
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
-      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+      if (paymentMethod === PaymentMethodOption.POST_PAYMENT) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     } else {
@@ -1049,9 +1057,8 @@ const OrderDetail = (props: PropTypes) => {
               <UpdateProductCard
                 OrderDetail={OrderDetail}
                 shippingFeeInformedCustomer={shippingFeeInformedCustomer}
-                customerNeedToPayValue={customerNeedToPayValue}
                 totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_amount}
-                paymentMethods={listPaymentMethods}
+                paymentMethods={paymentMethods}
               />
               {/*--- end product ---*/}
 
@@ -1060,7 +1067,7 @@ const OrderDetail = (props: PropTypes) => {
                 OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid &&
                 false && (
                   <CardReturnMoney
-                    listPaymentMethods={listPaymentMethods}
+                    paymentMethods={paymentMethods}
                     payments={[]}
                     returnMoneyAmount={customerNeedToPayValue}
                     isShowPaymentMethod={true}
@@ -1083,13 +1090,15 @@ const OrderDetail = (props: PropTypes) => {
                 isVisibleUpdatePayment={isVisibleUpdatePayment}
                 onPaymentSelect={onPaymentSelect}
                 paymentMethod={paymentMethod}
-                paymentMethods={listPaymentMethods}
+                paymentMethods={paymentMethods}
                 setReload={setReload}
                 setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                 setVisibleUpdatePayment={setVisibleUpdatePayment}
                 shipmentMethod={shipmentMethod}
                 stepsStatusValue={stepsStatusValue}
                 createPaymentCallback={createPaymentCallback}
+                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                setPayments={() => {}} //chú ý phải set
               />
 
               {/*--- shipment ---*/}
@@ -1110,7 +1119,6 @@ const OrderDetail = (props: PropTypes) => {
                 shipmentMethod={shipmentMethod}
                 isVisibleShipping={isVisibleShipping}
                 OrderDetailAllFulfillment={OrderDetailAllFulfillment}
-                orderSettings={orderSettings}
                 onReload={() => setReload(true)}
                 disabledActions={disabledActions}
                 disabledBottomActions={disabledBottomActions}
@@ -1120,6 +1128,7 @@ const OrderDetail = (props: PropTypes) => {
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
                 ref={updateShipmentCardRef}
+                isPageOrderDetail
               />
               {/*--- end shipment ---*/}
 
@@ -1168,36 +1177,7 @@ const OrderDetail = (props: PropTypes) => {
               )}
 
               {checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment) && (
-                <Alert
-                  message={
-                    <React.Fragment>
-                      <div
-                        style={{
-                          fontWeight: "500",
-                          fontSize: "15px",
-                          padding: "10px 0",
-                        }}
-                      >
-                        <p>
-                          Lưu ý : Không thể điều phối đơn hàng khi chờ khách thanh toán qua ví điện
-                          tử
-                        </p>
-                        <ul style={{ marginBottom: 0 }}>
-                          <li style={{ marginBottom: 5 }}>
-                            Thời hạn thanh toán là 24h kể từ thời điểm tạo đơn
-                          </li>
-                          <li>
-                            Trong vòng 30 phút mà khách chưa thanh toán sale cần gọi hay nhắn tin
-                            cho khách để xác nhận thanh toán. Nếu khách hủy thanh toán qua ví bạn có
-                            thể bấm nút "Hủy giao dịch" để có thể điều phối đơn
-                          </li>
-                        </ul>
-                      </div>
-                    </React.Fragment>
-                  }
-                  type="warning"
-                  closable
-                />
+                <CannotUpdateOrderWithWalletWarningInformation />
               )}
             </Col>
 
@@ -1210,7 +1190,6 @@ const OrderDetail = (props: PropTypes) => {
               <SubStatusOrder
                 setOrderDetail={handleStatusOrder}
                 subStatusCode={subStatusCode}
-                status={OrderDetail?.status}
                 orderId={OrderDetail?.id}
                 handleUpdateSubStatus={handleUpdateSubStatus}
                 setReload={setReload}

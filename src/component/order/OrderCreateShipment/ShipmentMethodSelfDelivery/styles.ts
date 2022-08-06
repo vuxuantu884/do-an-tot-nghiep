@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { textBodyColor } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   z-index: 1;
@@ -14,5 +15,8 @@ export const StyledComponent = styled.div`
         margin-right: 100px;
       }
     }
+  }
+  .numberInput {
+    color: ${textBodyColor};
   }
 `;

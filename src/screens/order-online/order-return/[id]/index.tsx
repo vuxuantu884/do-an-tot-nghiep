@@ -66,7 +66,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
   const [loadingData, setLoadingData] = useState(true);
   const [OrderDetail, setOrderDetail] = useState<OrderResponse | null>(null);
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
-  const [listPaymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
+  const [paymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
 
   const [isReceivedReturnProducts, setIsReceivedReturnProducts] = useState(false);
   const [listReturnProducts, setListReturnProducts] = useState<ReturnProductModel[]>([]);
@@ -235,7 +235,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
       const formValue = form.getFieldsValue();
       if (formValue.returnMoneyField && formValue.returnMoneyField[0]) {
         const formValuePayment = formValue.returnMoneyField[0];
-        let returnMoneyMethod = listPaymentMethods.find((single) => {
+        let returnMoneyMethod = paymentMethods.find((single) => {
           return single.code === formValuePayment.returnMoneyMethod;
         });
         if (returnMoneyMethod) {
@@ -258,7 +258,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
             OrderDetail?.payment_status === ORDER_PAYMENT_STATUS.unpaid
           ) {
             const pointPaymentMethod = findPaymentMethodByCode(
-              listPaymentMethods,
+              paymentMethods,
               PaymentMethodCode.POINT,
             );
             if (pointPaymentMethod) {
@@ -377,9 +377,9 @@ const ScreenReturnDetail = (props: PropTypes) => {
   // };
 
   // const calculateRefund= useCallback(
-  //   (response: OrderResponse, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
+  //   (response: OrderResponse, OrderDetail: OrderResponse | null, paymentMethods: PaymentMethodResponse[]) => {
   //     console.log('response', response);
-  //     let isUsingPoint = isOrderDetailHasPointPayment(response, listPaymentMethods);
+  //     let isUsingPoint = isOrderDetailHasPointPayment(response, paymentMethods);
   //     console.log('isUsingPoint', isUsingPoint);
   //     if(isUsingPoint) {
   //       const orderReturns = response.order_returns;
@@ -431,10 +431,10 @@ const ScreenReturnDetail = (props: PropTypes) => {
   // )
 
   // const handleOrderOriginId = useCallback(
-  //   (orderOriginId: number|undefined, OrderDetail: OrderResponse | null, listPaymentMethods: PaymentMethodResponse[]) => {
+  //   (orderOriginId: number|undefined, OrderDetail: OrderResponse | null, paymentMethods: PaymentMethodResponse[]) => {
   //     if (orderOriginId) {
   //       dispatch(OrderDetailAction(orderOriginId.toString(), (response) => {
-  //         calculateRefund(response, OrderDetail, listPaymentMethods);
+  //         calculateRefund(response, OrderDetail, paymentMethods);
   //       }));
   //     } else {
   //       setLoadingData(false)
@@ -596,7 +596,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
                   OrderDetail={OrderDetail}
                 />
                 <CardReturnMoneyPageDetail
-                  listPaymentMethods={listPaymentMethods}
+                  paymentMethods={paymentMethods}
                   payments={payments}
                   totalAmountReturnToCustomerLeft={totalAmountReturnToCustomerLeft}
                   returnPaymentStatus={returnPaymentStatus}

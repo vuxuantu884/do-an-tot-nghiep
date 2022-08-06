@@ -15,7 +15,6 @@ import { showError, showWarning } from "utils/ToastUtils";
 type PropTypes = {
   setOrderDetail?: (data: OrderResponse | null) => void;
   subStatusCode?: string | undefined;
-  status?: string | null;
   orderId?: number;
   handleUpdateSubStatus: () => void;
   setReload: (value: boolean) => void;
@@ -25,7 +24,6 @@ type PropTypes = {
 
 function SubStatusOrder(props: PropTypes): React.ReactElement {
   const {
-    // status,
     setOrderDetail,
     orderId,
     subStatusCode,

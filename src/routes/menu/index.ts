@@ -19,7 +19,7 @@ import supplierRoutes from "./supplier.route";
 
 const Dashboard = React.lazy(() => import("screens/dashboard"));
 const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
-const OrderOnline = React.lazy(() => import("screens/order-online/order.screen"));
+const OrderOnline = React.lazy(() => import("screens/order-online/order-create"));
 const PosOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
 const Customer = React.lazy(() => import("screens/customer"));
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));

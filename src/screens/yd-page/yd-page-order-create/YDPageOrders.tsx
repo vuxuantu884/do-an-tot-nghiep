@@ -252,7 +252,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
-      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+      if (paymentMethod === PaymentMethodOption.POST_PAYMENT) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     } else {
@@ -388,7 +388,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
 
     let listFulfillmentRequest = [];
     if (
-      paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
+      paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
       shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
       shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
     ) {
@@ -400,7 +400,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
     }
 
     if (
-      paymentMethod === PaymentMethodOption.POSTPAYMENT &&
+      paymentMethod === PaymentMethodOption.POST_PAYMENT &&
       shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
       typeButton === OrderStatus.FINALIZED
     ) {
@@ -957,7 +957,7 @@ export default function Order(props: OrdersCreatePermissionProps) {
               }
 
               if (response.payments && response.payments?.length > 0) {
-                setPaymentMethod(PaymentMethodOption.PREPAYMENT);
+                setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
                 // clone có tiền thừa thì xóa
                 new_payments = mergePaymentData(
                   response.payments.map((payment) => {

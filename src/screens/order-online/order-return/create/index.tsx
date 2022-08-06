@@ -5,7 +5,7 @@ import NumberInput from "component/custom/number-input.custom";
 import ModalConfirm from "component/modal/ModalConfirm";
 import OrderCreateProduct from "component/order/OrderCreateProduct";
 import OrderCreateShipment from "component/order/OrderCreateShipment";
-import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/CreateOrderSidebarOrderExtraInformation/CreateOrderSidebarOrderExtraInformation";
+import CreateOrderSidebarOrderExtraInformation from "component/order/Sidebar/CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "component/order/Sidebar/CreateOrderSidebarOrderInformation";
 import SidebarOrderDetailExtraInformation from "component/order/Sidebar/SidebarOrderDetailExtraInformation";
 import SidebarOrderDetailInformation from "component/order/Sidebar/SidebarOrderDetailInformation";
@@ -164,7 +164,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const query = useQuery();
   let queryOrderID = query.get("orderID");
   let queryOrderReturnType = query.get("type"); // trả hàng online hay offline
-  const listStores = useFetchStores();
+  const stores = useFetchStores();
   const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
 
   let orderId = queryOrderID ? parseInt(queryOrderID) : undefined;
@@ -178,13 +178,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   const [storeId, setStoreId] = useState<number | null>(null);
 
-  // const [listStores, setListStores] = useState<Array<StoreResponse>>([]);
+  // const [stores, setListStores] = useState<Array<StoreResponse>>([]);
 
   const [discountRate, setDiscountRate] = useState<number>(0);
   const [discountValue, setDiscountValue] = useState<number>(0);
   const [totalAmountReturnProducts, setTotalAmountReturnProducts] = useState(0);
   // console.log("totalAmountReturnProducts", totalAmountReturnProducts);
-  const [orderAmount, setOrderAmount] = useState<number>(0);
+  const [orderProductsAmount, setOrderProductsAmount] = useState<number>(0);
   const [tags, setTags] = useState<string>("");
   const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
   const [customer, setCustomer] = useState<CustomerResponse | null>(null);
@@ -198,7 +198,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     [],
   );
 
-  const [listPaymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
+  const [paymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
 
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
 
@@ -225,7 +225,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   );
   // console.log('shippingFeeInformedToCustomer', shippingFeeInformedToCustomer)
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.PREPAYMENT);
+  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.PRE_PAYMENT);
   const [orderReturnReasonResponse, setOrderReturnReasonResponse] =
     useState<OrderReasonModel | null>(null);
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
@@ -240,13 +240,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   //loyalty
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
-  const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
+  const [loyaltyUsageRules, setLoyaltyUsageRules] = useState<Array<LoyaltyUsageResponse>>([]);
   const [countFinishingUpdateCustomer, setCountFinishingUpdateCustomer] = useState(0);
   const [orderConfig, setOrderConfig] = useState<OrderConfigResponseModel | null>(null);
 
   //Store
-  const [storeReturn, setStoreReturn] = useState<StoreResponse | null>(null);
-  const [listStoreReturn, setListStoreReturn] = useState<StoreResponse[]>([]);
+  const [returnStore, setReturnStore] = useState<StoreResponse | null>(null);
+  const [returnStores, setReturnStores] = useState<StoreResponse[]>([]);
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
@@ -387,15 +387,15 @@ const ScreenReturnCreate = (props: PropTypes) => {
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
-  const totalAmountOrder = useMemo(() => {
+  const totalOrderAmount = useMemo(() => {
     return (
-      orderAmount +
+      orderProductsAmount +
       (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
       (promotion?.amount || 0)
     );
-  }, [orderAmount, promotion?.amount, shippingFeeInformedToCustomer]);
+  }, [orderProductsAmount, promotion?.amount, shippingFeeInformedToCustomer]);
 
-  // console.log("totalAmountOrder", totalAmountOrder);
+  // console.log("totalOrderAmount", totalOrderAmount);
 
   const totalAmountPayment = getAmountPayment(payments);
 
@@ -404,11 +404,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
    * else negative
    */
   let totalAmountCustomerNeedToPay = useMemo(() => {
-    let result = Math.round(totalAmountOrder - totalAmountReturnProducts);
+    let result = Math.round(totalOrderAmount - totalAmountReturnProducts);
     return result;
-  }, [totalAmountOrder, totalAmountReturnProducts]);
+  }, [totalOrderAmount, totalAmountReturnProducts]);
 
-  let totalAmountOrderAfterPayments = useMemo(() => {
+  let totalOrderAmountAfterPayments = useMemo(() => {
     let result = Math.round(totalAmountCustomerNeedToPay - totalAmountPayment);
     return result;
   }, [totalAmountCustomerNeedToPay, totalAmountPayment]);
@@ -471,7 +471,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
           setDiscountRate(discountRate);
         }
       }
-      // dispatch(StoreDetailAction(_data.store_id ? _data.store_id : 0, setStoreReturn))
+      // dispatch(StoreDetailAction(_data.store_id ? _data.store_id : 0, setReturnStore))
     }
   }, []);
 
@@ -483,7 +483,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
-      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
+      if (paymentMethod === PaymentMethodOption.POST_PAYMENT) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     } else {
@@ -498,7 +498,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   ) => {
     setListExchangeProducts(_items);
     let amount = totalAmount(_items);
-    setOrderAmount(amount);
+    setOrderProductsAmount(amount);
     if (_promotion !== undefined) {
       setPromotion(_promotion);
     }
@@ -617,7 +617,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   // truyền giá trị đơn đổi
   const addReturnAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
-      const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
+      const moneyPayment = findPaymentMethodByCode(paymentMethods, PaymentMethodCode.CASH);
       const paidAmount = Math.round(totalAmountExchangeFinal);
       if (moneyPayment) {
         result.push({
@@ -637,7 +637,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         });
       }
     },
-    [customer?.id, listPaymentMethods, totalAmountExchangeFinal],
+    [customer?.id, paymentMethods, totalAmountExchangeFinal],
   );
 
   // giá trị trả thêm
@@ -653,7 +653,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   // giá trị đơn trả
   const addReturnPaymentAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
-      const moneyPayment = findPaymentMethodByCode(listPaymentMethods, PaymentMethodCode.CASH);
+      const moneyPayment = findPaymentMethodByCode(paymentMethods, PaymentMethodCode.CASH);
       const paidAmount = Math.round(totalAmountReturnProducts);
       if (moneyPayment) {
         result.push({
@@ -673,14 +673,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
         });
       }
     },
-    [customer?.id, listPaymentMethods, totalAmountReturnProducts],
+    [customer?.id, paymentMethods, totalAmountReturnProducts],
   );
 
   // truyền giá trị trong form
   const addFormAmountToPayments = useCallback(
     (result: OrderPaymentRequest[]) => {
       const formValuePayment = getFormReturnMoneyValues();
-      let returnMoneyMethod = listPaymentMethods.find((single) => {
+      let returnMoneyMethod = paymentMethods.find((single) => {
         return single.code === formValuePayment?.returnMoneyMethod;
       });
       let returnMoneyAmount = formValuePayment?.returnMoneyAmount
@@ -704,7 +704,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         });
       }
     },
-    [customer?.id, getFormReturnMoneyValues, listPaymentMethods],
+    [customer?.id, getFormReturnMoneyValues, paymentMethods],
   );
 
   /**
@@ -781,7 +781,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         ? formValuePayment?.returnMoneyAmount
         : 0;
       const moneyPayment = findPaymentMethodByCode(
-        listPaymentMethods,
+        paymentMethods,
         formValuePayment.returnMoneyMethod,
       );
       if (moneyPayment) {
@@ -808,7 +808,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     }
 
     return result;
-  }, [customer?.id, getFormReturnMoneyValues, listPaymentMethods, returnMoneyType]);
+  }, [customer?.id, getFormReturnMoneyValues, paymentMethods, returnMoneyType]);
 
   const handleReturnCallback = useCallback(
     (response: any) => {
@@ -832,11 +832,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let orderDetailResult: ReturnRequest = {
         ...OrderDetail,
         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
-        store_id: storeReturn ? storeReturn.id : null,
-        store: storeReturn ? storeReturn.name : "",
-        store_code: storeReturn ? storeReturn.code : "",
-        store_full_address: storeReturn ? storeReturn.address : "",
-        store_phone_number: storeReturn ? storeReturn.hotline : "",
+        store_id: returnStore ? returnStore.id : null,
+        store: returnStore ? returnStore.name : "",
+        store_code: returnStore ? returnStore.code : "",
+        store_full_address: returnStore ? returnStore.address : "",
+        store_phone_number: returnStore ? returnStore.hotline : "",
         action: "",
         delivery_service_provider_id: null,
         delivery_fee: null,
@@ -921,7 +921,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     recentAccountCode.accountCode,
     refund.moneyRefund,
     returnItems,
-    storeReturn,
+    returnStore,
     tags,
   ]);
 
@@ -930,7 +930,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   });
 
   const onReturn = useCallback(() => {
-    if (!storeReturn) {
+    if (!returnStore) {
       showError("Vui lòng chọn cửa hàng để trả!");
       const element: any = document.getElementById("selectStoreReturn");
       scrollAndFocusToDomElement(element);
@@ -963,7 +963,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     handleSubmitFormReturn,
     isReceivedReturnProducts,
     orderReturnType,
-    storeReturn,
+    returnStore,
   ]);
 
   const getOrderSource = useCallback(
@@ -1150,7 +1150,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   const checkIfNotHavePaymentsWhenReceiveAtStorePOS = () => {
     const methods = [ShipmentMethodOption.PICK_AT_STORE];
     if (
-      totalAmountOrderAfterPayments > 0 &&
+      totalOrderAmountAfterPayments > 0 &&
       methods.includes(shipmentMethod) &&
       isOrderFromPOS(OrderDetail)
     ) {
@@ -1183,7 +1183,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
       let listFulfillmentRequest = [];
       if (
-        paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
+        paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
         shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
         shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
       ) {
@@ -1195,7 +1195,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       }
 
       if (
-        paymentMethod === PaymentMethodOption.POSTPAYMENT &&
+        paymentMethod === PaymentMethodOption.POST_PAYMENT &&
         shipmentMethod === ShipmentMethodOption.DELIVER_LATER &&
         typeButton === OrderStatus.FINALIZED
       ) {
@@ -1281,14 +1281,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
       );
       values.fulfillments = lstFulFillment;
       values.action = OrderStatus.FINALIZED;
-      values.total = Math.round(totalAmountOrder);
+      values.total = Math.round(totalOrderAmount);
       if (
         values?.fulfillments &&
         values.fulfillments.length > 0 &&
         values.fulfillments[0].shipment
       ) {
         let priceToShipper =
-          totalAmountOrder -
+          totalOrderAmount -
           getAmountPaymentRequest(payments) -
           (totalAmountReturnProducts ? totalAmountReturnProducts : 0);
         values.fulfillments[0].shipment.cod = priceToShipper > 0 ? priceToShipper : 0;
@@ -1341,7 +1341,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       shippingAddress,
       shippingAddressesSecondPhone,
       tags,
-      totalAmountOrder,
+      totalOrderAmount,
       totalAmountReturnProducts,
     ],
   );
@@ -1404,7 +1404,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
       scrollAndFocusToDomElement(element);
       return;
     }
-    if (!storeReturn) {
+    if (!returnStore) {
       showError("Vui lòng chọn cửa hàng để trả!");
       const element: any = document.getElementById("selectStoreReturn");
       scrollAndFocusToDomElement(element);
@@ -1449,11 +1449,11 @@ const ScreenReturnCreate = (props: PropTypes) => {
       let orderDetailResult: ReturnRequest = {
         ...cloneDeep(OrderDetail),
         source_id: OrderDetail.source_id, // nguồn đơn gốc, ghi lại cho chắc
-        store_id: storeReturn ? storeReturn.id : null,
-        store: storeReturn ? storeReturn.name : "",
-        store_code: storeReturn ? storeReturn.code : "",
-        store_full_address: storeReturn ? storeReturn.address : "",
-        store_phone_number: storeReturn ? storeReturn.hotline : "",
+        store_id: returnStore ? returnStore.id : null,
+        store: returnStore ? returnStore.name : "",
+        store_code: returnStore ? returnStore.code : "",
+        store_full_address: returnStore ? returnStore.address : "",
+        store_phone_number: returnStore ? returnStore.hotline : "",
         action: "",
         delivery_service_provider_id: null,
         delivery_fee: null,
@@ -1591,7 +1591,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     shipmentMethod,
     shippingAddress,
     shippingFeeInformedToCustomer,
-    storeReturn,
+    returnStore,
     thirdPL.service,
   ]);
 
@@ -1632,12 +1632,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
       totalAmountReturnProducts,
       totalAmountExchange,
       totalAmountCustomerNeedToPay,
-      setStoreReturn,
-      storeReturn,
+      setReturnStore,
+      returnStore,
       listExchangeProducts,
     },
     isExchange,
-    listStoreReturn,
+    returnStores,
   };
   // console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
@@ -1728,18 +1728,18 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   discountRate={discountRate}
                   orderId={orderId}
                   setIsVisibleModalWarningPointRefund={setIsVisibleModalWarningPointRefund}
-                  listStores={listStores}
+                  stores={stores}
                   autoCompleteRef={productReturnAutoCompleteRef}
                   searchVariantInputValue={searchVariantInputValue}
                   setSearchVariantInputValue={setSearchVariantInputValue}
                   setListOrderProductsResult={setListOrderProductsResult}
                   isAlreadyShowWarningPoint={isAlreadyShowWarningPoint}
-                  listPaymentMethods={listPaymentMethods}
+                  paymentMethods={paymentMethods}
                 />
 
                 <OrderCreateProduct
-                  orderAmount={orderAmount}
-                  totalAmountOrder={totalAmountOrder}
+                  orderProductsAmount={orderProductsAmount}
+                  totalOrderAmount={totalOrderAmount}
                   changeInfo={onChangeInfoProduct}
                   setStoreId={(value) => {
                     setStoreId(value);
@@ -1769,14 +1769,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   isCreateReturn
                   isExchange={isExchange}
                   shipmentMethod={shipmentMethod}
-                  listStores={listStores}
+                  stores={stores}
                   isReturnOffline={orderReturnType === RETURN_TYPE_VALUES.offline}
                 />
                 {/* hiện tại đang ẩn cái hoàn tiền khi trả */}
                 {/* {!isExchange && ( */}
                 {!isExchange && !isReturnAndNotShowMoneyRefund && canCreateMoneyRefund && (
                   <CardReturnMoneyPageCreateReturn
-                    listPaymentMethods={listPaymentMethods}
+                    paymentMethods={paymentMethods}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     returnMoneyType={returnMoneyType}
                     setReturnMoneyType={setReturnMoneyType}
@@ -1788,10 +1788,10 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
                 {isExchange && (
                   <CardReturnMoneyPageCreate
-                    listPaymentMethods={listPaymentMethods}
+                    paymentMethods={paymentMethods}
                     payments={payments}
                     setPayments={setPayments}
-                    totalAmountOrder={totalAmountOrder}
+                    totalOrderAmount={totalOrderAmount}
                     totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                     isExchange={isExchange}
                     returnMoneyType={returnMoneyType}
@@ -1842,12 +1842,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
                           ? ShipmentMethodOption.PICK_AT_STORE
                           : shipmentMethod
                       }
-                      orderPrice={orderAmount}
+                      orderProductsAmount={orderProductsAmount}
                       storeDetail={storeDetail}
                       customer={customer}
                       items={listExchangeProducts}
                       isCancelValidateDelivery={false}
-                      totalAmountCustomerNeedToPay={totalAmountOrderAfterPayments}
+                      totalAmountCustomerNeedToPay={totalOrderAmountAfterPayments}
                       setShippingFeeInformedToCustomer={ChangeShippingFeeInformedToCustomer}
                       onSelectShipment={onSelectShipment}
                       thirdPL={thirdPL}
@@ -2091,6 +2091,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
     [listItemCanBeReturn, listReturnProducts],
   );
 
+  //xử lý shipment khi có momo
   useHandleMomoCreateShipment(setShipmentMethod, payments);
 
   useEffect(() => {
@@ -2209,7 +2210,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }, [dispatch]);
 
   useEffect(() => {
-    dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
+    dispatch(getLoyaltyUsage(setLoyaltyUsageRules));
   }, [dispatch]);
 
   useEffect(() => {
@@ -2234,7 +2235,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   }, [customer?.id, dispatch, orderReturnType]);
 
   useEffect(() => {
-    let cash = listPaymentMethods.find((single) => single.code === PaymentMethodCode.CASH);
+    let cash = paymentMethods.find((single) => single.code === PaymentMethodCode.CASH);
     if (cash && !isPaymentAlreadyChanged) {
       setPayments([
         {
@@ -2254,7 +2255,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
         },
       ]);
     }
-  }, [customer?.id, isPaymentAlreadyChanged, listPaymentMethods, totalAmountCustomerNeedToPay]);
+  }, [customer?.id, isPaymentAlreadyChanged, paymentMethods, totalAmountCustomerNeedToPay]);
 
   // console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
@@ -2290,7 +2291,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
   useEffect(() => {
     dispatch(
       getListStoresSimpleAction((data: StoreResponse[]) => {
-        setListStoreReturn(data);
+        setReturnStores(data);
       }),
     );
   }, [dispatch]);
@@ -2340,7 +2341,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
 
   useEffect(() => {
     if (storeIdLogin) {
-      dispatch(StoreDetailAction(storeIdLogin, setStoreReturn));
+      dispatch(StoreDetailAction(storeIdLogin, setReturnStore));
     }
   }, [dispatch, storeIdLogin]);
 

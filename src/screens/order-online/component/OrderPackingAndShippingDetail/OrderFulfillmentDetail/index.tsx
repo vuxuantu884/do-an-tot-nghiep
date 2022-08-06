@@ -6,7 +6,7 @@ import {
   OrderResponse,
 } from "model/response/order/order.response";
 import React, { useCallback } from "react";
-import { CheckShipmentType, formatCurrency, isOrderFromPOS } from "utils/AppUtils";
+import { formatCurrency, isOrderFromPOS } from "utils/AppUtils";
 import { ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, successColor, yellowColor } from "utils/global-styles/variables";
@@ -68,7 +68,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
     }
   };
 
-  const renderPushingStatus = (fulfillment: FulFillmentResponse) => {
+  const getPushingStatus = (fulfillment: FulFillmentResponse) => {
     if (isUpdateOrder) {
       return null;
     }
@@ -88,28 +88,57 @@ function OrderFulfillmentDetail(props: PropTypes) {
           break;
       }
       return (
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">Trạng thái:</p>
-            </Col>
-            <Col span={14}>
-              <p>
-                <b className="text-field" style={{ color }}>
-                  {fulfillment?.shipment.pushing_note}
-                  {/* {failedFulfillment?.shipment.delivery_service_note ? ` - ${failedFulfillment?.shipment.delivery_service_note}` : null} */}
-                </b>
-              </p>
-            </Col>
-          </Row>
-        </Col>
+        <p>
+          <b className="text-field" style={{ color }}>
+            {fulfillment?.shipment.pushing_note}
+            {/* {failedFulfillment?.shipment.delivery_service_note ? ` - ${failedFulfillment?.shipment.delivery_service_note}` : null} */}
+          </b>
+        </p>
       );
     }
   };
 
-  const renderIfFulfillmentIsAtStore = () => {
+  const renderHtml = (arr: { title: string; value: React.ReactNode }[]) => {
     return (
-      <div>
+      <Row gutter={24}>
+        {arr.map((single) => {
+          if (!single.title || !single.value) {
+            return null;
+          }
+          return (
+            <Col md={12} key={single.title}>
+              <Row gutter={30}>
+                <Col span={10}>
+                  <p className="text-field">{single.title}:</p>
+                </Col>
+                <Col span={14}>
+                  <b>{single.value}</b>
+                </Col>
+              </Row>
+            </Col>
+          );
+        })}
+      </Row>
+    );
+  };
+
+  const renderIfFulfillmentIsAtStore = () => {
+    const detailArrAtStore = [
+      {
+        title: "Tên cửa hàng",
+        value: orderDetail?.store,
+      },
+      {
+        title: "Số điện thoại",
+        value: orderDetail?.store_phone_number,
+      },
+      {
+        title: "Địa chỉ",
+        value: orderDetail?.store_full_address,
+      },
+    ];
+    return (
+      <React.Fragment>
         <Row gutter={24}>
           <Col md={24}>
             <b>
@@ -118,195 +147,77 @@ function OrderFulfillmentDetail(props: PropTypes) {
             </b>
           </Col>
         </Row>
-
-        <Row gutter={24} style={{ paddingTop: "15px" }}>
-          <Col md={12}>
-            <Row>
-              <Col span={10}>
-                <p className="text-field">Tên cửa hàng:</p>
-              </Col>
-              <Col span={14}>
-                <b>{orderDetail?.store}</b>
-              </Col>
-            </Row>
-          </Col>
-
-          <Col md={12}>
-            <Row>
-              <Col span={10}>
-                <p className="text-field">Số điện thoại:</p>
-              </Col>
-              <Col span={14}>
-                <b className="text-field">{orderDetail?.store_phone_number}</b>
-              </Col>
-            </Row>
-          </Col>
-
-          <Col md={12}>
-            <Row>
-              <Col span={10}>
-                <p className="text-field">Địa chỉ:</p>
-              </Col>
-              <Col span={14}>
-                <b className="text-field">{orderDetail?.store_full_address}</b>
-              </Col>
-            </Row>
-          </Col>
-        </Row>
-      </div>
+        {renderHtml(detailArrAtStore)}
+      </React.Fragment>
     );
   };
 
   const renderIfFulfillmentIsNotAtStore = () => {
-    return (
-      <Row gutter={24}>
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field doi-tac">Đối tác giao hàng:</p>
-            </Col>
-            <Col span={14}>
-              <b>
-                {/* Lấy ra đối tác */}
-                {renderDeliverServiceProvider(fulfillment)}
-              </b>
-            </Col>
-          </Row>
-        </Col>
-        {/* {CheckShipmentType(orderDetail!) === "external_service" && ( */}
-        {fulfillment.shipment?.delivery_service_provider_type ===
-          ShipmentMethod.EXTERNAL_SERVICE && (
-          <Col md={12}>
-            <Row gutter={30}>
-              <Col span={10}>
-                <p className="text-field">Dịch vụ:</p>
-              </Col>
-              <Col span={14}>
-                <b className="text-field">
-                  {/* {getServiceName(orderDetail!)} */}
-                  {fulfillment.shipment?.delivery_transport_type}
-                </b>
-              </Col>
-            </Row>
-          </Col>
-        )}
-
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">Phí ship trả HVC:</p>
-            </Col>
-            <Col span={14}>
-              <b className="text-field">
-                {orderDetail?.fulfillments &&
-                  formatCurrency(
-                    fulfillment.shipment?.shipping_fee_paid_to_three_pls
-                      ? fulfillment.shipment?.shipping_fee_paid_to_three_pls
-                      : 0,
-                  )}
-              </b>
-            </Col>
-          </Row>
-        </Col>
-
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">Phí ship báo khách:</p>
-            </Col>
-            <Col span={14}>
-              <b className="text-field">
-                {formatCurrency(orderDetail?.shipping_fee_informed_to_customer || 0)}
-              </b>
-            </Col>
-          </Row>
-        </Col>
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">Loại đơn giao hàng:</p>
-            </Col>
-            <Col span={14}>
-              <b
-                className="text-field"
-                style={{
-                  color:
-                    fulfillment.shipment?.service === SHIPPING_TYPE.DELIVERY_4H ? "#E24343" : "",
-                }}
-              >
-                {fulfillment.shipment?.service === SHIPPING_TYPE.DELIVERY_4H
-                  ? "Đơn giao 4H"
-                  : "Đơn giao bình thường"}
-              </b>
-            </Col>
-          </Row>
-        </Col>
-        {renderPushingStatus(fulfillment)}
-        {CheckShipmentType(orderDetail!) === ShipmentMethod.EXTERNAL_SERVICE && (
-          <Col md={12}>
-            <Row gutter={30}>
-              <Col span={10}>
-                <p className="text-field">Trọng lượng:</p>
-              </Col>
-              <Col span={14}>
-                <b className="text-field">
-                  {orderDetail?.fulfillments &&
-                    orderDetail?.fulfillments.length > 0 &&
-                    orderDetail.items &&
-                    calculateSumWeightResponse(orderDetail.items)}
-                  {` g`}
-                </b>
-              </Col>
-            </Row>
-          </Col>
-        )}
-        <Col md={12}>
-          <Row gutter={30}>
-            <Col span={10}>
-              <p className="text-field">
-                {!checkIfFulfillmentCancelled(fulfillment) ? "Ngày tạo" : "Ngày hủy"}:
-              </p>
-            </Col>
-            <Col span={14}>
-              <b className="text-field">
-                {!checkIfFulfillmentCancelled(fulfillment)
-                  ? ConvertUtcToLocalDate(fulfillment.shipment?.created_date, dateFormat)
-                  : ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat)}
-              </b>
-            </Col>
-          </Row>
-        </Col>
-
-        {fulfillment?.reason_name && (
-          <Col md={12}>
-            <Row gutter={30}>
-              <Col span={10}>
-                <p className="text-field">Lý do hủy:</p>
-              </Col>
-              <Col span={14}>
-                <b className="text-field">
-                  {fulfillment?.reason_name}
-                  {fulfillment?.sub_reason_name && <span> - {fulfillment?.sub_reason_name}</span>}
-                </b>
-              </Col>
-            </Row>
-          </Col>
-        )}
-
-        {requirementNameView && (
-          <Col md={12}>
-            <Row gutter={30}>
-              <Col span={10}>
-                <p className="text-field">Yêu cầu:</p>
-              </Col>
-              <Col span={14}>
-                <b className="text-field">{requirementNameView}</b>
-              </Col>
-            </Row>
-          </Col>
-        )}
-      </Row>
-    );
+    const detailArrNotAtStore = [
+      {
+        title: "Đối tác giao hàng",
+        value: renderDeliverServiceProvider(fulfillment),
+      },
+      {
+        title: "Dịch vụ",
+        value:
+          fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE
+            ? fulfillment.shipment?.delivery_transport_type
+            : null,
+      },
+      {
+        title: "Phí ship trả HVC",
+        value: formatCurrency(
+          fulfillment.shipment?.shipping_fee_paid_to_three_pls
+            ? fulfillment.shipment?.shipping_fee_paid_to_three_pls
+            : 0,
+        ),
+      },
+      {
+        title: "Phí ship báo khách",
+        value: formatCurrency(orderDetail?.shipping_fee_informed_to_customer || 0),
+      },
+      {
+        title: "Loại đơn giao hàng",
+        value:
+          fulfillment.shipment?.service === SHIPPING_TYPE.DELIVERY_4H ? (
+            <span className="fourHourDelivery">Đơn giao 4H</span>
+          ) : (
+            "Đơn giao bình thường"
+          ),
+      },
+      {
+        title: "Trạng thái",
+        value: getPushingStatus(fulfillment),
+      },
+      {
+        title: "Trọng lượng",
+        value:
+          orderDetail?.fulfillments && orderDetail?.fulfillments.length > 0 && orderDetail.items
+            ? `${calculateSumWeightResponse(orderDetail.items)} g`
+            : null,
+      },
+      {
+        title: !checkIfFulfillmentCancelled(fulfillment) ? "Ngày tạo" : "Ngày hủy",
+        value: !checkIfFulfillmentCancelled(fulfillment)
+          ? ConvertUtcToLocalDate(fulfillment.shipment?.created_date, dateFormat)
+          : ConvertUtcToLocalDate(fulfillment?.cancel_date, dateFormat),
+      },
+      {
+        title: "Lý do hủy",
+        value: fulfillment?.reason_name ? (
+          <React.Fragment>
+            {fulfillment?.reason_name}
+            {fulfillment?.sub_reason_name && <span> - {fulfillment?.sub_reason_name}</span>}
+          </React.Fragment>
+        ) : null,
+      },
+      {
+        title: "Yêu cầu",
+        value: requirementNameView ? requirementNameView : null,
+      },
+    ];
+    return renderHtml(detailArrNotAtStore);
   };
 
   if (!fulfillment) {

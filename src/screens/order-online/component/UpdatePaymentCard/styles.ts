@@ -52,4 +52,31 @@ export const StyledComponent = styled.div`
       }
     }
   }
+  .createPaymentButtons {
+    margin-top: 20px;
+    button {
+      float: right;
+      padding: 0 25px;
+      margin: 0;
+      &:not(:last-child) {
+        margin: 0 0 0 10px;
+      }
+    }
+  }
+  .updatePayment {
+    &__title {
+      margin-top: 5px;
+      border: none;
+    }
+  }
+  .showCreatePaymentButton {
+    &__label {
+      margin-top: 20px;
+      line-height: 40px;
+    }
+    &__button {
+      float: right;
+      padding: 0 25px;
+    }
+  }
 `;

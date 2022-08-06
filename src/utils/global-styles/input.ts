@@ -1,5 +1,5 @@
 import { css } from "styled-components";
-import { borderColor, borderRadius, focusBorderColor } from "./variables";
+import { borderColor, borderRadius, focusBorderColor, textBodyColor } from "./variables";
 
 export const globalCssCustomInput = css`
   .ant {
@@ -9,7 +9,7 @@ export const globalCssCustomInput = css`
       border-color: ${borderColor};
       font-size: 1rem;
       border-radius: ${borderRadius};
-      color: $label-color;
+      color: ${textBodyColor};
       &-lg {
         font-size: 1em;
       }

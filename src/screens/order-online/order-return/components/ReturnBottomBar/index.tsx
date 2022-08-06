@@ -4,7 +4,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   onReturn: () => void;
   onReturnAndPrint: () => void;
   onReturnAndExchange: () => void;
@@ -13,7 +13,7 @@ type PropType = {
   isExchange: boolean;
 };
 
-function ReturnBottomBar(props: PropType) {
+function ReturnBottomBar(props: PropTypes) {
   const {
     onReturn,
     onReturnAndPrint,
@@ -27,6 +27,59 @@ function ReturnBottomBar(props: PropType) {
     (state: RootReducerType) => state.orderReducer.isLoadingDiscount,
   );
 
+  const renderReturnButtons = () => {
+    if (!isExchange) {
+      return (
+        <React.Fragment>
+          <Button
+            type="primary"
+            ghost
+            onClick={() => {
+              onReturn();
+            }}
+            id="btn-return"
+          >
+            Trả hàng (F9)
+          </Button>
+          <Button
+            type="primary"
+            onClick={() => {
+              onReturnAndPrint();
+            }}
+            id="btn-return-print"
+          >
+            Trả hàng và in hóa đơn (F10)
+          </Button>
+        </React.Fragment>
+      );
+    }
+    return (
+      <React.Fragment>
+        <Button
+          type="primary"
+          ghost
+          onClick={() => {
+            onReturnAndExchange();
+          }}
+          disabled={isLoadingDiscount}
+          id="btn-return"
+        >
+          Trả và đổi hàng (F9)
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            onReturnAndExchangeAndPrint();
+          }}
+          disabled={isLoadingDiscount}
+          id="btn-return-print"
+        >
+          Trả và đổi hàng và in hóa đơn (F10)
+        </Button>
+      </React.Fragment>
+    );
+  };
+
   return (
     <StyledComponent>
       <div className="bottomBar">
@@ -39,53 +92,7 @@ function ReturnBottomBar(props: PropType) {
           >
             Hủy
           </Button>
-          {!isExchange ? (
-            <React.Fragment>
-              <Button
-                type="primary"
-                ghost
-                onClick={() => {
-                  onReturn();
-                }}
-                id="btn-return"
-              >
-                Trả hàng (F9)
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => {
-                  onReturnAndPrint();
-                }}
-                id="btn-return-print"
-              >
-                Trả hàng và in hóa đơn (F10)
-              </Button>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              <Button
-                type="primary"
-                ghost
-                onClick={() => {
-                  onReturnAndExchange();
-                }}
-                disabled={isLoadingDiscount}
-                id="btn-return"
-              >
-                Trả và đổi hàng (F9)
-              </Button>
-              <Button
-                type="primary"
-                onClick={() => {
-                  onReturnAndExchangeAndPrint();
-                }}
-                disabled={isLoadingDiscount}
-                id="btn-return-print"
-              >
-                Trả và đổi hàng và in hóa đơn (F10)
-              </Button>
-            </React.Fragment>
-          )}
+          {renderReturnButtons()}
         </div>
       </div>
     </StyledComponent>
