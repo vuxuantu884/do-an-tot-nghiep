@@ -20,14 +20,14 @@ import {
 } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   orderDetail?: OrderResponse | null;
   isVisibleGroupButtons?: boolean;
   isVisibleActionsButtons?: boolean;
   isVisibleUpdateButtons?: boolean;
   stepsStatusValue?: string;
   formRef?: React.RefObject<FormInstance<any>>;
-  creating?: boolean;
+  isCreating?: boolean;
   isShowConfirmOrderButton?: boolean;
   disabledBottomActions?: boolean;
   isSaveDraft?: boolean;
@@ -42,7 +42,7 @@ type PropType = {
   onConfirmOrder?: () => void;
 };
 
-const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
+function OrderDetailBottomBar(props: PropTypes) {
   const {
     orderDetail,
     isVisibleGroupButtons,
@@ -50,7 +50,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
     isVisibleUpdateButtons,
     stepsStatusValue,
     formRef,
-    creating,
+    isCreating,
     isSaveDraft,
     updating,
     updatingConfirm,
@@ -155,7 +155,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
               <Button
                 className="ant-btn-outline fixed-button cancle-button bottomBarRight__button"
                 onClick={() => window.location.reload()}
-                disabled={isSaveDraft || creating}
+                disabled={isSaveDraft || isCreating}
               >
                 Huỷ
               </Button>
@@ -165,7 +165,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                 ghost
                 onClick={showSaveAndConfirmModal}
                 loading={isSaveDraft}
-                disabled={creating || isLoadingDiscount}
+                disabled={isCreating || isLoadingDiscount}
                 id="save-draft-confirm"
               >
                 Lưu nháp (F6)
@@ -178,7 +178,7 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
                   handleTypeButton(OrderStatus.FINALIZED);
                   formRef.current?.submit();
                 }}
-                loading={creating}
+                loading={isCreating}
                 disabled={isSaveDraft || isLoadingDiscount}
               >
                 Lưu và Xác nhận (F9)
@@ -438,6 +438,6 @@ const OrderDetailBottomBar: React.FC<PropType> = (props: PropType) => {
       </div>
     </StyledComponent>
   );
-};
+}
 
 export default OrderDetailBottomBar;

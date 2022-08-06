@@ -324,7 +324,7 @@ function OrderList(props: PropTypes) {
       setSelectedRowKeys(selectedRowKeysCopy);
       setSelectedRowCodes(selectedRowCodesCopy);
     },
-    [selectedRowCodes, selectedRowKeys],
+    [selectedRowCodes, selectedRowKeys, selectedRows],
   );
 
   const onClearSelected = () => {
