@@ -28,6 +28,7 @@ import arrowLeft from "assets/icon/arrow-back.svg";
 import WarningRedIcon from "assets/icon/ydWarningRedIcon.svg";
 import { useDispatch, useSelector } from "react-redux";
 import {
+  checkDuplicateInventoryTransferAction,
   creatInventoryTransferAction,
   creatInventoryTransferRequestAction,
   deleteInventoryTransferAction,
@@ -70,6 +71,8 @@ import { RefSelectProps } from "antd/lib/select";
 import { RegUtil } from "utils/RegUtils";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
+import ModalShowError from "../common/ModalShowError";
+import { HttpStatus } from "config/http-status.config";
 
 const { Option } = Select;
 
@@ -103,6 +106,10 @@ const UpdateTicket: FC = () => {
   const [modalConfirm, setModalConfirm] = useState<ModalConfirmProps>({
     visible: false,
   });
+
+  const [isOpenModalErrors, setIsOpenModalErrors] = useState<boolean>(false);
+  const [errorData, setErrorData] = useState([]);
+  const [continueData, setContinueData] = useState(null);
 
   const location = useLocation();
   const isContinueCreateImport = useSelector(
@@ -192,6 +199,31 @@ const UpdateTicket: FC = () => {
     getMe();
   }, [dispatch, getMe, getStores]);
 
+  const checkCallback = useCallback(
+    (result: any) => {
+      if (result.responseData.code === HttpStatus.SUCCESS) {
+        dispatch(creatInventoryTransferAction(result.data, createCallback));
+      } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
+        setIsOpenModalErrors(true);
+        setErrorData(result.responseData.data);
+        setContinueData(result.data);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [history],
+  );
+
+  const checkDuplicateRecord = useCallback((dataImport: any) => {
+    const dataCheck: any = {
+      line_items: dataImport.line_items,
+      store_receive: dataImport.store_receive,
+      store_transfer: dataImport.store_transfer,
+      note: dataImport.note,
+    };
+    dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // get store
   useEffect(() => {
     if (stores.length === 0) return;
@@ -201,7 +233,7 @@ const UpdateTicket: FC = () => {
       if (stateImport) {
         if (stateImport.isFastCreate) {
           if (isContinueCreateImport) {
-            onFinish(stateImport.data);
+            checkDuplicateRecord(stateImport.data);
             return;
           }
 
@@ -493,7 +525,6 @@ const UpdateTicket: FC = () => {
 
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
-      // setLoadingSaveButton(false);
       if (result) {
         setIsLoading(false);
         showSuccess("Đổi dữ liệu thành công");
@@ -575,34 +606,6 @@ const UpdateTicket: FC = () => {
 
   const onFinish = useCallback(
     (data: StockTransferSubmit) => {
-      // let countError = 0;
-      // let arrError: Array<string> = [];
-      // dataTable?.forEach((element: VariantResponse, index: number) => {
-      //   const thisInput = document.getElementById(`item-quantity-${index}`);
-      //   if (!element.transfer_quantity) {
-      //     if (thisInput) thisInput.style.borderColor = "red";
-      //     countError++;
-      //     arrError.push(`${index + 1}`);
-      //   } else if (element.transfer_quantity === 0) {
-      //     if (thisInput) thisInput.style.borderColor = "red";
-      //     countError++;
-      //     arrError.push(`${index + 1}`);
-      //   } else if (
-      //     element.transfer_quantity > (element.available ? element.available : 0)
-      //   ) {
-      //     if (thisInput) thisInput.style.borderColor = "red";
-      //     arrError.push(`${index + 1}`);
-      //     countError++;
-      //   } else {
-      //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-      //   }
-      // });
-      //
-      // if (countError > 0) {
-      //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-      //   return;
-      // }
-
       if (CopyId || stateImport) {
         const dataCreate: any = {};
         stores.forEach((store) => {
@@ -653,12 +656,13 @@ const UpdateTicket: FC = () => {
 
         dataCreate.note = data.note;
         dataCreate.attached_files = data.attached_files;
+        console.log(dataCreate)
         setIsLoading(true);
-        dispatch(
-          stateImport && stateImport.isCreateRequest
-            ? creatInventoryTransferRequestAction(dataCreate, createCallback)
-            : creatInventoryTransferAction(dataCreate, createCallback),
-        );
+        if (stateImport && stateImport.isCreateRequest) {
+          dispatch(creatInventoryTransferRequestAction(dataCreate, createCallback));
+        } else {
+          checkDuplicateRecord(dataCreate);
+        }
       } else {
         if (stores) {
           stores.forEach((store) => {
@@ -698,40 +702,8 @@ const UpdateTicket: FC = () => {
         }
       }
     },
-    [CopyId, createCallback, dataTable, dispatch, initDataForm, stateImport, stores],
+    [CopyId, checkDuplicateRecord, createCallback, dataTable, dispatch, initDataForm, stateImport, stores],
   );
-
-  // const checkError = (index: number) => {
-  //   const dataLineItems = dataTable;
-  //   const thisInput = document.getElementById(`item-quantity-${index}`);
-  //   if (dataLineItems[index].transfer_quantity === 0) {
-  //     showError("Số lượng phải lớn hơn 0");
-  //     if (thisInput) thisInput.style.borderColor = "red";
-  //   } else if (
-  //     dataLineItems[index].transfer_quantity >
-  //     (dataLineItems[index].available ? dataLineItems[index].available : 0)
-  //   ) {
-  //     showError("Không đủ tồn kho gửi");
-  //     if (thisInput) thisInput.style.borderColor = "red";
-  //   } else {
-  //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-  //   }
-  //
-  //   dataLineItems?.forEach((element: VariantResponse, index: number) => {
-  //     const thisInput = document.getElementById(`item-quantity-${index}`);
-  //     if (!element.transfer_quantity) {
-  //       if (thisInput) thisInput.style.borderColor = "red";
-  //     } else if (element.transfer_quantity === 0) {
-  //       if (thisInput) thisInput.style.borderColor = "red";
-  //     } else if (
-  //       element.transfer_quantity > (element.available ? element.available : 0)
-  //     ) {
-  //       if (thisInput) thisInput.style.borderColor = "red";
-  //     } else {
-  //       if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-  //     }
-  //   });
-  // };
 
   const onDeleteTicket = (value: string | undefined) => {
     dispatch(
@@ -748,25 +720,6 @@ const UpdateTicket: FC = () => {
       ),
     );
   };
-
-  // const isError = useMemo(()=>{
-  //  const fromId =  form.getFieldValue("from_store_id");
-  //
-  //   if (!fromId || (!initDataForm && !toStoreData) ||  (fromId === toStoreData?.id))  return true
-  //
-  //   let error = false;
-  //
-  //   if (dataTable.length === 0) {
-  //     return true
-  //   }
-  //
-  //   dataTable?.forEach((element: VariantResponse) => {
-  //     if (!element.transfer_quantity || element.transfer_quantity === 0 || (element.transfer_quantity > (element.available ? element.available : 0))) {
-  //       error= true
-  //     }
-  //   });
-  //   return error;
-  // },[form, toStoreData, dataTable, initDataForm])
 
   useEffect(() => {
     dataTable?.forEach((element: VariantResponse, index: number) => {
@@ -1266,6 +1219,17 @@ const UpdateTicket: FC = () => {
           title={`Bạn có muốn rời khỏi trang?`}
           subTitle="Thông tin trên trang này sẽ không được lưu."
           visible={isVisibleModalWarning}
+        />
+      )}
+      {isOpenModalErrors && (
+        <ModalShowError
+          onCancel={() => {
+            setIsOpenModalErrors(false);
+          }}
+          errorData={errorData}
+          onOk={() => continueData && dispatch(creatInventoryTransferAction(continueData, createCallback))}
+          title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
+          visible={isOpenModalErrors}
         />
       )}
     </ContentContainer>
