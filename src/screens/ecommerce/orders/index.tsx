@@ -98,7 +98,10 @@ import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "rea
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
-import { getEcommerceIdByChannelId } from "screens/ecommerce/common/commonAction";
+import {
+  EcommerceChannelId,
+  getEcommerceIdByChannelId,
+} from "screens/ecommerce/common/commonAction";
 import ConflictDownloadModal from "screens/ecommerce/common/ConflictDownloadModal";
 import ExitDownloadOrdersModal from "screens/ecommerce/orders/component/ExitDownloadOrdersModal";
 import ExitProgressModal from "screens/ecommerce/orders/component/ExitProgressModal";
@@ -717,14 +720,14 @@ const EcommerceOrders: React.FC = () => {
   );
 
   const handleRenderChannelIcon = (record: OrderModel) => {
-    switch (record?.account?.toLowerCase()) {
-      case "sàn shopee":
+    switch (record?.channel_id) {
+      case EcommerceChannelId.SHOPEE:
         return shopeeIcon;
-      case "sàn lazada":
+      case EcommerceChannelId.LAZADA:
         return lazadaIcon;
-      case "sàn tiki":
+      case EcommerceChannelId.TIKI:
         return tikiIcon;
-      case "sàn tiktok":
+      case EcommerceChannelId.TIKTOK:
         return tiktokIcon;
       default:
         return "";
@@ -776,12 +779,7 @@ const EcommerceOrders: React.FC = () => {
             <b>[Đ]</b>
           </div>
         ) : null}
-        <img
-          width={18}
-          height={18}
-          src={handleRenderChannelIcon(record)}
-          alt={record.account || ""}
-        />
+        <img width={18} height={18} src={handleRenderChannelIcon(record)} alt="" />
       </React.Fragment>
     );
   };
