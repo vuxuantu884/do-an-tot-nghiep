@@ -88,8 +88,8 @@ const TabHistoryPrice: React.FC = () => {
       {
         title: "Giá nhập cũ",
         dataIndex: "data_old",
-        key: "data_old",
-        visible: false,
+        key: "import_price_old",
+        visible: true,
         align: "right",
         width: 120,
         render: (value) => {
@@ -103,7 +103,7 @@ const TabHistoryPrice: React.FC = () => {
       {
         title: "Giá nhập mới",
         dataIndex: "data_current",
-        key: "data_current",
+        key: "import_price_current",
         visible: true,
         align: "right",
         width: 120,
@@ -116,9 +116,39 @@ const TabHistoryPrice: React.FC = () => {
         },
       },
       {
+        title: "Giá vốn cũ",
+        dataIndex: "data_old",
+        key: "cost_price_old",
+        visible: true,
+        align: "right",
+        width: 120,
+        render: (value) => {
+          if (value) {
+            const DATA_CONVERT = JSON.parse(value);
+            return formatCurrencyForProduct(DATA_CONVERT.cost_price);
+          }
+          return "---";
+        },
+      },
+      {
+        title: "Giá vốn mới",
+        dataIndex: "data_current",
+        key: "cost_price_current",
+        visible: true,
+        align: "right",
+        width: 120,
+        render: (value) => {
+          if (value) {
+            const DATA_CONVERT = JSON.parse(value);
+            return formatCurrencyForProduct(DATA_CONVERT.cost_price);
+          }
+          return "---";
+        },
+      },
+      {
         title: "Giá bán cũ",
         dataIndex: "data_old",
-        key: "data_old",
+        key: "retail_price_old",
         visible: true,
         align: "right",
         width: 120,
@@ -133,7 +163,7 @@ const TabHistoryPrice: React.FC = () => {
       {
         title: "Giá bán mới",
         dataIndex: "data_current",
-        key: "data_current",
+        key: "retail_price_current",
         visible: true,
         align: "right",
         width: 120,
@@ -148,9 +178,10 @@ const TabHistoryPrice: React.FC = () => {
       {
         title: "Người sửa",
         dataIndex: "action_name",
-        key: "action_name",
+        key: "xaction_name",
         visible: true,
         width: 200,
+        align: "center",
         render: (value, record) => {
           return (
             <div>
@@ -170,7 +201,7 @@ const TabHistoryPrice: React.FC = () => {
         visible: true,
         align: "left",
         dataIndex: "action_date",
-        key: "action_date",
+        key: "yaction_date",
         render: (value) => (value ? ConvertUtcToLocalDate(value) : "---"),
         width: 160,
       },
