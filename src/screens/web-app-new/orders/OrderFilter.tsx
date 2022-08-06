@@ -699,7 +699,7 @@ const OrderFilter = (props: OrderFilterProps) => {
                       <p>Nhân viên bán hàng</p>
                       <Item name="assignee_codes">
                         <AccountCustomSearchSelect
-                          placeholder="chọn nhân viên bán hàng"
+                          placeholder="Chọn nhân viên bán hàng"
                           dataToSelect={accountList}
                           setDataToSelect={setAccountList}
                           initDataToSelect={accounts}
