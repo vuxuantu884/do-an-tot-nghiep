@@ -1,19 +1,7 @@
 import React, { createRef, FC, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyledWrapper } from "./styles";
 import UrlConfig from "config/url.config";
-import {
-  AutoComplete,
-  Button,
-  Card,
-  Checkbox,
-  Col,
-  Form,
-  Input,
-  Row,
-  Space,
-  Table,
-  Tag,
-} from "antd";
+import { AutoComplete, Button, Card, Checkbox, Col, Form, Input, Row, Space, Table, Tag } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import purify from "dompurify";
 import imgDefIcon from "assets/img/img-def.svg";
@@ -37,6 +25,7 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   acceptInventoryAction,
   cancelShipmentInventoryTransferAction,
+  checkDuplicateInventoryTransferAction,
   deleteInventoryTransferAction,
   exportInventoryAction,
   getDetailInventoryTransferAction,
@@ -91,7 +80,9 @@ import useAuthorization from "hook/useAuthorization";
 import { TransferExportField, TransferExportLineItemField } from "model/inventory/field";
 import * as XLSX from "xlsx";
 import moment from "moment";
-import { InventoryType } from "../../../domain/types/inventory.type";
+import { InventoryType } from "domain/types/inventory.type";
+import { HttpStatus } from "config/http-status.config";
+import ModalShowError from "../common/ModalShowError";
 
 export interface InventoryParams {
   id: string;
@@ -128,6 +119,9 @@ const DetailTicket: FC = () => {
 
   const [infoFees, setInfoFees] = useState<Array<any>>([]);
   const productSearchRef = React.useRef<any>(null);
+
+  const [isOpenModalErrors, setIsOpenModalErrors] = useState<boolean>(false);
+  const [errorData, setErrorData] = useState([]);
 
   const { id } = useParams<InventoryParams>();
   const idNumber = parseInt(id);
@@ -619,6 +613,51 @@ const DetailTicket: FC = () => {
     }
   }, [createCallback, data, dataTable, dispatch, stores]);
 
+  const checkCallback = useCallback(
+    (result: any) => {
+      if (result.responseData.code === HttpStatus.SUCCESS) {
+        dispatch(acceptInventoryAction(Number(data?.id), onReload));
+      } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
+        setIsOpenModalErrors(true);
+        setErrorData(result.responseData.data);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [history],
+  );
+
+  const checkDuplicateRecord = () => {
+    if (data) {
+      let dataCheck: any = {};
+
+      stores.forEach((store) => {
+        if (store.id === Number(data?.from_store_id)) {
+          dataCheck.store_transfer = {
+            id: data?.store_transfer?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+        if (store.id === Number(data?.to_store_id)) {
+          dataCheck.store_receive = {
+            id: data?.store_receive?.id,
+            store_id: store.id,
+            hotline: store.hotline,
+            address: store.address,
+            name: store.name,
+            code: store.code,
+          };
+        }
+
+        dataCheck.line_items = dataTable;
+      });
+      dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
+    }
+  };
+
   const handleSearchProduct = useCallback(
     async (keyCode: string, code: string) => {
       barCode = "";
@@ -940,6 +979,7 @@ const DetailTicket: FC = () => {
   };
 
   const onReload = useCallback(() => {
+    setLoadingBtn(true);
     dispatch(getDetailInventoryTransferAction(idNumber, onResult));
   }, [dispatch, idNumber, onResult]);
 
@@ -1183,7 +1223,7 @@ const DetailTicket: FC = () => {
                             <Table.Summary.Cell align={"center"} index={3}>
                               <b>{data.total_quantity}</b>
                             </Table.Summary.Cell>
-                            <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                            <Table.Summary.Cell index={4} />
                           </Table.Summary.Row>
                         </Table.Summary>
                       )}
@@ -1267,7 +1307,7 @@ const DetailTicket: FC = () => {
                                 <Table.Summary.Cell align={"right"} index={1} colSpan={3}>
                                   <b>Tổng số lượng:</b>
                                 </Table.Summary.Cell>
-                                <Table.Summary.Cell index={2}></Table.Summary.Cell>
+                                <Table.Summary.Cell index={2} />
 
                                 <Table.Summary.Cell align={"center"} index={3}>
                                   <b>{formatCurrency(data.total_quantity, ".")}</b>
@@ -1528,8 +1568,9 @@ const DetailTicket: FC = () => {
                         type="primary"
                         loading={isLoadingBtn}
                         onClick={() => {
-                          setLoadingBtn(true);
-                          if (data) dispatch(acceptInventoryAction(data?.id, onReload));
+                          if (data) {
+                            checkDuplicateRecord();
+                          }
                         }}
                       >
                         Xác nhận
@@ -1668,6 +1709,19 @@ const DetailTicket: FC = () => {
           visible={isImport}
           dataTable={dataTable}
         />
+        {isOpenModalErrors && (
+          <ModalShowError
+            onCancel={() => {
+              setIsOpenModalErrors(false);
+              setLoadingBtn(false)
+            }}
+            loading={isLoadingBtn}
+            errorData={errorData}
+            onOk={() => dispatch(acceptInventoryAction(Number(data?.id), onReload))}
+            title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
+            visible={isOpenModalErrors}
+          />
+        )}
       </ContentContainer>
     </StyledWrapper>
   );

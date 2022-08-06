@@ -135,6 +135,13 @@ const TransferService = {
     );
   },
 
+  checkDuplicateInventoryTransferRequest: (data: StockTransferSubmit): Promise<BaseResponse<string>> => {
+    return BaseAxios.post(
+      `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/check-duplicate`,
+      data,
+    );
+  },
+
   createInventoryTransferShipment: (
     id: number,
     data: InventoryTransferShipmentRequest,
@@ -205,6 +212,7 @@ export const {
   uploadFileApi,
   createInventoryTransfer,
   createInventoryTransferRequest,
+  checkDuplicateInventoryTransferRequest,
   updateInventoryTransfer,
   createInventoryTransferShipment,
   receivedInventoryTransfer,
