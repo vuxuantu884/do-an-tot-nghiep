@@ -22,7 +22,11 @@ const { Item } = Form;
 export interface FulfillmentComponentType {
   isLoading: boolean;
   onDelete?: (codes: Array<string>, onSuccess: () => void) => void;
-  onUpdate?: (request: Array<HandoverOrderRequest>, ordedDisplay: Array<FulfillmentDto>) => void;
+  onUpdate?: (
+    request: Array<HandoverOrderRequest>,
+    ordedDisplay: Array<FulfillmentDto>,
+    handleToggleInput?: () => void,
+  ) => void;
 }
 
 const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
@@ -77,11 +81,14 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
   );
 
   const toggleInput = useCallback(() => {
+    setSearching(false);
+    console.log("setSearching ok");
     setTimeout(() => {
-      setSearching(false);
-      let element = document.getElementById("input-search");
+      let element: any = document.getElementById("input-search");
+      console.log("element", element);
       setKeySearch("");
       element?.focus();
+      element?.select();
     }, 100);
   }, []);
 
@@ -197,7 +204,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             const newOrderValue = [newOrder, ...orders];
             const newOrderDisplay = [data, ...order_display];
             if (props.onUpdate) {
-              props.onUpdate(newOrderValue, newOrderDisplay);
+              props.onUpdate(newOrderValue, newOrderDisplay, toggleInput);
               return;
             }
             setFieldsValue({

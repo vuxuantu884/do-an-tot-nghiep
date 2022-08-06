@@ -197,7 +197,11 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
   }, [channelData.isLoad, dispatch]);
 
   const onFinish = useCallback(
-    (orders: Array<HandoverOrderRequest>, fulfillments: Array<FulfillmentDto>) => {
+    (
+      orders: Array<HandoverOrderRequest>,
+      fulfillments: Array<FulfillmentDto>,
+      handleToggleInput?: () => void,
+    ) => {
       const currentRequest = goodsReceiptsForm.getFieldsValue(true);
       const request: HandoverRequest = {
         ...currentRequest,
@@ -221,6 +225,7 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
         })
         .finally(() => {
           setIsLoading(false);
+          handleToggleInput && handleToggleInput();
         });
     },
     [dispatch, goodsReceiptsForm, handoverId],
@@ -435,8 +440,8 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
             {handoverData.data && <DetailHandoverComponent data={handoverData.data} />}
 
             <FulfillmentComponent
-              onUpdate={(request, orderDisplay) => {
-                onFinish(request, orderDisplay);
+              onUpdate={(request, orderDisplay, handleToggleInput) => {
+                onFinish(request, orderDisplay, handleToggleInput);
               }}
               onDelete={(codes, onSucces: () => void) => {
                 setIsLoading(true);
