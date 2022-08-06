@@ -50,6 +50,7 @@ import ProductItem from "../../../purchase-order/component/product-item";
 import { DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE } from "../../constants";
 import { DiscountContext } from "./discount-provider";
 import NumberInput from "component/custom/number-input.custom";
+import { showError } from "utils/ToastUtils";
 const Option = Select.Option;
 
 interface Props {
@@ -117,7 +118,11 @@ const FixedAndQuantityGroup = (props: Props) => {
       },
     });
   };
-  const onResultSearchVariant = useCallback((result: PageResponse<VariantResponse> | false) => {
+  const onResultSearchVariant = useCallback((result: any) => {
+    if (result.items.length <= 0) {
+      showError("Không tìm thấy sản phẩm hoặc sản phẩm đã ngưng bán");
+    }
+
     if (!result) {
       setDataSearchVariant([]);
     } else {
@@ -134,6 +139,7 @@ const FixedAndQuantityGroup = (props: Props) => {
             limit: 200,
             page: 1,
             info: value.trim(),
+            saleable: true,
           },
           onResultSearchVariant,
         ),
