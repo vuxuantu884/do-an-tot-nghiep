@@ -35,6 +35,9 @@ import AccountSearchPaging from "component/custom/select-search/account-select-p
 import { Map } from "component/ggmap";
 import "./styles.scss";
 import copy from "copy-to-clipboard";
+import { callApiNative } from "utils/ApiUtils";
+import { getPlaceDetailApi } from "service/core/store.services";
+import { getWardApi } from "service/content/content.service";
 
 const DefaultLocation = { lat: 21.0228161, lng: 105.8019439 };
 const API_KEY = "AIzaSyB6sGeWZ-0xWzRNGK0eCCdZW1CtzYTfJ0g";
@@ -211,8 +214,9 @@ const StoreCreateScreen: React.FC = () => {
     });
   };
 
-  const selectPlace = (e: any) => {
-    const newLocation = JSON.parse(e?.value);
+  const selectPlace = async (e: any) => {
+    const newLocation = JSON.parse(e?.value).location;
+    const address = JSON.parse(e?.value).address;
 
     const iframe = `<iframe width="600" height="450" loading="lazy" allowFullScreen referrerPolicy="no-referrer-when-downgrade" src={\`https://www.google.com/maps/embed/v1/place?key=${API_KEY}&q=${newLocation.lat},${newLocation.lng}\`} />`;
 
@@ -222,7 +226,47 @@ const StoreCreateScreen: React.FC = () => {
       coordinates: `${newLocation.lat}, ${newLocation.lng}`,
       link_google_map: `https://www.google.com/maps/search/?api=1&query=${newLocation.lat},${newLocation.lng}`,
       iframe,
+      address
     });
+
+    //get place
+
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getPlaceDetailApi, {
+      key: API_KEY,
+      place_id: JSON.parse(e?.value).place_id,
+    });
+
+    const addressComponents = JSON.parse(res).result.address_components;
+    const districtSelected = addressComponents.filter((i: any) => i.types.indexOf('administrative_area_level_2') !== -1);
+    if (districtSelected.length > 0) {
+      const citySelected = cityViews.filter((i) => i.name.indexOf(districtSelected[0].long_name) !== -1);
+
+      formMain.setFieldsValue({
+        district_id: citySelected.length > 0 ? citySelected[0].id : null,
+        city_id: citySelected.length > 0 ? citySelected[0].city_id : null,
+      });
+
+      const wardRes = await callApiNative({ isShowLoading: false }, dispatch, getWardApi, citySelected[0].id);
+      setWards(wardRes);
+
+      const wardSelected = addressComponents.filter((i: any) => i.types.indexOf('sublocality_level_1') !== -1);
+      if (wardSelected.length > 0) {
+        const wardSelectedForm = wardRes.filter((i: any) => i.name.indexOf(wardSelected[0].long_name) !== -1);
+
+        formMain.setFieldsValue({
+          ward_id: wardSelectedForm.length > 0 ? wardSelectedForm[0].id : '',
+        });
+      } else {
+        formMain.setFieldsValue({
+          ward_id: '',
+        });
+      }
+    } else {
+      formMain.setFieldsValue({
+        district_id: '',
+        city_id: '',
+      });
+    }
   };
 
   const copyCode = () => {
@@ -488,7 +532,10 @@ const StoreCreateScreen: React.FC = () => {
                       <span className="danger">Ngừng hoạt động</span>}</div>
                     <div className="right"><Switch checked={statusStore === "active"} onChange={(e) => {
                       setStatusStore(e ? "active" : "inactive");
-                      if (!e) setIsSaleable("inactive");
+                      if (!e) {
+                        setIsSaleable("inactive");
+                        setIsStocktaking("inactive");
+                      }
                     }} /></div>
                   </div>
                 </Col>
@@ -498,6 +545,7 @@ const StoreCreateScreen: React.FC = () => {
                   <div className="status-info">
                     <div>Cho phép bán:</div>
                     <div className="right"><Switch checked={isSaleable === "active"} onChange={(e) => {
+                      if (statusStore === 'inactive') return;
                       setIsSaleable(e ? "active" : "inactive");
                     }} /></div>
                   </div>
@@ -508,6 +556,7 @@ const StoreCreateScreen: React.FC = () => {
                   <div className="status-info">
                     <div>Đang kiểm kho:</div>
                     <div className="right"><Switch checked={isStocktaking === "active"} onChange={(e) => {
+                      if (statusStore === 'inactive') return;
                       setIsStocktaking(e ? "active" : "inactive");
                     }} /></div>
                   </div>
