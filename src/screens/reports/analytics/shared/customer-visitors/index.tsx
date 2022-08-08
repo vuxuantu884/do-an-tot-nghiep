@@ -187,7 +187,7 @@ function CustomerVisitors() {
           key: "storeName",
         },
         {
-          title: "Mã nhân viên",
+          title: "Nhân viên",
           dataIndex: "assignee_code",
           key: "assignee_code",
         },
@@ -561,7 +561,7 @@ function CustomerVisitors() {
                           : "right"
                       }
                       key={index}
-                      width={index > 0 ? (index === columns.length - 1 ? 100 : 80) : 160}
+                      width={index > 1 ? (index === columns.length - 1 ? 100 : 80) : 160}
                       render={(record: any) => {
                         return index > 0 && item.key !== "assignee_code" ? (
                           index === columns.length - 1 ? (
@@ -584,12 +584,16 @@ function CustomerVisitors() {
                                 defaultValue={!!record[item.key] ? record[item.key] : undefined}
                                 onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()}
                                 onChange={(e) => handleChangeVisitors(record, item, e)}
-                                disabled={item.disabled}
+                                disabled={item.disabled || record?.assignee_code === allStaffCode}
                               />
                             </div>
                           )
-                        ) : (
+                        ) : item.key !== "assignee_code" ? (
                           record[item.key]
+                        ) : record.assignee_code === allStaffCode ? (
+                          record.assignee_name
+                        ) : (
+                          `${record.assignee_code} - ${record.assignee_name}`
                         );
                       }}
                     />
