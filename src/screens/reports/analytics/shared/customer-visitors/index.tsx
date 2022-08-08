@@ -57,6 +57,7 @@ function CustomerVisitors() {
     [CustomerVisitorsFilter.Year]: currentYear,
     [CustomerVisitorsFilter.AssigneeCodes]: [],
   };
+  const allStaffCode = "Tất cả NV";
 
   const getStaff = useCallback(
     (condition?: string) => {
@@ -202,7 +203,8 @@ function CustomerVisitors() {
           assigneeCodes,
         },
       );
-      if (customerVisitors) {
+      if (!customerVisitors) {
+        showError("Lỗi khi lấy số lượng khách vào cửa hàng");
         setLoadingTable(false);
         setIsFilter(false);
       }
@@ -254,21 +256,25 @@ function CustomerVisitors() {
         return;
       }
       if (!assigneeCodes.length) {
-        customerVisitors = customerVisitors.reduce((res, item) => {
-          const existedStoreIdx = res.findIndex(
-            (storeItem: any) => storeItem.store_id === item.store_id,
-          );
-          if (existedStoreIdx === -1) {
-            res.push({ ...item, assignee_name: "Tất cả NV", assignee_code: "Tất cả NV" });
-          } else {
-            Object.keys(item).forEach((key) => {
-              if (key.includes("day")) {
-                res[existedStoreIdx][key] += item[key];
-              }
-            });
-          }
-          return res;
-        }, []);
+        customerVisitors = customerVisitors
+          .filter(
+            (item) => item.assignee_code.toLocaleLowerCase() !== allStaffCode.toLocaleLowerCase(),
+          )
+          .reduce((res, item) => {
+            const existedStoreIdx = res.findIndex(
+              (storeItem: any) => storeItem.store_id === item.store_id,
+            );
+            if (existedStoreIdx === -1) {
+              res.push({ ...item, assignee_name: allStaffCode, assignee_code: allStaffCode });
+            } else {
+              Object.keys(item).forEach((key) => {
+                if (key.includes("day")) {
+                  res[existedStoreIdx][key] += item[key];
+                }
+              });
+            }
+            return res;
+          }, []);
       }
       customerVisitors.forEach((customerVisitor: any) => {
         const storeInfo = stores.find((store) => store.id === customerVisitor.store_id);
@@ -368,6 +374,11 @@ function CustomerVisitors() {
           item.store_id === storeId &&
           item.assignee_code.toLowerCase() === assigneeCode.toLowerCase(),
       );
+    if (params && params.assignee_code.toLowerCase() === allStaffCode.toLowerCase()) {
+      showError("Vui lòng bấm lọc để tiếp tục cập nhật khách vào cửa hàng theo nhân viên đã chọn");
+      setLoadingTable(false);
+      return;
+    }
     if (params) {
       const response: any = await callApiNative(
         { isShowError: true },
