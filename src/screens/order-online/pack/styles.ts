@@ -9,8 +9,19 @@ const nameWidth = nameQuantityWidth - quantityWidth;
 
 export const StyledComponent = styled.div`
   .pack-card-orders {
+    .ant-card-head-title {
+      display: flex;
+      justify-content: space-between;
+      &-quantity-fulfillment {
+        color: red;
+      }
+    }
     .ant-card-body {
-      padding: 0 20px;
+    }
+  }
+  .pack-card-products {
+    .ant-card-body {
+      padding-bottom: 0;
     }
   }
   .pack-card-products {

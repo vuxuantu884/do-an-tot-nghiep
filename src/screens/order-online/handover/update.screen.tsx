@@ -212,6 +212,15 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
               orders: orders,
               order_display: fulfillments,
             });
+            setHandoverData({
+              ...handoverData,
+              data: handoverData.data
+                ? {
+                    ...handoverData.data,
+                    total: response.data.total,
+                  }
+                : null,
+            });
           } else {
             handleFetchApiError(response, "Api cập nhật biên bản bàn giao", dispatch);
           }
@@ -223,7 +232,7 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
           setIsLoading(false);
         });
     },
-    [dispatch, goodsReceiptsForm, handoverId],
+    [dispatch, goodsReceiptsForm, handoverId, handoverData],
   );
 
   useEffect(() => {
@@ -438,7 +447,7 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
               onUpdate={(request, orderDisplay) => {
                 onFinish(request, orderDisplay);
               }}
-              onDelete={(codes, onSucces: () => void) => {
+              onDelete={(codes, onSuccess: () => void) => {
                 setIsLoading(true);
                 deleteOrderHandoverService(handoverId, codes)
                   .then((response) => {
@@ -459,7 +468,16 @@ const CreateHandoverScreen: React.FC<any> = (props: any) => {
                         orders: [...orders],
                         order_display: [...order_display],
                       });
-                      onSucces();
+                      setHandoverData({
+                        ...handoverData,
+                        data: handoverData.data
+                          ? {
+                              ...handoverData.data,
+                              total: response.data.total,
+                            }
+                          : null,
+                      });
+                      onSuccess();
                     }
                   })
                   .catch()
