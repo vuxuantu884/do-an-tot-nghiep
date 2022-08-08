@@ -231,7 +231,25 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
     };
   }, [eventBarcodeOrder]);
   return (
-    <Card title="Danh sách đơn hàng trong biên bản">
+    <Card
+      className="pack-card-orders"
+      title={
+        <React.Fragment>
+          <div>Danh sách đơn hàng trong biên bản</div>
+          <Item noStyle shouldUpdate={(prev, current) => prev["orders"] !== current["orders"]}>
+            {({ getFieldValue, setFieldsValue }) => {
+              let orders: Array<HandoverOrderRequest> = getFieldValue("orders");
+              let totalItem = orders?.length || 0;
+              return (
+                <div className="ant-card-head-title-quantity-fulfillment">
+                  Tổng đơn ({totalItem})
+                </div>
+              );
+            }}
+          </Item>
+        </React.Fragment>
+      }
+    >
       <StyledComponent>
         <div className="page-filter">
           <div className="page-filter-heading">
