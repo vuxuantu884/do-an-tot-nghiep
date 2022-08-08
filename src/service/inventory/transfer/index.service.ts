@@ -98,6 +98,10 @@ const TransferService = {
     const url = `${ApiConfig.CORE}/stores?${queryString.stringify(storeStatus)}`;
     return BaseAxios.get(url);
   },
+  getTransferRecordNumberApi: (): Promise<BaseResponse<Store>> => {
+    const url = `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/in-out`;
+    return BaseAxios.get(url);
+  },
   getVariantByStoreApi: (
     storeStatus: StoreStatus,
   ): Promise<BaseResponse<Partial<VariantResponse[]>>> => {
@@ -222,4 +226,5 @@ export const {
   exportMultipleInventoryTransfer,
   cancelMultipleInventoryTransfer,
   adjustmentInventory,
+  getTransferRecordNumberApi,
 } = TransferService;

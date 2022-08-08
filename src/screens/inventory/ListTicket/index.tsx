@@ -10,24 +10,27 @@ import { ListTicketStylesWrapper } from "./Styles";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { InventoryTransferPermission } from "config/permissions/inventory-transfer.permission";
 import importIcon from "assets/icon/import.svg";
-import { AccountResponse } from "../../../model/account/account.model";
-import { callApiNative } from "../../../utils/ApiUtils";
-import { searchAccountPublicApi } from "../../../service/accounts/account.service";
+import { AccountResponse } from "model/account/account.model";
+import { callApiNative } from "utils/ApiUtils";
+import { searchAccountPublicApi } from "service/accounts/account.service";
 import { useDispatch, useSelector } from "react-redux";
-import { searchAccountPublicAction } from "../../../domain/actions/account/account.action";
-import { inventoryGetSenderStoreAction } from "../../../domain/actions/inventory/stock-transfer/stock-transfer.action";
-import { Store } from "../../../model/inventory/transfer";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import { inventoryGetSenderStoreAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
+import { Store } from "model/inventory/transfer";
 import { PageResponse } from "model/base/base-metadata.response";
 import { Link, useLocation } from "react-router-dom";
 import queryString from "query-string";
 import exportIcon from "assets/icon/export.svg";
-import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import ExportImportTab from "./ListTicketTab/ExportImportTransfer";
+import { getTransferRecordNumberApi } from "service/inventory/transfer/index.service";
 
 const { TabPane } = Tabs;
 
 const InventoryListScreen: React.FC = () => {
   const [activeTab, setActiveTab] = useState<string>("");
+  const [countTransferIn, setCountTransferIn] = useState<number>(0);
+  const [countTransferOut, setCountTransferOut] = useState<number>(0);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const history = useHistory();
@@ -94,9 +97,20 @@ const InventoryListScreen: React.FC = () => {
     [],
   );
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const getRecordNumber = async () => {
+    const res = await callApiNative({ isShowLoading: false }, dispatch, getTransferRecordNumberApi);
+    if (res) {
+      setCountTransferIn(res.count_transfer_in);
+      setCountTransferOut(res.count_transfer_out);
+    }
+  };
+
   useEffect(() => {
     dispatch(searchAccountPublicAction({}, setDataAccounts));
     dispatch(inventoryGetSenderStoreAction({ status: "active", simple: true }, setStores));
+    getRecordNumber().then();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, setDataAccounts]);
 
   const renderExtraContainer = () => {
@@ -180,7 +194,9 @@ const InventoryListScreen: React.FC = () => {
         ]}
         extra={renderExtraContainer()}
       >
-        <Card>
+        <Card className="card-transfer">
+          <div className="transferring-receive" style={{ fontSize: String(countTransferIn).length > 3 ? 8 : 9 }}>{countTransferIn}</div>
+          <div className="transferring-sender" style={{ fontSize: String(countTransferOut).length > 3 ? 8 : 9 }}>{countTransferOut}</div>
           <Tabs style={{ overflow: "initial" }} activeKey={activeTab}>
             <TabPane
               tab={<Link to={InventoryTransferTabUrl.LIST}>Danh sách phiếu</Link>}
