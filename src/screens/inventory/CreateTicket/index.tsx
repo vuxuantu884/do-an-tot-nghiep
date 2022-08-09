@@ -967,6 +967,7 @@ const CreateTicket: FC = () => {
         {isOpenModalErrors && (
           <ModalShowError
             onCancel={() => {
+              setIsLoading(false);
               setIsOpenModalErrors(false);
             }}
             loading={isLoading}

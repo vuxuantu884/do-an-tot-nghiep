@@ -235,6 +235,7 @@ export interface InventoryTransferDetailItem {
   total_quantity: number;
   total_amount: number;
   pending_date: string;
+  received_method: string;
   transfer_date: Date;
   receive_date: string;
   cancel_date: string;
