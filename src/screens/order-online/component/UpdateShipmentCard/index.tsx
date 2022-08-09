@@ -16,7 +16,6 @@ import {
 import useAuthorization from "hook/useAuthorization";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
-import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   UpdateFulFillmentRequest,
@@ -93,7 +92,6 @@ type PropTypes = {
   isVisibleShipping: boolean | null;
   customerDetail: CustomerResponse | null;
   OrderDetailAllFulfillment: OrderResponse | null;
-  orderSettings?: OrderSettingsModel;
   disabledBottomActions?: boolean;
   reasons?: {
     title: string;
@@ -102,6 +100,7 @@ type PropTypes = {
   subReasons?: OrderReturnReasonDetailModel[] | null;
   isEcommerceOrder?: boolean;
   ref: React.MutableRefObject<any>;
+  isPageOrderDetail?: boolean;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -116,12 +115,12 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     disabledActions,
     OrderDetail,
     OrderDetailAllFulfillment,
-    orderSettings,
     disabledBottomActions,
     isEcommerceOrder,
     orderConfig,
     totalPaid = 0,
     customerNeedToPayValue = 0,
+    isPageOrderDetail,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -740,7 +739,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   return (
     <StyledComponent>
       <Card
-        className="margin-top-20 orders-update-shipment "
+        className="margin-top-20 orders-update-shipment 56"
         title={
           <Space>
             <div className="d-flex">
@@ -817,7 +816,6 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                         <OrderFulfillmentHeader
                           fulfillment={fulfillment}
                           onPrint={onPrint}
-                          orderSettings={orderSettings}
                           orderDetail={OrderDetail}
                         />
                       }
@@ -875,7 +873,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
             >
               <OrderCreateShipment
                 shipmentMethod={shipmentMethod}
-                orderPrice={OrderDetail?.total_line_amount_after_line_discount}
+                orderProductsAmount={OrderDetail?.total_line_amount_after_line_discount}
                 storeDetail={props.storeDetail}
                 customer={props.customerDetail}
                 items={OrderDetail?.items}
@@ -895,6 +893,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 OrderDetail={OrderDetail}
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
+                isPageOrderDetail={isPageOrderDetail}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

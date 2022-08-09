@@ -2,7 +2,7 @@ import { InfoCircleOutlined } from "@ant-design/icons";
 import { Form, Input } from "antd";
 import CustomInputTags from "component/custom/custom-input-tags";
 import React, { useMemo } from "react";
-import { StyledComponent } from "./CreateOrderSidebarOrderExtraInformation.styles";
+import { StyledComponent } from "./styles";
 
 type PropTypes = {
   onChangeTag: (value: []) => void;
@@ -32,7 +32,6 @@ function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element 
         <Input.TextArea
           placeholder="Điền ghi chú"
           //maxLength={500}
-          style={{ minHeight: "80px" }}
         />
       </Form.Item>
       <Form.Item
@@ -46,7 +45,6 @@ function CreateOrderSidebarOrderExtraInformation(props: PropTypes): JSX.Element 
         <Input.TextArea
           placeholder="Điền ghi chú"
           //maxLength={500}
-          style={{ minHeight: "80px" }}
         />
       </Form.Item>
       <Form.Item

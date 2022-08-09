@@ -1053,7 +1053,7 @@ const InventoryTransferTab: React.FC<InventoryTransferTabProps> = (
     }
 
     let accountStoreSelected =
-      accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => i.store_id).join(',') : null;
 
     switch (activeTab) {
       // case InventoryTransferTabUrl.LIST:

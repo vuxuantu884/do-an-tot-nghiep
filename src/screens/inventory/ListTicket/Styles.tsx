@@ -19,4 +19,39 @@ export const ListTicketStylesWrapper = styled.div`
       color: #2a2a86 !important;
     }
   }
+  .card-transfer {
+    position: relative;
+    .transferring-sender {
+      font-weight: 500;
+      position: absolute;
+      top: 2px;
+      left: 212px;
+      z-index: 10;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      color: #FFFFFF;
+      font-size: 9px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: orange;
+    }
+    .transferring-receive {
+      font-weight: 500;
+      position: absolute;
+      top: 2px;
+      left: 316px;
+      z-index: 10;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      color: #FFFFFF;
+      font-size: 9px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: orange;
+    }
+  }
 `;

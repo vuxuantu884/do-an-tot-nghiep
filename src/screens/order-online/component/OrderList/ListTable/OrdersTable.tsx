@@ -20,6 +20,7 @@ import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
 import iconPrint from "assets/icon/Print.svg";
 // import iconDeliveryProgress from 'assets/icon/delivery/tientrinhgiaohang.svg';
 import search from "assets/img/search.svg";
+import DeliveryProgress from "component/order/DeliveryProgress";
 import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
@@ -32,7 +33,6 @@ import { AllInventoryProductInStore, InventoryVariantListQuery } from "model/inv
 import { OrderExtraModel, OrderModel, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { OrderLineItemRequest } from "model/request/order.request";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import {
   DeliveryServiceResponse,
@@ -68,7 +68,6 @@ import {
   OrderStatus,
   PaymentMethodCode,
   POS,
-  PRODUCT_TYPE,
   ShipmentMethod,
   SHOPEE,
 } from "utils/Constants";
@@ -98,7 +97,6 @@ import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
 import InventoryTable from "./InventoryTable";
 import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
-import DeliveryProgress from "component/order/DeliveryProgress";
 
 type PropTypes = {
   tableLoading: boolean;

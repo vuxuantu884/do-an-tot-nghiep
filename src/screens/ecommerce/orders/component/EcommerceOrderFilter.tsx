@@ -550,13 +550,13 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
         const newLazadaActionList = [...actions].concat(lazadaActions);
         setActionList(newLazadaActionList);
         break;
-      case "sendo":
-        const newSendoActionList = [...actions];
-        setActionList(newSendoActionList);
-        break;
       case "tiki":
         const newTikiActionList = [...actions];
         setActionList(newTikiActionList);
+        break;
+      case "tiktok":
+        const newTiktokActionList = [...actions];
+        setActionList(newTiktokActionList);
         break;
       default:
         setActionList([...actions]);
@@ -1109,10 +1109,7 @@ const EcommerceOrderFilter: React.FC<EcommerceOrderFilterProps> = (
       setIsEcommerceSelected(false);
     }
 
-    const checkChannelCode = params.channel_codes as any;
-    if (checkChannelCode === "shopee") {
-      setEcommerceKeySelected("shopee");
-    }
+    setEcommerceKeySelected(params.channel_codes as any);
 
     handleOnSearchProduct(params.searched_product || "");
 

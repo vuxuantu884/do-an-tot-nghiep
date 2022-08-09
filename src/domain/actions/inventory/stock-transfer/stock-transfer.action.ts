@@ -50,6 +50,16 @@ const creatInventoryTransferAction = (
   });
 };
 
+const checkDuplicateInventoryTransferAction = (
+  data: Partial<StockTransferSubmit>,
+  onResult: (data: InventoryTransferDetailItem) => void,
+) => {
+  return BaseAction(InventoryType.CHECK_DUPLICATE_INVENTORY_TRANSFER, {
+    data,
+    onResult,
+  });
+};
+
 const creatInventoryTransferRequestAction = (
   data: Partial<StockTransferSubmit>,
   onResult: (data: InventoryTransferDetailItem) => void,
@@ -238,4 +248,5 @@ export {
   actionCancelTicketByIds,
   acceptInventoryAction,
   creatInventoryTransferRequestAction,
+  checkDuplicateInventoryTransferAction,
 };

@@ -11,17 +11,58 @@ import { formatCurrency } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   customerId: number | undefined;
 };
 
-function SidebarOrderHistory(props: PropType) {
-  const formatDate = DATE_FORMAT.fullDate;
+function SidebarOrderHistory(props: PropTypes) {
+  const dateFormat = DATE_FORMAT.fullDate;
   const { customerId } = props;
   const dispatch = useDispatch();
   const [customerHistory, setCustomerHistory] = useState<OrderModel[] | null>(null);
   const bootstrapReducer = useSelector((state: RootReducerType) => state.bootstrapReducer);
-  const LIST_STATUS = bootstrapReducer.data?.order_main_status;
+  const orderMainStatuses = bootstrapReducer.data?.order_main_status;
+
+  const renderIfNotCustomerHistory = () => {
+    if (!customerHistory) {
+      return "Vui lòng chọn khách hàng!";
+    }
+  };
+
+  const renderIfCustomerHistory = () => {
+    if (customerHistory) {
+      return customerHistory?.map((single) => {
+        return (
+          <Row className="" gutter={15} key={single.id}>
+            <Col span={15}>
+              <div className="singleHistoryOrder__info">
+                <h4 className="singleHistoryOrder__title">
+                  {moment(single.created_date).format(dateFormat)}
+                </h4>
+                <div className="singleHistoryOrder__date">
+                  <Link target="_blank" to={`${UrlConfig.ORDER}/${single.id}`}>
+                    {single.code}
+                  </Link>{" "}
+                  - <span className="nowrap">SL: {single.items.length}</span>
+                </div>
+              </div>
+            </Col>
+            <Col span={9}>
+              <div className="singleHistoryOrder__status">
+                <h4 className="singleHistoryOrder__mainStatus">
+                  {formatCurrency(single.total_line_amount_after_line_discount)}
+                  <span className="unit">₫</span>
+                </h4>
+                <div className="singleActionHistory__subStatus">
+                  {orderMainStatuses?.find((status) => status.value === single.status)?.name}
+                </div>
+              </div>
+            </Col>
+          </Row>
+        );
+      });
+    }
+  };
 
   useEffect(() => {
     if (customerId) {
@@ -43,50 +84,8 @@ function SidebarOrderHistory(props: PropType) {
   return (
     <StyledComponent>
       <Card title="Lịch sử mua hàng">
-        {!customerHistory
-          ? "Vui lòng chọn khách hàng!"
-          : customerHistory?.map((single) => {
-              return (
-                <Row className="" gutter={15} key={single.id}>
-                  <Col span={15}>
-                    <div className="singleHistoryOrder__info">
-                      <h4 className="singleHistoryOrder__title">
-                        {moment(single.created_date).format(formatDate)}
-                      </h4>
-                      <div className="singleHistoryOrder__date">
-                        <Link
-                          target="_blank"
-                          to={`${UrlConfig.ORDER}/${single.id}`}
-                          style={{ fontWeight: "bold" }}
-                        >
-                          {single.code}
-                        </Link>{" "}
-                        - <span style={{ whiteSpace: "nowrap" }}>SL: {single.items.length}</span>
-                      </div>
-                    </div>
-                  </Col>
-                  <Col span={9}>
-                    <div className="singleHistoryOrder__status" style={{ textAlign: "right" }}>
-                      <h4 className="singleHistoryOrder__mainStatus">
-                        {formatCurrency(single.total_line_amount_after_line_discount)}
-                        <span
-                          style={{
-                            color: "#808080",
-                            marginLeft: "2px",
-                            fontWeight: 400,
-                          }}
-                        >
-                          ₫
-                        </span>
-                      </h4>
-                      <div className="singleActionHistory__subStatus">
-                        {LIST_STATUS?.find((status) => status.value === single.status)?.name}
-                      </div>
-                    </div>
-                  </Col>
-                </Row>
-              );
-            })}
+        {renderIfNotCustomerHistory()}
+        {renderIfCustomerHistory()}
       </Card>
     </StyledComponent>
   );

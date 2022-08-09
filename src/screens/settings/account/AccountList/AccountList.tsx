@@ -1,11 +1,13 @@
 import { DeleteOutlined } from "@ant-design/icons";
-import { Button, Card, Row, Space, Switch, Tag } from "antd";
+import { Button, Card, Row, Space, Switch } from "antd";
+import uploadIcon from "assets/icon/upload.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import AccountFilter from "component/filter/account.filter";
 import ButtonCreate from "component/header/ButtonCreate";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { AccountPermissions } from "config/permissions/account.permisssion";
 import UrlConfig from "config/url.config";
 import {
@@ -32,13 +34,14 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "reac
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory } from "react-router-dom";
 import { generateQuery } from "utils/AppUtils";
+import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import { SearchContainer } from "./account.search.style";
-import ImportExcel from "./components/me-contact/ImportExcel";
-import uploadIcon from "assets/icon/upload.svg";
-import ModalSettingColumn from "component/table/ModalSettingColumn";
+import { SearchContainer } from "../account.search.style";
+import ImportExcel from "../components/me-contact/ImportExcel";
+import { convertDataApiToDataSrcTable } from "./helper";
+import TagList from "./TagList";
 
 const ACTIONS_INDEX = {
   DELETE: 1,
@@ -56,6 +59,8 @@ const initQuery: AccountSearchQuery = {
   info: "",
   code: "",
 };
+
+const DEFAULT_TYPICAL_OPTION = 2;
 
 const ListAccountScreen: React.FC = () => {
   const query = useQuery();
@@ -170,7 +175,7 @@ const ListAccountScreen: React.FC = () => {
     [accountSelected, deleteCallback, dispatch],
   );
 
-  const AcctionCompoent = useChangeHeaderToAction(
+  const ActionComponent = useChangeHeaderToAction(
     "Mã nhân viên",
     accountSelected.length === 1,
     onMenuClick,
@@ -179,7 +184,7 @@ const ListAccountScreen: React.FC = () => {
 
   const defaultColumns: Array<ICustomTableColumType<AccountResponse>> = [
     {
-      title: <AcctionCompoent />,
+      title: <ActionComponent />,
       fixed: "left",
       width: 130,
       visible: true,
@@ -202,42 +207,12 @@ const ListAccountScreen: React.FC = () => {
       dataIndex: "phone",
       visible: true,
     },
+
     {
-      title: "Cửa hàng",
-      dataIndex: "account_stores",
-      width: 300,
-      visible: true,
-      render: (stores: Array<AccountStoreResponse>) => (
-        <>
-          {stores.length < 3 ? (
-            <span>
-              {stores.map((item) => {
-                return <Tag color="green">{item.store}</Tag>;
-              })}
-            </span>
-          ) : (
-            <span>
-              <Tag color="green">{stores[0].store}</Tag>
-              <Tag color="green">{stores[1].store}</Tag>
-              <Tag color="green">+{stores.length - 2}...</Tag>
-            </span>
-          )}
-        </>
-      ),
-    },
-    {
-      title: "Phân quyền",
+      title: "Nhóm quyền",
       width: 200,
       dataIndex: "role_name",
       visible: true,
-    },
-    {
-      title: "Ngày tạo",
-      width: 150,
-      visible: true,
-      render: (value: AccountResponse) => {
-        return ConvertUtcToLocalDate(value.created_date, "DD/MM/YYYY");
-      },
     },
     {
       title: "Trạng thái",
@@ -275,6 +250,53 @@ const ListAccountScreen: React.FC = () => {
         />
       ),
     },
+    {
+      title: "Ngày tạo",
+      width: 150,
+      visible: true,
+      render: (value: AccountResponse) => {
+        return ConvertUtcToLocalDate(value.created_date, "DD/MM/YYYY");
+      },
+    },
+    {
+      title: "Cửa hàng",
+      dataIndex: "account_stores",
+      width: 300,
+      visible: true,
+      render: (stores, record: any) => (
+        <TagList
+          fullOptions={record.stores}
+          typicalOptions={record.stores}
+          otherOption={record.otherOptionStore}
+        />
+      ),
+    },
+    {
+      title: "Phòng ban",
+      dataIndex: "account_jobs",
+      width: 300,
+      visible: true,
+      render: (job, record: any) => (
+        <TagList
+          fullOptions={record.departments}
+          typicalOptions={record.departments}
+          otherOption={record.otherOptionDepartment}
+        />
+      ),
+    },
+    {
+      title: "Vị trí",
+      dataIndex: "account_jobs",
+      width: 300,
+      visible: true,
+      render: (stores, record: any) => (
+        <TagList
+          fullOptions={record.positions}
+          typicalOptions={record.positions}
+          otherOption={record.otherOptionPosition}
+        />
+      ),
+    },
   ];
 
   let [columns, setColumns] =
@@ -303,6 +325,8 @@ const ListAccountScreen: React.FC = () => {
 
   useEffect(() => {
     setTableLoading(true);
+    const storeIds = params.store_ids?.map((idString) => Number(idString)); // convert string to number: do cái select tree store có value là number, nhưng load data từ url thì là string
+    params.store_ids = storeIds;
     dispatch(AccountSearchAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
   return (
@@ -363,11 +387,11 @@ const ListAccountScreen: React.FC = () => {
             }}
             onSelectedChange={onSelect}
             isLoading={tableLoading}
-            dataSource={data.items}
+            dataSource={convertDataApiToDataSrcTable(data.items, DEFAULT_TYPICAL_OPTION)}
             columns={columnFinal}
             rowKey={(item: AccountResponse) => item.id}
-            scroll={{ x: 1500 }}
-            sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+            scroll={{ x: "max-content" }}
+            sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_UNDER_NAVBAR }}
           />
         </Card>
         <ImportExcel

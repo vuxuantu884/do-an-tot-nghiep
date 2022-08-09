@@ -274,6 +274,14 @@
     {
       "name": "Thời trang",
       "value": "fashion"
+    },
+    {
+      "name": "Quà tặng",
+      "value": "gift"
+    },
+    {
+      "name": "Văn phòng phẩm",
+      "value": "stationery"
     }
   ],
   "product_status": [

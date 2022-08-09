@@ -2,19 +2,7 @@ import React, { createRef, FC, useCallback, useEffect, useMemo, useState } from 
 import "./index.scss";
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
-import {
-  AutoComplete,
-  Button,
-  Card,
-  Col,
-  Form,
-  Input,
-  Row,
-  Select,
-  Space,
-  Table,
-  Upload,
-} from "antd";
+import { AutoComplete, Button, Card, Col, Form, Input, Row, Select, Space, Table, Upload } from "antd";
 import arrowLeft from "assets/icon/arrow-back.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
@@ -27,17 +15,13 @@ import PlusOutline from "assets/icon/plus-outline.svg";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { useDispatch } from "react-redux";
 import {
+  checkDuplicateInventoryTransferAction,
   creatInventoryTransferAction,
   inventoryGetDetailVariantIdsAction,
   inventoryGetVariantByStoreAction,
   inventoryUploadFileAction,
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
-import {
-  InventoryTransferDetailItem,
-  LineItem,
-  StockTransferSubmit,
-  Store,
-} from "model/inventory/transfer";
+import { InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
 import _ from "lodash";
 
 import { PageResponse } from "model/base/base-metadata.response";
@@ -60,6 +44,8 @@ import { AccountStoreResponse } from "model/account/account.model";
 import { RefSelectProps } from "antd/lib/select";
 import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
+import { HttpStatus } from "../../../config/http-status.config";
+import ModalShowError from "../common/ModalShowError";
 
 const { Option } = Select;
 
@@ -88,6 +74,9 @@ const CreateTicket: FC = () => {
   const productAutoCompleteRef = createRef<RefSelectProps>();
 
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
+  const [isOpenModalErrors, setIsOpenModalErrors] = useState<boolean>(false);
+  const [continueData, setContinueData] = useState(null);
+  const [errorData, setErrorData] = useState([]);
 
   function onQuantityChange(quantity: number | null, index: number) {
     const dataTableClone = _.cloneDeep(dataTable);
@@ -359,6 +348,21 @@ const CreateTicket: FC = () => {
     [history],
   );
 
+  const checkCallback = useCallback(
+    (result: any) => {
+      setIsLoading(false);
+      if (result.responseData.code === HttpStatus.SUCCESS) {
+        dispatch(creatInventoryTransferAction(result.data, createCallback));
+      } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
+        setIsOpenModalErrors(true);
+        setErrorData(result.responseData.data);
+        setContinueData(result.data);
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [history],
+  );
+
   const onResultGetDetailVariantIds = useCallback(
     (result) => {
       if (result) {
@@ -435,35 +439,6 @@ const CreateTicket: FC = () => {
   }, [stores, fromStores]);
 
   const onFinish = (data: StockTransferSubmit) => {
-    // let countError = 0;
-    // let arrError: Array<string> = [];
-    // dataTable?.forEach((element: VariantResponse, index: number) => {
-    //   const thisInput = document.getElementById(`item-quantity-${index}`);
-    //   if (!element.transfer_quantity) {
-    //     if (thisInput) thisInput.style.borderColor = "red";
-    //     countError++;
-    //     arrError.push(`${index + 1}`);
-    //   } else if (element.transfer_quantity === 0) {
-    //     if (thisInput) thisInput.style.borderColor = "red";
-    //     countError++;
-    //     arrError.push(`${index + 1}`);
-    //   } else if (
-    //     element.transfer_quantity > (element.available ? element.available : 0)
-    //   ) {
-    //     if (thisInput) thisInput.style.borderColor = "red";
-    //     arrError.push(`${index + 1}`);
-    //     countError++;
-    //   } else {
-    //     if (thisInput) thisInput.style.borderColor = "#d9d9d9";
-    //   }
-    // });
-    //
-    //
-    // if (countError > 0) {
-    //   showError(`Vui lòng kiểm tra lại số lượng sản phẩm ${arrError?.toString()}`);
-    //   return;
-    // }
-
     stores.forEach((store) => {
       if (store?.id === Number(data?.from_store_id)) {
         data.store_transfer = {
@@ -519,7 +494,7 @@ const CreateTicket: FC = () => {
     delete data.to_store_id;
 
     setIsLoading(true);
-    dispatch(creatInventoryTransferAction(data, createCallback));
+    dispatch(checkDuplicateInventoryTransferAction(data, checkCallback));
   };
 
   useEffect(() => {
@@ -987,6 +962,18 @@ const CreateTicket: FC = () => {
             title={`Bạn có muốn rời khỏi trang?`}
             subTitle="Thông tin trên trang này sẽ không được lưu."
             visible={isVisibleModalWarning}
+          />
+        )}
+        {isOpenModalErrors && (
+          <ModalShowError
+            onCancel={() => {
+              setIsOpenModalErrors(false);
+            }}
+            loading={isLoading}
+            errorData={errorData}
+            onOk={() => continueData && dispatch(creatInventoryTransferAction(continueData, createCallback))}
+            title={"Có một số phiếu chuyển tương tự được tạo trong 1 tháng trở lại đây. Tiếp tục thực hiện?"}
+            visible={isOpenModalErrors}
           />
         )}
       </Form>

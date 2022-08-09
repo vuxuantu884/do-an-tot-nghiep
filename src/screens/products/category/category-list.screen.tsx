@@ -26,6 +26,11 @@ import "assets/css/custom-filter.scss";
 import CustomSelect from "component/custom/select.custom";
 import { callApiNative } from "utils/ApiUtils";
 import { getCategoryApi } from "service/product/category.service";
+import LevelIcon from "assets/icon/level.svg";
+import "./index.scss";
+import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import moment from "moment";
+import * as XLSX from "xlsx";
 
 const actions: Array<MenuAction> = [
   {
@@ -40,7 +45,7 @@ const actions: Array<MenuAction> = [
   },
   {
     id: 3,
-    name: "Export",
+    name: "Xuất file",
     icon: <ExportOutlined />,
   },
 ];
@@ -72,6 +77,7 @@ const Category = () => {
     {
       title: "Mã danh mục",
       dataIndex: "code",
+      width: "90",
       render: (text: string, item: CategoryView) => {
         return <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{text}</Link>;
       },
@@ -79,50 +85,54 @@ const Category = () => {
     {
       title: "Danh mục",
       dataIndex: "name",
-      render: (value: string, item: CategoryView) => (
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
-          {item.level > 0 && (
-            <div
-              style={{
-                borderRadius: 2,
-                width: 20 * item.level,
-                height: 3,
-                background: "rgba(42, 42, 134, 0.2)",
-                marginRight: 8,
-              }}
-            />
-          )}
-          <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{value}</Link>
-        </div>
-      ),
+      render: (text: string, item: CategoryView) => {
+        return <Link to={`${UrlConfig.CATEGORIES}/${item.id}`}>{text}</Link>;
+      },
+    },
+    {
+      title: "Trực thuộc danh mục",
+      dataIndex: "parent",
+      width: "150",
+      render: (item: CategoryParent) => (item != null ? item.name : ""),
+    },
+    {
+      title: "Cấp",
+      dataIndex: "level",
+      width: "60",
+      render: (value: string, item: CategoryView) => {
+        return <span className="high-level">{value}</span>;
+      },
     },
     {
       title: "Ngành hàng",
       dataIndex: "goods_name",
-    },
-    {
-      title: "Thuộc danh mục",
-      dataIndex: "parent",
-      render: (item: CategoryParent) => (item != null ? item.name : ""),
+      width: "120",
     },
     {
       title: "Người tạo",
+      width: "120",
       render: (item: CategoryView) => {
         return item.created_name ? (
           <div>
             <Link target="_blank" to={`${UrlConfig.ACCOUNTS}/${item.created_by}`}>
-              {item.created_name}
+              {item.updated_by} - {item.created_name}
             </Link>
           </div>
         ) : (
           "---"
         );
+      },
+    },
+    {
+      title: "Ngày tạo",
+      dataIndex: "created_date",
+      key: "created_date",
+      visible: true,
+      width: 110,
+      render: (value: string, item: CategoryView) => {
+        return item?.created_date !== null
+          ? ConvertUtcToLocalDate(item?.created_date, DATE_FORMAT.DDMMYYY)
+          : "---";
       },
     },
   ];
@@ -138,6 +148,8 @@ const Category = () => {
   );
   const onGetSuccess = useCallback((results: Array<CategoryResponse>) => {
     let newData: Array<CategoryView> = convertCategory(results);
+    console.log("newData", newData);
+
     setData(newData);
   }, []);
   const onDeleteSuccess = useCallback(async () => {
@@ -151,11 +163,47 @@ const Category = () => {
       onGetSuccess(res);
     }
   }, [dispatch, onGetSuccess, params]);
+
+  const convertItemExport = (item: CategoryView) => {
+    const level = "Cấp";
+    return {
+      "Mã danh mục": item.code,
+      "Danh mục": item.name,
+      "Trực thuộc danh mục": item.parent?.name,
+      [level]: item.level,
+      "Ngành hàng": item.goods_name,
+      "Người tạo": item.created_name ? `${item.created_by} - ${item.created_name}` : null,
+      "Ngày tạo": ConvertUtcToLocalDate(item.created_date, DATE_FORMAT.DDMMYY_HHmm),
+    };
+  };
+
+  const onExport = useCallback(() => {
+    let dataExport: any = [];
+    for (let i = 0; i < data.length; i++) {
+      const e = data[i];
+      const item = convertItemExport(e);
+      dataExport.push(item);
+    }
+    const workbook = XLSX.utils.book_new();
+    const ws = XLSX.utils.json_to_sheet(dataExport);
+    XLSX.utils.book_append_sheet(workbook, ws, "Danh mục");
+
+    const today = moment(new Date(), "YYYY/MM/DD");
+    const month = today.format("M");
+    const day = today.format("D");
+    const year = today.format("YYYY");
+    XLSX.writeFile(workbook, `yody_category_${day}_${month}_${year}.xlsx`);
+  }, [data]);
+
   const onMenuClick = useCallback(
     (index: number) => {
+      if (index === 3) {
+        onExport();
+        return;
+      }
       if (selected.length > 0) {
-        console.log("selected", selected);
         let id = selected[0].id;
+
         switch (index) {
           case 1:
             history.push(`${UrlConfig.CATEGORIES}/${id}`);
@@ -164,8 +212,6 @@ const Category = () => {
             idDelete = id;
             setConfirmDelete(true);
             break;
-          case 3:
-            break;
         }
       } else {
         if (index !== 3) {
@@ -173,7 +219,7 @@ const Category = () => {
         }
       }
     },
-    [selected, history],
+    [selected, history, onExport],
   );
 
   const [canDeleteVariants] = useAuthorization({
@@ -193,7 +239,7 @@ const Category = () => {
       }
       return true;
     });
-  }, [selected, canDeleteVariants, canUpdateCategories]);
+  }, [selected.length, canUpdateCategories, canDeleteVariants]);
 
   const onSelect = useCallback((selectedRow: Array<CategoryView>) => {
     setSelected(
@@ -234,9 +280,19 @@ const Category = () => {
         },
       ]}
       extra={
-        <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
-          <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
-        </AuthWrapper>
+        <>
+          <Link to={`${UrlConfig.CATEGORIES}/overview`}>
+            <Button
+              className="btn-view"
+              icon={<img className="icon-level" src={LevelIcon} alt="level" />}
+            >
+              Xem sơ đồ danh mục
+            </Button>
+          </Link>
+          <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
+            <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
+          </AuthWrapper>
+        </>
       }
     >
       <Card>

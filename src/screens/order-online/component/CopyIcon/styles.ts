@@ -1,5 +1,9 @@
 import styled from "styled-components";
 
 export const StyledComponent = styled.div`
-  display: block;
+  .iconCopy {
+    width: 23px;
+    position: relative;
+    top: -2px;
+  }
 `;

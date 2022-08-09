@@ -98,6 +98,10 @@ const TransferService = {
     const url = `${ApiConfig.CORE}/stores?${queryString.stringify(storeStatus)}`;
     return BaseAxios.get(url);
   },
+  getTransferRecordNumberApi: (): Promise<BaseResponse<Store>> => {
+    const url = `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/in-out`;
+    return BaseAxios.get(url);
+  },
   getVariantByStoreApi: (
     storeStatus: StoreStatus,
   ): Promise<BaseResponse<Partial<VariantResponse[]>>> => {
@@ -131,6 +135,13 @@ const TransferService = {
   createInventoryTransferRequest: (data: StockTransferSubmit): Promise<BaseResponse<string>> => {
     return BaseAxios.post(
       `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/transfer-request`,
+      data,
+    );
+  },
+
+  checkDuplicateInventoryTransferRequest: (data: StockTransferSubmit): Promise<BaseResponse<string>> => {
+    return BaseAxios.post(
+      `${ApiConfig.INVENTORY_TRANSFER}/inventory-transfers/check-duplicate`,
       data,
     );
   },
@@ -205,6 +216,7 @@ export const {
   uploadFileApi,
   createInventoryTransfer,
   createInventoryTransferRequest,
+  checkDuplicateInventoryTransferRequest,
   updateInventoryTransfer,
   createInventoryTransferShipment,
   receivedInventoryTransfer,
@@ -214,4 +226,5 @@ export const {
   exportMultipleInventoryTransfer,
   cancelMultipleInventoryTransfer,
   adjustmentInventory,
+  getTransferRecordNumberApi,
 } = TransferService;

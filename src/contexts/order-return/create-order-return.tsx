@@ -21,12 +21,12 @@ type CreateOrderReturnContextType = {
     totalAmountReturnProducts: number;
     totalAmountExchange: number;
     totalAmountCustomerNeedToPay: number;
-    setStoreReturn: (item: StoreResponse | null) => void;
-    storeReturn: StoreResponse | null;
+    setReturnStore: (item: StoreResponse | null) => void;
+    returnStore: StoreResponse | null;
     listExchangeProducts: OrderLineItemRequest[];
   };
   isExchange: boolean;
-  listStoreReturn: StoreResponse[];
+  returnStores: StoreResponse[];
 };
 // tạo context
 export const CreateOrderReturnContext = createContext<CreateOrderReturnContextType | null>(null);
