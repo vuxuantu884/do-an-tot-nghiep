@@ -932,14 +932,6 @@ export default function Order(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
 
-  //windows offset
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
-
   // handle for ecommerce order
   const [isEcommerceOrder, setIsEcommerceOrder] = useState(false);
   const [ecommerceShipment, setEcommerceShipment] = useState<any>();
