@@ -34,6 +34,7 @@ export interface CategoryView extends BaseObject {
   goods_name: string;
   parent: CategoryParent | null;
   child_ids: string;
+  isHaveChild: boolean;
 }
 
 export interface CategoryParent {

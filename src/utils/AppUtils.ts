@@ -207,6 +207,7 @@ export const getArrCategory = (
     parent: parentTemp,
     name: i.name,
     child_ids: i.child_ids,
+    isHaveChild: i.children.length > 0,
   });
   if (i.children.length > 0) {
     i.children.forEach((i1) => {

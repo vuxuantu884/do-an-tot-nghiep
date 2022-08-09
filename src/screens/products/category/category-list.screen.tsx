@@ -26,6 +26,7 @@ import "assets/css/custom-filter.scss";
 import CustomSelect from "component/custom/select.custom";
 import { callApiNative } from "utils/ApiUtils";
 import { getCategoryApi } from "service/product/category.service";
+import LevelIcon from "assets/icon/level.svg";
 import "./index.scss";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import moment from "moment";
@@ -279,9 +280,19 @@ const Category = () => {
         },
       ]}
       extra={
-        <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
-          <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
-        </AuthWrapper>
+        <>
+          <Link to={`${UrlConfig.CATEGORIES}/overview`}>
+            <Button
+              className="btn-view"
+              icon={<img className="icon-level" src={LevelIcon} alt="level" />}
+            >
+              Xem sơ đồ danh mục
+            </Button>
+          </Link>
+          <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
+            <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
+          </AuthWrapper>
+        </>
       }
     >
       <Card>
