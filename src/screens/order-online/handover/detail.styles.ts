@@ -20,7 +20,7 @@ const DetailStyle = styled.div`
     }
 
     .fulfillment-small {
-      color: #666666;
+      color: #ff5630;
       font-size: 12px;
       font-style: italic;
     }
