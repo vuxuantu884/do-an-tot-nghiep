@@ -83,6 +83,7 @@ type UpdateCustomerProps = {
   // initOrderBillRequest: OrderBillRequestFormModel | undefined;
   billingAddress: BillingAddressRequestModel | null;
   setBillingAddress: (items: BillingAddressRequestModel | null) => void;
+  isOrderUpdate?: boolean;
 };
 
 const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
@@ -108,6 +109,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
     orderDetail,
     billingAddress,
     setBillingAddress,
+    isOrderUpdate,
   } = props;
 
   const fullAddressRef = useRef();
@@ -413,6 +415,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
               transportService,
               form,
               setShippingFeeInformedToCustomer,
+              isOrderUpdate,
             );
           } else {
             dispatch(
@@ -441,6 +444,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
       transportService,
       form,
       setShippingFeeInformedToCustomer,
+      isOrderUpdate,
     ],
   );
 
@@ -793,6 +797,7 @@ const UpdateCustomer: React.FC<UpdateCustomerProps> = (props) => {
                             handleShippingAddress={ShippingAddressChange}
                             form={form}
                             setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+                            isOrderUpdate={isOrderUpdate}
                           />
                         }
                         trigger="click"

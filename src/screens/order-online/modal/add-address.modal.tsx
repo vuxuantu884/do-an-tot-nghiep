@@ -33,6 +33,7 @@ type AddAddressModalProps = {
   onCancel: () => void;
   onOk: () => void;
   setShippingFeeInformedToCustomer: ((value: number | null) => void) | undefined;
+  isOrderUpdate?: boolean;
 };
 
 type FormValueType = {
@@ -58,6 +59,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
     customer,
     handleChangeCustomer,
     setShippingFeeInformedToCustomer,
+    isOrderUpdate,
   } = props;
 
   const orderLineItems = useSelector(
@@ -171,6 +173,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
                         transportService,
                         form,
                         setShippingFeeInformedToCustomer,
+                        isOrderUpdate,
                       );
                     }
                   }),
@@ -216,6 +219,7 @@ const AddAddressModal: React.FC<AddAddressModalProps> = (props: AddAddressModalP
       transportService,
       form,
       setShippingFeeInformedToCustomer,
+      isOrderUpdate,
     ],
   );
 

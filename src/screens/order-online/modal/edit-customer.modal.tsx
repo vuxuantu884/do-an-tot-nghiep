@@ -57,6 +57,7 @@ type EditCustomerModalProps = {
   setVisibleCollapseCustomer: (item: boolean) => void;
   setVisibleBtnUpdate: (item: boolean) => void;
   ShippingAddressChange: (items: any) => void;
+  isOrderUpdate?: boolean;
 };
 
 type FormValueType = {
@@ -92,6 +93,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
     setVisibleCollapseCustomer,
     setVisibleBtnUpdate,
     ShippingAddressChange,
+    isOrderUpdate,
     //onOk,
   } = props;
   const dispatch = useDispatch();
@@ -461,6 +463,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
                       handleShippingDelete={showAddressModalDelete}
                       handleSingleShippingAddress={setSingleShippingAddress}
                       handleShippingAddress={ShippingAddressChange}
+                      isOrderUpdate={isOrderUpdate}
                     />
                   }
                   trigger="click"
@@ -510,6 +513,7 @@ const EditCustomerModal: React.FC<EditCustomerModalProps> = (props: EditCustomer
                     handleShippingEdit={ShowAddressModalEdit}
                     handleShippingDelete={showAddressModalDelete}
                     handleSingleShippingAddress={setSingleShippingAddress}
+                    isOrderUpdate={isOrderUpdate}
                   />
                 }
                 trigger="click"

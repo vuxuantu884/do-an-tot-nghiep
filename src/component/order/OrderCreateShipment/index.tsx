@@ -142,6 +142,7 @@ function OrderCreateShipment(props: PropTypes) {
     isOrderReturnFromPOS,
     payments,
   } = props;
+  console.log("isOrderUpdate", isOrderUpdate);
   const dateFormat = "DD/MM/YYYY";
 
   const shippingAddress = useMemo(() => {
@@ -261,6 +262,7 @@ function OrderCreateShipment(props: PropTypes) {
                         undefined,
                         form,
                         setShippingFeeInformedToCustomer,
+                        isOrderUpdate,
                       );
                     }
                   }}
@@ -519,6 +521,7 @@ function OrderCreateShipment(props: PropTypes) {
                 customer={customer}
                 form={form}
                 renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+                isOrderUpdate={isOrderUpdate}
               />
             )}
             {/*--- Tự vận chuyển ----*/}

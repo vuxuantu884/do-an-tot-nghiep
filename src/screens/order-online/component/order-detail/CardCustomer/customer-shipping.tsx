@@ -23,8 +23,11 @@ function CustomerShippingAddressOrder(props: any) {
     handleShippingAddress,
     form,
     setShippingFeeInformedToCustomer,
+    isOrderUpdate,
   } = props;
   const dispatch = useDispatch();
+
+  console.log("isOrderUpdate3", isOrderUpdate);
 
   const orderLineItems = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.orderLineItems,
@@ -53,6 +56,7 @@ function CustomerShippingAddressOrder(props: any) {
               }),
             );
             const orderAmount = totalAmount(orderLineItems);
+            console.log("isOrderUpdate6", isOrderUpdate);
             handleCalculateShippingFeeApplyOrderSetting(
               data.city_id,
               orderAmount,
@@ -60,6 +64,7 @@ function CustomerShippingAddressOrder(props: any) {
               transportService,
               form,
               setShippingFeeInformedToCustomer,
+              isOrderUpdate,
             );
             showSuccess("Đặt mặc định thành công");
             handleShippingAddress(data);

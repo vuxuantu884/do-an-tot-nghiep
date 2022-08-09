@@ -1994,6 +1994,7 @@ function OrderCreateProduct(props: PropTypes) {
         transportService,
         form,
         setShippingFeeInformedToCustomer,
+        props.updateOrder,
       );
     }
     setIsLineItemChanging(false);
