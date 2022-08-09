@@ -56,6 +56,8 @@ function UpdatePaymentCard(props: PropTypes) {
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>([]);
+
+  console.log("paymentData", paymentData);
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
 
   const history = useHistory();
@@ -165,6 +167,7 @@ function UpdatePaymentCard(props: PropTypes) {
 
   const cancelPayment = () => {
     props.setVisibleUpdatePayment(false);
+    setPaymentData([]);
     setShowPaymentPartialPayment && setShowPaymentPartialPayment(false);
   };
 
@@ -224,7 +227,7 @@ function UpdatePaymentCard(props: PropTypes) {
       <div className="create-order-payment 221">
         <OrderPayments
           payments={paymentData}
-          setPayments={setPayments}
+          setPayments={setPaymentData}
           totalOrderAmount={amount}
           loyaltyRate={loyaltyRate}
           paymentMethods={paymentMethods}

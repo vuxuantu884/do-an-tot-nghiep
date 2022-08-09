@@ -22,11 +22,7 @@ import {
   putOrderDuplicateCancel,
   putOrderDuplicateMerge,
 } from "domain/actions/order/order-duplicate.action";
-import {
-  DeliveryServicesGetList,
-  PaymentMethodGetList,
-  updateOrderPartial,
-} from "domain/actions/order/order.action";
+import { PaymentMethodGetList, updateOrderPartial } from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import { AccountResponse } from "model/account/account.model";
@@ -44,7 +40,7 @@ import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
+import { OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import moment from "moment";
@@ -52,6 +48,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useHistory, useParams } from "react-router-dom";
+import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import { exportFile, getFile } from "service/other/export.service";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { OrderStatus, ShipmentMethod } from "utils/Constants";
@@ -173,17 +170,8 @@ const OrderDuplicate: React.FC = () => {
   >([]);
 
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
-  let delivery_services: Array<DeliveryServiceResponse> = [];
-  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
-  useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        delivery_services = response;
-        setDeliveryServices(response);
-      }),
-    );
-  }, [dispatch]);
+  const deliveryServices = useFetchDeliverServices();
+  let delivery_services = deliveryServices;
 
   const [data, setData] = useState<PageResponse<OrderModel>>({
     metadata: {

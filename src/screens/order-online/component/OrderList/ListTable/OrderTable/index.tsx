@@ -6,7 +6,6 @@ import {
   PlusOutlined,
 } from "@ant-design/icons";
 import { Button, Col, Image, Input, Popover, Row, Select, Tooltip } from "antd";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
 import IconPaymentCod from "assets/icon/payment/cod.svg";
@@ -44,6 +43,7 @@ import moment from "moment";
 import React, { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import CopyIcon from "screens/order-online/component/CopyIcon";
 import { inventoryGetApi } from "service/inventory";
 import { getVariantApi } from "service/product/product.service";
 import {
@@ -69,10 +69,11 @@ import {
   PaymentMethodCode,
   POS,
   ShipmentMethod,
+  SHIPPING_TYPE,
   SHOPEE,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
+import { primaryColor } from "utils/global-styles/variables";
 import {
   ORDER_PAYMENT_STATUS,
   ORDER_SUB_STATUS,
@@ -87,16 +88,16 @@ import {
 } from "utils/OrderUtils";
 import { fullTextSearch } from "utils/StringUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
-import ButtonCreateOrderReturn from "../../ButtonCreateOrderReturn";
-import EditNote from "../../EditOrderNote";
+import ButtonCreateOrderReturn from "../../../ButtonCreateOrderReturn";
+import EditNote from "../../../EditOrderNote";
+import InventoryTable from "../InventoryTable";
 import IconFacebook from "./images/facebook.svg";
 import iconShippingFeeInformedToCustomer from "./images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
 import iconWeight from "./images/iconWeight.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
-import InventoryTable from "./InventoryTable";
-import { nameQuantityWidth, StyledComponent } from "./OrdersTable.styles";
+import { nameQuantityWidth, StyledComponent } from "./styles";
 
 type PropTypes = {
   tableLoading: boolean;
@@ -150,6 +151,10 @@ function OrdersTable(props: PropTypes) {
     tableColumnConfigs,
     subStatuses,
   } = props;
+
+  const copyIconSize = 18;
+
+  const formatDate = DATE_FORMAT.fullDate;
 
   const dispatch = useDispatch();
   const status_order = useSelector(
@@ -367,9 +372,7 @@ function OrdersTable(props: PropTypes) {
     if (returnAmount > 0) {
       return (
         <Tooltip title={"Tiền hoàn lại"} className="singlePayment">
-          <span className="amount" style={{ color: yellowColor }}>
-            {formatCurrency(returnAmount)}
-          </span>
+          <span className="amount returnAmount">{formatCurrency(returnAmount)}</span>
         </Tooltip>
       );
     }
@@ -464,14 +467,11 @@ function OrdersTable(props: PropTypes) {
           html
         )}
         <Tooltip title="Click để copy mã vận đơn">
-          <img
-            onClick={(e) => {
-              copyTextToClipboard(e, html);
-              showSuccess("Đã copy mã vận đơn!");
-            }}
-            src={copyFileBtn}
-            alt=""
-            style={{ width: 18, cursor: "pointer" }}
+          <CopyIcon
+            copiedText={html}
+            informationText="Đã copy mã vận đơn!"
+            titleText=""
+            size={copyIconSize}
           />
         </Tooltip>
       </span>
@@ -594,27 +594,20 @@ function OrdersTable(props: PropTypes) {
           return (
             <React.Fragment>
               <div className="noWrap">
-                <Link
-                  to={`${UrlConfig.ORDER}/${i.id}`}
-                  style={{ fontWeight: 500 }}
-                  title="Chi tiết đơn"
-                >
+                <Link to={`${UrlConfig.ORDER}/${i.id}`} title="Chi tiết đơn" className="orderCode">
                   {value}
                 </Link>
                 <span title="Click để copy">
-                  <img
-                    onClick={(e) => {
-                      copyTextToClipboard(e, i.code.toString());
-                      showSuccess("Đã copy mã đơn hàng!");
-                    }}
-                    src={copyFileBtn}
-                    alt=""
-                    style={{ width: 18, cursor: "pointer" }}
+                  <CopyIcon
+                    copiedText={i.code.toString()}
+                    informationText="Đã copy mã đơn hàng!"
+                    titleText=""
+                    size={copyIconSize}
                   />
                 </span>
               </div>
               <div className="textSmall" title="Ngày tạo đơn">
-                {moment(i.created_date).format(DATE_FORMAT.fullDate)}
+                {moment(i.created_date).format(formatDate)}
               </div>
               <div className="textSmall">
                 <Link to={`${UrlConfig.STORE}/${i?.store_id}`} title="Cửa hàng">
@@ -687,14 +680,9 @@ function OrdersTable(props: PropTypes) {
         render: (record: OrderModel) => (
           <div className="customer custom-td">
             {record.customer_phone_number && (
-              <div style={{ color: "#2A2A86", display: "flex" }}>
+              <div className="columnBody__customer">
                 <div
-                  style={{
-                    padding: "0px",
-                    fontWeight: 500,
-                    cursor: "pointer",
-                    fontSize: "0.9em",
-                  }}
+                  className="columnBody__customer-inner"
                   onClick={() => {
                     onFilterPhoneCustomer(
                       record.customer_phone_number ? record.customer_phone_number : "",
@@ -703,98 +691,77 @@ function OrdersTable(props: PropTypes) {
                 >
                   {record.customer_phone_number}
                   <span title="Click để copy">
-                    <img
-                      onClick={(e) => {
-                        copyTextToClipboard(e, (record?.customer_phone_number || "").toString());
-                        showSuccess("Đã copy số điện thoại!");
-                      }}
-                      src={copyFileBtn}
-                      alt=""
-                      style={{ width: 18, cursor: "pointer" }}
+                    <CopyIcon
+                      copiedText={record?.customer_phone_number || ""}
+                      informationText="Đã copy số điện thoại!"
+                      titleText=""
+                      size={copyIconSize}
                     />
                   </span>
                 </div>
                 <Popover
                   placement="bottomLeft"
                   content={
-                    <div className="poppver-to-fast">
-                      <Button
-                        className="btn-to-fast"
-                        style={{
-                          padding: "0px",
-                          display: "block",
-                          height: "30px",
-                        }}
-                        type="link"
-                        icon={<img src={search} alt="" style={{ paddingRight: "18px" }} />}
-                        onClick={() =>
-                          onFilterPhoneCustomer(
-                            record.customer_phone_number ? record.customer_phone_number : "",
-                          )
-                        }
-                      >
-                        Lọc đơn của khách
-                      </Button>
-                      <Button
-                        className="btn-to-fast"
-                        style={{
-                          padding: "0px",
-                          display: "block",
-                          height: "30px",
-                        }}
-                        type="link"
-                        icon={<EyeOutlined style={{ paddingRight: "10px" }} />}
-                        onClick={() => {
-                          let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
-                          window.open(pathname, "_blank");
-                        }}
-                      >
-                        Thông tin khách hàng
-                      </Button>
-                      <Button
-                        className="btn-to-fast"
-                        style={{
-                          padding: "0px",
-                          display: "block",
-                          height: "30px",
-                        }}
-                        type="link"
-                        icon={<PlusOutlined style={{ paddingRight: "10px" }} />}
-                        onClick={() => {
-                          let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
-                          window.open(pathname, "_blank");
-                        }}
-                      >
-                        Tạo đơn cho khách
-                      </Button>
-                      <Button
-                        className="btn-to-fast"
-                        style={{
-                          padding: "0px",
-                          display: "block",
-                          height: "30px",
-                        }}
-                        type="link"
-                        icon={<PhoneOutlined style={{ paddingRight: "10px" }} />}
-                        onClick={() => {
-                          window.location.href = `tel:${record.customer_phone_number}`;
-                        }}
-                      >
-                        Gọi điện cho khách
-                      </Button>
-                    </div>
+                    <StyledComponent>
+                      <div className="poppver-to-fast">
+                        <Button
+                          className="btn-to-fast"
+                          type="link"
+                          icon={<img src={search} alt="" />}
+                          onClick={() =>
+                            onFilterPhoneCustomer(
+                              record.customer_phone_number ? record.customer_phone_number : "",
+                            )
+                          }
+                        >
+                          Lọc đơn của khách
+                        </Button>
+                        <Button
+                          className="btn-to-fast"
+                          type="link"
+                          icon={<EyeOutlined />}
+                          onClick={() => {
+                            let pathname = `${process.env.PUBLIC_URL}${UrlConfig.CUSTOMER}/${record.customer_id}`;
+                            window.open(pathname, "_blank");
+                          }}
+                        >
+                          Thông tin khách hàng
+                        </Button>
+                        <Button
+                          className="btn-to-fast"
+                          type="link"
+                          icon={<PlusOutlined />}
+                          onClick={() => {
+                            let pathname = `${process.env.PUBLIC_URL}${UrlConfig.ORDER}/create?customer=${record.customer_id}`;
+                            window.open(pathname, "_blank");
+                          }}
+                        >
+                          Tạo đơn cho khách
+                        </Button>
+                        <Button
+                          className="btn-to-fast"
+                          type="link"
+                          icon={<PhoneOutlined />}
+                          onClick={() => {
+                            window.location.href = `tel:${record.customer_phone_number}`;
+                          }}
+                        >
+                          Gọi điện cho khách
+                        </Button>
+                      </div>
+                    </StyledComponent>
                   }
                   trigger="click"
                 >
                   <Button
                     type="link"
-                    style={{ width: "25px", padding: "0px", paddingTop: 2 }}
-                    icon={<DownOutlined style={{ fontSize: "12px" }} />}
+                    className="trigger__button"
+                    icon={<DownOutlined className="trigger__icon" />}
                   ></Button>
                 </Popover>
               </div>
             )}
-            <div className="name" style={{ color: "#2A2A86" }}>
+            <div className="name">
               <Link
                 target="_blank"
                 to={`${UrlConfig.CUSTOMER}/${record.customer_id}`}
@@ -837,7 +804,7 @@ function OrdersTable(props: PropTypes) {
         className: "productNameQuantityPrice",
         render: (items: Array<OrderLineItemResponse>) => {
           return (
-            <div className="items">
+            <div className="items columnBody__items">
               {items.map((item, i) => {
                 return (
                   <div className="item custom-td" key={i}>
@@ -869,12 +836,12 @@ function OrdersTable(props: PropTypes) {
                         {item?.discount_items && item.discount_items[0]?.value ? (
                           <React.Fragment>
                             <Tooltip title="Khuyến mại sản phẩm (đ)">
-                              <div className="itemDiscount" style={{ color: dangerColor }}>
+                              <div className="itemDiscountValue">
                                 <span> - {formatCurrency(item.discount_items[0].value)}</span>
                               </div>
                             </Tooltip>
                             <Tooltip title="Khuyến mại sản phẩm (%)">
-                              <div className="itemDiscount" style={{ color: dangerColor }}>
+                              <div className="itemDiscountValue">
                                 <span>
                                   {" "}
                                   -{" "}
@@ -902,7 +869,7 @@ function OrdersTable(props: PropTypes) {
         title: "Tổng tiền",
         // dataIndex: "",
         render: (record: any) => (
-          <React.Fragment>
+          <div className="columnBody__discountAmount">
             <div className="originalPrice">
               <Tooltip title="Tổng tiền khi sản phẩm còn nguyên giá">
                 <span>{formatCurrency(getTotalAmountBeforeDiscount(record.items))}</span>
@@ -916,7 +883,7 @@ function OrdersTable(props: PropTypes) {
             {record.total_discount ? (
               <div>
                 <Tooltip title="Tổng tiền chiết khấu">
-                  <strong style={{ color: "#EF5B5B" }}>
+                  <strong className="totalDiscountValue">
                     -{formatCurrency(record.total_discount)}
                   </strong>
                 </Tooltip>
@@ -929,7 +896,7 @@ function OrdersTable(props: PropTypes) {
                 </Tooltip>
               </div>
             ) : null}
-          </React.Fragment>
+          </div>
         ),
         key: "customer.amount_money",
         visible: true,
@@ -1031,11 +998,11 @@ function OrdersTable(props: PropTypes) {
                   return (
                     <React.Fragment>
                       <div className="single">
-                        {sortedFulfillments[0]?.shipment?.service === "4h_delivery"
+                        {sortedFulfillments[0]?.shipment?.service === SHIPPING_TYPE.DELIVERY_4H
                           ? "Đơn giao 4H"
                           : "Đơn giao thường"}
                         {" - "}
-                        <span style={{ color: primaryColor }}>
+                        <span className="shipper">
                           {sortedFulfillments[0]?.shipment?.shipper_code}-
                           {sortedFulfillments[0]?.shipment?.shipper_name}
                         </span>
@@ -1254,7 +1221,7 @@ function OrdersTable(props: PropTypes) {
                       <React.Fragment>
                         <Link
                           to={`${UrlConfig.ACCOUNTS}/${record.coordinator_code}`}
-                          style={{ fontWeight: 500 }}
+                          className="coordinatorCode"
                         >
                           {record.coordinator_code} - {record.coordinator}
                         </Link>
@@ -1458,12 +1425,7 @@ function OrdersTable(props: PropTypes) {
               title="Tạo bảo hành"
               target="_blank"
             >
-              <img
-                alt=""
-                src={iconWarranty}
-                className="iconReturn"
-                style={{ filter: "brightness(0.5)" }}
-              />
+              <img alt="" src={iconWarranty} className="createWarrantyIcon" />
             </Link>
           </div>
         ) : null}
@@ -1487,7 +1449,7 @@ function OrdersTable(props: PropTypes) {
             placement="right"
             overlayStyle={{ zIndex: 1000, top: "150px", maxWidth: "60%" }}
             title={
-              <Row justify="space-between" align="middle" style={{ width: "100%" }}>
+              <Row justify="space-between" align="middle">
                 <Input.Search placeholder="Tìm kiếm kho" allowClear onSearch={onSearchInventory} />
               </Row>
             }
@@ -1507,8 +1469,7 @@ function OrdersTable(props: PropTypes) {
             <Button
               type="link"
               className="checkInventoryButton"
-              icon={<EyeOutlined style={{ color: "rgb(252, 175, 23)" }} />}
-              style={{ padding: 0 }}
+              icon={<EyeOutlined className="checkInventoryButton__icon" />}
               title="Kiểm tra tồn kho"
             ></Button>
           </Popover>

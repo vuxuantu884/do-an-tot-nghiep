@@ -43,7 +43,7 @@ function SidebarOrderHistory(props: PropTypes) {
                   <Link target="_blank" to={`${UrlConfig.ORDER}/${single.id}`}>
                     {single.code}
                   </Link>{" "}
-                  - <span className="nowrap">SL: {single.items.length}</span>
+                  - <span className="nowrap">SL: {single.actual_quantity}</span>
                 </div>
               </div>
             </Col>

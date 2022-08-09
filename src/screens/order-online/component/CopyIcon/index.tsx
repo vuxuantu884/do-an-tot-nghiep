@@ -8,6 +8,7 @@ type PropTypes = {
   copiedText: string;
   informationText?: string;
   titleText?: string;
+  size?: number;
 };
 
 /**
@@ -16,7 +17,7 @@ type PropTypes = {
  * titleText: title button
  */
 function CopyIcon(props: PropTypes): JSX.Element {
-  const { copiedText, informationText, titleText } = props;
+  const { copiedText, informationText, titleText, size } = props;
 
   const handleClick = (e: React.MouseEvent<HTMLImageElement, MouseEvent>) => {
     copyTextToClipboard(e, copiedText!);
@@ -32,9 +33,9 @@ function CopyIcon(props: PropTypes): JSX.Element {
           handleClick(e);
         }}
         src={copyFileBtn}
-        alt=""
+        alt={titleText}
         className="iconCopy"
-        title={titleText}
+        style={size ? { width: size } : {}}
       />
     </StyledComponent>
   );

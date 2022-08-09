@@ -118,7 +118,7 @@ function UpdateProductCard(props: PropTypes) {
         </span> */}
       </div>
     ),
-    className: "yody-pos-quantity text-center",
+    className: "yody-pos-quantity text-center 55",
     width: "10%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       // console.log('item', item)

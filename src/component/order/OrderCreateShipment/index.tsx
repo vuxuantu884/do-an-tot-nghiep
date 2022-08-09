@@ -252,6 +252,9 @@ function OrderCreateShipment(props: PropTypes) {
                         setShippingFeeInformedToCustomer,
                       );
                     }
+                    if (button.value === ShipmentMethodOption.PICK_AT_STORE) {
+                      setShippingFeeInformedToCustomer(0);
+                    }
                   }}
                 >
                   {icon}
