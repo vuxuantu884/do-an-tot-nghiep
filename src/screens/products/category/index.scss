@@ -1,3 +1,67 @@
+.btn-view {
+  height: 42px;
+  color: #2a2a86;
+  border: 1px solid #2a2a86 !important;
+  margin-right: 12px;
+}
+
+.icon-level {
+  margin-right: 8.64px;
+}
+
+.category-tree {
+  display: flex;
+  overflow: auto;
+  width: 100%;
+
+  .level-one {
+    flex: 0 0 8%;
+    cursor: pointer;
+    font-weight: 400;
+    color: #222222;
+  }
+
+  .other-level {
+    flex: 0 0 15.2%;
+    font-weight: 400;
+    color: #222222;
+  }
+
+  .category-tree-level {
+    margin-top: 8px;
+    margin-left: 20px;
+    display: flex;
+    align-items: flex-start;
+
+    .icon-right {
+      margin-top: 3px;
+      margin-left: auto;
+    }
+  }
+
+  .level-text {
+    font-weight: bold;
+    padding: 7px 0;
+    box-shadow: 0 2px 0 #e5e5e5;
+    background: #f5f5f5;
+    text-align: center;
+    margin-bottom: 17px;
+  }
+}
+
+.d-none {
+  display: none !important;
+}
+
+.cursor-p {
+  cursor: pointer;
+}
+
+.active {
+  color: #2a2a86;
+  font-weight: 500;
+}
+
 .high-level {
   background: #fcaf17;
   border-radius: 1px;
