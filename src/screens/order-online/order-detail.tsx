@@ -1120,6 +1120,7 @@ const OrderDetail = (props: PropTypes) => {
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
                 ref={updateShipmentCardRef}
+                isOrderDetailPage
               />
               {/*--- end shipment ---*/}
 
