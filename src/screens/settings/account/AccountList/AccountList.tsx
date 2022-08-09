@@ -17,7 +17,6 @@ import {
   DepartmentGetListAction,
   PositionGetListAction,
 } from "domain/actions/account/account.action";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import useChangeHeaderToAction from "hook/filter/useChangeHeaderToAction";
 import useAuthorization from "hook/useAuthorization";
 import {
@@ -28,7 +27,6 @@ import {
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
 import { PageResponse } from "model/base/base-metadata.response";
-import { StoreResponse } from "model/core/store.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { useCallback, useEffect, useLayoutEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -70,7 +68,6 @@ const ListAccountScreen: React.FC = () => {
   const [tableLoading, setTableLoading] = useState(true);
   const [listDepartment, setDepartment] = useState<Array<DepartmentResponse>>();
   const [listPosition, setPosition] = useState<Array<PositionResponse>>();
-  const [listStore, setStore] = useState<Array<StoreResponse>>();
   const [accountSelected, setAccountSelected] = useState<Array<AccountResponse>>([]);
   const [isImport, setIsImport] = useState<boolean>(false);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
@@ -196,11 +193,16 @@ const ListAccountScreen: React.FC = () => {
       title: "Tên đăng nhập",
       dataIndex: "user_name",
       visible: true,
+      width: 150,
     },
     {
       title: "Họ tên",
       dataIndex: "full_name",
       visible: true,
+      width: 250,
+      render: (value: string) => {
+        return <span className="text-truncate-1">{value}</span>;
+      },
     },
     {
       title: "Số điện thoại",
@@ -320,7 +322,6 @@ const ListAccountScreen: React.FC = () => {
       }),
     );
     dispatch(PositionGetListAction(setPosition));
-    dispatch(StoreGetListAction(setStore));
   }, [dispatch]);
 
   useEffect(() => {
@@ -329,6 +330,7 @@ const ListAccountScreen: React.FC = () => {
     params.store_ids = storeIds;
     dispatch(AccountSearchAction(params, setSearchResult));
   }, [dispatch, params, setSearchResult]);
+
   return (
     <ContentContainer
       title="Quản lý người dùng"
@@ -371,7 +373,6 @@ const ListAccountScreen: React.FC = () => {
             listDepartment={listDepartment}
             listPosition={listPosition}
             listStatus={listStatus}
-            listStore={listStore}
             onClearFilter={onClearFilter}
             onClickOpen={() => setShowSettingColumn(true)}
           />

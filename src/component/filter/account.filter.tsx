@@ -5,10 +5,13 @@ import { FilterWrapper } from "component/container/filter.container";
 import { MenuAction } from "component/table/ActionButton";
 import ButtonSetting from "component/table/ButtonSetting";
 import TreeDepartment from "component/tree-node/tree-department";
-import { getListStoresSimpleAction } from "domain/actions/core/store.action";
+import { RoleSearchAction } from "domain/actions/auth/role.action";
+import { StoreGetListAction } from "domain/actions/core/store.action";
 import { AccountSearchQuery } from "model/account/account.model";
 import { DepartmentResponse } from "model/account/department.model";
 import { PositionResponse } from "model/account/position.model";
+import { RoleResponse, RoleSearchQuery } from "model/auth/roles.model";
+import { PageResponse } from "model/base/base-metadata.response";
 import { BaseBootstrapResponse } from "model/content/bootstrap.model";
 import { StoreResponse } from "model/core/store.model";
 import moment from "moment";
@@ -25,19 +28,29 @@ type AccountFilterProps = {
   listDepartment?: DepartmentResponse[] | undefined;
   listPosition?: Array<PositionResponse>;
   listStatus?: Array<BaseBootstrapResponse>;
-  listStore?: Array<StoreResponse>;
   actions: Array<MenuAction>;
   onMenuClick?: (index: number) => void;
   onFilter?: (values: AccountSearchQuery) => void;
   onClearFilter?: () => void;
   onClickOpen?: () => void;
 };
-
+const defaultRoleListParams: RoleSearchQuery = {
+  page: 1,
+  limit: 1000,
+};
 const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) => {
   const { params, listDepartment, listPosition, listStatus, onClearFilter, onFilter, onClickOpen } =
     props;
   const [visible, setVisible] = useState(false);
   const [listStore, setListStore] = useState<Array<StoreResponse>>();
+  const [roleList, setRoleList] = useState<PageResponse<RoleResponse>>({
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+    items: [],
+  });
   const dispatch = useDispatch();
 
   const [formRef] = Form.useForm();
@@ -74,6 +87,10 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
     return date ? moment(date) : undefined;
   };
 
+  const onLoadRolesSuccess = useCallback((data: PageResponse<RoleResponse>) => {
+    setRoleList(data);
+  }, []);
+
   useLayoutEffect(() => {
     if (visible) {
       formRef?.resetFields();
@@ -82,11 +99,12 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
 
   useEffect(() => {
     dispatch(
-      getListStoresSimpleAction((stores) => {
+      StoreGetListAction((stores) => {
         setListStore(stores);
       }),
     );
-  }, [dispatch]);
+    dispatch(RoleSearchAction(defaultRoleListParams, onLoadRolesSuccess));
+  }, [dispatch, onLoadRolesSuccess]);
 
   return (
     <div>
@@ -191,24 +209,26 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
                   </Form.Item>
                 </Col>
               </Row>
-              {/* <Row>
+              <Row>
                 <Col span={24}>
-                  <Form.Item label="Phân quyền chi tiết">
-                    <Checkbox.Group className="group-checkbox-btn">
-                      <Checkbox
-                        value={true}
-                        className="group-checkbox-btn__checkbox">
-                        <div className="ant-btn">Có</div>
-                      </Checkbox>
-                      <Checkbox
-                        value={false}
-                        className="group-checkbox-btn__checkbox">
-                        <div className="ant-btn">Không</div>
-                      </Checkbox>
-                    </Checkbox.Group>
+                  <Form.Item name="role_ids" label="Nhóm quyền">
+                    <Select
+                      filterOption={(input, option) => fullTextSearch(input, option?.children)}
+                      mode="multiple"
+                      placeholder="Chọn nhóm quyền"
+                      allowClear
+                      showSearch
+                      showArrow
+                    >
+                      {roleList.items.map((item) => (
+                        <Select.Option key={item.id} value={item.id.toString()}>
+                          {item.name}
+                        </Select.Option>
+                      ))}
+                    </Select>
                   </Form.Item>
                 </Col>
-              </Row> */}
+              </Row>
             </div>
           </FilterAccountAdvancedStyles>
         </BaseFilter>
