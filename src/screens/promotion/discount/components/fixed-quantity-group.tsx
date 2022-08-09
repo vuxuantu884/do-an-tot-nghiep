@@ -51,6 +51,8 @@ import { DiscountUnitType, MAX_FIXED_DISCOUNT_VALUE } from "../../constants";
 import { DiscountContext } from "./discount-provider";
 import NumberInput from "component/custom/number-input.custom";
 import { showError } from "utils/ToastUtils";
+import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
+
 const Option = Select.Option;
 
 interface Props {
@@ -90,6 +92,9 @@ const FixedAndQuantityGroup = (props: Props) => {
       page: 1,
     },
   });
+
+  const [isShowConfirmDelete, setIsShowConfirmDelete] = useState(false);
+
   const dataSourceForm: Array<ProductEntitlements> =
     form.getFieldValue("entitlements")[name]?.selectedProducts;
 
@@ -301,6 +306,19 @@ const FixedAndQuantityGroup = (props: Props) => {
     );
   };
 
+  const checkIsExistDiscountGroup = () => {
+    const entitlementsForm: Array<EntilementFormModel> = form.getFieldValue("entitlements");
+    const entitlementCurrentChange = entitlementsForm[name]?.prerequisite_quantity_ranges[0];
+    const prerequisiteQuantityRangesList = entitlementsForm.filter((item, index) => index !== name)
+      .map((entitlement) => {
+        return entitlement?.prerequisite_quantity_ranges[0];
+    })
+
+    return prerequisiteQuantityRangesList?.some(item => {
+      return (item.value_type === entitlementCurrentChange?.value_type && item.value === entitlementCurrentChange.value);
+    });
+  };
+
   return (
     <Card key={name} style={{ boxShadow: "none" }}>
       <Row gutter={16}>
@@ -359,10 +377,14 @@ const FixedAndQuantityGroup = (props: Props) => {
                   () => ({
                     validator(_, value) {
                       if (checkIsPercentUnit()) {
-                        if (typeof value === "number" && value <= 0) {
-                          return Promise.reject("Giá trị phải lớn hơn 0");
-                        } else if (value > 100) {
-                          return Promise.reject("Giá trị phải nhỏ hơn hoặc bằng 100%");
+                        if (typeof value === "number") {
+                          if (value <= 0) {
+                            return Promise.reject("Giá trị phải lớn hơn 0");
+                          } else if (value > 100) {
+                            return Promise.reject("Giá trị phải nhỏ hơn hoặc bằng 100%");
+                          } else if (checkIsExistDiscountGroup()) {
+                            return Promise.reject("Trùng điều kiện với nhóm chiết khấu đã có");
+                          }
                         }
                       } else {
                         let msg =
@@ -375,6 +397,8 @@ const FixedAndQuantityGroup = (props: Props) => {
                             return Promise.reject(new Error(msg + " phải lớn hơn 0"));
                           } else if (value > 999999999) {
                             return Promise.reject("Giá trị phải nhỏ hơn hoặc bằng 999.999.999");
+                          } else if (checkIsExistDiscountGroup()) {
+                            return Promise.reject("Trùng điều kiện với nhóm chiết khấu đã có");
                           }
                         }
                       }
@@ -388,6 +412,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                   style={{ width: "calc(100% - 70px)", textAlign: "left" }}
                   format={(a: string) => formatCurrency(a)}
                   replace={(a: string) => replaceFormatString(a)}
+                  onChange={() => form.validateFields()}
                   placeholder="Nhập giá trị"
                   maxLength={checkIsPercentUnit() ? 3 : 11}
                   minLength={0}
@@ -403,6 +428,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                     form.setFieldsValue({
                       entitlements: value,
                     });
+                    form.validateFields();
                   }}
                 >
                   {discountUnitOptions.map((item) => (
@@ -454,6 +480,7 @@ const FixedAndQuantityGroup = (props: Props) => {
         </Form.Item>
         <CustomTable
           className="product-table"
+          bordered
           rowKey={(record) => record.sku}
           rowClassName="product-table-row"
           columns={[
@@ -506,11 +533,27 @@ const FixedAndQuantityGroup = (props: Props) => {
               },
             },
             {
+              title: "Giá bán",
+              className: "ant-col-info",
+              align: "center",
+              width: "15%",
+              dataIndex: "retail_price",
+              render: (value) => {
+                if (typeof value === "number") {
+                  // price at create time
+                  return formatCurrency(value);
+                } else {
+                  return "-";
+                }
+              },
+            },
+            {
               className: "ant-col-info",
               align: "right",
               width: "8%",
               render: (value: string, item, index: number) => (
                 <Button
+                  style={{ margin: "0 auto" }}
                   onClick={() => onDeleteItem(index, item)}
                   className="product-item-delete"
                   icon={<AiOutlineClose />}
@@ -537,7 +580,7 @@ const FixedAndQuantityGroup = (props: Props) => {
                 icon={<DeleteOutlined />}
                 danger
                 onClick={() => {
-                  remove(name);
+                  setIsShowConfirmDelete(true);
                 }}
               >
                 Xoá nhóm chiết khấu
@@ -559,6 +602,15 @@ const FixedAndQuantityGroup = (props: Props) => {
               selectedProductParentRef,
             );
           }}
+        />
+
+        <ModalDeleteConfirm
+          visible={isShowConfirmDelete}
+          okText={"Xóa"}
+          onOk={() => remove(name)}
+          cancelText={"Thoát"}
+          onCancel={() => setIsShowConfirmDelete(false)}
+          title="Bạn có chắc chắn muốn xóa nhóm chiết khấu không?"
         />
       </div>
     </Card>
