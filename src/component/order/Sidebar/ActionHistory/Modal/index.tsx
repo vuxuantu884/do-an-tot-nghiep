@@ -2,13 +2,12 @@ import { Button, Table } from "antd";
 import Modal from "antd/lib/modal/Modal";
 import { actionGetActionLogDetail } from "domain/actions/order/order.action";
 import purify from "dompurify";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { convertActionLogDetailToText } from "utils/AppUtils";
-import { DATE_FORMAT } from "utils/DateUtils";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type PropType = {
   isModalVisible: boolean;
   actionId?: number;
   onCancel: () => void;
@@ -22,12 +21,12 @@ type SingleLogType = {
   current: any;
 };
 
-function ActionHistoryModal(props: PropTypes) {
-  const formatDate = DATE_FORMAT.HHmm_DDMMYYYY;
+function ActionHistoryModal(props: PropType) {
+  const dateFormat = "HH:mm DD/MM/YYYY";
   const screenHeight = window.screen.height;
 
   const dispatch = useDispatch();
-  const [singleShortenLog, setSingleShortenLog] = useState<SingleLogType[]>([]);
+  const [singleLogShorten, setSingleLogShorten] = useState<SingleLogType[]>([]);
   const [singleLogDetail, setSingleLogDetail] = useState<SingleLogType[]>([]);
 
   const renderRow = (value: string, row: any) => {
@@ -103,10 +102,10 @@ function ActionHistoryModal(props: PropTypes) {
     if (actionId) {
       dispatch(
         actionGetActionLogDetail(actionId, (response) => {
-          let detailToTextBefore = convertActionLogDetailToText(response.before?.data, formatDate);
+          let detailToTextBefore = convertActionLogDetailToText(response.before?.data, dateFormat);
           let detailToTextCurrent = convertActionLogDetailToText(
             response.current?.data,
-            formatDate,
+            dateFormat,
           );
           setSingleLogDetail([
             {
@@ -116,7 +115,7 @@ function ActionHistoryModal(props: PropTypes) {
               current: response.current?.data || "",
             },
           ]);
-          setSingleShortenLog([
+          setSingleLogShorten([
             {
               key: "1",
               type: "text",
@@ -149,7 +148,7 @@ function ActionHistoryModal(props: PropTypes) {
         }),
       );
     }
-  }, [actionId, dispatch, formatDate]);
+  }, [actionId, dispatch]);
 
   return (
     <Modal
@@ -181,7 +180,7 @@ function ActionHistoryModal(props: PropTypes) {
           />
         ) : (
           <Table
-            dataSource={singleShortenLog}
+            dataSource={singleLogShorten}
             columns={ACTION_LOG_SHORTEN_COLUMN}
             pagination={false}
           />

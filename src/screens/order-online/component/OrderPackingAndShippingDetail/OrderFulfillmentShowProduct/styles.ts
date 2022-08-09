@@ -13,7 +13,4 @@ export const StyledComponent = styled.div`
     display: flex;
     justify-content: space-between;
   }
-  .ant-badge {
-    margin-left: 7px;
-  }
 `;

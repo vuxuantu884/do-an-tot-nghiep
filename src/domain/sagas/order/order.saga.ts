@@ -187,7 +187,6 @@ function* orderUpdateSaga(action: YodyAction) {
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
     } else {
-      onError();
       yield put(fetchApiErrorAction(response, "Cập nhật đơn hàng"));
     }
   } catch (error) {
@@ -435,18 +434,16 @@ function* getTRackingLogErrorSaga(action: YodyAction) {
 }
 
 function* ListDeliveryServicesSaga(action: YodyAction) {
-  let { setData, setError } = action.payload;
+  let { setData } = action.payload;
   try {
     let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(getDeliverieServices);
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
     } else {
-      setError();
       yield put(fetchApiErrorAction(response, "Danh sách phương thức giao hàng"));
     }
   } catch (error) {
     showError("Có lỗi khi lấy dữ liệu danh sách phương thức giao hàng! Vui lòng thử lại sau!");
-    setError();
   }
 }
 

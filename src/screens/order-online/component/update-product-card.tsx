@@ -28,6 +28,7 @@ import { successColor } from "utils/global-styles/variables";
 type PropTypes = {
   shippingFeeInformedCustomer: number | null;
   OrderDetail: OrderResponse | null;
+  customerNeedToPayValue: number;
   totalAmountReturnProducts?: number;
   paymentMethods: PaymentMethodResponse[];
 };
@@ -37,6 +38,7 @@ function UpdateProductCard(props: PropTypes) {
     shippingFeeInformedCustomer = 0,
     OrderDetail,
     totalAmountReturnProducts,
+    customerNeedToPayValue,
     paymentMethods,
   } = props;
 
@@ -118,7 +120,7 @@ function UpdateProductCard(props: PropTypes) {
         </span> */}
       </div>
     ),
-    className: "yody-pos-quantity text-center 55",
+    className: "yody-pos-quantity text-center",
     width: "10%",
     render: (l: OrderLineItemResponse, item: any, index: number) => {
       // console.log('item', item)

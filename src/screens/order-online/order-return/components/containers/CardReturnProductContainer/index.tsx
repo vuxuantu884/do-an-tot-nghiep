@@ -39,11 +39,11 @@ type PropTypes = {
   searchVariantInputValue: string;
   handleCanReturn?: (value: boolean) => void;
   setIsVisibleModalWarningPointRefund?: (value: boolean) => void;
-  stores: StoreResponse[];
+  listStores: StoreResponse[];
   setSearchVariantInputValue: (value: string) => void;
   setListOrderProductsResult: (value: OrderLineItemResponse[]) => void;
   isAlreadyShowWarningPoint: boolean;
-  paymentMethods: PaymentMethodResponse[];
+  listPaymentMethods: PaymentMethodResponse[];
 };
 
 function CardReturnProductContainer(props: PropTypes) {
@@ -55,9 +55,9 @@ function CardReturnProductContainer(props: PropTypes) {
     searchVariantInputValue,
     setSearchVariantInputValue,
     setListOrderProductsResult,
-    stores,
+    listStores,
     isAlreadyShowWarningPoint,
-    paymentMethods,
+    listPaymentMethods,
   } = props;
 
   const dispatch = useDispatch();
@@ -403,7 +403,7 @@ function CardReturnProductContainer(props: PropTypes) {
     if (!listReturnProducts) {
       return;
     }
-    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, paymentMethods);
+    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods);
     const refund_money = listReturnProducts ? getTotalPrice(listReturnProducts) : 0;
     if (isUsingPoint) {
       if (OrderDetail?.customer_id && orderId && refund_money > 0) {
@@ -482,7 +482,7 @@ function CardReturnProductContainer(props: PropTypes) {
     }
     let result = 0;
 
-    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, paymentMethods);
+    let isUsingPoint = isOrderDetailHasPointPayment(OrderDetail, listPaymentMethods);
     if (!isUsingPoint) {
       if (!orderId) {
         return;
@@ -534,7 +534,7 @@ function CardReturnProductContainer(props: PropTypes) {
     OrderDetail,
     dispatch,
     getTotalPrice,
-    paymentMethods,
+    listPaymentMethods,
     listReturnProducts,
     orderId,
     refund?.moneyRefund,
@@ -557,7 +557,7 @@ function CardReturnProductContainer(props: PropTypes) {
       totalAmountReturnProducts={totalAmountReturnProducts}
       isShowProductSearch={true}
       setListReturnProducts={setListReturnProducts}
-      stores={stores}
+      listStores={listStores}
       autoCompleteRef={autoCompleteRef}
     />
   );

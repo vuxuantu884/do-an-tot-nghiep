@@ -195,8 +195,8 @@ function CardPayments(props: CardPaymentsProps) {
             >
               <Space size={20}>
                 <Radio value={PaymentMethodOption.COD}>COD</Radio>
-                <Radio value={PaymentMethodOption.PRE_PAYMENT}>Thanh toán trước</Radio>
-                <Radio value={PaymentMethodOption.POST_PAYMENT} disabled={isDisablePostPayment}>
+                <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
+                <Radio value={PaymentMethodOption.POSTPAYMENT} disabled={isDisablePostPayment}>
                   Chưa xác định
                 </Radio>
               </Space>
@@ -238,7 +238,7 @@ function CardPayments(props: CardPaymentsProps) {
 
           <Row
             gutter={24}
-            hidden={paymentMethod !== PaymentMethodOption.PRE_PAYMENT}
+            hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
             style={{ marginTop: 18 }}
           >
             <div style={{ padding: "0 24px", maxWidth: "100%" }}>

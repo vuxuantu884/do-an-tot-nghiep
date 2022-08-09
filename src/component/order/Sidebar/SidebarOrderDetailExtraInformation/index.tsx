@@ -5,88 +5,95 @@ import TextWithLineBreak from "screens/order-online/component/TextWithLineBreak"
 import { primaryColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type PropType = {
   OrderDetail: OrderResponse | null;
-  editNote?: (
-    note: string | null | undefined,
-    customer_note: string | null | undefined,
-    orderID: number | undefined,
-  ) => void;
+  editNote?: (note: any, customer_note: any, orderID: any) => void;
 };
 
-function SidebarOrderDetailExtraInformation(props: PropTypes) {
+function SidebarOrderDetailExtraInformation(props: PropType) {
   const { OrderDetail, editNote } = props;
-
-  const detailArr = [
-    {
-      title: (
-        <EditOrderNote
-          title="Ghi chú của khách: "
-          color={primaryColor}
-          onOk={(values) => {
-            editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
-          }}
-          noteFormValue={{
-            note: OrderDetail?.note,
-            customer_note: OrderDetail?.customer_note,
-          }}
-        />
-      ),
-      value:
-        OrderDetail?.customer_note !== "" ? (
-          <TextWithLineBreak note={OrderDetail?.customer_note} />
-        ) : (
-          "Không có ghi chú"
-        ),
-    },
-    {
-      title: (
-        <EditOrderNote
-          title="Ghi chú nội bộ: "
-          color={primaryColor}
-          onOk={(values) => {
-            editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
-          }}
-          noteFormValue={{
-            note: OrderDetail?.note,
-            customer_note: OrderDetail?.customer_note,
-          }}
-        />
-      ),
-      value:
-        OrderDetail?.note !== "" ? (
-          <TextWithLineBreak note={OrderDetail?.note} />
-        ) : (
-          "Không có ghi chú"
-        ),
-    },
-    {
-      title: "Nhãn: ",
-      value: OrderDetail?.tags
-        ? OrderDetail?.tags.split(",").map((item, index) => (
-            <Tag key={index} className="orders-tag">
-              {item}
-            </Tag>
-          ))
-        : "Không có nhãn",
-    },
-  ];
-
+  // console.log("OrderDetail note",OrderDetail)
   return (
     <StyledComponent>
-      <Card title={<span className="78">THÔNG TIN BỔ SUNG</span>}>
-        {detailArr.map((single, index) => {
-          return (
-            <Row gutter={5} className="singleRow" key={index}>
-              <Col span={24} className="colTitle">
-                {single.title}
-              </Col>
-              <Col span={24}>
-                <span className="text-focus">{single.value}</span>
-              </Col>
-            </Row>
-          );
-        })}
+      <Card title="THÔNG TIN BỔ SUNG">
+        <Row gutter={5} style={{ flexDirection: "column" }}>
+          <Col span={24} style={{ marginBottom: 6 }}>
+            {/* <EditOutlined className="iconEdit" title="Sửa ghi chú" />
+            <b>Ghi chú của khách:</b> */}
+            <EditOrderNote
+              title="Ghi chú của khách: "
+              color={primaryColor}
+              onOk={(values) => {
+                editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
+              }}
+              noteFormValue={{
+                note: OrderDetail?.note,
+                customer_note: OrderDetail?.customer_note,
+              }}
+            />
+          </Col>
+          <Col span={24}>
+            <span className="text-focus" style={{ wordWrap: "break-word" }}>
+              {OrderDetail?.customer_note !== "" ? (
+                <TextWithLineBreak note={OrderDetail?.customer_note} />
+              ) : (
+                "Không có ghi chú"
+              )}
+            </span>
+          </Col>
+        </Row>
+
+        <Row gutter={5} style={{ flexDirection: "column" }}>
+          <Col span={24} style={{ marginBottom: 6 }}>
+            {/* <EditOutlined className="iconEdit" title="Sửa ghi chú" />
+            <b>Ghi chú nội bộ:</b> */}
+            <EditOrderNote
+              title="Ghi chú nội bộ: "
+              color={primaryColor}
+              onOk={(values) => {
+                editNote && editNote(values?.note, values?.customer_note, OrderDetail?.id);
+              }}
+              noteFormValue={{
+                note: OrderDetail?.note,
+                customer_note: OrderDetail?.customer_note,
+              }}
+            />
+          </Col>
+          <Col span={24}>
+            <span className="text-focus" style={{ wordWrap: "break-word" }}>
+              {OrderDetail?.note !== "" ? (
+                <TextWithLineBreak note={OrderDetail?.note} />
+              ) : (
+                "Không có ghi chú"
+              )}
+            </span>
+          </Col>
+        </Row>
+
+        <Row gutter={5} style={{ flexDirection: "column" }}>
+          <Col span={24} style={{ marginBottom: 6 }}>
+            <b>Nhãn:</b>
+          </Col>
+          <Col span={24}>
+            <span className="text-focus">
+              {OrderDetail?.tags
+                ? OrderDetail?.tags.split(",").map((item, index) => (
+                    <Tag
+                      key={index}
+                      className="orders-tag"
+                      style={{
+                        backgroundColor: "#F5F5F5",
+                        color: "#737373",
+                        padding: "5px 10px",
+                      }}
+                    >
+                      {item}
+                    </Tag>
+                  ))
+                : "Không có nhãn"}
+            </span>
+          </Col>
+        </Row>
       </Card>
     </StyledComponent>
   );

@@ -14,15 +14,14 @@ type PropType = {
   handleCreateShipment?: () => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   isLoading?: boolean;
-  isPageOrderUpdate?: boolean;
+  isOrderUpdate?: boolean;
 };
 
 const { Panel } = Collapse;
 const { Link } = Typography;
 
 function ShipmentMethodEcommerce(props: PropType) {
-  const { ecommerceShipment, OrderDetail, handleCreateShipment, isLoading, isPageOrderUpdate } =
-    props;
+  const { ecommerceShipment, OrderDetail, handleCreateShipment, isLoading, isOrderUpdate } = props;
 
   // copy button
   // const copyOrderID = (e: any, data: string | null) => {
@@ -189,7 +188,7 @@ function ShipmentMethodEcommerce(props: PropType) {
         </div>
       )}
 
-      {ecommerceShipment && !isPageOrderUpdate && (
+      {ecommerceShipment && !isOrderUpdate && (
         <div style={{ marginTop: 20 }}>
           <Button
             type="primary"

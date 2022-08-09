@@ -135,7 +135,6 @@ export interface OrderModel extends BaseObject {
   goods_receipts?: GoodsReceiptsResponse[] | null;
   export_bill: boolean;
   bill: OrderBillResponseModel | null;
-  actual_quantity?: number | null;
 }
 
 export interface OrderSearchQuery {

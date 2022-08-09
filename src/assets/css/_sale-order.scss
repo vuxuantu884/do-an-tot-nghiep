@@ -1101,6 +1101,48 @@
 }
 //custom radio
 .create-order-payment {
+  .order-cod-payment-footer {
+    border-radius: 5px;
+    border: 1px solid #2a2a86;
+    height: 54px;
+    background-color: #f8f8ff;
+    padding: 0 19px;
+    display: flex;
+    align-items: center;
+    & > span {
+      size: 14px;
+      line-height: 54px;
+      letter-spacing: 0.2px;
+      color: #2a2a86;
+      span {
+        font-weight: 500;
+      }
+    }
+    & > div {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 54px;
+      height: 54px;
+      margin-right: 12px;
+      & > div {
+        border: 1px solid #2a2a86;
+        border-radius: 50%;
+        div {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 44px;
+          height: 44px;
+          background: #2a2a86;
+          border: 2px solid white;
+          border-radius: 50%;
+          img {
+          }
+        }
+      }
+    }
+  }
   .ant {
     &-btn-lg {
       padding-top: 4px;
@@ -1373,9 +1415,11 @@
       td {
         &:nth-child(2) {
           .radio-container {
+            cursor: pointer;
             display: block;
             position: relative;
             padding-left: 30px;
+            cursor: pointer;
             font-size: 14px;
             color: #222222;
             -webkit-user-select: none;
@@ -1383,14 +1427,12 @@
             -ms-user-select: none;
             user-select: none;
             margin-left: 27px;
-            &:not(:disabledradio) {
-              cursor: pointer;
-            }
           }
 
           .radio-container input {
             position: absolute;
             opacity: 0;
+            cursor: pointer;
           }
           .checkmark {
             position: absolute;
@@ -1558,9 +1600,11 @@
       td {
         &:nth-child(2) {
           .radio-container {
+            cursor: pointer;
             display: block;
             position: relative;
             padding-left: 30px;
+            cursor: pointer;
             font-size: 14px;
             color: #222222;
             -webkit-user-select: none;
@@ -1568,14 +1612,12 @@
             -ms-user-select: none;
             user-select: none;
             margin-left: 27px;
-            &:not(:disabledradio) {
-              cursor: pointer;
-            }
           }
 
           .radio-container input {
             position: absolute;
             opacity: 0;
+            cursor: pointer;
           }
           .checkmark {
             position: absolute;

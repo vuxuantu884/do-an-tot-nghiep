@@ -4,29 +4,14 @@ import { StoreCustomResponse } from "model/response/order/order.response";
 import React from "react";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type PropType = {
   storeDetail?: StoreCustomResponse | null;
   isCancelValidateDelivery?: boolean;
   renderButtonCreateActionHtml: () => JSX.Element | null;
 };
 
-function ShipmentMethodReceiveAtStore(props: PropTypes) {
+function ShipmentMethodReceiveAtStore(props: PropType) {
   const { storeDetail, renderButtonCreateActionHtml } = props;
-
-  const showStore = [
-    {
-      title: "Tên cửa hàng",
-      value: <Typography.Link>{storeDetail?.name}</Typography.Link>,
-    },
-    {
-      title: "Số điện thoại",
-      value: storeDetail?.hotline,
-    },
-    {
-      title: "Địa chỉ",
-      value: storeDetail?.address,
-    },
-  ];
   return (
     <StyledComponent>
       <div className="receive-at-store">
@@ -34,20 +19,32 @@ function ShipmentMethodReceiveAtStore(props: PropTypes) {
           <img src={IconStoreBlue} alt="" /> THÔNG TIN CỬA HÀNG
         </b>
 
-        <div className="storeInformation">
-          {showStore.map((single, index) => {
-            return (
-              <Row className="row-info" key={index}>
-                <Col md={6} lg={6} xxl={6}>
-                  <div>{`${single.title}:`}</div>
-                </Col>
-                <Col md={18} lg={18} xxl={18}>
-                  <b className="row-info-content">{single.value}</b>
-                </Col>
-              </Row>
-            );
-          })}
-        </div>
+        <Row style={{ paddingTop: "19px" }}>
+          <Col md={6} lg={6} xxl={6}>
+            <div>Tên cửa hàng:</div>
+          </Col>
+          <Col md={18} lg={18} xxl={18}>
+            <b className="row-info-content">
+              <Typography.Link style={{ color: "#222222" }}>{storeDetail?.name}</Typography.Link>
+            </b>
+          </Col>
+        </Row>
+        <Row className="row-info padding-top-10">
+          <Col md={6} lg={6} xxl={6}>
+            <div>Số điện thoại:</div>
+          </Col>
+          <Col md={18} lg={18} xxl={18}>
+            <b className="row-info-content">{storeDetail?.hotline}</b>
+          </Col>
+        </Row>
+        <Row className="row-info padding-top-10">
+          <Col md={6} lg={6} xxl={6}>
+            <div>Địa chỉ:</div>
+          </Col>
+          <Col md={18} lg={18} xxl={18}>
+            <b className="row-info-content">{storeDetail?.address}</b>
+          </Col>
+        </Row>
         {renderButtonCreateActionHtml && renderButtonCreateActionHtml()}
       </div>
     </StyledComponent>

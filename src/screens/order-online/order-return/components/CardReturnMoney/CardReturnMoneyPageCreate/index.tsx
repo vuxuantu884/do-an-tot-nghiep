@@ -10,9 +10,9 @@ import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../ReturnMoneySelect";
 
 type PropTypes = {
-  paymentMethods: Array<PaymentMethodResponse>;
+  listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentRequest[];
-  totalOrderAmount: number;
+  totalAmountOrder: number;
   totalAmountCustomerNeedToPay: number;
   isExchange: boolean;
   isDisablePostPayment: boolean;
@@ -32,18 +32,18 @@ type PropTypes = {
 };
 
 /**
- * input: paymentMethods, returnMoneyType
+ * input: listPaymentMethod, returnMoneyType
  * output: setReturnMoneyType
  *
  * ghi chú: hiện tại ko cho hoàn tiền sau
  */
 function CardReturnMoneyPageCreate(props: PropTypes) {
   const {
-    paymentMethods,
+    listPaymentMethods,
     payments,
     totalAmountCustomerNeedToPay,
     returnMoneyType,
-    totalOrderAmount,
+    totalAmountOrder,
     isDisablePostPayment,
     shipmentMethod,
     paymentMethod,
@@ -62,7 +62,7 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
 
   const isReturnMoneyToCustomer =
     totalAmountCustomerNeedToPay !== undefined && totalAmountCustomerNeedToPay <= 0;
-  // console.log('paymentMethods', paymentMethods)
+  // console.log('listPaymentMethods', listPaymentMethods)
   const renderWhenReturnMoneyToCustomer = () => {
     return (
       <div className="create-order-payment">
@@ -83,7 +83,7 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
         </Radio.Group> */}
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
-            paymentMethods={paymentMethods}
+            listPaymentMethods={listPaymentMethods}
             totalAmountCustomerNeedToPay={
               totalAmountCustomerNeedToPay ? totalAmountCustomerNeedToPay : 0
             }
@@ -107,10 +107,10 @@ function CardReturnMoneyPageCreate(props: PropTypes) {
           setPayments={setPayments}
           paymentMethod={paymentMethod}
           shipmentMethod={shipmentMethod}
-          totalOrderAmount={Math.abs(totalOrderAmount - returnOrderInformation.totalAmountReturn)}
+          totalAmountOrder={Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn)}
           loyaltyRate={loyaltyRate}
           isDisablePostPayment={isDisablePostPayment}
-          paymentMethods={paymentMethods}
+          listPaymentMethod={listPaymentMethods}
           isOrderReturnFromPOS={isOrderReturnFromPOS}
         />
       </React.Fragment>

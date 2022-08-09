@@ -11,11 +11,11 @@ import { handleFetchApiError, isFetchApiSuccessful, isOrderFinishedOrCancel } fr
 import { ORDER_SUB_STATUS } from "utils/Order.constants";
 import { checkIfOrderHasNotFinishPaymentMomo } from "utils/OrderUtils";
 import { showError, showWarning } from "utils/ToastUtils";
-import { StyledComponent } from "./styles";
 
 type PropTypes = {
   setOrderDetail?: (data: OrderResponse | null) => void;
   subStatusCode?: string | undefined;
+  status?: string | null;
   orderId?: number;
   handleUpdateSubStatus: () => void;
   setReload: (value: boolean) => void;
@@ -25,6 +25,7 @@ type PropTypes = {
 
 function SubStatusOrder(props: PropTypes): React.ReactElement {
   const {
+    // status,
     setOrderDetail,
     orderId,
     subStatusCode,
@@ -62,6 +63,8 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
             setValueSubStatusCode(sub_status_code);
             handleUpdateSubStatus();
             setOrderDetail && setOrderDetail(data);
+            // setReload(true);
+            // setIsShowReason(false);
             if (data.sub_reason_id) setSubReasonRequireWarehouseChange(data.sub_reason_id);
             else setSubReasonRequireWarehouseChange(undefined);
           },
@@ -115,12 +118,64 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
     );
   };
 
-  const renderShowReason = () => {
-    if (isShowReason) {
-      return (
-        <div className="selectReason">
+  useEffect(() => {
+    if (subStatusCode) {
+      setValueSubStatusCode(subStatusCode);
+    }
+  }, [subStatusCode]);
+
+  useEffect(() => {
+    const code = [ORDER_SUB_STATUS.change_depot];
+    getOrderReasonService(code).then((response) => {
+      if (isFetchApiSuccessful(response)) {
+        setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons);
+        setReasonId(response.data[0].id);
+      } else {
+        handleFetchApiError(response, "Danh sách lý do đổi kho hàng", dispatch);
+      }
+    });
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
+      setIsShowReason(true);
+      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id);
+    } else {
+      setIsShowReason(false);
+    }
+  }, [OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
+
+  // console.log("subStatusCode",subStatusCode)
+  // console.log("toSubStatusCode",toSubStatusCode)
+  // console.log("subReasonsRequireWarehouseChange",subReasonsRequireWarehouseChange)
+
+  return (
+    <Card title="Xử lý đơn hàng">
+      <CustomSelect
+        showSearch
+        style={{ width: "100%" }}
+        placeholder="Chọn trạng thái phụ"
+        optionFilterProp="children"
+        onChange={handleChange}
+        notFoundContent="Không tìm thấy trạng thái phụ"
+        value={valueSubStatusCode}
+        disabled={checkIfIsDisableUpdateSubStatus()}
+        listHeight={300}
+        key={Math.random()}
+      >
+        {subStatuses &&
+          subStatuses.map((single) => {
+            return (
+              <Select.Option value={single.code} key={single.code}>
+                {single.sub_status}
+              </Select.Option>
+            );
+          })}
+      </CustomSelect>
+      {isShowReason ? (
+        <div style={{ marginTop: 15 }}>
           <Form.Item
-            className="selectReason__label"
+            style={{ marginBottom: 0 }}
             label={
               <div>
                 <span>Chọn lý do đổi kho hàng chi tiết </span>
@@ -164,77 +219,16 @@ function SubStatusOrder(props: PropTypes): React.ReactElement {
             </Select>
           </Form.Item>
         </div>
-      );
-    }
-  };
+      ) : null}
 
-  useEffect(() => {
-    if (subStatusCode) {
-      setValueSubStatusCode(subStatusCode);
-    }
-  }, [subStatusCode]);
-
-  useEffect(() => {
-    const code = [ORDER_SUB_STATUS.change_depot];
-    getOrderReasonService(code).then((response) => {
-      if (isFetchApiSuccessful(response)) {
-        setSubReasonsRequireWarehouseChange(response.data[0].sub_reasons);
-        setReasonId(response.data[0].id);
-      } else {
-        handleFetchApiError(response, "Danh sách lý do đổi kho hàng", dispatch);
-      }
-    });
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (subStatusCode === ORDER_SUB_STATUS.require_warehouse_change) {
-      setIsShowReason(true);
-      setSubReasonRequireWarehouseChange(OrderDetailAllFulfillment?.sub_reason_id);
-    } else {
-      setIsShowReason(false);
-    }
-  }, [OrderDetailAllFulfillment?.sub_reason_id, subStatusCode]);
-
-  // console.log("subStatusCode",subStatusCode)
-  // console.log("toSubStatusCode",toSubStatusCode)
-  // console.log("subReasonsRequireWarehouseChange",subReasonsRequireWarehouseChange)
-
-  return (
-    <StyledComponent>
-      <Card title={<span className="98">Xử lý đơn hàng</span>}>
-        <CustomSelect
-          showSearch
-          style={{ width: "100%" }}
-          placeholder="Chọn trạng thái phụ"
-          optionFilterProp="children"
-          onChange={handleChange}
-          notFoundContent="Không tìm thấy trạng thái phụ"
-          value={valueSubStatusCode}
-          disabled={checkIfIsDisableUpdateSubStatus()}
-          listHeight={300}
-          key={Math.random()}
-        >
-          {subStatuses &&
-            subStatuses.map((single) => {
-              return (
-                <Select.Option value={single.code} key={single.code}>
-                  {single.sub_status}
-                </Select.Option>
-              );
-            })}
-        </CustomSelect>
-
-        {renderShowReason()}
-
-        <SubStatusChange
-          orderId={orderId}
-          toSubStatus={toSubStatusCode}
-          setToSubStatusCode={setToSubStatusCode}
-          changeSubStatusCallback={changeSubStatusCallback}
-          setOrderDetail={setOrderDetail}
-        />
-      </Card>
-    </StyledComponent>
+      <SubStatusChange
+        orderId={orderId}
+        toSubStatus={toSubStatusCode}
+        setToSubStatusCode={setToSubStatusCode}
+        changeSubStatusCallback={changeSubStatusCallback}
+        setOrderDetail={setOrderDetail}
+      />
+    </Card>
   );
 }
 

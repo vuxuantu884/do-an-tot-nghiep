@@ -9,12 +9,14 @@ import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import UrlConfig from "config/url.config";
 // import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
+  DeliveryServicesGetList,
   UpdateFulFillmentStatusAction,
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
 import { StoreResponse } from "model/core/store.model";
 import { thirdPLModel } from "model/order/shipment.model";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   UpdateFulFillmentRequest,
@@ -23,7 +25,11 @@ import {
   UpdateShipmentRequest,
 } from "model/request/order.request";
 import { CustomerResponse } from "model/response/customer/customer.response";
-import { OrderResponse, OrderReturnReasonDetailModel } from "model/response/order/order.response";
+import {
+  DeliveryServiceResponse,
+  OrderResponse,
+  OrderReturnReasonDetailModel,
+} from "model/response/order/order.response";
 import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
@@ -32,7 +38,6 @@ import moment from "moment";
 import React, { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router";
-import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import CancelFulfillmentModal from "screens/order-online/modal/cancel-fullfilment.modal";
 import GetGoodsBack from "screens/order-online/modal/get-goods-back.modal";
 import SaveAndConfirmOrder from "screens/order-online/modal/save-confirm.modal";
@@ -88,6 +93,7 @@ type PropTypes = {
   isVisibleShipping: boolean | null;
   customerDetail: CustomerResponse | null;
   OrderDetailAllFulfillment: OrderResponse | null;
+  orderSettings?: OrderSettingsModel;
   disabledBottomActions?: boolean;
   reasons?: {
     title: string;
@@ -96,7 +102,6 @@ type PropTypes = {
   subReasons?: OrderReturnReasonDetailModel[] | null;
   isEcommerceOrder?: boolean;
   ref: React.MutableRefObject<any>;
-  isPageOrderDetail?: boolean;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -111,12 +116,12 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     disabledActions,
     OrderDetail,
     OrderDetailAllFulfillment,
+    orderSettings,
     disabledBottomActions,
     isEcommerceOrder,
     orderConfig,
     totalPaid = 0,
     customerNeedToPayValue = 0,
-    isPageOrderDetail,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -178,8 +183,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
 
   // const [trackingLogFulfillment, setTrackingLogFulfillment] =
   // 	useState<Array<TrackingLogFulfillmentResponse> | null>(null);
-  const deliveryServices = useFetchDeliverServices();
-
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const shipping_requirements = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.shipping_requirement,
   );
@@ -213,11 +217,6 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   };
 
   const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-
-  const activeSortedFulfillments = sortedFulfillments.filter(
-    (fulfillment) => !checkIfFulfillmentCancelled(fulfillment),
-  );
-
   useEffect(() => {
     if (
       OrderDetailAllFulfillment &&
@@ -519,6 +518,8 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     let requirement = form.getFieldValue("requirements");
     const reqObj = shipping_requirements?.find((r) => r.value === requirement);
     value.requirements_name = reqObj?.name || null;
+
+    value.office_time = props.officeTime;
     if (props.OrderDetail?.fulfillments) {
       if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
         value.delivery_service_provider_type = thirdPL.delivery_service_provider_code;
@@ -591,7 +592,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       action: OrderStatus.FINALIZED,
     };
 
-    console.log("UpdateLineFulFillment", UpdateLineFulFillment);
+    // console.log('UpdateLineFulFillment', UpdateLineFulFillment);
     // return;
 
     if (shipmentMethod === ShipmentMethodOption.DELIVER_PARTNER && !thirdPL.service) {
@@ -720,6 +721,14 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   }, [getRequirementName]);
 
   useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      }),
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
     if (updateShipment || cancelShipment) {
       // disabled other actions
       disabledActions && disabledActions("shipment");
@@ -731,7 +740,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   return (
     <StyledComponent>
       <Card
-        className="margin-top-20 orders-update-shipment 56"
+        className="margin-top-20 orders-update-shipment "
         title={
           <Space>
             <div className="d-flex">
@@ -755,21 +764,19 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
             {props.OrderDetail?.fulfillments && props.OrderDetail?.fulfillments.length > 0 && (
               // props.OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
               <div className="text-menu">
-                {activeSortedFulfillments[0]?.shipment?.expected_received_date && (
+                {sortedFulfillments[0]?.shipment?.expected_received_date && (
                   <React.Fragment>
                     <img src={calendarOutlined} alt="" className="expectedReceivedDateIcon" />
                     <span>
-                      {activeSortedFulfillments[0]?.shipment?.expected_received_date
-                        ? moment(
-                            activeSortedFulfillments[0]?.shipment?.expected_received_date,
-                          ).format(dateFormat)
+                      {sortedFulfillments[0]?.shipment?.expected_received_date
+                        ? moment(sortedFulfillments[0]?.shipment?.expected_received_date).format(
+                            dateFormat,
+                          )
                         : ""}
                     </span>
                   </React.Fragment>
                 )}
-                {activeSortedFulfillments[0]?.shipment?.office_time && (
-                  <span> (Giờ hành chính)</span>
-                )}
+                {sortedFulfillments[0]?.shipment?.office_time && <span>Giờ hành chính</span>}
               </div>
             )}
           </Space>
@@ -810,6 +817,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                         <OrderFulfillmentHeader
                           fulfillment={fulfillment}
                           onPrint={onPrint}
+                          orderSettings={orderSettings}
                           orderDetail={OrderDetail}
                         />
                       }
@@ -867,14 +875,13 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
             >
               <OrderCreateShipment
                 shipmentMethod={shipmentMethod}
-                orderProductsAmount={OrderDetail?.total_line_amount_after_line_discount}
+                orderPrice={OrderDetail?.total_line_amount_after_line_discount}
                 storeDetail={props.storeDetail}
                 customer={props.customerDetail}
                 items={OrderDetail?.items}
                 isCancelValidateDelivery={false}
                 totalAmountCustomerNeedToPay={customerNeedToPayValue}
                 setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
-                shippingFeeInformedToCustomer={props.shippingFeeInformedCustomer}
                 onSelectShipment={setShipmentMethod}
                 thirdPL={thirdPL}
                 setThirdPL={setThirdPL}
@@ -888,7 +895,6 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 OrderDetail={OrderDetail}
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
-                isPageOrderDetail={isPageOrderDetail}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

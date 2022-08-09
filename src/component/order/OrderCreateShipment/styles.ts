@@ -87,13 +87,4 @@ export const StyledComponent = styled.div`
       -webkit-font-smoothing: antialiased;
     }
   }
-  .officeTime {
-    margin-top: 8px;
-  }
-  .createShipment {
-    margin-top: 20px;
-    &__button {
-      float: right;
-    }
-  }
 `;

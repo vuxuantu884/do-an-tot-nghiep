@@ -19,7 +19,7 @@ import supplierRoutes from "./supplier.route";
 
 const Dashboard = React.lazy(() => import("screens/dashboard"));
 const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
-const OrderOnline = React.lazy(() => import("screens/order-online/order-create"));
+const OrderOnline = React.lazy(() => import("screens/order-online/order.screen"));
 const PosOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
 const Customer = React.lazy(() => import("screens/customer"));
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
@@ -78,7 +78,7 @@ const menu: Array<RouteMenu> = [
     title: "Đơn hàng online",
     icon: "icon-order",
     component: OrderOnline,
-    key: "danh-sach-don-hang-online",
+    key: "5",
     isShow: true,
     header: null,
     subMenu: bill,
@@ -89,7 +89,7 @@ const menu: Array<RouteMenu> = [
     title: "Bán lẻ offline",
     icon: "icon-offline-order",
     component: PosOrders,
-    key: "danh-sach-don-hang-offline",
+    key: "ban-le",
     isShow: true,
     header: null,
     subMenu: offlineOrdersRoute,

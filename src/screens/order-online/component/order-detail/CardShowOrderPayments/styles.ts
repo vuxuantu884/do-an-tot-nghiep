@@ -1,10 +1,5 @@
 import styled from "styled-components";
-import {
-  borderRadius,
-  dangerColor,
-  textBodyColor,
-  yellowColor,
-} from "utils/global-styles/variables";
+import { borderRadius } from "utils/global-styles/variables";
 
 export const StyledComponent = styled.div`
   .orders-tag {
@@ -27,12 +22,13 @@ export const StyledComponent = styled.div`
     padding-right: 0 !important;
   }
   .momoShortLink {
-    max-width: 85%;
-    a {
-      &:hover {
-        text-decoration: underline;
-      }
+    &:hover {
+      text-decoration: underline;
     }
+  }
+  .iconCopy {
+    position: relative;
+    top: -2px;
   }
   .paymentTitle {
     font-weight: bold;
@@ -44,40 +40,5 @@ export const StyledComponent = styled.div`
   .momoReference {
     font-weight: normal;
     word-break: break-all;
-  }
-  .paymentDetailTop {
-    margin-bottom: 20px;
-    .leftMoney {
-      color: ${dangerColor};
-    }
-    .change {
-      color: ${yellowColor};
-    }
-  }
-  .paymentReference {
-    margin: 0;
-  }
-  .paymentPointNumber {
-    margin-left: 10px;
-  }
-  .paidTag {
-    background-color: rgba(39, 174, 96, 0.1);
-    color: #27ae60;
-  }
-  .paymentDetailMain {
-    padding: 0 0 0 15px;
-  }
-  .paymentPartial {
-    &__header {
-      padding-left: 14px;
-      color: ${textBodyColor};
-      text-transform: uppercase;
-    }
-  }
-  .divider {
-    margin: 10px 0;
-  }
-  .buttonShowPartialPayment {
-    margin-top: 10px;
   }
 `;

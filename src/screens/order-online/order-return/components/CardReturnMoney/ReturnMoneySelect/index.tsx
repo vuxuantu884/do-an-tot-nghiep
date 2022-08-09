@@ -9,7 +9,7 @@ import { StyledComponent } from "./styles";
 type PropTypes = {
   totalAmountCustomerNeedToPay: number;
   isShowButtonReturnMoney: boolean;
-  paymentMethods: PaymentMethodResponse[];
+  listPaymentMethods: PaymentMethodResponse[];
   handleReturnMoney: () => void;
   setReturnPaymentMethodCode: (value: string) => void;
   returnPaymentMethodCode: string;
@@ -29,7 +29,7 @@ function ReturnMoneySelect(props: PropTypes) {
   const {
     totalAmountCustomerNeedToPay,
     isShowButtonReturnMoney,
-    paymentMethods,
+    listPaymentMethods,
     handleReturnMoney,
     // setReturnPaymentMethodCode,
     // returnPaymentMethodCode,
@@ -37,14 +37,14 @@ function ReturnMoneySelect(props: PropTypes) {
   } = props;
 
   // console.log('returnPaymentMethodCode', returnPaymentMethodCode)
-  if (!(paymentMethods.length > 0)) {
+  if (!(listPaymentMethods.length > 0)) {
     return null;
   }
 
-  let paymentMethodsResult = paymentMethods.filter((single) => {
+  let listPaymentMethodsResult = listPaymentMethods.filter((single) => {
     return !exceptMethods.includes(single.code);
   });
-  // console.log('paymentMethodsResult', paymentMethodsResult)
+  // console.log('listPaymentMethodsResult', listPaymentMethodsResult)
 
   // const [initialReturnAmount, setInitialReturnAmount] = useState(0)
 
@@ -61,7 +61,7 @@ function ReturnMoneySelect(props: PropTypes) {
   return (
     <StyledComponent>
       <div className="returnMoney 2">
-        {paymentMethods.length > 0 && (
+        {listPaymentMethods.length > 0 && (
           <Form.List name="returnMoneyField">
             {(fields, { add, remove }) => {
               return (
@@ -88,8 +88,8 @@ function ReturnMoneySelect(props: PropTypes) {
                               // value= {returnPaymentMethodCode}
                               // onChange={setReturnPaymentMethodCode}
                             >
-                              {paymentMethodsResult &&
-                                paymentMethodsResult.map((single) => {
+                              {listPaymentMethodsResult &&
+                                listPaymentMethodsResult.map((single) => {
                                   return (
                                     <Select.Option value={single.code} key={single.code}>
                                       {single.name}

@@ -18,7 +18,11 @@ import {
 } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
-import { getListOrderAction, PaymentMethodGetList } from "domain/actions/order/order.action";
+import {
+  DeliveryServicesGetList,
+  getListOrderAction,
+  PaymentMethodGetList,
+} from "domain/actions/order/order.action";
 import { getListAllSourceRequest } from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
@@ -37,7 +41,7 @@ import {
   OrderProcessingStatusModel,
   OrderProcessingStatusResponseModel,
 } from "model/response/order-processing-status.response";
-import { OrderResponse } from "model/response/order/order.response";
+import { DeliveryServiceResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
 import { SourceResponse } from "model/response/order/source.response";
 import { ChannelResponse } from "model/response/product/channel.response";
@@ -46,7 +50,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { GoPlus } from "react-icons/go";
 import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
-import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
 import ExportModal from "screens/order-online/modal/export.modal";
 import {
@@ -67,8 +70,8 @@ import { ORDER_EXPORT_TYPE, ORDER_TYPES } from "utils/Order.constants";
 import { checkIfOrderHasNotFinishedPaymentMomo } from "utils/OrderUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParamsFromQueryString } from "utils/useQuery";
-import OrdersTable from "./ListTable/OrderTable";
-import { StyledComponent } from "./styles";
+import OrdersTable from "./ListTable/OrdersTable";
+import { StyledComponent } from "./OrderList.styles";
 
 type PropTypes = {
   location: any;
@@ -150,7 +153,7 @@ function OrderList(props: PropTypes) {
 
   const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
 
-  const deliveryServices = useFetchDeliverServices();
+  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
 
   const subStatuses = useGetOrderSubStatuses();
 
@@ -224,9 +227,8 @@ function OrderList(props: PropTypes) {
 
   const [columns, setColumns] = useState<Array<ICustomTableColumType<OrderModel>>>([]);
   const [selectedRowKeys, setSelectedRowKeys] = useState<number[]>([]);
+  const [selectedRowCodes, setSelectedRowCodes] = useState<string[]>([]);
   const [selectedRows, setSelectedRows] = useState<OrderResponse[]>([]);
-
-  const selectedRowCodes = selectedRows.map((row) => row.code);
 
   const [changeOrderStatusHtml, setChangeOrderStatusHtml] = useState<JSX.Element>();
 
@@ -278,8 +280,10 @@ function OrderList(props: PropTypes) {
 
   const onSelectedChange = useCallback(
     (_: OrderResponse[], selected?: boolean, changeRow?: any[]) => {
+      console.log("selectedRows", selectedRows);
       let selectedRowsCopy: OrderResponse[] = [...selectedRows];
       let selectedRowKeysCopy: number[] = [...selectedRowKeys];
+      let selectedRowCodesCopy: string[] = [...selectedRowCodes];
 
       if (selected === true) {
         changeRow?.forEach((row, index) => {
@@ -287,6 +291,7 @@ function OrderList(props: PropTypes) {
           if (indexItem === -1) {
             selectedRowsCopy.push(row);
             selectedRowKeysCopy.push(row.id);
+            selectedRowCodesCopy.push(row.code);
           }
         });
       } else {
@@ -305,22 +310,27 @@ function OrderList(props: PropTypes) {
             selectedRowKeysCopy.splice(i, 1);
           }
         });
+
+        selectedRowCodes.forEach((row, index) => {
+          let indexItemCode = changeRow?.findIndex((p) => p.code === row);
+          if (indexItemCode !== -1) {
+            let i = selectedRowCodesCopy.findIndex((p) => p === row);
+            selectedRowCodesCopy.splice(i, 1);
+          }
+        });
       }
 
       setSelectedRows(selectedRowsCopy);
       setSelectedRowKeys(selectedRowKeysCopy);
+      setSelectedRowCodes(selectedRowCodesCopy);
     },
-    [selectedRowKeys, selectedRows],
+    [selectedRowCodes, selectedRowKeys],
   );
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const onClearSelected = () => {
-    if (selectedRows.length > 0) {
-      setSelectedRows([]);
-    }
-    if (selectedRowKeys.length > 0) {
-      setSelectedRowKeys([]);
-    }
+    setSelectedRows([]);
+    setSelectedRowKeys([]);
+    setSelectedRowCodes([]);
   };
 
   const onPageChange = useCallback(
@@ -343,9 +353,12 @@ function OrderList(props: PropTypes) {
       } else {
         history.push(`${location.pathname}?${queryParam}`);
       }
+      setSelectedRows([]);
+      setSelectedRowKeys([]);
+      setSelectedRowCodes([]);
       onClearSelected();
     },
-    [handleFetchData, history, location.pathname, onClearSelected, params],
+    [handleFetchData, history, location.pathname, params],
   );
   const onClearFilter = useCallback(() => {
     setPrams(initQuery);
@@ -500,7 +513,7 @@ function OrderList(props: PropTypes) {
             return;
           }
 
-          const deleteOrderConfirm = () => {
+          const deleteOrderComfirm = () => {
             onClearSelected();
             let ids = selectedRows.map((p) => p.id);
             dispatch(showLoading());
@@ -548,7 +561,7 @@ function OrderList(props: PropTypes) {
             okText: "Xóa",
             cancelText: "Hủy",
             okType: "danger",
-            onOk: deleteOrderConfirm,
+            onOk: deleteOrderComfirm,
           });
 
           break;
@@ -557,17 +570,16 @@ function OrderList(props: PropTypes) {
       }
     },
     [
-      selectedRowKeys,
-      ACTION_ID.printShipment,
-      ACTION_ID.printStockExport,
-      ACTION_ID.printOrder,
       ACTION_ID.changeOrderStatus,
       ACTION_ID.deleteOrder,
-      selectedRows,
+      ACTION_ID.printOrder,
+      ACTION_ID.printShipment,
+      ACTION_ID.printStockExport,
       dispatch,
-      onClearSelected,
       history,
       location.pathname,
+      selectedRows,
+      selectedRowKeys,
     ],
   );
 
@@ -575,6 +587,13 @@ function OrderList(props: PropTypes) {
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(1);
   const [exportError, setExportError] = useState<string>("");
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      }),
+    );
+  }, [dispatch]);
 
   const onExport = useCallback(
     (optionExport, hiddenFieldsExport) => {
@@ -680,6 +699,107 @@ function OrderList(props: PropTypes) {
     });
     return html;
   };
+
+  // ko validate nữa
+  // const checkIfOrderHasFulfillmentAndNoShipment = (order: OrderResponse) => {
+  //   if(order.fulfillments && !order.fulfillments[0].shipment) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
+
+  // ko validate nữa
+  // const checkIfOrderHasFulfillmentAndShipment = (order: OrderResponse) => {
+  //   if(order.fulfillments?.some(single => !isFulfillmentCancelled(single) && single.shipment )) {
+  //     return true;
+  //   }
+  //   return false;
+  // };
+
+  // ko validate nữa
+  // const getTextResultWhenCannotChange = (order: OrderResponse, toStatus: string) => {
+  //   let subStatusName = listOrderProcessingStatus.find(single => single.code === toStatus)?.sub_status
+  //   return `Đơn ở trạng thái ${order.sub_status}, Bạn không được đổi sang trạng thái ${subStatusName}`
+  // };
+
+  // ko validate nữa
+  // const handleIfIsChange = (order: OrderResponse, toStatus: string) => {
+  //   let isCanChange = false;
+  //   switch (order.sub_status_code) {
+  //     // chờ xác nhận
+  //     case ORDER_SUB_STATUS.awaiting_coordinator_confirmation:
+  //       if(checkIfOrderHasFulfillmentAndNoShipment(order)) {
+  //         // đang xác nhận và chờ xử lý
+  //         if(toStatus === ORDER_SUB_STATUS.coordinator_confirmed || toStatus === ORDER_SUB_STATUS.awaiting_saler_confirmation) {
+  //           isCanChange = true;
+  //         }
+  //       } else if(checkIfOrderHasFulfillmentAndShipment(order)) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //     // chờ xử lý
+  //     case ORDER_SUB_STATUS.awaiting_saler_confirmation:
+  //       if(checkIfOrderHasFulfillmentAndNoShipment(order)) {
+  //         // chờ xử lý
+  //         if(toStatus === ORDER_SUB_STATUS.awaiting_coordinator_confirmation ) {
+  //           isCanChange = true;
+  //         }
+  //       } else if(checkIfOrderHasFulfillmentAndShipment(order)) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //      // đã xác nhận
+  //      case ORDER_SUB_STATUS.coordinator_confirmed:
+  //       if(checkIfOrderHasFulfillmentAndShipment(order)) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //     // đổi kho hàng
+  //     case ORDER_SUB_STATUS.require_warehouse_change:
+  //       if(order.fulfillments?.some(single => !isFulfillmentCancelled(single))) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //     // hết hàng
+  //     case ORDER_SUB_STATUS.het_hang:
+  //       isCanChange = false;
+  //       // hủy đơn hàng
+  //       // alert("Hủy đơn hàng")
+  //       break;
+  //     // đã đóng gói
+  //     case ORDER_SUB_STATUS.merchandise_packed:
+  //       isCanChange = false;
+  //       if(toStatus === ORDER_SUB_STATUS.canceled) {
+  //         // hủy fulfillment
+  //         // alert("Hủy fulfillment")
+  //       }
+  //       break;
+  //     // Chờ thu gom
+  //     case ORDER_SUB_STATUS.awaiting_shipper:
+  //       isCanChange = true;
+  //       break;
+  //     // Thành công
+  //     case ORDER_SUB_STATUS.shipped:
+  //       isCanChange = true;
+  //       break;
+  //     // Đang hoàn
+  //     case ORDER_SUB_STATUS.returning:
+  //       if(toStatus === ORDER_SUB_STATUS.returned) {
+  //         isCanChange = true;
+  //       }
+  //       break;
+  //     // Đã hoàn
+  //     case ORDER_SUB_STATUS.returned:
+  //       isCanChange = true;
+  //       break;
+  //     default:
+  //       break;
+  //   }
+  //   return {
+  //     isCanChange,
+  //     textResult: isCanChange ? "Thành công" : getTextResultWhenCannotChange(order, toStatus)
+  //   }
+  // }
 
   const changeStatus = (id: number, toStatus: string, reason_id = 0, sub_reason_id = 0) => {
     return new Promise((resolve, reject) => {
@@ -944,8 +1064,7 @@ function OrderList(props: PropTypes) {
             channels={channels}
           />
 
-          {(orderType === ORDER_TYPES.offline || deliveryServices.length > 0) &&
-          subStatuses.length > 0 ? (
+          {deliveryServices.length > 0 && subStatuses.length > 0 ? (
             <OrdersTable
               tableLoading={tableLoading}
               data={data}

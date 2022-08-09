@@ -15,7 +15,7 @@ import {
 import { MoneyType } from "utils/Constants";
 import { showError } from "utils/ToastUtils";
 
-type PropTypes = {
+type DiscountGroupProps = {
   price: number;
   index: number;
   discountRate: number;
@@ -26,7 +26,7 @@ type PropTypes = {
   onBlur: () => void;
 };
 
-function DiscountGroup(props: PropTypes) {
+const DiscountGroup: React.FC<DiscountGroupProps> = (props: DiscountGroupProps) => {
   const { items, disabled = false } = props;
   const { Text } = Typography;
   const [selected, setSelected] = useState(MoneyType.MONEY);
@@ -50,17 +50,16 @@ function DiscountGroup(props: PropTypes) {
       }
       // let _items = [...items];
       let _items = _.cloneDeep(items);
-      console.log("_items", _items);
       let _item = _items[props.index];
       if (_item.discount_items.length === 0) {
         _item.discount_items = [
           {
-            amount: 0,
-            value: 0,
             rate: 0,
-            reason: "",
-            discount_code: "",
+            value: 0,
+            amount: 0,
             promotion_id: undefined,
+            reason: "",
+            discount_code: undefined,
           },
         ];
       }
@@ -87,9 +86,7 @@ function DiscountGroup(props: PropTypes) {
       _item.discount_amount = getLineItemDiscountAmount(_item);
       _item.discount_rate = getLineItemDiscountRate(_item);
       _item.line_amount_after_line_discount = getLineAmountAfterLineDiscount(_item);
-      if (_item.discount_items.length === 0 || !_item.discount_items[0]?.amount) {
-        // _item.discount_items = [];
-      }
+
       // console.log('_items', _items)
       props.handleCardItems(_items);
     },
@@ -144,6 +141,6 @@ function DiscountGroup(props: PropTypes) {
       )}
     </div>
   );
-}
+};
 
 export default DiscountGroup;

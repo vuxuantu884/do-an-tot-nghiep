@@ -202,9 +202,8 @@ export const UpdateShipmentAction = (
 
 export const DeliveryServicesGetList = (
   setData: (data: Array<DeliveryServiceResponse>) => void,
-  setError?: () => void,
 ) => {
-  return BaseAction(OrderType.GET_LIST_DELIVERY_SERVICE, { setData, setError });
+  return BaseAction(OrderType.GET_LIST_DELIVERY_SERVICE, { setData });
 };
 
 export const getDeliveryMappedStoresAction = (

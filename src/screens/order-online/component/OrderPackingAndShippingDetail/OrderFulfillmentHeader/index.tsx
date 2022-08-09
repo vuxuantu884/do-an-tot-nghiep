@@ -1,7 +1,9 @@
 import { Tooltip } from "antd";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { FulFillmentResponse, OrderResponse } from "model/response/order/order.response";
 import moment from "moment";
+import React from "react";
 import FulfillmentStatusTag from "screens/order-online/component/order-detail/FulfillmentStatusTag";
 import PrintShippingLabel from "screens/order-online/component/order-detail/PrintShippingLabel";
 import { copyTextToClipboard, sortFulfillments } from "utils/AppUtils";
@@ -14,11 +16,12 @@ import { StyledComponent } from "./styles";
 type PropTypes = {
   orderDetail?: OrderResponse | null;
   fulfillment: FulFillmentResponse;
-  onPrint?: () => void;
+  orderSettings: OrderSettingsModel | undefined;
+  onPrint: () => void;
 };
 
 function OrderFulfillmentHeader(props: PropTypes) {
-  const { orderDetail, fulfillment, onPrint } = props;
+  const { orderDetail, fulfillment, orderSettings, onPrint } = props;
 
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
   // copy button
@@ -59,7 +62,12 @@ function OrderFulfillmentHeader(props: PropTypes) {
   const renderFulfillmentShippingPrint = () => {
     if (!checkIfNotShowFulfillmentShippingPrint()) {
       return (
-        <PrintShippingLabel fulfillment={fulfillment} orderId={orderDetail?.id} onPrint={onPrint} />
+        <PrintShippingLabel
+          fulfillment={fulfillment}
+          orderSettings={orderSettings}
+          orderId={orderDetail?.id}
+          onPrint={onPrint}
+        />
       );
     }
   };

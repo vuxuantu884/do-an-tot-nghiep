@@ -9,12 +9,12 @@ import historyAction from "./images/action-history.svg";
 import ActionHistoryModal from "./Modal";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type PropType = {
   countChangeSubStatus: number;
   orderId: number;
 };
 
-function OrderReturnActionHistory(props: PropTypes) {
+function OrderReturnActionHistory(props: PropType) {
   const { orderId, countChangeSubStatus } = props;
   const [actionLog, setActionLog] = useState<OrderActionLogResponse[]>([]);
   const dispatch = useDispatch();

@@ -91,10 +91,10 @@ function OrderCreatePayments(props: PropType): JSX.Element {
             >
               <Space size={20}>
                 <Radio value={PaymentMethodOption.COD}>COD</Radio>
-                <Radio value={PaymentMethodOption.PRE_PAYMENT}>Thanh toán trước</Radio>
+                <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
                 {/*Ẩn phương thức thanh toán chưa xác định*/}
                 {/* <Radio
-                value={PaymentMethodOption.POST_PAYMENT}
+                value={PaymentMethodOption.POSTPAYMENT}
                 disabled={isDisablePostPayment}
               >
                 Chưa xác định
@@ -103,7 +103,7 @@ function OrderCreatePayments(props: PropType): JSX.Element {
             </Radio.Group>
           </Form.Item>
 
-          <Row gutter={24} hidden={paymentMethod !== PaymentMethodOption.PRE_PAYMENT}>
+          <Row gutter={24} hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}>
             <div style={{ padding: "0 12px", maxWidth: "100%" }}>
               <Collapse className="orders-timeline" defaultActiveKey={["1"]} ghost>
                 <Panel

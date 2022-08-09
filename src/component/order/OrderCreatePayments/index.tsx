@@ -8,6 +8,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useMemo } from "react";
 import { formatCurrency, getAmountPayment, isOrderFinishedOrCancel } from "utils/AppUtils";
 import { PaymentMethodOption, ShipmentMethodOption } from "utils/Constants";
+import { yellowColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 
 const { Panel } = Collapse;
@@ -15,13 +16,14 @@ const { Panel } = Collapse;
 type PropTypes = {
   payments: OrderPaymentRequest[];
   paymentMethod: number;
-  totalOrderAmount: number;
+  totalAmountOrder: number;
   shipmentMethod: number;
   levelOrder?: number;
+  updateOrder?: boolean;
   isOrderReturnFromPOS?: boolean;
   loyaltyRate?: LoyaltyRateResponse | null;
   isDisablePostPayment?: boolean;
-  paymentMethods: PaymentMethodResponse[];
+  listPaymentMethod: PaymentMethodResponse[];
   setPaymentMethod: (paymentType: number) => void;
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   orderDetail?: OrderResponse | null;
@@ -42,23 +44,23 @@ type PropTypes = {
  *
  * paymentMethod: phương thức thanh toán mặc định (vd trường hợp clone đơn hàng)
  *
- * totalOrderAmount: tiền đơn hàng
+ * totalAmountOrder: tiền đơn hàng
  *
  * shipmentMethod: phương thức đóng gói giao hàng để hiển thị thông báo
  *
- * paymentMethods: danh sách payment method
+ * listPaymentMethod: danh sách payment method
  *
  */
 function OrderCreatePayments(props: PropTypes): JSX.Element {
   const {
-    totalOrderAmount,
+    totalAmountOrder,
     levelOrder = 0,
     paymentMethod,
     payments,
     shipmentMethod,
     loyaltyRate,
     isDisablePostPayment = false,
-    paymentMethods,
+    listPaymentMethod,
     setPayments,
     setPaymentMethod,
     orderDetail,
@@ -67,7 +69,8 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
 
   const changePaymentMethod = (value: number) => {
     setPaymentMethod(value);
-    if (value !== PaymentMethodOption.PRE_PAYMENT) {
+    if (value === 2) {
+    } else {
       setPayments([]);
     }
   };
@@ -78,54 +81,21 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
   const totalAmountPayment = getAmountPayment(payments);
 
   const totalAmountCustomerNeedToPay = useMemo(() => {
-    return totalOrderAmount - totalAmountPayment;
-  }, [totalOrderAmount, totalAmountPayment]);
+    return totalAmountOrder - totalAmountPayment;
+  }, [totalAmountOrder, totalAmountPayment]);
 
   console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
   console.log("totalAmountPayment", totalAmountPayment);
-  console.log("totalOrderAmount", totalOrderAmount);
-
-  const renderPaymentCodFooter = () => {
-    if (paymentMethod === PaymentMethodOption.COD) {
-      const content = {
-        [ShipmentMethodOption.SELF_DELIVER]: (
-          <span className="selfDeliverContent">
-            Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá trị Tiền
-            thu hộ
-          </span>
-        ),
-        [ShipmentMethodOption.DELIVER_LATER]: (
-          <span className="deliverLaterContent">
-            Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá trị Tiền
-            thu hộ
-          </span>
-        ),
-        [ShipmentMethodOption.PICK_AT_STORE]: (
-          <div className="pickAtStoreContent">
-            <div className="pickAtStoreContent__icon">
-              <div>
-                <div>
-                  <img src={Calculate} alt=""></img>
-                </div>
-              </div>
-            </div>
-            <span>
-              <span>Khách hàng sẽ thanh toán tại quầy!</span>
-            </span>
-          </div>
-        ),
-      };
-      let result = content[shipmentMethod];
-      if (result) {
-        return <div className="order-cod-payment-footer">{result}</div>;
-      }
-    }
-  };
+  console.log("totalAmountOrder", totalAmountOrder);
 
   return (
     <StyledComponent>
-      <div className="create-order-payment 66">
-        <Form.Item className="formItemCreatePayment">
+      <div className="create-order-payment ">
+        <Form.Item
+          // label={<i>Lựa chọn 1 hoặc nhiều hình thức thanh toán</i>}
+          // required
+          style={{ marginBottom: 0 }}
+        >
           <Radio.Group
             value={paymentMethod}
             onChange={(e) => changePaymentMethod(e.target.value)}
@@ -135,29 +105,68 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
               <Radio value={PaymentMethodOption.COD} disabled={isOrderReturnFromPOS}>
                 COD
               </Radio>
-              <Radio value={PaymentMethodOption.PRE_PAYMENT}>Thanh toán trước</Radio>
+              <Radio value={PaymentMethodOption.PREPAYMENT}>Thanh toán trước</Radio>
               <Radio
-                value={PaymentMethodOption.POST_PAYMENT}
+                value={PaymentMethodOption.POSTPAYMENT}
                 disabled={isDisablePostPayment || isOrderReturnFromPOS}
               >
                 Chưa xác định
               </Radio>
             </Space>
           </Radio.Group>
-          {renderPaymentCodFooter()}
+          {paymentMethod === PaymentMethodOption.COD &&
+            shipmentMethod === ShipmentMethodOption.SELF_DELIVER && (
+              <div className="order-cod-payment-footer">
+                <span>
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá trị
+                  Tiền thu hộ
+                </span>
+              </div>
+            )}
+          {paymentMethod === PaymentMethodOption.COD &&
+            shipmentMethod === ShipmentMethodOption.DELIVER_LATER && (
+              <div className="order-cod-payment-footer">
+                <span>
+                  Vui lòng chọn hình thức <span>Đóng gói và Giao hàng</span> để có thể nhập giá trị
+                  Tiền thu hộ
+                </span>
+              </div>
+            )}
+          {paymentMethod === PaymentMethodOption.COD &&
+            shipmentMethod === ShipmentMethodOption.PICK_AT_STORE && (
+              <div className="order-cod-payment-footer" style={{ height: 83 }}>
+                <div>
+                  <div>
+                    <div>
+                      <img src={Calculate} alt=""></img>
+                    </div>
+                  </div>
+                </div>
+                <span>
+                  <span>Khách hàng sẽ thanh toán tại quầy!</span>
+                </span>
+              </div>
+            )}
         </Form.Item>
 
         <Row
-          className="rowPrePayment"
           gutter={24}
-          hidden={paymentMethod !== PaymentMethodOption.PRE_PAYMENT}
+          hidden={paymentMethod !== PaymentMethodOption.PREPAYMENT}
+          style={{ marginTop: 18 }}
         >
-          <div className="rowPrePayment__inner">
+          <div style={{ padding: "0 24px", maxWidth: "100%" }}>
             <Collapse className="orders-timeline 3" defaultActiveKey={["1"]} ghost>
               <Panel
                 className="orders-timeline-custom orders-dot-status"
                 header={
-                  <span className="rowPrePayment__header">
+                  <span
+                    style={{
+                      textTransform: "uppercase",
+                      fontWeight: 500,
+                      color: "#222222",
+                      padding: "6px",
+                    }}
+                  >
                     Lựa chọn 1 hoặc nhiều phương thức thanh toán
                   </span>
                 }
@@ -165,17 +174,17 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
                 showArrow={false}
                 // disabled={levelOrder > 2}
               >
-                <div className="rowPrePayment__content">
+                <div style={{ width: "1200px", maxWidth: "100%" }}>
                   <Row gutter={24}>
                     <Col lg={10} xxl={7} className="margin-top-bottom-10">
                       <div>
-                        <span className="amountTitle">Tiền khách phải trả: </span>
-                        <strong>{formatCurrency(totalOrderAmount)}</strong>
+                        <span style={{ paddingRight: "20px" }}>Tiền khách phải trả: </span>
+                        <strong>{formatCurrency(totalAmountOrder)}</strong>
                       </div>
                     </Col>
                     <Col lg={10} xxl={7} className="margin-top-bottom-10 55">
                       <div>
-                        <span className="amountTitle">Còn phải trả: </span>
+                        <span style={{ paddingRight: "20px" }}>Còn phải trả: </span>
                         <strong>
                           {formatCurrency(
                             totalAmountCustomerNeedToPay > 0 ? totalAmountCustomerNeedToPay : 0,
@@ -186,21 +195,21 @@ function OrderCreatePayments(props: PropTypes): JSX.Element {
                     {totalAmountCustomerNeedToPay < 0 ? (
                       <Col lg={10} xxl={7} className="margin-top-bottom-10 55">
                         <div>
-                          <span className="amountTitle">Tiền thừa: </span>
-                          <strong className="change">
+                          <span style={{ paddingRight: "20px" }}>Tiền thừa: </span>
+                          <strong style={{ color: yellowColor }}>
                             {formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
                           </strong>
                         </div>
                       </Col>
                     ) : null}
-                    <Divider className="divider" />
+                    <Divider style={{ margin: "10px 0" }} />
                     <OrderPayments
                       payments={payments}
                       setPayments={setPayments}
-                      totalOrderAmount={totalOrderAmount}
+                      totalAmountOrder={totalAmountOrder}
                       levelOrder={levelOrder}
                       loyaltyRate={loyaltyRate}
-                      paymentMethods={paymentMethods}
+                      listPaymentMethod={listPaymentMethod}
                       orderDetail={orderDetail}
                     />
                   </Row>

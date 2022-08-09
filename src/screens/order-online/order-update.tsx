@@ -1,6 +1,19 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Card, Col, Collapse, Form, FormInstance, Input, Modal, Row, Space, Tag } from "antd";
+import {
+  Alert,
+  Card,
+  Col,
+  Collapse,
+  Form,
+  FormInstance,
+  Input,
+  Modal,
+  Row,
+  Space,
+  Tag,
+} from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import ContentContainer from "component/container/content.container";
 import NumberInput from "component/custom/number-input.custom";
@@ -24,16 +37,22 @@ import {
 import {
   changeOrderCustomerAction,
   changeSelectedStoreBankAccountAction,
+  changeShippingServiceConfigAction,
+  DeliveryServicesGetList,
   getStoreBankAccountNumbersAction,
+  orderConfigSaga,
   OrderDetailAction,
   orderUpdateAction,
+  PaymentMethodGetList,
   setIsExportBillAction,
   setIsShouldSetDefaultStoreBankAccountAction,
 } from "domain/actions/order/order.action";
+import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useFetchStores from "hook/useFetchStores";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
 import { thirdPLModel } from "model/order/shipment.model";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   BillingAddressRequestModel,
@@ -49,22 +68,22 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  FulFillmentResponse,
+  DeliveryServiceResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
+import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
+import {
+  OrderConfigResponseModel,
+  ShippingServiceConfigDetailResponseModel,
+} from "model/response/settings/order-settings.response";
 import moment from "moment";
 import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import CannotUpdateOrderWithWalletWarningInformation from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
-import OrderFulfillmentHeader from "screens/order-online/component/OrderPackingAndShippingDetail/OrderFulfillmentHeader";
-import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
-import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
-import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
-import useFetchShippingServiceConfig from "screens/order-online/hooks/useFetchShippingServiceConfig";
 import { deleteOrderService, getStoreBankAccountNumbersService } from "service/order/order.service";
 import {
+  copyTextToClipboard,
   formatCurrency,
   getAccountCodeFromCodeAndName,
   getAmountPayment,
@@ -72,8 +91,8 @@ import {
   getTotalAmountAfterDiscount,
   handleFetchApiError,
   isFetchApiSuccessful,
+  reCalculatePaymentReturn,
   replaceFormatString,
-  sortFulfillments,
   totalAmount,
 } from "utils/AppUtils";
 import {
@@ -83,12 +102,10 @@ import {
   PaymentMethodCode,
   PaymentMethodOption,
   POS,
-  ShipmentMethod,
   ShipmentMethodOption,
   TaxTreatment,
 } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
-import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
 import {
   canCreateShipment,
   checkIfFulfillmentCancelled,
@@ -99,16 +116,17 @@ import {
 } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
-import { ECOMMERCE_CHANNEL } from "../../ecommerce/common/commonAction";
-import OrderDetailBottomBar from "../component/order-detail/BottomBar";
-import CardCustomer from "../component/order-detail/CardCustomer";
-import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
-import OrderFulfillmentCancelledShowDate from "../component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
-import OrderFulfillmentDetail from "../component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
-import OrderFulfillmentShowFulfillment from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
-import OrderFulfillmentShowProduct from "../component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
-import useHandleMomoCreateShipment from "../hooks/useHandleMomoCreateShipment";
-import { StyledComponent } from "./styles";
+import { ECOMMERCE_CHANNEL } from "../ecommerce/common/commonAction";
+import OrderDetailBottomBar from "./component/order-detail/BottomBar";
+import CardCustomer from "./component/order-detail/CardCustomer";
+import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
+import FulfillmentStatusTag from "./component/order-detail/FulfillmentStatusTag";
+import PrintShippingLabel from "./component/order-detail/PrintShippingLabel";
+import OrderFulfillmentCancelledShowDate from "./component/OrderPackingAndShippingDetail/OrderFulfillmentCancelledShowDate";
+import OrderFulfillmentDetail from "./component/OrderPackingAndShippingDetail/OrderFulfillmentDetail";
+import OrderFulfillmentShowFulfillment from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowFulfillment";
+import OrderFulfillmentShowProduct from "./component/OrderPackingAndShippingDetail/OrderFulfillmentShowProduct";
+import useHandleMomoCreateShipment from "./hooks/useHandleMomoCreateShipment";
 
 type PropTypes = {
   id?: string;
@@ -135,11 +153,11 @@ export default function Order(props: PropTypes) {
   const [billingAddress, setBillingAddress] = useState<BillingAddressRequestModel | null>(null);
   const [items, setItems] = useState<Array<OrderLineItemRequest>>([]);
   const [itemGifts, setItemGifts] = useState<Array<OrderLineItemRequest>>([]);
-  const [orderProductsAmount, setOrderProductsAmount] = useState<number>(0);
+  const [orderAmount, setOrderAmount] = useState<number>(0);
   const [storeId, setStoreId] = useState<number | null>(null);
   const [orderSourceId, setOrderSourceId] = useState<number | null>(null);
   const [shipmentMethod, setShipmentMethod] = useState<number>(ShipmentMethodOption.DELIVER_LATER);
-  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POST_PAYMENT);
+  const [paymentMethod, setPaymentMethod] = useState<number>(PaymentMethodOption.POSTPAYMENT);
   const [updating, setUpdating] = useState(false);
   const [loyaltyPoint, setLoyaltyPoint] = useState<LoyaltyPoint | null>(null);
   const [loyaltyUsageRules, setLoyaltyUsageRuless] = useState<Array<LoyaltyUsageResponse>>([]);
@@ -147,24 +165,25 @@ export default function Order(props: PropTypes) {
   const [shippingFeeInformedToCustomer, setShippingFeeInformedToCustomer] = useState<number | null>(
     null,
   );
-
-  const paymentMethods = useFetchPaymentMethods();
-
+  const [listPaymentMethod, setListPaymentMethod] = useState<Array<PaymentMethodResponse>>([]);
   const [payments, setPayments] = useState<Array<OrderPaymentRequest>>([]);
-  console.log("payments", payments);
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
-
-  const deliveryServices = useFetchDeliverServices();
-
+  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
+  const [officeTime, setOfficeTime] = useState<boolean>(false);
+  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
 
-  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
+  const [orderSettings, setOrderSettings] = useState<OrderSettingsModel>({
+    chonCuaHangTruocMoiChonSanPham: false,
+    cauHinhInNhieuLienHoaDon: 1,
+  });
 
-  const orderConfig = useFetchOrderConfig();
+  const [inventoryResponse, setInventoryResponse] = useState<Array<InventoryResponse> | null>(null);
+  const [orderConfig, setConfigOrder] = useState<OrderConfigResponseModel | null>(null);
 
   const [isVisibleCustomer, setVisibleCustomer] = useState(true);
   const [modalAction, setModalAction] = useState<modalActionType>("edit");
@@ -183,13 +202,15 @@ export default function Order(props: PropTypes) {
     setBillingAddress(_objBillingAddress);
   };
 
-  const shippingServiceConfig = useFetchShippingServiceConfig();
+  const [shippingServiceConfig, setShippingServiceConfig] = useState<
+    ShippingServiceConfigDetailResponseModel[]
+  >([]);
 
   const [coupon, setCoupon] = useState<string>("");
   const [promotion, setPromotion] = useState<OrderDiscountRequest | null>(null);
   // console.log('promotion33', promotion)
   // console.log('coupon', coupon)
-  const stores = useFetchStores();
+  const listStores = useFetchStores();
 
   const onChangeInfoProduct = (
     _items: Array<OrderLineItemRequest>,
@@ -197,7 +218,7 @@ export default function Order(props: PropTypes) {
   ) => {
     setItems(_items);
     let amount = totalAmount(_items);
-    setOrderProductsAmount(amount);
+    setOrderAmount(amount);
     if (_promotion !== undefined) {
       setPromotion(_promotion);
     }
@@ -210,16 +231,9 @@ export default function Order(props: PropTypes) {
 
   const [isDisableSelectSource, setIsDisableSelectSource] = useState(false);
 
-  const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
-
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const sortedFulfillmentsIncludeHideFulfillment = OrderDetail?.fulfillments
-    ? OrderDetail?.fulfillments.sort((a, b) => b.id - a.id)
-    : [];
-
-  const activeSortedFulfillments = sortedFulfillments.filter(
-    (fulfillment) => !checkIfFulfillmentCancelled(fulfillment),
-  );
+  const sortedFulfillments = useMemo(() => {
+    return OrderDetail?.fulfillments ? OrderDetail?.fulfillments : [];
+  }, [OrderDetail?.fulfillments]);
 
   const stepsStatusValue = useMemo(() => {
     switch (OrderDetail?.status) {
@@ -266,10 +280,7 @@ export default function Order(props: PropTypes) {
         return 5;
       case OrderStatus.FINALIZED:
         if (!sortedFulfillments.length || sortedFulfillments[0].shipment === null) {
-          if (
-            !OrderDetail.payment_status ||
-            OrderDetail.payment_status === ORDER_PAYMENT_STATUS.unpaid
-          ) {
+          if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
             return 2;
           } else {
             return 3;
@@ -280,10 +291,7 @@ export default function Order(props: PropTypes) {
             sortedFulfillments[0].status === FulFillmentStatus.CANCELLED ||
             sortedFulfillments[0].status === FulFillmentStatus.RETURNING
           ) {
-            if (
-              !OrderDetail.payment_status ||
-              OrderDetail.payment_status === ORDER_PAYMENT_STATUS.unpaid
-            ) {
+            if (!OrderDetail.payment_status || OrderDetail.payment_status === "unpaid") {
               return 2;
             } else {
               return 3;
@@ -360,26 +368,16 @@ export default function Order(props: PropTypes) {
   // 	showSuccess("Đã copy mã vận đơn!")
   // };
   //Fulfillment Request
-  const createFulFillmentRequest = (
-    fulfillments: FulFillmentResponse[] | null | undefined,
-    value: OrderRequest,
-  ) => {
-    if (!fulfillments) {
-      return null;
-    }
-    let result: FulFillmentRequest[] = [...fulfillments];
+  const createFulFillmentRequest = (value: OrderRequest) => {
     let shipmentRequest = createShipmentRequest(value);
-    let hideFulFillment = fulfillments?.find((fulfillment) => !fulfillment.shipment);
-    const hideFulfillmentIndex = result.findIndex((single) => single.id === hideFulFillment?.id);
     let request: FulFillmentRequest = {
-      id: hideFulFillment?.id,
       store_id: value.store_id,
       account_code: OrderDetail?.account_code,
       assignee_code: value.assignee_code,
       delivery_type: "",
       stock_location_id: null,
       payment_status: "",
-      total: orderProductsAmount,
+      total: orderAmount,
       total_tax: null,
       total_discount: null,
       total_quantity: null,
@@ -389,13 +387,13 @@ export default function Order(props: PropTypes) {
       total_line_amount_after_line_discount: null,
       shipment: shipmentRequest,
       items: [...items, ...itemGifts].map((item) => {
-        let index = sortedFulfillmentsIncludeHideFulfillment[0]?.items.findIndex(
+        let index = sortedFulfillments[0]?.items.findIndex(
           (single) => single?.order_line_item_id === item.id,
         );
         if (index > -1) {
           return {
             ...item,
-            id: sortedFulfillmentsIncludeHideFulfillment[0]?.items[index]?.id,
+            id: sortedFulfillments[0]?.items[index]?.id,
           };
         }
         return {
@@ -403,11 +401,8 @@ export default function Order(props: PropTypes) {
         };
       }),
     };
-    if (
-      sortedFulfillmentsIncludeHideFulfillment &&
-      sortedFulfillmentsIncludeHideFulfillment.length
-    ) {
-      const ffm = sortedFulfillmentsIncludeHideFulfillment.filter(
+    if (sortedFulfillments && sortedFulfillments.length) {
+      const ffm = sortedFulfillments.filter(
         (i) =>
           i.status !== FulFillmentStatus.CANCELLED &&
           i.status !== FulFillmentStatus.RETURNING &&
@@ -420,7 +415,7 @@ export default function Order(props: PropTypes) {
     }
     let listFulfillmentRequest = [];
     if (
-      paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
+      paymentMethod !== PaymentMethodOption.POSTPAYMENT ||
       shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
       shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
     ) {
@@ -428,19 +423,18 @@ export default function Order(props: PropTypes) {
     }
 
     if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
-      request.delivery_type = ShipmentMethod.PICK_AT_STORE;
+      request.delivery_type = "pick_at_store";
     }
 
     if (
-      paymentMethod === PaymentMethodOption.POST_PAYMENT &&
+      paymentMethod === PaymentMethodOption.POSTPAYMENT &&
       shipmentMethod === ShipmentMethodOption.DELIVER_LATER
       // && typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
       listFulfillmentRequest.push(request);
     }
-    result[hideFulfillmentIndex] = request;
-    return result;
+    return listFulfillmentRequest;
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -469,7 +463,7 @@ export default function Order(props: PropTypes) {
       note_to_shipper: "",
       requirements: value.requirements,
       sender_address: null,
-      office_time: form.getFieldValue("office_time"),
+      office_time: officeTime,
     };
 
     switch (shipmentMethod) {
@@ -494,7 +488,7 @@ export default function Order(props: PropTypes) {
           shipping_fee_paid_to_three_pls: value.shipping_fee_paid_to_three_pls,
           service: thirdPL.service,
           cod:
-            orderProductsAmount +
+            orderAmount +
             (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
             getAmountPaymentRequest(payments) -
             (promotion?.value || 0),
@@ -502,22 +496,15 @@ export default function Order(props: PropTypes) {
 
       case ShipmentMethodOption.PICK_AT_STORE:
         objShipment.delivery_service_provider_type = "pick_at_store";
-        let newCod = orderProductsAmount;
+        let newCod = orderAmount;
         if (shippingFeeInformedToCustomer !== null) {
-          if (
-            orderProductsAmount +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments) >
-            0
-          ) {
+          if (orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments) > 0) {
             newCod =
-              orderProductsAmount +
-              shippingFeeInformedToCustomer -
-              getAmountPaymentRequest(payments);
+              orderAmount + shippingFeeInformedToCustomer - getAmountPaymentRequest(payments);
           }
         } else {
-          if (orderProductsAmount - getAmountPaymentRequest(payments) > 0) {
-            newCod = orderProductsAmount - getAmountPaymentRequest(payments);
+          if (orderAmount - getAmountPaymentRequest(payments) > 0) {
+            newCod = orderAmount - getAmountPaymentRequest(payments);
           }
         }
         return {
@@ -540,16 +527,24 @@ export default function Order(props: PropTypes) {
   const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
 
   const getRequirementName = useCallback(() => {
-    if (activeSortedFulfillments.length > 0) {
-      let requirement = activeSortedFulfillments[0].shipment?.requirements?.toString();
+    if (sortedFulfillments.length > 0) {
+      let requirement = sortedFulfillments[0].shipment?.requirements?.toString();
       const reqObj = shipping_requirements?.find((r) => r.value === requirement);
       setRequirementNameView(reqObj ? reqObj?.name : "");
     }
-  }, [activeSortedFulfillments, shipping_requirements]);
+  }, [sortedFulfillments, shipping_requirements]);
 
   useEffect(() => {
     getRequirementName();
   }, [getRequirementName]);
+
+  useEffect(() => {
+    dispatch(
+      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
+        setDeliveryServices(response);
+      }),
+    );
+  }, [dispatch]);
 
   const createDiscountRequest = () => {
     if (!promotion || !promotion?.value) {
@@ -623,40 +618,6 @@ export default function Order(props: PropTypes) {
     }
   };
 
-  const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
-    console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
-    // return;
-    dispatch(showLoading());
-    try {
-      if (!isFinalized) {
-        setUpdating(true);
-      } else {
-        setUpdatingConfirm(true);
-      }
-      dispatch(
-        orderUpdateAction(
-          OrderDetail?.id || 0,
-          valuesCalculateReturnAmount,
-          isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
-          () => {
-            setUpdating(false);
-            setUpdatingConfirm(false);
-            dispatch(hideLoading());
-          },
-        ),
-      );
-    } catch {
-      isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
-    } finally {
-      // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-      () => {
-        dispatch(hideLoading());
-        setUpdating(false);
-        setUpdatingConfirm(false);
-      };
-    }
-  };
-
   const onFinish = (values: OrderRequest) => {
     if (!OrderDetail) return;
     values.assignee_code = getAccountCodeFromCodeAndName(values.assignee_code);
@@ -664,7 +625,7 @@ export default function Order(props: PropTypes) {
     values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("btn-save-order-update");
     element2.disable = true;
-    let lstFulFillment = createFulFillmentRequest(OrderDetail.fulfillments, values);
+    let lstFulFillment = createFulFillmentRequest(values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
@@ -675,11 +636,11 @@ export default function Order(props: PropTypes) {
     values.fulfillments = lstFulFillment;
     values.action = OrderStatus.FINALIZED;
     values.payments = payments.filter((payment) => payment.amount > 0);
-    values.total = orderProductsAmount;
+    values.total = orderAmount;
     values.finalized = isFinalized;
     if (values?.fulfillments && values.fulfillments.length > 0 && values.fulfillments[0].shipment) {
       values.fulfillments[0].shipment.cod =
-        orderProductsAmount +
+        orderAmount +
         (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
         getAmountPaymentRequest(payments) -
         (promotion?.value || 0);
@@ -729,14 +690,34 @@ export default function Order(props: PropTypes) {
       } else {
         let valuesCalculateReturnAmount = {
           ...values,
-          payments: payments.filter((payment) => payment.amount !== 0 || payment.paid_amount !== 0),
+          payments: reCalculatePaymentReturn(
+            payments,
+            totalAmountCustomerNeedToPay,
+            listPaymentMethod,
+          ).filter((payment) => payment.amount !== 0 || payment.paid_amount !== 0),
         };
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
+            if (!isFinalized) {
+              setUpdating(true);
+            } else {
+              setUpdatingConfirm(true);
+            }
             (async () => {
-              handleUpdateOrder(valuesCalculateReturnAmount);
+              try {
+                dispatch(
+                  orderUpdateAction(
+                    OrderDetail.id,
+                    valuesCalculateReturnAmount,
+                    isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
+                    () => (isFinalized ? setUpdatingConfirm(false) : setUpdating(false)),
+                  ),
+                );
+              } catch {
+                isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
+              }
             })();
           }
         } else {
@@ -746,8 +727,25 @@ export default function Order(props: PropTypes) {
             if (checkInventory()) {
               let bolCheckpointFocus = checkPointFocus(values);
               if (bolCheckpointFocus) {
+                if (!isFinalized) {
+                  setUpdating(true);
+                } else {
+                  setUpdatingConfirm(true);
+                }
+
                 (async () => {
-                  handleUpdateOrder(valuesCalculateReturnAmount);
+                  try {
+                    dispatch(
+                      orderUpdateAction(
+                        OrderDetail.id,
+                        valuesCalculateReturnAmount,
+                        isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
+                        () => (isFinalized ? setUpdatingConfirm(false) : setUpdating(false)),
+                      ),
+                    );
+                  } catch {
+                    isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
+                  }
                 })();
               }
             }
@@ -756,13 +754,19 @@ export default function Order(props: PropTypes) {
       }
     }
   };
-
+  const scroll = useCallback(() => {
+    if (window.pageYOffset > 100) {
+      setIsShowBillStep(true);
+    } else {
+      setIsShowBillStep(false);
+    }
+  }, []);
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
   const onSelectShipment = (value: number) => {
     if (value === ShipmentMethodOption.DELIVER_PARTNER) {
       setIsDisablePostPayment(true);
-      if (paymentMethod === PaymentMethodOption.POST_PAYMENT) {
+      if (paymentMethod === PaymentMethodOption.POSTPAYMENT) {
         setPaymentMethod(PaymentMethodOption.COD);
       }
     } else {
@@ -774,29 +778,28 @@ export default function Order(props: PropTypes) {
   /**
    * tổng số tiền đã trả
    */
-  const totalAmountPayment = getAmountPayment(payments);
+  const totalAmountPayment =
+    OrderDetail?.payments && OrderDetail?.payments?.length > 0
+      ? getAmountPayment(OrderDetail.payments)
+      : getAmountPayment(payments);
 
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
    */
-  const totalOrderAmount = useMemo(() => {
+  const totalAmountOrder = useMemo(() => {
     return Math.round(
-      orderProductsAmount +
+      orderAmount +
         (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
         (promotion?.value || 0),
     );
-  }, [orderProductsAmount, promotion?.value, shippingFeeInformedToCustomer]);
+  }, [orderAmount, promotion?.value, shippingFeeInformedToCustomer]);
 
   /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
    */
   const totalAmountCustomerNeedToPay = useMemo(() => {
-    return totalOrderAmount - totalAmountPayment;
-  }, [totalOrderAmount, totalAmountPayment]);
-
-  console.log("totalOrderAmount", totalOrderAmount);
-  console.log("totalAmountPayment", totalAmountPayment);
-  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
+    return totalAmountOrder - totalAmountPayment;
+  }, [totalAmountOrder, totalAmountPayment]);
 
   useEffect(() => {
     dispatch(getLoyaltyUsage(setLoyaltyUsageRuless));
@@ -836,7 +839,7 @@ export default function Order(props: PropTypes) {
       return;
     }
 
-    const deleteOrderConfirm = () => {
+    const deleteOrderComfirm = () => {
       let ids: number[] = [OrderDetail.id];
       dispatch(showLoading());
       deleteOrderService(ids)
@@ -881,7 +884,7 @@ export default function Order(props: PropTypes) {
       okText: "Xóa",
       cancelText: "Hủy",
       okType: "danger",
-      onOk: deleteOrderConfirm,
+      onOk: deleteOrderComfirm,
     });
   }, [OrderDetail, dispatch, history]);
 
@@ -932,6 +935,33 @@ export default function Order(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
 
+  //windows offset
+  useEffect(() => {
+    window.addEventListener("scroll", scroll);
+    return () => {
+      window.removeEventListener("scroll", scroll);
+    };
+  }, [scroll]);
+
+  useEffect(() => {
+    dispatch(
+      PaymentMethodGetList((response) => {
+        let result = response.filter((single) => single.code !== PaymentMethodCode.CARD);
+        setListPaymentMethod(result);
+      }),
+    );
+  }, [dispatch]);
+
+  /**
+   * orderSettings
+   */
+  useEffect(() => {
+    setOrderSettings({
+      chonCuaHangTruocMoiChonSanPham: true,
+      cauHinhInNhieuLienHoaDon: 3,
+    });
+  }, []);
+
   // handle for ecommerce order
   const [isEcommerceOrder, setIsEcommerceOrder] = useState(false);
   const [ecommerceShipment, setEcommerceShipment] = useState<any>();
@@ -972,9 +1002,15 @@ export default function Order(props: PropTypes) {
 
   console.log("OrderDetail", OrderDetail);
 
-  const fetchOrderDetailData = () => {
+  const fetchData = () => {
     dispatch(
-      OrderDetailAction(id, async (response) => {
+      OrderDetailAction(id, async (res) => {
+        console.log("res", res);
+        const response = {
+          ...res,
+          // ffm des id
+          fulfillments: res.fulfillments?.sort((a, b) => b.id - a.id),
+        };
         const { customer_id } = response;
         setOrderDetail(response);
         handleEcommerceOrder(response);
@@ -1035,24 +1071,25 @@ export default function Order(props: PropTypes) {
           let newDatingShip = initialForm.dating_ship;
           let newShipperCode = initialForm.shipper_code;
           let new_payments = initialForm.payments;
-          if (activeSortedFulfillments && activeSortedFulfillments[0]) {
-            if (activeSortedFulfillments[0]?.shipment) {
-              newDatingShip = activeSortedFulfillments[0]?.shipment?.expected_received_date
-                ? moment(activeSortedFulfillments[0]?.shipment?.expected_received_date)
+
+          if (response.fulfillments && response.fulfillments[0]) {
+            if (response?.fulfillments[0]?.shipment) {
+              newDatingShip = response.fulfillments[0]?.shipment?.expected_received_date
+                ? moment(response.fulfillments[0]?.shipment?.expected_received_date)
                 : undefined;
-              newShipperCode = activeSortedFulfillments[0]?.shipment?.shipper_code;
+              newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
             }
-            if (activeSortedFulfillments[0].shipment?.cod) {
+            if (response.fulfillments[0].shipment?.cod) {
               // setPaymentMethod(PaymentMethodOption.COD);
             } else if (response.payments && response.payments?.length > 0) {
-              setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
+              setPaymentMethod(PaymentMethodOption.PREPAYMENT);
               new_payments = response.payments;
               setPayments(new_payments);
             }
           }
 
           setItems(responseItems);
-          setOrderProductsAmount(response.total_line_amount_after_line_discount);
+          setOrderAmount(response.total_line_amount_after_line_discount);
           form.setFieldsValue({
             ...initialForm,
             customer_note: response.customer_note,
@@ -1079,6 +1116,7 @@ export default function Order(props: PropTypes) {
 
           if (!canCreateShipment(response.fulfillments)) {
             setShipmentMethod(0);
+            setOfficeTime(true);
           }
           if (response.store_id) {
             setStoreId(response.store_id);
@@ -1114,209 +1152,12 @@ export default function Order(props: PropTypes) {
               order_id: response.id,
             });
           }
-          if (response?.payments) {
-            setPayments(response.payments);
-          }
         }
       }),
     );
   };
-
-  const checkPointFocus = useCallback(
-    (value: any) => {
-      let pointFocus = payments.find((p) => p.code === "point");
-
-      if (!pointFocus) return true;
-
-      let discount = 0;
-      value.items.forEach((p: any) => (discount = discount + p.discount_amount));
-
-      let rank = loyaltyUsageRules.find(
-        (x) =>
-          x.rank_id ===
-          (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id),
-      );
-
-      let point = !pointFocus ? 0 : pointFocus.point === undefined ? 0 : pointFocus.point;
-
-      let totalAmountPayable =
-        orderProductsAmount +
-        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
-        (promotion?.value || 0); //tổng tiền phải trả
-      let limitAmountPointFocus = !rank
-        ? 0
-        : !rank.limit_order_percent
-        ? totalAmountPayable
-        : (rank.limit_order_percent * totalAmountPayable) / 100;
-      //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
-      limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
-
-      if (!loyaltyPoint || limitAmountPointFocus === 0) {
-        showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
-        return false;
-      }
-      if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
-        showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
-        return false;
-      }
-
-      if (point > limitAmountPointFocus) {
-        showError(`Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`);
-        return false;
-      }
-
-      return true;
-    },
-    [
-      payments,
-      loyaltyUsageRules,
-      orderProductsAmount,
-      shippingFeeInformedToCustomer,
-      promotion,
-      loyaltyPoint,
-    ],
-  );
-
-  const checkInventory = () => {
-    let status = true;
-    if (inventoryResponse && inventoryResponse.length && items && items != null) {
-      let productItem = null;
-      let newData: Array<InventoryResponse> = [];
-      newData = inventoryResponse.filter((store) => store.store_id === storeId);
-      newData.forEach(function (value) {
-        productItem = items.find((x: any) => x.variant_id === value.variant_id);
-        if (
-          ((value.available ? value.available : 0) <= 0 ||
-            (productItem ? productItem?.quantity : 0) > (value.available ? value.available : 0)) &&
-          orderConfig?.sellable_inventory !== true
-        ) {
-          status = false;
-          //showError(`${value.name} không còn đủ số lượng tồn trong kho`);
-        }
-      });
-      if (!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
-    }
-
-    return status;
-  };
-
-  const checkIfShowCreatePayment = () => {
-    return (
-      checkIfOrderHasNoPayment(OrderDetail) &&
-      (!checkIfOrderHasShipmentCod(OrderDetail) || checkIfOrderCancelled(OrderDetail))
-    );
-  };
-
-  // const handleOrderBillRequest = (values:OrderBillRequestFormModel,  orderBillId: number | null) => {
-  // 	if(OrderDetail?.id) {
-  //     let request: OrderBillRequestModel = {
-  //       ...values,
-  //       order_id: OrderDetail?.id,
-  //     }
-  //     dispatch(showLoading());
-  //     if(orderBillId) {
-  //       updateOrderBillService(orderBillId, request).then(response => {
-  //         console.log('response', response)
-  //         if (isFetchApiSuccessful(response)) {
-  //           showSuccess("Cập nhật yêu cầu xuất hóa đơn thành công!")
-  //         } else {
-  //           handleFetchApiError(response, "Cập nhật yêu cầu xuất hóa đơn", dispatch);
-  //         }
-  //       }).finally(() => {
-  //         dispatch(hideLoading())
-  //       })
-
-  //     } else {
-  //       createOrderBillService(request).then(response => {
-  //         console.log('response', response)
-  //         if (isFetchApiSuccessful(response)) {
-  //           showSuccess("Tạo yêu cầu xuất hóa đơn thành công!")
-  //         } else {
-  //           handleFetchApiError(response, "Tạo yêu cầu xuất hóa đơn", dispatch);
-  //         }
-  //       }).finally(() => {
-  //         dispatch(hideLoading())
-  //       })
-  //     }
-  //   }
-  // };
-  const eventKeyBoardFunction = useCallback((event: KeyboardEvent) => {
-    if (event.key === "F9" || event.key === "F4") {
-      event.preventDefault();
-      event.stopPropagation();
-    }
-
-    switch (event.key) {
-      case "F9":
-        const btnSaveOrderUpdateElement = document.getElementById("btn-save-order-update");
-        btnSaveOrderUpdateElement?.click();
-        break;
-      case "F4":
-        const btnSaveOrderCancelElement = document.getElementById("btn-order-cancel");
-        btnSaveOrderCancelElement?.click();
-        break;
-      default:
-        break;
-    }
-  }, []);
-
-  //xử lý shipment khi có momo
-  useHandleMomoCreateShipment(setShipmentMethod, payments);
-
   useEffect(() => {
-    if (storeId != null) {
-      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
-      getStoreBankAccountNumbersService({
-        store_ids: [storeId],
-      })
-        .then((response) => {
-          if (isFetchApiSuccessful(response)) {
-            dispatch(getStoreBankAccountNumbersAction(response.data.items));
-            const selected = response.data.items.find((single) => single.default && single.status);
-            if (isShouldSetDefaultStoreBankAccount && checkIfShowCreatePayment()) {
-              if (selected) {
-                dispatch(changeSelectedStoreBankAccountAction(selected.account_number));
-              } else {
-                let paymentsResult = [...payments];
-                let bankPaymentIndex = paymentsResult.findIndex(
-                  (payment) => payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER,
-                );
-                // sàn tài trợ cũng đang lấy PaymentMethodCode.BANK_TRANSFER, nên phải check name
-                if (
-                  bankPaymentIndex > -1 &&
-                  paymentsResult[bankPaymentIndex].payment_method !== "Sàn Tài trợ"
-                ) {
-                  paymentsResult[bankPaymentIndex].paid_amount = 0;
-                  paymentsResult[bankPaymentIndex].amount = 0;
-                  paymentsResult[bankPaymentIndex].return_amount = 0;
-                }
-                setPayments(paymentsResult);
-                dispatch(changeSelectedStoreBankAccountAction(undefined));
-              }
-            }
-          } else {
-            dispatch(getStoreBankAccountNumbersAction([]));
-            handleFetchApiError(
-              response,
-              "Danh sách số tài khoản ngân hàng của cửa hàng",
-              dispatch,
-            );
-          }
-        })
-        .catch((error) => {
-          console.log("error", error);
-        });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
-
-  useEffect(() => {
-    formRef.current?.resetFields();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
-
-  useEffect(() => {
-    fetchOrderDetailData();
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, dispatch, userReducer.account?.code, isSplit, reload]);
 
@@ -1371,6 +1212,125 @@ export default function Order(props: PropTypes) {
     }
   }, [dispatch, customer, OrderDetail?.shipping_address]);
 
+  const checkPointFocus = useCallback(
+    (value: any) => {
+      let pointFocus = payments.find((p) => p.code === "point");
+
+      if (!pointFocus) return true;
+
+      let discount = 0;
+      value.items.forEach((p: any) => (discount = discount + p.discount_amount));
+
+      let rank = loyaltyUsageRules.find(
+        (x) =>
+          x.rank_id ===
+          (loyaltyPoint?.loyalty_level_id === null ? 0 : loyaltyPoint?.loyalty_level_id),
+      );
+
+      let point = !pointFocus ? 0 : pointFocus.point === undefined ? 0 : pointFocus.point;
+
+      let totalAmountPayable =
+        orderAmount +
+        (shippingFeeInformedToCustomer ? shippingFeeInformedToCustomer : 0) -
+        (promotion?.value || 0); //tổng tiền phải trả
+      let limitAmountPointFocus = !rank
+        ? 0
+        : !rank.limit_order_percent
+        ? totalAmountPayable
+        : (rank.limit_order_percent * totalAmountPayable) / 100;
+      //limitAmountPointFocus= Math.floor(limitAmountPointFocus/1000);//số điểm tiêu tối đa cho phép
+      limitAmountPointFocus = Math.round(limitAmountPointFocus / 1000); //số điểm tiêu tối đa cho phép
+
+      if (!loyaltyPoint || limitAmountPointFocus === 0) {
+        showError("Khách hàng đang không được áp dụng chương trình tiêu điểm");
+        return false;
+      }
+      if (rank?.block_order_have_discount === true && (discount > 0 || promotion)) {
+        showError("Khách hàng không được áp dụng tiêu điểm cho đơn hàng có chiết khấu");
+        return false;
+      }
+
+      if (point > limitAmountPointFocus) {
+        showError(`Số điểm tiêu tối đa là ${formatCurrency(limitAmountPointFocus)}`);
+        return false;
+      }
+
+      return true;
+    },
+    [
+      payments,
+      loyaltyUsageRules,
+      orderAmount,
+      shippingFeeInformedToCustomer,
+      promotion,
+      loyaltyPoint,
+    ],
+  );
+
+  const checkInventory = () => {
+    let status = true;
+    if (inventoryResponse && inventoryResponse.length && items && items != null) {
+      let productItem = null;
+      let newData: Array<InventoryResponse> = [];
+      newData = inventoryResponse.filter((store) => store.store_id === storeId);
+      newData.forEach(function (value) {
+        productItem = items.find((x: any) => x.variant_id === value.variant_id);
+        if (
+          ((value.available ? value.available : 0) <= 0 ||
+            (productItem ? productItem?.quantity : 0) > (value.available ? value.available : 0)) &&
+          orderConfig?.sellable_inventory !== true
+        ) {
+          status = false;
+          //showError(`${value.name} không còn đủ số lượng tồn trong kho`);
+        }
+      });
+      if (!status) showError(`Không thể bán sản phẩm đã hết hàng trong kho`);
+    }
+
+    return status;
+  };
+
+  // const handleOrderBillRequest = (values:OrderBillRequestFormModel,  orderBillId: number | null) => {
+  // 	if(OrderDetail?.id) {
+  //     let request: OrderBillRequestModel = {
+  //       ...values,
+  //       order_id: OrderDetail?.id,
+  //     }
+  //     dispatch(showLoading());
+  //     if(orderBillId) {
+  //       updateOrderBillService(orderBillId, request).then(response => {
+  //         console.log('response', response)
+  //         if (isFetchApiSuccessful(response)) {
+  //           showSuccess("Cập nhật yêu cầu xuất hóa đơn thành công!")
+  //         } else {
+  //           handleFetchApiError(response, "Cập nhật yêu cầu xuất hóa đơn", dispatch);
+  //         }
+  //       }).finally(() => {
+  //         dispatch(hideLoading())
+  //       })
+
+  //     } else {
+  //       createOrderBillService(request).then(response => {
+  //         console.log('response', response)
+  //         if (isFetchApiSuccessful(response)) {
+  //           showSuccess("Tạo yêu cầu xuất hóa đơn thành công!")
+  //         } else {
+  //           handleFetchApiError(response, "Tạo yêu cầu xuất hóa đơn", dispatch);
+  //         }
+  //       }).finally(() => {
+  //         dispatch(hideLoading())
+  //       })
+  //     }
+  //   }
+  // };
+
+  useHandleMomoCreateShipment(setShipmentMethod, payments);
+
+  useEffect(() => {
+    formRef.current?.resetFields();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
+
   useEffect(() => {
     if (items && items.length !== 0 && OrderDetail?.store_id) {
       let variant_id: Array<number> = [];
@@ -1396,6 +1356,21 @@ export default function Order(props: PropTypes) {
   // }, [OrderDetail?.fulfillments, OrderDetail?.items, OrderDetail?.linked_order_code, OrderDetail?.status]);
 
   useEffect(() => {
+    dispatch(
+      orderConfigSaga((data: OrderConfigResponseModel) => {
+        setConfigOrder(data);
+      }),
+    );
+  }, [dispatch]);
+
+  const checkIfShowCreatePayment = () => {
+    return (
+      checkIfOrderHasNoPayment(OrderDetail) &&
+      (!checkIfOrderHasShipmentCod(OrderDetail) || checkIfOrderCancelled(OrderDetail))
+    );
+  };
+
+  useEffect(() => {
     if (OrderDetail?.status === OrderStatus.DRAFT) {
       return;
     }
@@ -1405,8 +1380,37 @@ export default function Order(props: PropTypes) {
   }, [sortedFulfillments, OrderDetail?.status]);
 
   useEffect(() => {
+    dispatch(
+      actionListConfigurationShippingServiceAndShippingFee((response) => {
+        setShippingServiceConfig(response);
+        dispatch(changeShippingServiceConfigAction(response));
+      }),
+    );
+  }, [dispatch]);
+
+  useEffect(() => {
     setShippingAddressesSecondPhone(OrderDetail?.shipping_address?.second_phone || "");
   }, [OrderDetail?.shipping_address]);
+
+  const eventKeyBoardFunction = useCallback((event: KeyboardEvent) => {
+    if (event.key === "F9" || event.key === "F4") {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    switch (event.key) {
+      case "F9":
+        const btnSaveOrderUpdateElement = document.getElementById("btn-save-order-update");
+        btnSaveOrderUpdateElement?.click();
+        break;
+      case "F4":
+        const btnSaveOrderCancelElement = document.getElementById("btn-order-cancel");
+        btnSaveOrderCancelElement?.click();
+        break;
+      default:
+        break;
+    }
+  }, []);
 
   useEffect(() => {
     window.addEventListener("keydown", eventKeyBoardFunction);
@@ -1415,33 +1419,35 @@ export default function Order(props: PropTypes) {
     };
   }, [eventKeyBoardFunction]);
 
-  useEffect(() => {
-    const getCodAmount = () => {
-      let cod = 0;
-      if (
-        sortedFulfillmentsIncludeHideFulfillment[0] &&
-        sortedFulfillmentsIncludeHideFulfillment[0]?.shipment &&
-        sortedFulfillmentsIncludeHideFulfillment[0].shipment?.cod
-      ) {
-        cod = sortedFulfillmentsIncludeHideFulfillment[0].shipment?.cod;
-      }
-      return cod;
-    };
-
-    const cod = getCodAmount();
-    if (totalAmountCustomerNeedToPay - cod > 0) {
-      setShowPaymentPartialPayment(true);
-    } else {
-      setShowPaymentPartialPayment(false);
-    }
-  }, [sortedFulfillmentsIncludeHideFulfillment, totalAmountCustomerNeedToPay]);
-
   if (checkIfOrderHasNotFinishPaymentMomo(OrderDetail)) {
-    return <CannotUpdateOrderWithWalletWarningInformation />;
+    return (
+      <Alert
+        message={
+          <React.Fragment>
+            <div style={{ fontWeight: "500", fontSize: "15px", padding: "10px 0" }}>
+              <p>Lưu ý : Không thể điều phối đơn hàng khi chờ khách thanh toán qua ví điện tử</p>
+              <ul style={{ marginBottom: 0 }}>
+                <li style={{ marginBottom: 5 }}>
+                  Thời hạn thanh toán là 24h kể từ thời điểm tạo đơn
+                </li>
+                <li>
+                  Trong vòng 30 phút mà khách chưa thanh toán sale cần gọi hay nhắn tin cho khách để
+                  xác nhận thanh toán. Nếu khách hủy thanh toán qua ví bạn có thể bấm nút "Hủy giao
+                  dịch" để có thể điều phối đơn
+                </li>
+              </ul>
+            </div>
+          </React.Fragment>
+        }
+        type="warning"
+        closable
+        style={{ margin: "30px 0" }}
+      />
+    );
   }
 
   return (
-    <StyledComponent>
+    <React.Fragment>
       <ContentContainer
         title="Sửa đơn hàng"
         breadcrumb={[
@@ -1488,7 +1494,7 @@ export default function Order(props: PropTypes) {
               <Form.Item noStyle hidden name="tags">
                 <Input />
               </Form.Item>
-              <Row gutter={20} className="mainSection">
+              <Row gutter={20} style={{ marginBottom: "70px" }}>
                 <Col md={18}>
                   <CardCustomer
                     customer={customer}
@@ -1522,8 +1528,8 @@ export default function Order(props: PropTypes) {
                   />
 
                   <OrderCreateProduct
-                    orderProductsAmount={orderProductsAmount}
-                    totalOrderAmount={totalOrderAmount}
+                    orderAmount={orderAmount}
+                    totalAmountOrder={totalAmountOrder}
                     changeInfo={onChangeInfoProduct}
                     setStoreId={(value) => {
                       setStoreId(value);
@@ -1538,7 +1544,7 @@ export default function Order(props: PropTypes) {
                     inventoryResponse={inventoryResponse}
                     customer={customer}
                     setInventoryResponse={setInventoryResponse}
-                    totalAmountCustomerNeedToPay={totalOrderAmount}
+                    totalAmountCustomerNeedToPay={totalAmountOrder}
                     orderSourceId={orderSourceId}
                     levelOrder={levelOrder}
                     coupon={coupon}
@@ -1551,8 +1557,8 @@ export default function Order(props: PropTypes) {
                     setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                     countFinishingUpdateCustomer={countFinishingUpdateCustomer}
                     shipmentMethod={shipmentMethod}
-                    stores={stores}
-                    isPageOrderUpdate
+                    listStores={listStores}
+                    updateOrder
                   />
 
                   {checkIfShowCreatePayment() ? (
@@ -1563,10 +1569,10 @@ export default function Order(props: PropTypes) {
                         setPayments={setPayments}
                         paymentMethod={paymentMethod}
                         shipmentMethod={shipmentMethod}
-                        totalOrderAmount={totalOrderAmount}
+                        totalAmountOrder={totalAmountOrder}
                         loyaltyRate={loyaltyRate}
                         isDisablePostPayment={isDisablePostPayment}
-                        paymentMethods={paymentMethods}
+                        listPaymentMethod={listPaymentMethod}
                         orderDetail={OrderDetail}
                       />
                     </Card>
@@ -1587,7 +1593,7 @@ export default function Order(props: PropTypes) {
                       // onPaymentSelect={onPaymentSelect}
                       onPaymentSelect={() => {}}
                       paymentMethod={paymentMethod}
-                      paymentMethods={paymentMethods}
+                      paymentMethods={listPaymentMethod}
                       setReload={setReload}
                       setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                       // setShowPaymentPartialPayment={()=>{}}
@@ -1595,46 +1601,65 @@ export default function Order(props: PropTypes) {
                       setVisibleUpdatePayment={() => {}}
                       shipmentMethod={shipmentMethod}
                       stepsStatusValue={stepsStatusValue}
-                      totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                      setPayments={(payments) => {
-                        setPayments([...(OrderDetail?.payments || []), ...payments]);
-                      }}
-                      isPageOrderUpdate
                     />
                   )}
                   <Card
-                    className="orders-update-shipment 66"
+                    className="orders-update-shipment "
                     title={
                       <Space>
                         <div className="d-flex">
                           <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
                         </div>
-                        {activeSortedFulfillments.length > 0 &&
-                          activeSortedFulfillments[0].status === FulFillmentStatus.SHIPPED && (
-                            <Tag className="orders-tag text-menu successTag">Giao thành công</Tag>
+                        {sortedFulfillments.length > 0 &&
+                          sortedFulfillments[0].status === FulFillmentStatus.SHIPPED && (
+                            <Tag
+                              className="orders-tag text-menu"
+                              style={{
+                                color: "#27AE60",
+                                backgroundColor: "rgba(39, 174, 96, 0.1)",
+                              }}
+                            >
+                              Giao thành công
+                            </Tag>
                           )}
                       </Space>
                     }
                     extra={
                       <Space size={26}>
-                        {activeSortedFulfillments.length > 0 && (
+                        {sortedFulfillments.length > 0 && (
                           // OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
-                          <div className="text-menu expectReceivedDate 33">
-                            {activeSortedFulfillments[0]?.shipment?.expected_received_date && (
+                          <div className="text-menu">
+                            {sortedFulfillments[0]?.shipment?.expected_received_date && (
                               <React.Fragment>
-                                <img src={calendarOutlined} alt=""></img>
-                                <span>
-                                  {activeSortedFulfillments[0]?.shipment?.expected_received_date
+                                <img
+                                  src={calendarOutlined}
+                                  style={{ marginRight: 9.5 }}
+                                  alt=""
+                                ></img>
+                                <span
+                                  style={{
+                                    color: "#222222",
+                                    lineHeight: "16px",
+                                  }}
+                                >
+                                  {sortedFulfillments[0]?.shipment?.expected_received_date
                                     ? moment(
-                                        activeSortedFulfillments[0]?.shipment
-                                          ?.expected_received_date,
+                                        sortedFulfillments[0]?.shipment?.expected_received_date,
                                       ).format(dateFormat)
                                     : ""}
                                 </span>
                               </React.Fragment>
                             )}
-                            {activeSortedFulfillments[0]?.shipment?.office_time && (
-                              <span className="officeTime">(Giờ hành chính)</span>
+                            {sortedFulfillments[0]?.shipment?.office_time && (
+                              <span
+                                style={{
+                                  marginLeft: 6,
+                                  color: "#737373",
+                                  fontSize: "14px",
+                                }}
+                              >
+                                (Giờ hành chính)
+                              </span>
                             )}
                           </div>
                         )}
@@ -1663,17 +1688,13 @@ export default function Order(props: PropTypes) {
                       </Space>
                     }
                   >
-                    {activeSortedFulfillments.length > 0 &&
-                      activeSortedFulfillments.map(
+                    {sortedFulfillments.length > 0 &&
+                      sortedFulfillments.reverse().map(
                         (fulfillment) =>
                           fulfillment.shipment && (
-                            <div className="activeFulfillment" key={fulfillment.id}>
+                            <div key={fulfillment.id} style={{ marginTop: -12, marginBottom: 20 }}>
                               <Collapse
-                                className={`saleorder_shipment_order_colapse payment_success ${
-                                  checkIfFulfillmentCancelled(fulfillment)
-                                    ? "cancelledFulfillment"
-                                    : ""
-                                }`}
+                                className="saleorder_shipment_order_colapse payment_success"
                                 defaultActiveKey={[
                                   checkIfFulfillmentCancelled(fulfillment) ? "0" : "1",
                                 ]}
@@ -1703,10 +1724,103 @@ export default function Order(props: PropTypes) {
                                   }
                                   showArrow={true}
                                   header={
-                                    <OrderFulfillmentHeader
-                                      fulfillment={fulfillment}
-                                      orderDetail={OrderDetail}
-                                    />
+                                    <div
+                                      className="saleorder-header-content"
+                                      style={{
+                                        display: "flex",
+                                        width: "100%",
+                                        padding: 0,
+                                      }}
+                                    >
+                                      <div
+                                        className="saleorder-header-content__info"
+                                        style={{
+                                          display: "flex",
+                                          width: "100%",
+                                        }}
+                                      >
+                                        <span
+                                          className="text-field"
+                                          style={{
+                                            color: "#2A2A86",
+                                            fontWeight: 500,
+                                            fontSize: 18,
+                                            marginRight: 11,
+                                          }}
+                                        >
+                                          {fulfillment.code}
+                                        </span>
+                                        <div
+                                          style={{
+                                            width: 35,
+                                            padding: "0 4px",
+                                            marginRight: 10,
+                                            marginBottom: 2,
+                                          }}
+                                        >
+                                          <img
+                                            onClick={(e) => {
+                                              copyTextToClipboard(e, fulfillment.code);
+                                              showSuccess("Đã copy mã vận đơn!");
+                                            }}
+                                            src={copyFileBtn}
+                                            alt=""
+                                            style={{ width: 23 }}
+                                          />
+                                        </div>
+                                        <FulfillmentStatusTag fulfillment={fulfillment} />
+                                        {!checkIfFulfillmentCancelled(fulfillment) && (
+                                          <PrintShippingLabel
+                                            fulfillment={fulfillment}
+                                            orderSettings={orderSettings}
+                                            orderId={OrderDetail?.id}
+                                          />
+                                        )}
+                                      </div>
+
+                                      <div
+                                        className="saleorder-header-content__date"
+                                        style={{
+                                          display: "none",
+                                          width: "100%",
+                                          alignItems: "center",
+                                        }}
+                                      >
+                                        {checkIfFulfillmentCancelled(fulfillment) ? (
+                                          <span>
+                                            <span
+                                              style={{
+                                                color: "#000000d9",
+                                                marginRight: 6,
+                                              }}
+                                            >
+                                              Ngày huỷ:
+                                            </span>
+                                            <span style={{ color: "#000000d9" }}>
+                                              {fulfillment.cancel_date
+                                                ? moment(fulfillment.cancel_date).format(dateFormat)
+                                                : ""}
+                                            </span>
+                                          </span>
+                                        ) : (
+                                          <span>
+                                            <span
+                                              style={{
+                                                color: "#000000d9",
+                                                marginRight: 6,
+                                              }}
+                                            >
+                                              Ngày tạo:
+                                            </span>
+                                            <span style={{ color: "#000000d9" }}>
+                                              {moment(fulfillment.shipment?.created_date).format(
+                                                dateFormat,
+                                              )}
+                                            </span>
+                                          </span>
+                                        )}
+                                      </div>
+                                    </div>
                                   }
                                   key="1"
                                 >
@@ -1728,14 +1842,13 @@ export default function Order(props: PropTypes) {
                     {canCreateShipment(sortedFulfillments) && (
                       <OrderCreateShipment
                         shipmentMethod={shipmentMethod}
-                        orderProductsAmount={orderProductsAmount}
+                        orderPrice={orderAmount}
                         storeDetail={storeDetail}
                         customer={customer}
                         items={items}
                         isCancelValidateDelivery={false}
                         totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                         setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
-                        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                         onSelectShipment={onSelectShipment}
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}
@@ -1743,7 +1856,7 @@ export default function Order(props: PropTypes) {
                         shippingServiceConfig={shippingServiceConfig}
                         orderConfig={orderConfig}
                         OrderDetail={OrderDetail}
-                        isPageOrderUpdate
+                        isOrderUpdate={true}
                         isEcommerceOrder={isEcommerceOrder}
                         ecommerceShipment={ecommerceShipment}
                         payments={payments}
@@ -1775,12 +1888,13 @@ export default function Order(props: PropTypes) {
                 showSaveAndConfirmModal={() => {}}
                 updating={updating}
                 updatingConfirm={updatingConfirm}
+                isShow={!isShowBillStep}
                 deleteOrderClick={handleDeleteOrderClick}
               />
             </Form>
           )}
         </div>
       </ContentContainer>
-    </StyledComponent>
+    </React.Fragment>
   );
 }

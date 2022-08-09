@@ -3,16 +3,19 @@ import { Col, Divider, Row, Space, Tag, Tooltip, Typography } from "antd";
 import { OrderDiscountRequest, OrderLineItemRequest } from "model/request/order.request";
 import React from "react";
 import { formatCurrency, formatPercentage, handleDisplayCoupon } from "utils/AppUtils";
-import { dangerColor, successColor } from "utils/global-styles/variables";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
-  orderProductsAmount: number;
+type PropType = {
+  levelOrder?: number;
+  orderAmount: number;
   items: OrderLineItemRequest[] | undefined;
   promotion: OrderDiscountRequest | null;
+  discountValue?: number;
   totalAmountCustomerNeedToPay: number;
   shippingFeeInformedToCustomer?: number | null;
-  totalOrderAmount: number;
+  changeMoney: number;
+  amount?: number;
+  totalAmountOrder: number;
   isDisableOrderDiscount?: boolean;
   isCouponValid?: boolean;
   couponInputText?: string;
@@ -31,13 +34,15 @@ type PropTypes = {
   handleRemoveAllAutomaticDiscount: () => void;
 };
 
-function CardProductBottom(props: PropTypes) {
+function CardProductBottom(props: PropType) {
   const {
-    orderProductsAmount,
-    totalOrderAmount,
+    // levelOrder = 0,
+    orderAmount,
+    totalAmountOrder,
     items,
     promotion,
     couponInputText,
+    // changeMoney,
     shippingFeeInformedToCustomer,
     returnOrderInformation,
     totalAmountCustomerNeedToPay,
@@ -52,17 +57,25 @@ function CardProductBottom(props: PropTypes) {
     handleRemoveAllAutomaticDiscount,
   } = props;
 
-  const discountRate = promotion?.rate || 0;
-  const discountValue = promotion?.value || 0;
+  let discountRate = promotion?.rate || 0;
+  let discountValue = promotion?.value || 0;
 
   return (
     <StyledComponent>
       <Row gutter={24}>
-        <Col xs={24} lg={13}></Col>
+        <Col xs={24} lg={13}>
+          {/* <div className="optionRow">
+            <Checkbox className="" style={{ fontWeight: 500 }} disabled={levelOrder > 3} onChange={(e) =>setIsDisableAutomaticDiscount(e.target.value)}>
+              Bỏ chiết khấu tự động
+            </Checkbox>
+          </div> */}
+        </Col>
         <Col xs={24} lg={10}>
-          <Row className="paymentRow" justify="space-between">
+          <Row className="paymentRow" style={{ justifyContent: "space-between" }}>
             <div>Tổng tiền:</div>
-            <div className="font-weight-500">{formatCurrency(orderProductsAmount)}</div>
+            <div className="font-weight-500" style={{ fontWeight: 500 }}>
+              {formatCurrency(orderAmount)}
+            </div>
           </Row>
 
           <Row className="paymentRow" justify="space-between" align="middle">
@@ -70,8 +83,13 @@ function CardProductBottom(props: PropTypes) {
               {/* ko disable chiết khấu tổng */}
               {(setPromotion && !isDisableOrderDiscount && items && items.length > 0) || true ? (
                 <Typography.Link
-                  className="font-weight-400 discountTitle"
+                  className="font-weight-400"
                   onClick={showDiscountModal}
+                  style={{
+                    textDecoration: "underline",
+                    textDecorationColor: "#5D5D8A",
+                    color: "#5D5D8A",
+                  }}
                 >
                   Chiết khấu:
                 </Typography.Link>
@@ -79,7 +97,7 @@ function CardProductBottom(props: PropTypes) {
                 <div>
                   <Tooltip title="Tắt chiết khấu tự động để nhập chiết khấu đơn hàng">
                     Chiết khấu
-                    <span className="noteTooltip">
+                    <span style={{ margin: "0 0 0 5px" }}>
                       <InfoCircleOutlined />
                     </span>
                   </Tooltip>
@@ -89,7 +107,12 @@ function CardProductBottom(props: PropTypes) {
               {items && discountRate !== 0 && (
                 <Tag
                   key={discountRate}
-                  className="orders-tag orders-tag-danger discountTag"
+                  style={{
+                    marginTop: 0,
+                    color: "#E24343",
+                    backgroundColor: "#F5F5F5",
+                  }}
+                  className="orders-tag orders-tag-danger"
                   closable={!isDisableOrderDiscount}
                   onClose={() => {
                     setCoupon && setCoupon("");
@@ -108,14 +131,22 @@ function CardProductBottom(props: PropTypes) {
           <Row className="paymentRow" justify="space-between" align="middle">
             <Space align="center">
               {setPromotion && !isDisableOrderDiscount && items && items.length > 0 ? (
-                <Typography.Link className="font-weight-400 couponTitle" onClick={showCouponModal}>
+                <Typography.Link
+                  className="font-weight-400"
+                  onClick={showCouponModal}
+                  style={{
+                    textDecoration: "underline",
+                    textDecorationColor: "#5D5D8A",
+                    color: "#5D5D8A",
+                  }}
+                >
                   Mã giảm giá:
                 </Typography.Link>
               ) : (
                 <div>
                   <Tooltip title="Tắt chiết khấu tự động để nhập mã giảm giá">
                     Mã giảm giá
-                    <span className="noteTooltip">
+                    <span style={{ margin: "0 0 0 5px" }}>
                       <InfoCircleOutlined />
                     </span>
                   </Tooltip>
@@ -124,7 +155,13 @@ function CardProductBottom(props: PropTypes) {
 
               {couponInputText && couponInputText !== "" && (
                 <Tag
-                  className="orders-tag orders-tag-danger couponTag--danger"
+                  style={{
+                    margin: 0,
+                    color: "#E24343",
+                    backgroundColor: "#F5F5F5",
+                    textTransform: "uppercase",
+                  }}
+                  className="orders-tag orders-tag-danger"
                   closable
                   onClose={() => {
                     setPromotion && setPromotion(null);
@@ -136,15 +173,25 @@ function CardProductBottom(props: PropTypes) {
                   {couponInputText ? (
                     isCouponValid ? (
                       <React.Fragment>
-                        <CheckCircleOutlined className="couponTag__icon couponTag__icon--success" />
-                        <span style={{ color: successColor }}>
+                        <CheckCircleOutlined
+                          style={{
+                            color: "#27AE60",
+                            marginRight: 5,
+                          }}
+                        />
+                        <span style={{ color: "#27AE60" }}>
                           {handleDisplayCoupon(couponInputText)}
                         </span>
                       </React.Fragment>
                     ) : (
                       <React.Fragment>
-                        <CloseCircleOutlined className="couponTag__icon couponTag__icon--danger" />
-                        <span style={{ color: dangerColor }}>
+                        <CloseCircleOutlined
+                          style={{
+                            color: "#E24343",
+                            marginRight: 5,
+                          }}
+                        />
+                        <span style={{ color: "#E24343" }}>
                           {handleDisplayCoupon(couponInputText)}
                         </span>
                       </React.Fragment>
@@ -168,7 +215,7 @@ function CardProductBottom(props: PropTypes) {
               <Divider className="margin-top-5 margin-bottom-5" />
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text 23">Tổng tiền hàng mua:</strong>
-                <strong>{totalOrderAmount && formatCurrency(totalOrderAmount)}</strong>
+                <strong>{totalAmountOrder && formatCurrency(totalAmountOrder)}</strong>
               </Row>
               <Row className="payment-row" justify="space-between">
                 <strong className="font-size-text">Tổng tiền hàng trả:</strong>
@@ -186,9 +233,9 @@ function CardProductBottom(props: PropTypes) {
             <strong className="text-success font-size-price">
               {totalAmountCustomerNeedToPay >= 0 || !returnOrderInformation
                 ? !returnOrderInformation
-                  ? formatCurrency(totalOrderAmount > 0 ? totalOrderAmount : 0)
+                  ? formatCurrency(totalAmountOrder > 0 ? totalAmountOrder : 0)
                   : formatCurrency(
-                      Math.abs(totalOrderAmount - returnOrderInformation.totalAmountReturn),
+                      Math.abs(totalAmountOrder - returnOrderInformation.totalAmountReturn),
                     )
                 : formatCurrency(Math.abs(totalAmountCustomerNeedToPay))}
             </strong>

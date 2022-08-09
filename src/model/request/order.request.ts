@@ -1,4 +1,3 @@
-import { StoreResponse } from "model/core/store.model";
 import { OrderLineItemResponse, OrderResponse } from "model/response/order/order.response";
 import { Moment } from "moment";
 export interface OrderRequest {
@@ -179,8 +178,8 @@ export interface ShipmentRequest {
   sender_address_id: number | null;
   note_to_shipper: string | null;
   requirements: string | null;
-  sender_address?: StoreResponse | null;
-  shipping_address?: ShippingAddress | null;
+  sender_address?: string | null;
+  shipping_address?: string | null;
   office_time: boolean | null;
 }
 

@@ -5,7 +5,7 @@ import CustomSelect from "component/custom/select.custom";
 import { AccountResponse } from "model/account/account.model";
 import { thirdPLModel } from "model/order/shipment.model";
 // import { AccountResponse } from "model/account/account.model";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import {
@@ -17,53 +17,39 @@ import {
 import { SHIPPING_TYPE } from "utils/Constants";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type PropType = {
   totalAmountCustomerNeedToPay: number;
   levelOrder?: number;
   isCancelValidateDelivery: boolean;
-  externalShippers: any;
+  listExternalShippers: any;
   storeId?: number | null;
+  setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   form: FormInstance<any>;
   thirdPL?: thirdPLModel;
 };
-function ShipmentMethodSelfDelivery(props: PropTypes) {
+function ShipmentMethodSelfDelivery(props: PropType) {
   const {
     levelOrder = 0,
     totalAmountCustomerNeedToPay,
     isCancelValidateDelivery,
     storeId,
-    externalShippers,
+    listExternalShippers,
+    // setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
     setThirdPL,
     form,
     thirdPL,
   } = props;
 
-  const DELIVERY_TYPES = {
-    employee: {
-      title: "Nhân viên YODY",
-      value: "employee",
-    },
-    external_shipper: {
-      title: "Đối tác khác",
-      value: "external_shipper",
-    },
-  };
-
   const [is4h, setIs4h] = useState(false);
-  const [typeDelivery, setTypeDelivery] = useState(DELIVERY_TYPES.employee.value);
+  const [typeDelivery, setTypeDelivery] = useState("employee");
 
   const [storeAccountData, setStoreAccountData] = useState<Array<AccountResponse>>([]);
   const [assigneeAccountData, setYodyAccountData] = useState<Array<AccountResponse>>([]);
   const [initValueYodyCode, setInitValueYodyCode] = useState("");
   const [initYodyAccountData, setInitYodyAccountData] = useState<Array<AccountResponse>>([]);
-
-  const DELIVERY_TYPES_ARRAY = Object.entries(DELIVERY_TYPES).map((single) => {
-    const [, value] = single;
-    return value;
-  });
 
   const dispatch = useDispatch();
   useEffect(() => {
@@ -88,9 +74,7 @@ function ShipmentMethodSelfDelivery(props: PropTypes) {
 
   const onChange = useCallback(
     (e) => {
-      if (setIs4h) {
-        setIs4h(e.target.checked);
-      }
+      if (setIs4h) setIs4h(e.target.checked);
     },
     [setIs4h],
   );
@@ -176,15 +160,14 @@ function ShipmentMethodSelfDelivery(props: PropTypes) {
             Đơn giao 4H
           </Checkbox>
           <Radio.Group value={typeDelivery} onChange={onChangeType}>
-            {DELIVERY_TYPES_ARRAY.map((type) => {
-              return <Radio value={type.value}>{type.title}</Radio>;
-            })}
+            <Radio value="employee">Nhân viên YODY</Radio>
+            <Radio value="external_shipper">Đối tác khác</Radio>
           </Radio.Group>
         </Row>
         <Row gutter={20}>
           <Col md={12}>
             <Form.Item
-              label={DELIVERY_TYPES_ARRAY.find((type) => type.value === typeDelivery)?.title || ""}
+              label={typeDelivery === "employee" ? "Nhân viên Yody" : "Đối tác khác"}
               name="shipper_code"
               rules={
                 // khi lưu nháp không validate
@@ -198,7 +181,7 @@ function ShipmentMethodSelfDelivery(props: PropTypes) {
                   : undefined
               }
             >
-              {typeDelivery === DELIVERY_TYPES.employee.value ? (
+              {typeDelivery === "employee" ? (
                 <AccountCustomSearchSelect
                   placeholder="Tìm theo họ tên hoặc mã nhân viên"
                   initValue={initValueYodyCode}
@@ -222,7 +205,7 @@ function ShipmentMethodSelfDelivery(props: PropTypes) {
                   }}
                   disabled={levelOrder > 3}
                 >
-                  {externalShippers?.map((item: any, index: number) => (
+                  {listExternalShippers?.map((item: any, index: number) => (
                     <CustomSelect.Option
                       style={{ width: "100%" }}
                       key={index.toString()}
@@ -235,9 +218,9 @@ function ShipmentMethodSelfDelivery(props: PropTypes) {
               )}
             </Form.Item>
 
+            {/* {paymentMethod === PaymentMethodOption.COD && ( */}
             <Form.Item label="Tiền thu hộ">
               <NumberInput
-                className="numberInput"
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
@@ -246,19 +229,29 @@ function ShipmentMethodSelfDelivery(props: PropTypes) {
                     ? totalAmountCustomerNeedToPay
                     : 0
                 }
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  color: "#222222",
+                }}
                 maxLength={999999999999}
                 minLength={0}
                 disabled
               />
             </Form.Item>
+            {/* )} */}
           </Col>
           <Col md={12}>
             <Form.Item name="shipping_fee_paid_to_three_pls" label="Phí ship trả đối tác giao hàng">
               <NumberInput
-                className="numberInput"
                 format={(a: string) => formatCurrency(a)}
                 replace={(a: string) => replaceFormatString(a)}
                 placeholder="0"
+                style={{
+                  textAlign: "right",
+                  width: "100%",
+                  color: "#222222",
+                }}
                 maxLength={15}
                 minLength={0}
                 disabled={levelOrder > 3}

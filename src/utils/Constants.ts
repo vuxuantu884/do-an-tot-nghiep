@@ -81,8 +81,8 @@ export const MoneyType = {
 
 export const PaymentMethodOption = {
   COD: 1,
-  PRE_PAYMENT: 2,
-  POST_PAYMENT: 3,
+  PREPAYMENT: 2,
+  POSTPAYMENT: 3,
 };
 
 export const ShipmentMethodOption = {

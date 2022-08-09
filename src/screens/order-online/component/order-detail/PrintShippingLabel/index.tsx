@@ -1,6 +1,7 @@
 import { Button } from "antd";
 import { actionFetchPrintFormByOrderIds } from "domain/actions/printer/printer.action";
 import purify from "dompurify";
+import { OrderSettingsModel } from "model/other/order/order-model";
 import { FulFillmentResponse } from "model/response/order/order.response";
 import React, { useEffect, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -12,6 +13,7 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {
   fulfillment: FulFillmentResponse | null | undefined;
+  orderSettings?: OrderSettingsModel;
   orderId?: number;
   onPrint?: () => void;
 };

@@ -9,24 +9,4 @@ export const StyledComponent = styled.div`
       border-bottom: 1px solid ${borderColor};
     }
   }
-  .singleHistoryOrder {
-    &__date {
-      a {
-        font-weight: bold;
-      }
-    }
-    &__status {
-      text-align: right;
-    }
-    &__mainStatus {
-      .unit {
-        color: #808080;
-        margin-left: 2px;
-        font-weight: normal;
-      }
-    }
-  }
-  .nowrap {
-    white-space: nowrap;
-  }
 `;

@@ -7,7 +7,7 @@ import { convertActionLogDetailToText } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 import purify from "dompurify";
 
-type PropTypes = {
+type PropType = {
   isModalVisible: boolean;
   actionId?: number;
   onCancel: () => void;
@@ -21,7 +21,7 @@ type SingleLogType = {
   current: any;
 };
 
-function ActionHistoryModal(props: PropTypes) {
+function ActionHistoryModal(props: PropType) {
   const dateFormat = "HH:mm DD/MM/YYYY";
 
   const dispatch = useDispatch();

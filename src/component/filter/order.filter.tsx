@@ -27,7 +27,7 @@ import { AccountResponse, DeliverPartnerResponse } from "model/account/account.m
 import { StoreResponse } from "model/core/store.model";
 import { OrderSearchQuery, OrderTypeModel } from "model/order/order.model";
 import { FilterConfig } from "model/other";
-import { VariantResponse } from "model/product/product.model";
+import { VariantResponse, VariantSearchQuery } from "model/product/product.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderProcessingStatusModel } from "model/response/order-processing-status.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";

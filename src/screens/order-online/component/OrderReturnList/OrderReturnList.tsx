@@ -45,7 +45,7 @@ import { dangerColor, primaryColor } from "utils/global-styles/variables";
 import { ORDER_PAYMENT_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import IconPaymentPoint from "../../component/OrderList/ListTable/OrderTable/images/paymentPoint.svg";
+import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
 import { StyledComponent } from "./OrderReturnList.styles";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
 // import search from "assets/img/search.svg";

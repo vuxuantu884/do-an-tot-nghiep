@@ -11,9 +11,4 @@ export const StyledComponent = styled.div`
     color: rgb(226, 67, 67);
     display: block;
   }
-  .rowDetail {
-    &__value {
-      font-weight: 500;
-    }
-  }
 `;

@@ -5,7 +5,7 @@ import React, { createRef, useEffect, useState } from "react";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { showError } from "utils/ToastUtils";
 
-type PropTypes = {
+type PropType = {
   visible: boolean;
   onCancelDiscountModal: (e: React.MouseEvent<HTMLElement>) => void;
   onOkDiscountModal: (type: string, value: number, rate: number, coupon: string) => void;
@@ -15,13 +15,12 @@ type PropTypes = {
   amount: number;
 };
 
-function PickDiscountModal(props: PropTypes) {
+function PickDiscountModal(props: PropType) {
   const { visible, onCancelDiscountModal, onOkDiscountModal, type, value, rate, amount } = props;
   const [_type, setType] = useState<string>(type);
   const [_value, setValue] = useState<number>(value);
   const [_rate, setRate] = useState<number>(rate);
   const formRef = createRef<FormInstance>();
-
   const onSubmit = () => {
     if (_type === "money" && _value > amount) {
       showError("Chiết khấu không lớn hơn giá trị đơn hàng!");
@@ -71,11 +70,6 @@ function PickDiscountModal(props: PropTypes) {
       }
     }
   }, [_rate, _type, _value, amount]);
-
-  useEffect(() => {
-    setValue(value);
-    setRate(rate);
-  }, [rate, value]);
 
   useEffect(() => {
     if (visible) {

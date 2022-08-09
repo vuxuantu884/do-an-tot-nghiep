@@ -9,7 +9,7 @@ import ReturnMoneySelect from "../ReturnMoneySelect";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
-  paymentMethods: Array<PaymentMethodResponse>;
+  listPaymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   totalAmountReturnToCustomerLeft: number | undefined;
   handleReturnMoney: () => void;
@@ -25,7 +25,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
   const {
     payments,
     totalAmountReturnToCustomerLeft = 0,
-    paymentMethods,
+    listPaymentMethods,
     handleReturnMoney,
     setIsShowPaymentMethod,
     returnPaymentMethodCode,
@@ -123,7 +123,7 @@ function CardReturnMoneyPageDetail(props: PropTypes) {
         {renderPayments()}
         {returnPaymentStatus !== ORDER_PAYMENT_STATUS.paid && (
           <ReturnMoneySelect
-            paymentMethods={paymentMethods}
+            listPaymentMethods={listPaymentMethods}
             totalAmountCustomerNeedToPay={-totalAmountReturnToCustomerLeft}
             handleReturnMoney={() => {
               handleReturnMoney();

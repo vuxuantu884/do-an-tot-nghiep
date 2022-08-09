@@ -26,13 +26,13 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (props: StoreReturnMod
   const [data, setData] = useState<StoreModel[]>([]);
   const [selectStore, setSelectStore] = useState<StoreResponse | null>(null);
 
-  const returnStores = createOrderReturnContext?.returnStores;
-  //const setReturnStore= createOrderReturnContext?.return.setReturnStore;
+  const listStoreReturn = createOrderReturnContext?.listStoreReturn;
+  //const setStoreReturn= createOrderReturnContext?.return.setStoreReturn;
 
   useEffect(() => {
-    if (returnStores) {
+    if (listStoreReturn) {
       let result: StoreModel[] = [];
-      returnStores.forEach(function (item, index) {
+      listStoreReturn.forEach(function (item, index) {
         result.push({
           key: index,
           store_id: item.id,
@@ -41,7 +41,7 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (props: StoreReturnMod
       });
       setData(result);
     }
-  }, [returnStores]);
+  }, [listStoreReturn]);
 
   const columns = [
     {
@@ -60,7 +60,7 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (props: StoreReturnMod
 
   const rowSelection = {
     onChange: (selectedRowKeys: React.Key[], selectedRows: any) => {
-      let _item: StoreResponse | null | undefined = returnStores?.find(
+      let _item: StoreResponse | null | undefined = listStoreReturn?.find(
         (x) => x.id === selectedRows[0].store_id,
       );
       if (_item) setSelectStore(_item);
@@ -68,9 +68,9 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (props: StoreReturnMod
   };
 
   const handleSearchStore = (value: any) => {
-    if (returnStores) {
+    if (listStoreReturn) {
       let query = value.trim();
-      let newData: StoreResponse[] = returnStores.filter(function (el) {
+      let newData: StoreResponse[] = listStoreReturn.filter(function (el) {
         return fullTextSearch(query, el.name);
       });
 
@@ -92,7 +92,7 @@ const StoreReturnModel: React.FC<StoreReturnModelProps> = (props: StoreReturnMod
         title="Chọn kho cần trả hàng"
         visible={isModalVisible}
         onOk={() => {
-          createOrderReturnContext?.return.setReturnStore(selectStore);
+          createOrderReturnContext?.return.setStoreReturn(selectStore);
           setModalVisible(false);
         }}
         onCancel={handleCancel}

@@ -4,7 +4,7 @@ import { OrderReasonModel } from "model/response/order/order.response";
 import React, { useCallback } from "react";
 import { StyledComponent } from "./styles";
 
-type PropTypes = {
+type PropType = {
   orderReturnReasonResponse: OrderReasonModel | null;
   form: FormInstance<any>;
 };
@@ -13,7 +13,7 @@ type PropTypes = {
  * input: list reason;
  * output: none
  */
-function OrderReturnReason(props: PropTypes): React.ReactElement {
+function OrderReturnReason(props: PropType): React.ReactElement {
   // const OTHER_REASON_ID = 1;
   // const {orderReturnReasonResponse, form} = props;
   const { orderReturnReasonResponse } = props;

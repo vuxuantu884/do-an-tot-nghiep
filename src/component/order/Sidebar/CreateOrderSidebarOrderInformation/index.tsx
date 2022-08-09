@@ -91,15 +91,16 @@ function CreateOrderSidebarOrderInformation(props: PropType): JSX.Element {
           })}
         </div>
       );
+    } else {
+      return (
+        <div>
+          <label>Đơn gốc tách đơn:{"   "}</label>
+          <Link target="_blank" to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}>
+            <strong>{orderDetail.linked_order_code}</strong>
+          </Link>
+        </div>
+      );
     }
-    return (
-      <div>
-        <label>Đơn gốc tách đơn:{"   "}</label>
-        <Link target="_blank" to={`${UrlConfig.ORDER}/${orderDetail.linked_order_code}`}>
-          <strong>{orderDetail.linked_order_code}</strong>
-        </Link>
-      </div>
-    );
   };
 
   useEffect(() => {}, [dispatch, form, storeAccountData]);
