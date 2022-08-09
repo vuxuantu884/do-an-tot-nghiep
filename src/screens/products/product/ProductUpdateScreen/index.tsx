@@ -64,7 +64,7 @@ import {
   Products,
   replaceFormatString,
   scrollAndFocusToDomElement,
-  toTitleCase,
+  capitalEachWords,
 } from "utils/AppUtils";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -289,7 +289,7 @@ const ProductDetailScreen: React.FC = () => {
   const onChangeProductName = useCallback(
     (e) => {
       let newName = e.target.value;
-      newName = toTitleCase(newName);
+      newName = capitalEachWords(newName);
       const newData: any = { ...data };
 
       if (!newData || !newData.variants || newData?.variants?.length === 0) return;
@@ -1360,7 +1360,7 @@ const ProductDetailScreen: React.FC = () => {
                                         name={[name, "name"]}
                                         rules={[{ required: true }]}
                                         label="Tên sản phẩm"
-                                        normalize={(value: string) => toTitleCase(value || "")}
+                                        normalize={(value: string) => capitalEachWords(value || "")}
                                       >
                                         <Input
                                           onChange={onChange}

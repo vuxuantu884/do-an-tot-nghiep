@@ -69,7 +69,7 @@ import {
   formatCurrencyForProduct,
   Products,
   replaceFormatString,
-  toTitleCase,
+  capitalEachWords,
 } from "utils/AppUtils";
 import { ArrDefects, DEFAULT_COMPANY, VietNamId } from "utils/Constants";
 import { handleChangeMaterial } from "utils/ProductUtils";
@@ -242,7 +242,7 @@ const ProductCreateScreen: React.FC = () => {
       if (category && category.child_ids === null) {
         form.setFieldsValue({
           code: category.code ?? "",
-          name: toTitleCase(category.name),
+          name: capitalEachWords(category.name),
         });
       } else {
         showWarning("Vui lòng chọn danh mục con");
@@ -258,7 +258,7 @@ const ProductCreateScreen: React.FC = () => {
     (colors: Array<ColorResponse>, sizes: Array<SizeResponse>) => {
       let code = form.getFieldValue("code");
       let name = form.getFieldValue("name");
-      name = toTitleCase(name);
+      name = capitalEachWords(name);
       form.setFieldsValue({
         name: name,
       });

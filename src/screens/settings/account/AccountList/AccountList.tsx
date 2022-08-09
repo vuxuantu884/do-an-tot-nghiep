@@ -38,6 +38,7 @@ import { showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { SearchContainer } from "../account.search.style";
 import ImportExcel from "../components/me-contact/ImportExcel";
+import FullNameAccount from "./FullNameAccount";
 import { convertDataApiToDataSrcTable } from "./helper";
 import TagList from "./TagList";
 
@@ -201,13 +202,14 @@ const ListAccountScreen: React.FC = () => {
       visible: true,
       width: 250,
       render: (value: string) => {
-        return <span className="text-truncate-1">{value}</span>;
+        return <FullNameAccount name={value} />;
       },
     },
     {
       title: "Số điện thoại",
       dataIndex: "phone",
       visible: true,
+      width: 150,
     },
 
     {

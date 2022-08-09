@@ -71,7 +71,8 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
       to_date: undefined,
       position_ids: undefined,
       mobile: undefined,
-      status: undefined,
+      role_ids: undefined,
+      store_ids: undefined,
     });
     onClearFilter?.();
   };
@@ -185,6 +186,8 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
                       allowClear
                       showSearch
                       filterOption={(input, option) => fullTextSearch(input, option?.children)}
+                      maxTagCount="responsive"
+                      mode="multiple"
                     >
                       {listPosition?.map((item) => (
                         <Select.Option key={item.id} value={item.id.toString()}>
@@ -219,6 +222,7 @@ const AccountFilter: React.FC<AccountFilterProps> = (props: AccountFilterProps) 
                       allowClear
                       showSearch
                       showArrow
+                      maxTagCount={"responsive"}
                     >
                       {roleList.items.map((item) => (
                         <Select.Option key={item.id} value={item.id.toString()}>
