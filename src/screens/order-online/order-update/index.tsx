@@ -72,7 +72,6 @@ import {
   getTotalAmountAfterDiscount,
   handleFetchApiError,
   isFetchApiSuccessful,
-  reCalculatePaymentReturn,
   replaceFormatString,
   sortFulfillments,
   totalAmount,
@@ -156,7 +155,6 @@ export default function Order(props: PropTypes) {
   const [tags, setTag] = useState<string>("");
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
-  const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
 
   const deliveryServices = useFetchDeliverServices();
 
@@ -641,7 +639,8 @@ export default function Order(props: PropTypes) {
           valuesCalculateReturnAmount,
           isFinalized ? updateAndConfirmOrderCallback : updateOrderCallback,
           () => {
-            isFinalized ? setUpdatingConfirm(false) : setUpdating(false);
+            setUpdating(false);
+            setUpdatingConfirm(false);
             dispatch(hideLoading());
           },
         ),
@@ -730,11 +729,7 @@ export default function Order(props: PropTypes) {
       } else {
         let valuesCalculateReturnAmount = {
           ...values,
-          payments: reCalculatePaymentReturn(
-            payments,
-            totalAmountCustomerNeedToPay,
-            paymentMethods,
-          ).filter((payment) => payment.amount !== 0 || payment.paid_amount !== 0),
+          payments: payments.filter((payment) => payment.amount !== 0 || payment.paid_amount !== 0),
         };
         if (shipmentMethod === ShipmentMethodOption.SELF_DELIVER) {
           if (values.delivery_service_provider_id === null) {
@@ -761,13 +756,7 @@ export default function Order(props: PropTypes) {
       }
     }
   };
-  const scroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      setIsShowBillStep(true);
-    } else {
-      setIsShowBillStep(false);
-    }
-  }, []);
+
   const [isDisablePostPayment, setIsDisablePostPayment] = useState(false);
 
   const onSelectShipment = (value: number) => {
@@ -785,10 +774,7 @@ export default function Order(props: PropTypes) {
   /**
    * tổng số tiền đã trả
    */
-  const totalAmountPayment =
-    OrderDetail?.payments && OrderDetail?.payments?.length > 0
-      ? getAmountPayment(OrderDetail.payments)
-      : 0;
+  const totalAmountPayment = getAmountPayment(payments);
 
   /**
    * tổng giá trị đơn hàng = giá đơn hàng + phí ship - giảm giá
@@ -1332,14 +1318,6 @@ export default function Order(props: PropTypes) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
 
-  //windows offset
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
-
   useEffect(() => {
     formRef.current?.resetFields();
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1629,6 +1607,7 @@ export default function Order(props: PropTypes) {
                       setPayments={(payments) => {
                         setPayments([...(OrderDetail?.payments || []), ...payments]);
                       }}
+                      isPageOrderUpdate
                     />
                   )}
                   <Card
@@ -1764,6 +1743,7 @@ export default function Order(props: PropTypes) {
                         isCancelValidateDelivery={false}
                         totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                         setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                         onSelectShipment={onSelectShipment}
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}
@@ -1803,7 +1783,6 @@ export default function Order(props: PropTypes) {
                 showSaveAndConfirmModal={() => {}}
                 updating={updating}
                 updatingConfirm={updatingConfirm}
-                isShow={!isShowBillStep}
                 deleteOrderClick={handleDeleteOrderClick}
               />
             </Form>

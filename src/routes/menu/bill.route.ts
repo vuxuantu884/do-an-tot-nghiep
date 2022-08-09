@@ -59,7 +59,7 @@ const bill: Array<RouteMenu> = [
     title: "Danh sách đơn hàng",
     icon: "icon-dot",
     component: ListOrder,
-    key: "danh-sach-don-hang-online",
+    key: "danh-sach-don-hang-online2",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.READ],

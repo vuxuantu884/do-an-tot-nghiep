@@ -187,6 +187,7 @@ function* orderUpdateSaga(action: YodyAction) {
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
     } else {
+      onError();
       yield put(fetchApiErrorAction(response, "Cập nhật đơn hàng"));
     }
   } catch (error) {

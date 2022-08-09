@@ -1849,6 +1849,7 @@ const ScreenReturnCreate = (props: PropTypes) => {
                       isCancelValidateDelivery={false}
                       totalAmountCustomerNeedToPay={totalOrderAmountAfterPayments}
                       setShippingFeeInformedToCustomer={ChangeShippingFeeInformedToCustomer}
+                      shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                       onSelectShipment={onSelectShipment}
                       thirdPL={thirdPL}
                       setThirdPL={setThirdPL}
