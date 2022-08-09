@@ -28,6 +28,7 @@ import { AppConfig } from "config/app.config";
 import { Type } from "config/type.config";
 import UrlConfig from "config/url.config";
 import { StoreSearchListAction } from "domain/actions/core/store.action";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 import {
   changeIsLoadingDiscountAction,
   changeOrderLineItemsAction,
@@ -302,6 +303,7 @@ function OrderCreateProduct(props: PropTypes) {
   const isShouldUpdateCouponRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
   const isShouldUpdateDiscountRef = useRef(orderDetail || props.isPageOrderUpdate ? false : true);
   // console.log('isShouldUpdateCouponRef', isShouldUpdateCouponRef)
+  console.log("promotion", promotion);
   const discountRate = promotion?.rate || 0;
   const discountValue = promotion?.value || 0;
 
@@ -1019,11 +1021,7 @@ function OrderCreateProduct(props: PropTypes) {
    * nếu có chiết khấu tay thì ko apply chiết khấu tự động ở line item nữa
    */
   const checkIfReplaceDiscountLineItem = (item: OrderLineItemRequest, newDiscountValue: number) => {
-    if (
-      item.discount_items[0] &&
-      item.discount_items[0].amount > 0 &&
-      !item.discount_items[0].promotion_id
-    ) {
+    if (item.discount_items[0] && !item.discount_items[0].promotion_id) {
       return false;
     }
     if (newDiscountValue >= 0) {
@@ -1417,7 +1415,7 @@ function OrderCreateProduct(props: PropTypes) {
         taxes_included: true,
         tax_exempt: false,
       };
-      // dispatch(showLoading());
+      dispatch(showLoading());
       setIsLoadingDiscount(true);
       dispatch(changeIsLoadingDiscountAction(true));
       await applyDiscountService(params)
@@ -1585,7 +1583,7 @@ function OrderCreateProduct(props: PropTypes) {
         .finally(() => {
           setIsLoadingDiscount(false);
           dispatch(changeIsLoadingDiscountAction(false));
-          // dispatch(hideLoading());
+          dispatch(hideLoading());
         });
       setIsVisiblePickCoupon(false);
     }

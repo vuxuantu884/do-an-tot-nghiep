@@ -51,6 +51,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
+  FulFillmentResponse,
   OrderLineItemResponse,
   OrderPaymentResponse,
   OrderResponse,
@@ -937,7 +938,10 @@ export default function Order() {
       }
     };
 
-    const handleResponseShipmentMethod = (response: OrderResponse) => {
+    const handleResponseShipmentMethod = (
+      response: OrderResponse,
+      sortedFulfillments: FulFillmentResponse[],
+    ) => {
       if (
         response.payments?.some((payment) => {
           return payment.paid_amount > 0 && checkIfMomoPayment(payment);
@@ -947,8 +951,6 @@ export default function Order() {
       } else {
         let newShipmentMethod = ShipmentMethodOption.DELIVER_LATER;
         if (response.fulfillments) {
-          const sortedFulfillments = sortFulfillments(response.fulfillments);
-
           const handleShipmentMethod = {
             [ShipmentMethod.EMPLOYEE]: () => {
               newShipmentMethod = ShipmentMethodOption.SELF_DELIVER;
@@ -1044,13 +1046,13 @@ export default function Order() {
         let newShipperCode = initialForm.shipper_code;
         let new_payments = initialForm.payments;
 
-        if (response.fulfillments && response.fulfillments[0]) {
-          if (response?.fulfillments[0]?.shipment) {
-            if (response.fulfillments[0]?.shipment?.expected_received_date) {
-              newDatingShip = moment(response.fulfillments[0]?.shipment?.expected_received_date);
-            }
-            newShipperCode = response.fulfillments[0]?.shipment?.shipper_code;
+        const sortedFulfillments = sortFulfillments(response.fulfillments);
+
+        if (sortedFulfillments[0]?.shipment) {
+          if (sortedFulfillments[0]?.shipment?.expected_received_date) {
+            newDatingShip = moment(sortedFulfillments[0]?.shipment?.expected_received_date);
           }
+          newShipperCode = sortedFulfillments[0]?.shipment?.shipper_code;
         }
 
         handleResponsePayments(response, new_payments);
@@ -1087,17 +1089,10 @@ export default function Order() {
         form.resetFields();
         // load lại form sau khi set initialValue
         setIsLoadForm(true);
-        if (
-          response.fulfillments &&
-          response.fulfillments.length > 0 &&
-          response.fulfillments[0].shipment?.cod
-        ) {
-          setPaymentMethod(PaymentMethodOption.COD);
-        }
 
         setOrderProductsAmount(response.total_line_amount_after_line_discount);
 
-        handleResponseShipmentMethod(response);
+        handleResponseShipmentMethod(response, sortedFulfillments);
 
         if (response.export_bill) {
           dispatch(setIsExportBillAction(true));

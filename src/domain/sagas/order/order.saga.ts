@@ -434,16 +434,18 @@ function* getTRackingLogErrorSaga(action: YodyAction) {
 }
 
 function* ListDeliveryServicesSaga(action: YodyAction) {
-  let { setData } = action.payload;
+  let { setData, setError } = action.payload;
   try {
     let response: BaseResponse<Array<DeliveryServiceResponse>> = yield call(getDeliverieServices);
     if (isFetchApiSuccessful(response)) {
       setData(response.data);
     } else {
+      setError();
       yield put(fetchApiErrorAction(response, "Danh sách phương thức giao hàng"));
     }
   } catch (error) {
     showError("Có lỗi khi lấy dữ liệu danh sách phương thức giao hàng! Vui lòng thử lại sau!");
+    setError();
   }
 }
 

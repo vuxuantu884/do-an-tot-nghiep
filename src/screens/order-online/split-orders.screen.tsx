@@ -3,7 +3,7 @@ import { OrderSearchQuery } from "model/order/order.model";
 import React from "react";
 import { withRouter } from "react-router-dom";
 import { ORDER_TYPES } from "utils/Order.constants";
-import OrderList from "./component/OrderList/OrderList";
+import OrderList from "./component/OrderList";
 
 type PropTypes = {
   location: any;

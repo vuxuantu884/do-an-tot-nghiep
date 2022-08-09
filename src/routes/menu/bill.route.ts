@@ -18,7 +18,7 @@ const OrderDuplicate = React.lazy(
 );
 const ListOrder = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
-const Order = React.lazy(() => import("screens/order-online/order-create"));
+const OrderCreate = React.lazy(() => import("screens/order-online/order-create"));
 const OnlineReturnOrders = React.lazy(
   () => import("screens/order-online/online-return-orders.screen"),
 );
@@ -46,7 +46,7 @@ const bill: Array<RouteMenu> = [
     exact: true,
     title: "Tạo đơn Online",
     icon: "icon-dot",
-    component: Order,
+    component: OrderCreate,
     key: "submenu52",
     isShow: true,
     header: null,

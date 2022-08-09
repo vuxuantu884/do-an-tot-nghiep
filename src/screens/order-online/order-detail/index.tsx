@@ -1,5 +1,5 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons";
-import { Alert, Col, Form, Modal, Row } from "antd";
+import { Col, Form, Modal, Row } from "antd";
 import ContentContainer from "component/container/content.container";
 import CreateBillStep from "component/header/create-bill-step";
 import SubStatusOrder from "component/main-sidebar/sub-status-order";
@@ -53,11 +53,12 @@ import {
   OrderConfigResponseModel,
   ShippingServiceConfigDetailResponseModel,
 } from "model/response/settings/order-settings.response";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { ECOMMERCE_CHANNEL } from "screens/ecommerce/common/commonAction";
 import CannotUpdateOrderWithWalletWarningInformation from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
+import CardShowReturnProducts from "screens/order-online/order-return/components/CardShowReturnProducts";
 import { searchHandoverService } from "service/handover/handover.service";
 import {
   deleteOrderService,
@@ -92,21 +93,21 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import {
   changeEcommerceOrderStatus,
   getEcommerceStoreAddress,
-} from "../../domain/actions/ecommerce/ecommerce.actions";
+} from "../../../domain/actions/ecommerce/ecommerce.actions";
 import {
   EcommerceAddressQuery,
   EcommerceStoreAddress,
-} from "../../model/ecommerce/ecommerce.model";
-import LogisticConfirmModal from "../ecommerce/orders/component/LogisticConfirmModal";
-import OrderDetailBottomBar from "./component/order-detail/BottomBar";
-import CardReturnMoney from "./component/order-detail/CardReturnMoney";
-import CardShowOrderPayments from "./component/order-detail/CardShowOrderPayments";
-import UpdateCustomerCard from "./component/update-customer-card";
-import UpdateProductCard from "./component/update-product-card";
-import UpdateShipmentCard from "./component/UpdateShipmentCard";
-import CancelOrderModal from "./modal/cancel-order.modal";
-import CardReturnReceiveProducts from "./order-return/components/CardReturnReceiveProducts";
-import CardShowReturnProducts from "./order-return/components/CardShowReturnProducts";
+} from "../../../model/ecommerce/ecommerce.model";
+import LogisticConfirmModal from "../../ecommerce/orders/component/LogisticConfirmModal";
+import OrderDetailBottomBar from "../component/order-detail/BottomBar";
+import UpdateProductCard from "../component/order-detail/CardProduct";
+import CardReturnMoney from "../component/order-detail/CardReturnMoney";
+import CardShowOrderPayments from "../component/order-detail/CardShowOrderPayments";
+import UpdateCustomerCard from "../component/update-customer-card";
+import UpdateShipmentCard from "../component/UpdateShipmentCard";
+import CancelOrderModal from "../modal/cancel-order.modal";
+import CardReturnReceiveProducts from "../order-return/components/CardReturnReceiveProducts";
+import { StyledComponent } from "./styles";
 
 type PropTypes = {
   id?: string;
@@ -610,7 +611,7 @@ const OrderDetail = (props: PropTypes) => {
       return;
     }
 
-    const deleteOrderComfirm = () => {
+    const deleteOrderConfirm = () => {
       let ids: number[] = [OrderDetail.id];
 
       dispatch(showLoading());
@@ -640,23 +641,23 @@ const OrderDetail = (props: PropTypes) => {
       title: "Xác nhận xóa",
       icon: <ExclamationCircleOutlined />,
       content: (
-        <React.Fragment>
+        <StyledComponent>
           <div className="yody-modal-confirm-list-code">
             Bạn có chắc chắn xóa:
             <div className="yody-modal-confirm-item-code">
               <p>{OrderDetail?.code}</p>
             </div>
           </div>
-          <p style={{ textAlign: "justify", color: "#ff4d4f" }}>
+          <p className="deleteOrderConfirm__note">
             Lưu ý: Đối với đơn ở trạng thái Thành công, khi thực hiện xoá, sẽ xoá luôn cả đơn trả
             liên quan. Bạn cần cân nhắc kĩ trước khi thực hiện xoá đơn ở trạng thái Thành công
           </p>
-        </React.Fragment>
+        </StyledComponent>
       ),
       okText: "Xóa",
       cancelText: "Hủy",
       okType: "danger",
-      onOk: deleteOrderComfirm,
+      onOk: deleteOrderConfirm,
     });
   }, [OrderDetail, dispatch, history]);
 
@@ -874,9 +875,7 @@ const OrderDetail = (props: PropTypes) => {
       : 0;
 
   // khách cần trả nguyên giá
-  const totalOrder = useMemo(() => {
-    return OrderDetailAllFulfillment?.total || 0;
-  }, [OrderDetailAllFulfillment?.total]);
+  const totalOrder = OrderDetailAllFulfillment?.total || 0;
 
   // số tiền khách cần trả
   const customerNeedToPayValue = totalOrder - totalPaid;
@@ -1003,237 +1002,203 @@ const OrderDetail = (props: PropTypes) => {
   }, [OrderDetail?.code, dispatch]);
 
   return (
-    <ContentContainer
-      isLoading={loadingData}
-      isError={isError}
-      title={OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu..."}
-      breadcrumb={
-        OrderDetail
-          ? [
-              {
-                name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
-                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-              },
-              {
-                name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
-                path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
-              },
-              {
-                name: OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
-              },
-            ]
-          : undefined
-      }
-      extra={
-        isOrderFromPOS(OrderDetail) ? undefined : (
-          <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
-        )
-      }
-    >
-      <div className="orders">
-        <Form layout="vertical" initialValues={initialFormValue} form={form}>
-          <Row gutter={24} style={{ marginBottom: "70px" }}>
-            <Col md={18}>
-              {/*--- customer ---*/}
-              <UpdateCustomerCard
-                OrderDetail={OrderDetail}
-                customerDetail={customerDetail}
-                loyaltyPoint={loyaltyPoint}
-                loyaltyUsageRules={loyaltyUsageRules}
-              />
-              {/*--- end customer ---*/}
-
-              {/* chi tiết đơn trả có điểm thì cần call api tính điểm hoàn, chi tiết đơn đổi thì ko cần */}
-              {OrderDetail?.order_return_origin?.items && (
-                <CardShowReturnProducts
-                  listReturnProducts={OrderDetail?.order_return_origin?.items}
-                  pointUsing={OrderDetail.order_return_origin.point_refund}
-                  totalAmountReturnToCustomer={OrderDetail?.order_return_origin.money_amount}
+    <StyledComponent>
+      <ContentContainer
+        isLoading={loadingData}
+        isError={isError}
+        title={OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu..."}
+        breadcrumb={
+          OrderDetail
+            ? [
+                {
+                  name: isOrderFromPOS(OrderDetail) ? `Đơn hàng offline` : `Đơn hàng online`,
+                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+                },
+                {
+                  name: `Danh sách đơn hàng ${isOrderFromPOS(OrderDetail) ? "offline" : "online"}`,
+                  path: isOrderFromPOS(OrderDetail) ? UrlConfig.OFFLINE_ORDERS : UrlConfig.ORDER,
+                },
+                {
+                  name: OrderDetail?.code ? `Đơn hàng ${OrderDetail?.code}` : "Đang tải dữ liệu...",
+                },
+              ]
+            : undefined
+        }
+        extra={
+          isOrderFromPOS(OrderDetail) ? undefined : (
+            <CreateBillStep orderDetail={OrderDetailAllFulfillment} status={stepsStatusValue} />
+          )
+        }
+      >
+        <div className="orders">
+          <Form layout="vertical" initialValues={initialFormValue} form={form}>
+            <Row gutter={24} className="mainSection">
+              <Col md={18}>
+                {/*--- customer ---*/}
+                <UpdateCustomerCard
                   OrderDetail={OrderDetail}
+                  customerDetail={customerDetail}
+                  loyaltyPoint={loyaltyPoint}
+                  loyaltyUsageRules={loyaltyUsageRules}
                 />
-              )}
+                {/*--- end customer ---*/}
 
-              {/*--- product ---*/}
-              <UpdateProductCard
-                OrderDetail={OrderDetail}
-                shippingFeeInformedCustomer={shippingFeeInformedCustomer}
-                totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_amount}
-                paymentMethods={paymentMethods}
-              />
-              {/*--- end product ---*/}
-
-              {/* ko hiển thị hoàn tiền ở chi tiết đơn đổi */}
-              {OrderDetail?.order_return_origin?.payment_status &&
-                OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid &&
-                false && (
-                  <CardReturnMoney
-                    paymentMethods={paymentMethods}
-                    payments={[]}
-                    returnMoneyAmount={customerNeedToPayValue}
-                    isShowPaymentMethod={true}
-                    setIsShowPaymentMethod={() => {}}
-                    handleReturnMoney={handleReturnMoney}
-                    returnPaymentMethodCode={returnPaymentMethodCode}
-                    setReturnPaymentMethodCode={setReturnPaymentMethodCode}
-                    canCreateMoneyRefund={canCreateMoneyRefund}
+                {OrderDetail?.order_return_origin?.items && (
+                  <CardShowReturnProducts
+                    listReturnProducts={OrderDetail?.order_return_origin?.items}
+                    pointUsing={OrderDetail.order_return_origin.point_refund}
+                    totalAmountReturnToCustomer={OrderDetail?.order_return_origin.money_amount}
+                    OrderDetail={OrderDetail}
                   />
                 )}
 
-              <CardShowOrderPayments
-                OrderDetail={OrderDetailAllFulfillment}
-                setOrderDetail={setOrderDetailAllFulfillment}
-                disabledActions={disabledActions}
-                disabledBottomActions={disabledBottomActions}
-                form={form}
-                isDisablePostPayment={isDisablePostPayment}
-                isShowPaymentPartialPayment={isShowPaymentPartialPayment}
-                isVisibleUpdatePayment={isVisibleUpdatePayment}
-                onPaymentSelect={onPaymentSelect}
-                paymentMethod={paymentMethod}
-                paymentMethods={paymentMethods}
-                setReload={setReload}
-                setShowPaymentPartialPayment={setShowPaymentPartialPayment}
-                setVisibleUpdatePayment={setVisibleUpdatePayment}
-                shipmentMethod={shipmentMethod}
-                stepsStatusValue={stepsStatusValue}
-                createPaymentCallback={createPaymentCallback}
-                totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                setPayments={() => {}} //chú ý phải set
-              />
-
-              {/*--- shipment ---*/}
-              <UpdateShipmentCard
-                shippingFeeInformedCustomer={shippingFeeInformedCustomer}
-                setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
-                setVisibleUpdatePayment={setVisibleUpdatePayment}
-                setShipmentMethod={onSelectShipment}
-                setOfficeTime={setOfficeTime}
-                setVisibleShipping={setVisibleShipping}
-                OrderDetail={OrderDetail}
-                customerDetail={customerDetail}
-                storeDetail={storeDetail}
-                stepsStatusValue={stepsStatusValue}
-                totalPaid={totalPaid}
-                customerNeedToPayValue={customerNeedToPayValue}
-                officeTime={officeTime}
-                shipmentMethod={shipmentMethod}
-                isVisibleShipping={isVisibleShipping}
-                OrderDetailAllFulfillment={OrderDetailAllFulfillment}
-                onReload={() => setReload(true)}
-                disabledActions={disabledActions}
-                disabledBottomActions={disabledBottomActions}
-                reasons={orderCancelFulfillmentReasonArr}
-                subReasons={orderCancelFulfillmentReasonResponse?.sub_reasons}
-                isEcommerceOrder={isEcommerceOrder.current}
-                shippingServiceConfig={shippingServiceConfig}
-                orderConfig={orderConfig}
-                ref={updateShipmentCardRef}
-                isPageOrderDetail
-              />
-              {/*--- end shipment ---*/}
-
-              {OrderDetail?.order_return_origin?.items && (
-                <CardReturnReceiveProducts
-                  handleReceivedReturnProducts={handleReceivedReturnProducts}
-                  isReceivedReturnProducts={isReceivedReturnProducts}
-                  isDetailPage
+                {/*--- product ---*/}
+                <UpdateProductCard
+                  OrderDetail={OrderDetail}
+                  shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                  totalAmountReturnProducts={OrderDetail?.order_return_origin?.money_amount}
+                  paymentMethods={paymentMethods}
                 />
-              )}
-              {OrderDetailAllFulfillment?.fulfillments?.some(
-                (p) =>
-                  (p.status === FulFillmentStatus.SHIPPING &&
-                    p.return_status === FulFillmentStatus.RETURNING) ||
-                  (p.status === FulFillmentStatus.CANCELLED &&
-                    p.return_status === FulFillmentStatus.RETURNED &&
-                    p.status_before_cancellation === FulFillmentStatus.SHIPPING),
-              ) && (
-                <Alert
-                  message={
-                    <React.Fragment>
-                      <div
-                        style={{
-                          lineHeight: "10px",
-                          fontWeight: "500",
-                          fontSize: "15px",
-                          padding: "10px 0",
-                        }}
-                      >
-                        <p>Lưu ý : Đối với đơn ở trạng thái đang hoàn</p>
-                        <ul style={{ lineHeight: "18px", marginBottom: 0 }}>
-                          <li>
-                            Nếu chọn nhận hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành Đã hoàn
-                            và cộng tồn đã hoàn cho các sản phẩm thuộc đơn hàng về kho
-                          </li>
-                          <li>
-                            Nếu chọn đã giao hàng: Hệ thống sẽ chuyển trạng thái đơn hàng thành công
-                          </li>
-                        </ul>
-                      </div>
-                    </React.Fragment>
-                  }
-                  type="warning"
-                  closable
+                {/*--- end product ---*/}
+
+                {/* ko hiển thị hoàn tiền ở chi tiết đơn đổi */}
+                {OrderDetail?.order_return_origin?.payment_status &&
+                  OrderDetail?.order_return_origin?.payment_status !== ORDER_PAYMENT_STATUS.paid &&
+                  false && (
+                    <CardReturnMoney
+                      paymentMethods={paymentMethods}
+                      payments={[]}
+                      returnMoneyAmount={customerNeedToPayValue}
+                      isShowPaymentMethod={true}
+                      setIsShowPaymentMethod={() => {}}
+                      handleReturnMoney={handleReturnMoney}
+                      returnPaymentMethodCode={returnPaymentMethodCode}
+                      setReturnPaymentMethodCode={setReturnPaymentMethodCode}
+                      canCreateMoneyRefund={canCreateMoneyRefund}
+                    />
+                  )}
+
+                <CardShowOrderPayments
+                  OrderDetail={OrderDetailAllFulfillment}
+                  setOrderDetail={setOrderDetailAllFulfillment}
+                  disabledActions={disabledActions}
+                  disabledBottomActions={disabledBottomActions}
+                  form={form}
+                  isDisablePostPayment={isDisablePostPayment}
+                  isShowPaymentPartialPayment={isShowPaymentPartialPayment}
+                  isVisibleUpdatePayment={isVisibleUpdatePayment}
+                  onPaymentSelect={onPaymentSelect}
+                  paymentMethod={paymentMethod}
+                  paymentMethods={paymentMethods}
+                  setReload={setReload}
+                  setShowPaymentPartialPayment={setShowPaymentPartialPayment}
+                  setVisibleUpdatePayment={setVisibleUpdatePayment}
+                  shipmentMethod={shipmentMethod}
+                  stepsStatusValue={stepsStatusValue}
+                  createPaymentCallback={createPaymentCallback}
+                  totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
+                  setPayments={() => {}} //chú ý phải set
                 />
-              )}
 
-              {checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment) && (
-                <CannotUpdateOrderWithWalletWarningInformation />
-              )}
-            </Col>
+                {/*--- shipment ---*/}
+                <UpdateShipmentCard
+                  shippingFeeInformedCustomer={shippingFeeInformedCustomer}
+                  setShippingFeeInformedCustomer={setShippingFeeInformedCustomer}
+                  setVisibleUpdatePayment={setVisibleUpdatePayment}
+                  setShipmentMethod={onSelectShipment}
+                  setOfficeTime={setOfficeTime}
+                  setVisibleShipping={setVisibleShipping}
+                  OrderDetail={OrderDetail}
+                  customerDetail={customerDetail}
+                  storeDetail={storeDetail}
+                  stepsStatusValue={stepsStatusValue}
+                  totalPaid={totalPaid}
+                  customerNeedToPayValue={customerNeedToPayValue}
+                  officeTime={officeTime}
+                  shipmentMethod={shipmentMethod}
+                  isVisibleShipping={isVisibleShipping}
+                  OrderDetailAllFulfillment={OrderDetailAllFulfillment}
+                  onReload={() => setReload(true)}
+                  disabledActions={disabledActions}
+                  disabledBottomActions={disabledBottomActions}
+                  reasons={orderCancelFulfillmentReasonArr}
+                  subReasons={orderCancelFulfillmentReasonResponse?.sub_reasons}
+                  isEcommerceOrder={isEcommerceOrder.current}
+                  shippingServiceConfig={shippingServiceConfig}
+                  orderConfig={orderConfig}
+                  ref={updateShipmentCardRef}
+                  isPageOrderDetail
+                />
+                {/*--- end shipment ---*/}
 
-            <Col md={6}>
-              {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
-              <SidebarOrderDetailInformation
-                OrderDetail={OrderDetail}
-                orderDetailHandover={orderDetailHandover}
-              />
-              <SubStatusOrder
-                setOrderDetail={handleStatusOrder}
-                subStatusCode={subStatusCode}
-                orderId={OrderDetail?.id}
-                handleUpdateSubStatus={handleUpdateSubStatus}
-                setReload={setReload}
-                OrderDetailAllFulfillment={OrderDetailAllFulfillment}
-              />
-              <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
-              <ActionHistory
-                orderId={OrderDetail?.id}
-                countChangeSubStatus={countChangeSubStatus}
-                reload={reload}
-              />
-              {customerDetail?.id && <SidebarOrderHistory customerId={customerDetail?.id} />}
-            </Col>
-          </Row>
-          <OrderDetailBottomBar
-            isVisibleGroupButtons={false}
-            isVisibleActionsButtons={true}
-            stepsStatusValue={stepsStatusValue}
-            orderActionsClick={orderActionsClick}
-            orderDetail={OrderDetailAllFulfillment}
-            onConfirmOrder={onConfirmOrder}
-            isShowConfirmOrderButton={isShowConfirmOrderButton}
-            disabledBottomActions={disabledBottomActions}
-            deleteOrderClick={handleDeleteOrderClick}
-          />
-        </Form>
-      </div>
-      <CancelOrderModal
-        visible={visibleCancelModal}
-        orderCode={OrderDetail?.code}
-        onCancel={() => setVisibleCancelModal(false)}
-        onOk={(reason_id: string, sub_reason_id: string, reason: string) =>
-          handleCancelOrder(reason_id, sub_reason_id, reason)
-        }
-        reasons={orderCancelFulfillmentReasonArr}
-      />
-      <LogisticConfirmModal
-        visible={visibleLogisticConfirmModal}
-        ecommerceStoreAddress={ecommerceStoreAddress}
-        onOk={handleConfirmToEcommerce}
-        onCancel={cancelPrepareGoodsModal}
-        OrderDetail={OrderDetail}
-      />
-    </ContentContainer>
+                {OrderDetail?.order_return_origin?.items && (
+                  <CardReturnReceiveProducts
+                    handleReceivedReturnProducts={handleReceivedReturnProducts}
+                    isReceivedReturnProducts={isReceivedReturnProducts}
+                    isDetailPage
+                  />
+                )}
+                {/*--- end product ---*/}
+
+                {checkIfOrderHasNotFinishPaymentMomo(OrderDetailAllFulfillment) && (
+                  <CannotUpdateOrderWithWalletWarningInformation />
+                )}
+              </Col>
+
+              <Col md={6}>
+                {showOrderDetailUtm && <SidebarOrderDetailUtm OrderDetail={OrderDetail} />}
+                <SidebarOrderDetailInformation
+                  OrderDetail={OrderDetail}
+                  orderDetailHandover={orderDetailHandover}
+                />
+                <SubStatusOrder
+                  setOrderDetail={handleStatusOrder}
+                  subStatusCode={subStatusCode}
+                  orderId={OrderDetail?.id}
+                  handleUpdateSubStatus={handleUpdateSubStatus}
+                  setReload={setReload}
+                  OrderDetailAllFulfillment={OrderDetailAllFulfillment}
+                />
+                <SidebarOrderDetailExtraInformation OrderDetail={OrderDetail} editNote={editNote} />
+                <ActionHistory
+                  orderId={OrderDetail?.id}
+                  countChangeSubStatus={countChangeSubStatus}
+                  reload={reload}
+                />
+                {customerDetail?.id && <SidebarOrderHistory customerId={customerDetail?.id} />}
+              </Col>
+            </Row>
+            <OrderDetailBottomBar
+              isVisibleGroupButtons={false}
+              isVisibleActionsButtons={true}
+              stepsStatusValue={stepsStatusValue}
+              orderActionsClick={orderActionsClick}
+              orderDetail={OrderDetailAllFulfillment}
+              onConfirmOrder={onConfirmOrder}
+              isShowConfirmOrderButton={isShowConfirmOrderButton}
+              disabledBottomActions={disabledBottomActions}
+              deleteOrderClick={handleDeleteOrderClick}
+            />
+          </Form>
+        </div>
+        <CancelOrderModal
+          visible={visibleCancelModal}
+          orderCode={OrderDetail?.code}
+          onCancel={() => setVisibleCancelModal(false)}
+          onOk={(reason_id: string, sub_reason_id: string, reason: string) =>
+            handleCancelOrder(reason_id, sub_reason_id, reason)
+          }
+          reasons={orderCancelFulfillmentReasonArr}
+        />
+        <LogisticConfirmModal
+          visible={visibleLogisticConfirmModal}
+          ecommerceStoreAddress={ecommerceStoreAddress}
+          onOk={handleConfirmToEcommerce}
+          onCancel={cancelPrepareGoodsModal}
+          OrderDetail={OrderDetail}
+        />
+      </ContentContainer>
+    </StyledComponent>
   );
 };
 

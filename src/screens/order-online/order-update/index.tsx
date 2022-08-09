@@ -24,7 +24,6 @@ import {
 import {
   changeOrderCustomerAction,
   changeSelectedStoreBankAccountAction,
-  DeliveryServicesGetList,
   getStoreBankAccountNumbersAction,
   OrderDetailAction,
   orderUpdateAction,
@@ -50,7 +49,7 @@ import { LoyaltyPoint } from "model/response/loyalty/loyalty-points.response";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { LoyaltyUsageResponse } from "model/response/loyalty/loyalty-usage.response";
 import {
-  DeliveryServiceResponse,
+  FulFillmentResponse,
   OrderResponse,
   StoreCustomResponse,
 } from "model/response/order/order.response";
@@ -60,6 +59,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import CannotUpdateOrderWithWalletWarningInformation from "screens/order-online/component/CannotUpdateOrderWithWalletWarningInformation";
 import OrderFulfillmentHeader from "screens/order-online/component/OrderPackingAndShippingDetail/OrderFulfillmentHeader";
+import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import useFetchOrderConfig from "screens/order-online/hooks/useFetchOrderConfig";
 import useFetchPaymentMethods from "screens/order-online/hooks/useFetchPaymentMethods";
 import useFetchShippingServiceConfig from "screens/order-online/hooks/useFetchShippingServiceConfig";
@@ -157,8 +157,9 @@ export default function Order(props: PropTypes) {
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
   const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
-  const [officeTime, setOfficeTime] = useState<boolean>(false);
-  const [deliveryServices, setDeliveryServices] = useState<DeliveryServiceResponse[]>([]);
+
+  const deliveryServices = useFetchDeliverServices();
+
   const userReducer = useSelector((state: RootReducerType) => state.userReducer);
 
   const [isShowPaymentPartialPayment, setShowPaymentPartialPayment] = useState(false);
@@ -212,6 +213,15 @@ export default function Order(props: PropTypes) {
   const [isDisableSelectSource, setIsDisableSelectSource] = useState(false);
 
   const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
+
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const sortedFulfillmentsIncludeHideFulfillment = OrderDetail?.fulfillments
+    ? OrderDetail?.fulfillments.sort((a, b) => b.id - a.id)
+    : [];
+
+  const activeSortedFulfillments = sortedFulfillments.filter(
+    (fulfillment) => !checkIfFulfillmentCancelled(fulfillment),
+  );
 
   const stepsStatusValue = useMemo(() => {
     switch (OrderDetail?.status) {
@@ -352,12 +362,19 @@ export default function Order(props: PropTypes) {
   // 	showSuccess("Đã copy mã vận đơn!")
   // };
   //Fulfillment Request
-  const createFulFillmentRequest = (value: OrderRequest) => {
+  const createFulFillmentRequest = (
+    fulfillments: FulFillmentResponse[] | null | undefined,
+    value: OrderRequest,
+  ) => {
+    if (!fulfillments) {
+      return null;
+    }
+    let result: FulFillmentRequest[] = [...fulfillments];
     let shipmentRequest = createShipmentRequest(value);
-    const sortedFulfillmentsIncludeHideFulfillment = OrderDetail?.fulfillments
-      ? OrderDetail?.fulfillments.sort((a, b) => b.id - a.id)
-      : [];
+    let hideFulFillment = fulfillments?.find((fulfillment) => !fulfillment.shipment);
+    const hideFulfillmentIndex = result.findIndex((single) => single.id === hideFulFillment?.id);
     let request: FulFillmentRequest = {
+      id: hideFulFillment?.id,
       store_id: value.store_id,
       account_code: OrderDetail?.account_code,
       assignee_code: value.assignee_code,
@@ -424,7 +441,8 @@ export default function Order(props: PropTypes) {
       request.shipment = null;
       listFulfillmentRequest.push(request);
     }
-    return listFulfillmentRequest;
+    result[hideFulfillmentIndex] = request;
+    return result;
   };
 
   const createShipmentRequest = (value: OrderRequest) => {
@@ -453,7 +471,7 @@ export default function Order(props: PropTypes) {
       note_to_shipper: "",
       requirements: value.requirements,
       sender_address: null,
-      office_time: officeTime,
+      office_time: form.getFieldValue("office_time"),
     };
 
     switch (shipmentMethod) {
@@ -524,24 +542,16 @@ export default function Order(props: PropTypes) {
   const [requirementNameView, setRequirementNameView] = useState<string | null>(null);
 
   const getRequirementName = useCallback(() => {
-    if (sortedFulfillments.length > 0) {
-      let requirement = sortedFulfillments[0].shipment?.requirements?.toString();
+    if (activeSortedFulfillments.length > 0) {
+      let requirement = activeSortedFulfillments[0].shipment?.requirements?.toString();
       const reqObj = shipping_requirements?.find((r) => r.value === requirement);
       setRequirementNameView(reqObj ? reqObj?.name : "");
     }
-  }, [sortedFulfillments, shipping_requirements]);
+  }, [activeSortedFulfillments, shipping_requirements]);
 
   useEffect(() => {
     getRequirementName();
   }, [getRequirementName]);
-
-  useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setDeliveryServices(response);
-      }),
-    );
-  }, [dispatch]);
 
   const createDiscountRequest = () => {
     if (!promotion || !promotion?.value) {
@@ -616,10 +626,15 @@ export default function Order(props: PropTypes) {
   };
 
   const handleUpdateOrder = (valuesCalculateReturnAmount: OrderRequest) => {
+    console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
+    // return;
     dispatch(showLoading());
     try {
-      // console.log("valuesCalculateReturnAmount", valuesCalculateReturnAmount);
-      // return;
+      if (!isFinalized) {
+        setUpdating(true);
+      } else {
+        setUpdatingConfirm(true);
+      }
       dispatch(
         orderUpdateAction(
           OrderDetail?.id || 0,
@@ -637,6 +652,8 @@ export default function Order(props: PropTypes) {
       // eslint-disable-next-line @typescript-eslint/no-unused-expressions
       () => {
         dispatch(hideLoading());
+        setUpdating(false);
+        setUpdatingConfirm(false);
       };
     }
   };
@@ -648,7 +665,7 @@ export default function Order(props: PropTypes) {
     values.coordinator_code = getAccountCodeFromCodeAndName(values.coordinator_code);
     const element2: any = document.getElementById("btn-save-order-update");
     element2.disable = true;
-    let lstFulFillment = createFulFillmentRequest(values);
+    let lstFulFillment = createFulFillmentRequest(OrderDetail.fulfillments, values);
     let lstDiscount = createDiscountRequest();
     let total_line_amount_after_line_discount = getTotalAmountAfterDiscount(items);
 
@@ -723,11 +740,6 @@ export default function Order(props: PropTypes) {
           if (values.delivery_service_provider_id === null) {
             showError("Vui lòng chọn đối tác giao hàng");
           } else {
-            if (!isFinalized) {
-              setUpdating(true);
-            } else {
-              setUpdatingConfirm(true);
-            }
             (async () => {
               handleUpdateOrder(valuesCalculateReturnAmount);
             })();
@@ -739,12 +751,6 @@ export default function Order(props: PropTypes) {
             if (checkInventory()) {
               let bolCheckpointFocus = checkPointFocus(values);
               if (bolCheckpointFocus) {
-                if (!isFinalized) {
-                  setUpdating(true);
-                } else {
-                  setUpdatingConfirm(true);
-                }
-
                 (async () => {
                   handleUpdateOrder(valuesCalculateReturnAmount);
                 })();
@@ -996,15 +1002,14 @@ export default function Order(props: PropTypes) {
           let newDatingShip = initialForm.dating_ship;
           let newShipperCode = initialForm.shipper_code;
           let new_payments = initialForm.payments;
-          const sortedFulfillments = sortFulfillments(response.fulfillments);
-          if (sortedFulfillments && sortedFulfillments[0]) {
-            if (sortedFulfillments[0]?.shipment) {
-              newDatingShip = sortedFulfillments[0]?.shipment?.expected_received_date
-                ? moment(sortedFulfillments[0]?.shipment?.expected_received_date)
+          if (activeSortedFulfillments && activeSortedFulfillments[0]) {
+            if (activeSortedFulfillments[0]?.shipment) {
+              newDatingShip = activeSortedFulfillments[0]?.shipment?.expected_received_date
+                ? moment(activeSortedFulfillments[0]?.shipment?.expected_received_date)
                 : undefined;
-              newShipperCode = sortedFulfillments[0]?.shipment?.shipper_code;
+              newShipperCode = activeSortedFulfillments[0]?.shipment?.shipper_code;
             }
-            if (sortedFulfillments[0].shipment?.cod) {
+            if (activeSortedFulfillments[0].shipment?.cod) {
               // setPaymentMethod(PaymentMethodOption.COD);
             } else if (response.payments && response.payments?.length > 0) {
               setPaymentMethod(PaymentMethodOption.PRE_PAYMENT);
@@ -1041,7 +1046,6 @@ export default function Order(props: PropTypes) {
 
           if (!canCreateShipment(response.fulfillments)) {
             setShipmentMethod(0);
-            setOfficeTime(true);
           }
           if (response.store_id) {
             setStoreId(response.store_id);
@@ -1390,11 +1394,11 @@ export default function Order(props: PropTypes) {
     const getCodAmount = () => {
       let cod = 0;
       if (
-        sortedFulfillments[0] &&
-        sortedFulfillments[0]?.shipment &&
-        sortedFulfillments[0].shipment?.cod
+        sortedFulfillmentsIncludeHideFulfillment[0] &&
+        sortedFulfillmentsIncludeHideFulfillment[0]?.shipment &&
+        sortedFulfillmentsIncludeHideFulfillment[0].shipment?.cod
       ) {
-        cod = sortedFulfillments[0].shipment?.cod;
+        cod = sortedFulfillmentsIncludeHideFulfillment[0].shipment?.cod;
       }
       return cod;
     };
@@ -1405,7 +1409,7 @@ export default function Order(props: PropTypes) {
     } else {
       setShowPaymentPartialPayment(false);
     }
-  }, [sortedFulfillments, totalAmountCustomerNeedToPay]);
+  }, [sortedFulfillmentsIncludeHideFulfillment, totalAmountCustomerNeedToPay]);
 
   if (checkIfOrderHasNotFinishPaymentMomo(OrderDetail)) {
     return <CannotUpdateOrderWithWalletWarningInformation />;
@@ -1578,30 +1582,31 @@ export default function Order(props: PropTypes) {
                         <div className="d-flex">
                           <span className="title-card">ĐÓNG GÓI VÀ GIAO HÀNG</span>
                         </div>
-                        {sortedFulfillments.length > 0 &&
-                          sortedFulfillments[0].status === FulFillmentStatus.SHIPPED && (
+                        {activeSortedFulfillments.length > 0 &&
+                          activeSortedFulfillments[0].status === FulFillmentStatus.SHIPPED && (
                             <Tag className="orders-tag text-menu successTag">Giao thành công</Tag>
                           )}
                       </Space>
                     }
                     extra={
                       <Space size={26}>
-                        {sortedFulfillments.length > 0 && (
+                        {activeSortedFulfillments.length > 0 && (
                           // OrderDetail?.fulfillments[0].shipment?.expected_received_date &&
                           <div className="text-menu expectReceivedDate 33">
-                            {sortedFulfillments[0]?.shipment?.expected_received_date && (
+                            {activeSortedFulfillments[0]?.shipment?.expected_received_date && (
                               <React.Fragment>
                                 <img src={calendarOutlined} alt=""></img>
                                 <span>
-                                  {sortedFulfillments[0]?.shipment?.expected_received_date
+                                  {activeSortedFulfillments[0]?.shipment?.expected_received_date
                                     ? moment(
-                                        sortedFulfillments[0]?.shipment?.expected_received_date,
+                                        activeSortedFulfillments[0]?.shipment
+                                          ?.expected_received_date,
                                       ).format(dateFormat)
                                     : ""}
                                 </span>
                               </React.Fragment>
                             )}
-                            {sortedFulfillments[0]?.shipment?.office_time && (
+                            {activeSortedFulfillments[0]?.shipment?.office_time && (
                               <span className="officeTime">(Giờ hành chính)</span>
                             )}
                           </div>
@@ -1631,8 +1636,8 @@ export default function Order(props: PropTypes) {
                       </Space>
                     }
                   >
-                    {sortedFulfillments.length > 0 &&
-                      sortedFulfillments.map(
+                    {activeSortedFulfillments.length > 0 &&
+                      activeSortedFulfillments.map(
                         (fulfillment) =>
                           fulfillment.shipment && (
                             <div className="activeFulfillment" key={fulfillment.id}>

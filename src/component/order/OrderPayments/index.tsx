@@ -117,6 +117,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
       //     paymentsResult[bankPaymentIndex].return_amount = 0;
       //   }
       // }
+      console.log("paymentsResult", paymentsResult);
       setPayments(paymentsResult);
       if (!isPaymentAlreadyChanged) {
         dispatch(changeIfPaymentAlreadyChangedAction(true));
@@ -169,6 +170,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
     } else {
       payments.splice(indexPayment, 1);
     }
+    console.log("payments", payments);
     handlePayment([...payments]);
   };
 
@@ -504,7 +506,11 @@ function OrderPayments(props: PropTypes): JSX.Element {
     );
   };
 
+  console.log("payments", payments);
+
   const renderPayments = () => {
+    console.log("333");
+    console.log("payments2", payments);
     return payments.map((method, index) => {
       return (
         <Row
