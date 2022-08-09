@@ -30,6 +30,7 @@ type PropType = {
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
   isOrderUpdate?: boolean;
+  isOrderDetailPage?: boolean;
 };
 
 function ShipmentMethodDeliverPartner(props: PropType) {
@@ -146,15 +147,17 @@ function ShipmentMethodDeliverPartner(props: PropType) {
                                       value={fee.transport_type}
                                       checked={thirdPL?.service === fee.transport_type}
                                       onChange={(e) => {
-                                        handleCalculateShippingFeeApplyOrderSetting(
-                                          shippingAddress?.city_id,
-                                          orderPrice,
-                                          shippingServiceConfig,
-                                          fee.transport_type,
-                                          form,
-                                          setShippingFeeInformedToCustomer,
-                                          isOrderUpdate,
-                                        );
+                                        if (!props.isOrderDetailPage) {
+                                          handleCalculateShippingFeeApplyOrderSetting(
+                                            shippingAddress?.city_id,
+                                            orderPrice,
+                                            shippingServiceConfig,
+                                            fee.transport_type,
+                                            form,
+                                            setShippingFeeInformedToCustomer,
+                                            isOrderUpdate,
+                                          );
+                                        }
                                         const thirdPLResult = {
                                           delivery_service_provider_id: serviceFee.id,
                                           delivery_service_provider_code: serviceFee.code,

@@ -102,6 +102,7 @@ type PropTypes = {
   subReasons?: OrderReturnReasonDetailModel[] | null;
   isEcommerceOrder?: boolean;
   ref: React.MutableRefObject<any>;
+  isOrderDetailPage?: boolean;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -895,6 +896,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 OrderDetail={OrderDetail}
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
+                isOrderDetailPage={props.isOrderDetailPage}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

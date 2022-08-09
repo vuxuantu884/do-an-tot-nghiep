@@ -77,6 +77,7 @@ type PropTypes = {
   OrderDetail?: OrderResponse | null;
   orderConfig: OrderConfigResponseModel | null;
   payments?: OrderPaymentRequest[];
+  isOrderDetailPage?: boolean;
 };
 
 /**
@@ -253,7 +254,12 @@ function OrderCreateShipment(props: PropTypes) {
                   style={checkIfDisableSelectShipment() ? { pointerEvents: "none" } : undefined}
                   onClick={() => {
                     levelOrder < 4 && !button.isDisabled && ShipMethodOnChange(button.value);
-                    if (items?.length && items?.length > 0 && button.value === 2) {
+                    if (
+                      items?.length &&
+                      items?.length > 0 &&
+                      button.value === 2 &&
+                      !props.isOrderDetailPage
+                    ) {
                       handleCalculateShippingFeeApplyOrderSetting(
                         shippingAddress?.city_id,
                         orderPrice,
@@ -521,6 +527,7 @@ function OrderCreateShipment(props: PropTypes) {
                 form={form}
                 renderButtonCreateActionHtml={renderButtonCreateActionHtml}
                 isOrderUpdate={isOrderUpdate}
+                isOrderDetailPage={props.isOrderDetailPage}
               />
             )}
             {/*--- Tự vận chuyển ----*/}
