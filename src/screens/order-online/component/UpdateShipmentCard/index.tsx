@@ -117,7 +117,6 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     totalPaid = 0,
     customerNeedToPayValue = 0,
     isPageOrderDetail,
-    setOfficeTime,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -875,6 +874,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 isCancelValidateDelivery={false}
                 totalAmountCustomerNeedToPay={customerNeedToPayValue}
                 setShippingFeeInformedToCustomer={props.setShippingFeeInformedCustomer}
+                shippingFeeInformedToCustomer={props.shippingFeeInformedCustomer}
                 onSelectShipment={setShipmentMethod}
                 thirdPL={thirdPL}
                 setThirdPL={setThirdPL}

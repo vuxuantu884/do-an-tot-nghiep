@@ -38,6 +38,7 @@ import {
   checkIfFinishedPayment,
   checkIfMomoPayment,
 } from "utils/OrderUtils";
+import { showSuccess } from "utils/ToastUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
 import ShipmentMethodSelfDelivery from "./ShipmentMethodSelfDelivery";
 import { StyledComponent } from "./styles";
@@ -65,6 +66,7 @@ type PropTypes = {
   isShowButtonCreateShipment?: boolean;
   onSelectShipment: (value: number) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
+  shippingFeeInformedToCustomer: number | null;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   handleCreateShipment?: () => void;
   creating?: boolean;
@@ -132,6 +134,7 @@ function OrderCreateShipment(props: PropTypes) {
     setThirdPL,
     onSelectShipment,
     setShippingFeeInformedToCustomer,
+    shippingFeeInformedToCustomer,
     handleCreateShipment,
     creating,
     handleCancelCreateShipment,
@@ -254,7 +257,10 @@ function OrderCreateShipment(props: PropTypes) {
                       );
                     }
                     if (button.value === ShipmentMethodOption.PICK_AT_STORE) {
-                      setShippingFeeInformedToCustomer(0);
+                      if (shippingFeeInformedToCustomer) {
+                        setShippingFeeInformedToCustomer(0);
+                        showSuccess("Phí ship đã được thay đổi!");
+                      }
                     }
                   }}
                 >

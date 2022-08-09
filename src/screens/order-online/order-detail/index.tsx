@@ -161,7 +161,6 @@ const OrderDetail = (props: PropTypes) => {
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
   const [customerDetail, setCustomerDetail] = useState<CustomerResponse | null>(null);
   const [shippingFeeInformedCustomer, setShippingFeeInformedCustomer] = useState<number>(0);
-  // const [isShowBillStep, setIsShowBillStep] = useState<boolean>(false);
   const [countChangeSubStatus, setCountChangeSubStatus] = useState<number>(0);
   const [officeTime, setOfficeTime] = useState<boolean>(false);
   const [paymentMethods, setListPaymentMethods] = useState<Array<PaymentMethodResponse>>([]);
@@ -883,13 +882,6 @@ const OrderDetail = (props: PropTypes) => {
   console.log("totalPaid", totalPaid);
   console.log("totalOrder", totalOrder);
   // end
-  const scroll = useCallback(() => {
-    if (window.pageYOffset > 100) {
-      // setIsShowBillStep(true);
-    } else {
-      // setIsShowBillStep(false);
-    }
-  }, []);
 
   const initialFormValue = {
     returnMoneyField: [{ returnMoneyMethod: undefined, returnMoneyNote: undefined }],
@@ -928,13 +920,6 @@ const OrderDetail = (props: PropTypes) => {
     },
     [OrderDetail, dispatch],
   );
-
-  useEffect(() => {
-    window.addEventListener("scroll", scroll);
-    return () => {
-      window.removeEventListener("scroll", scroll);
-    };
-  }, [scroll]);
 
   useEffect(() => {
     dispatch(

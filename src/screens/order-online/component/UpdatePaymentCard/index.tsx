@@ -37,6 +37,7 @@ type PropTypes = {
   reload?: () => void;
   disabledActions?: (type: string) => void;
   createPaymentCallback?: () => void;
+  isPageOrderUpdate?: boolean;
 };
 
 function UpdatePaymentCard(props: PropTypes) {
@@ -51,6 +52,7 @@ function UpdatePaymentCard(props: PropTypes) {
     isDisablePostPayment,
     createPaymentCallback,
     setPayments,
+    isPageOrderUpdate,
   } = props;
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
@@ -227,13 +229,13 @@ function UpdatePaymentCard(props: PropTypes) {
       <div className="create-order-payment 221">
         <OrderPayments
           payments={paymentData}
-          setPayments={setPaymentData}
+          setPayments={isPageOrderUpdate ? setPayments : setPaymentData}
           totalOrderAmount={amount}
           loyaltyRate={loyaltyRate}
           paymentMethods={paymentMethods}
           orderDetail={props.orderDetail}
         />
-        {renderButtons()}
+        {!isPageOrderUpdate && renderButtons()}
       </div>
     );
   };

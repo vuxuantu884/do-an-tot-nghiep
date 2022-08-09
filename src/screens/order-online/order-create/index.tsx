@@ -91,7 +91,7 @@ import {
   TaxTreatment,
 } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { checkIfMomoPayment } from "utils/OrderUtils";
+import { checkIfOrderHasNotFinishedPaymentMomo } from "utils/OrderUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import OrderDetailBottomBar from "../component/order-detail/BottomBar";
@@ -156,10 +156,7 @@ export default function Order() {
   const formRef = createRef<FormInstance>();
   const [form] = Form.useForm();
   const [isVisibleSaveAndConfirm, setIsVisibleSaveAndConfirm] = useState<boolean>(false);
-  const [visibleBillStep, setVisibleBillStep] = useState({
-    isShow: false,
-    isAlreadyShow: false,
-  });
+
   const [storeDetail, setStoreDetail] = useState<StoreCustomResponse>();
 
   console.log("payments", payments);
@@ -319,13 +316,6 @@ export default function Order() {
     };
 
     let fulfillmentRequests = [];
-    if (
-      paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
-      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
-      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
-    ) {
-      fulfillmentRequests.push(request);
-    }
 
     if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
       request.delivery_type = ShipmentMethod.PICK_AT_STORE;
@@ -337,7 +327,11 @@ export default function Order() {
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
+    }
+    if (shipmentMethod !== ShipmentMethodOption.DELIVER_LATER) {
       fulfillmentRequests.push(request);
+    } else {
+      fulfillmentRequests = [];
     }
     return fulfillmentRequests;
   };
@@ -654,18 +648,6 @@ export default function Order() {
       }
     }
   };
-  const handleScroll = useCallback(() => {
-    const pageYOffsetToShow = 100;
-    if (
-      (window.pageYOffset > pageYOffsetToShow || visibleBillStep.isAlreadyShow) &&
-      !visibleBillStep.isShow
-    ) {
-      setVisibleBillStep({
-        isShow: true,
-        isAlreadyShow: true,
-      });
-    }
-  }, [visibleBillStep]);
 
   const mergePaymentData = (payments: OrderPaymentResponse[]) => {
     let result: OrderPaymentResponse[] = [];
@@ -863,14 +845,6 @@ export default function Order() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, storeId]);
 
-  //windows offset
-  useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
-  }, [handleScroll]);
-
   useEffect(() => {
     if (customerParam) {
       // console.log("customerParam", customerParam)
@@ -944,7 +918,7 @@ export default function Order() {
     ) => {
       if (
         response.payments?.some((payment) => {
-          return payment.paid_amount > 0 && checkIfMomoPayment(payment);
+          return payment.paid_amount > 0 && checkIfOrderHasNotFinishedPaymentMomo(response);
         })
       ) {
         setShipmentMethod(ShipmentMethodOption.DELIVER_LATER);
@@ -1017,7 +991,7 @@ export default function Order() {
           handleShipmentMethod[
             sortedFulfillments[0]?.shipment?.delivery_service_provider_type || "default"
           ]();
-
+          console.log("newShipmentMethod", newShipmentMethod);
           setShipmentMethod(newShipmentMethod);
         }
       }
@@ -1389,6 +1363,7 @@ export default function Order() {
                         isCancelValidateDelivery={false}
                         totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
                         setShippingFeeInformedToCustomer={ChangeShippingFeeCustomer}
+                        shippingFeeInformedToCustomer={shippingFeeInformedToCustomer}
                         onSelectShipment={onSelectShipment}
                         thirdPL={thirdPL}
                         setThirdPL={setThirdPL}

@@ -57,6 +57,7 @@ type PropTypes = {
   isDisablePostPayment: boolean;
   createPaymentCallback?: () => void;
   totalAmountCustomerNeedToPay: number;
+  isPageOrderUpdate?: boolean;
 };
 
 function CardShowOrderPayments(props: PropTypes) {
@@ -80,6 +81,7 @@ function CardShowOrderPayments(props: PropTypes) {
     createPaymentCallback,
     totalAmountCustomerNeedToPay,
     setPayments,
+    isPageOrderUpdate,
   } = props;
 
   const dispatch = useDispatch();
@@ -565,6 +567,7 @@ function CardShowOrderPayments(props: PropTypes) {
                   form={form}
                   isDisablePostPayment={isDisablePostPayment}
                   createPaymentCallback={createPaymentCallback}
+                  isPageOrderUpdate={isPageOrderUpdate}
                 />
               )}
             </Panel>
