@@ -49,6 +49,22 @@ export const CustomerVisitorsStyle = styled.div`
       padding-bottom: 1rem;
     }
   }
+  .pt {
+    &-1 {
+      padding-top: 0.5rem;
+    }
+    &-2 {
+      padding-top: 1rem;
+    }
+  }
+  .pb {
+    &-1 {
+      padding-bottom: 0.5rem;
+    }
+    &-2 {
+      padding-bottom: 1rem;
+    }
+  }
   .input-width {
     width: 200px;
   }

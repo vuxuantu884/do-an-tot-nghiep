@@ -53,22 +53,24 @@ export const executeManyAnalyticsQueryService = (
 };
 
 export const getCustomerVisitors = (
-  params: { month: number; year: number; storeIds?: number[] },
+  params: { month: number; year: number; storeIds?: number[]; assigneeCodes?: any[] },
   config?: AxiosRequestConfig,
 ): Promise<BaseResponse<any>> => {
-  const { month, year, storeIds } = params;
+  const { month, year, storeIds, assigneeCodes } = params;
+  let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`;
+  let storeParam = "";
+  let assigneeCodeParam = "";
   if (storeIds?.length) {
-    let endpoint = `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`;
     storeIds.forEach((id, index) => {
-      endpoint += `&storeId.in[${index}]=${id}`;
+      storeParam += `&storeId.in[${index}]=${id}`;
     });
-    return BaseAxiosApi.get(endpoint, { ...config });
-  } else {
-    return BaseAxiosApi.get(
-      `${ApiConfig.CUSTOMER_VISITORS}?month.equals=${month}&year.equals=${year}`,
-      { ...config },
-    );
   }
+  if (assigneeCodes?.length) {
+    assigneeCodes.forEach((id, index) => {
+      assigneeCodeParam += `&assigneeCode.in[${index}]=${id.toLowerCase()}`;
+    });
+  }
+  return BaseAxiosApi.get(`${endpoint}${storeParam}${assigneeCodeParam}`, { ...config });
 };
 
 export const updateCustomerVisitors = (params: any): Promise<BaseResponse<any>> => {

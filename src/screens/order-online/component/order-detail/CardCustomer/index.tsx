@@ -90,6 +90,7 @@ type CustomerCardProps = {
   setShippingFeeInformedToCustomer?: (value: number | null) => void;
   customerChange: boolean;
   setCustomerChange: (value: boolean) => void;
+  isOrderUpdate?: boolean;
   // handleOrderBillRequest: (value: OrderBillRequestFormModel, orderBillId: number | null) => void;
   // initOrderBillRequest: OrderBillRequestFormModel | undefined;
 };
@@ -138,6 +139,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
     setCustomerChange,
     billingAddress,
     setBillingAddress,
+    isOrderUpdate,
     // handleOrderBillRequest,
     // initOrderBillRequest,
   } = props;
@@ -385,6 +387,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
       transportService,
       form,
       setShippingFeeInformedToCustomer,
+      isOrderUpdate,
     );
     setKeySearchCustomer("");
     if (setShippingAddressesSecondPhone) setShippingAddressesSecondPhone("");
@@ -868,6 +871,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
                 orderDetail={OrderDetail}
                 billingAddress={billingAddress}
                 setBillingAddress={setBillingAddress}
+                isOrderUpdate={isOrderUpdate}
                 // handleOrderBillRequest={handleOrderBillRequest}
                 // initOrderBillRequest={initOrderBillRequest}
               />
@@ -886,6 +890,7 @@ const CustomerCard: React.FC<CustomerCardProps> = (props: CustomerCardProps) => 
         onCancel={CancelConfirmAddress}
         onOk={OkConfirmAddress}
         setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
+        isOrderUpdate={isOrderUpdate}
       />
 
       <SaveAndConfirmOrder

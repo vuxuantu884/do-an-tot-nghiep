@@ -899,6 +899,61 @@ export default function Order(props: PropTypes) {
     });
   }, [OrderDetail, dispatch, history]);
 
+  useEffect(() => {
+    if (storeId != null) {
+      dispatch(StoreDetailCustomAction(storeId, setStoreDetail));
+      getStoreBankAccountNumbersService({
+        store_ids: [storeId],
+      })
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            dispatch(getStoreBankAccountNumbersAction(response.data.items));
+            const selected = response.data.items.find((single) => single.default && single.status);
+            if (isShouldSetDefaultStoreBankAccount && checkIfShowCreatePayment()) {
+              if (selected) {
+                dispatch(changeSelectedStoreBankAccountAction(selected.account_number));
+              } else {
+                let paymentsResult = [...payments];
+                let bankPaymentIndex = paymentsResult.findIndex(
+                  (payment) => payment.payment_method_code === PaymentMethodCode.BANK_TRANSFER,
+                );
+                // sàn tài trợ cũng đang lấy PaymentMethodCode.BANK_TRANSFER, nên phải check name
+                if (
+                  bankPaymentIndex > -1 &&
+                  paymentsResult[bankPaymentIndex].payment_method !== "Sàn Tài trợ"
+                ) {
+                  paymentsResult[bankPaymentIndex].paid_amount = 0;
+                  paymentsResult[bankPaymentIndex].amount = 0;
+                  paymentsResult[bankPaymentIndex].return_amount = 0;
+                }
+                setPayments(paymentsResult);
+                dispatch(changeSelectedStoreBankAccountAction(undefined));
+              }
+            }
+          } else {
+            dispatch(getStoreBankAccountNumbersAction([]));
+            handleFetchApiError(
+              response,
+              "Danh sách số tài khoản ngân hàng của cửa hàng",
+              dispatch,
+            );
+          }
+        })
+        .catch((error) => {
+          console.log("error", error);
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [dispatch, isShouldSetDefaultStoreBankAccount, storeId]);
+
+  //windows offset
+  useEffect(() => {
+    window.addEventListener("scroll", scroll);
+    return () => {
+      window.removeEventListener("scroll", scroll);
+    };
+  }, [scroll]);
+
   // handle for ecommerce order
   const [isEcommerceOrder, setIsEcommerceOrder] = useState(false);
   const [ecommerceShipment, setEcommerceShipment] = useState<any>();
@@ -1491,6 +1546,7 @@ export default function Order(props: PropTypes) {
                     setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
                     customerChange={customerChange}
                     setCustomerChange={setCustomerChange}
+                    isOrderUpdate
                     // handleOrderBillRequest = {handleOrderBillRequest}
                     // initOrderBillRequest={undefined}
                   />

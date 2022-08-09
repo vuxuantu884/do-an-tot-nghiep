@@ -250,6 +250,7 @@ function OrderCreateShipment(props: PropTypes) {
                         undefined,
                         form,
                         setShippingFeeInformedToCustomer,
+                        isPageOrderUpdate,
                       );
                     }
                     if (button.value === ShipmentMethodOption.PICK_AT_STORE) {

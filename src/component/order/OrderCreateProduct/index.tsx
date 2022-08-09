@@ -1892,6 +1892,7 @@ function OrderCreateProduct(props: PropTypes) {
         transportService,
         form,
         setShippingFeeInformedToCustomer,
+        props.isPageOrderUpdate,
       );
     }
     setIsLineItemChanging(false);

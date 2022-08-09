@@ -30,6 +30,7 @@ type PropTypes = {
   setThirdPL: (thirdPl: thirdPLModel) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
+  isOrderUpdate?: boolean;
 };
 
 interface DeliveryServiceWithFeeModel extends DeliveryServiceResponse {
@@ -51,6 +52,7 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
     setThirdPL,
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
+    isOrderUpdate,
   } = props;
 
   const dispatch = useDispatch();
@@ -84,6 +86,7 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
       fee.transport_type,
       form,
       setShippingFeeInformedToCustomer,
+      isOrderUpdate,
     );
     const thirdPLResult = {
       delivery_service_provider_id: serviceFee.id,
