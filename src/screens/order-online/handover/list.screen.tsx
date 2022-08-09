@@ -174,7 +174,7 @@ const HandoverScreen: React.FC = () => {
     () =>
       [
         {
-          title: "ID",
+          title: "Mã biên bản",
           key: "id",
           dataIndex: "id",
           align: "center",
