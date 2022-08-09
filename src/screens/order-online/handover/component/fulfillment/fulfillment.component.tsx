@@ -16,6 +16,7 @@ import { showError, showModalError, showSuccess } from "utils/ToastUtils";
 import { HandoverReturn, HandoverTransfer } from "../../handover.config";
 import HandoverTable from "../table/handover-table.component";
 import { StyledComponent } from "./styles";
+import audio from "assets/audio/am-bao-tra-loi-sai.wav";
 
 const { Item } = Form;
 
@@ -32,6 +33,8 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
   const [keySearch, setKeySearch] = useState("");
   const [searching, setSearching] = useState<boolean>(false);
   const [selected, setSelected] = useState<Array<string>>([]);
+
+  const AudioPlay = new Audio(audio);
 
   const onDeleted = useCallback(
     (setFieldsValue: (value: any) => void, getFieldValue: (value: string) => any) => {
@@ -65,7 +68,9 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       const response = await validateHandoverService(keySearch, type, id);
       if (isFetchApiSuccessful(response)) {
         if (!response?.data?.success) {
-          showError(`Đơn giao ${keySearch} đã nằm trong biên bản ${response?.data?.code_handover}`);
+          showNotification(
+            `Đơn giao ${keySearch} đã nằm trong biên bản ${response?.data?.code_handover}`,
+          );
           return false;
         } else {
           return true;
@@ -73,6 +78,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       }
       return false;
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [keySearch],
   );
 
@@ -90,6 +96,12 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
       return true;
     }
     return false;
+  };
+
+  const showNotification = (msg: React.ReactNode, title?: string | undefined) => {
+    showModalError(msg, title);
+    AudioPlay.play();
+    AudioPlay.currentTime = 1;
   };
 
   const onSearch = useCallback(
@@ -125,7 +137,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                   (p: FulfillmentDto) => p.status !== FulfillmentStatus.PACKED,
                 );
                 if (fulfillmentStatusNotPacked && fulfillmentStatusNotPacked.length !== 0) {
-                  showModalError(
+                  showNotification(
                     `Đơn hàng ${fulfillmentStatusNotPacked[0].order_code} không ở trạng thái đóng gói`,
                   );
                   return;
@@ -137,7 +149,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
                   (p: FulfillmentDto) => !isFulfillmentReturningOrReturned(p),
                 );
                 if (fulfillmentStatusNotReturn && fulfillmentStatusNotReturn.length !== 0) {
-                  showModalError(
+                  showNotification(
                     `Đơn hàng ${fulfillmentStatusNotReturn[0].order_code} không ở trạng thái đang hoàn hoặc đã hoàn`,
                   );
                   return;
@@ -147,17 +159,17 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             ////////////////////////////////////////////////////////////////////////////////////////////////
 
             if (type === HandoverTransfer && data.status !== FulfillmentStatus.PACKED) {
-              showModalError(`Đơn hàng ${data.order.code} không ở trạng thái đóng gói`);
+              showNotification(`Đơn hàng ${data.order.code} không ở trạng thái đóng gói`);
               return;
             }
             if (type === HandoverReturn && !isFulfillmentReturningOrReturned(data)) {
-              showModalError(
+              showNotification(
                 `Đơn hàng ${data.order.code} không ở trạng thái đang hoàn hoặc đã hoàn`,
               );
               return;
             }
             if (data.stock_location_id !== store_id) {
-              showModalError(`Đơn hàng ${data.order.code} không thuộc kho đóng gói`);
+              showNotification(`Đơn hàng ${data.order.code} không thuộc kho đóng gói`);
               return;
             }
             let delivery = -1;
@@ -166,7 +178,7 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             }
 
             if (delivery !== delivery_service_provider_id) {
-              showModalError(`Đơn hàng ${data.order.code} không cùng hãng vận chuyển`);
+              showNotification(`Đơn hàng ${data.order.code} không cùng hãng vận chuyển`);
               return;
             }
             if (
@@ -174,18 +186,18 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
               type === HandoverTransfer &&
               data.shipment.pushing_status !== PUSHING_STATUS.COMPLETED
             ) {
-              showModalError(`Đơn hàng ${data.order.code} đẩy sang hãng vận chuyển thất bại`);
+              showNotification(`Đơn hàng ${data.order.code} đẩy sang hãng vận chuyển thất bại`);
               return;
             }
 
             if (channel_id !== -1 && channel_id !== data.order.channel_id) {
-              showModalError(`Đơn hàng ${data.order.code} không cùng biên bản sàn`);
+              showNotification(`Đơn hàng ${data.order.code} không cùng biên bản sàn`);
               return;
             }
             let orders: Array<HandoverOrderRequest> = getFieldValue("orders");
             let index = orders.findIndex((value) => value.fulfillment_code === data.code);
             if (index !== -1) {
-              showModalError(`Đơn hàng ${data.order.code} đã nằm trong biên bản`);
+              showNotification(`Đơn hàng ${data.order.code} đã nằm trong biên bản`);
               return;
             }
 
@@ -206,15 +218,17 @@ const FulfillmentComponent: React.FC<FulfillmentComponentType> = (
             });
           } else {
             handleFetchApiError(response, "Tìm kiếm đơn hàng", dispatch);
+            AudioPlay.play();
           }
         })
         .catch((e) => {
-          showError("Có lỗi api tìm kiếm đơn hàng");
+          showNotification("Có lỗi api tìm kiếm đơn hàng");
         })
         .finally(() => {
           toggleInput();
         });
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, keySearch, props, toggleInput, validate],
   );
 
