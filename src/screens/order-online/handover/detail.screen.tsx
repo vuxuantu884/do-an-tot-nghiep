@@ -83,8 +83,6 @@ const DetailHandoverScreen: React.FC = () => {
   });
   const [resultPaging, setResultPaging] = useState<ResultPaging>(resultPagingDefault);
 
-  console.log("resultPaging", resultPaging);
-
   let { id } = useParams<HandoverParams>();
   let handoverId = parseInt(id);
 
@@ -282,8 +280,6 @@ const DetailHandoverScreen: React.FC = () => {
     }
   }, [fulfillmentsData.isLoad, handoverData.isLoad]);
 
-  console.log("htmlContent 111", htmlContent);
-
   return (
     <DetailStyle>
       <ContentContainer
@@ -392,7 +388,7 @@ const DetailHandoverScreen: React.FC = () => {
                                 <div>
                                   <Link
                                     to={`${UrlConfig.ORDER}/${record.order_id}`}
-                                    className="text-small"
+                                    className="fulfillment-small"
                                   >
                                     {record.code}
                                   </Link>
@@ -426,6 +422,8 @@ const DetailHandoverScreen: React.FC = () => {
                                         <Link
                                           target="_blank"
                                           to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                                          className="product-name-ellipsis"
+                                          title={item.variant}
                                         >
                                           {item.variant}
                                         </Link>
@@ -442,6 +440,7 @@ const DetailHandoverScreen: React.FC = () => {
                             title: "Trạng thái",
                             width: "130px",
                             align: "center",
+                            render: (value) => <div className="status-color">{value}</div>,
                           },
                           {
                             dataIndex: "items",
@@ -527,7 +526,10 @@ const DetailHandoverScreen: React.FC = () => {
                     renderItem={(item) => (
                       <div className="row-product-item">
                         <Link
-                          to={`${UrlConfig.PRODUCT}/${item.product_id}/${UrlConfig.VARIANTS}/${item.variant_id}`}
+                          target="_blank"
+                          to={`${UrlConfig.PRODUCT}/${item.product_id}${UrlConfig.VARIANTS}/${item.variant_id}`}
+                          className="yody-text-ellipsis"
+                          title={item.variant}
                         >
                           {item.variant}
                         </Link>
