@@ -21,6 +21,7 @@ function CustomerShippingAddressOrder(props: any) {
     setVisibleChangeAddress,
     form,
     setShippingFeeInformedToCustomer,
+    isOrderUpdate,
   } = props;
   const dispatch = useDispatch();
 
@@ -57,6 +58,7 @@ function CustomerShippingAddressOrder(props: any) {
               transportService,
               form,
               setShippingFeeInformedToCustomer,
+              isOrderUpdate,
             );
             showSuccess("Đặt mặc định thành công");
           } else {
