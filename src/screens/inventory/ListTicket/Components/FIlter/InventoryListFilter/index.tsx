@@ -103,7 +103,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
     if (activeTab === "") return;
 
     let accountStoreSelected =
-      accountStores && accountStores.length > 0 ? accountStores[0].store_id : null;
+      accountStores && accountStores.length > 0 ? accountStores.map((i) => String(i.store_id)) : [];
 
     if (activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE) {
       formSearchRef.current?.setFieldsValue({
@@ -111,7 +111,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
         to_store_id:
           params.to_store_id && Array.isArray(params.to_store_id) && params.to_store_id.length > 0
             ? params.to_store_id
-            : accountStoreSelected?.toString(),
+            : accountStoreSelected,
         from_store_id:
           params.from_store_id &&
           Array.isArray(params.from_store_id) &&
@@ -134,7 +134,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
           Array.isArray(params.from_store_id) &&
           params.from_store_id.length > 0
             ? params.from_store_id
-            : accountStoreSelected?.toString(),
+            : accountStoreSelected,
         to_store_id:
           params.to_store_id && Array.isArray(params.to_store_id) && params.to_store_id.length > 0
             ? params.to_store_id

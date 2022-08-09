@@ -166,6 +166,11 @@ export const StyledWrapper = styled.div`
       }
     }
   }
+  
+  .tag-receive-all {
+    margin-left: 15px;
+    text-transform: none !important;
+  }
 
   .shipment {
     align-items: center;

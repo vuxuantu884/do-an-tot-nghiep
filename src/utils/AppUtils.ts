@@ -161,7 +161,7 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = "
 export const convertCategory = (data: Array<CategoryResponse>) => {
   let arr: Array<CategoryView> = [];
   data.forEach((item) => {
-    let level = 0;
+    let level = 1;
     let temp = getArrCategory(item, level, null);
     arr = [...arr, ...temp];
   });
@@ -207,6 +207,7 @@ export const getArrCategory = (
     parent: parentTemp,
     name: i.name,
     child_ids: i.child_ids,
+    isHaveChild: i.children.length > 0,
   });
   if (i.children.length > 0) {
     i.children.forEach((i1) => {
@@ -2147,7 +2148,7 @@ export const insertCustomIndexArray = (arr: any, index: number, newItem: any) =>
   ...arr.slice(index),
 ];
 
-export function toTitleCase(str: string) {
+export function capitalEachWords(str: string) {
   return str
     .split(" ")
     .map((item) => _.capitalize(item))

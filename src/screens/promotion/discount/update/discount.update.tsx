@@ -139,9 +139,6 @@ const DiscountUpdate = () => {
       setIsSubmitting(true);
       const body = transformData(values);
       body.id = idNumber;
-      if (getIndexRemoveDiscount) {
-        body.entitlements.splice(getIndexRemoveDiscount, 1);
-      }
       dispatch(updatePriceRuleByIdAction(body, updateCallback));
     } catch (error: any) {
       setIsSubmitting(false);
@@ -187,16 +184,19 @@ const DiscountUpdate = () => {
    * Lấy thông tin [tên sản phẩm, tồn đầu kỳ, giá vốn] sản phẩm khuyến mãi
    */
   useEffect(() => {
-    const entilelementValue: Array<EntilementFormModel> = discountData.entitlements;
-    if (entilelementValue) {
-      entilelementValue.forEach((item: EntilementFormModel) => {
+    const entitlementValue: Array<EntilementFormModel> = discountData.entitlements;
+    if (entitlementValue) {
+      entitlementValue.forEach((item: EntilementFormModel) => {
         item.selectedProducts =
           mergeVariantsData(item.entitled_variant_ids, item.entitled_product_ids) || [];
       });
-      setOriginalEntitlements(entilelementValue);
-      form.setFieldsValue({ entitlements: entilelementValue });
+      setOriginalEntitlements(entitlementValue);
+      if (getIndexRemoveDiscount !== null) {
+        entitlementValue.splice(getIndexRemoveDiscount, 1);
+      }
+      form.setFieldsValue({ entitlements: entitlementValue });
     }
-  }, [discountData, form, mergeVariantsData]);
+  }, [discountData, form, getIndexRemoveDiscount, mergeVariantsData]);
 
   useEffect(() => {
     setIsLoading(true);

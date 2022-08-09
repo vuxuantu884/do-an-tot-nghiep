@@ -30,7 +30,7 @@ import {
   exportMultipleInventoryTransfer,
   cancelMultipleInventoryTransfer,
   createInventoryTransferRequest,
-  acceptInventoryTransfer,
+  acceptInventoryTransfer, checkDuplicateInventoryTransferRequest,
 } from "service/inventory/transfer/index.service";
 import { InventoryTransferDetailItem, InventoryTransferLog, Store } from "model/inventory/transfer";
 import { takeEvery } from "typed-redux-saga";
@@ -356,6 +356,32 @@ function* createInventoryTransferRequestSaga(action: YodyAction) {
   }
 }
 
+function* checkDuplicateInventoryTransferRequestSaga(action: YodyAction) {
+  let { data, onResult } = action.payload;
+
+  try {
+    const response: BaseResponse<Array<[]>> = yield call(checkDuplicateInventoryTransferRequest, data);
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+      case HttpStatus.BAD_REQUEST:
+        onResult({
+          data,
+          responseData: response
+        });
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        onResult(false);
+        break;
+    }
+  } catch (error) {
+    onResult(false);
+  }
+}
+
 function* createInventoryTransferShipmentSaga(action: YodyAction) {
   let { pathVariantId, body, onResult } = action.payload;
 
@@ -596,6 +622,10 @@ export function* inventoryTransferSaga() {
   yield takeLatest(
     InventoryType.CREATE_INVENTORY_TRANSFER_REQUEST,
     createInventoryTransferRequestSaga,
+  );
+  yield takeLatest(
+    InventoryType.CHECK_DUPLICATE_INVENTORY_TRANSFER,
+    checkDuplicateInventoryTransferRequestSaga,
   );
   yield takeLatest(InventoryType.CANCEL_SHIPMENT_INVENTORY, cancelShipmentInventoryTransferSaga);
   yield takeLatest(InventoryType.ACCEPT_INVENTORY, acceptInventoryTransferSaga);

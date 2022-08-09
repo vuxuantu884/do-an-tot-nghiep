@@ -10,6 +10,7 @@ import { RegUtil } from "utils/RegUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { callApiNative } from "utils/ApiUtils";
 import { createCategoryApi } from "service/product/category.service";
+import { capitalEachWords } from "utils/AppUtils";
 
 let initialRequest: CategoryCreateRequest = {
   code: "",
@@ -48,6 +49,16 @@ const AddCategory: React.FC = () => {
       }
     },
     [dispatch],
+  );
+
+  const onChangeName = useCallback(
+    (e: any) => {
+      let name = capitalEachWords(e.target.value);
+      formRef.current?.setFieldsValue({
+        name: name,
+      });
+    },
+    [formRef],
   );
 
   useLayoutEffect(() => {
@@ -91,7 +102,7 @@ const AddCategory: React.FC = () => {
                 label="Tên danh mục"
                 name="name"
               >
-                <Input placeholder="VD: Áo phông nữ" maxLength={255} />
+                <Input placeholder="VD: Áo phông nữ" onChange={onChangeName} maxLength={255} />
               </Form.Item>
             </Col>
             <Col span={24} lg={8} md={12} sm={24}>

@@ -19,9 +19,19 @@ const DetailStyle = styled.div`
       text-align: center !important;
     }
 
-    .text-small {
+    .fulfillment-small {
+      color: #ff5630;
       font-size: 12px;
       font-style: italic;
+    }
+    .status-color {
+      color: #28a745 !important;
+      font-weight: 500;
+    }
+    .product-name-ellipsis {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .ant-table-cell.customer-column,
     .ant-table-cell.products {

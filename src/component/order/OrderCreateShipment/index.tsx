@@ -142,7 +142,6 @@ function OrderCreateShipment(props: PropTypes) {
     isOrderReturnFromPOS,
     payments,
   } = props;
-  console.log("isOrderUpdate", isOrderUpdate);
   const dateFormat = "DD/MM/YYYY";
 
   const shippingAddress = useMemo(() => {

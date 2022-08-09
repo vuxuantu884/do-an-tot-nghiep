@@ -39,8 +39,13 @@ export const Map = (props: MapProps) => {
     if (res.length === 0) return;
 
     const dataSelect = res.map((i: any) => {
+      console.log(i)
       return {
-        value: JSON.stringify(i.geometry.location),
+        value: JSON.stringify({
+          location: i.geometry.location,
+          place_id: i.place_id,
+          address: i.formatted_address
+        }),
         label: i.formatted_address,
       };
     });
