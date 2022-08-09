@@ -324,7 +324,7 @@ const DetailHandoverScreen: React.FC = () => {
                     </div>
                   ) : (
                     <>
-                      <div className="page-filter">
+                      <div className="page-filter" style={{ paddingTop: 0 }}>
                         <div className="page-filter-heading">
                           <div className="page-filter-left">
                             <ActionButton
@@ -351,7 +351,7 @@ const DetailHandoverScreen: React.FC = () => {
                             id="input-search"
                             value={filterKey}
                             onChange={(a) => setFilterKey(a.target.value.toUpperCase())}
-                            className="input-search"
+                            // className="input-search"
                             style={{ width: "100%" }}
                             prefix={<img src={search} alt="" />}
                             placeholder="ID đơn hàng/Mã vận đơn"
