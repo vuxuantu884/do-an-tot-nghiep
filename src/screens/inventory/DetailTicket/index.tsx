@@ -83,6 +83,7 @@ import moment from "moment";
 import { InventoryType } from "domain/types/inventory.type";
 import { HttpStatus } from "config/http-status.config";
 import ModalShowError from "../common/ModalShowError";
+import TagStatus from "component/tag/tag-status";
 
 export interface InventoryParams {
   id: string;
@@ -197,6 +198,7 @@ const DetailTicket: FC = () => {
         form.setFieldsValue({ note: result.note });
         // setDataShipment(result.shipment);
         setIsVisibleInventoryShipment(false);
+        setIsReceiveAllProducts(result.received_method === 'received_all');
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -609,9 +611,10 @@ const DetailTicket: FC = () => {
       dataUpdate.exception_items = data?.exception_items;
       dataUpdate.note = data?.note;
       dataUpdate.version = data?.version;
+      dataUpdate.received_method = isReceiveAllProducts ? 'received_all' : 'other';
       dispatch(receivedInventoryTransferAction(data.id, dataUpdate, createCallback));
     }
-  }, [createCallback, data, dataTable, dispatch, stores]);
+  }, [createCallback, data, dataTable, dispatch, isReceiveAllProducts, stores]);
 
   const checkCallback = useCallback(
     (result: any) => {
@@ -1234,10 +1237,20 @@ const DetailTicket: FC = () => {
                   data.status === STATUS_INVENTORY_TRANSFER.PENDING.status ||
                   data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status) && (
                   <Card
-                    title="Danh sách sản phẩm"
+                    title={
+                      <div style={{ display: 'flex', alignItems: 'center' }}>
+                        <div>Danh sách sản phẩm</div>
+                        <div className="tag-receive-all">
+                          {isReceiveAllProducts && data.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status && (
+                            <TagStatus type="success">Nhận tất cả</TagStatus>
+                          )}
+                        </div>
+                      </div>
+                    }
                     bordered={false}
                     extra={
                       <>
+
                         {data.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status && (
                           <>
                             <Checkbox
