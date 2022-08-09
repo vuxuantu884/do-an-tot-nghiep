@@ -2148,7 +2148,7 @@ export const insertCustomIndexArray = (arr: any, index: number, newItem: any) =>
   ...arr.slice(index),
 ];
 
-export function toTitleCase(str: string) {
+export function capitalEachWords(str: string) {
   return str
     .split(" ")
     .map((item) => _.capitalize(item))

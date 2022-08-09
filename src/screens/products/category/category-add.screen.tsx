@@ -10,7 +10,7 @@ import { RegUtil } from "utils/RegUtils";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import { callApiNative } from "utils/ApiUtils";
 import { createCategoryApi } from "service/product/category.service";
-import { toTitleCase } from "utils/AppUtils";
+import { capitalEachWords } from "utils/AppUtils";
 
 let initialRequest: CategoryCreateRequest = {
   code: "",
@@ -53,7 +53,7 @@ const AddCategory: React.FC = () => {
 
   const onChangeName = useCallback(
     (e: any) => {
-      let name = toTitleCase(e.target.value);
+      let name = capitalEachWords(e.target.value);
       formRef.current?.setFieldsValue({
         name: name,
       });
