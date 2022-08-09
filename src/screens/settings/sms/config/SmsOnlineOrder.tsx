@@ -12,9 +12,13 @@ import {
   getSmsConfigAction,
 } from "domain/actions/settings/sms-settings.action";
 import { showSuccess } from "utils/ToastUtils";
+import { POS } from "utils/Constants";
 import { SMS_CONFIG_PERMISSIONS } from "config/permissions/sms-config.permission";
 import useAuthorization from "hook/useAuthorization";
 import { StyledSmsConfigMessage } from "screens/settings/sms/styles";
+import CustomSelect from "component/custom/select.custom";
+import { ChannelResponse } from "model/response/product/channel.response";
+import { getListChannelRequest } from "domain/actions/order/order.action";
 
 const KEY_WORD_LIST = [
   {
@@ -27,13 +31,28 @@ const KEY_WORD_LIST = [
     key: "customer_phone",
     value: "{customer_phone}",
   },
+  {
+    name: "Mã đơn hàng",
+    key: "order_code",
+    value: "{order_code}",
+  },
+  {
+    name: "Điểm tích lũy hiện tại",
+    key: "point",
+    value: "{point}",
+  },
+  {
+    name: "Điểm sử dụng",
+    key: "change_point",
+    value: "{change_point}",
+  },
 ];
 
-const MESSAGE_CONTENT_ID = "website_message_id";
+const MESSAGE_CONTENT_ID = "online_order_message_id";
 
 const updateSmsPermission = [SMS_CONFIG_PERMISSIONS.UPDATE];
 
-const SmsWebsiteOrder: React.FC = () => {
+const SmsOnlineOrder: React.FC = () => {
   const dispatch = useDispatch();
   const [form] = Form.useForm();
   const history = useHistory();
@@ -43,6 +62,7 @@ const SmsWebsiteOrder: React.FC = () => {
     not: false,
   });
 
+  const [listChannel, setListChannel] = useState<Array<ChannelResponse>>([]);
   const [messageStatus, setMessageStatus] = useState<boolean>(true);
   const [initValue, setInitValue] = useState<any>();
 
@@ -50,11 +70,12 @@ const SmsWebsiteOrder: React.FC = () => {
     (data: any) => {
       if (data) {
         const messages = JSON.parse(data.messages);
-        setMessageStatus(data.website_msg_status === "ACTIVE");
-
+        setMessageStatus(data.online_order_msg_status === "ACTIVE");
+        const channelIds = data.sent_channel_ids?.split(",")?.map((item: any) => Number(item));
         const initFormValue = {
-          website_message: messages?.website_message,
-          website_msg_status: data.website_msg_status,
+          online_order_message: messages?.online_order_message,
+          online_order_msg_status: data.online_order_msg_status,
+          sent_channel_ids: channelIds,
         };
         setInitValue(initFormValue);
         form.setFieldsValue(initFormValue);
@@ -66,6 +87,13 @@ const SmsWebsiteOrder: React.FC = () => {
   useEffect(() => {
     dispatch(getSmsConfigAction(handleSmsConfigData));
   }, [dispatch, handleSmsConfigData]);
+
+  useEffect(() => {
+    dispatch(getListChannelRequest((channelData) => {
+      const onlineChannel = channelData.filter(channel => channel.code !== POS.channel_code);
+      setListChannel(onlineChannel);
+    }));
+  }, [dispatch]);
 
   /** handle Insert text */
   const addTextAtCaret = (textAreaId: any, text: any, fieldName: any) => {
@@ -96,29 +124,31 @@ const SmsWebsiteOrder: React.FC = () => {
   };
 
   const handleInsertKeyword = (text: string) => {
-    addTextAtCaret(MESSAGE_CONTENT_ID, text, "website_message");
+    addTextAtCaret(MESSAGE_CONTENT_ID, text, "online_order_message");
   };
   /** end handle Insert text */
 
   // handle submit form
   const handleSubmitForm = (value: any) => {
+    debugger
     const requestParams = {
+      sent_channel_ids: value.sent_channel_ids.toString(),
       messages: {
-        website_message: value.website_message.trim(),
+        online_order_message: value.online_order_message.trim(),
       },
-      website_msg_status: messageStatus ? "ACTIVE" : "INACTIVE",
+      online_order_msg_status: messageStatus ? "ACTIVE" : "INACTIVE",
     };
 
     dispatch(
       configSmsMessageAction(requestParams, () => {
         backAction();
-        showSuccess("Cấu hình SMS Phát sinh hóa đơn trên Website thành công!");
+        showSuccess("Cấu hình SMS \"Đi đơn online thành công\" thành công!");
       }),
     );
   };
 
   const onCancel = () => {
-    setMessageStatus(initValue.website_msg_status === "ACTIVE");
+    setMessageStatus(initValue.online_order_msg_status === "ACTIVE");
     form.setFieldsValue(initValue);
   };
 
@@ -128,7 +158,7 @@ const SmsWebsiteOrder: React.FC = () => {
 
   return (
     <ContentContainer
-      title="Phát sinh hóa đơn trên Website"
+      title="Đi đơn online thành công"
       breadcrumb={[
         {
           name: "Tổng quan",
@@ -142,7 +172,7 @@ const SmsWebsiteOrder: React.FC = () => {
           name: "Notifications",
         },
         {
-          name: "Phát sinh hóa đơn trên Website",
+          name: "Đi đơn online thành công",
         },
       ]}
     >
@@ -156,7 +186,7 @@ const SmsWebsiteOrder: React.FC = () => {
           >
             <Card title="SMS">
               <Form.Item
-                name="website_msg_status"
+                name="online_order_msg_status"
                 label={<b>Trạng thái:</b>}
                 className={"action-status"}
               >
@@ -172,7 +202,29 @@ const SmsWebsiteOrder: React.FC = () => {
                 {messageStatus ? <span>Hoạt động</span> : <span>Không hoạt động</span>}
               </Form.Item>
 
-              <Form.Item name={"website_message"} label={<b>Nội dung</b>}>
+              <Form.Item name="sent_channel_ids" label="Kênh bán hàng">
+                <CustomSelect
+                  mode="multiple"
+                  showSearch
+                  allowClear
+                  showArrow
+                  placeholder="Chọn kênh bán hàng"
+                  notFoundContent="Không tìm thấy kết quả"
+                  style={{ width: "100%" }}
+                  optionFilterProp="children"
+                  getPopupContainer={(trigger) => trigger.parentNode}
+                  maxTagCount="responsive"
+                >
+                  {listChannel &&
+                    listChannel.map((channel) => (
+                      <CustomSelect.Option key={channel.code} value={channel.id}>
+                        {channel.name}
+                      </CustomSelect.Option>
+                    ))}
+                </CustomSelect>
+              </Form.Item>
+
+              <Form.Item name={"online_order_message"} label={<b>Nội dung</b>}>
                 <TextArea
                   id={MESSAGE_CONTENT_ID}
                   allowClear
@@ -227,4 +279,4 @@ const SmsWebsiteOrder: React.FC = () => {
   );
 };
 
-export default SmsWebsiteOrder;
+export default SmsOnlineOrder;
