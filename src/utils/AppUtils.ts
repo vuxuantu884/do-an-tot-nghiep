@@ -161,7 +161,7 @@ export const getListBreadcumb = (routes: Array<RouteMenu> = [], path: string = "
 export const convertCategory = (data: Array<CategoryResponse>) => {
   let arr: Array<CategoryView> = [];
   data.forEach((item) => {
-    let level = 0;
+    let level = 1;
     let temp = getArrCategory(item, level, null);
     arr = [...arr, ...temp];
   });
