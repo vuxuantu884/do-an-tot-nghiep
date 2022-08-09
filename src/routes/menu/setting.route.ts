@@ -23,7 +23,7 @@ const SmsScreen = React.lazy(() => import("screens/settings/sms/sms.screen"));
 const SmsOrderRetail = React.lazy(() => import("screens/settings/sms/config/SmsOrderRetail"));
 const SmsWebsiteOrder = React.lazy(() => import("screens/settings/sms/config/SmsWebsiteOrder"));
 
-const ManageUserScreen = React.lazy(() => import("screens/settings/account/account.search.screen"));
+const ManageUserScreen = React.lazy(() => import("screens/settings/account/AccountList"));
 
 const AccountDetailScreen = React.lazy(() => import("screens/settings/account/detail"));
 // const ManageStoreScreen = React.lazy(
