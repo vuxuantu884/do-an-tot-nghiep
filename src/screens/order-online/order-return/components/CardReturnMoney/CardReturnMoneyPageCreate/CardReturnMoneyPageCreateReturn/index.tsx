@@ -4,7 +4,7 @@ import { RETURN_MONEY_TYPE } from "utils/Order.constants";
 import ReturnMoneySelect from "../../ReturnMoneySelect";
 
 type PropTypes = {
-  listPaymentMethods: Array<PaymentMethodResponse>;
+  paymentMethods: Array<PaymentMethodResponse>;
   totalAmountCustomerNeedToPay?: number;
   returnMoneyType?: string;
   setReturnMoneyType?: (value: string) => void;
@@ -21,7 +21,7 @@ type PropTypes = {
  */
 function CardReturnMoneyPageCreateReturn(props: PropTypes) {
   const {
-    listPaymentMethods,
+    paymentMethods,
     totalAmountCustomerNeedToPay,
     returnMoneyType,
     setReturnPaymentMethodCode,
@@ -51,7 +51,7 @@ function CardReturnMoneyPageCreateReturn(props: PropTypes) {
         </Radio.Group> */}
         {returnMoneyType === RETURN_MONEY_TYPE.return_now && (
           <ReturnMoneySelect
-            listPaymentMethods={listPaymentMethods}
+            paymentMethods={paymentMethods}
             totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay || 0}
             handleReturnMoney={() => {}}
             isShowButtonReturnMoney={false}

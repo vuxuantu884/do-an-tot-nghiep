@@ -5,6 +5,7 @@ import {
   primaryColor,
   successColor,
   textBodyColor,
+  textLinkColor,
   textMutedColor,
   yellowColor,
 } from "utils/global-styles/variables";
@@ -462,18 +463,14 @@ export const StyledComponent = styled.div.attrs((props: any) => {
       }
     }
   }
-  .poppver-to-fast {
-    .btn-to-fast {
-      padding: "0px";
-      display: "block";
-      height: "24px";
-    }
-  }
   .checkInventoryButton {
     padding: 0;
     height: auto;
     line-height: 1;
     width: auto;
+    &__icon {
+      color: rgb(252, 175, 23);
+    }
   }
   .iconReturn {
     width: 20px;
@@ -500,6 +497,66 @@ export const StyledComponent = styled.div.attrs((props: any) => {
   .originalPrice {
     color: ${textMutedColor};
     text-decoration: line-through;
+  }
+  .returnAmount {
+    color: ${yellowColor};
+  }
+  .orderCode,
+  .coordinatorCode {
+    font-weight: 500;
+  }
+  .columnBody {
+    &__customer {
+      color: ${textLinkColor};
+      display: flex;
+      &-inner {
+        padding: 0;
+        font-weight: 500;
+        cursor: pointer;
+        font-size: 0.9em;
+      }
+      .trigger__button {
+        width: 25px;
+        padding: 0;
+      }
+      .trigger__icon {
+        font-size: 12px;
+      }
+    }
+    &__items {
+      .itemDiscountValue {
+        color: ${dangerColor};
+      }
+    }
+    &__discountAmount {
+      .totalDiscountValue {
+        color: ${dangerColor};
+      }
+    }
+  }
+  .btn-to-fast {
+    padding: 0;
+    display: block;
+    height: 30px;
+    position: relative;
+    padding-left: 30px;
+    img,
+    [role="img"] {
+      position: absolute;
+      z-index: 1;
+      top: 10px;
+      left: 0;
+    }
+    & > .anticon + span {
+      margin-left: 0;
+    }
+  }
+  .createWarrantyIcon {
+    filter: brightness(0.5);
+  }
+  .shipper {
+    color: ${primaryColor};
+    font-weight: 500;
   }
 `;
 

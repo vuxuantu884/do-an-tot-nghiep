@@ -336,10 +336,10 @@ export interface ShipmentResponse extends BaseObject {
   note_to_shipper: string | null;
   requirements: string | null;
   requirements_name: string | null;
-  shipping_address: ShippingAddress | null;
+  shipping_address?: ShippingAddress | null;
   fulfillment_id: string | null;
   cod: number;
-  office_time: string | null;
+  office_time: boolean | null;
   info_shipper: string | null;
 }
 
