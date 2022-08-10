@@ -98,14 +98,14 @@ const CategoryOverviewScreen: React.FC = () => {
           {Object.keys(categories).map((i: any) => {
             return (
               <div className="other-level">
-                <div className="center level-text fixed-header">Cấp {Number(i) + 1}</div>
+                <div className="center level-text fixed-header">Cấp {Number(i)}</div>
                 {categories[i].map((d: any) => {
                   return (
                     <div
                       className={`cursor-p category-tree-level ${
                         isExistEl(d.id) || isExistEl(d.parent?.id)
                           ? `${isExistEl(d.id) ? "active" : ""}`
-                          : d.level !== 0
+                          : d.level !== 1
                           ? "d-none"
                           : ""
                       }`}
