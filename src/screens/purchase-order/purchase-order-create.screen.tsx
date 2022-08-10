@@ -335,7 +335,11 @@ const POCreateScreen: React.FC = () => {
           name: "Tạo mới đơn đặt hàng",
         },
       ]}
-      extra={<POStep poData={formInitial} />}
+      extra={
+        <div className="po-step">
+          <POStep poData={formInitial} />
+        </div>
+      }
     >
       <Form
         form={formMain}
@@ -399,7 +403,11 @@ const POCreateScreen: React.FC = () => {
         </div>
         <BottomBarContainer
           back={false}
-          leftComponent={<POStep poData={formInitial} />}
+          leftComponent={
+            <div className="po-step">
+              <POStep poData={formInitial} />
+            </div>
+          }
           rightComponent={
             <React.Fragment>
               <Button
