@@ -91,7 +91,7 @@ const POReturnScreen: React.FC<POReturnProps> = ({ poData, cancelReturn, onUpdat
     if (poData) {
       formMain.setFieldsValue(poData);
     }
-  }, [formMain, poData])
+  }, [formMain, poData]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
@@ -122,13 +122,13 @@ const POReturnScreen: React.FC<POReturnProps> = ({ poData, cancelReturn, onUpdat
               let totalReturn = 0,
                 totalVat = 0;
               line_return_items &&
-              line_return_items.forEach((item: PurchaseOrderLineReturnItem) => {
-                if (!item.quantity_return) return;
-                totalReturn +=
-                  item.quantity_return *
-                  POUtils.caculatePrice(item.price, item.discount_rate, item.discount_value);
-                totalVat = totalVat + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
-              });
+                line_return_items.forEach((item: PurchaseOrderLineReturnItem) => {
+                  if (!item.quantity_return) return;
+                  totalReturn +=
+                    item.quantity_return *
+                    POUtils.caculatePrice(item.price, item.discount_rate, item.discount_value);
+                  totalVat = totalVat + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
+                });
               return (
                 <Fragment>
                   <POReturnProductForm
@@ -151,7 +151,12 @@ const POReturnScreen: React.FC<POReturnProps> = ({ poData, cancelReturn, onUpdat
                     <Button type="default" className="light" onClick={onCancelButton}>
                       Hủy
                     </Button>
-                    <Button loading={isLoading} type="primary" onClick={onConfirmButton} className="create-button-custom">
+                    <Button
+                      loading={isLoading}
+                      type="primary"
+                      onClick={onConfirmButton}
+                      className="create-button-custom"
+                    >
                       Hoàn trả
                     </Button>
                   </div>

@@ -919,7 +919,13 @@ const PODetailScreen: React.FC = () => {
           name: `Đơn đặt hàng ${purchaseOrder?.code || ""}`,
         },
       ]}
-      extra={purchaseOrder && <POStep poData={purchaseOrder} />}
+      extra={
+        purchaseOrder && (
+          <div className="po-step">
+            <POStep poData={purchaseOrder} />
+          </div>
+        )
+      }
     >
       <Form
         form={formMain}
