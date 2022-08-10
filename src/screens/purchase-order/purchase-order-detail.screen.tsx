@@ -159,6 +159,7 @@ const PODetailScreen: React.FC = () => {
   const [activePanel, setActivePanel] = useState<string | string[]>();
   const [isShowWarningPriceModal, setShowWarningPriceModal] = useState<boolean>(false);
   const [showConfirmChangePrice, setShowConfirmChangePrice] = useState<boolean>(false);
+  const [isRerender, setIsRerender] = useState<boolean>(false);
   const [canCancelPO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.cancel],
   });
@@ -845,6 +846,7 @@ const PODetailScreen: React.FC = () => {
           id={id}
           params={formMain.getFieldsValue(true)}
           actionPrint={actionPrintReturn}
+          onUpdateCallReturn={() => setIsRerender(!isRerender)}
         />
       );
     } else {
@@ -857,23 +859,15 @@ const PODetailScreen: React.FC = () => {
     dispatch(CountryGetAllAction(setCountries));
     dispatch(DistrictGetByCountryAction(VietNamId, setListDistrict));
     dispatch(PaymentConditionsGetAllAction(setListPaymentConditions));
+  }, [dispatch, onStoreResult, printContentCallback]);
+
+  useEffect(() => {
     if (!isNaN(idNumber)) {
-      setLoading(true);
       loadDetail(idNumber, true, false);
     } else {
       setError(true);
     }
-  }, [dispatch, idNumber, loadDetail, onStoreResult, printContentCallback]);
-
-  // useEffect(() => {
-  //   if (poData?.id) {
-  //     dispatch(
-  //       POGetPurchaseOrderActionLogs(poData?.id, (response: PurchaseOrderActionLogResponse[]) => {
-  //         setActionLog(response);
-  //       })
-  //     );
-  //   }
-  // }, [dispatch, poData?.id, poData]);
+  }, [idNumber, loadDetail, isRerender]);
 
   /**
    * Load data cho lineItem dạng bảng grid

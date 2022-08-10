@@ -1,17 +1,12 @@
 import { Form, Button } from "antd";
 import React, { Fragment, useState, useCallback, useEffect } from "react";
-import { useParams, useHistory } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { PoDetailAction, POReturnAction } from "domain/actions/po/po.action";
-import UrlConfig from "config/url.config";
+import { POReturnAction } from "domain/actions/po/po.action";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
-import ContentContainer from "component/container/content.container";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
-import POSupplierForm from "./component/po-supplier-form";
 import POReturnProductForm from "./component/po-return-product.form";
-import POReturnPaymentForm from "./component/po-return-payment.form";
-import POStep from "./component/po-step/po-step";
 import { POField } from "model/purchase-order/po-field";
 import { POUtils } from "utils/POUtils";
 import { PurchaseOrderLineReturnItem } from "model/purchase-order/purchase-item.model";
@@ -22,34 +17,35 @@ import {
   DistrictGetByCountryAction,
 } from "domain/actions/content/content.action";
 import { VietNamId } from "utils/Constants";
-import { showError } from "utils/ToastUtils";
-import BottomBarContainer from "component/container/bottom-bar.container";
+import { showError, showSuccess } from "utils/ToastUtils";
 import { POProcumentField } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 
-interface POReturnProps {}
+interface POReturnProps {
+  poData: PurchaseOrder | null;
+  cancelReturn: () => any;
+  onUpdateCallReturn: () => any;
+}
 type PurchaseOrderReturnParams = {
   id: string;
 };
 const initFormValue = {
   [POProcumentField.expect_receipt_date]: moment(),
 };
-const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
-  const [isError, setError] = useState(false);
-  const [isLoading, setLoading] = useState<boolean>(false);
-  const [poData, setPurchaseItem] = useState<PurchaseOrder | null>(null);
+const POReturnScreen: React.FC<POReturnProps> = ({ poData, cancelReturn, onUpdateCallReturn }) => {
   const [listStore, setListStore] = useState<Array<StoreResponse>>([]);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
   const [listDistrict, setDistrict] = useState<Array<DistrictResponse>>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
   const { id } = useParams<PurchaseOrderReturnParams>();
   const idNumber = parseInt(id);
   const [formMain] = Form.useForm();
-  const history = useHistory();
   const dispatch = useDispatch();
   const onUpdateCall = useCallback(() => {
-    setLoading(false);
-    history.replace(`${UrlConfig.PURCHASE_ORDERS}/${id}`);
-  }, [history, id]);
+    setIsLoading(false);
+    showSuccess("Trả hàng thành công!");
+    onUpdateCallReturn();
+  }, [onUpdateCallReturn]);
   const onFinish = useCallback(
     (values: any) => {
       if (!values.line_return_items) {
@@ -63,13 +59,15 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
         showError("Cần trả ít nhất 1 sản phẩm");
         return;
       }
-      setLoading(true);
+
+      setIsLoading(true);
+
       dispatch(POReturnAction(idNumber, values, onUpdateCall));
     },
     [dispatch, idNumber, onUpdateCall],
   );
   const onCancelButton = () => {
-    history.replace(`${UrlConfig.PURCHASE_ORDERS}/${id}`);
+    cancelReturn();
   };
   const onConfirmButton = useCallback(() => {
     formMain
@@ -89,18 +87,12 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
       });
   }, [formMain, onFinish]);
 
-  const onDetail = useCallback(
-    (result: PurchaseOrder | null) => {
-      setLoading(false);
-      if (!result) {
-        setError(true);
-      } else {
-        formMain.setFieldsValue(result);
-        setPurchaseItem(result);
-      }
-    },
-    [formMain],
-  );
+  useEffect(() => {
+    if (poData) {
+      formMain.setFieldsValue(poData);
+    }
+  }, [formMain, poData])
+
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
     dispatch(
@@ -114,107 +106,62 @@ const POReturnScreen: React.FC<POReturnProps> = (props: POReturnProps) => {
       }),
     );
   }, [dispatch]);
-  const loadDetail = useCallback(
-    (id: number) => {
-      dispatch(PoDetailAction(id, onDetail));
-    },
-    [dispatch, onDetail],
-  );
-  useEffect(() => {
-    if (!isNaN(idNumber)) {
-      setLoading(true);
-      loadDetail(idNumber);
-    } else {
-      setError(true);
-    }
-  }, [idNumber, loadDetail]);
+
   return (
-    <ContentContainer
-      isLoading={isLoading}
-      isError={isError}
-      title={`Trả hàng cho đơn mua hàng ${id}`}
-      breadcrumb={[
-        {
-          name: "Tổng quan",
-          path: UrlConfig.HOME,
-        },
-        {
-          name: "Đặt hàng",
-          path: `${UrlConfig.PURCHASE_ORDERS}`,
-        },
-        {
-          name: `Đơn hàng`,
-          path: `${UrlConfig.PURCHASE_ORDERS}/${id}`,
-        },
-      ]}
+    <Form
+      form={formMain}
+      initialValues={initFormValue}
+      layout="vertical"
+      // onFinish={onFinish}
     >
-      <Form
-        form={formMain}
-        initialValues={initFormValue}
-        layout="vertical"
-        // onFinish={onFinish}
-      >
-        {poData !== null && (
-          <Fragment>
-            <POSupplierForm
-              showSupplierAddress={true}
-              showBillingAddress={false}
-              isEdit={true}
-              hideExpand={true}
-              listCountries={listCountries}
-              listDistrict={listDistrict}
-              formMain={formMain}
-            />
-            <Form.Item shouldUpdate={(prevValues, curValues) => true} noStyle>
-              {({ getFieldValue }) => {
-                let line_return_items = getFieldValue(POField.line_return_items);
-                let totalReturn = 0,
-                  totalVat = 0;
-                line_return_items &&
-                  line_return_items.forEach((item: PurchaseOrderLineReturnItem) => {
-                    if (!item.quantity_return) return;
-                    totalReturn +=
-                      item.quantity_return *
-                      POUtils.caculatePrice(item.price, item.discount_rate, item.discount_value);
-                    totalVat = totalVat + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
-                  });
-                return (
-                  <Fragment>
-                    <POReturnProductForm
-                      formMain={formMain}
-                      totalVat={totalVat}
-                      totalReturn={totalReturn}
-                      listStore={listStore}
-                      poData={poData}
-                    />
-                    <POReturnPaymentForm
-                      formMain={formMain}
-                      totalReturn={totalReturn}
-                      totalVat={totalVat}
-                    />
-                  </Fragment>
-                );
-              }}
-            </Form.Item>
-            <BottomBarContainer
-              height={80}
-              back={false}
-              leftComponent={<POStep poData={poData} />}
-              rightComponent={
-                <React.Fragment>
-                  <Button type="default" className="light" onClick={onCancelButton}>
-                    Hủy
-                  </Button>
-                  <Button type="primary" onClick={onConfirmButton} className="create-button-custom">
-                    Hoàn trả
-                  </Button>
-                </React.Fragment>
-              }
-            />
-          </Fragment>
-        )}
-      </Form>
-    </ContentContainer>
+      {poData !== null && (
+        <Fragment>
+          <Form.Item shouldUpdate={() => true} noStyle>
+            {({ getFieldValue }) => {
+              let line_return_items = getFieldValue(POField.line_return_items);
+              let totalReturn = 0,
+                totalVat = 0;
+              line_return_items &&
+              line_return_items.forEach((item: PurchaseOrderLineReturnItem) => {
+                if (!item.quantity_return) return;
+                totalReturn +=
+                  item.quantity_return *
+                  POUtils.caculatePrice(item.price, item.discount_rate, item.discount_value);
+                totalVat = totalVat + item.amount_tax_refunds ? item.amount_tax_refunds : 0;
+              });
+              return (
+                <Fragment>
+                  <POReturnProductForm
+                    type="RETURN"
+                    formMain={formMain}
+                    totalVat={totalVat}
+                    totalReturn={totalReturn}
+                    listStore={listStore}
+                    poData={poData}
+                    listCountries={listCountries}
+                    listDistrict={listDistrict}
+                  />
+                  {/*<POReturnPaymentForm*/}
+                  {/*  formMain={formMain}*/}
+                  {/*  totalReturn={totalReturn}*/}
+                  {/*  totalVat={totalVat}*/}
+                  {/*/>*/}
+
+                  <div className="text-right">
+                    <Button type="default" className="light" onClick={onCancelButton}>
+                      Hủy
+                    </Button>
+                    <Button loading={isLoading} type="primary" onClick={onConfirmButton} className="create-button-custom">
+                      Hoàn trả
+                    </Button>
+                  </div>
+                </Fragment>
+              );
+            }}
+          </Form.Item>
+        </Fragment>
+      )}
+    </Form>
   );
 };
 

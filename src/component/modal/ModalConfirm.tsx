@@ -15,6 +15,7 @@ export interface ModalConfirmProps {
 
 const ModalConfirm: React.FC<ModalConfirmProps> = (props: ModalConfirmProps) => {
   const { visible, onOk, onCancel, title, subTitle, okText, cancelText, loading } = props;
+
   return (
     <Modal
       confirmLoading={loading}
