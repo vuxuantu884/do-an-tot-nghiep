@@ -1692,7 +1692,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice === undefined) {
       form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
       setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
-      showSuccess("Cập nhật phí ship báo khách thành công!");
+      showSuccess("Phí ship đã được thay đổi!");
       return;
     }
   }

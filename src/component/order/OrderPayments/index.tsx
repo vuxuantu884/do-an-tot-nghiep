@@ -33,10 +33,10 @@ import { StyledComponent } from "./styles";
 
 type PropTypes = {
   payments: OrderPaymentRequest[];
-  totalAmountOrder: number;
+  totalOrderAmount: number;
   levelOrder?: number;
   loyaltyRate?: LoyaltyRateResponse | null;
-  listPaymentMethod: PaymentMethodResponse[];
+  paymentMethods: PaymentMethodResponse[];
   setPayments: (value: Array<OrderPaymentRequest>) => void;
   orderDetail: OrderResponse | null | undefined;
 };
@@ -44,28 +44,28 @@ type PropTypes = {
 /**
  * payments: payment mặc định (vd trường hợp clone đơn hàng)
  *
- * listPaymentMethod: danh sách payment method
+ * paymentMethods: danh sách payment method
  *
  * setPayments: xử lý khi điền payment
  *
  * loyaltyRate:  loyalty
  *
- * totalAmountOrder: tiền đơn hàng
+ * totalOrderAmount: tiền đơn hàng
  *
  * levelOrder: phân quyền
  */
 function OrderPayments(props: PropTypes): JSX.Element {
   const {
-    totalAmountOrder,
+    totalOrderAmount,
     levelOrder = 0,
     payments,
     loyaltyRate,
-    listPaymentMethod,
+    paymentMethods,
     setPayments,
     orderDetail,
   } = props;
 
-  console.log("totalAmountOrder", totalAmountOrder);
+  console.log("totalOrderAmount", totalOrderAmount);
 
   const dispatch = useDispatch();
 
@@ -80,11 +80,6 @@ function OrderPayments(props: PropTypes): JSX.Element {
   const isExportBill = useSelector(
     (state: RootReducerType) => state.orderReducer.orderDetail.isExportBill,
   );
-
-  const paymentMethods = useMemo(() => {
-    // return listPaymentMethod.filter((item) => item.code !== PaymentMethodCode.CARD);
-    return listPaymentMethod.filter((item) => item.code);
-  }, [listPaymentMethod]);
 
   const usageRate = useMemo(() => {
     let usageRate = loyaltyRate?.usage_rate ? loyaltyRate.usage_rate : 0;
@@ -122,6 +117,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
       //     paymentsResult[bankPaymentIndex].return_amount = 0;
       //   }
       // }
+      console.log("paymentsResult", paymentsResult);
       setPayments(paymentsResult);
       if (!isPaymentAlreadyChanged) {
         dispatch(changeIfPaymentAlreadyChangedAction(true));
@@ -136,8 +132,8 @@ function OrderPayments(props: PropTypes): JSX.Element {
   const totalAmountPayment = getAmountPaymentRequest(payments);
 
   const totalAmountCustomerNeedToPay = useMemo(() => {
-    return totalAmountOrder - totalAmountPayment;
-  }, [totalAmountOrder, totalAmountPayment]);
+    return totalOrderAmount - totalAmountPayment;
+  }, [totalOrderAmount, totalAmountPayment]);
 
   const handleInputPoint = (index: number, point: number | null) => {
     if (!point) {
@@ -174,6 +170,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
     } else {
       payments.splice(indexPayment, 1);
     }
+    console.log("payments", payments);
     handlePayment([...payments]);
   };
 
@@ -373,32 +370,19 @@ function OrderPayments(props: PropTypes): JSX.Element {
   };
 
   const getPaymentIcon = (method: PaymentMethodResponse) => {
-    let icon = null;
-    switch (method.code) {
-      case PaymentMethodCode.CASH:
-        icon = <Cash paymentData={payments} method={method} />;
-        break;
-      case PaymentMethodCode.CARD:
-      case PaymentMethodCode.BANK_TRANSFER:
-        icon = <CreditCardOutlined paymentData={payments} method={method} />;
-        break;
-      case PaymentMethodCode.QR_CODE:
-        icon = <QrcodeOutlined paymentData={payments} method={method} />;
-        break;
-      case PaymentMethodCode.POINT:
-        icon = <YdCoin paymentData={payments} method={method} />;
-        break;
-      case PaymentMethodCode.MOMO:
-        icon = <MomoOutlined paymentData={payments} method={method} />;
-        break;
-      case PaymentMethodCode.VN_PAY:
-        icon = <VnPayOutline paymentData={payments} method={method} />;
-        break;
-      default:
-        icon = <BugOutlined style={{ fontSize: 15 }} />;
-        break;
-    }
-    return icon;
+    const paymentIcon = {
+      [PaymentMethodCode.CASH]: <Cash paymentData={payments} method={method} />,
+      [PaymentMethodCode.CARD]: <CreditCardOutlined paymentData={payments} method={method} />,
+      [PaymentMethodCode.BANK_TRANSFER]: (
+        <CreditCardOutlined paymentData={payments} method={method} />
+      ),
+      [PaymentMethodCode.QR_CODE]: <QrcodeOutlined paymentData={payments} method={method} />,
+      [PaymentMethodCode.POINT]: <YdCoin paymentData={payments} method={method} />,
+      [PaymentMethodCode.MOMO]: <MomoOutlined paymentData={payments} method={method} />,
+      [PaymentMethodCode.VN_PAY]: <VnPayOutline paymentData={payments} method={method} />,
+      default: <BugOutlined style={{ fontSize: 15 }} />,
+    };
+    return paymentIcon[method.code] || paymentIcon.default;
   };
 
   const renderRowPrice = () => {
@@ -409,7 +393,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
         </Col>
         <Col className="lbl-money rowPrice__amount" lg={6} xxl={6}>
           <div className="rowPriceAmountWrapper">
-            <span className="t-result-blue">{formatCurrency(totalAmountOrder)}</span>
+            <span className="t-result-blue">{formatCurrency(totalOrderAmount)}</span>
           </div>
         </Col>
       </Row>
@@ -428,7 +412,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
             className="hide-number-handle pointSpendingInput"
             onFocus={(e) => e.target.select()}
             min={0}
-            max={totalAmountOrder / usageRate}
+            max={totalOrderAmount / usageRate}
             onChange={(value) => {
               handleInputPoint(index, value);
             }}
@@ -482,7 +466,7 @@ function OrderPayments(props: PropTypes): JSX.Element {
                 (method.payment_method_code === PaymentMethodCode.BANK_TRANSFER &&
                   storeBankAccountNumbers.length === 0 &&
                   false) ||
-                (method.payment_method_code === PaymentMethodCode.MOMO && !totalAmountOrder)
+                (method.payment_method_code === PaymentMethodCode.MOMO && !totalOrderAmount)
               }
               className="yody-payment-input hide-number-handle"
               //placeholder="Nhập tiền mặt"
@@ -522,15 +506,17 @@ function OrderPayments(props: PropTypes): JSX.Element {
     );
   };
 
+  console.log("payments", payments);
+
   const renderPayments = () => {
+    console.log("333");
+    console.log("payments2", payments);
     return payments.map((method, index) => {
       return (
         <Row
           gutter={30}
           className={`row-price rowPayment ${
-            method.payment_method_code === PaymentMethodCode.BANK_TRANSFER
-              ? "paymentBank"
-              : undefined
+            method.payment_method_code === PaymentMethodCode.BANK_TRANSFER ? "paymentBank" : ""
           } `}
           key={method.payment_method_code}
         >

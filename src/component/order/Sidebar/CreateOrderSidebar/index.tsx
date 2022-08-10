@@ -3,7 +3,7 @@ import SubStatusOrder from "component/main-sidebar/sub-status-order";
 import { OrderResponse, OrderSubStatusResponse } from "model/response/order/order.response";
 import React, { useState } from "react";
 import SidebarOrderHistory from "screens/yd-page/yd-page-order-create/component/CreateOrderSidebar/SidebarOrderHistory";
-import CreateOrderSidebarOrderExtraInformation from "../CreateOrderSidebarOrderExtraInformation/CreateOrderSidebarOrderExtraInformation";
+import CreateOrderSidebarOrderExtraInformation from "../CreateOrderSidebarOrderExtraInformation";
 import CreateOrderSidebarOrderInformation from "../CreateOrderSidebarOrderInformation";
 import { StyledComponent } from "./styles";
 
@@ -63,7 +63,6 @@ function CreateOrderSidebar(props: PropTypes): JSX.Element {
       {listOrderSubStatus && (
         <SubStatusOrder
           subStatusCode={orderDetail?.sub_status_code}
-          status={orderDetail?.status}
           orderId={orderDetail?.id}
           handleUpdateSubStatus={handleUpdateSubStatus}
           OrderDetailAllFulfillment={orderDetail}

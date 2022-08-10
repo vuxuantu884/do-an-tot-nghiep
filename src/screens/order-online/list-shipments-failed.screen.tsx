@@ -32,6 +32,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import { Link, useHistory, withRouter } from "react-router-dom";
+import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import { exportFile, getFile } from "service/other/export.service";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { ShipmentMethod } from "utils/Constants";
@@ -110,17 +111,11 @@ const ShipmentsFailedScreen: React.FC = (props: any) => {
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
   const [shippers, setShippers] = useState<Array<AccountResponse>>([]);
   const [reasons, setReasons] = useState<Array<{ id: number; name: string }>>([]);
+
   let delivery_services: Array<DeliveryServiceResponse> = [];
-  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
-  useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        delivery_services = response;
-        setDeliveryServices(response);
-      }),
-    );
-  }, [dispatch]);
+  const deliveryServices = useFetchDeliverServices();
+  delivery_services = deliveryServices;
+
   const [data, setData] = useState<PageResponse<ShipmentModel>>({
     metadata: {
       limit: 30,

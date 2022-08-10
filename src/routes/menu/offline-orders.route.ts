@@ -27,7 +27,7 @@ const offlineOrdersRoute: Array<RouteMenu> = [
     title: "Danh sách bán lẻ",
     icon: "icon-dot",
     component: OfflineOrders,
-    key: "danh-sach-don-hang-offline",
+    key: "danh-sach-don-hang-offline2",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.READ],
