@@ -1,5 +1,6 @@
 import { DeleteOutlined, ExclamationCircleOutlined, ExportOutlined } from "@ant-design/icons";
 import { Button, Card, Modal, Radio, Row, Space, Tooltip } from "antd";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import exportIcon from "assets/icon/export.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -13,7 +14,7 @@ import UrlConfig from "config/url.config";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import { getListReasonRequest, getReturnsAction } from "domain/actions/order/order.action";
-import { getListAllSourceRequest } from "domain/actions/product/source.action";
+import { getAllSourcesRequestAction } from "domain/actions/product/source.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import { AccountResponse } from "model/account/account.model";
@@ -47,18 +48,17 @@ import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
 import { StyledComponent } from "./OrderReturnList.styles";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
 // import search from "assets/img/search.svg";
-import useAuthorization from "hook/useAuthorization";
+import IconFacebook from "assets/icon/channel/facebook.svg";
+import IconShopee from "assets/icon/channel/shopee.svg";
+import IconStore from "assets/icon/channel/store.svg";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import useAuthorization from "hook/useAuthorization";
 import {
   deleteOrderReturnService,
   updateNoteOrderReturnService,
 } from "service/order/return.service";
 import EditNote from "../EditOrderNote";
-import IconShopee from "assets/icon/channel/shopee.svg";
-import IconStore from "assets/icon/channel/store.svg";
-import IconFacebook from "assets/icon/channel/facebook.svg";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -1129,7 +1129,7 @@ function OrderReturnList(props: PropTypes) {
 
   useEffect(() => {
     dispatch(searchAccountPublicAction({ limit: 30 }, setDataAccounts));
-    dispatch(getListAllSourceRequest(setListSource));
+    dispatch(getAllSourcesRequestAction(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(getListReasonRequest(setReasons));
   }, [dispatch]);
