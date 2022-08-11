@@ -319,8 +319,7 @@ export default function Order() {
     let fulfillmentRequests = [];
     if (
       paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
-      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
-      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+      shipmentMethod !== ShipmentMethodOption.DELIVER_LATER
     ) {
       fulfillmentRequests.push(request);
     }
@@ -337,6 +336,7 @@ export default function Order() {
       request.shipment = null;
       fulfillmentRequests.push(request);
     }
+    console.log("fulfillmentRequests", fulfillmentRequests);
     return fulfillmentRequests;
   };
 
