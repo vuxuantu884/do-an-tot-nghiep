@@ -723,7 +723,7 @@ export const isNormalTypeVariantItem = (lineItem: OrderLineItemResponse) => {
 };
 
 export const getAmountPayment = (
-  items: Array<OrderPaymentResponse | OrderPaymentRequest> | null,
+  items: Array<OrderPaymentResponse | OrderPaymentRequest> | null | undefined,
 ) => {
   let value = 0;
   if (items && items.length > 0) {
@@ -1678,10 +1678,10 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   transportService: string | null | undefined,
   form: FormInstance<any>,
   setShippingFeeInformedToCustomer?: (value: number) => void,
-  isPageOrderUpdate = false,
+  isOrderUpdatePage = false,
   isApplyAll = true,
 ) => {
-  if (isPageOrderUpdate) {
+  if (isOrderUpdatePage) {
     return;
   }
   if (!transportService && !isApplyAll) {

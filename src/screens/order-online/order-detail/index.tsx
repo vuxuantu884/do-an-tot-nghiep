@@ -31,6 +31,7 @@ import {
 import { actionListConfigurationShippingServiceAndShippingFee } from "domain/actions/settings/order-settings.action";
 import useCheckIfCanCreateMoneyRefund from "hook/order/useCheckIfCanCreateMoneyRefund";
 import { HandoverResponse } from "model/handover/handover.response";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
   EcommerceId,
@@ -1082,7 +1083,9 @@ const OrderDetail = (props: PropTypes) => {
                   stepsStatusValue={stepsStatusValue}
                   createPaymentCallback={createPaymentCallback}
                   totalAmountCustomerNeedToPay={totalAmountCustomerNeedToPay}
-                  setPayments={() => {}} //chú ý phải set
+                  payments={OrderDetail?.payments}
+                  setExtraPayments={() => {}} //chú ý phải set
+                  orderPageType={OrderPageTypeModel.orderDetail}
                 />
 
                 {/*--- shipment ---*/}
@@ -1112,7 +1115,7 @@ const OrderDetail = (props: PropTypes) => {
                   shippingServiceConfig={shippingServiceConfig}
                   orderConfig={orderConfig}
                   ref={updateShipmentCardRef}
-                  isOrderDetailPage
+                  orderPageType={OrderPageTypeModel.orderDetail}
                 />
                 {/*--- end shipment ---*/}
 

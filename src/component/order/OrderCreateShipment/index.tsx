@@ -6,6 +6,7 @@ import WallClockOutline from "component/icon/WallClockOutline";
 import ShipmentMethodEcommerce from "component/order/OrderCreateShipment/ShipmentMethodEcommerce";
 import ShipmentMethodReceiveAtStore from "component/order/OrderCreateShipment/ShipmentMethodReceiveAtStore";
 import { getFeesAction } from "domain/actions/order/order.action";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
@@ -37,6 +38,7 @@ import {
   checkIfExpiredOrCancelledPayment,
   checkIfFinishedPayment,
   checkIfMomoPayment,
+  checkIfOrderPageType,
 } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import ShipmentMethodDeliverPartner from "./ShipmentMethodDeliverPartner";
@@ -70,16 +72,14 @@ type PropTypes = {
   setThirdPL: (thirdPl: thirdPLModel) => void;
   handleCreateShipment?: () => void;
   creating?: boolean;
-  isOrderReturnFromPOS?: boolean;
+  isOrderReturnOffline?: boolean;
   handleCancelCreateShipment?: () => void;
   ecommerceShipment?: EcommerceDeliveryResponse | null;
   isEcommerceOrder?: boolean;
-  isPageOrderUpdate?: boolean;
-  isPageOrderDetail?: boolean;
   OrderDetail?: OrderResponse | null;
   orderConfig: OrderConfigResponseModel | null;
   payments?: OrderPaymentRequest[];
-  isOrderDetailPage?: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
 /**
@@ -141,13 +141,18 @@ function OrderCreateShipment(props: PropTypes) {
     handleCancelCreateShipment,
     ecommerceShipment,
     isEcommerceOrder,
-    isPageOrderUpdate,
     OrderDetail,
-    isOrderReturnFromPOS,
     payments,
+    isOrderReturnOffline,
+    orderPageType,
   } = props;
 
   const dateFormat = DATE_FORMAT.DDMMYYY;
+
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
+
+  console.log("isOrderUpdatePage", isOrderUpdatePage);
+  const isOrderDetailPage = checkIfOrderPageType.isOrderDetailPage(orderPageType);
 
   const shippingAddressDefault = getShippingAddressDefault(customer);
 
@@ -184,13 +189,13 @@ function OrderCreateShipment(props: PropTypes) {
       name: "Chuyển hãng vận chuyển",
       value: ShipmentMethodOption.DELIVER_PARTNER,
       // icon: IconDelivery,
-      isDisabled: isOrderReturnFromPOS,
+      isDisabled: isOrderReturnOffline,
     },
     {
       name: "Tự giao hàng",
       value: ShipmentMethodOption.SELF_DELIVER,
       // icon: IconSelfDelivery,
-      isDisabled: isOrderReturnFromPOS,
+      isDisabled: isOrderReturnOffline,
     },
     {
       name: "Nhận tại cửa hàng",
@@ -202,7 +207,7 @@ function OrderCreateShipment(props: PropTypes) {
       name: "Giao hàng sau",
       value: ShipmentMethodOption.DELIVER_LATER,
       // icon: IconWallClock,
-      isDisabled: isOrderReturnFromPOS,
+      isDisabled: isOrderReturnOffline,
     },
   ];
   const checkIfDisableSelectShipment = () => {
@@ -244,7 +249,7 @@ function OrderCreateShipment(props: PropTypes) {
                       items?.length &&
                       items?.length > 0 &&
                       button.value === 2 &&
-                      !props.isOrderDetailPage
+                      !isOrderDetailPage
                     ) {
                       handleCalculateShippingFeeApplyOrderSetting(
                         shippingAddressDefault?.city_id,
@@ -253,7 +258,7 @@ function OrderCreateShipment(props: PropTypes) {
                         undefined,
                         form,
                         setShippingFeeInformedToCustomer,
-                        isPageOrderUpdate,
+                        isOrderUpdatePage,
                       );
                     }
                     if (button.value === ShipmentMethodOption.PICK_AT_STORE) {
@@ -326,7 +331,7 @@ function OrderCreateShipment(props: PropTypes) {
           handleCreateShipment={handleCreateShipment}
           setShippingFeeInformedToCustomer={setShippingFeeInformedToCustomer}
           isLoading={creating}
-          isPageOrderUpdate={isPageOrderUpdate}
+          orderPageType={orderPageType}
         />
       );
     }
@@ -404,6 +409,7 @@ function OrderCreateShipment(props: PropTypes) {
           customer={customer}
           form={form}
           renderButtonCreateActionHtml={renderButtonCreateActionHtml}
+          orderPageType={orderPageType}
         />
       ),
       // Tự vận chuyển

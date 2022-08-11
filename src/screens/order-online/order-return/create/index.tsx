@@ -45,6 +45,7 @@ import useGetStoreIdFromLocalStorage from "hook/useGetStoreIdFromLocalStorage";
 import { cloneDeep } from "lodash";
 import { StoreResponse } from "model/core/store.model";
 import { InventoryResponse } from "model/inventory";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { RefundModel } from "model/order/return.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -1856,8 +1857,9 @@ const ScreenReturnCreate = (props: PropTypes) => {
                       form={form}
                       shippingServiceConfig={shippingServiceConfig}
                       orderConfig={orderConfig}
-                      isOrderReturnFromPOS={isOrderFromPOS(OrderDetail)}
+                      isOrderReturnOffline={isOrderFromPOS(OrderDetail)}
                       payments={payments}
+                      orderPageType={OrderPageTypeModel.orderReturnCreate}
                     />
                   </Card>
                 )}

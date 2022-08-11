@@ -34,6 +34,7 @@ import {
 import useFetchStores from "hook/useFetchStores";
 import { InventoryResponse } from "model/inventory";
 import { modalActionType } from "model/modal/modal.model";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -316,6 +317,13 @@ export default function Order() {
     };
 
     let fulfillmentRequests = [];
+    if (
+      paymentMethod !== PaymentMethodOption.POST_PAYMENT ||
+      shipmentMethod === ShipmentMethodOption.SELF_DELIVER ||
+      shipmentMethod === ShipmentMethodOption.PICK_AT_STORE
+    ) {
+      fulfillmentRequests.push(request);
+    }
 
     if (shipmentMethod === ShipmentMethodOption.PICK_AT_STORE) {
       request.delivery_type = ShipmentMethod.PICK_AT_STORE;
@@ -327,11 +335,7 @@ export default function Order() {
       typeButton === OrderStatus.FINALIZED
     ) {
       request.shipment = null;
-    }
-    if (shipmentMethod !== ShipmentMethodOption.DELIVER_LATER) {
       fulfillmentRequests.push(request);
-    } else {
-      fulfillmentRequests = [];
     }
     return fulfillmentRequests;
   };
@@ -492,7 +496,7 @@ export default function Order() {
   }, [totalOrderAmount, totalAmountPayment]);
 
   const handleCreateOrder = async (values: OrderRequest) => {
-    // console.log("values", values);
+    console.log("values", values);
     // return;
     dispatch(showLoading());
     if (typeButton === OrderStatus.DRAFT) {
@@ -1371,6 +1375,7 @@ export default function Order() {
                         shippingServiceConfig={shippingServiceConfig}
                         orderConfig={orderConfig}
                         payments={payments}
+                        orderPageType={OrderPageTypeModel.orderCreate}
                       />
                     </Card>
                   </Col>

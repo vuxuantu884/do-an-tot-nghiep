@@ -1,5 +1,6 @@
 import { Button, Card, Col, Collapse, Divider, FormInstance, Row, Space, Tag } from "antd";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { OrderPaymentRequest } from "model/request/order.request";
 import { OrderPaymentResponse, OrderResponse } from "model/response/order/order.response";
 import { PaymentMethodResponse } from "model/response/order/paymentmethod.response";
@@ -29,6 +30,7 @@ import {
   checkIfFulfillmentCancelled,
   checkIfMomoPayment,
   checkIfOrderHasNoPayment,
+  checkIfOrderPageType,
 } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import UpdatePaymentCard from "../../UpdatePaymentCard";
@@ -42,7 +44,6 @@ type PropTypes = {
   setOrderDetail: (value: OrderResponse | null) => void;
   isShowPaymentPartialPayment: boolean;
   onPaymentSelect: (paymentMethod: number) => void;
-  setPayments: (payments: OrderPaymentRequest[]) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
   setShowPaymentPartialPayment: (value: boolean) => void;
   stepsStatusValue: string;
@@ -57,7 +58,9 @@ type PropTypes = {
   isDisablePostPayment: boolean;
   createPaymentCallback?: () => void;
   totalAmountCustomerNeedToPay: number;
-  isPageOrderUpdate?: boolean;
+  payments: OrderPaymentRequest[] | null | undefined;
+  setExtraPayments: (payments: OrderPaymentRequest[]) => void;
+  orderPageType: OrderPageTypeModel;
 };
 
 function CardShowOrderPayments(props: PropTypes) {
@@ -80,11 +83,14 @@ function CardShowOrderPayments(props: PropTypes) {
     isDisablePostPayment,
     createPaymentCallback,
     totalAmountCustomerNeedToPay,
-    setPayments,
-    isPageOrderUpdate,
+    payments,
+    setExtraPayments,
+    orderPageType,
   } = props;
 
   const dispatch = useDispatch();
+
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
 
   // if(OrderDetail && OrderDetail?.payments) {
   //   OrderDetail?.payments.push({
@@ -117,14 +123,15 @@ function CardShowOrderPayments(props: PropTypes) {
 
   const dateFormat = DATE_FORMAT.DDMMYY_HHmm;
 
-  const sortedFulfillments = useMemo(() => {
-    return OrderDetail?.fulfillments ? sortFulfillments(OrderDetail?.fulfillments) : [];
-  }, [OrderDetail?.fulfillments]);
+  const sortedFulfillments = sortFulfillments(OrderDetail?.fulfillments);
 
   /**
    * ko show chi tiết payment
    */
   const checkIfNotShowPaymentDetail = () => {
+    if (isOrderUpdatePage) {
+      return false;
+    }
     let result = true;
     if (!OrderDetail) {
       return false;
@@ -182,13 +189,13 @@ function CardShowOrderPayments(props: PropTypes) {
     }
   };
 
-  const renderPaymentDetailTop = (OrderDetail: OrderResponse) => {
+  const renderPaymentDetailTop = () => {
     return (
       <div className="paymentDetailTop">
         <Row>
           <Col span={8}>
             <span className="text-field margin-right-40 33">Đã thanh toán:</span>
-            <b>{formatCurrency(getAmountPayment(OrderDetail.payments))}</b>
+            <b>{formatCurrency(getAmountPayment(payments))}</b>
           </Col>
           <Col span={8}>
             <span className="text-field margin-right-40 55">Còn phải trả:</span>
@@ -547,7 +554,7 @@ function CardShowOrderPayments(props: PropTypes) {
                   setVisibleUpdatePayment={setVisibleUpdatePayment}
                   setShowPaymentPartialPayment={setShowPaymentPartialPayment}
                   // setPayments={onPayments}
-                  setPayments={setPayments}
+                  setExtraPayments={setExtraPayments}
                   orderDetail={OrderDetail}
                   paymentMethod={paymentMethod}
                   shipmentMethod={shipmentMethod}
@@ -567,7 +574,7 @@ function CardShowOrderPayments(props: PropTypes) {
                   form={form}
                   isDisablePostPayment={isDisablePostPayment}
                   createPaymentCallback={createPaymentCallback}
-                  isPageOrderUpdate={isPageOrderUpdate}
+                  orderPageType={orderPageType}
                 />
               )}
             </Panel>
@@ -633,7 +640,7 @@ function CardShowOrderPayments(props: PropTypes) {
         }
       >
         {/* trạng thái thanh toán */}
-        {renderPaymentDetailTop(OrderDetail)}
+        {renderPaymentDetailTop()}
 
         {/* thanh toán */}
         {renderPaymentDetailMain(OrderDetail)}
@@ -649,7 +656,7 @@ function CardShowOrderPayments(props: PropTypes) {
       <UpdatePaymentCard
         setPaymentMethod={onPaymentSelect}
         // setPayments={onPayments}
-        setPayments={setPayments}
+        setExtraPayments={setExtraPayments}
         paymentMethod={paymentMethod}
         shipmentMethod={shipmentMethod}
         amount={OrderDetail.total}
@@ -672,6 +679,7 @@ function CardShowOrderPayments(props: PropTypes) {
         disabledActions={disabledActions}
         paymentMethods={paymentMethods}
         form={form}
+        orderPageType={orderPageType}
       />
     );
   };
