@@ -14,6 +14,7 @@ import {
 } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
 import { StoreResponse } from "model/core/store.model";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import {
@@ -96,7 +97,7 @@ type PropTypes = {
   subReasons?: OrderReturnReasonDetailModel[] | null;
   isEcommerceOrder?: boolean;
   ref: React.MutableRefObject<any>;
-  isOrderDetailPage?: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -116,6 +117,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     orderConfig,
     totalPaid = 0,
     customerNeedToPayValue = 0,
+    orderPageType,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -819,7 +821,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                         fulfillment={fulfillment}
                         requirementNameView={requirementNameView}
                         orderDetail={OrderDetail}
-                        isUpdateOrder={false}
+                        orderPageType={orderPageType}
                       />
                       <OrderFulfillmentShowProduct orderDetail={OrderDetail} />
                       <OrderFulfillmentShowFulfillment fulfillment={fulfillment} />
@@ -887,7 +889,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                 OrderDetail={OrderDetail}
                 shippingServiceConfig={shippingServiceConfig}
                 orderConfig={orderConfig}
-                isOrderDetailPage={props.isOrderDetailPage}
+                orderPageType={orderPageType}
               />
             </Form>
             {/*--- Giao hàng sau ----*/}

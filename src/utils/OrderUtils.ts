@@ -1,3 +1,4 @@
+import { OrderPageTypeModel } from "model/order/order.model";
 import { OrderLineItemRequest, OrderPaymentRequest } from "model/request/order.request";
 import {
   FulFillmentResponse,
@@ -447,4 +448,13 @@ export const getTotalAmountBeforeDiscount = (items: Array<OrderLineItemRequest>)
     }
   });
   return total;
+};
+
+export const checkIfOrderPageType = {
+  isOrderCreatePage: (orderPageType: string) => orderPageType === OrderPageTypeModel.orderCreate,
+  isOrderDetailPage: (orderPageType: string) => orderPageType === OrderPageTypeModel.orderDetail,
+  isOrderUpdatePage: (orderPageType: string) => orderPageType === OrderPageTypeModel.orderUpdate,
+  isOrderReturnCreatePage: (orderPageType: string) =>
+    orderPageType === OrderPageTypeModel.orderReturnCreate,
+  isOtherPage: (orderPageType: string) => orderPageType === OrderPageTypeModel.other,
 };

@@ -5,6 +5,7 @@ import OrderPayments from "component/order/OrderPayments";
 import UrlConfig from "config/url.config";
 import { getLoyaltyRate } from "domain/actions/loyalty/loyalty.action";
 import { UpdatePaymentAction } from "domain/actions/order/order.action";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { OrderPaymentRequest, UpdateFulFillmentRequest } from "model/request/order.request";
 import { LoyaltyRateResponse } from "model/response/loyalty/loyalty-rate.response";
 import { OrderResponse } from "model/response/order/order.response";
@@ -14,6 +15,7 @@ import { useDispatch } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { getAmountPayment, reCalculatePaymentReturn } from "utils/AppUtils";
 import { OrderStatus } from "utils/Constants";
+import { checkIfOrderPageType } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 import SaveAndConfirmOrder from "../../modal/save-confirm.modal";
 import { StyledComponent } from "./styles";
@@ -33,11 +35,11 @@ type PropTypes = {
   setPaymentMethod: (paymentType: number) => void;
   setVisibleUpdatePayment: (value: boolean) => void;
   setShowPaymentPartialPayment?: (value: boolean) => void;
-  setPayments: (value: Array<OrderPaymentRequest>) => void;
+  setExtraPayments: (value: Array<OrderPaymentRequest>) => void;
   reload?: () => void;
   disabledActions?: (type: string) => void;
   createPaymentCallback?: () => void;
-  isPageOrderUpdate?: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
 function UpdatePaymentCard(props: PropTypes) {
@@ -51,13 +53,15 @@ function UpdatePaymentCard(props: PropTypes) {
     shipmentMethod,
     isDisablePostPayment,
     createPaymentCallback,
-    setPayments,
-    isPageOrderUpdate,
+    setExtraPayments,
+    orderPageType,
   } = props;
   const dispatch = useDispatch();
   const [visibleConfirmPayment, setVisibleConfirmPayment] = useState(false);
   const [textValue, setTextValue] = useState<string>("");
   const [paymentData, setPaymentData] = useState<Array<OrderPaymentRequest>>([]);
+
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
 
   console.log("paymentData", paymentData);
   const [loyaltyRate, setLoyaltyRate] = useState<LoyaltyRateResponse>();
@@ -229,13 +233,13 @@ function UpdatePaymentCard(props: PropTypes) {
       <div className="create-order-payment 221">
         <OrderPayments
           payments={paymentData}
-          setPayments={isPageOrderUpdate ? setPayments : setPaymentData}
+          setPayments={isOrderUpdatePage ? setExtraPayments : setPaymentData}
           totalOrderAmount={amount}
           loyaltyRate={loyaltyRate}
           paymentMethods={paymentMethods}
           orderDetail={props.orderDetail}
         />
-        {!isPageOrderUpdate && renderButtons()}
+        {!isOrderUpdatePage && renderButtons()}
       </div>
     );
   };

@@ -1,6 +1,7 @@
 import { Col, Form, FormInstance, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { changeOrderThirdPLAction } from "domain/actions/order/order.action";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { DeliveryServiceResponse, FeesResponse } from "model/response/order/order.response";
@@ -14,6 +15,7 @@ import {
   handleCalculateShippingFeeApplyOrderSetting,
   replaceFormatString,
 } from "utils/AppUtils";
+import { checkIfOrderPageType } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -30,8 +32,7 @@ type PropTypes = {
   setThirdPL: (thirdPl: thirdPLModel) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
-  isOrderUpdate?: boolean;
-  isOrderDetailPage?: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
 interface DeliveryServiceWithFeeModel extends DeliveryServiceResponse {
@@ -53,8 +54,10 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
     setThirdPL,
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
-    isOrderUpdate,
+    orderPageType,
   } = props;
+
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
 
   const dispatch = useDispatch();
 
@@ -87,7 +90,7 @@ function ShipmentMethodDeliverPartner(props: PropTypes) {
       fee.transport_type,
       form,
       setShippingFeeInformedToCustomer,
-      isOrderUpdate,
+      isOrderUpdatePage,
     );
     const thirdPLResult = {
       delivery_service_provider_id: serviceFee.id,

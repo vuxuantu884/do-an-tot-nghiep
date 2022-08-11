@@ -1,5 +1,6 @@
 import { Col, Row } from "antd";
 import storeBlueIcon from "assets/img/storeBlue.svg";
+import { OrderPageTypeModel } from "model/order/order.model";
 import {
   DeliveryServiceResponse,
   FulFillmentResponse,
@@ -15,6 +16,7 @@ import {
   calculateSumWeightResponse,
   checkIfFulfillmentCancelled,
   checkIfFulfillmentIsAtStore,
+  checkIfOrderPageType,
 } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
@@ -23,11 +25,13 @@ type PropTypes = {
   fulfillment: FulFillmentResponse;
   deliveryServices: DeliveryServiceResponse[];
   requirementNameView: string | null;
-  isUpdateOrder: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
 function OrderFulfillmentDetail(props: PropTypes) {
-  const { orderDetail, fulfillment, deliveryServices, requirementNameView, isUpdateOrder } = props;
+  const { orderDetail, fulfillment, deliveryServices, requirementNameView, orderPageType } = props;
+
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
 
   // console.log("fulfillment", fulfillment);
 
@@ -69,7 +73,7 @@ function OrderFulfillmentDetail(props: PropTypes) {
   };
 
   const getPushingStatus = (fulfillment: FulFillmentResponse) => {
-    if (isUpdateOrder) {
+    if (isOrderUpdatePage) {
       return null;
     }
     if (fulfillment.shipment?.delivery_service_provider_type === ShipmentMethod.EXTERNAL_SERVICE) {

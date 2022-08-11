@@ -370,3 +370,11 @@ export interface OrderHistorySearch {
   page?: number;
   limit?: number;
 }
+
+export enum OrderPageTypeModel {
+  orderCreate = "orderCreate",
+  orderDetail = "orderDetail",
+  orderUpdate = "orderUpdate",
+  orderReturnCreate = "orderReturnCreate",
+  other = "other",
+}
