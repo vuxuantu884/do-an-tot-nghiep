@@ -31,6 +31,7 @@ import React, { useCallback, useContext, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory } from "react-router-dom";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
+import { formatCurrency } from "utils/AppUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
 import { ConvertDateToUtc } from "utils/DateUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -174,6 +175,7 @@ const POCreateScreen: React.FC = () => {
           poLineItemGridValue,
           poLineItemGridChema,
           taxRate,
+          value.line_items,
         );
         const newProcurement = convertLineItemsToProcurementItems(
           value.line_items,
@@ -192,6 +194,20 @@ const POCreateScreen: React.FC = () => {
       if (!atLeastOneItem) {
         throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
+
+      value.line_items.forEach((item) => {
+        if (item.price < Math.round(item.retail_price * 0.15)) {
+          throw new Error(`Vui lòng đặt giá nhập > 15% giá bán cho mã sản phẩm ${item.sku}`);
+        }
+        console.log(item.cost_price);
+        if (item.price > item.cost_price && item.cost_price) {
+          throw new Error(
+            `Vui lòng đặt giá nhập < giá vốn. Hiện giờ sản phẩm ${
+              item.sku
+            } có giá vốn là: ${formatCurrency(item.cost_price || 0, ".")}`,
+          );
+        }
+      });
 
       const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
       value.untaxed_amount = untaxed_amount;
