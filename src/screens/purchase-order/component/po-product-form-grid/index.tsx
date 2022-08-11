@@ -128,13 +128,16 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           procurements.forEach((procurement: any, index: number) => {
             procurement.procurement_items = data.variants.map((variant) => {
               const retailPrice =
-                variant.variant_prices.length > 0 ? variant.variant_prices[0]?.retail_price : null;
+                variant.variant_prices.length > 0 ? variant.variant_prices[0]?.retail_price : 0;
+              const costPrice =
+                variant.variant_prices.length > 0 ? variant.variant_prices[0]?.cost_price : 0;
               return {
                 sku: variant.sku,
                 quantity: 0,
                 size: variant.size,
                 variant_id: variant.id,
                 retail_price: retailPrice,
+                cost_price: costPrice,
               };
             });
           });
@@ -147,7 +150,6 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
            * Tạo schema cấu trúc bảng cho sp
            */
           const newpoLineItemGridChema = [];
-          console.log();
           newpoLineItemGridChema.push(initSchemaLineItem(data, "CREATE"));
           setPoLineItemGridChema(newpoLineItemGridChema);
 
@@ -204,6 +206,8 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           productCode: schema.productCode,
           productName: schema.productName,
           color_code,
+          cost_price: schema.mappingColorAndSize[0].cost_price,
+          retail_price: schema.mappingColorAndSize[0].retailPrice,
           color,
           ...schema.baseSize.reduce(
             (previousValue: any, currentValue: any) => {
@@ -555,6 +559,13 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           formatCurrency(sizeQtyOfColorObject?.price ?? 0)
         );
       },
+    },
+    {
+      title: "Giá bán",
+      width: 70,
+      align: "center",
+      dataIndex: "retail_price",
+      render: (price) => formatCurrency(price) || 0,
     },
     {
       title: "Thành tiền",
