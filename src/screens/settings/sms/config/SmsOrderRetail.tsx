@@ -51,6 +51,8 @@ const KEY_WORD_LIST = [
   },
 ];
 
+const MESSAGE_CONTENT_ID = "retail_offline_message_id";
+
 const { SHOW_PARENT } = TreeSelect;
 
 const updateSmsPermission = [SMS_CONFIG_PERMISSIONS.UPDATE];
@@ -129,7 +131,7 @@ const SmsOrderRetail: React.FC = () => {
     }
   }, [dispatch, handleSmsConfigData, publicStoreIdList?.length]);
 
-  // handle Insert text
+  /** handle Insert text */
   const addTextAtCaret = (textAreaId: any, text: any, fieldName: any) => {
     let textArea = document.getElementById(textAreaId);
     // @ts-ignore
@@ -144,8 +146,8 @@ const SmsOrderRetail: React.FC = () => {
     text: any,
     fieldName: any,
   ) => {
-    let front = textArea.value.substring(0, cursorPosition);
-    let back = textArea.value.substring(cursorPosition, textArea.value.length);
+    let front = textArea?.value.substring(0, cursorPosition);
+    let back = textArea?.value.substring(cursorPosition, textArea.value.length);
     textArea.value = front + text + back;
     form.setFieldsValue({ [fieldName]: textArea.value });
   };
@@ -158,9 +160,9 @@ const SmsOrderRetail: React.FC = () => {
   };
 
   const handleInsertKeyword = (text: string) => {
-    addTextAtCaret("retail_offline_message_id", text, "retail_offline_message");
+    addTextAtCaret(MESSAGE_CONTENT_ID, text, "retail_offline_message");
   };
-  // end handle insert text
+  /** end handle Insert text */
 
   // handle submit form
   const handleSubmitForm = (value: any) => {
@@ -267,7 +269,7 @@ const SmsOrderRetail: React.FC = () => {
 
               <Form.Item name={"retail_offline_message"} label={<b>Nội dung</b>}>
                 <TextArea
-                  id={"retail_offline_message_id"}
+                  id={MESSAGE_CONTENT_ID}
                   allowClear
                   placeholder="Nhập nội dung sms"
                   autoSize={{ minRows: 10, maxRows: 10 }}
