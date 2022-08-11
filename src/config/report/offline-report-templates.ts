@@ -1,6 +1,7 @@
 import UrlConfig from "config/url.config";
 import {
   AnalyticCube,
+  AnalyticGroup,
   AnalyticTemplateData,
   TimeAtOptionValue,
 } from "model/report/analytics.model";
@@ -30,6 +31,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 1,
     chartColumnSelected: ["customers", "total_sales"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
   },
   {
     id: 2,
@@ -45,6 +47,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     iconImg: "nhan-vien.svg",
     chartColumnSelected: [],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
   },
   {
     id: 3,
@@ -65,6 +68,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     iconImg: "nhan-vien.svg",
     chartColumnSelected: ["total_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
   },
   {
     type: "Báo cáo bán hàng",
@@ -83,6 +87,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 4,
     chartColumnSelected: ["total_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
   },
   {
     type: "Báo cáo bán hàng",
@@ -103,6 +108,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 5,
     chartColumnSelected: ["total_sales", "net_quantity"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
   },
   // {
   //   type: "Báo cáo trả hàng",
@@ -139,6 +145,7 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 6,
     chartColumnSelected: ["total_sales", "net_quantity"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
   },
   {
     type: "Báo cáo bán hàng",
@@ -154,5 +161,6 @@ export const OFFLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 7,
     chartColumnSelected: [],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.OfflineSales,
   },
 ];

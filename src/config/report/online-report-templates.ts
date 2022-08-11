@@ -1,6 +1,7 @@
 import UrlConfig from "config/url.config";
 import {
   AnalyticCube,
+  AnalyticGroup,
   AnalyticTemplateData,
   TimeAtOptionValue,
 } from "model/report/analytics.model";
@@ -26,6 +27,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 1,
     chartColumnSelected: ["pre_net_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -42,6 +44,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 2,
     chartColumnSelected: ["pre_net_sales", "pre_orders"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -58,6 +61,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 3,
     chartColumnSelected: ["pre_net_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -74,6 +78,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 4,
     chartColumnSelected: ["net_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -90,6 +95,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 5,
     chartColumnSelected: ["net_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -112,6 +118,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 6,
     chartColumnSelected: ["net_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -128,6 +135,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 7,
     chartColumnSelected: ["pre_net_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -144,6 +152,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 8,
     chartColumnSelected: ["pre_net_sales", "pre_orders"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -160,6 +169,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 9,
     chartColumnSelected: ["pre_net_sales", "pre_orders"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   // {
   //   type: "Báo cáo đơn hàng",
@@ -209,6 +219,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 12,
     chartColumnSelected: ["pre_net_sales", "pre_ordered_item_quantity"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -225,6 +236,7 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 13,
     chartColumnSelected: ["pre_net_sales", "pre_ordered_item_quantity"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Sales,
   },
   {
     type: "Báo cáo đơn hàng",
@@ -238,5 +250,6 @@ export const ONLINE_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 14,
     chartColumnSelected: [],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Sales,
   },
 ];
