@@ -23,7 +23,10 @@ import {
   getListOrderAction,
   PaymentMethodGetList,
 } from "domain/actions/order/order.action";
-import { getListAllSourceRequest } from "domain/actions/product/source.action";
+import {
+  getAllSourcesRequestAction,
+  getListAllSourceRequest,
+} from "domain/actions/product/source.action";
 import { actionFetchListOrderProcessingStatus } from "domain/actions/settings/order-processing-status.action";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
 import useAuthorization from "hook/useAuthorization";
@@ -924,7 +927,8 @@ function OrderList(props: PropTypes) {
         }
       }),
     );
-    dispatch(getListAllSourceRequest(setListSource));
+    // dispatch(getListAllSourceRequest(setListSource));
+    dispatch(getAllSourcesRequestAction(setListSource));
     dispatch(StoreGetListAction(setStore));
     dispatch(
       PaymentMethodGetList((data) => {

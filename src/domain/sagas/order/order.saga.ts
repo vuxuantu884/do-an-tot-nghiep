@@ -29,6 +29,7 @@ import {
   createShippingOrderService,
   deleteDeliveryMappedStoreService,
   getAllSources,
+  getAllSourcesService,
   getChannelApi,
   getChannelsService,
   getDeliveryMappedStoresService,
@@ -341,6 +342,24 @@ function* getDataAllSource(action: YodyAction) {
       setData(response.data);
     } else {
       yield put(fetchApiErrorAction(response, "Danh sách nguồn đơn hàng"));
+    }
+  } catch (error) {
+    showError("Có lỗi khi lấy dữ liệu danh sách nguồn đơn hàng! Vui lòng thử lại sau!");
+  } finally {
+    yield put(hideLoading());
+  }
+}
+
+function* getAllSourcesSaga(action: YodyAction) {
+  let { setData } = action.payload;
+  try {
+    let response: BaseResponse<PageResponse<Array<SourceResponse>>> = yield call(
+      getAllSourcesService,
+    );
+    if (isFetchApiSuccessful(response)) {
+      setData(response.data.items);
+    } else {
+      yield put(fetchApiErrorAction(response, "Danh sách tất cả nguồn đơn hàng"));
     }
   } catch (error) {
     showError("Có lỗi khi lấy dữ liệu danh sách nguồn đơn hàng! Vui lòng thử lại sau!");
@@ -868,6 +887,7 @@ export function* OrderOnlineSaga() {
   yield takeLatest(OrderType.GET_LIST_PAYMENT_METHOD, PaymentMethodGetListSaga);
   yield takeLatest(OrderType.GET_LIST_SOURCE_REQUEST, getDataSource);
   yield takeLatest(OrderType.GET_LIST_ALL_SOURCE_REQUEST, getDataAllSource);
+  yield takeLatest(OrderType.GET_ALL_SOURCES, getAllSourcesSaga);
   yield takeLatest(OrderType.GET_ORDER_DETAIL_REQUEST, orderDetailSaga);
   yield takeLatest(OrderType.UPDATE_FULFILLMENT_METHOD, updateFulFillmentStatusSaga);
   yield takeLatest(OrderType.REPUSH_FULFILLMENT, rePushFulFillmentSaga);
