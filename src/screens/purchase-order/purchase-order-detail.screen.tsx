@@ -979,7 +979,7 @@ const PODetailScreen: React.FC = () => {
       title={"Quản lý đơn đặt hàng " + (purchaseOrder?.code || "")}
       breadcrumb={[
         {
-          name: "Kho hàng",
+          name: "Nhà cung cấp",
         },
         {
           name: "Đặt hàng",
@@ -1126,7 +1126,13 @@ const PODetailScreen: React.FC = () => {
         <BottomBarContainer
           back={false}
           leftComponent={
-            <React.Fragment>{purchaseOrder && <POStep poData={purchaseOrder} />}</React.Fragment>
+            <React.Fragment>
+              {purchaseOrder && (
+                <div className="po-step">
+                  <POStep poData={purchaseOrder} />
+                </div>
+              )}
+            </React.Fragment>
           }
           height={55}
           rightComponent={<RightAction />}
