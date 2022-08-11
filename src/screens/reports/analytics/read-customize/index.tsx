@@ -171,7 +171,7 @@ function CreateAnalytics() {
               saveAnalyticsCustomService,
               {
                 query: rQuery,
-                group: params.cube,
+                group: reportInfo?.group || "",
                 name,
                 chart_query: chartQuery,
                 options: timeOptionAt,
@@ -289,10 +289,10 @@ function CreateAnalytics() {
       formCloneReport.setFieldsValue({ name: `${report.name} nhân bản` });
 
       const fullParams = [
-        AnalyticCube.OfflineSales,
-        AnalyticCube.Sales,
-        AnalyticCube.Costs,
-      ].includes(report.group as AnalyticCube)
+        AnalyticGroup.OfflineSales,
+        AnalyticGroup.Sales,
+        AnalyticGroup.Costs,
+      ].includes(report.group as AnalyticGroup)
         ? { q: report.query, options: report.options }
         : { q: report.query };
       const response = await callApiNative(
@@ -387,10 +387,10 @@ function CreateAnalytics() {
     // }
     if (report?.chart_query) {
       const fullChartParams = [
-        AnalyticCube.OfflineSales,
-        AnalyticCube.Sales,
-        AnalyticCube.Costs,
-      ].includes(report.group as AnalyticCube)
+        AnalyticGroup.OfflineSales,
+        AnalyticGroup.Sales,
+        AnalyticGroup.Costs,
+      ].includes(report.group as AnalyticGroup)
         ? { q: report.chart_query, options: report.options }
         : { q: report.chart_query };
       const chartResponse = await callApiNative(

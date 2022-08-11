@@ -34,7 +34,6 @@ import {
   exportReportToExcel,
   formatReportTime,
   getChartQuery,
-  getReportGroup,
   getTranslatePropertyKey,
 } from "utils/ReportUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -119,7 +118,6 @@ function UpdateAnalytics() {
           break;
         case SUBMIT_MODE.SAVE_QUERY:
           const chartQuery = getChartQuery(params, chartColumnSelected || []);
-          const reportGroup = getReportGroup(matchPath.split("/")[2]);
 
           const response = await callApiNative(
             { notifyAction: "SHOW_ALL" },
@@ -127,7 +125,7 @@ function UpdateAnalytics() {
             saveAnalyticsCustomService,
             {
               query: rQuery,
-              group: reportGroup,
+              group: CURRENT_REPORT_TEMPLATE.group,
               name: formSaveInfo.getFieldValue("name"),
               chart_query: chartQuery,
               options: timeOptionAt,
@@ -148,8 +146,8 @@ function UpdateAnalytics() {
       dispatch,
       CURRENT_REPORT_TEMPLATE.type,
       CURRENT_REPORT_TEMPLATE.name,
+      CURRENT_REPORT_TEMPLATE.group,
       chartColumnSelected,
-      matchPath,
       formSaveInfo,
       history,
     ],
