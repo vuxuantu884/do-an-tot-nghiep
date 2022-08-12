@@ -911,7 +911,7 @@ const PODetailScreen: React.FC = () => {
                 />
               </div>
             </div>
-            <div style={{ display: "none" }}></div>
+            <div style={{ display: "none" }}/>
           </Space>
         </div>
         <ActionByStatus />
@@ -928,7 +928,7 @@ const PODetailScreen: React.FC = () => {
       return (
         <POReturnList
           id={id}
-          params={formMain.getFieldsValue(true)}
+          params={purchaseOrder}
           actionPrint={actionPrintReturn}
           onUpdateCallReturn={() => setIsRerender(!isRerender)}
         />
