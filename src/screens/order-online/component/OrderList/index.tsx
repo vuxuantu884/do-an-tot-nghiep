@@ -27,6 +27,7 @@ import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { AccountResponse, DeliverPartnerResponse } from "model/account/account.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
+import { HandoverSearchRequest } from "model/handover/handover.search";
 import {
   ChangeOrderStatusHtmlModel,
   OrderModel,
@@ -49,6 +50,7 @@ import { useHistory } from "react-router-dom";
 import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 import ChangeOrderStatusModal from "screens/order-online/modal/change-order-status.modal";
 import ExportModal from "screens/order-online/modal/export.modal";
+import { searchHandoverService } from "service/handover/handover.service";
 import {
   changeOrderStatusToPickedService,
   deleteOrderService,
@@ -172,6 +174,8 @@ function OrderList(props: PropTypes) {
     items: [],
   });
 
+  const [isCalHandOvers, setIsHandOvers] = useState<boolean>(false);
+
   const setSearchResult = useCallback((result: PageResponse<OrderModel> | false) => {
     setTableLoading(false);
     setIsFilter(false);
@@ -179,6 +183,35 @@ function OrderList(props: PropTypes) {
       setData(result);
     }
   }, []);
+
+  useEffect(() => {
+    if (isCalHandOvers && data.items.length !== 0) {
+      setIsHandOvers(false);
+      let itemData = [...data.items];
+      const queryParam: HandoverSearchRequest = {
+        order_codes: itemData.map((p) => p.code),
+      };
+      searchHandoverService(queryParam)
+        .then((response) => {
+          if (isFetchApiSuccessful(response)) {
+            const itemResult: OrderModel[] = itemData.map((p) => {
+              return {
+                ...p,
+                handOvers: response.data.items,
+              };
+            });
+            setData({
+              ...data,
+              items: itemResult,
+            });
+          }
+        })
+        .catch((e) => {
+          console.log(e);
+        })
+        .finally();
+    }
+  }, [data, isCalHandOvers]);
 
   const [isShowChangeOrderStatusModal, setIsShowChangeOrderStatusModal] = useState(false);
   // const [isLoadingSetSubStatus, setIsLoadingSetSubStatus] = useState(true);
@@ -198,7 +231,10 @@ function OrderList(props: PropTypes) {
         dispatch(
           getListOrderAction(
             { ...params, in_goods_receipt: inGoodsReceipt },
-            setSearchResult,
+            (result) => {
+              setSearchResult(result);
+              setIsHandOvers(true);
+            },
             () => {
               setTableLoading(false);
               setIsFilter(false);

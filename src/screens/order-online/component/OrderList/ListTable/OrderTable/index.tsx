@@ -97,6 +97,7 @@ import iconShippingFeePay3PL from "./images/iconShippingFeePay3PL.svg";
 import iconWeight from "./images/iconWeight.svg";
 import IconShopee from "./images/shopee.svg";
 import IconStore from "./images/store.svg";
+import OrderMapHandOver from "./order-map-hand-over";
 import { nameQuantityWidth, StyledComponent } from "./styles";
 
 type PropTypes = {
@@ -908,6 +909,21 @@ function OrdersTable(props: PropTypes) {
         width: 75,
       },
       {
+        title: "Biên bản bàn giao",
+        key: "goods_receipt",
+        render: (value, record: OrderModel, index) => {
+          // console.log(index, record.handOvers);
+          if (record.handOvers) {
+            return <OrderMapHandOver orderDetail={record} handOvers={record.handOvers} />;
+          } else {
+            return <span>-</span>;
+          }
+        },
+        visible: true,
+        width: 120,
+        isHideInOffline: true,
+      },
+      {
         title: "Vận chuyển",
         key: "shipment.type",
         className: "shipmentType",
@@ -1276,30 +1292,6 @@ function OrdersTable(props: PropTypes) {
         visible: true,
         align: "left",
         width: 120,
-      },
-      {
-        title: "Biên bản bàn giao",
-        dataIndex: "goods_receipt_id",
-        key: "goods_receipt_id",
-        align: "center",
-        render: (value, record: OrderModel) => {
-          let result: ReactNode = <span>-</span>;
-          let arr = record.goods_receipts;
-          if (arr && arr.length > 0) {
-            result = arr.map((single, index) => {
-              return (
-                <React.Fragment key={index}>
-                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>{single.id}</Link>
-                  {arr && index < arr.length - 1 && ", "}
-                </React.Fragment>
-              );
-            });
-          }
-          return result;
-        },
-        visible: false,
-        width: 120,
-        isHideInOffline: true,
       },
       {
         title: "Mã Afilliate",

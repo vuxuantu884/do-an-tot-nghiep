@@ -114,8 +114,8 @@ const PackageSupport: React.FC = () => {
               response.data.items.some(
                 (p1) =>
                   p1.code === p.order_code &&
-                  getFulfillmentActive(p1.fulfillments)?.status === FulFillmentStatus.PACKED &&
-                  (!p1.goods_receipts || (p1.goods_receipts && p1.goods_receipts?.length <= 0)),
+                  getFulfillmentActive(p1.fulfillments)?.status === FulFillmentStatus.PACKED,
+                //&&(!p1.goods_receipts || (p1.goods_receipts && p1.goods_receipts?.length <= 0)),
               ),
             );
             setSinglePack({
