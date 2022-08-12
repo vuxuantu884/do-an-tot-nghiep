@@ -478,22 +478,16 @@ function OrderList(props: PropTypes) {
             Modal.error({
               title: "Không thể xoá đơn hàng",
               content: (
-                <div
-                  style={{
-                    display: "flex",
-                    lineHeight: "5px",
-                    overflow: "hidden",
-                    whiteSpace: "nowrap",
-                    paddingTop: "7px",
-                  }}
-                >
-                  ({isOrderShipping.length}) đơn đang chuyển:
-                  <div style={{ marginLeft: 10, fontWeight: 500 }}>
-                    {isOrderShipping.map((value) => (
-                      <p>{value?.code}</p>
-                    ))}
+                <StyledComponent>
+                  <div className="cannotDeleteOrderModal">
+                    ({isOrderShipping.length}) đơn đang chuyển:
+                    <div className="cannotDeleteOrderModal__orderCode">
+                      {isOrderShipping.map((value) => (
+                        <p>{value?.code}</p>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </StyledComponent>
               ),
               okType: "danger",
             });

@@ -20,7 +20,7 @@ const ListOrder = React.lazy(() => import("screens/order-online/orders/online-or
 const OrderDetail = React.lazy(() => import("screens/order-online/order-detail"));
 const OrderCreate = React.lazy(() => import("screens/order-online/order-create"));
 const OnlineReturnOrders = React.lazy(
-  () => import("screens/order-online/online-return-orders.screen"),
+  () => import("screens/order-online/order-return/onlineReturnOrders"),
 );
 const ScreenReturnCreate = React.lazy(() => import("screens/order-online/order-return/create"));
 const ScreenReturnDetail = React.lazy(() => import("screens/order-online/order-return/[id]"));
@@ -59,7 +59,7 @@ const bill: Array<RouteMenu> = [
     title: "Danh sách đơn hàng",
     icon: "icon-dot",
     component: ListOrder,
-    key: "danh-sach-don-hang-online2",
+    key: "danh-sách-đơn-hang",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.READ],

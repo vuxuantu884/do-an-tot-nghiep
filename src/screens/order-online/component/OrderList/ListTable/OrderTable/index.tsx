@@ -467,12 +467,7 @@ function OrdersTable(props: PropTypes) {
           html
         )}
         <Tooltip title="Click để copy mã vận đơn">
-          <CopyIcon
-            copiedText={html}
-            informationText="Đã copy mã vận đơn!"
-            titleText=""
-            size={copyIconSize}
-          />
+          <CopyIcon copiedText={html} informationText="Đã copy mã vận đơn!" size={copyIconSize} />
         </Tooltip>
       </span>
     );
@@ -601,7 +596,6 @@ function OrdersTable(props: PropTypes) {
                   <CopyIcon
                     copiedText={i.code.toString()}
                     informationText="Đã copy mã đơn hàng!"
-                    titleText=""
                     size={copyIconSize}
                   />
                 </span>
@@ -694,7 +688,6 @@ function OrdersTable(props: PropTypes) {
                     <CopyIcon
                       copiedText={record?.customer_phone_number || ""}
                       informationText="Đã copy số điện thoại!"
-                      titleText=""
                       size={copyIconSize}
                     />
                   </span>
@@ -1439,7 +1432,6 @@ function OrdersTable(props: PropTypes) {
     index: number,
     originNode: ReactNode,
   ) => {
-    console.log("checked", checked);
     return (
       <React.Fragment>
         <div className="actionButton">{originNode}</div>
