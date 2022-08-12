@@ -1,5 +1,11 @@
 import styled from "styled-components";
-import { borderColor, primaryColor, yellowColor } from "utils/global-styles/variables";
+import {
+  borderColor,
+  dangerColor,
+  primaryColor,
+  textBodyColor,
+  yellowColor,
+} from "utils/global-styles/variables";
 let nameQuantityWidth = 200;
 export const StyledComponent = styled.div`
   .actionButton {
@@ -314,7 +320,21 @@ export const StyledComponent = styled.div`
     }
   }
   .item-title {
-    color: #222222;
+    color: ${textBodyColor};
     font-weight: 500;
+  }
+  .orderReturnCode {
+    font-weight: 500;
+  }
+  .orderOriginCode {
+    font-weight: 500;
+  }
+  .exportIcon {
+    img {
+      margin-right: 8px;
+    }
+  }
+  .itemDiscount {
+    color: ${dangerColor};
   }
 `;

@@ -5,7 +5,7 @@ import React from "react";
 
 const OfflineOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
 const OfflineReturnOrders = React.lazy(
-  () => import("screens/order-online/offline-return-orders.screen"),
+  () => import("screens/order-online/order-return/offlineReturnOrders"),
 );
 const offlineOrdersRoute: Array<RouteMenu> = [
   {
@@ -27,7 +27,7 @@ const offlineOrdersRoute: Array<RouteMenu> = [
     title: "Danh sách bán lẻ",
     icon: "icon-dot",
     component: OfflineOrders,
-    key: "danh-sach-don-hang-offline2",
+    key: "danh sách bán lẻ",
     isShow: true,
     header: null,
     permissions: [ODERS_PERMISSIONS.READ],
