@@ -1,7 +1,7 @@
 import { Timeline, Button, Card, Row, Col, Collapse, Space, Divider } from "antd";
 
 import { AiOutlinePlus } from "react-icons/ai";
-import React, { useMemo, Fragment, useState } from "react";
+import React, { Fragment, useState } from "react";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
 
@@ -24,9 +24,6 @@ const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => 
   const { params, actionPrint, onUpdateCallReturn } = props;
   const [isShowReturn, setIsShowReturn] = useState(false);
   const [isShowModalConfirmCancel, setIsShowModalConfirmCancel] = useState(false);
-  const return_orders = useMemo(() => {
-    return params?.return_orders;
-  }, [params]);
 
   return (
     <Card
@@ -66,9 +63,9 @@ const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => 
           <Divider style={{ margin: '20px 0' }} />
         </>
       )}
-      {return_orders && return_orders.length > 0 && (
+      {params?.return_orders && params?.return_orders.length > 0 && (
         <div className="timeline">
-          {return_orders.map((item) => {
+          {params?.return_orders.map((item) => {
             let total = 0;
             let totalValue = 0;
             if (item.line_return_items) {
