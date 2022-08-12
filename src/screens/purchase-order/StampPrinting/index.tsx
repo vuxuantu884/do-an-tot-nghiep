@@ -11,19 +11,20 @@ import PickManyModal from "component/modal/PickManyModal";
 import { AppConfig } from "config/app.config";
 import UrlConfig, { BASE_NAME_ROUTER, ProductTabUrl } from "config/url.config";
 import { PoDetailAction } from "domain/actions/po/po.action";
+import { cloneDeep } from "lodash";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
   POStampPrinting,
   ProductStampPrinting,
   PurchaseOrder,
 } from "model/purchase-order/purchase-order.model";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { useHistory, useRouteMatch } from "react-router-dom";
 import { printVariantBarcodeByPOApi } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, formatCurrencyForProduct } from "utils/AppUtils";
 import { DownloadFile } from "utils/DownloadFile";
 import { fullTextSearch } from "utils/StringUtils";
 import {
@@ -250,6 +251,24 @@ function PrintingStamp() {
       history.push(ProductTabUrl.STAMP_PRINTING_HISTORY);
     }
   };
+  const getTotalQuantityReq = useCallback(() => {
+    const variantList: ProductStampPrinting[] =
+      form.getFieldValue(FormFiledStampPrinting.variants) || [];
+    const quantityReq = cloneDeep(variantList);
+    const total = quantityReq.reduce((value, element) => {
+      return value + (element.quantity_req || 0);
+    }, 0);
+    return formatCurrencyForProduct(total);
+  }, [form.getFieldValue(FormFiledStampPrinting.variants)]);
+  const getTotalSLSP = useCallback(() => {
+    const variantList: ProductStampPrinting[] =
+      form.getFieldValue(FormFiledStampPrinting.variants) || [];
+    const quantityReq = cloneDeep(variantList);
+    const total = quantityReq.reduce((value, element) => {
+      return value + (element.planQuantity || 0);
+    }, 0);
+    return formatCurrencyForProduct(total);
+  }, [form.getFieldValue(FormFiledStampPrinting.variants)]);
 
   useEffect(() => {
     if (poId) {
@@ -423,21 +442,26 @@ function PrintingStamp() {
                         render: (text, record) => formatCurrency(text),
                       },
                       {
-                        title: "SLSP",
-                        align: "right",
+                        title: (
+                          <>
+                            SLSP <div>({getTotalSLSP()})</div>
+                          </>
+                        ),
+                        align: "center",
                         dataIndex: "planQuantity",
                         render: (text) => <strong>{text}</strong>,
                       },
                       {
                         title: (
-                          <div>
+                          <>
                             {" "}
                             Số lượng tem
                             <Tooltip title="SL tem in chia hết cho 3">
                               {" "}
                               <InfoCircleOutlined />{" "}
                             </Tooltip>
-                          </div>
+                            <div>({getTotalQuantityReq()})</div>
+                          </>
                         ),
                         align: "center",
                         dataIndex: "variant_id",
