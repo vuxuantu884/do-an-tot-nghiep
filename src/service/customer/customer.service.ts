@@ -215,6 +215,9 @@ export const importCustomerService = (queryParams: ImportCustomerQuery) => {
   let formData = new FormData();
   formData.append("file_upload", queryParams.file);
   formData.append("insertIfBlank ", queryParams.insertIfBlank?.toString());
+  if (queryParams.fields !== undefined) {
+    formData.append("fields", queryParams.fields as any);
+  }
   return BaseAxios.post(`${ApiConfig.CUSTOMER}/customers/import`, formData, {
     headers: { "content-type": "multipart/form-data" },
   });
