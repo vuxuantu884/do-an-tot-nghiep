@@ -47,6 +47,7 @@ const POUtils = {
       let price = price_response !== null ? price_response.import_price : 0;
       const retailPrice = variant.variant_prices[0].retail_price;
       const cost_price = variant.variant_prices[0].cost_price;
+
       let newItem: PurchaseOrderLineItem = {
         sku: variant.sku,
         barcode: variant.barcode,
@@ -476,8 +477,9 @@ export function initSchemaLineItem(
     const retailPrice = lineItemId
       ? lineItemId.retail_price
       : variant.variant_prices[0].retail_price;
-    const cost_price = lineItemId ? lineItemId.cost_price : variant.variant_prices[0].cost_price;
-
+    const cost_price = lineItemId?.cost_price
+      ? lineItemId.cost_price
+      : variant.variant_prices[0].cost_price;
     return {
       lineItemId: lineItemId?.id,
       color: variant.color ?? variant.sku,
@@ -591,7 +593,10 @@ export const combineLineItemToSubmitData = (
             line_items && indexLineItem >= 0
               ? line_items[indexLineItem].retail_price
               : pair.retailPrice;
-
+          const cost_price =
+            line_items && indexLineItem >= 0 && line_items[indexLineItem].cost_price
+              ? line_items[indexLineItem].cost_price
+              : pair.cost_price;
           newDataItems.push({
             id: pair.lineItemId,
             //Dữ liệu cơ bản thì lấy từ schema
@@ -603,7 +608,7 @@ export const combineLineItemToSubmitData = (
             barcode: pair.barcode,
             variant_image: pair.variant_image,
             retail_price: retail_price,
-            cost_price: pair.cost_price,
+            cost_price: cost_price,
             // Dữ liệu nhập liệu thì lấy thì value object
             quantity: qty,
             price: value.price,
