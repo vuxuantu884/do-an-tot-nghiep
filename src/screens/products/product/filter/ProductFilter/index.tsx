@@ -167,7 +167,6 @@ const ProductFilter: React.FC<ProductFilterProps> = (props: ProductFilterProps) 
           : [Number(suppliers)]
         : [],
     };
-    console.log("suppliers", suppliers);
 
     if (suppliers && suppliers !== "") getSuppliers(suppliers, 1);
     setTimeout(() => {

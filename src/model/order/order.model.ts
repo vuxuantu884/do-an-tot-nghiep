@@ -1,3 +1,4 @@
+import { HandoverResponse } from "./../handover/handover.response";
 import { BaseObject } from "model/base/base.response";
 import {
   BillingAddressResponseModel,
@@ -132,9 +133,10 @@ export interface OrderModel extends BaseObject {
   channel_code: string;
   created_on?: string | null;
   total_quantity: number;
-  goods_receipts?: GoodsReceiptsResponse[] | null;
+  handOvers?: HandoverResponse[];
   export_bill: boolean;
   bill: OrderBillResponseModel | null;
+  actual_quantity?: number | null;
 }
 
 export interface OrderSearchQuery {
@@ -368,4 +370,12 @@ export interface OrderHistorySearch {
   sort_column?: string | null;
   page?: number;
   limit?: number;
+}
+
+export enum OrderPageTypeModel {
+  orderCreate = "orderCreate",
+  orderDetail = "orderDetail",
+  orderUpdate = "orderUpdate",
+  orderReturnCreate = "orderReturnCreate",
+  other = "other",
 }

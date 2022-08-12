@@ -122,6 +122,7 @@ export interface POPairSizeColor {
   unit: string;
   variant_image?: string;
   retailPrice: number;
+  cost_price: number;
 }
 
 export enum enumConvertDate {
@@ -143,6 +144,7 @@ export interface POLineItemGridSchema {
   baseColor: POLineItemColor[];
   mappingColorAndSize: Array<POPairSizeColor>; // key: size, value: danh sách màu của size đó | key: color, value: danh sách size của màu đó
   variantIdList: number[];
+  // retail_price: number;
 }
 // số lượng của size theo màu
 export interface POPairSizeQuantity {

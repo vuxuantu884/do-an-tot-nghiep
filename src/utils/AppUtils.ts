@@ -614,7 +614,7 @@ export const Products = {
     currency: string,
   ): VariantPricesResponse | null => {
     let price: VariantPricesResponse | null = null;
-    prices.forEach((priceResponse) => {
+    prices?.forEach((priceResponse) => {
       if (priceResponse.currency_code === currency) {
         price = priceResponse;
       }
@@ -723,7 +723,7 @@ export const isNormalTypeVariantItem = (lineItem: OrderLineItemResponse) => {
 };
 
 export const getAmountPayment = (
-  items: Array<OrderPaymentResponse | OrderPaymentRequest> | null,
+  items: Array<OrderPaymentResponse | OrderPaymentRequest> | null | undefined,
 ) => {
   let value = 0;
   if (items && items.length > 0) {
@@ -1678,10 +1678,10 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   transportService: string | null | undefined,
   form: FormInstance<any>,
   setShippingFeeInformedToCustomer?: (value: number) => void,
-  isPageOrderUpdate = false,
+  isOrderUpdatePage = false,
   isApplyAll = true,
 ) => {
-  if (isPageOrderUpdate) {
+  if (isOrderUpdatePage) {
     return;
   }
   if (!transportService && !isApplyAll) {
@@ -1692,7 +1692,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice === undefined) {
       form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
       setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
-      showSuccess("Cập nhật phí ship báo khách thành công!");
+      showSuccess("Phí ship đã được thay đổi!");
       return;
     }
   }

@@ -1,4 +1,4 @@
-import { Card, Input, Form, Button, Row, Divider, Col, FormInstance, Checkbox } from "antd";
+import { Card, Input, Form, Button, Row, Divider, FormInstance, Checkbox } from "antd";
 
 import { MailFilled } from "@ant-design/icons";
 import React, { useCallback, useMemo, useState, lazy, useContext, useEffect } from "react";
@@ -29,6 +29,7 @@ const SupplierAddModal = lazy(
 const EditAddressModal = lazy(() => import("../../modal/edit-address"));
 
 type POSupplierFormProps = {
+  type?: string;
   listCountries: Array<CountryResponse>;
   listDistrict: Array<DistrictResponse>;
   formMain: FormInstance;
@@ -47,6 +48,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     showBillingAddress = true,
     hideExpand,
     stepStatus,
+    type
   } = props;
   const { purchaseOrder } = useContext(PurchaseOrderCreateContext);
 
@@ -114,11 +116,6 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     const index = data.findIndex((item) => item.id === +value);
     const supplier = data[index];
     const supplierAddress = transformSupplier(supplier);
-    const condition =
-      supplier.debt_time &&
-      supplier.debt_time_unit_name &&
-      supplier.debt_time + " " + supplier.debt_time_unit_name;
-    console.log(supplier.debt_time, supplier.debt_time_unit);
     formMain.setFieldsValue({
       supplier_id: value,
       supplier: data[index].name,
@@ -143,7 +140,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
   };
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    data.forEach((item: SupplierResponse, index: number) => {
+    data.forEach((item: SupplierResponse) => {
       options.push({
         label: <SupplierItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -185,169 +182,183 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     setIsSendInvoice(!isSendInvoice);
   };
 
+  const renderDataCard = () => {
+    return (
+      <div>
+        <Form.Item name={POField.payment_condition_name} noStyle />
+        <Form.Item
+          shouldUpdate={(prevValues, curValues) =>
+            prevValues.supplier_id !== curValues.supplier_id
+          }
+          className="margin-bottom-0"
+        >
+          {({ getFieldValue }) => {
+            let supplier_id = getFieldValue("supplier_id");
+            let status = getFieldValue("status");
+            let supplier = getFieldValue("supplier");
+            let billing_address = getFieldValue("billing_address");
+            let supplier_address = getFieldValue("supplier_address");
+
+            return supplier_id ? (
+              <div>
+                {type !== 'RETURN' && (
+                  <>
+                    <Row align="middle">
+                      <Link
+                        to={`${UrlConfig.SUPPLIERS}/${supplier_id}`}
+                        className="primary"
+                        target="_blank"
+                        style={{ fontSize: "16px", marginRight: 10 }}
+                      >
+                        {supplier}
+                      </Link>
+                      {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
+                      {!isEdit && (!status || status === POStatus.DRAFT) && (
+                        <Button
+                          type="link"
+                          onClick={removeSupplier}
+                          style={{ display: "flex", alignItems: "center" }}
+                          icon={<AiOutlineClose />}
+                        />
+                      )}
+                    </Row>
+                    <Divider style={{ marginBottom: 0 }} />
+                  </>
+                )}
+                {((isSelectSupplier && showBillingAddress) || supplier_id) && (
+                  <>
+                    <Form.Item hidden name="supplier_id">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item hidden name="supplier">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item hidden name="phone">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item hidden name="billing_address">
+                      <Input />
+                    </Form.Item>
+                    <Form.Item hidden name="supplier_address">
+                      <Input />
+                    </Form.Item>
+                    {type !== 'RETURN' && (
+                      <>
+                        <POSupplierAddress
+                          getFieldValue={getFieldValue}
+                          field="billing_address"
+                          onEdit={() => showEditAddressModal(billing_address, "billing_address")}
+                        />
+                        <Divider style={{ marginTop: 0 }} />
+                      </>
+                    )}
+                    <div className="margin-top-bottom-10">
+                      <Row>
+                        <Checkbox
+                          className="checkbox-style"
+                          checked={isSendInvoice}
+                          onChange={toggleSendInvoice}
+                        >
+                          Gửi hóa đơn
+                        </Checkbox>
+                      </Row>
+                    </div>
+                    {isSendInvoice && (
+                      <>
+                        <Divider style={{ margin: 0 }} />
+                        <POSupplierAddress
+                          getFieldValue={getFieldValue}
+                          field="supplier_address"
+                          onEdit={() =>
+                            showEditAddressModal(supplier_address, "supplier_address")
+                          }
+                        />
+                        <Divider style={{ marginTop: 0 }} />
+                        {!isEdit ||
+                        stepStatus === POStatus.COMPLETED ||
+                        stepStatus === POStatus.FINISHED ? (
+                          <EmailWrap>
+                            <MailFilled />
+                            <span className="label">
+                              Email gửi hóa đơn: {billing_address.email}
+                            </span>
+                          </EmailWrap>
+                        ) : (
+                          <EmailWrap>
+                            <Row style={{ display: "flex", alignItems: "center" }}>
+                              <div className="mr-15">
+                                <MailFilled />
+                                <span className="font-weight-500"> Email gửi hóa đơn</span>
+                              </div>
+                              <Form.Item
+                                style={{ margin: 0 }}
+                                name={["billing_address", "email"]}
+                                rules={[
+                                  {
+                                    pattern: RegUtil.EMAIL,
+                                    message: "Vui lòng nhập đúng định dạng email",
+                                  },
+                                ]}
+                              >
+                                <Input placeholder="Nhập email gửi hóa đơn" maxLength={255} />
+                              </Form.Item>
+                            </Row>
+                          </EmailWrap>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </div>
+            ) : (
+              <div>
+                <Form.Item
+                  name="supplier_item"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn nhà cung cấp",
+                    },
+                  ]}
+                >
+                  <CustomAutoComplete
+                    loading={loadingSearch}
+                    dropdownClassName="supplier"
+                    placeholder="Tìm kiếm nhà cung cấp"
+                    onSearch={onChangeKeySearchSupplier}
+                    dropdownMatchSelectWidth={456}
+                    style={{ width: "100%" }}
+                    showAdd={true}
+                    onClickAddNew={() => setVisibleSupplierAddModal(true)}
+                    textAdd="Thêm mới nhà cung cấp"
+                    onSelect={onSelect}
+                    options={renderResult}
+                  />
+                </Form.Item>
+              </div>
+            );
+          }}
+        </Form.Item>
+      </div>
+    )
+  }
+
   return (
     <div className="supplier">
-      <Card
-        className="po-form"
-        title={
-          <div className="d-flex">
-            <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
-          </div>
-        }
-      >
-        <div>
-          <Form.Item name={POField.payment_condition_name} noStyle />
-          <Form.Item
-            shouldUpdate={(prevValues, curValues) =>
-              prevValues.supplier_id !== curValues.supplier_id
-            }
-            className="margin-bottom-0"
-          >
-            {({ getFieldValue }) => {
-              let supplier_id = getFieldValue("supplier_id");
-              let status = getFieldValue("status");
-              let supplier = getFieldValue("supplier");
-              let billing_address = getFieldValue("billing_address");
-              let supplier_address = getFieldValue("supplier_address");
-
-              return supplier_id ? (
-                <div>
-                  <Row align="middle">
-                    <Link
-                      to={`${UrlConfig.SUPPLIERS}/${supplier_id}`}
-                      className="primary"
-                      target="_blank"
-                      style={{ fontSize: "16px", marginRight: 10 }}
-                    >
-                      {supplier}
-                    </Link>
-                    {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
-                    {!isEdit && (!status || status === POStatus.DRAFT) && (
-                      <Button
-                        type="link"
-                        onClick={removeSupplier}
-                        style={{ display: "flex", alignItems: "center" }}
-                        icon={<AiOutlineClose />}
-                      />
-                    )}
-                  </Row>
-                  <Divider style={{ marginBottom: 0 }} />
-                  {((isSelectSupplier && showBillingAddress) || supplier_id) && (
-                    <>
-                      <Form.Item hidden name="supplier_id">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden name="supplier">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden name="phone">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden name="billing_address">
-                        <Input />
-                      </Form.Item>
-                      <Form.Item hidden name="supplier_address">
-                        <Input />
-                      </Form.Item>
-                      <POSupplierAddress
-                        getFieldValue={getFieldValue}
-                        field="billing_address"
-                        onEdit={() => showEditAddressModal(billing_address, "billing_address")}
-                      />
-                      <Divider style={{ marginTop: 0 }} />
-                      <div className="margin-top-bottom-10">
-                        <Row>
-                          <Checkbox
-                            className="checkbox-style"
-                            checked={isSendInvoice}
-                            onChange={toggleSendInvoice}
-                          >
-                            Gửi hóa đơn
-                          </Checkbox>
-                        </Row>
-                      </div>
-                      {isSendInvoice && (
-                        <>
-                          <Divider style={{ margin: 0 }} />
-                          <POSupplierAddress
-                            getFieldValue={getFieldValue}
-                            field="supplier_address"
-                            onEdit={() =>
-                              showEditAddressModal(supplier_address, "supplier_address")
-                            }
-                          />
-                          <Divider style={{ marginTop: 0 }} />
-                          {isEdit ||
-                          stepStatus === POStatus.COMPLETED ||
-                          stepStatus === POStatus.FINISHED ? (
-                            <EmailWrap>
-                              <MailFilled />
-                              <span className="label">
-                                Email gửi hóa đơn: {billing_address.email}
-                              </span>
-                            </EmailWrap>
-                          ) : (
-                            <EmailWrap>
-                              <Row>
-                                <Col span={12}>
-                                  <Form.Item
-                                    name={["billing_address", "email"]}
-                                    label={
-                                      <label>
-                                        <MailFilled />
-                                        <span className="label"> Email gửi hóa đơn</span>
-                                      </label>
-                                    }
-                                    rules={[
-                                      {
-                                        required: true,
-                                        pattern: RegUtil.EMAIL,
-                                        message: "Vui lòng nhập đúng định dạng email",
-                                      },
-                                    ]}
-                                  >
-                                    <Input placeholder="Nhập email gửi hóa đơn" maxLength={255} />
-                                  </Form.Item>
-                                </Col>
-                              </Row>
-                            </EmailWrap>
-                          )}
-                        </>
-                      )}
-                    </>
-                  )}
-                </div>
-              ) : (
-                <div>
-                  <Form.Item
-                    name="supplier_item"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng chọn nhà cung cấp",
-                      },
-                    ]}
-                  >
-                    <CustomAutoComplete
-                      loading={loadingSearch}
-                      dropdownClassName="supplier"
-                      placeholder="Tìm kiếm nhà cung cấp"
-                      onSearch={onChangeKeySearchSupplier}
-                      dropdownMatchSelectWidth={456}
-                      style={{ width: "100%" }}
-                      showAdd={true}
-                      onClickAddNew={() => setVisibleSupplierAddModal(true)}
-                      textAdd="Thêm mới nhà cung cấp"
-                      onSelect={onSelect}
-                      options={renderResult}
-                    />
-                  </Form.Item>
-                </div>
-              );
-            }}
-          </Form.Item>
-        </div>
-      </Card>
+      {type === "RETURN" ? (
+        renderDataCard()
+      ) : (
+        <Card
+          className="po-form"
+          title={
+            <div className="d-flex">
+              <span className="title-card">THÔNG TIN NHÀ CUNG CẤP</span>
+            </div>
+          }
+        >
+          {renderDataCard()}
+        </Card>
+      )}
 
       {isVisibleAddressModal && (
         <EditAddressModal

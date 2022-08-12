@@ -7,8 +7,6 @@ import { getQueryParams, useQuery } from "utils/useQuery";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { useDispatch, useSelector } from "react-redux";
 import {
-  deleteManyMaterialAction,
-  deleteOneMaterialAction,
   getMaterialAction,
   updateMaterialOtherAction,
 } from "domain/actions/product/material.action";
@@ -18,31 +16,25 @@ import { showSuccess, showWarning } from "utils/ToastUtils";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import CustomFilter from "component/table/custom.filter";
-import { DeleteOutlined, EditOutlined } from "@ant-design/icons";
 import ContentContainer from "component/container/content.container";
 import ButtonCreate from "component/header/ButtonCreate";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import { ProductPermission } from "config/permissions/product.permission";
 import useAuthorization from "hook/useAuthorization";
 import "assets/css/custom-filter.scss";
-import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
 import EditNote from "../../order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
 import { SupplierResponse } from "../../../model/core/supplier.model";
 import TextShowMore from "component/container/show-more/text-show-more";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { RootReducerType } from "model/reducers/RootReducerType";
+import { EditOutlined } from "@ant-design/icons";
 
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
     name: "Chỉnh sửa",
     icon: <EditOutlined />,
-  },
-  {
-    id: 2,
-    name: "Xóa",
-    icon: <DeleteOutlined />,
   },
 ];
 const { Item } = Form;
@@ -61,7 +53,6 @@ const ListMaterial: React.FC = () => {
     },
   });
   const [loading, setLoading] = useState<boolean>(true);
-  const [isConfirmDelete, setConfirmDelete] = useState<boolean>(false);
   const marterialStatusList = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.material_status,
   );
@@ -238,27 +229,9 @@ const ListMaterial: React.FC = () => {
     }
   }, []);
 
-  const onDeleteSuccess = useCallback(() => {
-    selected.splice(0, selected.length);
-    setSelected([...selected]);
-    showSuccess("Xóa thành công");
-    dispatch(getMaterialAction(params, onGetSuccess));
-  }, [dispatch, onGetSuccess, params, selected]);
-
-  const onDelete = useCallback(() => {
-    if (selected.length === 1) {
-      let id = selected[0].id;
-      dispatch(deleteOneMaterialAction(id, onDeleteSuccess));
-      return;
-    }
-    let ids: Array<number> = [];
-    selected.forEach((a) => ids.push(a.id));
-    dispatch(deleteManyMaterialAction(ids, onDeleteSuccess));
-  }, [dispatch, onDeleteSuccess, selected]);
-
   const onUpdate = useCallback(() => {
     if (selected.length === 0) {
-      showWarning("Vui lòng chọn phần từ cần xóa");
+      showWarning("Vui lòng chọn chất liệu cần sửa");
       return;
     }
     if (selected.length === 1) {
@@ -309,16 +282,9 @@ const ListMaterial: React.FC = () => {
         case 1:
           onUpdate();
           break;
-        case 2:
-          if (selected.length === 0) {
-            showWarning("Vui lòng chọn chất liệu cần xóa");
-            return;
-          }
-          setConfirmDelete(true);
-          break;
       }
     },
-    [selected, onUpdate],
+    [onUpdate],
   );
 
   const [canDeleteMaterials] = useAuthorization({
@@ -423,16 +389,6 @@ const ListMaterial: React.FC = () => {
           scroll={{ x: 1360 }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           rowKey={(item: MaterialResponse) => item.id}
-        />
-        <ModalDeleteConfirm
-          onCancel={() => setConfirmDelete(false)}
-          onOk={() => {
-            setConfirmDelete(false);
-            onDelete();
-          }}
-          title="Bạn chắc chắn xóa chất liệu?"
-          subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
-          visible={isConfirmDelete}
         />
       </Card>
     </ContentContainer>

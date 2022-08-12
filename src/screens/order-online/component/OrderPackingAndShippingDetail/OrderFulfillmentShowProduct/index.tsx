@@ -19,7 +19,7 @@ function OrderFulfillmentShowProduct(props: PropTypes) {
           <Collapse.Panel
             header={
               <Row>
-                <Col style={{ alignItems: "center" }}>
+                <Col>
                   <b className="panelHeader">
                     {orderDetail?.items.reduce((a: any, b: any) => a + b.quantity, 0)} SẢN PHẨM
                   </b>
@@ -35,13 +35,11 @@ function OrderFulfillmentShowProduct(props: PropTypes) {
                     <div>
                       <Typography.Link className="sku">{item.sku}</Typography.Link>
                     </div>
-                    <Badge status="default" text={item.variant} style={{ marginLeft: 7 }} />
+                    <Badge status="default" text={item.variant} />
                   </div>
                   <div className="shipmentItemRight">
                     {item.type === PRODUCT_TYPE.gift ? <span>Quà tặng</span> : <div></div>}
-                    <span style={{ marginRight: 10 }}>
-                      {getQuantityWithTwoCharacter(item.quantity)}
-                    </span>
+                    <span className="quantity">{getQuantityWithTwoCharacter(item.quantity)}</span>
                   </div>
                 </div>
               </div>

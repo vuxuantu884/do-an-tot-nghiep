@@ -9,7 +9,7 @@ export interface HandoverSearchRequest {
   channel_ids?: Array<number> | null;
   from_created_date?: null | string | Moment;
   to_created_date?: null | string | Moment;
-  order_codes?: null | string;
+  order_codes?: null | string | string[];
   page?: number;
   limit?: number;
 }

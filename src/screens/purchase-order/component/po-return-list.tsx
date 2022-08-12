@@ -1,9 +1,7 @@
 import { Timeline, Button, Card, Row, Col, Collapse, Space, Divider } from "antd";
 
-import { useHistory } from "react-router-dom";
 import { AiOutlinePlus } from "react-icons/ai";
-import { useMemo, Fragment } from "react";
-import UrlConfig from "config/url.config";
+import React, { Fragment, useState } from "react";
 import { POUtils } from "utils/POUtils";
 import { formatCurrency } from "utils/AppUtils";
 
@@ -11,20 +9,21 @@ import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import "./po-return-list.scss";
 import IconPrintHover from "assets/img/iconPrintHover.svg";
+import POReturnScreen from "../purchase-order-return.screen";
+import ModalConfirm from "../../../component/modal/ModalConfirm";
 
 interface POReturnListProps {
   id: string;
   params: PurchaseOrder | null;
   actionPrint?: (poReturnId: number) => {};
   printElementRefReturn?: any;
+  onUpdateCallReturn: () => any;
 }
 
 const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => {
-  const { id, params, actionPrint } = props;
-  const history = useHistory();
-  const return_orders = useMemo(() => {
-    return params?.return_orders;
-  }, [params]);
+  const { params, actionPrint, onUpdateCallReturn } = props;
+  const [isShowReturn, setIsShowReturn] = useState(false);
+  const [isShowModalConfirmCancel, setIsShowModalConfirmCancel] = useState(false);
 
   return (
     <Card
@@ -36,9 +35,7 @@ const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => 
       }
       extra={
         <Button
-          onClick={() => {
-            history.push(`${UrlConfig.PURCHASE_ORDERS}/${id}/return`);
-          }}
+          onClick={() => setIsShowReturn(true)}
           style={{
             alignItems: "center",
             display: "flex",
@@ -51,9 +48,24 @@ const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => 
         </Button>
       }
     >
-      {return_orders && return_orders.length > 0 && (
+      {isShowReturn && (
+        <>
+          <POReturnScreen
+            poData={params}
+            cancelReturn={() => {
+              setIsShowModalConfirmCancel(true);
+            }}
+            onUpdateCallReturn={() => {
+              onUpdateCallReturn();
+              setIsShowReturn(false);
+            }}
+          />
+          <Divider style={{ margin: '20px 0' }} />
+        </>
+      )}
+      {params?.return_orders && params?.return_orders.length > 0 && (
         <div className="timeline">
-          {return_orders.map((item) => {
+          {params?.return_orders.map((item) => {
             let total = 0;
             let totalValue = 0;
             if (item.line_return_items) {
@@ -74,31 +86,28 @@ const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => 
 
             return (
               <Timeline key={item.id} style={{ marginTop: 10 }}>
-                <Timeline.Item className="active">
+                <Timeline.Item className="custom-timeline">
                   <Row>
-                    <Col span={12}>
-                      <div style={{ fontWeight: 500 }}>{`${total} sản phẩm`}</div>
+                    <Col span={6}>
                       <div className="text-default">
-                        {`Tổng giá trị hàng: ${formatCurrency(totalValue)}`}
+                        Ngày trả hàng: <span className="font-weight-500">{ConvertUtcToLocalDate(item.expect_return_date)}</span>
+                      </div>
+                      <div className="text-default">
+                        Tổng giá trị hàng: <span className="font-weight-500">{formatCurrency(totalValue)}</span>
                       </div>
                     </Col>
-                    <Col span={12}>
-                      <div className="return-right">
-                        <div className="text-center">
-                          {`Ngày trả hàng: ${ConvertUtcToLocalDate(item.expect_return_date)}`}
-                        </div>
-                        <div>
-                          <Button
-                            className="ant-btn-outline"
-                            size="large"
-                            onClick={() => {
-                              actionPrint && actionPrint(item.id);
-                            }}
-                            icon={<img src={IconPrintHover} style={{ marginRight: 8 }} alt="" />}
-                          >
-                            In phiếu trả
-                          </Button>
-                        </div>
+                    <Col span={18}>
+                      <div>
+                        <Button
+                          style={{ color: '#222222' }}
+                          size="large"
+                          onClick={() => {
+                            actionPrint && actionPrint(item.id);
+                          }}
+                          icon={<img src={IconPrintHover} style={{ marginRight: 8 }} alt="" />}
+                        >
+                          In phiếu trả
+                        </Button>
                       </div>
                     </Col>
                   </Row>
@@ -107,21 +116,23 @@ const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => 
                       key={1}
                       header={<span style={{ fontWeight: 500 }}>{`${total} sản phẩm`}</span>}
                     >
-                      {item.line_return_items?.map((item) => {
+                      {item.line_return_items?.map((poLineReturnItem, index) => {
                         return (
-                          <Fragment>
+                          <Fragment key={index}>
                             <Row>
                               <Col span={20} style={{ display: "inline" }}>
                                 <Space split={<i className="icon-dot" />}>
-                                  <span className="text-primary">{item.sku}</span>
-                                  <span>{item.variant}</span>
+                                  <span className="text-primary">{poLineReturnItem.sku}</span>
+                                  <span>{poLineReturnItem.variant}</span>
                                 </Space>
                               </Col>
                               <Col span={4}>
-                                <div className="text-right">{item.quantity_return}</div>
+                                <div className="text-right">{poLineReturnItem.quantity_return}</div>
                               </Col>
                             </Row>
-                            <Divider />
+                            {index !== item.line_return_items.length - 1 && (
+                              <Divider />
+                            )}
                           </Fragment>
                         );
                       })}
@@ -132,6 +143,18 @@ const POReturnList: React.FC<POReturnListProps> = (props: POReturnListProps) => 
             );
           })}
         </div>
+      )}
+
+      {isShowModalConfirmCancel && (
+        <ModalConfirm
+          visible={isShowModalConfirmCancel}
+          onCancel={() => setIsShowModalConfirmCancel(false)}
+          onOk={() => {
+            setIsShowReturn(false);
+            setIsShowModalConfirmCancel(false);
+          }}
+          title="Bạn có muốn hủy trả hàng không?"
+        />
       )}
     </Card>
   );

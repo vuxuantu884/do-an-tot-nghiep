@@ -22,6 +22,7 @@ const BackAccountUpdateScreen = React.lazy(
 const SmsScreen = React.lazy(() => import("screens/settings/sms/sms.screen"));
 const SmsOrderRetail = React.lazy(() => import("screens/settings/sms/config/SmsOrderRetail"));
 const SmsWebsiteOrder = React.lazy(() => import("screens/settings/sms/config/SmsWebsiteOrder"));
+const SmsOnlineOrder = React.lazy(() => import("screens/settings/sms/config/SmsOnlineOrder"));
 
 const ManageUserScreen = React.lazy(() => import("screens/settings/account/AccountList"));
 
@@ -534,6 +535,18 @@ const setting: Array<RouteMenu> = [
         icon: "icon-dot",
         component: SmsWebsiteOrder,
         key: "sms-website-order",
+        isShow: true,
+        header: null,
+        permissions: [SMS_CONFIG_PERMISSIONS.READ],
+        subMenu: [],
+      },
+      {
+        path: `${UrlConfig.SMS_SETTINGS}/online-order`,
+        exact: true,
+        title: "Đi đơn online thành công",
+        icon: "icon-dot",
+        component: SmsOnlineOrder,
+        key: "sms-online-order",
         isShow: true,
         header: null,
         permissions: [SMS_CONFIG_PERMISSIONS.READ],

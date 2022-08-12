@@ -1,6 +1,5 @@
 import { DeleteOutlined, ExclamationCircleOutlined, ExportOutlined } from "@ant-design/icons";
 import { Button, Card, Modal, Radio, Row, Space, Tooltip } from "antd";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
 import exportIcon from "assets/icon/export.svg";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
@@ -32,7 +31,6 @@ import { Link, useHistory } from "react-router-dom";
 import ExportModal from "screens/order-online/modal/export.modal";
 import { exportFile, getFile } from "service/other/export.service";
 import {
-  copyTextToClipboard,
   formatCurrency,
   formatNumber,
   generateQuery,
@@ -42,18 +40,19 @@ import {
 } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, FACEBOOK, POS, SHOPEE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
-import { dangerColor, primaryColor } from "utils/global-styles/variables";
+import { primaryColor } from "utils/global-styles/variables";
 import { ORDER_PAYMENT_STATUS, ORDER_TYPES } from "utils/Order.constants";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
-import IconPaymentPoint from "../../component/OrderList/ListTable/images/paymentPoint.svg";
-import { StyledComponent } from "./OrderReturnList.styles";
+import IconPaymentPoint from "../../component/OrderList/ListTable/OrderTable/images/paymentPoint.svg";
+import { StyledComponent } from "./styles";
 // import search from "assets/img/search.svg";
 import IconFacebook from "assets/icon/channel/facebook.svg";
 import IconShopee from "assets/icon/channel/shopee.svg";
 import IconStore from "assets/icon/channel/store.svg";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import useAuthorization from "hook/useAuthorization";
+import CopyIcon from "screens/order-online/component/CopyIcon";
 import {
   deleteOrderReturnService,
   updateNoteOrderReturnService,
@@ -71,6 +70,7 @@ function OrderReturnList(props: PropTypes) {
   const query = useQuery();
   const history = useHistory();
   const dispatch = useDispatch();
+  const copyIconSize = 18;
 
   const [allowDeleteOrderReturn] = useAuthorization({
     acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
@@ -131,20 +131,16 @@ function OrderReturnList(props: PropTypes) {
             <div className="noWrap">
               <Link
                 to={`${UrlConfig.ORDERS_RETURN}/${i.id}`}
-                style={{ fontWeight: 500 }}
+                className="orderReturnCode"
                 title="Chi tiết đơn trả hàng"
               >
                 {value}
               </Link>
               <span title="Click để copy">
-                <img
-                  onClick={(e) => {
-                    copyTextToClipboard(e, value?.toString());
-                    showSuccess("Đã copy mã đơn trả hàng!");
-                  }}
-                  src={copyFileBtn}
-                  alt=""
-                  style={{ width: 18, cursor: "pointer" }}
+                <CopyIcon
+                  copiedText={value?.toString()}
+                  informationText="Đã copy mã đơn trả hàng!"
+                  size={copyIconSize}
                 />
               </span>
             </div>
@@ -205,20 +201,16 @@ function OrderReturnList(props: PropTypes) {
               <div className="order-id-title">ID đơn gốc:</div>
               <Link
                 to={`${UrlConfig.ORDER}/${record.order_id}`}
-                style={{ fontWeight: 500 }}
                 title="Chi tiết đơn trả hàng"
+                className="orderOriginCode"
               >
                 {record.code_order}
               </Link>
               <span title="Click để copy">
-                <img
-                  onClick={(e) => {
-                    copyTextToClipboard(e, value?.toString());
-                    showSuccess("Đã copy mã đơn hàng!");
-                  }}
-                  src={copyFileBtn}
-                  alt=""
-                  style={{ width: 18, cursor: "pointer" }}
+                <CopyIcon
+                  copiedText={record.code_order?.toString()}
+                  informationText="Đã copy mã đơn hàng!"
+                  size={copyIconSize}
                 />
               </span>
             </div>
@@ -233,14 +225,10 @@ function OrderReturnList(props: PropTypes) {
                 {record.customer_phone_number}
               </Link>
               <span title="Click để copy">
-                <img
-                  onClick={(e) => {
-                    copyTextToClipboard(e, record.customer_phone_number?.toString());
-                    showSuccess("Đã copy số điện thoại!");
-                  }}
-                  src={copyFileBtn}
-                  alt=""
-                  style={{ width: 18, cursor: "pointer" }}
+                <CopyIcon
+                  copiedText={record.customer_phone_number?.toString()}
+                  informationText="Đã copy số điện thoại!"
+                  size={copyIconSize}
                 />
               </span>
             </div>
@@ -503,7 +491,7 @@ function OrderReturnList(props: PropTypes) {
 
                       {item?.discount_items && item.discount_items[0]?.value ? (
                         <Tooltip title="Khuyến mại sản phẩm">
-                          <div className="itemDiscount" style={{ color: dangerColor }}>
+                          <div className="itemDiscount">
                             <span> - {formatCurrency(item.discount_items[0].value)}</span>
                           </div>
                         </Tooltip>
@@ -1155,9 +1143,9 @@ function OrderReturnList(props: PropTypes) {
                 {(isPassed: boolean) => (
                   <Button
                     type="default"
-                    className="light"
+                    className="light exportIcon"
                     size="large"
-                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                    icon={<img src={exportIcon} alt="" />}
                     // onClick={onExport}
                     onClick={() => {
                       setShowExportModal(true);

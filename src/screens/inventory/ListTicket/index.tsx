@@ -200,9 +200,9 @@ const InventoryListScreen: React.FC = () => {
           <Tabs style={{ overflow: "initial" }} activeKey={activeTab}>
             <TabPane
               tab={<Link to={InventoryTransferTabUrl.LIST}>Danh sách phiếu</Link>}
-              key={InventoryTransferTabUrl.LIST}
+              key={`${UrlConfig.INVENTORY_TRANSFERS}/`}
             >
-              {activeTab === InventoryTransferTabUrl.LIST && (
+              {activeTab === `${UrlConfig.INVENTORY_TRANSFERS}/` && (
                 <InventoryTransferTab
                   activeTab={activeTab}
                   vExportTransfer={vExportTransfer}

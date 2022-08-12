@@ -1,6 +1,6 @@
 import styled from "styled-components";
 import { borderColor, primaryColor } from "utils/global-styles/variables";
-import { StyledComponent } from "screens/order-online/component/OrderList/ListTable/OrdersTable.styles";
+import { StyledComponent } from "screens/order-online/component/OrderList/ListTable/OrderTable/styles";
 export const nameQuantityWidth = 300;
 // const quantityWidth = 50;
 // const priceWidth = 85;

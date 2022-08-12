@@ -1,7 +1,7 @@
 import { ReturnSearchQuery } from "model/order/return.model";
 import { withRouter } from "react-router-dom";
 import { ORDER_TYPES } from "utils/Order.constants";
-import OrderReturnList from "./component/OrderReturnList/OrderReturnList";
+import OrderReturnList from "../../component/OrderReturnList";
 
 const initQuery: ReturnSearchQuery = {
   page: 1,
@@ -23,23 +23,23 @@ const initQuery: ReturnSearchQuery = {
   is_received: [],
   account_codes: [],
   reason_ids: [],
-  is_online: true,
+  is_online: false,
   source_ids: [],
   channel_codes: [],
   assignee_codes: [],
   marketer_codes: [],
   coordinator_codes: [],
-  searched_product: null,
 };
+
 type PropTypes = {
   location: any;
 };
 
-function OnlineReturnOrdersScreen(props: PropTypes) {
+function OfflineReturnOrdersScreen(props: PropTypes) {
   const { location } = props;
   return (
-    <OrderReturnList initQuery={initQuery} location={location} orderType={ORDER_TYPES.online} />
+    <OrderReturnList initQuery={initQuery} location={location} orderType={ORDER_TYPES.offline} />
   );
 }
 
-export default withRouter(OnlineReturnOrdersScreen);
+export default withRouter(OfflineReturnOrdersScreen);

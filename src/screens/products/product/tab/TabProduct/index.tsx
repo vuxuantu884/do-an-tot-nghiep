@@ -119,6 +119,7 @@ const TabProduct: React.FC<any> = (props) => {
       {
         id: ACTIONS_INDEX.PRINT_BAR_CODE,
         name: "In mã vạch",
+        disabled,
       },
       {
         id: ACTIONS_INDEX.ACTIVE,

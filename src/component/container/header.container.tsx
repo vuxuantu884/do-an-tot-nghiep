@@ -1,23 +1,23 @@
-import React, { useEffect, useState } from "react";
-import { Layout, Button, Badge, Avatar, Dropdown, Menu, Space, Tooltip } from "antd";
+import { Avatar, Badge, Button, Dropdown, Layout, Menu, Space, Tooltip } from "antd";
+import hotlineIcon from "assets/icon/hotline.svg";
+import youtubeIcon from "assets/icon/youtube-icon.svg";
+import devEnvMarkup from "assets/img/dev-env-markup.png";
+import gapoIcon from "assets/img/gapo_icon.png";
 import logo from "assets/img/logo.svg";
-import UrlConfig, { AccountUrl } from "config/url.config";
-import { Link } from "react-router-dom";
-import { FiMenu } from "react-icons/fi";
-import { RiNotification2Line, RiArrowDropDownLine } from "react-icons/ri";
-import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
-import { useDispatch, useSelector } from "react-redux";
-import { logoutAction } from "domain/actions/auth/auth.action";
-import { StyledComponent } from "./header.container.styles";
-import { RootReducerType } from "../../model/reducers/RootReducerType";
+import uatEnvMarkup from "assets/img/uat-env-markup.png";
 import logoDev from "assets/img/yody-logo-dev.svg";
 import logoUat from "assets/img/yody-logo-uat.svg";
-import devEnvMarkup from "assets/img/dev-env-markup.png";
-import uatEnvMarkup from "assets/img/uat-env-markup.png";
-import hotlineIcon from "assets/icon/hotline.svg";
-import gapoIcon from "assets/img/gapo_icon.png";
 import { AppConfig } from "config/app.config";
-
+import UrlConfig, { AccountUrl } from "config/url.config";
+import { logoutAction } from "domain/actions/auth/auth.action";
+import React, { useEffect, useState } from "react";
+import { AiOutlineCaretDown, AiOutlineCaretUp } from "react-icons/ai";
+import { FiMenu } from "react-icons/fi";
+import { RiArrowDropDownLine, RiNotification2Line } from "react-icons/ri";
+import { useDispatch, useSelector } from "react-redux";
+import { Link } from "react-router-dom";
+import { RootReducerType } from "../../model/reducers/RootReducerType";
+import { StyledComponent } from "./header.container.styles";
 type HeaderContainerProps = {
   onCollapse: () => void;
   isShowHeader: boolean;
@@ -25,8 +25,8 @@ type HeaderContainerProps = {
 };
 
 const hotlineNumber = "0888 464 258";
-const supportLink =
-  "https://rd.zapps.vn/detail/1034167903642421755?id=d1838e6d3228db768239&pageId=317413297&zl3rd=815789662550058820";
+const youtubeUrl = "https://www.youtube.com/channel/UCVgds2lhgxftOxEtQJooKKQ/playlists";
+const gapoUrl = "https://www.gapowork.vn/group/unicorn";
 
 const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerProps) => {
   const user_id = useSelector((state: RootReducerType) => state.userReducer.account?.user_id);
@@ -36,6 +36,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
   const [isShowBtnDD, setIsShowBtnDD] = useState<boolean>(true);
   const [isTabletMobileScreen, setIsTabletMobileScreen] = useState<boolean>(false);
   const [screenWidth, setScreenWidth] = useState<number>(window.innerWidth);
+  const [firstCharName, setFirstCharName] = useState<string>("");
 
   useEffect(() => {
     if (window.location.pathname.indexOf("YDpage") < 0) {
@@ -43,6 +44,12 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
       props.setIsShowHeader(true);
     }
   }, [props]);
+
+  useEffect(() => {
+    if (myFullname) {
+      setFirstCharName(myFullname.charAt(0));
+    }
+  }, [myFullname]);
 
   const Logo = () => {
     if (AppConfig.ENV === "DEV") {
@@ -84,10 +91,6 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
     </Menu>
   );
 
-  const linkToGapo = () => {
-    window.open("https://www.gapowork.vn/group/unicorn", "_blank");
-  };
-
   const callHotlineSupport = () => {
     window.location.href = `tel:${hotlineNumber}`;
   };
@@ -128,7 +131,7 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
           <div className="markup-env">
             <DevAndUatMarkup />
           </div>
-          <Space size={15}>
+          <Space size={24}>
             {isTabletMobileScreen ? (
               <span>
                 <img
@@ -139,26 +142,34 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
                 />
               </span>
             ) : (
-              <>
-                <div className="hotline-info">
-                  <img style={{ marginRight: 5 }} src={hotlineIcon} alt="hotline" />
+              <div className="support">
+                <Tooltip
+                  title="Click để gọi hỗ trợ"
+                  color="blue"
+                  placement="bottom"
+                  className="support-link"
+                >
+                  <img className="support-icon" src={hotlineIcon} alt="hotline" />
                   <span>
                     {"Hotline: "}
-                    <Tooltip title="Click để gọi hỗ trợ" color="blue" placement="bottom">
-                      <span className="phone-number" onClick={callHotlineSupport}>
-                        {hotlineNumber}
-                      </span>
-                    </Tooltip>
+                    <a href={`tel:${hotlineNumber}`} className="phone-number">
+                      {hotlineNumber}
+                    </a>
                   </span>
-                </div>
-                <span className="support-link" onClick={linkToGapo}>
-                  <img style={{ marginRight: 5,width:20, height:20 }} src={gapoIcon} alt="gapo" />
+                </Tooltip>
+
+                <a href={youtubeUrl} className="support-link" target={"_blank"} rel="noreferrer">
+                  <img className="support-icon" src={youtubeIcon} alt="Youtube" />
+                  {"Unicorn Channel »"}
+                </a>
+                <a href={gapoUrl} target={"_blank"} rel="noreferrer" className="support-link">
+                  <img className="support-icon" src={gapoIcon} alt="gapo" />
                   {"Nhóm hỗ trợ Gapo »"}
-                </span>
-              </>
+                </a>
+              </div>
             )}
 
-            <Badge count={0} className="buttonNotifyWrapper">
+            <Badge count={0} className="notify-badge">
               <Button color={"#222222"} className="button-notify" icon={<RiNotification2Line />} />
             </Badge>
             <Dropdown
@@ -168,7 +179,9 @@ const HeaderContainer: React.FC<HeaderContainerProps> = (props: HeaderContainerP
               overlay={userMenu}
             >
               <div className="ant-layout-sider-user">
-                <Avatar src="" size={36} />
+                <Avatar src="" size={36} className="avatar">
+                  {firstCharName}
+                </Avatar>
                 <div className="sider-user-info yody-text-ellipsis">{myFullname}</div>
                 <RiArrowDropDownLine size={25} color="#737373" />
               </div>

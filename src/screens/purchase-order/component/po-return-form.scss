@@ -8,3 +8,13 @@
     -moz-appearance: textfield;
   }
 }
+
+.label {
+  font-weight: 500;
+  &:after {
+    color: #E24343;
+    font-size: 14px;
+    font-family: SimSun,sans-serif;
+    content: "*";
+  }
+}
