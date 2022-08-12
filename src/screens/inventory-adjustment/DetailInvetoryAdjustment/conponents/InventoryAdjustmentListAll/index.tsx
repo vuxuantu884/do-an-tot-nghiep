@@ -252,11 +252,11 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     {
       title: "Ảnh",
       align: "center",
-      width: "60px",
+      width: "50px",
       dataIndex: "variant_image",
       render: (value: string) => {
         return (
-          <div className="product-item-image">
+          <div className="product-item-image" style={{ margin: "auto" }}>
             <img src={value ? value : imgDefIcon} alt="" className="" />
           </div>
         );
@@ -264,7 +264,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
     },
     {
       title: "Sản phẩm",
-      width: "120px",
+      width: "250px",
       className: "ant-col-info",
       dataIndex: "variant_name",
       render: (value: string, record: PurchaseOrderLineItem) => (
@@ -300,7 +300,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 80,
+      width: 70,
       align: "center",
       dataIndex: "total_stock",
       render: (value) => {
@@ -322,7 +322,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           </>
         );
       },
-      width: 80,
+      width: 60,
       align: "center",
       dataIndex: "shipping",
       render: (value) => {
@@ -382,7 +382,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       },
       dataIndex: "real_on_hand",
       align: "center",
-      width: 80,
+      width: 60,
       render: (value, row: LineItemAdjustment) => {
         if (data?.status === STATUS_INVENTORY_ADJUSTMENT_CONSTANTS.DRAFT && allowUpdate) {
           return (
@@ -433,7 +433,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
         );
       },
       align: "center",
-      width: 150,
+      width: 100,
       render: (value, item) => {
         if (!item.on_hand_adj && item.on_hand_adj === 0) {
           return null;
@@ -466,7 +466,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
       ),
       dataIndex: "note",
       align: "left",
-      width: 80,
+      width: 100,
       render: (value, row: LineItemAdjustment, index: number) => {
         let note = `${index}#${value}`;
         let tooltip = null;
@@ -616,7 +616,7 @@ const InventoryAdjustmentListAll: React.FC<propsInventoryAdjustment> = (
           onChange: onPageChange,
           onShowSizeChange: onPageChange,
         }}
-      ></CustomPagination>
+      />
     </>
   );
 };
