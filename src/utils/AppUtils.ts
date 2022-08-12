@@ -614,7 +614,7 @@ export const Products = {
     currency: string,
   ): VariantPricesResponse | null => {
     let price: VariantPricesResponse | null = null;
-    prices.forEach((priceResponse) => {
+    prices?.forEach((priceResponse) => {
       if (priceResponse.currency_code === currency) {
         price = priceResponse;
       }
