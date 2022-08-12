@@ -74,12 +74,14 @@ import {
 import { RootReducerType } from "model/reducers/RootReducerType";
 import EditNote from "../../order-online/component/edit-note";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import InventoryReportIcon from "assets/icon/inventory-report.svg";
+import InventoryReportIcon from "assets/icon/inventory-report-blue.svg";
 import InventoryReportModal from "../ListInventoryAdjustment/components/InventoryReportModal";
 import { primaryColor } from "utils/global-styles/variables";
 import ScanIcon from "assets/icon/scan.svg";
 import CloseCircleIcon from "assets/icon/close-circle.svg";
 import IconPrint from "assets/icon/printer-blue.svg";
+import BaseAxios from "../../../base/base.axios";
+import { ApiConfig } from "../../../config/api.config";
 
 const { TabPane } = Tabs;
 
@@ -707,6 +709,17 @@ const DetailInventoryAdjustment: FC = () => {
   }, [listJobImportFile, statusImport, checkImportFile]);
 
   useEffect(() => {
+    BaseAxios.get(
+      `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item?page=1&limit=30&type=total`,
+    ).then((res) => {
+      if (res) {
+        setTotal(res.data.metadata.total);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  }, []);
+
+  useEffect(() => {
     setIsLoadingBtn(true);
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
     try {
@@ -1193,26 +1206,23 @@ const DetailInventoryAdjustment: FC = () => {
                       onClick={() => {
                         setIsOpenModal(true);
                       }}
-                      className="btn-report"
-                      icon={
-                        <img
-                          className="icon-report"
-                          src={InventoryReportIcon}
-                          alt="inventory-report-icon"
-                        />
-                      }
+                      type="primary"
+                      ghost
+                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                     >
-                      Xem báo cáo kiểm
+                      <img src={InventoryReportIcon} alt="" style={{ paddingRight: "10px" }} /> Xem báo cáo kiểm
                     </Button>
                   )}
                   {data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status &&
                     data.status !== STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status && (
                       <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.print]}>
                         <Button
-                          type="default"
                           onClick={() => {
                             onPrintAction();
                           }}
+                          type="primary"
+                          ghost
+                          style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                         >
                           <Space>
                             <PrinterOutlined /> In phiếu
@@ -1223,16 +1233,18 @@ const DetailInventoryAdjustment: FC = () => {
                   <Button
                     loading={isLoadingBtn}
                     disabled={isLoadingBtn}
-                    type="default"
-                    className="light"
-                    size="large"
-                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                     onClick={() => {
                       setShowExportModal(true);
                       onExport();
                     }}
+                    type="primary"
+                    ghost
+                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                   >
-                    Xuất excel
+                    <Space>
+                      Xuất excel
+                    </Space>
                   </Button>
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
                     data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (
