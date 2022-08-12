@@ -304,7 +304,6 @@ const PODetailScreen: React.FC = () => {
         if (item.price < Math.round(item.retail_price * 0.15)) {
           throw new Error(`Vui lòng đặt giá nhập > 15% giá bán cho mã sản phẩm ${item.sku}`);
         }
-        console.log(item.cost_price);
         if (item.price > item.cost_price && item.cost_price) {
           throw new Error(
             `Vui lòng đặt giá nhập < giá vốn. Hiện giờ sản phẩm ${
@@ -659,9 +658,16 @@ const PODetailScreen: React.FC = () => {
     const status = purchaseOrder?.status;
     try {
       // case: chưa duyệt => check tất cả sp có giá nhỏ hơn 1000đ trong line item
+      const line_items =
+        (formMain.getFieldsValue([POField.line_items]).line_items as PurchaseOrderLineItem[]) || [];
       if (status === POStatus.DRAFT || status === POStatus.WAITING_APPROVAL) {
         const lineItems: any[] = isGridMode
-          ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
+          ? combineLineItemToSubmitData(
+              poLineItemGridValue,
+              poLineItemGridChema,
+              taxRate,
+              line_items,
+            )
           : formMain.getFieldsValue()[POField.line_items];
         if (!lineItems.every((item) => item.price)) {
           setIsEditDetail(true);
@@ -688,8 +694,16 @@ const PODetailScreen: React.FC = () => {
         }
       }
       if (status === POStatus.FINALIZED) {
+        const line_items =
+          (formMain.getFieldsValue([POField.line_items]).line_items as PurchaseOrderLineItem[]) ||
+          [];
         const lineItems: any[] = isGridMode
-          ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
+          ? combineLineItemToSubmitData(
+              poLineItemGridValue,
+              poLineItemGridChema,
+              taxRate,
+              line_items,
+            )
           : formMain.getFieldsValue()[POField.line_items];
         if (!lineItems.every((item) => item.price)) {
           setIsEditDetail(true);
@@ -1026,7 +1040,9 @@ const PODetailScreen: React.FC = () => {
         <Form.Item name={POField.procurements} noStyle hidden>
           <Input />
         </Form.Item>
-
+        <Form.Item name={POField.line_items} noStyle hidden>
+          <Input />
+        </Form.Item>
         <Row gutter={24} style={{ paddingBottom: 80 }}>
           {/* Left Side */}
           <div style={{ display: "flex", width: "100%", marginBottom: "20px" }}>

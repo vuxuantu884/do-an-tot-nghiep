@@ -199,7 +199,6 @@ const POCreateScreen: React.FC = () => {
         if (item.price < Math.round(item.retail_price * 0.15)) {
           throw new Error(`Vui lòng đặt giá nhập > 15% giá bán cho mã sản phẩm ${item.sku}`);
         }
-        console.log(item.cost_price);
         if (item.price > item.cost_price && item.cost_price) {
           throw new Error(
             `Vui lòng đặt giá nhập < giá vốn. Hiện giờ sản phẩm ${
