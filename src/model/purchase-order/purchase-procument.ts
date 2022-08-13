@@ -74,6 +74,7 @@ export interface PurchaseProcumentLineItem {
   price: number;
   product_name: string;
   amount?: number;
+  [x: string]: any;
 }
 
 export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {
