@@ -373,6 +373,7 @@ const ProcurementCreateManualScreen: React.FC = () => {
                   title="Import số lượng thực nhận"
                   visible={isImport}
                   dataTable={procurement_items}
+                  type="manual"
                 />
               );
             }
