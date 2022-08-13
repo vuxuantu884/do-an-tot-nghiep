@@ -58,7 +58,12 @@ import ProcurementExport from "../components/ProcurementExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import * as XLSX from "xlsx";
 import { ProcurementExportLineItemField } from "model/procurement/field";
-import { CloseCircleOutlined, DeleteOutlined, PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
+import {
+  CloseCircleOutlined,
+  DeleteOutlined,
+  PhoneOutlined,
+  PrinterOutlined,
+} from "@ant-design/icons";
 import EditNote from "screens/order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -407,8 +412,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                 to={`${UrlConfig.SUPPLIERS}/${value.supplier_id}`}
                 className="link-underline"
                 target="_blank"
-              >
-              </Link>
+              ></Link>
               {value?.supplier_code} <PhoneOutlined /> {value?.phone}
               <div className="font-weight-500">{value?.supplier}</div>
               <div>
@@ -447,22 +451,22 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           return (
             <>
               {value}
-              {
-                record.stock_in_date &&
+              {record.stock_in_date && (
                 <div>
                   <span className="fs-12 text-muted">Ngày nhận: </span>
-                  <span
-                    className="fs-12 text-title">{ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
+                  <span className="fs-12 text-title">
+                    {ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
                 </div>
-              }
-              {
-                record.activated_date &&
+              )}
+              {record.activated_date && (
                 <div>
                   <span className="fs-12 text-muted">Ngày duyệt: </span>
-                  <span
-                    className="fs-12 text-title">{ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
+                  <span className="fs-12 text-title">
+                    {ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
                 </div>
-              }
+              )}
             </>
           );
         },
@@ -491,7 +495,12 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                       {Array.isArray(activedByName) ? activedByName[0] : activedByName}
                     </Link>
                   )}
-                  <b> {Array.isArray(activedByName) && activedByName.length > 1 ? activedByName[1] : ""}</b>
+                  <b>
+                    {" "}
+                    {Array.isArray(activedByName) && activedByName.length > 1
+                      ? activedByName[1]
+                      : ""}
+                  </b>
                 </div>
                 <div>
                   <div className="fs-12 text-muted">Người nhận:</div>
@@ -597,7 +606,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           value.forEach((item: PurchaseProcumentLineItem) => {
             totalRealQuantity += item.real_quantity;
           });
-          return <div className="font-weight-500 text-title">{formatCurrency(totalRealQuantity)}</div>;
+          return (
+            <div className="font-weight-500 text-title">{formatCurrency(totalRealQuantity)}</div>
+          );
         },
       },
       {
@@ -708,20 +719,14 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     setPOItem(result);
   }, []);
 
-  const loadDetail = useCallback(
-    () => {
-      dispatch(PoDetailAction(poId, onDetail));
-    },
-    [dispatch, poId, onDetail],
-  );
+  const loadDetail = useCallback(() => {
+    dispatch(PoDetailAction(poId, onDetail));
+  }, [dispatch, poId, onDetail]);
 
-  const onAddProcumentSuccess = useCallback(
-    () => {
-      loadDetail();
-      setLoadingData((prevState) => !prevState);
-    },
-    [loadDetail],
-  );
+  const onAddProcumentSuccess = useCallback(() => {
+    loadDetail();
+    setLoadingData((prevState) => !prevState);
+  }, [loadDetail]);
 
   const onPageChange = (page: number, size?: number) => {
     paramsrUrl.page = page;
@@ -879,11 +884,11 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     if (history.location.pathname === ProcurementTabUrl.ALL) {
       search();
     }
-    if (paramsrUrl.stock_in_bys) {
+    if (history.location.pathname === ProcurementTabUrl.ALL && paramsrUrl.stock_in_bys) {
       getAccounts(paramsrUrl.stock_in_bys);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history.location.search, dispatch, loadingData]);
+  }, [history.location.search, dispatch, loadingData, history.location.pathname]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
