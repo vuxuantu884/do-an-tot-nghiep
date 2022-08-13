@@ -195,18 +195,18 @@ const POCreateScreen: React.FC = () => {
         throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
 
-      value.line_items.forEach((item) => {
-        if (item.price < Math.round(item.retail_price * 0.15)) {
-          throw new Error(`Vui lòng đặt giá nhập > 15% giá bán cho mã sản phẩm ${item.sku}`);
-        }
-        if (item.price > item.cost_price && item.cost_price) {
-          throw new Error(
-            `Vui lòng đặt giá nhập < giá vốn. Hiện giờ sản phẩm ${
-              item.sku
-            } có giá vốn là: ${formatCurrency(item.cost_price || 0, ".")}`,
-          );
-        }
-      });
+      // value.line_items.forEach((item) => {
+      //   if (item.price < Math.round(item.retail_price * 0.15)) {
+      //     throw new Error(`Vui lòng đặt giá nhập > 15% giá bán cho mã sản phẩm ${item.sku}`);
+      //   }
+      //   if (item.price > item.cost_price && item.cost_price) {
+      //     throw new Error(
+      //       `Vui lòng đặt giá nhập < giá vốn. Hiện giờ sản phẩm ${
+      //         item.sku
+      //       } có giá vốn là: ${formatCurrency(item.cost_price || 0, ".")}`,
+      //     );
+      //   }
+      // });
 
       const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
       value.untaxed_amount = untaxed_amount;
