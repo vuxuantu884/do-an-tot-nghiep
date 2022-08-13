@@ -5,7 +5,7 @@ import search from "assets/img/search.svg";
 import BaseFilter from "component/filter/base.filter";
 import SupplierSearchSelect from "component/filter/component/supplier-select";
 import ButtonSetting from "component/table/ButtonSetting";
-import UrlConfig from "config/url.config";
+import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 // import { getListStoresSimpleAction } from "domain/actions/core/store.action";
 import { SupplierGetAllAction } from "domain/actions/core/supplier.action";
 import { StoreResponse } from "model/core/store.model";
@@ -146,7 +146,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
       const res = await callApiNative({ isShowError: true }, dispatch, getStoreApi, {
         status: "active",
         simple: true,
-        type: "distribution_center"
+        type: "distribution_center",
       });
       if (res) {
         setAllStore(res);
@@ -157,6 +157,9 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
   }, []);
 
   useEffect(() => {
+    if (history.location.pathname !== ProcurementTabUrl.ALL) {
+      return;
+    }
     const newParams = {
       ...paramsUrl,
       active: formatDateRange(paramsUrl.active_from, paramsUrl.active_to),
@@ -281,6 +284,9 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
   //watch remove tag
   useEffect(() => {
     (async () => {
+      if (history.location.pathname !== ProcurementTabUrl.ALL) {
+        return;
+      }
       if (paramsArray.length < (prevArray?.length || 0)) {
         // const filterStatusInParams = paramsArray.filter((item: any) => item.keyId === 'status').map((param: any) => param.status)
         // setSelectedStatuses(filterStatusInParams)
@@ -310,6 +316,9 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
   };
 
   useEffect(() => {
+    if (history.location.pathname !== ProcurementTabUrl.ALL) {
+      return;
+    }
     const filters = convertParams(paramsUrl);
     formBase.setFieldsValue({
       [ProcurementFilterBasicEnum.suppliers]: paramsUrl.suppliers
