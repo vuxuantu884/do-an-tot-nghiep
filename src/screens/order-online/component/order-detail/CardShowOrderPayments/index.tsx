@@ -283,7 +283,8 @@ function CardShowOrderPayments(props: PropTypes) {
       if (
         !payment.short_link ||
         checkIfFinishedPayment(payment) ||
-        checkIfExpiredPayment(payment)
+        checkIfExpiredPayment(payment) ||
+        checkIfCancelledPayment(payment)
       ) {
         return;
       }

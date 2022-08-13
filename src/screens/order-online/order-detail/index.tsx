@@ -221,17 +221,17 @@ const OrderDetail = (props: PropTypes) => {
   const updateShipmentCardRef = useRef<any>();
 
   /**
-   * tổng số tiền đã trả
+   * tổng số tiền đã trả, cần lấy theo OrderDetailAllFulfillment
    */
   const totalAmountPayment =
-    OrderDetail?.payments && OrderDetail?.payments?.length > 0
-      ? getAmountPayment(OrderDetail.payments)
+    OrderDetailAllFulfillment?.payments && OrderDetailAllFulfillment?.payments?.length > 0
+      ? getAmountPayment(OrderDetailAllFulfillment.payments)
       : 0;
 
   /**
    * tổng giá trị đơn hàng
    */
-  const totalOrderAmount = OrderDetail?.total || 0;
+  const totalOrderAmount = OrderDetailAllFulfillment?.total || 0;
 
   /**
    * số tiền khách cần trả: nếu âm thì là số tiền trả lại khách
@@ -239,6 +239,11 @@ const OrderDetail = (props: PropTypes) => {
   const totalAmountCustomerNeedToPay = useMemo(() => {
     return totalOrderAmount - totalAmountPayment;
   }, [totalOrderAmount, totalAmountPayment]);
+
+  console.log("OrderDetailAllFulfillment", OrderDetailAllFulfillment);
+  console.log("totalOrderAmount", totalOrderAmount);
+  console.log("totalAmountPayment", totalAmountPayment);
+  console.log("totalAmountCustomerNeedToPay", totalAmountCustomerNeedToPay);
 
   const onPaymentSelect = (paymentMethod: number) => {
     if (paymentMethod === 1) {
