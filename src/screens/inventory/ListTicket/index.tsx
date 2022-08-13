@@ -117,7 +117,7 @@ const InventoryListScreen: React.FC = () => {
     if (
       activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_SENDER ||
       activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE ||
-      activeTab === InventoryTransferTabUrl.LIST
+      activeTab === `${InventoryTransferTabUrl.LIST}/`
     ) {
       return (
         <Row>
