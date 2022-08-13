@@ -21,6 +21,7 @@ export interface PurchaseProcument extends BaseObject {
   store?: string;
   is_cancelled?: boolean;
   cancelled_date?: string | null;
+  [key: string]: any;
 }
 export interface PurchaseProcurementViewDraft {
   id?: number;
@@ -87,8 +88,8 @@ export interface ProcurementItemsReceipt extends PurchaseProcumentLineItem {
 }
 
 export type ProcurementManualCreate = {
-  procurements: Array<PurchaseProcument>
-}
+  procurements: Array<PurchaseProcument>;
+};
 
 const POProcumentField = {
   id: "id",
