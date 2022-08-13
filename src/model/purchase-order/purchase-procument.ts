@@ -86,6 +86,10 @@ export interface ProcurementItemsReceipt extends PurchaseProcumentLineItem {
   product_id?: number;
 }
 
+export type ProcurementManualCreate = {
+  procurements: Array<PurchaseProcument>
+}
+
 const POProcumentField = {
   id: "id",
   code: "code",
