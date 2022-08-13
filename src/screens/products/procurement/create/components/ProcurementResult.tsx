@@ -1,164 +1,46 @@
 import { Col, FormInstance, Image, Row, Tabs, Typography } from "antd";
 import CustomTable from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
-import { cloneDeep, isEmpty } from "lodash";
+import { isEmpty } from "lodash";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
-import { useMemo } from "react";
 import { Link } from "react-router-dom";
-import { ICustomTableColumType } from "screens/ecommerce/table/CustomTable";
 import ImageProduct from "screens/products/product/component/image-product.component";
 import { formatCurrency } from "utils/AppUtils";
 import { OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
+import { getTotalAcceptedQuantity, getTotalRealQuantity } from "../helper";
 
 interface ProcurementFormProps {
   formMain: FormInstance;
-  listPO: PurchaseOrder[];
+  procurementsResult: Array<PurchaseProcument>;
 }
 
 const { TabPane } = Tabs;
 const ProcurementResult: React.FC<ProcurementFormProps> = (props: ProcurementFormProps) => {
-  const { listPO } = props;
+  const { procurementsResult } = props;
 
-  const defaultColumn: ICustomTableColumType<any>[] = useMemo(() => {
-    return [
-      {
-        title: "STT",
-        align: "center",
-        fixed: "left",
-        width: 50,
-        render: (value, record, index) => index + 1,
-      },
-      {
-        title: "Ảnh",
-        align: "center",
-        width: 60,
-        dataIndex: "variant_image",
-        render: (url: string) => {
-          return (
-            <>
-              {url ? (
-                <Image width={40} height={40} placeholder="Xem" src={url ?? ""} />
-              ) : (
-                <ImageProduct disabled={true} onClick={undefined} path={url} />
-              )}
-            </>
-          );
-        },
-        visible: true,
-      },
-      {
-        title: "Mã Sản phẩm",
-        align: "center",
-        width: 120,
-        dataIndex: "sku",
-        render: (value: string, i: PurchaseOrderLineItem) => {
-          return (
-            <>
-              <div>
-                <Link
-                  to={`${UrlConfig.PRODUCT}/${i.product_id}${UrlConfig.VARIANTS}/${i.variant_id}`}
-                >
-                  {value}
-                </Link>
-              </div>
-            </>
-          );
-        },
-        visible: true,
-      },
-      {
-        title: "Tên Sản phẩm",
-        align: "center",
-        width: 120,
-        dataIndex: "variant",
-        render: (value: string, i: PurchaseOrderLineItem) => {
-          return (
-            <>
-              <div>
-                <Link
-                  to={`${UrlConfig.PRODUCT}/${i.product_id}${UrlConfig.VARIANTS}/${i.variant_id}`}
-                >
-                  {value}
-                </Link>
-              </div>
-            </>
-          );
-        },
-        visible: true,
-      },
-      {
-        title: "Giá bán",
-        dataIndex: "price",
-        align: "center",
-        visible: true,
-        width: 70,
-        render: (value: number) => <div> {value !== null ? formatCurrency(value, ".") : "0"}</div>,
-      },
-      {
-        title: "Số lượng đặt hàng",
-        align: "center",
-        dataIndex: "quantity",
-        visible: true,
-        width: 70,
-        render: (value: number) => <div> {value !== null ? formatCurrency(value, ".") : "0"}</div>,
-      },
-      {
-        title: "Số lượng thực nhận",
-        dataIndex: "real_quantity",
-        align: "center",
-        width: 70,
-        render: (value: string) => value,
-        visible: true,
-      },
-    ];
-  }, []);
-
-  const renderTabTitle = (purchaseOrder: PurchaseOrder) => {
+  const renderTabTitle = (procurement: PurchaseProcument) => {
     return (
       <div style={{ textAlign: "center" }}>
-        <div>{purchaseOrder?.code}</div>
-        <div style={{ fontSize: 12, fontWeight: "bold" }}>{purchaseOrder?.reference}</div>
+        <div>{procurement.purchase_order?.code}</div>
+        <div style={{ fontSize: 12, fontWeight: "bold" }}>{procurement?.code}</div>
       </div>
     );
   };
   return (
-    <Tabs defaultActiveKey={listPO[0].code}>
-      {!isEmpty(listPO) &&
-        listPO.map((item: PurchaseOrder) => {
-          const cloneProcurements = cloneDeep(item.procurements);
-          const procurements = cloneProcurements.sort(
-            (a: PurchaseProcument, b: PurchaseProcument) => {
-              let dateA: any = new Date(a.created_date as Date);
-              let dateB: any = new Date(b.created_date as Date);
-              return dateA - dateB;
-            },
-          );
-          //Do hệ thống sẽ tự tạo procurement mới nên cần lấy ra procurement mới nhất đc tạo để hiển thị
-          const latestProcurement: PurchaseProcument = procurements[procurements.length - 1];
-          const procureMentMappingPrice = latestProcurement.procurement_items.map(
-            (el: PurchaseProcumentLineItem) => {
-              for (let i = 0; i < item.line_items.length; i++) {
-                if (el.sku === item.line_items[i].sku) {
-                  return {
-                    ...el,
-                    price: item.line_items[i].price,
-                    product_id: item.line_items[i].product_id,
-                    variant_id: item.line_items[i].variant_id,
-                  };
-                }
-              }
-              return { ...el };
-            },
+    <Tabs defaultActiveKey={procurementsResult[0].code}>
+      {!isEmpty(procurementsResult) &&
+        procurementsResult.map((item: PurchaseProcument) => {
+          const procurementItemsFilter = item.procurement_items.filter(
+            (el: PurchaseProcumentLineItem) => el.real_quantity,
           );
 
           const calculatingReceiptQuantity = () => {
-            const total = latestProcurement.procurement_items
+            const total = item.procurement_items
               .map((el: PurchaseProcumentLineItem) => el.real_quantity)
               .reduce((prev: number, current: number) => prev + current, 0);
             return total;
@@ -172,16 +54,13 @@ const ProcurementResult: React.FC<ProcurementFormProps> = (props: ProcurementFor
                 <Col span={6}>
                   Ngày tạo đơn đặt hàng:{" "}
                   <Typography.Text strong>
-                    {ConvertUtcToLocalDate(item.order_date, DATE_FORMAT.DDMMYYY)}
+                    {ConvertUtcToLocalDate(item.purchase_order.order_date, DATE_FORMAT.DDMMYYY)}
                   </Typography.Text>
                 </Col>
                 <Col span={6}>
                   Ngày nhận dự kiến:{" "}
                   <Typography.Text strong>
-                    {ConvertUtcToLocalDate(
-                      latestProcurement.expect_receipt_date,
-                      DATE_FORMAT.DDMMYYY,
-                    )}
+                    {ConvertUtcToLocalDate(item.expect_receipt_date, DATE_FORMAT.DDMMYYY)}
                   </Typography.Text>
                 </Col>
                 <Col span={6}>
@@ -194,8 +73,110 @@ const ProcurementResult: React.FC<ProcurementFormProps> = (props: ProcurementFor
                 scroll={{ x: 1200 }}
                 sticky={{ offsetScroll: 5, offsetHeader: OFFSET_HEADER_TABLE }}
                 pagination={false}
-                dataSource={procureMentMappingPrice}
-                columns={defaultColumn}
+                dataSource={procurementItemsFilter}
+                columns={[
+                  {
+                    title: "STT",
+                    align: "center",
+                    fixed: "left",
+                    width: 50,
+                    render: (value, record, index) => index + 1,
+                  },
+                  {
+                    title: "Ảnh",
+                    align: "center",
+                    width: 60,
+                    dataIndex: "variant_image",
+                    render: (url: string) => {
+                      return (
+                        <>
+                          {url ? (
+                            <Image width={40} height={40} placeholder="Xem" src={url ?? ""} />
+                          ) : (
+                            <ImageProduct disabled={true} onClick={undefined} path={url} />
+                          )}
+                        </>
+                      );
+                    },
+                  },
+                  {
+                    title: "Mã Sản phẩm",
+                    align: "center",
+                    width: 120,
+                    dataIndex: "sku",
+                    render: (value: string, i: PurchaseOrderLineItem) => {
+                      return (
+                        <>
+                          <div>
+                            <Link
+                              to={`${UrlConfig.PRODUCT}/${i.product_id}${UrlConfig.VARIANTS}/${i.variant_id}`}
+                            >
+                              {value}
+                            </Link>
+                          </div>
+                        </>
+                      );
+                    },
+                  },
+                  {
+                    title: "Tên Sản phẩm",
+                    align: "center",
+                    width: 120,
+                    dataIndex: "variant",
+                    render: (value: string, i: PurchaseOrderLineItem) => {
+                      return (
+                        <>
+                          <div>
+                            <Link
+                              to={`${UrlConfig.PRODUCT}/${i.product_id}${UrlConfig.VARIANTS}/${i.variant_id}`}
+                            >
+                              {value}
+                            </Link>
+                          </div>
+                        </>
+                      );
+                    },
+                  },
+                  {
+                    title: "Giá bán",
+                    dataIndex: "retail_price",
+                    align: "center",
+                    width: 70,
+                    render: (value: number) => (
+                      <div> {value !== null ? formatCurrency(value, ".") : "0"}</div>
+                    ),
+                  },
+                  {
+                    title: (
+                      <div>
+                        Số lượng được duyệt
+                        <span className="text-center" style={{ color: "#2A2A86", marginLeft: 4 }}>
+                          ({getTotalAcceptedQuantity(procurementItemsFilter)})
+                        </span>
+                      </div>
+                    ),
+                    align: "center",
+                    dataIndex: "accepted_quantity",
+                    width: 70,
+                    render: (value: number) => (
+                      <div> {value !== null ? formatCurrency(value, ".") : "0"}</div>
+                    ),
+                  },
+                  {
+                    title: (
+                      <div>
+                        Số lượng thực nhận
+                        <span className="text-center" style={{ color: "#27AE60", marginLeft: 4 }}>
+                          ({getTotalRealQuantity(procurementItemsFilter)})
+                        </span>
+                      </div>
+                    ),
+                    dataIndex: "real_quantity",
+                    align: "center",
+                    width: 70,
+                    render: (value: string) => value,
+                  },
+                ]}
                 className="yody-table-product-search small-padding"
               />
             </TabPane>
