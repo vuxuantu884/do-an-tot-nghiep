@@ -224,6 +224,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                     {/*TH tạo mới, clone đơn hàng, đơn nháp*/}
                     {!isEdit && (!status || status === POStatus.DRAFT) && (
                       <Button
+                        htmlType="button"
                         type="link"
                         onClick={removeSupplier}
                         style={{ display: "flex", alignItems: "center" }}

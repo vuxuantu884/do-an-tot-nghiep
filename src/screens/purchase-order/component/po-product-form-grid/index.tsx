@@ -1,8 +1,9 @@
 import { Col, Divider, FormInstance, Input, InputNumber, Row, Skeleton, Table } from "antd";
 import { ColumnsType } from "antd/lib/table";
-import { flatMapDeep, uniq } from "lodash";
+import { flatMapDeep, groupBy, uniq } from "lodash";
 import debounce from "lodash/debounce";
 import isEmpty from "lodash/isEmpty";
+import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import {
   PODataSourceGrid,
   PODataSourceVariantItemGrid,
@@ -10,12 +11,18 @@ import {
   POLineItemGridSchema,
   POLineItemGridValue,
   POPairSizeQuantity,
+  PurchaseOrder,
 } from "model/purchase-order/purchase-order.model";
-import React, { createRef, useContext, useMemo, useState } from "react";
+import {
+  PurchaseProcument,
+  PurchaseProcumentLineItem,
+} from "model/purchase-order/purchase-procument";
+import React, { createRef, useCallback, useContext, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
 import {
+  combineLineItemToSubmitData,
   getTotalPriceOfAllLineItem,
   initSchemaLineItem,
   initValueLineItem,
@@ -39,16 +46,15 @@ import {
   ProductWrapperSearchQuery,
 } from "../../../../model/product/product.model";
 import { POField } from "../../../../model/purchase-order/po-field";
-import { formatCurrency, replaceFormatString } from "../../../../utils/AppUtils";
+import { findAvatar, formatCurrency, replaceFormatString } from "../../../../utils/AppUtils";
 import ProductItem from "./product-item";
 import { PoProductFormContainer } from "./styles";
 
 type POProductFormProps = {
   isEditMode: boolean;
   formMain: FormInstance;
-  isEditPrice?: boolean;
 };
-const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps) => {
+const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
   const dispatch = useDispatch();
   const [isSelecttingProduct, setIsSelecttingProduct] = useState(false);
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -63,6 +69,10 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
     setTaxRate,
     fetchMerchandiser,
     fetchDesigner,
+    setProcurementTableData,
+    procurementTableData,
+    expectedDate,
+    handleChangeProcument,
   } = useContext(PurchaseOrderCreateContext);
   const { fetchMerchans } = fetchMerchandiser;
   const { fetchMerchans: fetchDesigns } = fetchDesigner;
@@ -100,7 +110,6 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
     setIsLoadingProduct(true);
     fetchProducts({ info: value.trim() });
   };
-
   const onSelectProduct = (value: any) => {
     setIsSelecttingProduct(true);
     dispatch(
@@ -113,8 +122,34 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
 
         if (data.variants) {
           const variants = data.variants.filter(
-            (variant) => variant.status !== "inactive" && variant.type !== 1,
+            (variant) =>
+              variant.status !== "inactive" && variant.type !== AppConfig.VARIANT_TYPE_ERROR,
           ); //variant.type === 1 là sản phẩm lỗi
+          const dataSourceGrids: any[] = variants.map((variant) => {
+            const retailPrice =
+              variant.variant_prices.length > 0 ? variant.variant_prices[0]?.retail_price : null;
+            const expectedDateClone = expectedDate.map((item) => {
+              return {
+                ...item,
+              };
+            });
+            return {
+              variantId: variant.id,
+              productId: data.id,
+              sku: variant.sku,
+              quantity: 0,
+              expectedDate: [...expectedDateClone],
+              retail_price: retailPrice,
+              price: variant.variant_prices[0].import_price,
+              barcode: variant.barcode,
+              variant_images: findAvatar(variant.variant_images),
+              product_name: data.name,
+              variant: variant.name,
+              // line_item_id: data.id,
+              note: "",
+            };
+          });
+          setProcurementTableData(dataSourceGrids);
           data.variants = variants;
           const procurements = formMain.getFieldValue(POField.procurements);
           formMain.setFieldsValue({
@@ -147,7 +182,6 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
            * Tạo schema cấu trúc bảng cho sp
            */
           const newpoLineItemGridChema = [];
-          console.log();
           newpoLineItemGridChema.push(initSchemaLineItem(data, "CREATE"));
           setPoLineItemGridChema(newpoLineItemGridChema);
 
@@ -174,7 +208,6 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
             [POField.designer_code]: data.designer_code,
           });
         }
-
         setIsSelecttingProduct(false);
       }),
     );
@@ -189,6 +222,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
          * Check nếu dòng không có variant nào được nhập quantity thì ẩn
          *DK : view mode
          */
+
         if (
           !isEditMode &&
           poLineItemGridValue[schemaIndex]
@@ -264,6 +298,30 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
         }
       });
     setPoLineItemGridValue(newpoLineItemGridValue);
+    const indexProcurementTableData = procurementTableData.findIndex(
+      (item) => item.variantId === variantId,
+    );
+    if (indexProcurementTableData >= 0) {
+      procurementTableData[indexProcurementTableData].quantity = value;
+    }
+    const valueForm: PurchaseOrder = {
+      ...formMain.getFieldsValue(),
+    } as PurchaseOrder;
+    const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(
+      newpoLineItemGridValue,
+      poLineItemGridChema,
+      taxRate,
+    );
+    const supplementLineItems =
+      valueForm?.line_items?.filter((e) => e.type === POLineItemType.SUPPLEMENT) || [];
+    valueForm.line_items = [
+      ...gridLineItems.filter((item) => item.id),
+      ...gridLineItems.filter((item) => !item.id),
+      ...supplementLineItems,
+    ];
+    formMain.setFieldsValue({ ...valueForm, line_items: valueForm.line_items });
+    handleChangeProcument(formMain);
+    setProcurementTableData([...procurementTableData]);
   };
 
   /**
@@ -273,6 +331,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
    */
   const onChangeQuantityHeader = (inputValue: number | null, size: string) => {
     if (typeof inputValue === "number") {
+      let isCreate = false;
       const newpoLineItemGridValue = [...poLineItemGridValue];
       newpoLineItemGridValue.forEach((schema: Map<string, POLineItemGridValue>) => {
         const mapIterator = schema.values();
@@ -282,12 +341,37 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           sizeValues.forEach((sizeValue: POPairSizeQuantity) => {
             if (sizeValue.size === size) {
               sizeValue.quantity = inputValue;
+              const index = procurementTableData.findIndex(
+                (item) => item.variantId === sizeValue.variantId,
+              );
+              if (index >= 0) {
+                isCreate = true;
+                procurementTableData[index].quantity = inputValue; //create
+              }
             }
           });
         }
       });
-
       setPoLineItemGridValue(newpoLineItemGridValue);
+      const valueForm: PurchaseOrder = {
+        ...formMain.getFieldsValue(),
+      } as PurchaseOrder;
+      const gridLineItems: PurchaseOrderLineItem[] = combineLineItemToSubmitData(
+        newpoLineItemGridValue,
+        poLineItemGridChema,
+        taxRate,
+      );
+      const supplementLineItems =
+        valueForm?.line_items?.filter((e) => e.type === POLineItemType.SUPPLEMENT) || [];
+
+      valueForm.line_items = [
+        ...gridLineItems.filter((item) => item.id),
+        ...gridLineItems.filter((item) => !item.id),
+        ...supplementLineItems,
+      ];
+      !isCreate && handleChangeProcument(formMain);
+      formMain.setFieldsValue({ ...valueForm });
+      isCreate && setProcurementTableData([...procurementTableData]);
     }
   };
   /**
@@ -382,6 +466,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           ),
           props: {},
         };
+
         const { schemaIndex } = row;
         const baseColor = poLineItemGridChema[schemaIndex].baseColor;
 
@@ -396,6 +481,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
           }
         });
         return obj;
+        // return <Link to={`${UrlConfig.PRODUCT}/${rơ}`}>{obj}</Link>;
       },
     },
     {
@@ -450,6 +536,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
                 <NumberInput
                   size="small"
                   min={0}
+                  style={{ height: "32px" }}
                   onChange={(value) => onChangeQuantityHeader(value, size)}
                 />
               )}
@@ -477,16 +564,17 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
              * Nếu ô bị disable thì ở màn hình read hiển thị null
              */
             return isEditMode ? (
-              <InputNumber
+              <NumberInput
                 className="size-input"
                 size="small"
                 min={0}
                 maxLength={10}
                 value={quantityOfSize}
                 disabled={!!record.disabled || !variantId}
-                onChange={(value: number) => {
+                style={{ height: "32px" }}
+                onChange={(value: number | null) => {
                   if (variantId) {
-                    onChangeQuantity(value, record.color, variantId, schemaIndex);
+                    onChangeQuantity(value || 0, record.color, variantId, schemaIndex);
                   } else {
                     showError("Ô nhập số lượng không hợp lệ");
                   }
@@ -509,7 +597,7 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       align: "center",
       dataIndex: "color",
       width: 100,
-      render: (color: string, row: PODataSourceGrid) => {
+      render: (color: string, row: PODataSourceGrid, index) => {
         let total = 0;
         const { schemaIndex } = row;
         const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
@@ -526,9 +614,10 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       title: (
         <div>
           <p>Giá nhập</p>
-          {(isEditMode || isEditPrice) && (
+          {isEditMode && (
             <NumberInput
               min={0}
+              style={{ height: "32px" }}
               onChange={(value) => onChangePriceHeader(value || 0)}
               format={(a: string) => formatCurrency(a)}
               replace={(a: string) => replaceFormatString(a)}
@@ -543,9 +632,10 @@ const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps
       render: (color: string, row: PODataSourceGrid) => {
         const { schemaIndex } = row;
         const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
-        return isEditMode || isEditPrice ? (
+        return isEditMode ? (
           <NumberInput
             min={0}
+            style={{ height: "32px" }}
             value={sizeQtyOfColorObject?.price ?? 0}
             onChange={(value) => onChangePrice(value ?? 0, color, schemaIndex)}
             format={(a: string) => formatCurrency(a)}

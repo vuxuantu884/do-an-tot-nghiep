@@ -1,5 +1,4 @@
 import {
-  getListAllStoreSimple,
   getListStore,
   getListStoreSimple,
   getSearchListStore,
@@ -31,28 +30,10 @@ function* storeGetAllSaga(action: YodyAction) {
   let { setData } = action.payload;
   try {
     let response: BaseResponse<Array<StoreResponse>> = yield call(getListStore);
-    switch (response.code) {
-      case HttpStatus.SUCCESS:
-        setData(response.data);
-        break;
-      case HttpStatus.UNAUTHORIZED:
-        yield put(unauthorizedAction());
-        break;
-      default:
-        response.errors.forEach((e) => showError(e));
-        break;
-    }
-  } catch (error) {
-    // showError("Có lỗi vui lòng thử lại sau");
-  }
-}
 
-function* storeGetListAllStoreSimpleAllSaga(action: YodyAction) {
-  let { setData } = action.payload;
-  try {
-    let response: BaseResponse<Array<StoreResponse>> = yield call(getListAllStoreSimple);
     switch (response.code) {
       case HttpStatus.SUCCESS:
+        console.log("response", response);
         setData(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
@@ -63,7 +44,7 @@ function* storeGetListAllStoreSimpleAllSaga(action: YodyAction) {
         break;
     }
   } catch (error) {
-    // showError("Có lỗi vui lòng thử lại sau");
+    showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -299,7 +280,6 @@ function* getStoreSearchIdsSaga(action: YodyAction) {
 export function* storeSaga() {
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST, storeGetAllSaga);
   yield takeLatest(StoreType.GET_SEARCH_STORE_REQUEST, storeGetSearchSaga);
-  yield takeLatest(StoreType.GET_LIST_ALL_STORE_REQUEST_SIMPLE, storeGetListAllStoreSimpleAllSaga);
   yield takeLatest(StoreType.GET_LIST_STORE_REQUEST_SIMPLE, storeGetListStoreSimpleAllSaga);
   yield takeLatest(StoreType.STORE_SEARCH, storeSearchSaga);
   yield takeLatest(StoreType.STORE_RANK, storeRanksaga);

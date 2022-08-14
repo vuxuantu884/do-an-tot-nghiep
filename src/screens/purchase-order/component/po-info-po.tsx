@@ -191,7 +191,8 @@ const CreateInfoPo = () => {
         name={POField.reference}
         label="Số tham chiếu"
       >
-        <Input placeholder="Nhập số tham chiếu" maxLength={255} disabled />
+        {/* <Input placeholder="Nhập số tham chiếu" maxLength={255} disabled /> */}
+        <Input placeholder="Nhập số tham chiếu" maxLength={255} />
       </StyledFormItem>
     </Fragment>
   );

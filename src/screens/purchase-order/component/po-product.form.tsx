@@ -30,8 +30,9 @@ import {
   PurchaseOrderLineItem,
   Vat,
 } from "model/purchase-order/purchase-item.model";
+import { PODataSourceGrid } from "model/purchase-order/purchase-order.model";
 import { PurchaseProcument } from "model/purchase-order/purchase-procument";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import React, { createRef, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { useDispatch } from "react-redux";
 import { Link } from "react-router-dom";
@@ -48,23 +49,27 @@ import { showError } from "utils/ToastUtils";
 import BaseButton from "../../../component/base/BaseButton";
 import { IconAddMultiple } from "../../../component/icon/IconAddMultiple";
 import PickManyProductModal from "../modal/pick-many-product.modal";
+import { PurchaseOrderCreateContext } from "../provider/purchase-order.provider";
 import ProductItem from "./product-item";
 type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
   poLineItemType: POLineItemType;
-  isEditPrice?: boolean;
 };
 var position = 0;
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
-  const { formMain, isEdit, poLineItemType, isEditPrice } = props;
+  const { formMain, isEdit, poLineItemType } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [resultSearch, setResultSearch] = useState<Array<VariantResponse>>([]);
   const [isPressed] = useKeyboardJs("f3");
   const [isSortSku, setIsSortSku] = useState(false);
+
+  //context
+  const { setProcurementTableData, procurementTableData, expectedDate, handleChangeProcument } =
+    useContext(PurchaseOrderCreateContext);
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
@@ -102,10 +107,41 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       ];
       position = position + newItems.length;
       let newLineItems = POUtils.addProduct(lineItems, newItems, false);
+      let newLineItemsFilter = [
+        ...newLineItems.filter((item) => item.id),
+        ...newLineItems.filter((item) => !item.id),
+      ];
       formMain.setFieldsValue({
-        line_items: newLineItems,
+        line_items: newLineItemsFilter,
       });
 
+      const dataSourceGrid: Array<PODataSourceGrid | any> = newLineItemsFilter.map((item) => {
+        const retailPrice =
+          item.variant_prices?.length > 0 ? item.variant_prices[0]?.retail_price : null;
+        const expectedDateClone = expectedDate.map((itemDate) => {
+          return {
+            ...itemDate,
+          };
+        });
+        console.log("item", item);
+        return {
+          variantId: item.variant_id,
+          productId: item?.product_id,
+          sku: item.sku,
+          quantity: item.quantity,
+          expectedDate: [...expectedDateClone],
+          retail_price: retailPrice,
+          price: item?.variant_prices?.length ? item?.variant_prices[0].import_price : 0,
+          barcode: item.barcode,
+          variant_images: item.variant_image,
+          product_name: item.product,
+          variant: item.variant,
+          variant_image: item?.variant_image,
+          // line_item_id: item.id,
+          note: "",
+        };
+      });
+      setProcurementTableData(dataSourceGrid);
       const currentProcument: Array<PurchaseProcument> = formMain.getFieldValue(
         POField.procurements,
       );
@@ -117,12 +153,16 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       formMain.setFieldsValue({
         procurements: newProcument,
       });
+      handleChangeProcument(formMain);
     }
   };
-  const handleDeleteLineItem = (index: number) => {
+  const handleDeleteLineItem = (lineItemDelete: PurchaseOrderLineItem) => {
     let lineItems: Array<PurchaseOrderLineItem> = formMain.getFieldValue(POField.line_items);
+    const index = lineItems.findIndex((item) => item.variant_id === lineItemDelete.variant_id);
     const lineItem = lineItems[index];
     lineItems.splice(index, 1);
+    procurementTableData.splice(index, 1);
+    setProcurementTableData([...procurementTableData]);
     formMain.setFieldsValue({
       line_items: [...lineItems],
     });
@@ -222,6 +262,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     if (lineItems[indexOfItem]) {
       lineItems[indexOfItem] = POUtils.updateLineItemByQuantity(lineItems[indexOfItem], quantity);
       updateOldLineItem(lineItems[indexOfItem]);
+      procurementTableData[indexOfItem].quantity = quantity;
       formMain.setFieldsValue({
         line_items: [...lineItems],
       });
@@ -236,6 +277,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
       formMain.setFieldsValue({
         procurements: newProcument,
       });
+      setProcurementTableData([...procurementTableData]);
     }
   };
 
@@ -330,11 +372,37 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
     }
 
     setVisibleManyProduct(false);
+
     const newItems: Array<PurchaseOrderLineItem> = [
       ...POUtils.convertVariantToLineitem(variantsSelected, position, poLineItemType),
     ];
     position = position + newItems.length;
     let newLineItems = POUtils.addProduct(lineItems, newItems, false);
+    const dataSourceGrid: Array<PODataSourceGrid | any> = newLineItems.map((item) => {
+      const retailPrice =
+        item.variant_prices.length > 0 ? item.variant_prices[0]?.retail_price : null;
+      const expectedDateClone = expectedDate.map((item) => {
+        return {
+          ...item,
+        };
+      });
+      return {
+        variantId: item.variant_id,
+        productId: item?.product_id,
+        sku: item.sku,
+        quantity: item.quantity,
+        expectedDate: [...expectedDateClone],
+        retail_price: retailPrice,
+        price: item.variant_prices[0].import_price,
+        barcode: item.barcode,
+        variant_images: item.variant_image,
+        product_name: item.product,
+        variant: item.variant,
+        variant_image: item.variant_image,
+        note: "",
+      };
+    });
+    setProcurementTableData(dataSourceGrid);
     if (isSortSku) {
       newLineItems = handleSortLineItems(newLineItems);
     }
@@ -550,13 +618,10 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   };
 
   const isEditFormByType = () => {
-    const stt = formMain.getFieldValue(POField.status);
     if (!isEdit) {
       return false;
     }
-    if (stt && (stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL) && isEdit) {
-      return true;
-    }
+    const stt = formMain.getFieldValue(POField.status);
     if (poLineItemType === POLineItemType.NORMAL && (!stt || stt === POStatus.DRAFT)) {
       return true;
     }
@@ -642,6 +707,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       image={<img src={emptyProduct} alt="" />}
                     >
                       <Button
+                        htmlType="button"
                         type="text"
                         className="font-weight-500"
                         style={{
@@ -687,7 +753,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     title: "STT",
                     align: "center",
                     width: 60,
-                    render: (value, record, index: number) => index + 1,
+                    render: (value, record, index) => index + 1,
                   },
                   {
                     title: "Ảnh",
@@ -695,7 +761,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     dataIndex: "variant_image",
                     render: (value) => (
                       <div className="product-item-image">
-                        <img src={value === null ? imgDefIcon : value} alt="" />
+                        <img src={value === null ? imgDefIcon : value} alt="" className="" />
                       </div>
                     ),
                   },
@@ -722,6 +788,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                               <div className="product-item-name-detail">{value}</div>
                               {!item.showNote && (
                                 <Button
+                                  htmlType="button"
                                   onClick={() => {
                                     onToggleNote(`note_${item.temp_id}`, true, index);
                                   }}
@@ -941,7 +1008,8 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       const disabled = Boolean(item.type === POLineItemType.SUPPLEMENT && item.id);
                       return (
                         <Button
-                          onClick={() => handleDeleteLineItem(index)}
+                          htmlType="button"
+                          onClick={() => handleDeleteLineItem(item)}
                           className="product-item-delete"
                           icon={<AiOutlineClose />}
                           disabled={disabled}
@@ -1064,39 +1132,20 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     width: 140,
                     dataIndex: "price",
                     render: (value, item, index) => {
-                      if (isEdit && isEditPrice) {
-                        return (
-                          <NumberInput
-                            className="hide-number-handle"
-                            min={0}
-                            format={(a: string) => formatCurrency(a ? a : 0)}
-                            replace={(a: string) => replaceFormatString(a)}
-                            value={item.price > 0 ? item.price : value}
-                            onChange={(inputValue) => {
-                              handleChangePriceLineItem(inputValue || 0, item);
-                            }}
-                          />
-                        );
-                      } else {
-                        return (
-                          <div
-                            style={{
-                              width: "100%",
-                              textAlign: "right",
-                            }}
-                          >
-                            {formatCurrency(
-                              Math.round(
-                                POUtils.caculatePrice(
-                                  value,
-                                  item.discount_rate,
-                                  item.discount_value,
-                                ),
-                              ),
-                            )}
-                          </div>
-                        );
-                      }
+                      return (
+                        <div
+                          style={{
+                            width: "100%",
+                            textAlign: "right",
+                          }}
+                        >
+                          {formatCurrency(
+                            Math.round(
+                              POUtils.caculatePrice(value, item.discount_rate, item.discount_value),
+                            ),
+                          )}
+                        </div>
+                      );
                     },
                   },
                   {
@@ -1248,8 +1297,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                   .map((item: Vat, index: number) => (
                     <div className="po-payment-row" key={index}>
                       <div>
-                        VAT
-                        <span className="po-payment-row-error">{`(${item.rate}%)`}:</span>
+                        VAT<span className="po-payment-row-error">{`(${item.rate}%)`}:</span>
                       </div>
                       <div className="po-payment-row-result">
                         {formatCurrency(Math.round(item.amount))}
