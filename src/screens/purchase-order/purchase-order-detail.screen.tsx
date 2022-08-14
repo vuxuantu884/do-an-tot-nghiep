@@ -3,6 +3,7 @@ import { Button, Col, Collapse, Form, Input, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
+import ModalConfirm from "component/modal/ModalConfirm";
 import ActionButton, { MenuAction } from "component/table/ActionButton";
 import { AppConfig } from "config/app.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
@@ -19,11 +20,12 @@ import purify from "dompurify";
 import useAuthorization from "hook/useAuthorization";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-import _ from "lodash";
+import _, { groupBy } from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
 import { ImportResponse } from "model/other/files/export-model";
+import { ProcurementLineItemField } from "model/procurement/field";
 import { PoPaymentConditions } from "model/purchase-order/payment-conditions.model";
 import { POField } from "model/purchase-order/po-field";
 import {
@@ -33,6 +35,10 @@ import {
 } from "model/purchase-order/purchase-item.model";
 import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase-order.model";
 import { PurchasePayments } from "model/purchase-order/purchase-payment.model";
+import {
+  PurchaseProcument,
+  PurchaseProcumentLineItem,
+} from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import React, { lazy, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -44,11 +50,9 @@ import {
 } from "service/purchase-order/purchase-order.service";
 import { callApiNative } from "utils/ApiUtils";
 import { POStatus, ProcumentStatus, VietNamId } from "utils/Constants";
-import { ConvertDateToUtc } from "utils/DateUtils";
+import { ConvertDateToUtc, DATE_FORMAT } from "utils/DateUtils";
 import {
   checkCanEditDraft,
-  checkCanEditPrice,
-  checkChangePriceLineItem,
   checkImportPriceLowByLineItem,
   combineLineItemToSubmitData,
   fetchProductGridData,
@@ -60,8 +64,9 @@ import {
   validateLineItemQuantity,
 } from "utils/POUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
+import POInfoPO from "./component/po-info-po";
 import POInfoForm from "./component/po-info.form";
-import POInventoryForm from "./component/po-inventory.form";
+import POInventoryFormCopy from "./component/po-inventory.form-copy";
 import POPaymentForm from "./component/po-payment.form";
 import POProductFormNew from "./component/po-product-form-grid";
 import PoProductContainer from "./component/po-product-form-grid/po-product-container";
@@ -70,13 +75,11 @@ import POReturnList from "./component/po-return-list";
 import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
 import POPaymentConditionsForm from "./component/PoPaymentConditionsForm";
+import { PrintTypePo } from "./helper";
 import PurchaseOrderProvider, {
   PurchaseOrderCreateContext,
 } from "./provider/purchase-order.provider";
-import POInfoPO from "./component/po-info-po";
-import ModalConfirm from "component/modal/ModalConfirm";
-import { PurchaseProcument } from "model/purchase-order/purchase-procument";
-import { PrintTypePo } from "./helper";
+import { v4 as uuidv4 } from "uuid";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
 const ModalExport = lazy(() => import("./modal/ModalExport"));
@@ -102,6 +105,7 @@ const ActionMenuPrint = {
 type PurchaseOrderParam = {
   id: string;
 };
+
 const PODetailScreen: React.FC = () => {
   const now = moment();
   const initPurchaseOrder = {
@@ -158,12 +162,8 @@ const PODetailScreen: React.FC = () => {
   // const [actionLog, setActionLog] = useState<PurchaseOrderActionLogResponse[]>([]);
   const [activePanel, setActivePanel] = useState<string | string[]>();
   const [isShowWarningPriceModal, setShowWarningPriceModal] = useState<boolean>(false);
-  const [showConfirmChangePrice, setShowConfirmChangePrice] = useState<boolean>(false);
   const [canCancelPO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.cancel],
-  });
-  const [canUpdateImportPrice] = useAuthorization({
-    acceptPermissions: [PurchaseOrderPermission.update_import_price],
   });
   const statusAction = useRef<string>("");
 
@@ -178,6 +178,9 @@ const PODetailScreen: React.FC = () => {
     taxRate,
     purchaseOrder,
     setPurchaseOrder,
+    setProcurementsAll,
+    handleSetProcurementTableContext,
+    handleSortProcurements,
   } = useContext(PurchaseOrderCreateContext);
 
   const SUPPLEMENT_PANEL_KEY = "supplement";
@@ -207,8 +210,8 @@ const PODetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
-        setPurchaseOrder(result);
-        formMain.setFieldsValue(result);
+        const procurements = handleSortProcurements(result.procurements);
+        console.log("update");
         let closingDate = result.ap_closing_date ? moment(result.ap_closing_date) : null;
         if (
           !closingDate &&
@@ -217,7 +220,47 @@ const PODetailScreen: React.FC = () => {
         ) {
           closingDate = moment();
         }
-        formMain.setFieldsValue({ ap_closing_date: closingDate });
+        const procurementsFilter = groupBy(
+          procurements,
+          ProcurementLineItemField.expect_receipt_date,
+        );
+        const procurementsAllEffect: Array<PurchaseProcument[]> = Object.values(
+          procurementsFilter,
+        ).map((procurementAll, indexProcurementAll) => {
+          const uuid = uuidv4();
+          return [
+            ...procurementAll.map((item) => {
+              return {
+                ...item,
+                uuid: uuid,
+                percent: item?.percent || 0,
+                procurement_items: [
+                  ...item.procurement_items.map((procurementItem) => {
+                    return {
+                      ...procurementItem,
+                      percent: item?.percent,
+                      uuid: uuid + indexProcurementAll, // ada them vị trí của procuments
+                    };
+                  }),
+                ],
+              };
+            }),
+          ];
+        });
+        const procurementSplit = procurementsAllEffect.reduce((acc, val) => acc.concat(val), []);
+        formMain.setFieldsValue({
+          ...result,
+          ap_closing_date: closingDate,
+          procurements: [...procurementSplit],
+        });
+        handleSetProcurementTableContext(
+          procurementSplit,
+          result.line_items,
+          procurementsAllEffect,
+        );
+
+        setPurchaseOrder({ ...result, procurements: [...procurementSplit] });
+        setProcurementsAll(procurementsAllEffect);
         setStatus(result.status);
       }
     },
@@ -246,17 +289,22 @@ const PODetailScreen: React.FC = () => {
       setListStore(res);
     }
   }, []);
+
   const onUpdateCall = useCallback(
     (result: PurchaseOrder | null) => {
       dispatch(hideLoading());
-      setIsEditDetail(false);
       if (result !== null) {
         loadDetail(idNumber, true, false);
+        formMain.setFieldsValue({
+          dataSource: null,
+        });
         showSuccess("Cập nhật nhập hàng thành công");
+        setIsEditDetail(false);
       }
     },
-    [idNumber, loadDetail, dispatch],
+    [idNumber, loadDetail, dispatch, formMain],
   );
+
   const onFinish = (value: PurchaseOrder) => {
     dispatch(showLoading());
     try {
@@ -288,6 +336,62 @@ const PODetailScreen: React.FC = () => {
       if (!atLeastOneItem) {
         throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
+      const procurementsFilter = groupBy(
+        value?.procurements,
+        ProcurementLineItemField.expect_receipt_date,
+      );
+      const procurementsAll: Array<PurchaseProcument[]> = Object.values(procurementsFilter);
+      procurementsAll.forEach((procurementAll) => {
+        const procurementItemsAll = procurementAll.reduce(
+          (acc, ele) => acc.concat(ele.procurement_items),
+          [] as PurchaseProcumentLineItem[],
+        );
+        if (!procurementItemsAll.some((item: PurchaseProcumentLineItem) => item.planned_quantity)) {
+          throw new Error("Vui lòng nhập số lượng cho ít nhất 1 ngày dự kiến");
+        }
+        const totalPercent = procurementAll.reduce((acc, ele) => acc + (ele?.percent || 0), 0);
+        if (totalPercent !== 100) {
+          throw new Error(
+            `Tỉ lệ chia hàng ngày ${moment(procurementAll[0].expect_receipt_date).format(
+              DATE_FORMAT.DDMMYYY,
+            )} không hợp lệ`,
+          );
+        }
+        // xử lý xem tỉ lệ chia hàng cho từng line_item đã đúng với kế hoạch nhận hàng của line_item ngày đó chưa
+        const line_items = procurementAll[0].procurement_items;
+        line_items.forEach((line_item) => {
+          const totalQuantity = procurementItemsAll
+            .filter((item) => item.variant_id === line_item.variant_id)
+            .reduce((acc, ele) => acc + ele.quantity, 0);
+          const totalPlannedQuantities = procurementItemsAll
+            .filter((item) => item.variant_id === line_item.variant_id)
+            .reduce((acc, ele) => acc + ele.planned_quantity, 0);
+
+          if (totalQuantity !== totalPlannedQuantities) {
+            throw new Error(
+              `Tỉ lệ chia hàng sản phẩm ${line_item.sku} ngày ${moment(
+                procurementAll[0].expect_receipt_date,
+              ).format(DATE_FORMAT.DDMMYYY)} cho ba kho không bằng kế hoạch`,
+            );
+          }
+        });
+      });
+
+      value.line_items.forEach((lineItem) => {
+        const totalProcumentPlannedQuantityByLineItem = value.procurements
+          .reduce(
+            (acc, val) => acc.concat(val.procurement_items),
+            [] as PurchaseProcumentLineItem[],
+          )
+          .filter((item) => item.variant_id === lineItem.variant_id)
+          .reduce((total, element) => total + element.planned_quantity, 0);
+        if (totalProcumentPlannedQuantityByLineItem > lineItem.quantity) {
+          throw new Error(
+            `Số lượng hàng về dự kiến sản phẩm ${lineItem.sku} nhiều hơn số lượng đặt hàng`,
+          );
+        }
+      });
+
       const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
       value.untaxed_amount = untaxed_amount;
       value.tax_lines = [
@@ -308,14 +412,37 @@ const PODetailScreen: React.FC = () => {
       value.ap_closing_date = value.ap_closing_date
         ? ConvertDateToUtc(value.ap_closing_date)
         : null;
-      const dataClone: any = { ...purchaseOrder, ...value, status: statusAction.current };
+      //sử lý khi thêm ngày nhận dự kiến
+      value.procurements = [
+        ...value.procurements.map((procurement) => {
+          return {
+            ...procurement,
+            procurement_items: [
+              ...procurement.procurement_items.map((procurementItem) => {
+                if (typeof procurementItem.id === "string") delete procurementItem.id;
+                return {
+                  ...procurementItem,
+                  quantity: procurementItem.planned_quantity,
+                  ordered_quantity: procurementItem?.ordered_quantity || 0,
+                };
+              }),
+            ],
+          };
+        }),
+      ];
+      const dataClone: any = {
+        ...purchaseOrder,
+        ...value,
+        status: statusAction.current,
+      };
+      console.log("dataClone", dataClone);
       dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
     } catch (error: any) {
       showError(error.message);
+      setIsEditDetail(true);
       dispatch(hideLoading());
     }
   };
-
   const onAddProcumentSuccess = useCallback(
     (isSuggest) => {
       loadDetail(idNumber, true, isSuggest);
@@ -654,25 +781,6 @@ const PODetailScreen: React.FC = () => {
           return;
         }
       }
-      if (status === POStatus.FINALIZED) {
-        const lineItems: any[] = isGridMode
-          ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
-          : formMain.getFieldsValue()[POField.line_items];
-        if (!lineItems.every((item) => item.price)) {
-          setIsEditDetail(true);
-          throw new Error(
-            "Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công",
-          );
-        }
-        if (checkImportPriceLowByLineItem(MIN_IMPORT_PRICE_WARNING, lineItems)) {
-          setShowWarningPriceModal(true);
-          return;
-        }
-        if (checkChangePriceLineItem(purchaseOrder.line_items, lineItems)) {
-          setShowConfirmChangePrice(true);
-          return;
-        }
-      }
       // trạng thái khác : không check giá
       formMain.submit();
     } catch (error: any) {
@@ -988,14 +1096,12 @@ const PODetailScreen: React.FC = () => {
                 <POProductFormNew
                   formMain={formMain}
                   isEditMode={checkCanEditDraft(formMain, isEditDetail)}
-                  isEditPrice={checkCanEditPrice(formMain, isEditDetail, canUpdateImportPrice)}
                 />
               ) : (
                 <POProductFormOld
                   isEdit={isEditDetail}
                   formMain={formMain}
                   poLineItemType={POLineItemType.NORMAL}
-                  isEditPrice={checkCanEditPrice(formMain, isEditDetail, canUpdateImportPrice)}
                 />
               )}
             </PoProductContainer>
@@ -1013,7 +1119,19 @@ const PODetailScreen: React.FC = () => {
                 </Collapse.Panel>
               </Collapse>
             )}
-            <POInventoryForm
+            {/* <POInventoryForm
+              onAddProcumentSuccess={onAddProcumentSuccess}
+              idNumber={idNumber}
+              poData={purchaseOrder}
+              isEdit={true}
+              isEditDetail={isEditDetail}
+              now={now}
+              loadDetail={loadDetail}
+              formMain={formMain}
+              status={status}
+              stores={listStore}
+            /> */}
+            <POInventoryFormCopy
               onAddProcumentSuccess={onAddProcumentSuccess}
               idNumber={idNumber}
               poData={purchaseOrder}
@@ -1091,18 +1209,10 @@ const PODetailScreen: React.FC = () => {
           setShowWarningPriceModal(false);
         }}
       />
-      <ModalConfirm
-        title="Bạn có chắc chắn thay đổi giá nhập không?"
-        visible={showConfirmChangePrice}
-        onCancel={() => setShowConfirmChangePrice(false)}
-        onOk={() => {
-          formMain.submit();
-          setShowConfirmChangePrice(false);
-        }}
-      />
     </ContentContainer>
   );
 };
+
 const PODetailWithProvider = (props: any) => (
   <PurchaseOrderProvider>
     <PODetailScreen {...props} />

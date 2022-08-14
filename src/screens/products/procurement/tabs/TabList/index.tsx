@@ -459,7 +459,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                   </span>
                 </div>
               )}
-              {record.activated_date && (
+              {record?.activated_date && (
                 <div>
                   <span className="fs-12 text-muted">Ngày duyệt: </span>
                   <span className="fs-12 text-title">
