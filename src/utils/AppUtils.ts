@@ -2124,7 +2124,7 @@ export const flattenArray = (arr: any) => {
  * @param {string} stringNumber - the localized number
  * @param {string} locale - [optional] the locale that the number is represented in. Omit this parameter to use the current locale.
  */
-export function parseLocaleNumber(stringNumber: string, locale?: string) {
+export function parseLocaleNumber(stringNumber: any, locale?: string) {
   const thousandSeparator = Intl.NumberFormat(locale)
     .format(11111)
     .replace(/\p{Number}/gu, "");
@@ -2134,6 +2134,7 @@ export function parseLocaleNumber(stringNumber: string, locale?: string) {
 
   return parseFloat(
     stringNumber
+      .toString()
       .replace(new RegExp("\\" + thousandSeparator, "g"), "")
       .replace(new RegExp("\\" + decimalSeparator), "."),
   );
