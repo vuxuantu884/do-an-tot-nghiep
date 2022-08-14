@@ -219,6 +219,10 @@ label {
   }
 }
 
+.align-item {
+    align-items: center;
+}
+
 .upload-image {
   display: flex;
   &-left {
