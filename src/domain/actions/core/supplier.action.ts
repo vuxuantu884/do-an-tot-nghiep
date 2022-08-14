@@ -20,6 +20,10 @@ export const SupplierSearchAction = (
   });
 };
 
+export const SupplierGetAllNoPagingAction = (setData: (response: PageResponse<SupplierResponse>) => void) => {
+  return BaseAction(SupplierType.GET_ALL_SUPPLIER_REQUEST_NO_PAGING, {setData});
+}
+
 export const SupplierGetAllAction = (setData: (response: Array<SupplierResponse>) => void) => {
   return BaseAction(SupplierType.GET_ALL_SUPPLIER_REQUEST, { setData });
 };
