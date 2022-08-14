@@ -48,6 +48,7 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
       setData(result);
     }
   }, []);
+
   const onCheckedChange = useCallback(
     (checked, variantResponse: VariantResponse) => {
       if (variantResponse && variantResponse.status === "inactive") {
@@ -110,10 +111,13 @@ const PickManyProductModal: React.FC<PickManyProductModalType> = (
     if (props.visible) {
       setSelection([...props.selected]);
     }
+  }, [props.selected, props.visible]);
+
+  useEffect(() => {
     return () => {
       setSelection([]);
     };
-  }, [props.selected, props.visible]);
+  }, []);
 
   const searchVariantDebounce = debounce((e) => {
     setQuery({ ...query, info: e.target.value });

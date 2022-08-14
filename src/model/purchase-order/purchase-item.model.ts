@@ -1,3 +1,5 @@
+import { VariantPricesResponse } from "model/product/product.model";
+
 export interface PurchaseOrderLineItem {
   id?: number;
   barcode: string;
@@ -32,6 +34,9 @@ export interface PurchaseOrderLineItem {
   variant_detail?: any;
   retail_price: number;
   cost_price: number;
+  color_code?: string;
+  color: number;
+  variant_prices: Array<VariantPricesResponse>;
   new_retail_price?: number;
 }
 export interface PurchaseOrderLineReturnItem extends PurchaseOrderLineItem {

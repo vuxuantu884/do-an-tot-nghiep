@@ -1,5 +1,5 @@
 import { CloseOutlined, FilterOutlined, StarOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Select, Tag } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Tag, Select } from "antd";
 import search from "assets/img/search.svg";
 import BaseResponse from "base/base.response";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
@@ -29,7 +29,12 @@ import React, { createRef, Fragment, useCallback, useEffect, useState } from "re
 import { useDispatch, useSelector } from "react-redux";
 import FormSaveFilter from "screens/products/inventory/filter/components/FormSaveFilter";
 import { FILTER_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
-import { DATE_FORMAT, formatDateFilter, getEndOfDayCommon, getStartOfDayCommon } from "utils/DateUtils";
+import {
+  DATE_FORMAT,
+  formatDateFilter,
+  getEndOfDayCommon,
+  getStartOfDayCommon,
+} from "utils/DateUtils";
 import { primaryColor } from "utils/global-styles/variables";
 import { showSuccess } from "utils/ToastUtils";
 import BaseFilter from "./base.filter";
@@ -278,7 +283,11 @@ type AdvanceFormItemProps = {
 };
 
 const AdvanceFormItems = ({
+  wins,
+  lstQC,
   listStore,
+  tempAdvanceFilters,
+  getAccounts,
   formRef,
 }: AdvanceFormItemProps) => {
   return (
@@ -314,7 +323,10 @@ const AdvanceFormItems = ({
           case filterFields.qc:
             collapseChildren = (
               <AccountSearchPaging
-                fixedQuery={{ department_ids: [AppConfig.WIN_DEPARTMENT], status: "active" }}
+                fixedQuery={{
+                  department_ids: [AppConfig.WIN_DEPARTMENT],
+                  status: "active",
+                }}
                 tagRender={tagRender}
                 mode="multiple"
                 placeholder="Chọn 1 hoặc nhiều QC"
@@ -446,7 +458,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     [formBaseFilter, onFilter],
   );
   const onAdvanceFinish = useCallback(
-    () => {
+    (values?: PurchaseOrderQuery) => {
       let data = formAdvanceFilter.getFieldsValue(true);
       onFilter && onFilter(data);
     },
@@ -488,7 +500,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
       if (filterConfig) {
         let json_content = JSON.parse(filterConfig.json_content);
 
-        Object.keys(json_content).forEach(function(key) {
+        Object.keys(json_content).forEach(function (key, index) {
           if (json_content[key] == null) json_content[key] = undefined;
         }, json_content);
         formAdvanceFilter.setFieldsValue(json_content);
@@ -501,7 +513,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
     return (
       <div style={{ marginRight: 20, display: "inline-flex" }}>
         <Tag
-          onClick={() => {
+          onClick={(e) => {
             onSelectFilterConfig(props.index, props.id);
           }}
           style={{
@@ -590,7 +602,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
         request.type = FILTER_CONFIG_TYPE.FILTER_PO;
         request.json_content = json_content;
 
-        if (request.id) {
+        if (request.id && request.id !== null) {
           const config = lstConfigFilter.find((e) => e.id.toString() === request.id.toString());
           if (lstConfigFilter && config) {
             request.name = config.name;
@@ -637,7 +649,6 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   }, [advanceFilters, formAdvanceFilter, formBaseFilter]);
 
   useEffect(() => {
-    console.log(params);
     setAdvanceFilters({
       ...params,
       status: params.status ? params.status : [],
@@ -672,7 +683,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
   return (
     <div className="purchase-order-form">
       <Form.Provider
-        onFormFinish={(name, { forms }) => {
+        onFormFinish={(name, { values, forms }) => {
           const { formBaseFilter, formAdvanceFilter } = forms;
           let baseValues = formBaseFilter.getFieldsValue(true);
           let advanceValues = formAdvanceFilter?.getFieldsValue(true);
@@ -722,13 +733,13 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             layout="inline"
           >
             <CustomFilter onMenuClick={onMenuClick} menu={actions}>
-              <Item name="info">
+              <Item name="info" className="search">
                 <Input
                   prefix={<img src={search} alt="" />}
-                  placeholder="Tìm kiếm theo mã đơn, sđt, mã tham chiếu, ncc"
+                  placeholder="Tìm kiếm theo ID đơn mua, Tên, SĐT, Mã tham chiếu, ncc"
                 />
               </Item>
-              <Item name={filterFields.merchandiser} style={{ minWidth: 160 }}>
+              <Item name={filterFields.merchandiser} style={{ width: 250 }}>
                 <BaseSelectMerchans
                   mode={"tags"}
                   tagRender={tagRender}
@@ -737,7 +748,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                   isLoadingMerchans={isLoadingMerchans}
                 />
               </Item>
-              <Item name={filterFields.status} style={{ minWidth: 160 }}>
+              <Item name={filterFields.status}>
                 <BaseSelect
                   showArrow
                   mode={"tags"}
@@ -750,6 +761,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
                     </Option>
                   )}
                   notFoundContent="Không tìm thấy kết quả"
+                  style={{ width: 200 }}
                 />
               </Item>
               <Item>
@@ -785,7 +797,7 @@ const PurchaseOrderFilter: React.FC<PurchaseOrderFilterProps> = (
             onFinish={onAdvanceFinish}
             layout="vertical"
             style={{ paddingTop: 12 }}
-            onFieldsChange={(changedFields: any) => {
+            onFieldsChange={(changedFields: any, allFields: any) => {
               let fieldNames = changedFields && changedFields.length > 0 && changedFields[0].name;
               if (!fieldNames) return;
               let filtersSelected: any = {};
