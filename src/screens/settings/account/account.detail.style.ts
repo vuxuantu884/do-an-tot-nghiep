@@ -15,7 +15,6 @@ export const AccountDetailStyle = Styled.div`
     }
 }
 .account-title {
-    margin-right: 40px;
     white-space: nowrap;
     color:#737373
 }
