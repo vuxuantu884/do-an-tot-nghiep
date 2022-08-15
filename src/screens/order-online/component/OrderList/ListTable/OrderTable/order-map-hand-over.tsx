@@ -19,7 +19,7 @@ const OrderMapHandOver: React.FC<Props> = (props: Props) => {
 
     if (fulfillmentsCode) {
       const handOverData = [...handOvers].filter((p) =>
-        p.orders.some((p) => fulfillmentsCode.indexOf(p.fulfillment_code) !== -1),
+        p.orders?.some((p) => fulfillmentsCode.indexOf(p.fulfillment_code) !== -1),
       );
       // console.log(fulfillmentsCode, handOverData);
 
