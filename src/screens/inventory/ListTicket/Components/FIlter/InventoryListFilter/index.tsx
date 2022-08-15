@@ -584,13 +584,19 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                       </Option>
                     ))
                   : Array.isArray(accountStores) &&
-                    accountStores.length > 0 &&
+                    accountStores.length > 0 ?
                     accountStores.map((item, index) => (
                       <Option
                         key={"from_store_id" + index}
                         value={item && item.store_id ? item.store_id.toString() : ""}
                       >
                         {item.store}
+                      </Option>
+                    )) : Array.isArray(stores) &&
+                    stores.length > 0 &&
+                    stores.map((item, index) => (
+                      <Option key={"from_store_id" + index} value={item.id.toString()}>
+                        {item.name}
                       </Option>
                     ))}
               </Select>
@@ -623,13 +629,19 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                       </Option>
                     ))
                   : Array.isArray(accountStores) &&
-                    accountStores.length > 0 &&
+                    accountStores.length > 0 ?
                     accountStores.map((item, index) => (
                       <Option
                         key={"to_store_id" + index}
                         value={item && item.store_id ? item.store_id.toString() : ""}
                       >
                         {item.store}
+                      </Option>
+                    )) : Array.isArray(stores) &&
+                    stores.length > 0 &&
+                    stores.map((item, index) => (
+                      <Option key={"from_store_id" + index} value={item.id.toString()}>
+                        {item.name}
                       </Option>
                     ))}
               </Select>
