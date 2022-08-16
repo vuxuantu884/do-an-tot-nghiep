@@ -258,9 +258,9 @@ const CustomerDetail = () => {
 
       {
         name: "Số tiền cần nâng hạng",
-        value: purchaseInfo?.remain_amount_to_level_up ? (
+        value: loyaltyPoint?.remain_amount_to_level_up ? (
           <NumberFormat
-            value={purchaseInfo?.remain_amount_to_level_up}
+            value={loyaltyPoint?.remain_amount_to_level_up}
             displayType={"text"}
             thousandSeparator={true}
           />
