@@ -1,20 +1,14 @@
-import {
-  Button,
-  Card,
-  DatePicker,
-  Form,
-  InputNumber,
-  InputNumberProps,
-  Table,
-  Tooltip,
-} from "antd";
+/* eslint-disable eqeqeq */
+import { CheckOutlined, CloseOutlined } from "@ant-design/icons";
+import { Button, Card, Form, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
 import ContentContainer from "component/container/content.container";
 import CustomDatePicker from "component/custom/new-date-picker.custom";
+import NumberInput from "component/custom/number-input.custom";
 import UrlConfig from "config/url.config";
-import { KeyboardKey } from "model/other/keyboard/keyboard.model";
-import { AnalyticDataQuery, KeyDriverOnlineDataSourceType } from "model/report";
+// import { KeyboardKey } from "model/other/keyboard/keyboard.model";
+import { KeyDriverOnlineDataSourceType } from "model/report";
 import moment from "moment";
 import queryString from "query-string";
 import { useCallback, useContext, useEffect, useState } from "react";
@@ -22,7 +16,7 @@ import { useDispatch } from "react-redux";
 import { Link, useHistory, useLocation } from "react-router-dom";
 import { getKeyDriverOnlineApi } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency, parseLocaleNumber } from "utils/AppUtils";
+import { formatCurrency, parseLocaleNumber, replaceFormatString } from "utils/AppUtils";
 import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
 import { DATE_FORMAT } from "utils/DateUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
@@ -33,7 +27,6 @@ import {
   getAllDepartmentByAnalyticResult,
   getBreadcrumbByLevel,
   getInputTargetId,
-  handleFocusInput,
   handleMoveFocusInput,
   saveMonthTargetKeyDriver,
 } from "./helper";
@@ -68,18 +61,14 @@ const baseColumns: any = [
 const SHOP_LEVEL = 3;
 const PREFIX_CELL_TABLE = "KEY_DRIVER_ONLINE";
 
-const inputTargetDefaultProps: InputNumberProps<any> = {
+const inputTargetDefaultProps: any = {
   className: "input-number",
-  formatter: (value?: number) => formatCurrency(value || 0),
-  parser: (value?: string) => {
-    let parseValue = 0;
-    if (value) {
-      parseValue = parseLocaleNumber(value);
-    }
-    return parseValue;
-  },
-  onFocus: handleFocusInput,
+  format: (value?: string) => formatCurrency(value || 0),
+  replace: (a: string) => replaceFormatString(a),
+  min: 0,
+  // onFocus: handleFocusInput,
   keyboard: false,
+  // isChangeAfterBlur: true,
 };
 
 function VerifyCell(props: VerifyCellProps) {
@@ -109,6 +98,22 @@ function KeyDriverOnline() {
   const { data, setData } = useContext(KeyDriverOfflineContext);
   const dispatch = useDispatch();
   const [form] = Form.useForm();
+
+  const day = date
+    ? moment(date).format(DATE_FORMAT.DDMMYYY)
+    : moment().format(DATE_FORMAT.DDMMYYY);
+
+  const setNativeValue = (element: any, value: any) => {
+    const valueSetter = Object.getOwnPropertyDescriptor(element, "value")?.set;
+    const prototype = Object.getPrototypeOf(element);
+    const prototypeValueSetter = Object.getOwnPropertyDescriptor(prototype, "value")?.set;
+
+    if (valueSetter && valueSetter !== prototypeValueSetter) {
+      prototypeValueSetter?.call(element, value);
+    } else {
+      valueSetter?.call(element, value);
+    }
+  };
 
   const setObjectiveColumns = useCallback(
     (
@@ -151,37 +156,103 @@ function KeyDriverOnline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const targetDrillingLevel = +record[`target_drilling_level`];
-
+              const inputId = getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE);
+              let newValue = text ? Number(text) : 0;
+              let clickCancel = false;
               return (
                 <VerifyCell row={record} value={text} type="edit">
-                  <InputNumber
-                    id={getInputTargetId(index, columnIndex * 2, PREFIX_CELL_TABLE)}
-                    defaultValue={text}
-                    disabled={departmentDrillingLevel > targetDrillingLevel}
-                    onPressEnter={(e: any) => {
-                      const value = parseLocaleNumber(e.target.value);
-                      saveMonthTargetKeyDriver(
-                        { total: value },
-                        record,
-                        departmentDrillingLevel,
-                        departmentKey,
-                        dispatch,
-                      );
-                      handleMoveFocusInput(
-                        index,
-                        columnIndex * 2,
-                        PREFIX_CELL_TABLE,
-                        KeyboardKey.ArrowDown,
-                      );
-                    }}
-                    onKeyDown={(e) => {
-                      const event = e;
-                      if (event.shiftKey) {
-                        handleMoveFocusInput(index, columnIndex * 2, PREFIX_CELL_TABLE, event.key);
-                      }
-                    }}
-                    {...inputTargetDefaultProps}
-                  />
+                  <div>
+                    <NumberInput
+                      id={inputId}
+                      defaultValue={newValue}
+                      disabled={departmentDrillingLevel > targetDrillingLevel}
+                      onPressEnter={(e: any) => {
+                        const input: any = document.getElementById(inputId);
+                        if (input.value != newValue) {
+                          input.blur();
+                        }
+                      }}
+                      onFocus={(e) => {
+                        document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
+                        const input: any = document.getElementById(inputId);
+                        input.style.border = "solid 1px #ddd";
+                      }}
+                      onBlur={(e) => {
+                        setTimeout(() => {
+                          const input: any = document.getElementById(inputId);
+                          const value = input.value
+                            ? parseLocaleNumber(input.value)
+                            : parseLocaleNumber(newValue);
+
+                          if (!clickCancel && value != newValue) {
+                            newValue = value;
+                            saveMonthTargetKeyDriver(
+                              { total: value },
+                              record,
+                              departmentDrillingLevel,
+                              departmentKey,
+                              inputId,
+                              dispatch,
+                              parseLocaleNumber(text),
+                              `day${day.toString().padStart(2, "0")}`,
+                            );
+                          } else {
+                            clickCancel = false;
+                          }
+                          input.style.border = "none";
+                          document
+                            .getElementById(`${inputId}-action`)
+                            ?.setAttribute("hidden", "false");
+                        }, 100);
+                      }}
+                      onKeyDown={(e: any) => {
+                        if (e.shiftKey) {
+                          handleMoveFocusInput(
+                            index,
+                            columnIndex * 2 + 1,
+                            PREFIX_CELL_TABLE,
+                            e.key,
+                          );
+                        }
+                        if (e.key === "Escape") {
+                          const event = new Event("input", { bubbles: true });
+                          const input: any = document.getElementById(inputId);
+                          setNativeValue(input, newValue);
+                          input.dispatchEvent(event);
+                          input.blur();
+                        }
+                      }}
+                      {...inputTargetDefaultProps}
+                    />
+                    <div
+                      id={`${inputId}-action`}
+                      hidden
+                      style={{ display: "flex", justifyContent: "flex-end" }}
+                    >
+                      <Button
+                        size="small"
+                        icon={<CloseOutlined style={{ verticalAlign: "0.25em" }} />}
+                        style={{ borderColor: "#ddd" }}
+                        onClick={(e) => {
+                          clickCancel = true;
+                          const event = new Event("input", { bubbles: true });
+                          const input: any = document.getElementById(inputId);
+                          setNativeValue(input, newValue);
+                          input.dispatchEvent(event);
+                          input.blur();
+                        }}
+                      />
+                      <Button
+                        size="small"
+                        icon={<CheckOutlined style={{ verticalAlign: "0.25em" }} />}
+                        style={{ marginLeft: 5, borderColor: "#ddd" }}
+                        onClick={(e) => {
+                          const input: any = document.getElementById(inputId);
+                          input.blur();
+                        }}
+                      />
+                    </div>
+                  </div>
                 </VerifyCell>
               );
             },
@@ -236,46 +307,111 @@ function KeyDriverOnline() {
             className: "input-cell",
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const targetDrillingLevel = +record[`target_drilling_level`];
+              const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
+              // const input: any = document.getElementById(inputId);
+              // const currentValue = input?.value;
+              let newValue = text ? Number(text) : 0;
+              let clickCancel = false;
               return (
                 <VerifyCell row={record} value={text} type="edit">
-                  <InputNumber
-                    id={getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE)}
-                    disabled={departmentDrillingLevel > targetDrillingLevel}
-                    defaultValue={text}
-                    onPressEnter={(e: any) => {
-                      const value = parseLocaleNumber(e.target.value);
-                      let newTargetDay = Number(targetDay);
-                      const day =
-                        newTargetDay && newTargetDay > 0 && newTargetDay <= 31
-                          ? newTargetDay
-                          : moment().date();
-                      handleMoveFocusInput(
-                        index,
-                        columnIndex * 2 + 1,
-                        PREFIX_CELL_TABLE,
-                        KeyboardKey.ArrowDown,
-                      );
-                      saveMonthTargetKeyDriver(
-                        { [`day${day.toString().padStart(2, "0")}`]: value },
-                        record,
-                        departmentDrillingLevel,
-                        departmentKey,
-                        dispatch,
-                      );
-                    }}
-                    onKeyDown={(e) => {
-                      const event = e;
-                      if (event.shiftKey) {
-                        handleMoveFocusInput(
-                          index,
-                          columnIndex * 2 + 1,
-                          PREFIX_CELL_TABLE,
-                          event.key,
-                        );
-                      }
-                    }}
-                    {...inputTargetDefaultProps}
-                  />
+                  <div>
+                    <NumberInput
+                      id={inputId}
+                      disabled={departmentDrillingLevel > targetDrillingLevel}
+                      defaultValue={newValue}
+                      onPressEnter={(e: any) => {
+                        const input: any = document.getElementById(inputId);
+                        if (input.value != newValue) {
+                          input.blur();
+                        }
+                      }}
+                      onFocus={(e) => {
+                        document.getElementById(`${inputId}-action`)?.removeAttribute("hidden");
+                        const input: any = document.getElementById(inputId);
+                        input.style.border = "solid 1px #ddd";
+                      }}
+                      onBlur={(e) => {
+                        setTimeout(() => {
+                          const input: any = document.getElementById(inputId);
+                          const value = input.value
+                            ? parseLocaleNumber(input.value)
+                            : parseLocaleNumber(newValue);
+                          console.log("value, newValue", value, newValue);
+
+                          if (!clickCancel && value != newValue) {
+                            newValue = value;
+                            let newTargetDay = Number(targetDay);
+                            const day =
+                              newTargetDay && newTargetDay > 0 && newTargetDay <= 31
+                                ? newTargetDay
+                                : moment().date();
+                            saveMonthTargetKeyDriver(
+                              { [`day${day.toString().padStart(2, "0")}`]: value },
+                              record,
+                              departmentDrillingLevel,
+                              departmentKey,
+                              inputId,
+                              dispatch,
+                              parseLocaleNumber(newValue),
+                              `day${day.toString().padStart(2, "0")}`,
+                            );
+                          } else {
+                            clickCancel = false;
+                          }
+                          input.style.border = "none";
+                          document
+                            .getElementById(`${inputId}-action`)
+                            ?.setAttribute("hidden", "false");
+                        }, 100);
+                      }}
+                      onKeyDown={(e: any) => {
+                        if (e.shiftKey) {
+                          handleMoveFocusInput(
+                            index,
+                            columnIndex * 2 + 1,
+                            PREFIX_CELL_TABLE,
+                            e.key,
+                          );
+                        }
+                        if (e.key === "Escape") {
+                          const event = new Event("input", { bubbles: true });
+                          const input: any = document.getElementById(inputId);
+                          setNativeValue(input, newValue);
+                          input.dispatchEvent(event);
+                          input.blur();
+                        }
+                      }}
+                      {...inputTargetDefaultProps}
+                    />
+                    <div
+                      id={`${inputId}-action`}
+                      hidden
+                      style={{ display: "flex", justifyContent: "flex-end" }}
+                    >
+                      <Button
+                        size="small"
+                        icon={<CloseOutlined style={{ verticalAlign: "0.25em" }} />}
+                        style={{ borderColor: "#ddd" }}
+                        onClick={(e) => {
+                          clickCancel = true;
+                          const event = new Event("input", { bubbles: true });
+                          const input: any = document.getElementById(inputId);
+                          setNativeValue(input, newValue);
+                          input.dispatchEvent(event);
+                          input.blur();
+                        }}
+                      />
+                      <Button
+                        size="small"
+                        icon={<CheckOutlined style={{ verticalAlign: "0.25em" }} />}
+                        style={{ marginLeft: 5, borderColor: "#ddd" }}
+                        onClick={(e) => {
+                          const input: any = document.getElementById(inputId);
+                          input.blur();
+                        }}
+                      />
+                    </div>
+                  </div>
                 </VerifyCell>
               );
             },
@@ -311,7 +447,7 @@ function KeyDriverOnline() {
         ],
       };
     },
-    [dispatch, targetDay],
+    [day, dispatch, targetDay],
   );
 
   const initTable = useCallback(
@@ -391,10 +527,6 @@ function KeyDriverOnline() {
       );
     }
   }, [initTable, history, date, keyDriverGroupLv1, departmentLv2, departmentLv3]);
-
-  const day = date
-    ? moment(date).format(DATE_FORMAT.DDMMYYY)
-    : moment().format(DATE_FORMAT.DDMMYYY);
 
   const onFinish = useCallback(() => {
     let date = form.getFieldsValue(true)["date"];

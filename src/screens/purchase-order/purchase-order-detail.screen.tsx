@@ -300,18 +300,18 @@ const PODetailScreen: React.FC = () => {
       if (!atLeastOneItem) {
         throw new Error("Vui lòng nhập số lượng cho ít nhất 1 sản phẩm");
       }
-      value.line_items.forEach((item) => {
-        if (item.price < Math.round(item.retail_price * 0.15)) {
-          throw new Error(`Vui lòng đặt giá nhập > 15% giá bán cho mã sản phẩm ${item.sku}`);
-        }
-        if (item.price > item.cost_price && item.cost_price) {
-          throw new Error(
-            `Vui lòng đặt giá nhập < giá vốn. Hiện giờ sản phẩm ${
-              item.sku
-            } có giá vốn là: ${formatCurrency(item.cost_price || 0, ".")}`,
-          );
-        }
-      });
+      // value.line_items.forEach((item) => {
+      //   if (item.price < Math.round(item.retail_price * 0.15)) {
+      //     throw new Error(`Vui lòng đặt giá nhập > 15% giá bán cho mã sản phẩm ${item.sku}`);
+      //   }
+      //   if (item.price > item.cost_price && item.cost_price) {
+      //     throw new Error(
+      //       `Vui lòng đặt giá nhập < giá vốn. Hiện giờ sản phẩm ${
+      //         item.sku
+      //       } có giá vốn là: ${formatCurrency(item.cost_price || 0, ".")}`,
+      //     );
+      //   }
+      // });
       const untaxed_amount = getUntaxedAmountByLineItemType(value.line_items, POLoadType.ALL);
       value.untaxed_amount = untaxed_amount;
       value.tax_lines = [
@@ -826,7 +826,12 @@ const PODetailScreen: React.FC = () => {
                 </Button>
               </AuthWrapper>
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.approve]}>
-                <Button type="primary" onClick={handleApproval} className="create-button-custom">
+                {/* <Button type="primary" onClick={handleApproval} className="create-button-custom"> */}
+                <Button
+                  type="primary"
+                  onClick={() => handleChangeStatusPO(POStatus.FINALIZED)}
+                  className="create-button-custom"
+                >
                   {isEditDetail ? "Lưu và duyệt" : "Duyệt"}
                 </Button>
               </AuthWrapper>
@@ -911,7 +916,7 @@ const PODetailScreen: React.FC = () => {
                 />
               </div>
             </div>
-            <div style={{ display: "none" }}/>
+            <div style={{ display: "none" }} />
           </Space>
         </div>
         <ActionByStatus />
