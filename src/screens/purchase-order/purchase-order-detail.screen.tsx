@@ -276,7 +276,7 @@ const PODetailScreen: React.FC = () => {
   );
 
   const handleChangeStatusPO = (status: string) => {
-    setIsEditDetail(false);
+    // setIsEditDetail(false);
     statusAction.current = status;
     handleBeforeSave();
   };
@@ -350,7 +350,7 @@ const PODetailScreen: React.FC = () => {
           throw new Error("Vui lòng nhập số lượng cho ít nhất 1 ngày dự kiến");
         }
         const totalPercent = procurementAll.reduce((acc, ele) => acc + (ele?.percent || 0), 0);
-        if (totalPercent !== 100) {
+        if (totalPercent !== AppConfig.ONE_HUNDRED_PERCENT) {
           throw new Error(
             `Tỉ lệ chia hàng ngày ${moment(procurementAll[0].expect_receipt_date).format(
               DATE_FORMAT.DDMMYYY,
@@ -435,7 +435,6 @@ const PODetailScreen: React.FC = () => {
         ...value,
         status: statusAction.current,
       };
-      console.log("dataClone", dataClone);
       dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
     } catch (error: any) {
       showError(error.message);
