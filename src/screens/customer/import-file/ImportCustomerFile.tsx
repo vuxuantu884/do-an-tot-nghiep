@@ -20,8 +20,6 @@ type ImportCustomerFileType = {
   onOk: () => void;
 };
 
-const exampleCustomerFile =
-  "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/files/customer-import/template-import.xlsx";
 const mappingInfoCustomer =
   "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/files/customer-import/template-mapping.xlsx";
 
@@ -287,12 +285,8 @@ const ImportCustomerFile: React.FC<ImportCustomerFileType> = (props: ImportCusto
         <div>
           <Typography.Text>
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <a href={exampleCustomerFile} download="Import_Transfer">
-                <img src={excelIcon} alt="" style={{ paddingRight: 4 }} /> file import khách hàng
-                mẫu (.xlsx)
-              </a>
               <a href={mappingInfoCustomer} download="Import_Transfer">
-                <img src={excelIcon} alt="" style={{ paddingRight: 4 }} />
+                <img src={excelIcon} alt="" style={{ paddingRight: 2 }} />
                 file mapping thông tin khách hàng (.xlsx)
               </a>
             </div>
