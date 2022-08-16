@@ -1,12 +1,11 @@
 import { Button, Card, Col, Form, Image, Input, Row, Select, Space, Table } from "antd";
 import { Store } from "antd/lib/form/interface";
 import ContentContainer from "component/container/content.container";
-import CustomAutoComplete from "component/custom/autocomplete.cusom";
 import NumberInput from "component/custom/number-input.custom";
 import CustomSelect from "component/custom/select.custom";
 import { ICustomTableColumType } from "component/table/CustomTable";
-import UrlConfig, { BASE_NAME_ROUTER } from "config/url.config";
-import React, { createRef, useCallback, useEffect, useMemo, useState } from "react";
+import UrlConfig from "config/url.config";
+import React, { useCallback, useEffect, useState } from "react";
 import { AiOutlineClose } from "react-icons/ai";
 import { Link, useHistory } from "react-router-dom";
 import arrowLeft from "assets/icon/arrow-back.svg";
@@ -18,33 +17,34 @@ import { useDispatch, useSelector } from "react-redux";
 import { getStoreApi } from "service/inventory/transfer/index.service";
 import { searchVariantsApi } from "service/product/product.service";
 import { VariantResponse } from "model/product/product.model";
-import ProductItem from "screens/purchase-order/component/product-item";
 import { showError, showSuccess } from "utils/ToastUtils";
 import { findAvatar } from "utils/AppUtils";
 import { InventoryDefectFields, LineItemDefect } from "model/inventory-defects";
-import { cloneDeep, debounce } from "lodash";
+import { cloneDeep } from "lodash";
 import { createInventoryDefect } from "service/inventory/defect/index.service";
 import ImageProduct from "screens/products/product/component/image-product.component";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
+import SearchProductComponent from "component/search-product";
+import { AccountStoreResponse } from "model/account/account.model";
 
 export interface SummaryDefect {
   total_defect: number;
   total_on_hand: number;
 }
 
+let barCode = "";
+
 const InventoryDefectCreate: React.FC = () => {
   const { Option } = Select;
   const [form] = Form.useForm();
   const dispatch = useDispatch();
-  const productSearchRef = createRef<CustomAutoComplete>();
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [stores, setStores] = useState<Array<Store>>([] as Array<Store>);
-  const [loadingSearch, setLoadingSearch] = useState(false);
   const [dataTable, setDataTable] = useState<Array<LineItemDefect> | any>(
     [] as Array<LineItemDefect>,
   );
-  const [variantData, setVariantData] = useState<Array<VariantResponse>>([]);
+
   const [formStoreData, setFormStoreData] = useState<Store | null>();
   const [isShowModalChangeStore, setIsShowModalChangeStore] = useState<boolean>(false);
   const [defectStoreIdBak, setDefectStoreIdBak] = useState<number | null>(null);
@@ -52,6 +52,10 @@ const InventoryDefectCreate: React.FC = () => {
     total_defect: 0,
     total_on_hand: 0,
   });
+  const [keySearch, setKeySearch] = useState<string>("");
+  const myStores: any = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
 
   const history = useHistory();
   const columns: Array<ICustomTableColumType<LineItemDefect>> = [
@@ -207,7 +211,6 @@ const InventoryDefectCreate: React.FC = () => {
     return () => {
       setDataTable([]);
       setStores([]);
-      setVariantData([]);
     };
   }, []);
 
@@ -274,38 +277,6 @@ const InventoryDefectCreate: React.FC = () => {
     [dataTable, calculatingDefectAndInventory],
   );
 
-  const onSearch = debounce(async (value: string) => {
-    if (!defectStoreIdBak) {
-      showError("Vui lòng chọn cửa hàng");
-      return;
-    }
-    setLoadingSearch(true);
-    const response = await callApiNative({ isShowError: true }, dispatch, searchVariantsApi, {
-      status: "active",
-      limit: 10,
-      page: 1,
-      store_ids: defectStoreIdBak ?? 0,
-      info: value.trim(),
-    });
-    if (response) {
-      setVariantData(response.items);
-    } else {
-      setVariantData([]);
-    }
-    setLoadingSearch(false);
-  }, 300);
-
-  const renderProductResult = useMemo(() => {
-    let options: any[] = [];
-    variantData?.forEach((item: VariantResponse, index: number) => {
-      options.push({
-        label: <ProductItem data={item} key={item.id.toString()} />,
-        value: item.id.toString(),
-      });
-    });
-    return options;
-  }, [variantData]);
-
   const updateDataTable = useCallback(
     (value: any, row: LineItemDefect, field: string) => {
       const dataTableClone = cloneDeep(dataTable);
@@ -321,13 +292,18 @@ const InventoryDefectCreate: React.FC = () => {
   );
 
   const onSelectProduct = useCallback(
-    async (value: string) => {
-      const selectedItem = variantData?.find(
-        (variant: VariantResponse) => variant.id.toString() === value,
-      );
-      if (formStoreData && selectedItem) {
+    (selectedItem: VariantResponse | undefined, dataSource: any) => {
+      const storeId = form.getFieldValue("store_id");
+      console.log("dataSource", dataSource);
+
+      if (storeId && selectedItem) {
+        const store = myStores.find(
+          (e: AccountStoreResponse) => e.store_id === Number.parseInt(storeId),
+        );
+
         let item: any = {};
-        if (!dataTable.some((variant: VariantResponse) => variant.id === selectedItem.id)) {
+
+        if (!dataSource.some((e: VariantResponse) => e.variant_id === selectedItem.id)) {
           item = {
             id: selectedItem.id,
             variant_id: selectedItem.id,
@@ -338,8 +314,8 @@ const InventoryDefectCreate: React.FC = () => {
             on_hand: selectedItem.on_hand,
             sku: selectedItem.sku,
             defect: 1,
-            store: formStoreData.name,
-            store_id: formStoreData.id,
+            store: store.name,
+            store_id: store.id,
             product_id: selectedItem.product_id,
           };
           calculatingDefectAndInventory(dataTable.concat([{ ...item }]));
@@ -363,7 +339,7 @@ const InventoryDefectCreate: React.FC = () => {
         }
       }
     },
-    [dataTable, variantData, calculatingDefectAndInventory, formStoreData],
+    [calculatingDefectAndInventory, dataTable, form, myStores],
   );
 
   const onChangeStore = useCallback(() => {
@@ -372,11 +348,71 @@ const InventoryDefectCreate: React.FC = () => {
     setDefectStoreIdBak(storeId);
     setIsShowModalChangeStore(false);
     setDataTable([]);
-    setVariantData([]);
   }, [form]);
+  console.log("dataTable", dataTable);
 
-  const myStores: any = useSelector(
-    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  const handleSearchProduct = useCallback(
+    async (keyCode: string, code: string) => {
+      barCode = "";
+
+      if (keyCode === "Enter" && code) {
+        setKeySearch("");
+
+        const storeId = form.getFieldValue("store_id");
+        if (!storeId) {
+          showError("Vui lòng chọn kho gửi");
+          return;
+        }
+        let res = await callApiNative({ isShowLoading: false }, dispatch, searchVariantsApi, {
+          barcode: code,
+          store_ids: storeId ?? null,
+        });
+        console.log("res.items.length", res.items.length);
+
+        if (res && res.items && res.items.length > 0) {
+          onSelectProduct(res.items[0], dataTable);
+        }
+      }
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    },
+    [form, dispatch, onSelectProduct, dataTable],
+  );
+
+  const eventKeyPress = useCallback(
+    (event: KeyboardEvent) => {
+      if (event.target instanceof HTMLBodyElement) {
+        if (event.key !== "Enter") {
+          barCode = barCode + event.key;
+        } else if (event && event.key === "Enter") {
+          handleSearchProduct(event.key, barCode);
+        }
+        return;
+      }
+    },
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [dispatch, handleSearchProduct],
+  );
+
+  useEffect(() => {
+    window.addEventListener("keypress", eventKeyPress);
+    return () => {
+      window.removeEventListener("keypress", eventKeyPress);
+    };
+  }, [eventKeyPress]);
+
+  const onChooseStore = useCallback(
+    (value: number, option) => {
+      if (defectStoreIdBak && value !== defectStoreIdBak && dataTable.length > 0) {
+        setIsShowModalChangeStore(true);
+      } else {
+        setDefectStoreIdBak(value);
+      }
+
+      const store = stores.find((e) => e.id.toString() === value?.toString());
+      store && store !== null ? setFormStoreData(store) : setFormStoreData(null);
+    },
+    [dataTable, defectStoreIdBak, stores],
   );
 
   return (
@@ -422,16 +458,7 @@ const InventoryDefectCreate: React.FC = () => {
                   optionFilterProp="children"
                   showSearch
                   allowClear={true}
-                  onChange={(value: number, option) => {
-                    if (defectStoreIdBak && value !== defectStoreIdBak && dataTable.length > 0) {
-                      setIsShowModalChangeStore(true);
-                    } else {
-                      setDefectStoreIdBak(value);
-                    }
-
-                    const store = stores.find((e) => e.id.toString() === value?.toString());
-                    store && store !== null ? setFormStoreData(store) : setFormStoreData(null);
-                  }}
+                  onChange={onChooseStore}
                 >
                   {Array.isArray(myStores) && myStores.length > 0
                     ? myStores.map((item, index) => (
@@ -466,30 +493,16 @@ const InventoryDefectCreate: React.FC = () => {
 
         <Card title="THÔNG TIN SẢN PHẨM" bordered={false}>
           <Form.Item noStyle shouldUpdate={(prev, current) => prev.status !== current.status}>
-            <Input.Group className="display-flex">
-              <CustomAutoComplete
-                loading={loadingSearch}
-                id="#product_search"
-                dropdownClassName="product"
-                placeholder="Tìm kiếm sản phẩm theo tên, mã SKU, mã vạch ... (F3)"
-                onSearch={(value) => {
-                  if (value.trim() === "" || value.length < 3) return;
-                  onSearch(value);
-                }}
-                dropdownMatchSelectWidth={456}
-                style={{ width: "100%", paddingBottom: 15 }}
-                showAdd={true}
-                textAdd="Thêm mới sản phẩm"
-                onSelect={onSelectProduct}
-                options={renderProductResult}
-                ref={productSearchRef}
-                onClickAddNew={() => {
-                  window.open(`${BASE_NAME_ROUTER}${UrlConfig.PRODUCT}/create`, "_blank");
-                }}
-              />
-            </Input.Group>
+            <SearchProductComponent
+              keySearch={keySearch}
+              setKeySearch={setKeySearch}
+              id="search_product"
+              onSelect={onSelectProduct}
+              dataSource={dataTable}
+            />
           </Form.Item>
           <Table
+            style={{ marginTop: 20 }}
             className="product-table"
             rowClassName="product-table-row"
             tableLayout="fixed"
