@@ -183,7 +183,7 @@ export const PoSplitGoods = (props: IProps) => {
               quantity_anh: quantityAnh,
               quantity_hieu: quantityHieu,
               quantity_tung: quantityTung,
-              status: storeHieu[0].status,
+              status: storeHieu[0]?.status,
             };
           },
         );

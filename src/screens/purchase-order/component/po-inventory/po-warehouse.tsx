@@ -137,7 +137,7 @@ export const PoWareHouse = (props: IProps) => {
     (index: number, value?: string) => {
       // if (!value) return;
       const dataCheckDate = expectReceiptDates.map((item) => item.date);
-      if (dataCheckDate.includes(value || "")) {
+      if (dataCheckDate.includes(value || "") && value) {
         expectReceiptDates[index].date = "";
         formMain?.setFieldsValue({
           ["expectedDate" + index]: undefined,
