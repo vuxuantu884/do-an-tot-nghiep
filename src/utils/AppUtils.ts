@@ -291,6 +291,23 @@ export const formatCurrency = (currency: number | string | boolean, sep: string 
   }
 };
 
+export const formatCurrencyNotDefaultValue = (
+  currency: number | string | boolean,
+  sep: string = ".",
+): string => {
+  try {
+    if (typeof currency === "number") {
+      currency = Math.round(currency);
+    } else if (typeof currency === "string" && currency) {
+      currency = Math.round(Number(currency));
+    }
+    let format = currency.toLocaleString();
+    return format;
+  } catch (e) {
+    return "";
+  }
+};
+
 export const formatNumber = (value: number | string | boolean): string => {
   try {
     let format = Number(value).toLocaleString();
