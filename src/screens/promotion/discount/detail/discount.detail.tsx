@@ -608,7 +608,7 @@ const PromotionDetailScreen: React.FC = () => {
                     }
                     isLoading={isLoadingVariantList}
                     pagination={{
-                      total: dataDiscountVariant.length,
+                      total: dataVariants.metadata?.total,
                       pageSize: dataVariants.metadata?.limit,
                       current: dataVariants.metadata?.page,
                       onChange: (page: number, limit?: number) => {
