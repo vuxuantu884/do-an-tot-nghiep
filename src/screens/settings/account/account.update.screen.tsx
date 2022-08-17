@@ -483,7 +483,7 @@ const AccountUpdateScreen: React.FC = () => {
                 name={[ProcurementField.supplier]}
                 rules={[
                   {
-                    required: true,
+                    required: isSupplier,
                     message: "Vui lòng chọn nhà cung cấp",
                   },
                 ]}>
