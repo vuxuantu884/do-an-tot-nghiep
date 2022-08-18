@@ -53,7 +53,7 @@ function OrderShortDetailsReturn(props: PropTypes) {
     },
     {
       title: "Ngày trả",
-      value: OrderDetail?.return_date ? moment(OrderDetail?.return_date).format(dateFormat) : "-",
+      value: OrderDetail?.return_date ? moment(OrderDetail?.created_date).format(dateFormat) : "-",
     },
     {
       title: "Ngày nhận hàng",
