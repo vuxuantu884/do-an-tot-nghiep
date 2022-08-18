@@ -71,6 +71,7 @@ function OrderReturnList(props: PropTypes) {
   const history = useHistory();
   const dispatch = useDispatch();
   const copyIconSize = 18;
+  const dateFormat = DATE_FORMAT.fullDate;
 
   const [allowDeleteOrderReturn] = useAuthorization({
     acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
@@ -145,7 +146,7 @@ function OrderReturnList(props: PropTypes) {
               </span>
             </div>
             <div className="textSmall" title="Ngày tạo đơn">
-              {moment(i.created_date).format(DATE_FORMAT.fullDate)}
+              {moment(i.created_date).format(dateFormat)}
             </div>
             <div className="textSmall">
               <Tooltip title="Cửa hàng">
@@ -266,7 +267,7 @@ function OrderReturnList(props: PropTypes) {
     //             />
     //           </Tooltip>
     //         </div>
-    //         <div className="textSmall">{moment(i.created_date).format(DATE_FORMAT.fullDate)}</div>
+    //         <div className="textSmall">{moment(i.created_date).format(dateFormat)}</div>
     //         <div className="textSmall">
     //           <Tooltip title="Cửa hàng">
     //             <Link to={`${UrlConfig.STORE}/${i?.store_id}`}>
@@ -558,16 +559,14 @@ function OrderReturnList(props: PropTypes) {
     },
     {
       title: "Nhận hàng",
-      dataIndex: "received",
-      key: "received",
-      className: "received",
+      dataIndex: "receive_date",
+      key: "receive_date",
+      className: "receive",
       render: (value: boolean, record: ReturnModel) => {
         return value ? (
           <React.Fragment>
             <div className="text-center received-success">Đã nhận hàng</div>
-            <div className="textSmall" title="Ngày tạo đơn">
-              {moment(record.receive_date).format(DATE_FORMAT.fullDate)}
-            </div>
+            <div className="textSmall">{moment(record.receive_date).format(dateFormat)}</div>
           </React.Fragment>
         ) : (
           <div className="text-center received-danger">Chưa nhận hàng</div>
@@ -605,11 +604,11 @@ function OrderReturnList(props: PropTypes) {
               {
                 // record.payments?.map((p) => (
                 //   p?.created_date ? (
-                //     <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(p.created_date, DATE_FORMAT.fullDate)}</div>
+                //     <div className="textSmall" title="Ngày tạo đơn">{ConvertUtcToLocalDate(p.created_date, dateFormat)}</div>
                 //   ) : "ok"
                 // ))
-                <div className="textSmall" title="Ngày tạo đơn">
-                  {ConvertUtcToLocalDate(payments[0].created_date, DATE_FORMAT.fullDate)}
+                <div className="textSmall">
+                  {ConvertUtcToLocalDate(payments[0].created_date, dateFormat)}
                 </div>
               }
             </React.Fragment>
@@ -664,7 +663,7 @@ function OrderReturnList(props: PropTypes) {
     // {
     //   title: "Ngày nhận hàng",
     //   dataIndex: "receive_date",
-    //   render: (value: string) => <div>{value && moment(value).format(DATE_FORMAT.fullDate)}</div>,
+    //   render: (value: string) => <div>{value && moment(value).format(dateFormat)}</div>,
     //   key: "receive_date",
     //   visible: true,
     //   align: "center",

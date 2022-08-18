@@ -548,7 +548,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
           : "??");
       list.push({
         key: "received",
-        name: "Ngày trả hàng",
+        name: "Ngày nhận hàng",
         value: textOrderReceivedDate,
       });
     }
@@ -931,7 +931,7 @@ const ReturnFilter: React.FC<ReturnFilterProps> = (props: ReturnFilterProps) => 
                 </Col>
 
                 <Col span={12} style={{ marginBottom: 20 }}>
-                  <p>Ngày trả hàng</p>
+                  <p>Ngày nhận hàng</p>
                   <CustomFilterDatePicker
                     fieldNameFrom="received_on_min"
                     fieldNameTo="received_on_max"
