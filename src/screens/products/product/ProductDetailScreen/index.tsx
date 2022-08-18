@@ -37,8 +37,11 @@ import TabProductHistory from "../tab/TabProductHistory";
 import TabProductInventory from "../tab/TabProductInventory";
 import { StyledComponent } from "./styles";
 import useAuthorization from "hook/useAuthorization";
-import ".//index.scss";
-
+import "./index.scss";
+import { callApiNative } from "utils/ApiUtils";
+import { productUpdateApi } from "service/product/product.service";
+import _ from "lodash";
+import ProductSteps from "../component/ProductSteps";
 export interface ProductParams {
   id: string;
   variantId: string;
@@ -230,14 +233,15 @@ const ProductDetailScreen: React.FC = () => {
   const onAllowSale = useCallback(
     (listSelected: Array<number>) => {
       if (data !== null) {
-        data?.variants.forEach((item) => {
+        let request = _.cloneDeep(data);
+        request?.variants.forEach((item) => {
           if (listSelected.includes(item.id)) {
             item.saleable = true;
             item.status = "active";
           }
         });
-        data.variants = getFirstProductAvatarByVariantResponse(data.variants);
-        update(data);
+        request.variants = getFirstProductAvatarByVariantResponse(request.variants);
+        update(request);
       }
     },
     [data, update],
@@ -269,30 +273,36 @@ const ProductDetailScreen: React.FC = () => {
     [data, update],
   );
 
-  const onUpdateSaleable = useCallback((data1) => {
-    setLoadingVariantUpdate(false);
-    if (!data1) {
-    } else {
-      setData(data1);
-      showSuccess("Cập nhật thông tin thành công");
-    }
-  }, []);
-
   const onChangeChecked = useCallback(
-    (e) => {
+    async (e) => {
       if (data !== null) {
-        let request: any = data;
+        let request: any = _.cloneDeep(data);
         setLoadingVariantUpdate(true);
         request.variants[active].saleable = e;
         if (e) request.variants[active].status = "active"; //CO-3415
-        request.variants = getFirstProductAvatarByVariantResponse(data.variants);
+        request.variants = getFirstProductAvatarByVariantResponse(request.variants);
         if (data.collections) {
           request.collections = data.collections.map((e: CollectionCreateRequest) => e.code);
         }
-        dispatch(productUpdateAction(idNumber, request, onUpdateSaleable));
+        const res = await callApiNative(
+          { isShowLoading: false },
+          dispatch,
+          productUpdateApi,
+          idNumber,
+          request,
+        );
+        setLoadingVariantUpdate(false);
+        console.log("res", res);
+
+        if (!res) {
+          setData(_.cloneDeep(data));
+        } else {
+          setData(res);
+          showSuccess("Cập nhật thông tin thành công");
+        }
       }
     },
-    [active, data, dispatch, idNumber, onUpdateSaleable],
+    [active, data, dispatch, idNumber],
   );
 
   const onResultDetail = useCallback((result) => {
@@ -386,7 +396,7 @@ const ProductDetailScreen: React.FC = () => {
   }, [tabRef, hash, tab]);
 
   return (
-    <StyledComponent>
+    <StyledComponent className="product-detail">
       <ContentContainer
         isError={error}
         isLoading={loading}
@@ -407,6 +417,7 @@ const ProductDetailScreen: React.FC = () => {
             name: data !== null ? data.code : "",
           },
         ]}
+        extra={<ProductSteps data={data} />}
       >
         {data !== null && (
           <React.Fragment>
