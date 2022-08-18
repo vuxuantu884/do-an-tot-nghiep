@@ -30,7 +30,9 @@ export interface PurchaseOrderLineItem {
   receipt_quantity: number;
   planned_quantity: number;
   variant_detail?: any;
-  retail_price:number;
+  retail_price: number;
+  cost_price: number;
+  new_retail_price?: number;
 }
 export interface PurchaseOrderLineReturnItem extends PurchaseOrderLineItem {
   quantity_return: number;
@@ -83,12 +85,12 @@ export interface PurchaseOrderLineItemDraft {
 }
 
 export enum POLoadType {
-  SUPPLEMENT = 'SUPPLEMENT',
-  NOT_SUPPLEMENT = 'NOT_SUPPLEMENT',
-  ALL = 'ALL'
-};
+  SUPPLEMENT = "SUPPLEMENT",
+  NOT_SUPPLEMENT = "NOT_SUPPLEMENT",
+  ALL = "ALL",
+}
 
 export enum POLineItemType {
-  NORMAL = 'normal',
-  SUPPLEMENT = 'supplement',
+  NORMAL = "normal",
+  SUPPLEMENT = "supplement",
 }

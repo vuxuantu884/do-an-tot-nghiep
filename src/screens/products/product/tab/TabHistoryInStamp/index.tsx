@@ -33,12 +33,21 @@ import EditNoteBarcode from "./EditNoteBarcode";
 import HistoryInStampFilter from "./HistoryInStampFilter";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
+import { MenuAction } from "component/table/ActionButton";
+import useAuthorization from "hook/useAuthorization";
 interface IProps {
   visiblePickManyModal: boolean;
   onTogglePickManyModal: () => void;
   vExportProduct: boolean;
   setVExportProduct: React.Dispatch<React.SetStateAction<boolean>>;
 }
+
+const ACTIONS_INDEX = {
+  PRINT_BAR_CODE: 2,
+  ACTIVE: 3,
+  INACTIVE: 4,
+  DELETE: 5,
+};
 
 const initQuery: BaseQuery = {
   sort_column: "created_date",
@@ -170,6 +179,38 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
       }
     },
     [dispatch, getDataPrintHistories],
+  );
+  const actionsDefault: Array<MenuAction> = useMemo(() => {
+    const disabled = !(selected && selected.length > 0);
+    return [
+      {
+        id: ACTIONS_INDEX.PRINT_BAR_CODE,
+        name: "In mã vạch",
+        disabled,
+      },
+    ];
+  }, [selected]);
+  const [canPrintBarcode] = useAuthorization({
+    acceptPermissions: [ProductPermission.print_temp],
+  });
+  const actions = useMemo(() => {
+    return actionsDefault.filter((item) => {
+      if (item.id === ACTIONS_INDEX.PRINT_BAR_CODE) {
+        return canPrintBarcode;
+      }
+      return false;
+    });
+  }, [canPrintBarcode, actionsDefault]);
+
+  const onMenuClick = useCallback(
+    (index: number) => {
+      switch (index) {
+        case ACTIONS_INDEX.PRINT_BAR_CODE:
+          history.push(`${UrlConfig.PRODUCT}/barcode`, { selected: selected });
+          break;
+      }
+    },
+    [history, selected],
   );
 
   const defaultColumns: Array<ICustomTableColumType<BarcodePrintHistoriesResponse>> =
@@ -461,8 +502,8 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
   return (
     <StyledComponent>
       <HistoryInStampFilter
-        onMenuClick={() => {}}
-        actions={[]}
+        onMenuClick={onMenuClick}
+        actions={actions}
         onFilter={onFilter}
         params={params}
         listCountries={[]}

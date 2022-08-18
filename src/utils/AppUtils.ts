@@ -614,7 +614,7 @@ export const Products = {
     currency: string,
   ): VariantPricesResponse | null => {
     let price: VariantPricesResponse | null = null;
-    prices.forEach((priceResponse) => {
+    prices?.forEach((priceResponse) => {
       if (priceResponse.currency_code === currency) {
         price = priceResponse;
       }
@@ -723,7 +723,7 @@ export const isNormalTypeVariantItem = (lineItem: OrderLineItemResponse) => {
 };
 
 export const getAmountPayment = (
-  items: Array<OrderPaymentResponse | OrderPaymentRequest> | null,
+  items: Array<OrderPaymentResponse | OrderPaymentRequest> | null | undefined,
 ) => {
   let value = 0;
   if (items && items.length > 0) {
@@ -1678,10 +1678,10 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
   transportService: string | null | undefined,
   form: FormInstance<any>,
   setShippingFeeInformedToCustomer?: (value: number) => void,
-  isPageOrderUpdate = false,
+  isOrderUpdatePage = false,
   isApplyAll = true,
 ) => {
-  if (isPageOrderUpdate) {
+  if (isOrderUpdatePage) {
     return;
   }
   if (!transportService && !isApplyAll) {
@@ -1692,7 +1692,7 @@ export const handleCalculateShippingFeeApplyOrderSetting = (
     if (!shippingServiceConfig || !customerShippingAddressCityId || orderPrice === undefined) {
       form?.setFieldsValue({ shipping_fee_informed_to_customer: 0 });
       setShippingFeeInformedToCustomer && setShippingFeeInformedToCustomer(0);
-      showSuccess("Cập nhật phí ship báo khách thành công!");
+      showSuccess("Phí ship đã được thay đổi!");
       return;
     }
   }
@@ -2124,7 +2124,7 @@ export const flattenArray = (arr: any) => {
  * @param {string} stringNumber - the localized number
  * @param {string} locale - [optional] the locale that the number is represented in. Omit this parameter to use the current locale.
  */
-export function parseLocaleNumber(stringNumber: string, locale?: string) {
+export function parseLocaleNumber(stringNumber: any, locale?: string) {
   const thousandSeparator = Intl.NumberFormat(locale)
     .format(11111)
     .replace(/\p{Number}/gu, "");
@@ -2134,6 +2134,7 @@ export function parseLocaleNumber(stringNumber: string, locale?: string) {
 
   return parseFloat(
     stringNumber
+      .toString()
       .replace(new RegExp("\\" + thousandSeparator, "g"), "")
       .replace(new RegExp("\\" + decimalSeparator), "."),
   );

@@ -35,7 +35,7 @@ import UrlConfig from "config/url.config";
 import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
-import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
+import { detailMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
 import {
   productGetDetail,
   productUpdateAction,
@@ -789,7 +789,13 @@ const ProductDetailScreen: React.FC = () => {
 
   useEffect(() => {
     dispatch(getCategoryRequestAction({}, setDataCategory));
-    dispatch(materialSearchAll(setListMaterial));
+    dispatch(
+      getMaterialAction({ status: "active", limit: 1000 }, (res) => {
+        if (res) {
+          setListMaterial(res.items);
+        }
+      }),
+    );
     dispatch(CountryGetAllAction(setListCountry));
   }, [dispatch, setDataCategory]);
 
@@ -1069,10 +1075,12 @@ const ProductDetailScreen: React.FC = () => {
                               allowClear
                             >
                               {listMaterial?.map((item) => (
-                                <CustomSelect.Option key={item.id} value={item.id}>
-                                  <div className="po-form">
-                                    {item.name} <span className="icon-dot" /> {item.fabric_code}
-                                  </div>
+                                <CustomSelect.Option
+                                  className="po-form"
+                                  key={item.id}
+                                  value={item.id}
+                                >
+                                  {item.name} <span className="icon-dot" /> {item.fabric_code}
                                 </CustomSelect.Option>
                               ))}
                             </Select>

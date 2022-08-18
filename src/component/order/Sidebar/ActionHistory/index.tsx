@@ -16,6 +16,7 @@ type PropType = {
 };
 
 function ActionHistory(props: PropType) {
+  const dateFormat = DATE_FORMAT.fullDate;
   const listActionLogDisplay = [
     {
       action: "create",
@@ -102,6 +103,36 @@ function ActionHistory(props: PropType) {
     }
   };
 
+  const renderActionHistoryStore = (singleActionHistory: OrderActionLogResponse) => {
+    if (singleActionHistory?.store) {
+      return (
+        <h4 className="singleActionHistory__store">
+          <span title="Kho hàng">{singleActionHistory?.store}</span>
+        </h4>
+      );
+    }
+  };
+
+  const renderActionHistoryTitle = (singleActionHistory: OrderActionLogResponse) => {
+    if (singleActionHistory?.updated_by) {
+      return (
+        <h4 className="singleActionHistory__title">
+          {singleActionHistory?.updated_by} - {singleActionHistory?.updated_name}
+        </h4>
+      );
+    }
+  };
+
+  const renderActionHistoryDate = (singleActionHistory: OrderActionLogResponse) => {
+    if (singleActionHistory?.updated_date) {
+      return (
+        <div className="singleActionHistory__date">
+          {moment(singleActionHistory?.updated_date).format(dateFormat)}
+        </div>
+      );
+    }
+  };
+
   useEffect(() => {
     if (!orderId) {
       return;
@@ -128,7 +159,7 @@ function ActionHistory(props: PropType) {
               }
               return (
                 <div
-                  className="singleActionHistory"
+                  className="singleActionHistory 53"
                   key={index}
                   onClick={() => {
                     showModal(singleActionHistory.id);
@@ -137,22 +168,9 @@ function ActionHistory(props: PropType) {
                   <Row className="" gutter={15}>
                     <Col span={12}>
                       <div className="singleActionHistory__info">
-                        {singleActionHistory?.store && (
-                          <h4 className="singleActionHistory__store">
-                            <span title="Kho hàng">{singleActionHistory?.store}</span>
-                          </h4>
-                        )}
-
-                        {singleActionHistory?.updated_by && singleActionHistory?.updated_name && (
-                          <h4 className="singleActionHistory__title">
-                            {singleActionHistory?.updated_by} - {singleActionHistory?.updated_name}
-                          </h4>
-                        )}
-                        {singleActionHistory?.updated_date && (
-                          <div className="singleActionHistory__date">
-                            {moment(singleActionHistory?.updated_date).format(DATE_FORMAT.fullDate)}
-                          </div>
-                        )}
+                        {renderActionHistoryStore(singleActionHistory)}
+                        {renderActionHistoryTitle(singleActionHistory)}
+                        {renderActionHistoryDate(singleActionHistory)}
                       </div>
                     </Col>
                     <Col span={12}>

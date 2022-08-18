@@ -631,7 +631,6 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                 ? item.type === POLineItemType.SUPPLEMENT
                 : item.type !== POLineItemType.SUPPLEMENT,
             );
-
             return isEditFormByType() ? (
               <Table
                 className="product-table"
@@ -897,6 +896,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                   },
                   {
+                    title: "Giá bán",
+                    width: 100,
+                    align: "center",
+                    dataIndex: "retail_price",
+                    render: (price) => formatCurrency(price) || 0,
+                  },
+                  {
                     dataIndex: "line_amount_after_line_discount",
                     title: (
                       <Tooltip title="Thành tiền không bao gồm thuế VAT">
@@ -921,7 +927,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       </Tooltip>
                     ),
                     align: "center",
-                    width: 130,
+                    width: 110,
                     render: (value: number) => (
                       <div
                         style={{
@@ -929,7 +935,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           textAlign: "right",
                         }}
                       >
-                        {formatCurrency(Math.round(value || 0))}
+                        {formatCurrency(Math.round(value || 0)) || 0}
                       </div>
                     ),
                   },
@@ -1126,6 +1132,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     },
                   },
                   {
+                    title: "Giá bán",
+                    width: 100,
+                    align: "center",
+                    dataIndex: "retail_price",
+                    render: (price) => formatCurrency(price) || 0,
+                  },
+                  {
                     dataIndex: "line_amount_after_line_discount",
                     title: (
                       <Tooltip title="Thành tiền không bao gồm thuế VAT">
@@ -1150,7 +1163,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                       </Tooltip>
                     ),
                     align: "center",
-                    width: 130,
+                    width: 110,
                     render: (value: number) => (
                       <div
                         style={{
@@ -1158,7 +1171,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                           textAlign: "right",
                         }}
                       >
-                        {formatCurrency(Math.round(value))}
+                        {formatCurrency(Math.round(value)) || 0}
                       </div>
                     ),
                   },

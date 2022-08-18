@@ -5,7 +5,7 @@ import { withRouter } from "react-router-dom";
 import { POS } from "utils/Constants";
 import { ORDER_TYPES } from "utils/Order.constants";
 import { checkIfEcommerceByOrderChannelCode } from "utils/OrderUtils";
-import OrderList from "../component/OrderList/OrderList";
+import OrderList from "../component/OrderList";
 
 type PropTypes = {
   location: any;

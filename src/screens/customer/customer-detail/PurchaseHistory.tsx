@@ -1,73 +1,77 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { Button, Form, Popover, Tooltip } from "antd";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import NumberFormat from "react-number-format";
-import { Link, useHistory, useLocation } from "react-router-dom";
 import UrlConfig from "config/url.config";
-import { DATE_FORMAT } from "utils/DateUtils";
 import {
-  convertItemToArray,
-  checkIfOrderCanBeReturned,
-  formatCurrency,
-  generateQuery,
-  getOrderTotalPaymentAmount,
-  getTotalQuantity,
-  copyTextToClipboard,
-} from "utils/AppUtils";
+  getTrackingLogFulfillmentAction,
+  updateOrderPartial,
+} from "domain/actions/order/order.action";
 import { PageResponse } from "model/base/base-metadata.response";
+import { ShipmentResponse } from "model/response/order/order.response";
 import moment from "moment";
-import { DeliveryServiceResponse, ShipmentResponse } from "model/response/order/order.response";
-import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+import NumberFormat from "react-number-format";
+import { useDispatch, useSelector } from "react-redux";
+import { Link, useHistory, useLocation } from "react-router-dom";
 import {
   nameQuantityWidth,
   StyledPurchaseHistory,
 } from "screens/customer/customer-detail/customerDetailStyled";
 import EditNote from "screens/order-online/component/edit-note";
-import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
 import {
-  DeliveryServicesGetList,
-  getTrackingLogFulfillmentAction,
-  updateOrderPartial,
-} from "domain/actions/order/order.action";
+  checkIfOrderCanBeReturned,
+  convertItemToArray,
+  copyTextToClipboard,
+  formatCurrency,
+  generateQuery,
+  getOrderTotalPaymentAmount,
+  getTotalQuantity,
+} from "utils/AppUtils";
+import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
+import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 
+import "assets/css/order-status.scss";
+import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import IconTrackingCode from "assets/img/iconTrackingCode.svg";
+import DebounceSelect from "component/filter/component/debounce-select";
+import TrackingLog from "component/order/DeliveryProgress/TrackingLog/TrackingLog";
+import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
+import _ from "lodash";
+import { OrderExtraModel, OrderModel } from "model/order/order.model";
+import queryString from "query-string";
+import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
 import iconShippingFeeInformedToCustomer from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
 import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeePay3PL.svg";
 import iconWeight from "screens/order-online/component/OrderList/ListTable/images/iconWeight.svg";
 import IconStore from "screens/order-online/component/OrderList/ListTable/images/store.svg";
+import { getVariantApi, searchVariantsApi } from "service/product/product.service";
+import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
+import {
+  getFulfillmentActive,
+  getLink,
+  getReturnMoneyStatusColor,
+  getReturnMoneyStatusText,
+} from "utils/OrderUtils";
+import { showSuccess } from "utils/ToastUtils";
+import { getQueryParamsFromQueryString } from "utils/useQuery";
 import {
   getCustomerOrderHistoryAction,
   getCustomerOrderReturnHistoryAction,
 } from "../../../domain/actions/customer/customer.action";
-import { getVariantApi, searchVariantsApi } from "service/product/product.service";
-import DebounceSelect from "component/filter/component/debounce-select";
-import { getQueryParamsFromQueryString } from "utils/useQuery";
-import queryString from "query-string";
-import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
-import _ from "lodash";
 import { RootReducerType } from "../../../model/reducers/RootReducerType";
-import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
-import { getLink, getReturnMoneyStatusColor, getFulfillmentActive } from "utils/OrderUtils";
-import { showSuccess } from "utils/ToastUtils";
-import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import { OrderExtraModel, OrderModel } from "model/order/order.model";
-import IconTrackingCode from "assets/img/iconTrackingCode.svg";
-import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-import SubStatusChange from "component/order/SubStatusChange/SubStatusChange";
-import { getReturnMoneyStatusText } from "utils/OrderUtils";
-import "assets/css/order-status.scss";
-import TrackingLog from "component/order/DeliveryProgress/TrackingLog/TrackingLog";
 
+import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
+import IconPaymentCod from "assets/icon/payment/cod.svg";
+import IconPaymentMOMO from "assets/icon/payment/momo.svg";
 import IconPaymentQRCode from "assets/icon/payment/qr.svg";
 import IconPaymentSwipeCard from "assets/icon/payment/quet-the.svg";
-import IconPaymentCod from "assets/icon/payment/cod.svg";
-import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
-import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
-import IconPaymentMOMO from "assets/icon/payment/momo.svg";
+import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
-import iconWarranty from "assets/icon/icon-warranty-menu.svg";
+import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
+import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 
 const PAYMENT_ICON = [
   {
@@ -149,15 +153,7 @@ function PurchaseHistory(props: PurchaseHistoryProps) {
     setSubStatus: "setSubStatus",
   };
 
-  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
-
-  useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setDeliveryServices(response);
-      }),
-    );
-  }, [dispatch]);
+  const deliveryServices = useFetchDeliverServices();
 
   //handle get purchase history
   const [tableLoading, setTableLoading] = useState<boolean>(false);

@@ -74,22 +74,19 @@ import {
 import { RootReducerType } from "model/reducers/RootReducerType";
 import EditNote from "../../order-online/component/edit-note";
 import AccountSearchPaging from "component/custom/select-search/account-select-paging";
-import InventoryReportIcon from "assets/icon/inventory-report.svg";
+import InventoryReportIcon from "assets/icon/inventory-report-blue.svg";
 import InventoryReportModal from "../ListInventoryAdjustment/components/InventoryReportModal";
 import { primaryColor } from "utils/global-styles/variables";
 import ScanIcon from "assets/icon/scan.svg";
 import CloseCircleIcon from "assets/icon/close-circle.svg";
 import IconPrint from "assets/icon/printer-blue.svg";
+import BaseAxios from "../../../base/base.axios";
+import { ApiConfig } from "../../../config/api.config";
 
 const { TabPane } = Tabs;
 
 export interface InventoryParams {
   id: string;
-}
-
-export interface SummaryData {
-  total: number;
-  partly: number;
 }
 
 export interface Summary {
@@ -151,6 +148,7 @@ const DetailInventoryAdjustment: FC = () => {
   const [dataImport, setDataImport] = useState<ImportResponse>();
   const [hasImportUrl, setHasImportUrl] = useState<boolean>(false);
   const [isRerenderTab, setIsRerenderTab] = useState<boolean>(false);
+  const [isReSearch, setIsReSearch] = useState<boolean>(false);
   const [isRerenderTabHistory, setIsRerenderTabHistory] = useState<boolean>(false);
 
   const [accounts, setAccounts] = useState<Array<AccountResponse>>([]);
@@ -167,14 +165,25 @@ const DetailInventoryAdjustment: FC = () => {
     items: [],
   });
 
-  const [objSummaryTableByAuditTotal, setObjSummaryTableByAuditTotal] = useState<any>({
-    totalStock: 0,
-    totalShipping: 0,
-    totalOnWay: 0,
-    onHand: 0,
-    realOnHand: 0,
-    totalExcess: 0,
-    totalMissing: 0,
+  const [objSummaryTableByAudit, setObjSummaryTableByAudit] = useState<any>({
+    deviant: {
+      on_hand: 0,
+      real_on_hand: 0,
+      total_excess: 0,
+      total_missing: 0,
+      total_stock: 0,
+      total_shipping: 0,
+      total_on_way: 0
+    },
+    total: {
+      on_hand: 0,
+      real_on_hand: 0,
+      total_excess: 0,
+      total_missing: 0,
+      total_stock: 0,
+      total_shipping: 0,
+      total_on_way: 0
+    }
   });
 
   //phân quyền
@@ -319,7 +328,7 @@ const DetailInventoryAdjustment: FC = () => {
 
         getTotalOnHandApi().then((res) => {
           if (!res) return;
-          setObjSummaryTableByAuditTotal(res);
+          setObjSummaryTableByAudit(res);
         });
       });
     },
@@ -526,12 +535,6 @@ const DetailInventoryAdjustment: FC = () => {
     }
   }, []);
 
-  useEffect(() => {
-    dispatch(getLinesItemAdjustmentAction(idNumber, `page=1&limit=30`, onResultDataTable));
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
   const onEnterFilterVariant = useCallback(
     (code: string) => {
       if (activeTab === "1") setKeySearchHistory(code?.toLocaleLowerCase());
@@ -683,15 +686,7 @@ const DetailInventoryAdjustment: FC = () => {
   const getTotalOnHandFunc = () => {
     getTotalOnHandApi().then((res) => {
       if (!res) return;
-      setObjSummaryTableByAuditTotal({
-        onHand: res.onHand || 0,
-        totalStock: res.totalStock || 0,
-        totalShipping: res.totalShipping || 0,
-        totalOnWay: res.totalOnWay || 0,
-        realOnHand: res.realOnHand || 0,
-        totalExcess: res.totalExcess || 0,
-        totalMissing: res.totalMissing || 0,
-      });
+      setObjSummaryTableByAudit(res);
     });
   };
 
@@ -714,6 +709,17 @@ const DetailInventoryAdjustment: FC = () => {
   }, [listJobImportFile, statusImport, checkImportFile]);
 
   useEffect(() => {
+    BaseAxios.get(
+      `${ApiConfig.INVENTORY_ADJUSTMENT}/inventory-adjustment/${id}/lines-item?page=1&limit=30&type=total`,
+    ).then((res) => {
+      if (res) {
+        setTotal(res.data.metadata.total);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps,
+  }, []);
+
+  useEffect(() => {
     setIsLoadingBtn(true);
     dispatch(getDetailInventoryAdjustmentAction(idNumber, onResult));
     try {
@@ -724,6 +730,15 @@ const DetailInventoryAdjustment: FC = () => {
           } else {
             getTotalOnHandFunc();
             clearInterval(interval);
+
+            dispatch(
+              getLinesItemAdjustmentAction(
+                idNumber,
+                `page=1&limit=30&type=total`,
+                onResultDataTable,
+              )
+            );
+
             setIsLoadingBtn(false);
           }
 
@@ -820,8 +835,8 @@ const DetailInventoryAdjustment: FC = () => {
                   <div className="label label-green mb-20 mt-10">
                     <div>Quét được</div>
                     <div style={{ color: "#FFFFFF", fontSize: 18 }}>
-                      {formatCurrency(objSummaryTableByAuditTotal.realOnHand)}/
-                      {formatCurrency(objSummaryTableByAuditTotal.onHand)}
+                      {formatCurrency(objSummaryTableByAudit.total.real_on_hand)}/
+                      {formatCurrency(objSummaryTableByAudit.total.on_hand)}
                     </div>
                     <img src={ScanIcon} alt="scan" className="icon" />
                   </div>
@@ -829,26 +844,26 @@ const DetailInventoryAdjustment: FC = () => {
                   <div className="label label-red">
                     <div>Thừa/thiếu</div>
                     <div style={{ fontSize: 18 }}>
-                      {objSummaryTableByAuditTotal.totalExcess === 0 ||
-                      !objSummaryTableByAuditTotal.totalExcess ? (
+                      {objSummaryTableByAudit.total.total_excess === 0 ||
+                      !objSummaryTableByAudit.total.total_excess ? (
                         0
                       ) : (
                         <span style={{ color: "#FFFFFF" }}>
-                          +{formatCurrency(objSummaryTableByAuditTotal.totalExcess)}
+                          +{formatCurrency(objSummaryTableByAudit.total.total_excess)}
                         </span>
                       )}
-                      {objSummaryTableByAuditTotal.totalExcess !== null &&
-                      objSummaryTableByAuditTotal.totalMissing !== null ? (
+                      {objSummaryTableByAudit.total.total_excess !== null &&
+                      objSummaryTableByAudit.total.total_missing !== null ? (
                         <Space>/</Space>
                       ) : (
                         ""
                       )}
-                      {objSummaryTableByAuditTotal.totalMissing === 0 ||
-                      !objSummaryTableByAuditTotal.totalMissing ? (
+                      {objSummaryTableByAudit.total.total_missing === 0 ||
+                      !objSummaryTableByAudit.total.total_missing ? (
                         0
                       ) : (
                         <span style={{ color: "#FFFFFF" }}>
-                          {formatCurrency(objSummaryTableByAuditTotal.totalMissing)}
+                          {formatCurrency(objSummaryTableByAudit.total.total_missing)}
                         </span>
                       )}
                     </div>
@@ -1048,12 +1063,13 @@ const DetailInventoryAdjustment: FC = () => {
                               onChange={(e) => {
                                 onChangeKeySearch(e.target.value);
                               }}
+                              onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
                               style={{ marginLeft: 8 }}
                               placeholder="Tìm kiếm sản phẩm trong phiếu"
                               addonAfter={
                                 <SearchOutlined
                                   onClick={() => {
-                                    onChangeKeySearch(keySearchHistory);
+                                    setIsReSearch(!isReSearch);
                                   }}
                                   style={{ color: "#2A2A86" }}
                                 />
@@ -1080,11 +1096,12 @@ const DetailInventoryAdjustment: FC = () => {
                             }}
                             setDataTab={(value) => setDataLinesItem(value)}
                             tab={activeTab}
+                            isReSearch={isReSearch}
                             isPermissionAudit={isPermissionAudit}
                             keySearch={activeTab === "1" ? keySearchHistory : keySearchAll}
                             tableLoading={tableLoading}
                             isRerenderTab={isRerenderTab}
-                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
+                            objSummaryTableByAuditTotal={objSummaryTableByAudit.deviant}
                             idNumber={idNumber}
                             data={data}
                           />
@@ -1099,12 +1116,13 @@ const DetailInventoryAdjustment: FC = () => {
                               onChange={(e) => {
                                 onChangeKeySearch(e.target.value);
                               }}
+                              onKeyPress={(e) => e.key === 'Enter' && setIsReSearch(!isReSearch)}
                               style={{ marginLeft: 8 }}
                               placeholder="Tìm kiếm sản phẩm trong phiếu"
                               addonAfter={
                                 <SearchOutlined
                                   onClick={() => {
-                                    onChangeKeySearch(keySearchAll);
+                                    setIsReSearch(!isReSearch);
                                   }}
                                   style={{ color: "#2A2A86" }}
                                 />
@@ -1124,6 +1142,7 @@ const DetailInventoryAdjustment: FC = () => {
                         </AuthWrapper>
                         {activeTab === "2" && (
                           <InventoryAdjustmentListAll
+                            isReSearch={isReSearch}
                             setIsReRender={() => {
                               setIsReRenderTotalOnHand((isReRenderTotalOnHand) => {
                                 return !isReRenderTotalOnHand;
@@ -1134,7 +1153,7 @@ const DetailInventoryAdjustment: FC = () => {
                             keySearch={keySearchAll}
                             tableLoading={tableLoading}
                             isRerenderTab={isRerenderTab}
-                            objSummaryTableByAuditTotal={objSummaryTableByAuditTotal}
+                            objSummaryTableByAuditTotal={objSummaryTableByAudit.total}
                             idNumber={idNumber}
                             data={data}
                           />
@@ -1187,26 +1206,23 @@ const DetailInventoryAdjustment: FC = () => {
                       onClick={() => {
                         setIsOpenModal(true);
                       }}
-                      className="btn-report"
-                      icon={
-                        <img
-                          className="icon-report"
-                          src={InventoryReportIcon}
-                          alt="inventory-report-icon"
-                        />
-                      }
+                      type="primary"
+                      ghost
+                      style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                     >
-                      Xem báo cáo kiểm
+                      <img src={InventoryReportIcon} alt="" style={{ paddingRight: "10px" }} /> Xem báo cáo kiểm
                     </Button>
                   )}
                   {data.status !== STATUS_INVENTORY_ADJUSTMENT.DRAFT.status &&
                     data.status !== STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status && (
                       <AuthWrapper acceptPermissions={[InventoryAdjustmentPermission.print]}>
                         <Button
-                          type="default"
                           onClick={() => {
                             onPrintAction();
                           }}
+                          type="primary"
+                          ghost
+                          style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                         >
                           <Space>
                             <PrinterOutlined /> In phiếu
@@ -1217,16 +1233,18 @@ const DetailInventoryAdjustment: FC = () => {
                   <Button
                     loading={isLoadingBtn}
                     disabled={isLoadingBtn}
-                    type="default"
-                    className="light"
-                    size="large"
-                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
                     onClick={() => {
                       setShowExportModal(true);
                       onExport();
                     }}
+                    type="primary"
+                    ghost
+                    icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+                    style={{ padding: "0 25px", fontWeight: 400, margin: "0 10px" }}
                   >
-                    Xuất excel
+                    <Space>
+                      Xuất excel
+                    </Space>
                   </Button>
                   {(data.status === STATUS_INVENTORY_ADJUSTMENT.DRAFT.status ||
                     data.status === STATUS_INVENTORY_ADJUSTMENT.INITIALIZING.status) && (

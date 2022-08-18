@@ -158,6 +158,7 @@ export interface AnalyticTemplateData {
   chartColumnSelected: string[];
   timeAtOption: string;
   chart_query?: string;
+  group: AnalyticGroup;
 }
 
 export interface AnalyticCustomizeTemplateForCreate {

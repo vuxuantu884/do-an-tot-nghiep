@@ -90,4 +90,5 @@ export interface ExportCustomerRequest {
 export interface ImportCustomerQuery {
   file: File;
   insertIfBlank: boolean;
+  fields?: Array<string>;
 }
