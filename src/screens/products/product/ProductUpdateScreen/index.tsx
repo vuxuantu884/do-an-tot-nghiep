@@ -77,10 +77,12 @@ import VariantList from "../component/VariantList";
 import { ProductParams } from "../ProductDetailScreen";
 import AddVariantsModal from "./add-variants-modal";
 import { StyledComponent } from "./styles";
-import { debounce } from "lodash";
+import _, { cloneDeep, debounce } from "lodash";
 import ModalUploadImages from "../component/ModalUploadImages";
 import TreeCategory from "../component/TreeCategory";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
+import { callApiNative } from "utils/ApiUtils";
+import { productUpdateApi } from "service/product/product.service";
 
 const { Item } = Form;
 let tempActive: number = 0;
@@ -398,10 +400,11 @@ const ProductDetailScreen: React.FC = () => {
           if (status) item.status = "active"; //CO-3415
         }
       });
-      update(values);
+      //update(values);
     },
-    [form, update],
+    [form],
   );
+
   const onMaterialChange = useCallback(
     (id: number) => {
       if (isChangeDescription && id) {
@@ -415,6 +418,10 @@ const ProductDetailScreen: React.FC = () => {
             }
           }),
         );
+      } else {
+        form.setFieldsValue({
+          material: null,
+        });
       }
     },
     [dispatch, form, isChangeDescription],
@@ -460,41 +467,6 @@ const ProductDetailScreen: React.FC = () => {
       });
     },
     [updateStatus, getFirstAvatar],
-  );
-
-  const onResultFinish = useCallback(
-    (data) => {
-      setLoadingVariant(false);
-      setLoadingButton(false);
-      if (!data) {
-      } else {
-        showSuccess("Cập nhật thành công");
-        history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
-      }
-    },
-    [history, idNumber],
-  );
-
-  const onFinish = useCallback(
-    (values: ProductRequest) => {
-      setLoadingButton(true);
-      values.variants?.forEach((e: VariantRequest) => {
-        if (e.saleable) e.status = "active"; //CO-3415
-      });
-      dispatch(
-        productUpdateAction(
-          idNumber,
-          {
-            ...values,
-            description: form.getFieldValue("description"),
-            care_labels: careLabelsString,
-            collections: values.product_collections ?? [],
-          },
-          onResultFinish,
-        ),
-      );
-    },
-    [careLabelsString, dispatch, idNumber, onResultFinish, form],
   );
 
   const onSaveImage = useCallback(
@@ -745,7 +717,7 @@ const ProductDetailScreen: React.FC = () => {
         setStatus(result.status);
         productDetailRef.current = JSON.parse(JSON.stringify(result));
         setDataOrigin(form.getFieldsValue());
-
+        form.setFieldsValue({ variants: result.variants });
         //set active variant
         if (variantId) {
           const index = result.variants.findIndex((item) => item.id === Number(variantId));
@@ -774,11 +746,15 @@ const ProductDetailScreen: React.FC = () => {
     }
   };
 
+  const getDetail = useCallback(() => {
+    dispatch(productGetDetail(idNumber, onResult));
+  }, [dispatch, idNumber, onResult]);
+
   useEffect(() => {
     if (!isChange) {
-      dispatch(productGetDetail(idNumber, onResult));
+      getDetail();
     }
-  }, [dispatch, idNumber, onResult, isChange]);
+  }, [isChange, getDetail]);
 
   useEffect(() => {
     if (data) {
@@ -832,6 +808,34 @@ const ProductDetailScreen: React.FC = () => {
   useEffect(() => {
     getCollections("", 1);
   }, [getCollections]);
+
+  const onFinish = useCallback(
+    async (values: ProductRequest) => {
+      setLoadingButton(true);
+      let request: any = _.cloneDeep(values);
+      request.variants?.forEach((e: VariantRequest) => {
+        if (e.saleable) e.status = "active"; //CO-3415
+      });
+
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        productUpdateApi,
+        idNumber,
+        request,
+      );
+      setLoadingVariant(false);
+      setLoadingButton(false);
+
+      if (res) {
+        showSuccess("Cập nhật thành công");
+        history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
+        return;
+      }
+      getDetail();
+    },
+    [dispatch, idNumber, getDetail, history],
+  );
 
   return (
     <StyledComponent>

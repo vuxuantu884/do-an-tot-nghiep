@@ -1,0 +1,35 @@
+@import "assets/css/variable";
+.modal-des .ant-modal-body {
+  padding: 0px;
+}
+.modal-des .des-content {
+  overflow: auto;
+}
+.modal-des .ant-tabs-content {
+  padding: 24px;
+}
+.product-detail {
+  .ant-steps-item-container,
+  .ant-steps-item-description {
+    min-width: 200px !important;
+    font-weight: normal;
+    color: #666666 !important;
+    font-family: Roboto;
+    line-height: 1.2;
+    margin-left: -25px;
+  }
+  .ant-steps-item-icon {
+    width: 20px;
+    height: 20px;
+  }
+  .ant-steps-icon-dot {
+    background: unset;
+    border: 1px solid;
+  }
+  .ant-steps-item-tail {
+    margin: 0 0 0 45px !important;
+  }
+  .ant-steps-item-title {
+    color: #666666 !important;
+  }
+}
