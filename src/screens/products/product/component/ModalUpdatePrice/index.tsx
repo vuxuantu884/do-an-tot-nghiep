@@ -1,33 +1,36 @@
-import { Modal, List, Checkbox } from "antd";
+import { Modal, List } from "antd";
 import { VariantResponse } from "model/product/product.model";
 import variantdefault from "assets/icon/variantdefault.jpg";
-import { Products } from "utils/AppUtils";
-import { useState } from "react";
+import { convertVariantPrices, formatCurrency, Products } from "utils/AppUtils";
+import { useEffect, useState } from "react";
 import { StyledComponent } from "./styled";
+import { AppConfig } from "config/app.config";
 
 type IProps = {
   visible: boolean;
-  currentVariant: number;
+  currentIndex: number;
   variants: Array<VariantResponse>;
   onOk: (listSelected: Array<number>) => void;
   onCancel: () => void;
 };
 
 const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
-  const [listSelected, setListSelected] = useState<Array<number>>([]);
-  const [checkedAll, setCheckedAll] = useState<boolean>(false);
+  const [variantConfirm, setVariantConfirm] = useState<Array<VariantResponse>>([]);
+
+  useEffect(() => {
+    setVariantConfirm([
+      ...convertVariantPrices(props.variants, props.variants[props.currentIndex]),
+    ]);
+  }, [props.currentIndex, props.variants]);
+
   return (
     <Modal
       okText="Cập nhật giá"
       onCancel={() => {
-        setCheckedAll(false);
-        setListSelected([]);
         props.onCancel();
       }}
       onOk={() => {
-        props.onOk(listSelected);
-        setCheckedAll(false);
-        setListSelected([]);
+        props.onOk(props.variants.map((e) => e.id));
       }}
       title={
         <div>
@@ -41,7 +44,7 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
               color: "#666666",
             }}
           >
-            Chọn các sản phẩm bạn muốn cập nhật giá
+            Danh sách các phiên bản cập nhật giá
           </p>
         </div>
       }
@@ -50,36 +53,9 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
     >
       <StyledComponent>
         <List
-          header={
-            <div className="header-tab">
-              <div className="header-tab-left">
-                <Checkbox
-                  checked={checkedAll}
-                  onChange={(e) => {
-                    setCheckedAll(e.target.checked);
-                    if (props.variants) {
-                      if (e.target.checked) {
-                        props.variants.forEach((item) => {
-                          let index = listSelected.findIndex((item1) => item1 === item.id);
-                          if (index === -1) {
-                            listSelected.push(item.id);
-                          }
-                        });
-                        setListSelected([...listSelected]);
-                      } else {
-                        setListSelected([]);
-                      }
-                    }
-                  }}
-                >
-                  Chọn tất cả
-                </Checkbox>
-              </div>
-            </div>
-          }
           className="list__variants"
-          dataSource={props.variants.filter(
-            (item, index) => index !== props.currentVariant && item.id,
+          dataSource={variantConfirm.filter(
+            (item, index) => index !== props.currentIndex && item.id,
           )}
           rowKey={(item) => item.id.toString()}
           renderItem={(item, index) => {
@@ -87,22 +63,6 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
             return (
               <List.Item>
                 <div className="line-item">
-                  <Checkbox
-                    checked={listSelected.findIndex((item1) => item1 === item.id) !== -1}
-                    onChange={(e) => {
-                      let index = listSelected.findIndex((item1) => item1 === item.id);
-                      if (e.target.checked) {
-                        if (index === -1) {
-                          listSelected.push(item.id);
-                        }
-                      } else {
-                        if (index !== -1) {
-                          listSelected.splice(index, 1);
-                        }
-                      }
-                      setListSelected([...listSelected]);
-                    }}
-                  />
                   <div className="line-item-container">
                     <div className="avatar">
                       <img alt="" src={avatar !== null ? avatar.url : variantdefault} />
@@ -117,7 +77,15 @@ const ModalUpdatePrice: React.FC<IProps> = (props: IProps) => {
                         overflow: "hidden",
                       }}
                     >
-                      <div>{item.sku}</div>
+                      <div className="item-sku">
+                        <div>{item.sku}</div>
+                        <div className="retail-price-sku">
+                          {formatCurrency(
+                            Products.findPrice(item.variant_prices, AppConfig.currency)
+                              ?.retail_price ?? "",
+                          )}
+                        </div>
+                      </div>
                       <div className="right__name">{item.name}</div>
                     </div>
                   </div>
