@@ -323,6 +323,18 @@ const ProductCreateScreen: React.FC = () => {
             quantity: 0,
             variant_images: [],
           });
+          //add variant sku = product_code CO-4551
+          newVariants.push({
+            name: name,
+            color_id: null,
+            code: null,
+            color: null,
+            size_id: null,
+            size: null,
+            sku: `${code}`,
+            quantity: 0,
+            variant_images: [],
+          });
 
           const arrDefectSpecial = ArrDefects.filter((e) => e.isSpecial === 1);
 
