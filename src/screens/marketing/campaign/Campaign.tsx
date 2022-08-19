@@ -21,6 +21,8 @@ import { MESSAGE_STATUS_LIST, CHANNEL_LIST } from "screens/marketing/campaign/ca
 import { CampaignStyled } from "screens/marketing/campaign/campaign-styled";
 
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
+import { AccountResponse } from "model/account/account.model";
+import { searchAccountPublicAction } from "domain/actions/account/account.action";
 
 const initQuery: CampaignSearchQuery = {
   page: 1,
@@ -55,6 +57,22 @@ const CampaignList = () => {
     },
     items: [],
   });
+
+  /** get init public accounts */
+  const [initPublicAccounts, setInitPublicAccounts] = useState<Array<AccountResponse>>([]);
+
+  const updatePublicAccounts = (data: PageResponse<AccountResponse> | false) => {
+    if (!data) {
+      return;
+    }
+    setInitPublicAccounts(data.items);
+  };
+
+  useEffect(() => {
+    dispatch(searchAccountPublicAction({ limit: 30 }, updatePublicAccounts));
+  }, [dispatch]);
+  /** end get init public accounts */
+
 
   /** column table */
   const columns: Array<ICustomTableColumType<any>> = [
@@ -243,6 +261,7 @@ const CampaignList = () => {
             isLoading={isLoading}
             params={params}
             initQuery={initQuery}
+            initPublicAccounts={initPublicAccounts}
           />
 
           <CustomTable

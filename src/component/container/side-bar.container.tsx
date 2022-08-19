@@ -30,8 +30,8 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (props: SidebarContain
     menu.map((single) => single.subMenu),
     matchPatch,
   );
-  console.log("routeMatched", routeMatched);
-  console.log("selectedKeys", selectedKeys);
+  // console.log("routeMatched", routeMatched);
+  // console.log("selectedKeys", selectedKeys);
 
   return (
     <Sider collapsed={collapsed} collapsedWidth={52} width={240} style={{ zIndex: 2 }}>
