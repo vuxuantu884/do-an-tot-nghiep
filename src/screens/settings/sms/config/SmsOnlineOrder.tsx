@@ -46,6 +46,11 @@ const KEY_WORD_LIST = [
     key: "change_point",
     value: "{change_point}",
   },
+  {
+    name: "Nguồn đơn hàng",
+    key: "source_id",
+    value: "{source_id}",
+  },
 ];
 
 const MESSAGE_CONTENT_ID = "online_order_message_id";
