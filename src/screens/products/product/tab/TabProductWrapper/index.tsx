@@ -439,9 +439,21 @@ const TabProductWrapper: React.FC = () => {
     setTableLoading(true);
   }, [dispatch, setDataCategory]);
 
-  useEffect(() => {
-    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
+  const getProductWrapper = useCallback(async () => {
+    setTableLoading(true);
+    const res = await callApiNative(
+      { isShowLoading: false },
+      dispatch,
+      searchProductWrapperApi,
+      params,
+    );
+    setTableLoading(false);
+    if (res) setSearchResult(res);
   }, [dispatch, params, setSearchResult]);
+
+  useEffect(() => {
+    getProductWrapper();
+  }, [getProductWrapper]);
 
   return (
     <StyledComponent>

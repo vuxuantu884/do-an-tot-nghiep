@@ -33,6 +33,7 @@ import CollectionSearchPaging from "component/custom/select-search/collection-se
 import HashTag from "component/custom/hashtag";
 import { CollectionResponse } from "model/product/collection.model";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
+import CustomSelectOne from "component/filter/component/select-one.custom";
 
 function tagRender(props: any) {
   const { label, closable, onClose } = props;
@@ -314,10 +315,10 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.status:
                     component = (
-                      <Select placeholder="Chọn trạng thái" allowClear>
-                        <Option value="inactive">Ngừng hoạt động</Option>
-                        <Option value="active">Đang hoạt động</Option>
-                      </Select>
+                      <CustomSelectOne
+                        span={12}
+                        data={{ active: "Đang hoạt động", inactive: "Ngừng hoạt động" }}
+                      />
                     );
                     break;
                   case SearchVariantWrapperField.category_ids:
@@ -396,7 +397,7 @@ const ProductWrapperFilter: React.FC<ProductFilterProps> = (props: ProductFilter
                     break;
                   case SearchVariantWrapperField.collections:
                     component = (
-                      <CollectionSearchPaging mode="multiple" placeholder="Chọn chọn nhóm hàng" />
+                      <CollectionSearchPaging mode="multiple" placeholder="Chọn nhóm hàng" />
                     );
                     break;
                   case SearchVariantWrapperField.tags:
