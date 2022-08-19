@@ -46,6 +46,12 @@ type SupplierParam = {
   id: string;
 };
 
+const supplierCategories: any = {
+  material: 'Chất liệu',
+  gift: 'Quà tặng',
+  good: 'Thành phẩm',
+};
+
 const ViewSupplierScreen: React.FC = () => {
   const { id } = useParams<SupplierParam>();
   let idNumber = parseInt(id);
@@ -198,13 +204,21 @@ const ViewSupplierScreen: React.FC = () => {
             <Row gutter={50}>
               <Col span={8}>
                 <RowDetail title="Mã nhà cung cấp" value={supplier.code} />
+                <RowDetail title="Danh mục nhà cung cấp" value={supplier.supplier_category ? supplierCategories[supplier.supplier_category] : ''} />
                 <RowDetail title="Tên nhà cung cấp" value={supplier.name} />
                 <RowDetail title="Loại nhà cung cấp" value={supplier.type_name} />
               </Col>
               <Col span={8}>
-                <RowDetail title="Số điện thoại" value={supplier.phone} />
+                <RowDetail
+                  title="Số điện thoại"
+                  value={supplier.phone[0] !== "{" ? supplier.phone : `+${JSON.parse(supplier.phone).code}${JSON.parse(supplier.phone).phone}`} />
                 <RowDetail title="Phân cấp" value={supplier.scorecard_name} />
                 <RowDetail title="Merchandiser" value={`${supplier.pic_code} - ${supplier.pic}`} />
+                <RowDetail title="Nhóm hàng" value={supplier.collections && supplier.collections.length > 0 ? supplier.collections.map((i, index) => {
+                  return (
+                    <span key={index}>{i.name}{index !== supplier?.collections.length - 1 ? ', ' : ''}</span>
+                  )
+                }) : ''} />
               </Col>
               <Col span={8}>
                 <RowDetail title="Mã số thuế" value={supplier.tax_code} />

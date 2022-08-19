@@ -35,8 +35,10 @@ export type IFormControl = InputProps & {
 export enum ComponentType {
   Radio = "Radio",
   Input = "Input",
+  InputMobile = "InputMobile",
   InputArea = "InputArea",
   Select = "Select",
+  SelectCategory = "SelectCategory",
   SelectPaging = "SelectPaging",
 }
 
@@ -44,11 +46,12 @@ export enum FormFields {
   type = "type",
   code = "code",
   name = "name",
+  supplier_category = "supplier_category",
   scorecard = "scorecard",
   pic_code = "pic_code",
   tax_code = "tax_code",
   phone = "phone",
-  collection_id = "collection_id",
+  collection_ids = "collection_ids",
   country_id = "country_id",
   district_id = "district_id",
   city_id = "city_id",
