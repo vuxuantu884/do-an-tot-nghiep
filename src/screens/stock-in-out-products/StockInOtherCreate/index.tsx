@@ -126,6 +126,7 @@ const StockInOtherCreate: React.FC = () => {
       return {
         ...i,
         [typePrice]: i[typePrice],
+        amount: i[typePrice] * i.quantity
       }
     });
 
