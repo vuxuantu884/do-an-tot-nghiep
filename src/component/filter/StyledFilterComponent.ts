@@ -29,6 +29,10 @@ export const StyledSelectDateFilter = styled.div`
     .date-picker-styled {
       display: flex;
       align-items: center;
+      .ant-form-item {
+        flex-grow: 1;
+        margin: 0;
+      }
       .date-picker-select {
         flex-grow: 1;
         .ant-picker {
