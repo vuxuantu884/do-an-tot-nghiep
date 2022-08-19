@@ -28,6 +28,7 @@ const UrlConfig = {
   SMS_SETTINGS: `/${SETTINGS}/sms`,
   CUSTOMER: `/customers`,
   CUSTOMER2: `/customer`,
+  MARKETING: `/marketing`,
   CUSTOMER_CARDS: `/customer-cards`,
   SHIPMENTS: `/shipments`,
   SHIPMENTS_FAILED: `/shipments-failed`,
