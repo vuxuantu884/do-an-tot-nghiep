@@ -238,11 +238,23 @@ export const StyledComponent = styled.div`
     }
   }
 
-  .point-refund {
+  .point-refund,
+  .card-refund {
     .item-point {
       color: #fcaf17;
       font-weight: 600;
       padding-left: 5px;
+    }
+    .item-card {
+      color: #222222;
+      font-weight: 600;
+      padding-left: 5px;
+    }
+    span.item-tooltip {
+      display: block;
+      img {
+        padding-bottom: 2px;
+      }
     }
   }
 

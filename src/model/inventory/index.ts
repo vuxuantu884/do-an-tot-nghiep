@@ -8,6 +8,7 @@ export interface InventoryResponse extends BaseObject {
   company_id: number;
   store_id: number;
   store_code: string;
+  store: string;
   variant_id: number;
   product_id: number;
   on_hand: number;

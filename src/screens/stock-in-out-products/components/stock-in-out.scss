@@ -1,0 +1,32 @@
+.btn-upload:after {
+  display: inline-block;
+  margin-right: 4px;
+  color: #ff4d4f;
+  font-size: 14px;
+  font-family: "Inner", serif;
+  line-height: 1;
+  content: "*";
+}
+
+.upload {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.sample-title-link {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.note {
+  position: absolute;
+  top: 8px;
+  left: 250px;
+}
+
+.text-error {
+  color: #FF0000;
+  margin-bottom: 10px;
+}

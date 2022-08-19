@@ -104,6 +104,15 @@ export const StyledComponent = styled.div`
         }
       }
     }
+    .line-item-container {
+      .item-sku {
+        display: inline-flex;
+        justify-content: space-between;
+        .retail-price-sku {
+          font-weight: bold;
+        }
+      }
+    }
   }
   .loading-view {
     position: absolute;

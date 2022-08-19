@@ -1,5 +1,4 @@
 import { ComponentType, FormFields, FormFieldType } from "./supplier-add.type";
-import { RegUtil } from "../../../../utils/RegUtils";
 import { SupplierCreateRequest } from "../../../../model/core/supplier.model";
 import { AppConfig } from "../../../../config/app.config";
 import { VietNamId } from "../../../../utils/Constants";
@@ -27,12 +26,17 @@ export const FormConfigs: FormFieldType = {
           ],
         },
         {
-          name: FormFields.code,
-          label: "Mã nhà cung cấp",
-          placeholder: "Nhập mã nhà cung cấp",
+          name: FormFields.supplier_category,
+          label: "Danh mục nhà cung cấp",
+          placeholder: "Chọn danh mục nhà cung cấp",
           type: "text",
-          componentType: ComponentType.Input,
-          disabled: true,
+          componentType: ComponentType.SelectCategory,
+          rules: [
+            {
+              required: true,
+              message: "Vui lòng chọn danh mục nhà cung cấp",
+            },
+          ],
         },
       ],
       [
@@ -66,7 +70,7 @@ export const FormConfigs: FormFieldType = {
           label: "SĐT nhà cung cấp",
           placeholder: "Nhập SĐT nhà cung cấp",
           type: "text",
-          componentType: ComponentType.Input,
+          componentType: ComponentType.InputMobile,
           rules: [
             { required: true, message: "Vui lòng nhập SĐT nhà cung cấp" },
             { validator: undefined },
@@ -79,10 +83,6 @@ export const FormConfigs: FormFieldType = {
           type: "text",
           componentType: ComponentType.Input,
           rules: [
-            {
-              pattern: RegUtil.NUMBERREG,
-              message: "Mã số thuế chỉ được phép nhập số",
-            },
             {
               required: true,
               message: "Nhà cung cấp là doanh nghiệp phải nhập mã số thuế",
@@ -105,7 +105,7 @@ export const FormConfigs: FormFieldType = {
           ],
         },
         {
-          name: FormFields.collection_id,
+          name: FormFields.collection_ids,
           label: "Nhóm hàng",
           placeholder: "Nhập nhóm hàng",
           type: "text",
@@ -335,7 +335,8 @@ export const initialSupplierForm: SupplierCreateRequest = {
   debt_time_unit: null,
   goods: [AppConfig.FASHION_INDUSTRY],
   person_in_charge: null,
-  collection_id: null,
+  collection_ids: [],
+  supplier_category: 'good',
   moq: null,
   note: "",
   name: "",

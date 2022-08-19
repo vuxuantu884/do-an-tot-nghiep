@@ -105,21 +105,14 @@ const TabProductWrapper: React.FC = () => {
       title: "Ảnh",
       align: "center",
       width: 70,
-      render: (value: ProductResponse) => {
-        let url = null;
-        value.variants?.forEach((item) => {
-          item.variant_images?.forEach((item1) => {
-            if (item1.product_avatar) {
-              url = item1.url;
-            }
-          });
-        });
+      dataIndex: "product_avatar",
+      render: (value: string, item: ProductResponse) => {
         return (
           <>
-            {url ? (
-              <Image width={40} height={40} placeholder="Xem" src={url ?? ""} />
+            {value ? (
+              <Image width={40} height={40} placeholder="Xem" src={value ?? ""} />
             ) : (
-              <ImageProduct disabled={true} onClick={undefined} path={url} />
+              <ImageProduct disabled={true} onClick={undefined} path={value} />
             )}
           </>
         );
@@ -148,14 +141,9 @@ const TabProductWrapper: React.FC = () => {
     {
       align: "right",
       title: "SL Phiên bản",
-      dataIndex: "variants",
-      key: "variants",
+      dataIndex: "num_variant",
+      key: "num_variant",
       width: 110,
-      render: (value: Array<VariantResponse>) => (
-        <>
-          <div>{value ? value.length : "0"}</div>
-        </>
-      ),
       visible: true,
     },
     {
@@ -439,9 +427,21 @@ const TabProductWrapper: React.FC = () => {
     setTableLoading(true);
   }, [dispatch, setDataCategory]);
 
-  useEffect(() => {
-    dispatch(searchProductWrapperRequestAction(params, setSearchResult));
+  const getProductWrapper = useCallback(async () => {
+    setTableLoading(true);
+    const res = await callApiNative(
+      { isShowLoading: false },
+      dispatch,
+      searchProductWrapperApi,
+      params,
+    );
+    setTableLoading(false);
+    if (res) setSearchResult(res);
   }, [dispatch, params, setSearchResult]);
+
+  useEffect(() => {
+    getProductWrapper();
+  }, [getProductWrapper]);
 
   return (
     <StyledComponent>

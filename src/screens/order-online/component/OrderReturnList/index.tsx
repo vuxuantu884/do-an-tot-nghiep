@@ -58,6 +58,7 @@ import {
   updateNoteOrderReturnService,
 } from "service/order/return.service";
 import EditNote from "../EditOrderNote";
+import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
 
 type PropTypes = {
   initQuery: ReturnSearchQuery;
@@ -537,19 +538,38 @@ function OrderReturnList(props: PropTypes) {
       align: "center",
     },
     {
+      title: "Tiền trả lại khách hàng",
+      width: 120,
+      render: (record: any) => (
+        <>
+          <Tooltip title="Tiền trả khách" className="item-tooltip">
+            <img src={IconPaymentReturn} alt="" />
+            <NumberFormat
+              value={formatNumber(record.money_refund)}
+              className="item-card"
+              displayType={"text"}
+            />
+          </Tooltip>
+        </>
+      ),
+      key: "money_refund",
+      className: "card-refund",
+      visible: true,
+      align: "center",
+    },
+    {
       title: "Hoàn điểm",
       width: 120,
       render: (record: any) => (
         <>
-          <div>
-            {record.point_refund ? <img src={IconPaymentPoint} alt="" /> : null}
-
+          <Tooltip title="Tiền hoàn" className="item-tooltip">
+            <img src={IconPaymentPoint} alt="" />
             <NumberFormat
               value={formatNumber(record.point_refund || 0)}
               className="item-point"
               displayType={"text"}
             />
-          </div>
+          </Tooltip>
         </>
       ),
       key: "point_refund",

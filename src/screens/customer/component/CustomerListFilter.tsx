@@ -31,6 +31,7 @@ import { StyledCustomerBaseFilter, StyledCustomerFilter } from "screens/customer
 // import { getSourcesWithParamsService } from "service/order/order.service";
 import {
   formatCurrency,
+  formatCurrencyNotDefaultValue,
   generateQuery,
   // handleDelayActionWhenInsertTextInSearchInput,
   isNullOrUndefined,
@@ -1941,6 +1942,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   // end handle filter action
 
   // handle district_ids param: if it's filtered by wards then params will not include district_ids
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const setDistrictIdParam = () => {
     let tempDistrictListSelected = [...districtListSelected];
     wardListSelected.forEach((ward) => {
@@ -1957,6 +1959,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   };
 
   // handle city_ids param: if it's filtered by districts then params will not include city_ids
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const setCityIdParam = () => {
     let tempProvinceListSelected = [...provinceListSelected];
     districtListSelected.forEach((district) => {
@@ -2375,7 +2378,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
                         maxLength={15}
@@ -2395,7 +2398,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
                         maxLength={15}
@@ -2834,7 +2837,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                         ]}
                       >
                         <CustomNumberInput
-                          format={(a: string) => formatCurrency(a)}
+                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
                           revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Từ"
                           maxLength={8}
@@ -2854,7 +2857,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                         ]}
                       >
                         <CustomNumberInput
-                          format={(a: string) => formatCurrency(a)}
+                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
                           revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Đến"
                           maxLength={8}
@@ -2879,7 +2882,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                         ]}
                       >
                         <CustomNumberInput
-                          format={(a: string) => formatCurrency(a)}
+                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
                           revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Từ"
                           maxLength={15}
@@ -2899,7 +2902,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                         ]}
                       >
                         <CustomNumberInput
-                          format={(a: string) => formatCurrency(a)}
+                          format={(a: string) => formatCurrencyNotDefaultValue(a)}
                           revertFormat={(a: string) => replaceFormatString(a)}
                           placeholder="Đến"
                           maxLength={15}
@@ -2956,7 +2959,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
                         maxLength={15}
@@ -2976,7 +2979,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
                         maxLength={15}
@@ -2999,7 +3002,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
                         maxLength={15}
@@ -3019,7 +3022,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
                         maxLength={15}
@@ -3078,7 +3081,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
                         maxLength={8}
@@ -3098,7 +3101,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
                         maxLength={8}
@@ -3239,7 +3242,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
                         maxLength={15}
@@ -3259,7 +3262,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
                         maxLength={15}
@@ -3280,7 +3283,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Từ"
                         maxLength={6}
@@ -3300,7 +3303,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                       ]}
                     >
                       <CustomNumberInput
-                        format={(a: string) => formatCurrency(a)}
+                        format={(a: string) => formatCurrencyNotDefaultValue(a)}
                         revertFormat={(a: string) => replaceFormatString(a)}
                         placeholder="Đến"
                         maxLength={6}

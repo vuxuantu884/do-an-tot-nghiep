@@ -10,6 +10,7 @@ import { storeSaga } from "./core/store.saga";
 import { supplierSagas } from "./core/supplier.saga";
 import { customerGroupSaga } from "./customer/customer-group.saga";
 import customerSagas from "./customer/customer.saga";
+import marketingSagas from "./marketing/marketing.saga";
 import { ecommerceSaga } from "./ecommerce/ecommerce.saga";
 import { webAppSaga } from "./web-app/web-app.saga";
 import { inventorySaga } from "./invetory/inventory.saga";
@@ -62,6 +63,7 @@ function* rootSaga() {
     supplierSagas(),
     accountSaga(),
     customerSagas(),
+    marketingSagas(),
     roleSaga(),
     permissionSaga(),
     poSaga(),

@@ -21,6 +21,9 @@ import BaseSelectMerchans from "../base/BaseSelect/BaseSelectMerchans";
 import { useFetchMerchans } from "../../hook/useFetchMerchans";
 import BaseSelectPaging from "../base/BaseSelect/BaseSelectPaging";
 import BaseSelect from "../base/BaseSelect/BaseSelect";
+import CountryPhoneInput, { ConfigProvider } from 'antd-country-phone-input';
+import en from 'world_countries_lists/data/countries/en/world.json';
+import 'antd-country-phone-input/dist/index.css';
 
 const { Item } = Form;
 const { Option } = Select;
@@ -49,6 +52,12 @@ const SupplierBasicInfo = ({
     },
     items: [],
   });
+
+  const supplierCategories = [
+    { value: 'material', name: 'Chất liệu' },
+    { value: 'gift', name: 'Quà tặng' },
+    { value: 'good', name: 'Thành phẩm' }
+  ];
 
   const supplier_types = useSelector(
     (state: RootReducerType) => state.bootstrapReducer.data?.supplier_type,
@@ -109,10 +118,12 @@ const SupplierBasicInfo = ({
   };
 
   const validatePhone = (_: any, value: any, callback: any): void => {
+    if (!value.phone) return;
     validatePhoneSupplier({
       value,
       callback,
       phoneList: listSupplier,
+      type: 'NATIONAL'
     });
   };
 
@@ -135,7 +146,7 @@ const SupplierBasicInfo = ({
     return value;
   };
 
-  const renderSelectOptions = ({ placeholder, ...rest }: Partial<IFormControl>) => {
+  const renderSelectOptions = ({ placeholder }: Partial<IFormControl>) => {
     return (
       <BaseSelect
         placeholder={placeholder}
@@ -147,6 +158,30 @@ const SupplierBasicInfo = ({
         )}
       />
     );
+  };
+
+  const renderSelectCategoryOptions = ({ placeholder }: Partial<IFormControl>) => {
+    return (
+      <BaseSelect
+        placeholder={placeholder}
+        data={supplierCategories}
+        renderItem={(item) => (
+          <Option key={item.name} value={item.value}>
+            {item.name}
+          </Option>
+        )}
+      />
+    );
+  };
+
+  const getFlag = (short: string) => {
+    const data = require(`world_countries_lists/data/flags/24x24/${short.toLowerCase()}.png`);
+    // for dumi
+    if (typeof data === 'string') {
+      return data;
+    }
+    // for CRA
+    return data.default;
   };
 
   const controlInfoRenderer: any = (control: IFormControl) => {
@@ -167,13 +202,6 @@ const SupplierBasicInfo = ({
         <Item
           {...{ name, label }}
           rules={rules.map((rule: any) => {
-            if (name === FormFields.phone) {
-              if (!rule?.message) {
-                return { validator: validatePhone };
-              }
-              return rule;
-            }
-
             if (name === FormFields.tax_code) {
               if (!rule.pattern) {
                 return { ...rule, required: supplierType === "enterprise" };
@@ -185,12 +213,49 @@ const SupplierBasicInfo = ({
         >
           <Input
             {...{ placeholder, disabled }}
+            maxLength={100}
             onChange={(e) => onChangeInput(e.target.value, name)}
           />
         </Item>
       ),
+      [ComponentType.InputMobile]: (
+        <ConfigProvider
+          locale={en}
+          areaMapper={(area: any) => {
+            return {
+              ...area,
+              emoji: (
+                <img
+                  alt="flag"
+                  style={{ width: 18, height: 18, verticalAlign: 'sub' }}
+                  src={getFlag(area.short)}
+                />
+              ),
+            };
+          }}
+        >
+          <Item
+            className="supplier"
+            {...{ name, label }}
+            rules={rules.map((rule: any) => {
+              if (!rule?.message) {
+                return { validator: validatePhone };
+              }
+              return rule;
+            })}
+            initialValue={{
+              short: 'vn',
+            }}
+          >
+            <CountryPhoneInput placeholder="Nhập SĐT nhà cung cấp" />
+          </Item>
+        </ConfigProvider>
+      ),
       [ComponentType.Select]: (
         <Item {...{ name, label, rules }}>{renderSelectOptions(control)}</Item>
+      ),
+      [ComponentType.SelectCategory]: (
+        <Item {...{ name, label, rules }}>{renderSelectCategoryOptions(control)}</Item>
       ),
       [ComponentType.SelectPaging]: (
         <>
@@ -207,6 +272,7 @@ const SupplierBasicInfo = ({
             <Item {...{ name, label, rules }}>
               {/*Chọn nhóm hàng*/}
               <BaseSelectPaging
+                mode="multiple"
                 metadata={data.metadata}
                 fetchData={onSearchGroupProducts}
                 data={data.items}

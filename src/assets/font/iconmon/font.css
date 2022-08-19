@@ -38,6 +38,10 @@
   content: url("assets/icon/menu-customer.svg");
 }
 
+.icon-marketing:before {
+  content: url("assets/icon/menu-marketing.svg");
+}
+
 .icon-dashboard:before {
   content: url("assets/icon/menu-dash-board.svg");
 }

@@ -291,6 +291,23 @@ export const formatCurrency = (currency: number | string | boolean, sep: string 
   }
 };
 
+export const formatCurrencyNotDefaultValue = (
+  currency: number | string | boolean,
+  sep: string = ".",
+): string => {
+  try {
+    if (typeof currency === "number") {
+      currency = Math.round(currency);
+    } else if (typeof currency === "string" && currency) {
+      currency = Math.round(Number(currency));
+    }
+    let format = currency.toLocaleString();
+    return format;
+  } catch (e) {
+    return "";
+  }
+};
+
 export const formatNumber = (value: number | string | boolean): string => {
   try {
     let format = Number(value).toLocaleString();
@@ -2155,3 +2172,30 @@ export function capitalEachWords(str: string) {
     .map((item) => _.capitalize(item))
     .join(" ");
 }
+
+export const convertVariantPrices = (
+  variants: Array<VariantResponse>,
+  variantActive: VariantResponse,
+) => {
+  let v: Array<VariantResponse> = [];
+  variants.forEach((item) => {
+    const variantDefect = ArrDefects.find((e) => item.sku.indexOf(e.code) !== -1);
+
+    item.variant_prices.forEach((e) => {
+      if (e.retail_price !== null) {
+        const retailPriceActive =
+          variantActive.variant_prices.find((p) => p.currency_code === e.currency_code)
+            ?.retail_price ?? 0;
+
+        e.retail_price = retailPriceActive;
+        if (variantDefect) {
+          e.retail_price = parseFloat(
+            ((retailPriceActive * (100 - variantDefect.value)) / 100).toFixed(2),
+          );
+        }
+      }
+    });
+    v.push(item);
+  });
+  return variants;
+};

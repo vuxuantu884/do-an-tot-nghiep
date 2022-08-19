@@ -3,6 +3,7 @@ import { RouteMenu } from "model/other";
 import React from "react";
 import bill from "./bill.route";
 import customers from "./customer.route";
+import campaign from "./campaign.route";
 import ecommerce from "./ecommerce.route";
 import { inventory } from "./inventory.route";
 import product from "./product.route";
@@ -22,6 +23,7 @@ const Product = React.lazy(() => import("screens/products/product/ProductSearchS
 const OnlineOrders = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const PosOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
 const Customer = React.lazy(() => import("screens/customer"));
+const Campaign = React.lazy(() => import("screens/marketing/campaign/Campaign"));
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
 const WebAppOrdersSync = React.lazy(() => import("screens/web-app/orders-sync/WebAppOrdersSync"));
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
@@ -117,6 +119,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: customers,
+  },
+  {
+    path: UrlConfig.MARKETING,
+    exact: true,
+    title: "Marketing",
+    icon: "icon-marketing",
+    component: Campaign,
+    key: "marketing",
+    isShow: true,
+    header: null,
+    subMenu: campaign,
   },
   {
     path: UrlConfig.PROMOTION,

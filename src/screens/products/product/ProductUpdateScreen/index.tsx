@@ -36,11 +36,7 @@ import { CountryGetAllAction } from "domain/actions/content/content.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { detailMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
-import {
-  productGetDetail,
-  productUpdateAction,
-  productUploadAction,
-} from "domain/actions/product/products.action";
+import { productGetDetail, productUploadAction } from "domain/actions/product/products.action";
 import useAuthorization from "hook/useAuthorization";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CountryResponse } from "model/content/country.model";
@@ -65,6 +61,7 @@ import {
   replaceFormatString,
   scrollAndFocusToDomElement,
   capitalEachWords,
+  convertVariantPrices,
 } from "utils/AppUtils";
 import { handleChangeMaterial } from "utils/ProductUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
@@ -77,10 +74,12 @@ import VariantList from "../component/VariantList";
 import { ProductParams } from "../ProductDetailScreen";
 import AddVariantsModal from "./add-variants-modal";
 import { StyledComponent } from "./styles";
-import { debounce } from "lodash";
+import _, { debounce } from "lodash";
 import ModalUploadImages from "../component/ModalUploadImages";
 import TreeCategory from "../component/TreeCategory";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
+import { callApiNative } from "utils/ApiUtils";
+import { productUpdateApi } from "service/product/product.service";
 
 const { Item } = Form;
 let tempActive: number = 0;
@@ -335,24 +334,6 @@ const ProductDetailScreen: React.FC = () => {
     setChangePrice(true);
   };
 
-  const onResultUpdate = useCallback(
-    (data) => {
-      setLoadingVariant(false);
-      setLoadingButton(false);
-      if (!data) {
-      } else {
-        form.setFieldsValue(data);
-        setChange(false);
-        setChangePrice(false);
-        showSuccess("Cập nhật thông tin sản phẩm thành công");
-        if (tempActive !== active) {
-          setCurrentVariant(tempActive);
-        }
-      }
-    },
-    [active, form, setCurrentVariant],
-  );
-
   const update = useCallback(
     (product: any) => {
       if (product.collections) {
@@ -360,29 +341,36 @@ const ProductDetailScreen: React.FC = () => {
       }
 
       setLoadingVariant(true);
-      dispatch(productUpdateAction(idNumber, product, onResultUpdate));
+      callApiNative({ isShowLoading: false }, dispatch, productUpdateApi, idNumber, product).then(
+        (data) => {
+          if (!data) {
+          } else {
+            form.setFieldsValue(data);
+            setChange(false);
+            setChangePrice(false);
+            showSuccess("Cập nhật thông tin sản phẩm thành công");
+            if (tempActive !== active) {
+              setCurrentVariant(tempActive);
+            }
+          }
+        },
+      );
+      setLoadingVariant(false);
+      setLoadingButton(false);
     },
-    [dispatch, idNumber, onResultUpdate],
+    [active, dispatch, form, idNumber, setCurrentVariant],
   );
 
   const onUpdatePrice = useCallback(
-    (listSelected: Array<number>) => {
+    async (listSelected: Array<number>) => {
       setVisibleUpdatePrice(false);
       let values: ProductResponse = form.getFieldsValue(true);
       if (values) {
-        values.variants.forEach((item) => {
-          if (listSelected.includes(item.id)) {
-            item.variant_prices.forEach((e) => {
-              let priceActive = values.variants[active].variant_prices.find(
-                (p) => p.currency_code === e.currency_code,
-              );
-              if (priceActive) {
-                e.retail_price = priceActive.retail_price;
-              }
-            });
-          }
-        });
-        update(values);
+        let variantRequest: Array<VariantResponse> = [
+          ...convertVariantPrices(values.variants, values.variants[active]),
+        ];
+        values = { ...values, variants: variantRequest };
+        await update(values);
         history.push(`/products/${idNumber}`);
       }
     },
@@ -398,10 +386,11 @@ const ProductDetailScreen: React.FC = () => {
           if (status) item.status = "active"; //CO-3415
         }
       });
-      update(values);
+      //update(values);
     },
-    [form, update],
+    [form],
   );
+
   const onMaterialChange = useCallback(
     (id: number) => {
       if (isChangeDescription && id) {
@@ -415,6 +404,10 @@ const ProductDetailScreen: React.FC = () => {
             }
           }),
         );
+      } else {
+        form.setFieldsValue({
+          material: null,
+        });
       }
     },
     [dispatch, form, isChangeDescription],
@@ -460,41 +453,6 @@ const ProductDetailScreen: React.FC = () => {
       });
     },
     [updateStatus, getFirstAvatar],
-  );
-
-  const onResultFinish = useCallback(
-    (data) => {
-      setLoadingVariant(false);
-      setLoadingButton(false);
-      if (!data) {
-      } else {
-        showSuccess("Cập nhật thành công");
-        history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
-      }
-    },
-    [history, idNumber],
-  );
-
-  const onFinish = useCallback(
-    (values: ProductRequest) => {
-      setLoadingButton(true);
-      values.variants?.forEach((e: VariantRequest) => {
-        if (e.saleable) e.status = "active"; //CO-3415
-      });
-      dispatch(
-        productUpdateAction(
-          idNumber,
-          {
-            ...values,
-            description: form.getFieldValue("description"),
-            care_labels: careLabelsString,
-            collections: values.product_collections ?? [],
-          },
-          onResultFinish,
-        ),
-      );
-    },
-    [careLabelsString, dispatch, idNumber, onResultFinish, form],
   );
 
   const onSaveImage = useCallback(
@@ -745,7 +703,7 @@ const ProductDetailScreen: React.FC = () => {
         setStatus(result.status);
         productDetailRef.current = JSON.parse(JSON.stringify(result));
         setDataOrigin(form.getFieldsValue());
-
+        form.setFieldsValue({ variants: result.variants });
         //set active variant
         if (variantId) {
           const index = result.variants.findIndex((item) => item.id === Number(variantId));
@@ -774,11 +732,15 @@ const ProductDetailScreen: React.FC = () => {
     }
   };
 
+  const getDetail = useCallback(() => {
+    dispatch(productGetDetail(idNumber, onResult));
+  }, [dispatch, idNumber, onResult]);
+
   useEffect(() => {
     if (!isChange) {
-      dispatch(productGetDetail(idNumber, onResult));
+      getDetail();
     }
-  }, [dispatch, idNumber, onResult, isChange]);
+  }, [isChange, getDetail]);
 
   useEffect(() => {
     if (data) {
@@ -832,6 +794,34 @@ const ProductDetailScreen: React.FC = () => {
   useEffect(() => {
     getCollections("", 1);
   }, [getCollections]);
+
+  const onFinish = useCallback(
+    async (values: ProductRequest) => {
+      setLoadingButton(true);
+      let request: any = _.cloneDeep(values);
+      request.variants?.forEach((e: VariantRequest) => {
+        if (e.saleable) e.status = "active"; //CO-3415
+      });
+
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        productUpdateApi,
+        idNumber,
+        request,
+      );
+      setLoadingVariant(false);
+      setLoadingButton(false);
+
+      if (res) {
+        showSuccess("Cập nhật thành công");
+        history.push(`${UrlConfig.PRODUCT}/${idNumber}`);
+        return;
+      }
+      getDetail();
+    },
+    [dispatch, idNumber, getDetail, history],
+  );
 
   return (
     <StyledComponent>
@@ -1744,8 +1734,8 @@ const ProductDetailScreen: React.FC = () => {
         <ModalUpdatePrice
           onCancel={() => setVisibleUpdatePrice(false)}
           onOk={onUpdatePrice}
-          currentVariant={active}
-          variants={currentVariants}
+          currentIndex={active}
+          variants={_.cloneDeep(currentVariants)}
           visible={visibleUpdatePrice}
         />
         <ModalConfirmPrice
