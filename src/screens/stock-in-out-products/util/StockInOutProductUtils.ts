@@ -8,7 +8,7 @@ const StockInOutProductUtils = {
     policyPriceType: string,
   ): Array<StockInOutItemsOther> => {
     let result: Array<StockInOutItemsOther> = [];
-    variants.forEach((variant, index) => {
+    variants.forEach((variant) => {
       // let price_response = Products.findPrice(
       //   variant.variant_prices,
       //   AppConfig.currency
@@ -45,6 +45,7 @@ const StockInOutProductUtils = {
     oldItems: Array<StockInOutItemsOther>,
     newItems: Array<StockInOutItemsOther>,
     policyPriceType: string,
+    type: string
   ) => {
     newItems.forEach((item) => {
       let index = oldItems.findIndex((oldItem) => oldItem.sku === item.sku);
@@ -52,7 +53,7 @@ const StockInOutProductUtils = {
         oldItems.unshift(item);
       } else {
         let oldItem = oldItems[index];
-        let newQuantity = oldItem.quantity + 1;
+        let newQuantity = oldItem.quantity + (type === 'SELECT' ? 1 : item.quantity);
         let amount = newQuantity * oldItem[policyPriceType];
         oldItems[index] = {
           ...oldItem,
