@@ -485,7 +485,6 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         {({ getFieldValue }) => {
           const procurementItemsOther: Array<StockInOutItemsOther> =
             getFieldValue(StockInOutField.stock_in_out_other_items) || [];
-
           return (
             <Table
               className="product-table"
