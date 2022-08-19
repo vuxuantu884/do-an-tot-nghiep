@@ -2,9 +2,23 @@ import {
   Loading3QuartersOutlined,
   MinusCircleOutlined,
   PlusCircleOutlined,
+  SearchOutlined,
   UnorderedListOutlined,
 } from "@ant-design/icons";
-import { Button, Card, Col, Image, Modal, Popover, Row, Spin, Switch, Tabs, Tag } from "antd";
+import {
+  Button,
+  Card,
+  Col,
+  Image,
+  Input,
+  Modal,
+  Popover,
+  Row,
+  Spin,
+  Switch,
+  Tabs,
+  Tag,
+} from "antd";
 import variantdefault from "assets/icon/variantdefault.jpg";
 import classNames from "classnames";
 import AuthWrapper from "component/authorization/AuthWrapper";
@@ -42,14 +56,15 @@ import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
 import _ from "lodash";
 import ProductSteps from "../component/ProductSteps";
+import { fullTextSearch } from "utils/StringUtils";
 export interface ProductParams {
   id: string;
   variantId: string;
 }
 
 enum TabName {
-  HISTORY = "#historyTab",
-  INVENTORY = "#inventoryTab",
+  HISTORY = "history",
+  INVENTORY = "inventory",
 }
 const ProductDetailScreen: React.FC = () => {
   const { TabPane } = Tabs;
@@ -58,13 +73,15 @@ const ProductDetailScreen: React.FC = () => {
   const location = useLocation();
   const { hash } = location;
 
+  const [isReSearch, setIsReSearch] = useState<boolean>(false);
   const tabRef = useRef<HTMLDivElement>(null);
-  const [activeTab, setActiveTab] = useState<string>("1");
+  const [activeTab, setActiveTab] = useState<string>(TabName.INVENTORY);
   const { id, variantId } = useParams<ProductParams>();
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(true);
   const [loadingVariantUpdate, setLoadingVariantUpdate] = useState(false);
   const [loadingSwitch, setLoadingSwitch] = useState(false);
+  const [keySearch, setKeySearch] = useState<string>();
 
   const [loadingVariant, setLoadingVariant] = useState(false);
   const [active, setActive] = useState<number>(0);
@@ -83,6 +100,23 @@ const ProductDetailScreen: React.FC = () => {
     },
   });
   const [dataHistory, setDataHistory] = useState<PageResponse<HistoryInventoryResponse>>({
+    items: [],
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+  });
+
+  const [dataInventoryOrg, setDataInventoryOrg] = useState<PageResponse<InventoryResponse>>({
+    items: [],
+    metadata: {
+      limit: 30,
+      page: 1,
+      total: 0,
+    },
+  });
+  const [dataHistoryOrg, setDataHistoryOrg] = useState<PageResponse<HistoryInventoryResponse>>({
     items: [],
     metadata: {
       limit: 30,
@@ -310,6 +344,7 @@ const ProductDetailScreen: React.FC = () => {
     if (!result) {
     } else {
       setDataInventory(result);
+      setDataInventoryOrg(result);
     }
   }, []);
 
@@ -318,6 +353,7 @@ const ProductDetailScreen: React.FC = () => {
     if (!result) {
     } else {
       setDataHistory(result);
+      setDataHistoryOrg(result);
     }
   }, []);
 
@@ -394,6 +430,46 @@ const ProductDetailScreen: React.FC = () => {
       tabRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
     }
   }, [tabRef, hash, tab]);
+
+  const debounceSearch = useMemo(
+    () =>
+      _.debounce((code: string) => {
+        if (activeTab === TabName.INVENTORY) {
+          let variantsInv = _.cloneDeep(dataInventoryOrg);
+          if (variantsInv.items && variantsInv.items.length === 0) return;
+          if (!code || code === "") {
+            onChangeDataInventory(1);
+            return;
+          }
+
+          variantsInv.items = variantsInv.items.filter((e) => {
+            return fullTextSearch(code, e.store.toLowerCase());
+          });
+          setDataInventory({ ...dataInventoryOrg, items: [...variantsInv.items] });
+          return;
+        }
+
+        let variantsHis = _.cloneDeep(dataHistoryOrg);
+        if (variantsHis.items && variantsHis.items.length === 0) return;
+        if (!code || code === "") {
+          onChangeDataHistory(1);
+          return;
+        }
+
+        variantsHis.items = variantsHis.items.filter((e) => {
+          return fullTextSearch(code, e.store.toLowerCase());
+        });
+        setDataHistory({ ...dataHistoryOrg, items: [...variantsHis.items] });
+      }, 300),
+    [activeTab, dataHistoryOrg, dataInventoryOrg, onChangeDataHistory, onChangeDataInventory],
+  );
+
+  const onChangeKeySearch = useCallback(
+    (code: string) => {
+      debounceSearch(code);
+    },
+    [debounceSearch],
+  );
 
   return (
     <StyledComponent className="product-detail">
@@ -748,7 +824,36 @@ const ProductDetailScreen: React.FC = () => {
               <Col span={24}>
                 <div id="tab" ref={tabRef}>
                   <Card className="card">
-                    <Tabs style={{ overflow: "initial" }} defaultActiveKey={activeTab}>
+                    <Tabs
+                      tabBarExtraContent={
+                        <Input
+                          name="key_search"
+                          onChange={(e) => {
+                            onChangeKeySearch(e.target.value);
+                            setKeySearch(e.target.value);
+                          }}
+                          value={keySearch}
+                          onKeyPress={(e) => e.key === "Enter" && setIsReSearch(!isReSearch)}
+                          style={{ marginLeft: 8, minWidth: 300 }}
+                          placeholder="Tìm kiếm theo tên cửa hàng"
+                          addonAfter={
+                            <SearchOutlined
+                              onClick={() => {
+                                setIsReSearch(!isReSearch);
+                              }}
+                              style={{ color: "#2A2A86" }}
+                            />
+                          }
+                        />
+                      }
+                      style={{ overflow: "initial" }}
+                      defaultActiveKey={activeTab}
+                      onChange={(e) => {
+                        setActiveTab(e);
+                        setKeySearch("");
+                        onChangeKeySearch("");
+                      }}
+                    >
                       <Tabs.TabPane tab="Danh sách tồn kho" key={TabName.INVENTORY}>
                         <TabProductInventory
                           loadingInventories={loadingInventories}
