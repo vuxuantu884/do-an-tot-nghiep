@@ -25,6 +25,7 @@ type CampaignListFilterProps = {
   isLoading?: boolean;
   params: CampaignSearchQuery;
   initQuery: CampaignSearchQuery;
+  initPublicAccounts: any;
   onFilter?: (values: any) => void;
   onClearFilter?: () => void;
 };
@@ -34,6 +35,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
     isLoading,
     params,
     initQuery,
+    initPublicAccounts,
     onFilter,
     onClearFilter,
   } = props;
@@ -41,7 +43,6 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
   const dispatch = useDispatch();
   const [form] = Form.useForm();
 
-  const [initPublicAccounts, setInitPublicAccounts] = useState<Array<AccountResponse>>([]);
   const [accountData, setAccountData] = useState<Array<AccountResponse>>([]);
   const [accountDataFiltered, setAccountDataFiltered] = useState<Array<AccountResponse>>([]);
 
@@ -49,18 +50,6 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
   // handle select date
   const [createdDateClick, setCreatedDateClick] = useState("");
   const [sendDateClick, setSendDateClick] = useState("");
-
-  /** get init public accounts */
-  const updatePublicAccounts = (data: PageResponse<AccountResponse> | false) => {
-    if (data) {
-      setInitPublicAccounts(data.items);
-    }
-  };
-
-  useEffect(() => {
-    dispatch(searchAccountPublicAction({ limit: 30 }, updatePublicAccounts));
-  }, [dispatch]);
-  /** end get init public accounts */
 
   /** handle filter param */
   const initialValues: any = useMemo(() => {

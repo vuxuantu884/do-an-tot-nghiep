@@ -27,7 +27,7 @@ const campaign: Array<RouteMenu> = [
         key: "campaigns_create",
         isShow: true,
         header: null,
-        permissions: [],
+        // permissions: [],
         subMenu: [],
       },
       {
@@ -39,7 +39,7 @@ const campaign: Array<RouteMenu> = [
         key: "campaigns_detail",
         isShow: true,
         header: null,
-        permissions: [],
+        // permissions: [],
         subMenu: [],
       },
       {
@@ -51,7 +51,7 @@ const campaign: Array<RouteMenu> = [
         key: "campaigns_update",
         isShow: true,
         header: null,
-        permissions: [],
+        // permissions: [],
         subMenu: [],
       },
     ],
