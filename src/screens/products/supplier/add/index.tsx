@@ -51,6 +51,7 @@ const CreateSupplierScreen: React.FC = () => {
       values.payments = [];
     }
     setIsSubmitting(true);
+    values.phone = JSON.stringify(values.phone);
     dispatch(SupplierCreateAction(values, onCreateSuccess));
   };
 

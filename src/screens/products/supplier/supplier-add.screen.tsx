@@ -38,6 +38,7 @@ const initRequest: SupplierCreateRequest = {
   beneficiary_name: "",
   certifications: [],
   debt_time: null,
+  supplier_category: 'material',
   debt_time_unit: null,
   goods: [AppConfig.FASHION_INDUSTRY],
   person_in_charge: null,
@@ -392,10 +393,6 @@ const CreateSupplierScreen: React.FC = () => {
                     name="tax_code"
                     label="Mã số thuế"
                     rules={[
-                      {
-                        pattern: RegUtil.NUMBERREG,
-                        message: "Mã số thuế chỉ được phép nhập số",
-                      },
                       {
                         required: supplierType === "enterprise",
                         message: "Nhà cung cấp là doanh nghiệp phải nhập mã số thuế",

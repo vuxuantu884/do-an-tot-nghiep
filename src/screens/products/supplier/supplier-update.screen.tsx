@@ -31,19 +31,27 @@ import React, { createRef, useCallback, useEffect, useMemo, useRef, useState } f
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router";
 import { CompareObject } from "utils/CompareObject";
-import { RegUtil } from "utils/RegUtils";
 import { showSuccess } from "utils/ToastUtils";
 import { getCollectionRequestAction } from "../../../domain/actions/product/collection.action";
 import { CollectionQuery, CollectionResponse } from "../../../model/product/collection.model";
 import { validatePhoneSupplier } from "../../../utils/supplier";
-import SelectSearchPaging from "../../../component/custom/select-search/select-search-paging";
-import { InfoCircleOutlined } from "@ant-design/icons";
+import CountryPhoneInput, { ConfigProvider } from 'antd-country-phone-input';
+import en from 'world_countries_lists/data/countries/en/world.json';
+import 'antd-country-phone-input/dist/index.css';
+import BaseSelectPaging from "component/base/BaseSelect/BaseSelectPaging";
+import BaseSelect from "../../../component/base/BaseSelect/BaseSelect";
 
 const { Item } = Form;
 const { Option } = Select;
 type SupplierParam = {
   id: string;
 };
+
+const supplierCategories = [
+  { value: 'material', name: 'Chất liệu' },
+  { value: 'gift', name: 'Quà tặng' },
+  { value: 'good', name: 'Thành phẩm' }
+];
 
 const UpdateSupplierScreen: React.FC = () => {
   const { id } = useParams<SupplierParam>();
@@ -119,7 +127,7 @@ const UpdateSupplierScreen: React.FC = () => {
   const onFinish = (values: SupplierUpdateRequest) => {
     const newValues = {
       ...values,
-      phone: values.phone || supplier?.phone || "",
+      phone: JSON.stringify(values.phone),
     };
 
     setLoading(true);
@@ -143,7 +151,13 @@ const UpdateSupplierScreen: React.FC = () => {
     if (!data) {
       setError(true);
     } else {
-      setSupplier(data);
+      const newData = { ...data };
+      newData.phone = newData.phone[0] !== "{" ? {
+        phone: newData.phone.slice(1, newData.phone.length),
+        short: 'vn',
+        code: 84
+      } : JSON.parse(newData.phone);
+      setSupplier(newData);
       setStatus(data.status);
     }
   }, []);
@@ -173,6 +187,7 @@ const UpdateSupplierScreen: React.FC = () => {
       callback,
       phoneCurrent: supplier?.phone,
       phoneList: listSupplier,
+      type: 'NATIONAL'
     });
   };
 
@@ -213,6 +228,16 @@ const UpdateSupplierScreen: React.FC = () => {
       }),
     );
   }, [dispatch, idNumber, setSupplierDetail, params]);
+
+  const getFlag = (short: string) => {
+    const data = require(`world_countries_lists/data/flags/24x24/${short.toLowerCase()}.png`);
+    // for dumi
+    if (typeof data === 'string') {
+      return data;
+    }
+    // for CRA
+    return data.default;
+  };
 
   return (
     <ContentContainer
@@ -311,8 +336,25 @@ const UpdateSupplierScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={12}>
-                    <Item label="Mã nhà cung cấp" name="code">
-                      <Input disabled placeholder="Mã nhà cung cấp" />
+                    <Item
+                      label="Danh mục nhà cung cấp"
+                      name="supplier_category"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn danh mục nhà cung cấp",
+                        },
+                      ]}
+                    >
+                      <BaseSelect
+                        placeholder="Chọn danh mục nhà cung cấp"
+                        data={supplierCategories}
+                        renderItem={(item) => (
+                          <Option key={item.name} value={item.value}>
+                            {item.name}
+                          </Option>
+                        )}
+                      />
                     </Item>
                   </Col>
                 </Row>
@@ -346,7 +388,23 @@ const UpdateSupplierScreen: React.FC = () => {
                 </Row>
                 <Row gutter={50}>
                   <Col span={12}>
+                    <ConfigProvider
+                      locale={en}
+                      areaMapper={(area: any) => {
+                        return {
+                          ...area,
+                          emoji: (
+                            <img
+                              alt="flag"
+                              style={{ width: 18, height: 18, verticalAlign: 'sub' }}
+                              src={getFlag(area.short)}
+                            />
+                          ),
+                        };
+                      }}
+                    >
                     <Form.Item
+                      className="supplier"
                       label="SĐT nhà cung cấp"
                       rules={[
                         {
@@ -359,8 +417,9 @@ const UpdateSupplierScreen: React.FC = () => {
                       ]}
                       name="phone"
                     >
-                      <Input placeholder="Nhập SĐT nhà cung cấp" maxLength={255} />
+                      <CountryPhoneInput placeholder="Nhập SĐT nhà cung cấp" />
                     </Form.Item>
+                    </ConfigProvider>
                   </Col>
                   <Col span={12}>
                     <Item
@@ -368,16 +427,12 @@ const UpdateSupplierScreen: React.FC = () => {
                       label="Mã số thuế"
                       rules={[
                         {
-                          pattern: RegUtil.NUMBERREG,
-                          message: "Mã số thuế chỉ được phép nhập số",
-                        },
-                        {
                           required: type === "enterprise",
                           message: "Nhà cung cấp là doanh nghiệp phải nhập mã số thuế",
                         },
                       ]}
                     >
-                      <Input placeholder="Nhập mã số thuế" maxLength={13} />
+                      <Input placeholder="Nhập mã số thuế" maxLength={100} />
                     </Item>
                   </Col>
                 </Row>
@@ -398,21 +453,20 @@ const UpdateSupplierScreen: React.FC = () => {
                   </Col>
                   {/*TODO: Waiting response api*/}
                   <Col span={12}>
-                    <Item name="collection_id" label="Nhóm hàng">
-                      <SelectSearchPaging
-                        data={groupProducts?.items || []}
-                        onSearch={onSearchGroupProducts}
-                        isLoading={isSearchingGroupProducts}
+                    <Item name="collection_ids" label="Nhóm hàng">
+                      <BaseSelectPaging
+                        mode="multiple"
                         metadata={groupProducts?.metadata}
-                        defaultValue={supplier?.collection_id}
-                        onSelect={(item) =>
-                          formRef.current?.setFieldsValue({
-                            collection_id: item.value,
-                          })
-                        }
-                        optionKeyValue="id"
-                        optionKeyName="name"
+                        fetchData={onSearchGroupProducts}
+                        data={groupProducts?.items || []}
+                        renderItem={(item) => (
+                          <Option value={item.id} key={item.id}>
+                            {item.name}
+                          </Option>
+                        )}
+                        defaultValue={supplier?.collection_ids}
                         placeholder="Nhập nhóm hàng"
+                        loading={isSearchingGroupProducts}
                       />
                     </Item>
                   </Col>

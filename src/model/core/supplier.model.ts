@@ -7,8 +7,9 @@ export interface SupplierResponse extends BaseObject {
   type: string;
   type_name: string;
   contact_name: string;
+  supplier_category: string;
   identity_number: string | null;
-  phone: string | null;
+  phone: any;
   email: string | null;
   website: string | null;
   date_established: number;
@@ -32,7 +33,8 @@ export interface SupplierResponse extends BaseObject {
   debt_time: number | null;
   debt_time_unit: string | null;
   debt_time_unit_name: string | null;
-  collection_id: number | null;
+  collection_ids: Array<number> | null;
+  collections: Array<CollectionResponse>;
   payments: Array<SupplierPaymentResposne>;
   addresses: Array<SupplierAddressResposne>;
   contacts: Array<SupplierContactResposne>;
@@ -74,44 +76,6 @@ export interface SupplierPaymentResposne {
   beneficiary: string;
 }
 
-export interface SupplierDetail extends BaseObject {
-  name: string;
-  type: string;
-  type_name: string;
-  address: string;
-  country_id: number;
-  country_name: string;
-  city_id: number;
-  city_name: string;
-  contact_name: string;
-  identity_number: string | null;
-  phone: string | null;
-  email: string | null;
-  website: string | null;
-  date_established: number;
-  tax_code: string;
-  certification: Array<String>;
-  bank_name: string | null;
-  bank_brand: string | null;
-  bank_number: string | null;
-  beneficiary_name: string | null;
-  status: string;
-  status_name: string;
-  moq: string;
-  moq_unit: string;
-  moq_unit_name: string;
-  scorecard: string | null;
-  scorecard_name: string | null;
-  note: string | null;
-  district_id: number;
-  district_name: string;
-  pic: string;
-  pic_code: string;
-  debt_time: number | null;
-  debt_time_unit: string | null;
-  debt_time_unit_name: string | null;
-}
-
 export interface SupplierQuery extends BaseQuery {
   ids?: string;
   country_id?: number;
@@ -136,6 +100,7 @@ export interface SupplierQuery extends BaseQuery {
 export interface SupplierCreateRequest {
   bank_brand: string | null;
   bank_name: string | null;
+  supplier_category: string | null;
   bank_number: string | null;
   beneficiary_name: string | null;
   certifications: Array<string>;
@@ -150,8 +115,8 @@ export interface SupplierCreateRequest {
   status: string;
   tax_code: string | null;
   type: string;
-  phone?: string;
-  collection_id?: number | null;
+  phone?: any;
+  collection_ids?: Array<number>;
   addresses: Array<SupplierAddress>;
   contacts: Array<SupplierContact>;
   payments: Array<SupplierPayment>;
