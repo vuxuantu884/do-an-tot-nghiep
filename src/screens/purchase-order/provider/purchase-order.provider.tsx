@@ -131,7 +131,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
               [] as Array<PurchaseProcumentLineItem>,
             )
             .filter((item) => item.variant_id === procurementItem.variant_id);
-          let plannedQuantity = undefined;
+          let plannedQuantity = null;
           if (procurementItemByVariantId.length) {
             plannedQuantity = procurementItemByVariantId.reduce(
               (total, element) => total + element?.planned_quantity || 0,
@@ -148,7 +148,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
             )
             .filter((item) => item.variant_id === procurementItem.variant_id);
 
-          let realQuantity = undefined;
+          let realQuantity = null;
           if (procurementItemByVariantId.length) {
             realQuantity = procurementItemByVariantId.reduce(
               (total, element) => total + element?.real_quantity || 0,
@@ -165,18 +165,6 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
         const procurementItemIndex = procurements[0].procurement_items.findIndex(
           (item) => item.variant_id === procurementItem.variant_id,
         );
-        // const totalPlannedQuantities = plannedQuantities.reduce(
-        //   (total, quantity) => (total || 0) + (quantity || 0),
-        //   0,
-        // );
-        // if (
-        //   (totalPlannedQuantities || 0) < procurementItem.quantity &&
-        //   plannedQuantities[plannedQuantities.length - 1]
-        // ) {
-        //   plannedQuantities[plannedQuantities.length - 1] =
-        //     (plannedQuantities[plannedQuantities.length - 1] || 0) +
-        //     (procurementItem.quantity - (totalPlannedQuantities || 0));
-        // }
         if (procurementItemIndex === -1) {
           return {
             quantityLineItems,

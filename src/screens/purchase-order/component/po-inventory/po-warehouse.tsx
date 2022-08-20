@@ -13,13 +13,17 @@ import { POField } from "model/purchase-order/po-field";
 import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { ProcurementTable, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
+  PercentDate,
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
 import moment from "moment";
 import { useCallback, useContext, useEffect, useState } from "react";
+import { useDispatch } from "react-redux";
 import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purchase-order.provider";
+import { getPercentMonth } from "service/purchase-order/purchase-order.service";
 import styled from "styled-components";
+import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { ProcumentStatus, ProcurementStatus } from "utils/Constants";
 import { ConvertDateToUtc, DATE_FORMAT } from "utils/DateUtils";
@@ -28,9 +32,11 @@ import { v4 as uuidv4 } from "uuid";
 const DEFAULT_SPAN = window.screen.width <= 1360 ? 8 : window.screen.width <= 1600 ? 7 : 5;
 const DEFAULT_SCROLL = 50;
 const AMOUNT_COLUMNS = window.screen.width <= 1600 ? 3 : 5;
-interface IExpectReceiptDates extends PurchaseProcument {
+interface IExpectReceiptDates {
+  status: string;
   isAdd: boolean;
   date: string;
+  uuid: string;
 }
 
 interface IProps {
@@ -55,6 +61,8 @@ export const PoWareHouse = (props: IProps) => {
     span: 0,
     scroll: DEFAULT_SCROLL,
   });
+  //page hooks
+  const dispatch = useDispatch();
 
   //page variable
   const receive_status = purchaseOrder.receive_status;
@@ -85,7 +93,7 @@ export const PoWareHouse = (props: IProps) => {
       )
       .filter((procurementTable) => procurementTable.uuid === uuid)
       .map((item) => {
-        const quantity = Math.floor(((item.percent || 0) * value) / 100);
+        const quantity = Math.round(((item.percent || 0) * value) / 100);
         return {
           ...item,
           planned_quantity: quantity,
@@ -94,13 +102,21 @@ export const PoWareHouse = (props: IProps) => {
       }); //uuid + index lấy uuid theo vị trí
 
     const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
+    const totalQuantityProcurementItemsIndex = procurementItemsIndex.reduce(
+      (acc, ele) => acc + ele.quantity,
+      0,
+    );
+    let checkQuantity = false;
     const procurementItemsResult = procurementItemsIndex.map((procurementItem, index) => {
-      const quantity: number =
-        index === procurementItemsIndex.length - 1
-          ? value -
-            (procurementItemsIndex.reduce((acc, ele) => acc + ele.quantity, 0) -
-              procurementItem.quantity)
-          : procurementItem.quantity;
+      let quantity: number = procurementItem.quantity;
+      if (
+        totalQuantityProcurementItemsIndex !== procurementItem.quantity &&
+        !checkQuantity &&
+        procurementItem.percent
+      ) {
+        checkQuantity = true;
+        quantity = value - (totalQuantityProcurementItemsIndex - procurementItem.quantity);
+      }
       return {
         ...procurementItem,
         planned_quantity: quantity,
@@ -134,7 +150,7 @@ export const PoWareHouse = (props: IProps) => {
   };
 
   const onChangeExpectedDate = useCallback(
-    (index: number, value?: string) => {
+    async (index: number, value?: string) => {
       // if (!value) return;
       const dataCheckDate = expectReceiptDates.map((item) => item.date);
       if (dataCheckDate.includes(value || "") && value) {
@@ -146,6 +162,12 @@ export const PoWareHouse = (props: IProps) => {
         showError(`Ngày dự kiến ${value} đã tồn tại`);
         return;
       }
+      const monthChange =
+        new Date(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY)).getMonth() + 1;
+      const datePercents =
+        ((await callApiNative({ isShowLoading: false }, dispatch, getPercentMonth, {
+          month: monthChange || new Date(Date.now()).getMonth() + 1,
+        })) as PercentDate[]) || [];
       expectReceiptDates[index].date = value || "";
       const procurements: PurchaseProcument[] = (
         formMain?.getFieldValue(POField.procurements) as PurchaseProcument[]
@@ -154,8 +176,12 @@ export const PoWareHouse = (props: IProps) => {
           const expectReceiptDate = value
             ? ConvertDateToUtc(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY))
             : "";
+          const findStore = datePercents?.findIndex(
+            (item) => item.store_id === procurement.store_id,
+          );
           return {
             ...procurement,
+            percent: findStore >= 0 ? datePercents[findStore].percent : procurement.percent,
             expect_receipt_date: expectReceiptDate,
           };
         }
@@ -168,6 +194,7 @@ export const PoWareHouse = (props: IProps) => {
     },
     [expectReceiptDates, formMain],
   );
+
   const handleSetProcurementTableByExpectedDate = (procurements: PurchaseProcument[]) => {
     const line_items: PurchaseOrderLineItem[] =
       (formMain?.getFieldsValue()?.line_items as PurchaseOrderLineItem[]) || [];
@@ -198,20 +225,39 @@ export const PoWareHouse = (props: IProps) => {
     setProcurementsAll(procurementsAllResult);
     handleSetProcurementTableContext(procurements, line_items, procurementsAllResult);
   };
-  const onAddExpectedDate = () => {
+
+  const onAddExpectedDate = async () => {
     if (procurementsAll.length > 0) {
-      // số store trả về
       if (!expectReceiptDates.every((date) => date.date)) return;
       const uuid = uuidv4();
+      expectReceiptDates.push({
+        status: ProcurementStatus.draft,
+        isAdd: true,
+        uuid,
+        date: "",
+      });
+      formMain?.setFieldsValue({
+        ["expectedDate" + (expectReceiptDates.length - 1)]: "",
+      });
+      setExpectReceiptDates([...expectReceiptDates]);
+      handleSetRadio(expectReceiptDates);
+      const datePercents = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        getPercentMonth,
+        {
+          month: new Date(Date.now()).getMonth() + 1,
+        },
+      );
+      // số store trả về
       const procurementItems = formMain?.getFieldValue(
         POField.line_items,
       ) as PurchaseProcumentLineItem[];
       const procurements: PurchaseProcument[] = formMain?.getFieldValue(
         POField.procurements,
       ) as PurchaseProcument[];
-      const procurementAddDefault: PurchaseProcument[] = procurementsAll[
-        procurementsAll.length - 1
-      ].map((procurement) => {
+      const procurementAddDefault: PurchaseProcument[] = datePercents.map((datePercent: any) => {
+        const uuidProcurement = uuidv4();
         const procurement_items = procurementItems.map((procurementItem) => {
           const uuid2 = uuidv4();
           const procurementItemIndex = procurements[0].procurement_items.findIndex(
@@ -229,7 +275,7 @@ export const PoWareHouse = (props: IProps) => {
             totalQuantity >= procurementItem.quantity
               ? 0
               : Math.floor(
-                  ((procurementItem.quantity - totalQuantity) * (procurement.percent || 0)) / 100,
+                  ((procurementItem.quantity - totalQuantity) * (datePercent.percent || 0)) / 100,
                 );
 
           if (procurementItemIndex === -1) {
@@ -264,8 +310,7 @@ export const PoWareHouse = (props: IProps) => {
           };
         });
         return {
-          ...procurement,
-          id: 0,
+          id: uuidProcurement,
           uuid,
           is_cancelled: false,
           created_date: ConvertDateToUtc(new Date(Date.now())) as any,
@@ -273,7 +318,12 @@ export const PoWareHouse = (props: IProps) => {
           expect_receipt_date: "",
           procurement_items,
           code: "",
+          percent: datePercent.percent || 0,
           status: ProcurementStatus.draft,
+          // sotre
+          store_short_name: datePercent?.store_name || "",
+          store: datePercent?.store_name || "",
+          store_id: datePercent?.store_id,
           stock_in_by: "",
           stock_in_date: "",
           activated_by: "",
@@ -307,22 +357,9 @@ export const PoWareHouse = (props: IProps) => {
         }
       });
       procurementAddDefault.forEach((item: Partial<PurchaseProcument>) => {
-        delete item.id;
-        delete item.code;
         procurements.push({ ...item } as PurchaseProcument);
       });
-      expectReceiptDates.push({
-        ...procurementAddDefault[0],
-        isAdd: true,
-        date: "",
-      });
-
-      formMain?.setFieldsValue({
-        ["expectedDate" + (expectReceiptDates.length - 1)]: "",
-      });
       formMain?.setFieldsValue({ procurements });
-      setExpectReceiptDates([...expectReceiptDates]);
-      handleSetRadio(expectReceiptDates);
       handleSetProcurementTableByExpectedDate(procurements);
     }
   };
@@ -487,7 +524,7 @@ export const PoWareHouse = (props: IProps) => {
               ? status
               : ProcurementStatus.received;
           return {
-            ...Object.values(procurementFitterStatus)[0][0],
+            uuid: Object.values(procurementFitterStatus)[0][0].uuid || "",
             status,
             isAdd: false,
             date: procurementsExpectReceiptDate
@@ -516,17 +553,17 @@ export const PoWareHouse = (props: IProps) => {
           width: receivedOrNotReceived ? 50 : 40,
           render: (value, record, index) => {
             const real_quantity = record?.realQuantities?.length
-              ? record.realQuantities[indexDate] === undefined
-                ? undefined
+              ? record.realQuantities[indexDate] === null
+                ? null
                 : record.realQuantities[indexDate] || 0
               : 0;
             const planned_quantity = record?.plannedQuantities?.length
-              ? record.plannedQuantities[indexDate] === undefined
-                ? undefined
+              ? record.plannedQuantities[indexDate] === null
+                ? null
                 : record.plannedQuantities[indexDate] || 0
               : 0;
             const uuid = record?.uuids?.length ? record.uuids[indexDate] || "" : "";
-            if (real_quantity === undefined || planned_quantity === undefined) return <></>;
+            if (real_quantity === null || planned_quantity === null) return <></>;
             return (
               <>
                 {data.isAdd ||
@@ -579,7 +616,7 @@ export const PoWareHouse = (props: IProps) => {
           dataSource={procurementTable}
           tableLayout="fixed"
           bordered
-          // scroll={{ x: ratio.scroll }}
+          scroll={{ x: ratio.scroll }}
           pagination={false}
           columns={columns}
           summary={(data: readonly ProcurementTable[]) => {
@@ -602,7 +639,7 @@ export const PoWareHouse = (props: IProps) => {
                     return (
                       <Table.Summary.Cell
                         align={procurement.isAdd ? "right" : "center"}
-                        index={procurement.id}
+                        index={index}
                       >
                         <Row>
                           <StyledColSummary span={12} style={{ textAlign: "end", fontWeight: 700 }}>
@@ -683,11 +720,11 @@ const StyledRowPoWareHouse = styled(Row)`
   .ant-table-thead .custom-date.ant-table-cell {
     height: 44px;
   }
-  .ant-table-thead {
+  /* .ant-table-thead {
     position: sticky !important;
     top: 55px;
     z-index: 100;
-  }
+  } */
   .ant-picker-clear {
     margin-right: 21px;
     @media screen and (max-width: 1550px) {
