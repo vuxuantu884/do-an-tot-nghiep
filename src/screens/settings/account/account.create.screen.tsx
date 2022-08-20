@@ -52,6 +52,7 @@ import { ProcurementField } from "model/procurement/field";
 import { AiOutlinePlusCircle } from "react-icons/ai";
 import SupplierItem from "../../purchase-order/component/supplier-item";
 import "./styles.scss";
+import { fullTextSearch } from "utils/StringUtils";
 
 const { Item, List } = Form;
 const { Option, OptGroup } = Select;
@@ -468,7 +469,7 @@ const AccountCreateScreen: React.FC = () => {
                   notFoundContent="Không có dữ liệu"
                   showSearch
                   filterOption={(input, option: any) => {
-                    return option?.key.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0 || option?.key === "";
+                    return option?.key.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0 || fullTextSearch(input, option?.key) || option?.key === "";
                   }}
                   dropdownRender={(menu) => {
                     return (
