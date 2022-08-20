@@ -54,6 +54,13 @@ export interface ProcurementItem {
   vat_rate?: string;
   version: number;
 }
+
+export interface PercentDate {
+  month: number;
+  percent: number;
+  store_id: number;
+  store_name: string;
+}
 export interface PurchaseProcurementViewDraft {
   id?: number;
   fake_id: number;
@@ -114,12 +121,11 @@ export interface PurchaseProcumentLineItem {
   amount?: number;
   [x: string]: any;
   product_id?: number;
-  quantity_anh?: number;
-  quantity_tung?: number;
-  quantity_hieu?: number;
   percent?: number;
   uuid?: string;
   status?: string;
+  procurement?: PurchaseProcument;
+  procurement_items?: Array<PurchaseProcumentLineItem>;
 }
 
 export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {

@@ -53,8 +53,9 @@ import { PoProductFormContainer } from "./styles";
 type POProductFormProps = {
   isEditMode: boolean;
   formMain: FormInstance;
+  isEditPrice?: boolean;
 };
-const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
+const POProductForm = ({ formMain, isEditMode, isEditPrice }: POProductFormProps) => {
   const dispatch = useDispatch();
   const [isSelecttingProduct, setIsSelecttingProduct] = useState(false);
   const productSearchRef = createRef<CustomAutoComplete>();
@@ -613,8 +614,8 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
     {
       title: (
         <div>
-          <p>Giá nhập</p>
-          {isEditMode && (
+          <p> Giá nhập</p>
+          {(isEditMode || isEditPrice) && (
             <NumberInput
               min={0}
               style={{ height: "32px" }}
@@ -632,7 +633,7 @@ const POProductForm = ({ formMain, isEditMode }: POProductFormProps) => {
       render: (color: string, row: PODataSourceGrid) => {
         const { schemaIndex } = row;
         const sizeQtyOfColorObject = poLineItemGridValue[schemaIndex].get(color);
-        return isEditMode ? (
+        return isEditMode || isEditPrice ? (
           <NumberInput
             min={0}
             style={{ height: "32px" }}

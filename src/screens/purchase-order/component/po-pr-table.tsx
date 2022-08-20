@@ -111,7 +111,7 @@ export const PoPrTable = (props: Props) => {
     });
     procurementTableData.forEach((item, index) => {
       const total = procurementTableData[index].expectedDate.reduce(
-        (sum, date) => sum + date.value,
+        (sum, date) => sum + (date.value || 0),
         0,
       );
       if (total >= Number(procurementTableData[index].quantity || 0)) {
