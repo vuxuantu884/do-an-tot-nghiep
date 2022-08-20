@@ -31,6 +31,10 @@ import "./index.scss";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import moment from "moment";
 import * as XLSX from "xlsx";
+import exportIcon from "assets/icon/export.svg";
+import CategoryExportModal from "./component/CategoryExportModal";
+import { STATUS_IMPORT_EXPORT } from "utils/Constants";
+import { TYPE_EXPORT } from "../constants";
 
 const actions: Array<MenuAction> = [
   {
@@ -54,6 +58,9 @@ const { Item } = Form;
 
 var idDelete = -1;
 const Category = () => {
+  const [exportCategory, setExportCategory] = useState(false);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+  const [statusExport, setStatusExport] = useState<number>(0);
   const history = useHistory();
   const dispatch = useDispatch();
   const query = useQuery();
@@ -177,28 +184,10 @@ const Category = () => {
     };
   };
 
-  const onExport = useCallback(() => {
-    let dataExport: any = [];
-    for (let i = 0; i < data.length; i++) {
-      const e = data[i];
-      const item = convertItemExport(e);
-      dataExport.push(item);
-    }
-    const workbook = XLSX.utils.book_new();
-    const ws = XLSX.utils.json_to_sheet(dataExport);
-    XLSX.utils.book_append_sheet(workbook, ws, "Danh mục");
-
-    const today = moment(new Date(), "YYYY/MM/DD");
-    const month = today.format("M");
-    const day = today.format("D");
-    const year = today.format("YYYY");
-    XLSX.writeFile(workbook, `yody_category_${day}_${month}_${year}.xlsx`);
-  }, [data]);
-
   const onMenuClick = useCallback(
     (index: number) => {
       if (index === 3) {
-        onExport();
+        setExportCategory(true);
         return;
       }
       if (selected.length > 0) {
@@ -219,7 +208,7 @@ const Category = () => {
         }
       }
     },
-    [selected, history, onExport],
+    [selected, history],
   );
 
   const [canDeleteVariants] = useAuthorization({
@@ -262,6 +251,88 @@ const Category = () => {
     getData();
   }, [getData]);
 
+  const getItemsByCondition = useCallback(
+    async (type: string) => {
+      let items: Array<CategoryView> = [];
+      let res: any = [];
+
+      setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+      switch (type) {
+        case TYPE_EXPORT.page:
+          items = [...data];
+          break;
+        case TYPE_EXPORT.selected:
+          items = [...selected];
+          break;
+        case TYPE_EXPORT.allin:
+          res = await callApiNative({ isShowLoading: false }, dispatch, getCategoryApi, {});
+
+          if (!res) return;
+          items = [...convertCategory(res)];
+          setExportProgress(100);
+          break;
+        case TYPE_EXPORT.all:
+          res = await callApiNative({ isShowLoading: false }, dispatch, getCategoryApi, {
+            ...params,
+          });
+
+          if (!res) return;
+          items = [...convertCategory(res)];
+          setExportProgress(100);
+          break;
+        default:
+          break;
+      }
+      setExportProgress(100);
+      return items;
+    },
+    [data, selected, dispatch, params],
+  );
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+      let dataExport: any = [];
+      if (typeExport === TYPE_EXPORT.selected && selected && selected.length === 0) {
+        setStatusExport(0);
+        showWarning("Bạn chưa chọn danh mục nào để xuất file");
+        setExportCategory(false);
+        return;
+      }
+      const res = await getItemsByCondition(typeExport);
+      if (!res || res.length === 0) {
+        setStatusExport(0);
+        showWarning("Không có phiếu chuyển nào đủ điều kiện");
+        return;
+      }
+
+      const workbook = XLSX.utils.book_new();
+      for (let i = 0; i < res.length; i++) {
+        const e = res[i];
+        const item = convertItemExport(e);
+        dataExport.push(item);
+      }
+
+      let worksheet = XLSX.utils.json_to_sheet(dataExport);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+
+      setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+      const today = moment(new Date(), "YYYY/MM/DD");
+      const month = today.format("M");
+      const day = today.format("D");
+      const year = today.format("YYYY");
+      XLSX.writeFile(workbook, `danh_muc_${day}_${month}_${year}.xlsx`);
+      setExportCategory(false);
+      setExportProgress(0);
+      setStatusExport(0);
+    },
+    Cancel: () => {
+      setExportCategory(false);
+      setExportProgress(0);
+      setStatusExport(0);
+    },
+  };
+
   return (
     <ContentContainer
       title="Quản lý danh mục"
@@ -289,6 +360,16 @@ const Category = () => {
               Xem sơ đồ danh mục
             </Button>
           </Link>
+          <Button
+            className="btn-view"
+            size="large"
+            icon={<img src={exportIcon} style={{ marginRight: 8 }} alt="" />}
+            onClick={() => {
+              setExportCategory(true);
+            }}
+          >
+            Xuất file danh sách
+          </Button>
           <AuthWrapper acceptPermissions={[ProductPermission.categories_create]}>
             <ButtonCreate child="Thêm danh mục" path={`${UrlConfig.CATEGORIES}/create`} />
           </AuthWrapper>
@@ -345,6 +426,13 @@ const Category = () => {
         title="Bạn chắc chắn xóa danh mục ?"
         subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
         visible={isConfirmDelete}
+      />
+      <CategoryExportModal
+        onCancel={actionExport.Cancel}
+        onOk={actionExport.Ok}
+        visible={exportCategory}
+        exportProgress={exportProgress}
+        statusExport={statusExport}
       />
     </ContentContainer>
   );
