@@ -11,6 +11,7 @@ interface NumberInputProps {
   onChange?: (v: number | null) => void;
   onBlur?: (e: any) => void;
   onKeyPress?: (event: any) => void;
+  onKeyDown?: (event: any) => void;
   onPressEnter?: (event: any) => void;
   style?: CSSProperties;
   placeholder?: string;
@@ -30,6 +31,7 @@ interface NumberInputProps {
   step?: number;
   isChangeAfterBlur?: boolean; // khi blur thì gọi lại hàm onChange
   size?: SizeType;
+  allowClear?: boolean;
 }
 
 const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
@@ -40,6 +42,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     onChange,
     placeholder,
     onKeyPress,
+    onKeyDown,
     onPressEnter,
     style,
     format,
@@ -55,6 +58,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
     step,
     isChangeAfterBlur = true,
     size,
+    allowClear = false,
   } = props;
   const [data, setData] = useState<string>("");
   const onChangeText = useCallback(
@@ -124,6 +128,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       style={{ textAlign: "right", ...style }}
       onBlur={onBlurEvent}
       onKeyPress={onKeyPress}
+      onKeyDown={onKeyDown}
       onChange={onChangeText}
       onPressEnter={onPressEnter}
       suffix={suffix}
@@ -136,6 +141,7 @@ const NumberInput: React.FC<NumberInputProps> = (props: NumberInputProps) => {
       prefix={prefix}
       autoFocus={props.autoFocus}
       disabled={disabled}
+      allowClear={allowClear}
       step={step}
     />
   );

@@ -9,21 +9,22 @@ import { useDispatch } from "react-redux";
 import { showError } from "utils/ToastUtils";
 import { handleDelayActionWhenInsertTextInSearchInput } from "utils/AppUtils";
 import SearchedVariant from "component/search-product/SearchedVariant";
+import { PageResponse } from "model/base/base-metadata.response";
 
 type Props = {
   keySearch: string;
   setKeySearch: (v: string) => void;
   id?: string;
-  onSelect?: (v?: VariantResponse) => void;
+  onSelect?: (v?: VariantResponse, ds?: any) => void;
   storeId?: number;
+  dataSource?: any;
 };
 
 var barCode = "";
 var isBarcode = false;
 
 const SearchProductComponent: React.FC<Props> = (props: Props) => {
-  const { keySearch, setKeySearch, onSelect, id, storeId } = props;
-
+  const { keySearch, setKeySearch, onSelect, id, storeId, dataSource } = props;
   const dispatch = useDispatch();
   const autoCompleteRef = createRef<RefSelectProps>();
 
@@ -42,10 +43,10 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
       setKeySearch(result[index].sku);
       setResultSearchVariant([{ ...result[index] }]);
       if (onSelect) {
-        onSelect({ ...result[index] });
+        onSelect({ ...result[index] }, dataSource);
       }
     },
-    [resultSearchVariant, setKeySearch, onSelect],
+    [resultSearchVariant, setKeySearch, onSelect, dataSource],
   );
 
   const handleSearchProductData = useCallback(
@@ -113,6 +114,20 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
     return options;
   }, [resultSearchVariant]);
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const searchVariantSuccess = (data: PageResponse<VariantResponse>) => {
+    if (data.items.length === 0) {
+      showError("Không tìm thấy sản phẩm!");
+    } else {
+      onSelect && onSelect(data.items[0], dataSource);
+      setKeySearch(data.items[0].sku);
+      setResultSearchVariant([]);
+      const txtSearchProductElement: any = document.getElementById(`${id}`);
+      txtSearchProductElement?.select();
+    }
+    setIsSearchingProducts(false);
+  };
+
   const handleBarcodeProduct = useCallback(
     (barcode: string) => {
       let initQueryVariant: any = {
@@ -121,31 +136,18 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
       };
       setIsSearchingProducts(true);
       dispatch(
-        searchVariantsOrderRequestAction(
-          initQueryVariant,
-          (data) => {
-            if (data.items.length === 0) {
-              showError("Không tìm thấy sản phẩm!");
-            } else {
-              onSelect && onSelect(data.items[0]);
-              setKeySearch(data.items[0].sku);
-              setResultSearchVariant([]);
-              const txtSearchProductElement: any = document.getElementById(`${id}`);
-              txtSearchProductElement?.select();
-            }
-            setIsSearchingProducts(false);
-          },
-          () => {
-            setIsSearchingProducts(false);
-          },
-        ),
+        searchVariantsOrderRequestAction(initQueryVariant, searchVariantSuccess, () => {
+          setIsSearchingProducts(false);
+        }),
       );
     },
-    [dispatch, onSelect, setKeySearch, storeId, id],
+    [storeId, dispatch, searchVariantSuccess],
   );
 
   const eventKeydownProduct = useCallback(
     (event: any) => {
+      //console.log("dataSourceeventKeydownProduct", dataSource);
+
       //console.log("1 event",event);
       //if (event.key !== "Enter") barCode = barCode + event.key;
       //   console.log("2 barCode",barCode);
@@ -175,7 +177,7 @@ const SearchProductComponent: React.FC<Props> = (props: Props) => {
       return;
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [handleSearchProductData, setKeySearch],
+    [handleSearchProductData, setKeySearch, dataSource],
   );
 
   const handleBlur = useCallback(() => {

@@ -1,11 +1,17 @@
 import { Button, Col, Form, FormInstance, Input, Row, Spin, Tooltip } from "antd";
+import "assets/css/order-status.scss";
+import SearchProductComponent from "component/search-product";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
+import UrlConfig from "config/url.config";
+import { updateOrderPartial } from "domain/actions/order/order.action";
+import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
 import { PageResponse } from "model/base/base-metadata.response";
 import { OrderHistorySearch } from "model/order/order.model";
+import { VariantResponse } from "model/product/product.model";
+import { RootReducerType } from "model/reducers/RootReducerType";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import {
   CustomerOrderHistoryResponse,
-  DeliveryServiceResponse,
   ShipmentResponse,
   TrackingLogFulfillmentResponse,
 } from "model/response/order/order.response";
@@ -14,6 +20,12 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import NumberFormat from "react-number-format";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import {
+  nameQuantityWidth,
+  StyledPurchaseHistory,
+} from "screens/customer/customer-detail/customerDetailStyled";
+import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
+import EditNote from "screens/order-online/component/edit-note";
 import { getOrderHistoryService } from "service/order/order.service";
 import {
   checkIfOrderCanBeReturned,
@@ -25,15 +37,9 @@ import {
   isFetchApiSuccessful,
 } from "utils/AppUtils";
 import { COD, OrderStatus, PaymentMethodCode, POS, ShipmentMethod } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 import { dangerColor, primaryColor, yellowColor } from "utils/global-styles/variables";
 import { ORDER_SUB_STATUS, PAYMENT_METHOD_ENUM } from "utils/Order.constants";
-import {
-  nameQuantityWidth,
-  StyledPurchaseHistory,
-} from "screens/customer/customer-detail/customerDetailStyled";
-import UrlConfig from "config/url.config";
-import ButtonCreateOrderReturn from "screens/order-online/component/ButtonCreateOrderReturn";
-import EditNote from "screens/order-online/component/edit-note";
 import {
   getFulfillmentActive,
   getLink,
@@ -42,31 +48,25 @@ import {
   getTotalAmountBeforeDiscount,
 } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
-import useGetOrderSubStatuses from "hook/useGetOrderSubStatuses";
-import { RootReducerType } from "model/reducers/RootReducerType";
-import { DATE_FORMAT } from "utils/DateUtils";
-import { DeliveryServicesGetList, updateOrderPartial } from "domain/actions/order/order.action";
-import "assets/css/order-status.scss";
-import SearchProductComponent from "component/search-product";
-import { VariantResponse } from "model/product/product.model";
 
-import iconShippingFeeInformedToCustomer from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeeInformedToCustomer.svg";
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
-import iconWeight from "screens/order-online/component/OrderList/ListTable/images/iconWeight.svg";
-import search from "assets/img/search.svg";
-import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/images/iconShippingFeePay3PL.svg";
+import iconWarranty from "assets/icon/icon-warranty-menu.svg";
 import IconPaymentBank from "assets/icon/payment/chuyen-khoan.svg";
+import IconPaymentCod from "assets/icon/payment/cod.svg";
+import IconPaymentMOMO from "assets/icon/payment/momo.svg";
 import IconPaymentQRCode from "assets/icon/payment/qr.svg";
 import IconPaymentSwipeCard from "assets/icon/payment/quet-the.svg";
-import IconPaymentCod from "assets/icon/payment/cod.svg";
-import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentReturn from "assets/icon/payment/tien-hoan.svg";
-import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
-import IconPaymentMOMO from "assets/icon/payment/momo.svg";
+import IconPaymentCash from "assets/icon/payment/tien-mat.svg";
 import IconPaymentVNPay from "assets/icon/payment/vnpay.svg";
-import iconWarranty from "assets/icon/icon-warranty-menu.svg";
-import IconStore from "screens/order-online/component/OrderList/ListTable/images/store.svg";
+import IconPaymentPoint from "assets/icon/payment/YD Coin.svg";
+import search from "assets/img/search.svg";
 import DeliveryProgress from "component/order/DeliveryProgress";
+import iconShippingFeeInformedToCustomer from "screens/order-online/component/OrderList/ListTable/OrderTable/images/iconShippingFeeInformedToCustomer.svg";
+import iconShippingFeePay3PL from "screens/order-online/component/OrderList/ListTable/OrderTable/images/iconShippingFeePay3PL.svg";
+import iconWeight from "screens/order-online/component/OrderList/ListTable/OrderTable/images/iconWeight.svg";
+import IconStore from "screens/order-online/component/OrderList/ListTable/OrderTable/images/store.svg";
+import useFetchDeliverServices from "screens/order-online/hooks/useFetchDeliverServices";
 
 type Props = {
   customer?: CustomerResponse;
@@ -156,7 +156,7 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
     items: [],
   });
 
-  const [deliveryServices, setDeliveryServices] = useState<Array<DeliveryServiceResponse>>([]);
+  const deliveryServices = useFetchDeliverServices();
 
   const subStatuses = useGetOrderSubStatuses();
   const status_order = useSelector(
@@ -187,14 +187,6 @@ const CustomerOrderHistory: React.FC<Props> = (props: Props) => {
         });
     }
   }, [customer?.id, orderHistoryQueryParams, dispatch]);
-
-  useEffect(() => {
-    dispatch(
-      DeliveryServicesGetList((response: Array<DeliveryServiceResponse>) => {
-        setDeliveryServices(response);
-      }),
-    );
-  }, [dispatch]);
 
   const setTrackingOrderData = (orderId: number, data: TrackingLogFulfillmentResponse[] | null) => {
     const index = customerHistoryData.items?.findIndex((single) => single.id === orderId);

@@ -1,6 +1,6 @@
 import { START_OF_MONTH, TODAY } from "config/dashboard";
 import { REPORTS_URL } from "config/url.config";
-import { AnalyticCube, AnalyticTemplateData, TimeAtOptionValue } from "model/report";
+import { AnalyticCube, AnalyticGroup, AnalyticTemplateData, TimeAtOptionValue } from "model/report";
 
 export const MARKETING_REPORT_TEMPLATES: AnalyticTemplateData[] = [
   {
@@ -14,6 +14,7 @@ export const MARKETING_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 1,
     chartColumnSelected: ["advertisement_margin"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Marketing,
   },
   {
     type: "Báo cáo chi phí Facebook Ad",
@@ -26,6 +27,7 @@ export const MARKETING_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 1,
     chartColumnSelected: ["advertisement_margin", "advertisement_spent"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Marketing,
   },
   {
     type: "Báo cáo chi phí Facebook Ad",
@@ -38,5 +40,6 @@ export const MARKETING_REPORT_TEMPLATES: AnalyticTemplateData[] = [
     id: 1,
     chartColumnSelected: ["pre_total_sales"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Marketing,
   },
 ];

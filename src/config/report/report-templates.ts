@@ -1,6 +1,7 @@
 import {
   AnalyticCube,
   AnalyticCustomizeTemplateForCreate,
+  AnalyticGroup,
   AnalyticTemplateData,
   AnalyticTemplateGroup,
   TimeAtOptionValue,
@@ -47,6 +48,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     iconImg: "nhan-vien.svg",
     chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -61,6 +63,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 2,
     chartColumnSelected: ["gross_margin"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -77,6 +80,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 3,
     chartColumnSelected: ["gross_margin"],
     timeAtOption: TimeAtOptionValue.CreatedAt,
+    group: AnalyticGroup.Costs,
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -93,6 +97,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 4,
     chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -109,6 +114,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 5,
     chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -121,6 +127,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 6,
     chartColumnSelected: [],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
   },
   //khách hàng
   {
@@ -142,6 +149,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 14,
     chartColumnSelected: ["payments"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Customers,
   },
   {
     type: "Báo cáo bán hàng",
@@ -162,6 +170,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 15,
     chartColumnSelected: ["net_sales", "average_order_value"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Customers,
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -178,6 +187,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 15,
     chartColumnSelected: ["gross_profit"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
   },
   {
     type: "Báo cáo bán hàng",
@@ -198,6 +208,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 16,
     chartColumnSelected: ["customers", "net_sales"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Customers,
   },
   {
     type: "Báo cáo lợi nhuận",
@@ -214,6 +225,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
     id: 16,
     chartColumnSelected: ["gross_profit", "gross_margin"],
     timeAtOption: TimeAtOptionValue.CompletedAt,
+    group: AnalyticGroup.Costs,
   },
   ...ONLINE_REPORT_TEMPLATES,
   ...MARKETING_REPORT_TEMPLATES,

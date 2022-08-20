@@ -66,6 +66,9 @@ export interface ProductResponse extends BaseObject {
   component: string | null;
   advantages: string | null;
   defect: string | null;
+  material_component: string | null;
+  material_advantages: string | null;
+  material_defect: string | null;
 }
 
 export interface ProductWrapperResponse extends BaseObject {

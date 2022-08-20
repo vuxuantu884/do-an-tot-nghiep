@@ -26,13 +26,19 @@ const SidebarContainer: React.FC<SidebarContainerProps> = (props: SidebarContain
   };
 
   const routeMatched = getPath(menu, matchPatch);
+  const selectedKeys = getPath(
+    menu.map((single) => single.subMenu),
+    matchPatch,
+  );
+  // console.log("routeMatched", routeMatched);
+  // console.log("selectedKeys", selectedKeys);
 
   return (
     <Sider collapsed={collapsed} collapsedWidth={52} width={240} style={{ zIndex: 2 }}>
       <Scrollbars autoHide>
         <Menu
           defaultOpenKeys={collapsed ? [] : routeMatched}
-          defaultSelectedKeys={routeMatched}
+          defaultSelectedKeys={selectedKeys}
           mode="inline"
           style={{ borderRight: "none" }}
         >

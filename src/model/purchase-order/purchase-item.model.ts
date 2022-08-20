@@ -33,9 +33,11 @@ export interface PurchaseOrderLineItem {
   planned_quantity: number;
   variant_detail?: any;
   retail_price: number;
+  cost_price: number;
   color_code?: string;
   color: number;
   variant_prices: Array<VariantPricesResponse>;
+  new_retail_price?: number;
 }
 export interface PurchaseOrderLineReturnItem extends PurchaseOrderLineItem {
   quantity_return: number;

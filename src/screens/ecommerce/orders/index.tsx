@@ -1201,29 +1201,29 @@ const EcommerceOrders: React.FC = () => {
           );
         },
       },
-      {
-        title: "Biên bản bàn giao",
-        dataIndex: "goods_receipt_id",
-        key: "goods_receipt_id",
-        align: "left",
-        visible: true,
-        width: 140,
-        render: (value, record: OrderModel) => {
-          let result: ReactNode = <span>-</span>;
-          let arr = record.goods_receipts;
-          if (arr && arr.length > 0) {
-            result = arr.map((single, index) => {
-              return (
-                <React.Fragment key={index}>
-                  <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>{single.id}</Link>
-                  {arr && index < arr.length - 1 && ", "}
-                </React.Fragment>
-              );
-            });
-          }
-          return result;
-        },
-      },
+      // {
+      //   title: "Biên bản bàn giao",
+      //   dataIndex: "goods_receipt_id",
+      //   key: "goods_receipt_id",
+      //   align: "left",
+      //   visible: true,
+      //   width: 140,
+      //   render: (value, record: OrderModel) => {
+      //     let result: ReactNode = <span>-</span>;
+      //     let arr = record.goods_receipts;
+      //     if (arr && arr.length > 0) {
+      //       result = arr.map((single, index) => {
+      //         return (
+      //           <React.Fragment key={index}>
+      //             <Link to={`${UrlConfig.DELIVERY_RECORDS}/${single.id}`}>{single.id}</Link>
+      //             {arr && index < arr.length - 1 && ", "}
+      //           </React.Fragment>
+      //         );
+      //       });
+      //     }
+      //     return result;
+      //   },
+      // },
       {
         title: "Địa chỉ giao hàng",
         key: "shipping_address",

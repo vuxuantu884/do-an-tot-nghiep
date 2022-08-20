@@ -50,16 +50,17 @@ interface IEProductFormProps {
   formMain: FormInstance;
   inventoryType: string;
   title: string;
+  typePrice: string;
+  setTypePrice: (value: string) => void;
 }
 const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) => {
-  const { formMain, inventoryType, title } = props;
+  const { formMain, inventoryType, title, typePrice, setTypePrice } = props;
   const [loadingSearch, setLoadingSearch] = useState(false);
   const productSearchRef = createRef<CustomAutoComplete>();
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
   const [isPressed] = useKeyboardJs("f3");
   const [resultSearch, setResultSearch] = useState<Array<VariantResponse>>([]);
   // const [isSortSku, setIsSortSku] = useState(false);
-  const [typePrice, setTypePrice] = useState<string>(StockInOutPolicyPriceField.import_price);
   const dispatch = useDispatch();
 
   // const sizeIndex = [
@@ -99,7 +100,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    resultSearch.forEach((item: VariantResponse, index: number) => {
+    resultSearch.forEach((item: VariantResponse) => {
       options.push({
         label: <ProductItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -257,6 +258,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         stockInOutOtherItems,
         newItems,
         typePrice,
+        'SELECT'
       );
       formMain.setFieldsValue({
         stock_in_out_other_items: newStockInOutOtherItems,
@@ -277,6 +279,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
       stockInOutOtherItems,
       newItems,
       typePrice,
+      'SELECT'
     );
     // if (isSortSku) {
     //   newStockInOutOtherItems = handleSortLineItems(newStockInOutOtherItems);
@@ -418,7 +421,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                         placeholder="Chính sách giá"
                         onChange={onChangePolicyPrice}
                       >
-                        {StockInPolicyPrice.map((item, i) => {
+                        {StockInPolicyPrice.map((item) => {
                           return (
                             <Select.Option value={item.key} color="#222222">
                               {StockInOutPolicyPriceMapping[item.key]}
@@ -482,7 +485,6 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         {({ getFieldValue }) => {
           const procurementItemsOther: Array<StockInOutItemsOther> =
             getFieldValue(StockInOutField.stock_in_out_other_items) || [];
-
           return (
             <Table
               className="product-table"
@@ -557,7 +559,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   // sorter: true,
                   className: "ant-col-info",
                   dataIndex: "variant_name",
-                  render: (value: string, item: StockInOutItemsOther, index: number) => {
+                  render: (value: string, item: StockInOutItemsOther) => {
                     return (
                       <div>
                         <div>
@@ -604,7 +606,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   ),
                   width: "15%",
                   dataIndex: "quantity",
-                  render: (value, item: StockInOutItemsOther, index) => {
+                  render: (value, item: StockInOutItemsOther) => {
                     return (
                       <NumberInput
                         isFloat={false}
@@ -653,7 +655,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   ),
                   width: "15%",
                   dataIndex: typePrice,
-                  render: (value, item, index) => {
+                  render: (value) => {
                     return (
                       <NumberInput
                         className="hide-number-handle"
@@ -692,7 +694,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   ),
                   align: "center",
                   width: "20%",
-                  render: (value, item) => (
+                  render: (value) => (
                     <div
                       style={{
                         width: "100%",

@@ -46,6 +46,8 @@ const POUtils = {
       let variant_image = Products.findAvatar(variant.variant_images);
       let price = price_response !== null ? price_response.import_price : 0;
       const retailPrice = variant.variant_prices[0].retail_price;
+      const cost_price = variant.variant_prices[0].cost_price;
+
       let newItem: PurchaseOrderLineItem = {
         sku: variant.sku,
         barcode: variant.barcode,
@@ -76,6 +78,7 @@ const POUtils = {
         planned_quantity: 0,
         receipt_quantity: 0,
         retail_price: retailPrice,
+        cost_price,
         color: variant.color_id,
         color_code: variant?.color_code,
         variant_prices: variant.variant_prices,
@@ -476,16 +479,22 @@ export function initSchemaLineItem(
    * dánh sách các variant của sản phẩm
    */
   const mappingColorAndSize = product.variants.map((variant: VariantResponse) => {
-    const lineItem = line_items?.find((lineItem) => lineItem.variant_id === variant.id);
+    const lineItemId = line_items?.find((lineItem) => lineItem.variant_id === variant.id);
     let url: string = "";
     variant.variant_images?.forEach((item1) => {
       if (item1.variant_avatar) {
         url = item1.url;
       }
     });
-    const retailPrice = variant.variant_prices[0].retail_price;
+
+    const retailPrice = lineItemId
+      ? lineItemId.retail_price
+      : variant.variant_prices[0].retail_price;
+    const cost_price = lineItemId?.cost_price
+      ? lineItemId.cost_price
+      : variant.variant_prices[0].cost_price;
     return {
-      lineItemId: lineItem?.id,
+      lineItemId: lineItemId?.id,
       color: variant.color ?? variant.sku,
       size: variant.size ?? variant.sku,
       variantId: variant.id,
@@ -494,27 +503,39 @@ export function initSchemaLineItem(
       product_id: product.id,
       product: product.name,
       variant_image: url,
-      planned_quantity: lineItem?.planned_quantity || 0,
-      receipt_quantity: lineItem?.receipt_quantity || 0,
+      planned_quantity: lineItemId?.planned_quantity || 0,
+      receipt_quantity: lineItemId?.receipt_quantity || 0,
       barcode: variant.barcode,
       product_type: product.product_type,
       unit: product.unit,
       retailPrice: retailPrice,
+      cost_price: cost_price,
+    };
+  });
+
+  const mappingColorAndSizeResult = mappingColorAndSize.map((item) => {
+    const mappingColorAndSizeFilter = mappingColorAndSize.filter((item) => item?.lineItemId);
+    return {
+      ...item,
+      retailPrice:
+        mappingColorAndSizeFilter.length > 0
+          ? mappingColorAndSizeFilter[0].retailPrice
+          : item.retailPrice,
     };
   });
 
   const variantIdList = product.variants.map((item: VariantResponse) => {
     return item.id;
   });
-
   return {
     productId: product.id,
     productName: product.name,
     productCode: product.code,
     baseColor,
     baseSize,
-    mappingColorAndSize,
+    mappingColorAndSize: mappingColorAndSizeResult,
     variantIdList,
+    // retail_price: 0,
   };
 }
 
@@ -568,7 +589,9 @@ export const combineLineItemToSubmitData = (
   poLineItemGridValue: Array<Map<string, POLineItemGridValue>>,
   poLineItemGridChema: Array<POLineItemGridSchema>,
   taxRate: number,
+  line_items?: PurchaseOrderLineItem[],
 ): any[] => {
+  console.log(line_items);
   const newDataItems: any[] = [];
   poLineItemGridValue.forEach((item: Map<string, POLineItemGridValue>, index: number) => {
     poLineItemGridChema[index].mappingColorAndSize.forEach((pair: POPairSizeColor) => {
@@ -578,6 +601,17 @@ export const combineLineItemToSubmitData = (
         const qty = value.sizeValues.find((item) => item.size === pair.size)?.quantity || 0;
         if (qty > 0) {
           const amount = qty * value.price;
+          const indexLineItem = (line_items || [])?.findIndex(
+            (line_item) => line_item.variant_id === pair.variantId,
+          );
+          const retail_price =
+            line_items && indexLineItem >= 0
+              ? line_items[indexLineItem].retail_price
+              : pair.retailPrice;
+          const cost_price =
+            line_items && indexLineItem >= 0 && line_items[indexLineItem].cost_price
+              ? line_items[indexLineItem].cost_price
+              : pair.cost_price;
           newDataItems.push({
             id: pair.lineItemId,
             //Dữ liệu cơ bản thì lấy từ schema
@@ -588,7 +622,8 @@ export const combineLineItemToSubmitData = (
             product: pair.product,
             barcode: pair.barcode,
             variant_image: pair.variant_image,
-            retail_price: pair.retailPrice,
+            retail_price: retail_price,
+            cost_price: cost_price,
             receipt_quantity: pair?.receipt_quantity || 0,
             planned_quantity: pair?.planned_quantity || 0,
             // Dữ liệu nhập liệu thì lấy thì value object

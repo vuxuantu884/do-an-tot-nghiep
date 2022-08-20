@@ -2,7 +2,6 @@ import { Button, Card, Row, Space, Tabs } from "antd";
 import ContentContainer from "component/container/content.container";
 import RenderTabBar from "component/table/StickyTabBar";
 import UrlConfig, { InventoryTabUrl } from "config/url.config";
-import { StoreGetListAction } from "domain/actions/core/store.action";
 import { StoreResponse } from "model/core/store.model";
 import { useEffect, useState } from "react";
 import { useDispatch } from "react-redux";
@@ -13,6 +12,8 @@ import AllTab from "./tab/all.tab";
 import HistoryTab from "./tab/history.tab";
 import exportIcon from "assets/icon/export.svg";
 import { Link } from "react-router-dom";
+import { callApiNative } from "utils/ApiUtils";
+import { getAllStore } from "service/core/store.service";
 
 const { TabPane } = Tabs;
 
@@ -56,10 +57,17 @@ const InventoryScreen: React.FC = () => {
     }
   }, [history, path, conditionFilter, storeIds]);
 
+  const getAllStores = async () => {
+    callApiNative({ isShowLoading: false }, dispatch, getAllStore).then((res) => {
+      setStores(res);
+    });
+  };
+
   useEffect(() => {
     setLoading(false);
-    dispatch(StoreGetListAction(setStores));
-  }, [dispatch]);
+    getAllStores();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <ContentContainer

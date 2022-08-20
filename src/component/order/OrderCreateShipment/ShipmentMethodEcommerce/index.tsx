@@ -3,9 +3,11 @@ import { StyledComponent } from "component/order/OrderCreateShipment/ShipmentMet
 import { EcommerceDeliveryResponse, OrderResponse } from "model/response/order/order.response";
 
 import copyFileBtn from "assets/icon/copyfile_btn.svg";
+import { OrderPageTypeModel } from "model/order/order.model";
 import NumberFormat from "react-number-format";
 import { copyTextToClipboard, formatCurrency } from "utils/AppUtils";
 import { SHIPPING_TYPE } from "utils/Constants";
+import { checkIfOrderPageType } from "utils/OrderUtils";
 import { showSuccess } from "utils/ToastUtils";
 
 type PropType = {
@@ -14,26 +16,17 @@ type PropType = {
   handleCreateShipment?: () => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   isLoading?: boolean;
-  isOrderUpdate?: boolean;
+  isPageOrderUpdate?: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
 const { Panel } = Collapse;
 const { Link } = Typography;
 
 function ShipmentMethodEcommerce(props: PropType) {
-  const { ecommerceShipment, OrderDetail, handleCreateShipment, isLoading, isOrderUpdate } = props;
+  const { ecommerceShipment, OrderDetail, handleCreateShipment, isLoading, orderPageType } = props;
 
-  // copy button
-  // const copyOrderID = (e: any, data: string | null) => {
-  // 	e.stopPropagation();
-  // 	e.target.style.width = "26px";
-  // 	const decWidth = setTimeout(() => {
-  // 		e.target.style.width = "23px";
-  // 	}, 100);
-  // 	clearTimeout(decWidth);
-  // 	navigator.clipboard.writeText(data ? data : "").then(() => { });
-  //   showSuccess("Đã sao chép mã vận đơn!");
-  // };
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
 
   return (
     <StyledComponent>
@@ -188,7 +181,7 @@ function ShipmentMethodEcommerce(props: PropType) {
         </div>
       )}
 
-      {ecommerceShipment && !isOrderUpdate && (
+      {ecommerceShipment && !isOrderUpdatePage && (
         <div style={{ marginTop: 20 }}>
           <Button
             type="primary"

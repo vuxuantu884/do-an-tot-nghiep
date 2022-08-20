@@ -3,25 +3,27 @@ import { RouteMenu } from "model/other";
 import React from "react";
 import bill from "./bill.route";
 import customers from "./customer.route";
+import campaign from "./campaign.route";
 import ecommerce from "./ecommerce.route";
 import { inventory } from "./inventory.route";
 import product from "./product.route";
 import promotion from "./promotion.route";
 // import { AdminPermission } from 'config/permissions/admin.permission';
-import setting from "./setting.route";
-import shipments from "./shipment.route";
-import reports from "./reports.route";
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
 import offlineOrdersRoute from "./offline-orders.route";
-import webAppRoute from "./web-app.route";
-import warrantyRoute from "./warranty.route";
+import reports from "./reports.route";
+import setting from "./setting.route";
+import shipments from "./shipment.route";
 import supplierRoutes from "./supplier.route";
+import warrantyRoute from "./warranty.route";
+import webAppRoute from "./web-app.route";
 
 const Dashboard = React.lazy(() => import("screens/dashboard"));
 const Product = React.lazy(() => import("screens/products/product/ProductSearchScreen"));
-const OrderOnline = React.lazy(() => import("screens/order-online/order.screen"));
+const OnlineOrders = React.lazy(() => import("screens/order-online/orders/online-orders.screen"));
 const PosOrders = React.lazy(() => import("screens/order-online/orders/offline-orders.screen"));
 const Customer = React.lazy(() => import("screens/customer"));
+const Campaign = React.lazy(() => import("screens/marketing/campaign/Campaign"));
 const EcommerceConfig = React.lazy(() => import("screens/ecommerce/config"));
 const WebAppOrdersSync = React.lazy(() => import("screens/web-app/orders-sync/WebAppOrdersSync"));
 const ListTicket = React.lazy(() => import("screens/inventory/ListTicket"));
@@ -77,8 +79,9 @@ const menu: Array<RouteMenu> = [
     exact: true,
     title: "Đơn hàng online",
     icon: "icon-order",
-    component: OrderOnline,
-    key: "5",
+    component: OnlineOrders,
+    // key: ordersMenuKey.onlineOrders,
+    key: "đơn hàng online",
     isShow: true,
     header: null,
     subMenu: bill,
@@ -89,7 +92,8 @@ const menu: Array<RouteMenu> = [
     title: "Bán lẻ offline",
     icon: "icon-offline-order",
     component: PosOrders,
-    key: "ban-le",
+    // key: ordersMenuKey.offlineOrders,
+    key: "bán lẻ offline",
     isShow: true,
     header: null,
     subMenu: offlineOrdersRoute,
@@ -115,6 +119,17 @@ const menu: Array<RouteMenu> = [
     isShow: true,
     header: null,
     subMenu: customers,
+  },
+  {
+    path: UrlConfig.MARKETING,
+    exact: true,
+    title: "Marketing",
+    icon: "icon-marketing",
+    component: Campaign,
+    key: "marketing",
+    isShow: true,
+    header: null,
+    subMenu: campaign,
   },
   {
     path: UrlConfig.PROMOTION,

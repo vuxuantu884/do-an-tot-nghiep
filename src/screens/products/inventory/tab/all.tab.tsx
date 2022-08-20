@@ -870,8 +870,8 @@ const AllTab: React.FC<any> = (props) => {
       }
 
       dispatch(inventoryByVariantAction(request, (result) => onSaveInventory(result, variant_ids)));
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [dispatch, params],
   );
 

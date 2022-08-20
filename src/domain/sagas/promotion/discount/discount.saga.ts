@@ -9,6 +9,7 @@ import {
   getVariantApi,
   updatePriceRuleById,
   getPriceRuleVariantApi,
+  searchProductDiscountVariantApi,
 } from "service/promotion/discount/discount.service";
 import { YodyAction } from "../../../../base/base.action";
 import BaseResponse from "../../../../base/base.response";
@@ -17,10 +18,10 @@ import { HttpStatus } from "../../../../config/http-status.config";
 import { unauthorizedAction } from "../../../actions/auth/auth.action";
 import { showError } from "../../../../utils/ToastUtils";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
-import { takeEvery, takeLatest } from "typed-redux-saga";
+import { delay, takeEvery, takeLatest } from "typed-redux-saga";
 import { DiscountType, PriceRuleType } from "../../../types/promotion.type";
 import { all } from "redux-saga/effects";
-import { PriceRule } from "model/promotion/price-rules.model";
+import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
 import { isFetchApiSuccessful } from "utils/AppUtils";
 import { fetchApiErrorAction } from "domain/actions/app.action";
 import { callApiSaga } from "utils/ApiUtils";
@@ -255,6 +256,33 @@ function* createPriceRuleSaga(action: YodyAction) {
   }
 }
 
+function* searchProductDiscountVariantSaga(action: YodyAction) {
+  const { id, query, setData } = action.payload;
+  try {
+    yield delay(500);
+    let response: BaseResponse<PageResponse<ProductEntitlements>> = yield call(
+      searchProductDiscountVariantApi,
+      id,
+      query,
+    );
+
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        console.log(response);
+        setData(response.data);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    // showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
 export function* discountSaga() {
   yield all([
     takeLatest(DiscountType.GET_LIST_DISCOUNTS, getDiscounts),
@@ -268,5 +296,6 @@ export function* discountSaga() {
     takeEvery(DiscountType.GET_PRICE_RULE_VARIANTS_PAGGING, getPriceRuleVariantPaggingAction),
     takeLatest(DiscountType.UPDATE_PRICE_RULE_BY_ID, updatePriceRuleByIdSaga),
     takeLatest(PriceRuleType.CREATE_PRICE_RULE, createPriceRuleSaga),
+    takeLatest(DiscountType.SEARCH_PRODUCT_DISCOUNT_VARIANT, searchProductDiscountVariantSaga),
   ]);
 }

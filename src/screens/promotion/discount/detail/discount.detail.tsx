@@ -1,4 +1,4 @@
-import { Button, Card, Col, Modal, Progress, Row, Space } from "antd";
+import { AutoComplete, Button, Card, Col, Input, Modal, Progress, Row, Space } from "antd";
 import AuthWrapper from "component/authorization/AuthWrapper";
 import ContentContainer from "component/container/content.container";
 import TextShowMore from "component/container/show-more/text-show-more";
@@ -12,7 +12,7 @@ import {
   PriceRuleState,
   ProductEntitlements,
 } from "model/promotion/price-rules.model";
-import React, { ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { ReactNode, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router";
 import { Link, useHistory } from "react-router-dom";
@@ -24,6 +24,7 @@ import {
   bulkEnablePriceRulesAction,
   getPriceRuleAction,
   getPriceRuleVariantPaggingAction,
+  searchProductDiscountVariantAction,
 } from "../../../../domain/actions/promotion/discount/discount.action";
 import { showError, showInfo, showSuccess } from "../../../../utils/ToastUtils";
 import GeneralConditionDetail from "../../shared/general-condition.detail";
@@ -40,6 +41,11 @@ import exportIcon from "assets/icon/export.svg";
 import { exportFile, getFile } from "service/other/export.service";
 import { HttpStatus } from "config/http-status.config";
 import { generateQuery } from "utils/AppUtils";
+import _ from "lodash";
+import { ProductResponse, VariantResponse } from "model/product/product.model";
+import ParentProductItem from "component/item-select/parent-product-item";
+import ProductItem from "./product-item";
+import { LoadingOutlined, SearchOutlined } from "@ant-design/icons";
 
 const MAX_LOAD_VARIANT_LIST = 3;
 const RELOAD_VARIANT_LIST_TIME = 3000;
@@ -71,8 +77,13 @@ const PromotionDetailScreen: React.FC = () => {
       page: 1,
     },
   });
+  const [dataDiscountVariant, setDataDiscountVariant] = useState<Array<ProductEntitlements>>([]);
+  const [loadingDiscountVariant, setLoadingDiscountVariant] = useState(false);
+
   const isFirstLoadVariantList = useRef(true);
   const countLoadVariantList = useRef(0);
+
+  const [keySearchVariantDiscount, setKeySearchVariantDiscount] = useState("");
 
   //phân quyền
   const [allowUpdatePromoCode] = useAuthorization({
@@ -93,6 +104,7 @@ const PromotionDetailScreen: React.FC = () => {
     setIsLoadingVariantList(false);
     if (result) {
       setDataVariants(result);
+      setDataDiscountVariant(result.items);
     } else {
       setError(true);
     }
@@ -351,6 +363,71 @@ const PromotionDetailScreen: React.FC = () => {
   // end process export modal
   // end handle export file
 
+  //==> handle search product
+
+  const onResultSearchVariant = useCallback((result: any) => {
+    if (result.items.length <= 0) {
+      showError("Không tìm thấy sản phẩm hoặc sản phẩm đã ngưng bán");
+    }
+
+    if (!result) {
+      setDataDiscountVariant([]);
+    } else {
+      setLoadingDiscountVariant(false);
+      setDataDiscountVariant(result.items);
+    }
+  }, []);
+
+  const onSearchVariant = useCallback(
+    (value: string) => {
+      setKeySearchVariantDiscount(value);
+      setLoadingDiscountVariant(true);
+
+      dispatch(
+        searchProductDiscountVariantAction(
+          idNumber,
+          {
+            variant_sku: value.trim(),
+          },
+          onResultSearchVariant,
+        ),
+      );
+      if (!value) {
+        setLoadingDiscountVariant(false);
+      }
+    },
+    [dispatch, idNumber, onResultSearchVariant],
+  );
+
+  const renderResult = useMemo(() => {
+    let variantOptions: any[] = [];
+    let productOptions: any[] = [];
+    let productDataSearch: any[] = [];
+
+    dataDiscountVariant.forEach((item: any) => {
+      variantOptions.push({
+        label: <ProductItem data={item} key={item.entitlement.id.toString()} />,
+        value: JSON.stringify(item),
+      });
+    });
+
+    _.unionBy(productDataSearch, "id").forEach((item: ProductResponse) => {
+      productOptions.push({
+        value: JSON.stringify(item),
+        label: <ParentProductItem data={item} key={item.code} />,
+      });
+    });
+
+    return [...productOptions, ...variantOptions];
+  }, [dataDiscountVariant]);
+
+  const onSelectVariant = (value: string) => {
+    const item = JSON.parse(value);
+    setDataDiscountVariant([item]);
+    setKeySearchVariantDiscount(item.sku);
+  };
+  //<== end handle search product
+
   return (
     <ContentContainer
       isError={error}
@@ -484,6 +561,30 @@ const PromotionDetailScreen: React.FC = () => {
                   </div>
                 }
               >
+                <Input.Group className="display-flex" style={{ marginTop: 20 }}>
+                  <AutoComplete
+                    allowClear
+                    value={keySearchVariantDiscount}
+                    maxLength={255}
+                    dropdownMatchSelectWidth={456}
+                    style={{ width: "100%" }}
+                    dropdownClassName="product"
+                    options={renderResult}
+                    onSearch={onSearchVariant}
+                    onSelect={onSelectVariant}
+                  >
+                    <Input
+                      placeholder="Thêm sản phẩm theo tên, mã SKU, mã vạch, ..."
+                      prefix={
+                        loadingDiscountVariant ? (
+                          <LoadingOutlined style={{ color: "#2a2a86" }} />
+                        ) : (
+                          <SearchOutlined style={{ color: "#ABB4BD" }} />
+                        )
+                      }
+                    />
+                  </AutoComplete>
+                </Input.Group>
                 {dataDiscount.entitled_method === PriceRuleMethod.ORDER_THRESHOLD && (
                   <>
                     <DiscountRuleInfo dataDiscount={dataDiscount} />
@@ -499,9 +600,9 @@ const PromotionDetailScreen: React.FC = () => {
                 {dataDiscount.entitled_method !== PriceRuleMethod.ORDER_THRESHOLD && dataVariants && (
                   <CustomTable
                     rowKey="id"
-                    dataSource={dataVariants.items}
+                    dataSource={dataDiscountVariant}
                     columns={
-                      dataVariants?.items?.length > 1
+                      dataDiscountVariant?.length > 1
                         ? quantityColumn
                         : quantityColumn.filter((column: any) => column.title !== "STT") // show only when have more than 1 entitlement
                     }

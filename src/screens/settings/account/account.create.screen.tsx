@@ -27,7 +27,10 @@ import {
   PositionGetListAction,
 } from "domain/actions/account/account.action";
 import { RoleGetListAction } from "domain/actions/auth/role.action";
-import { CountryGetAllAction, DistrictGetByCountryAction } from "domain/actions/content/content.action";
+import {
+  CountryGetAllAction,
+  DistrictGetByCountryAction,
+} from "domain/actions/content/content.action";
 import { StoreGetListAction } from "domain/actions/core/store.action";
 import useAuthorization from "hook/useAuthorization";
 import { AccountRequest, AccountResponse } from "model/account/account.model";
@@ -84,11 +87,9 @@ const AccountCreateScreen: React.FC = () => {
   const history = useHistory();
 
   const listAccountStatus = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.account_status
+    (state: RootReducerType) => state.bootstrapReducer.data?.account_status,
   );
-  const listGender = useSelector(
-    (state: RootReducerType) => state.bootstrapReducer.data?.gender
-  );
+  const listGender = useSelector((state: RootReducerType) => state.bootstrapReducer.data?.gender);
   //State
   const [loadingSaveButton, setLoadingSaveButton] = useState(false);
   const [listCountries, setCountries] = useState<Array<CountryResponse>>([]);
@@ -154,7 +155,7 @@ const AccountCreateScreen: React.FC = () => {
         });
       }
     },
-    [cityViews, formRef]
+    [cityViews, formRef],
   );
   const onCreateSuccess = useCallback(
     (result: AccountResponse) => {
@@ -165,7 +166,7 @@ const AccountCreateScreen: React.FC = () => {
         setLoadingSaveButton(false);
       }
     },
-    [history]
+    [history],
   );
 
   const onFinish = useCallback(
@@ -179,9 +180,10 @@ const AccountCreateScreen: React.FC = () => {
         const ids = newData.supplier;
         const indexOfAll = ids.filter((i: any) => !i);
 
-        newData.supplier_ids = indexOfAll.length > 0
-          ? data.map((i: any) => i.id).filter((i: any) => i !== null)
-          : ids.filter((i: any) => i !== null);
+        newData.supplier_ids =
+          indexOfAll.length > 0
+            ? data.map((i: any) => i.id).filter((i: any) => i !== null)
+            : ids.filter((i: any) => i !== null);
       }
       newData = {
         ...newData,
@@ -227,14 +229,13 @@ const AccountCreateScreen: React.FC = () => {
     setModalConfirm({
       visible: true,
       onCancel: () => {
-        setModalConfirm({visible: false});
+        setModalConfirm({ visible: false });
       },
       onOk: () => {
         history.push(UrlConfig.ACCOUNTS);
       },
       title: "Bạn có muốn quay lại?",
-      subTitle:
-        "Sau khi quay lại thay đổi sẽ không được lưu.",
+      subTitle: "Sau khi quay lại thay đổi sẽ không được lưu.",
     });
   };
 
@@ -244,7 +245,7 @@ const AccountCreateScreen: React.FC = () => {
         if (result) {
           setDepartmentTree(result);
         }
-      })
+      }),
     );
     dispatch(PositionGetListAction(setPosition));
     dispatch(RoleGetListAction(initRoleQuery, setRole));
@@ -309,7 +310,7 @@ const AccountCreateScreen: React.FC = () => {
         onFinish={onFinish}
         initialValues={{
           ...initRequest,
-          store_ids: []
+          store_ids: [],
         }}
         scrollToFirstError
       >
@@ -318,11 +319,7 @@ const AccountCreateScreen: React.FC = () => {
           extra={
             <Space size={15}>
               <label className="text-default">Trạng thái Unicorn</label>
-              <Switch
-                onChange={onChangeStatus}
-                className="ant-switch-success"
-                defaultChecked
-              />
+              <Switch onChange={onChangeStatus} className="ant-switch-success" defaultChecked />
               <label
                 className={status === "active" ? "text-success" : "text-error"}
                 style={{
@@ -355,7 +352,11 @@ const AccountCreateScreen: React.FC = () => {
         >
           <Row className="mb-20">
             <div className="display-flex align-item">
-              <Checkbox checked={isSupplier} onChange={() => setIsSupplier(!isSupplier)} className="mr-15" />
+              <Checkbox
+                checked={isSupplier}
+                onChange={() => setIsSupplier(!isSupplier)}
+                className="mr-15"
+              />
               <div>Nhà cung cấp</div>
             </div>
           </Row>
@@ -370,7 +371,8 @@ const AccountCreateScreen: React.FC = () => {
                     {
                       message: "Mã nhân viên không đúng định dạng",
                       pattern: RegUtil.BOTH_NUMBER_AND_STRING,
-                    }]}
+                    },
+                  ]}
                   normalize={(value: string) => (value || "").toUpperCase()}
                 >
                   <Input
@@ -411,12 +413,7 @@ const AccountCreateScreen: React.FC = () => {
                   name="user_name"
                   rules={[{ required: true, message: "Vui lòng nhập tên đăng nhập" }]}
                 >
-                  <Input
-                    className="r-5"
-                    placeholder="Nhập tên đăng nhập"
-                    size="large"
-                    disabled
-                  />
+                  <Input className="r-5" placeholder="Nhập tên đăng nhập" size="large" disabled />
                 </Item>
               </Col>
             )}
@@ -433,10 +430,7 @@ const AccountCreateScreen: React.FC = () => {
           <Row gutter={24}>
             <Col span={24} lg={8} md={12} sm={24}>
               <Item
-                rules={[
-                  ...PASSWORD_RULES,
-                  { required: true, message: "Vui lòng nhập mật khẩu" },
-                ]}
+                rules={[...PASSWORD_RULES, { required: true, message: "Vui lòng nhập mật khẩu" }]}
                 name="password"
                 label="Mật khẩu"
               >
@@ -445,9 +439,7 @@ const AccountCreateScreen: React.FC = () => {
                   className="r-5"
                   placeholder="Nhập mật khẩu"
                   size="large"
-                  iconRender={(visible) =>
-                    visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />
-                  }
+                  iconRender={(visible) => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)}
                 />
               </Item>
             </Col>
@@ -460,7 +452,8 @@ const AccountCreateScreen: React.FC = () => {
                     required: isSupplier,
                     message: "Vui lòng chọn nhà cung cấp",
                   },
-                ]}>
+                ]}
+              >
                 <Select
                   placeholder="Tìm kiếm và chọn nhà cung cấp"
                   mode="multiple"
@@ -469,7 +462,11 @@ const AccountCreateScreen: React.FC = () => {
                   notFoundContent="Không có dữ liệu"
                   showSearch
                   filterOption={(input, option: any) => {
-                    return option?.key.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0 || fullTextSearch(input, option?.key) || option?.key === "";
+                    return (
+                      option?.key.toLowerCase().indexOf(input.toLowerCase().trim()) >= 0 ||
+                      fullTextSearch(input, option?.key) ||
+                      option?.key === ""
+                    );
                   }}
                   dropdownRender={(menu) => {
                     return (
@@ -490,10 +487,20 @@ const AccountCreateScreen: React.FC = () => {
                   {data.map((supplier: any) => {
                     return (
                       <Option
-                        key={supplier.id ? `${supplier.id}-${supplier.name}-${supplier.code}-${supplier.phone}-${supplier.contacts.map((i: any) => i.phone).join(",")}` : ""}
-                        value={supplier.id}>
-                        {supplier.id ? <SupplierItem data={supplier} key={supplier.id?.toString()} /> :
-                          <div className="item-all">{supplier.name}</div>}
+                        key={
+                          supplier.id
+                            ? `${supplier.id}-${supplier.name}-${supplier.code}-${
+                                supplier.phone
+                              }-${supplier.contacts.map((i: any) => i.phone).join(",")}`
+                            : ""
+                        }
+                        value={supplier.id}
+                      >
+                        {supplier.id ? (
+                          <SupplierItem data={supplier} key={supplier.id?.toString()} />
+                        ) : (
+                          <div className="item-all">{supplier.name}</div>
+                        )}
                       </Option>
                     );
                   })}
@@ -609,115 +616,112 @@ const AccountCreateScreen: React.FC = () => {
           </Row>
         </Card>
 
-          <Card title="Thông tin công việc" bodyStyle={{padding:0}}>
-            <div className="padding-20">
-              <List name="account_jobs"
-              >
-                {(fields, { add, remove }) => (
-                  <>
-                    {fields.map(({ key, name, fieldKey }) => (
-                      <Row key={key} gutter={16}>
+        <Card title="Thông tin công việc" bodyStyle={{ padding: 0 }}>
+          <div className="padding-20">
+            <List name="account_jobs">
+              {(fields, { add, remove }) => (
+                <>
+                  {fields.map(({ key, name, fieldKey }) => (
+                    <Row key={key} gutter={16}>
+                      <Item
+                        hidden
+                        noStyle
+                        label="Phòng ban"
+                        name={[name, "id"]}
+                        fieldKey={[fieldKey, "id"]}
+                      >
+                        <Input hidden />
+                      </Item>
+                      <Item
+                        hidden
+                        noStyle
+                        label="Phòng ban"
+                        name={[name, "code"]}
+                        fieldKey={[fieldKey, "code"]}
+                      >
+                        <Input hidden />
+                      </Item>
+                      <Item
+                        hidden
+                        noStyle
+                        label="Phòng ban"
+                        name={[name, "account_id"]}
+                        fieldKey={[fieldKey, "account_id"]}
+                      >
+                        <Input hidden />
+                      </Item>
+                      <Col md={8}>
                         <Item
-                          hidden
-                          noStyle
                           label="Phòng ban"
-                          name={[name, "id"]}
-                          fieldKey={[fieldKey, "id"]}
+                          name={[name, "department_id"]}
+                          fieldKey={[fieldKey, "department_id"]}
+                          rules={[{ required: true, message: "Vui lòng chọn bộ phận" }]}
                         >
-                          <Input hidden />
-                        </Item>
-                        <Item
-                          hidden
-                          noStyle
-                          label="Phòng ban"
-                          name={[name, "code"]}
-                          fieldKey={[fieldKey, "code"]}
-                        >
-                          <Input hidden />
-                        </Item>
-                        <Item
-                          hidden
-                          noStyle
-                          label="Phòng ban"
-                          name={[name, "account_id"]}
-                          fieldKey={[fieldKey, "account_id"]}
-                        >
-                          <Input hidden />
-                        </Item>
-                        <Col md={8}>
-                          <Item
-                            label="Phòng ban"
-                            name={[name, "department_id"]}
-                            fieldKey={[fieldKey, "department_id"]}
-                            rules={[{ required: true, message: "Vui lòng chọn bộ phận" }]}
+                          <TreeSelect
+                            placeholder="Chọn phòng ban"
+                            treeDefaultExpandAll
+                            className="selector"
+                            allowClear
+                            showSearch
+                            treeNodeFilterProp="title"
                           >
-                            <TreeSelect
-                              placeholder="Chọn phòng ban"
-                              treeDefaultExpandAll
-                              className="selector"
-                              allowClear
-                              showSearch
-                              treeNodeFilterProp='title'
-                            >
-                              {listDepartmentTree?.map((item, index) => (
-                                <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
-                              ))}
-                            </TreeSelect>
-                          </Item>
-                        </Col>
-                        <Col md={8}>
-                          <Item
-                            name={[name, "position_id"]}
-                            fieldKey={[fieldKey, "position_id"]}
-                            label="Vị trí"
+                            {listDepartmentTree?.map((item, index) => (
+                              <React.Fragment key={index}>{TreeDepartment(item)}</React.Fragment>
+                            ))}
+                          </TreeSelect>
+                        </Item>
+                      </Col>
+                      <Col md={8}>
+                        <Item
+                          name={[name, "position_id"]}
+                          fieldKey={[fieldKey, "position_id"]}
+                          label="Vị trí"
+                        >
+                          <Select
+                            placeholder="Chọn vị trí"
+                            allowClear
+                            showArrow
+                            showSearch
+                            optionFilterProp="children"
+                            style={{ width: "100%" }}
                           >
-                            <Select
-                              placeholder="Chọn vị trí"
-                              allowClear
-                              showArrow
-                              showSearch
-                              optionFilterProp="children"
-                              style={{ width: "100%" }}
-                            >
-                              {listPosition?.map((item) => (
-                                <Option key={item.id} value={item.id}>
-                                  {item.name}
-                                </Option>
-                              ))}
-                            </Select>
-                          </Item>
+                            {listPosition?.map((item) => (
+                              <Option key={item.id} value={item.id}>
+                                {item.name}
+                              </Option>
+                            ))}
+                          </Select>
+                        </Item>
+                      </Col>
+                      {fields.length > 1 && (
+                        <Col md={4} style={{ display: "flex", alignItems: "center" }}>
+                          <Button onClick={() => remove(name)} icon={<DeleteOutlined />} />
                         </Col>
-                        {fields.length > 1 && (
-                          <Col md={4} style={{ display: "flex", alignItems: "center" }}>
-                            <Button
-                              onClick={() => remove(name)}
-                              icon={<DeleteOutlined />}
-                            />
-                          </Col>
-                        )}
-                      </Row>
-                    ))}
-                    <Button
-                      type="link"
-                      className="padding-0"
-                      onClick={() => add()}
-                      icon={<PlusOutlined />}
-                    >
-                      Thêm mới
-                    </Button>
-                  </>
-                )}
-              </List>
-            </div>
-          </Card>
+                      )}
+                    </Row>
+                  ))}
+                  <Button
+                    type="link"
+                    className="padding-0"
+                    onClick={() => add()}
+                    icon={<PlusOutlined />}
+                  >
+                    Thêm mới
+                  </Button>
+                </>
+              )}
+            </List>
+          </div>
+        </Card>
         <BottomBarContainer
           back="Quay lại trang danh sách"
           backAction={backAction}
           rightComponent={
-            allowCreateAcc &&
-            <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
-              Tạo người dùng
-            </Button>
+            allowCreateAcc && (
+              <Button htmlType="submit" type="primary" loading={loadingSaveButton}>
+                Tạo người dùng
+              </Button>
+            )
           }
         />
       </Form>

@@ -3,6 +3,7 @@ import { BaseQuery } from "../../../../model/base/base.query";
 import { PageResponse } from "../../../../model/base/base-metadata.response";
 import { DiscountType, PriceRuleType } from "../../../types/promotion.type";
 import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
+import { searchProductDiscountVariantQuery } from "model/discount/discount.model";
 
 export const getListDiscountAction = (
   query: BaseQuery,
@@ -79,4 +80,12 @@ export const createPriceRuleAction = (
 
 export const getPriceRuleAction = (id: number, onResult: (result: PriceRule) => void) => {
   return BaseAction(DiscountType.GET_PRICE_RULE_DETAIL, { id, onResult });
+};
+
+export const searchProductDiscountVariantAction = (
+  id: number,
+  query: searchProductDiscountVariantQuery,
+  setData: (data: ProductEntitlements) => void,
+) => {
+  return BaseAction(DiscountType.SEARCH_PRODUCT_DISCOUNT_VARIANT, { id, query, setData });
 };

@@ -1,6 +1,7 @@
 import { Col, Form, FormInstance, Row } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { changeOrderThirdPLAction } from "domain/actions/order/order.action";
+import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
 import { CustomerResponse } from "model/response/customer/customer.response";
 import { DeliveryServiceResponse, FeesResponse } from "model/response/order/order.response";
@@ -10,30 +11,35 @@ import NumberFormat from "react-number-format";
 import { useDispatch } from "react-redux";
 import {
   formatCurrency,
+  getShippingAddressDefault,
   handleCalculateShippingFeeApplyOrderSetting,
   replaceFormatString,
 } from "utils/AppUtils";
+import { checkIfOrderPageType } from "utils/OrderUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   totalAmountCustomerNeedToPay: number | undefined;
   shippingServiceConfig: ShippingServiceConfigDetailResponseModel[];
   deliveryServices: DeliveryServiceResponse[] | null;
   infoFees: FeesResponse[];
   addressError: string;
   levelOrder?: number;
-  orderPrice?: number;
+  orderProductsAmount?: number;
   customer: CustomerResponse | null;
   form: FormInstance<any>;
   thirdPL: thirdPLModel | undefined;
   setThirdPL: (thirdPl: thirdPLModel) => void;
   setShippingFeeInformedToCustomer: (value: number) => void;
   renderButtonCreateActionHtml: () => JSX.Element | null;
-  isOrderUpdate?: boolean;
-  isOrderDetailPage?: boolean;
+  orderPageType: OrderPageTypeModel;
 };
 
-function ShipmentMethodDeliverPartner(props: PropType) {
+interface DeliveryServiceWithFeeModel extends DeliveryServiceResponse {
+  fees: FeesResponse[];
+}
+
+function ShipmentMethodDeliverPartner(props: PropTypes) {
   const {
     totalAmountCustomerNeedToPay,
     shippingServiceConfig,
@@ -41,20 +47,22 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     infoFees,
     addressError,
     levelOrder = 0,
-    orderPrice,
+    orderProductsAmount,
     customer,
     form,
     thirdPL,
     setThirdPL,
     setShippingFeeInformedToCustomer,
     renderButtonCreateActionHtml,
-    isOrderUpdate,
+    orderPageType,
   } = props;
+
+  const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
 
   const dispatch = useDispatch();
 
   const serviceFees = useMemo(() => {
-    let services: any = [];
+    let services: DeliveryServiceWithFeeModel[] = [];
     deliveryServices?.forEach((deliveryService) => {
       const service = infoFees.filter(
         (item) => item.delivery_service_code === deliveryService.code,
@@ -69,25 +77,91 @@ function ShipmentMethodDeliverPartner(props: PropType) {
     return services;
   }, [deliveryServices, infoFees]);
 
-  const shippingAddress = useMemo(() => {
-    const address = customer?.shipping_addresses.find((item) => {
-      return item.default;
+  const shippingAddress = getShippingAddressDefault(customer);
+
+  const handleChangeThirdPLService = (
+    serviceFee: DeliveryServiceWithFeeModel,
+    fee: FeesResponse,
+  ) => {
+    handleCalculateShippingFeeApplyOrderSetting(
+      shippingAddress?.city_id,
+      orderProductsAmount,
+      shippingServiceConfig,
+      fee.transport_type,
+      form,
+      setShippingFeeInformedToCustomer,
+      isOrderUpdatePage,
+    );
+    const thirdPLResult = {
+      delivery_service_provider_id: serviceFee.id,
+      delivery_service_provider_code: serviceFee.code,
+      insurance_fee: fee.insurance_fee,
+      service: fee.transport_type,
+      shipping_fee_paid_to_three_pls: fee.total_fee,
+      delivery_service_provider_name: serviceFee.name,
+      delivery_transport_type: fee.transport_type_name,
+    };
+    setThirdPL(thirdPLResult);
+    dispatch(changeOrderThirdPLAction(thirdPLResult));
+  };
+
+  const renderTableBody = () => {
+    return serviceFees.map((serviceFee) => {
+      return (
+        <React.Fragment key={serviceFee.code}>
+          <tr>
+            <td>
+              <img className="logoHVC" src={serviceFee.logo} alt="" />
+            </td>
+            <td className="serviceFeeInformation">
+              {serviceFee.fees.map((fee) => {
+                return (
+                  <div className="custom-table__has-border-bottom custom-table__has-select-radio tableCell">
+                    <label
+                      className={`radio-container ${fee.total_fee === 0 ? "disabledRadio" : ""}`}
+                    >
+                      <input
+                        type="radio"
+                        name="tt"
+                        className="radio-delivery"
+                        value={fee.transport_type}
+                        checked={thirdPL?.service === fee.transport_type}
+                        onChange={(e) => {
+                          handleChangeThirdPLService(serviceFee, fee);
+                        }}
+                        disabled={
+                          fee.total_fee === 0 || levelOrder > 3
+                          // levelOrder > 3
+                        }
+                      />
+                      <span className="checkmark"></span>
+                      {fee.transport_type_name}
+                    </label>
+                  </div>
+                );
+              })}
+            </td>
+            <td className="cell__fee">
+              {serviceFee.fees?.map((fee) => {
+                return (
+                  <div className="custom-table__has-border-bottom custom-table__has-select-radio tableCell">
+                    <NumberFormat value={formatCurrency(fee.total_fee)} displayType={"text"} />
+                  </div>
+                );
+              })}
+            </td>
+          </tr>
+        </React.Fragment>
+      );
     });
-    if (address) {
-      return address;
-    } else {
-      return null;
-    }
-  }, [customer?.shipping_addresses]);
+  };
 
   return (
     <StyledComponent>
-      <div className="shipmentMethod__deliverPartner" style={{ marginTop: 20 }}>
-        {addressError && (
-          <div style={{ margin: "0 0 10px 0", color: "#ff4d4f" }}>{addressError}</div>
-        )}
+      <div className="shipmentMethod__deliverPartner">
+        {addressError && <div className="addressError">{addressError}</div>}
         {levelOrder > 3 && (
-          <div style={{ margin: "10px 0", color: "#ff4d4f" }}>
+          <div className="shipmentMethod__note">
             Huỷ đơn giao để thực hiện các thay đổi giao hàng
           </div>
         )}
@@ -111,111 +185,18 @@ function ShipmentMethodDeliverPartner(props: PropType) {
             </Form.Item>
           </Col>
         </Row>
-        <div className="ant-table ant-table-bordered custom-table" style={{ marginTop: 20 }}>
+        <div className="ant-table ant-table-bordered custom-table">
           <div className="ant-table-container">
             <div className="ant-table-content">
-              <table className="table-bordered" style={{ width: "100%", tableLayout: "auto" }}>
+              <table className="table-bordered deliverPartner__table">
                 <thead className="ant-table-thead">
                   <tr>
                     <th className="ant-table-cell">Hãng vận chuyển</th>
                     <th className="ant-table-cell">Dịch vụ chuyển phát</th>
-                    <th className="ant-table-cell" style={{ textAlign: "right" }}>
-                      Cước phí
-                    </th>
+                    <th className="ant-table-cell cell__fee">Cước phí</th>
                   </tr>
                 </thead>
-                <tbody className="ant-table-tbody">
-                  {serviceFees.map((serviceFee: any) => {
-                    return (
-                      <React.Fragment key={serviceFee.code}>
-                        <tr>
-                          <td>
-                            <img className="logoHVC" src={serviceFee.logo} alt="" />
-                          </td>
-                          <td style={{ padding: 0 }}>
-                            {serviceFee.fees.map((fee: any) => {
-                              return (
-                                <div
-                                  style={{ padding: "8px 16px" }}
-                                  className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                >
-                                  <label className="radio-container">
-                                    <input
-                                      type="radio"
-                                      name="tt"
-                                      className="radio-delivery"
-                                      value={fee.transport_type}
-                                      checked={thirdPL?.service === fee.transport_type}
-                                      onChange={(e) => {
-                                        if (!props.isOrderDetailPage) {
-                                          handleCalculateShippingFeeApplyOrderSetting(
-                                            shippingAddress?.city_id,
-                                            orderPrice,
-                                            shippingServiceConfig,
-                                            fee.transport_type,
-                                            form,
-                                            setShippingFeeInformedToCustomer,
-                                            isOrderUpdate,
-                                          );
-                                        }
-                                        const thirdPLResult = {
-                                          delivery_service_provider_id: serviceFee.id,
-                                          delivery_service_provider_code: serviceFee.code,
-                                          insurance_fee: fee.insurance_fee,
-                                          service: fee.transport_type,
-                                          shipping_fee_paid_to_three_pls: fee.total_fee,
-                                          delivery_service_provider_name: serviceFee.name,
-                                          delivery_transport_type: fee.transport_type_name,
-                                        };
-                                        setThirdPL(thirdPLResult);
-                                        dispatch(changeOrderThirdPLAction(thirdPLResult));
-                                      }}
-                                      disabled={
-                                        fee.total_fee === 0 || levelOrder > 3
-                                        // levelOrder > 3
-                                      }
-                                    />
-                                    <span
-                                      className="checkmark"
-                                      style={
-                                        fee.total_fee === 0
-                                          ? {
-                                              backgroundColor: "#f0f0f0",
-                                              border: "none",
-                                            }
-                                          : {}
-                                      }
-                                    ></span>
-                                    {fee.transport_type_name}
-                                  </label>
-                                </div>
-                              );
-                            })}
-                          </td>
-                          <td style={{ padding: 0, textAlign: "right" }}>
-                            {serviceFee.fees?.map((fee: any) => {
-                              return (
-                                <>
-                                  <div
-                                    style={{ padding: "8px 16px" }}
-                                    className="custom-table__has-border-bottom custom-table__has-select-radio"
-                                  >
-                                    {/* {service.total_fee} */}
-                                    <NumberFormat
-                                      value={formatCurrency(fee.total_fee)}
-                                      className="foo"
-                                      displayType={"text"}
-                                    />
-                                  </div>
-                                </>
-                              );
-                            })}
-                          </td>
-                        </tr>
-                      </React.Fragment>
-                    );
-                  })}
-                </tbody>
+                <tbody className="ant-table-tbody">{renderTableBody()}</tbody>
               </table>
             </div>
           </div>

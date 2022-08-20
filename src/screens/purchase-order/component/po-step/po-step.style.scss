@@ -1,6 +1,7 @@
 @import "assets/css/variable";
 
-.ant-steps-dot .ant-steps-item-content,
+.po-step {
+  .ant-steps-dot .ant-steps-item-content,
 .ant-steps-dot.ant-steps-small .ant-steps-item-content {
   margin-top: 2px;
   width: 84px;
@@ -16,7 +17,6 @@
 .ant-steps-small .ant-steps-item-description {
   font-size: 10px;
 }
-.po-step {
   .ant {
     //Steps
     &-steps {

@@ -6,7 +6,8 @@ import BaseAxios from "../../../base/base.axios";
 import { ApiConfig } from "../../../config/api.config";
 import { CouponRequestModel, DiscountRequestModel } from "model/request/promotion.request";
 import { ApplyCouponResponseModel } from "model/response/order/promotion.response";
-import { PriceRule } from "model/promotion/price-rules.model";
+import { PriceRule, ProductEntitlements } from "model/promotion/price-rules.model";
+import { searchProductDiscountVariantQuery } from "model/discount/discount.model";
 
 const END_POINT = "/price-rules";
 
@@ -100,4 +101,12 @@ export const updatePriceRuleById = (body: any): Promise<PriceRule> => {
 
 export const exportDiscountCode = (priceRuleId: any): Promise<any> => {
   return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${priceRuleId}/export`);
+};
+
+export const searchProductDiscountVariantApi = (
+  id: number,
+  query: searchProductDiscountVariantQuery,
+): Promise<BaseResponse<PageResponse<ProductEntitlements>>> => {
+  const queryString = generateQuery(query);
+  return BaseAxios.get(`${ApiConfig.PROMOTION}${END_POINT}/${id}/variant-items?${queryString}`);
 };

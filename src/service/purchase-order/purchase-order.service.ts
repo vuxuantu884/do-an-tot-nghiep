@@ -1,3 +1,4 @@
+import { PurchaseOrderLineItem } from "./../../model/purchase-order/purchase-item.model";
 import {
   POProgressResult,
   POStampPrinting,
@@ -27,6 +28,15 @@ export const updatePurchaseOrder = (
   data: PurchaseOrder,
 ): Promise<BaseResponse<PurchaseOrder>> => {
   return BaseAxios.put(`${ApiConfig.PURCHASE_ORDER}/purchase-orders/${id}`, data);
+};
+
+export const checkChangePriceLineItemPurchaseOrder = (
+  data: PurchaseOrderLineItem[],
+): Promise<BaseResponse<PurchaseOrderLineItem[]>> => {
+  return BaseAxios.post(
+    `${ApiConfig.PURCHASE_ORDER}/purchase-orders/po-lines/check-retail-price`,
+    data,
+  );
 };
 
 export const updateNotePurchaseOrder = (

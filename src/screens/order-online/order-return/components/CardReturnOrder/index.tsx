@@ -2,13 +2,13 @@ import { Card, Switch } from "antd";
 import React from "react";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   isDetailPage: boolean;
   isExchange: boolean;
   isStepExchange: boolean;
   handleIsExchange?: (isExchange: boolean) => void;
 };
-function CardReturnOrder(props: PropType) {
+function CardReturnOrder(props: PropTypes) {
   const { isDetailPage, isExchange, handleIsExchange, isStepExchange } = props;
   const renderCardExtra = () => {
     return (

@@ -13,7 +13,7 @@ export interface SelectContentProps<T> extends SelectProps<any> {
   isLoading?: boolean;
   optionKeyValue: string;
   optionKeyName: string;
-  defaultValue?: string | number | undefined | null;
+  defaultValue?: string | number | undefined | null | Array<number>;
 }
 
 function SelectSearchPaging<T>({
@@ -57,7 +57,7 @@ function SelectSearchPaging<T>({
       notFoundContent={notFoundContent}
       {...rest}
     >
-      {data.map((item: any, index) => {
+      {data.map((item: any) => {
         return (
           <Select.Option key={item[optionKeyValue]} value={item[optionKeyValue]}>
             {item[optionKeyName]}

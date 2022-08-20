@@ -158,6 +158,7 @@ export interface POPairSizeColor {
   retailPrice: number;
   receipt_quantity?: number;
   planned_quantity?: number;
+  cost_price: number;
 }
 
 export enum enumConvertDate {

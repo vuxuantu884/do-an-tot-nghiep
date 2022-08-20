@@ -17,6 +17,7 @@ import { callApiNative } from "utils/ApiUtils";
 import { nonAccentVietnamese } from "utils/PromotionUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import queryString from "query-string";
+// import { parseLocaleNumber } from "utils/AppUtils";
 
 export const DEFAULT_KEY_DRIVER_GROUP_LV_1 = "Kinh doanh Online";
 export const DRILLING_LEVEL = {
@@ -168,7 +169,10 @@ export async function saveMonthTargetKeyDriver(
   row: KeyDriverOnlineDataSourceType,
   columnDrillingLevel: number,
   columnKey: string,
+  inputId: string,
   dispatch: Dispatch<any>,
+  currentValue: any,
+  key: string,
 ) {
   const departmentLevel: any = {
     department_lv1: "",
@@ -200,10 +204,16 @@ export async function saveMonthTargetKeyDriver(
     onlineCounterService,
     params,
   );
+  console.log("response[key]", response[key]);
+  // if (response && response[key]) {
   if (response) {
     showSuccess("Lưu thành công");
+    // const input: any = document.getElementById(inputId);
+    // input.value = parseLocaleNumber(response[key]);
   } else {
     showError("Lưu không thành công");
+    const input: any = document.getElementById(inputId);
+    input.value = currentValue;
   }
 }
 

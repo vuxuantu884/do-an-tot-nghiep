@@ -18,6 +18,12 @@ const SMS_ACTION_INIT = [
     url: `${UrlConfig.SMS_SETTINGS}/website-order`,
     value: "",
   },
+  {
+    label: "Đi đơn online thành công",
+    key: "online_order_message",
+    url: `${UrlConfig.SMS_SETTINGS}/online-order`,
+    value: "",
+  },
   // {
   // 	label: "Khách hàng tăng cấp độ (Cài đặt được nhiều tin)",
   // 	key: "customer_level_up_message",

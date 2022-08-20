@@ -13,7 +13,7 @@ import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { updateKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, replaceFormat } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import {
   calculateKDAverageCustomerSpent,
@@ -80,6 +80,7 @@ function CellInput(props: RowRender) {
     <InputNumber
       className="input-number"
       formatter={(value?: number) => (value ? formatCurrency(value || 0) : "")}
+      parser={(value: string | undefined) => replaceFormat(value || "")}
       defaultValue={value}
       onKeyPress={(e) => !/[0-9]/.test(e.key) && e.preventDefault()}
       onChange={debounce((inputValue: number) => {

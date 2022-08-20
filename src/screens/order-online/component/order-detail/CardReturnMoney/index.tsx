@@ -8,7 +8,7 @@ import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { StyledComponent } from "./styles";
 
 type PropTypes = {
-  listPaymentMethods: Array<PaymentMethodResponse>;
+  paymentMethods: Array<PaymentMethodResponse>;
   payments: OrderPaymentResponse[];
   returnMoneyAmount: number;
   isShowPaymentMethod: boolean;
@@ -23,7 +23,7 @@ function CardReturnMoney(props: PropTypes) {
   const {
     payments,
     returnMoneyAmount,
-    listPaymentMethods,
+    paymentMethods,
     isShowPaymentMethod,
     handleReturnMoney,
     setIsShowPaymentMethod,
@@ -42,15 +42,7 @@ function CardReturnMoney(props: PropTypes) {
         <span className="title-card">
           Hoàn tiền{" "}
           {payments && payments.length > 0 && checkIfHasReturnMoney(payments) && (
-            <Tag
-              className="orders-tag orders-tag-success"
-              style={{
-                backgroundColor: "rgba(39, 174, 96, 0.1)",
-                color: "#27AE60",
-              }}
-            >
-              Đã thanh toán
-            </Tag>
+            <Tag className="orders-tag orders-tag-success">Đã thanh toán</Tag>
           )}
         </span>
       </React.Fragment>
@@ -70,12 +62,12 @@ function CardReturnMoney(props: PropTypes) {
                       <h3>{single.payment_method}</h3>
                     </div>
                   </Col>
-                  <Col md={8} style={{ textAlign: "center" }}>
+                  <Col md={8} className="timeline__colAmount">
                     <strong className="po-payment-row-title">
                       {formatCurrency(single.paid_amount)}
                     </strong>
                   </Col>
-                  <Col md={8} style={{ textAlign: "right" }}>
+                  <Col md={8} className="timeline__colDate">
                     <span>{ConvertUtcToLocalDate(single.created_date, DATE_FORMAT.fullDate)}</span>
                   </Col>
                 </Row>
@@ -84,29 +76,22 @@ function CardReturnMoney(props: PropTypes) {
           })}
         </Timeline>
       );
-    } else {
-      if (!isShowPaymentMethod) {
-        return (
-          <React.Fragment>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                fontWeight: "bold",
+    }
+    if (!isShowPaymentMethod) {
+      return (
+        <React.Fragment>
+          <div className="returnToCustomer 45">
+            Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
+            <Button
+              onClick={() => {
+                setIsShowPaymentMethod(true);
               }}
             >
-              Cần hoàn trả khách: {formatCurrency(returnMoneyAmount)} đ
-              <Button
-                onClick={() => {
-                  setIsShowPaymentMethod(true);
-                }}
-              >
-                Hoàn tiền
-              </Button>
-            </div>
-          </React.Fragment>
-        );
-      }
+              Hoàn tiền
+            </Button>
+          </div>
+        </React.Fragment>
+      );
     }
   };
 
@@ -117,7 +102,7 @@ function CardReturnMoney(props: PropTypes) {
           {renderPayments()}
           {isShowPaymentMethod && (
             <ReturnMoneySelect
-              listPaymentMethods={listPaymentMethods}
+              paymentMethods={paymentMethods}
               totalAmountCustomerNeedToPay={returnMoneyAmount}
               handleReturnMoney={() => {
                 handleReturnMoney();

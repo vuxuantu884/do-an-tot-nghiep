@@ -36,7 +36,7 @@ import { SupplierSearchAction } from "domain/actions/core/supplier.action";
 import { getCategoryRequestAction } from "domain/actions/product/category.action";
 import { getCollectionRequestAction } from "domain/actions/product/collection.action";
 import { getColorAction } from "domain/actions/product/color.action";
-import { detailMaterialAction, materialSearchAll } from "domain/actions/product/material.action";
+import { detailMaterialAction, getMaterialAction } from "domain/actions/product/material.action";
 import {
   productCheckDuplicateCodeAction,
   productCreateAction,
@@ -320,6 +320,18 @@ const ProductCreateScreen: React.FC = () => {
             size_id: null,
             size: null,
             sku: `${code}-MAU`,
+            quantity: 0,
+            variant_images: [],
+          });
+          //add variant sku = product_code CO-4551
+          newVariants.push({
+            name: name,
+            color_id: null,
+            code: null,
+            color: null,
+            size_id: null,
+            size: null,
+            sku: `${code}`,
             quantity: 0,
             variant_images: [],
           });
@@ -759,7 +771,13 @@ const ProductCreateScreen: React.FC = () => {
   useEffect(() => {
     if (!isLoadMaterData.current) {
       dispatch(getCategoryRequestAction({}, setDataCategory));
-      dispatch(materialSearchAll(setListMaterial));
+      dispatch(
+        getMaterialAction({ status: "active", limit: 1000 }, (res) => {
+          if (res) {
+            setListMaterial(res.items);
+          }
+        }),
+      );
       dispatch(CountryGetAllAction(setListCountry));
       getColors("", 1);
       getSizes("", 1);
