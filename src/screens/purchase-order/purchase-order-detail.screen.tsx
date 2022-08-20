@@ -65,7 +65,6 @@ import {
   POUtils,
   validateLineItemQuantity,
   checkCanEditPrice,
-  checkChangePriceLineItem,
 } from "utils/POUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoPO from "./component/po-info-po";
