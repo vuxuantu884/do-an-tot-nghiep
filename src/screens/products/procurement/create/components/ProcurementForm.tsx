@@ -367,7 +367,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
               <Typography.Text>
                 <img src={excelIcon} alt="" />{" "}
                 <a
-                  href="https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/M%E1%BA%ABu%20file%20nh%E1%BA%ADp%20kho%20ncc_1654596346688.xlsx"
+                  href="https://yody-media.s3.ap-southeast-1.amazonaws.com/yody-file/M%C3%A2%CC%83u_file_nh%C3%A2%CC%A3p_kho_ncc.xlsx"
                   download="Import_Procurement"
                 >
                   Mẫu file nhập kho NCC(.xlsx)
