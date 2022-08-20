@@ -1,7 +1,8 @@
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Col, Form, FormInstance, Input, Row, Select, Table } from "antd";
+import { Button, Col, Form, FormInstance, Input, Row, Select, Table, Tooltip } from "antd";
 import NumberInput from "component/custom/number-input.custom";
 import { ICustomTableColumType } from "component/table/CustomTable";
+import { AppConfig } from "config/app.config";
 import {
   EnumEnvironment,
   EnumStore,
@@ -32,31 +33,8 @@ interface IProps {
   isEditDetail: boolean;
 }
 
-const store_hieu =
-  process.env.REACT_APP_ENVIRONMENT === EnumEnvironment.PROD
-    ? EnumStoreHieu.PROD
-    : process.env.REACT_APP_ENVIRONMENT === EnumEnvironment.UAT
-    ? EnumStoreHieu.UAT
-    : EnumStoreHieu.DEV;
-const store_tung =
-  process.env.REACT_APP_ENVIRONMENT === EnumEnvironment.PROD
-    ? EnumStoreTung.PROD
-    : process.env.REACT_APP_ENVIRONMENT === EnumEnvironment.UAT
-    ? EnumStoreTung.UAT
-    : EnumStoreTung.DEV;
-const store_anh =
-  process.env.REACT_APP_ENVIRONMENT === EnumEnvironment.PROD
-    ? EnumStoreAnh.PROD
-    : process.env.REACT_APP_ENVIRONMENT === EnumEnvironment.UAT
-    ? EnumStoreAnh.UAT
-    : EnumStoreAnh.DEV;
-
-const isSore = (store_id: number) => {
-  if (store_id === store_hieu) return EnumStore.HIEU;
-  if (store_id === store_tung) return EnumStore.TUNG;
-  if (store_id === store_anh) return EnumStore.ANH;
-};
-
+const COUNT_STORE = 3;
+const WIDTH_COLUM_STORE = 90;
 export const PoSplitGoods = (props: IProps) => {
   //page props
   const { formMain, isEditDetail } = props;
@@ -67,6 +45,9 @@ export const PoSplitGoods = (props: IProps) => {
   const [dateSelected, setDateSelected] = useState<PurchaseProcument[]>([]);
   const [dataSource, setDataSource] = useState<PurchaseProcumentLineItem[]>([]);
   const [dataStore, setDataStore] = useState<PurchaseProcument[]>([]);
+  const [columns, setColumns] = useState<Array<ICustomTableColumType<PurchaseProcumentLineItem>>>(
+    [],
+  );
 
   useEffect(() => {
     const procurements = formMain?.getFieldsValue()?.procurements
@@ -94,10 +75,7 @@ export const PoSplitGoods = (props: IProps) => {
       .filter((item) => item.expect_receipt_date);
     const dateOption =
       dateSelected.length > 0
-        ? moment(
-            dateSelected.filter((item) => item.status === ProcurementStatus.draft)[0]
-              ?.expect_receipt_date,
-          ).format("DD/MM/YYYY")
+        ? moment(dateSelected[0]?.expect_receipt_date).format("DD/MM/YYYY")
         : "";
     setDateSelected(dateSelected);
     setDateOption(dateOption);
@@ -113,7 +91,10 @@ export const PoSplitGoods = (props: IProps) => {
         (procurement) =>
           moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
       );
-
+      const dataStore = procurements.filter(
+        (procurement) =>
+          moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
+      );
       if (index >= 0) {
         const dataSource: PurchaseProcumentLineItem[] = procurements[index].procurement_items.map(
           (procurementItem) => {
@@ -135,158 +116,203 @@ export const PoSplitGoods = (props: IProps) => {
               )
               .filter((item) => item.variant_id === procurementItem.variant_id)
               .reduce((total, element) => total + element?.quantity || 0, 0);
-            const acceptedQuantity = procurementsFilter[dateOption]
-              .reduce(
-                (acc, val) => acc.concat(val.procurement_items),
-                [] as Array<PurchaseProcumentLineItem>,
-              )
-              .filter((item) => item.variant_id === procurementItem.variant_id)
-              .reduce((total, element) => total + element?.accepted_quantity || 0, 0);
-            // store_id ánh: 363, 17, 198
-            const storeAnh = procurementsFilter[dateOption].filter((item) => {
-              return item.store_id === store_anh;
-            });
-            const quantityAnh = storeAnh
-              .reduce(
-                (acc, val) => acc.concat(val.procurement_items),
-                [] as Array<PurchaseProcumentLineItem>,
-              )
-              .filter((item) => item.variant_id === procurementItem.variant_id)
-              .reduce((total, element) => total + element?.planned_quantity || 0, 0);
-            // store_id ánh: 364, 16,
-            const storeTung = procurementsFilter[dateOption].filter((item) => {
-              return item.store_id === store_tung;
-            });
-            const quantityTung = storeTung
-              .reduce(
-                (acc, val) => acc.concat(val.procurement_items),
-                [] as Array<PurchaseProcumentLineItem>,
-              )
-              .filter((item) => item.variant_id === procurementItem.variant_id)
-              .reduce((total, element) => total + element?.planned_quantity || 0, 0);
-            // store_id ánh: 365, 19, 200
-            const storeHieu = procurementsFilter[dateOption].filter((item) => {
-              return item.store_id === store_hieu;
-            });
-            const quantityHieu = storeHieu
-              .reduce(
-                (acc, val) => acc.concat(val.procurement_items),
-                [] as Array<PurchaseProcumentLineItem>,
-              )
-              .filter((item) => item.variant_id === procurementItem.variant_id)
-              .reduce((total, element) => total + element?.planned_quantity || 0, 0);
+            const procurement_items = procurementsFilter[dateOption].map(
+              (procurementsFilterItem) => {
+                const indexProcurementsFilterItem =
+                  procurementsFilterItem.procurement_items.findIndex(
+                    (item) => item.variant_id === procurementItem.variant_id,
+                  );
+                return {
+                  ...procurementsFilterItem.procurement_items[indexProcurementsFilterItem],
+                  procurement: procurementsFilterItem,
+                  status: procurementsFilterItem.status,
+                };
+              },
+            );
             return {
               ...procurementItem,
               quantity: plannedQuantity,
-              planned_quantity: plannedQuantity,
-              accepted_quantity: acceptedQuantity,
-              quantity_anh: quantityAnh,
-              quantity_hieu: quantityHieu,
-              quantity_tung: quantityTung,
-              status: storeHieu[0]?.status,
+              procurement_items: procurement_items,
             };
           },
         );
         setDataSource(dataSource || []);
       }
-      const dataStore = procurements.filter(
-        (procurement) =>
-          moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
-      );
       setDataStore(dataStore);
     }
   }, [dateOption, purchaseOrder?.procurements]);
 
-  const handleChangePercentStore = (storeId: number, value: number | null) => {
+  useEffect(() => {
+    const columns: Array<ICustomTableColumType<PurchaseProcumentLineItem>> = [
+      {
+        title: "Mã sản phẩm",
+        align: "center",
+        dataIndex: "sku",
+        width: 80,
+        render: (value, record) => {
+          return (
+            <Link
+              target="_blank"
+              to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
+            >
+              {value}
+            </Link>
+          );
+        },
+      },
+      {
+        title: "Kế hoạch",
+        align: "center",
+        dataIndex: "quantity",
+        width: 60,
+        render: (value) => {
+          return <>{value}</>;
+        },
+      },
+      {
+        title: "",
+        align: "center",
+        dataIndex: "accepted_quanti ty",
+        width: 0,
+        render: (value) => {
+          return <></>;
+        },
+      },
+    ];
+    const width =
+      dataStore.length < COUNT_STORE
+        ? Math.round((COUNT_STORE * WIDTH_COLUM_STORE) / (dataStore.length || 1))
+        : WIDTH_COLUM_STORE;
+
+    dataStore.forEach((store, indexStore) => {
+      columns.push({
+        title: () => {
+          return (
+            <div className="style-store">
+              <span className="title-shop">
+                <Tooltip title={store?.store_short_name ? store?.store_short_name : store.store}>
+                  {store?.store_short_name ? store?.store_short_name : store.store}
+                </Tooltip>
+              </span>
+              {isEditDetail && store?.status === ProcurementStatus.draft ? (
+                <div className="shop-percent">
+                  <NumberInput
+                    value={store.percent || 0}
+                    min={0}
+                    max={100}
+                    suffix={<div className="vat-suffix">%</div>}
+                    style={{ width: "100%" }}
+                    className="product-item-vat"
+                    isChangeAfterBlur={false}
+                    onChange={(value: number | null) => {
+                      handleChangePercentStore(store, indexStore, value);
+                    }}
+                  />
+                </div>
+              ) : (
+                <div className="shop-percent">({store?.percent || 0} %)</div>
+              )}
+            </div>
+          );
+        },
+        align: "center",
+        dataIndex: "procurement_items",
+        width: width,
+        render: (value, row) => {
+          const valueStore = row.procurement_items
+            ? row.procurement_items[indexStore].planned_quantity
+            : 0;
+          return (
+            <>
+              {isEditDetail &&
+              row.procurement_items &&
+              row.procurement_items[indexStore].status === ProcurementStatus.draft ? (
+                <NumberInput
+                  min={0}
+                  value={valueStore}
+                  onChange={(value) => {
+                    row?.procurement_items &&
+                      row?.procurement_items[indexStore]?.procurement &&
+                      handleChangeValueProcumentItem(
+                        row.procurement_items[indexStore]?.procurement,
+                        row.variant_id,
+                        indexStore,
+                        value,
+                      );
+                  }}
+                  format={(a: string) => formatCurrency(a)}
+                  replace={(a: string) => replaceFormatString(a)}
+                  maxLength={10}
+                  isChangeAfterBlur={false}
+                />
+              ) : (
+                <>{valueStore}</>
+              )}
+            </>
+          );
+        },
+      });
+    });
+
+    setColumns(columns);
+  }, [dataStore, isEditDetail]);
+
+  const handleChangePercentStore = (
+    procument: PurchaseProcument,
+    indexStore: number,
+    value: number | null,
+  ) => {
     const procurements = formMain?.getFieldsValue()?.procurements as PurchaseProcument[];
     const valueResult = value || 0;
-    const dataStore = procurements.filter(
-      (procurement) => moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
-    );
-    const indexStore = dataStore.findIndex((item) => item.store_id === storeId);
-    const indexProcurements = procurements.findIndex(
-      (item) =>
-        item.store_id === dataStore[indexStore].store_id &&
-        item.uuid === dataStore[indexStore].uuid,
-    );
+
+    // const indexStore = dataStore.findIndex((item) => item.store_id === storeId);
+    const indexProcurements = procurements.findIndex((item) => procument.id === item.id);
+    dataStore[indexStore]["percent"] = valueResult;
     if (indexProcurements >= 0) {
-      procurements[indexProcurements].percent = value || 0;
-      const totalPercent = procurements
-        .filter(
-          (procurement) =>
-            moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
-        )
-        .reduce((acc, ele) => acc + (ele.percent || 0), 0);
-      const dataSourceResult = dataSource.map((item) => {
+      procurements[indexProcurements]["percent"] = valueResult;
+      const totalPercent = dataStore.reduce((acc, ele) => acc + (ele.percent || 0), 0);
+      const dataSourceResult = dataSource.map((dataSourceItem) => {
         const indexProcurementsItem = procurements[indexProcurements].procurement_items.findIndex(
-          (procurementItems) => procurementItems.variant_id === item.variant_id,
+          (procurementItems) => procurementItems.variant_id === dataSourceItem.variant_id,
         );
-
-        if (isSore(storeId) === EnumStore.ANH) {
-          let quantity = 0;
+        if (indexProcurementsItem >= 0 && dataSourceItem.procurement_items) {
+          let quantity = Math.round((dataSourceItem.quantity * valueResult) / 100);
+          dataSourceItem.procurement_items[indexStore].planned_quantity = quantity;
+          const totalPlannedQuantity = dataSourceItem.procurement_items.reduce(
+            (acc, ele) => acc + ele.planned_quantity,
+            0,
+          );
           if (
-            totalPercent === 100 &&
-            (item.quantity_tung || 0) + (item.quantity_hieu || 0) < item.quantity
+            totalPercent === AppConfig.ONE_HUNDRED_PERCENT &&
+            dataSourceItem.quantity !== totalPlannedQuantity
           ) {
-            quantity = item.quantity - ((item.quantity_tung || 0) + (item.quantity_hieu || 0));
-          } else {
-            quantity = Math.floor((item.quantity * valueResult) / 100);
+            const quantityPercent = totalPlannedQuantity - dataSourceItem.quantity;
+            if (valueResult === 0) {
+              quantity = 0;
+              let check = false;
+              dataSourceItem.procurement_items &&
+                dataSourceItem.procurement_items.forEach((item, index) => {
+                  if (item.percent && dataSourceItem.procurement_items && !check) {
+                    check = true;
+                    dataSourceItem.procurement_items[index].planned_quantity =
+                      dataSourceItem.procurement_items[index].planned_quantity - quantityPercent;
+                  }
+                });
+            } else {
+              quantity = quantity - quantityPercent;
+              dataSourceItem.procurement_items[indexStore].planned_quantity =
+                quantity >= 0 ? quantity : 0;
+            }
           }
-          if (indexProcurementsItem >= 0) {
-            procurements[indexProcurements].procurement_items[
-              indexProcurementsItem
-            ].planned_quantity = quantity;
-          }
-          return {
-            ...item,
-            quantity_anh: quantity,
-          };
-        }
-        if (isSore(storeId) === EnumStore.TUNG) {
-          let quantity = 0;
-          if (
-            totalPercent === 100 &&
-            (item.quantity_anh || 0) + (item.quantity_hieu || 0) < item.quantity
-          ) {
-            quantity = item.quantity - ((item.quantity_anh || 0) + (item.quantity_hieu || 0));
-          } else {
-            quantity = Math.floor((item.quantity * valueResult) / 100);
-          }
-          if (indexProcurementsItem >= 0) {
-            procurements[indexProcurements].procurement_items[
-              indexProcurementsItem
-            ].planned_quantity = quantity;
-          }
-          return {
-            ...item,
-            quantity_tung: quantity,
-          };
-        }
-        if (isSore(storeId) === EnumStore.HIEU) {
-          let quantity = 0;
-          if (
-            totalPercent === 100 &&
-            (item.quantity_anh || 0) + (item.quantity_tung || 0) < item.quantity
-          ) {
-            quantity = item.quantity - ((item.quantity_anh || 0) + (item.quantity_tung || 0));
-          } else {
-            quantity = Math.floor((item.quantity * valueResult) / 100);
-          }
-          if (indexProcurementsItem >= 0) {
-            procurements[indexProcurements].procurement_items[
-              indexProcurementsItem
-            ].planned_quantity = quantity;
-          }
-
-          return {
-            ...item,
-            quantity_hieu: quantity,
-          };
+          procurements[indexProcurements].procurement_items[
+            indexProcurementsItem
+          ].planned_quantity = quantity;
         }
         return {
-          ...item,
+          ...dataSourceItem,
         };
       });
+      setDataStore(dataStore);
       setDataSource(dataSourceResult);
       formMain?.setFieldsValue({
         [POField.procurements]: [...procurements],
@@ -295,242 +321,31 @@ export const PoSplitGoods = (props: IProps) => {
   };
 
   const handleChangeValueProcumentItem = (
-    storeId: number,
+    procurement: PurchaseProcument | undefined,
     variantId: number,
+    indexStore: number,
     value: number | null,
   ) => {
     const valueResult = value || 0;
     const procurements = formMain?.getFieldsValue()?.procurements as PurchaseProcument[];
-    const dataStore = procurements.filter(
-      (procurement) => moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
-    );
-    const indexDataSource = dataSource.findIndex((item) => item.variant_id === variantId);
-    const indexStore = dataStore.findIndex((item) => item.store_id === storeId);
-    const indexProcurements = procurements.findIndex(
-      (item) =>
-        item.store_id === dataStore[indexStore].store_id &&
-        item.uuid === dataStore[indexStore].uuid,
-    );
-    const indexProcurementsItem = procurements[indexProcurements].procurement_items.findIndex(
-      (item) => item.variant_id === variantId,
-    );
-    if (isSore(storeId) === EnumStore.TUNG) {
-      dataSource[indexDataSource].quantity_tung = valueResult;
-    }
-    if (isSore(storeId) === EnumStore.HIEU) {
-      dataSource[indexDataSource].quantity_hieu = valueResult;
-    }
-    if (isSore(storeId) === EnumStore.ANH) {
-      dataSource[indexDataSource].quantity_anh = valueResult;
-    }
-    if (indexProcurementsItem >= 0) {
-      procurements[indexProcurements].procurement_items[indexProcurementsItem].planned_quantity =
+    const indexProcurement = procurements.findIndex((item) => item.id === procurement?.id);
+    if (indexProcurement >= 0) {
+      const indexProcurementItem = procurements[indexProcurement].procurement_items.findIndex(
+        (item) => item.variant_id === variantId,
+      );
+      const indexDataSource = dataSource.findIndex((item) => item.variant_id === variantId);
+      procurements[indexProcurement].procurement_items[indexProcurementItem].planned_quantity =
         valueResult;
+      if (indexDataSource >= 0 && dataSource[indexDataSource]?.procurement_items) {
+        //@ts-ignore
+        dataSource[indexDataSource].procurement_items[indexStore].planned_quantity = valueResult;
+      }
+      setDataSource([...dataSource]);
+      formMain?.setFieldsValue({
+        [POField.procurements]: procurements,
+      });
     }
-    setDataSource(dataSource);
-    formMain?.setFieldsValue({
-      [POField.procurements]: procurements,
-    });
   };
-
-  const columns: Array<ICustomTableColumType<PurchaseProcumentLineItem>> = [
-    {
-      title: "Mã sản phẩm",
-      align: "center",
-      dataIndex: "sku",
-      width: 80,
-      render: (value, record) => {
-        return (
-          <Link
-            target="_blank"
-            to={`${UrlConfig.PRODUCT}/${record.product_id}/variants/${record.variant_id}`}
-          >
-            {value}
-          </Link>
-        );
-      },
-    },
-    {
-      title: "Kế hoạch",
-      align: "center",
-      dataIndex: "planned_quantity",
-      width: 60,
-      render: (value) => {
-        return <>{value}</>;
-      },
-    },
-    {
-      title: "",
-      align: "center",
-      dataIndex: "accepted_quantity",
-      width: 0,
-      render: (value) => {
-        return <></>;
-      },
-    },
-    {
-      title: () => {
-        const storeAnh = dataStore.filter((item) => {
-          return item.store_id === store_anh;
-        });
-        return (
-          <div className="style-store">
-            <span className="title-shop"> Ánh</span>
-            {isEditDetail && storeAnh[0]?.status === ProcurementStatus.draft ? (
-              <div className="shop-percent">
-                <NumberInput
-                  value={storeAnh.length > 0 ? storeAnh[0].percent : 0}
-                  min={0}
-                  max={100}
-                  suffix={<div className="vat-suffix">%</div>}
-                  style={{ width: "100%" }}
-                  className="product-item-vat"
-                  isChangeAfterBlur={false}
-                  onChange={(value: number | null) => {
-                    handleChangePercentStore(storeAnh[0].store_id, value);
-                  }}
-                />
-              </div>
-            ) : (
-              <>({storeAnh[0]?.percent} %)</>
-            )}
-          </div>
-        );
-      },
-      align: "center",
-      dataIndex: "quantity_anh",
-      width: 90,
-      render: (value, row) => {
-        return (
-          <>
-            {isEditDetail && row.status === ProcurementStatus.draft ? (
-              <NumberInput
-                min={0}
-                value={value}
-                onChange={(value) =>
-                  handleChangeValueProcumentItem(store_anh, row.variant_id, value)
-                }
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                maxLength={10}
-                isChangeAfterBlur={false}
-              />
-            ) : (
-              <>{value}</>
-            )}
-          </>
-        );
-      },
-    },
-    {
-      title: () => {
-        const storeTung = dataStore.filter((item) => {
-          return item.store_id === store_tung;
-        });
-        return (
-          <div className="style-store">
-            <span className="title-shop"> Tùng</span>
-            {isEditDetail && storeTung[0]?.status === ProcurementStatus.draft ? (
-              <div className="shop-percent">
-                <NumberInput
-                  value={storeTung.length > 0 ? storeTung[0].percent : 0}
-                  min={0}
-                  max={100}
-                  suffix={<div className="vat-suffix">%</div>}
-                  style={{ width: "100%" }}
-                  className="product-item-vat"
-                  isChangeAfterBlur={false}
-                  onChange={(value: number | null) => {
-                    handleChangePercentStore(storeTung[0].store_id, value);
-                  }}
-                />
-              </div>
-            ) : (
-              <>({storeTung[0]?.percent} %)</>
-            )}
-          </div>
-        );
-      },
-      align: "center",
-      dataIndex: "quantity_tung",
-      width: 90,
-      render: (value, row) => {
-        return (
-          <>
-            {isEditDetail && row.status === ProcurementStatus.draft ? (
-              <NumberInput
-                min={0}
-                value={value}
-                onChange={(value) =>
-                  handleChangeValueProcumentItem(store_tung, row.variant_id, value)
-                }
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                maxLength={10}
-                isChangeAfterBlur={false}
-              />
-            ) : (
-              <>{value}</>
-            )}
-          </>
-        );
-      },
-    },
-    {
-      title: () => {
-        const storeHieu = dataStore.filter((item) => {
-          return item.store_id === store_hieu;
-        });
-        return (
-          <div className="style-store">
-            <span className="title-shop"> Hiếu</span>
-            {isEditDetail && storeHieu[0]?.status === ProcurementStatus.draft ? (
-              <div className="shop-percent">
-                <NumberInput
-                  value={storeHieu.length > 0 ? storeHieu[0].percent : 0}
-                  min={0}
-                  max={100}
-                  suffix={<div className="vat-suffix">%</div>}
-                  style={{ width: "100%" }}
-                  className="product-item-vat"
-                  isChangeAfterBlur={false}
-                  onChange={(value: number | null) => {
-                    handleChangePercentStore(storeHieu[0].store_id, value);
-                  }}
-                />
-              </div>
-            ) : (
-              <>({storeHieu[0]?.percent} %)</>
-            )}
-          </div>
-        );
-      },
-      align: "center",
-      dataIndex: "quantity_hieu",
-      width: 90,
-      render: (value, row) => {
-        return (
-          <>
-            {isEditDetail && row.status === ProcurementStatus.draft ? (
-              <NumberInput
-                min={0}
-                value={value}
-                onChange={(value) =>
-                  handleChangeValueProcumentItem(store_hieu, row.variant_id, value)
-                }
-                format={(a: string) => formatCurrency(a)}
-                replace={(a: string) => replaceFormatString(a)}
-                maxLength={10}
-                isChangeAfterBlur={false}
-              />
-            ) : (
-              <>{value}</>
-            )}
-          </>
-        );
-      },
-    },
-  ];
 
   const handleOnchangeDateOption = (value: string) => {
     setDateOption(value);
@@ -592,26 +407,15 @@ export const PoSplitGoods = (props: IProps) => {
         rowClassName="product-table-row"
         dataSource={dataSource}
         tableLayout="fixed"
-        scroll={{ x: window.screen.width <= 1440 ? 600 : 500 }}
+        scroll={{ x: window.screen.width <= 1600 ? 600 : 500 }}
         pagination={false}
         bordered
         columns={columns}
         summary={(data: readonly PurchaseProcumentLineItem[]) => {
           const totalPlannedQuantities = data.reduce((acc, item) => {
-            return acc + item.planned_quantity;
+            return acc + item.quantity;
           }, 0);
-          // const totalAcceptedQuantity = data.reduce((acc, item) => {
-          //   return acc + item.accepted_quantity;
-          // }, 0);
-          const totalQuantityAnh = data.reduce((acc, item) => {
-            return acc + (item.quantity_anh || 0);
-          }, 0);
-          const totalQuantityTung = data.reduce((acc, item) => {
-            return acc + (item.quantity_tung || 0);
-          }, 0);
-          const totalQuantityHieu = data.reduce((acc, item) => {
-            return acc + (item.quantity_hieu || 0);
-          }, 0);
+
           return (
             <Table.Summary>
               <Table.Summary.Row>
@@ -624,15 +428,19 @@ export const PoSplitGoods = (props: IProps) => {
                 <Table.Summary.Cell align="center" colSpan={1} index={2}>
                   {/* <div style={{ fontWeight: 700 }}>{totalAcceptedQuantity}</div> */}
                 </Table.Summary.Cell>
-                <Table.Summary.Cell align="center" colSpan={1} index={3}>
-                  <div style={{ fontWeight: 700 }}>{totalQuantityAnh}</div>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell align="center" colSpan={1} index={4}>
-                  <div style={{ fontWeight: 700 }}>{totalQuantityTung}</div>
-                </Table.Summary.Cell>
-                <Table.Summary.Cell align="center" colSpan={1} index={5}>
-                  <div style={{ fontWeight: 700 }}>{totalQuantityHieu}</div>
-                </Table.Summary.Cell>
+                {dataStore.map((dataStoreItem, indexStore) => {
+                  let total = 0;
+                  data.forEach((dataItem, index) => {
+                    total += dataItem?.procurement_items
+                      ? dataItem?.procurement_items[indexStore].planned_quantity
+                      : 0;
+                  });
+                  return (
+                    <Table.Summary.Cell align="center" colSpan={1} index={3}>
+                      <div style={{ fontWeight: 700 }}>{total}</div>
+                    </Table.Summary.Cell>
+                  );
+                })}
               </Table.Summary.Row>
             </Table.Summary>
           );
@@ -652,8 +460,16 @@ const StyledPOSplGood = styled.div`
     gap: 12px;
     justify-content: center;
     .shop-percent {
+      min-width: 55px;
       flex: 1;
       max-width: 80px;
+    }
+    .title-shop {
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      margin-right: 4px;
     }
   }
 `;
@@ -670,9 +486,6 @@ const StyledRow = styled(Row)`
     height: 32px !important;
     width: 48px !important;
     padding: 7px 8px !important;
-  }
-  .title-shop {
-    margin-right: 4px;
   }
   .vat-suffix {
     height: 100%;

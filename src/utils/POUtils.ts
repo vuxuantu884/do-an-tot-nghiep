@@ -813,6 +813,11 @@ export const checkCanEditDraft = (form: FormInstance, isEdit: boolean) => {
   return isEdit && (!stt || stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL);
 };
 
+export const checkCanEditPrice = (form: FormInstance, isEdit: boolean, canUpdatePrice: boolean) => {
+  const stt = form.getFieldValue(POField.status);
+  return isEdit && stt === POStatus.FINALIZED && canUpdatePrice;
+};
+
 export const isExpandsSupplement = (form: FormInstance, isEdit: boolean) => {
   const lineItems: PurchaseOrderLineItem[] = form.getFieldValue(POField.line_items);
   return isEdit || lineItems.some((item) => item.type === POLineItemType.SUPPLEMENT);

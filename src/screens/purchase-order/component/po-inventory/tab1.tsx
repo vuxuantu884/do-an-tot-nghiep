@@ -260,11 +260,11 @@ const TabAll: React.FC<TabAllProps> = (props: TabAllProps) => {
 };
 
 const StyledContainer = styled.div`
-  .ant-table-thead {
+  /* .ant-table-thead {
     position: sticky !important;
     top: 55px;
     z-index: 100;
-  }
+  } */
 `;
 
 export default TabAll;

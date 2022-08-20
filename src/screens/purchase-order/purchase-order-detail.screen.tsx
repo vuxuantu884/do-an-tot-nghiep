@@ -64,6 +64,8 @@ import {
   MIN_IMPORT_PRICE_WARNING,
   POUtils,
   validateLineItemQuantity,
+  checkCanEditPrice,
+  checkChangePriceLineItem,
 } from "utils/POUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
 import POInfoPO from "./component/po-info-po";
@@ -175,6 +177,9 @@ const PODetailScreen: React.FC = () => {
   const [isRerender, setIsRerender] = useState<boolean>(false);
   const [canCancelPO] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.cancel],
+  });
+  const [canUpdateImportPrice] = useAuthorization({
+    acceptPermissions: [PurchaseOrderPermission.update_import_price],
   });
   const statusAction = useRef<string>("");
 
@@ -399,6 +404,7 @@ const PODetailScreen: React.FC = () => {
           )
           .filter((item) => item.variant_id === lineItem.variant_id)
           .reduce((total, element) => total + element.planned_quantity, 0);
+
         if (totalProcumentPlannedQuantityByLineItem > lineItem.quantity) {
           throw new Error(
             `Số lượng hàng về dự kiến sản phẩm ${lineItem.sku} nhiều hơn số lượng đặt hàng`,
@@ -429,6 +435,8 @@ const PODetailScreen: React.FC = () => {
       //sử lý khi thêm ngày nhận dự kiến
       value.procurements = [
         ...value.procurements.map((procurement) => {
+          //@ts-ignore
+          if (typeof procurement.id === "string") delete procurement.id;
           return {
             ...procurement,
             procurement_items: [
@@ -1194,12 +1202,14 @@ const PODetailScreen: React.FC = () => {
                 <POProductFormNew
                   formMain={formMain}
                   isEditMode={checkCanEditDraft(formMain, isEditDetail)}
+                  isEditPrice={checkCanEditPrice(formMain, isEditDetail, canUpdateImportPrice)}
                 />
               ) : (
                 <POProductFormOld
                   isEdit={isEditDetail}
                   formMain={formMain}
                   poLineItemType={POLineItemType.NORMAL}
+                  isEditPrice={checkCanEditPrice(formMain, isEditDetail, canUpdateImportPrice)}
                 />
               )}
             </PoProductContainer>

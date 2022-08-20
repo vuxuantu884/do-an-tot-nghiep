@@ -283,6 +283,9 @@ export type POProgressResult = {
 };
 
 export interface PurchaseOrderReturnQuery extends BaseQuery {}
+export interface PurchaseOrderPercentsQuery {
+  month: number;
+}
 
 export interface PurchaseOrderReturn extends BaseObject {
   expect_return_date: Date;

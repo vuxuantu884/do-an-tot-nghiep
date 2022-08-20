@@ -55,11 +55,12 @@ type POProductProps = {
   formMain: FormInstance;
   isEdit: boolean;
   poLineItemType: POLineItemType;
+  isEditPrice?: boolean;
 };
 var position = 0;
 const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   const dispatch = useDispatch();
-  const { formMain, isEdit, poLineItemType } = props;
+  const { formMain, isEdit, poLineItemType, isEditPrice } = props;
   const productSearchRef = createRef<CustomAutoComplete>();
   const [loadingSearch, setLoadingSearch] = useState(false);
   const [visibleManyProduct, setVisibleManyProduct] = useState<boolean>(false);
@@ -618,10 +619,13 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
   };
 
   const isEditFormByType = () => {
+    const stt = formMain.getFieldValue(POField.status);
     if (!isEdit) {
       return false;
     }
-    const stt = formMain.getFieldValue(POField.status);
+    if (stt && (stt === POStatus.DRAFT || stt === POStatus.WAITING_APPROVAL) && isEdit) {
+      return true;
+    }
     if (poLineItemType === POLineItemType.NORMAL && (!stt || stt === POStatus.DRAFT)) {
       return true;
     }
@@ -752,7 +756,7 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     title: "STT",
                     align: "center",
                     width: 60,
-                    render: (value, record, index) => index + 1,
+                    render: (value, record, index: number) => index + 1,
                   },
                   {
                     title: "Ảnh",
@@ -1138,6 +1142,21 @@ const POProductForm: React.FC<POProductProps> = (props: POProductProps) => {
                     width: 140,
                     dataIndex: "price",
                     render: (value, item, index) => {
+                      if (isEdit && isEditPrice) {
+                        return (
+                          <NumberInput
+                            className="hide-number-handle"
+                            min={0}
+                            format={(a: string) => formatCurrency(a ? a : 0)}
+                            replace={(a: string) => replaceFormatString(a)}
+                            value={item.price > 0 ? item.price : value}
+                            onChange={(inputValue) => {
+                              handleChangePriceLineItem(inputValue || 0, item);
+                            }}
+                          />
+                        );
+                      }
+
                       return (
                         <div
                           style={{
