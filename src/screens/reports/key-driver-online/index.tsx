@@ -164,7 +164,7 @@ function KeyDriverOnline() {
                   <div>
                     <NumberInput
                       id={inputId}
-                      defaultValue={newValue}
+                      value={newValue}
                       disabled={departmentDrillingLevel > targetDrillingLevel}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
@@ -308,8 +308,6 @@ function KeyDriverOnline() {
             render: (text: any, record: KeyDriverOnlineDataSourceType, index: number) => {
               const targetDrillingLevel = +record[`target_drilling_level`];
               const inputId = getInputTargetId(index, columnIndex * 2 + 1, PREFIX_CELL_TABLE);
-              // const input: any = document.getElementById(inputId);
-              // const currentValue = input?.value;
               let newValue = text ? Number(text) : 0;
               let clickCancel = false;
               return (
@@ -318,7 +316,7 @@ function KeyDriverOnline() {
                     <NumberInput
                       id={inputId}
                       disabled={departmentDrillingLevel > targetDrillingLevel}
-                      defaultValue={newValue}
+                      value={newValue}
                       onPressEnter={(e: any) => {
                         const input: any = document.getElementById(inputId);
                         if (input.value != newValue) {
