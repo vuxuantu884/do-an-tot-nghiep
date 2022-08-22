@@ -1,13 +1,13 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link, useHistory, useParams } from "react-router-dom";
+import { useHistory, useParams } from "react-router-dom";
 import { Button, Card, Col, Form, Input, Row, Select, Space, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
 import ContentContainer from "component/container/content.container";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
-import { showError, showWarning } from "utils/ToastUtils";
+import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 
@@ -15,6 +15,7 @@ import {
   getCampaignContactListAction,
   getCampaignDetailAction,
   getCampaignRefIdAction,
+  updateCampaignAction,
 } from "domain/actions/marketing/marketing.action";
 import { CampaignContactSearchQuery } from "model/marketing/marketing.model";
 import { PageResponse } from "model/base/base-metadata.response";
@@ -290,6 +291,21 @@ const CampaignDetail = () => {
   }, []);
   /** --- */
 
+  /** update campaign status */
+  const updateCampaignStatus = (status: string) => {
+    const params = {
+      ...campaignDetail,
+      status: status,
+    };
+
+    setIsLoading(true);
+    dispatch(updateCampaignAction(campaignDetail?.id, { ...params }, (response) => {
+      setIsLoading(false);
+      showSuccess(`${status === "ACTIVE" ? "Kích hoạt" : "Tạm ngừng"} chiến dịch thành công.`);
+      setCampaignDetail(response);
+    }));
+  };
+
 
   const renderCampaignStatus = useCallback(() => {
     const campaignStatus =  CAMPAIGN_STATUS_LIST.find(item => item.value === campaignDetail?.status?.toUpperCase());
@@ -308,12 +324,12 @@ const CampaignDetail = () => {
   const renderMessageStatus = useCallback(() => {
     const campaignStatus =  MESSAGE_STATUS_LIST.find(item => item.value === campaignDetail?.message_status?.toUpperCase());
     return (
-      <>
+      <div style={{ display: "flex", alignItems: "center"}}>
         <span>THỐNG KÊ CHIẾN DỊCH</span>
         {campaignStatus &&
           <span
             style={{
-              marginLeft: "16px",
+              marginLeft: "20px",
               color: campaignStatus.color,
               fontWeight: 400,
               fontSize: "14px",
@@ -326,7 +342,7 @@ const CampaignDetail = () => {
             {campaignStatus?.name}
           </span>
         }
-      </>
+      </div>
     )
   }, [campaignDetail?.message_status]);
 
@@ -499,6 +515,18 @@ const CampaignDetail = () => {
                     <span>Chỉnh sửa</span>
                   </div>
                 </Button>
+
+                {(campaignDetail?.status?.toUpperCase() === "WAITING" || campaignDetail?.status?.toUpperCase() === "PAUSE") &&
+                  <Button onClick={() => updateCampaignStatus("ACTIVE")} type={"primary"}>
+                    Kích hoạt
+                  </Button>
+                }
+
+                {(campaignDetail?.status?.toUpperCase() === "ACTIVE") &&
+                  <Button onClick={() => updateCampaignStatus("PAUSE")} type={"primary"}>
+                    Tạm ngừng
+                  </Button>
+                }
               </Space>
             }
           />
