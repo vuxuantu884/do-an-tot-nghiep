@@ -71,7 +71,19 @@ function CustomerVisitors() {
           (data: PageResponse<AccountResponse> | false) => {
             const staffIds = localStorage.getItem(LocalStorageKey.SatffAssigneeCode);
             if (staffIds && JSON.parse(staffIds).length) {
-              const validatedStaffIds = JSON.parse(staffIds);
+              let validatedStaffIds = JSON.parse(staffIds);
+              if (data && data.items?.length) {
+                validatedStaffIds = validatedStaffIds.filter((item: string) => {
+                  return (
+                    data.items.findIndex(
+                      (staffItem) =>
+                        staffItem.code.toLocaleLowerCase() === item.toLocaleLowerCase(),
+                    ) !== -1
+                  );
+                });
+              } else {
+                validatedStaffIds = [];
+              }
               form.setFieldsValue({
                 [CustomerVisitorsFilter.AssigneeCodes]: validatedStaffIds,
               });
@@ -103,7 +115,7 @@ function CustomerVisitors() {
         dataIndex: `day${day}`,
         key: `day${day}`,
         isToday: currentYear === year && currentMonth === month && +day === +moment().date(),
-        disabled: +day > +moment().date(),
+        disabled: +day > +moment().date() || +day <= +moment().subtract(3, "days").date(),
       };
       columnsTmp.push(column);
     });
