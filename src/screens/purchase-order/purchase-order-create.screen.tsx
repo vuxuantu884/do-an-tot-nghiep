@@ -294,6 +294,12 @@ const POCreateScreen: React.FC = () => {
         };
       });
       value.procurements = procurements;
+      value.line_items = value.line_items.map((line_item) => {
+        return {
+          ...line_item,
+          receipt_quantity: 0, // tạo thì receipt_quantity = 0
+        };
+      });
       const dataClone = {
         ...value,
         store_id: Number(value?.store_id),

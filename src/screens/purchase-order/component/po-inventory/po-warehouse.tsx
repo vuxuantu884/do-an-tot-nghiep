@@ -524,7 +524,10 @@ export const PoWareHouse = (props: IProps) => {
               ? status
               : ProcurementStatus.received;
           return {
-            uuid: Object.values(procurementFitterStatus)[0][0].uuid || "",
+            uuid:
+              Object.values(procurementFitterStatus)[0]?.length > 0
+                ? Object.values(procurementFitterStatus)[0][0]?.uuid || ""
+                : "",
             status,
             isAdd: false,
             date: procurementsExpectReceiptDate

@@ -27,6 +27,7 @@ import { PurchaseOrderCreateContext } from "screens/purchase-order/provider/purc
 import styled from "styled-components";
 import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { ProcurementStatus } from "utils/Constants";
+import { DATE_FORMAT } from "utils/DateUtils";
 
 interface IProps {
   formMain?: FormInstance<any>;
@@ -89,11 +90,11 @@ export const PoSplitGoods = (props: IProps) => {
         : purchaseOrder?.procurements;
       const index = procurements.findIndex(
         (procurement) =>
-          moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
+          moment(procurement.expect_receipt_date).format(DATE_FORMAT.DDMMYYY) === dateOption,
       );
       const dataStore = procurements.filter(
         (procurement) =>
-          moment(procurement.expect_receipt_date).format("DD/MM/YYYY") === dateOption,
+          moment(procurement.expect_receipt_date).format(DATE_FORMAT.DDMMYYY) === dateOption,
       );
       if (index >= 0) {
         const dataSource: PurchaseProcumentLineItem[] = procurements[index].procurement_items.map(
@@ -104,7 +105,7 @@ export const PoSplitGoods = (props: IProps) => {
             );
             const procurementsFilterKeys = Object.keys(procurementsFilter);
             procurementsFilterKeys.forEach((oldKey) => {
-              const newKey = moment(oldKey).format("DD/MM/YYYY");
+              const newKey = moment(oldKey).format(DATE_FORMAT.DDMMYYY);
               delete Object.assign(procurementsFilter, {
                 [newKey]: procurementsFilter[oldKey],
               })[oldKey];
@@ -183,7 +184,6 @@ export const PoSplitGoods = (props: IProps) => {
       dataStore.length < COUNT_STORE
         ? Math.round((COUNT_STORE * WIDTH_COLUM_STORE) / (dataStore.length || 1))
         : WIDTH_COLUM_STORE;
-
     dataStore.forEach((store, indexStore) => {
       columns.push({
         title: () => {

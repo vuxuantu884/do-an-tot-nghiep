@@ -225,8 +225,6 @@ const PODetailScreen: React.FC = () => {
       if (!result) {
         setError(true);
       } else {
-        const procurements = handleSortProcurements(result.procurements);
-        console.log("update");
         let closingDate = result.ap_closing_date ? moment(result.ap_closing_date) : null;
         if (
           !closingDate &&
@@ -236,7 +234,7 @@ const PODetailScreen: React.FC = () => {
           closingDate = moment();
         }
         const procurementsFilter = groupBy(
-          procurements,
+          result.procurements,
           ProcurementLineItemField.expect_receipt_date,
         );
         const procurementsAllEffect: Array<PurchaseProcument[]> = Object.values(
@@ -263,18 +261,23 @@ const PODetailScreen: React.FC = () => {
           ];
         });
         const procurementSplit = procurementsAllEffect.reduce((acc, val) => acc.concat(val), []);
+        const procurements = handleSortProcurements(procurementSplit).map((procurementItem) => {
+          const expect_receipt_date = ConvertDateToUtc(
+            moment(procurementItem.expect_receipt_date).format(DATE_FORMAT.MM_DD_YYYY),
+          );
+          return {
+            ...procurementItem,
+            expect_receipt_date,
+          };
+        });
         formMain.setFieldsValue({
           ...result,
           ap_closing_date: closingDate,
-          procurements: [...procurementSplit],
+          procurements: [...procurements],
         });
-        handleSetProcurementTableContext(
-          procurementSplit,
-          result.line_items,
-          procurementsAllEffect,
-        );
+        handleSetProcurementTableContext(procurements, result.line_items, procurementsAllEffect);
 
-        setPurchaseOrder({ ...result, procurements: [...procurementSplit] });
+        setPurchaseOrder({ ...result, procurements: [...procurements] });
         setProcurementsAll(procurementsAllEffect);
         setStatus(result.status);
       }
