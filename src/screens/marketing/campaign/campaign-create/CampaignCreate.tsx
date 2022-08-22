@@ -42,6 +42,8 @@ const CampaignCreateUpdate = () => {
 
   let activeCampaign = true;
 
+  const [isCreateCampaign, setIsCreateCampaign] = useState<boolean>(true);
+  
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSelectedNow, setIsSelectedNow] = useState(true);
   const [campaignMessage, setCampaignMessage] = useState<string>("");
@@ -133,6 +135,12 @@ const CampaignCreateUpdate = () => {
       );
     }
   }, [brandNameList, dispatch, getContactList, params.id, updateCampaignDetail]);
+  
+  useEffect(() => {
+    if (params?.id) {
+      setIsCreateCampaign(false);
+    }
+  }, [params?.id]);
   /** end handle update campaign */
 
   useEffect(() => {
@@ -170,14 +178,15 @@ const CampaignCreateUpdate = () => {
     setIsLoading(false);
     if (response) {
       setCampaignDetail(response);
-      showSuccess("Đã cập nhật thông tin chiến dịch")
+      showSuccess("Chỉnh sửa thông tin chiến dịch thành công")
       setIsEditInfo(false);
     }
   }, []);
 
   const onUpdateCampaign = () => {
     form.validateFields().then(() => {
-      const params = form.getFieldsValue();
+      const formValues = form.getFieldsValue();
+      const params = {...campaignDetail, ...formValues};
       setIsLoading(true);
       dispatch(updateCampaignAction(campaignDetail?.id, { ...params }, updateCampaignInfoCallback));
     });
@@ -495,7 +504,7 @@ const CampaignCreateUpdate = () => {
   return (
     <CampaignCreateStyled>
       <ContentContainer
-        title="Tạo chiến dịch"
+        title={`${isCreateCampaign ? "Tạo chiến dịch" : "Chỉnh sửa chiến dịch"}`}
         breadcrumb={[
           {
             name: "Khách hàng",
@@ -509,7 +518,7 @@ const CampaignCreateUpdate = () => {
             path: `${UrlConfig.MARKETING}/campaigns`,
           },
           {
-            name: "Tạo chiến dịch",
+            name: `${isCreateCampaign ? "Tạo chiến dịch" : "Chỉnh sửa chiến dịch"}`
           },
         ]}
       >
@@ -534,7 +543,7 @@ const CampaignCreateUpdate = () => {
                   <Input
                     disabled={isLoading || (campaignDetail && !isEditInfo)}
                     maxLength={255}
-                    placeholder="Nhập họ và tên chiến dịch"
+                    placeholder="Nhập tên chiến dịch"
                     onBlur={(e) => form?.setFieldsValue({ campaign_name: e.target.value?.trim() })}
                   />
                 </Form.Item>
