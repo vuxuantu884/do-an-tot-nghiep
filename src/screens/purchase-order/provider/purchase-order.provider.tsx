@@ -284,7 +284,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
       if (!pre.expect_receipt_date || !next.expect_receipt_date) return 0;
       const preDate = new Date(moment(pre.expect_receipt_date).format("MM-DD-YYYY"));
       const nextDate = new Date(moment(next.expect_receipt_date).format("MM-DD-YYYY"));
-      return preDate.getTime() - nextDate.getTime() > 0 ? 1 : -1;
+      return preDate.getTime() - nextDate.getTime() >= 0 ? 1 : -1;
     });
     return procurements;
   };
