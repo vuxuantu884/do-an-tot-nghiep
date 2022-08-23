@@ -27,6 +27,7 @@ const PotentialImporting: FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [source, setSource] = useState<string>(PotentialImportingSource.REGIST);
   const [listStore, setStore] = useState<Array<StoreResponse>>([]);
+  const [fileList, setFileList] = useState<any>([]);
   const dispatch = useDispatch();
 
   const myStores: AccountStoreResponse[] | undefined = useSelector(
@@ -128,6 +129,14 @@ const PotentialImporting: FC = () => {
     },
     [dispatch, myAccount?.code, myAccount?.full_name, source],
   );
+
+  const onCancel = () => {
+    form.setFieldsValue({
+      [PotentialImportingForm.Store]: undefined,
+      [PotentialImportingForm.FileUpload]: undefined,
+    });
+    setFileList([]);
+  };
 
   useEffect(() => {
     dispatch(StoreGetListAction(setStore));
@@ -242,7 +251,13 @@ const PotentialImporting: FC = () => {
                       },
                     ]}
                   >
-                    <Upload beforeUpload={() => false}>
+                    <Upload
+                      beforeUpload={() => false}
+                      fileList={fileList}
+                      onChange={({ fileList }) => {
+                        setFileList(fileList);
+                      }}
+                    >
                       <Button icon={<UploadOutlined />}>Chọn file</Button>
                     </Upload>
                   </Form.Item>
@@ -254,7 +269,9 @@ const PotentialImporting: FC = () => {
             leftComponent={<div></div>}
             rightComponent={
               <Space>
-                <Button>Huỷ</Button>
+                <Button disabled={isLoading} loading={isLoading} onClick={() => onCancel()}>
+                  Huỷ
+                </Button>
                 <Button htmlType={"submit"} type="primary" disabled={isLoading} loading={isLoading}>
                   Nhập file
                 </Button>
