@@ -22,11 +22,17 @@ function useFetchStoresOfflineTotalSalesLoyalty() {
 
   const findKeyDriverAndUpdateValue = useCallback((data: any, asmData: any, columnKey: string) => {
     let customersCount: any = [];
-    findKeyDriver(data, KeyDriverField.CustomersCount, customersCount);
+    const {
+      CustomersCount,
+      CustomerLte90DaysTotalSales,
+      ShopperLte90DaysTotalSales,
+      OthersTotalSales,
+    } = KeyDriverField;
+    findKeyDriver(data, CustomersCount, customersCount);
     customersCount = customersCount[0];
     const asmName = nonAccentVietnameseKD(asmData["pos_location_name"]);
     if (asmName) {
-      customersCount[`${asmName}_${columnKey}`] = asmData[KeyDriverField.CustomersCount];
+      customersCount[`${asmName}_${columnKey}`] = asmData[CustomersCount];
       if (columnKey === "accumulatedMonth") {
         customersCount[`${asmName}_targetMonth`] = calculateTargetMonth(
           customersCount[`${asmName}_accumulatedMonth`],
@@ -37,6 +43,13 @@ function useFetchStoresOfflineTotalSalesLoyalty() {
       customersCount.children.forEach((item: any) => {
         if (Object.keys(asmData).findIndex((itemKey) => item.key === itemKey) !== -1) {
           item[`${asmName}_${columnKey}`] = asmData[item.key];
+          // doanh thu nhóm KH khác = tổng doanh thu các nhóm khách hàng còn lại không show trên BC
+          if (item.key === OthersTotalSales) {
+            item[`${asmName}_${columnKey}`] =
+              asmData[item.key] +
+              asmData[CustomerLte90DaysTotalSales] +
+              asmData[ShopperLte90DaysTotalSales];
+          }
           if (columnKey === "accumulatedMonth") {
             item[`${asmName}_targetMonth`] = calculateTargetMonth(
               item[`${asmName}_accumulatedMonth`],

@@ -61,6 +61,8 @@ export enum KeyDriverField {
   BirthdayTotalSales = "birthday_total_sales",
   CustomerGt90DaysTotalSales = "customer_gt90_days_total_sales",
   ShopperGt90DaysTotalSales = "shopper_gt90_days_total_sales",
+  CustomerLte90DaysTotalSales = "customer_lte90_days_total_sales",
+  ShopperLte90DaysTotalSales = "shopper_lte90_days_total_sales",
   NewCustomerTotalSales = "new_customer_total_sales",
   OthersTotalSales = "others_total_sales",
   FacebookTotalSales = "facebook_total_sales",
@@ -71,6 +73,7 @@ export enum KeyDriverField {
   FacebookFollows = "facebook_follows",
   PotentialCustomerCount = "potential_customer_count",
   NewCustomersConversionRate = "new_customers_conversion_rate",
+  NewCustomersCount = "new_customers_count",
 }
 
 export const ASM_LIST = ["ASM Dương Sơn Tùng", "ASM Nguyễn Văn Ánh", "ASM Đỗ Quang Hiếu"];

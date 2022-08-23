@@ -2,24 +2,29 @@ import { CheckSquareOutlined } from "@ant-design/icons";
 import { Button, Card, InputNumber, Spin, Table, Tooltip } from "antd";
 import { ColumnGroupType, ColumnsType, ColumnType } from "antd/lib/table";
 import classnames from "classnames";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import { AppConfig } from "config/app.config";
 import UrlConfig from "config/url.config";
 import { debounce } from "lodash";
 import { KeyDriverField, KeyDriverTarget } from "model/report";
 import moment from "moment";
-import { useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
-import { Link } from "react-router-dom";
+import { Link, useRouteMatch } from "react-router-dom";
 import { useEffectOnce } from "react-use";
 import { updateKeyDriversTarget } from "service/report/key-driver.service";
 import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, replaceFormat } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import {
+  calculateDayRateUtil,
+  calculateDayTargetUtil,
   calculateKDAverageCustomerSpent,
   calculateKDAverageOrderValue,
   calculateKDConvertionRate,
+  calculateKDNewCustomerRateTargetDay,
+  calculateMonthRateUtil,
   nonAccentVietnameseKD,
 } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -120,6 +125,7 @@ function CellInput(props: RowRender) {
 }
 
 function KeyDriverOffline() {
+  const { path: matchPath } = useRouteMatch();
   const [finalColumns, setFinalColumns] = useState<ColumnsType<any>>([]);
   const [loadingPage, setLoadingPage] = useState<boolean | undefined>();
   const { isFetchingKeyDriverTarget, refetch } = useFetchKeyDriverTarget();
@@ -131,82 +137,30 @@ function KeyDriverOffline() {
   const { isFetchingOfflineTotalSalesPotential } = useFetchOfflineTotalSalesPotential();
   const { data, targetMonth, setData } = useContext(KeyDriverOfflineContext);
   const dispatch = useDispatch();
-
-  const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
-    if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
-      keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
-        ? Math.floor(
-            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100,
-          )
-        : "";
-    }
-  };
-
-  const calculateDepartmentDayTarget = (keyDriver: any, department: string) => {
-    if (keyDriver[`${department}_month`]) {
-      const dayNumber = moment().date() - 1;
-      const dayInMonth = moment().daysInMonth();
-      if (
-        ![KeyDriverField.AverageOrderValue, KeyDriverField.AverageCustomerSpent].includes(
-          keyDriver["key"],
-        )
-      ) {
-        keyDriver[`${department}_day`] =
-          keyDriver[`${department}_month`] - (keyDriver[`${department}_accumulatedMonth`] || 0) > 0
-            ? Math.round(
-                (keyDriver[`${department}_month`] -
-                  (keyDriver[`${department}_accumulatedMonth`] || 0)) /
-                  (dayInMonth - dayNumber) +
-                  (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0),
-              )
-            : Math.round(keyDriver[`${department}_month`] / dayInMonth);
-      }
-    }
-  };
-
-  const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
-    if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
-      keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
-        ? Math.floor(+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100)
-        : "";
-    }
-  };
-
-  const calculateMonthRate = useCallback((keyDriver: any) => {
-    ["COMPANY", ...ASM_LIST].forEach((asm) => {
-      const asmKey = nonAccentVietnameseKD(asm);
-      calculateDepartmentMonthRate(keyDriver, asmKey);
-    });
-    if (keyDriver.children?.length) {
-      keyDriver.children.forEach((item: any) => {
-        calculateMonthRate(item);
-      });
-    }
+  const departmentsList = useMemo(() => {
+    return ["COMPANY", ...ASM_LIST];
   }, []);
 
-  const calculateDayRate = useCallback((keyDriver: any) => {
-    ["COMPANY", ...ASM_LIST].forEach((asm) => {
-      const asmKey = nonAccentVietnameseKD(asm);
-      calculateDepartmentDayRate(keyDriver, asmKey);
-    });
-    if (keyDriver.children?.length) {
-      keyDriver.children.forEach((item: any) => {
-        calculateDayRate(item);
-      });
-    }
-  }, []);
+  const calculateMonthRate = useCallback(
+    (keyDriver: any) => {
+      calculateMonthRateUtil(keyDriver, departmentsList);
+    },
+    [departmentsList],
+  );
 
-  const calculateDayTarget = useCallback((keyDriver: any) => {
-    ["COMPANY", ...ASM_LIST].forEach((asm) => {
-      const asmKey = nonAccentVietnameseKD(asm);
-      calculateDepartmentDayTarget(keyDriver, asmKey);
-    });
-    if (keyDriver.children?.length) {
-      keyDriver.children.forEach((item: any) => {
-        calculateDayTarget(item);
-      });
-    }
-  }, []);
+  const calculateDayRate = useCallback(
+    (keyDriver: any) => {
+      calculateDayRateUtil(keyDriver, departmentsList);
+    },
+    [departmentsList],
+  );
+
+  const calculateDayTarget = useCallback(
+    (keyDriver: any) => {
+      calculateDayTargetUtil(keyDriver, departmentsList);
+    },
+    [departmentsList],
+  );
 
   useEffect(() => {
     setLoadingPage(true);
@@ -223,11 +177,12 @@ function KeyDriverOffline() {
         prev.forEach((item: any, index) => {
           calculateDayTarget(item);
           if (index === 0) {
-            ["COMPANY", ...ASM_LIST].forEach((asm) => {
+            departmentsList.forEach((asm) => {
               const asmKey = nonAccentVietnameseKD(asm);
               calculateKDAverageCustomerSpent(item, asmKey);
               calculateKDConvertionRate(item, asmKey);
               calculateKDAverageOrderValue(item, asmKey);
+              calculateKDNewCustomerRateTargetDay(item, asmKey);
             });
           }
           calculateMonthRate(item);
@@ -243,6 +198,7 @@ function KeyDriverOffline() {
     calculateDayRate,
     calculateDayTarget,
     calculateMonthRate,
+    departmentsList,
     isFetchingCustomerVisitors,
     isFetchingKDOfflineTotalSales,
     isFetchingKeyDriverTarget,
@@ -284,6 +240,7 @@ function KeyDriverOffline() {
     department: string,
     className: string = "department-name--secondary",
   ): ColumnGroupType<any> | ColumnType<any> => {
+    const { ConvertionRate, ProductTotalSales, NewCustomersConversionRate } = KeyDriverField;
     return {
       title: department.toLowerCase().includes("tổng công ty") ? (
         department
@@ -328,7 +285,7 @@ function KeyDriverOffline() {
           dataIndex: `${departmentKey}_month`,
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
-            return record.key !== KeyDriverField.ProductTotalSales ? (
+            return ![ProductTotalSales].includes(record.key as KeyDriverField) ? (
               <CellInput value={text} record={record} type={departmentKey} time="month" />
             ) : (
               "-"
@@ -343,7 +300,7 @@ function KeyDriverOffline() {
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
             return text || text === 0
-              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+              ? [ConvertionRate, NewCustomersConversionRate].includes(record.key as KeyDriverField)
                 ? `${text}%`
                 : formatCurrency(text)
               : "-";
@@ -367,7 +324,7 @@ function KeyDriverOffline() {
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
             return text || text === 0
-              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+              ? [ConvertionRate, NewCustomersConversionRate].includes(record.key as KeyDriverField)
                 ? `${text}%`
                 : formatCurrency(text)
               : "-";
@@ -381,7 +338,9 @@ function KeyDriverOffline() {
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
             return text || text === 0
-              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+              ? [ConvertionRate, NewCustomersConversionRate].includes(
+                  record.key as KeyDriverField,
+                ) && formatCurrency(text)
                 ? `${text}%`
                 : formatCurrency(text)
               : "-";
@@ -396,7 +355,7 @@ function KeyDriverOffline() {
           className: "input-cell",
           render: (text: any, record: RowData, index: number) => {
             return text || text === 0
-              ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+              ? [ConvertionRate, NewCustomersConversionRate].includes(record.key as KeyDriverField)
                 ? `${text}%`
                 : formatCurrency(text)
               : "-";
@@ -458,6 +417,15 @@ function KeyDriverOffline() {
           )}
         </Card>
       </KeyDriverOfflineStyle>
+      <BottomBarContainer
+        rightComponent={
+          <>
+            <Button type="primary">
+              <Link to={`${matchPath}/potential-importing`}>Nhập file khách hàng tiềm năng</Link>
+            </Button>
+          </>
+        }
+      />
     </ContentContainer>
   );
 }
