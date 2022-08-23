@@ -119,7 +119,7 @@ const REPORT_TEMPLATES_LIST_NO_ID: AnalyticTemplateData[] = [
   {
     type: "Báo cáo lợi nhuận",
     name: "theo khách hàng",
-    query: `SHOW orders, net_quantity, return_count, average_order_value, total_sales, gross_profit BY customer_name,customer_phone_number FROM costs SINCE ${START_OF_MONTH} UNTIL ${TODAY} 
+    query: `SHOW orders, net_quantity, return_count, average_order_value, total_sales, gross_profit BY customer_name,customer_phone_number FROM costs SINCE ${TODAY} UNTIL ${TODAY} 
     ORDER BY gross_profit DESC `,
     cube: AnalyticCube.Costs,
     alias: [UrlConfig.ANALYTIC_FINACE],
