@@ -36,17 +36,26 @@ function useFetchStoresOfflineTotalSalesPotential() {
         );
       }
     }
-    if (potentialCustomerCount.children?.length) {
-      potentialCustomerCount.children.forEach((item: any) => {
-        if (Object.keys(asmData).findIndex((itemKey) => item.key === itemKey) !== -1) {
-          item[`${asmName}_${columnKey}`] = asmData[item.key];
-          if (columnKey === "accumulatedMonth") {
-            item[`${asmName}_targetMonth`] = calculateTargetMonth(
-              item[`${asmName}_accumulatedMonth`],
-            );
-          }
-        }
-      });
+  }, []);
+
+  const calculateConversionRate = useCallback((data: any, asmData: any, columnKey: string) => {
+    let newCustomersConversionRate: any = [];
+    const { NewCustomersConversionRate, PotentialCustomerCount, NewCustomersCount } =
+      KeyDriverField;
+    findKeyDriver(data, NewCustomersConversionRate, newCustomersConversionRate);
+    newCustomersConversionRate = newCustomersConversionRate[0];
+    const asmName = nonAccentVietnameseKD(asmData["store_name"]);
+    if (asmName) {
+      newCustomersConversionRate[`${asmName}_${columnKey}`] = (
+        (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
+        100
+      ).toFixed(1);
+      if (columnKey === "accumulatedMonth") {
+        newCustomersConversionRate[`${asmName}_targetMonth`] = (
+          (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
+          100
+        ).toFixed(1);
+      }
     }
   }, []);
 
@@ -95,6 +104,7 @@ function useFetchStoresOfflineTotalSalesPotential() {
                 let dataPrev: any = prev[0];
                 resDayStores.forEach((item: any) => {
                   findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+                  calculateConversionRate(dataPrev, item, "actualDay");
                 });
                 prev[0] = dataPrev;
                 return [...prev];
@@ -113,10 +123,12 @@ function useFetchStoresOfflineTotalSalesPotential() {
               const resDayStores = resDay[0].pos_locations;
               resDayStores.forEach((item: any) => {
                 findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+                calculateConversionRate(dataPrev, item, "actualDay");
               });
             }
             resMonthStores.forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
+              calculateConversionRate(dataPrev, item, "accumulatedMonth");
             });
             prev[0] = dataPrev;
             return [...prev];
@@ -127,7 +139,14 @@ function useFetchStoresOfflineTotalSalesPotential() {
       setIsFetchingStoresOfflineTotalSalesPotential(false);
     };
     fetchStoresOfflineTotalSalesPotential();
-  }, [dispatch, findKeyDriverAndUpdateValue, selectedAsm, selectedStores, setData]);
+  }, [
+    calculateConversionRate,
+    dispatch,
+    findKeyDriverAndUpdateValue,
+    selectedAsm,
+    selectedStores,
+    setData,
+  ]);
 
   useEffect(() => {
     refetchStoresOfflineTotalSalesPotential();

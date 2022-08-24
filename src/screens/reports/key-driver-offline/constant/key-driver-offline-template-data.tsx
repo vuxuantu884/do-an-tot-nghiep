@@ -152,7 +152,7 @@ export const keyDriverOfflineTemplateData = [
                     method: "",
                   },
                   {
-                    key: "new_customers_conversion_rate",
+                    key: KeyDriverField.NewCustomersConversionRate,
                     name: "TỶ LỆ CHUYỂN ĐỔI",
                     method: "",
                   },

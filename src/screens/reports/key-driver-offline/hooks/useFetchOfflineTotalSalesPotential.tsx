@@ -36,17 +36,26 @@ function useFetchOfflineTotalSalesPotential() {
         );
       }
     }
-    if (potentialCustomerCount.children?.length) {
-      potentialCustomerCount.children.forEach((item: any) => {
-        if (Object.keys(asmData).findIndex((itemKey) => item.key === itemKey) !== -1) {
-          item[`${asmName}_${columnKey}`] = asmData[item.key];
-          if (columnKey === "accumulatedMonth") {
-            item[`${asmName}_targetMonth`] = calculateTargetMonth(
-              item[`${asmName}_accumulatedMonth`],
-            );
-          }
-        }
-      });
+  }, []);
+
+  const calculateConversionRate = useCallback((data: any, asmData: any, columnKey: string) => {
+    let newCustomersConversionRate: any = [];
+    const { NewCustomersConversionRate, PotentialCustomerCount, NewCustomersCount } =
+      KeyDriverField;
+    findKeyDriver(data, NewCustomersConversionRate, newCustomersConversionRate);
+    newCustomersConversionRate = newCustomersConversionRate[0];
+    const asmName = nonAccentVietnameseKD(asmData["department_lv2_name"]);
+    if (asmName) {
+      newCustomersConversionRate[`${asmName}_${columnKey}`] = (
+        (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
+        100
+      ).toFixed(1);
+      if (columnKey === "accumulatedMonth") {
+        newCustomersConversionRate[`${asmName}_targetMonth`] = (
+          (asmData[NewCustomersCount] / asmData[PotentialCustomerCount]) *
+          100
+        ).toFixed(1);
+      }
     }
   }, []);
 
@@ -103,6 +112,7 @@ function useFetchOfflineTotalSalesPotential() {
             let dataPrev: any = prev[0];
             [companyDayData, ...resDay].forEach((item: any) => {
               findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+              calculateConversionRate(dataPrev, item, "actualDay");
             });
             prev[0] = dataPrev;
             return [...prev];
@@ -116,9 +126,11 @@ function useFetchOfflineTotalSalesPotential() {
           let dataPrev: any = prev[0];
           [companyDayData, ...resDay].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "actualDay");
+            calculateConversionRate(dataPrev, item, "actualDay");
           });
           [companyMonthData, ...resMonth].forEach((item: any) => {
             findKeyDriverAndUpdateValue(dataPrev, item, "accumulatedMonth");
+            calculateConversionRate(dataPrev, item, "accumulatedMonth");
           });
           prev[0] = dataPrev;
           return [...prev];
@@ -128,7 +140,13 @@ function useFetchOfflineTotalSalesPotential() {
       setIsFetchingOfflineTotalSalesPotential(false);
     };
     fetchOfflineTotalSalesPotential();
-  }, [calculateCompanyKeyDriver, dispatch, findKeyDriverAndUpdateValue, setData]);
+  }, [
+    calculateCompanyKeyDriver,
+    calculateConversionRate,
+    dispatch,
+    findKeyDriverAndUpdateValue,
+    setData,
+  ]);
 
   useEffect(() => {
     refetchOfflineTotalSalesPotential();

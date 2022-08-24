@@ -61,6 +61,7 @@ function StoresSelect(props: Props): ReactElement {
       showSearch
       optionFilterProp="children"
       style={{ width: "100%" }}
+      maxTagCount={"responsive"}
       filterOption={(input: String, option: any) => {
         if (option.props.value) {
           return strForSearch(option.props.children).includes(strForSearch(input));

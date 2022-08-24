@@ -169,6 +169,44 @@ export const calculateKDAverageOrderValue = (keyDriverData: any, department: str
   }
 };
 
+export const calculateKDNewCustomerRateTargetDay = (keyDriverData: any, department: string) => {
+  const { NewCustomersConversionRate, PotentialCustomerCount } = KeyDriverField;
+  let potentialCustomerCount: any = [];
+  findKeyDriver(keyDriverData, PotentialCustomerCount, potentialCustomerCount);
+  let newCustomersConversionRate: any = [];
+  findKeyDriver(keyDriverData, NewCustomersConversionRate, newCustomersConversionRate);
+  potentialCustomerCount = potentialCustomerCount[0];
+  newCustomersConversionRate = newCustomersConversionRate[0];
+  const dayNumber = moment().date() - 1;
+  const dayInMonth = moment().daysInMonth();
+  const newCustomerTargetDay = Math.round(
+    (Math.round(
+      (potentialCustomerCount[`${department}_month`] *
+        newCustomersConversionRate[`${department}_month`]) /
+        100,
+    ) -
+      Math.round(
+        (potentialCustomerCount[`${department}_accumulatedMonth`] *
+          newCustomersConversionRate[`${department}_accumulatedMonth`]) /
+          100,
+      )) /
+      (dayInMonth - dayNumber),
+  );
+  if (newCustomerTargetDay >= 0) {
+    const rate = +(
+      (newCustomerTargetDay / potentialCustomerCount[`${department}_day`]) *
+      100
+    ).toFixed(1);
+    if (rate > 100) {
+      newCustomersConversionRate[`${department}_day`] = 100;
+    } else {
+      newCustomersConversionRate[`${department}_day`] = rate;
+    }
+  } else {
+    newCustomersConversionRate[`${department}_day`] = "";
+  }
+};
+
 export const nonAccentVietnameseKD = (str: string) => {
   str = str.toLowerCase();
   str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -211,4 +249,85 @@ export const findKDProductAndUpdateValueUtil = (
       });
     }
   });
+};
+
+const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
+  if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
+    keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
+      ? Math.floor(
+          +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100,
+        )
+      : "";
+  }
+};
+
+const calculateDepartmentDayTarget = (keyDriver: any, department: string) => {
+  if (keyDriver[`${department}_month`]) {
+    const dayNumber = moment().date() - 1;
+    const dayInMonth = moment().daysInMonth();
+    const { AverageOrderValue, AverageCustomerSpent, CustomersCount, NewCustomersConversionRate } =
+      KeyDriverField;
+    if (
+      ![AverageOrderValue, AverageCustomerSpent, NewCustomersConversionRate].includes(
+        keyDriver["key"],
+      )
+    ) {
+      keyDriver[`${department}_day`] =
+        keyDriver[`${department}_month`] - (keyDriver[`${department}_accumulatedMonth`] || 0) > 0
+          ? Math.round(
+              (keyDriver[`${department}_month`] -
+                (keyDriver[`${department}_accumulatedMonth`] || 0)) /
+                (dayInMonth - dayNumber) +
+                (CustomersCount === keyDriver["key"] ? 0.5 : 0),
+            )
+          : Math.round(keyDriver[`${department}_month`] / dayInMonth);
+    }
+  }
+};
+
+const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
+  if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
+    keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
+      ? Math.floor(+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100)
+      : "";
+  }
+};
+
+// Tỷ lệ TT luỹ kế đạt so vs mục tiêu tháng
+export const calculateMonthRateUtil = (keyDriver: any, departments: string[]) => {
+  departments.forEach((asm) => {
+    const asmKey = nonAccentVietnameseKD(asm);
+    calculateDepartmentMonthRate(keyDriver, asmKey);
+  });
+  if (keyDriver.children?.length) {
+    keyDriver.children.forEach((item: any) => {
+      calculateMonthRateUtil(item, departments);
+    });
+  }
+};
+
+// Tỷ lệ thực đạt so vs mục tiêu ngày
+export const calculateDayRateUtil = (keyDriver: any, departments: string[]) => {
+  departments.forEach((asm) => {
+    const asmKey = nonAccentVietnameseKD(asm);
+    calculateDepartmentDayRate(keyDriver, asmKey);
+  });
+  if (keyDriver.children?.length) {
+    keyDriver.children.forEach((item: any) => {
+      calculateDayRateUtil(item, departments);
+    });
+  }
+};
+
+// Mục tiêu ngày
+export const calculateDayTargetUtil = (keyDriver: any, departments: string[]) => {
+  departments.forEach((asm) => {
+    const asmKey = nonAccentVietnameseKD(asm);
+    calculateDepartmentDayTarget(keyDriver, asmKey);
+  });
+  if (keyDriver.children?.length) {
+    keyDriver.children.forEach((item: any) => {
+      calculateDayTargetUtil(item, departments);
+    });
+  }
 };

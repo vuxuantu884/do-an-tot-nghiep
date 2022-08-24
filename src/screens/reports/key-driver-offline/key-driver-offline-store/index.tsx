@@ -16,9 +16,13 @@ import { callApiNative } from "utils/ApiUtils";
 import { formatCurrency, replaceFormat } from "utils/AppUtils";
 import { DATE_FORMAT } from "utils/DateUtils";
 import {
+  calculateDayRateUtil,
+  calculateDayTargetUtil,
   calculateKDAverageCustomerSpent,
   calculateKDAverageOrderValue,
   calculateKDConvertionRate,
+  calculateKDNewCustomerRateTargetDay,
+  calculateMonthRateUtil,
   nonAccentVietnameseKD,
 } from "utils/KeyDriverOfflineUtils";
 import { showError, showSuccess } from "utils/ToastUtils";
@@ -168,6 +172,7 @@ function KeyDriverOfflineStore() {
       department: string,
       className: string = "department-name--secondary",
     ): ColumnGroupType<any> | ColumnType<any> => {
+      const { ConvertionRate, ProductTotalSales, NewCustomersConversionRate } = KeyDriverField;
       return {
         title: department,
         className: classnames("department-name", className),
@@ -203,7 +208,7 @@ function KeyDriverOfflineStore() {
             dataIndex: `${departmentKey}_month`,
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
-              return record.key !== KeyDriverField.ProductTotalSales ? (
+              return ![ProductTotalSales].includes(record.key as KeyDriverField) ? (
                 <CellInput value={text} record={record} type={departmentKey} time="month" />
               ) : (
                 "-"
@@ -218,7 +223,9 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? [ConvertionRate, NewCustomersConversionRate].includes(
+                    record.key as KeyDriverField,
+                  )
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -242,7 +249,9 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text
-                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? [ConvertionRate, NewCustomersConversionRate].includes(
+                    record.key as KeyDriverField,
+                  )
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -256,7 +265,9 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? [ConvertionRate, NewCustomersConversionRate].includes(
+                    record.key as KeyDriverField,
+                  ) && formatCurrency(text)
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -271,7 +282,9 @@ function KeyDriverOfflineStore() {
             className: "input-cell",
             render: (text: any, record: RowData, index: number) => {
               return text || text === 0
-                ? record.key === KeyDriverField.ConvertionRate && formatCurrency(text)
+                ? [ConvertionRate, NewCustomersConversionRate].includes(
+                    record.key as KeyDriverField,
+                  )
                   ? `${text}%`
                   : formatCurrency(text)
                 : "-";
@@ -293,83 +306,23 @@ function KeyDriverOfflineStore() {
     [updateTargetMonth],
   );
 
-  const calculateDepartmentMonthRate = (keyDriver: any, department: string) => {
-    if (keyDriver[`${department}_accumulatedMonth`] && keyDriver[`${department}_month`]) {
-      keyDriver[`${department}_rateMonth`] = keyDriver[`${department}_month`]
-        ? Math.floor(
-            +(keyDriver[`${department}_accumulatedMonth`] / keyDriver[`${department}_month`]) * 100,
-          )
-        : "";
-    }
-  };
-
-  const calculateDepartmentDayTarget = (keyDriver: any, department: string) => {
-    if (keyDriver[`${department}_month`]) {
-      const dayNumber = moment().date() - 1;
-      const dayInMonth = moment().daysInMonth();
-      if (!["average_order_value", "average_customer_spent"].includes(keyDriver["key"])) {
-        keyDriver[`${department}_day`] =
-          keyDriver[`${department}_month`] - (keyDriver[`${department}_accumulatedMonth`] || 0) > 0
-            ? Math.round(
-                (keyDriver[`${department}_month`] -
-                  (keyDriver[`${department}_accumulatedMonth`] || 0)) /
-                  (dayInMonth - dayNumber) +
-                  (KeyDriverField.CustomersCount === keyDriver["key"] ? 0.5 : 0),
-              )
-            : Math.round(keyDriver[`${department}_month`] / dayInMonth);
-      }
-    }
-  };
-
-  const calculateDepartmentDayRate = (keyDriver: any, department: string) => {
-    if (keyDriver[`${department}_actualDay`] && keyDriver[`${department}_day`]) {
-      keyDriver[`${department}_rateDay`] = keyDriver[`${department}_day`]
-        ? Math.floor(+(keyDriver[`${department}_actualDay`] / keyDriver[`${department}_day`]) * 100)
-        : "";
-    }
-  };
-
   const calculateMonthRate = useCallback(
     (keyDriver: any) => {
-      selectedStores.forEach((asm) => {
-        const asmKey = nonAccentVietnameseKD(asm);
-        calculateDepartmentMonthRate(keyDriver, asmKey);
-      });
-      if (keyDriver.children?.length) {
-        keyDriver.children.forEach((item: any) => {
-          calculateMonthRate(item);
-        });
-      }
+      calculateMonthRateUtil(keyDriver, selectedStores);
     },
     [selectedStores],
   );
 
   const calculateDayRate = useCallback(
     (keyDriver: any) => {
-      selectedStores.forEach((asm) => {
-        const asmKey = nonAccentVietnameseKD(asm);
-        calculateDepartmentDayRate(keyDriver, asmKey);
-      });
-      if (keyDriver.children?.length) {
-        keyDriver.children.forEach((item: any) => {
-          calculateDayRate(item);
-        });
-      }
+      calculateDayRateUtil(keyDriver, selectedStores);
     },
     [selectedStores],
   );
 
   const calculateDayTarget = useCallback(
     (keyDriver: any) => {
-      selectedStores.forEach((asm) => {
-        const asmKey = nonAccentVietnameseKD(asm);
-        calculateDepartmentDayTarget(keyDriver, asmKey);
-      });
-      if (keyDriver.children?.length) {
-        keyDriver.children.forEach((item: any) => {
-          calculateDayTarget(item);
-        });
-      }
+      calculateDayTargetUtil(keyDriver, selectedStores);
     },
     [selectedStores],
   );
@@ -402,6 +355,7 @@ function KeyDriverOfflineStore() {
               calculateKDAverageCustomerSpent(item, asmKey);
               calculateKDConvertionRate(item, asmKey);
               calculateKDAverageOrderValue(item, asmKey);
+              calculateKDNewCustomerRateTargetDay(item, asmKey);
             });
           }
           calculateMonthRate(item);
