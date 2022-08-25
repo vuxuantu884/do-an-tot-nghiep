@@ -3,7 +3,7 @@ import { ColumnsType } from "antd/lib/table";
 import CustomTable from "component/table/CustomTable";
 import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import React from "react";
-import { formatCurrency } from "utils/AppUtils";
+import { formatCurrency, replaceFormatString } from "utils/AppUtils";
 import { Link } from "react-router-dom";
 import UrlConfig from "config/url.config";
 import ImageProduct from "screens/products/product/component/image-product.component";
@@ -142,25 +142,17 @@ const LineItems: React.FC<LineItemsProps> = (props: LineItemsProps) => {
       render: (value, item, index) => (
         <NumberInput
           placeholder="0"
-          isFloat={false}
           maxLength={7}
           value={value}
           onChange={(quantity: number | null) => {
             if (quantity === null) {
               quantity = 0;
             }
-            if (quantity > 1000000) {
-              quantity = 1000000;
-            }
             onQuantityChange(quantity, index);
             getTotalRealQuantity();
           }}
-          format={(value: string) => {
-            if (Number(value) > 1000000) {
-              return formatCurrency("1000000");
-            }
-            return formatCurrency(value ? value : 0, "");
-          }}
+          format={(value: string) => formatCurrency(value)}
+          replace={(a: string) => replaceFormatString(a)}
         />
       ),
     },
