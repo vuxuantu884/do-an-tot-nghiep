@@ -23,6 +23,7 @@ import {
   POProcumentLineItemField,
   PurchaseProcument,
   PurchaseProcumentLineItem,
+  PurchaseProcumentSubmit,
 } from "model/purchase-order/purchase-procument";
 import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -62,6 +63,7 @@ import arrowLeft from "assets/icon/arrow-back.svg";
 import "./style.scss";
 import NumberInput from "component/custom/number-input.custom";
 import ImportProcurementExcel from "../create-manual/components/ImportProcurementExcel";
+import moment from "moment";
 
 type ProcurementParam = {
   id: string;
@@ -76,6 +78,7 @@ const ProcurementDetailScreen: React.FC = () => {
   const [isError, setError] = useState(false);
   const [activeTab, setActiveTab] = useState<string>(PurchaseOrderTabUrl.INVENTORY);
   const [visibleDelete, setVisibleDelete] = useState<boolean>(false);
+  const [isEdit, setIsEdit] = useState<boolean>(false);
   const history = useHistory();
   const dispatch = useDispatch();
   const { TabPane } = Tabs;
@@ -310,7 +313,8 @@ const ProcurementDetailScreen: React.FC = () => {
 
   const onFinish = async () => {
     setLoadingBtn(true);
-    const values = formMain.getFieldsValue(true);
+    const values: PurchaseProcumentSubmit = formMain.getFieldsValue(true);
+    values.is_update = isEdit;
     const response = await callApiNative(
       { isShowError: true },
       dispatch,
@@ -322,8 +326,22 @@ const ProcurementDetailScreen: React.FC = () => {
     if (response) {
       showSuccess("Thành công");
       setLoadingBtn(false);
+      setIsEdit(false);
       getPODetail();
     }
+  };
+
+  const checkAllowEditPr = () => {
+    const today = moment(new Date()).format(DATE_FORMAT.YYYYMMDD);
+    const receivedDate = ConvertUtcToLocalDate(
+      procurementData?.stock_in_date,
+      DATE_FORMAT.YYYYMMDD,
+    );
+    const validateDay = moment(today).isSame(receivedDate, "day");
+    if (procurementData?.status === ProcurementStatus.received && validateDay) {
+      return true;
+    }
+    return false;
   };
 
   return (
@@ -579,14 +597,14 @@ const ProcurementDetailScreen: React.FC = () => {
                                 </div>
                               ),
                               align:
-                                procurementData?.status === ProcurementStatus.not_received
+                                procurementData?.status === ProcurementStatus.not_received || isEdit
                                   ? "right"
                                   : "center",
                               width: 100,
                               dataIndex: POProcumentLineItemField.real_quantity,
                               render: (value, item, index) => {
-                                return procurementData?.status ===
-                                  ProcurementStatus.not_received ? (
+                                return procurementData?.status === ProcurementStatus.not_received ||
+                                  isEdit ? (
                                   <div style={{ marginRight: 15 }}>
                                     <NumberInput
                                       isFloat={false}
@@ -675,23 +693,41 @@ const ProcurementDetailScreen: React.FC = () => {
       <BottomBarContainer
         rightComponent={
           <Space>
-            {poData && procurementData?.status === ProcurementStatus.received && (
-              <AuthWrapper acceptPermissions={[PurchaseOrderPermission.procurements_delete]}>
-                <Button
-                  type="ghost"
-                  danger
-                  onClick={() => {
-                    setVisibleDelete(true);
-                  }}
-                >
-                  Hủy phiếu
-                </Button>
-              </AuthWrapper>
+            {!isEdit && (
+              <Button type="primary" color="#2A2A86" onClick={onPrint}>
+                <PrinterOutlined />
+                In phiếu
+              </Button>
             )}
-            <Button type="primary" color="#2A2A86" onClick={onPrint}>
-              <PrinterOutlined />
-              In phiếu
-            </Button>
+            {poData && checkAllowEditPr() && (
+              <>
+                {isEdit && (
+                  <Button
+                    icon={<ImportOutlined />}
+                    onClick={() => {
+                      setIsImport(true);
+                    }}
+                  >
+                    Import Excel
+                  </Button>
+                )}
+                <AuthWrapper acceptPermissions={[PurchaseOrderPermission.update]}>
+                  <Button
+                    style={{ border: "1px solid #2A2A86", color: "#2A2A86" }}
+                    loading={loadingBtn}
+                    onClick={() => {
+                      if (!isEdit) {
+                        setIsEdit(true);
+                        return;
+                      }
+                      formMain.submit();
+                    }}
+                  >
+                    {isEdit ? "Lưu" : "Chỉnh sửa"}
+                  </Button>
+                </AuthWrapper>
+              </>
+            )}
             {poData && procurementData?.status === ProcurementStatus.not_received && (
               <>
                 <Button

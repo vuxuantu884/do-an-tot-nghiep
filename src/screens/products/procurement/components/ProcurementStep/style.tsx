@@ -14,6 +14,7 @@ export const PRStyledComponent = styled.div`
   .ant-steps-dot .ant-steps-item-tail:after,
   .ant-steps-dot.ant-steps-small .ant-steps-item-tail:after {
     width: 100%;
+    height: 1px !important;
   }
   .ant-steps-small .ant-steps-item-description {
     font-size: 10px;
