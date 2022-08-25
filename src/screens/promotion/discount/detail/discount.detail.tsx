@@ -406,7 +406,7 @@ const PromotionDetailScreen: React.FC = () => {
 
     dataDiscountVariant.forEach((item: any) => {
       variantOptions.push({
-        label: <ProductItem data={item} key={item.entitlement.id.toString()} />,
+        label: <ProductItem data={item} key={item.entitlement?.id.toString()} />,
         value: JSON.stringify(item),
       });
     });

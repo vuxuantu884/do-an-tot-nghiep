@@ -281,13 +281,16 @@ const FixedAndQuantityGroup = (props: Props) => {
    */
   useEffect(() => {
     if (Array.isArray(dataSourceForm)) {
-      setDataProductForPagging((prev) => {
+      setDataProductForPagging((prev: any) => {
         const { limit, page } = prev.metadata;
+        const [getData, ...rest] = dataSourceForm.slice((page - 1) * limit, page * limit);
+        const listProduct = [...prev.items, getData, ...rest];
+        const checkListProduct = listProduct.filter((item) => JSON.stringify(item) !== "{}");
         return {
-          items: dataSourceForm.slice((page - 1) * limit, page * limit),
+          items: checkListProduct,
           metadata: {
             ...prev.metadata,
-            total: dataSourceForm.length,
+            total: checkListProduct.length,
           },
         };
       });
@@ -309,13 +312,17 @@ const FixedAndQuantityGroup = (props: Props) => {
   const checkIsExistDiscountGroup = () => {
     const entitlementsForm: Array<EntilementFormModel> = form.getFieldValue("entitlements");
     const entitlementCurrentChange = entitlementsForm[name]?.prerequisite_quantity_ranges[0];
-    const prerequisiteQuantityRangesList = entitlementsForm.filter((item, index) => index !== name)
+    const prerequisiteQuantityRangesList = entitlementsForm
+      .filter((item, index) => index !== name)
       .map((entitlement) => {
         return entitlement?.prerequisite_quantity_ranges[0];
-    })
+      });
 
-    return prerequisiteQuantityRangesList?.some(item => {
-      return (item.value_type === entitlementCurrentChange?.value_type && item.value === entitlementCurrentChange.value);
+    return prerequisiteQuantityRangesList?.some((item) => {
+      return (
+        item.value_type === entitlementCurrentChange?.value_type &&
+        item.value === entitlementCurrentChange.value
+      );
     });
   };
 
@@ -481,7 +488,7 @@ const FixedAndQuantityGroup = (props: Props) => {
         <CustomTable
           className="product-table"
           bordered
-          rowKey={(record) => record.sku}
+          rowKey={(record) => record?.sku}
           rowClassName="product-table-row"
           columns={[
             {
@@ -496,9 +503,9 @@ const FixedAndQuantityGroup = (props: Props) => {
                       <div className="product-item-sku">
                         <Link
                           target="_blank"
-                          to={`${UrlConfig.PRODUCT}/${item.product_id}/variants/${item.variant_id}`}
+                          to={`${UrlConfig.PRODUCT}/${item?.product_id}/variants/${item?.variant_id}`}
                         >
-                          {item.sku}
+                          {item?.sku}
                         </Link>
                       </div>
                       <div className="product-item-name">
