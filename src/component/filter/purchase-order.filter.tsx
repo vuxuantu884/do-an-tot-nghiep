@@ -93,10 +93,10 @@ const filterFields = {
   activated_date: "activated_date",
   expected_store: "expected_store",
   cancelled_date: "cancelled_date",
-  expect_import_date: "expect_import_date",
+  // expect_import_date: "expect_import_date",
+  completed_date: "completed_date",
   is_have_returned: "is_have_returned",
   // cost_included: "cost_included",
-  completed_date: "completed_date",
   qc: "qc",
   // tags: "tags",
   reference: "reference",
@@ -138,7 +138,7 @@ const filterFieldsMapping: any = {
   // [filterFields.cost_included]: "Chi phí",
   // [filterFields.merchandiser]: "Merchandiser",
   [filterFields.qc]: "QC",
-  [filterFields.expect_import_date]: "Ngày nhận hàng dự kiến",
+  // [filterFields.expect_import_date]: "Ngày nhận hàng dự kiến",
   [filterFields.note]: "Ghi chú nội bộ",
   [filterFields.supplier_note]: "Ghi chú nhà cung cấp",
   // [filterFields.tags]: "Tag",
@@ -153,7 +153,7 @@ const keysDateFilter = [
   filterFields.activated_date,
   filterFields.completed_date,
   filterFields.cancelled_date,
-  filterFields.expect_import_date,
+  // filterFields.expect_import_date,
 ];
 
 const convertStoreLabel = (store: string, allStore: StoreResponse[]) => {
@@ -179,20 +179,20 @@ const FilterList = ({ filters, resetField, allStores }: any) => {
           case filterFields.activated_date:
           case filterFields.cancelled_date:
           case filterFields.completed_date:
-          case filterFields.expect_import_date:
-            if (!filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return "";
-            renderTxt = `${filterFieldsMapping[filterKey]} 
-            : ${
-              filters[`from_${filterKey}`]
-                ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
-                : "??"
-            } 
-            ~ ${
-              filters[`to_${filterKey}`]
-                ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
-                : "??"
-            }`;
-            break;
+          // case filterFields.expect_import_date:
+          //   if (!filters[`from_${filterKey}`] && !filters[`to_${filterKey}`]) return "";
+          //   renderTxt = `${filterFieldsMapping[filterKey]}
+          //   : ${
+          //     filters[`from_${filterKey}`]
+          //       ? moment(filters[`from_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
+          //       : "??"
+          //   }
+          //   ~ ${
+          //     filters[`to_${filterKey}`]
+          //       ? moment(filters[`to_${filterKey}`]).utc(false).format(DATE_FORMAT.DDMMYYY)
+          //       : "??"
+          //   }`;
+          //   break;
           case filterFields.status:
           case filterFields.receive_status:
           case filterFields.financial_status:
@@ -299,7 +299,7 @@ const AdvanceFormItems = ({
           case filterFields.activated_date:
           case filterFields.completed_date:
           case filterFields.cancelled_date:
-          case filterFields.expect_import_date:
+            // case filterFields.expect_import_date:
             collapseChildren = (
               <CustomFilterDatePicker
                 fieldNameFrom={`from_${field}`}

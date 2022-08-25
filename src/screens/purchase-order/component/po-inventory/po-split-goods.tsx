@@ -85,6 +85,7 @@ export const PoSplitGoods = (props: IProps) => {
 
   useEffect(() => {
     if (dateOption) {
+      const line_items = formMain?.getFieldsValue()?.line_items as PurchaseOrderLineItem[];
       const procurements = formMain?.getFieldsValue()?.procurements
         ? (formMain?.getFieldsValue()?.procurements as PurchaseProcument[])
         : purchaseOrder?.procurements;
@@ -115,13 +116,13 @@ export const PoSplitGoods = (props: IProps) => {
                 (acc, val) => acc.concat(val.procurement_items),
                 [] as Array<PurchaseProcumentLineItem>,
               )
-              .filter((item) => item.variant_id === procurementItem.variant_id)
+              .filter((item) => item.sku === procurementItem.sku)
               .reduce((total, element) => total + element?.quantity || 0, 0);
             const procurement_items = procurementsFilter[dateOption].map(
               (procurementsFilterItem) => {
                 const indexProcurementsFilterItem =
                   procurementsFilterItem.procurement_items.findIndex(
-                    (item) => item.variant_id === procurementItem.variant_id,
+                    (item) => item.sku === procurementItem.sku,
                   );
                 return {
                   ...procurementsFilterItem.procurement_items[indexProcurementsFilterItem],
@@ -137,7 +138,14 @@ export const PoSplitGoods = (props: IProps) => {
             };
           },
         );
-        setDataSource(dataSource || []);
+        const dataResult: PurchaseProcumentLineItem[] = [];
+        line_items.forEach((item) => {
+          const dataItem = dataSource.find((dataSourceItem) => dataSourceItem.sku === item.sku);
+          if (dataItem) {
+            dataResult.push(dataItem);
+          }
+        });
+        setDataSource(dataResult || []);
       }
       setDataStore(dataStore);
     }
@@ -173,7 +181,7 @@ export const PoSplitGoods = (props: IProps) => {
       {
         title: "",
         align: "center",
-        dataIndex: "accepted_quanti ty",
+        dataIndex: "accepted_quantity",
         width: 0,
         render: (value) => {
           return <></>;
@@ -235,7 +243,7 @@ export const PoSplitGoods = (props: IProps) => {
                       row?.procurement_items[indexStore]?.procurement &&
                       handleChangeValueProcumentItem(
                         row.procurement_items[indexStore]?.procurement,
-                        row.variant_id,
+                        row.sku,
                         indexStore,
                         value,
                       );
@@ -273,7 +281,7 @@ export const PoSplitGoods = (props: IProps) => {
       const totalPercent = dataStore.reduce((acc, ele) => acc + (ele.percent || 0), 0);
       const dataSourceResult = dataSource.map((dataSourceItem) => {
         const indexProcurementsItem = procurements[indexProcurements].procurement_items.findIndex(
-          (procurementItems) => procurementItems.variant_id === dataSourceItem.variant_id,
+          (procurementItems) => procurementItems.sku === dataSourceItem.sku,
         );
         if (indexProcurementsItem >= 0 && dataSourceItem.procurement_items) {
           let quantity = Math.round((dataSourceItem.quantity * valueResult) / 100);
@@ -322,7 +330,7 @@ export const PoSplitGoods = (props: IProps) => {
 
   const handleChangeValueProcumentItem = (
     procurement: PurchaseProcument | undefined,
-    variantId: number,
+    sku: string,
     indexStore: number,
     value: number | null,
   ) => {
@@ -331,9 +339,9 @@ export const PoSplitGoods = (props: IProps) => {
     const indexProcurement = procurements.findIndex((item) => item.id === procurement?.id);
     if (indexProcurement >= 0) {
       const indexProcurementItem = procurements[indexProcurement].procurement_items.findIndex(
-        (item) => item.variant_id === variantId,
+        (item) => item.sku === sku,
       );
-      const indexDataSource = dataSource.findIndex((item) => item.variant_id === variantId);
+      const indexDataSource = dataSource.findIndex((item) => item.sku === sku);
       procurements[indexProcurement].procurement_items[indexProcurementItem].planned_quantity =
         valueResult;
       if (indexDataSource >= 0 && dataSource[indexDataSource]?.procurement_items) {
@@ -413,7 +421,7 @@ export const PoSplitGoods = (props: IProps) => {
         columns={columns}
         summary={(data: readonly PurchaseProcumentLineItem[]) => {
           const totalPlannedQuantities = data.reduce((acc, item) => {
-            return acc + item.quantity;
+            return acc + (item.quantity || 0);
           }, 0);
 
           return (
@@ -432,7 +440,7 @@ export const PoSplitGoods = (props: IProps) => {
                   let total = 0;
                   data.forEach((dataItem, index) => {
                     total += dataItem?.procurement_items
-                      ? dataItem?.procurement_items[indexStore].planned_quantity
+                      ? dataItem?.procurement_items[indexStore].planned_quantity || 0
                       : 0;
                   });
                   return (

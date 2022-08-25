@@ -21,6 +21,7 @@ export interface PurchaseProcument extends BaseObject {
   store?: string;
   is_cancelled?: boolean;
   uuid?: string;
+  uuidParent?: string;
   percent?: number;
   cancelled_date?: string | null;
   [key: string]: any;

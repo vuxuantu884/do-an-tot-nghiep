@@ -87,10 +87,8 @@ export const PoWareHouse = (props: IProps) => {
     const procurementItemsIndex: PurchaseProcumentLineItem[] = procurementsAll
       .reduce((acc, val) => acc.concat(val), [])
       .reduce((acc, val) => acc.concat(val.procurement_items), [] as PurchaseProcumentLineItem[])
-      .filter(
-        (procurementItems) =>
-          procurementItems.variant_id === procurementTable[indexData].variant_id,
-      )
+
+      .filter((procurementItems) => procurementItems.sku === procurementTable[indexData].sku)
       .filter((procurementTable) => procurementTable.uuid === uuid)
       .map((item) => {
         const quantity = Math.round(((item.percent || 0) * value) / 100);
@@ -100,8 +98,8 @@ export const PoWareHouse = (props: IProps) => {
           quantity,
         };
       }); //uuid + index lấy uuid theo vị trí
-
     const procurements = formMain?.getFieldValue(POField.procurements) as PurchaseProcument[];
+
     const totalQuantityProcurementItemsIndex = procurementItemsIndex.reduce(
       (acc, ele) => acc + ele.quantity,
       0,
@@ -137,7 +135,6 @@ export const PoWareHouse = (props: IProps) => {
         }
       });
     });
-
     formMain?.setFieldsValue({
       [POField.procurements]: [...procurements],
     });
@@ -261,10 +258,10 @@ export const PoWareHouse = (props: IProps) => {
         const procurement_items = procurementItems.map((procurementItem) => {
           const uuid2 = uuidv4();
           const procurementItemIndex = procurements[0].procurement_items.findIndex(
-            (item) => item.variant_id === procurementItem.variant_id,
+            (item) => item.sku === procurementItem.sku,
           );
           const indexProcurementTable = procurementTable.findIndex(
-            (item) => item.variant_id === procurementItem.variant_id,
+            (item) => item.sku === procurementItem.sku,
           );
           const totalQuantity =
             procurementTable[indexProcurementTable].plannedQuantities.reduce(
@@ -336,7 +333,7 @@ export const PoWareHouse = (props: IProps) => {
       );
       procurementItems.forEach((procurementItem) => {
         const procurementItemFilter = procurementAddDefaultAll.filter(
-          (item) => item.variant_id === procurementItem.variant_id,
+          (item) => item.sku === procurementItem.sku,
         );
         const totalPlannedQuantitiesProcument = procurementItemFilter.reduce(
           (total, ele) => total + ele.planned_quantity,
@@ -346,7 +343,7 @@ export const PoWareHouse = (props: IProps) => {
         const totalPlannedQuantities = procurementItemFilter[0].totalPlannedQuantities;
         if (totalPlannedQuantities - totalPlannedQuantitiesProcument > 0) {
           const indexProcumentItem = procurementAddDefault[0].procurement_items.findIndex(
-            (item) => item.variant_id === procurementItem.variant_id,
+            (item) => item.sku === procurementItem.sku,
           );
           procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity =
             procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity +
@@ -412,7 +409,13 @@ export const PoWareHouse = (props: IProps) => {
   };
 
   const title = useCallback(
-    (date: IExpectReceiptDates, index: number, received: boolean, notReceived: boolean) => {
+    (
+      date: IExpectReceiptDates,
+      index: number,
+      received: boolean,
+      notReceived: boolean,
+      draft: boolean,
+    ) => {
       if (!(received || notReceived) && isEditDetail) {
         formMain?.setFieldsValue({
           ["expectedDate" + index]: date.date,
@@ -421,7 +424,7 @@ export const PoWareHouse = (props: IProps) => {
       return (
         <div style={{ display: "flex", alignItems: "center" }}>
           <StyledButton type="button">{index + 1}</StyledButton>
-          {date.isAdd || (!(received || notReceived) && isEditDetail) ? (
+          {date.isAdd || (draft && isEditDetail) ? (
             <Form.Item
               name={"expectedDate" + index}
               rules={[
@@ -549,24 +552,25 @@ export const PoWareHouse = (props: IProps) => {
           data.status === ProcurementStatus.received;
         const notReceived = data.status === ProcurementStatus.not_received;
         const received = data.status === ProcurementStatus.received;
+        const draft = data.status === ProcurementStatus.draft;
         return {
-          title: title(data, indexDate, received, notReceived),
+          title: title(data, indexDate, received, notReceived, draft),
           align: "center",
           className: isEditDetail ? "custom-date" : "",
           width: receivedOrNotReceived ? 50 : 40,
           render: (value, record, index) => {
             const real_quantity = record?.realQuantities?.length
-              ? record.realQuantities[indexDate] === null
-                ? null
+              ? record.realQuantities[indexDate] === NaN
+                ? NaN
                 : record.realQuantities[indexDate] || 0
               : 0;
             const planned_quantity = record?.plannedQuantities?.length
-              ? record.plannedQuantities[indexDate] === null
-                ? null
+              ? record.plannedQuantities[indexDate] === NaN
+                ? NaN
                 : record.plannedQuantities[indexDate] || 0
               : 0;
             const uuid = record?.uuids?.length ? record.uuids[indexDate] || "" : "";
-            if (real_quantity === null || planned_quantity === null) return <></>;
+            if (real_quantity === NaN || planned_quantity === NaN) return <></>;
             return (
               <>
                 {data.isAdd ||

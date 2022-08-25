@@ -39,7 +39,13 @@ import {
   updatePurchaseOrderStatusWaitingApproval,
 } from "service/purchase-order/purchase-order.service";
 import { generateQuery } from "utils/AppUtils";
-import { ArrPoStatus, COLUMN_CONFIG_TYPE, PoPaymentStatus, POStatus, ProcumentStatus } from "utils/Constants";
+import {
+  ArrPoStatus,
+  COLUMN_CONFIG_TYPE,
+  PoPaymentStatus,
+  POStatus,
+  ProcumentStatus,
+} from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -99,13 +105,13 @@ const actionsDefault: Array<MenuAction> = [
 ];
 
 const typeStatus: any = {
-  received: 'success',
-  not_received: 'warning'
+  received: "success",
+  not_received: "warning",
 };
 
 const labelStatus: any = {
-  received: 'Kho đã nhận',
-  not_received: 'Đã chia hàng'
+  received: "Kho đã nhận",
+  not_received: "Đã chia hàng",
 };
 
 interface PurchaseOrderListScreenProps {
@@ -278,7 +284,10 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         render: (value: string, i: PurchaseOrder) => {
           return (
             <>
-              <Link to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`} style={{ fontWeight: 500, fontSize: 16 }}>
+              <Link
+                to={`${UrlConfig.PURCHASE_ORDERS}/${i.id}`}
+                style={{ fontWeight: 500, fontSize: 16 }}
+              >
                 {value}
               </Link>
               <div className="fs-12 text-muted">
@@ -292,9 +301,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
                 <span className="font-weight-500">{i.planned_quantity}</span>
               </div>
               <div>
-                <span
-                  className="text-muted">Mã tham chiếu</span>: <span
-                style={{ color: "#75757B", fontWeight: 500 }}>{i.reference}</span>
+                <span className="text-muted">Mã tham chiếu</span>:{" "}
+                <span style={{ color: "#75757B", fontWeight: 500 }}>{i.reference}</span>
               </div>
             </>
           );
@@ -318,8 +326,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
                 >
                   {record.supplier_code}
                 </Link>
-                <img src={phoneIcon} alt="phone" /> <span
-                className="text-muted fs-12">{record.phone}</span>
+                <img src={phoneIcon} alt="phone" />{" "}
+                <span className="text-muted fs-12">{record.phone}</span>
               </div>
               <div className="fs-12 font-weight-500" style={{ color: "#222222" }}>
                 {value}
@@ -344,42 +352,42 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             case ProcumentStatus.NOT_RECEIVED:
             case null:
               processIcon = iconPo3;
-              textProcurementStatus = 'Chưa nhập kho';
+              textProcurementStatus = "Chưa nhập kho";
               break;
             case ProcumentStatus.PARTIAL_RECEIVED:
-              textProcurementStatus = 'Nhập kho 1 phần';
+              textProcurementStatus = "Nhập kho 1 phần";
               processIcon = iconPo2;
               break;
             case ProcumentStatus.RECEIVED:
             case ProcumentStatus.FINISHED:
               processIcon = iconPo1;
-              textProcurementStatus = 'Đã nhập kho';
+              textProcurementStatus = "Đã nhập kho";
               break;
             default:
               processIcon = iconPo3;
-              textProcurementStatus = 'Chưa nhập kho'
+              textProcurementStatus = "Chưa nhập kho";
           }
 
           let financeProcessIcon = undefined;
-          let textFinanceStatus = '';
+          let textFinanceStatus = "";
           switch (record.financial_status) {
             case PoPaymentStatus.UNPAID:
             case null:
               financeProcessIcon = iconPo3;
-              textFinanceStatus = 'Chưa thanh toán';
+              textFinanceStatus = "Chưa thanh toán";
               break;
             case PoPaymentStatus.PARTIAL_PAID:
               financeProcessIcon = iconPo2;
-              textFinanceStatus = 'Thanh toán 1 phần';
+              textFinanceStatus = "Thanh toán 1 phần";
               break;
             case PoPaymentStatus.PAID:
             case PoPaymentStatus.FINISHED:
               financeProcessIcon = iconPo1;
-              textFinanceStatus = 'Đã thanh toán';
+              textFinanceStatus = "Đã thanh toán";
               break;
             default:
               processIcon = iconPo3;
-              textProcurementStatus = 'Chưa nhập kho';
+              textProcurementStatus = "Chưa nhập kho";
               break;
           }
 
@@ -428,18 +436,23 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               icon = statusDraft;
               break;
           }
-          return <div>
-            <TextStatus icon={icon}
-                        type={type}>{isFinishedStored ? "Kết thúc nhập kho" : ArrPoStatus.find(e => e.key === value)?.value}</TextStatus>
-            <div className="display-flex" style={{alignItems: 'center'}}>
-              <img src={processIcon} alt={textProcurementStatus}
-                   style={{marginRight: 5}}/><span>{textProcurementStatus}</span>
+          return (
+            <div>
+              <TextStatus icon={icon} type={type}>
+                {isFinishedStored
+                  ? "Kết thúc nhập kho"
+                  : ArrPoStatus.find((e) => e.key === value)?.value}
+              </TextStatus>
+              <div className="display-flex" style={{ alignItems: "center" }}>
+                <img src={processIcon} alt={textProcurementStatus} style={{ marginRight: 5 }} />
+                <span>{textProcurementStatus}</span>
+              </div>
+              <div className="display-flex" style={{ alignItems: "center" }}>
+                <img src={financeProcessIcon} alt={textFinanceStatus} style={{ marginRight: 5 }} />
+                <span>{textFinanceStatus}</span>
+              </div>
             </div>
-            <div className="display-flex" style={{alignItems: 'center'}}>
-              <img src={financeProcessIcon} alt={textFinanceStatus}
-                   style={{marginRight: 5}}/><span>{textFinanceStatus}</span>
-            </div>
-          </div>;
+          );
         },
         visible: true,
       },
@@ -448,21 +461,30 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         dataIndex: "procurements",
         render: (value: Array<PurchaseProcument>) => {
           if (value && value.length > 0) {
-            value.sort((a, b) =>
-              moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)),
-            )
+            value.sort((a, b) => moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)));
           }
-          return <div>
-            {value.map((i, idx) => idx % 3 === 0 && <div style={{display: 'flex', alignItems: 'center'}}>
-              <div style={{marginRight: 5}}>{ConvertUtcToLocalDate(i.expect_receipt_date, DATE_FORMAT.DDMMYYY)}</div>
-              {i.status !== "draft" && (
-                <div>{TagStatus({
-                  type: typeStatus[i.status],
-                  children: labelStatus[i.status],
-                })}</div>
+          return (
+            <div>
+              {value?.map(
+                (i, idx) =>
+                  idx % 3 === 0 && (
+                    <div style={{ display: "flex", alignItems: "center" }}>
+                      <div style={{ marginRight: 5 }}>
+                        {ConvertUtcToLocalDate(i.expect_receipt_date, DATE_FORMAT.DDMMYYY)}
+                      </div>
+                      {i.status !== "draft" && (
+                        <div>
+                          {TagStatus({
+                            type: typeStatus[i.status],
+                            children: labelStatus[i.status],
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  ),
               )}
-            </div>)}
-          </div>;
+            </div>
+          );
         },
         visible: true,
         width: 200,
@@ -565,7 +587,10 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         render: (value, item: PurchaseOrder) => {
           return (
             <div className="note">
-              <EditNote note={value} onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")} />
+              <EditNote
+                note={value}
+                onOk={(value) => onEditPurchaseOrder(item, value, "supplier_note")}
+              />
             </div>
           );
         },
@@ -804,7 +829,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           isRowSelection
           isLoading={tableLoading}
           showColumnSetting={true}
-          scroll={{x: "max-content"}}
+          scroll={{ x: "max-content" }}
           sticky={{ offsetScroll: 10, offsetHeader: 55 }}
           pagination={false}
           onShowColumnSetting={() => setShowSettingColumn(true)}
