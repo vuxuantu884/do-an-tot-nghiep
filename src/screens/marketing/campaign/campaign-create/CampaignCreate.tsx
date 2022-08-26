@@ -30,8 +30,14 @@ import {
 import CampaignImportFile from "screens/marketing/campaign/campaign-create/CampaignImportFile";
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable from "component/table/CustomTable";
+import useAuthorization from "hook/useAuthorization";
+import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 
 const { Option } = Select;
+
+// campaign permission
+const viewContactPermission = [CAMPAIGN_PERMISSION.marketings_contacts_read];
+const createContactPermission = [CAMPAIGN_PERMISSION.marketings_contacts_create];
 
 const CampaignCreateUpdate = () => {
   const [form] = Form.useForm();
@@ -39,6 +45,16 @@ const CampaignCreateUpdate = () => {
   const history = useHistory();
   const dispatch = useDispatch();
   const params: any = useParams();
+
+// campaign permission
+  const [allowViewContact] = useAuthorization({
+    acceptPermissions: viewContactPermission,
+    not: false,
+  });
+  const [allowCreateContact] = useAuthorization({
+    acceptPermissions: createContactPermission,
+    not: false,
+  });
 
   let activeCampaign = true;
 
@@ -83,10 +99,14 @@ const CampaignCreateUpdate = () => {
 
   const getContactList = useCallback(
     (campaignId, params) => {
+      if (!allowViewContact) {
+        return;
+      }
+      
       setIsLoading(true);
       dispatch(getCampaignContactAction(campaignId, params, updateContactListData));
     },
-    [dispatch, updateContactListData],
+    [allowViewContact, dispatch, updateContactListData],
   );
   /** end get contact data */
 
@@ -762,38 +782,50 @@ const CampaignCreateUpdate = () => {
                 </Row>
               </Card>
 
-              <Card
-                title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"}
-              >
-                <Button onClick={importFile}>Nhập file</Button>
+              {(allowViewContact || allowCreateContact) &&
+                <Card title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"}>
+                  {allowCreateContact &&
+                    <Button onClick={importFile}>Nhập file</Button>
+                  }
 
-                <div style={{ margin: "20px 0", fontSize: "16px" }}>
-                  <b>Danh sách khách hàng áp dụng</b>
-                </div>
-                <CustomTable
-                  bordered
-                  isLoading={isLoading}
-                  sticky={{ offsetScroll: 5, offsetHeader: 55 }}
-                  pagination={{
-                    pageSize: campaignCustomerData?.metadata?.limit,
-                    total: campaignCustomerData?.metadata?.total,
-                    current: campaignCustomerData?.metadata?.page,
-                    showSizeChanger: true,
-                    onChange: onPageChange,
-                    onShowSizeChange: onPageChange,
-                  }}
-                  isShowPaginationAtHeader
-                  dataSource={campaignCustomerData?.items}
-                  columns={columns}
-                  rowKey={(item: any) => item.key}
-                />
-              </Card>
+                  {allowViewContact &&
+                    <>
+                      <div style={{ margin: "20px 0", fontSize: "16px" }}>
+                        <b>Danh sách khách hàng áp dụng</b>
+                      </div>
+                      <CustomTable
+                        bordered
+                        isLoading={isLoading}
+                        sticky={{ offsetScroll: 5, offsetHeader: 55 }}
+                        pagination={{
+                          pageSize: campaignCustomerData?.metadata?.limit,
+                          total: campaignCustomerData?.metadata?.total,
+                          current: campaignCustomerData?.metadata?.page,
+                          showSizeChanger: true,
+                          onChange: onPageChange,
+                          onShowSizeChange: onPageChange,
+                        }}
+                        isShowPaginationAtHeader
+                        dataSource={campaignCustomerData?.items}
+                        columns={columns}
+                        rowKey={(item: any) => item.key}
+                      />
+                    </>
+                  }
+                </Card>
+              }
             </>
           }
           
           <BottomBarContainer
-            back="Quay lại danh sách chiến dịch"
-            backAction={() => history.push(`${UrlConfig.MARKETING}/campaigns`)}
+            back={`${isCreateCampaign ? "Quay lại danh sách chiến dịch" : "Quay lại chi tiết chiến dịch"}`}
+            backAction={() => {
+              if (isCreateCampaign) {
+                history.push(`${UrlConfig.MARKETING}/campaigns`)
+              } else {
+                history.push(`${UrlConfig.MARKETING}/campaigns/${params?.id}`)
+              }
+            }}
             rightComponent={
             campaignDetail && !isEditInfo &&
               <>

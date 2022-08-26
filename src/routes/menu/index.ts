@@ -10,6 +10,7 @@ import product from "./product.route";
 import promotion from "./promotion.route";
 // import { AdminPermission } from 'config/permissions/admin.permission';
 import { ODERS_PERMISSIONS } from "config/permissions/order.permission";
+import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 import offlineOrdersRoute from "./offline-orders.route";
 import reports from "./reports.route";
 import setting from "./setting.route";
@@ -129,6 +130,7 @@ const menu: Array<RouteMenu> = [
     key: "marketing",
     isShow: true,
     header: null,
+    permissions: [CAMPAIGN_PERMISSION.marketings_campaigns_read],
     subMenu: campaign,
   },
   {
