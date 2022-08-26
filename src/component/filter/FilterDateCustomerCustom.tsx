@@ -40,6 +40,14 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
     return endDate ? formatDateFilter(endDate) : null;
   }, [endDate]);
 
+  const onChangeSelectDateStart = (date: any, dateString: any) => {
+    handleSelectDateStart(dateString);
+  };
+
+  const onChangeSelectDateEnd = (date: any, dateString: any) => {
+    handleSelectDateEnd(dateString);
+  };
+
   return (
     <StyledSelectDateFilter>
       <div className="select-date">
@@ -103,7 +111,7 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
                 format={DATE_FORMAT.DD_MM_YYYY}
                 getPopupContainer={(trigger: any) => trigger.parentElement}
                 value={startDateValue}
-                onChange={handleSelectDateStart}
+                onChange={onChangeSelectDateStart}
               />
             </div>
           </Form.Item>
@@ -120,7 +128,7 @@ const FilterDateCustomerCustom: React.FC<SelectDateFilterProps> = (
                 format={DATE_FORMAT.DD_MM_YYYY}
                 getPopupContainer={(trigger: any) => trigger.parentElement}
                 value={endDateValue}
-                onChange={handleSelectDateEnd}
+                onChange={onChangeSelectDateEnd}
               />
             </div>
           </Form.Item>
