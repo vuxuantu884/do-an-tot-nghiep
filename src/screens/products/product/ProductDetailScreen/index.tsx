@@ -57,6 +57,7 @@ import { productUpdateApi } from "service/product/product.service";
 import _ from "lodash";
 import ProductSteps from "../component/ProductSteps";
 import { fullTextSearch } from "utils/StringUtils";
+import { SupplierResponse } from "model/core/supplier.model";
 export interface ProductParams {
   id: string;
   variantId: string;
@@ -745,7 +746,16 @@ const ProductDetailScreen: React.FC = () => {
                                     title="Khối lượng"
                                     value={`${currentVariant.weight} ${currentVariant.weight_unit} `}
                                   />
-                                  <RowDetail title="Nhà cung cấp" value={currentVariant.supplier} />
+                                  <RowDetail
+                                    title="Nhà cung cấp"
+                                    value={
+                                      currentVariant.suppliers
+                                        ? currentVariant.suppliers
+                                            .map((e: SupplierResponse) => e.name)
+                                            .toString()
+                                        : ""
+                                    }
+                                  />
                                 </Col>
                                 <Col className="view-right" span={24} md={10}>
                                   <div className="image-view">
