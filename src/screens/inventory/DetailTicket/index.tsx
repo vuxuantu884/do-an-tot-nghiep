@@ -930,10 +930,9 @@ const DetailTicket: FC = () => {
       dataIndex: "transfer_quantity",
       render: (value: string, row: any, index: number) => {
         if (
-          (parseInt(value) !== 0 &&
-            (row.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status ||
-              row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)) ||
-          row?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
+          (parseInt(value) !== 0 && row.status === STATUS_INVENTORY_TRANSFER.TRANSFERRING.status)
+            || row.status === STATUS_INVENTORY_TRANSFER.RECEIVED.status
+          || row?.status === STATUS_INVENTORY_TRANSFER.PENDING.status
         ) {
           return false;
         }
