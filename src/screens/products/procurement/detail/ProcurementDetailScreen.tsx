@@ -314,7 +314,7 @@ const ProcurementDetailScreen: React.FC = () => {
   const onFinish = async () => {
     setLoadingBtn(true);
     const values: PurchaseProcumentSubmit = formMain.getFieldsValue(true);
-    values.is_update = isEdit;
+    values.is_update_after_receive = isEdit;
     const response = await callApiNative(
       { isShowError: true },
       dispatch,

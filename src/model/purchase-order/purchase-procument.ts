@@ -227,7 +227,7 @@ export type ProcurementCancel = {
 };
 
 export interface PurchaseProcumentSubmit extends PurchaseProcument {
-  is_update?: boolean;
+  is_update_after_receive?: boolean;
 }
 
 export { POProcumentField, POProcumentLineItemField };
