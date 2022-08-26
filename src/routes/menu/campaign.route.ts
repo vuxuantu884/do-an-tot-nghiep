@@ -1,6 +1,7 @@
 import UrlConfig from "config/url.config";
 import { RouteMenu } from "model/other";
 import React from "react";
+import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
 
 const Campaign = React.lazy(() => import("screens/marketing/campaign/Campaign"));
 const CampaignDetail = React.lazy(() => import("screens/marketing/campaign/campaign-detail/CampaignDetail"));
@@ -17,6 +18,7 @@ const campaign: Array<RouteMenu> = [
     key: "campaigns_list",
     isShow: true,
     header: null,
+    permissions: [CAMPAIGN_PERMISSION.marketings_campaigns_read],
     subMenu: [
       {
         path: `${UrlConfig.MARKETING}/campaigns/create`,
@@ -27,7 +29,7 @@ const campaign: Array<RouteMenu> = [
         key: "campaigns_create",
         isShow: true,
         header: null,
-        // permissions: [],
+        permissions: [CAMPAIGN_PERMISSION.marketings_campaigns_create],
         subMenu: [],
       },
       {
@@ -39,7 +41,7 @@ const campaign: Array<RouteMenu> = [
         key: "campaigns_detail",
         isShow: true,
         header: null,
-        // permissions: [],
+        permissions: [CAMPAIGN_PERMISSION.marketings_campaigns_read_detail],
         subMenu: [],
       },
       {
@@ -51,7 +53,7 @@ const campaign: Array<RouteMenu> = [
         key: "campaigns_update",
         isShow: true,
         header: null,
-        // permissions: [],
+        permissions: [CAMPAIGN_PERMISSION.marketings_campaigns_update],
         subMenu: [],
       },
     ],

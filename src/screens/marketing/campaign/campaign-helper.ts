@@ -5,7 +5,7 @@ import moment from "moment";
 
 export const CAMPAIGN_STATUS_LIST: Array<any> = [
   {
-    name: "Chờ gửi",
+    name: "Chờ kích hoạt",
     value: "WAITING",
     type: "",
   },
@@ -15,7 +15,7 @@ export const CAMPAIGN_STATUS_LIST: Array<any> = [
     type: "primary",
   },
   {
-    name: "Tạm ngưng",
+    name: "Tạm ngừng",
     value: "PAUSE",
     type: "warning",
   },

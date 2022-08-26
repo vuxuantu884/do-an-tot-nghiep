@@ -140,16 +140,41 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   // handle select date
   const [firstOrderDateClick, setFirstOrderDateClick] = useState("");
   const [lastOrderDateClick, setLastOrderDateClick] = useState("");
+  const [firstDateStart, setFirstDateStart] = useState<any>(params.first_order_time_from);
+  const [firstDateEnd, setFirstDateEnd] = useState<any>(params.first_order_time_to);
+  const [lastDateStart, setLastDateStart] = useState<any>(params.last_order_time_from);
+  const [lastDateEnd, setLastDateEnd] = useState<any>(params.last_order_time_to);
+
 
   // lưu bộ lọc
   const onShowSaveFilter = useCallback(() => {
-    let values = formCustomerFilter.getFieldsValue();
-    setFormSearchValuesToSave(values);
+    const values = formCustomerFilter.getFieldsValue();
+    const saveFormValues = {
+      ...values,
+      responsible_staff_codes: values.responsible_staff_codes
+        ? values.responsible_staff_codes.split(" - ")[0]
+        : null,
+      first_order_time_from: firstDateStart,
+      first_order_time_to: firstDateEnd,
+      last_order_time_from: lastDateStart,
+      last_order_time_to: lastDateEnd,
+    }
+    setFormSearchValuesToSave(saveFormValues);
     setIsShowModalSaveFilter(true);
-  }, [formCustomerFilter]);
+  }, [firstDateEnd, firstDateStart, formCustomerFilter, lastDateEnd, lastDateStart]);
 
   const onHandleFilterTagSuccessCallback = (res: BaseResponse<FilterConfig>) => {
     setTagActive(res.data.id);
+  };
+
+  const onFilterBySavedConfig = (formValue: any) => {
+    setFirstDateStart(formValue.first_order_time_from);
+    setFirstDateEnd(formValue.first_order_time_to);
+    setLastDateStart(formValue.last_order_time_from);
+    setLastDateEnd(formValue.last_order_time_to);
+
+    formCustomerFilter.setFieldsValue(formValue);
+    formCustomerFilter.submit();
   };
 
   const {
@@ -167,6 +192,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
     },
     setTagActive,
     onHandleFilterTagSuccessCallback,
+    onFilterBySavedConfig,
   );
 
   const handleClearFilterConfig = useCallback(() => {
@@ -258,11 +284,15 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
       // district_ids: districtIds,
       // ward_ids: wardIds,
 
-      city_ids: Array.isArray(params.city_ids) ? params.city_ids : [params.city_ids],
+      city_ids: Array.isArray(params.city_ids)
+        ? params.city_ids.map((item: any) => Number(item))
+        : [Number(params.city_ids)],
       district_ids: Array.isArray(params.district_ids)
-        ? params.district_ids
-        : [params.district_ids],
-      ward_ids: Array.isArray(params.ward_ids) ? params.ward_ids : [params.ward_ids],
+        ? params.district_ids.map((item: any) => Number(item))
+        : [Number(params.district_ids)],
+      ward_ids: Array.isArray(params.ward_ids)
+        ? params.ward_ids.map((item: any) => Number(item))
+        : [Number(params.ward_ids)],
 
       customer_group_ids: Array.isArray(params.customer_group_ids)
         ? params.customer_group_ids
@@ -319,51 +349,55 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
   );
   // end handle select sale staff (responsible_staff_codes) by filter param
 
-  //handle change the first purchase date filter
-  const [firstDateStart, setFirstDateStart] = useState<any>(params.first_order_time_from);
-  const [firstDateEnd, setFirstDateEnd] = useState<any>(params.first_order_time_to);
+  const convertDateStringToDate = (dateString: string) => {
+    const arrDate = dateString.split("-");
+    const stringDate = arrDate[2] + "-" + arrDate[1] + "-" + arrDate[0];
+    return new Date(stringDate);
+  }
 
-  const handleFirstPurchaseDateStart = (date: any) => {
+  //handle change the first purchase date filter
+  const handleFirstPurchaseDateStart = (dateString: string) => {
     setFirstOrderDateClick("");
-    if (!date) {
+    if (!dateString) {
       setFirstDateStart(null);
     } else {
-      const startOfDate = date.utc().startOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const startOfDate = moment(_date).utc().startOf("day");
       setFirstDateStart(startOfDate);
     }
   };
 
-  const handleFirstPurchaseDateEnd = (date: any) => {
+  const handleFirstPurchaseDateEnd = (dateString: string) => {
     setFirstOrderDateClick("");
-    if (!date) {
+    if (!dateString) {
       setFirstDateEnd(null);
     } else {
-      const endOfDate = date.utc().endOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const endOfDate = moment(_date).utc().endOf("day");
       setFirstDateEnd(endOfDate);
     }
   };
   //end handle change the first purchase date filter
 
   //handle change the first purchase date filter
-  const [lastDateStart, setLastDateStart] = useState<any>(params.last_order_time_from);
-  const [lastDateEnd, setLastDateEnd] = useState<any>(params.last_order_time_to);
-
-  const handleLastPurchaseDateStart = (date: any) => {
+  const handleLastPurchaseDateStart = (dateString: string) => {
     setLastOrderDateClick("");
-    if (!date) {
+    if (!dateString) {
       setLastDateStart(null);
     } else {
-      const startOfDate = date.utc().startOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const startOfDate = moment(_date).utc().startOf("day");
       setLastDateStart(startOfDate);
     }
   };
 
-  const handleLastPurchaseDateEnd = (date: any) => {
+  const handleLastPurchaseDateEnd = (dateString: string) => {
     setLastOrderDateClick("");
-    if (!date) {
+    if (!dateString) {
       setLastDateEnd(null);
     } else {
-      const endOfDate = date.utc().endOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const endOfDate = moment(_date).utc().endOf("day");
       setLastDateEnd(endOfDate);
     }
   };
@@ -1984,27 +2018,15 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
         responsible_staff_codes: values.responsible_staff_codes
           ? values.responsible_staff_codes.split(" - ")[0]
           : null,
-        // first_order_time_from: firstDateStart,
-        // first_order_time_to: firstDateEnd,
-        // last_order_time_from: lastDateStart,
-        // last_order_time_to: lastDateEnd,
+        first_order_time_from: firstDateStart,
+        first_order_time_to: firstDateEnd,
+        last_order_time_from: lastDateStart,
+        last_order_time_to: lastDateEnd,
       };
-
-      const getValueForm = formCustomerFilter.getFieldsValue();
-
-      if (!getValueForm.first_order_time_from || !getValueForm.first_order_time_to) {
-        formValues.first_order_time_from = firstDateStart;
-        formValues.first_order_time_to = firstDateEnd;
-      }
-
-      if (!getValueForm.last_order_time_from || !getValueForm.last_order_time_to) {
-        formValues.last_order_time_from = lastDateStart;
-        formValues.last_order_time_to = lastDateEnd;
-      }
 
       onFilter && onFilter(formValues);
     },
-    [firstDateEnd, firstDateStart, formCustomerFilter, lastDateEnd, lastDateStart, onFilter],
+    [firstDateEnd, firstDateStart, lastDateEnd, lastDateStart, onFilter],
   );
 
   const actionList = [
@@ -3200,7 +3222,8 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
               </div>
 
               <div className="base-filter-row">
-                <Form.Item className="left-filter" label={<b>Ngày mua đầu</b>}>
+                <div className="left-filter">
+                  <div style={{ marginBottom: "8px"}}><b>Ngày mua đầu</b></div>
                   <FilterDateCustomerCustom
                     fieldNameFrom="first_order_time_from"
                     fieldNameTo="first_order_time_to"
@@ -3212,9 +3235,10 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                     handleSelectDateStart={handleFirstPurchaseDateStart}
                     handleSelectDateEnd={handleFirstPurchaseDateEnd}
                   />
-                </Form.Item>
+                </div>
 
-                <Form.Item label={<b>Ngày mua cuối</b>} className="center-filter">
+                <div className="center-filter">
+                  <div style={{ marginBottom: "8px"}}><b>Ngày mua cuối</b></div>
                   <FilterDateCustomerCustom
                     fieldNameFrom="last_order_time_from"
                     fieldNameTo="last_order_time_to"
@@ -3226,7 +3250,7 @@ const CustomerListFilter: React.FC<CustomerListFilterProps> = (props: CustomerLi
                     handleSelectDateStart={handleLastPurchaseDateStart}
                     handleSelectDateEnd={handleLastPurchaseDateEnd}
                   />
-                </Form.Item>
+                </div>
 
                 <div className="right-filter">
                   <div className="title">Tổng giá trị đơn trả</div>

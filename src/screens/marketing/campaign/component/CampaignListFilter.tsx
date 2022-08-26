@@ -233,26 +233,34 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
   /** end handle tag filter */
 
   /** handle select date */
+  const convertDateStringToDate = (dateString: string) => {
+    const arrDate = dateString.split("-");
+    const stringDate = arrDate[2] + "-" + arrDate[1] + "-" + arrDate[0];
+    return new Date(stringDate);
+  }
+
   //created date
   const [createdDateFrom, setCreatedDateFrom] = useState<any>(params.created_date_from);
   const [createdDateTo, setCreatedDateTo] = useState<any>(params.created_date_to);
 
-  const handleCreatedDateFrom = (date: any) => {
+  const handleCreatedDateFrom = (dateString: string) => {
     setCreatedDateClick("");
-    if (!date) {
+    if (!dateString) {
       setCreatedDateFrom(null);
     } else {
-      const startOfDate = date.utc().startOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const startOfDate = moment(_date).utc().startOf("day");
       setCreatedDateFrom(startOfDate);
     }
   };
 
-  const handleCreatedDateTo = (date: any) => {
+  const handleCreatedDateTo = (dateString: string) => {
     setCreatedDateClick("");
-    if (!date) {
+    if (!dateString) {
       setCreatedDateTo(null);
     } else {
-      const endOfDate = date.utc().endOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const endOfDate = moment(_date).utc().endOf("day");
       setCreatedDateTo(endOfDate);
     }
   };
@@ -262,22 +270,24 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
   const [sendDateFrom, setSendDateFrom] = useState<any>(params.send_date_from);
   const [sendDateTo, setSendDateTo] = useState<any>(params.send_date_to);
 
-  const handleSendDateFrom = (date: any) => {
+  const handleSendDateFrom = (dateString: string) => {
     setSendDateClick("");
-    if (!date) {
+    if (!dateString) {
       setSendDateFrom(null);
     } else {
-      const startOfDate = date.utc().startOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const startOfDate = moment(_date).utc().startOf("day");
       setSendDateFrom(startOfDate);
     }
   };
 
-  const handleSendDateTo = (date: any) => {
+  const handleSendDateTo = (dateString: string) => {
     setSendDateClick("");
-    if (!date) {
+    if (!dateString) {
       setSendDateTo(null);
     } else {
-      const endOfDate = date.utc().endOf("day");
+      const _date = convertDateStringToDate(dateString);
+      const endOfDate = moment(_date).utc().endOf("day");
       setSendDateTo(endOfDate);
     }
   };
@@ -595,7 +605,8 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
         >
           <Row gutter={24}>
             <Col xs={24} lg={12}>
-              <Form.Item label={<b>Thời gian tạo</b>}>
+              <div>
+                <div style={{ marginBottom: "8px"}}><b>Thời gian tạo</b></div>
                 <FilterDateCustomerCustom
                   fieldNameFrom="created_date_from"
                   fieldNameTo="created_date_to"
@@ -607,11 +618,12 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
                   handleSelectDateStart={handleCreatedDateFrom}
                   handleSelectDateEnd={handleCreatedDateTo}
                 />
-              </Form.Item>
+              </div>
             </Col>
 
             <Col xs={24} lg={12}>
-              <Form.Item label={<b>Thời gian gửi</b>}>
+              <div>
+                <div style={{ marginBottom: "8px"}}><b>Thời gian gửi</b></div>
                 <FilterDateCustomerCustom
                   fieldNameFrom="send_date_from"
                   fieldNameTo="send_date_to"
@@ -623,7 +635,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
                   handleSelectDateStart={handleSendDateFrom}
                   handleSelectDateEnd={handleSendDateTo}
                 />
-              </Form.Item>
+              </div>
             </Col>
           </Row>
         </Form>

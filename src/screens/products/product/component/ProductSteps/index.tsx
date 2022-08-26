@@ -20,7 +20,6 @@ type ProductStepStatus = {
 const { Step } = Steps;
 
 const progressDot = (dot: any, { status, index }: any) => {
-  console.log("index", index);
   let stt = 1;
   stt = index === 1 ? 2 : index === 2 ? 3 : 1;
 
@@ -46,9 +45,9 @@ const ProductSteps: React.FC<ProductStepsProps> = (props: ProductStepsProps) => 
     if (!product) return productStepStatus;
 
     if (
-      product.material_component !== null &&
-      product.material_advantages != null &&
-      product.material_defect !== null
+      product.material_component &&
+      product.material_advantages &&
+      product.material_advantages !== "p><br></p>"
     )
       productStepStatus.Material = "finish";
 
@@ -79,8 +78,6 @@ const ProductSteps: React.FC<ProductStepsProps> = (props: ProductStepsProps) => 
     productStepStatus.Image = deficiencyImage ? "wait" : "finish";
     productStepStatus.ProcessPrice = `Giá thành (${processedPrice}/${product.variants.length})`;
     productStepStatus.ProcessImage = `Ảnh mẫu (${processedImage}/${product.variants.length})`;
-
-    console.log("productStepStatus", productStepStatus);
 
     return productStepStatus;
   }, [props.data]);
