@@ -23,6 +23,12 @@ import { CampaignStyled } from "screens/marketing/campaign/campaign-styled";
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
 import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
+import useAuthorization from "hook/useAuthorization";
+import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
+
+// campaign permission
+const viewCampaignDetailPermission = [CAMPAIGN_PERMISSION.marketings_campaigns_read_detail];
+const createCampaignPermission = [CAMPAIGN_PERMISSION.marketings_campaigns_create];
 
 const initQuery: CampaignSearchQuery = {
   page: 1,
@@ -42,6 +48,16 @@ const CampaignList = () => {
   const history = useHistory();
   const location = useLocation();
   const queryParamsParsed: any = queryString.parse(location.search);
+
+  // campaign permission
+  const [allowViewCampaignDetail] = useAuthorization({
+    acceptPermissions: viewCampaignDetailPermission,
+    not: false,
+  });
+  const [allowCreateCampaign] = useAuthorization({
+    acceptPermissions: createCampaignPermission,
+    not: false,
+  });
 
   // const campaignContext = useContext(CampaignContext);
   // const { data, setData } = campaignContext;
@@ -81,7 +97,12 @@ const CampaignList = () => {
       width: "200px",
       render: (item: any) => {
         return (
-          <Link to={`${UrlConfig.MARKETING}/campaigns/${item.id}`}>{item.code}</Link>
+          <>
+            {allowViewCampaignDetail ?
+              <Link to={`${UrlConfig.MARKETING}/campaigns/${item.id}`}>{item.code}</Link>
+              : <span>{item.code}</span>
+            }
+          </>
         );
       },
     },
@@ -232,6 +253,7 @@ const CampaignList = () => {
         extra={
           <div style={{ display: "flex" }}>
             <Button
+              hidden={true} //tạm ẩn
               disabled={isLoading}
               size="large"
               style={{ marginRight: "16px" }}
@@ -241,16 +263,18 @@ const CampaignList = () => {
               Cấu hình gửi tin
             </Button>
 
-            <Link to={`${UrlConfig.MARKETING}/campaigns/create`}>
-              <Button
-                disabled={isLoading}
-                type={"primary"}
-                size="large"
-                icon={<PlusOutlined />}
-              >
-                Thêm chiến dịch gửi tin
-              </Button>
-            </Link>
+            {allowCreateCampaign &&
+              <Link to={`${UrlConfig.MARKETING}/campaigns/create`}>
+                <Button
+                  disabled={isLoading}
+                  type={"primary"}
+                  size="large"
+                  icon={<PlusOutlined />}
+                >
+                  Thêm chiến dịch gửi tin
+                </Button>
+              </Link>
+            }
           </div>
         }
       >
