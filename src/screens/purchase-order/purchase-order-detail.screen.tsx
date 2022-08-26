@@ -253,6 +253,7 @@ const PODetailScreen: React.FC = () => {
                       ...procurementItem,
                       percent: item?.percent,
                       uuid: uuid + indexProcurementAll, // ada them vị trí của procuments
+                      sku: procurementItem?.sku?.trim() || "",
                     };
                   }),
                 ],
@@ -276,7 +277,6 @@ const PODetailScreen: React.FC = () => {
           procurements: [...procurements],
         });
         handleSetProcurementTableContext(procurements, result.line_items, procurementsAllEffect);
-
         setPurchaseOrder({ ...result, procurements: [...procurements] });
         setProcurementsAll(procurementsAllEffect);
         setStatus(result.status);
@@ -382,10 +382,10 @@ const PODetailScreen: React.FC = () => {
         const line_items = procurementAll[0].procurement_items;
         line_items.forEach((line_item) => {
           const totalQuantity = procurementItemsAll
-            .filter((item) => item.variant_id === line_item.variant_id)
+            .filter((item) => item.sku === line_item.sku)
             .reduce((acc, ele) => acc + ele.quantity, 0);
           const totalPlannedQuantities = procurementItemsAll
-            .filter((item) => item.variant_id === line_item.variant_id)
+            .filter((item) => item.sku === line_item.sku)
             .reduce((acc, ele) => acc + ele.planned_quantity, 0);
 
           if (totalQuantity !== totalPlannedQuantities) {
@@ -404,7 +404,7 @@ const PODetailScreen: React.FC = () => {
             (acc, val) => acc.concat(val.procurement_items),
             [] as PurchaseProcumentLineItem[],
           )
-          .filter((item) => item.variant_id === lineItem.variant_id)
+          .filter((item) => item.sku === lineItem.sku)
           .reduce((total, element) => total + element.planned_quantity, 0);
 
         if (totalProcumentPlannedQuantityByLineItem > lineItem.quantity) {
@@ -883,7 +883,7 @@ const PODetailScreen: React.FC = () => {
       .line_items as PurchaseOrderLineItem[];
     currentLineItem.current = [...line_items];
     dataChangePricer.forEach((dataChange) => {
-      const index = line_items.findIndex((item) => item.variant_id === dataChange.variant_id);
+      const index = line_items.findIndex((item) => item.sku === dataChange.sku);
       if (index >= 0) {
         line_items[index].retail_price = dataChange.new_retail_price || 0;
       }

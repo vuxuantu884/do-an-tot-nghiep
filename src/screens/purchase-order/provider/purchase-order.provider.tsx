@@ -130,8 +130,8 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
               (acc, val) => acc.concat(val.procurement_items),
               [] as Array<PurchaseProcumentLineItem>,
             )
-            .filter((item) => item.variant_id === procurementItem.variant_id);
-          let plannedQuantity = null;
+            .filter((item) => item.sku === procurementItem.sku);
+          let plannedQuantity = NaN;
           if (procurementItemByVariantId.length) {
             plannedQuantity = procurementItemByVariantId.reduce(
               (total, element) => total + element?.planned_quantity || 0,
@@ -146,9 +146,9 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
               (acc, val) => acc.concat(val.procurement_items),
               [] as Array<PurchaseProcumentLineItem>,
             )
-            .filter((item) => item.variant_id === procurementItem.variant_id);
+            .filter((item) => item.sku === procurementItem.sku);
 
-          let realQuantity = null;
+          let realQuantity = NaN;
           if (procurementItemByVariantId.length) {
             realQuantity = procurementItemByVariantId.reduce(
               (total, element) => total + element?.real_quantity || 0,
@@ -163,7 +163,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
           "uuid",
         );
         const procurementItemIndex = procurements[0].procurement_items.findIndex(
-          (item) => item.variant_id === procurementItem.variant_id,
+          (item) => item.sku === procurementItem.sku,
         );
         if (procurementItemIndex === -1) {
           return {
@@ -195,13 +195,13 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
     const procurementsBackUp = procurements.map((procurement) => {
       procurement.procurement_items.forEach((procurementItem, indexProcurementItem) => {
         const indexLineItem = lineItems.findIndex(
-          (lineItem) => lineItem.variant_id === procurementItem.variant_id,
+          (lineItem) => lineItem.sku === procurementItem.sku,
         );
         if (indexLineItem === -1) {
           procurement.procurement_items.splice(indexProcurementItem, 1);
         } else {
           lineItemsBackUp = lineItemsBackUp.filter(
-            (lineItemBackUp) => lineItemBackUp.variant_id !== procurementItem.variant_id,
+            (lineItemBackUp) => lineItemBackUp.sku !== procurementItem.sku,
           );
         }
       });
