@@ -575,7 +575,7 @@ const InventoryFilters: React.FC<OrderFilterProps> = (props: OrderFilterProps) =
                 }}
               >
                 {activeTab === InventoryTransferTabUrl.LIST_TRANSFERRING_RECEIVE ||
-                activeTab === InventoryTransferTabUrl.LIST
+                activeTab === `${InventoryTransferTabUrl.LIST}/`
                   ? Array.isArray(stores) &&
                     stores.length > 0 &&
                     stores.map((item, index) => (
