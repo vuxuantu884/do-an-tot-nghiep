@@ -50,7 +50,6 @@ const OrderCartListFilter = (props: any) => {
   //handle tag
   useEffect(() => {
     let filters = [];
-
     if (params.searcher) {
       filters.push({
         key: "searcher",
@@ -58,11 +57,18 @@ const OrderCartListFilter = (props: any) => {
         value: params.searcher,
       });
     }
-    if (params.core_order_code) {
+    if (params.ecommerce_order_id) {
       filters.push({
-        key: "core_order_id",
+        key: "ecommerce_order_id",
         name: "ID đơn hàng",
-        value: params.core_order_code,
+        value: params.ecommerce_order_id,
+      });
+    }
+    if (params.abandoned_code) {
+      filters.push({
+        key: "abandoned_code",
+        name: "Mã giỏ hàng",
+        value: params.abandoned_code,
       });
     }
 
@@ -77,7 +83,7 @@ const OrderCartListFilter = (props: any) => {
           : "??");
       filters.push({
         key: "updated_date",
-        name: "Ngày update đơn",
+        name: "Ngày update giỏ hàng",
         value: textOrderCreateDate,
       });
     }
@@ -99,9 +105,11 @@ const OrderCartListFilter = (props: any) => {
         ...{ updated_date_from: null, updated_date_to: null },
       };
       setCreatedClick("");
-    } else if (tag.key === "core_order_id") {
-      newParams = { ...newParams, ...{ core_order_id: [] } };
+    } else if (tag.key === "ecommerce_order_id") {
+      newParams = { ...newParams, ...{ ecommerce_order_id: null } };
       setCreatedClick("");
+    } else if (tag.key === "abandoned_code") {
+      newParams = { ...newParams, ...{ abandoned_code: null } };
     } else {
       newParams = { ...newParams, ...{ [tag.key]: null } };
     }
@@ -111,7 +119,8 @@ const OrderCartListFilter = (props: any) => {
   //set params to form
   useEffect(() => {
     formRef.current?.setFieldsValue({
-      core_order_id: params.core_order_id,
+      ecommerce_order_id: params.ecommerce_order_id,
+      abandoned_code: params.abandoned_code,
       searcher: params.searcher,
       updated_date_from: params.updated_date_from,
       updated_date_to: params.updated_date_to,
@@ -128,19 +137,36 @@ const OrderCartListFilter = (props: any) => {
           initialValues={params}
           onFinish={handleFinish}
         >
-          <Item name="core_order_id" className="search-input">
+          <Item name="ecommerce_order_id" className="search-input">
             <Input
               disabled={isLoading}
               prefix={<img src={search} alt="" />}
-              placeholder="ID đơn hàng"
+              placeholder="ID đơn hàng sapo"
               onBlur={(e) => {
                 formFilter?.setFieldsValue({
-                  core_order_id: e.target.value.trim(),
+                  ecommerce_order_id: e.target.value.trim(),
                 });
               }}
               onPressEnter={(e: any) => {
                 formFilter.setFieldsValue({
-                  core_order_id: e.target.value.trim(),
+                  ecommerce_order_id: e.target.value.trim(),
+                });
+              }}
+            />
+          </Item>
+          <Item name="abandoned_code" className="search-input">
+            <Input
+              disabled={isLoading}
+              prefix={<img src={search} alt="" />}
+              placeholder="Mã giỏ hàng"
+              onBlur={(e) => {
+                formFilter?.setFieldsValue({
+                  abandoned_code: e.target.value.trim(),
+                });
+              }}
+              onPressEnter={(e: any) => {
+                formFilter.setFieldsValue({
+                  ecommerce_order_id: e.target.value.trim(),
                 });
               }}
             />
@@ -200,7 +226,7 @@ const OrderCartListFilter = (props: any) => {
         >
           <AbandonCartBaseFilterStyle>
             <Form ref={formRef} onFinish={handleFinish} initialValues={params} layout="vertical">
-              <Form.Item label={<b>Ngày update đơn</b>}>
+              <Form.Item label={<b>Ngày update giỏ hàng</b>}>
                 <CustomRangeDatePicker
                   fieldNameFrom="updated_date_from"
                   fieldNameTo="updated_date_to"

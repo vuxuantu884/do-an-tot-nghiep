@@ -12,7 +12,6 @@ import queryString from "query-string";
 import moment from "moment";
 import { getAbandonCartListAction } from "domain/actions/web-app/web-app.actions";
 import { generateQuery } from "utils/AppUtils";
-import { ConsoleSqlOutlined } from "@ant-design/icons";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 
 const OrderCartList = () => {
@@ -37,6 +36,8 @@ const OrderCartList = () => {
     searcher: null,
     updated_date_to: null,
     updated_date_from: null,
+    abandoned_code: null,
+    ecommerce_order_id: null,
   };
   let queryParams: any = {
     ...initQuery,
@@ -107,10 +108,26 @@ const OrderCartList = () => {
   const [columns] = useState<Array<ICustomTableColumType<any>>>([
     {
       title: "Mã giỏ hàng",
-      key: "core",
+      key: "abandoned_code",
       width: "10%",
       align: "center",
-      render: (item: any) => <span>{item?.code}</span>,
+      render: (item: any) => (
+        <a href={`${UrlConfig.WEB_APP}-cart/${item?.code}/detail`}>{item?.code}</a>
+      ),
+    },
+    {
+      title: "Mã đơn trên sapo",
+      key: "ecommerce_order_id",
+      width: "10%",
+      align: "center",
+      render: (item: any) => <span>{item?.ecommerce_order_id}</span>,
+    },
+    {
+      title: "Mã đơn trên unicorn",
+      key: "core_order_id",
+      width: "10%",
+      align: "center",
+      render: (item: any) => <span>{item?.core_order_id}</span>,
     },
     {
       title: "Ngày tạo",
@@ -138,7 +155,7 @@ const OrderCartList = () => {
       render: (item: any) => <span>{item?.customer?.full_name}</span>,
     },
     {
-      title: "SĐT",
+      title: "Số điện thoại",
       key: "phone",
       width: "10%",
       align: "center",
@@ -181,6 +198,7 @@ const OrderCartList = () => {
             bordered
             isLoading={isLoading}
             showColumnSetting={true}
+            scroll={{ x: 1500 }}
             sticky={{ offsetScroll: 10, offsetHeader: 55 }}
             pagination={
               isLoading
@@ -198,13 +216,6 @@ const OrderCartList = () => {
             dataSource={data.items}
             columns={columns}
             rowKey={(item: any) => item.id}
-            onRow={(record: any) => {
-              return {
-                onClick: () => {
-                  history.push(`${UrlConfig.WEB_APP}-cart/${record?.code}/detail`);
-                },
-              };
-            }}
           />
         </Card>
       </ContentContainer>

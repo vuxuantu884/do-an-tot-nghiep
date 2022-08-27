@@ -97,7 +97,7 @@ function ProductInfo(props: PropTypes) {
             emptyText: (
               <div className="sale_order_empty_product">
                 <img src={emptyProduct} alt="empty product"></img>
-                <p>Chưa có sản phẩm đổi trả!</p>
+                <p>Chưa có sản phẩm!</p>
               </div>
             ),
           }}
