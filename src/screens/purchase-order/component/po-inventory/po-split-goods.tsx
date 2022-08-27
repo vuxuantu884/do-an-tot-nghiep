@@ -56,18 +56,26 @@ export const PoSplitGoods = (props: IProps) => {
       : purchaseOrder?.procurements;
     const procurementsFilter = groupBy(procurements, ProcurementLineItemField.expect_receipt_date);
     const procurementsAll: Array<PurchaseProcument[]> = Object.values(procurementsFilter);
+    const procurementsFilterKeys = Object.keys(procurementsFilter);
     const dateSelected = procurementsAll
-      .map((procurement) => {
+      .map((procurement, indexProcurement) => {
         const procurementFitterStatus = groupBy(
           procurements.filter(
             (item) => item.expect_receipt_date === procurement[0].expect_receipt_date,
           ),
           ProcurementLineItemField.status,
         );
-        const status: string =
-          Object.values(procurementFitterStatus)[0]?.length === procurementsAll[0]?.length
+        let status: string =
+          Object.values(procurementFitterStatus)[0]?.length ===
+          procurementsFilter[procurementsFilterKeys[indexProcurement]]?.length
             ? (Object.keys(procurementFitterStatus)[0] as any)
             : ProcurementStatus.not_received;
+
+        status =
+          Object.keys(procurementFitterStatus).includes(ProcurementStatus.draft) ||
+          Object.keys(procurementFitterStatus).includes(ProcurementStatus.not_received)
+            ? status
+            : ProcurementStatus.received;
         return {
           ...procurement[0],
           status,
@@ -76,7 +84,7 @@ export const PoSplitGoods = (props: IProps) => {
       .filter((item) => item.expect_receipt_date);
     const dateOption =
       dateSelected.length > 0
-        ? moment(dateSelected[0]?.expect_receipt_date).format("DD/MM/YYYY")
+        ? moment(dateSelected[0]?.expect_receipt_date).format(DATE_FORMAT.DDMMYYY)
         : "";
     setDateSelected(dateSelected);
     setDateOption(dateOption);
@@ -112,7 +120,7 @@ export const PoSplitGoods = (props: IProps) => {
               })[oldKey];
             });
             const plannedQuantity = procurementsFilter[dateOption]
-              .reduce(
+              ?.reduce(
                 (acc, val) => acc.concat(val.procurement_items),
                 [] as Array<PurchaseProcumentLineItem>,
               )
@@ -192,6 +200,13 @@ export const PoSplitGoods = (props: IProps) => {
       dataStore.length < COUNT_STORE
         ? Math.round((COUNT_STORE * WIDTH_COLUM_STORE) / (dataStore.length || 1))
         : WIDTH_COLUM_STORE;
+
+    const dateIndex = dateSelected.findIndex(
+      (item) => moment(item.expect_receipt_date).format(DATE_FORMAT.DDMMYYY) === dateOption,
+    );
+    const status = dateSelected[dateIndex]?.status;
+    console.log("status", status);
+    moment(dateSelected[0]?.expect_receipt_date).format("DD/MM/YYYY");
     dataStore.forEach((store, indexStore) => {
       columns.push({
         title: () => {
@@ -227,8 +242,14 @@ export const PoSplitGoods = (props: IProps) => {
         dataIndex: "procurement_items",
         width: width,
         render: (value, row) => {
-          const valueStore = row.procurement_items
+          const planned_quantity = row.procurement_items
             ? row.procurement_items[indexStore].planned_quantity
+            : 0;
+          const accepted_quantity = row.procurement_items
+            ? row.procurement_items[indexStore].accepted_quantity
+            : 0;
+          const real_quantity = row.procurement_items
+            ? row.procurement_items[indexStore].real_quantity
             : 0;
           return (
             <>
@@ -237,7 +258,7 @@ export const PoSplitGoods = (props: IProps) => {
               row.procurement_items[indexStore].status === ProcurementStatus.draft ? (
                 <NumberInput
                   min={0}
-                  value={valueStore}
+                  value={planned_quantity}
                   onChange={(value) => {
                     row?.procurement_items &&
                       row?.procurement_items[indexStore]?.procurement &&
@@ -254,7 +275,20 @@ export const PoSplitGoods = (props: IProps) => {
                   isChangeAfterBlur={false}
                 />
               ) : (
-                <>{valueStore}</>
+                <>
+                  {" "}
+                  {status === ProcurementStatus.not_received ? (
+                    <>
+                      <StyledNotReceived>{accepted_quantity}</StyledNotReceived>/{planned_quantity}
+                    </>
+                  ) : status === ProcurementStatus.received ? (
+                    <>
+                      <StyledReceived>{real_quantity}</StyledReceived>/{planned_quantity}
+                    </>
+                  ) : (
+                    planned_quantity
+                  )}
+                </>
               )}
             </>
           );
@@ -391,15 +425,21 @@ export const PoSplitGoods = (props: IProps) => {
                     {dateString}
                   </StyledDate>
                   {value.status === ProcurementStatus.not_received && (
-                    <StyledReceived status={ProcurementStatus.not_received} className="hidden">
+                    <StyledReceivedOrNotReceived
+                      status={ProcurementStatus.not_received}
+                      className="hidden"
+                    >
                       Đã duyệt
-                    </StyledReceived>
+                    </StyledReceivedOrNotReceived>
                   )}
 
                   {value.status === ProcurementStatus.received && (
-                    <StyledReceived status={ProcurementStatus.received} className="hidden">
+                    <StyledReceivedOrNotReceived
+                      status={ProcurementStatus.received}
+                      className="hidden"
+                    >
                       Đã nhận
-                    </StyledReceived>
+                    </StyledReceivedOrNotReceived>
                   )}
                 </Select.Option>
               );
@@ -529,17 +569,24 @@ const StyledDate = styled.span<{ status: string }>`
   color: ${(p) => (p.status === ProcurementStatus.draft ? "#E24343" : "#222222")};
 `;
 
-const StyledReceived = styled.span<{ status: string }>`
+const StyledReceivedOrNotReceived = styled.span<{ status: string }>`
   font-weight: 400;
   font-size: 12px;
   line-height: 18px;
   padding: 2px 4px;
   margin-left: 4px;
   background: ${(p) => {
-    if (p.status === ProcurementStatus.received) return "#FCAF17;";
-    if (p.status === ProcurementStatus.not_received) return "#27AE60;";
+    if (p.status === ProcurementStatus.received) return "#27AE60;";
+    if (p.status === ProcurementStatus.not_received) return "#FCAF17;";
   }} !important;
   border-radius: 2px;
   color: #fff;
   z-index: 100;
+`;
+
+const StyledNotReceived = styled.span`
+  color: #fcaf17;
+`;
+const StyledReceived = styled.span`
+  color: #27ae60;
 `;

@@ -84,7 +84,6 @@ import PurchaseOrderProvider, {
 } from "./provider/purchase-order.provider";
 import { v4 as uuidv4 } from "uuid";
 import { POModalChangePrice } from "./component/po-modal-change-price";
-import { formatCurrency } from "utils/AppUtils";
 
 const ModalDeleteConfirm = lazy(() => import("component/modal/ModalDeleteConfirm"));
 const ModalExport = lazy(() => import("./modal/ModalExport"));
@@ -233,8 +232,22 @@ const PODetailScreen: React.FC = () => {
         ) {
           closingDate = moment();
         }
+        const procurements_cancelled = result.procurements.filter(
+          (item) => item.status === ProcumentStatus.CANCELLED,
+        );
+        const procurements_normal = result.procurements
+          .filter((item) => item.status !== ProcumentStatus.CANCELLED)
+          .map((procurementItem) => {
+            const expect_receipt_date = ConvertDateToUtc(
+              moment(procurementItem.expect_receipt_date).format(DATE_FORMAT.MM_DD_YYYY),
+            );
+            return {
+              ...procurementItem,
+              expect_receipt_date,
+            };
+          });
         const procurementsFilter = groupBy(
-          result.procurements,
+          procurements_normal,
           ProcurementLineItemField.expect_receipt_date,
         );
         const procurementsAllEffect: Array<PurchaseProcument[]> = Object.values(
@@ -262,19 +275,13 @@ const PODetailScreen: React.FC = () => {
           ];
         });
         const procurementSplit = procurementsAllEffect.reduce((acc, val) => acc.concat(val), []);
-        const procurements = handleSortProcurements(procurementSplit).map((procurementItem) => {
-          const expect_receipt_date = ConvertDateToUtc(
-            moment(procurementItem.expect_receipt_date).format(DATE_FORMAT.MM_DD_YYYY),
-          );
-          return {
-            ...procurementItem,
-            expect_receipt_date,
-          };
-        });
+        const procurements = handleSortProcurements(procurementSplit);
+
         formMain.setFieldsValue({
           ...result,
           ap_closing_date: closingDate,
           procurements: [...procurements],
+          procurements_cancelled: [...procurements_cancelled],
         });
         handleSetProcurementTableContext(procurements, result.line_items, procurementsAllEffect);
         setPurchaseOrder({ ...result, procurements: [...procurements] });
@@ -454,12 +461,14 @@ const PODetailScreen: React.FC = () => {
           };
         }),
       ];
+      const procurements = [...value.procurements, ...value.procurements_cancelled];
       const dataClone: any = {
         ...purchaseOrder,
         ...value,
+        procurements,
         status: statusAction.current,
       };
-      dispatch(PoUpdateAction(idNumber, dataClone, onUpdateCall));
+      dispatch(PoUpdateAction(idNumber, { ...dataClone }, onUpdateCall));
     } catch (error: any) {
       showError(error.message);
       if (currentLineItem.current.length) {
@@ -1172,6 +1181,9 @@ const PODetailScreen: React.FC = () => {
           <Input />
         </Form.Item>
         <Form.Item name={POField.line_items} noStyle hidden>
+          <Input />
+        </Form.Item>
+        <Form.Item name={POField.procurements_cancelled} noStyle hidden>
           <Input />
         </Form.Item>
         <Row gutter={24} style={{ paddingBottom: 80 }}>

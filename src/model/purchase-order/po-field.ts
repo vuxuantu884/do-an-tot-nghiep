@@ -36,6 +36,7 @@ const POField = {
   tags: "tags",
   payments: "payments",
   procurements: "procurements",
+  procurements_cancelled: "procurements_cancelled",
   receipt_quantity: "receipt_quantity",
   planned_quantity: "planned_quantity",
   financial_status: "financial_status",

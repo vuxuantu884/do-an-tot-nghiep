@@ -72,7 +72,6 @@ function* poUpdateSaga(action: YodyAction) {
     );
     switch (response.code) {
       case HttpStatus.SUCCESS:
-        console.log(response.data);
         updateCallback(response.data);
         break;
       case HttpStatus.UNAUTHORIZED:
