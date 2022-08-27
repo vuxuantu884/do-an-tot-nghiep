@@ -49,10 +49,9 @@ const ModalUploadImages: React.FC<ModalPickAvatarProps> = (props: ModalPickAvata
         productId,
       );
       setLoadingConfirm(false);
-
       if (!res || res.code !== HttpStatus.SUCCESS) {
-        if (res.errors && res.errors.length > 0) {
-          res.errors.forEach((e: string) => showError(e));
+        if (res.message) {
+          showError(res.message);
           return;
         }
         showSuccess("Thêm ảnh thành công");
