@@ -17,14 +17,15 @@ import { getCampaignListAction } from "domain/actions/marketing/marketing.action
 import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import CampaignListFilter from "screens/marketing/campaign/component/CampaignListFilter";
-import { MESSAGE_STATUS_LIST, CHANNEL_LIST } from "screens/marketing/campaign/campaign-helper";
-import { CampaignStyled } from "screens/marketing/campaign/campaign-styled";
+import { MESSAGE_STATUS_LIST, CHANNEL_LIST, CAMPAIGN_STATUS_LIST } from "screens/marketing/campaign/campaign-helper";
+import { CampaignStatusStyled, CampaignStyled } from "screens/marketing/campaign/campaign-styled";
 
 import settingGearIcon from "assets/icon/setting-gear-icon.svg";
 import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicAction } from "domain/actions/account/account.action";
 import useAuthorization from "hook/useAuthorization";
 import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
+import TagStatus from "component/tag/tag-status";
 
 // campaign permission
 const viewCampaignDetailPermission = [CAMPAIGN_PERMISSION.marketings_campaigns_read_detail];
@@ -126,6 +127,22 @@ const CampaignList = () => {
       },
     },
     {
+      title: "Trạng thái chiến dịch",
+      align: "center",
+      width: "200px",
+      render: (item: any) => {
+        const campaignStatus: any = CAMPAIGN_STATUS_LIST.find(
+          (status) => status.value.toUpperCase() === item.status?.toUpperCase());
+        return (
+          <CampaignStatusStyled>
+            <TagStatus type={campaignStatus?.tagStatus}>
+              {campaignStatus?.name || item.status}
+            </TagStatus>
+          </CampaignStatusStyled>
+        )
+      },
+    },
+    {
       title: "Thời gian gửi",
       width: 150,
       align: "center",
@@ -144,13 +161,13 @@ const CampaignList = () => {
       },
     },
     {
-      title: "Trạng thái gửi",
+      title: "Trạng thái gửi tin",
       align: "center",
       width: "150px",
       render: (item: any) => {
-        const campaignStatus: any = MESSAGE_STATUS_LIST.find(
-          (status) => status.value.toUpperCase() === item.status?.toUpperCase());
-        return <div style={{ color: `${campaignStatus?.color}` }}>{campaignStatus?.name}</div>;
+        const messageStatus: any = MESSAGE_STATUS_LIST.find(
+          (status) => status.value.toUpperCase() === item.message_status?.toUpperCase());
+        return <div style={{ color: `${messageStatus?.color}` }}>{messageStatus?.name}</div>;
       },
     },
     {

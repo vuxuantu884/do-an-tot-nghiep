@@ -7,6 +7,12 @@ export const CampaignStyled = styled.div`
   }
 `;
 
+export const CampaignStatusStyled = styled.div`
+  .ant-tag {
+    width: 140px;
+  }
+`;
+
 
 export const CampaignCreateStyled = styled.div`
   .message-setting {
@@ -135,8 +141,8 @@ export const CampaignListFilterStyled = styled.div`
       width: 250px;
     }
 
-    .status, .channel {
-      width: 200px;
+    .statuses, .channels {
+      width: 300px;
     }
   }
 
@@ -151,6 +157,14 @@ export const CampaignListFilterStyled = styled.div`
       background: rgba(42, 42, 134, 0.05);
       border-radius: 50px;
       white-space: normal;
+    }
+  }
+`;
+
+export const AdvanceFilterStyled = styled.div`
+  .advance-filter {
+    .col-advance-filter {
+      margin-bottom: 20px;
     }
   }
 `;

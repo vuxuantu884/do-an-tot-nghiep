@@ -3,21 +3,26 @@ import ZaloIcon from "assets/icon/zalo.svg";
 import SmsIcon from "assets/icon/sms.svg";
 import moment from "moment";
 
-export const CAMPAIGN_STATUS_LIST: Array<any> = [
+export const CAMPAIGN_STATUS_LIST = [
   {
     name: "Chờ kích hoạt",
     value: "WAITING",
-    type: "",
+    tagStatus: "",
   },
   {
-    name: "Đang triển khai",
+    name: "Đang kích hoạt",
     value: "ACTIVE",
-    type: "primary",
+    tagStatus: "primary",
   },
   {
     name: "Tạm ngừng",
     value: "PAUSE",
-    type: "warning",
+    tagStatus: "warning",
+  },
+  {
+    name: "Kết thúc",
+    value: "FINISHED",
+    tagStatus: "success",
   },
 ];
 
