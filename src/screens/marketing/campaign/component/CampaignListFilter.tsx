@@ -8,8 +8,13 @@ import { searchAccountPublicAction } from "domain/actions/account/account.action
 import { AccountResponse } from "model/account/account.model";
 import AccountCustomSearchSelect from "component/custom/AccountCustomSearchSelect";
 import { PageResponse } from "model/base/base-metadata.response";
-import { MESSAGE_STATUS_LIST, CHANNEL_LIST, DATE_LIST_FORMAT } from "screens/marketing/campaign/campaign-helper";
-import { CampaignListFilterStyled } from "screens/marketing/campaign/campaign-styled";
+import {
+  MESSAGE_STATUS_LIST,
+  CHANNEL_LIST,
+  DATE_LIST_FORMAT,
+  CAMPAIGN_STATUS_LIST,
+} from "screens/marketing/campaign/campaign-helper";
+import { AdvanceFilterStyled, CampaignListFilterStyled } from "screens/marketing/campaign/campaign-styled";
 import filterIcon from "assets/icon/filter.svg";
 import { convertItemToArray } from "utils/AppUtils";
 import { CampaignSearchQuery } from "model/marketing/marketing.model";
@@ -116,7 +121,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
       if (Array.isArray(initialValues[value]) && initialValues[value].length > 0) {
         initialValues[value].forEach((itemInitial: any) => {
           const itemFilter = originalList.find(
-            (_item: any) => _item.value?.toString() === itemInitial?.toString().toUpperCase(),
+            (_item: any) => _item.value?.toString().toUpperCase() === itemInitial?.toString().toUpperCase(),
           );
           arrayFilterValue = itemFilter ? arrayFilterValue + itemFilter.name + "; " : arrayFilterValue;
         });
@@ -143,12 +148,16 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
             nameTag = "Người gửi";
             break;
           case "statuses":
+            filterValue = getItemArrayFilter(value, CAMPAIGN_STATUS_LIST) || initialValues[value]?.toString();
+            nameTag = "Trạng thái chiến dịch";
+            break;
+          case "message_statuses":
             filterValue = getItemArrayFilter(value, MESSAGE_STATUS_LIST) || initialValues[value]?.toString();
-            nameTag = "Trạng thái";
+            nameTag = "Trạng thái gửi tin";
             break;
           case "channels":
             filterValue = getItemArrayFilter(value, CHANNEL_LIST) || initialValues[value]?.toString();
-            nameTag = "Trạng thái";
+            nameTag = "Kênh gửi";
             break;
           default:
             filterValue = "";
@@ -516,38 +525,20 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
         </Form.Item>
 
         <Form.Item
-          name="sender_code"
-          className="sender"
-        >
-          <AccountCustomSearchSelect
-            placeholder="Người gửi"
-            dataToSelect={accountData}
-            setDataToSelect={setAccountData}
-            initDataToSelect={initPublicAccounts}
-            getPopupContainer={(trigger: any) => trigger.parentNode}
-            onFocus={onInputSelectFocus}
-            onBlur={onInputSelectBlur}
-            onDropdownVisibleChange={handleOnDropdownVisibleChange}
-            onPopupScroll={handleOnSelectPopupScroll}
-            onMouseLeave={handleOnMouseLeaveSelect}
-          />
-        </Form.Item>
-
-        <Form.Item
           name="statuses"
-          className="status"
+          className="statuses"
         >
           <Select
             mode="multiple"
             maxTagCount="responsive"
             showArrow
             showSearch
-            placeholder="Trạng thái"
+            placeholder="Trạng thái chiến dịch"
             allowClear
             getPopupContainer={(trigger: any) => trigger.parentElement}
             optionFilterProp="children"
           >
-            {MESSAGE_STATUS_LIST?.map((item: any) => (
+            {CAMPAIGN_STATUS_LIST?.map((item: any) => (
               <Option key={item.value} value={item.value}>
                 {item.name}
               </Option>
@@ -557,7 +548,7 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
 
         <Form.Item
           name="channels"
-          className="channel"
+          className="channels"
         >
           <Select
             mode="multiple"
@@ -597,15 +588,15 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
         visible={visibleBaseFilter}
         width={900}
       >
-        <Form
-          form={form}
-          onFinish={onFinish}
-          initialValues={params}
-          layout="vertical"
-        >
-          <Row gutter={24}>
-            <Col xs={24} lg={12}>
-              <div>
+        <AdvanceFilterStyled>
+          <Form
+            form={form}
+            onFinish={onFinish}
+            initialValues={params}
+            layout="vertical"
+          >
+            <Row gutter={24} className={"advance-filter"}>
+              <Col xs={24} lg={12} className={"col-advance-filter"}>
                 <div style={{ marginBottom: "8px"}}><b>Thời gian tạo</b></div>
                 <FilterDateCustomerCustom
                   fieldNameFrom="created_date_from"
@@ -618,11 +609,9 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
                   handleSelectDateStart={handleCreatedDateFrom}
                   handleSelectDateEnd={handleCreatedDateTo}
                 />
-              </div>
-            </Col>
+              </Col>
 
-            <Col xs={24} lg={12}>
-              <div>
+              <Col xs={24} lg={12} className={"col-advance-filter"}>
                 <div style={{ marginBottom: "8px"}}><b>Thời gian gửi</b></div>
                 <FilterDateCustomerCustom
                   fieldNameFrom="send_date_from"
@@ -635,10 +624,56 @@ const CampaignListFilter: React.FC<CampaignListFilterProps> = (props: CampaignLi
                   handleSelectDateStart={handleSendDateFrom}
                   handleSelectDateEnd={handleSendDateTo}
                 />
-              </div>
-            </Col>
-          </Row>
-        </Form>
+              </Col>
+
+              <Col xs={24} lg={12} className={"col-advance-filter"}>
+                <Form.Item
+                  name="sender_code"
+                  className="sender"
+                  label={<b>Người gửi</b>}
+                >
+                  <AccountCustomSearchSelect
+                    placeholder="Tìm theo họ tên hoặc mã nhân viên"
+                    dataToSelect={accountData}
+                    setDataToSelect={setAccountData}
+                    initDataToSelect={initPublicAccounts}
+                    getPopupContainer={(trigger: any) => trigger.parentNode}
+                    onFocus={onInputSelectFocus}
+                    onBlur={onInputSelectBlur}
+                    onDropdownVisibleChange={handleOnDropdownVisibleChange}
+                    onPopupScroll={handleOnSelectPopupScroll}
+                    onMouseLeave={handleOnMouseLeaveSelect}
+                  />
+                </Form.Item>
+              </Col>
+
+              <Col xs={24} lg={12} className={"col-advance-filter"}>
+                <Form.Item
+                  name="message_statuses"
+                  className="status"
+                  label={<b>Trạng thái gửi tin</b>}
+                >
+                  <Select
+                    mode="multiple"
+                    maxTagCount="responsive"
+                    showArrow
+                    showSearch
+                    placeholder="Chọn trạng thái gửi tin"
+                    allowClear
+                    getPopupContainer={(trigger: any) => trigger.parentElement}
+                    optionFilterProp="children"
+                  >
+                    {MESSAGE_STATUS_LIST?.map((item: any) => (
+                      <Option key={item.value} value={item.value}>
+                        {item.name}
+                      </Option>
+                    ))}
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+          </Form>
+        </AdvanceFilterStyled>
       </BaseFilter>
 
       {/*tags filter*/}
