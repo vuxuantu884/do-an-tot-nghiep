@@ -224,75 +224,55 @@ export const PoWareHouse = (props: IProps) => {
   };
 
   const onAddExpectedDate = async () => {
-    if (procurementsAll.length > 0) {
-      if (!expectReceiptDates.every((date) => date.date)) return;
-      const uuid = uuidv4();
-      expectReceiptDates.push({
-        status: ProcurementStatus.draft,
-        isAdd: true,
-        uuid,
-        date: "",
-      });
-      formMain?.setFieldsValue({
-        ["expectedDate" + (expectReceiptDates.length - 1)]: "",
-      });
-      setExpectReceiptDates([...expectReceiptDates]);
-      handleSetRadio(expectReceiptDates);
-      const datePercents = await callApiNative(
-        { isShowLoading: false },
-        dispatch,
-        getPercentMonth,
-        {
-          month: new Date(Date.now()).getMonth() + 1,
-        },
-      );
-      // số store trả về
-      const procurementItems = formMain?.getFieldValue(
-        POField.line_items,
-      ) as PurchaseProcumentLineItem[];
-      const procurements: PurchaseProcument[] = formMain?.getFieldValue(
-        POField.procurements,
-      ) as PurchaseProcument[];
-      const procurementAddDefault: PurchaseProcument[] = datePercents.map((datePercent: any) => {
-        const uuidProcurement = uuidv4();
-        const procurement_items = procurementItems.map((procurementItem) => {
-          const uuid2 = uuidv4();
-          const procurementItemIndex = procurements[0].procurement_items.findIndex(
-            (item) => item.sku === procurementItem.sku,
-          );
-          const indexProcurementTable = procurementTable.findIndex(
-            (item) => item.sku === procurementItem.sku,
-          );
-          const totalQuantity =
-            procurementTable[indexProcurementTable].plannedQuantities.reduce(
-              (total, quantity) => (total || 0) + (quantity || 0),
-              0,
-            ) || 0;
-          const planned_quantity =
-            totalQuantity >= procurementItem.quantity
-              ? 0
-              : Math.floor(
-                  ((procurementItem.quantity - totalQuantity) * (datePercent.percent || 0)) / 100,
-                );
+    // if (procurementsAll.length > 0) {
+    if (!expectReceiptDates.every((date) => date.date)) return;
+    const uuid = uuidv4();
+    expectReceiptDates.push({
+      status: ProcurementStatus.draft,
+      isAdd: true,
+      uuid,
+      date: "",
+    });
+    formMain?.setFieldsValue({
+      ["expectedDate" + (expectReceiptDates.length - 1)]: "",
+    });
+    setExpectReceiptDates([...expectReceiptDates]);
+    handleSetRadio(expectReceiptDates);
+    const datePercents = await callApiNative({ isShowLoading: false }, dispatch, getPercentMonth, {
+      month: new Date(Date.now()).getMonth() + 1,
+    });
+    // số store trả về
+    const procurementItems = formMain?.getFieldValue(
+      POField.line_items,
+    ) as PurchaseProcumentLineItem[];
+    const procurements: PurchaseProcument[] = formMain?.getFieldValue(
+      POField.procurements,
+    ) as PurchaseProcument[];
+    const procurementAddDefault: PurchaseProcument[] = datePercents.map((datePercent: any) => {
+      const uuidProcurement = uuidv4();
+      const procurement_items = procurementItems.map((procurementItem) => {
+        const uuid2 = uuidv4();
+        const procurementItemIndex = procurements?.length
+          ? procurements[0].procurement_items.findIndex((item) => item.sku === procurementItem.sku)
+          : -1;
+        const indexProcurementTable = procurementTable.findIndex(
+          (item) => item.sku === procurementItem.sku,
+        );
+        const totalQuantity =
+          procurementTable[indexProcurementTable]?.plannedQuantities.reduce(
+            (total, quantity) => (total || 0) + (quantity || 0),
+            0,
+          ) || 0;
+        const planned_quantity =
+          totalQuantity >= procurementItem.quantity
+            ? 0
+            : Math.floor(
+                ((procurementItem.quantity - totalQuantity) * (datePercent.percent || 0)) / 100,
+              );
 
-          if (procurementItemIndex === -1) {
-            return {
-              ...procurementItem,
-              quantity: planned_quantity,
-              id: uuid2,
-              planned_quantity: planned_quantity,
-              ordered_quantity: 0,
-              accepted_quantity: 0,
-              real_quantity: 0,
-              stock_in_by: "",
-              stock_in_date: "",
-              activated_by: "",
-              activated_date: "",
-              totalPlannedQuantities: procurementItem.quantity - totalQuantity,
-            };
-          }
+        if (procurementItemIndex === -1) {
           return {
-            ...procurements[0].procurement_items[procurementItemIndex],
+            ...procurementItem,
             quantity: planned_quantity,
             id: uuid2,
             planned_quantity: planned_quantity,
@@ -305,60 +285,78 @@ export const PoWareHouse = (props: IProps) => {
             activated_date: "",
             totalPlannedQuantities: procurementItem.quantity - totalQuantity,
           };
-        });
+        }
         return {
-          id: uuidProcurement,
-          uuid,
-          is_cancelled: false,
-          created_date: ConvertDateToUtc(new Date(Date.now())) as any,
-          updated_date: ConvertDateToUtc(new Date(Date.now())) as any,
-          expect_receipt_date: "",
-          procurement_items,
-          code: "",
-          percent: datePercent.percent || 0,
-          status: ProcurementStatus.draft,
-          // sotre
-          store_short_name: datePercent?.store_name || "",
-          store: datePercent?.store_name || "",
-          store_id: datePercent?.store_id,
+          ...procurements[0].procurement_items[procurementItemIndex],
+          quantity: planned_quantity,
+          id: uuid2,
+          planned_quantity: planned_quantity,
+          ordered_quantity: 0,
+          accepted_quantity: 0,
+          real_quantity: 0,
           stock_in_by: "",
           stock_in_date: "",
           activated_by: "",
           activated_date: "",
+          totalPlannedQuantities: procurementItem.quantity - totalQuantity,
         };
       });
-      const procurementAddDefaultAll = procurementAddDefault.reduce(
-        (acc, val) => acc.concat(val.procurement_items),
-        [] as PurchaseProcumentLineItem[],
+      return {
+        id: uuidProcurement,
+        uuid,
+        is_cancelled: false,
+        created_date: ConvertDateToUtc(new Date(Date.now())) as any,
+        updated_date: ConvertDateToUtc(new Date(Date.now())) as any,
+        expect_receipt_date: "",
+        procurement_items,
+        code: "",
+        percent: datePercent.percent || 0,
+        status: ProcurementStatus.draft,
+        // sotre
+        store_short_name: datePercent?.store_name || "",
+        store: datePercent?.store_name || "",
+        store_id: datePercent?.store_id,
+        stock_in_by: "",
+        stock_in_date: "",
+        activated_by: "",
+        activated_date: "",
+      };
+    });
+    const procurementAddDefaultAll = procurementAddDefault.reduce(
+      (acc, val) => acc.concat(val.procurement_items),
+      [] as PurchaseProcumentLineItem[],
+    );
+    procurementItems.forEach((procurementItem) => {
+      const procurementItemFilter = procurementAddDefaultAll.filter(
+        (item) => item.sku === procurementItem.sku,
       );
-      procurementItems.forEach((procurementItem) => {
-        const procurementItemFilter = procurementAddDefaultAll.filter(
+      const totalPlannedQuantitiesProcument = procurementItemFilter.reduce(
+        (total, ele) => total + ele.planned_quantity,
+        0,
+      );
+      //@ts-ignore
+      const totalPlannedQuantities = procurementItemFilter[0].totalPlannedQuantities;
+      if (totalPlannedQuantities - totalPlannedQuantitiesProcument > 0) {
+        const indexProcumentItem = procurementAddDefault[0].procurement_items.findIndex(
           (item) => item.sku === procurementItem.sku,
         );
-        const totalPlannedQuantitiesProcument = procurementItemFilter.reduce(
-          (total, ele) => total + ele.planned_quantity,
-          0,
-        );
-        //@ts-ignore
-        const totalPlannedQuantities = procurementItemFilter[0].totalPlannedQuantities;
-        if (totalPlannedQuantities - totalPlannedQuantitiesProcument > 0) {
-          const indexProcumentItem = procurementAddDefault[0].procurement_items.findIndex(
-            (item) => item.sku === procurementItem.sku,
-          );
-          procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity =
-            procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity +
-            (totalPlannedQuantities - totalPlannedQuantitiesProcument);
-          procurementAddDefault[0].procurement_items[indexProcumentItem].quantity =
-            procurementAddDefault[0].procurement_items[indexProcumentItem].quantity +
-            (totalPlannedQuantities - totalPlannedQuantitiesProcument);
-        }
-      });
-      procurementAddDefault.forEach((item: Partial<PurchaseProcument>) => {
-        procurements.push({ ...item } as PurchaseProcument);
-      });
-      formMain?.setFieldsValue({ procurements });
-      handleSetProcurementTableByExpectedDate(procurements);
-    }
+        procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity =
+          procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity +
+          (totalPlannedQuantities - totalPlannedQuantitiesProcument);
+        procurementAddDefault[0].procurement_items[indexProcumentItem].quantity =
+          procurementAddDefault[0].procurement_items[indexProcumentItem].quantity +
+          (totalPlannedQuantities - totalPlannedQuantitiesProcument);
+      }
+    });
+    procurementAddDefault.forEach((item: Partial<PurchaseProcument>) => {
+      procurements.push({ ...item } as PurchaseProcument);
+    });
+    console.log("procurementAddDefault", procurementAddDefault);
+    console.log("procurements", procurements);
+
+    formMain?.setFieldsValue({ procurements });
+    handleSetProcurementTableByExpectedDate(procurements);
+    // }
   };
 
   const onRemoveExpectedDate = () => {
@@ -391,17 +389,11 @@ export const PoWareHouse = (props: IProps) => {
       });
       if (check) {
         expectReceiptDates.splice(indexExpectReceipt, 1);
-        // procurementTable.forEach((procurement, index) => {
-        //   procurementTable[index].plannedQuantities.splice(indexExpectReceipt, 1);
-        //   procurementTable[index].realQuantities.splice(indexExpectReceipt, 1);
-        //   procurementTable[index].uuids.splice(indexExpectReceipt, 1);
-        // });
         formMain?.setFieldsValue({
           ["expectedDate" + (expectReceiptDates.length - 1)]: "",
         });
         handleSetRadio(expectReceiptDates);
         setExpectReceiptDates([...expectReceiptDates]);
-        // setProcurementTable([...procurementTable]);
         handleSetProcurementTableByExpectedDate(procurementsBackUp);
         return;
       }
@@ -508,6 +500,7 @@ export const PoWareHouse = (props: IProps) => {
         result?.procurements,
         ProcurementLineItemField.expect_receipt_date,
       );
+
       const procurementsExpectReceiptDates = Object.keys(procurementsFilter).map(
         (procurementsExpectReceiptDate) => {
           // purchaseOrder.procurements = procurementSplit;
@@ -517,15 +510,19 @@ export const PoWareHouse = (props: IProps) => {
             ),
             ProcurementLineItemField.status,
           );
+
           let status: string =
-            Object.values(procurementFitterStatus)[0]?.length === procurementsAll[0]?.length
+            Object.values(procurementFitterStatus)[0]?.length ===
+            procurementsFilter[procurementsExpectReceiptDate]?.length
               ? (Object.keys(procurementFitterStatus)[0] as any)
               : ProcurementStatus.not_received;
+
           status =
             Object.keys(procurementFitterStatus).includes(ProcurementStatus.draft) ||
             Object.keys(procurementFitterStatus).includes(ProcurementStatus.not_received)
               ? status
               : ProcurementStatus.received;
+
           return {
             uuid:
               Object.values(procurementFitterStatus)[0]?.length > 0
@@ -611,7 +608,6 @@ export const PoWareHouse = (props: IProps) => {
       setExpectReceiptDates([]);
     };
   }, []);
-
   return (
     <StyledRowPoWareHouse gutter={24}>
       <Col span={ratio.span}>

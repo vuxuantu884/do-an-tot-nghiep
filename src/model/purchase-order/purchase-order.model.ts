@@ -19,6 +19,7 @@ export interface PurchaseOrder extends BaseObject {
   supplier_address: PurchaseAddress;
   line_items: Array<PurchaseOrderLineItem>;
   procurements: Array<PurchaseProcument>;
+  procurements_cancelled: Array<PurchaseProcument>;
   return_orders: Array<PurchaseReturnOrder>;
   expect_return_date: string;
   note: string;
