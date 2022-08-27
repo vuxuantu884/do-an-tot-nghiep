@@ -297,7 +297,8 @@ const ProductDetailScreen: React.FC = () => {
         if (
           newData.variants[i].name.slice(0, newData.variants[i].name.indexOf("-")).trim() ===
             newData.name.trim() ||
-          newData.variants[i].sku.indexOf("-MAU") !== -1
+          newData.variants[i].sku.indexOf("-MAU") !== -1 ||
+          newData.variants[i].sku === newData.code
         ) {
           if (newData.variants[i].name.indexOf("Lỗi") !== -1) {
             const errorName = newData.variants[i].name.split(" - ")
@@ -305,7 +306,10 @@ const ProductDetailScreen: React.FC = () => {
               : "";
             newData.variants[i].name = newName.trim() + " - " + errorName;
           }
-          if (newData.variants[i].sku.indexOf("-MAU") !== -1) {
+          if (
+            newData.variants[i].sku.indexOf("-MAU") !== -1 ||
+            newData.variants[i].sku === newData.code
+          ) {
             newData.variants[i].name = newName.trim();
           } else {
             if (newData.variants[i].color === null && newData.variants[i].size != null) {
