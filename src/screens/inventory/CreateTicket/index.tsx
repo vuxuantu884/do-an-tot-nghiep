@@ -23,6 +23,7 @@ import {
 } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { InventoryTransferDetailItem, LineItem, StockTransferSubmit, Store } from "model/inventory/transfer";
 import _ from "lodash";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 import { PageResponse } from "model/base/base-metadata.response";
 import { VariantImage, VariantResponse } from "model/product/product.model";
@@ -339,6 +340,7 @@ const CreateTicket: FC = () => {
   const createCallback = useCallback(
     (result: InventoryTransferDetailItem) => {
       setIsLoading(false);
+      dispatch(hideLoading());
       if (result) {
         showSuccess("Thêm mới dữ liệu thành công");
         history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
@@ -354,6 +356,7 @@ const CreateTicket: FC = () => {
       if (result.responseData.code === HttpStatus.SUCCESS) {
         dispatch(creatInventoryTransferAction(result.data, createCallback));
       } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
+        dispatch(hideLoading());
         setIsOpenModalErrors(true);
         setErrorData(result.responseData.data);
         setContinueData(result.data);
@@ -494,6 +497,7 @@ const CreateTicket: FC = () => {
     delete data.to_store_id;
 
     setIsLoading(true);
+    dispatch(showLoading());
     dispatch(checkDuplicateInventoryTransferAction(data, checkCallback));
   };
 
