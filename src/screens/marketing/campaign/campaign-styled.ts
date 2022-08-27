@@ -124,6 +124,16 @@ export const CampaignCreateStyled = styled.div`
     }
   }
 
+  .campaign-contact {
+    .search-contact {
+      display: flex;
+      justify-content: space-between;
+      .input-search {
+        flex-grow: 1;
+        margin-right: 20px;
+      }
+    }
+  }
 `;
 
 

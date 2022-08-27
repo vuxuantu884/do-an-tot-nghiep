@@ -2,7 +2,7 @@ import React, { createRef, useCallback, useEffect, useMemo, useState } from "rea
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
 import { Button, Card, Col, DatePicker, Form, FormInstance, Input, Radio, Row, Select, Space } from "antd";
-import { ArrowLeftOutlined, MenuOutlined, PlusOutlined } from "@ant-design/icons";
+import { ArrowLeftOutlined, MenuOutlined, PlusOutlined, SearchOutlined } from "@ant-design/icons";
 
 import { showError, showSuccess, showWarning } from "utils/ToastUtils";
 import UrlConfig from "config/url.config";
@@ -23,7 +23,9 @@ import androidNavHome from "assets/icon/android-nav-home.svg";
 import androidNavMulti from "assets/icon/android-nav-multi.svg";
 import {
   createCampaignAction,
-  getBrandNameAction, getCampaignContactAction, getCampaignDetailAction,
+  getBrandNameAction,
+  getCampaignContactAction,
+  getCampaignDetailAction,
   getImportFileTemplateAction,
   getMessageTemplateAction, updateCampaignAction,
 } from "domain/actions/marketing/marketing.action";
@@ -32,6 +34,7 @@ import { PageResponse } from "model/base/base-metadata.response";
 import CustomTable from "component/table/CustomTable";
 import useAuthorization from "hook/useAuthorization";
 import { CAMPAIGN_PERMISSION } from "config/permissions/marketing.permission";
+import { CampaignContactSearchQuery } from "model/marketing/marketing.model";
 
 const { Option } = Select;
 
@@ -80,6 +83,14 @@ const CampaignCreateUpdate = () => {
   const [campaignDetail, setCampaignDetail] = useState<any>();
   const [isEditInfo, setIsEditInfo] = useState<boolean>(true);
 
+  const [queryContactSearch, setQueryContactSearch] = useState<CampaignContactSearchQuery>(
+    {
+      page: 1,
+      limit: 30,
+      phone: null,
+      statuses: null,
+    },
+  );
   const [campaignCustomerData, setCampaignCustomerData] = useState<PageResponse<any>>({
     metadata: {
       limit: 30,
@@ -435,7 +446,7 @@ const CampaignCreateUpdate = () => {
   const importFile = useCallback(() => {
     let conditions: Array<string> = [];
     KEYWORD_LIST.forEach((item: any) => {
-      const position = campaignMessage.search(item.value);
+      const position = campaignMessage?.search(item.value);
       if (position !== -1) {
         conditions.push(item.key);
       }
@@ -515,9 +526,30 @@ const CampaignCreateUpdate = () => {
   }, [campaignCustomerData.metadata.limit, campaignCustomerData.metadata.page]);
 
   const onPageChange = useCallback((page, limit) => {
-    getContactList(campaignDetail?.id, { page, limit });
-    }, [campaignDetail?.id, getContactList],
+    const contactQuery = {
+      ...queryContactSearch,
+      page,
+      limit,
+    }
+    setQueryContactSearch(contactQuery);
+    getContactList(campaignDetail?.id, contactQuery);
+    }, [campaignDetail?.id, getContactList, queryContactSearch],
   );
+
+  const onSearchContact = useCallback(() => {
+    const contactQuery = {
+      ...queryContactSearch,
+      page: 1,
+    }
+    getContactList(campaignDetail?.id, contactQuery);
+  }, [campaignDetail?.id, getContactList, queryContactSearch]);
+
+  const onChangeContactInputSearch = (e: any) => {
+    setQueryContactSearch({
+      ...queryContactSearch,
+      phone: e.target.value
+    });
+  };
   /** end contact table */
   
 
@@ -783,7 +815,10 @@ const CampaignCreateUpdate = () => {
               </Card>
 
               {(allowViewContact || allowCreateContact) &&
-                <Card title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"}>
+                <Card
+                  title={"THIẾT LẬP ĐỐI TƯỢNG GỬI TIN"}
+                  className={"campaign-contact"}
+                >
                   {allowCreateContact &&
                     <Button onClick={importFile}>Nhập file</Button>
                   }
@@ -793,6 +828,23 @@ const CampaignCreateUpdate = () => {
                       <div style={{ margin: "20px 0", fontSize: "16px" }}>
                         <b>Danh sách khách hàng áp dụng</b>
                       </div>
+                      
+                      <div className={"search-contact"}>
+                        <Input
+                          disabled={isLoading}
+                          allowClear
+                          prefix={<SearchOutlined style={{ color: "#d4d3cf" }} />}
+                          placeholder="Tên kiếm KH theo sđt"
+                          onChange={onChangeContactInputSearch}
+                          onPressEnter={onSearchContact}
+                          className={"input-search"}
+                        />
+
+                        <Button type="primary" disabled={isLoading} onClick={onSearchContact}>
+                          Lọc
+                        </Button>
+                      </div>
+                      
                       <CustomTable
                         bordered
                         isLoading={isLoading}
