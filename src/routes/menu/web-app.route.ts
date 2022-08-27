@@ -27,7 +27,7 @@ const webAppRoute: Array<RouteMenu> = [
     permissions: [],
     subMenu: [
       {
-        path: `${UrlConfig.WEB_APP}-cart/:id/detail`,
+        path: `${UrlConfig.WEB_APP}-cart/:id`,
         exact: true,
         title: "Tất cả sản phẩm",
         icon: "icon-dot",

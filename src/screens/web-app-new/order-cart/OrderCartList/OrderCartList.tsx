@@ -111,7 +111,9 @@ const OrderCartList = () => {
       key: "abandoned_code",
       width: "10%",
       align: "center",
-      render: (item: any) => <Link to={`/web-app-cart/${item?.code}/detail`}>{item?.code}</Link>,
+      render: (item: any) => (
+        <Link to={`${UrlConfig.WEB_APP}-cart/${item?.code}`}>{item?.code}</Link>
+      ),
     },
     {
       title: "Mã đơn trên sapo",
