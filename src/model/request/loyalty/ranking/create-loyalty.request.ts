@@ -5,3 +5,7 @@ export interface CreateLoyaltyRequest {
   method: string;
   status: string;
 }
+
+export interface GetCodeUpdateRankingCustomerRequest {
+  type: number;
+}
