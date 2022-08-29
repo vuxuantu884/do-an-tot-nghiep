@@ -93,7 +93,7 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
               <Space style={{ width: "25%" }} className="customer-detail-point">
                 <span className="customer-detail-text">
                   Mã thẻ:
-                  <Typography.Text style={{ marginLeft: "5px" }} strong>
+                  <Typography.Text style={{ marginLeft: "5px" }}>
                     {customerDetail?.card_number !== null
                       ? customerDetail?.card_number
                       : "không xác định"}
@@ -108,7 +108,7 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
               >
                 <span className="customer-detail-text">
                   Mã khách hàng:
-                  <Typography.Text style={{ marginLeft: "5px" }} strong>
+                  <Typography.Text style={{ marginLeft: "5px" }}>
                     {customerDetail?.code}
                   </Typography.Text>
                 </span>
@@ -124,11 +124,7 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
               <Space style={{ width: "20%", color: "#71767B" }} className="customer-detail-point">
                 <span className="customer-detail-text">
                   Email:
-                  <Typography.Text
-                    type="success"
-                    style={{ marginLeft: "5px", color: "#222222" }}
-                    strong
-                  >
+                  <Typography.Text type="success" style={{ marginLeft: "5px", color: "#222222" }}>
                     {customerDetail?.email}
                   </Typography.Text>
                 </span>
@@ -153,7 +149,7 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
               <>
                 <Divider style={{ padding: 0, marginBottom: 0 }} />
                 <div>
-                  <Row gutter={24} style={{ paddingTop: "14px" }}>
+                  <Row gutter={24} style={{ paddingTop: "20px" }}>
                     <Col className="font-weight-500 customer-info-left">
                       <div className="title-address 66">
                         <img

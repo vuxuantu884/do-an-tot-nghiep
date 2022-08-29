@@ -48,7 +48,7 @@ const OrderCartDetail = (props: PropTypes) => {
     <OrderCartDetailWrapper>
       <ContentContainer
         isLoading={isLoading}
-        title="Chi tiết giỏ hàng"
+        title={`Giỏ hàng ${id}`}
         breadcrumb={[
           {
             name: "Web/App",
@@ -66,7 +66,7 @@ const OrderCartDetail = (props: PropTypes) => {
           <div className="header-page-right">
             <div className="time-icon" style={{ marginBottom: "5px" }}>
               <div className="title">
-                <img src={timeCreate} alt="timeCreate" />
+                <img src={timeCreate} alt="timeCreate" style={{ padding: "0px 4px" }} />
                 <div>Thời điểm tạo giỏ hàng:</div>
               </div>
               <div className="time">
