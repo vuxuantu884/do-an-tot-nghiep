@@ -37,7 +37,7 @@
           }
         }
         &:last-child {
-          .ant-steps-item-container>.ant-steps-item-tail {
+          .ant-steps-item-container > .ant-steps-item-tail {
             display: block;
           }
         }
@@ -120,9 +120,9 @@
   }
   .cancelled {
     .ant-steps-item-tail {
-      background-color: #d9d9e4  !important;
+      background-color: #d9d9e4 !important;
       &::after {
-        background-color: #d9d9e4  !important;
+        background-color: #d9d9e4 !important;
       }
     }
     .ant-steps-icon-dot {
@@ -140,5 +140,11 @@
       color: #d9d9e4 !important;
       background-color: #d9d9e4 !important;
     }
+  }
+}
+
+.po-step.daft {
+  .ant-steps-item-tail {
+    margin-left: -38px !important;
   }
 }

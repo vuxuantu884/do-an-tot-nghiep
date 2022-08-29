@@ -1,3 +1,4 @@
+import { MenuAction } from "component/table/ActionButton";
 import { AccountResponse } from "model/account/account.model";
 
 export enum ProcurementFilterAdvanceEnum {
@@ -8,6 +9,14 @@ export enum ProcurementFilterAdvanceEnum {
   merchandisers = "merchandisers",
   note = "note",
 }
+
+export enum ProcurementTodayFilterAdvanceEnum {
+  active = "active",
+  note = "note",
+  stock_in_bys = "stock_in_bys",
+  merchandisers = "merchandisers",
+}
+
 export enum ProcurementFilterBasicEnum {
   content = "content",
   suppliers = "suppliers",
@@ -44,6 +53,8 @@ export interface ProcurementFilterProps {
   onClickOpen?: () => void;
   paramsUrl?: any;
   accounts?: Array<AccountResponse>;
+  actions?: Array<MenuAction>;
+  onMenuClick?: (index: number) => void;
 }
 
 export interface ProcurementFilter {

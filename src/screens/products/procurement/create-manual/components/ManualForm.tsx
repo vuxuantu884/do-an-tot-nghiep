@@ -224,10 +224,12 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
                           placeholder="Tìm kiếm theo đơn đặt hàng hoặc mã tham chiếu"
                           loading={poLoading}
                           disabled={poDisable}
-                          onSearch={(value) => {
+                          onSearch={(text) => {
+                            const value = text.trim();
                             if (value.length > 2) {
                               onSearchPO(value);
                             }
+                            return value;
                           }}
                           // onChange={(value) => formMain.setFieldsValue({ [POField.code]: value })}
                           onSelect={(value) => {
@@ -288,7 +290,15 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
       <Row gutter={50}>
         <Col span={24}>
           <Typography.Text strong>Ghi chú</Typography.Text>
-          <Form.Item name={POProcumentField.note}>
+          <Form.Item
+            name={POProcumentField.note}
+            rules={[
+              {
+                max: 500,
+                message: "Ghi chú không được quá 500 ký tự",
+              },
+            ]}
+          >
             <Input placeholder="Nhập ghi chú" />
           </Form.Item>
         </Col>
