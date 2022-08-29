@@ -369,11 +369,11 @@ const TabProduct: React.FC<any> = (props) => {
       visible: ckeckPermissionReadCostPrice(),
       width: 110,
       render: (value) => {
-        let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency);
+        let prices: VariantPricesResponse | null = Products.findPrice(value, AppConfig.currency); //cần phải xem lại đơn vị tiền tệ
         if (prices !== null) {
           return formatCurrencyForProduct(prices.cost_price);
         }
-        return 0;
+        return "";
       },
     },
     {
@@ -388,7 +388,7 @@ const TabProduct: React.FC<any> = (props) => {
         if (prices !== null) {
           return formatCurrencyForProduct(prices.import_price);
         }
-        return 0;
+        return "";
       },
     },
     {
@@ -403,7 +403,7 @@ const TabProduct: React.FC<any> = (props) => {
         if (prices !== null) {
           return formatCurrencyForProduct(prices.retail_price);
         }
-        return 0;
+        return "";
       },
     },
     {

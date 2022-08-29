@@ -48,7 +48,7 @@ export const callApiSaga = function* <Fn extends (...args: any[]) => any, R exte
 
   try {
     const response: R = yield call(fn, ...args);
-    console.log(response)
+    console.log(response);
 
     switch (response.code) {
       case HttpStatus.SUCCESS:
@@ -101,7 +101,6 @@ export const callApiNative = async <Fn extends (...args: any[]) => any, R extend
 
   try {
     const response: R = await fn(...args);
-
     switch (response.code) {
       case HttpStatus.SUCCESS:
         if (response.data) {
@@ -125,6 +124,10 @@ export const callApiNative = async <Fn extends (...args: any[]) => any, R extend
         throw response.message;
 
       case HttpStatus.SERVER_ERROR:
+        if (response.errors && response.errors.length > 0) {
+          response.errors.forEach((e: string) => showError(e));
+          break;
+        }
         throw response.message;
 
       default:

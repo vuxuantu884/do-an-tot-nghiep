@@ -29,7 +29,7 @@ import ProductWrapperFilter from "screens/products/product/filter/ProductWrapper
 import { convertCategory, formatCurrencyForProduct, generateQuery } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showInfo, showSuccess } from "utils/ToastUtils";
+import { showError, showInfo, showSuccess } from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 import { StyledComponent } from "../style";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -39,6 +39,8 @@ import { productWrapperPutApi } from "service/product/product.service";
 import { searchProductWrapperApi } from "service/product/product.service";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
+import { HttpStatus } from "config/http-status.config";
+import { unauthorizedAction } from "domain/actions/auth/auth.action";
 
 const ACTIONS_INDEX = {
   EXPORT_EXCEL: 1,
@@ -379,12 +381,8 @@ const TabProductWrapper: React.FC = () => {
           element.id,
           element,
         );
-        let isError = false;
-        if (!res) {
-          isError = true;
-        }
-        if (index === selected.length - 1) {
-          !isError && showSuccess("Cập nhật dữ liệu thành công");
+        if (res && res.code && res.code === HttpStatus.SUCCESS) {
+          showSuccess("Cập nhật dữ liệu thành công");
           onAcitveSuccess();
         }
       }
