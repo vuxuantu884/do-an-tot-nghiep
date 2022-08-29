@@ -1,8 +1,8 @@
 import { BaseQuery } from "model/base/base.query";
 import { ParsedUrlQueryInput } from "querystring";
-import { BaseObject } from "../base/base.response";
+import { BaseObject } from "./../base/base.response";
 import { PurchaseOrderLineItemDraft } from "./purchase-item.model";
-import { PurchaseOrder } from "./purchase-order.model";
+import { ProcurementPropertiesDate, PurchaseOrder } from "./purchase-order.model";
 
 export interface PurchaseProcument extends BaseObject {
   reference: string;
@@ -13,13 +13,54 @@ export interface PurchaseProcument extends BaseObject {
   status: string;
   note: string;
   actived_date: string | null;
+  activated_date?: string;
   actived_by: string | null;
   activated_by: string | null;
   stock_in_date: string | null;
-  activated_date: string | null;
   stock_in_by: string | null;
   store?: string;
   is_cancelled?: boolean;
+  uuid?: string;
+  uuidParent?: string;
+  percent?: number;
+  cancelled_date?: string | null;
+  [key: string]: any;
+}
+export interface ProcurementItem {
+  accepted_quantity?: string;
+  amount?: string;
+  barcode?: string;
+  code: string;
+  created_by: string;
+  created_date: string;
+  created_name: string;
+  id: number;
+  line_item_id?: string;
+  note?: string;
+  ordered_quantity?: string;
+  planned_quantity?: string;
+  price?: string;
+  product_name?: string;
+  quantity: number;
+  real_quantity?: string;
+  retail_price: number;
+  sku: string;
+  updated_by: string;
+  updated_date: string;
+  updated_name: string;
+  variant?: string;
+  variant_id: number;
+  variant_image?: string;
+  vat?: string;
+  vat_rate?: string;
+  version: number;
+}
+
+export interface PercentDate {
+  month: number;
+  percent: number;
+  store_id: number;
+  store_name: string;
 }
 export interface PurchaseProcurementViewDraft {
   id?: number;
@@ -31,10 +72,17 @@ export interface PurchaseProcurementViewDraft {
   status: string;
   note?: string;
   actived_date?: string;
+  activated_date?: string;
   actived_by?: string;
   stock_in_date?: string;
   stock_in_by?: string;
   store?: string;
+}
+export interface PurchaseProcurementPOCreate {
+  store_id: string;
+  expect_receipt_date: string;
+  procurement_items: Array<PurchaseProcumentPOCreateLineItem>;
+  status: string;
 }
 
 export interface PurchaseProcumentPOCreateLineItem {
@@ -54,7 +102,7 @@ export interface PurchaseProcumentPOCreateLineItem {
 }
 
 export interface PurchaseProcumentLineItem {
-  id?: number;
+  id?: number | string;
   barcode: string;
   code?: string;
   line_item_id: number;
@@ -72,6 +120,13 @@ export interface PurchaseProcumentLineItem {
   price: number;
   product_name: string;
   amount?: number;
+  [x: string]: any;
+  product_id?: number;
+  percent?: number;
+  uuid?: string;
+  status?: string;
+  procurement?: PurchaseProcument;
+  procurement_items?: Array<PurchaseProcumentLineItem>;
 }
 
 export interface PurchaseProcumentLineItemManual extends PurchaseProcumentLineItem {
@@ -84,6 +139,10 @@ export interface ProcurementItemsReceipt extends PurchaseProcumentLineItem {
   procurement: PurchaseProcument;
   product_id?: number;
 }
+
+export type ProcurementManualCreate = {
+  procurements: Array<PurchaseProcument>;
+};
 
 const POProcumentField = {
   id: "id",
@@ -166,5 +225,9 @@ export type ProcurementCancel = {
   errors: number;
   message_errors: Array<string>;
 };
+
+export interface PurchaseProcumentSubmit extends PurchaseProcument {
+  is_update_after_receive?: boolean;
+}
 
 export { POProcumentField, POProcumentLineItemField };

@@ -4,6 +4,7 @@ import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import ModalConfirm from "component/modal/ModalConfirm";
 import { AppConfig } from "config/app.config";
+import { EnumOptionValueOrPercent } from "config/enum.config";
 import { PurchaseOrderPermission } from "config/permissions/purchase-order.permission";
 import UrlConfig from "config/url.config";
 import {
@@ -14,6 +15,7 @@ import { StoreGetListAction } from "domain/actions/core/store.action";
 import { hideLoading, showLoading } from "domain/actions/loading.action";
 import { PaymentConditionsGetAllAction } from "domain/actions/po/payment-conditions.action";
 import { PoCreateAction, PoDetailAction } from "domain/actions/po/po.action";
+import { groupBy } from "lodash";
 import { CountryResponse } from "model/content/country.model";
 import { DistrictResponse } from "model/content/district.model";
 import { StoreResponse } from "model/core/store.model";
@@ -24,7 +26,16 @@ import {
   POLoadType,
   PurchaseOrderLineItem,
 } from "model/purchase-order/purchase-item.model";
-import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
+import {
+  PODataSourceGrid,
+  PODataSourceProduct,
+  POExpectedDate,
+  PurchaseOrder,
+} from "model/purchase-order/purchase-order.model";
+import {
+  POProcumentField,
+  PurchaseProcumentLineItem,
+} from "model/purchase-order/purchase-procument";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import moment from "moment";
 import React, { useCallback, useContext, useEffect, useState } from "react";
@@ -39,16 +50,16 @@ import { ProductResponse } from "../../model/product/product.model";
 import {
   checkImportPriceLowByLineItem,
   combineLineItemToSubmitData,
+  convertLineItemsToProcurementItems,
   fetchProductGridData,
   getUntaxedAmountByLineItemType,
   MIN_IMPORT_PRICE_WARNING,
   POUtils,
   validateLineItemQuantity,
-  convertLineItemsToProcurementItems,
 } from "../../utils/POUtils";
 import POInfoPO from "./component/po-info-po";
 import POInfoForm from "./component/po-info.form";
-import POInventoryForm from "./component/po-inventory.form";
+import POInventoryFormCreate from "./component/po-inventory.form-create";
 import PoProductContainer from "./component/po-product-form-grid/po-product-container";
 import POStep from "./component/po-step/po-step";
 import POSupplierForm from "./component/po-supplier-form";
@@ -144,6 +155,11 @@ const POCreateScreen: React.FC = () => {
     setPoLineItemGridChema,
     setPoLineItemGridValue,
     setTaxRate,
+    expectedDate,
+    procurementTableData,
+    setProcurementTableData,
+    setExpectedDate,
+    handleSortProcurements,
   } = useContext(PurchaseOrderCreateContext);
 
   //reducer
@@ -225,8 +241,80 @@ const POCreateScreen: React.FC = () => {
           return prev + (untaxAmount + (untaxAmount * cur.tax_rate) / 100);
         }, 0),
       );
-      const dataClone = { ...value, status: statusAction };
+      const procurements: any = expectedDate.map((expect) => {
+        const procurement_items = procurementTableData
+          .filter((item) => item?.quantity)
+          .map((data) => {
+            const index = data.expectedDate.findIndex((item) => item.date === expect.date);
+            if (index >= 0) {
+              const totalQuantity = data.expectedDate.reduce((acc, ele) => acc + ele.value, 0);
+              if (totalQuantity > (data?.quantity || 0)) {
+                if (typeof Number(data.sku) === "string") {
+                  let element: any = document?.querySelector(`[data-row-key=${data.sku}]`);
+                  element?.focus();
+                  const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
 
+                throw new Error(
+                  `Số lượng hàng về dự kiến sản phẩm ${data.sku} nhiều hơn số lượng đặt hàng`,
+                );
+              }
+              return {
+                line_item_id: data?.line_item_id,
+                quantity: data.expectedDate[index].value,
+                ordered_quantity: 0,
+                planned_quantity: data.expectedDate[index].value,
+                retail_price: data.retail_price,
+                size: "",
+                sku: data.sku,
+                product_id: data?.productId,
+                variant_id: data.variantId,
+                barcode: data.barcode,
+                variant_images: data.variant_image,
+                product_name: data.product,
+                variant: data.variant,
+                note: "",
+              };
+            }
+            return {};
+          });
+
+        const expect_receipt_date = expect.date.includes("/")
+          ? ConvertDateToUtc(moment(expect.date, "DD/MM/YYYY").format("MM-DD-YYYY"))
+          : ConvertDateToUtc(moment(expect.date).format("MM-DD-YYYY"));
+        return {
+          actived_by: "",
+          actived_date: "",
+          expect_receipt_date: expect_receipt_date,
+          note: "",
+          reference: "",
+          status: POStatus.DRAFT,
+          stock_in_by: "",
+          stock_in_date: "",
+          is_cancelled: false,
+          store_id: Number(value?.store_id) || 144, //Kho tổng
+          procurement_items,
+        };
+      });
+      value.procurements = procurements;
+      value.line_items = value.line_items.map((line_item) => {
+        return {
+          ...line_item,
+          receipt_quantity: 0, // tạo thì receipt_quantity = 0
+        };
+      });
+      const dataClone = {
+        ...value,
+        store_id: Number(value?.store_id),
+        status: statusAction,
+      };
+      // check số lượng của ngày dư kiến
+      procurements.forEach((element: any) => {
+        if (!element.procurement_items.some((item: any) => item.quantity)) {
+          throw new Error("Vui lòng nhập số lượng cho ít nhất 1 ngày dự kiến");
+        }
+      });
       dispatch(PoCreateAction(dataClone, createCallback));
     } catch (error: any) {
       showError(error.message);
@@ -250,6 +338,7 @@ const POCreateScreen: React.FC = () => {
       const lineItems: any[] = isGridMode
         ? combineLineItemToSubmitData(poLineItemGridValue, poLineItemGridChema, taxRate)
         : formMain.getFieldsValue()[POField.line_items];
+      console.log("lineItems", lineItems);
       if (!lineItems?.every((item) => item.price)) {
         throw new Error("Vui lòng điền giá nhập cho sản phẩm đã có số lượng để tạo đơn thành công");
       }
@@ -294,7 +383,7 @@ const POCreateScreen: React.FC = () => {
             const line_items = data.line_items.map((item: PurchaseOrderLineItem) => {
               return { ...item, receipt_quantity: 0, planned_quantity: 0 };
             });
-            const procurements = [data.procurements[0]];
+            let procurements = [data.procurements[0]];
             procurements?.forEach((pro: any) => {
               pro.code = null;
               pro.id = null;
@@ -303,6 +392,86 @@ const POCreateScreen: React.FC = () => {
                 item.code = null;
               });
             });
+            // nhập data phần nhập kho
+            const dataSourceGrid: PODataSourceProduct[] = [];
+            procurements = handleSortProcurements(data.procurements);
+            const procurementsGroupByExpectedDate = groupBy(
+              procurements,
+              POProcumentField.expect_receipt_date,
+            );
+            const expectedDate = Object.keys(procurementsGroupByExpectedDate);
+            const procurementAll = Object.values(procurementsGroupByExpectedDate) || [];
+            const dataExpectedDate: POExpectedDate[] = expectedDate.map(
+              (date, indexProcurements) => {
+                const expect_receipt_date = moment(date).format("DD/MM/YYYY");
+                formMain?.setFieldsValue({
+                  ["expectedDate" + indexProcurements]: expect_receipt_date,
+                });
+                if (procurementAll.length > 0 && procurementAll[0].length > 0) {
+                  line_items
+                    .filter((item) => item.type !== POLineItemType.SUPPLEMENT)
+                    .forEach((procurementItem) => {
+                      const indexDataSourceGrid = dataSourceGrid.findIndex(
+                        (item) => item.sku === procurementItem.sku,
+                      );
+                      const indexLineItem = data.line_items.findIndex(
+                        (item) => item.sku === procurementItem.sku,
+                      );
+                      const totalQuantity = data.procurements
+                        .filter((item) => item.expect_receipt_date === date)
+                        .reduce(
+                          (acc, item) => acc.concat(item.procurement_items),
+                          [] as PurchaseProcumentLineItem[],
+                        )
+                        .filter((item) => item.sku === procurementItem.sku)
+                        .reduce((total, element) => total + element.quantity, 0);
+
+                      if (indexDataSourceGrid === -1) {
+                        const expectedDate: POExpectedDate = {
+                          date: expect_receipt_date,
+                          value: totalQuantity,
+                          option: EnumOptionValueOrPercent.PERCENT,
+                        };
+
+                        const dataSourceGridItem: PODataSourceGrid = {
+                          ...(procurementItem as any),
+                          variantId: procurementItem.variant_id,
+                          productId: procurementItem?.product_id,
+                          sku: procurementItem.sku || "",
+                          retail_price: procurementItem.retail_price as number,
+                          price: procurementItem.price,
+                          barcode: procurementItem.barcode,
+                          variant_images: procurementItem.variant_image,
+                          product_name: procurementItem?.product_name || "",
+                          variant: procurementItem.variant,
+                          variant_image: procurementItem.variant_image || "",
+                          note: procurementItem.note || "",
+                          expectedDate: [expectedDate],
+                          quantity: data.line_items[indexLineItem]?.quantity,
+                        };
+                        dataSourceGrid.push(dataSourceGridItem);
+                      } else {
+                        const expectedDate: POExpectedDate = {
+                          date: expect_receipt_date,
+                          value: totalQuantity,
+                          option: EnumOptionValueOrPercent.PERCENT,
+                        };
+                        dataSourceGrid[indexDataSourceGrid].expectedDate = [
+                          ...dataSourceGrid[indexDataSourceGrid].expectedDate,
+                          expectedDate,
+                        ];
+                      }
+                    });
+                }
+                return {
+                  date: expect_receipt_date,
+                  value: 0,
+                  option: EnumOptionValueOrPercent.PERCENT,
+                };
+              },
+            );
+            setExpectedDate(dataExpectedDate);
+            setProcurementTableData(dataSourceGrid as PODataSourceGrid[]);
             const params = {
               ...data,
               line_items,
@@ -324,6 +493,14 @@ const POCreateScreen: React.FC = () => {
           }
         }),
       );
+    } else {
+      setExpectedDate([
+        {
+          date: "",
+          value: 0,
+          option: EnumOptionValueOrPercent.PERCENT,
+        },
+      ]);
     }
   }, [
     poId,
@@ -333,11 +510,12 @@ const POCreateScreen: React.FC = () => {
     setPoLineItemGridValue,
     setTaxRate,
     setIsGridMode,
+    setProcurementTableData,
   ]);
 
   return (
     <ContentContainer
-      title="Quản lý đơn đặt hàng"
+      title="Tạo đơn đặt hàng "
       breadcrumb={[
         {
           name: "Kho hàng",
@@ -402,7 +580,7 @@ const POCreateScreen: React.FC = () => {
               />
             )}
           </PoProductContainer>
-          <POInventoryForm
+          <POInventoryFormCreate
             isEdit={false}
             now={now}
             status={formMain.getFieldValue(POField.status)}
@@ -426,6 +604,7 @@ const POCreateScreen: React.FC = () => {
           rightComponent={
             <React.Fragment>
               <Button
+                htmlType="button"
                 className="ant-btn-outline fixed-button cancle-button"
                 onClick={() => history.push(UrlConfig.PURCHASE_ORDERS)}
               >
@@ -434,6 +613,7 @@ const POCreateScreen: React.FC = () => {
               <AuthWrapper acceptPermissions={[PurchaseOrderPermission.create]}>
                 <Button
                   type="primary"
+                  htmlType="button"
                   className="create-button-custom ant-btn-outline fixed-button"
                   onClick={() => createPurchaseOrder(POStatus.DRAFT)}
                   ghost
@@ -442,6 +622,7 @@ const POCreateScreen: React.FC = () => {
                 </Button>
                 <Button
                   type="primary"
+                  htmlType="button"
                   className="create-button-custom"
                   onClick={() => createPurchaseOrder(POStatus.WAITING_APPROVAL)}
                 >

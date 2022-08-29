@@ -48,7 +48,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
     showBillingAddress = true,
     hideExpand,
     stepStatus,
-    type
+    type,
   } = props;
   const { purchaseOrder } = useContext(PurchaseOrderCreateContext);
 
@@ -187,9 +187,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
       <div>
         <Form.Item name={POField.payment_condition_name} noStyle />
         <Form.Item
-          shouldUpdate={(prevValues, curValues) =>
-            prevValues.supplier_id !== curValues.supplier_id
-          }
+          shouldUpdate={(prevValues, curValues) => prevValues.supplier_id !== curValues.supplier_id}
           className="margin-bottom-0"
         >
           {({ getFieldValue }) => {
@@ -201,7 +199,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
 
             return supplier_id ? (
               <div>
-                {type !== 'RETURN' && (
+                {type !== "RETURN" && (
                   <>
                     <Row align="middle">
                       <Link
@@ -242,7 +240,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                     <Form.Item hidden name="supplier_address">
                       <Input />
                     </Form.Item>
-                    {type !== 'RETURN' && (
+                    {type !== "RETURN" && (
                       <>
                         <POSupplierAddress
                           getFieldValue={getFieldValue}
@@ -269,9 +267,7 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
                         <POSupplierAddress
                           getFieldValue={getFieldValue}
                           field="supplier_address"
-                          onEdit={() =>
-                            showEditAddressModal(supplier_address, "supplier_address")
-                          }
+                          onEdit={() => showEditAddressModal(supplier_address, "supplier_address")}
                         />
                         <Divider style={{ marginTop: 0 }} />
                         {!isEdit ||
@@ -340,8 +336,8 @@ const POSupplierForm: React.FC<POSupplierFormProps> = (props: POSupplierFormProp
           }}
         </Form.Item>
       </div>
-    )
-  }
+    );
+  };
 
   return (
     <div className="supplier">

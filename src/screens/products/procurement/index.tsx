@@ -5,7 +5,7 @@ import UrlConfig, { ProcurementTabUrl } from "config/url.config";
 import { useEffect, useState } from "react";
 import { RouteComponentProps } from "react-router";
 import { Link, useHistory } from "react-router-dom";
-// import TabCurrent from "./tabs/TabCurrent";
+import TabCurrent from "./tabs/TabCurrent";
 // import TabSevenDays from "./tabs/TabSevenDays";
 import TabList from "./tabs/TabList/index";
 import TabProducts from "./tabs/TabProducts/index";
@@ -103,6 +103,12 @@ const ProcurementScreen: React.FC<RouteComponentProps> = () => {
                 vExportDetailProcurement={vExportDetailProcurement}
                 setVExportDetailProcurement={setVExportDetailProcurement}
               />
+            </TabPane>
+            <TabPane
+              tab={<Link to={ProcurementTabUrl.TODAY}>Nhập kho hôm nay</Link>}
+              key={ProcurementTabUrl.TODAY}
+            >
+              <TabCurrent />
             </TabPane>
             <TabPane
               tab={<Link to={ProcurementTabUrl.PRODUCTS}>Danh sách sản phẩm nhập kho</Link>}

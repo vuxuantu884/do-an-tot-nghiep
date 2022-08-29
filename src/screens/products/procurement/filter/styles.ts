@@ -14,6 +14,7 @@ export const FilterProcurementStyle = styled.div`
   }
   .suppliers {
     width: 40%;
+    margin-right: 0;
   }
   .btn-action {
     display: flex;

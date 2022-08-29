@@ -12,7 +12,6 @@ import { PageResponse } from "model/base/base-metadata.response";
 import { StoreResponse } from "model/core/store.model";
 import {
   POProcumentField,
-  ProcurementCancel,
   PurchaseProcument,
   PurchaseProcumentLineItem,
 } from "model/purchase-order/purchase-procument";
@@ -48,7 +47,6 @@ import { PurchaseOrder, PurchaseOrderPrint } from "model/purchase-order/purchase
 // import { MenuAction } from "component/table/ActionButton";
 import { callApiNative } from "utils/ApiUtils";
 import {
-  cancelMultipleProcurement,
   searchProcurementApi,
   updatePurchaseProcumentNoteService,
 } from "service/purchase-order/purchase-procument.service";
@@ -58,7 +56,7 @@ import ProcurementExport from "../components/ProcurementExport";
 import { TYPE_EXPORT } from "screens/products/constants";
 import * as XLSX from "xlsx";
 import { ProcurementExportLineItemField } from "model/procurement/field";
-import { CloseCircleOutlined, DeleteOutlined, PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
+import { PhoneOutlined, PrinterOutlined } from "@ant-design/icons";
 import EditNote from "screens/order-online/component/edit-note";
 import { primaryColor } from "utils/global-styles/variables";
 import { RootReducerType } from "model/reducers/RootReducerType";
@@ -71,9 +69,7 @@ import { AccountResponse } from "model/account/account.model";
 import { searchAccountPublicApi } from "service/accounts/account.service";
 import { MenuAction } from "component/table/ActionButton";
 import useAuthorization from "hook/useAuthorization";
-import { ImportStatusWrapper } from "screens/inventory/ImportInventory/styles";
-import { Button, Col, Modal, Row, Typography } from "antd";
-import Progress from "antd/es/progress";
+import { Modal, Row } from "antd";
 import { printMultipleProcurementApi } from "service/purchase-order/purchase-order.service";
 import { useReactToPrint } from "react-to-print";
 import purify from "dompurify";
@@ -120,9 +116,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const [selected, setSelected] = useState<Array<PurchaseProcument>>([]);
   const [exportProgress, setExportProgress] = useState<number>(0);
   const [statusExport, setStatusExport] = useState<number>(0);
-  const [isShowProgress, setIsShowProgress] = useState<boolean>(false);
-  const [dataProcess, setDataProcess] = useState<ProcurementCancel>();
-  const [showWarConfirm, setShowWarConfirm] = useState<boolean>(false);
   const [showPrintConfirm, setShowPrintConfirm] = useState<boolean>(false);
   const [printContent, setPrintContent] = useState<string>("");
   const pageBreak = "<div class='pageBreak'></div>";
@@ -150,10 +143,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
   const [allowPrint] = useAuthorization({
     acceptPermissions: [PurchaseOrderPermission.procurements_read],
   });
-  const [allowCancel] = useAuthorization({
-    acceptPermissions: [PurchaseOrderPermission.procurements_delete],
-  });
-  const { Text } = Typography;
 
   const actionList: Array<MenuAction> = [
     {
@@ -161,12 +150,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
       name: "In phiếu",
       icon: <PrinterOutlined />,
       disabled: !allowPrint,
-    },
-    {
-      id: ACTIONS_INDEX.CANCEL,
-      name: "Hủy phiếu",
-      icon: <CloseCircleOutlined />,
-      disabled: !allowCancel,
     },
   ];
 
@@ -407,8 +390,7 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                 to={`${UrlConfig.SUPPLIERS}/${value.supplier_id}`}
                 className="link-underline"
                 target="_blank"
-              >
-              </Link>
+              ></Link>
               {value?.supplier_code} <PhoneOutlined /> {value?.phone}
               <div className="font-weight-500">{value?.supplier}</div>
               <div>
@@ -447,22 +429,22 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           return (
             <>
               {value}
-              {
-                record.stock_in_date &&
+              {record.stock_in_date && (
                 <div>
                   <span className="fs-12 text-muted">Ngày nhận: </span>
-                  <span
-                    className="fs-12 text-title">{ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
+                  <span className="fs-12 text-title">
+                    {ConvertUtcToLocalDate(record.stock_in_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
                 </div>
-              }
-              {
-                record.activated_date &&
+              )}
+              {record?.activated_date && (
                 <div>
                   <span className="fs-12 text-muted">Ngày duyệt: </span>
-                  <span
-                    className="fs-12 text-title">{ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}</span>
+                  <span className="fs-12 text-title">
+                    {ConvertUtcToLocalDate(record.activated_date, DATE_FORMAT.DDMMYY_HHmm)}
+                  </span>
                 </div>
-              }
+              )}
             </>
           );
         },
@@ -491,7 +473,12 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
                       {Array.isArray(activedByName) ? activedByName[0] : activedByName}
                     </Link>
                   )}
-                  <b> {Array.isArray(activedByName) && activedByName.length > 1 ? activedByName[1] : ""}</b>
+                  <b>
+                    {" "}
+                    {Array.isArray(activedByName) && activedByName.length > 1
+                      ? activedByName[1]
+                      : ""}
+                  </b>
                 </div>
                 <div>
                   <div className="fs-12 text-muted">Người nhận:</div>
@@ -597,7 +584,9 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
           value.forEach((item: PurchaseProcumentLineItem) => {
             totalRealQuantity += item.real_quantity;
           });
-          return <div className="font-weight-500 text-title">{formatCurrency(totalRealQuantity)}</div>;
+          return (
+            <div className="font-weight-500 text-title">{formatCurrency(totalRealQuantity)}</div>
+          );
         },
       },
       {
@@ -708,20 +697,14 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     setPOItem(result);
   }, []);
 
-  const loadDetail = useCallback(
-    () => {
-      dispatch(PoDetailAction(poId, onDetail));
-    },
-    [dispatch, poId, onDetail],
-  );
+  const loadDetail = useCallback(() => {
+    dispatch(PoDetailAction(poId, onDetail));
+  }, [dispatch, poId, onDetail]);
 
-  const onAddProcumentSuccess = useCallback(
-    () => {
-      loadDetail();
-      setLoadingData((prevState) => !prevState);
-    },
-    [loadDetail],
-  );
+  const onAddProcumentSuccess = useCallback(() => {
+    loadDetail();
+    setLoadingData((prevState) => !prevState);
+  }, [loadDetail]);
 
   const onPageChange = (page: number, size?: number) => {
     paramsrUrl.page = page;
@@ -879,11 +862,11 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     if (history.location.pathname === ProcurementTabUrl.ALL) {
       search();
     }
-    if (paramsrUrl.stock_in_bys) {
+    if (history.location.pathname === ProcurementTabUrl.ALL && paramsrUrl.stock_in_bys) {
       getAccounts(paramsrUrl.stock_in_bys);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [history.location.search, dispatch, loadingData]);
+  }, [history.location.search, dispatch, loadingData, history.location.pathname]);
 
   useEffect(() => {
     dispatch(StoreGetListAction(setListStore));
@@ -1128,19 +1111,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     [dispatch, printContentCallback, handlePrint],
   );
 
-  const cancelProcurements = async (ids: string) => {
-    const response = await callApiNative(
-      { isShowError: true },
-      dispatch,
-      cancelMultipleProcurement,
-      ids,
-    );
-    if (response) {
-      setDataProcess(response);
-      setIsShowProgress(true);
-    }
-  };
-
   const onMenuClick = (index: number) => {
     if (selected.length === 0) {
       showWarning("Chưa có phiếu nào được chọn");
@@ -1149,9 +1119,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
     switch (index) {
       case ACTIONS_INDEX.PRINT_PROCUREMENTS:
         setShowPrintConfirm(true);
-        break;
-      case ACTIONS_INDEX.CANCEL:
-        setShowWarConfirm(true);
         break;
       default:
         break;
@@ -1283,126 +1250,6 @@ const TabList: React.FC<TabListProps> = (props: TabListProps) => {
             />
           )
         } */}
-        {isShowProgress && (
-          <Modal
-            title="Nhập file"
-            centered
-            onCancel={() => {
-              setIsShowProgress(false);
-              dataProcess && dataProcess?.success > 0 && search();
-            }}
-            visible={isShowProgress}
-            footer={[
-              <Button
-                onClick={() => {
-                  setIsShowProgress(false);
-                  dataProcess && dataProcess?.success > 0 && search();
-                }}
-              >
-                Xác nhận
-              </Button>,
-            ]}
-          >
-            <ImportStatusWrapper>
-              <Row className="status">
-                <Col span={6}>
-                  <div>
-                    <Text>Tổng cộng</Text>
-                  </div>
-                  <div>
-                    <b>{dataProcess?.total}</b>
-                  </div>
-                </Col>
-                <Col span={6}>
-                  <div>
-                    <Text>Đã xử lí</Text>
-                  </div>
-                  <div>
-                    <b>{dataProcess?.processed}</b>
-                  </div>
-                </Col>
-                <Col span={6}>
-                  <div>
-                    <Text>Thành công</Text>
-                  </div>
-                  <div>
-                    <Text type="success">
-                      <b>{dataProcess?.success}</b>
-                    </Text>
-                  </div>
-                </Col>
-                <Col span={6}>
-                  <div>Lỗi</div>
-                  <div>
-                    <Text type="danger">
-                      <b>{dataProcess?.errors}</b>
-                    </Text>
-                  </div>
-                </Col>
-
-                <Row className="status">
-                  <Progress
-                    percent={
-                      dataProcess &&
-                      parseFloat(((dataProcess?.success / dataProcess?.total) * 100).toFixed(2))
-                    }
-                  />
-                </Row>
-              </Row>
-              <Row className="import-info">
-                <div className="title">
-                  <b>Chi tiết: </b>
-                </div>
-                <div className="content">
-                  <ul>
-                    {dataProcess?.errors === 0 ? (
-                      <li>
-                        <span className="success">&#8226;</span>
-                        <Text type="success">Thành công</Text>
-                      </li>
-                    ) : (
-                      dataProcess?.message_errors.map((item: string) => (
-                        <li>
-                          <span className="danger">&#8226;</span>
-                          <Text type="danger">{item}</Text>
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                </div>
-              </Row>
-            </ImportStatusWrapper>
-          </Modal>
-        )}
-        <Modal
-          width={500}
-          centered
-          visible={showWarConfirm}
-          onCancel={() => setShowWarConfirm(false)}
-          onOk={() => {
-            setShowWarConfirm(false);
-            const ids = selected.map((item: PurchaseProcument) => item.id).join(",");
-            cancelProcurements(ids);
-          }}
-          cancelText={`Hủy`}
-          okText={`Đồng ý`}
-        >
-          <Row align="top">
-            <DeleteOutlined
-              style={{
-                fontSize: 40,
-                background: "#e24343",
-                color: "white",
-                borderRadius: "50%",
-                padding: 10,
-                marginRight: 10,
-              }}
-            />
-            <strong className="margin-top-10">
-              Bạn có chắc chắn hủy {selected.length} phiếu nhập kho đã chọn ?
-            </strong>
-          </Row>
-        </Modal>
         <Modal
           width={500}
           centered

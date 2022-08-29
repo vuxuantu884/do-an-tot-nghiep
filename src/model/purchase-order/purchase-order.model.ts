@@ -2,11 +2,13 @@ import { BaseObject } from "./../base/base.response";
 import { BaseQuery } from "model/base/base.query";
 import { PurchaseAddress } from "./purchase-address.model";
 import { Vat, PurchaseOrderLineItem, PurchaseOrderLineReturnItem } from "./purchase-item.model";
-import { PurchaseProcument } from "./purchase-procument";
+import { PurchaseProcument, PurchaseProcumentLineItem } from "./purchase-procument";
 import { PurchasePayments } from "./purchase-payment.model";
 import { PurchaseReturnOrder } from "./purchase-return.model";
+import { EnumOptionValueOrPercent } from "config/enum.config";
 
 export interface PurchaseOrder extends BaseObject {
+  dataSource: ProcurementTable[];
   companyId: number;
   assign_account_code: string;
   supplier_id: number;
@@ -17,6 +19,7 @@ export interface PurchaseOrder extends BaseObject {
   supplier_address: PurchaseAddress;
   line_items: Array<PurchaseOrderLineItem>;
   procurements: Array<PurchaseProcument>;
+  procurements_cancelled: Array<PurchaseProcument>;
   return_orders: Array<PurchaseReturnOrder>;
   expect_return_date: string;
   note: string;
@@ -105,6 +108,38 @@ export interface ProcumentLogQuery extends BaseQuery {
   created_date_to?: Date;
 }
 
+export interface ProcurementTable extends PurchaseProcumentLineItem {
+  quantityLineItems: number;
+  plannedQuantities: Array<number | undefined>;
+  realQuantities: Array<number | undefined>;
+  uuids: Array<string>;
+}
+
+export interface ValueQuantity<T> {
+  expect_receipt_date: string;
+  date?: string;
+  value: T;
+}
+
+export interface ProcurementPropertiesDate {
+  id?: string;
+  value: Date | string;
+}
+export interface ProcurementProperties {
+  date: Array<ProcurementPropertiesDate>;
+  real_quantity: Array<ValueQuantity<number>>;
+  planned_quantity: Array<ValueQuantity<number>>;
+  retail_price: number;
+  sku: string;
+  product_name: string;
+  price: number;
+  barcode: string;
+  variant_image: string;
+  variant_images: string;
+  variant: string;
+  note: string;
+}
+
 /**
  * Mapping size và màu sắc cho việc validate, hiển thị line-item
  */
@@ -122,6 +157,8 @@ export interface POPairSizeColor {
   unit: string;
   variant_image?: string;
   retailPrice: number;
+  receipt_quantity?: number;
+  planned_quantity?: number;
   cost_price: number;
 }
 
@@ -144,7 +181,13 @@ export interface POLineItemGridSchema {
   baseColor: POLineItemColor[];
   mappingColorAndSize: Array<POPairSizeColor>; // key: size, value: danh sách màu của size đó | key: color, value: danh sách size của màu đó
   variantIdList: number[];
-  // retail_price: number;
+  estimatedDate?: Array<POestimatedDate>;
+  quantity?: number;
+}
+
+export interface POestimatedDate {
+  date: Date | string;
+  quantity: number;
 }
 // số lượng của size theo màu
 export interface POPairSizeQuantity {
@@ -169,14 +212,24 @@ export declare type POLineItemGridValue = {
   sizeValues: Array<POPairSizeQuantity>;
 };
 
+export interface POExpectedDate {
+  date: string;
+  value: number;
+  option: EnumOptionValueOrPercent;
+}
 export interface PODataSourceProduct {
   productId: number;
   productCode: string;
   productName: string;
   color_code: string;
   color: string;
-  lineItemPrice: number; // Giá nhập dùng chung cho 1 màu (nhiều size)
+  sku: string;
+  lineItemPrice?: number; // Giá nhập dùng chung cho 1 màu (nhiều size)
   schemaIndex: number;
+  quantity?: number | string;
+  expectedDate: POExpectedDate[];
+  variantId: number;
+  variant_id: number;
 }
 
 export interface PODataSourceVariantItemGrid {
@@ -232,6 +285,9 @@ export type POProgressResult = {
 };
 
 export interface PurchaseOrderReturnQuery extends BaseQuery {}
+export interface PurchaseOrderPercentsQuery {
+  month: number;
+}
 
 export interface PurchaseOrderReturn extends BaseObject {
   expect_return_date: Date;

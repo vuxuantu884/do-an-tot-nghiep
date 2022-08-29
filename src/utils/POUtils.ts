@@ -79,6 +79,9 @@ const POUtils = {
         receipt_quantity: 0,
         retail_price: retailPrice,
         cost_price,
+        color: variant.color_id,
+        color_code: variant?.color_code,
+        variant_prices: variant.variant_prices,
       };
       result.push(newItem);
     });
@@ -133,6 +136,11 @@ const POUtils = {
   totalQuantity: (data: Array<PurchaseOrderLineItem>): number => {
     let total = 0;
     data.forEach((item) => (total = total + item.quantity));
+    return total;
+  },
+  totalAcceptedQuantity: (data: Array<PurchaseProcumentLineItem>): number => {
+    let total = 0;
+    data.forEach((item) => (total = total + item.accepted_quantity));
     return total;
   },
   totalReceipt: (data: Array<PurchaseOrderLineItem>): number => {
@@ -343,6 +351,11 @@ const POUtils = {
     data.forEach((item) => (total = total + item.ordered_quantity));
     return total;
   },
+  totalPlannedQuantityProcurement: (data: Array<PurchaseProcumentLineItem>) => {
+    let total = 0;
+    data.forEach((item) => (total = total + item.planned_quantity));
+    return total;
+  },
   getNewProcument: (
     procuments: Array<PurchaseProcument>,
     data: Array<PurchaseOrderLineItem>,
@@ -490,6 +503,8 @@ export function initSchemaLineItem(
       product_id: product.id,
       product: product.name,
       variant_image: url,
+      planned_quantity: lineItemId?.planned_quantity || 0,
+      receipt_quantity: lineItemId?.receipt_quantity || 0,
       barcode: variant.barcode,
       product_type: product.product_type,
       unit: product.unit,
@@ -609,6 +624,8 @@ export const combineLineItemToSubmitData = (
             variant_image: pair.variant_image,
             retail_price: retail_price,
             cost_price: cost_price,
+            receipt_quantity: pair?.receipt_quantity || 0,
+            planned_quantity: pair?.planned_quantity || 0,
             // Dữ liệu nhập liệu thì lấy thì value object
             quantity: qty,
             price: value.price,
@@ -684,7 +701,8 @@ export const fetchProductGridData = async (
     /**
      *Lấy thông tin sản phẩm để khởi tạo schema & value object (POLineItemGridSchema, POLineItemGridValue)
      */
-    const productId = poData.line_items[0].product_id; // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
+    const productId = poData.line_items.filter((item) => item.type !== POLineItemType.SUPPLEMENT)[0]
+      .product_id; // Vì là chỉ chọn 1 sản phẩm cho grid nên sẽ lấy product_id của sản phẩm đầu tiên
     const product: ProductResponse = await callApiNative(
       { isShowError: true },
       dispatch,
@@ -705,7 +723,7 @@ export const fetchProductGridData = async (
       /**
        * Lọc line item không phải sản phẩm bổ sung
        */
-      const notSupplementLineItems = poData.line_items.filter(
+      const notSupplementLineItems = poData?.line_items?.filter(
         (item) => item.type !== POLineItemType.SUPPLEMENT,
       );
       newpoLineItemGridChema.push(initSchemaLineItem(product, mode, notSupplementLineItems));

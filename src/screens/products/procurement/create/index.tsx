@@ -9,11 +9,15 @@ import { useHistory } from "react-router-dom";
 import ProcurementForm from "./components/ProcurementForm";
 import ProcurementResult from "./components/ProcurementResult";
 import ProcurementScanResult from "./components/ProcurementScanResult";
-import { ProcurementCreate } from "model/procurement";
+import {
+  ProcurementDataResult,
+  ProcurementImportResult,
+  PurchaseOrderImportResult,
+} from "model/procurement";
 import { PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import { isEmpty } from "lodash";
 import { ProcurementField } from "model/procurement/field";
-import { ImportProcument } from "model/purchase-order/purchase-procument";
+import { ImportProcument, PurchaseProcument } from "model/purchase-order/purchase-procument";
 import { EnumImportStatus, EnumJobStatus } from "config/enum.config";
 import { importProcumentAction } from "domain/actions/po/po-procument.action";
 import { useDispatch } from "react-redux";
@@ -22,6 +26,7 @@ import { getJobImport } from "service/purchase-order/purchase-procument.service"
 import { callApiNative } from "utils/ApiUtils";
 import { listPurchaseOrderApi } from "service/purchase-order/purchase-order.service";
 import { UploadFile } from "antd/es/upload/interface";
+import moment from "moment";
 
 export const CON_STATUS_IMPORT = {
   DEFAULT: 1,
@@ -33,11 +38,15 @@ export const CON_STATUS_IMPORT = {
 
 type UploadStatus = "ERROR" | "SUCCESS" | "DONE" | "PROCESSING" | "REMOVED" | undefined;
 
+type PurchaseOrderImportMapping = {
+  id: number;
+  pr_ids: Array<number>;
+};
+
 const ProcurementCreateScreen: React.FC = () => {
   const [isVisibleModalWarning, setIsVisibleModalWarning] = useState<boolean>(false);
   const [isResetModalWarning, setIsResetModalWarning] = useState<boolean>(false);
-  const [dataResult, setDataResult] = useState<ProcurementCreate>();
-  const [listPO, setListPO] = useState<Array<PurchaseOrder>>([]);
+  const [dataResult, setDataResult] = useState<ProcurementDataResult>();
   const [linkFileImport, setLinkFileImport] = useState<string>();
   const [statusImport, setStatusImport] = useState<number>(CON_STATUS_IMPORT.DEFAULT);
   const [jobImportStatus, setJobImportStatus] = useState<EnumJobStatus>();
@@ -46,25 +55,75 @@ const ProcurementCreateScreen: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [showModal, setShowModal] = useState<boolean>(false);
   const [fileList, setFileList] = useState<Array<UploadFile>>([]);
+  const [procurementsResult, setProcurementsResult] = useState<Array<PurchaseProcument>>([]);
   const history = useHistory();
   const dispatch = useDispatch();
 
   const [formMain] = Form.useForm();
 
-  const getPOItems = useCallback(
-    async (purchaseOrderIDS: string) => {
-      const ids = purchaseOrderIDS.split(",").join("&ids=");
-      const listPoRes = await callApiNative({ isShowError: true }, dispatch, listPurchaseOrderApi, {
-        ids,
+  const mapPurchaseOrdersToProcurements = (
+    purchaseOrders: Array<PurchaseOrder>,
+    poImportResult: Array<PurchaseOrderImportResult>,
+  ) => {
+    const purchaseOrderImport: Array<PurchaseOrderImportMapping> = poImportResult.map(
+      (el: PurchaseOrderImportResult) => {
+        return {
+          ...el,
+          id: parseInt(el.id),
+          pr_ids: el.pr_ids.split(",").map((id: string) => parseInt(id)),
+        };
+      },
+    );
+    let procurementsResult: Array<PurchaseProcument> = [];
+    if (purchaseOrders.length === poImportResult.length) {
+      purchaseOrders.forEach((item: PurchaseOrder) => {
+        purchaseOrderImport.forEach((po: PurchaseOrderImportMapping) => {
+          if (po.id === item.id) {
+            const procurementFilter = item.procurements.filter((pr: PurchaseProcument) =>
+              po.pr_ids.includes(pr.id),
+            );
+            const newProcurement = procurementFilter.map((procurement: PurchaseProcument) => {
+              return { ...procurement, purchase_order: item };
+            });
+            procurementsResult = procurementsResult.concat(newProcurement);
+          }
+        });
       });
-      if (listPoRes) {
-        setListPO(listPoRes);
-      } else {
-        setUploadStatus(EnumJobStatus.error);
-        setErrorMessage("Không tìm thấy đơn nào");
+    }
+    const procurementsArrayResult = procurementsResult.sort((a, b) => {
+      let dateA = moment.utc(a.expect_receipt_date).toDate().getTime();
+      let dateB = moment.utc(b.expect_receipt_date).toDate().getTime();
+      return dateA - dateB;
+    });
+    return procurementsArrayResult;
+  };
+
+  const getPOItems = useCallback(
+    async (dataResult: ProcurementImportResult) => {
+      if (dataResult.purchase_orders.length > 0) {
+        const purchaseOrderIDs = dataResult.purchase_orders.map(
+          (item: PurchaseOrderImportResult) => item.id,
+        );
+        const ids = purchaseOrderIDs.join("&ids=");
+        const listPoRes = await callApiNative(
+          { isShowError: true },
+          dispatch,
+          listPurchaseOrderApi,
+          { ids },
+        );
+        if (listPoRes) {
+          const procurements = mapPurchaseOrdersToProcurements(
+            listPoRes,
+            dataResult.purchase_orders,
+          );
+          setProcurementsResult(procurements);
+        } else {
+          setUploadStatus(EnumJobStatus.error);
+          setErrorMessage("Không tìm thấy đơn nào");
+        }
       }
     },
-    [dispatch, setListPO],
+    [dispatch],
   );
 
   const checkImportFile = useCallback(() => {
@@ -76,10 +135,16 @@ const ProcurementCreateScreen: React.FC = () => {
       responses.forEach((response) => {
         if (response.code === HttpStatus.SUCCESS) {
           if (response.data && response.data.status === EnumJobStatus.finish) {
-            if (response.data.message[0].po_ids) {
-              getPOItems(response.data.message[0].po_ids);
+            if (
+              response.data.message[0].purchase_orders &&
+              response.data.message[0].purchase_orders.length > 0
+            ) {
+              getPOItems(response.data.message[0]);
               setDataResult(response.data);
               setUploadStatus(EnumJobStatus.success);
+            } else if (!response.data.message[0].total_pr) {
+              setUploadStatus(EnumJobStatus.error);
+              setErrorMessage("Không tìm thấy phiếu nhập kho nào");
             } else {
               setUploadStatus(EnumJobStatus.error);
               setErrorMessage("Không tìm thấy đơn nào");
@@ -159,7 +224,7 @@ const ProcurementCreateScreen: React.FC = () => {
 
   const onReset = useCallback(() => {
     formMain.resetFields();
-    setListPO([]);
+    setProcurementsResult([]);
     setDataResult(undefined);
     setLinkFileImport("");
     setStatusImport(CON_STATUS_IMPORT.DEFAULT);
@@ -188,7 +253,7 @@ const ProcurementCreateScreen: React.FC = () => {
         <Card>
           <ProcurementForm
             formMain={formMain}
-            listPO={listPO}
+            procurementsResult={procurementsResult}
             setLinkFileImport={setLinkFileImport}
             setStatusImport={setStatusImport}
             statusImport={statusImport}
@@ -201,11 +266,11 @@ const ProcurementCreateScreen: React.FC = () => {
             setFileList={setFileList}
             fileList={fileList}
           />
-          {!isEmpty(dataResult) && <ProcurementScanResult dataResult={dataResult} />}
+          {dataResult && <ProcurementScanResult dataResult={dataResult} />}
         </Card>
-        {!isEmpty(listPO) && (
+        {!isEmpty(procurementsResult) && dataResult && (
           <Card>
-            <ProcurementResult formMain={formMain} listPO={listPO} />
+            <ProcurementResult formMain={formMain} procurementsResult={procurementsResult} />
           </Card>
         )}
       </Form>
@@ -222,7 +287,7 @@ const ProcurementCreateScreen: React.FC = () => {
           visible={isVisibleModalWarning}
         />
       )}
-      {isResetModalWarning && isEmpty(listPO) && (
+      {isResetModalWarning && isEmpty(procurementsResult) && (
         <ModalConfirm
           onCancel={() => {
             setIsResetModalWarning(false);
@@ -257,12 +322,12 @@ const ProcurementCreateScreen: React.FC = () => {
             <Button
               className="light"
               onClick={() => {
-                !isEmpty(listPO) ? onReset() : setIsResetModalWarning(true);
+                !isEmpty(procurementsResult) ? onReset() : setIsResetModalWarning(true);
               }}
             >
               Tạo mới
             </Button>
-            {!isEmpty(listPO) ? (
+            {!isEmpty(procurementsResult) ? (
               <Button type="primary" onClick={() => history.push(`${UrlConfig.PROCUREMENT}`)}>
                 Xem danh sách phiếu
               </Button>
