@@ -1,4 +1,4 @@
-import { Modal, Radio, Row, Space } from "antd";
+import { Divider, Modal, Radio, Row, Space } from "antd";
 import PurchaseOrderFilter from "component/filter/purchase-order.filter";
 import { MenuAction } from "component/table/ActionButton";
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
@@ -313,7 +313,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       {
         title: "Nhà cung cấp",
         dataIndex: "supplier",
-        width: 120,
+        width: 140,
         visible: true,
         render: (value, record) => {
           return (
@@ -386,8 +386,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               textFinanceStatus = "Đã thanh toán";
               break;
             default:
-              processIcon = iconPo3;
-              textProcurementStatus = "Chưa nhập kho";
+              financeProcessIcon = iconPo3;
+              textFinanceStatus = "Chưa thanh toán";
               break;
           }
 
@@ -462,29 +462,83 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
         render: (value: Array<PurchaseProcument>) => {
           if (value && value.length > 0) {
             value.sort((a, b) => moment(a.expect_receipt_date).diff(moment(b.expect_receipt_date)));
-          }
-          return (
-            <div>
-              {value?.map(
-                (i, idx) =>
-                  idx % 3 === 0 && (
-                    <div style={{ display: "flex", alignItems: "center" }}>
-                      <div style={{ marginRight: 5 }}>
-                        {ConvertUtcToLocalDate(i.expect_receipt_date, DATE_FORMAT.DDMMYYY)}
-                      </div>
-                      {i.status !== "draft" && (
-                        <div>
-                          {TagStatus({
-                            type: typeStatus[i.status],
-                            children: labelStatus[i.status],
-                          })}
+            const procurementData: Array<Array<PurchaseProcument>> = [];
+            // nhóm pr có chung ngày nhận dự kiến vào 1 array
+            for (let i = 0; i < value.length; i++) {
+              const procurementArrayMap = [];
+              let dateI = ConvertUtcToLocalDate(value[i]?.expect_receipt_date, DATE_FORMAT.DDMMYYY);
+              let dateIPlus = ConvertUtcToLocalDate(
+                value[i + 1]?.expect_receipt_date,
+                DATE_FORMAT.DDMMYYY,
+              );
+              for (let j = 0; j < value.length; j++) {
+                let dateJ = ConvertUtcToLocalDate(
+                  value[j]?.expect_receipt_date,
+                  DATE_FORMAT.DDMMYYY,
+                );
+                if (dateI === dateJ) {
+                  procurementArrayMap.push(value[j]);
+                }
+              }
+              if (dateI !== dateIPlus) {
+                procurementData.push(procurementArrayMap);
+              }
+            }
+            const procurementSupplier: Array<Array<PurchaseProcument>> =
+              Object.values(procurementData);
+            const procurementFilter: Array<Array<PurchaseProcument>> = procurementSupplier.filter(
+              (element) =>
+                !element.every(
+                  (item: PurchaseProcument) => item.status === ProcumentStatus.CANCELLED,
+                ),
+            );
+            return (
+              <div>
+                {procurementFilter.map((i, idx, row) => {
+                  let status = "draft";
+                  if (
+                    i.every(
+                      (el: PurchaseProcument) =>
+                        el.status !== ProcumentStatus.RECEIVED &&
+                        el.status !== ProcumentStatus.DRAFT,
+                    )
+                  ) {
+                    status = ProcumentStatus.NOT_RECEIVED;
+                  } else if (
+                    i.some((el: PurchaseProcument) => el.status === ProcumentStatus.RECEIVED)
+                  ) {
+                    status = ProcumentStatus.RECEIVED;
+                  }
+                  return (
+                    <>
+                      <div
+                        style={{
+                          display: "flex",
+                          alignItems: "center",
+                          marginBottom: idx + 1 === row.length ? 3 : 0,
+                        }}
+                      >
+                        <div style={{ marginRight: 8, paddingTop: 3 }}>
+                          {ConvertUtcToLocalDate(i[0].expect_receipt_date, DATE_FORMAT.DDMMYYY)}
                         </div>
-                      )}
-                    </div>
-                  ),
-              )}
-            </div>
-          );
+                        {status !== "draft" && (
+                          <div>
+                            {TagStatus({
+                              type: typeStatus[status],
+                              children: labelStatus[status],
+                            })}
+                          </div>
+                        )}
+                      </div>
+                      {idx + 1 !== row.length && <Divider style={{ margin: "8px 0" }} />}
+                    </>
+                  );
+                })}
+              </div>
+            );
+          } else {
+            return null;
+          }
         },
         visible: true,
         width: 200,
@@ -492,7 +546,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       {
         title: "Ngày chốt công nợ",
         dataIndex: "ap_closing_date",
-        width: 110,
+        width: 100,
+        align: "center",
         visible: true,
         render: (date: string) => {
           return date ? ConvertUtcToLocalDate(date, DATE_FORMAT.DDMMYYY) : "";
@@ -501,6 +556,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
       {
         title: "Tổng tiền",
         dataIndex: "total",
+        width: 100,
         render: (value: number) => (
           <NumberFormat
             value={value}
@@ -510,7 +566,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           />
         ),
         visible: true,
-        align: "right",
+        align: "center",
       },
       {
         title: "Merchandiser",
@@ -563,7 +619,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             </div>
           );
         },
-        width: 220,
+        width: 150,
         visible: true,
       },
       {
@@ -577,12 +633,12 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
             </div>
           );
         },
-        width: 100,
+        width: 170,
       },
       {
         title: "Ghi chú nhà cung cấp",
         dataIndex: "supplier_note",
-        width: 100,
+        width: 150,
         visible: true,
         render: (value, item: PurchaseOrder) => {
           return (
@@ -602,7 +658,7 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
           return <div className="txt-muted">{value}</div>;
         },
         visible: true,
-        width: 80,
+        width: 120,
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps

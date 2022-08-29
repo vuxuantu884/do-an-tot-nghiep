@@ -191,7 +191,7 @@ function TabListFilter(props: ProcurementTabListFilterProps) {
             if (filterSupplier)
               return {
                 ...item,
-                valueName: filterSupplier?.map((item: any) => item.pic).toString(),
+                valueName: filterSupplier?.map((item: any) => item.name).toString(),
               };
           }
           const findSupplier = allSupplier?.find((supplier) => +supplier.id === +item.valueId);
