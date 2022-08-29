@@ -1,6 +1,6 @@
 import { Button, Col, Modal, Row, Table } from "antd";
 import imgDefIcon from "assets/img/img-def.svg";
-import { StyledWrapper, ModalWrapper } from "./styles";
+import { ModalWrapper, StyledWrapper } from "./styles";
 import { InventoryTransferDetailItem, LineItem } from "model/inventory/transfer";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
 import NumberFormat from "react-number-format";
@@ -11,6 +11,7 @@ import UrlConfig from "config/url.config";
 import { adjustmentInventoryAction } from "domain/actions/inventory/stock-transfer/stock-transfer.action";
 import { useDispatch } from "react-redux";
 import { useState } from "react";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 type InventoryTransferBalanceModalProps = {
   data: InventoryTransferDetailItem | null;
@@ -38,7 +39,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       title: "Ảnh",
       width: "60px",
       dataIndex: "variant_image",
-      render: (value: string, record: any) => {
+      render: (value: string) => {
         return (
           <div className="product-item-image">
             <img src={value ? value : imgDefIcon} alt="" className="" />
@@ -51,7 +52,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       width: "200px",
       className: "ant-col-info",
       dataIndex: "variant_name",
-      render: (value: string, record: PurchaseOrderLineItem, index: number) => (
+      render: (value: string, record: PurchaseOrderLineItem) => (
         <div>
           <div>
             <div className="product-item-sku">
@@ -74,11 +75,9 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       align: "center",
       width: 100,
       render: (value: string, row: LineItem) => {
-        const text =
-          row.real_quantity - row.transfer_quantity >= 0
-            ? row.real_quantity - row.transfer_quantity
-            : "";
-        return text;
+        return row.real_quantity - row.transfer_quantity >= 0
+          ? row.real_quantity - row.transfer_quantity
+          : "";
       },
     },
     {
@@ -86,11 +85,9 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
       width: 100,
       align: "center",
       render: (value: string, row: LineItem) => {
-        const text =
-          row.real_quantity - row.transfer_quantity < 0
-            ? row.real_quantity - row.transfer_quantity
-            : "";
-        return text;
+        return row.real_quantity - row.transfer_quantity < 0
+          ? row.real_quantity - row.transfer_quantity
+          : "";
       },
     },
     {
@@ -163,9 +160,11 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
             onClick={() => {
               if (data?.id) {
                 setLoading(true);
+                dispatch(showLoading());
                 dispatch(
                   adjustmentInventoryAction(data.id, (result) => {
                     setLoading(false);
+                    dispatch(hideLoading());
                     if (result) {
                       onOk(result);
                     }
@@ -248,7 +247,7 @@ const InventoryTransferBalanceModal: React.FC<InventoryTransferBalanceModalProps
                       <Table.Summary.Cell align={"center"} index={3}>
                         <b>{missingAmount}</b>
                       </Table.Summary.Cell>
-                      <Table.Summary.Cell index={4}></Table.Summary.Cell>
+                      <Table.Summary.Cell index={4} />
                       <Table.Summary.Cell align={"center"} index={6}>
                         <b>
                           <NumberFormat

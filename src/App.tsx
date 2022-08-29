@@ -1,8 +1,9 @@
+import DataDog from "component/DataDog";
 import { BASE_NAME_ROUTER } from "config/url.config";
 import { loadSettingAppAction, loadUserFromStorageAction } from "domain/actions/app.action";
 import { profilePermissionAction } from "domain/actions/auth/permission.action";
 import { RootReducerType } from "model/reducers/RootReducerType";
-import { useEffect, Suspense } from "react";
+import { Suspense, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter } from "react-router-dom";
 import MainRoute from "routes";
@@ -37,6 +38,7 @@ function App() {
     <>
       <BrowserRouter basename={BASE_NAME_ROUTER}>
         <Suspense fallback={<SplashScreen />}>
+          <DataDog />
           <MainRoute />
         </Suspense>
         <GlobalStyle />

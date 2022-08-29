@@ -73,6 +73,7 @@ import { strForSearch } from "utils/StringUtils";
 import { searchVariantsApi } from "service/product/product.service";
 import ModalShowError from "../common/ModalShowError";
 import { HttpStatus } from "config/http-status.config";
+import { hideLoading, showLoading } from "domain/actions/loading.action";
 
 const { Option } = Select;
 
@@ -201,6 +202,7 @@ const UpdateTicket: FC = () => {
 
   const checkCallback = useCallback(
     (result: any) => {
+      dispatch(hideLoading());
       if (result.responseData.code === HttpStatus.SUCCESS) {
         dispatch(creatInventoryTransferAction(result.data, createCallback));
       } else if (result.responseData.code === HttpStatus.BAD_REQUEST) {
@@ -220,6 +222,7 @@ const UpdateTicket: FC = () => {
       store_transfer: dataImport.store_transfer,
       note: dataImport.note,
     };
+    dispatch(showLoading());
     dispatch(checkDuplicateInventoryTransferAction(dataCheck, checkCallback));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -527,12 +530,16 @@ const UpdateTicket: FC = () => {
     (result: InventoryTransferDetailItem) => {
       if (result) {
         setIsLoading(false);
+        dispatch(hideLoading());
         showSuccess("Đổi dữ liệu thành công");
         history.push(`${UrlConfig.INVENTORY_TRANSFERS}/${result.id}`);
       } else {
+        dispatch(hideLoading());
         setIsLoading(false);
+        dispatch(hideLoading());
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [history],
   );
 
@@ -656,9 +663,9 @@ const UpdateTicket: FC = () => {
 
         dataCreate.note = data.note;
         dataCreate.attached_files = data.attached_files;
-        console.log(dataCreate)
         setIsLoading(true);
         if (stateImport && stateImport.isCreateRequest) {
+          dispatch(showLoading());
           dispatch(creatInventoryTransferRequestAction(dataCreate, createCallback));
         } else {
           checkDuplicateRecord(dataCreate);
@@ -698,6 +705,7 @@ const UpdateTicket: FC = () => {
         delete data.to_store_id;
         if (initDataForm) {
           setIsLoading(true);
+          dispatch(showLoading());
           dispatch(updateInventoryTransferAction(initDataForm.id, data, createCallback));
         }
       }
