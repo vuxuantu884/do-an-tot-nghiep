@@ -22,6 +22,11 @@ export const KeyDriverOnlineStyle = styled.div`
     }
   }
 
+  .ant-btn-icon-only.ant-btn-sm:hover {
+    background-color: #f5f5f5 !important;
+    transition: 0.1s;
+  }
+
   .method-cell {
     padding: 0 4px !important;
   }
@@ -29,6 +34,10 @@ export const KeyDriverOnlineStyle = styled.div`
     height: 100%;
     width: 100%;
     cursor: help;
+    // min-height: 30px;
+    display: flex;
+    justify-content: left;
+    align-items: center;
   }
   .method {
     font-size: 12px;
@@ -40,11 +49,11 @@ export const KeyDriverOnlineStyle = styled.div`
 
   .ant-table-cell {
     /* height: 56px; */
-    padding: 0;
+    padding: 8px 4px;
   }
 
   .input-cell {
-    padding: 0 4px !important;
+    padding: 0 1px !important;
   }
 
   .input-number {
@@ -76,6 +85,8 @@ export const KeyDriverOnlineStyle = styled.div`
     .ant-table-row-expand-icon,
     .ant-table-row-expand-icon-expanded {
       margin-right: 10px;
+      margin-left: 4px;
+      margin-top: 0px;
       min-width: 18px;
     }
   }
@@ -92,6 +103,9 @@ export const KeyDriverOnlineStyle = styled.div`
     input {
       background-color: aliceblue !important;
     }
+    .ant-input-affix-wrapper {
+      background-color: aliceblue !important;
+    }
   }
 
   .ant-table-row-level-0 {
@@ -99,11 +113,17 @@ export const KeyDriverOnlineStyle = styled.div`
     input {
       background-color: antiquewhite !important;
     }
+    .ant-input-affix-wrapper {
+      background-color: antiquewhite !important;
+    }
   }
 
   .ant-table-row-level-2 {
     td,
     input {
+      background-color: #fff !important;
+    }
+    .ant-input-affix-wrapper {
       background-color: #fff !important;
     }
   }
@@ -115,7 +135,7 @@ export const KeyDriverOnlineStyle = styled.div`
     .ant-table-row-level-0 {
       td,
       input {
-        background-color: #fff !important;
+        background-color: antiquewhite !important;
       }
     }
   }
