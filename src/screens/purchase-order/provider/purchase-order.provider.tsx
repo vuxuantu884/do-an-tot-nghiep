@@ -71,6 +71,8 @@ type PurchaseOrderCreateAction = {
   procurementsAll: Array<PurchaseProcument[]>;
   setProcurementsAll: React.Dispatch<React.SetStateAction<Array<PurchaseProcument[]>>>;
   procurementTable: Array<ProcurementTable>;
+  setDisabledDate: React.Dispatch<React.SetStateAction<boolean>>;
+  disabledDate: boolean;
   setProcurementTable: React.Dispatch<React.SetStateAction<Array<ProcurementTable>>>;
   handleSetProcurementTableContext: (
     procurements: PurchaseProcument[],
@@ -93,6 +95,7 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
   ]);
   // mode grid or not
   const [isGridMode, setIsGridMode] = useState(true);
+  const [disabledDate, setDisabledDate] = useState<boolean>(false);
 
   // schema cho phần nhập nhanh số lượng line item
   const [poLineItemGridChema, setPoLineItemGridChema] = useState<Array<POLineItemGridSchema>>([]);
@@ -316,6 +319,8 @@ function PurchaseOrderProvider(props: { children: ReactNode }) {
         handleSetProcurementTableContext,
         handleChangeProcument,
         handleSortProcurements,
+        disabledDate,
+        setDisabledDate,
       }}
     />
   );

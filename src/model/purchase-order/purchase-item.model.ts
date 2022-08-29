@@ -38,6 +38,7 @@ export interface PurchaseOrderLineItem {
   color: number;
   variant_prices: Array<VariantPricesResponse>;
   new_retail_price?: number;
+  product_name?: string;
 }
 export interface PurchaseOrderLineReturnItem extends PurchaseOrderLineItem {
   quantity_return: number;

@@ -54,6 +54,8 @@ export const PoWareHouse = (props: IProps) => {
     procurementTable,
     setProcurementTable,
     handleSetProcurementTableContext,
+    disabledDate,
+    setDisabledDate,
   } = useContext(PurchaseOrderCreateContext);
   const [columns, setColumns] = useState<Array<ICustomTableColumType<any>>>([]);
   const [expectReceiptDates, setExpectReceiptDates] = useState<Array<IExpectReceiptDates>>([]);
@@ -150,44 +152,51 @@ export const PoWareHouse = (props: IProps) => {
     async (index: number, value?: string) => {
       // if (!value) return;
       const dataCheckDate = expectReceiptDates.map((item) => item.date);
-      if (dataCheckDate.includes(value || "") && value) {
-        expectReceiptDates[index].date = "";
-        formMain?.setFieldsValue({
-          ["expectedDate" + index]: undefined,
-        });
-        setExpectReceiptDates([...expectReceiptDates]);
-        showError(`Ngày dự kiến ${value} đã tồn tại`);
-        return;
-      }
-      const monthChange =
-        new Date(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY)).getMonth() + 1;
-      const datePercents =
-        ((await callApiNative({ isShowLoading: false }, dispatch, getPercentMonth, {
-          month: monthChange || new Date(Date.now()).getMonth() + 1,
-        })) as PercentDate[]) || [];
-      expectReceiptDates[index].date = value || "";
-      const procurements: PurchaseProcument[] = (
-        formMain?.getFieldValue(POField.procurements) as PurchaseProcument[]
-      ).map((procurement) => {
-        if (procurement.uuid === expectReceiptDates[index].uuid) {
-          const expectReceiptDate = value
-            ? ConvertDateToUtc(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY))
-            : "";
-          const findStore = datePercents?.findIndex(
-            (item) => item.store_id === procurement.store_id,
-          );
+      try {
+        if (dataCheckDate.includes(value || "") && value) {
+          expectReceiptDates[index].date = "";
+          formMain?.setFieldsValue({
+            ["expectedDate" + index]: undefined,
+          });
+          setExpectReceiptDates([...expectReceiptDates]);
+          showError(`Ngày dự kiến ${value} đã tồn tại`);
+          return;
+        }
+        setDisabledDate(true);
+        const monthChange =
+          new Date(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY)).getMonth() +
+          1;
+        const datePercents =
+          ((await callApiNative({ isShowLoading: false }, dispatch, getPercentMonth, {
+            month: monthChange || new Date(Date.now()).getMonth() + 1,
+          })) as PercentDate[]) || [];
+        expectReceiptDates[index].date = value || "";
+        const procurements: PurchaseProcument[] = (
+          formMain?.getFieldValue(POField.procurements) as PurchaseProcument[]
+        ).map((procurement) => {
+          if (procurement.uuid === expectReceiptDates[index].uuid) {
+            const expectReceiptDate = value
+              ? ConvertDateToUtc(moment(value, DATE_FORMAT.DDMMYYY).format(DATE_FORMAT.MM_DD_YYYY))
+              : "";
+            const findStore = datePercents?.findIndex(
+              (item) => item.store_id === procurement.store_id,
+            );
+            return {
+              ...procurement,
+              percent: findStore >= 0 ? datePercents[findStore].percent : procurement.percent,
+              expect_receipt_date: expectReceiptDate,
+            };
+          }
           return {
             ...procurement,
-            percent: findStore >= 0 ? datePercents[findStore].percent : procurement.percent,
-            expect_receipt_date: expectReceiptDate,
           };
-        }
-        return {
-          ...procurement,
-        };
-      });
-      formMain?.setFieldsValue({ procurements });
-      setExpectReceiptDates([...expectReceiptDates]);
+        });
+        formMain?.setFieldsValue({ procurements });
+        setExpectReceiptDates([...expectReceiptDates]);
+        setDisabledDate(false);
+      } catch {
+        setDisabledDate(false);
+      }
     },
     [expectReceiptDates, formMain],
   );
@@ -226,53 +235,77 @@ export const PoWareHouse = (props: IProps) => {
   const onAddExpectedDate = async () => {
     // if (procurementsAll.length > 0) {
     if (!expectReceiptDates.every((date) => date.date)) return;
-    const uuid = uuidv4();
-    expectReceiptDates.push({
-      status: ProcurementStatus.draft,
-      isAdd: true,
-      uuid,
-      date: "",
-    });
-    formMain?.setFieldsValue({
-      ["expectedDate" + (expectReceiptDates.length - 1)]: "",
-    });
-    setExpectReceiptDates([...expectReceiptDates]);
-    handleSetRadio(expectReceiptDates);
-    const datePercents = await callApiNative({ isShowLoading: false }, dispatch, getPercentMonth, {
-      month: new Date(Date.now()).getMonth() + 1,
-    });
-    // số store trả về
-    const procurementItems = formMain?.getFieldValue(
-      POField.line_items,
-    ) as PurchaseProcumentLineItem[];
-    const procurements: PurchaseProcument[] = formMain?.getFieldValue(
-      POField.procurements,
-    ) as PurchaseProcument[];
-    const procurementAddDefault: PurchaseProcument[] = datePercents.map((datePercent: any) => {
-      const uuidProcurement = uuidv4();
-      const procurement_items = procurementItems.map((procurementItem) => {
-        const uuid2 = uuidv4();
-        const procurementItemIndex = procurements?.length
-          ? procurements[0].procurement_items.findIndex((item) => item.sku === procurementItem.sku)
-          : -1;
-        const indexProcurementTable = procurementTable.findIndex(
-          (item) => item.sku === procurementItem.sku,
-        );
-        const totalQuantity =
-          procurementTable[indexProcurementTable]?.plannedQuantities.reduce(
-            (total, quantity) => (total || 0) + (quantity || 0),
-            0,
-          ) || 0;
-        const planned_quantity =
-          totalQuantity >= procurementItem.quantity
-            ? 0
-            : Math.floor(
-                ((procurementItem.quantity - totalQuantity) * (datePercent.percent || 0)) / 100,
-              );
+    try {
+      setDisabledDate(true);
+      const uuid = uuidv4();
+      expectReceiptDates.push({
+        status: ProcurementStatus.draft,
+        isAdd: true,
+        uuid,
+        date: "",
+      });
+      formMain?.setFieldsValue({
+        ["expectedDate" + (expectReceiptDates.length - 1)]: "",
+      });
+      setExpectReceiptDates([...expectReceiptDates]);
+      handleSetRadio(expectReceiptDates);
+      const datePercents = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        getPercentMonth,
+        {
+          month: new Date(Date.now()).getMonth() + 1,
+        },
+      );
+      // số store trả về
+      const procurementItems = formMain?.getFieldValue(
+        POField.line_items,
+      ) as PurchaseProcumentLineItem[];
+      const procurements: PurchaseProcument[] = formMain?.getFieldValue(
+        POField.procurements,
+      ) as PurchaseProcument[];
+      const procurementAddDefault: PurchaseProcument[] = datePercents.map((datePercent: any) => {
+        const uuidProcurement = uuidv4();
+        const procurement_items = procurementItems.map((procurementItem) => {
+          const uuid2 = uuidv4();
+          const procurementItemIndex = procurements?.length
+            ? procurements[0].procurement_items.findIndex(
+                (item) => item.sku === procurementItem.sku,
+              )
+            : -1;
+          const indexProcurementTable = procurementTable.findIndex(
+            (item) => item.sku === procurementItem.sku,
+          );
+          const totalQuantity =
+            procurementTable[indexProcurementTable]?.plannedQuantities.reduce(
+              (total, quantity) => (total || 0) + (quantity || 0),
+              0,
+            ) || 0;
+          const planned_quantity =
+            totalQuantity >= procurementItem.quantity
+              ? 0
+              : Math.round(
+                  ((procurementItem.quantity - totalQuantity) * (datePercent.percent || 0)) / 100,
+                );
 
-        if (procurementItemIndex === -1) {
+          if (procurementItemIndex === -1) {
+            return {
+              ...procurementItem,
+              quantity: planned_quantity,
+              id: uuid2,
+              planned_quantity: planned_quantity,
+              ordered_quantity: 0,
+              accepted_quantity: 0,
+              real_quantity: 0,
+              stock_in_by: "",
+              stock_in_date: "",
+              activated_by: "",
+              activated_date: "",
+              totalPlannedQuantities: procurementItem.quantity - totalQuantity,
+            };
+          }
           return {
-            ...procurementItem,
+            ...procurements[0].procurement_items[procurementItemIndex],
             quantity: planned_quantity,
             id: uuid2,
             planned_quantity: planned_quantity,
@@ -285,77 +318,65 @@ export const PoWareHouse = (props: IProps) => {
             activated_date: "",
             totalPlannedQuantities: procurementItem.quantity - totalQuantity,
           };
-        }
+        });
         return {
-          ...procurements[0].procurement_items[procurementItemIndex],
-          quantity: planned_quantity,
-          id: uuid2,
-          planned_quantity: planned_quantity,
-          ordered_quantity: 0,
-          accepted_quantity: 0,
-          real_quantity: 0,
+          id: uuidProcurement,
+          uuid,
+          is_cancelled: false,
+          created_date: ConvertDateToUtc(new Date(Date.now())) as any,
+          updated_date: ConvertDateToUtc(new Date(Date.now())) as any,
+          expect_receipt_date: "",
+          procurement_items,
+          code: "",
+          percent: datePercent.percent || 0,
+          status: ProcurementStatus.draft,
+          // sotre
+          store_short_name: datePercent?.store_name || "",
+          store: datePercent?.store_name || "",
+          store_id: datePercent?.store_id,
           stock_in_by: "",
           stock_in_date: "",
           activated_by: "",
           activated_date: "",
-          totalPlannedQuantities: procurementItem.quantity - totalQuantity,
         };
       });
-      return {
-        id: uuidProcurement,
-        uuid,
-        is_cancelled: false,
-        created_date: ConvertDateToUtc(new Date(Date.now())) as any,
-        updated_date: ConvertDateToUtc(new Date(Date.now())) as any,
-        expect_receipt_date: "",
-        procurement_items,
-        code: "",
-        percent: datePercent.percent || 0,
-        status: ProcurementStatus.draft,
-        // sotre
-        store_short_name: datePercent?.store_name || "",
-        store: datePercent?.store_name || "",
-        store_id: datePercent?.store_id,
-        stock_in_by: "",
-        stock_in_date: "",
-        activated_by: "",
-        activated_date: "",
-      };
-    });
-    const procurementAddDefaultAll = procurementAddDefault.reduce(
-      (acc, val) => acc.concat(val.procurement_items),
-      [] as PurchaseProcumentLineItem[],
-    );
-    procurementItems.forEach((procurementItem) => {
-      const procurementItemFilter = procurementAddDefaultAll.filter(
-        (item) => item.sku === procurementItem.sku,
+      const procurementAddDefaultAll = procurementAddDefault.reduce(
+        (acc, val) => acc.concat(val.procurement_items),
+        [] as PurchaseProcumentLineItem[],
       );
-      const totalPlannedQuantitiesProcument = procurementItemFilter.reduce(
-        (total, ele) => total + ele.planned_quantity,
-        0,
-      );
-      //@ts-ignore
-      const totalPlannedQuantities = procurementItemFilter[0].totalPlannedQuantities;
-      if (totalPlannedQuantities - totalPlannedQuantitiesProcument > 0) {
-        const indexProcumentItem = procurementAddDefault[0].procurement_items.findIndex(
+      procurementItems.forEach((procurementItem) => {
+        const procurementItemFilter = procurementAddDefaultAll.filter(
           (item) => item.sku === procurementItem.sku,
         );
-        procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity =
-          procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity +
-          (totalPlannedQuantities - totalPlannedQuantitiesProcument);
-        procurementAddDefault[0].procurement_items[indexProcumentItem].quantity =
-          procurementAddDefault[0].procurement_items[indexProcumentItem].quantity +
-          (totalPlannedQuantities - totalPlannedQuantitiesProcument);
-      }
-    });
-    procurementAddDefault.forEach((item: Partial<PurchaseProcument>) => {
-      procurements.push({ ...item } as PurchaseProcument);
-    });
-    console.log("procurementAddDefault", procurementAddDefault);
-    console.log("procurements", procurements);
+        const totalPlannedQuantitiesProcument = procurementItemFilter.reduce(
+          (total, ele) => total + ele.planned_quantity,
+          0,
+        );
+        //@ts-ignore
+        const totalPlannedQuantities = procurementItemFilter[0].totalPlannedQuantities;
+        const planned_quantity = totalPlannedQuantities - totalPlannedQuantitiesProcument;
+        if (planned_quantity !== 0) {
+          const indexProcumentItem = procurementAddDefault[0].procurement_items.findIndex(
+            (item) => item.sku === procurementItem.sku,
+          );
+          procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity =
+            procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity +
+            planned_quantity;
+          procurementAddDefault[0].procurement_items[indexProcumentItem].quantity =
+            procurementAddDefault[0].procurement_items[indexProcumentItem].quantity +
+            planned_quantity;
+        }
+      });
+      procurementAddDefault.forEach((item: Partial<PurchaseProcument>) => {
+        procurements.push({ ...item } as PurchaseProcument);
+      });
+      formMain?.setFieldsValue({ procurements });
+      handleSetProcurementTableByExpectedDate(procurements);
+      setDisabledDate(false);
+    } catch {
+      setDisabledDate(false);
+    }
 
-    formMain?.setFieldsValue({ procurements });
-    handleSetProcurementTableByExpectedDate(procurements);
     // }
   };
 
@@ -433,6 +454,7 @@ export const PoWareHouse = (props: IProps) => {
                 format={DATE_FORMAT.DDMMYYY}
                 style={{ width: "100%" }}
                 placeholder="Ngày nhận dự kiến"
+                disabled={disabledDate}
                 onChange={(value) => {
                   onChangeExpectedDate(index, value);
                 }}
@@ -486,6 +508,7 @@ export const PoWareHouse = (props: IProps) => {
       expectReceiptDates,
       isEditDetail,
       purchaseOrder,
+      disabledDate,
       formMain?.getFieldValue(POField.procurements),
     ],
   );

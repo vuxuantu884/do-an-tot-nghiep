@@ -195,6 +195,7 @@ const PODetailScreen: React.FC = () => {
     setProcurementsAll,
     handleSetProcurementTableContext,
     handleSortProcurements,
+    disabledDate,
   } = useContext(PurchaseOrderCreateContext);
 
   const SUPPLEMENT_PANEL_KEY = "supplement";
@@ -374,7 +375,11 @@ const PODetailScreen: React.FC = () => {
           (acc, ele) => acc.concat(ele.procurement_items),
           [] as PurchaseProcumentLineItem[],
         );
-        if (!procurementItemsAll.some((item: PurchaseProcumentLineItem) => item.planned_quantity)) {
+
+        if (
+          !procurementItemsAll.some((item: PurchaseProcumentLineItem) => item.planned_quantity) &&
+          procurementAll.some((item) => item.status === ProcumentStatus.DRAFT)
+        ) {
           throw new Error("Vui lòng nhập số lượng cho ít nhất 1 ngày dự kiến");
         }
         const totalPercent = procurementAll.reduce((acc, ele) => acc + (ele?.percent || 0), 0);
@@ -481,6 +486,7 @@ const PODetailScreen: React.FC = () => {
       currentLineItem.current = [];
     }
   };
+
   const onAddProcumentSuccess = useCallback(
     (isSuggest) => {
       loadDetail(idNumber, true, isSuggest);
@@ -916,6 +922,7 @@ const PODetailScreen: React.FC = () => {
                   className="create-button-custom ant-btn-outline"
                   ghost
                   icon={!isEditDetail && <EditOutlined />}
+                  disabled={disabledDate}
                   onClick={() => {
                     if (isEditDetail) {
                       statusAction.current = POStatus.DRAFT;
@@ -933,6 +940,7 @@ const PODetailScreen: React.FC = () => {
                   type="primary"
                   onClick={() => handleChangeStatusPO(POStatus.WAITING_APPROVAL)}
                   className="create-button-custom"
+                  disabled={disabledDate}
                 >
                   {isEditDetail ? "Lưu và chờ duyệt" : "Chờ duyệt"}
                 </Button>
@@ -956,6 +964,7 @@ const PODetailScreen: React.FC = () => {
                       setIsEditDetail(!isEditDetail);
                     }
                   }}
+                  disabled={disabledDate}
                 >
                   {isEditDetail ? "Lưu" : "Chỉnh sửa"}
                 </Button>
@@ -966,6 +975,7 @@ const PODetailScreen: React.FC = () => {
                   type="primary"
                   onClick={() => handleChangeStatusPO(POStatus.FINALIZED)}
                   className="create-button-custom"
+                  disabled={disabledDate}
                 >
                   {isEditDetail ? "Lưu và duyệt" : "Duyệt"}
                 </Button>
@@ -983,6 +993,7 @@ const PODetailScreen: React.FC = () => {
                 className="create-button-custom ant-btn-outline"
                 ghost
                 icon={!isEditDetail && <EditOutlined />}
+                disabled={disabledDate}
                 onClick={() => {
                   if (isEditDetail) {
                     statusAction.current = status;

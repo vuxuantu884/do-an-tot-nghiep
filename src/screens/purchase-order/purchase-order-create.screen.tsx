@@ -28,6 +28,7 @@ import {
 } from "model/purchase-order/purchase-item.model";
 import {
   PODataSourceGrid,
+  PODataSourceProduct,
   POExpectedDate,
   PurchaseOrder,
 } from "model/purchase-order/purchase-order.model";
@@ -248,10 +249,13 @@ const POCreateScreen: React.FC = () => {
             if (index >= 0) {
               const totalQuantity = data.expectedDate.reduce((acc, ele) => acc + ele.value, 0);
               if (totalQuantity > (data?.quantity || 0)) {
-                let element: any = document.querySelector(`[data-row-key=${data.sku}]`);
-                element?.focus();
-                const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
-                window.scrollTo({ top: y, behavior: "smooth" });
+                if (typeof Number(data.sku) === "string") {
+                  let element: any = document?.querySelector(`[data-row-key=${data.sku}]`);
+                  element?.focus();
+                  const y = element?.getBoundingClientRect()?.top + window.pageYOffset + -250;
+                  window.scrollTo({ top: y, behavior: "smooth" });
+                }
+
                 throw new Error(
                   `Số lượng hàng về dự kiến sản phẩm ${data.sku} nhiều hơn số lượng đặt hàng`,
                 );
@@ -389,7 +393,7 @@ const POCreateScreen: React.FC = () => {
               });
             });
             // nhập data phần nhập kho
-            const dataSourceGrid: PODataSourceGrid[] = [];
+            const dataSourceGrid: PODataSourceProduct[] = [];
             procurements = handleSortProcurements(data.procurements);
             const procurementsGroupByExpectedDate = groupBy(
               procurements,
@@ -404,12 +408,12 @@ const POCreateScreen: React.FC = () => {
                   ["expectedDate" + indexProcurements]: expect_receipt_date,
                 });
                 if (procurementAll.length > 0 && procurementAll[0].length > 0) {
-                  procurementAll[0][0].procurement_items.forEach((procurementItem) => {
+                  line_items.forEach((procurementItem) => {
                     const indexDataSourceGrid = dataSourceGrid.findIndex(
-                      (item) => item.variant_id === procurementItem.variant_id,
+                      (item) => item.sku === procurementItem.sku,
                     );
                     const indexLineItem = data.line_items.findIndex(
-                      (item) => item.variant_id === procurementItem.variant_id,
+                      (item) => item.sku === procurementItem.sku,
                     );
                     const totalQuantity = data.procurements
                       .filter((item) => item.expect_receipt_date === date)
@@ -417,7 +421,7 @@ const POCreateScreen: React.FC = () => {
                         (acc, item) => acc.concat(item.procurement_items),
                         [] as PurchaseProcumentLineItem[],
                       )
-                      .filter((item) => item.variant_id === procurementItem.variant_id)
+                      .filter((item) => item.sku === procurementItem.sku)
                       .reduce((total, element) => total + element.quantity, 0);
 
                     if (indexDataSourceGrid === -1) {
@@ -430,25 +434,15 @@ const POCreateScreen: React.FC = () => {
                       const dataSourceGridItem: PODataSourceGrid = {
                         ...(procurementItem as any),
                         variantId: procurementItem.variant_id,
-                        // @ts-ignore
                         productId: procurementItem?.product_id,
-                        // @ts-ignore
-                        sku: (procurementItem.sku as string) || "",
-                        // @ts-ignore
+                        sku: procurementItem.sku || "",
                         retail_price: procurementItem.retail_price as number,
-                        // @ts-ignore
                         price: procurementItem.price,
-                        // @ts-ignore
                         barcode: procurementItem.barcode,
-                        // @ts-ignore
                         variant_images: procurementItem.variant_image,
-                        // @ts-ignore
-                        product_name: procurementItem.product_name,
-                        // @ts-ignore
+                        product_name: procurementItem?.product_name || "",
                         variant: procurementItem.variant,
-                        // @ts-ignore
                         variant_image: procurementItem.variant_image || "",
-                        // @ts-ignore
                         note: procurementItem.note || "",
                         expectedDate: [expectedDate],
                         quantity: data.line_items[indexLineItem]?.quantity,
@@ -475,7 +469,7 @@ const POCreateScreen: React.FC = () => {
               },
             );
             setExpectedDate(dataExpectedDate);
-            setProcurementTableData(dataSourceGrid);
+            setProcurementTableData(dataSourceGrid as PODataSourceGrid[]);
             const params = {
               ...data,
               line_items,

@@ -205,8 +205,7 @@ export const PoSplitGoods = (props: IProps) => {
       (item) => moment(item.expect_receipt_date).format(DATE_FORMAT.DDMMYYY) === dateOption,
     );
     const status = dateSelected[dateIndex]?.status;
-    console.log("status", status);
-    moment(dateSelected[0]?.expect_receipt_date).format("DD/MM/YYYY");
+    moment(dateSelected[0]?.expect_receipt_date).format(DATE_FORMAT.DDMMYYY);
     dataStore.forEach((store, indexStore) => {
       columns.push({
         title: () => {
@@ -243,19 +242,19 @@ export const PoSplitGoods = (props: IProps) => {
         width: width,
         render: (value, row) => {
           const planned_quantity = row.procurement_items
-            ? row.procurement_items[indexStore].planned_quantity
+            ? row.procurement_items[indexStore]?.planned_quantity
             : 0;
           const accepted_quantity = row.procurement_items
-            ? row.procurement_items[indexStore].accepted_quantity
+            ? row.procurement_items[indexStore]?.accepted_quantity
             : 0;
           const real_quantity = row.procurement_items
-            ? row.procurement_items[indexStore].real_quantity
+            ? row.procurement_items[indexStore]?.real_quantity
             : 0;
           return (
             <>
               {isEditDetail &&
               row.procurement_items &&
-              row.procurement_items[indexStore].status === ProcurementStatus.draft ? (
+              row.procurement_items[indexStore]?.status === ProcurementStatus.draft ? (
                 <NumberInput
                   min={0}
                   value={planned_quantity}
