@@ -408,58 +408,60 @@ const POCreateScreen: React.FC = () => {
                   ["expectedDate" + indexProcurements]: expect_receipt_date,
                 });
                 if (procurementAll.length > 0 && procurementAll[0].length > 0) {
-                  line_items.forEach((procurementItem) => {
-                    const indexDataSourceGrid = dataSourceGrid.findIndex(
-                      (item) => item.sku === procurementItem.sku,
-                    );
-                    const indexLineItem = data.line_items.findIndex(
-                      (item) => item.sku === procurementItem.sku,
-                    );
-                    const totalQuantity = data.procurements
-                      .filter((item) => item.expect_receipt_date === date)
-                      .reduce(
-                        (acc, item) => acc.concat(item.procurement_items),
-                        [] as PurchaseProcumentLineItem[],
-                      )
-                      .filter((item) => item.sku === procurementItem.sku)
-                      .reduce((total, element) => total + element.quantity, 0);
+                  line_items
+                    .filter((item) => item.type !== POLineItemType.SUPPLEMENT)
+                    .forEach((procurementItem) => {
+                      const indexDataSourceGrid = dataSourceGrid.findIndex(
+                        (item) => item.sku === procurementItem.sku,
+                      );
+                      const indexLineItem = data.line_items.findIndex(
+                        (item) => item.sku === procurementItem.sku,
+                      );
+                      const totalQuantity = data.procurements
+                        .filter((item) => item.expect_receipt_date === date)
+                        .reduce(
+                          (acc, item) => acc.concat(item.procurement_items),
+                          [] as PurchaseProcumentLineItem[],
+                        )
+                        .filter((item) => item.sku === procurementItem.sku)
+                        .reduce((total, element) => total + element.quantity, 0);
 
-                    if (indexDataSourceGrid === -1) {
-                      const expectedDate: POExpectedDate = {
-                        date: expect_receipt_date,
-                        value: totalQuantity,
-                        option: EnumOptionValueOrPercent.PERCENT,
-                      };
+                      if (indexDataSourceGrid === -1) {
+                        const expectedDate: POExpectedDate = {
+                          date: expect_receipt_date,
+                          value: totalQuantity,
+                          option: EnumOptionValueOrPercent.PERCENT,
+                        };
 
-                      const dataSourceGridItem: PODataSourceGrid = {
-                        ...(procurementItem as any),
-                        variantId: procurementItem.variant_id,
-                        productId: procurementItem?.product_id,
-                        sku: procurementItem.sku || "",
-                        retail_price: procurementItem.retail_price as number,
-                        price: procurementItem.price,
-                        barcode: procurementItem.barcode,
-                        variant_images: procurementItem.variant_image,
-                        product_name: procurementItem?.product_name || "",
-                        variant: procurementItem.variant,
-                        variant_image: procurementItem.variant_image || "",
-                        note: procurementItem.note || "",
-                        expectedDate: [expectedDate],
-                        quantity: data.line_items[indexLineItem]?.quantity,
-                      };
-                      dataSourceGrid.push(dataSourceGridItem);
-                    } else {
-                      const expectedDate: POExpectedDate = {
-                        date: expect_receipt_date,
-                        value: totalQuantity,
-                        option: EnumOptionValueOrPercent.PERCENT,
-                      };
-                      dataSourceGrid[indexDataSourceGrid].expectedDate = [
-                        ...dataSourceGrid[indexDataSourceGrid].expectedDate,
-                        expectedDate,
-                      ];
-                    }
-                  });
+                        const dataSourceGridItem: PODataSourceGrid = {
+                          ...(procurementItem as any),
+                          variantId: procurementItem.variant_id,
+                          productId: procurementItem?.product_id,
+                          sku: procurementItem.sku || "",
+                          retail_price: procurementItem.retail_price as number,
+                          price: procurementItem.price,
+                          barcode: procurementItem.barcode,
+                          variant_images: procurementItem.variant_image,
+                          product_name: procurementItem?.product_name || "",
+                          variant: procurementItem.variant,
+                          variant_image: procurementItem.variant_image || "",
+                          note: procurementItem.note || "",
+                          expectedDate: [expectedDate],
+                          quantity: data.line_items[indexLineItem]?.quantity,
+                        };
+                        dataSourceGrid.push(dataSourceGridItem);
+                      } else {
+                        const expectedDate: POExpectedDate = {
+                          date: expect_receipt_date,
+                          value: totalQuantity,
+                          option: EnumOptionValueOrPercent.PERCENT,
+                        };
+                        dataSourceGrid[indexDataSourceGrid].expectedDate = [
+                          ...dataSourceGrid[indexDataSourceGrid].expectedDate,
+                          expectedDate,
+                        ];
+                      }
+                    });
                 }
                 return {
                   date: expect_receipt_date,
