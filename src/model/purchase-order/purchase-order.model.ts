@@ -223,6 +223,7 @@ export interface PODataSourceProduct {
   productName: string;
   color_code: string;
   color: string;
+  sku: string;
   lineItemPrice?: number; // Giá nhập dùng chung cho 1 màu (nhiều size)
   schemaIndex: number;
   quantity?: number | string;

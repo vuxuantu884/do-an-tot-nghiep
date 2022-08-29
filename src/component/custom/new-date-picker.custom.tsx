@@ -18,6 +18,7 @@ type CustomDatePickerProps = {
   renderExtraFooter?: () => JSX.Element;
   getPopupContainer?: (node: HTMLElement) => HTMLElement;
   id?: string;
+  disabled?: boolean;
 };
 
 const CustomDatePicker: React.FC<CustomDatePickerProps> = (props: CustomDatePickerProps) => {
@@ -31,6 +32,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = (props: CustomDatePick
     showToday = true,
     getPopupContainer,
     id,
+    disabled,
   } = props;
   return (
     <DatePicker
@@ -50,6 +52,7 @@ const CustomDatePicker: React.FC<CustomDatePickerProps> = (props: CustomDatePick
       renderExtraFooter={renderExtraFooter}
       getPopupContainer={getPopupContainer}
       id={id}
+      disabled={disabled}
     />
   );
 };
