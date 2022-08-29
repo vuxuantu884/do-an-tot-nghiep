@@ -43,7 +43,7 @@ function ProductInfo(props: PropTypes) {
       title: () => (
         <div>
           <span style={{ color: "#222222" }}>Đơn giá</span>
-          {/* <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span> */}
+          <span style={{ color: "#808080", marginLeft: "6px", fontWeight: 400 }}>₫</span>
         </div>
       ),
       align: "center",
@@ -110,7 +110,10 @@ function ProductInfo(props: PropTypes) {
           sticky
         />
         <Row style={{ margin: "0px" }} className="boxPayment" gutter={24}>
-          <span style={{ width: "30%", padding: "8px" }} className="font-size-text">
+          <span
+            style={{ width: "30%", padding: "8px", fontWeight: "bold" }}
+            className="font-size-text"
+          >
             Tổng:
           </span>
 

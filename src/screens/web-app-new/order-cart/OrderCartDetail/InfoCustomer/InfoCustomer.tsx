@@ -40,7 +40,7 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
                 lineHeight: "40px",
               }}
             >
-              <span style={{ marginRight: "5px" }}>Trạng thái sử dụng</span>
+              <span style={{ marginRight: "5px" }}>Trạng thái sử dụng:</span>
               {!!customerDetail?.status && (
                 <span className="text-error">
                   <span
@@ -84,6 +84,7 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
                   to={`${UrlConfig.ORDER}?search_term=${customerDetail?.phone}`}
                   className="customer-detail-text"
                   target="_blank"
+                  style={{ color: "#11006F" }}
                 >
                   {customerDetail?.phone}
                 </Link>
@@ -120,10 +121,14 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
                   {customerDetail?.gender === "male" ? "nam" : "nữ"}
                 </span>
               </Space>
-              <Space style={{ width: "20%" }} className="customer-detail-point">
+              <Space style={{ width: "20%", color: "#71767B" }} className="customer-detail-point">
                 <span className="customer-detail-text">
                   Email:
-                  <Typography.Text type="success" style={{ marginLeft: "5px" }} strong>
+                  <Typography.Text
+                    type="success"
+                    style={{ marginLeft: "5px", color: "#222222" }}
+                    strong
+                  >
                     {customerDetail?.email}
                   </Typography.Text>
                 </span>
@@ -174,43 +179,6 @@ const InfoCustomer: React.FC<CustomerCardUpdateProps> = (props: CustomerCardUpda
                                 return;
                               }
                             })}
-                        </span>
-                      </div>
-                    </Col>
-                  </Row>
-
-                  <Row
-                    gutter={24}
-                    hidden={customerDetail?.shipping_address?.second_phone ? false : true}
-                  >
-                    <Col
-                      xs={24}
-                      style={{
-                        paddingTop: "14px",
-                      }}
-                      className="font-weight-500 customer-info-left"
-                    >
-                      <div className="title-address">
-                        {/* <img
-                        src={addressIcon}
-                        alt=""
-                        style={{
-                          width: "24px",
-                          height: "24px",
-                          marginRight: "10px",
-                        }}
-                      /> */}
-                        <PhoneOutlined
-                          style={{
-                            width: "24px",
-                            height: "24px",
-                            marginRight: "10px",
-                          }}
-                        />
-                        Số điện thoại phụ:
-                        <span style={{ fontWeight: 400, marginLeft: "10px" }}>
-                          {/* {props.OrderDetail?.shipping_address?.name} - {" "} */}
-                          {customerDetail?.shipping_address?.second_phone}
                         </span>
                       </div>
                     </Col>

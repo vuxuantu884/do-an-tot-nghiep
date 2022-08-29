@@ -48,7 +48,7 @@ const OrderCartDetail = (props: PropTypes) => {
     <OrderCartDetailWrapper>
       <ContentContainer
         isLoading={isLoading}
-        title="Danh sách giỏ hàng"
+        title="Chi tiết giỏ hàng"
         breadcrumb={[
           {
             name: "Web/App",
