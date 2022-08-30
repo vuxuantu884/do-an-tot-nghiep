@@ -34,7 +34,7 @@ export interface ExportProductResponse extends BaseObject {
 export interface ImportRequest {
   url?: string;
   conditions?: string;
-  type: string;
+  type?: string;
   store_ids?: string;
   remain?: string;
 }

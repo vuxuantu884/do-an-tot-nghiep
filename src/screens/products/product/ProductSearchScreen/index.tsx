@@ -81,8 +81,8 @@ const ListProductScreen: React.FC = () => {
   }, [path, canReadHistories, canReadVariants, canReadProducts, history]);
 
   const onTogglePickManyModal = useCallback(() => {
-    setVisiblePickManyModal(!visiblePickManyModal);
-  }, [visiblePickManyModal]);
+    history.push(`${UrlConfig.PRODUCT}/barcode`);
+  }, []);
 
   const defaultTabs = useMemo(() => {
     return [

@@ -386,8 +386,8 @@ const PurchaseOrderListScreen: React.FC<PurchaseOrderListScreenProps> = (
               textFinanceStatus = "Đã thanh toán";
               break;
             default:
-              financeProcessIcon = iconPo3;
-              textFinanceStatus = "Chưa thanh toán";
+              processIcon = iconPo3;
+              textProcurementStatus = "Chưa nhập kho";
               break;
           }
 
