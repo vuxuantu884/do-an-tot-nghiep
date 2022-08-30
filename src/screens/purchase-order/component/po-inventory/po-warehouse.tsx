@@ -10,7 +10,7 @@ import { ICustomTableColumType } from "component/table/CustomTable";
 import { groupBy } from "lodash";
 import { ProcurementLineItemField } from "model/procurement/field";
 import { POField } from "model/purchase-order/po-field";
-import { POLineItemType, PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
+import { PurchaseOrderLineItem } from "model/purchase-order/purchase-item.model";
 import { ProcurementTable, PurchaseOrder } from "model/purchase-order/purchase-order.model";
 import {
   PercentDate,
@@ -359,12 +359,17 @@ export const PoWareHouse = (props: IProps) => {
           const indexProcumentItem = procurementAddDefault[0].procurement_items.findIndex(
             (item) => item.sku === procurementItem.sku,
           );
-          procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity =
+          const checkPlannedQuantity =
             procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity +
             planned_quantity;
-          procurementAddDefault[0].procurement_items[indexProcumentItem].quantity =
+          const checkQuantity =
             procurementAddDefault[0].procurement_items[indexProcumentItem].quantity +
             planned_quantity;
+
+          procurementAddDefault[0].procurement_items[indexProcumentItem].planned_quantity =
+            checkPlannedQuantity >= 0 ? checkPlannedQuantity : 0;
+          procurementAddDefault[0].procurement_items[indexProcumentItem].quantity =
+            checkQuantity >= 0 ? checkQuantity : 0;
         }
       });
       procurementAddDefault.forEach((item: Partial<PurchaseProcument>) => {
