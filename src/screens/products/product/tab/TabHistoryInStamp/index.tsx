@@ -181,15 +181,13 @@ const TabHistoryInStamp: React.FC<IProps> = (props) => {
     [dispatch, getDataPrintHistories],
   );
   const actionsDefault: Array<MenuAction> = useMemo(() => {
-    const disabled = !(selected && selected.length > 0);
     return [
       {
         id: ACTIONS_INDEX.PRINT_BAR_CODE,
         name: "In mã vạch",
-        disabled,
       },
     ];
-  }, [selected]);
+  }, []);
   const [canPrintBarcode] = useAuthorization({
     acceptPermissions: [ProductPermission.print_temp],
   });

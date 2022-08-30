@@ -7,8 +7,38 @@ const OrdersSync = React.lazy(() => import("screens/web-app-new/order-sync/Order
 const WebAppOrders = React.lazy(() => import("screens/web-app-new/orders/Orders"));
 const WebAppProducts = React.lazy(() => import("screens/web-app-new/products/products"));
 const WebAppConfig = React.lazy(() => import("screens/web-app-new/shops/Shops"));
+const OrderCartList = React.lazy(
+  () => import("screens/web-app-new/order-cart/OrderCartList/OrderCartList"),
+);
+const OrderCartDetail = React.lazy(
+  () => import("screens/web-app-new/order-cart/OrderCartDetail/OrderCartDetail"),
+);
 
 const webAppRoute: Array<RouteMenu> = [
+  {
+    path: `${UrlConfig.WEB_APP}-cart`,
+    exact: true,
+    title: "Danh sách giỏ hàng",
+    icon: "icon-dot",
+    component: OrderCartList,
+    key: "danh-sach-gio-hang-web-app",
+    isShow: true,
+    header: null,
+    permissions: [],
+    subMenu: [
+      {
+        path: `${UrlConfig.WEB_APP}-cart/:id`,
+        exact: true,
+        title: "Tất cả sản phẩm",
+        icon: "icon-dot",
+        component: OrderCartDetail,
+        key: "web-app-all-products",
+        isShow: true,
+        header: null,
+        subMenu: [],
+      },
+    ],
+  },
   {
     path: `${UrlConfig.WEB_APP}-orders-sync`,
     exact: true,

@@ -23,11 +23,15 @@ import {
 import {
   createLoyaltyRank,
   deleteLoyaltyRank,
+  getCodeUpdateRankingCustomerApi,
   getLoyaltyRankDetail,
   getLoyaltyRankList,
   updateLoyaltyRank,
 } from "service/loyalty/ranking/loyalty-ranking.service";
-import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
+import {
+  GetCodeUpdateRankingCustomerResponse,
+  LoyaltyRankResponse,
+} from "model/response/loyalty/ranking/loyalty-rank.response";
 import { LoyaltyCardReleaseResponse } from "model/response/loyalty/release/loyalty-card-release.response";
 import {
   loyaltyCardAssignmentApi,
@@ -234,6 +238,29 @@ function* deleteLoyaltyRankSaga(action: YodyAction) {
     }
   } catch (error) {
     showError("Có lỗi vui lòng thử lại sau");
+  }
+}
+
+function* getCodeUpdateRankingCustomerSaga(action: YodyAction) {
+  const { body, callback } = action.payload;
+  try {
+    const response: BaseResponse<GetCodeUpdateRankingCustomerResponse> = yield call(
+      getCodeUpdateRankingCustomerApi,
+      body,
+    );
+    switch (response.code) {
+      case HttpStatus.SUCCESS:
+        callback(response);
+        break;
+      case HttpStatus.UNAUTHORIZED:
+        yield put(unauthorizedAction());
+        break;
+      default:
+        response.errors.forEach((e) => showError(e));
+        break;
+    }
+  } catch (error) {
+    // showError("Có lỗi vui lòng thử lại sau");
   }
 }
 
@@ -680,6 +707,10 @@ export function* loyaltySaga() {
   yield takeLatest(LoyaltyRankType.GET_LOYALTY_RANK_DETAIL_REQUEST, getLoyaltyRankingDetail);
   yield takeLatest(LoyaltyRankType.UPDATE_LOYALTY_RANK_REQUEST, updateLoyaltyRanking);
   yield takeLatest(LoyaltyRankType.CREATE_LOYALTY_RANK_REQUEST, createLoyaltyRanking);
+  yield takeLatest(
+    LoyaltyRankType.GET_CODE_UPDATE_RANKING_CUSTOMER,
+    getCodeUpdateRankingCustomerSaga,
+  );
   yield takeLatest(LoyaltyRankType.DELELTE_LOYALTY_RANK_REQUEST, deleteLoyaltyRankSaga);
   yield takeLatest(
     LoyaltyCardReleaseType.SEARCH_LOYALTY_CARD_RELEASE_REQUEST,

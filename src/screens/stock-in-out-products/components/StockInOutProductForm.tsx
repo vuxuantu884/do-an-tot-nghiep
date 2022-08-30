@@ -30,7 +30,7 @@ import PickManyProductModal from "screens/purchase-order/modal/pick-many-product
 import emptyProduct from "assets/icon/empty_products.svg";
 import imgDefIcon from "assets/img/img-def.svg";
 import { Link } from "react-router-dom";
-import { formatCurrency, replaceFormatString } from "utils/AppUtils";
+import { formatCurrency, isNullOrUndefined, replaceFormatString } from "utils/AppUtils";
 import NumberInput from "component/custom/number-input.custom";
 import { AiOutlineClose } from "react-icons/ai";
 import {
@@ -258,7 +258,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
         stockInOutOtherItems,
         newItems,
         typePrice,
-        'SELECT'
+        "SELECT",
       );
       formMain.setFieldsValue({
         stock_in_out_other_items: newStockInOutOtherItems,
@@ -279,7 +279,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
       stockInOutOtherItems,
       newItems,
       typePrice,
-      'SELECT'
+      "SELECT",
     );
     // if (isSortSku) {
     //   newStockInOutOtherItems = handleSortLineItems(newStockInOutOtherItems);
@@ -376,7 +376,8 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
       formMain.getFieldValue(StockInOutField.stock_in_out_other_items) ?? [];
     const newProcurementItemsOther: StockInOutItemsOther[] = procurementItemsOther?.map(
       (item: StockInOutItemsOther) => {
-        const amount = item.quantity * item[value];
+        let amount: any = item.quantity * item[value];
+        if (isNullOrUndefined(item[value])) amount = null;
         return { ...item, policy_price: value, amount };
       },
     );
@@ -659,10 +660,11 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                     return (
                       <NumberInput
                         className="hide-number-handle"
-                        min={0}
-                        format={(a: string) => formatCurrency(a ? a : 0, ".")}
+                        format={(a: string) => {
+                          return a ? formatCurrency(a) : "";
+                        }}
                         replace={(a: string) => replaceFormatString(a)}
-                        value={value ?? 0}
+                        value={value}
                         disabled={true}
                       />
                     );
@@ -694,16 +696,18 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                   ),
                   align: "center",
                   width: "20%",
-                  render: (value) => (
-                    <div
-                      style={{
-                        width: "100%",
-                        textAlign: "right",
-                      }}
-                    >
-                      {formatCurrency(Math.round(value || 0), ".")}
-                    </div>
-                  ),
+                  render: (value) => {
+                    return (
+                      <div
+                        style={{
+                          width: "100%",
+                          textAlign: "right",
+                        }}
+                      >
+                        {isNullOrUndefined(value) ? "-" : formatCurrency(Math.round(value))}
+                      </div>
+                    );
+                  },
                 },
                 {
                   title: "",
@@ -751,9 +755,7 @@ const IEProductForm: React.FC<IEProductFormProps> = (props: IEProductFormProps) 
                         <b>Tổng tiền:</b>
                       </div>
                       <div className="ie-payment-row-result">
-                        {totalAmount === 0
-                          ? "-"
-                          : formatCurrency(Math.round(totalAmount || 0), ".")}
+                        {formatCurrency(Math.round(totalAmount || 0))}
                       </div>
                     </div>
                   </div>

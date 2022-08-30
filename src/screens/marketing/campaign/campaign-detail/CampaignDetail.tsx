@@ -334,8 +334,8 @@ const CampaignDetail = () => {
       <>
         <span style={{ marginRight: "20px" }}>THÔNG TIN CHIẾN DỊCH</span>
         {campaignStatus &&
-          <TagStatus type={campaignStatus.type}>
-            {campaignStatus?.name}
+          <TagStatus type={campaignStatus.tagStatus}>
+            {campaignStatus.name}
           </TagStatus>
         }
       </>

@@ -173,6 +173,14 @@ const webAppCreateShopify = (reqrequestBody: any): Promise<BaseResponse<any>> =>
 const webAppGetSourceList = (reqrequestBody: any): Promise<BaseResponse<any>> => {
   return BaseAxios.get(`${ApiConfig.WEB_APP}/shop_source/sources`);
 };
+const webAppGetAbandonCartList = (reqrequestBody: any): Promise<BaseResponse<any>> => {
+  const params = generateQuery(reqrequestBody);
+  return BaseAxios.get(`${ApiConfig.WEB_APP}/abandoned-carts?${params}`);
+};
+
+const getDetailAbandonCart = (id: any): Promise<BaseResponse<any>> => {
+  return BaseAxios.get(`${ApiConfig.WEB_APP}/abandoned-carts/${id}`);
+};
 
 export {
   webAppCreateConfigApi,
@@ -198,4 +206,6 @@ export {
   webAppGetInfoShopify,
   webAppCreateShopify,
   webAppGetSourceList,
+  webAppGetAbandonCartList,
+  getDetailAbandonCart,
 };

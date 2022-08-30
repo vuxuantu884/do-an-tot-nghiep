@@ -1,7 +1,7 @@
 import CustomTable, { ICustomTableColumType } from "component/table/CustomTable";
 import UrlConfig from "config/url.config";
 import { StockInOutItemsOther, StockInOutOther } from "model/stock-in-out-other";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 import { formatCurrency, generateQuery } from "utils/AppUtils";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -22,7 +22,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootReducerType } from "model/reducers/RootReducerType";
 import { StockInOutOthersPermission } from "config/permissions/stock-in-out.permission";
 import { StyledComponent } from "./style";
-import { OFFSET_HEADER_UNDER_NAVBAR } from "utils/Constants";
+import { OFFSET_HEADER_UNDER_NAVBAR, STATUS_IMPORT_EXPORT } from "utils/Constants";
 import { PageResponse } from "model/base/base-metadata.response";
 import ModalSettingColumn from "component/table/ModalSettingColumn";
 import { getQueryParams, useQuery } from "utils/useQuery";
@@ -38,18 +38,26 @@ import EditPopover from "screens/inventory-defects/ListInventoryDefect/component
 import { MenuAction } from "component/table/ActionButton";
 import useAuthorization from "hook/useAuthorization";
 import ModalDeleteConfirm from "component/modal/ModalDeleteConfirm";
-// import { isEmpty } from "lodash";
+import StockInOutExport from "../components/StockInOutExport";
+import { TYPE_EXPORT } from "../../products/constants";
+import * as XLSX from "xlsx";
+import moment from "moment";
+import { InventoryTransferDetailItem } from "../../../model/inventory/transfer";
 
 interface StockInOutOtherListProps {}
 
 const actionsDefault: Array<MenuAction> = [
   {
     id: 1,
+    name: "Xuất dữ liệu",
+  },
+  {
+    id: 2,
     name: "Hủy phiếu",
   },
 ];
 
-const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
+const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
   const [loading, setLoading] = useState(true);
   const [showSettingColumn, setShowSettingColumn] = useState(false);
   const [data, setData] = useState<PageResponse<StockInOutOther>>({
@@ -62,6 +70,11 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   });
   const [selectedRowData, setSelectedRowData] = useState<Array<any>>([]);
   const [confirmCancel, setConfirmCancel] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [vExportDetailStockInOut, setVExportDetailStockInOut] = useState<boolean>(false);
+  const [statusExport, setStatusExport] = useState<number>(0);
+  const [exportProgress, setExportProgress] = useState<number>(0);
+
   const currentPermissions: string[] = useSelector(
     (state: RootReducerType) => state.permissionReducer.permissions,
   );
@@ -133,7 +146,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         fixed: "left",
         width: "23%",
         visible: true,
-        render: (value, record, index) => {
+        render: (value, record) => {
           return (
             <>
               <div>
@@ -169,7 +182,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         dataIndex: "store",
         align: "center",
         width: "10%",
-        render: (value, record, index) => {
+        render: (value) => {
           return <>{value}</>;
         },
         visible: true,
@@ -187,7 +200,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         width: "9%",
         dataIndex: "stock_in_out_other_items",
         visible: true,
-        render: (value, record, index) => {
+        render: (value) => {
           let totalQuantity = 0;
           value.forEach((item: StockInOutItemsOther) => {
             totalQuantity += item.quantity;
@@ -201,7 +214,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
         width: "10%",
         dataIndex: "stock_in_out_other_items",
         visible: true,
-        render: (value: Array<StockInOutItemsOther>, record, index) => {
+        render: (value: Array<StockInOutItemsOther>) => {
           let totalAmount = 0;
           value.forEach((item: StockInOutItemsOther) => {
             totalAmount += item.amount;
@@ -331,6 +344,9 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
   const onMenuClick = useCallback((index: number) => {
     switch (index) {
       case 1:
+        setVExportDetailStockInOut(true);
+        break;
+      case 2:
         setConfirmCancel(true);
         break;
     }
@@ -342,10 +358,10 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
 
   const actions = useMemo(() => {
     return actionsDefault.filter((item) => {
-      if (item.id === 1) {
+      if (item.id === 2) {
         return canUpdateStockInOut;
       }
-      return false;
+      return true;
     });
   }, [canUpdateStockInOut]);
 
@@ -371,6 +387,183 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [dispatch, selectedRowData]);
+
+  const getItemsByCondition = useCallback(
+    async (type: string) => {
+      const queryString: any = generateQuery(paramsUrl);
+      let res: any;
+      let items: Array<StockInOutOther> = [];
+      const limit = 50;
+      let times = 0;
+
+      setStatusExport(STATUS_IMPORT_EXPORT.CREATE_JOB_SUCCESS);
+      switch (type) {
+        case TYPE_EXPORT.page:
+          res = await callApiNative(
+            { isShowError: true },
+            dispatch,
+            getStockInOutOtherList,
+            queryString,
+          );
+          if (res) {
+            items = items.concat(res.items);
+          }
+          setExportProgress(100);
+          break;
+        case TYPE_EXPORT.selected:
+          res = await callApiNative(
+            { isShowError: true },
+            dispatch,
+            getStockInOutOtherList,
+            queryString,
+          );
+          if (res) {
+            for (let index = 0; index < selectedRowData.length; index++) {
+              const transfer = res.items.find(
+                (e: InventoryTransferDetailItem) => e.code === selectedRowData[index].code,
+              );
+              if (transfer) {
+                items.push(transfer);
+              }
+            }
+            setExportProgress(100);
+          }
+          break;
+        case TYPE_EXPORT.all:
+          const roundAll = Math.round(data.metadata.total / limit);
+          times = roundAll < data.metadata.total / limit ? roundAll + 1 : roundAll;
+
+          for (let index = 1; index <= times; index++) {
+            res = await callApiNative(
+              { isShowError: true },
+              dispatch,
+              getStockInOutOtherList,
+              generateQuery({
+                ...{ ...getQueryParams(query) },
+                page: index,
+                limit,
+              }),
+            );
+            if (res) {
+              items = items.concat(res.items);
+            }
+            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+            setExportProgress(percent);
+          }
+
+          break;
+        case TYPE_EXPORT.allin:
+        case TYPE_EXPORT.all_out:
+          if (!data.metadata.total || data.metadata.total === 0) {
+            break;
+          }
+
+          let index = 1;
+          let itemsTemp = [1];
+
+          while (itemsTemp.length !== 0) {
+            res = await callApiNative(
+              { isShowError: true },
+              dispatch,
+              getStockInOutOtherList,
+              `page=${index}&limit=${limit}&type=${type === TYPE_EXPORT.allin ? StockInOutType.stock_in : StockInOutType.stock_out}`
+            );
+            if (res) {
+              items = items.concat(res.items);
+              itemsTemp = res.items;
+            }
+            const percent = Math.round(Number.parseFloat((index / times).toFixed(2)) * 100);
+            setExportProgress(percent);
+            index++;
+          }
+          break;
+        default:
+          break;
+      }
+      setExportProgress(100);
+      return items;
+    },
+    [paramsUrl, dispatch, data.metadata.total, selectedRowData, query],
+  );
+
+  const convertItemExport = (item: StockInOutOther) => {
+    let text = "";
+    switch (item.status) {
+      case StockInOutStatus.finalized:
+        text = `Đã ${StockInOutTypeMapping[item.type]}`;
+        break;
+      case StockInOutStatus.cancelled:
+        text = "Đã hủy";
+        break;
+    }
+    return item.stock_in_out_other_items.map((product: StockInOutItemsOther) => {
+      return {
+        [`Mã phiếu`]: item.code,
+        [`Kho hàng`]: item.store,
+        [`Đối tác`]: item.partner_name,
+        [`Mã sản phẩm`]: product.sku,
+        [`Số lượng`]: formatCurrency(product.quantity),
+        [`Giá`]: formatCurrency(product[item.policy_price]),
+        [`Thành tiền`]: formatCurrency(product[item.policy_price] * product.quantity),
+        [`Trạng thái`]: text,
+        [`Lý do`]: item.type === StockInOutType.stock_in
+          ? StockInReasonMappingField[item.stock_in_out_reason]
+          : StockOutReasonMappingField[item.stock_in_out_reason],
+        [`Người đề xuất`]: `${item.account_code} - ${item.account_name}`,
+        [`Người tạo`]: `${product.created_by} - ${product.created_name}`,
+        [`Ngày tạo`]: ConvertUtcToLocalDate(product.created_date, DATE_FORMAT.DDMMYY_HHmm),
+        [`Ghi chú`]: item.internal_note,
+      }
+    });
+  }
+
+  const actionExport = {
+    Ok: async (typeExport: string) => {
+      setStatusExport(STATUS_IMPORT_EXPORT.DEFAULT);
+      if (typeExport === TYPE_EXPORT.selected && selectedRowData && selectedRowData.length === 0) {
+        setStatusExport(0);
+        showWarning("Bạn chưa chọn phiếu chuyển nào để xuất file");
+        setVExportDetailStockInOut(false);
+        return;
+      }
+      setIsLoading(true)
+      const res = await getItemsByCondition(typeExport);
+      setIsLoading(false)
+      if (res && res.length === 0) {
+        setStatusExport(0);
+        showWarning("Không có phiếu chuyển nào đủ điều kiện");
+        return;
+      }
+
+      const workbook = XLSX.utils.book_new();
+      let dataExport: any = [];
+      for (let i = 0; i < res.length; i++) {
+        const e = res[i];
+        const items = convertItemExport(e);
+        dataExport = [
+          ...dataExport,
+          ...items
+        ]
+      }
+
+      let worksheet = XLSX.utils.json_to_sheet(dataExport);
+      XLSX.utils.book_append_sheet(workbook, worksheet, "data");
+      setStatusExport(STATUS_IMPORT_EXPORT.JOB_FINISH);
+      const today = moment(new Date(), "YYYY/MM/DD");
+      const month = today.format("M");
+      const day = today.format("D");
+      const year = today.format("YYYY");
+      XLSX.writeFile(workbook, `Nhap_xuat_khac_${day}_${month}_${year}.xlsx`);
+      setVExportDetailStockInOut(false);
+      setExportProgress(0);
+      setStatusExport(0);
+    },
+    Cancel: () => {
+      setVExportDetailStockInOut(false);
+      setExportProgress(0);
+      setStatusExport(0);
+    },
+  };
 
   return (
     <StyledComponent>
@@ -428,6 +621,16 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = (props) => {
           subTitle="Các tập tin, dữ liệu bên trong thư mục này cũng sẽ bị xoá."
           visible={confirmCancel}
         />
+        {vExportDetailStockInOut && (
+          <StockInOutExport
+            isLoading={isLoading}
+            onCancel={actionExport.Cancel}
+            onOk={actionExport.Ok}
+            visible={vExportDetailStockInOut}
+            exportProgress={exportProgress}
+            statusExport={statusExport}
+          />
+        )}
       </div>
     </StyledComponent>
   );

@@ -2,8 +2,14 @@ import BaseAction from "base/base.action";
 import { LoyaltyRankType } from "domain/types/loyalty.type";
 import { PageResponse } from "model/base/base-metadata.response";
 import { LoyaltyRankSearchRequest } from "model/request/loyalty/loyalty-rank-search.request";
-import { CreateLoyaltyRequest } from "model/request/loyalty/ranking/create-loyalty.request";
-import { LoyaltyRankResponse } from "model/response/loyalty/ranking/loyalty-rank.response";
+import {
+  CreateLoyaltyRequest,
+  GetCodeUpdateRankingCustomerRequest,
+} from "model/request/loyalty/ranking/create-loyalty.request";
+import {
+  GetCodeUpdateRankingCustomerResponse,
+  LoyaltyRankResponse,
+} from "model/response/loyalty/ranking/loyalty-rank.response";
 
 export const LoyaltyRankSearch = (
   query: LoyaltyRankSearchRequest,
@@ -47,6 +53,16 @@ export const UpdateLoyaltyRank = (
 export const DeleteLoyaltyRank = (id: number, callback: () => void) => {
   return BaseAction(LoyaltyRankType.DELELTE_LOYALTY_RANK_REQUEST, {
     id,
+    callback,
+  });
+};
+
+export const GetCodeUpdateRankingCustomerAction = (
+  body: GetCodeUpdateRankingCustomerRequest,
+  callback: (data: GetCodeUpdateRankingCustomerResponse) => void,
+) => {
+  return BaseAction(LoyaltyRankType.GET_CODE_UPDATE_RANKING_CUSTOMER, {
+    body,
     callback,
   });
 };

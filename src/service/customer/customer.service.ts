@@ -19,6 +19,7 @@ import {
   CustomerShippingAddress,
 } from "model/request/customer.request";
 import { ExportResponse } from "model/other/files/export-model";
+import { ProgressRankingCustomerRunning } from "model/response/loyalty/ranking/loyalty-rank.response";
 
 export const getCustomers = (
   query: CustomerSearchQuery,
@@ -225,6 +226,13 @@ export const importCustomerService = (queryParams: ImportCustomerQuery) => {
 
 //get progress import customer
 export const getProgressImportCustomerApi = (process_code: any): Promise<BaseResponse<any>> => {
+  const requestUrl = `${ApiConfig.CUSTOMER}/jobs/${process_code}`;
+  return BaseAxios.get(requestUrl);
+};
+
+export const getProgressUpdateRankingCustomerApi = (
+  process_code: string,
+): Promise<ProgressRankingCustomerRunning> => {
   const requestUrl = `${ApiConfig.CUSTOMER}/jobs/${process_code}`;
   return BaseAxios.get(requestUrl);
 };
