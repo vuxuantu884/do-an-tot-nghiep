@@ -51,7 +51,7 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    data.forEach((item: SupplierResponse, index: number) => {
+    data.forEach((item: SupplierResponse) => {
       options.push({
         label: <SupplierItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -108,7 +108,7 @@ const ManualForm: React.FC<ProcurementManualFormProps> = (props: ProcurementManu
                         </Form.Item>
                         <Row>
                           <div>
-                            <PhoneOutlined /> <Typography.Text strong>{phone}</Typography.Text>
+                            <PhoneOutlined /> <Typography.Text strong>{phone.indexOf("{") !== -1 ? `+${JSON.parse(phone).code}${JSON.parse(phone).phone}` : phone}</Typography.Text>
                           </div>
                         </Row>
                       </>
