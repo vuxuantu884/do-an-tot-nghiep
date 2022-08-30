@@ -1,14 +1,46 @@
-import { Button, Card, Checkbox, Tag } from "antd";
-import React from "react";
+import { Button, Card, Checkbox, Form, FormInstance, Select, Tag } from "antd";
+import CustomSelect from "component/custom/select.custom";
+import ModalConfirm from "component/modal/ModalConfirm";
+import { AccountStoreResponse } from "model/account/account.model";
+import { OrderResponse } from "model/response/order/order.response";
+import React, { useState } from "react";
+import { isOrderFromPOS } from "utils/AppUtils";
 import { StyledComponent } from "./styles";
 
-type PropType = {
+type PropTypes = {
   isDetailPage?: boolean;
   isReceivedReturnProducts: boolean;
-  handleReceivedReturnProducts: (value: boolean) => void;
+  handleReceivedReturnProductsToStore: () => void;
+  currentStores: AccountStoreResponse[] | undefined;
+  isShowReceiveProductConfirmModal: boolean;
+  setIsReceivedReturnProducts?: (value: boolean) => void;
+  setIsShowReceiveProductConfirmModal: (value: boolean) => void;
+  form: FormInstance<any>;
+  receivedStoreName?: string;
+  OrderDetail: OrderResponse | null;
 };
-function CardReturnReceiveProducts(props: PropType) {
-  const { isDetailPage, isReceivedReturnProducts, handleReceivedReturnProducts } = props;
+function CardReturnReceiveProducts(props: PropTypes) {
+  const {
+    isDetailPage,
+    isReceivedReturnProducts,
+    handleReceivedReturnProductsToStore,
+    currentStores,
+    isShowReceiveProductConfirmModal,
+    setIsReceivedReturnProducts,
+    setIsShowReceiveProductConfirmModal,
+    form,
+    receivedStoreName,
+    OrderDetail,
+  } = props;
+
+  let initStoreName =
+    currentStores?.length === 1
+      ? currentStores[0].store_id
+      : currentStores && currentStores?.length > 1 && OrderDetail?.store_id
+      ? currentStores?.find((single) => single.store_id === OrderDetail?.store_id)?.store || ""
+      : "";
+
+  const [storeName, setStoreName] = useState(initStoreName);
 
   const renderCardTitle = () => {
     return (
@@ -24,12 +56,12 @@ function CardReturnReceiveProducts(props: PropType) {
   };
   const renderCardExtra = () => {
     if (isDetailPage) {
-      if (!isReceivedReturnProducts) {
+      if (!isReceivedReturnProducts && isOrderFromPOS(OrderDetail)) {
         return (
           <div className="actionReturn">
             <Button
               onClick={(e) => {
-                handleReceivedReturnProducts(true);
+                handleReceivedReturnProductsToStore();
               }}
             >
               Nhận hàng
@@ -44,7 +76,8 @@ function CardReturnReceiveProducts(props: PropType) {
       <div className="checkIfReturned">
         <Checkbox
           onChange={(e) => {
-            handleReceivedReturnProducts(e.target.checked);
+            // handleReceivedReturnProductsToStore(e.target.checked);
+            setIsReceivedReturnProducts && setIsReceivedReturnProducts(e.target.checked);
           }}
           defaultChecked={isReceivedReturnProducts}
         >
@@ -56,13 +89,89 @@ function CardReturnReceiveProducts(props: PropType) {
   };
 
   const mainRender = () => {
-    if (isDetailPage) {
-      return <Card title={renderCardTitle()} extra={renderCardExtra()} />;
+    if (isDetailPage && !isReceivedReturnProducts) {
+      return (
+        <React.Fragment>
+          <Card
+            title={renderCardTitle()}
+            extra={renderCardExtra()}
+            className={`receiveProductCard ${isOrderFromPOS(OrderDetail) ? "noBodyCard" : ""}`}
+          >
+            {!isOrderFromPOS(OrderDetail) && (
+              <React.Fragment>
+                <div className="receiveProductCard__content">
+                  <Form.Item
+                    name="orderReturn_receive_return_store_id"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn kho cửa hàng!",
+                      },
+                    ]}
+                  >
+                    <CustomSelect
+                      showSearch
+                      allowClear
+                      placeholder="Chọn cửa hàng"
+                      notFoundContent="Không tìm kho cửa hàng"
+                      onChange={(value, option: any) => {
+                        if (option && option.children) {
+                          setStoreName(option.children);
+                        }
+                      }}
+                    >
+                      {(currentStores || []).map((item, index) => (
+                        <Select.Option key={index} value={item.store_id || 0}>
+                          {item.store}
+                        </Select.Option>
+                      ))}
+                    </CustomSelect>
+                  </Form.Item>
+                  <Button
+                    type="primary"
+                    onClick={() => {
+                      form.validateFields(["orderReturn_receive_return_store_id"]).then(() => {
+                        setIsShowReceiveProductConfirmModal(true);
+                      });
+                    }}
+                  >
+                    Nhận hàng trả về kho
+                  </Button>
+                </div>
+                <ModalConfirm
+                  visible={isShowReceiveProductConfirmModal}
+                  onOk={() => {
+                    setIsShowReceiveProductConfirmModal(false);
+                    handleReceivedReturnProductsToStore();
+                  }}
+                  onCancel={() => setIsShowReceiveProductConfirmModal(false)}
+                  title={`Bạn có chắc chắn nhận hàng về kho ${storeName}`}
+                  subTitle={
+                    <span>
+                      Tồn kho sẽ được cộng về kho {storeName}! Vui lòng cân nhắc trước khi đồng ý!
+                    </span>
+                  }
+                />
+              </React.Fragment>
+            )}
+          </Card>
+        </React.Fragment>
+      );
     }
     return (
       <Card
-        title={!isDetailPage ? "Nhận hàng" : "Đã nhận hàng trả lại"}
+        title={
+          !isDetailPage ? (
+            "Nhận hàng"
+          ) : (
+            <span>
+              Đã nhận hàng trả lại
+              {receivedStoreName && <span> - {receivedStoreName}</span>}
+            </span>
+          )
+        }
         extra={renderCardExtra()}
+        className="noBodyCard"
       />
     );
   };

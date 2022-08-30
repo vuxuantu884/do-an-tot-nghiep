@@ -9,4 +9,16 @@ export const StyledComponent = styled.div`
       padding: 0 25px;
     }
   }
+  .buttonReceiveGoodsWrapper {
+    &__content {
+      display: flex;
+    }
+    .custom-select {
+      margin-right: 20px;
+      width: 255px;
+    }
+  }
+  .warningWrapper {
+    font-weight: 500;
+  }
 `;

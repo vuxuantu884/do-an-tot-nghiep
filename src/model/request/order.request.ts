@@ -329,6 +329,7 @@ export interface UpdateFulFillmentStatusRequest {
   sub_cancel_reason_id?: number;
   reason?: string;
   other_reason?: string;
+  returned_store_id?: number;
 }
 
 export interface ShippingGHTKRequest {
