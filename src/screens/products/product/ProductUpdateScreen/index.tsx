@@ -404,22 +404,24 @@ const ProductDetailScreen: React.FC = () => {
 
   const onMaterialChange = useCallback(
     (id: number) => {
+      let careLabels = null;
       if (isChangeDescription && id) {
         dispatch(
           detailMaterialAction(id, (material) => {
             handleChangeMaterial(material, form);
             if (material && material.care_labels) {
               setCareLabelsString(material.care_labels);
+              careLabels = material.care_labels;
             } else {
               setCareLabelsString("");
+              careLabels = null;
             }
           }),
         );
-      } else {
-        form.setFieldsValue({
-          material: null,
-        });
       }
+      form.setFieldsValue({
+        material: careLabels,
+      });
     },
     [dispatch, form, isChangeDescription],
   );
@@ -816,7 +818,7 @@ const ProductDetailScreen: React.FC = () => {
   const onFinish = useCallback(
     async (values: ProductRequest) => {
       setLoadingButton(true);
-      let request: any = _.cloneDeep(values);
+      let request: ProductRequest = _.cloneDeep(values);
       request.variants?.forEach((e: VariantRequest) => {
         if (e.saleable) e.status = "active"; //CO-3415
         e.suppliers = null;
@@ -824,7 +826,7 @@ const ProductDetailScreen: React.FC = () => {
           e.suppliers = e.supplier_ids;
         }
       });
-
+      request.care_labels = careLabelsString;
       const res = await callApiNative(
         { isShowLoading: false },
         dispatch,
@@ -842,7 +844,7 @@ const ProductDetailScreen: React.FC = () => {
       }
       getDetail();
     },
-    [dispatch, idNumber, getDetail, history],
+    [careLabelsString, dispatch, idNumber, getDetail, history],
   );
 
   return (
