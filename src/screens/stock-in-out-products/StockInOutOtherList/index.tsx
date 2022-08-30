@@ -501,7 +501,7 @@ const StockInOutOtherList: React.FC<StockInOutOtherListProps> = () => {
         [`Mã phiếu`]: item.code,
         [`Kho hàng`]: item.store,
         [`Đối tác`]: item.partner_name,
-        [`Mã sản phẩm`]: product.barcode,
+        [`Mã sản phẩm`]: product.sku,
         [`Số lượng`]: formatCurrency(product.quantity),
         [`Giá`]: formatCurrency(product[item.policy_price]),
         [`Thành tiền`]: formatCurrency(product[item.policy_price] * product.quantity),

@@ -129,7 +129,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
 
   const renderResult = useMemo(() => {
     let options: any[] = [];
-    data.forEach((item: SupplierResponse, index: number) => {
+    data.forEach((item: SupplierResponse) => {
       options.push({
         label: <SupplierItem data={item} key={item.id.toString()} />,
         value: item.id.toString(),
@@ -253,7 +253,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                           </Form.Item>
                           <Row>
                             <div>
-                              <PhoneOutlined /> <Text strong>{phone}</Text>
+                              <PhoneOutlined /> <Text strong>{phone.indexOf("{") !== -1 ? `+${JSON.parse(phone).code}${JSON.parse(phone).phone}` : phone}</Text>
                             </div>
                           </Row>
                         </>
@@ -484,7 +484,7 @@ const ProcurementForm: React.FC<ProcurementFormProps> = (props: ProcurementFormP
                     </Row>
                     <Row justify={"center"}>
                       <h2 style={{ padding: "10px 30px" }}>
-                        Xử lý nhập hoàn tất: <strong style={{ color: "#2A2A86" }}></strong>{" "}
+                        Xử lý nhập hoàn tất: <strong style={{ color: "#2A2A86" }} />{" "}
                       </h2>
                       <h4>{errorMessage ?? ""}</h4>
                     </Row>
