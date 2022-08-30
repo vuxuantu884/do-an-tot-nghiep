@@ -97,16 +97,20 @@ export const PoSplitGoods = (props: IProps) => {
       const procurements = formMain?.getFieldsValue()?.procurements
         ? (formMain?.getFieldsValue()?.procurements as PurchaseProcument[])
         : purchaseOrder?.procurements;
-      const index = procurements.findIndex(
-        (procurement) =>
-          moment(procurement.expect_receipt_date).format(DATE_FORMAT.DDMMYYY) === dateOption,
-      );
+
+      const procurementsItems = procurements
+        .filter(
+          (procurement) =>
+            moment(procurement.expect_receipt_date).format(DATE_FORMAT.DDMMYYY) === dateOption,
+        )
+        .sort((pre, next) => next.procurement_items.length - pre.procurement_items.length);
+
       const dataStore = procurements.filter(
         (procurement) =>
           moment(procurement.expect_receipt_date).format(DATE_FORMAT.DDMMYYY) === dateOption,
       );
-      if (index >= 0) {
-        const dataSource: PurchaseProcumentLineItem[] = procurements[index].procurement_items.map(
+      if (procurementsItems.length >= 0) {
+        const dataSource: PurchaseProcumentLineItem[] = procurementsItems[0].procurement_items.map(
           (procurementItem) => {
             const procurementsFilter = groupBy(
               procurements,
