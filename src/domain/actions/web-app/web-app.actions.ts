@@ -217,3 +217,14 @@ export const exitWebAppJobsAction = (
 export const getSourceListAction = (setData: (data: Array<SourceResponse>) => void) => {
   return BaseAction(WebAppType.WEB_APP_GET_LIST_SOURCE_REQUEST, { setData });
 };
+
+export const getAbandonCartListAction = (query: any, setData: (data: any) => void) => {
+  return BaseAction(WebAppType.WEB_APP_GET_LIST_ABANDON_CART_REQUEST, {
+    query,
+    setData,
+  });
+};
+
+export const DetailAbandonCartAction = (id: string, setData: (data: any) => void) => {
+  return BaseAction(WebAppType.WEB_APP_GET_DETAIL_ABANDON_CART_REQUEST, { id, setData });
+};
