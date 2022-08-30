@@ -25,7 +25,7 @@ const getStoreDetail = (storeId: number): Promise<BaseResponse<StoreResponse>> =
   return BaseAxios.get(link);
 };
 
-const getListAllStoreSimple = (): Promise<BaseResponse<Array<StoreResponse>>> => {
+const getAllPublicSimpleStoreApi = (): Promise<BaseResponse<Array<StoreResponse>>> => {
   let link = `${ApiConfig.CORE}/stores/public?simple=true&limit=1000`;
   return BaseAxios.get(link);
 };
@@ -50,7 +50,7 @@ const getAllStore = (): Promise<BaseResponse<Array<StoreResponse>>> => {
 export {
   getListStore,
   getStoreDetail,
-  getListAllStoreSimple,
+  getAllPublicSimpleStoreApi,
   getListStoreSimple,
   getSearchListStore,
   getStoreSearchIdsApi,
