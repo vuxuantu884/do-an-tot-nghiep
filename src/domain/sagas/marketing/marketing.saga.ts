@@ -11,6 +11,8 @@ import {
   getMessageTemplateService,
   importFileService, updateCampaignService,
   getCampaignRefIdService,
+  updateContactMessageService,
+  resendContactMessageService,
 } from "service/marketing/marketing.service";
 import { callApiSaga } from "utils/ApiUtils";
 import { MarketingType } from "domain/types/marketing.type";
@@ -69,6 +71,18 @@ function* getCampaignContactSaga(action: YodyAction) {
   yield callApiSaga({ notifyAction: "SHOW_ALL" }, setData, getCampaignContactService, campaignId, queryParams);
 }
 
+/** update Contact Message */
+function* updateContactMessageSaga(action: YodyAction) {
+  const { queryParams, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, updateContactMessageService, queryParams);
+}
+
+/** resend Contact Message */
+function* resendContactMessageSaga(action: YodyAction) {
+  const { contactId, callback } = action.payload;
+  yield callApiSaga({ notifyAction: "SHOW_ALL" }, callback, resendContactMessageService, contactId);
+}
+
 /** create campaign */
 function* createCampaignSaga(action: YodyAction) {
   const { params, setData } = action.payload;
@@ -92,6 +106,8 @@ export default function* marketingSagas() {
   yield takeLatest(MarketingType.GET_IMPORT_FILE_TEMPLATE, getImportFileTemplateSaga);
   yield takeLatest(MarketingType.CAMPAIGN_IMPORT_FILE, importFileSaga);
   yield takeLatest(MarketingType.CAMPAIGN_CONTACT, getCampaignContactSaga);
+  yield takeLatest(MarketingType.UPDATE_CONTACT_MESSAGE, updateContactMessageSaga);
+  yield takeLatest(MarketingType.RESEND_CONTACT_MESSAGE, resendContactMessageSaga);
   yield takeLatest(MarketingType.CREATE_CAMPAIGN, createCampaignSaga);
   yield takeLatest(MarketingType.UPDATE_CAMPAIGN, updateCampaignSaga);
 }

@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
-import { Button, Card, Col, Form, Input, Row, Select, Space } from "antd";
+import { Button, Card, Col, Form, Input, Modal, Row, Select, Space, Tooltip } from "antd";
 import { SearchOutlined } from "@ant-design/icons";
 
 import UrlConfig from "config/url.config";
@@ -15,21 +15,26 @@ import {
   getCampaignContactListAction,
   getCampaignDetailAction,
   getCampaignRefIdAction,
+  resendContactMessageAction,
   updateCampaignAction,
+  updateContactMessageAction,
 } from "domain/actions/marketing/marketing.action";
 import { CampaignContactSearchQuery } from "model/marketing/marketing.model";
 import { PageResponse } from "model/base/base-metadata.response";
 import { CAMPAIGN_STATUS_LIST, MESSAGE_STATUS_LIST } from "screens/marketing/campaign/campaign-helper";
-import { CampaignDetailStyled, CampaignListFilterStyled } from "screens/marketing/campaign/campaign-styled";
+import {
+  CampaignDetailStyled,
+  CampaignListFilterStyled,
+  UpdateContactMessageStyled,
+} from "screens/marketing/campaign/campaign-styled";
 
 import circleCountBlue from "assets/icon/circle-count-blue.svg";
 import userYellowIcon from "assets/icon/user-yellow.svg";
 import failIcon from "assets/icon/fail-icon.svg";
 import circleCountSuccess from "assets/icon/circle-count-success.svg";
-// import editIcon from "assets/icon/edit.svg";
-// import eyeGrayIcon from "assets/icon/eye-gray.svg";
-// import reloadGrayIcon from "assets/icon/reload-gray.svg";
-import BottomBarContainer from "../../../../component/container/bottom-bar.container";
+import editIcon from "assets/icon/edit.svg";
+import reloadGrayIcon from "assets/icon/reload-gray.svg";
+import BottomBarContainer from "component/container/bottom-bar.container";
 import { RiEditLine } from "react-icons/ri";
 import TagStatus from "component/tag/tag-status";
 import useAuthorization from "hook/useAuthorization";
@@ -60,6 +65,10 @@ const CampaignDetail = () => {
 
   const [campaignDetail, setCampaignDetail] = useState<any>();
   const [campaignAnalysis, setCampaignAnalysis] = useState<any>();
+
+  const [isShowUpdateMessageModal, setIsShowUpdateMessageModal] = useState<boolean>(false);
+  const [contactMessage, setContactMessage] = useState<string>("");
+  const [contactItemUpdate, setContactItemUpdate] = useState<any>();
 
   /** campaign sms info list */
   const campaignSmsInfoList = useMemo(() => {
@@ -171,45 +180,104 @@ const CampaignDetail = () => {
     items: [],
   });
 
+  const updateCampaignCustomerListData = useCallback((responseData: PageResponse<any> | false) => {
+    setIsLoading(false);
+    if (responseData) {
+      setCampaignCustomerData(responseData);
+    }
+  }, []);
+
+  const getCampaignCustomerList = useCallback((query: any) => {
+    if (!allowViewContact) {
+      return;
+    } else {
+      const queryCustomer = {
+        ...queryContactSearch,
+        ...query,
+      };
+      setQueryContactSearch(queryCustomer);
+      setIsLoading(true);
+      dispatch(getCampaignContactListAction(Number(params?.id), queryCustomer, updateCampaignCustomerListData));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [allowViewContact, dispatch, params?.id, updateCampaignCustomerListData]);
+
+  const reloadPage = () => {
+    window.location.reload();
+  };
+
   /** column table */
-  // const CustomerRowAction = (item: any) => {
-  //   return (
-  //     <div>
-  //       <Button
-  //         type="link"
-  //         icon={
-  //           <Tooltip title={"Chi tiết"}>
-  //             <img src={eyeGrayIcon} alt="eyeGrayIcon" />
-  //           </Tooltip>
-  //         }
-  //         style={{ padding: 0, width: "30px", marginRight: "8px" }}
-  //         onClick={() => showWarning(`Hiển thị chi tiết ${item.customer_phone_number}`)}
-  //       />
-  //
-  //       <Button
-  //         type="link"
-  //         icon={
-  //           <Tooltip title={"Chỉnh sửa"}>
-  //             <img src={editIcon} alt="editIcon" style={{ width: "24px" }} />
-  //           </Tooltip>
-  //         }
-  //         style={{ padding: 0, width: "30px", marginRight: "8px" }}
-  //         onClick={() => showWarning("Hiển thị chỉnh sửa")}
-  //       />
-  //
-  //       <Button
-  //         type="link"
-  //         icon={
-  //           <Tooltip title={"Gửi lại"}>
-  //             <img src={reloadGrayIcon} alt="reloadGrayIcon" />
-  //           </Tooltip>
-  //         }
-  //         style={{ padding: 0, width: "30px" }}
-  //         onClick={() => showWarning("Hành động gủi lại")}
-  //       />
-  //     </div>
-  //   );
-  // };
+  const resendContactMessage = useCallback((item: any) => {
+    dispatch(resendContactMessageAction(item.id, (response) => {
+      if (response) {
+        getCampaignCustomerList({});
+        showSuccess("Gửi lại tin thành công.");
+      }
+    }));
+  }, [dispatch, getCampaignCustomerList]);
+
+  const handleUpdateContactMessage = (item: any) => {
+    setContactMessage(item.customer_message);
+    setContactItemUpdate(item);
+    setIsShowUpdateMessageModal(true);
+  };
+
+  const callbackUpdateContactMessage = (response: any) => {
+    if (response) {
+      setIsShowUpdateMessageModal(false);
+      showSuccess("Cập nhật nội dung tin nhắn thành công.");
+
+      // getCampaignCustomerList({});
+      setTimeout(() => {
+        reloadPage();
+      }, 100);
+    }
+  };
+
+  const onOkUpdateContactMessage = () => {
+    const queryParams = {
+      id: contactItemUpdate.id,
+      customer_message: contactMessage,
+    }
+    dispatch(updateContactMessageAction(queryParams, callbackUpdateContactMessage));
+  };
+  
+  const onCancelUpdateContactMessage = () => {
+    setIsShowUpdateMessageModal(false);
+    setContactMessage("");
+  };
+
+  const ContactRowAction = useCallback((item: any) => {
+    return (
+      <div>
+        {(item.customer_message_status === "PENDING" || item.customer_message_status === "FAILED") &&
+          <Button
+            type="link"
+            icon={
+              <Tooltip title={"Chỉnh sửa"}>
+                <img src={editIcon} alt="editIcon" style={{ width: "24px" }} />
+              </Tooltip>
+            }
+            style={{ padding: 0, width: "30px", marginRight: "20px" }}
+            onClick={() => handleUpdateContactMessage(item)}
+          />
+        }
+
+        {item.customer_message_status === "FAILED" &&
+          <Button
+            type="link"
+            icon={
+              <Tooltip title={"Gửi lại"}>
+                <img src={reloadGrayIcon} alt="reloadGrayIcon" />
+              </Tooltip>
+            }
+            style={{ padding: 0, width: "30px" }}
+            onClick={() => resendContactMessage(item)}
+          />
+        }
+      </div>
+    );
+  }, [resendContactMessage]);
 
   const columns: Array<ICustomTableColumType<any>> = useMemo(() => {
     return [
@@ -260,38 +328,16 @@ const CampaignDetail = () => {
           );
         },
       },
-      // {
-      //   title: "Thao tác",
-      //   align: "center",
-      //   width: "200px",
-      //   render: (item: any) => (
-      //     CustomerRowAction(item)
-      //   ),
-      // },
+      {
+        title: "Thao tác",
+        align: "center",
+        width: "150px",
+        render: (item: any) => (
+          ContactRowAction(item)
+        ),
+      },
     ];
-  }, [campaignCustomerData.metadata.limit, campaignCustomerData.metadata.page])
-
-  const updateCampaignCustomerListData = useCallback((responseData: PageResponse<any> | false) => {
-    setIsLoading(false);
-    if (responseData) {
-      setCampaignCustomerData(responseData);
-    }
-  }, []);
-
-  const getCampaignCustomerList = useCallback((query: any) => {
-    if (!allowViewContact) {
-      return;
-    } else {
-      const queryCustomer = {
-        ...queryContactSearch,
-        ...query,
-      };
-      setQueryContactSearch(queryCustomer);
-      setIsLoading(true);
-      dispatch(getCampaignContactListAction(Number(params?.id), queryCustomer, updateCampaignCustomerListData));
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [allowViewContact, dispatch, params?.id, updateCampaignCustomerListData]);
+  }, [ContactRowAction, campaignCustomerData.metadata.limit, campaignCustomerData.metadata.page]);
 
   const onPageChange = useCallback((page, limit) => {
       getCampaignCustomerList({ page, limit });
@@ -556,6 +602,28 @@ const CampaignDetail = () => {
           />
         </div>
       </ContentContainer>
+
+      <Modal
+        visible={isShowUpdateMessageModal}
+        title="Cập nhật nội dung tin nhắn"
+        onCancel={onCancelUpdateContactMessage}
+        onOk={onOkUpdateContactMessage}
+        okText="Lưu"
+        cancelText="Hủy"
+        width={600}
+        centered
+        maskClosable={false}
+      >
+        <UpdateContactMessageStyled>
+          <Input.TextArea
+            value={contactMessage}
+            placeholder="Nhập nội dung tin nhắn"
+            onChange={(e: any) => {
+              setContactMessage(e.target.value);
+            }}
+          />
+        </UpdateContactMessageStyled>
+      </Modal>
     </CampaignDetailStyled>
   );
 };

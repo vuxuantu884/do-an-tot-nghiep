@@ -250,3 +250,9 @@ export const CampaignDetailStyled = styled.div`
     }
   }
 `;
+
+export const UpdateContactMessageStyled = styled.div`
+  .ant-input {
+    height: 450px;
+  }
+`;
