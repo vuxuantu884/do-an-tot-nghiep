@@ -42,6 +42,7 @@ const ATTRIBUTE_TITLE = [
   "key_driver",
   "key_driver_title",
   "key_driver_description",
+  "unit",
   "key_driver_group_lv1",
   "key_driver_group_lv2",
   "key_driver_group_lv3",
