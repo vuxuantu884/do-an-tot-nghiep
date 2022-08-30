@@ -236,17 +236,17 @@ const PODetailScreen: React.FC = () => {
         const procurements_cancelled = result.procurements.filter(
           (item) => item.status === ProcumentStatus.CANCELLED,
         );
-        const procurements_normal = result.procurements
-          .filter((item) => item.status !== ProcumentStatus.CANCELLED)
-          .map((procurementItem) => {
-            const expect_receipt_date = ConvertDateToUtc(
-              moment(procurementItem.expect_receipt_date).format(DATE_FORMAT.MM_DD_YYYY),
-            );
-            return {
-              ...procurementItem,
-              expect_receipt_date,
-            };
-          });
+        const procurements_normal = handleSortProcurements(
+          result.procurements.filter((item) => item.status !== ProcumentStatus.CANCELLED),
+        ).map((procurementItem) => {
+          const expect_receipt_date = ConvertDateToUtc(
+            moment(procurementItem.expect_receipt_date).format(DATE_FORMAT.MM_DD_YYYY),
+          );
+          return {
+            ...procurementItem,
+            expect_receipt_date,
+          };
+        });
         const procurementsFilter = groupBy(
           procurements_normal,
           ProcurementLineItemField.expect_receipt_date,
@@ -276,16 +276,19 @@ const PODetailScreen: React.FC = () => {
           ];
         });
         const procurementSplit = procurementsAllEffect.reduce((acc, val) => acc.concat(val), []);
-        const procurements = handleSortProcurements(procurementSplit);
 
         formMain.setFieldsValue({
           ...result,
           ap_closing_date: closingDate,
-          procurements: [...procurements],
+          procurements: [...procurementSplit],
           procurements_cancelled: [...procurements_cancelled],
         });
-        handleSetProcurementTableContext(procurements, result.line_items, procurementsAllEffect);
-        setPurchaseOrder({ ...result, procurements: [...procurements] });
+        handleSetProcurementTableContext(
+          procurementSplit,
+          result.line_items,
+          procurementsAllEffect,
+        );
+        setPurchaseOrder({ ...result, procurements: [...procurementSplit] });
         setProcurementsAll(procurementsAllEffect);
         setStatus(result.status);
       }
