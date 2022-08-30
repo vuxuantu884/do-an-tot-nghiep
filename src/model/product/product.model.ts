@@ -515,3 +515,8 @@ export interface CareLabelItem {
 export interface VariantSku3Response {
   code: string;
 }
+
+export interface ProductStatusRequest {
+  product_ids: Array<number>;
+  status: string;
+}

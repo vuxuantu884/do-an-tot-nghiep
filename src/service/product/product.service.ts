@@ -1,4 +1,4 @@
-import { VariantSku3Response } from "./../../model/product/product.model";
+import { ProductStatusRequest, VariantSku3Response } from "./../../model/product/product.model";
 import BaseAxios from "base/base.axios";
 import BaseResponse from "base/base.response";
 import { ApiConfig } from "config/api.config";
@@ -178,4 +178,8 @@ export const searchVariantSku3Api = (
 
 export const importFileInTem = (params: ImportRequest): Promise<BaseResponse<any>> => {
   return BaseAxios.post(`${ApiConfig.PRODUCT}/variants/print/import/get-data`, params);
+};
+
+export const updateStatusProductApi = (request: ProductStatusRequest) => {
+  return BaseAxios.put(`${ApiConfig.PRODUCT}/products/update/status`, request);
 };
