@@ -29,13 +29,13 @@ import ProductWrapperFilter from "screens/products/product/filter/ProductWrapper
 import { convertCategory, formatCurrencyForProduct, generateQuery } from "utils/AppUtils";
 import { COLUMN_CONFIG_TYPE, OFFSET_HEADER_TABLE } from "utils/Constants";
 import { ConvertUtcToLocalDate } from "utils/DateUtils";
-import { showError, showInfo, showSuccess } from "utils/ToastUtils";
+import { showError, showInfo, showSuccess, showWarning } from "utils/ToastUtils";
 import ImageProduct from "../../component/image-product.component";
 import { StyledComponent } from "../style";
 import { getQueryParams, useQuery } from "utils/useQuery";
 import { CollectionCreateRequest } from "model/product/collection.model";
 import { callApiNative } from "utils/ApiUtils";
-import { productWrapperPutApi } from "service/product/product.service";
+import { productWrapperPutApi, updateStatusProductApi } from "service/product/product.service";
 import { searchProductWrapperApi } from "service/product/product.service";
 import useSetTableColumns from "hook/table/useSetTableColumns";
 import useHandleFilterColumns from "hook/table/useHandleTableColumns";
@@ -361,30 +361,17 @@ const TabProductWrapper: React.FC = () => {
 
   const onActive = useCallback(
     async (selected: any, type: string) => {
-      for (let index = 0; index < selected.length; index++) {
-        let element = {
-          ...selected[index],
-          status: type,
-        };
-
-        if (element.collections) {
-          element.collections = element.collections.map((e: CollectionCreateRequest) => e.code);
-        }
-
-        if (!element.id) {
-          return;
-        }
-        const res = await callApiNative(
-          { isShowLoading: true },
-          dispatch,
-          productWrapperPutApi,
-          element.id,
-          element,
-        );
-        if (res && res.code && res.code === HttpStatus.SUCCESS) {
-          showSuccess("Cập nhật dữ liệu thành công");
-          onAcitveSuccess();
-        }
+      if (!selected || selected.length === 0) {
+        showWarning("Bạn chưa chọn sản phẩm cha nào.");
+        return;
+      }
+      const res = await callApiNative({ isShowLoading: true }, dispatch, updateStatusProductApi, {
+        product_ids: selected.map((e: ProductResponse) => e.id),
+        status: type,
+      });
+      if (res === "SUCCESS") {
+        showSuccess("Cập nhật dữ liệu thành công");
+        onAcitveSuccess();
       }
     },
     [dispatch, onAcitveSuccess],
