@@ -382,6 +382,14 @@ const UpdateMaterial: React.FC = () => {
     }
   };
 
+  const validateAdvanetages = (rule: any, value: any, callback: any): void => {
+    if (!value || value === "<p><br></p>") {
+      callback(`Vui lòng nhập ưu điểm`);
+    } else {
+      callback();
+    }
+  };
+
   return (
     <ContentContainer
       isError={isError}
@@ -519,7 +527,19 @@ const UpdateMaterial: React.FC = () => {
                 </Row>
                 <Row gutter={50}>
                   <Col span={24} lg={24} md={24} sm={24}>
-                    <Form.Item name="advantages" label="Ưu điểm:">
+                    <Form.Item
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng nhập ưu điểm",
+                        },
+                        {
+                          validator: validateAdvanetages,
+                        },
+                      ]}
+                      name="advantages"
+                      label="Ưu điểm:"
+                    >
                       <CustomEditor />
                     </Form.Item>
                   </Col>
