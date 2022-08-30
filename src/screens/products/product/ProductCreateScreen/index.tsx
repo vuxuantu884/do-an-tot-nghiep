@@ -130,7 +130,7 @@ const initialRequest: ProductRequestView = {
     },
   ],
   material_id: null,
-  supplier_id: null,
+  suppliers: [],
   material: null,
   component: null,
   advantages: null,
@@ -1066,11 +1066,12 @@ const ProductCreateScreen: React.FC = () => {
                     </Item>
                   </Col>
                   <Col span={24} md={12} sm={24}>
-                    <Item name="supplier_id" label="Nhà cung cấp">
+                    <Item name="suppliers" label="Nhà cung cấp">
                       <BaseSelectPaging
                         loading={supplierLoading}
                         metadata={suppliers.metadata}
                         data={suppliers.items}
+                        mode="multiple"
                         renderItem={(item) => (
                           <Option key={item.id} value={item.id}>
                             {item.name}

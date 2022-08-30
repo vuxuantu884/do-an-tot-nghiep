@@ -585,7 +585,8 @@ export const Products = {
         variant_prices: [...vp],
         variant_images: item.variant_images,
         inventory: 0,
-        supplier_id: pr.supplier_id,
+        supplier_ids: pr.suppliers,
+        suppliers: pr.suppliers,
       });
     });
 
@@ -607,7 +608,7 @@ export const Products = {
       tags: pr.tags,
       variants: variants,
       unit: pr.unit,
-      supplier_id: pr.supplier_id,
+      suppliers: pr.suppliers,
       material_id: pr.material_id,
       material: pr.material,
       collections: pr.product_collections,
@@ -643,7 +644,7 @@ export const Products = {
     let variantUpdateView: VariantUpdateView = {
       id: variant.id,
       product_id: variant.product_id,
-      supplier_id: variant.supplier_id,
+      supplier_ids: variant.supplier_ids,
       status: variant.status,
       name: variant.name,
       color_id: variant.color_id,
@@ -686,7 +687,7 @@ export const Products = {
       id: variant.id,
       composite: variant.composite,
       product_id: variant.product_id,
-      supplier_id: variant.supplier_id,
+      supplier_ids: variant.supplier_ids,
       status: variant.status,
       name: variant.name,
       color_id: variant.color_id,

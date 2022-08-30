@@ -80,6 +80,7 @@ import TreeCategory from "../component/TreeCategory";
 import SupplierSearchSelect from "component/custom/select-search/supplier-select";
 import { callApiNative } from "utils/ApiUtils";
 import { productUpdateApi } from "service/product/product.service";
+import { SupplierResponse } from "model/core/supplier.model";
 
 const { Item } = Form;
 let tempActive: number = 0;
@@ -339,6 +340,12 @@ const ProductDetailScreen: React.FC = () => {
       if (product.collections) {
         product.collections = product.collections.map((e: CollectionCreateRequest) => e.code);
       }
+      product.variants?.forEach((e: VariantRequest) => {
+        e.suppliers = null;
+        if (e.supplier_ids && e.supplier_ids.length > 0) {
+          e.suppliers = e.supplier_ids;
+        }
+      });
 
       setLoadingVariant(true);
       callApiNative({ isShowLoading: false }, dispatch, productUpdateApi, idNumber, product).then(
@@ -698,6 +705,13 @@ const ProductDetailScreen: React.FC = () => {
         result.product_collections = result.collections?.map((e) => {
           return e.code;
         });
+        result.variants.forEach((e: VariantResponse) => {
+          if (e.suppliers && e.suppliers.length > 0) {
+            e.supplier_ids = e.suppliers.map((p) => p.id);
+          } else {
+            e.supplier_ids = [];
+          }
+        });
         setData(result);
         setCareLabelsString(result.care_labels);
         setStatus(result.status);
@@ -801,6 +815,10 @@ const ProductDetailScreen: React.FC = () => {
       let request: any = _.cloneDeep(values);
       request.variants?.forEach((e: VariantRequest) => {
         if (e.saleable) e.status = "active"; //CO-3415
+        e.suppliers = null;
+        if (e.supplier_ids && e.supplier_ids.length > 0) {
+          e.suppliers = e.supplier_ids;
+        }
       });
 
       const res = await callApiNative(
@@ -1367,8 +1385,8 @@ const ProductDetailScreen: React.FC = () => {
                                       </Item>
                                     </Col>
                                     <Col span={24} md={12}>
-                                      <Item name={[name, "supplier_id"]} label="Nhà cung cấp">
-                                        <SupplierSearchSelect />
+                                      <Item name={[name, "supplier_ids"]} label="Nhà cung cấp">
+                                        <SupplierSearchSelect mode="multiple" />
                                       </Item>
                                     </Col>
                                   </Row>

@@ -1,3 +1,4 @@
+import { SupplierResponse } from "model/core/supplier.model";
 import { BaseQuery } from "model/base/base.query";
 import { BaseObject } from "model/base/base.response";
 import { CollectionResponse } from "./collection.model";
@@ -135,7 +136,7 @@ export interface VariantResponse extends BaseObject {
   inventory: number;
   available: number | null;
   category: string;
-  supplier_id: number;
+  supplier_ids: Array<number>;
   supplier: string;
   color_id: number;
   color: string;
@@ -176,6 +177,7 @@ export interface VariantResponse extends BaseObject {
   shipping?: number;
   reference_barcodes?: string | null;
   type?: number;
+  suppliers?: Array<SupplierResponse> | null;
 }
 
 export interface VariantView extends BaseObject {
@@ -285,7 +287,8 @@ export interface VariantRequest {
   length: number | null;
   length_unit: string | null;
   weight: number | null;
-  supplier_id: number | null;
+  supplier_ids: Array<number> | null;
+  suppliers: Array<number> | null;
   weight_unit: string | null;
   variant_prices: Array<VariantPriceRequest>;
   variant_images: Array<VariantImage>;
@@ -310,7 +313,7 @@ export interface VariantUpdateRequest {
   taxable: boolean | null;
   status: string;
   deleted: boolean;
-  supplier_id: number | null;
+  supplier_ids: Array<number> | null;
   width: number | null;
   weight: number | null;
   weight_unit: string | null;
@@ -337,7 +340,7 @@ export interface ProductRequest {
   variants: Array<VariantRequest>;
   unit: string | null;
   material_id: number | null;
-  supplier_id: number | null;
+  suppliers: Array<number> | null;
   material: string | null;
   collections: Array<string>;
   product_collections?: Array<string>;
@@ -401,7 +404,7 @@ export interface ProductRequestView {
   variant_prices: Array<VariantPriceViewRequest>;
   saleable: boolean;
   material_id: number | null;
-  supplier_id: number | null;
+  suppliers: Array<number> | null;
   material: string | null;
   collections: Array<CollectionResponse>;
   product_collections: Array<string>;
@@ -449,7 +452,7 @@ export interface VariantUpdateView {
   variant_image: Array<VariantImage> | null;
   product: ProductUpdateView;
   product_id: number | null;
-  supplier_id: number | null;
+  supplier_ids: Array<number> | null;
 }
 
 export interface ProductHistoryResponse extends BaseObject {
