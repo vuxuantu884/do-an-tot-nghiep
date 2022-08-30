@@ -17,7 +17,12 @@ import {
   BarcodePrintTemEditNoteRequest,
 } from "model/product/product.model";
 import { ProductUploadModel } from "model/product/product-upload.model";
-import { ExportRequest, ExportResponse, JobResponse } from "model/other/files/export-model";
+import {
+  ExportRequest,
+  ExportResponse,
+  ImportRequest,
+  JobResponse,
+} from "model/other/files/export-model";
 
 export const searchVariantsSimpleApi = (
   query: VariantSearchQuery,
@@ -169,4 +174,8 @@ export const searchVariantSku3Api = (
 ): Promise<BaseResponse<PageResponse<VariantSku3Response>>> => {
   const queryString = generateQuery(query);
   return BaseAxios.get(`${ApiConfig.PRODUCT}/products/search/three-code?${queryString}`);
+};
+
+export const importFileInTem = (params: ImportRequest): Promise<BaseResponse<any>> => {
+  return BaseAxios.post(`${ApiConfig.PRODUCT}/variants/print/import/get-data`, params);
 };

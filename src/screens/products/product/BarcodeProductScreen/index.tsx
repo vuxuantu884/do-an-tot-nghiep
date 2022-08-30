@@ -1,4 +1,4 @@
-import { Button, Card, Image, Input, Tooltip } from "antd";
+import { Button, Card, Col, Image, Input, Row, Tooltip, Typography } from "antd";
 import BottomBarContainer from "component/container/bottom-bar.container";
 import ContentContainer from "component/container/content.container";
 import CustomAutoComplete from "component/custom/autocomplete.cusom";
@@ -24,16 +24,39 @@ import { formatCurrency, formatCurrencyForProduct, Products } from "utils/AppUti
 import variantdefault from "assets/icon/variantdefault.jpg";
 import { AppConfig } from "config/app.config";
 import NumberInput from "component/custom/number-input.custom";
-import { showSuccess } from "utils/ToastUtils";
-import { CloseOutlined, InfoCircleOutlined } from "@ant-design/icons";
+import { showError, showSuccess } from "utils/ToastUtils";
+import { CloseOutlined, InfoCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import { useHistory } from "react-router-dom";
 import { useLocation } from "react-router";
 import ModalPickManyProduct from "../component/ModalPickManyProduct";
 import { cloneDeep } from "lodash";
-
+import POProgressModal, { DataProcess } from "screens/purchase-order/POProgressModal";
+import Upload, { UploadChangeParam } from "antd/lib/upload";
+import { UploadFile } from "antd/lib/upload/interface";
+import { ConAcceptImport } from "utils/Constants";
+import { EnumUploadStatus } from "config/enum.config";
+import { callApiNative } from "utils/ApiUtils";
+import { uploadFileApi } from "service/core/import.service";
+import { importFileInTem } from "service/product/product.service";
+import { HttpStatus } from "config/http-status.config";
+import AuthWrapper from "component/authorization/AuthWrapper";
+import { ProductPermission } from "config/permissions/product.permission";
+import excelIcon from "assets/icon/icon-excel.svg";
 export interface VariantBarcodeLineItem extends VariantResponse {
   quantity_req: number | null;
+  image_url?: string;
 }
+
+const urlTemplate =
+  "https://yody-prd-media.s3.ap-southeast-1.amazonaws.com/yody-file/stock_67f18ffe-23a3-4a67-b8f7-9a09bc6d0e36_original.xlsx";
+
+const initialProgressData = {
+  processed: 0,
+  success: 0,
+  total: 0,
+  errors: 0,
+  message_errors: [],
+};
 
 const BarcodeProductScreen: React.FC = () => {
   const dispatch = useDispatch();
@@ -41,9 +64,13 @@ const BarcodeProductScreen: React.FC = () => {
   const history = useHistory();
   const state: any = location.state;
   const [data, setData] = useState<Array<VariantResponse>>([]);
-  const [loadingButton, setLoadingButton] = useState<boolean>(false);
-  const [visibleProduct, setVisibleProduct] = useState<boolean>(false);
+  const [loadingButton, setLoadingButton] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [visibleProduct, setVisibleProduct] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const [fileList, setFileList] = useState<UploadFile<any>[]>([]);
   const [dataSelected, setDataSelected] = useState<Array<VariantBarcodeLineItem>>([]);
+  const [progressData, setProgressData] = useState<DataProcess>(initialProgressData);
   const renderResult = useMemo(() => {
     let options: any[] = [];
     data.forEach((item: VariantResponse, index: number) => {
@@ -112,13 +139,15 @@ const BarcodeProductScreen: React.FC = () => {
   }, [dataSelected, dispatch, onResult]);
   const onSelectProduct = useCallback(
     (value: string) => {
-      let index = data.findIndex((item) => item.id.toString() === value);
+      const index = data.findIndex((item) => item.id.toString() === value);
       if (index !== -1) {
-        let indexItem = dataSelected.findIndex((item) => item.id === data[index].id);
+        const indexItem = dataSelected.findIndex((item) => item.id === data[index].id);
         if (indexItem === -1) {
           dataSelected.unshift({ ...data[index], quantity_req: 1 });
-          setDataSelected([...dataSelected]);
+        } else {
+          dataSelected[indexItem].quantity_req = (dataSelected[indexItem]?.quantity_req || 0) + 1;
         }
+        setDataSelected([...dataSelected]);
       }
       setData([]);
     },
@@ -143,6 +172,88 @@ const BarcodeProductScreen: React.FC = () => {
     }
   }, [state]);
 
+  const uploadProps = {
+    beforeUpload: () => false,
+    onChange: (obj: UploadChangeParam<UploadFile<any>>) => {
+      setFileList([]);
+      const typeExcel = obj.file.type === ConAcceptImport;
+      if (!typeExcel) {
+        showError("Chỉ chọn file excel");
+        return;
+      }
+      setFileList([obj.file]);
+      if (obj.file && obj.file.status === EnumUploadStatus.removed) {
+        setFileList([]);
+      }
+    },
+    customRequest: () => false,
+  };
+
+  const disabledImport = useMemo(() => {
+    return fileList && fileList.length > 0 ? false : true;
+  }, [fileList]);
+
+  const ActionImport = {
+    Ok: useCallback(async () => {
+      showSuccess("Đã gửi yêu cầu nhập file");
+      const res = await callApiNative(
+        { isShowLoading: false },
+        dispatch,
+        uploadFileApi,
+        fileList as any,
+        "",
+      );
+      setImporting(true);
+      if (res && res.length > 0) {
+        try {
+          setLoading(true);
+          const resInTem = await importFileInTem({ url: res[0] });
+          if (resInTem.code === HttpStatus.SUCCESS) {
+            const data = resInTem.data;
+            setProgressData({
+              processed: data?.total_process || 0,
+              success: data?.total_success || 0,
+              total: data?.total_process || 0,
+              errors: data?.total_error || data?.errors?.length || 0,
+              message_errors: data.errors ? data.errors : [],
+            });
+            setDataSelected(
+              data.data
+                ? data.data.map((item: any) => {
+                    return {
+                      ...item,
+                      quantity_req: item?.quantity || 0,
+                    };
+                  })
+                : [],
+            );
+            setFileList([]);
+            setLoading(false);
+          }
+        } catch {
+          // setStatusImport(STATUS_IMPORT_EXPORT.ERROR);
+          showError("Có lỗi xảy ra, vui lòng thử lại sau");
+          setLoading(false);
+        }
+      } else {
+        showError("Import không thành công");
+      }
+    }, [
+      dispatch,
+      fileList,
+      //  importType,
+      //  listImportFile
+    ]),
+    Cancel: useCallback(() => {
+      setImporting(false);
+      setProgressData(initialProgressData);
+    }, []),
+  };
+
+  const onResetFile = () => {
+    setDataSelected([]);
+  };
+
   return (
     <ContentContainer
       title="In mã vạch"
@@ -162,6 +273,29 @@ const BarcodeProductScreen: React.FC = () => {
     >
       <StyledComponent>
         <Card>
+          <AuthWrapper acceptPermissions={[ProductPermission.print_temp]}>
+            <Card title="Thông tin import">
+              <Upload
+                onRemove={onResetFile}
+                maxCount={1}
+                {...uploadProps}
+                accept={ConAcceptImport}
+                fileList={fileList}
+              >
+                <Button icon={<UploadOutlined />}>Chọn file in tem</Button>
+              </Upload>
+              <Typography.Text style={{ marginTop: 20, display: "block" }}>
+                <img src={excelIcon} alt="" /> <a href={urlTemplate}>Link file excel mẫu (.xlsx)</a>
+              </Typography.Text>
+              <Row style={{ marginTop: 20 }}>
+                <Col span={24} style={{ display: "flex", flexDirection: "row-reverse" }}>
+                  <Button type="primary" onClick={ActionImport.Ok} disabled={disabledImport}>
+                    Nhập file
+                  </Button>
+                </Col>
+              </Row>
+            </Card>
+          </AuthWrapper>
           <div>
             <Input.Group className="display-flex">
               <CustomAutoComplete
@@ -199,8 +333,8 @@ const BarcodeProductScreen: React.FC = () => {
                 {
                   title: "Ảnh",
                   dataIndex: "variant_images",
-                  render: (data) => {
-                    let img = Products.findAvatar(data);
+                  render: (data, row) => {
+                    let img = data ? Products.findAvatar(data) : row?.image_url || "";
                     return (
                       <Image
                         className="avatar"
@@ -305,6 +439,13 @@ const BarcodeProductScreen: React.FC = () => {
           setDataSelected(dataSelect1);
           setVisibleProduct(false);
         }}
+      />
+      <POProgressModal
+        dataProcess={progressData}
+        visible={importing}
+        onCancel={ActionImport.Cancel}
+        onOk={ActionImport.Cancel}
+        loading={loading}
       />
     </ContentContainer>
   );
