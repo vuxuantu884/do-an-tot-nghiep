@@ -7,6 +7,7 @@ import {
   OrderResponse,
 } from "model/response/order/order.response";
 import React, { useCallback } from "react";
+import useGetStoreDetail from "screens/order-online/hooks/useGetStoreDetail";
 import { formatCurrency, isOrderFromPOS } from "utils/AppUtils";
 import { ShipmentMethod, SHIPPING_TYPE } from "utils/Constants";
 import { ConvertUtcToLocalDate, DATE_FORMAT } from "utils/DateUtils";
@@ -32,6 +33,8 @@ function OrderFulfillmentDetail(props: PropTypes) {
   const { orderDetail, fulfillment, deliveryServices, requirementNameView, orderPageType } = props;
 
   const isOrderUpdatePage = checkIfOrderPageType.isOrderUpdatePage(orderPageType);
+
+  const returnStoreDetail = useGetStoreDetail(orderDetail?.returned_store_id);
 
   // console.log("fulfillment", fulfillment);
 
@@ -219,6 +222,10 @@ function OrderFulfillmentDetail(props: PropTypes) {
       {
         title: "Yêu cầu",
         value: requirementNameView ? requirementNameView : null,
+      },
+      {
+        title: "Hàng hoàn về kho",
+        value: returnStoreDetail?.name,
       },
     ];
     return renderHtml(detailArrNotAtStore);

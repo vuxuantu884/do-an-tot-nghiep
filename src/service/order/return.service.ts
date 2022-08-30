@@ -23,8 +23,14 @@ export const createOrderReturnService = (params: OrderRequest): Promise<BaseResp
   return BaseAxios.post(`${ApiConfig.ORDER}/orders/returns`, params);
 };
 
-export const setIsReceivedProductOrderReturnService = (id: number): Promise<BaseResponse<any>> => {
-  return BaseAxios.put(`${ApiConfig.ORDER}/orders/returns/${id}/received`);
+export const setIsReceivedProductOrderReturnService = (
+  orderId: number,
+  returned_store_id: number,
+): Promise<BaseResponse<any>> => {
+  const params = {
+    returned_store_id,
+  };
+  return BaseAxios.put(`${ApiConfig.ORDER}/orders/returns/${orderId}/received`, params);
 };
 
 export const getOrderReasonService = (

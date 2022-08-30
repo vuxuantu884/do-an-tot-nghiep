@@ -122,7 +122,7 @@ import {
   RETURN_MONEY_TYPE,
   RETURN_TYPE_VALUES,
 } from "utils/Order.constants";
-import { findPaymentMethodByCode } from "utils/OrderUtils";
+import { findPaymentMethodByCode, getDefaultReceiveReturnStoreIdFormValue } from "utils/OrderUtils";
 import { showError } from "utils/ToastUtils";
 import { useQuery } from "utils/useQuery";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -275,6 +275,12 @@ const ScreenReturnCreate = (props: PropTypes) => {
     OrderDetail,
   );
 
+  const currentStores = useSelector(
+    (state: RootReducerType) => state.userReducer.account?.account_stores,
+  );
+
+  const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
+
   const recentAccountCode = useMemo(() => {
     return {
       accountCode: userReducer.account?.code,
@@ -340,13 +346,14 @@ const ScreenReturnCreate = (props: PropTypes) => {
       coordinator_code: OrderDetail?.coordinator_code,
       note: OrderDetail?.note,
       customer_note: OrderDetail?.customer_note,
+      orderReturn_receive_return_store_id: getDefaultReceiveReturnStoreIdFormValue(
+        currentStores,
+        OrderDetail,
+      ),
     };
   }, [
-    OrderDetail?.assignee_code,
-    OrderDetail?.coordinator_code,
-    OrderDetail?.customer_note,
-    OrderDetail?.marketer_code,
-    OrderDetail?.note,
+    OrderDetail,
+    currentStores,
     initialForm,
     isExchange,
     recentAccountCode.accountCode,
@@ -1867,7 +1874,13 @@ const ScreenReturnCreate = (props: PropTypes) => {
                   <CardReturnReceiveProducts
                     isDetailPage={false}
                     isReceivedReturnProducts={isReceivedReturnProducts}
-                    handleReceivedReturnProducts={setIsReceivedReturnProducts}
+                    setIsReceivedReturnProducts={setIsReceivedReturnProducts}
+                    handleReceivedReturnProductsToStore={() => {}}
+                    currentStores={currentStores}
+                    isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
+                    setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
+                    form={form}
+                    OrderDetail={OrderDetail}
                   />
                 )}
               </Col>

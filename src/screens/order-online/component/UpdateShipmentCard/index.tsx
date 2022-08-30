@@ -1,4 +1,4 @@
-import { Card, Collapse, Form, Row, Space, Tag } from "antd";
+import { Card, Collapse, Form, FormInstance, Row, Space, Tag } from "antd";
 import calendarOutlined from "assets/icon/calendar_outline.svg";
 import doubleArrow from "assets/icon/double_arrow.svg";
 import AlertIcon from "assets/icon/ydAlertIcon.svg";
@@ -13,6 +13,7 @@ import {
   UpdateShipmentAction,
 } from "domain/actions/order/order.action";
 import useAuthorization from "hook/useAuthorization";
+import { AccountStoreResponse } from "model/account/account.model";
 import { StoreResponse } from "model/core/store.model";
 import { OrderPageTypeModel } from "model/order/order.model";
 import { thirdPLModel } from "model/order/shipment.model";
@@ -97,7 +98,11 @@ type PropTypes = {
   subReasons?: OrderReturnReasonDetailModel[] | null;
   isEcommerceOrder?: boolean;
   ref: React.MutableRefObject<any>;
+  form: FormInstance<any>;
   orderPageType: OrderPageTypeModel;
+  currentStores?: AccountStoreResponse[];
+  isShowReceiveProductConfirmModal: boolean;
+  setIsShowReceiveProductConfirmModal: (value: boolean) => void;
 };
 
 const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
@@ -118,6 +123,10 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     totalPaid = 0,
     customerNeedToPayValue = 0,
     orderPageType,
+    form,
+    currentStores,
+    isShowReceiveProductConfirmModal,
+    setIsShowReceiveProductConfirmModal,
   } = props;
 
   console.log("customerNeedToPayValue", customerNeedToPayValue);
@@ -125,8 +134,6 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
 
   const dateFormat = DATE_FORMAT.DDMMYYY;
   const history = useHistory();
-  // node dom
-  const [form] = Form.useForm();
   // action
   const dispatch = useDispatch();
 
@@ -323,7 +330,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
     setIsVisibleGoodsReturn(false);
     setIsVisibleShippedConfirm(false);
   };
-  const onReturnSuccess = (value: OrderResponse) => {
+  const onReturnSuccess = (value: OrderResponse, fulfillmentIdGoodReturn: number | null) => {
     setCancelShipment(false);
     showSuccess(`Bạn đã nhận hàng trả lại của đơn giao hàng ${fulfillmentIdGoodReturn}`);
     setIsVisibleGoodsReturn(false);
@@ -671,25 +678,25 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
   );
 
   // return goods
-  const onOKGoodsReturn = () => {
+  const onOKGoodsReturn = (fulfillmentIdGoodReturn: number | null) => {
     setIsVisibleGoodsReturn(false);
-    let value: UpdateFulFillmentStatusRequest = {
-      order_id: null,
-      fulfillment_id: null,
-      status: "",
+    let params: UpdateFulFillmentStatusRequest = {
+      order_id: props.OrderDetail?.id,
+      fulfillment_id: fulfillmentIdGoodReturn,
+      status: FulFillmentStatus.RETURNED,
+      returned_store_id: form.getFieldValue("ffm_receive_return_store_id"),
     };
-    value.order_id = props.OrderDetail?.id;
-    value.fulfillment_id = fulfillmentIdGoodReturn;
-    value.status = FulFillmentStatus.RETURNED;
-    dispatch(UpdateFulFillmentStatusAction(value, onReturnSuccess));
+    dispatch(
+      UpdateFulFillmentStatusAction(params, (values) =>
+        onReturnSuccess(values, fulfillmentIdGoodReturn),
+      ),
+    );
   };
-  const goodsReturnCallback = useCallback(
-    (id: number | null) => {
-      setFulfillmentIdGoodReturn(id);
-      setIsVisibleGoodsReturn(true);
-    },
-    [setFulfillmentIdGoodReturn, setIsVisibleGoodsReturn],
-  );
+
+  const goodsReturnCallback = (id: number | null) => {
+    setFulfillmentIdGoodReturn(id);
+    onOKGoodsReturn(id);
+  };
   // end
 
   const onPrint = () => {
@@ -829,6 +836,10 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
                       <OrderFulfillmentReceiveGoods
                         fulfillment={fulfillment}
                         goodsReturnCallback={goodsReturnCallback}
+                        form={form}
+                        isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
+                        setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
+                        currentStores={currentStores}
                       />
                     </Panel>
                   </Collapse>
@@ -955,7 +966,7 @@ const UpdateShipmentCard = forwardRef((props: PropTypes, ref) => {
       {/* Nhận hàng trả lại */}
       <GetGoodsBack
         onCancel={() => setIsVisibleGoodsReturn(false)}
-        onOk={onOKGoodsReturn}
+        onOk={() => onOKGoodsReturn(fulfillmentIdGoodReturn)}
         visible={isVisibleGoodsReturn}
         icon={AlertIcon}
         okText="Nhận hàng trả lại"

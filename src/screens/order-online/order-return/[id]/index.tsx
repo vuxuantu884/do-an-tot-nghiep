@@ -30,6 +30,7 @@ import { PaymentMethodResponse } from "model/response/order/paymentmethod.respon
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useHistory, useParams } from "react-router-dom";
+import useGetStoreDetail from "screens/order-online/hooks/useGetStoreDetail";
 import {
   deleteOrderReturnService,
   getOrderReturnService,
@@ -39,7 +40,7 @@ import {
 import { handleFetchApiError, isFetchApiSuccessful, isOrderFromPOS } from "utils/AppUtils";
 import { FulFillmentStatus, PaymentMethodCode, POS } from "utils/Constants";
 import { ORDER_PAYMENT_STATUS } from "utils/Order.constants";
-import { findPaymentMethodByCode } from "utils/OrderUtils";
+import { findPaymentMethodByCode, getDefaultReceiveReturnStoreIdFormValue } from "utils/OrderUtils";
 import { showErrorReport } from "utils/ReportUtils";
 import { showSuccess } from "utils/ToastUtils";
 import UpdateCustomerCard from "../../component/update-customer-card";
@@ -89,6 +90,10 @@ const ScreenReturnDetail = (props: PropTypes) => {
     (state: RootReducerType) => state.userReducer.account?.account_stores,
   );
 
+  const [isShowReceiveProductConfirmModal, setIsShowReceiveProductConfirmModal] = useState(false);
+
+  const receivedStoreDetail = useGetStoreDetail(OrderDetail?.returned_store_id);
+
   const [allowDeleteOrderReturn] = useAuthorization({
     acceptPermissions: [ODERS_PERMISSIONS.DELETE_RETURN_ORDER],
     not: false,
@@ -113,7 +118,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
     });
   };
 
-  const handleReceivedReturnProducts = useCallback(() => {
+  const handleReceivedReturnProductsToStore = useCallback(() => {
     if (!OrderDetail?.id || !currentStores) {
       return;
     }
@@ -131,8 +136,13 @@ const ScreenReturnDetail = (props: PropTypes) => {
       return;
     }
 
+    const returned_store_id: number = isOrderFromPOS(OrderDetail)
+      ? OrderDetail.store_id
+      : form.getFieldValue("orderReturn_receive_return_store_id");
+    console.log("returned_store_id ", returned_store_id);
+
     dispatch(
-      actionSetIsReceivedOrderReturn(OrderDetail.id, () => {
+      actionSetIsReceivedOrderReturn(OrderDetail.id, returned_store_id, () => {
         dispatch(
           actionGetOrderReturnDetails(OrderDetail.id, (data: OrderReturnModel) => {
             if (!data) {
@@ -157,14 +167,7 @@ const ScreenReturnDetail = (props: PropTypes) => {
         );
       }),
     );
-  }, [
-    OrderDetail?.id,
-    OrderDetail?.store_id,
-    allowReceiveReturn,
-    countChangeSubStatus,
-    currentStores,
-    dispatch,
-  ]);
+  }, [OrderDetail, allowReceiveReturn, countChangeSubStatus, currentStores, dispatch, form]);
 
   const handleDeleteOrderReturn = useCallback(() => {
     if (!OrderDetail) {
@@ -227,8 +230,12 @@ const ScreenReturnDetail = (props: PropTypes) => {
           returnMoneyAmount: 0,
         },
       ],
+      orderReturn_receive_return_store_id: getDefaultReceiveReturnStoreIdFormValue(
+        currentStores,
+        OrderDetail,
+      ),
     };
-  }, []);
+  }, [OrderDetail, currentStores]);
 
   const handleReturnMoney = () => {
     form.validateFields().then(() => {
@@ -610,7 +617,13 @@ const ScreenReturnDetail = (props: PropTypes) => {
                 <CardReturnReceiveProducts
                   isDetailPage
                   isReceivedReturnProducts={isReceivedReturnProducts}
-                  handleReceivedReturnProducts={handleReceivedReturnProducts}
+                  handleReceivedReturnProductsToStore={handleReceivedReturnProductsToStore}
+                  currentStores={currentStores}
+                  isShowReceiveProductConfirmModal={isShowReceiveProductConfirmModal}
+                  setIsShowReceiveProductConfirmModal={setIsShowReceiveProductConfirmModal}
+                  form={form}
+                  OrderDetail={OrderDetail}
+                  receivedStoreName={receivedStoreDetail?.name}
                 />
               </Form>
             </Col>

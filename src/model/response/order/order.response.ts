@@ -102,6 +102,7 @@ export interface OrderResponse extends BaseObject {
   sub_reason_id?: number;
   bill: OrderBillResponseModel | null;
   goods_receipts?: GoodsReceiptsResponse[] | null;
+  returned_store_id?: number;
 }
 
 export interface OrderLineItemResponse {
