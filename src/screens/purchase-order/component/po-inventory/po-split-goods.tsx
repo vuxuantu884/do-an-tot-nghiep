@@ -242,13 +242,13 @@ export const PoSplitGoods = (props: IProps) => {
         width: width,
         render: (value, row) => {
           const planned_quantity = row.procurement_items
-            ? row.procurement_items[indexStore]?.planned_quantity
+            ? row.procurement_items[indexStore]?.planned_quantity || 0
             : 0;
           const accepted_quantity = row.procurement_items
-            ? row.procurement_items[indexStore]?.accepted_quantity
+            ? row.procurement_items[indexStore]?.accepted_quantity || 0
             : 0;
           const real_quantity = row.procurement_items
-            ? row.procurement_items[indexStore]?.real_quantity
+            ? row.procurement_items[indexStore]?.real_quantity || 0
             : 0;
           return (
             <>
