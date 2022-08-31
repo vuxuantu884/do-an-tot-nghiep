@@ -27,7 +27,6 @@ function useFetchKeyDriverTargetDay() {
         if (data.key === keyDriver) {
           data[`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
         } else {
-          data[`${asmName}_${targetTime}`] = undefined;
           if (data.children?.length) {
             data.children.forEach((item: any) => {
               findKeyDriverAndUpdateValue(item, keyDriversTarget, asmName, targetTime);
