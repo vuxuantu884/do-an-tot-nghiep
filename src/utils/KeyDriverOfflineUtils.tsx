@@ -90,10 +90,7 @@ export const calculateKDAverageCustomerSpent = (keyDriverData: any, department: 
   offlineTotalSales = offlineTotalSales[0];
   customersCount = customersCount[0];
   averageCustomerSpent = averageCustomerSpent[0];
-  if (
-    !averageCustomerSpent[`${department}_day`] &&
-    averageCustomerSpent[`${department}_day`] !== 0
-  ) {
+  if (!averageCustomerSpent[`${department}_day`]) {
     averageCustomerSpent[`${department}_day`] = customersCount[`${department}_day`]
       ? offlineTotalSales[`${department}_day`] / customersCount[`${department}_day`] || ""
       : "";
@@ -122,14 +119,14 @@ export const calculateKDConvertionRate = (keyDriverData: any, department: string
   convertionRate = convertionRate[0];
   customersCount = customersCount[0];
   visitors = visitors[0];
-  if (!convertionRate[`${department}_day`] && convertionRate[`${department}_day`] !== 0) {
+  if (!convertionRate[`${department}_day`]) {
     convertionRate[`${department}_day`] = visitors[`${department}_day`]
-      ? +((customersCount[`${department}_day`] / visitors[`${department}_day`]) * 100).toFixed(2)
+      ? +(+(customersCount[`${department}_day`] / visitors[`${department}_day`]) * 100).toFixed(2)
       : "";
   }
   convertionRate[`${department}_targetMonth`] = visitors[`${department}_targetMonth`]
     ? +(
-        (customersCount[`${department}_targetMonth`] / visitors[`${department}_targetMonth`]) *
+        (+customersCount[`${department}_targetMonth`] / visitors[`${department}_targetMonth`]) *
         100
       ).toFixed(2)
     : "";
@@ -180,7 +177,7 @@ export const calculateKDAverageOrderValue = (
     averageOrderValueDayTarget =
       offlineTotalSales[`${department}_day`] / (sumTarget / (dayInMonth - dayNumber));
   }
-  if (!averageOrderValue[`${department}_day`] && averageOrderValue[`${department}_day`] !== 0) {
+  if (!averageOrderValue[`${department}_day`]) {
     averageOrderValue[`${department}_day`] =
       averageOrderValueDayTarget >= 0
         ? averageOrderValueDayTarget
@@ -236,10 +233,7 @@ export const calculateKDNewCustomerRateTargetDay = (
   } else {
     newCustomerTargetDay = Math.round(sumTarget) / (dayInMonth - dayNumber);
   }
-  if (
-    !newCustomersConversionRate[`${department}_day`] &&
-    newCustomersConversionRate[`${department}_day`] !== 0
-  ) {
+  if (!newCustomersConversionRate[`${department}_day`]) {
     if (newCustomerTargetDay >= 0 && potentialCustomerCount[`${department}_day`]) {
       const rate: number = +(
         (newCustomerTargetDay / potentialCustomerCount[`${department}_day`]) *
@@ -326,7 +320,7 @@ const calculateDepartmentDayTarget = (keyDriver: any, department: string, select
         keyDriver["key"],
       )
     ) {
-      if (!keyDriver[`${department}_day`] && keyDriver[`${department}_day`] !== 0) {
+      if (!keyDriver[`${department}_day`]) {
         keyDriver[`${department}_day`] =
           keyDriver[`${department}_month`] - (keyDriver[`${department}_accumulatedMonth`] || 0) > 0
             ? Math.round(

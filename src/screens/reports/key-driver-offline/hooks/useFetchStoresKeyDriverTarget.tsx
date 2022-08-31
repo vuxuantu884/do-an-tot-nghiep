@@ -26,6 +26,9 @@ function useFetchStoresKeyDriverTarget(dimension: KeyDriverDimension = KeyDriver
       Object.keys(keyDriversTarget).forEach((keyDriver) => {
         if (data.key === keyDriver) {
           data[`${asmName}_${targetTime}`] = keyDriversTarget[keyDriver].value;
+          if (!data[`${asmName}_month`]) {
+            data[`${asmName}_day`] = "";
+          }
         } else {
           if (data.children?.length) {
             data.children.forEach((item: any) => {
